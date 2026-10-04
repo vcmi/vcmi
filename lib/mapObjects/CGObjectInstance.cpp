@@ -265,7 +265,7 @@ int CGObjectInstance::getSightRadius() const
 int3 CGObjectInstance::getVisitableOffset() const
 {
 	if (!isVisitable())
-		logGlobal->debug("Attempt to access visitable offset on a non-visitable object!");
+		logGlobal->debug("Attempt to access visitable offset on non-visitable object %s (id %d) at %s!", getObjectNameTextID(), id.getNum(), pos.toString());
 	return appearance->getVisitableOffset();
 }
 
@@ -376,9 +376,7 @@ void CGObjectInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHero
 
 int3 CGObjectInstance::visitablePos() const
 {
-	if (!isVisitable())
-		logGlobal->debug("Attempt to access visitable position on a non-visitable object!");
-
+	// getVisitableOffset reports a non-visitable object
 	return pos - getVisitableOffset();
 }
 

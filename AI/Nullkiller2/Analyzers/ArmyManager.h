@@ -119,6 +119,9 @@ public:
 		const CGObjectInstance * upgrader,
 		const TResources & availableResources) const override;
 
+	/// True if the army takes every creature type of the source, leaving the source empty
+	static bool takesWholeSource(const CCreatureSet * source, const std::vector<SlotInfo> & army);
+
 private:
 	std::vector<SlotInfo> convertToSlots(const CCreatureSet * army) const;
 	std::vector<StackUpgradeInfo> getPossibleUpgrades(const CCreatureSet * army, const CGObjectInstance * upgrader) const;

@@ -976,7 +976,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		return complainRet("Can not move garrisoned hero!");
 
 	if(h->movementPointsRemaining() < cost && dst != h->pos && movementMode == EMovementMode::STANDARD)
-		return complainRet("Hero doesn't have any movement points left!");
+		return complainRet(boost::str(boost::format("Hero doesn't have enough movement points to move from %s to %s: has %d, needs %d!") % h->pos.toString() % dst.toString() % h->movementPointsRemaining() % cost));
 
 	if (transit && !canFly && !(canWalkOnSea && t.isWater()) && !CGTeleport::isTeleport(objectToVisit))
 		return complainRet("Hero cannot transit over this tile!");
@@ -2163,6 +2163,14 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 		return false;
 	}
 
+	const auto takingTroopsComplaint = [&]()
+	{
+		return boost::str(boost::format("Player %s can't take troops from another player! Armies: %s (id %d, owner %s, slot %d) and %s (id %d, owner %s, slot %d)")
+			% player.toString()
+			% s1->getObjectNameTextID() % s1->id.getNum() % s1->tempOwner.toString() % p1.getNum()
+			% s2->getObjectNameTextID() % s2->id.getNum() % s2->tempOwner.toString() % p2.getNum());
+	};
+
 	const CCreatureSet & S1 = *s1;
 	const CCreatureSet & S2 = *s2;
 	StackLocation sl1(s1->id, p1);
@@ -2194,7 +2202,7 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 		if (((s1->tempOwner != player && s1->tempOwner != PlayerColor::UNFLAGGABLE) && s1->getStackCount(p1))
 		  || ((s2->tempOwner != player && s2->tempOwner != PlayerColor::UNFLAGGABLE) && s2->getStackCount(p2)))
 		{
-			complain("Can't take troops from another player!");
+			complain(takingTroopsComplaint());
 			return false;
 		}
 
@@ -2219,7 +2227,7 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 	else if (what==2)//merge
 	{
 		if ((s1->getCreature(p1) != s2->getCreature(p2) && complain("Cannot merge different creatures stacks!"))
-		|| (((s1->tempOwner != player && s1->tempOwner != PlayerColor::UNFLAGGABLE) && s2->getStackCount(p2)) && complain("Can't take troops from another player!")))
+		|| (((s1->tempOwner != player && s1->tempOwner != PlayerColor::UNFLAGGABLE) && s2->getStackCount(p2)) && complain(takingTroopsComplaint())))
 			return false;
 
 		if (s1->slotEmpty(p1) || s2->slotEmpty(p2))

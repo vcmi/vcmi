@@ -992,7 +992,8 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 		? 0.0f : cachedAttack.score;
 	if(castToPerform.value > baselineScore && !vstd::isAlmostEqual(castToPerform.value, baselineScore))
 	{
-		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->getNameTranslated() % castToPerform.value);
+		// debug rather than trace, so that a cast the server refuses can be matched to the spell in reported logs
+		logAi->debug("%s will cast %s (value %f)", hero->getNameTextID(), castToPerform.spell->getJsonKey(), castToPerform.value);
 		BattleAction spellcast;
 		spellcast.actionType = EActionType::HERO_SPELL;
 		spellcast.spell = castToPerform.spell->id;

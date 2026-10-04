@@ -77,6 +77,8 @@ public:
 	std::unique_ptr<AsyncRunner> asyncTasks;
 
 	ObjectInstanceID selectedObject;
+	/// result of the last adventure spell cast request, set before a waiting caller is released
+	std::atomic<bool> lastAdventureCastSucceeded = true;
 
 	std::unique_ptr<Nullkiller> nullkiller;
 

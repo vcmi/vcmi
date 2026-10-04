@@ -391,6 +391,9 @@ void AIGateway::requestRealized(PackageApplied * pa)
 		}
 	}
 
+	if(pa->packType == CTypeList::getInstance().getTypeID<CastAdvSpell>(nullptr))
+		lastAdventureCastSucceeded = pa->result;
+
 	if(pa->packType == CTypeList::getInstance().getTypeID<QuestionAnswer>(nullptr))
 	{
 		status.receivedAnswerConfirmation(pa->requestID, pa->result);
@@ -1075,11 +1078,18 @@ std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 
 bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 {
+	// a reply sent earlier, e.g. to a level-up, may open another question on the server,
+	// which would reject the movement
+	waitTillFree();
+
 	if(!heroPtr.isVerified())
 		throw cannotFulfillGoalException("Hero was lost!");
 
 	if(heroPtr->isGarrisoned() && heroPtr->getVisitedTown())
 	{
+		if(cc->getHeroCount(playerID, false) >= cc->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP))
+			throw cannotFulfillGoalException("Hero can not leave garrison, wandering heroes limit is reached!");
+
 		cc->swapGarrisonHero(heroPtr->getVisitedTown());
 		moveCreaturesToHero(heroPtr->getVisitedTown());
 	}

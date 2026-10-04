@@ -535,9 +535,26 @@ void CGCreature::battleFinished(IGameEventCallback & gameEvents, const CGHeroIns
 	}
 	else
 	{
+		const CCreature * cre = getCreature();
+
+		// creatures of other types, e.g. demons raised by pit lords, would break the single-type army
+		std::vector<SlotID> foreignSlots;
+		for(const auto & [slot, stack] : stacks)
+			if(stack->getCreature() != cre && !cre->isMyDirectUpgrade(stack->getCreature()))
+				foreignSlots.push_back(slot);
+
+		if(foreignSlots.size() == stacks.size())
+		{
+			// none of the original creatures survived
+			gameEvents.removeObject(this, result.attacker);
+			return;
+		}
+
+		for(const auto & slot : foreignSlots)
+			gameEvents.eraseStack(StackLocation(id, slot), true);
+
 		//merge stacks into one
 		TSlots::const_iterator i;
-		const CCreature * cre = getCreature();
 		for(i = stacks.begin(); i != stacks.end(); i++)
 		{
 			if(cre->isMyDirectUpgrade(i->second->getCreature()))

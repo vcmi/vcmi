@@ -365,7 +365,9 @@ BuildingInfo BuildAnalyzer::getBuildingOrPrerequisite(
 
 	if(!town->hasBuilt(building))
 	{
-		auto canBuild = cc->canBuildStructure(town, building);
+		// buildings that appear on their own or by special means are reported as allowed, but the server refuses to build them
+		const bool builtByOtherMeans = buildPtr->mode == CBuilding::BUILD_AUTO || buildPtr->mode == CBuilding::BUILD_SPECIAL;
+		auto canBuild = builtByOtherMeans ? EBuildingState::FORBIDDEN : cc->canBuildStructure(town, building);
 
 		if(canBuild == EBuildingState::ALLOWED)
 		{

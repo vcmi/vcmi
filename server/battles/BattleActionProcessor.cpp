@@ -131,7 +131,7 @@ bool BattleActionProcessor::doHeroSpellAction(const CBattleInfoCallback & battle
 
 	if(!m->canBeCast(problem))//todo: should we check aimed cast?
 	{
-		logGlobal->warn("Spell cannot be cast!");
+		logGlobal->warn("Spell %s cannot be cast by %s (mana %d)!", s->getJsonKey(), h->getNameTextID(), h->mana);
 		std::vector<std::string> texts;
 		problem.getAll(texts);
 		for(const auto & text : texts)
@@ -840,7 +840,8 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 
 	if((stackAtEnd && stackAtEnd!=currentUnit && stackAtEnd->alive()) || !accessibility.accessible(dest, currentUnit))
 	{
-		gameHandler->complain("Given destination is not accessible!");
+		gameHandler->complain(boost::str(boost::format("Given destination is not accessible! %s can not move from %d to %d%s")
+			% currentUnit->getDescription() % start.toInt() % dest.toInt() % (stackAtEnd ? ", occupied by " + stackAtEnd->getDescription() : "")));
 		return moveEnded({ 0, false, true });
 	}
 
@@ -863,7 +864,8 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 
 	if (pathDistance > unitMovementRange)
 	{
-		gameHandler->complain("Given destination is not reachable!");
+		gameHandler->complain(boost::str(boost::format("Given destination is not reachable! %s can not move from %d to %d: distance %d, movement range %d")
+			% currentUnit->getDescription() % start.toInt() % dest.toInt() % pathDistance % unitMovementRange));
 		return moveEnded({ 0, false, true });
 	}
 

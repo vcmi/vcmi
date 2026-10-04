@@ -182,6 +182,14 @@ public:
 	}
 };
 
+bool ArmyManager::takesWholeSource(const CCreatureSet * source, const std::vector<SlotInfo> & army)
+{
+	return std::ranges::all_of(source->Slots(), [&army](const auto & slot)
+	{
+		return std::ranges::any_of(army, [&slot](const SlotInfo & info) { return info.creature == slot.second->getCreature(); });
+	});
+}
+
 std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const
 {
 	auto sortedSlots = getSortedSlots(target, source);
@@ -261,9 +269,10 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 		armyValue = newValue;
 	}
 
+	// not a count of allowed factions: the loop above may stop after allowing a faction it then left out
 	if(resultingArmy.size() <= GameConstants::ARMY_SIZE
-		&& allowedFactions.size() == alignmentMap.size()
-		&& source->needsLastStack())
+		&& source->needsLastStack()
+		&& takesWholeSource(source, resultingArmy))
 	{
 		auto weakest = getBestUnitForScout(resultingArmy, armyTerrain);
 		if(weakest->count == 1)

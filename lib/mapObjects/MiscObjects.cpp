@@ -35,6 +35,8 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
 #include "../gameState/UpgradeInfo.h"
+#include "../modding/CModHandler.h"
+#include "ObjectTemplate.h"
 
 #include <vstd/RNG.h>
 
@@ -377,8 +379,29 @@ std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const IGameInfoCallba
 	return exits;
 }
 
+void CGTeleport::warnIfNotVisitable() const
+{
+	if(!appearance || isVisitable())
+		return;
+
+	std::string modName = "unknown";
+	try
+	{
+		modName = LIBRARY->modh->findResourceOrigin(appearance->animationFile.addPrefix("SPRITES/"));
+	}
+	catch(const std::runtime_error &)
+	{
+		// the sprite may be missing entirely, which is reported when the map is loaded
+	}
+
+	logGlobal->warn("%s at %s uses template '%s' from mod '%s' that has no visitable tile, heroes can neither enter nor leave it!",
+		getObjectNameTextID(), anchorPos().toString(), appearance->animationFile.getOriginalName(), modName);
+}
+
 void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj)
 {
+	obj->warnIfNotVisitable();
+
 	std::shared_ptr<TeleportChannel> tc;
 	if(channelsList.find(obj->channel) == channelsList.end())
 	{

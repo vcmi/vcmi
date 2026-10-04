@@ -50,6 +50,10 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 
 	if(town && townPortalEffect)
 	{
+		// a hero chain may lead to the town through an earlier node, and the hero would count as its occupant
+		if(hero->getVisitedTown() == town)
+			throw goalFulfilledException(sptr(*this));
+
 		aiGw->selectedObject = town->id;
 
 		if(town->getVisitingHero() && town->tempOwner == aiGw->playerID && !town->getUpperArmy()->stacksCount())
@@ -64,16 +68,25 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 	if (hero->isGarrisoned())
 		aiGw->cc->swapGarrisonHero(hero->getVisitedTown());
 
-	if(aiGw->cc->isInTheMap(tile))
+	spells::detail::ProblemImpl problem;
+	const auto & mechanics = spell->getAdventureMechanics();
+	if(aiGw->cc->isInTheMap(tile) ? !mechanics.canBeCastAt(problem, aiGw->cc.get(), hero, tile) : !mechanics.canBeCast(problem, aiGw->cc.get(), hero))
 	{
-		spells::detail::ProblemImpl problem;
-		if(!spell->getAdventureMechanics().canBeCastAt(problem, aiGw->cc.get(), hero, tile))
-			throw cannotFulfillGoalException("Can not cast " + spell->getNameTranslated() + " at " + tile.toString());
+		std::vector<std::string> reasons;
+		problem.getAll(reasons);
+		throw cannotFulfillGoalException("Can not cast " + spell->getNameTranslated() + " at " + tile.toString() + ": " + boost::algorithm::join(reasons, "; "));
 	}
 
 	const auto wait = aiGw->cc->waitTillRealize;
 	aiGw->cc->waitTillRealize = true;
 	aiGw->cc->castSpell(hero, spellID, tile);
+	aiGw->cc->waitTillRealize = wait;
+
+	// the server may refuse a cast that looked possible here; reporting it as done would make
+	// the planner pick the same cast again and again
+	if(!aiGw->lastAdventureCastSucceeded)
+		throw cannotFulfillGoalException("Server refused to cast " + spell->getNameTranslated() + " at " + tile.toString());
+
 	aiGw->waitTillFree(); // Adventure spells may trigger visits and level-up dialogs.
 
 	if(town && townPortalEffect)
@@ -82,7 +95,6 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(hero, aiGw->cc.get()));
 	}
 
-	aiGw->cc->waitTillRealize = wait;
 	throw goalFulfilledException(sptr(*this));
 }
 

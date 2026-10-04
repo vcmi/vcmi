@@ -21,6 +21,7 @@
 #include "lib/mapObjects/CGDwelling.h"
 #include "lib/mapObjects/CGResource.h"
 #include "lib/mapObjects/CGCreature.h"
+#include "lib/networkPacks/StackLocation.h"
 #include "lib/mapObjects/CGPandoraBox.h"
 #include "lib/mapObjects/Quest.h"
 #include "lib/mapObjects/CGTownInstance.h"
@@ -1376,6 +1377,45 @@ TEST_F(MapObjectVisitTest, visitByAMonsterThatAlwaysFightsSuspendsDirectlyUnderT
 	ASSERT_NE(top, nullptr);
 	EXPECT_EQ(top->getType(), ActivityType::Battle);
 	EXPECT_EQ(gameHandler.getVisitingHero(monster), hero);
+}
+
+TEST_F(MapObjectVisitTest, monsterThatWonDropsCreaturesOfOtherTypes)
+{
+	const PlayerColor player(0);
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(player)
+		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.monster(int3(6, 5, 0), CreatureID(0), 100, static_cast<int8_t>(CGCreature::Character::SAVAGE));
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	auto * monster = findFirst<CGCreature>();
+	ASSERT_NE(hero, nullptr);
+	ASSERT_NE(monster, nullptr);
+
+	GameHandlerTestServer server(gameState(), player);
+	CGameHandler gameHandler(server, gameState());
+
+	// e.g. demons raised by pit lords stay in the army that won; they took the slot the monster lost
+	const auto monsterID = monster->id;
+	gameHandler.eraseStack(StackLocation(monsterID, SlotID(0)), true);
+	gameHandler.addToSlot(StackLocation(monsterID, SlotID(0)), CreatureID(10).toCreature(), 21);
+	gameHandler.addToSlot(StackLocation(monsterID, SlotID(4)), CreatureID(0).toCreature(), 6);
+
+	BattleResult result;
+	result.winner = BattleSide::DEFENDER;
+	result.attacker = player;
+	monster->battleFinished(gameHandler, hero, result);
+
+	ASSERT_EQ(monster->Slots().size(), 1);
+	EXPECT_EQ(monster->getStack(SlotID(0)).getCreature(), CreatureID(0).toCreature());
+	EXPECT_EQ(monster->getStackCount(SlotID(0)), 6);
+
+	// with none of its own creatures left the monster is gone
+	gameHandler.changeStackType(StackLocation(monsterID, SlotID(0)), CreatureID(10).toCreature());
+	monster->battleFinished(gameHandler, hero, result);
+	EXPECT_EQ(gameState()->getObjInstance(monsterID), nullptr);
 }
 
 // --------------------------------------------------------------------------------

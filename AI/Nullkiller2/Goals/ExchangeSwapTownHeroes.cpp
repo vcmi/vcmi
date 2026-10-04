@@ -86,6 +86,10 @@ void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 	aiGw->makePossibleUpgrades(targetTown);
 	aiGw->moveHeroToTile(targetTown->visitablePos(), HeroPtr(getGarrisonHero(), aiGw->cc.get()));
 
+	// movement may stop on the way, e.g. when the rest of the path is planned for a later turn
+	if(getGarrisonHero()->getVisitedTown() != targetTown)
+		throw cannotFulfillGoalException("Hero " + getGarrisonHero()->getNameTextID() + " did not reach " + targetTown->getNameTextID());
+
 	auto upperArmy = targetTown->getUpperArmy();
 	
 	if(!targetTown->getGarrisonHero())

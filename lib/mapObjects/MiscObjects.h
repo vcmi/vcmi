@@ -229,6 +229,8 @@ public:
 	static bool isConnected(const CGTeleport * src, const CGTeleport * dst);
 	static bool isConnected(const CGObjectInstance * src, const CGObjectInstance * dst);
 	static void addToChannel(std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj);
+	/// Warns if the map places this teleport with a template that has no visitable tile, which heroes can neither enter nor leave
+	void warnIfNotVisitable() const;
 	static std::vector<ObjectInstanceID> getPassableExits(const IGameInfoCallback & gameInfo, const CGHeroInstance * h, std::vector<ObjectInstanceID> exits);
 	static bool isExitPassable(const IGameInfoCallback & gameInfo, const CGHeroInstance * h, const CGObjectInstance * obj);
 
