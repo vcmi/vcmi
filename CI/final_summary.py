@@ -402,8 +402,11 @@ def delete_partial_artifacts() -> None:
         if name.startswith("partial-json-"):
             aid = a.get("id")
             print(f"Deleting artifact {name} (id={aid})")
-            gh_api(f"/repos/{owner}/{repo}/actions/artifacts/{aid}",
-                   method="DELETE", token=token)
+            try:
+                gh_api(f"/repos/{owner}/{repo}/actions/artifacts/{aid}",
+                       method="DELETE", token=token)
+            except Exception as e:
+                print(f"[WARN] deleting artifact failed: {e}")
 
 # ----------------------- Main -----------------------
 
