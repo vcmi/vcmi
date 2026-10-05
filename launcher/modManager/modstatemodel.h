@@ -28,7 +28,8 @@ public:
 	~ModStateModel();
 
 	void setRepositoryData(const JsonNode & repositoriesList);
-	void reloadLocalState();
+	/// newMods - newly installed mods that are activated together with mods from active preset
+	void reloadLocalState(const QStringList & newMods);
 	const JsonNode & getRepositoryData() const;
 
 	ModState getMod(QString modName) const;

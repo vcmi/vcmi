@@ -79,7 +79,7 @@ public:
 	void loadScreenshots();
 	void loadRepositories();
 
-	void reload(const QString& modToSelect = QString());
+	void reload(const QString & modToSelect = QString(), const QStringList & newMods = {});
 
 	void disableModInfo();
 

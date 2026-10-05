@@ -135,7 +135,8 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 	void tryEnableMod(const TModID & modList);
 
 public:
-	ModManager(const JsonNode & repositoryList, bool useTestPreset = false);
+	/// newMods - installed mods to activate together with mods from active preset
+	ModManager(const JsonNode & repositoryList, bool useTestPreset = false, const TModList & newMods = {});
 	ModManager();
 	~ModManager();
 

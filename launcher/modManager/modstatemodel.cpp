@@ -27,10 +27,15 @@ void ModStateModel::setRepositoryData(const JsonNode & repositoriesList)
 	modManager = std::make_unique<ModManager>(*repositoryData);
 }
 
-void ModStateModel::reloadLocalState()
+void ModStateModel::reloadLocalState(const QStringList & newMods)
 {
 	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
-	modManager = std::make_unique<ModManager>(*repositoryData);
+
+	TModList newModsStd;
+	for (const auto & mod : newMods)
+		newModsStd.push_back(mod.toStdString());
+
+	modManager = std::make_unique<ModManager>(*repositoryData, false, newModsStd);
 }
 
 const JsonNode & ModStateModel::getRepositoryData() const
