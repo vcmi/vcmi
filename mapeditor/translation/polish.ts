@@ -6,7 +6,7 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="29"/>
         <source>Abilities</source>
-        <translation type="unfinished">Umiejętności</translation>
+        <translation>Atrybuty</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="52"/>
@@ -728,7 +728,7 @@
         <location filename="../mainwindow.cpp" line="1532"/>
         <location filename="../mainwindow.cpp" line="1547"/>
         <source>Add level</source>
-        <translation type="unfinished"></translation>
+        <translation>Dodaj poziom</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
@@ -1160,14 +1160,16 @@ Zalecamy używanie edytora map na tablecie (albo z myszką/piórkiem)</translati
     <message>
         <location filename="../mainwindow.cpp" line="1532"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta mapa osiągnęła już najwyższą dozwoloną liczbę poziomów obsługiwanych przez edytor map.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1548"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wybierz typ nowego poziomu.
+
+Uwaga: po dodaniu, poziomy nie będą mogły zostać usunięte.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1593"/>
@@ -1486,7 +1488,7 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../mapsettings/heroessettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">Okno</translation>
+        <translation>Okno</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="47"/>
@@ -1584,7 +1586,7 @@ Czy chcesz to zrobić teraz?</translation>
     <message>
         <location filename="../mapview.cpp" line="671"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">Nie można umieścić obiektu</translation>
+        <translation>Nie można umieścić obiektu</translation>
     </message>
 </context>
 <context>
@@ -1598,7 +1600,7 @@ Czy chcesz to zrobić teraz?</translation>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Level</source>
-        <translation type="unfinished">Poziom</translation>
+        <translation>Poziom</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
@@ -3493,7 +3495,7 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished">Uczony</translation>
+        <translation>Uczony</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="64"/>
@@ -3503,7 +3505,7 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="111"/>
         <source>Spell</source>
-        <translation type="unfinished">Zaklęcie</translation>
+        <translation>Zaklęcie</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="77"/>
@@ -5055,7 +5057,7 @@ Strażnik: %3</translation>
     <message>
         <location filename="../validator.cpp" line="260"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
-        <translation type="unfinished">Uruchomione zdarzenie &apos;%1&apos; używa %2 warunków odnoszących się do %3 w %4. Taka konfiguracja jest niecodzienna i powinno się jej unikać; mapa pozostanie grywalna, ale warunek będzie nierozwiązany, dopóki zamiennik nie będzie wspierany.</translation>
+        <translation>Uruchomione zdarzenie &apos;%1&apos; używa %2 warunków odnoszących się do %3 w %4. Taka konfiguracja jest niecodzienna i powinno się jej unikać; mapa pozostanie grywalna, ale warunek będzie nierozwiązany, dopóki zamiennik nie będzie wspierany.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="328"/>
@@ -5148,7 +5150,7 @@ Strażnik: %3</translation>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="51"/>
         <source>Capture all mines</source>
-        <translation type="unfinished"></translation>
+        <translation>Oflaguj wszystkie kopalnie</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="454"/>

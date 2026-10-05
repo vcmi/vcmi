@@ -5153,7 +5153,7 @@ Vakt: %3</translation>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="51"/>
         <source>Capture all mines</source>
-        <translation type="unfinished"></translation>
+        <translation>Erövra alla gruvor</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="454"/>

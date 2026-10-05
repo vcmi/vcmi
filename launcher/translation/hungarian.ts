@@ -829,22 +829,22 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
         <source>Sharpening strength for the xBRZ + Sharpen upscaling filters</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ élesség-erősítés és élességnövelő szűrők</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="535"/>
         <source>xBRZ x2 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2 és Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="545"/>
         <source>xBRZ x3 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2 és Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="555"/>
         <source>xBRZ x4 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4 és Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="630"/>
@@ -1598,12 +1598,12 @@ Válassza ki a telepített Heroes III adatokat tartalmazó könyvtárat.</transl
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>HD Edition installation found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Telepített HD Edition megalálva!</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>Heroes III HD Edition installation was found. Install HD graphics mod using this installation?</source>
-        <translation type="unfinished"></translation>
+        <translation>Meglévő Heroes III HD Editiont észlelt a rendszer. Telepíti a HD grafikai modot a meglévő telepítés felhasználásával?</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="49"/>

@@ -3,4 +3,16 @@
     <string name="server_name">VCMI Server</string>
     <string name="shortcut_play">Hrát VCMI</string>
     <string name="shortcut_editor">Otevřít editor map</string>
+    <string name="notification_channel_running">Běh na pozadí</string>
+    <string name="notification_channel_game">Herní události</string>
+    <string name="notification_running_title">VCMI běží</string>
+    <string name="notification_running_text">Hra zůstává aktivní na pozadí</string>
+    <string name="notification_game_title">VCMI</string>
+    <string name="notification_quit">Ukončit</string>
+    <string name="quit_title">Ukončit VCMI</string>
+    <string name="notification_permission_title">Oznámení jsou zakázána</string>
+    <string name="notification_permission_denied">VCMI potřebuje oprávnění k zobrazování oznámení, aby vás mohlo upozornit, až budete na tahu nebo když během hry na pozadí přijde zpráva v chatu. Bez tohoto oprávnění hra poběží dál, ale nebudete dostávat oznámení.</string>
+    <string name="notification_permission_settings">Nastavení</string>
+    <string name="quit_message">Opravdu chcete ukončit spuštěnou hru? Neuložený postup bude ztracen.</string>
+    <string name="data_folder_name">Data VCMI</string>
 </resources>
