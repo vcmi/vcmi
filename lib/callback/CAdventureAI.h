@@ -52,6 +52,6 @@ public:
 	void battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport) override;
 	void battleAttack(const BattleID & battleID, const BattleAttack *ba) override;
 	void battleSpellCast(const BattleID & battleID, const BattleSpellCast *sc) override;
-	void battleEnd(const BattleID & battleID, const BattleResult *br, QueryID queryID) override;
+	void battleEnd(const BattleID & battleID, const BattleResult *br, QuestionID questionID) override;
 	void battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units) override;
 };

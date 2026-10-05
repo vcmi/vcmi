@@ -1,5 +1,5 @@
 /*
- * LuaScriptQuery.cpp, part of VCMI engine
+ * LuaScriptActivity.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,55 +8,55 @@
  *
  */
 #include "StdInc.h"
-#include "LuaScriptQuery.h"
+#include "LuaScriptActivity.h"
 
-#include "QueriesProcessor.h"
+#include "ActivityProcessor.h"
 #include "../CGameHandler.h"
 #include "../../lib/callback/IGameInfoCallback.h"
 #include "../../lib/gameState/CGameState.h"
 
 #include <vcmi/scripting/MapEventDispatcher.h>
 
-LuaScriptQuery::LuaScriptQuery(CGameHandler * owner, PlayerColor player):
-	CQuery(owner, TYPE)
+LuaScriptActivity::LuaScriptActivity(CGameHandler * owner, PlayerColor player):
+	Activity(owner, TYPE)
 {
 	addPlayer(player);
 }
 
-void LuaScriptQuery::setCoroutine(int handle)
+void LuaScriptActivity::setCoroutine(int handle)
 {
 	coroutineHandle = handle;
 }
 
-void LuaScriptQuery::setPendingAnswer(std::optional<int32_t> answer)
+void LuaScriptActivity::setPendingAnswer(std::optional<int32_t> answer)
 {
 	pendingAnswer = answer;
 }
 
-void LuaScriptQuery::setVisitingHero(ObjectInstanceID hero)
+void LuaScriptActivity::setVisitingHero(ObjectInstanceID hero)
 {
 	visitingHero = hero;
 }
 
-void LuaScriptQuery::onExposure(QueryPtr topQuery)
+void LuaScriptActivity::onChildCompleted(const ActivityPtr & child)
 {
 	auto * dispatcher = gh->gameState().getMapEventDispatcher();
 
-	// If the hero lost a scripted combat it no longer exists; abandon the coroutine rather than resume
-	// a handler whose captured hero is gone.
+	// A hero that lost a scripted combat no longer exists, so the coroutine is abandoned
+	// instead of resumed with a hero that is gone.
 	bool heroGone = visitingHero.hasValue() && gh->gameInfo().getHero(visitingHero) == nullptr;
 
 	if(!dispatcher || heroGone)
 	{
-		owner->popIfTop(*this);
+		finish();
 		return;
 	}
 
-	// Resuming may spawn a new child query (another blocking action); in that case the coroutine is
-	// not finished and this query stays on the stack under the freshly-added child.
+	// Resuming may add a new child activity for another blocking action. The coroutine is
+	// then not finished and this activity stays on the stack below that child.
 	bool finished = dispatcher->resumeCoroutine(*gh, coroutineHandle, pendingAnswer);
 	pendingAnswer.reset();
 
 	if(finished)
-		owner->popIfTop(*this);
+		finish();
 }

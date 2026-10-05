@@ -15,8 +15,8 @@
 #include "BattleResultProcessor.h"
 
 #include "../CGameHandler.h"
-#include "../queries/QueriesProcessor.h"
-#include "../queries/BattleQueries.h"
+#include "../activities/ActivityProcessor.h"
+#include "../activities/BattleActivities.h"
 
 #include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
@@ -57,47 +57,49 @@ void BattleProcessor::engageIntoBattle(PlayerColor player)
 	gameHandler->sendAndApply(pb);
 }
 
+BattleActivity * BattleProcessor::findBattleActivity(const CBattleInfoCallback & battle) const
+{
+	// Only the defender can be neutral, so the attacker always has the activity
+	return gameHandler->activities->findSoleActivity<BattleActivity>(battle.sideToPlayer(BattleSide::ATTACKER));
+}
+
+BattleActivity & BattleProcessor::getBattleActivity(const CBattleInfoCallback & battle) const
+{
+	auto * activity = findBattleActivity(battle);
+	if(!activity)
+		throw std::runtime_error("Battle has no activity!\nActivities:\n" + gameHandler->activities->describeStacks());
+
+	return *activity;
+}
+
 void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
 								const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
 	auto battle = gameHandler->gameState().getBattle(battleID);
 
-	auto attackerQuery = gameHandler->queries->topQuery(battle->getSide(BattleSide::ATTACKER).color);
-	auto * lastBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(attackerQuery);
-	if(!lastBattleQuery)
+	// The battle activity stays on the stack and is reused by the restarted battle
+	auto & lastBattleActivity = getBattleActivity(*battle);
+
+	BattleSideArray<const CGHeroInstance*> heroes{hero1, hero2};
+
+	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
 	{
-		auto defenderPlayer = battle->getSide(BattleSide::DEFENDER).color;
-		if(defenderPlayer.isValidPlayer())
+		if(heroes[i])
 		{
-			auto defenderQuery = gameHandler->queries->topQuery(defenderPlayer);
-			lastBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(defenderQuery);
+			SetMana restoreInitialMana;
+			restoreInitialMana.val = battle->getSide(i).initialMana;
+			restoreInitialMana.hid = heroes[i]->id;
+			restoreInitialMana.mode = ChangeValueMode::ABSOLUTE;
+			gameHandler->sendAndApply(restoreInitialMana);
 		}
 	}
 
-	assert(lastBattleQuery);
+	lastBattleActivity.result = std::nullopt;
 
-	//existing battle query for retying auto-combat
-	if(lastBattleQuery)
-	{
-		BattleSideArray<const CGHeroInstance*> heroes{hero1, hero2};
+	assert(lastBattleActivity.belligerents[BattleSide::ATTACKER] == battle->getSideArmy(BattleSide::ATTACKER));
+	assert(lastBattleActivity.belligerents[BattleSide::DEFENDER] == battle->getSideArmy(BattleSide::DEFENDER));
 
-		for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
-		{
-			if(heroes[i])
-			{
-				SetMana restoreInitialMana;
-				restoreInitialMana.val = battle->getSide(i).initialMana;
-				restoreInitialMana.hid = heroes[i]->id;
-				restoreInitialMana.mode = ChangeValueMode::ABSOLUTE;
-				gameHandler->sendAndApply(restoreInitialMana);
-			}
-		}
-
-		lastBattleQuery->result = std::nullopt;
-
-		assert(lastBattleQuery->belligerents[BattleSide::ATTACKER] == battle->getSideArmy(BattleSide::ATTACKER));
-		assert(lastBattleQuery->belligerents[BattleSide::DEFENDER] == battle->getSideArmy(BattleSide::DEFENDER));
-	}
+	resultProcessor->battleCancelled(battleID);
 
 	BattleCancelled bc;
 	bc.battleID = battleID;
@@ -133,21 +135,15 @@ void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInsta
 		}
 	}
 
-	auto attackerQuery = gameHandler->queries->topQuery(battle->getSide(BattleSide::ATTACKER).color);
-	auto * topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(attackerQuery);
-	if(!topBattleQuery && battle->getSide(BattleSide::DEFENDER).color.isValidPlayer())
+	auto * topBattleActivity = findBattleActivity(*battle);
+	if (topBattleActivity)
 	{
-		auto defenderQuery = gameHandler->queries->topQuery(battle->getSide(BattleSide::DEFENDER).color);
-		topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(defenderQuery);
-	}
-	if (topBattleQuery)
-	{
-		topBattleQuery->battleID = battleID;
+		topBattleActivity->battleID = battleID;
 	}
 	else
 	{
-		auto newBattleQuery = std::make_shared<CBattleQuery>(gameHandler, battle);
-		gameHandler->queries->addQuery(newBattleQuery);
+		auto newBattleActivity = std::make_shared<BattleActivity>(gameHandler, battle);
+		gameHandler->activities->addActivity(newBattleActivity);
 	}
 
 	if (!restarted)
@@ -256,19 +252,13 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 	engageIntoBattle(bs.info->getSide(BattleSide::ATTACKER).color);
 	engageIntoBattle(bs.info->getSide(BattleSide::DEFENDER).color);
 
-	auto attackerQuery = gameHandler->queries->topQuery(bs.info->getSide(BattleSide::ATTACKER).color);
-	auto * topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(attackerQuery);
+	auto * topBattleActivity = findBattleActivity(*bs.info);
 	bool isDefenderHuman = bs.info->getSide(BattleSide::DEFENDER).color.isValidPlayer() && gameHandler->gameInfo().getPlayerState(bs.info->getSide(BattleSide::DEFENDER).color)->isHuman();
-	if(!topBattleQuery && isDefenderHuman)
-	{
-		auto defenderQuery = gameHandler->queries->topQuery(bs.info->getSide(BattleSide::DEFENDER).color);
-		topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(defenderQuery);
-	}
 
 	bool isAttackerHuman = gameHandler->gameInfo().getPlayerState(bs.info->getSide(BattleSide::ATTACKER).color)->isHuman();
 
 	bool onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
-	bs.info->replayAllowed = topBattleQuery == nullptr && onlyOnePlayerHuman;
+	bs.info->replayAllowed = topBattleActivity == nullptr && onlyOnePlayerHuman;
 
 	gameHandler->sendAndApply(bs);
 
@@ -440,15 +430,8 @@ void BattleProcessor::flushPendingDeaths(const CBattleInfoCallback & battle)
 void BattleProcessor::endBattleConfirm(const BattleID & battleID)
 {
 	auto battle = gameHandler->gameState().getBattle(battleID);
-	assert(battle);
-
 	if (!battle)
-		return;
+		throw std::runtime_error("Confirming the end of a battle that does not exist");
 
 	resultProcessor->endBattleConfirm(*battle);
-}
-
-void BattleProcessor::battleFinalize(const BattleID & battleID, const BattleResult &result)
-{
-	resultProcessor->battleFinalize(battleID, result);
 }

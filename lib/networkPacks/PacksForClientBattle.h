@@ -116,7 +116,7 @@ struct DLL_LINKAGE BattleResultAccepted : public CPackForClient
 	}
 };
 
-struct DLL_LINKAGE BattleResult : public Query
+struct DLL_LINKAGE BattleResult : public Question
 {
 	BattleID battleID = BattleID::NONE;
 	EBattleResult result = EBattleResult::NORMAL;
@@ -130,7 +130,7 @@ struct DLL_LINKAGE BattleResult : public Query
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & battleID;
-		h & queryID;
+		h & questionID;
 		h & result;
 		h & winner;
 		h & casualties;

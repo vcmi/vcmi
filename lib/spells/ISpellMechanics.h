@@ -18,7 +18,8 @@
 #include "../GameConstants.h"
 #include "../bonuses/Bonus.h"
 
-struct Query;
+struct Question;
+struct MapObjectSelectDialog;
 class IBattleState;
 class CreatureService;
 class CMap;
@@ -63,7 +64,10 @@ public:
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) = 0;
 
-	virtual void genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback) = 0;//TODO: type safety on query, use generic query packet when implemented
+	/// Asks the player to pick one of several towns and completes the cast at the chosen
+	/// one. Takes ids instead of a callback, which can not be serialized and would hold
+	/// pointers across the wait.
+	virtual void askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster) = 0;
 };
 
 namespace spells
@@ -377,6 +381,10 @@ public:
 	virtual bool canBeCast(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster) const = 0;
 	virtual bool canBeCastAt(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const = 0;
 	virtual bool adventureCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
+
+	/// Second half of adventureCast, without the checks that it has already done. Used to
+	/// complete a cast that was interrupted by a question to the player.
+	virtual void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const = 0;
 	virtual int getCastsLimit(const spells::Caster * caster, const int3 & mapSize) const = 0;
 	virtual int getCastsAlreadyPerformed(const spells::Caster * caster) const = 0;
 

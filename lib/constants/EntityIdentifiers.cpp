@@ -52,8 +52,8 @@
 
 const CampaignScenarioID CampaignScenarioID::NONE(-1);
 const BattleID BattleID::NONE(-1);
-const QueryID QueryID::NONE(-1);
-const QueryID QueryID::CLIENT(-2);
+const QuestionID QuestionID::NONE(-1);
+const QuestionID QuestionID::CLIENT(-2);
 const HeroTypeID HeroTypeID::NONE(-1);
 const HeroTypeID HeroTypeID::RANDOM(-2);
 const HeroTypeID HeroTypeID::CAMP_STRONGEST(-3);

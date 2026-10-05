@@ -42,9 +42,9 @@ protected:
 	void visitBasic(ICPackVisitor & cpackVisitor) override;
 };
 
-struct DLL_LINKAGE Query : public CPackForClient
+struct DLL_LINKAGE Question : public CPackForClient
 {
-	QueryID queryID; // equals to -1 if it is not an actual query (and should not be answered)
+	QuestionID questionID; // equals to -1 if there is no question to answer
 };
 
 struct PackForClientBattle : public CPackForClient

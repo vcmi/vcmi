@@ -1,0 +1,195 @@
+/*
+ * ActivityProcessor.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#pragma once
+
+#include "../../lib/GameConstants.h"
+#include "constants/EntityIdentifiers.h"
+#include "activities/Activity.h"
+
+class CGameHandler;
+class Activity;
+class MapObjectVisitActivity;
+using ActivityPtr = std::shared_ptr<Activity>;
+
+/// Result of submitting a player's reply. The Ignored* ones leave the game unchanged, the
+/// Rejected* ones mean that the client is out of sync.
+enum class ReplyOutcome : uint8_t
+{
+	Accepted, ///< Reply was recorded, activity is resolved once it is on top of every affected stack
+	IgnoredAlreadyCompleted, ///< Activity was already removed, e.g. its answer was sent twice
+	IgnoredAlreadyAnswered, ///< Duplicate or retried reply
+	RejectedUnknownActivity, ///< No such activity and none recently completed, client is out of sync
+	RejectedWrongPlayer, ///< Activity does not affect this player
+	RejectedNotAnswerable, ///< Activity can not be ended by a player reply
+	RejectedMissingAnswer, ///< Reply has no answer, but the activity requires one
+	RejectedInvalidAnswer, ///< Answer is not one of those the player was offered
+};
+
+class ActivityProcessor
+{
+public:
+	explicit ActivityProcessor(CGameHandler & gameHandler);
+
+	using ActivityStack = std::vector<ActivityPtr>;
+	using ActivitiesPerPlayer = std::array<ActivityStack, PlayerColor::PLAYER_LIMIT_I>;
+
+private:
+	void addActivity(PlayerColor player, ActivityPtr activity);
+	void popActivity(PlayerColor player, ActivityPtr activity);
+
+	ActivitiesPerPlayer activities;
+	CGameHandler & gameHandler;
+
+	/// The visit each map object is currently under. An object can only be visited by one
+	/// hero at a time, so this is the object's visit, not a list of candidates.
+	std::map<ObjectInstanceID, MapObjectVisitActivity *> activeVisits;
+
+	/// Questions that recently left a player's stack, to tell a lost race from an invalid question id
+	std::array<std::deque<QuestionID>, PlayerColor::PLAYER_LIMIT_I> recentlyCompleted;
+	static constexpr size_t RECENTLY_COMPLETED_LIMIT = 64;
+
+	int mutationDepth = 0; ///< nested stack mutations in progress, deferred work runs when the outermost one ends
+	bool settling = false; ///< set while settle() runs, so that mutations it causes do not recurse into it
+
+	/// Players whose stack changed since the last victory checks
+	std::array<bool, PlayerColor::PLAYER_LIMIT_I> stackChanged = {};
+
+	/// Bound on total settle() work, far above a turn start that visits every building of every town
+	static constexpr int MAX_SETTLE_ROUNDS = 100000;
+
+	/// Steps a routine may take in one go before it is assumed to be stuck
+	static constexpr int MAX_ROUTINE_STEPS = 1000;
+
+	void rememberCompleted(PlayerColor player, QuestionID questionID);
+	bool wasRecentlyCompleted(PlayerColor player, QuestionID questionID) const;
+	void markStackChanged(PlayerColor player);
+
+	/// Steps every routine at the top of a player's stack until it finishes or suspends
+	/// itself by pushing a child. Returns true if anything changed.
+	bool advanceRoutines();
+
+	/// Pops every finished activity at the top of a player's stack. Returns true
+	/// if anything was removed.
+	bool resolveAnsweredActivities();
+
+	/// Runs victory/loss checks for players that just became idle. Returns true if a stack changed.
+	bool runVictoryChecks();
+
+	/// Runs everything that must not happen while the stacks are still changing: resolving
+	/// answered activities, stepping routines and victory/loss checks. Loops until nothing
+	/// changes, so callers always observe a settled state.
+	void settle();
+
+	/// Bracket around a public mutation, so that nested ones do not settle half-way
+	class MutationScope : boost::noncopyable
+	{
+	public:
+		explicit MutationScope(ActivityProcessor & owner);
+		~MutationScope();
+
+	private:
+		ActivityProcessor & owner;
+	};
+
+	/// Settles unless called from within another mutation, which settles once it is done
+	void settleIfOutermost();
+
+public:
+	void addActivity(ActivityPtr activity);
+
+	/// Marks the activity as done; it is removed from each stack once it is on top
+	void finishActivity(Activity & activity);
+
+	ActivityPtr topActivity(PlayerColor player);
+	ActivityPtr getActivity(QuestionID questionID);
+
+	/// Looks the activity up on this player's stack only. Use instead of getActivity() when
+	/// handling player input: question ids are not unique across players (QuestionID::CLIENT
+	/// is shared by every pause activity), so a global lookup can return another player's
+	/// activity.
+	ActivityPtr getActivity(QuestionID questionID, PlayerColor player);
+
+	/// Records a player's reply to an activity. The activity does not have to be at the top of
+	/// the stack: the server may have pushed something else between sending the question and
+	/// receiving the answer, and rejecting the reply would leave both sides waiting forever.
+	ReplyOutcome submitReply(QuestionID questionID, PlayerColor player, std::optional<int32_t> reply);
+
+	/// Multi-line dump of every player's stack, for diagnosing a stuck player.
+	std::string describeStacks() const;
+
+	/// The visit this object is currently under, or nullptr. Registered by the visit itself
+	/// when it is added, so a caller never has to search the stacks for it.
+	MapObjectVisitActivity * findVisit(ObjectInstanceID object) const;
+	void registerVisit(MapObjectVisitActivity * visit);
+	void unregisterVisit(MapObjectVisitActivity * visit);
+
+	/// On how many players' stacks this activity sits.
+	int countActivity(const Activity * activity) const;
+
+	template<typename T, typename ActivityPtrT>
+	using ActivityAsResult = std::conditional_t<
+		std::is_const_v<std::remove_pointer_t<decltype(std::declval<const ActivityPtrT &>().get())>>,
+		const T *,
+		T *>;
+
+	template<typename T, typename ActivityPtrT>
+	ActivityAsResult<T, ActivityPtrT> activityAs(const ActivityPtrT & activity)
+	{
+		using ResultT = std::remove_pointer_t<ActivityAsResult<T, ActivityPtrT>>;
+
+		if(!activity)
+			return nullptr;
+
+		if(activity->getType() != T::TYPE)
+			return nullptr;
+
+		assert(dynamic_cast<ResultT*>(activity.get()) != nullptr);
+		return static_cast<ResultT*>(activity.get());
+	}
+
+	/// The single activity of the given type anywhere on a player's stack, or nullptr. Some
+	/// types are limited to one per player, e.g. a player can only be in one battle.
+	template<typename T>
+	T * findSoleActivity(PlayerColor player)
+	{
+		T * result = nullptr;
+
+		for(const auto & activity : activities.at(player.getNum()))
+		{
+			auto * typed = activityAs<T>(activity);
+			if(!typed)
+				continue;
+
+			if(result != nullptr)
+				throw std::runtime_error("Player " + player.toString() + " has more than one activity of the same type!\nActivities:\n" + describeStacks());
+
+			result = typed;
+		}
+
+		return result;
+	}
+
+	/// The topmost activity of the given type on this player's stack that satisfies the
+	/// predicate, or nullptr.
+	template<typename T, typename Predicate>
+	T * findActivity(PlayerColor player, Predicate predicate) const
+	{
+		const auto & stack = activities.at(player.getNum());
+		for(auto it = stack.rbegin(); it != stack.rend(); ++it)
+		{
+			auto * activity = dynamic_cast<T *>(it->get());
+			if(activity && predicate(*activity))
+				return activity;
+		}
+
+		return nullptr;
+	}
+
+};

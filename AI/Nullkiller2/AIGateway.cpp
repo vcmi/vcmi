@@ -128,11 +128,11 @@ void AIGateway::artifactAssembled(const ArtifactLocation & al)
 	LOG_TRACE(logAi);
 }
 
-void AIGateway::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QueryID queryID)
+void AIGateway::showTavernWindow(const CGObjectInstance * object, const CGHeroInstance * visitor, QuestionID questionID)
 {
 	LOG_TRACE(logAi);
-	status.addQuery(queryID, "TavernWindow");
-	executeActionAsync("showTavernWindow", [this, queryID](){ answerQuery(queryID, 0); });
+	status.addQuestion(questionID, "TavernWindow");
+	executeActionAsync("showTavernWindow", [this, questionID](){ answerQuestion(questionID, 0); });
 }
 
 void AIGateway::showThievesGuildWindow(const CGObjectInstance * obj)
@@ -243,14 +243,14 @@ void AIGateway::tileRevealed(const FowTilesType & pos)
 		nullkiller->dangerHitMap->resetTileOwners();
 }
 
-void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
+void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QuestionID question)
 {
 	LOG_TRACE(logAi);
 	auto firstHero = cc->getHero(hero1);
 	auto secondHero = cc->getHero(hero2);
 
-	status.addQuery(
-		query,
+	status.addQuestion(
+		question,
 		boost::str(
 			boost::format("Exchange between heroes %s (%d) and %s (%d)") % firstHero->getNameTextID() % firstHero->tempOwner
 			% secondHero->getNameTextID() % secondHero->tempOwner
@@ -259,7 +259,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 
 	executeActionAsync(
 		"heroExchangeStarted",
-		[this, firstHero, secondHero, query]()
+		[this, firstHero, secondHero, question]()
 		{
 			auto transferFrom2to1 = [this](const CGHeroInstance * h1, const CGHeroInstance * h2) -> void
 			{
@@ -281,7 +281,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 					transferFrom2to1(firstHero, secondHero);
 			}
 
-			answerQuery(query, 0);
+			answerQuestion(question, 0);
 		}
 	);
 }
@@ -296,14 +296,14 @@ void AIGateway::heroPrimarySkillChanged(const CGHeroInstance * hero, PrimarySkil
 	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which.getNum() % val);
 }
 
-void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QueryID queryID)
+void AIGateway::showRecruitmentDialog(const CGDwelling * dwelling, const CArmedInstance * dst, int level, QuestionID questionID)
 {
 	LOG_TRACE_PARAMS(logAi, "level '%i'", level);
-	status.addQuery(queryID, "RecruitmentDialog");
+	status.addQuestion(questionID, "RecruitmentDialog");
 
-	executeActionAsync("showRecruitmentDialog", [this, dwelling, dst, queryID](){
+	executeActionAsync("showRecruitmentDialog", [this, dwelling, dst, questionID](){
 		recruitCreatures(dwelling, dst);
-		answerQuery(queryID, 0);
+		answerQuestion(questionID, 0);
 	});
 }
 
@@ -391,7 +391,10 @@ void AIGateway::requestRealized(PackageApplied * pa)
 		}
 	}
 
-	if(pa->packType == CTypeList::getInstance().getTypeID<QueryReply>(nullptr))
+	if(pa->packType == CTypeList::getInstance().getTypeID<CastAdvSpell>(nullptr))
+		lastAdventureCastSucceeded = pa->result;
+
+	if(pa->packType == CTypeList::getInstance().getTypeID<QuestionAnswer>(nullptr))
 	{
 		status.receivedAnswerConfirmation(pa->requestID, pa->result);
 	}
@@ -402,12 +405,12 @@ void AIGateway::receivedResource()
 	LOG_TRACE(logAi);
 }
 
-void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
+void AIGateway::showUniversityWindow(const IMarket * market, const CGHeroInstance * visitor, QuestionID questionID)
 {
 	LOG_TRACE(logAi);
 
-	status.addQuery(queryID, "UniversityWindow");
-	executeActionAsync("showUniversityWindow", [this, queryID](){ answerQuery(queryID, 0); });
+	status.addQuestion(questionID, "UniversityWindow");
+	executeActionAsync("showUniversityWindow", [this, questionID](){ answerQuestion(questionID, 0); });
 }
 
 void AIGateway::heroManaPointsChanged(const CGHeroInstance * hero)
@@ -477,11 +480,11 @@ void AIGateway::heroBonusChanged(const CGHeroInstance * hero, const Bonus & bonu
 	LOG_TRACE_PARAMS(logAi, "gain '%i'", gain);
 }
 
-void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QueryID queryID)
+void AIGateway::showMarketWindow(const IMarket * market, const CGHeroInstance * visitor, QuestionID questionID)
 {
 	LOG_TRACE(logAi);
-	status.addQuery(queryID, "MarketWindow");
-	executeActionAsync("showMarketWindow", [this, queryID](){ answerQuery(queryID, 0); });
+	status.addQuestion(questionID, "MarketWindow");
+	executeActionAsync("showMarketWindow", [this, questionID](){ answerQuestion(questionID, 0); });
 }
 
 void AIGateway::showWorldViewEx(const std::vector<ObjectPosInfo> & objectPositions, bool showTerrain)
@@ -554,12 +557,12 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
 }
 
-void AIGateway::yourTurn(QueryID queryID)
+void AIGateway::yourTurn(QuestionID questionID)
 {
-	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
+	LOG_TRACE_PARAMS(logAi, "questionID '%i'", questionID);
 	nullkiller->invalidatePathfinderData();
-	status.addQuery(queryID, "YourTurn");
-	executeActionAsync("yourTurn", [this, queryID](){ answerQuery(queryID, 0); });
+	status.addQuestion(questionID, "YourTurn");
+	executeActionAsync("yourTurn", [this, questionID](){ answerQuestion(questionID, 0); });
 	status.startedTurn();
 
 	nullkiller->makingTurnInterruption.reset();
@@ -572,13 +575,13 @@ void AIGateway::yourTurn(QueryID queryID)
 	});
 }
 
-void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, std::vector<SecondarySkill> & skills, QueryID queryID)
+void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, bool moreLevelsFollow, QuestionID questionID)
 {
-	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
-	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTextID() % hero->level));
+	LOG_TRACE_PARAMS(logAi, "questionID '%i'", questionID);
+	status.addQuestion(questionID, boost::str(boost::format("Hero %s got level %d") % hero->getNameTextID() % hero->level));
 	HeroPtr heroPtr(hero, cc.get());
 
-	executeActionAsync("heroGotLevel", [this, heroPtr, skills, queryID]()
+	executeActionAsync("heroGotLevel", [this, heroPtr, skills, questionID]()
 	{
 		int sel = 0;
 
@@ -589,21 +592,21 @@ void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, s
 			sel = nullkiller->heroManager->selectBestSkillIndex(heroPtr, skills);
 		}
 
-		answerQuery(queryID, sel);
+		answerQuestion(questionID, sel);
 	});
 }
 
-void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
+void AIGateway::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, bool moreLevelsFollow, QuestionID questionID)
 {
-	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
-	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->getArmy()->nodeName() % (int)commander->level));
-	executeActionAsync("commanderGotLevel", [this, queryID](){ answerQuery(queryID, 0); });
+	LOG_TRACE_PARAMS(logAi, "questionID '%i'", questionID);
+	status.addQuestion(questionID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->getArmy()->nodeName() % (int)commander->level));
+	executeActionAsync("commanderGotLevel", [this, questionID](){ answerQuestion(questionID, 0); });
 }
 
-void AIGateway::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
+void AIGateway::showBlockingDialog(const std::string & text, const std::vector<Component> & components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
 {
-	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i', autoaccept '%i'", text % askID % soundID % selection % cancel % safeToAutoaccept);
-	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s")
+	LOG_TRACE_PARAMS(logAi, "text '%s', questionID '%i', soundID '%i', selection '%i', cancel '%i', autoaccept '%i'", text % questionID % soundID % selection % cancel % safeToAutoaccept);
+	status.addQuestion(questionID, boost::str(boost::format("Blocking dialog question with %d components - %s")
 									  % components.size() % text));
 
 	auto heroPtr = nullkiller->getActiveHero();
@@ -613,7 +616,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 	{
 		// Capture the visit that opened this dialog before handing it to the async task.
 		auto visitedObjectID = status.getCurrentVisitedObject();
-		executeActionAsync("showBlockingDialog", [this, heroPtr, target, askID, visitedObjectID]()
+		executeActionAsync("showBlockingDialog", [this, heroPtr, target, questionID, visitedObjectID]()
 		{
 			//yes&no -> always answer yes, we are a brave AI :)
 			bool answer = true;
@@ -636,7 +639,7 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				}
 
 				const auto * visitedObject = cc->getObj(visitedObjectID, false);
-				logAi->trace("Query hook: visiting %s by %s; target %s danger ratio %f",
+				logAi->trace("Question hook: visiting %s by %s; target %s danger ratio %f",
 					visitedObject ? visitedObject->getObjectNameTextID() : "unknown",
 					heroPtr.nameOrDefault(), target.toString(), ratio);
 
@@ -658,13 +661,13 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				}
 			}
 
-			answerQuery(askID, answer ? 1 : 0);
+			answerQuestion(questionID, answer ? 1 : 0);
 		});
 
 		return;
 	}
 
-	executeActionAsync("showBlockingDialog", [this, selection, components, heroPtr, askID]()
+	executeActionAsync("showBlockingDialog", [this, selection, components, heroPtr, questionID]()
 	{
 		int sel = 0;
 
@@ -684,13 +687,13 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				}
 		}
 
-		answerQuery(askID, sel);
+		answerQuestion(questionID, sel);
 	});
 }
 
-void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
+void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QuestionID questionID)
 {
-	status.addQuery(askID, boost::str(boost::format("Teleport dialog query with %d exits") % exits.size()));
+	status.addQuestion(questionID, boost::str(boost::format("Teleport dialog question with %d exits") % exits.size()));
 
 	int chosenExit = -1;
 	if(impassable)
@@ -724,36 +727,46 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 		}
 	}
 
-	executeActionAsync("showTeleportDialog", [this, askID, chosenExit]()
+	executeActionAsync("showTeleportDialog", [this, questionID, chosenExit]()
 	{
-		answerQuery(askID, chosenExit);
+		answerQuestion(questionID, chosenExit);
 	});
 }
 
-void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID, const MetaString & customTitle)
+void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QuestionID questionID, const MetaString & customTitle)
 {
-	LOG_TRACE_PARAMS(logAi, "removableUnits '%i', queryID '%i'", removableUnits % queryID);
+	LOG_TRACE_PARAMS(logAi, "removableUnits '%i', questionID '%i'", removableUnits % questionID);
 	std::string s1 = up->nodeName();
 	std::string s2 = down->nodeName();
 
-	status.addQuery(queryID, boost::str(boost::format("Garrison dialog with %s and %s") % s1 % s2));
+	status.addQuestion(questionID, boost::str(boost::format("Garrison dialog with %s and %s") % s1 % s2));
 
 	//you can't request action from action-response thread
-	executeActionAsync("showGarrisonDialog", [this, up, down, removableUnits, queryID]()
+	executeActionAsync("showGarrisonDialog", [this, up, down, removableUnits, questionID]()
 	{
 		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cc->getStartInfo()->restrictedGarrisonsForAI())
 		{
 			pickBestCreatures(down, up);
 		}
 
-		answerQuery(queryID, 0);
+		answerQuestion(questionID, 0);
 	});
 }
 
-void AIGateway::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
+void AIGateway::showMapObjectSelectDialog(QuestionID questionID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
 {
-	status.addQuery(askID, "Map object select query");
-	executeActionAsync("showMapObjectSelectDialog", [this, askID](){ answerQuery(askID, selectedObject.getNum()); });
+	status.addQuestion(questionID, "Map object select question");
+	executeActionAsync("showMapObjectSelectDialog", [this, questionID, objects]()
+	{
+		// selectedObject is only set by our own Town Portal cast; a dialog opened by a map object,
+		// e.g. Toll Town Gate, is cancelled instead of answered with a town that was not offered
+		if(vstd::contains(objects, selectedObject))
+			answerQuestion(questionID, selectedObject.getNum());
+		else
+			cc->sendQuestionAnswer(std::nullopt, questionID);
+
+		selectedObject = ObjectInstanceID();
+	});
 }
 
 bool AIGateway::makePossibleUpgrades(const CArmedInstance * obj)
@@ -870,7 +883,8 @@ void AIGateway::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h
 
 void AIGateway::moveCreaturesToHero(const CGTownInstance * t)
 {
-	if(t->getVisitingHero() && t->armedGarrison() && t->getVisitingHero()->tempOwner == t->tempOwner)
+	// the garrison may be held by an allied hero
+	if(t->getVisitingHero() && t->armedGarrison() && t->getVisitingHero()->tempOwner == t->getUpperArmy()->tempOwner)
 	{
 		pickBestCreatures(t->getVisitingHero(), t->getUpperArmy());
 	}
@@ -1023,7 +1037,7 @@ void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army
 	CAdventureAI::battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }
 
-void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID)
+void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, QuestionID questionID)
 {
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
@@ -1031,16 +1045,16 @@ void AIGateway::battleEnd(const BattleID & battleID, const BattleResult * br, Qu
 	logAi->debug("Player %d (%s): I %s the %s!", playerID, playerID.toString(), (won ? "won" : "lost"), battlename);
 	battlename.clear();
 
-	CAdventureAI::battleEnd(battleID, br, queryID);
+	CAdventureAI::battleEnd(battleID, br, questionID);
 
 	// gosolo
-	if(queryID != QueryID::NONE && cc->getPlayerState(playerID)->isHuman())
+	if(questionID != QuestionID::NONE && cc->getPlayerState(playerID)->isHuman())
 	{
-		status.addQuery(queryID, "Confirm battle query");
+		status.addQuestion(questionID, "Confirm battle question");
 
-		executeActionAsync("battleEnd", [this, queryID]()
+		executeActionAsync("battleEnd", [this, questionID]()
 		{
-			answerQuery(queryID, 0);
+			answerQuestion(questionID, 0);
 		});
 	}
 }
@@ -1063,13 +1077,26 @@ std::vector<const CGObjectInstance *> AIGateway::getFlaggedObjects() const
 	return ret;
 }
 
+bool AIGateway::canSwapGarrisonHero(const CGTownInstance * town) const
+{
+	// without a visiting hero to take its place, the garrison hero becomes one more wandering hero
+	return town->getVisitingHero() || cc->getHeroCount(playerID, false) < cc->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
+}
+
 bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 {
+	// a reply sent earlier, e.g. to a level-up, may open another question on the server,
+	// which would reject the movement
+	waitTillFree();
+
 	if(!heroPtr.isVerified())
 		throw cannotFulfillGoalException("Hero was lost!");
 
 	if(heroPtr->isGarrisoned() && heroPtr->getVisitedTown())
 	{
+		if(!canSwapGarrisonHero(heroPtr->getVisitedTown()))
+			throw cannotFulfillGoalException("Hero can not leave garrison, wandering heroes limit is reached!");
+
 		cc->swapGarrisonHero(heroPtr->getVisitedTown());
 		moveCreaturesToHero(heroPtr->getVisitedTown());
 	}
@@ -1259,6 +1286,10 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 
 			if(teleportChannelProbingList.size())
 				doChannelProbing();
+
+			// a visit on the way, e.g. a map event, may stop the hero or take his movement points
+			if(i > 1 && (heroPtr->visitablePos() != nextCoord || !heroPtr->movementPointsRemaining()))
+				break;
 		}
 
 		if(path.nodes[0].action == EPathNodeAction::BLOCKING_VISIT || path.nodes[0].action == EPathNodeAction::BATTLE)
@@ -1368,6 +1399,9 @@ void AIGateway::endTurn()
 
 	logAi->debug("Resources at the end of turn: %s", cc->getResourceAmount().toString());
 
+	// a battle that took the last hero may still be finishing, and the defeat is reported only after it
+	waitTillFree();
+
 	if(cc->getPlayerStatus(playerID) != EPlayerStatus::INGAME)
 	{
 		logAi->info("Ending turn is not needed because we already lost");
@@ -1428,16 +1462,16 @@ void AIGateway::lostHero(const HeroPtr & heroPtr) const
 	nullkiller->invalidatePathfinderData();
 }
 
-void AIGateway::answerQuery(const QueryID queryID, const int selection) const
+void AIGateway::answerQuestion(const QuestionID questionID, const int selection) const
 {
-	logAi->debug("I'll answer the query %d giving the choice %d", queryID, selection);
-	if(queryID != QueryID(-1))
+	logAi->debug("I'll answer the question %d giving the choice %d", questionID, selection);
+	if(questionID != QuestionID(-1))
 	{
-		cc->selectionMade(selection, queryID);
+		cc->selectionMade(selection, questionID);
 	}
 	else
 	{
-		logAi->debug("Since the query ID is %d, the answer won't be sent. This is not a real query!", queryID);
+		logAi->debug("Since the question ID is %d, the answer won't be sent. This is not a real question!", questionID);
 		//do nothing
 	}
 }
@@ -1445,9 +1479,9 @@ void AIGateway::answerQuery(const QueryID queryID, const int selection) const
 void AIGateway::requestSent(const CPackForServer * pack, int requestID)
 {
 	//BNLOG("I have sent request of type %s", typeid(*pack).name());
-	if(auto reply = dynamic_cast<const QueryReply *>(pack))
+	if(auto reply = dynamic_cast<const QuestionAnswer *>(pack))
 	{
-		status.attemptedAnsweringQuery(reply->qid, requestID);
+		status.attemptedAnsweringQuestion(reply->questionID, requestID);
 	}
 }
 
@@ -1500,40 +1534,40 @@ BattleState AIStatus::getBattle()
 	return battle;
 }
 
-void AIStatus::addQuery(QueryID ID, std::string description)
+void AIStatus::addQuestion(QuestionID ID, std::string description)
 {
-	if(ID == QueryID(-1))
+	if(ID == QuestionID(-1))
 	{
-		logAi->debug("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s", ID, description);
+		logAi->debug("The \"question\" has an id %d, it'll be ignored as non-question. Description: %s", ID, description);
 		return;
 	}
 
 	assert(ID.getNum() >= 0);
 	std::unique_lock<std::mutex> lock(mx);
 
-	assert(!vstd::contains(remainingQueries, ID));
+	assert(!vstd::contains(remainingQuestions, ID));
 
-	remainingQueries[ID] = description;
+	remainingQuestions[ID] = description;
 
 	cv.notify_all();
-	logAi->debug("Adding query %d - %s. Total queries count: %d", ID, description, remainingQueries.size());
+	logAi->debug("Adding question %d - %s. Total questions count: %d", ID, description, remainingQuestions.size());
 }
 
-void AIStatus::removeQuery(QueryID ID)
+void AIStatus::removeQuestion(QuestionID ID)
 {
-	assert(vstd::contains(remainingQueries, ID));
+	assert(vstd::contains(remainingQuestions, ID));
 
-	std::string description = remainingQueries[ID];
-	remainingQueries.erase(ID);
+	std::string description = remainingQuestions[ID];
+	remainingQuestions.erase(ID);
 
 	cv.notify_all();
-	logAi->debug("Removing query %d - %s. Total queries count: %d", ID, description, remainingQueries.size());
+	logAi->debug("Removing question %d - %s. Total questions count: %d", ID, description, remainingQuestions.size());
 }
 
-int AIStatus::getQueriesCount()
+int AIStatus::getQuestionsCount()
 {
 	std::unique_lock<std::mutex> lock(mx);
-	return static_cast<int>(remainingQueries.size());
+	return static_cast<int>(remainingQuestions.size());
 }
 
 void AIStatus::startedTurn()
@@ -1553,7 +1587,7 @@ void AIStatus::madeTurn()
 void AIStatus::waitTillFree()
 {
 	std::unique_lock<std::mutex> lock(mx);
-	while(battle != NO_BATTLE || !remainingQueries.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
+	while(battle != NO_BATTLE || !remainingQuestions.empty() || !objectsBeingVisited.empty() || ongoingHeroMovement)
 	{
 		cv.wait_for(lock, std::chrono::milliseconds(10));
 		aiGw->nullkiller->makingTurnInterruption.interruptionPoint();
@@ -1566,30 +1600,30 @@ bool AIStatus::haveTurn()
 	return havingTurn;
 }
 
-void AIStatus::attemptedAnsweringQuery(QueryID queryID, int answerRequestID)
+void AIStatus::attemptedAnsweringQuestion(QuestionID questionID, int answerRequestID)
 {
 	std::unique_lock<std::mutex> lock(mx);
-	assert(vstd::contains(remainingQueries, queryID));
-	std::string description = remainingQueries[queryID];
-	logAi->debug("Attempted answering query %d - %s. Request id=%d. Waiting for results...", queryID, description, answerRequestID);
-	requestToQueryID[answerRequestID] = queryID;
+	assert(vstd::contains(remainingQuestions, questionID));
+	std::string description = remainingQuestions[questionID];
+	logAi->debug("Attempted answering question %d - %s. Request id=%d. Waiting for results...", questionID, description, answerRequestID);
+	requestToQuestionID[answerRequestID] = questionID;
 }
 
 void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
 {
 	std::unique_lock<std::mutex> lock(mx);
-	assert(vstd::contains(requestToQueryID, answerRequestID));
-	QueryID query = requestToQueryID[answerRequestID];
-	assert(vstd::contains(remainingQueries, query));
-	requestToQueryID.erase(answerRequestID);
+	assert(vstd::contains(requestToQuestionID, answerRequestID));
+	QuestionID question = requestToQuestionID[answerRequestID];
+	assert(vstd::contains(remainingQuestions, question));
+	requestToQuestionID.erase(answerRequestID);
 
 	if(result)
 	{
-		removeQuery(query);
+		removeQuestion(question);
 	}
 	else
 	{
-		logAi->error("Something went really wrong, failed to answer query %d : %s", query.getNum(), remainingQueries[query]);
+		logAi->error("Something went really wrong, failed to answer question %d : %s", question.getNum(), remainingQuestions[question]);
 		//TODO safely retry
 	}
 }

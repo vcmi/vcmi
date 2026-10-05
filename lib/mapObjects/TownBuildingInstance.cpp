@@ -134,31 +134,17 @@ void TownRewardableBuildingInstance::setProperty(ObjProperty what, ObjPropertyID
 		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
 			visitors.clear();
 			break;
-		case ObjProperty::REWARD_SELECT:
-			selectedReward = identifier.getNum();
-			break;
 	}
 }
 
-void TownRewardableBuildingInstance::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
+void TownRewardableBuildingInstance::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const
 {
-	grantRewardAfterLevelup(gameEvents, configuration.info.at(selectedReward), town, hero);
+	resumeAfterExperience(gameEvents, hero, visitState);
 }
 
-void TownRewardableBuildingInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void TownRewardableBuildingInstance::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const
 {
-	onBlockingDialogAnswered(gameEvents, hero, answer);
-}
-
-void TownRewardableBuildingInstance::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const
-{
-	grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero);
-	
-	// hero is not blocked by levelup dialog - grant remainder immediately
-	if(!gameEvents.isVisitCoveredByAnotherQuery(town, hero))
-	{
-		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), town, hero);
-	}
+	onBlockingDialogAnswered(gameEvents, hero, answer, visitState);
 }
 
 bool TownRewardableBuildingInstance::wasVisited(const CGHeroInstance * contextHero) const

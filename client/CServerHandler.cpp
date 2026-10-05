@@ -854,6 +854,8 @@ void CServerHandler::quickLoadGame(const std::string & path)
 
 void CServerHandler::restartGameplay()
 {
+	// Before the windows are destroyed, so that they do not send actions for the game being discarded
+	setState(EClientState::LOBBY);
 	client->finishGameplay();
 	client->endGame();
 	client.reset();

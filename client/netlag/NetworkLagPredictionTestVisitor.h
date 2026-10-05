@@ -52,7 +52,7 @@ class NetworkLagPredictionTestVisitor final : public ICPackVisitor
 	//void visitSetTactics(SetTactics & pack) override;
 	//void visitHireHero(HireHero & pack) override;
 	//void visitBuildBoat(BuildBoat & pack) override;
-	//void visitQueryReply(QueryReply & pack) override;
+	//void visitQuestionAnswer(QuestionAnswer & pack) override;
 	//void visitMakeAction(MakeAction & pack) override;
 	//void visitDigWithHero(DigWithHero & pack) override;
 	//void visitCastAdvSpell(CastAdvSpell & pack) override;

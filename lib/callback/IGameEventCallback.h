@@ -77,14 +77,22 @@ public:
 	virtual void setQuestHintText(ObjectInstanceID obj, const MetaString & hint) = 0;
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
+	/// Always ends in experienceApplied() on the object whose visit is running, whether or
+	/// not a level was gained.
 	virtual void giveExperience(const CGHeroInstance * hero, TExpType val) =0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode)=0;
-	virtual void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) =0;
+	/// Shows a dialog to the player. The answer is delivered to the object being visited.
+	virtual void showBlockingDialog(BlockingDialog *iw) =0;
+
+	/// Stores the object's own record of where its visit stopped. It is handed back once the
+	/// activity that suspended the visit finishes, so that the object does not have to deduce
+	/// its step from state that may have changed. Must be called while that hero's visit runs.
+	virtual void setVisitState(const CGHeroInstance * hero, const JsonNode & state) =0;
 	virtual void showScriptDialog(BlockingDialog *iw) =0; //dialog spawned by a map script; its reply resumes the paused script coroutine
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
-	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) = 0;
+	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addActivity) = 0;
 	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;
 	virtual void giveResources(PlayerColor player, const ResourceSet & resources)=0;
 
@@ -126,8 +134,6 @@ public:
 	virtual void changeFogOfWar(const FowTilesType &tiles, PlayerColor player, ETileVisibility mode) = 0;
 
 	virtual void castSpell(const spells::Caster * caster, SpellID spellID, const int3 &pos) = 0;
-
-	virtual bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) = 0;
 
 	/// Returns global random generator. TODO: remove, replace with IGameRanndomizer as separate parameter to such methods
 	virtual vstd::RNG & getRandomGenerator() = 0;

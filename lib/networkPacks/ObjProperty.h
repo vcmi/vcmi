@@ -26,7 +26,7 @@ enum class ObjProperty : int8_t
 	MONSTER_POWER,
 	MONSTER_EXP,
 	MONSTER_RESTORE_TYPE,
-	MONSTER_REFUSED_JOIN,
+	MONSTER_REFUSED_JOIN_UNUSED, //kept so that the values after it keep their meaning in old saves
 
 	//town-specific
 	STRUCTURE_ADD_VISITING_HERO,
@@ -45,7 +45,7 @@ enum class ObjProperty : int8_t
 	BANK_CLEAR,
 
 	//object with reward
-	REWARD_SELECT,
+	REWARD_SELECT_UNUSED, //kept so that the values after it keep their meaning in old saves
 	REWARD_CLEARED
 };
 

@@ -129,7 +129,7 @@ set(test_SRCS
 		server/battles/TurnOrderTest.cpp
 		server/battles/TransmutationTest.cpp
 		server/battles/WalkActionTest.cpp
-		server/queries/QueriesProcessorTest.cpp
+		server/activities/ActivityProcessorTest.cpp
 
 		texts/TextOperationsTest.cpp
 
@@ -193,6 +193,7 @@ endif()
 if(ENABLE_NULLKILLER2_AI)
 	list(APPEND test_SRCS
 		nullkiller2/AIUtilityTest.cpp
+		nullkiller2/Analyzers/ArmyManagerTest.cpp
 		nullkiller2/Analyzers/HeroManagerTest.cpp
 		nullkiller2/Analyzers/ObjectClusterizerTest.cpp
 		nullkiller2/Behaviors/DefenceBehaviorTest.cpp

@@ -32,7 +32,7 @@ public:
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -44,7 +44,7 @@ public:
 			h & heroVisitScriptHandler;
 	}
 protected:
-	void grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;
+	void showRewardMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex) const override;
 	
 	virtual void init();
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
@@ -77,7 +77,6 @@ public:
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
 protected:
-	void grantRewardWithMessage(IGameEventCallback & gameEvents, const CGHeroInstance * contextHero, int rewardIndex, bool markAsVisit) const override;
 	void configureInfoWindow(InfoWindow & infoWindow, const CGHeroInstance * contextHero, int rewardIndex) const override;
 	
 	void init() override;

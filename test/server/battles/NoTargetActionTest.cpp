@@ -17,8 +17,8 @@
 #include "../../../lib/gameState/CGameState.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../server/CGameHandler.h"
-#include "../../../server/queries/BattleQueries.h"
-#include "../../../server/queries/QueriesProcessor.h"
+#include "../../../server/activities/ActivityProcessor.h"
+#include "../../../server/activities/BattleActivities.h"
 
 namespace
 {
@@ -107,11 +107,11 @@ public:
 		return unit;
 	}
 
-	/// The server ends a battle through the battle query of its players, which a battle started
+	/// The server ends a battle through the battle activity of its players, which a battle started
 	/// from a BattleStart pack does not have.
-	void addBattleQuery()
+	void addBattleActivity()
 	{
-		gameHandler->queries->addQuery(std::make_shared<CBattleQuery>(gameHandler.get(), battle()));
+		gameHandler->activities->addActivity(std::make_shared<BattleActivity>(gameHandler.get(), battle()));
 	}
 };
 
@@ -171,7 +171,7 @@ TEST_F(NoTargetActionTest, retreatEndsBattleWithEnemyAsWinner)
 	startGame();
 	startBattle();
 	activateUnitOfAttacker();
-	addBattleQuery();
+	addBattleActivity();
 
 	ASSERT_TRUE(act(BattleAction::makeRetreat(BattleSide::ATTACKER)));
 
@@ -201,7 +201,7 @@ TEST_F(NoTargetActionTest, surrenderPaysGoldAndEndsBattleWithEnemyAsWinner)
 	startGame();
 	startBattle();
 	activateUnitOfAttacker();
-	addBattleQuery();
+	addBattleActivity();
 
 	const auto cost = battle()->battleGetSurrenderCost(PlayerColor(0));
 	ASSERT_GT(cost, 0);

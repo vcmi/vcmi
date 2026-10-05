@@ -49,8 +49,6 @@ public:
 	int8_t joiningPercentage = -1;
 	bool joinOnlyForMoney = false;
 
-	bool refusedJoining = false;
-
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	MetaString getHoverText(PlayerColor player) const override;
 	MetaString getHoverText(const CGHeroInstance * hero) const override;
@@ -61,7 +59,7 @@ public:
 	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const override;
 	CreatureID getCreatureID() const;
 	const CCreature * getCreature() const;
 	TQuantity getJoiningAmount() const;
@@ -92,7 +90,11 @@ public:
 		h & neverFlees;
 		h & notGrowingTeam;
 		h & temppower;
-		h & refusedJoining;
+		if(!h.hasFeature(Handler::Version::CREATURE_REFUSED_JOINING_REMOVED))
+		{
+			bool refusedJoining = false;
+			h & refusedJoining;
+		}
 		h & formation;
 		if(h.version >= Handler::Version::HOTA_MAP_STACK_COUNT)
 			h & stacksCount;

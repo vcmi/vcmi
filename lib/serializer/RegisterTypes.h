@@ -44,6 +44,13 @@
 #include "../networkPacks/SetScriptVariable.h"
 #include "../networkPacks/SetStackEffect.h"
 
+/// Removed pack, still registered below so that saves and replays recorded before its
+/// removal keep deserializing. Carries no data of its own and does nothing when applied.
+struct DLL_LINKAGE AdvInterfaceReady final : public CPackForServer
+{
+	void visitTyped(ICPackVisitor & visitor) override {}
+};
+
 /// This method defines all types that are part of Serializeable hieararchy and can be serialized as their base type
 /// Each class is registered with a unique index that is used to determine correct type on deserialization
 /// For example, if CGHeroInstance is serialized as pointer to CGObjectInstance serializer will write type index for CGHeroInstance, followed by CGHeroInstance::serialize() call
@@ -126,7 +133,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<CObstacleInstance>(79);
 	s.template registerType<SpellCreatedObstacle>(80);
 	s.template registerType<CPack>(82);
-	s.template registerType<QueryResolved>(83);
+	s.template registerType<QuestionResolved>(83);
 	s.template registerType<PackageApplied>(84);
 	s.template registerType<SystemMessage>(85);
 	s.template registerType<PlayerBlocked>(86);
@@ -235,7 +242,7 @@ void registerTypes(Serializer &s)
 	s.template registerType<SetFormation>(194);
 	s.template registerType<HireHero>(195);
 	s.template registerType<BuildBoat>(196);
-	s.template registerType<QueryReply>(197);
+	s.template registerType<QuestionAnswer>(197);
 	s.template registerType<MakeAction>(198);
 	s.template registerType<DigWithHero>(199);
 	s.template registerType<CastAdvSpell>(200);

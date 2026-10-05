@@ -35,6 +35,8 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
 #include "../gameState/UpgradeInfo.h"
+#include "../modding/CModHandler.h"
+#include "ObjectTemplate.h"
 
 #include <vstd/RNG.h>
 
@@ -105,7 +107,7 @@ void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 		else
 			ynd.text.appendTextID("core.advevent.187");
 
-		gameEvents.showBlockingDialog(this, &ynd);
+		gameEvents.showBlockingDialog(&ynd);
 		return;
 	}
 
@@ -269,7 +271,7 @@ void CGMine::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstanc
 	}
 }
 
-void CGMine::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void CGMine::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const
 {
 	if(answer)
 		gameEvents.startBattle(hero, this);
@@ -377,8 +379,29 @@ std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const IGameInfoCallba
 	return exits;
 }
 
+void CGTeleport::warnIfNotVisitable() const
+{
+	if(!appearance || isVisitable())
+		return;
+
+	std::string modName = "unknown";
+	try
+	{
+		modName = LIBRARY->modh->findResourceOrigin(appearance->animationFile.addPrefix("SPRITES/"));
+	}
+	catch(const std::runtime_error &)
+	{
+		// the sprite may be missing entirely, which is reported when the map is loaded
+	}
+
+	logGlobal->warn("%s at %s uses template '%s' from mod '%s' that has no visitable tile, heroes can neither enter nor leave it!",
+		getObjectNameTextID(), anchorPos().toString(), appearance->animationFile.getOriginalName(), modName);
+}
+
 void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj)
 {
+	obj->warnIfNotVisitable();
+
 	std::shared_ptr<TeleportChannel> tc;
 	if(channelsList.find(obj->channel) == channelsList.end())
 	{
@@ -847,7 +870,7 @@ void CGArtifact::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 					ynd.text.replaceRawString(getArmyDescription().toString(LIBRARY->staticTexts()));
 					ynd.text.replaceTextID("core.genrltxt.43"); // creatures
 				}
-				gameEvents.showBlockingDialog(this, &ynd);
+				gameEvents.showBlockingDialog(&ynd);
 			}
 			break;
 		case Obj::SPELL_SCROLL:
@@ -857,10 +880,10 @@ void CGArtifact::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 					BlockingDialog ynd(true,false);
 					ynd.player = h->getOwner();
 					ynd.text = message;
-					gameEvents.showBlockingDialog(this, &ynd);
+					gameEvents.showBlockingDialog(&ynd);
 				}
 				else
-					blockingDialogAnswered(gameEvents, h, true);
+					gameEvents.startBattle(h, this);
 			}
 			break;
 		}
@@ -884,7 +907,7 @@ void CGArtifact::battleFinished(IGameEventCallback & gameEvents, const CGHeroIns
 		pick(gameEvents, hero);
 }
 
-void CGArtifact::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
+void CGArtifact::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const
 {
 	if(answer)
 		gameEvents.startBattle(hero, this);

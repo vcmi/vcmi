@@ -65,6 +65,9 @@ void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 		if(!currentGarrisonHero)
 			throw cannotFulfillGoalException("Invalid configuration. There is no hero in town garrison.");
 		
+		if(!aiGw->canSwapGarrisonHero(targetTown))
+			throw cannotFulfillGoalException("Hero can not leave garrison, wandering heroes limit is reached!");
+
 		aiGw->cc->swapGarrisonHero(targetTown);
 
 		if(currentGarrisonHero != targetTown->getVisitingHero())
@@ -85,6 +88,10 @@ void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 
 	aiGw->makePossibleUpgrades(targetTown);
 	aiGw->moveHeroToTile(targetTown->visitablePos(), HeroPtr(getGarrisonHero(), aiGw->cc.get()));
+
+	// movement may stop on the way, e.g. when the rest of the path is planned for a later turn
+	if(getGarrisonHero()->getVisitedTown() != targetTown)
+		throw cannotFulfillGoalException("Hero " + getGarrisonHero()->getNameTextID() + " did not reach " + targetTown->getNameTextID());
 
 	auto upperArmy = targetTown->getUpperArmy();
 	

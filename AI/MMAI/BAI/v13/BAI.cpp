@@ -82,7 +82,7 @@ void BAI::battleStart(
 // XXX: battleEnd() is NOT called by CPlayerInterface (i.e. GUI)
 //      However, it's called by AAI (i.e. headless) and that's all we want
 //      since the terminal result is needed only during training.
-void BAI::battleEnd(const BattleID & bid, const BattleResult * br, QueryID queryID)
+void BAI::battleEnd(const BattleID & bid, const BattleResult * br, QuestionID questionID)
 {
 	try
 	{

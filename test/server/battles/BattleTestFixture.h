@@ -19,14 +19,11 @@
 #include "../../../lib/constants/EntityIdentifiers.h"
 #include "../../../lib/networkPacks/PacksForClientBattle.h"
 
-VCMI_LIB_NAMESPACE_BEGIN
 class BattleAction;
 class CArmedInstance;
 class CGHeroInstance;
 class CGTownInstance;
 struct SpellCreatedObstacle;
-VCMI_LIB_NAMESPACE_END
-
 class CGameHandler;
 
 /// Everything one spell cast produced, as the clients see it.

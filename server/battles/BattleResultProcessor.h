@@ -20,7 +20,7 @@ class CBattleInfoCallback;
 class CGHeroInstance;
 class CArmedInstance;
 
-class CBattleQuery;
+class BattleActivity;
 class BattleProcessor;
 class CGameHandler;
 
@@ -40,7 +40,7 @@ struct CasualtiesAfterBattle
 
 struct FinishingBattleHelper
 {
-	FinishingBattleHelper(const CBattleInfoCallback & battle, const BattleResult & result, int RemainingBattleQueriesCount);
+	FinishingBattleHelper(const CBattleInfoCallback & battle, const BattleResult & result);
 
 	inline bool isDraw() const {return winnerSide == BattleSide::NONE;}
 
@@ -50,8 +50,6 @@ struct FinishingBattleHelper
 	PlayerColor loser;
 	BattleSide winnerSide;
 
-	int remainingBattleQueriesCount;
-
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & winnerId;
@@ -59,7 +57,6 @@ struct FinishingBattleHelper
 		h & victor;
 		h & loser;
 		h & winnerSide;
-		h & remainingBattleQueriesCount;
 	}
 };
 
@@ -79,4 +76,6 @@ public:
 	void endBattle(const CBattleInfoCallback & battle); //ends battle
 	void endBattleConfirm(const CBattleInfoCallback & battle);
 	void battleFinalize(const BattleID & battleID, const BattleResult & result);
+	/// Forgets the result of a battle that is replayed under a new id instead of being finalized
+	void battleCancelled(const BattleID & battleID);
 };

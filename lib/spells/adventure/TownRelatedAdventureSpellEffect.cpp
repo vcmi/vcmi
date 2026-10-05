@@ -121,44 +121,14 @@ ESpellCastResult TownRelatedAdventureSpellEffect::beginCast(SpellCastEnvironment
 		if(offeredTownIDs.empty())
 			return onNoTownToSelect(env, parameters);
 
-		auto queryCallback = [&mechanics, env, parameters, offeredTownIDs](std::optional<int32_t> reply) -> void
-		{
-			if(reply.has_value())
-			{
-				ObjectInstanceID townId(*reply);
-				if(!vstd::contains(offeredTownIDs, townId))
-				{
-					env->complain("Invalid town selected in dialog");
-					return;
-				}
-
-				const CGObjectInstance * object = env->getCb()->getObj(townId, true);
-				if(object == nullptr)
-				{
-					env->complain("Invalid object instance selected");
-					return;
-				}
-
-				if(!dynamic_cast<const CGTownInstance *>(object))
-				{
-					env->complain("Object instance is not town");
-					return;
-				}
-
-				AdventureSpellCastParameters nextCast;
-				nextCast.caster = parameters.caster;
-				nextCast.pos = object->visitablePos();
-				mechanics.performCast(env, nextCast);
-			}
-		};
-
 		MapObjectSelectDialog request;
 		request.player = parameters.caster->getCasterOwner();
 		configureDialogTitleAndDescription(request.title, request.description);
 		request.icon = Component(ComponentType::SPELL, owner->id);
 		request.objects = offeredTownIDs;
 
-		env->genericQuery(&request, request.player, queryCallback);
+		// The cast pauses here, so everything needed to complete it is passed by value
+		env->askToSelectTown(request, owner->id, parameters.caster->getHeroCaster()->id);
 		return ESpellCastResult::PENDING;
 	}
 
