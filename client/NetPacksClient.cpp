@@ -463,17 +463,19 @@ void ApplyClientNetPackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 		}
 	}
 
-	// In auto testing mode close client once game is over for all players
-	bool allPlayersEndedGame = std::none_of(gs.players.begin(), gs.players.end(), [](const auto & player)
+	if(!settings["session"]["testmap"].isNull())
 	{
-		return player.second.status == EPlayerStatus::INGAME;
-	});
-
-	if(!settings["session"]["testmap"].isNull() && allPlayersEndedGame)
-	{
+		// In auto testing mode close client once game is over for all players
+		bool allPlayersEndedGame = std::none_of(gs.players.begin(), gs.players.end(), [](const auto & player)
+		{
+			return player.second.status == EPlayerStatus::INGAME;
+		});
+		if (allPlayersEndedGame)
+		{
 		logAi->info("All players have ended the game. Ending game.");
 
 		GAME->onShutdownRequested(settings["session"]["spectate"].Bool()); // if spectator is active ask to close client or not
+		}
 	}
 }
 
