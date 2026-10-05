@@ -221,6 +221,10 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			}
 			break;
 		}
+		case BonusType::SPELL:
+			// spell can be cast without spellbook
+			var = BonusParameters(value.Bool());
+			break;
 		case BonusType::COMBAT_EVENT_TRIGGER:
 		{
 			// the whole addInfo is the script payload - which script runs is the bonus subtype

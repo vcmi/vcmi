@@ -95,6 +95,7 @@ public:
 	bool optionHeroSleeping();
 	bool optionHeroAwake();
 	bool optionHeroSelected();
+	bool optionHeroCanCastSpells();
 	bool optionHeroCanMove();
 	bool optionHasNextHero();
 	bool optionCanVisitObject();

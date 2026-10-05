@@ -277,7 +277,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	}
 
 	// Some bonuses must be located in the instance.
-	for(const auto & b : art->getExportedBonusList())
+	for(const auto & b : BonusList(art->getExportedBonusList()))
 	{
 		if(std::dynamic_pointer_cast<const HasChargesLimiter>(b->limiter))
 		{

@@ -958,6 +958,19 @@ void CGHeroInstance::spendMana(ServerCallback * server, const int spellCost) con
 	}
 }
 
+static bool castableWithoutSpellbook(const Bonus & spellBonus)
+{
+	return spellBonus.parameters && spellBonus.parameters->toCustom<bool>();
+}
+
+bool CGHeroInstance::canCastSpells() const
+{
+	if(hasSpellbook())
+		return true;
+
+	return std::ranges::any_of(*getBonusesOfType(BonusType::SPELL), [](const auto & bonus){ return castableWithoutSpellbook(*bonus); });
+}
+
 bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 {
 	const bool inSpellBook = spellbookContainsSpell(spell->getId()) && hasSpellbook();
@@ -968,7 +981,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		{//hero has this spell in spellbook
 			logGlobal->error("Special spell %s in spellbook.", spell->getNameTextID());
 		}
-		return hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
+		return std::ranges::any_of(*getBonusesOfType(BonusType::SPELL, spell->getId()), [this](const auto & bonus){ return hasSpellbook() || castableWithoutSpellbook(*bonus); });
 	}
 	else if(!cb->isAllowed(spell->getId()))
 	{
@@ -1319,12 +1332,17 @@ bool CGHeroInstance::spellbookContainsSpell(const SpellID & spell) const
 std::vector<BonusSourceID> CGHeroInstance::getSourcesForSpell(const SpellID & spellId) const
 {
 	std::vector<BonusSourceID> sources;
+	const bool spellbook = hasSpellbook();
 
-	if(hasSpellbook() && spellbookContainsSpell(spellId))
+	if(spellbook && spellbookContainsSpell(spellId))
 		sources.emplace_back(getArt(ArtifactPosition::SPELLBOOK)->getId());
 
 	for(const auto & bonus : *getBonusesOfType(BonusType::SPELL, spellId))
-		sources.emplace_back(bonus->sid);
+		if(spellbook || castableWithoutSpellbook(*bonus))
+			sources.emplace_back(bonus->sid);
+
+	if(!spellbook)
+		return sources;
 
 	bool tomesGrantBannedSpells = cb->getSettings().getBoolean(EGameSettings::SPELLS_TOMES_GRANT_BANNED_SPELLS);
 
