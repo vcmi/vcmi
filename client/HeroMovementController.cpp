@@ -15,6 +15,8 @@
 #include "adventureMap/AdventureMapInterface.h"
 #include "events/InputHandler.h"
 #include "GameEngine.h"
+#include "Client.h"
+#include "CServerHandler.h"
 #include "GameInstance.h"
 #include "gui/CursorHandler.h"
 #include "mapView/mapHandler.h"
@@ -123,7 +125,7 @@ void HeroMovementController::updatePath(const CGHeroInstance * hero, const TryMo
 	if(!GAME->interface()->localState->hasPath(hero))
 		return; // may happen when hero teleports
 
-	assert(GAME->interface()->makingTurn);
+	assert(GAME->interface()->makingTurn || (GAME->server().client && GAME->server().client->observerMode.load()));
 
 	bool directlyAttackingCreature = details.attackedFrom.isValid() && GAME->interface()->localState->getPath(hero).lastNode().coord == details.attackedFrom;
 
