@@ -196,6 +196,10 @@ bool isObjectPassable(const CGObjectInstance * obj, PlayerColor playerColor, Pla
 bool isWeeklyRevisitable(const PlayerColor & playerID, const CGObjectInstance * obj);
 
 bool isObjectRemovable(const CGObjectInstance * obj); //FIXME FIXME: move logic to object property!
+
+/// Returns false if the AI player can not interact with this object right now,
+/// e.g. if object is owned by player that AI has not met yet during simultaneous turns
+bool canInteractWithObject(const Nullkiller * aiNk, const CGObjectInstance * obj);
 double normalizeHeroStrength(double heroStrength);
 double getNormalizedHeroStrength(const CGHeroInstance * hero);
 
