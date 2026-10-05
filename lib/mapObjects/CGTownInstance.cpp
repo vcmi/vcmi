@@ -792,6 +792,7 @@ void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 
 	if(h)
 	{
+		assert(h->visitablePos() == visitablePos());
 		h->detachFromBonusSystem(cb->gameState());
 		h->setVisitedTown(this, false);
 		h->attachToBonusSystem(cb->gameState());
@@ -824,6 +825,7 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 
 	if(h)
 	{
+		assert(h->visitablePos() == visitablePos());
 		h->detachFromBonusSystem(cb->gameState());
 		h->setVisitedTown(this, true);
 		h->attachToBonusSystem(cb->gameState());
