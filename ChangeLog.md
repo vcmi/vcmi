@@ -8,23 +8,18 @@
 * Implemented support for enemy turn replay
 * Greatly improved performance of adventure map rendering
 * Game rendering now uses GPU to greatly improve overall performance
+* Implemented a sharpening filter
 * Added initial support for Lua scripting
 * Added support for Heroes 3 Demo, with most of game features disabled
 * Map editor is now available on Android systems and on iPads
-* Added support for HotA 1.8 campaigns
+* Added support for HotA 1.8.1 maps and campaigns
 * Added support for HotA scripting (Extended Event System)
 * Added support for Lithuanian and Norwegian languages
 * Added support for HotA Quest Gates, Seer Huts with multiple quests, and quests limited by game difficulty
 * Implemented better save management logic - each playthrough now stores its saves, including autosaves, in its own dedicated directory
 * Added Scenario Event Journal, available from the Quest Log, that records all event messages the player has received since the start of the game
 
-### Other
-
-* VCMI can now run in the background on Android, allowing a multiplayer session to be hosted even when focus is switched to another app
-* It is now possible to select the map layer type for random maps, for example creating a map with two underground layers
-* It is now possible to manage VCMI data with file managers on Android
-
-### Stability and performance
+### Stability
 
 * Fixed possible crash on shutdown
 * Fixed crash if Sacrifice or Teleport spell is used as creature ability
@@ -33,38 +28,62 @@
 * Fixed possible crashes if multiple Dungeon towns with a built Scholar Academy level up multiple heroes at once on map start or on an event
 * Fixed crashes on loading some custom user-made maps with objects outside of map bounds
 * Fixed possible crash on starting VCMI campaigns with some configurations of starting bonuses
+* Fixed freeze when an Arrow Tower gets its turn while under `HP_REGENERATION` effect
+* Fixed possible crash if hero moves to the top-left corner of the map
+* Fixed possible crashes if the path to the game directory contains non-ASCII characters on some systems
+
+### Performance
+
+* Greatly improved application startup times, especially with a large number of mods
+* Improved optimization settings on Windows
 * Game will now only load maps from current directory, to improve map list load times when large map packs are installed
 * Greatly improved performance of map list loading
 * Fixed slow initialization of a map with large number of random monsters
 * Fixed slow initialization of a large map with a large number of monoliths
 * Slightly improved performance of saving and loading of games
+* Fixed unstable framerate, most notably on Android
 
-### Interface
+### Interface - General
+
+* Improved support for pen input
+* Wiki: Game objects added in Heroes 3 expansions are now marked as such
+* Wiki: Special artifacts like Spellbook are now visible in the artifact list
+* Added inertia scrolling to keybindings menu
+* Added click effects for buttons on systems with a touchscreen
+* Fuzzy text search (adventure map objects, spells, maps) is now less tolerant, to give more relevant results
+* Fixed possible partial cutoff of the last letter when rendering text split into multiple lines
+* Fixed numerous cases where in-game text would be decided by the language of the player hosting the game
+* Enemy turn progress is now shown on the taskbar icon on systems that support it
+* Taskbar icon now blinks when the player's turn starts and the app is inactive or minimized
+* VCMI can now run in the background on Android, allowing a multiplayer session to be hosted even when focus is switched to another app
+* It is now possible to manage VCMI data with file managers on Android
+
+### Interface - Adventure Map
+
+* Fixed duplicated Mystic Pond description on left click
+* Heroes will now appear with semi-transparency when behind other map objects
+* When a hero moves in a boat with Angel Wings equipped, game will now correctly play the boat movement sound, not the flying sound
+* Fixed camera not following hero after going through a Whirlpool
+* Implemented one-finger zoom via double-tap and hold
+* Fixed incorrect ordering of map objects on some maps
+* Adventure map shadows are now shown in the same way as in H3. One object can no longer cast a shadow on another object
+* Added a hotkey to export the current in-game map, including any fog of war
+* Added support for scrolling the map with the keyboard, by default bound to Ctrl+arrow keys
+* Fixed text shown in a Pyramid if the hero already knows the spell
+
+### Interface - Towns and Windows
 
 * Added shortcuts to Blacksmith(L), Shipyard(Y), Unit upgrade dialog (Shift+U / Ctrl+U)
 * Added a radial wheel to the town screen to open commonly accessed buildings
 * Fixed possible UI flickering when hero receives multiple level-up dialogs at once
-* Wiki: Game objects added in Heroes 3 expansions are now marked as such
-* Wiki: Special artifacts like Spellbook are now visible in the artifact list
-* Fixed inability to click on the defending hero to open his or her spellbook
 * Gold is now always displayed last in the marketplace window
-* Fixed duplicated Mystic Pond description on left click
-* Implemented paid commander resurrection on town visit
 * Game will now show whether the commander is dead in its unit window
-* Added inertia scrolling to keybindings menu
 * Added status bar to Garrison window
 * Added warning message when trying to take units from Garrison with non-removable units
 * Added sound for sacrificing creatures via the Skeleton Transformer
 * Hover text on creature growth icons in the town window will now show both growth and available units
-* Added click effects for buttons on systems with a touchscreen
-* Heroes will now appear with semi-transparency when behind other map objects
-* Fuzzy text search (adventure map objects, spells, maps) is now less tolerant, to give more relevant results
 * Fixed inability to switch between equipped, misc, and backpack artifact categories on the kingdom overview screen
-* Fixed possible partial cutoff of the last letter when rendering text split into multiple lines
-* Fixed numerous cases where in-game text would be decided by the language of the player hosting the game
 * Simplified text in town building requirements to bring it more in line with H3
-* When a hero moves in a boat with Angel Wings equipped, game will now correctly play the boat movement sound, not the flying sound
-* Fixed camera not following hero after going through a Whirlpool
 
 ### Interface - Pregame
 
@@ -73,6 +92,10 @@
 * Scenario selection screen is now correctly centered if UI enhancements are on
 * Fixed selected skills not applying correctly in battle-only mode
 * Game will now load the list of available maps in parallel to improve load time
+* Fixed incorrect count of AI players in the description of a random map
+* Clicking on a label in the random map and extra options windows now toggles its checkbox as well
+* Scalable main menu will now resize correctly on resolution change or phone orientation flip
+* Fixed bug where long list of spells added to hero in battle-only mode would cause dialog to overflow screen height
 
 ### Interface - Combat
 
@@ -88,51 +111,71 @@
 * It is no longer possible to retreat or surrender if it triggers scenario loss
 * Added hotkeys to toggle grid, mouse shadow, movement shadow, and stack info, with a corresponding toggle in settings
 * Added better control system for combat interface when using gamepad / controller as input
+* Fixed inability to click on the defending hero to open his or her spellbook
 
-### Interface - Combat Animations
+### Interface - Spell Animations
 
 * Added Earthquake animation
 * Implemented Chain Lightning effect, where the lightning bolt jumps between affected units
-* Implemented support for the H3 gate overlay that contains gate chains - they now appear on top of the units standing inside the gates
-* Implemented animation of the gates opening/closing
-* Implemented removal fade-out effect for on-map obstacles
-* Implemented missing magical obstacle removal animation
 * Acid Breath now uses its own animation instead of the Weakness effect
 * Added missing spell effect for Remove Obstacle spell
 * Sacrifice now shows the correct animation for the sacrificed unit
 * Removal of units from the battlefield, including Sacrifice, now uses a fade-out effect, not an instant removal
 * Low morale effect now additionally triggers hit effect, in line with H3
-* Obstacles like Quicksands will now correctly appear below units, not on top of them
-* Fixed walls incorrectly showing up as damaged if they start with health greater than the H3 value
-* Walls, gates, and towers now switch to their destroyed image mid-explosion, when hidden by the blast (matching H3), instead of switching afterwards
 * Fixed positioning of spell projectile hit destination
 * Fixed spellcasters that cast spells that affect all units to always turn left before casting
-* Fixed timing of obstacle placement (Fire Wall, Force Field) - casting animation, fade-in, and replacement with the permanent obstacle now sync correctly, with no visible glitches
 * Fixed randomly reproducible bug where some spells like Magic Arrow could play the hit effect before the projectile is fired by the hero
-* Fixed a bug that caused town gates during siege to open before the unit is adjacent to the gate
 * Damage-dealing spells will now correctly update the stack amount box when the spell actually hits, not on cast
 * Improved timing of bloodlust effect to better match H3
 * Hero animation is now paused while spell animation is playing, in line with H3
 
-### Mechanics
+### Interface - Sieges and Obstacles
 
-* Added support for Diplomat's Cloak (HotA)
-* Added support for Airships (HotA)
+* Implemented support for the H3 gate overlay that contains gate chains - they now appear on top of the units standing inside the gates
+* Implemented animation of the gates opening/closing
+* Implemented removal fade-out effect for on-map obstacles
+* Implemented missing magical obstacle removal animation
+* Obstacles like Quicksands will now correctly appear below units, not on top of them
+* Fixed walls incorrectly showing up as damaged if they start with health greater than the H3 value
+* Walls, gates, and towers now switch to their destroyed image mid-explosion, when hidden by the blast (matching H3), instead of switching afterwards
+* Fixed timing of obstacle placement (Fire Wall, Force Field) - casting animation, fade-in, and replacement with the permanent obstacle now sync correctly, with no visible glitches
+* Fixed a bug that caused town gates during siege to open before the unit is adjacent to the gate
+
+### Mechanics - General
+
 * Game will now correctly handle cases where the map loss condition is "hero is lost", but the hero only joins the player midway, when rescued from prison (H3 behavior)
 * Fixed handling of the daily cast limit for spells that only give bonuses to the player (modded spells only)
+* Added support for maps that have "Lose a hero" loss condition targeting a hero who starts the map in a prison
+
+### Mechanics - Heroes and Artifacts
+
+* Added support for Diplomat's Cloak (HotA)
 * Corrected hero spell-power specialty rounding for heroes that use the times-hero-level-divide-target-level approach
 * Fixed Adela's Bless specialty rounding
 * Fixed non-functioning healing-spell specialties
-* When a Seer Hut quest component occupies the same slot as its combined artifact (e.g. Sword of Judgement for Angelic Alliance), the game now correctly detects it and auto-disassembles the artifact
-* Added support for Temple of Loyalty (HotA)
-* Added support for Warlock's Lab (HotA)
-* It is no longer possible to disembark onto dug-out holes (a game setting is provided to opt out of this change)
 * Changed Mysticism hero specialty rounding to match Heroes 3
 * Mutare is now replaced with Mutare Drake and granted a +4 bonus to Attack and Defense, in line with H3
 * Angelic Alliance now affects all armies of a player, not just the hero carrying the artifact, in line with H3
 * Eagle Eye only learns spells the hero has Wisdom for
+* Equipping Titan's Thunder will now correctly grant a Spellbook in all situations
+* Artifacts increasing unit speed in combat no longer increase the hero's movement points limit
+* Implemented paid commander resurrection on town visit
+
+### Mechanics - Adventure Map Objects
+
+* Added support for Airships (HotA)
+* When a Seer Hut quest component occupies the same slot as its combined artifact (e.g. Sword of Judgement for Angelic Alliance), the game now correctly detects it and auto-disassembles the artifact
+* Added support for Temple of Loyalty (HotA)
+* Added support for Warlock's Lab (HotA)
+* It is no longer possible to disembark onto dug-out holes (a game setting is provided to opt out of this change)
 * Whirlpool takes 50% of the weakest stack rounded up, picks that stack by fight value, and never takes a hero's last creature
 * Wandering creatures on the easiest difficulty react as if the hero had one more level of Diplomacy, up to expert
+* Pandora's Box can now grant mana points above the hero's limit, in line with H3
+* When computing whether wandering creatures would join, the game now correctly considers the presence of the same unit in the hero's army
+* Growth of neutral town garrisons now matches H3
+* Fixed a bug where the initial number of creatures available in neutral towns was halved
+* Implemented wandering monster join percentage configuration on HotA .h3m maps
+* Fixed bug allowing to cast adventure map spells granted by artifacts without a spellbook
 
 ### Mechanics - Combat
 
@@ -140,26 +183,34 @@
 * Fixed positioning of some obstacles in battle to match H3
 * It is now possible for flying units to move into the moat and attack as part of the same action
 * Fixed rare unit movement scenario which could cause town gates during siege to fail to open
+* Attacking a unit while standing in the moat will now correctly trigger moat damage
+* Damage cap now also applies to spells
+* Fixed Arrow Tower damage calculation to be in line with Heroes 3
+* Attack advantage cap is now correctly +300% instead of +400%
+* Lucky strike now correctly doubles damage only for the directly attacked creature, not for every target of a multi-target attack
+* Fixed Catapult targeting to match H3
+* Fixed a rare bug where a creature with a specialty effect could act in incorrect turn order
+* Surrender costs should now match H3
+* Dendroid Bind effect is now correctly removed as soon as binding unit dies or moves away
+
+### Mechanics - Spells and Abilities
+
 * It is now possible to Bless or Curse Ballista
 * It is no longer possible to cast Slayer, Fortune and Misfortune on war machines other than Ballista
-* Attacking a unit while standing in the moat will now correctly trigger moat damage
 * Fixed opening battle spells (e.g. Angelic Alliance) actually lasting 49 rounds instead of 50
-* Damage cap now also applies to spells
 * Fire Shield now uses damage from before defence damage reductions are applied
 * Orb of Inhibition now blocks all active abilities of units with a non-zero level
 * Poison effect will no longer trigger on Waiting, only on taking an actual turn
 * Added full support for the Steel Elves (HotA) ability
 * Petrify effect can now be dispelled by Cure
-* Fixed Arrow Tower damage calculation to be in line with Heroes 3
 * Fire Shield from multiple sources, such as the spell and the Efreeti ability, will no longer stack - only the strongest one will be active
 * Conflux creatures are no longer affected by Angelic Alliance, but are still affected by Clover Field, while neutral creatures are not affected by either
 * Fixed units under Air Shield receiving half of the expected damage when attacked by a shooter that also has a range penalty
 * Frenzy spell now correctly affects attack against Behemoths
 * Changed rounding for Nix ability (HotA) to match HotA
-* Attack advantage cap is now correctly +300% instead of +400%
-* Lucky strike now correctly doubles damage only for the directly attacked creature, not for every target of a multi-target attack
 * Mummy curse triggers with 25% chance instead of 50%, in line with H3
 * Magic Plains now raise spells cast by creatures to expert level, unlike battlefields of a specific magic school
+* Fixed bug where charged artifacts charges were not restored on restarting a combat
 
 ### Random Maps Generator
 
@@ -170,6 +221,7 @@
 * Greatly improved zone placement logic to reduce number of monoliths
 * Game can now place subterranean gates at a certain distance from each other, to allow connecting non-intersecting zones
 * Generator will now respect requested zone sizes more closely
+* It is now possible to select the map layer type for random maps, for example creating a map with two underground layers
 
 ### Adventure AI
 
@@ -193,12 +245,21 @@
 * Fixed a bug where AI could leave a scout with a suboptimal unit instead of picking the unit with the lowest AI value (if units are equal with regard to other relevant parameters)
 * Improved performance of the Nullkiller AI pathfinder
 * AI will now correctly upgrade units of the army garrisoned in a town
+* Fixed memory leak in NKAI
+* NKAI will no longer retreat with a scenario-critical hero or when the player owns no tavern
+* NKAI should no longer attempt to interact with other players during simultaneous turns
 
 ### Combat AI
 
 * Removed support for old versions of MMAI mod
 * Added support for additional, siege-only models for MMAI
 * Battle AI and MMAI can now use basic tactics logic
+* Battle AI should now better account for creature abilities and spells that buff or debuff creatures
+* Fixed a bug where BattleAI would move towards shooters without attacking reachable targets on its way
+* Fixed a bug where BattleAI would incorrectly estimate the effect of attacks that hit multiple enemies
+* Fixed estimation of Resurrection cost by BattleAI
+* AI will now prefer cheaper spells if all damaging spells deal the same damage (e.g. if the entire stack is killed)
+* AI now correctly estimates the number of retaliations when computing the result of a duel where the attacker has multiple attacks
 
 ### Launcher
 
@@ -208,6 +269,10 @@
 * Fixed the Launcher's behavior when connecting or disconnecting additional displays
 * Added Tears of Ashan to the list of recommended mods in the Launcher
 * It is now possible to start the game from the Launcher with "Start" or "A" on a gamepad
+* Added detection of the Steam version during initial installation
+* Launcher will now correctly preserve state of submods and other mods during mod updates
+* Blocked uninstall of mods in read-only directories
+* Blocked uninstall of mods that are clone of git repository
 
 ### Map Editor
 
@@ -218,6 +283,12 @@
 * Fixed possible crash in the template editor on adding a connection before two zones are placed
 * Fixed cases that would cause "Export As" or "Save As" to fail silently
 * It is now possible to add a map layer, such as the underground, in the map editor
+* Added support for multiple quests in Seer Huts
+* Fixed crash on undoing removal of a map object
+* Fixed a corrupted list of preconfigured allowed spells being saved into a .vmap
+* Victory condition "Capture all mines" can now be correctly configured in the editor
+* It is now possible to configure wandering monster properties added in HotA in the map editor
+* Map object rendering order should now match the client
 
 ### Modding - General
 
@@ -233,6 +304,10 @@
 * Configurable map objects can now specify reset periods using `days`, `weeks` or `months`, not just `period`. This logic is aware of the configurable week length
 * Added support for the `resources` property for markets, which limits the resources available for trade
 * Added support for the `effectiveness` property for markets, which overrides the exchange rate that is normally derived from `efficiency`
+* Added `grantsLevelUp` secondary skill tag that emulates the HotA change to Learning
+* Added support for per-terrain rumors for hints on Grail location
+* It is now possible to translate bonus descriptions in configurable map objects
+* It is now possible to translate random map template descriptions
 
 ### Modding - Bonus System
 
@@ -254,6 +329,9 @@
 * Bonus `ACID_BREATH` has been removed. Identical functionality can be implemented with the `SPELL_AFTER_ATTACK` bonus
 * Deprecated `SOUL_STEAL`, `TRANSMUTATION`, `SUMMON_GUARDIANS`, and `DESTRUCTION` bonuses
 * Added `BLOCK_CREATURE_MAGIC` and `BLOCK_NATIVE_TERRAIN_BONUS` bonus types to handle H3 magical terrains edge cases
+* `PERCENT_TO_TARGET_TYPE` now supports `targetSourceID` to only affect bonuses granted by a specific source
+* `SPECIAL_UPGRADE` can now configure an upgrade cost multiplier in its `val` field
+* `SPELL` bonus now supports `addInfo`. If set to true, spell granted by bonus will be possible to cast even without spellbook presence
 
 ### Modding - Scripting
 
