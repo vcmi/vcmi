@@ -79,6 +79,19 @@ static bool colorsSimilar (const SDL_Color & lhs, const SDL_Color & rhs)
 	return std::abs(diffR) < threshold && std::abs(diffG) < threshold && std::abs(diffB) < threshold && std::abs(diffA) < threshold;
 }
 
+/// Shadow and overlay layers of images without palette (e.g. 32-bit mod sprites) have nothing to hide the body with,
+/// so the body is drawn only by the body layer. Indexed images hide it through the palette and need the draw
+static bool drawsOnlyExtraLayers(EImageBlitMode layer, const SDL_Palette * palette)
+{
+	if(palette)
+		return false;
+
+	return layer == EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR
+		|| layer == EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION
+		|| layer == EImageBlitMode::ONLY_FLAG_COLOR
+		|| layer == EImageBlitMode::ONLY_SELECTION;
+}
+
 ScalableImageParameters::ScalableImageParameters(const SDL_Palette * originalPalette, EImageBlitMode blitMode)
 {
 	if (originalPalette)
@@ -273,6 +286,8 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 		return images[index];
 	};
 
+	const bool extraLayersOnly = drawsOnlyExtraLayers(locator.layer, parameters.palette);
+
 	bool shadowLoading = scaled.at(scalingFactor).shadow.at(0) && scaled.at(scalingFactor).shadow.at(0)->isLoading();
 	bool bodyLoading = scaled.at(scalingFactor).body.at(0) && scaled.at(scalingFactor).body.at(0)->isLoading();
 	bool overlayLoading = scaled.at(scalingFactor).overlay.at(0) && scaled.at(scalingFactor).overlay.at(0)->isLoading();
@@ -283,6 +298,9 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 	{
 		// upscaling is still running - the 1x image is stretched to stand in for it
 		RenderHandler::notifyPlaceholderDrawn();
+
+		if (extraLayersOnly)
+			return;
 
 		getFlippedImage(scaled[1].body)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
 
@@ -300,7 +318,7 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 	}
 	else
 	{
-		if (scaled.at(scalingFactor).body.at(0))
+		if (scaled.at(scalingFactor).body.at(0) && !extraLayersOnly)
 			getFlippedImage(scaled.at(scalingFactor).body)->draw(where, parameters.palette, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
 
 		if (scaled.at(scalingFactor).bodyGrayscale.at(0) && parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)

@@ -219,7 +219,27 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 	auto it = animationLayouts.find(actualPath);
 
 	if (it != animationLayouts.end() && (settings["video"]["useHdTextures"].Bool() || scalingFactor == 1))
-		return it->second;
+	{
+		const auto modeIt = animationLayoutModes.find(actualPath);
+		if (modeIt == animationLayoutModes.end() || modeIt->second == mode)
+			return it->second;
+
+		// locators of json animations carry the mode they were created with. The same file can be
+		// requested in several modes (e.g. shadow, body and player color layers of a map object)
+		auto & variants = animationLayoutVariants[actualPath];
+		auto variantIt = variants.find(mode);
+		if (variantIt == variants.end())
+		{
+			AnimationLayoutMap variant = it->second;
+			for (auto & group : variant)
+				for (auto & locator : group.second)
+					if (locator.layer == modeIt->second)
+						locator.layer = mode;
+
+			variantIt = variants.emplace(mode, std::move(variant)).first;
+		}
+		return variantIt->second;
+	}
 
 	AnimationLayoutMap result;
 
@@ -247,6 +267,8 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 	}
 
 	animationLayouts[actualPath] = result;
+	animationLayoutModes[actualPath] = mode;
+	animationLayoutVariants.erase(actualPath);
 	return animationLayouts[actualPath];
 }
 
@@ -691,5 +713,9 @@ std::shared_ptr<AssetGenerator> RenderHandler::getAssetGenerator()
 void RenderHandler::updateGeneratedAssets()
 {
 	for(const auto & [key, value] : assetGenerator->generateAllAnimations())
+	{
 		animationLayouts[key] = value;
+		animationLayoutModes.erase(key);
+		animationLayoutVariants.erase(key);
+	}
 }
