@@ -94,6 +94,8 @@
 * Game will now load the list of available maps in parallel to improve load time
 * Fixed incorrect count of AI players in the description of a random map
 * Clicking on a label in the random map and extra options windows now toggles its checkbox as well
+* Scalable main menu will now resize correctly on resolution change or phone orientation flip
+* Fixed bug where long list of spells added to hero in battle-only mode would cause dialog to overflow screen height
 
 ### Interface - Combat
 
@@ -172,6 +174,8 @@
 * When computing whether wandering creatures would join, the game now correctly considers the presence of the same unit in the hero's army
 * Growth of neutral town garrisons now matches H3
 * Fixed a bug where the initial number of creatures available in neutral towns was halved
+* Implemented wandering monster join percentage configuration on HotA .h3m maps
+* Fixed bug allowing to cast adventure map spells granted by artifacts without a spellbook
 
 ### Mechanics - Combat
 
@@ -187,6 +191,7 @@
 * Fixed Catapult targeting to match H3
 * Fixed a rare bug where a creature with a specialty effect could act in incorrect turn order
 * Surrender costs should now match H3
+* Dendroid Bind effect is now correctly removed as soon as binding unit dies or moves away
 
 ### Mechanics - Spells and Abilities
 
@@ -205,6 +210,7 @@
 * Changed rounding for Nix ability (HotA) to match HotA
 * Mummy curse triggers with 25% chance instead of 50%, in line with H3
 * Magic Plains now raise spells cast by creatures to expert level, unlike battlefields of a specific magic school
+* Fixed bug where charged artifacts charges were not restored on restarting a combat
 
 ### Random Maps Generator
 
@@ -241,6 +247,7 @@
 * AI will now correctly upgrade units of the army garrisoned in a town
 * Fixed memory leak in NKAI
 * NKAI will no longer retreat with a scenario-critical hero or when the player owns no tavern
+* NKAI should no longer attempt to interact with other players during simultaneous turns
 
 ### Combat AI
 
@@ -263,6 +270,9 @@
 * Added Tears of Ashan to the list of recommended mods in the Launcher
 * It is now possible to start the game from the Launcher with "Start" or "A" on a gamepad
 * Added detection of the Steam version during initial installation
+* Launcher will now correctly preserve state of submods and other mods during mod updates
+* Blocked uninstall of mods in read-only directories
+* Blocked uninstall of mods that are clone of git repository
 
 ### Map Editor
 
@@ -321,6 +331,7 @@
 * Added `BLOCK_CREATURE_MAGIC` and `BLOCK_NATIVE_TERRAIN_BONUS` bonus types to handle H3 magical terrains edge cases
 * `PERCENT_TO_TARGET_TYPE` now supports `targetSourceID` to only affect bonuses granted by a specific source
 * `SPECIAL_UPGRADE` can now configure an upgrade cost multiplier in its `val` field
+* `SPELL` bonus now supports `addInfo`. If set to true, spell granted by bonus will be possible to cast even without spellbook presence
 
 ### Modding - Scripting
 
