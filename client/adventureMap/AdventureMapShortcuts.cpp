@@ -91,7 +91,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_SET_HERO_ASLEEP,  optionHeroAwake(),      [this]() { this->setHeroSleeping(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_AWAKE,   optionHeroSleeping(),   [this]() { this->setHeroAwake(); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO,        optionHeroCanMove(),    [this]() { this->moveHeroAlongPath(); } },
-		{ EShortcut::ADVENTURE_CAST_SPELL,       optionHeroSelected(),   [this]() { this->showSpellbook(); } },
+		{ EShortcut::ADVENTURE_CAST_SPELL,       optionHeroCanCastSpells(), [this]() { this->showSpellbook(); } },
 		{ EShortcut::ADVENTURE_GAME_OPTIONS,     optionInMapView(),      [this]() { this->adventureOptions(); } },
 		{ EShortcut::GLOBAL_OPTIONS,             optionInMapView(),      [this]() { this->systemOptions(); } },
 		{ EShortcut::ADVENTURE_FIRST_HERO,       optionInMapView(),      [this]() { this->firstHero(); } },
@@ -700,6 +700,11 @@ bool AdventureMapShortcuts::optionCanVisitObject()
 bool AdventureMapShortcuts::optionHeroSelected()
 {
 	return optionInMapView() && GAME->interface()->localState->getCurrentHero() != nullptr;
+}
+
+bool AdventureMapShortcuts::optionHeroCanCastSpells()
+{
+	return optionHeroSelected() && GAME->interface()->localState->getCurrentHero()->canCastSpells();
 }
 
 bool AdventureMapShortcuts::optionHeroCanMove()
