@@ -1652,8 +1652,20 @@ ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * be
 	logGlobal->trace("Handle Berserk effect");
 	auto targets = battleGetUnitsIf([&berserker](const battle::Unit * u)
 	{
-		return u->isValidTarget(false) && u->unitId() != berserker->unitId();
+		return u->isValidTarget(false) && !u->isInvincible() && u->unitId() != berserker->unitId();
 	});
+
+	if (targets.empty())
+	{
+		logGlobal->trace("No attackable target found for berserk unit");
+		ForcedAction result = {
+			EActionType::NO_ACTION,
+			berserker->getPosition(),
+			nullptr
+		};
+		return result;
+	}
+
 	auto cache = getReachability(berserker);
 
 	if (battleCanShoot(berserker))
