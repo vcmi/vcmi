@@ -905,6 +905,9 @@ jobs:
     steps:
       - name: Checkout (for script path)
         uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            CI/final_summary.py
 
       - name: Download all partial JSON artifacts
         continue-on-error: true
