@@ -61,12 +61,13 @@ enum class ESerializationVersion : int32_t
 	SECONDARY_SKILL_OFFER_COOLDOWN, // hero stores level at which skills with offer cooldown were gained
 	SEER_HUT_NAME_TEXT_ID, // seer name is stored as text identifier, and a quest may override it with a map-defined name
 	SIMTURNS_CONTACT_STATUS, // game state stores players that still play simultaneous turns without contact
+	BATTLE_RESTORE_ARTIFACT_CHARGES, // battle stores initial charges of artifacts to restore them if battle is cancelled
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = SIMTURNS_CONTACT_STATUS,
+	CURRENT = BATTLE_RESTORE_ARTIFACT_CHARGES,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

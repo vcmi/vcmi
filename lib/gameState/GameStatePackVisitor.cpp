@@ -1546,6 +1546,21 @@ void GameStatePackVisitor::visitBattleCancelled(BattleCancelled & pack)
 		{
 			CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(i)->id);
 			hero->mana = currentBattle.getSide(i).initialMana;
+
+			for(const auto & initial : currentBattle.getSide(i).initialArtifactCharges)
+			{
+				auto * artifact = gs.getArtInstance(initial.artifactID);
+
+				// artifact may have been removed on depletion
+				if(!hero->getArtByInstanceId(initial.artifactID))
+					gs.getMap().putArtifactInstance(*hero, initial.artifactID, initial.position);
+
+				if(artifact->getCharges() < initial.charges)
+					artifact->addCharges(initial.charges - artifact->getCharges());
+				else
+					artifact->discharge(artifact->getCharges() - initial.charges);
+			}
+			hero->nodeHasChanged();
 		}
 	}
 

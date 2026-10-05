@@ -13,6 +13,8 @@
 #include "../callback/IGameInfoCallback.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
+#include "../entities/artifact/CArtifact.h"
+#include "../entities/artifact/CArtifactInstance.h"
 
 void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army, const CGTownInstance * town)
 {
@@ -25,6 +27,13 @@ void SideInBattle::init(const CGHeroInstance * Hero, const CArmedInstance * Army
 		additionalMana = Hero->valOfBonuses(BonusType::COMBAT_MANA_BONUS);
 		if (town)
 			additionalMana += town->valOfBonuses(BonusType::COMBAT_MANA_BONUS);
+
+		for(const auto & [slot, slotInfo] : Hero->artifactsWorn)
+		{
+			const auto * artifact = slotInfo.getArt();
+			if(!slotInfo.locked && artifact->getType()->getDischargeCondition() == DischargeArtifactCondition::SPELLCAST)
+				initialArtifactCharges.push_back({artifact->getId(), slot, artifact->getCharges()});
+		}
 	}
 
 	switch(Army->ID.toEnum())
