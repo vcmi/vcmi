@@ -461,10 +461,11 @@ Changes duration of timed spells cast by affected hero
 
 ### SPELL
 
-Allows affected heroes to cast specified spell, even if this spell is banned in map options or set to "special". Hero must have a spellbook.
+Allows affected heroes to cast specified spell, even if this spell is banned in map options or set to "special". Hero must have a spellbook, unless addInfo is set to true.
 
 - subtype: spell identifier
 - val: skill level mastery (0 - 3)
+- addInfo: optional, if true, spell can be cast without spellbook
 
 ### SPELLS_OF_LEVEL
 

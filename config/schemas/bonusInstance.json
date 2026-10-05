@@ -353,6 +353,21 @@
 		{
 			"if" : {
 				"properties" : {
+					"type" : { "enum" : [ "SPELL" ] }
+				}
+			},
+			"then" : {
+				"properties" : {
+					"addInfo" : {
+						"type" : "boolean",
+						"description" : "If true, spell can be cast without spellbook"
+					}
+				}
+			}
+		},
+		{
+			"if" : {
+				"properties" : {
 					"type" : { "enum" : [ "SPECIAL_PECULIAR_ENCHANT" ] }
 				}
 			},

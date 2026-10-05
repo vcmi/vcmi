@@ -393,7 +393,7 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 			return hero->hasBonusOfType(BonusType::IMPROVED_NECROMANCY) ? veryRelevant : notRelevant;
 		case BonusType::SPELL_DAMAGE:
 		case BonusType::SPELL_DURATION:
-			return hero->hasSpellbook() ? relevant : notRelevant;
+			return hero->canCastSpells() ? relevant : notRelevant;
 		case BonusType::PERCENTAGE_DAMAGE_BOOST:
 			if (bonus->subtype == BonusCustomSubtype::damageTypeRanged)
 				return veryRelevant * getArmyPercentageWithBonus(BonusType::SHOOTER);
@@ -402,7 +402,7 @@ double getArtifactBonusRelevance(const CGHeroInstance * hero, const std::shared_
 			return 0;
 		case BonusType::MANA_PERCENTAGE_REGENERATION:
 		case BonusType::MANA_REGENERATION:
-			return hero->hasSpellbook() ? relevant : notRelevant;
+			return hero->canCastSpells() ? relevant : notRelevant;
 		case BonusType::LEARN_BATTLE_SPELL_CHANCE:
 			return hero->hasBonusOfType(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT) ? relevant : notRelevant;
 		case BonusType::LEARN_BATTLE_SPELL_CHANCE_PRE_BATTLE:
