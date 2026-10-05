@@ -968,7 +968,7 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		{//hero has this spell in spellbook
 			logGlobal->error("Special spell %s in spellbook.", spell->getNameTextID());
 		}
-		return hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
+		return hasSpellbook() && hasBonusOfType(BonusType::SPELL, BonusSubtypeID(spell->getId()));
 	}
 	else if(!cb->isAllowed(spell->getId()))
 	{
@@ -1320,7 +1320,10 @@ std::vector<BonusSourceID> CGHeroInstance::getSourcesForSpell(const SpellID & sp
 {
 	std::vector<BonusSourceID> sources;
 
-	if(hasSpellbook() && spellbookContainsSpell(spellId))
+	if(!hasSpellbook())
+		return sources;
+
+	if(spellbookContainsSpell(spellId))
 		sources.emplace_back(getArt(ArtifactPosition::SPELLBOOK)->getId());
 
 	for(const auto & bonus : *getBonusesOfType(BonusType::SPELL, spellId))
