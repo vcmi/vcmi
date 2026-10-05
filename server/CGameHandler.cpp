@@ -393,7 +393,7 @@ void CGameHandler::giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TEx
 	{
 		TExpType canGainCommanderExp = 0;
 		TExpType currCommanderExp = hero->getCommander()->getTotalExperience();
-		if (maxExp > currHeroExp)
+		if (maxExp > currCommanderExp)
 			canGainCommanderExp = maxExp - currCommanderExp;
 
 		TExpType actualCommanderExperience = amountToGain > canGainCommanderExp ? canGainCommanderExp : amountToGain;

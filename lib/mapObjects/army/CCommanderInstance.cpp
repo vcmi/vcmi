@@ -72,5 +72,8 @@ ArtBearer CCommanderInstance::bearerType() const
 
 bool CCommanderInstance::gainsLevel() const
 {
-	return getTotalExperience() >= LIBRARY->heroh->reqExp(level + 1);
+	// once the commander reaches the highest level described by the experience table,
+	// reqExp() clamps to the largest known value and would keep returning true
+	return static_cast<ui32>(level) < LIBRARY->heroh->maxSupportedLevel()
+		&& getTotalExperience() >= LIBRARY->heroh->reqExp(level + 1);
 }
