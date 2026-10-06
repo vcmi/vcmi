@@ -133,6 +133,9 @@ public:
 
 	static bool isDemoDataPresent();
 
+	/// offers player to enable "ignoreSslErrors" setting, returns true if it was enabled
+	bool askToIgnoreSslErrors();
+
 protected:
 	void showEvent(QShowEvent * event) override;
 

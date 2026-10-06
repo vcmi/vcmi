@@ -38,6 +38,7 @@ class CDownloadManager : public QObject, public IHttpDownloaderListener
 	};
 
 	QStringList encounteredErrors;
+	bool certificateErrorEncountered = false;
 
 	HttpDownloader downloader;
 	QTimer pollTimer;
@@ -51,7 +52,7 @@ class CDownloadManager : public QObject, public IHttpDownloaderListener
 	int countDownloadsInProgress() const;
 
 	void onDownloadProgress(HttpDownloadID download, uint64_t received, uint64_t total) override;
-	void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage) override;
+	void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage, bool certificateError) override;
 
 public:
 	CDownloadManager();
@@ -61,6 +62,9 @@ public:
 	bool downloadInProgress(const QUrl & url) const;
 
 	void downloadFile(const QUrl & url, const QString & file, qint64 bytesTotal = 0);
+
+	/// returns true if any download failed because certificate of the server could not be verified
+	bool hasCertificateErrors() const;
 
 signals:
 	// for status bar updates. Merges all queued downloads into one

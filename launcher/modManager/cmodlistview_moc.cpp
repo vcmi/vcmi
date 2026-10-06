@@ -924,7 +924,23 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	// if all files were d/loaded there should be no errors. And on failure there must be an error
 	assert(failedFiles.empty() == errors.empty());
 
-	if(savedFiles.empty())
+	bool retryRepositories = false;
+	QStringList modsToRetry;
+
+	if(dlManager->hasCertificateErrors() && !settings["launcher"]["ignoreSslErrors"].Bool() && askToIgnoreSslErrors())
+	{
+		for(const auto & file : failedFiles)
+		{
+			const QString modName = QFileInfo(file).completeBaseName();
+			if(file.endsWith(".zip", Qt::CaseInsensitive) && enqueuedModDownloads.contains(modName))
+				modsToRetry.push_back(modName);
+			else
+				retryRepositories = true;
+		}
+		// repository refresh downloads all repository files again, so files that it would download must not be installed now
+		doInstallFiles = !retryRepositories;
+	}
+	else if(savedFiles.empty())
 	{
 		// no successfully downloaded mods
 		QMessageBox::warning(this, title, firstLine + errors.join("\n"), QMessageBox::Ok, QMessageBox::Ok);
@@ -959,6 +975,32 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 
 	Helper::keepScreenOn(false);
 	hideProgressBar();
+
+	if(retryRepositories)
+		loadRepositories();
+
+	for(const auto & modName : modsToRetry)
+		if(modStateModel->isModExists(modName))
+			downloadMod(modStateModel->getMod(modName));
+}
+
+bool CModListView::askToIgnoreSslErrors()
+{
+	const QString message = tr(
+		"VCMI could not confirm that it is connected to the real download server.\n\n"
+		"This usually happens on older systems, such as Windows 7, that are missing recent security updates.\n\n"
+		"However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. "
+		"In that case, downloaded files could be replaced with harmful ones.\n\n"
+		"Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the \"Ignore SSL errors\" option.");
+
+	auto answer = QMessageBox::warning(this, tr("Unable to verify download server"), message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+	if(answer != QMessageBox::Yes)
+		return false;
+
+	Settings node = settings.write["launcher"]["ignoreSslErrors"];
+	node->Bool() = true;
+	Helper::getMainWindow()->getSettingsView()->loadSettings();
+	return true;
 }
 
 void CModListView::showExternalProgress(const QString & format, int current, int max)

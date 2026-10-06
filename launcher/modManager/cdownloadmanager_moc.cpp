@@ -50,8 +50,10 @@ CDownloadManager::FileEntry & CDownloadManager::getEntry(HttpDownloadID download
 	throw std::runtime_error("Failed to find download entry " + std::to_string(download));
 }
 
-void CDownloadManager::onDownloadFinished(HttpDownloadID download, const std::string & errorMessage)
+void CDownloadManager::onDownloadFinished(HttpDownloadID download, const std::string & errorMessage, bool certificateError)
 {
+	if(certificateError)
+		certificateErrorEncountered = true;
 	finishEntry(getEntry(download), errorMessage);
 }
 
@@ -167,6 +169,11 @@ void CDownloadManager::copyLocalFile(FileEntry & entry)
 		finishEntry(entry, {});
 	else
 		finishEntry(entry, tr("Failed to copy file %1").arg(Helper::getRealPath(sourcePath)).toStdString());
+}
+
+bool CDownloadManager::hasCertificateErrors() const
+{
+	return certificateErrorEncountered;
 }
 
 int CDownloadManager::countDownloadsInProgress() const

@@ -229,7 +229,7 @@ void HttpDownloader::poll()
 	for(HttpDownloadID id : std::exchange(failedToStart, {}))
 	{
 		if(transfers.count(id))
-			finish(id, transfers.at(id)->error);
+			finish(id, transfers.at(id)->error, false);
 	}
 
 	if(transfers.empty())
@@ -251,18 +251,19 @@ void HttpDownloader::poll()
 		curl_easy_getinfo(message->easy_handle, CURLINFO_PRIVATE, &transfer);
 
 		CURLcode result = message->data.result;
+		bool certificateError = result == CURLE_PEER_FAILED_VERIFICATION;
 		if(result == CURLE_OK)
-			finish(transfer->id, {});
+			finish(transfer->id, {}, false);
 		else if(!transfer->error.empty())
-			finish(transfer->id, "Failed to download " + transfer->url + ": " + transfer->error);
+			finish(transfer->id, "Failed to download " + transfer->url + ": " + transfer->error, certificateError);
 		else if(transfer->errorBuffer.front() != '\0')
-			finish(transfer->id, "Failed to download " + transfer->url + ": " + transfer->errorBuffer.data());
+			finish(transfer->id, "Failed to download " + transfer->url + ": " + transfer->errorBuffer.data(), certificateError);
 		else
-			finish(transfer->id, "Failed to download " + transfer->url + ": " + curl_easy_strerror(result));
+			finish(transfer->id, "Failed to download " + transfer->url + ": " + curl_easy_strerror(result), certificateError);
 	}
 }
 
-void HttpDownloader::finish(HttpDownloadID download, const std::string & errorMessage)
+void HttpDownloader::finish(HttpDownloadID download, const std::string & errorMessage, bool certificateError)
 {
 	std::unique_ptr<HttpDownloaderTransfer> finished = std::move(transfers.at(download));
 	transfers.erase(download);
@@ -276,7 +277,7 @@ void HttpDownloader::finish(HttpDownloadID download, const std::string & errorMe
 		finished->removeTarget();
 
 	finished.reset();
-	listener.onDownloadFinished(download, result);
+	listener.onDownloadFinished(download, result, certificateError);
 }
 
 void HttpDownloader::cancel()

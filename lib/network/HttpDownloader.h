@@ -24,7 +24,8 @@ public:
 	/// Receives number of downloaded bytes and total size of the file, or 0 if server did not report it
 	virtual void onDownloadProgress(HttpDownloadID download, uint64_t received, uint64_t total) = 0;
 	/// Receives empty string on success, or description of the error
-	virtual void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage) = 0;
+	/// certificateError: download failed because certificate of the server could not be verified
+	virtual void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage, bool certificateError) = 0;
 };
 
 /// Downloads files over HTTP(S) using libcurl. Downloads run in parallel, driven by periodic calls to poll()
@@ -48,7 +49,7 @@ public:
 	bool isActive() const;
 
 private:
-	void finish(HttpDownloadID download, const std::string & errorMessage);
+	void finish(HttpDownloadID download, const std::string & errorMessage, bool certificateError);
 
 	IHttpDownloaderListener & listener;
 	std::map<HttpDownloadID, std::unique_ptr<HttpDownloaderTransfer>> transfers;
