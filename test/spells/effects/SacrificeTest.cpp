@@ -193,32 +193,64 @@ TEST_F(SacrificeApplicableGeneralTest, ReturnsFalseWhenNoInjuredUnits)
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 	unit.makeAlive();
 	EXPECT_CALL(unit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
-	ON_CALL(unit, getTotalHealth()).WillByDefault(Return(100));
-	ON_CALL(unit, getAvailableHealth()).WillByDefault(Return(100));
+	EXPECT_CALL(unit, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(unit, getAvailableHealth()).WillRepeatedly(Return(100));
 	EXPECT_CALL(unit, isInvincible()).WillRepeatedly(Return(false));
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&unit))).WillRepeatedly(Return(true));
-	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillRepeatedly(Return(true));
 
+	auto & unit2 = unitsFake.add(BattleSide::ATTACKER);
+	unit2.makeAlive();
+	EXPECT_CALL(unit2, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
+	EXPECT_CALL(unit2, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(unit2, getAvailableHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(unit2, isInvincible()).WillRepeatedly(Return(false));
+	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&unit2))).WillRepeatedly(Return(true));
+	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit2))).WillRepeatedly(Return(true));
+
+	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
 	EXPECT_CALL(mechanicsMock, adaptProblem(_, _)).WillOnce(Return(false));
 	EXPECT_FALSE(subject->applicableGeneral(problemMock, &mechanicsMock));
+}
+
+TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWithTwoInjuredUnits)
+{
+	auto & injuredUnit1 = unitsFake.add(BattleSide::ATTACKER);
+	injuredUnit1.makeAlive();
+	EXPECT_CALL(injuredUnit1, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
+	EXPECT_CALL(injuredUnit1, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(injuredUnit1, getAvailableHealth()).WillRepeatedly(Return(50));
+	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&injuredUnit1))).WillRepeatedly(Return(true));
+	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&injuredUnit1))).WillRepeatedly(Return(true));
+
+	auto & injuredUnit2 = unitsFake.add(BattleSide::ATTACKER);
+	injuredUnit2.makeAlive();
+	EXPECT_CALL(injuredUnit2, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
+	EXPECT_CALL(injuredUnit2, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(injuredUnit2, getAvailableHealth()).WillRepeatedly(Return(50));
+	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&injuredUnit2))).WillRepeatedly(Return(true));
+	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&injuredUnit2))).WillRepeatedly(Return(true));
+
+	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
+
+	EXPECT_TRUE(subject->applicableGeneral(problemMock, &mechanicsMock));
 }
 
 TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWithInjuredAndAliveUnits)
 {
 	auto & injuredUnit = unitsFake.add(BattleSide::ATTACKER);
-	injuredUnit.makeDead();
+	injuredUnit.makeAlive();
 	EXPECT_CALL(injuredUnit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
-	ON_CALL(injuredUnit, getTotalHealth()).WillByDefault(Return(100));
-	ON_CALL(injuredUnit, getAvailableHealth()).WillByDefault(Return(50));
+	EXPECT_CALL(injuredUnit, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(injuredUnit, getAvailableHealth()).WillRepeatedly(Return(50));
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&injuredUnit))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&injuredUnit))).WillRepeatedly(Return(true));
 
 	auto & aliveUnit = unitsFake.add(BattleSide::ATTACKER);
 	aliveUnit.makeAlive();
 	EXPECT_CALL(aliveUnit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
-	ON_CALL(aliveUnit, getTotalHealth()).WillByDefault(Return(100));
-	ON_CALL(aliveUnit, getAvailableHealth()).WillByDefault(Return(100));
+	EXPECT_CALL(aliveUnit, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(aliveUnit, getAvailableHealth()).WillRepeatedly(Return(100));
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&aliveUnit))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&aliveUnit))).WillRepeatedly(Return(true));
 
@@ -232,12 +264,39 @@ TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWithDeadAndAliveUnits)
 	auto & deadUnit = unitsFake.add(BattleSide::ATTACKER);
 	deadUnit.makeDead();
 	EXPECT_CALL(deadUnit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
+	EXPECT_CALL(aliveUnit, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(aliveUnit, getAvailableHealth()).WillRepeatedly(Return(0));
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&deadUnit))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&deadUnit))).WillRepeatedly(Return(true));
 
 	auto & aliveUnit = unitsFake.add(BattleSide::ATTACKER);
 	aliveUnit.makeAlive();
 	EXPECT_CALL(aliveUnit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
+	EXPECT_CALL(aliveUnit, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(aliveUnit, getAvailableHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&aliveUnit))).WillRepeatedly(Return(true));
+	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&aliveUnit))).WillRepeatedly(Return(true));
+
+	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
+
+	EXPECT_TRUE(subject->applicableGeneral(problemMock, &mechanicsMock));
+}
+
+TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWithDeadAndInjuredUnits)
+{
+	auto & deadUnit = unitsFake.add(BattleSide::ATTACKER);
+	deadUnit.makeDead();
+	EXPECT_CALL(deadUnit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
+	EXPECT_CALL(aliveUnit, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(aliveUnit, getAvailableHealth()).WillRepeatedly(Return(0));
+	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&deadUnit))).WillRepeatedly(Return(true));
+	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&deadUnit))).WillRepeatedly(Return(true));
+
+	auto & aliveUnit = unitsFake.add(BattleSide::ATTACKER);
+	aliveUnit.makeAlive();
+	EXPECT_CALL(aliveUnit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
+	EXPECT_CALL(aliveUnit, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(aliveUnit, getAvailableHealth()).WillRepeatedly(Return(50));
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&aliveUnit))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&aliveUnit))).WillRepeatedly(Return(true));
 
@@ -261,28 +320,13 @@ protected:
 	}
 };
 
-TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsTrueWhenTargetIsAliveAndInjured)
-{
-	auto & unit = unitsFake.add(BattleSide::ATTACKER);
-	unit.makeAlive();
-	EXPECT_CALL(unit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
-	ON_CALL(unit, getTotalHealth()).WillByDefault(Return(100));
-	ON_CALL(unit, getAvailableHealth()).WillByDefault(Return(50));
-	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
-
-	Target target;
-	target.emplace_back(&unit, BattleHex());
-
-	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
-}
-
 TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsFalseWhenTargetIsNotInjured)
 {
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 	unit.makeAlive();
 	EXPECT_CALL(unit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
-	ON_CALL(unit, getTotalHealth()).WillByDefault(Return(100));
-	ON_CALL(unit, getAvailableHealth()).WillByDefault(Return(100));
+	EXPECT_CALL(unit, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(unit, getAvailableHealth()).WillRepeatedly(Return(100));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
 
 	Target target;
@@ -294,7 +338,8 @@ TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsFalseWhenTargetIsNotInjured
 TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsFalseWhenVictimIsDead)
 {
 	auto & deadTarget = unitsFake.add(BattleSide::ATTACKER);
-	EXPECT_CALL(deadTarget, alive()).WillRepeatedly(Return(false));
+	EXPECT_CALL(deadTarget, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(deadTarget, getAvailableHealth()).WillRepeatedly(Return(0));
 	EXPECT_CALL(deadTarget, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
 
@@ -311,7 +356,8 @@ TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsFalseWhenVictimIsDead)
 TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsFalseWhenVictimNotReceptive)
 {
 	auto & deadTarget = unitsFake.add(BattleSide::ATTACKER);
-	EXPECT_CALL(deadTarget, alive()).WillRepeatedly(Return(false));
+	EXPECT_CALL(deadTarget, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(deadTarget, getAvailableHealth()).WillRepeatedly(Return(0));
 	EXPECT_CALL(deadTarget, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
 
@@ -319,8 +365,6 @@ TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsFalseWhenVictimNotReceptive
 	victim.makeAlive();
 	EXPECT_CALL(victim, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&victim))).WillRepeatedly(Return(false));
-	ON_CALL(victim, getTotalHealth()).WillByDefault(Return(100));
-	ON_CALL(victim, getAvailableHealth()).WillByDefault(Return(100));
 	
 	Target target;
 	target.emplace_back(&deadTarget, BattleHex());
