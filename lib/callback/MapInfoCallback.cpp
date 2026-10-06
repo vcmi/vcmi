@@ -9,6 +9,8 @@
  */
 #include "StdInc.h"
 #include "MapInfoCallback.h"
+
+#include "../CSkillHandler.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -93,7 +95,8 @@ bool MapInfoCallback::isAllowed(ArtifactID id) const
 
 bool MapInfoCallback::isAllowed(SecondarySkill id) const
 {
-	return getMapConstPtr()->allowedAbilities.count(id) != 0;
+	// Skills disabled by mods (marked as special) are never allowed, even if the map allows them
+	return !id.toSkill()->isSpecial() && getMapConstPtr()->allowedAbilities.count(id) != 0;
 }
 
 int3 MapInfoCallback::getMapSize() const
