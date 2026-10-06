@@ -81,6 +81,11 @@ bool IVCMIDirs::setUserPath(EUserDirectory, const bfs::path &)
 	return false;
 }
 
+bool IVCMIDirs::isOneDrivePath(const bfs::path &) const
+{
+	return false;
+}
+
 #ifdef VCMI_WINDOWS
 
 #include <windows.h>
@@ -104,6 +109,7 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 
 		bfs::path binaryPath() const override;
 		bool setUserPath(EUserDirectory directory, const bfs::path & path) override;
+		bool isOneDrivePath(const bfs::path & path) const override;
 
 	protected:
 		std::unique_ptr<JsonNode> dirsConfig;
@@ -357,8 +363,32 @@ bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
 {
 	wchar_t profileDir[MAX_PATH];
 	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
-		return bfs::path(profileDir) / "My Games" / "vcmi";
+	{
+		const bfs::path documentsPath(profileDir);
+		if(!isOneDrivePath(documentsPath))
+			return documentsPath / "My Games" / "VCMI";
+	}
+
+	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_LOCAL_APPDATA, FALSE) != FALSE)
+		return bfs::path(profileDir) / "VCMI";
+
 	return bfs::path(".");
+}
+
+bool VCMIDirsWIN32::isOneDrivePath(const bfs::path & path) const
+{
+	wchar_t oneDrivePath[MAX_PATH];
+	const DWORD pathSize = ExpandEnvironmentStringsW(L"%OneDrive%", oneDrivePath, MAX_PATH);
+	if(pathSize == 0 || pathSize > MAX_PATH)
+		return false;
+
+	const std::wstring candidate = path.wstring();
+	std::wstring oneDrive = bfs::path(oneDrivePath).wstring();
+	if(boost::iequals(candidate, oneDrive))
+		return true;
+	oneDrive += bfs::path::preferred_separator;
+
+	return boost::istarts_with(candidate, oneDrive);
 }
 
 bfs::path VCMIDirsWIN32::userDataPath() const
