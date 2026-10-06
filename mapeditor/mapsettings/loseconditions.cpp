@@ -19,6 +19,7 @@ LoseConditions::LoseConditions(QWidget *parent) :
 	ui(new Ui::LoseConditions)
 {
 	ui->setupUi(this);
+	ui->loseParamsLayout->setAlignment(Qt::AlignVCenter);
 }
 
 LoseConditions::~LoseConditions()
@@ -94,8 +95,12 @@ void LoseConditions::initialize(MapController & c)
 
 						case EventCondition::DAYS_PASSED: {
 							ui->loseComboBox->setCurrentIndex(3);
-							assert(loseValueWidget);
-							loseValueWidget->setText(expiredDate(json["value"].Integer()));
+							assert(daySpinBox);
+							assert(weekSpinBox);
+							assert(monthSpinBox);
+							daySpinBox->setValue((json["value"].Integer() % 7));
+							weekSpinBox->setValue((json["value"].Integer() % 28) / 7);
+							monthSpinBox->setValue(json["value"].Integer() / 28);
 							break;
 						}
 
@@ -188,8 +193,10 @@ void LoseConditions::update()
 
 			case 2: {
 				EventCondition cond(EventCondition::DAYS_PASSED);
-				assert(loseValueWidget);
-				cond.value = expiredDate(loseValueWidget->text());
+				assert(daySpinBox);
+				assert(weekSpinBox);
+				assert(monthSpinBox);
+				cond.value = monthSpinBox->value() * 28 + weekSpinBox->value() * 7 + daySpinBox->value();
 				specialDefeat.onFulfill.appendTextID("core.genrltxt.254");
 				specialDefeat.trigger = EventExpression(cond);
 				controller->map()->defeatMessage = MetaString::createFromTextID("core.lcdesc.3");
@@ -234,10 +241,20 @@ void LoseConditions::on_loseComboBox_currentIndexChanged(int index)
 	delete loseValueWidget;
 	delete loseSelectWidget;
 	delete pickObjectButton;
+	delete daySpinBox;
+	delete weekSpinBox;
+	delete monthSpinBox;
+	for (QWidget * temp : temporaryWidgets)
+		delete temp;
+	temporaryWidgets.clear();
+
 	loseTypeWidget = nullptr;
 	loseValueWidget = nullptr;
 	loseSelectWidget = nullptr;
 	pickObjectButton = nullptr;
+	daySpinBox = nullptr;
+	weekSpinBox = nullptr;
+	monthSpinBox = nullptr;
 
 	if(index == 0)
 	{
@@ -273,9 +290,26 @@ void LoseConditions::on_loseComboBox_currentIndexChanged(int index)
 		}
 
 		case 2: { //EventCondition::DAYS_PASSED
-			loseValueWidget = new QLineEdit;
-			ui->loseParamsLayout->addWidget(loseValueWidget);
-			loseValueWidget->setText("2m 1w 1d");
+			QLabel * dayLabel = new QLabel(QObject::tr("Day"));
+			temporaryWidgets.push_back(static_cast<QWidget *>(dayLabel));
+			daySpinBox = new QSpinBox;
+			daySpinBox->setMaximum(6);
+
+			QLabel * weekLabel = new QLabel(QObject::tr("Week"));
+			temporaryWidgets.push_back(static_cast<QWidget *>(weekLabel));
+			weekSpinBox = new QSpinBox;
+			weekSpinBox->setMaximum(3);
+
+			QLabel * monthLabel = new QLabel(QObject::tr("Month"));
+			temporaryWidgets.push_back(static_cast<QWidget *>(monthLabel));
+			monthSpinBox = new QSpinBox;
+
+			ui->loseParamsLayout->addWidget(dayLabel, 0, Qt::AlignLeft);
+			ui->loseParamsLayout->addWidget(daySpinBox, 0, Qt::AlignLeft);
+			ui->loseParamsLayout->addWidget(weekLabel, 0, Qt::AlignLeft);
+			ui->loseParamsLayout->addWidget(weekSpinBox, 0, Qt::AlignLeft);
+			ui->loseParamsLayout->addWidget(monthLabel, 0, Qt::AlignLeft);
+			ui->loseParamsLayout->addWidget(monthSpinBox, 0, Qt::AlignLeft);
 			break;
 		}
 

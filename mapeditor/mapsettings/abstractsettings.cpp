@@ -17,45 +17,6 @@
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../translator.h"
 
-//parses date for lose condition (1m 1w 1d)
-int expiredDate(const QString & date)
-{
-	int result = 0;
-	for(auto component : date.split(" "))
-	{
-		int days = component.left(component.lastIndexOf('d')).toInt();
-		int weeks = component.left(component.lastIndexOf('w')).toInt();
-		int months = component.left(component.lastIndexOf('m')).toInt();
-		result += days > 0 ? days - 1 : 0;
-		result += (weeks > 0 ? weeks - 1 : 0) * 7;
-		result += (months > 0 ? months - 1 : 0) * 28;
-	}
-	return result;
-}
-
-QString expiredDate(int date)
-{
-	QString result;
-	int m = date / 28;
-	int w = (date % 28) / 7;
-	int d = date % 7;
-	if(m)
-		result += QString::number(m) + "m";
-	if(w)
-	{
-		if(!result.isEmpty())
-			result += " ";
-		result += QString::number(w) + "w";
-	}
-	if(d)
-	{
-		if(!result.isEmpty())
-			result += " ";
-		result += QString::number(d) + "d";
-	}
-	return result;
-}
-
 int3 posFromJson(const JsonNode & json)
 {
 	return int3(json.Vector()[0].Integer(), json.Vector()[1].Integer(), json.Vector()[2].Integer());
