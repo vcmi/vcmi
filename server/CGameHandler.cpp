@@ -860,8 +860,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	const CGObjectInstance * objectToVisit = nullptr;
 	const CGObjectInstance * guardian = nullptr;
 
-	if (!t.visitableObjects.empty())
-		objectToVisit = gameState().getObjInstance(t.visitableObjects.back());
+	if (const ObjectInstanceID objectID = t.objectVisitedBy(h->id); objectID.hasValue())
+		objectToVisit = gameState().getObjInstance(objectID);
 
 	if (gameInfo().isInTheMap(guardPos))
 	{
@@ -1009,7 +1009,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		tmh.result = result;
 		sendAndApply(tmh);
 
-		if (visitDest == VISIT_DEST && objectToVisit && objectToVisit->id == h->id)
+		if (visitDest == VISIT_DEST && tmh.start == tmh.end)
 		{ // Hero should be always able to visit any object he is staying on even if there are guards around
 			visitObjectOnTile(t, h);
 		}
@@ -1032,24 +1032,26 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	//interaction with blocking object (like resources)
 	auto blockingVisit = [&]() -> bool
 	{
-		for (ObjectInstanceID objectID : t.visitableObjects)
+		// only the object that visitObjectOnTile() would visit may block the hero, same as in pathfinder
+		const ObjectInstanceID objectID = t.objectVisitedBy(h->id);
+		if (!objectID.hasValue())
+			return false;
+
+		const CGObjectInstance * object = gameInfo().getObj(objectID);
+
+		if(h->inBoat() && !object->isBlockedVisitable() && !h->getBoat()->onboardVisitAllowed)
+			return doMove(TryMoveHero::SUCCESS, this->IGNORE_GUARDS, DONT_VISIT_DEST, REMAINING_ON_TILE);
+
+		const auto * questSource = object->asQuestSource();
+		const bool stopsHero = object->isBlockedVisitable() || (questSource && questSource->requiresQuestToPass());
+
+		if (stopsHero && !object->passableFor(h))
 		{
-			const CGObjectInstance * object = gameInfo().getObj(objectID);
+			EVisitDest visitDest = VISIT_DEST;
+			if(h->inBoat() && !h->getBoat()->onboardVisitAllowed)
+				visitDest = DONT_VISIT_DEST;
 
-			if(h->inBoat() && !object->isBlockedVisitable() && !h->getBoat()->onboardVisitAllowed)
-				return doMove(TryMoveHero::SUCCESS, this->IGNORE_GUARDS, DONT_VISIT_DEST, REMAINING_ON_TILE);
-
-            const auto * questSource = object->asQuestSource();
-			const bool stopsHero = object->isBlockedVisitable() || (questSource && questSource->requiresQuestToPass());
-
-			if (object != h && stopsHero && !object->passableFor(h))
-			{
-				EVisitDest visitDest = VISIT_DEST;
-				if(h->inBoat() && !h->getBoat()->onboardVisitAllowed)
-					visitDest = DONT_VISIT_DEST;
-
-				return doMove(TryMoveHero::BLOCKING_VISIT, this->IGNORE_GUARDS, visitDest, REMAINING_ON_TILE);
-			}
+			return doMove(TryMoveHero::BLOCKING_VISIT, this->IGNORE_GUARDS, visitDest, REMAINING_ON_TILE);
 		}
 		return false;
 	};
@@ -1142,11 +1144,11 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	if (((h->getOwner() != t->getOwner())
 		&& complain("Cannot teleport hero to another player"))
 
-	|| (from->getFactionID() != t->getFactionID()
-		&& complain("Source town and destination town should belong to the same faction"))
-
 	|| ((!from || !from->hasBuilt(BuildingSubID::CASTLE_GATE))
 		&& complain("Hero must be in town with Castle gate for teleporting"))
+
+	|| (from->getFactionID() != t->getFactionID()
+		&& complain("Source town and destination town should belong to the same faction"))
 
 	|| (!t->hasBuilt(BuildingSubID::CASTLE_GATE)
 		&& complain("Cannot teleport hero to town without Castle gate in it")))
@@ -4020,14 +4022,9 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 
 void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h)
 {
-	if (!t.visitableObjects.empty())
-	{
-		//to prevent self-visiting heroes on space press
-		if (t.visitableObjects.back() != h->id)
-			objectVisited(gameState().getObjInstance(t.visitableObjects.back()), h);
-		else if (t.visitableObjects.size() > 1)
-			objectVisited(gameState().getObjInstance(*(t.visitableObjects.end()-2)),h);
-	}
+	const ObjectInstanceID objectID = t.objectVisitedBy(h->id);
+	if (objectID.hasValue())
+		objectVisited(gameState().getObjInstance(objectID), h);
 }
 
 bool CGameHandler::sacrificeCreatures(const IMarket * market, const CGHeroInstance * hero, const std::vector<SlotID> & slot, const std::vector<ui32> & count)

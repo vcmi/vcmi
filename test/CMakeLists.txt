@@ -42,6 +42,7 @@ set(test_SRCS
 
 		game/BattleSpellCastTest.cpp
 		game/HeroRecruitmentTest.cpp
+		game/HeroMovementTest.cpp
 		game/HeroSecondarySkillsTest.cpp
 		game/MovementCostTest.cpp
 		game/VictoryLossTest.cpp

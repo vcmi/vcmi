@@ -1934,7 +1934,7 @@ TEST_F(MapObjectVisitTest, aTownBuildingVisitReportsToTheBuildingNotTheTown)
 	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
 	builder.size(36, false)
 		.playerActive(player)
-		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.hero(int3(7, 8, 0), HeroTypeID(0), player) // starts on the town entrance
 		.town(int3(8, 8, 0), FactionID(0), player);
 	startWithMap(std::move(builder));
 
@@ -1942,12 +1942,12 @@ TEST_F(MapObjectVisitTest, aTownBuildingVisitReportsToTheBuildingNotTheTown)
 	auto * town = findFirst<CGTownInstance>();
 	ASSERT_NE(hero, nullptr);
 	ASSERT_NE(town, nullptr);
+	ASSERT_EQ(town->getVisitingHero(), hero); // a building can only be visited by a hero who is actually in the town
 	ASSERT_FALSE(town->rewardableBuildings.empty());
 
 	const auto buildingID = town->rewardableBuildings.begin()->first;
 	const auto * building = town->rewardableBuildings.begin()->second.get();
-	town->addBuilding(buildingID); // a building can only be visited once it exists
-	town->setVisitingHero(hero);   // and only by a hero who is actually in the town
+	town->addBuilding(buildingID); // and only once it exists
 
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());
@@ -2489,7 +2489,7 @@ TEST_F(MapObjectVisitTest, aDialogOpenedBeforeTheFirstBuildingIsReportedToTheTow
 	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
 	builder.size(36, false)
 		.playerActive(player)
-		.hero(int3(5, 5, 0), HeroTypeID(0), player)
+		.hero(int3(7, 8, 0), HeroTypeID(0), player) // starts on the town entrance
 		.town(int3(8, 8, 0), FactionID(0), player);
 	startWithMap(std::move(builder));
 
@@ -2497,11 +2497,11 @@ TEST_F(MapObjectVisitTest, aDialogOpenedBeforeTheFirstBuildingIsReportedToTheTow
 	auto * town = findFirst<CGTownInstance>();
 	ASSERT_NE(hero, nullptr);
 	ASSERT_NE(town, nullptr);
+	ASSERT_EQ(town->getVisitingHero(), hero);
 	ASSERT_FALSE(town->rewardableBuildings.empty());
 
 	const auto buildingID = town->rewardableBuildings.begin()->first;
 	town->addBuilding(buildingID);
-	town->setVisitingHero(hero);
 
 	GameHandlerTestServer server(gameState(), player);
 	CGameHandler gameHandler(server, gameState());

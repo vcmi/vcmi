@@ -767,48 +767,40 @@ void CGTownInstance::recreateBuildingsBonuses()
 	}
 }
 
+void CGTownInstance::setTownHero(ObjectInstanceID & slot, CGHeroInstance * hero, bool garrisoned)
+{
+	if(hero)
+	{
+		if(slot.hasValue() || hero->getVisitedTown())
+			throw std::runtime_error("Hero or town slot is already assigned");
+		assert(hero->visitablePos() == visitablePos());
+
+		hero->detachFromBonusSystem(cb->gameState());
+		hero->setVisitedTown(this, garrisoned);
+		hero->attachToBonusSystem(cb->gameState());
+		slot = hero->id;
+	}
+	else if(slot.hasValue())
+	{
+		auto * oldHero = cb->gameState().getHero(slot);
+		if(!oldHero || oldHero->getVisitedTown() != this)
+			throw std::runtime_error("Town hero assignment is inconsistent");
+
+		oldHero->detachFromBonusSystem(cb->gameState());
+		oldHero->setVisitedTown(nullptr, false);
+		oldHero->attachToBonusSystem(cb->gameState());
+		slot = {};
+	}
+}
+
 void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 {
-	if(getVisitingHero() == h)
-		return;
-	
-	if(h)
-	{
-		h->detachFromBonusSystem(cb->gameState());
-		h->setVisitedTown(this, false);
-		h->attachToBonusSystem(cb->gameState());
-		visitingHero = h->id;
-	}
-	else if (visitingHero.hasValue())
-	{
-		auto oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState().getObjInstance(visitingHero));
-		oldVisitor->detachFromBonusSystem(cb->gameState());
-		oldVisitor->setVisitedTown(nullptr, false);
-		oldVisitor->attachToBonusSystem(cb->gameState());
-		visitingHero = {};
-	}
+	setTownHero(visitingHero, h, false);
 }
 
 void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 {
-	if(getGarrisonHero() == h)
-		return;
-	
-	if(h)
-	{
-		h->detachFromBonusSystem(cb->gameState());
-		h->setVisitedTown(this, true);
-		h->attachToBonusSystem(cb->gameState());
-		garrisonHero = h->id;
-	}
-	else if (garrisonHero.hasValue())
-	{
-		auto oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState().getObjInstance(garrisonHero));
-		oldVisitor->detachFromBonusSystem(cb->gameState());
-		oldVisitor->setVisitedTown(nullptr, false);
-		oldVisitor->attachToBonusSystem(cb->gameState());
-		garrisonHero = {};
-	}
+	setTownHero(garrisonHero, h, true);
 	updateMoraleBonusFromArmy(); //avoid giving morale bonus for same army twice
 }
 

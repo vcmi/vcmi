@@ -269,6 +269,8 @@ private:
 	void initTownNames(vstd::RNG & randomGenerator);
 	void initMapObjects(IGameRandomizer & gameRandomizer);
 	void initVisitingAndGarrisonedHeroes();
+	/// Removes one-sided town-hero links, found in saves made before shared town entrances were fixed
+	void repairTownHeroLinks();
 	void initCampaign();
 
 	// ----- bonus system handling -----

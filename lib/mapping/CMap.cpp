@@ -211,6 +211,11 @@ ObjectInstanceID TerrainTile::topVisitableObj(bool excludeTop) const
 	return visitableObjects.back();
 }
 
+ObjectInstanceID TerrainTile::objectVisitedBy(ObjectInstanceID heroID) const
+{
+	return topVisitableObj(topVisitableObj() == heroID);
+}
+
 EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 {
 	if(isWater() || !getTerrain()->isPassable())
