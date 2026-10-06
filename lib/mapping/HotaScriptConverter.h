@@ -71,6 +71,9 @@ private:
 	/// Error for a field whose meaning is not known yet, naming the map and the event being converted
 	std::runtime_error unsupported(const std::string & message) const;
 
+	std::string luaString(const std::string & value) const;
+	std::string bucketName(int eventType) const;
+
 	std::string loadImageList(int count);
 	std::string localizedText(const std::string & role); ///< reads a text field, returns a Lua MetaString table holding its identifier
 

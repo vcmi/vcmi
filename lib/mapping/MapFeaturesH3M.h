@@ -29,36 +29,36 @@ public:
 
 	// number of bytes in bitmask of appropriate type
 
-	int factionsBytes;
-	int heroesBytes;
-	int artifactsBytes;
-	int resourcesBytes;
-	int skillsBytes;
-	int spellsBytes;
-	int buildingsBytes;
+	int factionsBytes = 0;
+	int heroesBytes = 0;
+	int artifactsBytes = 0;
+	int resourcesBytes = 0;
+	int skillsBytes = 0;
+	int spellsBytes = 0;
+	int buildingsBytes = 0;
 
 	// total number of elements of appropriate type
 
-	int factionsCount;
-	int heroesCount;
-	int heroesPortraitsCount;
-	int artifactsCount;
-	int resourcesCount;
-	int creaturesCount;
-	int spellsCount;
-	int skillsCount;
-	int terrainsCount;
-	int roadsCount;
-	int riversCount;
-	int artifactSlotsCount;
-	int buildingsCount;
+	int factionsCount = 0;
+	int heroesCount = 0;
+	int heroesPortraitsCount = 0;
+	int artifactsCount = 0;
+	int resourcesCount = 0;
+	int creaturesCount = 0;
+	int spellsCount = 0;
+	int skillsCount = 0;
+	int terrainsCount = 0;
+	int roadsCount = 0;
+	int riversCount = 0;
+	int artifactSlotsCount = 0;
+	int buildingsCount = 0;
 
 	// identifier that should be treated as "invalid", usually - '-1'
 
-	int heroIdentifierInvalid;
-	int artifactIdentifierInvalid;
-	int creatureIdentifierInvalid;
-	int spellIdentifierInvalid;
+	int heroIdentifierInvalid = 0;
+	int artifactIdentifierInvalid = 0;
+	int creatureIdentifierInvalid = 0;
+	int spellIdentifierInvalid = 0;
 
 	// features from which map format are available
 

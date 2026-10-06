@@ -24,7 +24,7 @@ enum class EMapFormat : uint8_t;
 class MapReaderH3M
 {
 public:
-	explicit MapReaderH3M(CInputStream * stream);
+	MapReaderH3M(CInputStream * stream, const std::string & mapName);
 
 	void setFormatLevel(const MapFormatFeaturesH3M & features);
 	void setIdentifierRemapper(const MapIdentifiersH3M & remapper);
@@ -80,7 +80,10 @@ public:
 
 	uint8_t readUInt8();
 	int8_t readInt8();
+	/// clamps out of range value with a warning
 	int8_t readInt8Checked(int8_t lowerLimit, int8_t upperLimit);
+	/// throws on out of range value, for values that define layout of following data
+	int8_t readInt8Strict(int8_t lowerLimit, int8_t upperLimit);
 
 	int16_t readInt16();
 	uint16_t readUInt16();
@@ -105,4 +108,5 @@ private:
 	MapIdentifiersH3M remapper;
 
 	std::unique_ptr<CBinaryReader> reader;
+	std::string mapName;
 };

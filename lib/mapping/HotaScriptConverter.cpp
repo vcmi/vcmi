@@ -110,10 +110,10 @@ static std::string boolStr(bool value)
 
 /// Renders a string as a quoted Lua literal. Only used for editor-supplied variable names, which
 /// are expected to be plain identifiers - anything needing escaping means a malformed map.
-static std::string luaString(const std::string & value)
+std::string HotaScriptConverter::luaString(const std::string & value) const
 {
 	if(value.find_first_of("\\\"\n\r") != std::string::npos)
-		throw std::runtime_error("Script variable name contains unsupported characters: " + value);
+		throw std::runtime_error("Map '" + mapName + "': Script variable name contains unsupported characters: " + value);
 
 	return '"' + value + '"';
 }
@@ -157,7 +157,7 @@ static std::string entityRef(const std::string & lookup, IdentifierType identifi
 }
 
 /// EXECUTE_EVENT stores the target bucket as an integer in map order.
-static std::string bucketName(int eventType)
+std::string HotaScriptConverter::bucketName(int eventType) const
 {
 	switch(eventType)
 	{
@@ -165,7 +165,7 @@ static std::string bucketName(int eventType)
 		case 1: return "playerEvents";
 		case 2: return "townEvents";
 		case 3: return "questEvents";
-		default: throw std::runtime_error("Unknown event bucket code:" + std::to_string(eventType));
+		default: throw unsupported("Unknown event bucket code " + std::to_string(eventType));
 	}
 }
 
@@ -787,7 +787,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				break;
 			}
 			default:
-				throw std::runtime_error("Unknown event action code:" + std::to_string(static_cast<int>(actionType)));
+				throw unsupported("Unknown event action code " + std::to_string(static_cast<int>(actionType)));
 		}
 	}
 	return result;
@@ -907,7 +907,7 @@ std::string HotaScriptConverter::loadConditionInternal()
 			return "playerOwnsTown(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
 		}
 		default:
-			throw std::runtime_error("Unknown event condition code:" + std::to_string(static_cast<int>(conditionCode)));
+			throw unsupported("Unknown event condition code " + std::to_string(static_cast<int>(conditionCode)));
 	}
 }
 
@@ -990,7 +990,7 @@ std::string HotaScriptConverter::loadExpressionInternal()
 			return "hero:ownedArtifacts(" + entityRef("getArtifactByName", artifact) + ")";
 		}
 		default:
-			throw std::runtime_error("Unknown event expression code:" + std::to_string(static_cast<int>(expressionCode)));
+			throw unsupported("Unknown event expression code " + std::to_string(static_cast<int>(expressionCode)));
 	}
 }
 

@@ -55,7 +55,7 @@ class DLL_LINKAGE MapIdentifiersH3M
 public:
 	void loadMapping(const JsonNode & mapping);
 
-	void remapTemplate(ObjectTemplate & objectTemplate);
+	void remapTemplate(ObjectTemplate & objectTemplate, const std::string & mapName);
 
 	AudioPath remapCampaignMusic(int index) const;
 	std::pair<VideoPath, VideoPath> remapCampaignVideo(int index) const;

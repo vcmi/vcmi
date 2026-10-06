@@ -51,12 +51,13 @@ Identifier MapReaderH3M::validateIdentifier(const Identifier & identifier, int32
 	if(identifier == Identifier::NONE || (identifier.getNum() >= 0 && identifier.getNum() < count))
 		return identifier;
 
-	logGlobal->warn("Map contains invalid %s %d. Will be removed!", typeName, identifier.getNum());
+	logGlobal->warn("Map '%s': Map contains invalid %s %d. Will be removed!", mapName, typeName, identifier.getNum());
 	return Identifier::NONE;
 }
 
-MapReaderH3M::MapReaderH3M(CInputStream * stream)
+MapReaderH3M::MapReaderH3M(CInputStream * stream, const std::string & mapName)
 	: reader(std::make_unique<CBinaryReader>(stream))
+	, mapName(mapName)
 {
 }
 
@@ -85,7 +86,7 @@ ArtifactID MapReaderH3M::readArtifact()
 	if (result.getNum() < features.artifactsCount)
 		return remapIdentifier(result);
 
-	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
+	logGlobal->warn("Map '%s': Map contains invalid artifact %d. Will be removed!", mapName, result.getNum());
 	return ArtifactID::NONE;
 }
 
@@ -99,7 +100,7 @@ ArtifactID MapReaderH3M::readArtifact8()
 	if (result.getNum() < features.artifactsCount)
 		return remapIdentifier(result);
 
-	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
+	logGlobal->warn("Map '%s': Map contains invalid artifact %d. Will be removed!", mapName, result.getNum());
 	return ArtifactID::NONE;
 }
 
@@ -113,7 +114,7 @@ ArtifactID MapReaderH3M::readArtifact32()
 	if (result.getNum() < features.artifactsCount)
 		return remapIdentifier(result);
 
-	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
+	logGlobal->warn("Map '%s': Map contains invalid artifact %d. Will be removed!", mapName, result.getNum());
 	return ArtifactID::NONE;
 }
 
@@ -142,7 +143,7 @@ HeroTypeID MapReaderH3M::readHeroPortrait()
 
 	if (result.getNum() >= features.heroesPortraitsCount)
 	{
-		logGlobal->warn("Map contains invalid hero portrait ID %d. Will be reset!", result.getNum() );
+		logGlobal->warn("Map '%s': Map contains invalid hero portrait ID %d. Will be reset!", mapName, result.getNum() );
 		return HeroTypeID::NONE;
 	}
 
@@ -167,9 +168,9 @@ CreatureID MapReaderH3M::readCreature32(const std::string & context)
 		return randomIndex;
 
 	if(context.empty())
-		logGlobal->warn("Map contains invalid creature %d. Will be removed!", result.getNum());
+		logGlobal->warn("Map '%s': Map contains invalid creature %d. Will be removed!", mapName, result.getNum());
 	else
-		logGlobal->warn("Map contains invalid creature %d in %s. Will be removed!", result.getNum(), context);
+		logGlobal->warn("Map '%s': Map contains invalid creature %d in %s. Will be removed!", mapName, result.getNum(), context);
 	return CreatureID::NONE;
 }
 
@@ -196,9 +197,9 @@ CreatureID MapReaderH3M::readCreature(const std::string & context)
 		return randomIndex;
 
 	if(context.empty())
-		logGlobal->warn("Map contains invalid creature %d. Will be removed!", result.getNum());
+		logGlobal->warn("Map '%s': Map contains invalid creature %d. Will be removed!", mapName, result.getNum());
 	else
-		logGlobal->warn("Map contains invalid creature %d in %s. Will be removed!", result.getNum(), context);
+		logGlobal->warn("Map '%s': Map contains invalid creature %d in %s. Will be removed!", mapName, result.getNum(), context);
 	return CreatureID::NONE;
 }
 
@@ -217,8 +218,8 @@ TerrainId MapReaderH3M::readTerrain()
 		// Map uses terrain index we don't support (e.g. extended terrain from other editor/mod)
 		// Fallback: clamp to last known terrain
 		logGlobal->warn(
-			"MapReaderH3M::readTerrain: map uses terrain %u but only %u types are supported. "
-			"Clamping to %u.",
+			"Map '%s': Map uses terrain %u but only %u types are supported. Clamping to %u.",
+			mapName,
 			raw, features.terrainsCount, features.terrainsCount ? features.terrainsCount - 1 : 0);
 
 		raw = features.terrainsCount ? features.terrainsCount - 1 : 0;
@@ -239,8 +240,8 @@ RoadId MapReaderH3M::readRoad()
 		// Map uses extended road type not supported by current config.
 		// Fallback: use the last supported road type (usually cobblestone).
 		logGlobal->warn(
-			"MapReaderH3M::readRoad: map uses road type %u but only %u types are supported. "
-			"Clamping to %u.",
+			"Map '%s': Map uses road type %u but only %u types are supported. Clamping to %u.",
+			mapName,
 			type, features.roadsCount, features.roadsCount);
 
 		type = features.roadsCount;
@@ -262,8 +263,8 @@ RiverId MapReaderH3M::readRiver()
 		const uint8_t fallback = features.riversCount ? features.riversCount : 0;
 
 		logGlobal->warn(
-			"MapReaderH3M::readRiver: map uses river type %u but only %u types are supported. "
-			"Clamping to %u.",
+			"Map '%s': Map uses river type %u but only %u types are supported. Clamping to %u.",
+			mapName,
 			type, features.riversCount, fallback);
 
 		type = fallback;
@@ -344,7 +345,7 @@ PlayerColor MapReaderH3M::readPlayer()
 
 	if (value >= PlayerColor::PLAYER_LIMIT_I)
 	{
-		logGlobal->warn("Map contains invalid player ID %d. Will be reset!", value );
+		logGlobal->warn("Map '%s': Map contains invalid player ID %d. Will be reset!", mapName, value);
 		return PlayerColor::NEUTRAL;
 	}
 
@@ -364,7 +365,7 @@ PlayerColor MapReaderH3M::readPlayer32()
 
 	if (value >= PlayerColor::PLAYER_LIMIT_I)
 	{
-		logGlobal->warn("Map contains invalid player ID %d. Will be reset!", value );
+		logGlobal->warn("Map '%s': Map contains invalid player ID %d. Will be reset!", mapName, value);
 		return PlayerColor::NEUTRAL;
 	}
 
@@ -424,7 +425,7 @@ void MapReaderH3M::readBitmaskHeroesSized(std::set<HeroTypeID> & dest, bool inve
 	uint32_t heroesCount = readUInt32();
 	uint32_t heroesBytes = (heroesCount + 7) / 8;
 	if(heroesCount > features.heroesCount)
-		logGlobal->warn("Map contains %d heroes, but only %d are supported. Extra heroes will be ignored!", heroesCount, features.heroesCount);
+		logGlobal->warn("Map '%s': Map contains %d heroes, but only %d are supported. Extra heroes will be ignored!", mapName, heroesCount, features.heroesCount);
 
 	readBitmask<HeroTypeID>(dest, heroesBytes, std::min<int>(heroesCount, features.heroesCount), invert);
 }
@@ -439,7 +440,7 @@ void MapReaderH3M::readBitmaskArtifactsSized(std::set<ArtifactID> &dest, bool in
 	uint32_t artifactsCount = reader->readUInt32();
 	uint32_t artifactsBytes = (artifactsCount + 7) / 8;
 	if(artifactsCount > features.artifactsCount)
-		logGlobal->warn("Map contains %d artifacts, but only %d are supported. Extra artifacts will be ignored!", artifactsCount, features.artifactsCount);
+		logGlobal->warn("Map '%s': Map contains %d artifacts, but only %d are supported. Extra artifacts will be ignored!", mapName, artifactsCount, features.artifactsCount);
 
 	readBitmask<ArtifactID>(dest, artifactsBytes, std::min<int>(artifactsCount, features.artifactsCount), invert);
 }
@@ -498,7 +499,7 @@ std::shared_ptr<ObjectTemplate> MapReaderH3M::readObjectTemplate()
 
 void MapReaderH3M::remapTemplate(ObjectTemplate & tmpl)
 {
-	remapper.remapTemplate(tmpl);
+	remapper.remapTemplate(tmpl, mapName);
 }
 
 void MapReaderH3M::skipUnused(size_t amount)
@@ -508,15 +509,13 @@ void MapReaderH3M::skipUnused(size_t amount)
 
 void MapReaderH3M::skipZero(size_t amount)
 {
-#ifdef NDEBUG
-	skipUnused(amount);
-#else
 	for(size_t i = 0; i < amount; ++i)
 	{
 		uint8_t value = reader->readUInt8();
+		if(value != 0)
+			logGlobal->warn("Map '%s': Expected zero byte, but %d found!", mapName, static_cast<int>(value));
 		assert(value == 0);
 	}
-#endif
 }
 
 void MapReaderH3M::readResources(TResources & resources)
@@ -532,7 +531,8 @@ bool MapReaderH3M::readBool()
 	if(raw != 0 && raw != 1)
 	{
 		logGlobal->warn(
-			"MapReaderH3M: invalid bool value %u in H3M data, using LSB (%u) as value",
+			"Map '%s': Invalid bool value %u, using LSB (%u) as value",
+			mapName,
 			static_cast<unsigned>(raw),
 			static_cast<unsigned>(raw & 1));
 	}
@@ -545,7 +545,7 @@ int32_t MapReaderH3M::readInt32Checked(int32_t lowerLimit, int32_t upperLimit)
 	int32_t result = readInt32();
 	int32_t resultClamped = std::clamp(result, lowerLimit, upperLimit);
 	if (result != resultClamped)
-		logGlobal->warn("Map contains out of range value %d! Expected %d-%d", result, lowerLimit, upperLimit);
+		logGlobal->warn("Map '%s': Map contains out of range value %d! Expected %d-%d", mapName, result, lowerLimit, upperLimit);
 
 	return resultClamped;
 }
@@ -555,9 +555,18 @@ int8_t MapReaderH3M::readInt8Checked(int8_t lowerLimit, int8_t upperLimit)
 	int8_t result = readInt8();
 	int8_t resultClamped = std::clamp(result, lowerLimit, upperLimit);
 	if (result != resultClamped)
-		logGlobal->warn("Map contains out of range value %d! Expected %d-%d", static_cast<int>(result), static_cast<int>(lowerLimit), static_cast<int>(upperLimit));
+		logGlobal->warn("Map '%s': Map contains out of range value %d! Expected %d-%d", mapName, static_cast<int>(result), static_cast<int>(lowerLimit), static_cast<int>(upperLimit));
 
 	return resultClamped;
+}
+
+int8_t MapReaderH3M::readInt8Strict(int8_t lowerLimit, int8_t upperLimit)
+{
+	int8_t result = readInt8();
+	if (result < lowerLimit || result > upperLimit)
+		throw std::runtime_error("Map '" + mapName + "': Map contains out of range value " + std::to_string(result) + ", expected " + std::to_string(lowerLimit) + "-" + std::to_string(upperLimit));
+
+	return result;
 }
 
 uint8_t MapReaderH3M::readUInt8()

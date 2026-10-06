@@ -51,12 +51,12 @@
 
 CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream)
 	: map(nullptr)
-	, reader(new MapReaderH3M(stream))
 	, inputStream(stream)
 	, mapName(TextOperations::convertMapName(mapName))
 	, modName(modName)
 	, fileEncoding(encodingName)
 {
+	reader = std::make_unique<MapReaderH3M>(stream, this->mapName);
 }
 
 //must be instantiated in .cpp file for access to complete types of all member fields
@@ -107,6 +107,9 @@ void CMapLoaderH3M::readHeader()
 	// Map version
 	mapHeader->version = static_cast<EMapFormat>(reader->readUInt32());
 
+	if (!LIBRARY->mapFormat->isSupported(mapHeader->version))
+		throw std::runtime_error("Map '" + mapName + "': Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
+
 	if(mapHeader->version == EMapFormat::HOTA)
 	{
 		uint32_t hotaVersion = reader->readUInt32();
@@ -119,7 +122,7 @@ void CMapLoaderH3M::readHeader()
 			: hotaFormat["maxVersion"].Integer();
 
 		if(hotaVersion > maxSupportedVersion)
-			throw std::runtime_error("Unsupported HotA map format version " + std::to_string(hotaVersion));
+			throw std::runtime_error("Map '" + mapName + "': Unsupported HotA map format version " + std::to_string(hotaVersion));
 
 		features = MapFormatFeaturesH3M::find(mapHeader->version, hotaVersion);
 		reader->setFormatLevel(features);
@@ -148,10 +151,10 @@ void CMapLoaderH3M::readHeader()
 		if(features.levelHOTA2)
 		{
 			int32_t terrainTypesCount = reader->readUInt32();
-			assert(features.terrainsCount == terrainTypesCount);
 
 			if (features.terrainsCount != terrainTypesCount)
 				logGlobal->warn("Map '%s': Expected %d terrains, but %d found!", mapName, features.terrainsCount, terrainTypesCount);
+			assert(features.terrainsCount == terrainTypesCount);
 		}
 
 		if(features.levelHOTA5)
@@ -204,9 +207,6 @@ void CMapLoaderH3M::readHeader()
 		features = MapFormatFeaturesH3M::find(mapHeader->version, 0);
 		reader->setFormatLevel(features);
 	}
-
-	if (!LIBRARY->mapFormat->isSupported(mapHeader->version))
-		throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
 
 	const MapIdentifiersH3M & identifierMapper = LIBRARY->mapFormat->getMapping(mapHeader->version);
 
@@ -311,7 +311,15 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	mapHeader->victoryMessage.clear();
 	mapHeader->defeatMessage.clear();
 
-	auto vicCondition = static_cast<EVictoryConditionType>(reader->readInt8Checked(-1, 12));
+	auto vicCondition = static_cast<EVictoryConditionType>(reader->readInt8Strict(-1, 12));
+
+	// flags that can't be changed in map editor for some conditions
+	auto checkFixedFlag = [&](bool value, bool expected, const std::string & flagName)
+	{
+		if (value != expected)
+			logGlobal->warn("Map '%s': Victory condition %d has unexpected value of '%s' flag!", mapName, static_cast<int>(vicCondition), flagName);
+		assert(value == expected);
+	};
 
 	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
 	EventCondition defeatCondition(EventCondition::DAYS_WITHOUT_TOWN);
@@ -354,7 +362,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		{
 			case EVictoryConditionType::ARTIFACT:
 			{
-				assert(allowNormalVictory == true); // not selectable in editor
+				checkFixedFlag(allowNormalVictory, true, "allowNormalVictory");
 				EventCondition cond(EventCondition::HAVE_ARTIFACT);
 				cond.objectType = reader->readArtifact();
 
@@ -393,7 +401,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::BUILDCITY:
 			{
-				assert(appliesToAI == true); // not selectable in editor
+				checkFixedFlag(appliesToAI, true, "appliesToAI");
 				EventExpression::OperatorAll oper;
 				EventCondition cond(EventCondition::HAVE_BUILDING);
 				cond.position = reader->readInt3();
@@ -411,8 +419,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::BUILDGRAIL:
 			{
-				assert(allowNormalVictory == true); // not selectable in editor
-				assert(appliesToAI == true); // not selectable in editor
+				checkFixedFlag(allowNormalVictory, true, "allowNormalVictory");
+				checkFixedFlag(appliesToAI, true, "appliesToAI");
 				EventCondition cond(EventCondition::HAVE_BUILDING);
 				cond.objectType = BuildingID(BuildingID::GRAIL);
 				cond.position = reader->readInt3();
@@ -429,9 +437,9 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			case EVictoryConditionType::BEATHERO:
 			{
 				if (!allowNormalVictory)
-					logGlobal->debug("Map %s: Has 'beat hero' as victory condition, but 'allow normal victory' not set. Ignoring", mapName);
+					logGlobal->debug("Map '%s': Has 'beat hero' as victory condition, but 'allow normal victory' not set. Ignoring", mapName);
 				allowNormalVictory = true; // H3 behavior
-				assert(appliesToAI == false); // not selectable in editor
+				checkFixedFlag(appliesToAI, false, "appliesToAI");
 				EventCondition cond(EventCondition::DESTROY);
 				cond.objectType = MapObjectID(MapObjectID::HERO);
 				cond.position = reader->readInt3();
@@ -458,7 +466,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::BEATMONSTER:
 			{
-				assert(appliesToAI == true); // not selectable in editor
+				checkFixedFlag(appliesToAI, true, "appliesToAI");
 				EventCondition cond(EventCondition::DESTROY);
 				cond.objectType = MapObjectID(MapObjectID::MONSTER);
 				cond.position = reader->readInt3();
@@ -497,7 +505,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::TRANSPORTITEM:
 			{
-				assert(allowNormalVictory == true); // not selectable in editor
+				checkFixedFlag(allowNormalVictory, true, "allowNormalVictory");
 				EventCondition cond(EventCondition::TRANSPORT);
 				cond.objectType = reader->readArtifact8();
 				cond.position = reader->readInt3();
@@ -511,7 +519,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::HOTA_ELIMINATE_ALL_MONSTERS:
 			{
-				assert(appliesToAI == false); // not selectable in editor
+				checkFixedFlag(appliesToAI, false, "appliesToAI");
 				EventCondition cond(EventCondition::DESTROY);
 				cond.objectType = MapObjectID(MapObjectID::MONSTER);
 
@@ -525,7 +533,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 			}
 			case EVictoryConditionType::HOTA_SURVIVE_FOR_DAYS:
 			{
-				assert(appliesToAI == false); // not selectable in editor
+				checkFixedFlag(appliesToAI, false, "appliesToAI");
 				EventCondition cond(EventCondition::DAYS_PASSED);
 				cond.value = reader->readUInt32();
 
@@ -553,7 +561,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 
 			if(playersOnMap == 1)
 			{
-				logGlobal->warn("Map %s: Only one player exists, but normal victory allowed!", mapName);
+				logGlobal->warn("Map '%s': Only one player exists, but normal victory allowed!", mapName);
 				allowNormalVictory = false; // makes sense? Not much. Works as H3? Yes!
 			}
 		}
@@ -580,7 +588,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	}
 
 	// Read loss conditions
-	auto lossCond = static_cast<ELossConditionType>(reader->readInt8Checked(-1, 2));
+	auto lossCond = static_cast<ELossConditionType>(reader->readInt8Strict(-1, 2));
 	if(lossCond == ELossConditionType::LOSSSTANDARD)
 	{
 		mapHeader->defeatIconIndex = 3;
@@ -833,7 +841,9 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 void CMapLoaderH3M::readRumors()
 {
 	size_t rumorsCount = reader->readUInt32();
-	assert(rumorsCount < 1000); // sanity check
+	if (rumorsCount >= 1000)
+		logGlobal->warn("Map '%s': Map contains suspiciously large number of rumors: %d", mapName, rumorsCount);
+	assert(rumorsCount < 1000);
 
 	for(size_t it = 0; it < rumorsCount; it++)
 	{
@@ -904,7 +914,6 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 		// 0xFF is default, 00 male, 01 female
 		hero->gender = static_cast<EHeroGender>(reader->readInt8Checked(-1, 1));
-		assert(hero->gender == EHeroGender::MALE || hero->gender == EHeroGender::FEMALE || hero->gender == EHeroGender::DEFAULT);
 
 		bool hasCustomSpells = reader->readBool();
 		if(hasCustomSpells)
@@ -930,7 +939,8 @@ void CMapLoaderH3M::readPredefinedHeroes()
 			const bool alwaysAddSkills = reader->readBool();
 			const bool cannotGainXP = reader->readBool();
 			const int32_t level = reader->readInt32();
-			assert(level > 0);
+			if(level <= 0)
+				logGlobal->warn("Map '%s': Hero %d has invalid level %d!", mapName, heroID, level);
 
 			auto * hero = map->tryGetFromHeroPool(HeroTypeID(heroID));
 
@@ -966,7 +976,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 
 	if(!hero->artifactsWorn.empty() || !hero->artifactsInBackpack.empty())
 	{
-		logGlobal->debug("Hero %d at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", hero->getHeroTypeID().getNum(), hero->anchorPos().toString());
+		logGlobal->debug("Map '%s': Hero %d at %s has set artifacts twice (in map properties and on adventure map instance). Using the latter set...", mapName, hero->getHeroTypeID().getNum(), hero->anchorPos().toString());
 
 		hero->artifactsInBackpack.clear();
 		hero->artifactsWorn.clear();
@@ -1070,7 +1080,7 @@ void CMapLoaderH3M::readObjectTemplates()
 		remappedTemplates.push_back(remapped);
 
 		if (!CResourceHandler::get()->existsResource(remapped->animationFile.addPrefix("SPRITES/")))
-			logMod->warn("Template animation %s of type (%d %d) is missing!", remapped->animationFile.getOriginalName(), remapped->id, remapped->subid );
+			logMod->warn("Map '%s': Template animation %s of type (%d %d) is missing!", mapName, remapped->animationFile.getOriginalName(), remapped->id, remapped->subid );
 	}
 }
 
@@ -1177,6 +1187,8 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 	{
 		int32_t movementMode = reader->readInt32(); // Give, Take, Nullify, Set, Replenish
 		int32_t movementAmount = reader->readInt32();
+		if (movementMode < 0 || movementMode > 4)
+			logGlobal->warn("Map '%s': Object at %s has invalid movement mode %d! Ignoring.", mapName, mapPosition.toString(), movementMode);
 		assert(movementMode >= 0 && movementMode <= 4);
 
 		auto & boxReward = object->configuration.info.back();
@@ -1208,6 +1220,8 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 	if(features.levelHOTA6)
 	{
 		int32_t allowedDifficultiesMask = reader->readInt32();
+		if (allowedDifficultiesMask <= 0 || allowedDifficultiesMask >= 32)
+			logGlobal->warn("Map '%s': Object at %s has invalid difficulties mask %d!", mapName, mapPosition.toString(), allowedDifficultiesMask);
 		assert(allowedDifficultiesMask > 0 && allowedDifficultiesMask < 32);
 		object->presentOnDifficulties = MapDifficultySet(allowedDifficultiesMask);
 	}
@@ -1337,7 +1351,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readWitchHut(const int3 & posit
 		}
 		else
 		{
-			logGlobal->warn("Failed to set allowed secondary skills to a Witch Hut! Object is not rewardable!");
+			logGlobal->warn("Map '%s': Failed to set allowed secondary skills to a Witch Hut at %s! Object is not rewardable!", mapName, position.toString());
 		}
 	}
 	return object;
@@ -1398,7 +1412,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readScholar(const int3 & positi
 	}
 	else
 	{
-		logGlobal->warn("Failed to set reward parameters for a Scholar! Object is not rewardable!");
+		logGlobal->warn("Map '%s': Failed to set reward parameters for a Scholar at %s! Object is not rewardable!", mapName, position.toString());
 	}
 
 	reader->skipZero(6);
@@ -1436,10 +1450,9 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readArtifact(const int3 & mapPo
 		uint32_t pickupMode = reader->readUInt32();
 		uint8_t pickupFlags = reader->readUInt8();
 
-		assert(pickupMode == 0 || pickupMode == 1 || pickupMode == 2); // DISABLED, RANDOM, CUSTOM
-
 		if (pickupMode != 0)
 			logGlobal->warn("Map '%s': Artifact %s: not implemented pickup mode %d (flags: %d)", mapName, mapPosition.toString(), pickupMode, static_cast<int>(pickupFlags));
+		assert(pickupMode == 0 || pickupMode == 1 || pickupMode == 2); // DISABLED, RANDOM, CUSTOM
 	}
 
 	if (artID.hasValue())
@@ -1567,7 +1580,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readShrine(const int3 & positio
 	}
 	else
 	{
-		logGlobal->warn("Failed to set selected spell to a Shrine!. Object is not rewardable!");
+		logGlobal->warn("Map '%s': Failed to set selected spell to a Shrine at %s! Object is not rewardable!", mapName, position.toString());
 	}
 	return object;
 }
@@ -1608,8 +1621,13 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHeroPlaceholder(const int3 
 		}
 
 		int32_t artifactsToGive	= reader->readInt32();
-		assert(artifactsToGive >= 0);
-		assert(artifactsToGive < 100); // technically legal, but not possible in h3
+		if (artifactsToGive < 0)
+			throw std::runtime_error("Map '" + mapName + "': Hero placeholder at " + mapPosition.toString() + " has negative number of artifacts: " + std::to_string(artifactsToGive));
+
+		// technically legal, but not possible in h3
+		if (artifactsToGive >= 100)
+			logGlobal->warn("Map '%s': Hero placeholder at %s has suspiciously large number of artifacts: %d", mapName, mapPosition.toString(), artifactsToGive);
+		assert(artifactsToGive < 100);
 
 		for (int i = 0; i < artifactsToGive; ++i)
 		{
@@ -1688,8 +1706,9 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readBank(const int3 & mapPositi
 		// presence of upgraded stack: -1 = random, 0 = never, 1 = always
 		int8_t upgradedStackPresence = reader->readInt8Checked(-1, 1);
 
+		if (!vstd::iswithin(guardsPresetIndex, -1, 4))
+			logGlobal->warn("Map '%s': Creature bank at %s has invalid guards preset %d!", mapName, mapPosition.toString(), guardsPresetIndex);
 		assert(vstd::iswithin(guardsPresetIndex, -1, 4));
-		assert(vstd::iswithin(upgradedStackPresence, -1, 1));
 
 		// list of possible artifacts in reward
 		// - if list is empty, artifacts are either not present in reward or random
@@ -1823,9 +1842,9 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readUniversity(const int3 & map
 		reader->readBitmaskSkills(allowedSkills, false);
 
 		// NOTE: check how this interacts with hota Seafaring Academy that is guaranteed to give Navigation
-		assert(customized == -1 || customized == 0);
 		if (customized != -1)
 			logGlobal->warn("Map '%s': University at %s: option to give specific skills out of %d is not implemented", mapName, mapPosition.toString(), allowedSkills.size());
+		assert(customized == -1 || customized == 0);
 	}
 	return readGeneric(mapPosition, objectTemplate);
 }
@@ -2242,9 +2261,14 @@ void CMapLoaderH3M::readObjects()
 	for(uint32_t i = 0; i < objectsCount; ++i)
 	{
 		int3 mapPosition = reader->readInt3();
-		assert(map->isInTheMap(mapPosition) || map->isInTheMap(mapPosition - int3(0,8,0)) || map->isInTheMap(mapPosition - int3(8,0,0)) || map->isInTheMap(mapPosition - int3(8,8,0)));
+		bool positionValid = map->isInTheMap(mapPosition) || map->isInTheMap(mapPosition - int3(0,8,0)) || map->isInTheMap(mapPosition - int3(8,0,0)) || map->isInTheMap(mapPosition - int3(8,8,0));
+		if (!positionValid)
+			logGlobal->warn("Map '%s': Object at %s is located too far outside of the map!", mapName, mapPosition.toString());
+		assert(positionValid);
 
 		uint32_t defIndex = reader->readUInt32();
+		if (defIndex >= originalTemplates.size())
+			throw std::runtime_error("Map '" + mapName + "': Object at " + mapPosition.toString() + " uses invalid template " + std::to_string(defIndex));
 
 		std::shared_ptr<ObjectTemplate> originalTemplate = originalTemplates.at(defIndex);
 		std::shared_ptr<ObjectTemplate> remappedTemplate = remappedTemplates.at(defIndex);
@@ -2316,8 +2340,6 @@ void CMapLoaderH3M::readCreatureSet(CArmedInstance * out, const ObjectInstanceID
 
 void CMapLoaderH3M::setOwnerAndValidate(const int3 & mapPosition, CGObjectInstance * object, const PlayerColor & owner)
 {
-	assert(owner.isValidPlayer() || owner == PlayerColor::NEUTRAL);
-
 	if(owner == PlayerColor::NEUTRAL)
 	{
 		object->setOwner(PlayerColor::NEUTRAL);
@@ -2328,6 +2350,7 @@ void CMapLoaderH3M::setOwnerAndValidate(const int3 & mapPosition, CGObjectInstan
 	{
 		object->setOwner(PlayerColor::NEUTRAL);
 		logGlobal->warn("Map '%s': Object at %s - owned by invalid player %d! Will be set to neutral!", mapName, mapPosition.toString(), int(owner.getNum()));
+		assert(0);
 		return;
 	}
 
@@ -2428,7 +2451,6 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 		readCreatureSet(object.get(), objectInstanceID, mapPosition);
 
 	object->formation = static_cast<EArmyFormation>(reader->readInt8Checked(0, 1));
-	assert(object->formation == EArmyFormation::LOOSE || object->formation == EArmyFormation::TIGHT);
 
 	loadArtifactsOfHero(object.get());
 	object->patrol.patrolRadius = reader->readUInt8();
@@ -2441,7 +2463,6 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 			object->biographyCustomTextId = readLocalizedString(TextIdentifier("heroes", object->subID, "biography"));
 
 		object->gender = static_cast<EHeroGender>(reader->readInt8Checked(-1, 1));
-		assert(object->gender == EHeroGender::MALE || object->gender == EHeroGender::FEMALE || object->gender == EHeroGender::DEFAULT);
 	}
 	else
 	{
@@ -2457,7 +2478,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 			if(!object->spells.empty())
 			{
 				object->spells.clear();
-				logGlobal->debug("Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", object->getNameTextID(), object->subID);
+				logGlobal->debug("Map '%s': Hero %s subID=%d has spells set twice (in map properties and on adventure map instance). Using the latter set...", mapName, object->getNameTextID(), object->subID);
 			}
 
 			reader->readBitmaskSpells(object->spells, false);
@@ -2486,7 +2507,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 			auto ps = object->getAllBonuses(Selector::type()(BonusType::PRIMARY_SKILL).And(Selector::sourceType()(BonusSource::HERO_BASE_SKILL)), "");
 			if(ps->size())
 			{
-				logGlobal->debug("Hero %s has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", object->getHeroTypeID().getNum() );
+				logGlobal->debug("Map '%s': Hero %d has set primary skills twice (in map properties and on adventure map instance). Using the latter set...", mapName, object->getHeroTypeID().getNum() );
 				for(const auto & b : *ps)
 					object->removeBonus(b);
 			}
@@ -2510,7 +2531,8 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 		const bool alwaysAddSkills = reader->readBool();
 		const bool cannotGainXP = reader->readBool();
 		const int32_t level = reader->readInt32();
-		assert(level > 0);
+		if(level <= 0)
+			logGlobal->warn("Map '%s': Hero %d has invalid level %d!", mapName, object->subID.num, level);
 
 		if(level > 1)
 		{
@@ -2591,7 +2613,7 @@ void CMapLoaderH3M::readSeerHutQuest(Quest & quest, const int3 & position, const
 	{
         readQuestGiverName(quest, position, questIndex);
 
-		auto rewardType = static_cast<ESeerHutRewardType>(reader->readInt8Checked(0, 10));
+		auto rewardType = static_cast<ESeerHutRewardType>(reader->readInt8Strict(0, 10));
 		Rewardable::VisitInfo vinfo;
 		auto & reward = vinfo.reward;
 		switch(rewardType)
@@ -2700,7 +2722,7 @@ void CMapLoaderH3M::readQuestGiverName(Quest & quest, const int3 & position, int
 
 EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position, const int questIndex)
 {
-	auto missionId = static_cast<EQuestMission>(reader->readInt8Checked(0, 10));
+	auto missionId = static_cast<EQuestMission>(reader->readInt8Strict(0, 10));
 
 	switch(missionId)
 	{
@@ -2778,7 +2800,8 @@ EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position, con
 		case EQuestMission::HOTA_MULTI_PLACEHOLDER:
 		{
 			uint32_t missionSubID = reader->readUInt32();
-			assert(missionSubID < 4);
+			if (missionSubID >= 4)
+				throw std::runtime_error("Map '" + mapName + "': Quest at " + position.toString() + " has unknown mission type " + std::to_string(missionSubID));
 
 			if(missionSubID == 0)
 			{
@@ -2799,6 +2822,8 @@ EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position, con
 			{
 				missionId = EQuestMission::HOTA_GAME_DIFFICULTY;
 				int32_t difficultyMask = reader->readUInt32();
+				if (difficultyMask <= 0 || difficultyMask >= 32)
+					logGlobal->warn("Map '%s': Quest at %s has invalid difficulties mask %d!", mapName, position.toString(), difficultyMask);
 				assert(difficultyMask > 0 && difficultyMask < 32);
 				quest.mission.allowedDifficulties = MapDifficultySet(static_cast<uint8_t>(difficultyMask));
 				break;
@@ -2861,7 +2886,6 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 		readCreatureSet(object.get(), idToBeGiven, position);
 
 	object->formation = static_cast<EArmyFormation>(reader->readInt8Checked(0, 1));
-	assert(object->formation == EArmyFormation::LOOSE || object->formation == EArmyFormation::TIGHT);
 
 	bool hasCustomBuildings = reader->readBool();
 	if(hasCustomBuildings)
@@ -3023,6 +3047,8 @@ void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & me
 	if (features.levelHOTA7)
 	{
 		int32_t affectedDifficulties = reader->readInt32();
+		if (affectedDifficulties <= 0 || affectedDifficulties >= 32)
+			logGlobal->warn("Map '%s': Event '%s' has invalid difficulties mask %d!", mapName, event.name, affectedDifficulties);
 		assert(affectedDifficulties > 0 && affectedDifficulties < 32);
 		event.affectedDifficulties = MapDifficultySet(affectedDifficulties);
 	}
