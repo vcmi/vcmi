@@ -52,7 +52,13 @@ public:
 	GameResID readGameResID();
 	GameResID readGameResID32();
 	PlayerColor readPlayer();
+
 	PlayerColor readPlayer32();
+
+	/// validate and remap already read raw value, for fields that may contain garbage depending on other fields
+	ArtifactID toArtifact(int32_t raw);
+	SpellID toSpell(int32_t raw);
+	GameResID toGameResID(int32_t raw);
 
 	void readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction);
 	void readBitmaskFactions(std::set<FactionID> & dest, bool invert);

@@ -50,8 +50,7 @@
 #include "modding/ModDescription.h"
 
 CMapLoaderH3M::CMapLoaderH3M(const std::string & mapName, const std::string & modName, const std::string & encodingName, CInputStream * stream)
-	: map(nullptr)
-	, inputStream(stream)
+	: inputStream(stream)
 	, mapName(TextOperations::convertMapName(mapName))
 	, modName(modName)
 	, fileEncoding(encodingName)
@@ -64,21 +63,19 @@ CMapLoaderH3M::~CMapLoaderH3M() = default;
 
 std::unique_ptr<CMap> CMapLoaderH3M::loadMap(IGameInfoCallback * cb)
 {
-	// Init map object by parsing the input buffer
-	map = new CMap(cb);
-	mapHeader = std::unique_ptr<CMapHeader>(dynamic_cast<CMapHeader *>(map));
+	auto result = std::make_unique<CMap>(cb);
+	map = result.get();
+	mapHeader = result.get();
 	init();
-
-	return std::unique_ptr<CMap>(dynamic_cast<CMap *>(mapHeader.release()));
+	return result;
 }
 
 std::unique_ptr<CMapHeader> CMapLoaderH3M::loadMapHeader()
 {
-	// Read header
-	mapHeader = std::make_unique<CMapHeader>();
+	auto result = std::make_unique<CMapHeader>();
+	mapHeader = result.get();
 	readHeader();
-
-	return std::move(mapHeader);
+	return result;
 }
 
 void CMapLoaderH3M::init()
@@ -1760,19 +1757,14 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readPyramid(const int3 & mapPos
 	if(features.levelHOTA5)
 	{
 		int32_t content = reader->readInt32();
-		if(content == 0)
+		int32_t spellRaw = reader->readInt32(); // garbage unless content selects spell reward
+
+		if(content == 0 && rewardable)
 		{
-			SpellID spell = reader->readSpell32();
-			if(rewardable && spell.hasValue())
-			{
-				JsonNode variable;
-				variable.String() = spell.toSpell()->getJsonKey();
-				variable.setModScope(ModScope::scopeGame());
-				rewardable->configuration.presetVariable("spell", "gainedSpell", variable);
-			}
+			SpellID spell = reader->toSpell(spellRaw);
+			if(spell.hasValue())
+				presetEntityVariable(*rewardable, "spell", "gainedSpell", spell.toSpell()->getJsonKey());
 		}
-		else
-			reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
 	}
 	return object;
 }
@@ -1785,28 +1777,19 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithArtifact(const in
 	if(features.levelHOTA5)
 	{
 		int32_t content = reader->readInt32();
+		int32_t artifactRaw = reader->readInt32(); // garbage unless content selects artifact reward. NOTE: might be 2 byte artifact + 2 bytes scroll spell
 
-		if(content != -1)
+		if(content != -1 && rewardable)
 		{
-			if(rewardable)
-				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
+			rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
 
 			if(content == artifactRewardIndex)
 			{
-				ArtifactID artifact = reader->readArtifact32(); // NOTE: might be 2 byte artifact + 2 bytes scroll spell
-				if(rewardable && artifact.hasValue())
-				{
-					JsonNode variable;
-					variable.String() = artifact.toArtifact()->getJsonKey();
-					variable.setModScope(ModScope::scopeGame());
-					rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
-				}
+				ArtifactID artifact = reader->toArtifact(artifactRaw);
+				if(artifact.hasValue())
+					presetEntityVariable(*rewardable, "artifact", "gainedArtifact", artifact.toArtifact()->getJsonKey());
 			}
-			else
-				reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
 		}
-		else
-			reader->skipUnused(4); // garbage data, usually -1, but sometimes uninitialized
 	}
 	return object;
 }
@@ -1849,6 +1832,36 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readUniversity(const int3 & map
 	return readGeneric(mapPosition, objectTemplate);
 }
 
+CMapLoaderH3M::HotaRewardBlock CMapLoaderH3M::readHotaRewardBlock()
+{
+	HotaRewardBlock result;
+	result.content = reader->readInt32();
+	result.artifact = reader->readInt32();
+	result.amountA = reader->readInt32();
+	result.resourceA = reader->readInt8();
+	result.amountB = reader->readInt32();
+	result.resourceB = reader->readInt8();
+	return result;
+}
+
+void CMapLoaderH3M::presetEntityVariable(CRewardableObject & object, const std::string & category, const std::string & name, const std::string & jsonKey)
+{
+	JsonNode variable;
+	variable.String() = jsonKey;
+	variable.setModScope(ModScope::scopeGame());
+	object.configuration.presetVariable(category, name, variable);
+}
+
+void CMapLoaderH3M::presetResourceVariable(CRewardableObject & object, int8_t resourceRaw, int32_t amount, const std::string & suffix)
+{
+	GameResID resource = reader->toGameResID(resourceRaw);
+	if(!resource.hasValue())
+		return;
+
+	presetEntityVariable(object, "resource", "gainedResource" + suffix, resource.toEntity(LIBRARY)->getJsonKey());
+	object.configuration.presetVariable("number", "gainedAmount" + suffix, JsonNode(amount));
+}
+
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHotaGrave(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	auto object = readGeneric(mapPosition, objectTemplate);
@@ -1856,30 +1869,16 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHotaGrave(const int3 & mapP
 
 	if(features.levelHOTA5)
 	{
-		int32_t content = reader->readInt32();
+		auto block = readHotaRewardBlock();
 
-		if (content != -1)
+		if(block.content != -1 && rewardable)
 		{
-			ArtifactID artifact = reader->readArtifact32();
-			int32_t amountA = reader->readInt32();
-			GameResID resourceA = reader->readGameResID();
-			reader->skipUnused(5); // no 2nd resource
+			ArtifactID artifact = reader->toArtifact(block.artifact);
+			if(artifact.hasValue())
+				presetEntityVariable(*rewardable, "artifact", "gainedArtifact", artifact.toArtifact()->getJsonKey());
 
-			if(rewardable)
-			{
-				JsonNode variable;
-				variable.setModScope(ModScope::scopeGame());
-				variable.String() = artifact.toEntity(LIBRARY)->getJsonKey();
-				rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
-
-				variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
-				rewardable->configuration.presetVariable("resource", "gainedResource", variable);
-
-				rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
-			}
+			presetResourceVariable(*rewardable, block.resourceA, block.amountA, "");
 		}
-		else
-			reader->skipUnused(14); // garbage data
 	}
 	return object;
 }
@@ -1891,80 +1890,53 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readWagon(const int3 & mapPosit
 
 	if(features.levelHOTA5)
 	{
-		int32_t content = reader->readInt32Checked(-1, 1);
+		auto block = readHotaRewardBlock();
 
-		switch(content)
+		if(!rewardable)
+			return object;
+
+		switch(block.content)
 		{
 			case -1: // random
-				reader->skipUnused(14); // garbage data
-				break;
-			case 1: // empty
-				reader->skipUnused(14); // garbage data
-				if(rewardable)
-					rewardable->configuration.presetVariable("dice", "map", JsonNode(2));
 				break;
 			case 0: // custom
 			{
-				ArtifactID artifact = reader->readArtifact32();
-				int32_t amountA = reader->readInt32();
-				GameResID resourceA = reader->readGameResID();
-				reader->skipUnused(5); // no 2nd resource
-
-				if(rewardable)
+				ArtifactID artifact = reader->toArtifact(block.artifact);
+				if (artifact.hasValue())
 				{
-					if (artifact.hasValue())
-					{
-						JsonNode variable;
-						variable.setModScope(ModScope::scopeGame());
-						variable.String() = artifact.toEntity(LIBRARY)->getJsonKey();
-						rewardable->configuration.presetVariable("artifact", "gainedArtifact", variable);
-						rewardable->configuration.presetVariable("dice", "map", JsonNode(0));
-					}
-					else
-					{
-						JsonNode variable;
-						variable.setModScope(ModScope::scopeGame());
-						variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
-						rewardable->configuration.presetVariable("resource", "gainedResource", variable);
-						rewardable->configuration.presetVariable("dice", "map", JsonNode(1));
-						rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
-
-					}
+					presetEntityVariable(*rewardable, "artifact", "gainedArtifact", artifact.toArtifact()->getJsonKey());
+					rewardable->configuration.presetVariable("dice", "map", JsonNode(0));
 				}
+				else
+				{
+					presetResourceVariable(*rewardable, block.resourceA, block.amountA, "");
+					rewardable->configuration.presetVariable("dice", "map", JsonNode(1));
+				}
+				break;
 			}
+			case 1: // empty
+				rewardable->configuration.presetVariable("dice", "map", JsonNode(2));
+				break;
+			default:
+				logGlobal->warn("Map '%s': Wagon at %s has unknown content %d! Using random.", mapName, mapPosition.toString(), block.content);
 		}
 	}
 	return object;
 }
 
-
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithAmount(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	// TODO
-	// Ancient Lamp / 0 -> aID = -1, aA = amount to recruit, rA = 0, aB = 1, rB = 0
-
 	auto object = readGeneric(mapPosition, objectTemplate);
 	auto rewardable = std::dynamic_pointer_cast<CRewardableObject>(object);
 
 	if(features.levelHOTA5)
 	{
-		int32_t content = reader->readInt32Checked(-1, 0);
+		auto block = readHotaRewardBlock();
 
-		switch(content)
-		{
-			case -1: // random
-				reader->skipUnused(14); // garbage data
-				break;
-			case 0: // custom
-			{
-				reader->skipUnused(4); // no artifact
-				int32_t amountA = reader->readInt32();
-				reader->skipUnused(6); // no 1st resource ID, no 2nd resource
-
-				if(rewardable)
-					rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
-			}
-		}
+		if(block.content != -1 && block.content != 0)
+			logGlobal->warn("Map '%s': Object at %s has unknown content %d! Using random.", mapName, mapPosition.toString(), block.content);
+		else if(block.content == 0 && rewardable)
+			rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(block.amountA));
 	}
 	return object;
 }
@@ -2011,28 +1983,13 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readLeanTo(const int3 & mapPosi
 
 	if(features.levelHOTA5)
 	{
-		int32_t content = reader->readInt32();
+		auto block = readHotaRewardBlock();
 
-		if(content != -1)
+		if(block.content != -1 && rewardable)
 		{
-			reader->skipUnused(4); // no artifact
-			int32_t amountA = reader->readInt32();
-			GameResID resourceA = reader->readGameResID();
-			reader->skipUnused(5); // no 2nd resource
-
-			if(rewardable)
-			{
-				JsonNode variable;
-				variable.setModScope(ModScope::scopeGame());
-
-				variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
-				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
-				rewardable->configuration.presetVariable("resource", "gainedResource", variable);
-				rewardable->configuration.presetVariable("number", "gainedAmount", JsonNode(amountA));
-			}
+			rewardable->configuration.presetVariable("dice", "map", JsonNode(block.content));
+			presetResourceVariable(*rewardable, block.resourceA, block.amountA, "");
 		}
-		else
-			reader->skipUnused(14); // garbage data
 	}
 	return object;
 }
@@ -2044,34 +2001,14 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readCampfire(const int3 & mapPo
 
 	if(features.levelHOTA5)
 	{
-		int32_t content = reader->readInt32();
+		auto block = readHotaRewardBlock();
 
-		if(content != -1)
+		if(block.content != -1 && rewardable)
 		{
-			reader->skipUnused(4); // no artifact
-			int32_t amountA = reader->readInt32();
-			GameResID resourceA = reader->readGameResID();
-			int32_t amountB = reader->readInt32();
-			GameResID resourceB = reader->readGameResID();
-
-			if(rewardable)
-			{
-				JsonNode variable;
-				variable.setModScope(ModScope::scopeGame());
-
-				variable.String() = resourceA.toEntity(LIBRARY)->getJsonKey();
-				rewardable->configuration.presetVariable("resource", "gainedResourceA", variable);
-
-				variable.String() = resourceB.toEntity(LIBRARY)->getJsonKey();
-				rewardable->configuration.presetVariable("resource", "gainedResourceB", variable);
-
-				rewardable->configuration.presetVariable("dice", "map", JsonNode(content));
-				rewardable->configuration.presetVariable("number", "gainedAmountA", JsonNode(amountA));
-				rewardable->configuration.presetVariable("number", "gainedAmountB", JsonNode(amountB));
-			}
+			rewardable->configuration.presetVariable("dice", "map", JsonNode(block.content));
+			presetResourceVariable(*rewardable, block.resourceA, block.amountA, "A");
+			presetResourceVariable(*rewardable, block.resourceB, block.amountB, "B");
 		}
-		else
-			reader->skipUnused(14); // garbage data
 	}
 	return object;
 }

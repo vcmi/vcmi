@@ -20,6 +20,7 @@ class HotaScriptConverter;
 class MetaString;
 class CArtifactInstance;
 class CArmedInstance;
+class CRewardableObject;
 class CGObjectInstance;
 class SeerHut;
 class QuestSource;
@@ -232,6 +233,22 @@ private:
 	std::shared_ptr<CGObjectInstance> readBlackMarket(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readUniversity(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 
+	/// Reward settings shared by several HotA objects. Fields not used by specific object or content are often garbage
+	struct HotaRewardBlock
+	{
+		int32_t content;
+		int32_t artifact;
+		int32_t amountA;
+		int8_t resourceA;
+		int32_t amountB;
+		int8_t resourceB;
+	};
+
+	HotaRewardBlock readHotaRewardBlock();
+	void presetEntityVariable(CRewardableObject & object, const std::string & category, const std::string & name, const std::string & jsonKey);
+	/// presets resource and its amount, if resource is valid
+	void presetResourceVariable(CRewardableObject & object, int8_t resourceRaw, int32_t amount, const std::string & suffix);
+
 	/**
 	 * Reads a creature set.
 	 *
@@ -290,14 +307,10 @@ private:
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
 	std::map<Quest*, si32> questsToResolve;
 
-	/** ptr to the map object which gets filled by data from the buffer */
-	CMap * map;
-
-	/**
-	 * ptr to the map header object which gets filled by data from the buffer.
-	 * (when loading a map then the mapHeader ptr points to the same object)
-	 */
-	std::unique_ptr<CMapHeader> mapHeader;
+	/// map being loaded, owned by caller. Null when only header is loaded
+	CMap * map = nullptr;
+	/// header being loaded, owned by caller. Points to the same object as map when full map is loaded
+	CMapHeader * mapHeader = nullptr;
 	std::unique_ptr<MapReaderH3M> reader;
 	std::unique_ptr<HotaScriptConverter> scriptConverter;
 	CInputStream * inputStream;

@@ -106,16 +106,12 @@ ArtifactID MapReaderH3M::readArtifact8()
 
 ArtifactID MapReaderH3M::readArtifact32()
 {
-	ArtifactID result(reader->readInt32());
+	return toArtifact(reader->readInt32());
+}
 
-	if(result == ArtifactID::NONE)
-		return ArtifactID::NONE;
-
-	if (result.getNum() < features.artifactsCount)
-		return remapIdentifier(result);
-
-	logGlobal->warn("Map '%s': Map contains invalid artifact %d. Will be removed!", mapName, result.getNum());
-	return ArtifactID::NONE;
+ArtifactID MapReaderH3M::toArtifact(int32_t raw)
+{
+	return remapIdentifier(validateIdentifier(ArtifactID(raw), features.artifactsCount, "artifact"));
 }
 
 HeroTypeID MapReaderH3M::readHero()
@@ -310,30 +306,34 @@ SpellID MapReaderH3M::readSpell()
 
 SpellID MapReaderH3M::readSpell16()
 {
-	SpellID result(readInt16());
-	if(result.getNum() == features.spellIdentifierInvalid)
-		return SpellID::NONE;
-	return validateIdentifier(result, features.spellsCount, "spell");
+	return toSpell(readInt16());
 }
 
 SpellID MapReaderH3M::readSpell32()
 {
-	SpellID result(readInt32());
-	if(result.getNum() == features.spellIdentifierInvalid)
+	return toSpell(readInt32());
+}
+
+SpellID MapReaderH3M::toSpell(int32_t raw)
+{
+	if(raw == features.spellIdentifierInvalid)
 		return SpellID::NONE;
-	return validateIdentifier(result, features.spellsCount, "spell");
+	return validateIdentifier(SpellID(raw), features.spellsCount, "spell");
 }
 
 GameResID MapReaderH3M::readGameResID()
 {
-	GameResID result(readInt8());
-	return validateIdentifier(result, features.resourcesCount, "resource");
+	return toGameResID(readInt8());
 }
 
 GameResID MapReaderH3M::readGameResID32()
 {
-	GameResID result(readInt32());
-	return validateIdentifier(result, features.resourcesCount, "resource");
+	return toGameResID(readInt32());
+}
+
+GameResID MapReaderH3M::toGameResID(int32_t raw)
+{
+	return validateIdentifier(GameResID(raw), features.resourcesCount, "resource");
 }
 
 PlayerColor MapReaderH3M::readPlayer()
