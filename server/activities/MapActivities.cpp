@@ -279,7 +279,7 @@ StepResult LevelUpRoutine::advance()
 		throw std::runtime_error("Hero disappeared during level-up");
 
 	const auto * commander = levellingHero->getCommander();
-	const bool heroLevels = levellingHero->gainsLevel();
+	const bool heroLevels = levellingHero->canGainExperience() && levellingHero->gainsLevel();
 	const bool commanderLevels = commander && commander->gainsLevel();
 
 	if(!heroLevels && !commanderLevels)

@@ -106,6 +106,8 @@ public:
 	TinyH3MBuilder & name(std::string s);
 	TinyH3MBuilder & description(std::string s);
 	TinyH3MBuilder & difficulty(EMapDifficulty d);
+	/// Maximum hero level, 0 for no limit. Written only for AB+ formats.
+	TinyH3MBuilder & heroLevelLimit(uint8_t level);
 
 	/// Plain-text Lua script for the built map. Not part of the H3M bytes (H3M cannot embed Lua) -
 	/// retrieve via script() and hand it to the loader/service to set as CMap::scriptSource.
@@ -113,7 +115,7 @@ public:
 	const std::string & script() const { return mapScript; }
 
 	/// HotA sub-format version. Ignored unless the format is EMapFormat::HOTA.
-	/// Only versions 0..3 are emittable; higher values throw at build() time.
+	/// Versions 0..5 are emittable; higher values throw at build() time.
 	TinyH3MBuilder & hotaVersion(uint32_t version);
 
 	/// Mark a player as both human- and computer-playable. Required for any
@@ -147,6 +149,15 @@ public:
 
 	/// Total experience points (the engine derives hero level from this).
 	TinyH3MBuilder & heroExperience(uint32_t totalXp);
+
+	/// HotA 1.7.0+ explicit hero level stored in the HotA5 hero extension.
+	TinyH3MBuilder & heroHotaLevel(uint32_t level);
+
+	/// Whether HotA should roll primary/secondary skills while applying the explicit start level.
+	TinyH3MBuilder & heroHotaAlwaysAddSkills(bool value);
+
+	/// HotA per-hero flag that prevents all future positive experience gain.
+	TinyH3MBuilder & heroHotaCannotGainXP(bool value);
 
 	/// Per-skill primary stat overrides (attack, defense, spell power, knowledge).
 	TinyH3MBuilder & heroPrimary(uint8_t attack, uint8_t defense, uint8_t spellPower, uint8_t knowledge);
@@ -288,6 +299,9 @@ private:
 		// Hero customisation. Only consumed for HERO / RANDOM_HERO objects.
 		std::vector<std::pair<CreatureID, uint16_t>>           heroGarrisonStacks;
 		std::optional<uint32_t>                                heroExperienceXp;
+		uint32_t                                               heroExplicitHotaLevel = 1;
+		bool                                                   heroHotaAlwaysAddSkills = true;
+		bool                                                   heroHotaCannotGainXP = false;
 		std::optional<std::array<uint8_t, 4>>                  heroPrimarySkills;
 		std::vector<std::pair<SecondarySkill, uint8_t>>        heroSecondarySkills;
 		std::optional<std::vector<SpellID>>                    heroSpells;
@@ -351,6 +365,7 @@ private:
 	std::string    mapDescription;
 	std::string    mapScript;
 	EMapDifficulty mapDifficulty = EMapDifficulty::NORMAL;
+	uint8_t        mapHeroLevelLimit = 0;
 
 	std::array<bool, 8> playerEnabled{};
 	std::vector<std::pair<MapObjectID, MapObjectSubID>> templates;

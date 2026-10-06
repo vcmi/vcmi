@@ -16,6 +16,8 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../StartInfo.h"
 #include "../mapping/CMap.h"
+#include "../entities/hero/CHeroHandler.h"
+#include "../GameLibrary.h"
 
 #include <vcmi/spells/Spell.h>
 
@@ -123,4 +125,14 @@ const IGameSettings & MapInfoCallback::getSettings() const
 const CMapHeader * MapInfoCallback::getMapHeader() const
 {
 	return getMapConstPtr();
+}
+
+ui32 MapInfoCallback::getHeroLevelLimit() const
+{
+	const ui32 maxSupportedLevel = LIBRARY->heroh->maxSupportedLevel();
+	const ui32 mapLevelLimit = getMapConstPtr()->levelLimit;
+
+	if(mapLevelLimit == 0)
+		return maxSupportedLevel;
+	return std::min(mapLevelLimit, maxSupportedLevel);
 }

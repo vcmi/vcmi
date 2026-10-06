@@ -414,12 +414,7 @@ void InfoBoxHeroData::prepareMessage(std::string & text, std::shared_ptr<CCompon
 	}
 	case HERO_EXPERIENCE:
 	{
-		MetaString message;
-		message.appendTextID("core.genrltxt.2");
-		message.replaceNumber(hero->level);
-		message.replaceNumber(LIBRARY->heroh->reqExp(hero->level + 1));
-		message.replaceNumber(hero->exp);
-		text = message.toString(&GAME->translator());
+		text = hero->getExperienceDescription().toString(&GAME->translator());
 		break;
 	}
 	default:

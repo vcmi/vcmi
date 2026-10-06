@@ -148,11 +148,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
 		experienceAreas[b]->pos = Rect(Point(pos.x + 105 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		experienceAreas[b]->hoverText = LIBRARY->generaltexth->translate("core.heroscrn.9");
-		MetaString experienceText = MetaString::createFromTextID("core.genrltxt.2");
-		experienceText.replaceNumber(hero->level);
-		experienceText.replaceNumber(LIBRARY->heroh->reqExp(hero->level+1));
-		experienceText.replaceNumber(hero->exp);
-		experienceAreas[b]->text = experienceText.toString(&GAME->translator());
+		experienceAreas[b]->text = hero->getExperienceDescription().toString(&GAME->translator());
 
 		spellPointsAreas[b] = std::make_shared<LRClickableAreaWText>();
 		spellPointsAreas[b]->pos = Rect(Point(pos.x + 141 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));

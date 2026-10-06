@@ -703,10 +703,18 @@ CStackWindow::MainSection::MainSection(CStackWindow * owner, int yOffset, bool s
 			auto area = std::make_shared<LRClickableAreaWTextComp>(Rect(pos.x, pos.y, 44, 44), ComponentType::EXPERIENCE);
 			expArea = area;
 			MetaString expText;
-			expText.appendTextID("core.genrltxt.2");
-			expText.replaceNumber(commander->getExpRank());
-			expText.replaceNumber(LIBRARY->heroh->reqExp(commander->getExpRank() + 1));
-			expText.replaceNumber(commander->getAverageExperience());
+			if(commander->level >= commander->cb->getHeroLevelLimit())
+			{
+				expText.appendTextID("core.genrltxt.1"); //can gain no more XP
+				expText.replaceRawString(commander->name);
+			}
+			else
+			{
+				expText.appendTextID("core.genrltxt.2");
+				expText.replaceNumber(commander->level);
+				expText.replaceNumber(LIBRARY->heroh->reqExp(commander->level + 1));
+				expText.replaceNumber(commander->getAverageExperience());
+			}
 
 			area->text = expText.toString(&GAME->translator());
 			area->component.value = commander->getExpRank();

@@ -873,16 +873,22 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 	assert(heroesCount <= features.heroesCount);
 
+	const auto createPredefinedHero = [this](int heroID)
+	{
+		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, HeroTypeID(heroID).toHeroType()->heroClass->getIndex());
+		auto object = handler->create(map->cb, handler->getTemplates().front());
+		auto hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
+		hero->subID = heroID;
+		return hero;
+	};
+
 	for(int heroID = 0; heroID < heroesCount; heroID++)
 	{
 		bool custom = reader->readBool();
 		if(!custom)
 			continue;
 
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, HeroTypeID(heroID).toHeroType()->heroClass->getIndex());
-		auto object = handler->create(map->cb, handler->getTemplates().front());
-		auto hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
-		hero->subID = heroID;
+		auto hero = createPredefinedHero(heroID);
 
 		bool hasExp = reader->readBool();
 		if(hasExp)
@@ -937,19 +943,28 @@ void CMapLoaderH3M::readPredefinedHeroes()
 	{
 		for(int heroID = 0; heroID < heroesCount; heroID++)
 		{
-			bool alwaysAddSkills = reader->readBool(); // prevent heroes from receiving additional random secondary skills at the start of the map if they are not of the first level
-			bool cannotGainXP = reader->readBool();
-			int32_t level = reader->readInt32(); // Needs investigation how this interacts with usual setting of level via experience
+			const bool alwaysAddSkills = reader->readBool();
+			const bool cannotGainXP = reader->readBool();
+			const int32_t level = reader->readInt32();
 			assert(level > 0);
 
-			if (!alwaysAddSkills)
-				logGlobal->warn("Map '%s': Option to prevent hero %d from gaining skills on map start is not implemented!", mapName, heroID);
+			auto * hero = map->tryGetFromHeroPool(HeroTypeID(heroID));
 
-			if (cannotGainXP)
-				logGlobal->warn("Map '%s': Option to prevent hero %d from receiveing experience is not implemented!", mapName, heroID);
+			if(!hero && (level > 1 || cannotGainXP))
+			{
+				auto heroObject = createPredefinedHero(heroID);
+				map->addToHeroPool(heroObject);
+				hero = heroObject.get();
+			}
 
-			if (level > 1)
-				logGlobal->warn("Map '%s': Option to set level of hero %d to %d is not implemented!", mapName, heroID, level);
+			if(hero)
+			{
+				if(level > 1)
+				{
+					hero->mapLevel = MapHeroLevel{static_cast<ui32>(level), alwaysAddSkills};
+				}
+				hero->cannotGainExperience = cannotGainXP;
+			}
 		}
 	}
 }
@@ -2520,19 +2535,16 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 
 	if(features.levelHOTA5)
 	{
-		bool alwaysAddSkills = reader->readBool(); // prevent heroes from receiving additional random secondary skills at the start of the map if they are not of the first level
-		bool cannotGainXP = reader->readBool();
-		int32_t level = reader->readInt32(); // Needs investigation how this interacts with usual setting of level via experience
+		const bool alwaysAddSkills = reader->readBool();
+		const bool cannotGainXP = reader->readBool();
+		const int32_t level = reader->readInt32();
 		assert(level > 0);
 
-		if (!alwaysAddSkills)
-			logGlobal->warn("Map '%s': Option to prevent hero %d from gaining skills on map start is not implemented!", mapName, object->subID.num);
-
-		if (cannotGainXP)
-			logGlobal->warn("Map '%s': Option to prevent hero %d from receiveing experience is not implemented!", mapName, object->subID.num);
-
-		if (level > 1)
-			logGlobal->warn("Map '%s': Option to set level of hero %d to %d is not implemented!", mapName, object->subID.num, level);
+		if(level > 1)
+		{
+			object->mapLevel = MapHeroLevel{static_cast<ui32>(level), alwaysAddSkills};
+		}
+		object->cannotGainExperience = cannotGainXP;
 	}
 	return object;
 }

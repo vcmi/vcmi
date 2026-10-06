@@ -151,7 +151,10 @@ void CExperienceAltar::deselect()
 
 void CExperienceAltar::update()
 {
-	expToLevel->setText(std::to_string(LIBRARY->heroh->reqExp(LIBRARY->heroh->level(hero->exp) + 1) - hero->exp));
+	TExpType experienceToNextLevel = 0;
+	if(hero->canGainExperience())
+		experienceToNextLevel = std::max<TExpType>(0, LIBRARY->heroh->reqExp(hero->level + 1) - hero->exp);
+	expToLevel->setText(std::to_string(experienceToNextLevel));
 }
 
 CCreaturesSelling::CCreaturesSelling()

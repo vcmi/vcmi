@@ -580,7 +580,7 @@ void PlayerMessageProcessor::cheatLevelup(PlayerColor player, const CGHeroInstan
 		levelsToGain = 1;
 	}
 
-	gameHandler->giveExperience(hero, LIBRARY->heroh->reqExp(hero->level + levelsToGain) - LIBRARY->heroh->reqExp(hero->level));
+	gameHandler->giveExperience(hero, hero->experienceToGainLevels(levelsToGain));
 }
 
 void PlayerMessageProcessor::cheatExperience(PlayerColor player, const CGHeroInstance * hero, std::vector<std::string> words)

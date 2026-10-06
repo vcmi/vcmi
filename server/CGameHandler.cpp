@@ -158,14 +158,14 @@ HeroLevelUp CGameHandler::rollHeroLevelUp(const CGHeroInstance * hero)
 	hlu.primskill = primarySkill;
 	hlu.skills = randomizer->rollSecondarySkills(hero);
 	// level is raised only once the pack is applied
-	hlu.moreLevelsFollow = hero->level + 2 <= LIBRARY->heroh->maxSupportedLevel() && hero->exp >= LIBRARY->heroh->reqExp(hero->level + 2);
+	hlu.moreLevelsFollow = hero->level + 2 <= gameState().getHeroLevelLimit() && hero->exp >= LIBRARY->heroh->reqExp(hero->level + 2);
 
 	return hlu;
 }
 
 void CGameHandler::levelUpHeroAutomatically(const CGHeroInstance * hero)
 {
-	while(hero->gainsLevel())
+	while(hero->canGainExperience() && hero->gainsLevel())
 	{
 		auto hlu = rollHeroLevelUp(hero);
 		sendAndApply(hlu);
@@ -188,75 +188,19 @@ void CGameHandler::applyCommanderLevelUp(const CCommanderInstance * c, int skill
 		return;
 	}
 
-	scp.accumulatedBonus.parameters = 0;
-	scp.accumulatedBonus.duration = BonusDuration::PERMANENT;
-	scp.accumulatedBonus.turnsRemain = 0;
-	scp.accumulatedBonus.source = BonusSource::COMMANDER;
-	scp.accumulatedBonus.valType = BonusValueType::BASE_NUMBER;
-	if (skill <= ECommander::SPELL_POWER)
+	scp.which = skill <= ECommander::SPELL_POWER ? SetCommanderProperty::BONUS : SetCommanderProperty::SPECIAL_SKILL;
+	scp.additionalInfo = skill;
+	for(const auto & bonus : c->getSkillBonuses(skill))
 	{
-		scp.which = SetCommanderProperty::BONUS;
-
-		auto difference = [](std::vector< std::vector <ui8> > skillLevels, std::vector <ui8> secondarySkills, int skillToTest)->int
-		{
-			int s = std::min (skillToTest, static_cast<int>(ECommander::SPELL_POWER)); //spell power level controls also casts and resistance
-			return skillLevels.at(skillToTest).at(secondarySkills.at(s)) - (secondarySkills.at(s) ? skillLevels.at(skillToTest).at(secondarySkills.at(s)-1) : 0);
-		};
-
-		switch (skill)
-		{
-			case ECommander::ATTACK:
-				scp.accumulatedBonus.type = BonusType::PRIMARY_SKILL;
-				scp.accumulatedBonus.subtype = BonusSubtypeID(PrimarySkill::ATTACK);
-				break;
-			case ECommander::DEFENSE:
-				scp.accumulatedBonus.type = BonusType::PRIMARY_SKILL;
-				scp.accumulatedBonus.subtype = BonusSubtypeID(PrimarySkill::DEFENSE);
-				break;
-			case ECommander::HEALTH:
-				scp.accumulatedBonus.type = BonusType::STACK_HEALTH;
-				scp.accumulatedBonus.valType = BonusValueType::PERCENT_TO_ALL; //TODO: check how it accumulates in original WoG with artifacts such as vial of life blood, elixir of life etc.
-				break;
-			case ECommander::DAMAGE:
-				scp.accumulatedBonus.type = BonusType::CREATURE_DAMAGE;
-				scp.accumulatedBonus.subtype = BonusCustomSubtype::creatureDamageBoth;
-				scp.accumulatedBonus.valType = BonusValueType::PERCENT_TO_ALL;
-				break;
-			case ECommander::SPEED:
-				scp.accumulatedBonus.type = BonusType::STACKS_SPEED;
-				break;
-			case ECommander::SPELL_POWER:
-				scp.accumulatedBonus.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				scp.accumulatedBonus.subtype = BonusSubtypeID(SpellSchool::ANY);
-				scp.accumulatedBonus.val = difference (LIBRARY->creh->skillLevels, c->secondarySkills, ECommander::RESISTANCE);
-				sendAndApply(scp); //additional pack
-				scp.accumulatedBonus.type = BonusType::CREATURE_SPELL_POWER;
-				scp.accumulatedBonus.val = difference (LIBRARY->creh->skillLevels, c->secondarySkills, ECommander::SPELL_POWER) * 100; //like hero with spellpower = ability level
-				sendAndApply(scp); //additional pack
-				scp.accumulatedBonus.type = BonusType::CASTS;
-				scp.accumulatedBonus.val = difference (LIBRARY->creh->skillLevels, c->secondarySkills, ECommander::CASTS);
-				sendAndApply(scp); //additional pack
-				scp.accumulatedBonus.type = BonusType::CREATURE_ENCHANT_POWER; //send normally
-				break;
-		}
-
-		scp.accumulatedBonus.val = difference (LIBRARY->creh->skillLevels, c->secondarySkills, skill);
-		sendAndApply(scp);
-
-		scp.which = SetCommanderProperty::SECONDARY_SKILL;
-		scp.additionalInfo = skill;
-		scp.amount = c->secondarySkills.at(skill) + 1;
+		scp.accumulatedBonus = bonus;
 		sendAndApply(scp);
 	}
-	else if (skill >= 100)
+
+	if (skill <= ECommander::SPELL_POWER)
 	{
-		for(const auto & bonus : LIBRARY->creh->skillRequirements.at(skill - 100).first)
-		{
-			scp.which = SetCommanderProperty::SPECIAL_SKILL;
-			scp.accumulatedBonus = *bonus;
-			scp.additionalInfo = skill; //unnormalized
-			sendAndApply(scp);
-		}
+		scp.which = SetCommanderProperty::SECONDARY_SKILL;
+		scp.amount = c->secondarySkills.at(skill) + 1;
+		sendAndApply(scp);
 	}
 }
 
@@ -271,24 +215,10 @@ CommanderLevelUp CGameHandler::rollCommanderLevelUp(const CCommanderInstance * c
 	clu.heroId = hero->id;
 	clu.player = hero->tempOwner;
 	// level is raised only once the pack is applied
-	clu.moreLevelsFollow = c->getTotalExperience() >= LIBRARY->heroh->reqExp(c->level + 2);
+	clu.moreLevelsFollow = c->level + 2 <= gameState().getHeroLevelLimit() && c->getTotalExperience() >= LIBRARY->heroh->reqExp(c->level + 2);
 
-	//picking sec. skills for choice
-
-	for (int i = 0; i <= ECommander::SPELL_POWER; ++i)
-	{
-		if (c->secondarySkills.at(i) < ECommander::MAX_SKILL_LEVEL)
-			clu.skills.push_back(i);
-	}
-	int i = 100;
-	for (const auto & specialSkill : LIBRARY->creh->skillRequirements)
-	{
-		if (c->secondarySkills.at(specialSkill.second.first) >= ECommander::MAX_SKILL_LEVEL - 1
-			&&  c->secondarySkills.at(specialSkill.second.second) >= ECommander::MAX_SKILL_LEVEL - 1
-			&&  !vstd::contains (c->specialSkills, i))
-			clu.skills.push_back (i);
-		++i;
-	}
+	for(int skill : c->getLevelUpSkillChoices())
+		clu.skills.push_back(skill);
 
 	return clu;
 }
@@ -343,21 +273,13 @@ void CGameHandler::giveExperience(const CGHeroInstance * hero, TExpType amountTo
 	expGiven(hero);
 }
 
-TExpType CGameHandler::getHeroExperienceLimit() const
-{
-	if (gameState().getMap().levelLimit != 0)
-		return LIBRARY->heroh->reqExp(gameState().getMap().levelLimit);
-
-	return LIBRARY->heroh->reqExp(LIBRARY->heroh->maxSupportedLevel());
-}
-
 void CGameHandler::giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TExpType amountToGain)
 {
-	TExpType maxExp = getHeroExperienceLimit();
+	TExpType maxExp = LIBRARY->heroh->reqExp(gameState().getHeroLevelLimit());
 	TExpType currHeroExp = hero->exp;
 
 	TExpType canGainHeroExp = 0;
-	if (maxExp > currHeroExp)
+	if (maxExp > currHeroExp && hero->canGainExperience())
 		canGainHeroExp = maxExp - currHeroExp;
 
 	TExpType actualHeroExperience = 0;
@@ -436,7 +358,7 @@ void CGameHandler::changeSecSkill(const CGHeroInstance * hero, SecondarySkill wh
 
 	// one hero level per mastery level gained
 	const int masteryGained = hero->getSecSkillLevel(which) - masteryBefore;
-	if (masteryGained > 0 && which.toSkill()->grantsLevelUp() && hero->exp < getHeroExperienceLimit())
+	if (masteryGained > 0 && which.toSkill()->grantsLevelUp() && hero->canGainExperience())
 		giveExperience(hero, hero->experienceToGainLevels(masteryGained));
 
 }
