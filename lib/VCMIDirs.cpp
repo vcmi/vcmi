@@ -9,8 +9,11 @@
  */
 
 #include "StdInc.h"
+#include "GameConstants.h"
+#include "ScopeGuard.h"
 #include "VCMIDirs.h"
 #include "json/JsonNode.h"
+#include "logging/CLogger.h"
 #include "texts/TextOperations.h"
 
 #ifdef VCMI_IOS
@@ -26,6 +29,8 @@ bfs::path IVCMIDirs::userLogsPath() const { return userCachePath(); }
 bfs::path IVCMIDirs::userSavePath() const { return userDataPath() / "Saves"; }
 
 bfs::path IVCMIDirs::userExtractedPath() const { return userCachePath() / "extracted"; }
+
+bfs::path IVCMIDirs::portableUserDataPath() const { return {}; }
 
 std::string IVCMIDirs::genHelpString() const
 {
@@ -56,15 +61,44 @@ void IVCMIDirs::init()
 	bfs::create_directories(userSavePath());
 }
 
+boost::filesystem::path IVCMIDirs::userPath(EUserDirectory directory) const
+{
+	switch(directory)
+	{
+	case EUserDirectory::DATA:
+		return userDataPath();
+	case EUserDirectory::CACHE:
+		return userCachePath();
+	case EUserDirectory::CONFIG:
+		return userConfigPath();
+	case EUserDirectory::LOGS:
+		return userLogsPath();
+	case EUserDirectory::SAVES:
+		return userSavePath();
+	}
+	return {};
+}
+
+bool IVCMIDirs::setUserPath(EUserDirectory, const bfs::path &)
+{
+	return false;
+}
+
+bool IVCMIDirs::supportsUserPathChange() const
+{
+	return false;
+}
+
+bool IVCMIDirs::isOneDrivePath(const bfs::path &) const
+{
+	return false;
+}
+
+void IVCMIDirs::removeObsoleteUserDataParent(const bfs::path &) const
+{
+}
+
 #ifdef VCMI_WINDOWS
-
-#ifdef __MINGW32__
-	#define _WIN32_IE 0x0500
-
-	#ifndef CSIDL_MYDOCUMENTS
-	#define CSIDL_MYDOCUMENTS CSIDL_PERSONAL
-	#endif
-#endif // __MINGW32__
 
 #include <windows.h>
 #include <shlobj.h>
@@ -86,58 +120,244 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 		bfs::path serverPath() const override;
 
 		bfs::path binaryPath() const override;
+		bfs::path portableUserDataPath() const override;
+		bool setUserPath(EUserDirectory directory, const bfs::path & path) override;
+		bool supportsUserPathChange() const override;
+		bool isOneDrivePath(const bfs::path & path) const override;
+		void removeObsoleteUserDataParent(const bfs::path & path) const override;
 
-	protected:
+	private:
+		static constexpr auto userDataParentDirectoryName = L"My Games";
+
 		std::unique_ptr<JsonNode> dirsConfig;
+		bfs::path dirsConfigPath;
 
-		bfs::path getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const;
+		template<typename Fallback>
+		bfs::path getPathFromConfigOrDefault(const std::string & key, Fallback && fallbackFunc) const;
+
+		bool setPathInConfig(const std::string & key, const bfs::path & path);
+		std::optional<bfs::path> getPathFromRegistry(const std::string & key) const;
+		std::optional<bfs::path> readPathFromRegistry(const std::wstring & valueName, REGSAM registryView) const;
+		bool setPathInRegistry(const std::string & key, const bfs::path & path) const;
+		void removePathFromRegistry(const std::string & key) const;
 		bfs::path getDefaultUserDataPath() const;
 
-		std::wstring utf8ToWstring(const std::string& str) const;
-		std::string pathToUtf8(const bfs::path& path) const;
+		std::wstring utf8ToWstring(const std::string & str) const;
+		std::string pathToUtf8(const bfs::path & path) const;
 };
 
 
 VCMIDirsWIN32::VCMIDirsWIN32()
 {
-	wchar_t currentPath[MAX_PATH];
-	GetModuleFileNameW(nullptr, currentPath, MAX_PATH);
-	auto configPath = bfs::path(currentPath).parent_path() / "config" / "dirs.json";
+	std::wstring currentPath(MAX_PATH, L'\0');
+	while(true)
+	{
+		const DWORD pathLength = GetModuleFileNameW(nullptr, currentPath.data(), static_cast<DWORD>(currentPath.size()));
+		if(pathLength == 0)
+			return;
+		if(pathLength < currentPath.size())
+		{
+			currentPath.resize(pathLength);
+			break;
+		}
+		currentPath.resize(currentPath.size() * 2);
+	}
+	dirsConfigPath = bfs::path(currentPath).parent_path() / "config" / "dirs.json";
 
-	if (!bfs::exists(configPath))
+	if (!bfs::exists(dirsConfigPath))
 		return;
 
-	std::ifstream in(configPath.wstring(), std::ios::binary);
+	std::ifstream in(dirsConfigPath.wstring(), std::ios::binary);
 	if (!in)
 		return;
 
 	std::string buffer((std::istreambuf_iterator<char>(in)), {});
-	dirsConfig = std::make_unique<JsonNode>(reinterpret_cast<const std::byte*>(buffer.data()), buffer.size(), pathToUtf8(configPath));
+	dirsConfig = std::make_unique<JsonNode>(buffer.data(), buffer.size(), pathToUtf8(dirsConfigPath));
 }
 
-std::string VCMIDirsWIN32::pathToUtf8(const bfs::path& path) const
+bool VCMIDirsWIN32::setPathInConfig(const std::string & key, const bfs::path & path)
 {
-	std::wstring wstr = path.wstring();
-	int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
-	std::string result(size - 1, 0);
-	WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, result.data(), size, nullptr, nullptr);
-	return result;
-}
-
-std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string& str) const
-{
-	std::wstring result;
-	int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
-	if (size_needed > 0)
+	try
 	{
-		result.resize(size_needed - 1);
-		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, result.data(), size_needed);
+		JsonNode updatedConfig = dirsConfig ? *dirsConfig : JsonNode(JsonMap{});
+		bfs::path preferredPath = path;
+		preferredPath.make_preferred();
+		updatedConfig[key].String() = pathToUtf8(preferredPath);
+		bfs::create_directories(dirsConfigPath.parent_path());
+
+		bfs::path temporaryPath = dirsConfigPath;
+		temporaryPath += ".tmp";
+		std::ofstream out(temporaryPath.wstring(), std::ios::binary | std::ios::trunc);
+		if(out)
+		{
+			out << updatedConfig.toString() << '\n';
+			out.close();
+		}
+
+		if(out && MoveFileExW(temporaryPath.c_str(), dirsConfigPath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+		{
+			removePathFromRegistry(key);
+			dirsConfig = std::make_unique<JsonNode>(std::move(updatedConfig));
+			IVCMIDirs::init();
+			return true;
+		}
+
+		bfs::remove(temporaryPath);
+		if(!setPathInRegistry(key, path))
+			return false;
+
+		IVCMIDirs::init();
+		return true;
 	}
+	catch(const bfs::filesystem_error & e)
+	{
+		logGlobal->warn("Failed to save user directory '%s' to %s: %s. Falling back to the current user's registry.", key, pathToUtf8(dirsConfigPath), e.what());
+		if(!setPathInRegistry(key, path))
+			return false;
+
+		IVCMIDirs::init();
+		return true;
+	}
+}
+
+std::optional<bfs::path> VCMIDirsWIN32::getPathFromRegistry(const std::string & key) const
+{
+	const std::wstring valueName = utf8ToWstring(key);
+	if(const auto path = readPathFromRegistry(valueName, KEY_WOW64_64KEY))
+		return path;
+
+	return readPathFromRegistry(valueName, KEY_WOW64_32KEY);
+}
+
+std::optional<bfs::path> VCMIDirsWIN32::readPathFromRegistry(const std::wstring & valueName, REGSAM registryView) const
+{
+	HKEY registryKey = nullptr;
+	if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, KEY_QUERY_VALUE | registryView, &registryKey) != ERROR_SUCCESS)
+		return std::nullopt;
+	auto closeRegistryKey = vstd::makeScopeGuard([registryKey]() { RegCloseKey(registryKey); });
+
+	DWORD type = 0;
+	DWORD size = 0;
+	constexpr DWORD acceptedTypes = RRF_RT_REG_SZ | RRF_RT_REG_EXPAND_SZ | RRF_NOEXPAND;
+	const LSTATUS sizeResult = RegGetValueW(registryKey, nullptr, valueName.c_str(), acceptedTypes, &type, nullptr, &size);
+	if(sizeResult != ERROR_SUCCESS || (type != REG_SZ && type != REG_EXPAND_SZ) || size < sizeof(wchar_t))
+		return std::nullopt;
+
+	std::wstring value(size / sizeof(wchar_t), L'\0');
+	const LSTATUS valueResult = RegGetValueW(registryKey, nullptr, valueName.c_str(), acceptedTypes, &type, value.data(), &size);
+	if(valueResult != ERROR_SUCCESS || (type != REG_SZ && type != REG_EXPAND_SZ) || size % sizeof(wchar_t) != 0)
+		return std::nullopt;
+
+	while(!value.empty() && value.back() == L'\0')
+		value.pop_back();
+
+	if(value.empty())
+		return std::nullopt;
+
+	if(type == REG_EXPAND_SZ)
+	{
+		const DWORD expandedSize = ExpandEnvironmentStringsW(value.c_str(), nullptr, 0);
+		if(expandedSize > 0)
+		{
+			std::wstring expanded(expandedSize, L'\0');
+			if(ExpandEnvironmentStringsW(value.c_str(), expanded.data(), expandedSize) == expandedSize)
+			{
+				expanded.resize(expandedSize - 1);
+				return bfs::path(expanded);
+			}
+		}
+	}
+
+	return bfs::path(value);
+}
+
+bool VCMIDirsWIN32::setPathInRegistry(const std::string & key, const bfs::path & path) const
+{
+	bfs::path preferredPath = path;
+	preferredPath.make_preferred();
+	const std::wstring valueName = utf8ToWstring(key);
+	const std::wstring value = preferredPath.wstring();
+	const auto valueSize = static_cast<DWORD>((value.size() + 1) * sizeof(wchar_t));
+
+	HKEY registryKey = nullptr;
+	if(RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE | KEY_WOW64_64KEY, nullptr, &registryKey, nullptr) != ERROR_SUCCESS
+		&& RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &registryKey, nullptr) != ERROR_SUCCESS)
+		return false;
+	auto closeRegistryKey = vstd::makeScopeGuard([registryKey]() { RegCloseKey(registryKey); });
+
+	const LSTATUS result = RegSetKeyValueW(registryKey, nullptr, valueName.c_str(), REG_SZ, value.c_str(), valueSize);
+	if(result != ERROR_SUCCESS)
+		return false;
+
+	const auto savedPath = getPathFromRegistry(key);
+	return savedPath && _wcsicmp(savedPath->c_str(), preferredPath.c_str()) == 0;
+}
+
+void VCMIDirsWIN32::removePathFromRegistry(const std::string & key) const
+{
+	const std::wstring valueName = utf8ToWstring(key);
+	for(const REGSAM registryView : { KEY_WOW64_64KEY, KEY_WOW64_32KEY })
+	{
+		HKEY registryKey = nullptr;
+		if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, KEY_SET_VALUE | registryView, &registryKey) == ERROR_SUCCESS)
+		{
+			RegDeleteValueW(registryKey, valueName.c_str());
+			RegCloseKey(registryKey);
+		}
+	}
+}
+
+bool VCMIDirsWIN32::setUserPath(EUserDirectory directory, const bfs::path & path)
+{
+	switch(directory)
+	{
+	case EUserDirectory::DATA:
+		return setPathInConfig("userDataPath", path);
+	case EUserDirectory::CACHE:
+		return setPathInConfig("userCachePath", path);
+	case EUserDirectory::CONFIG:
+		return setPathInConfig("userConfigPath", path);
+	case EUserDirectory::LOGS:
+		return setPathInConfig("userLogsPath", path);
+	case EUserDirectory::SAVES:
+		return setPathInConfig("userSavePath", path);
+	}
+	return false;
+}
+
+bool VCMIDirsWIN32::supportsUserPathChange() const
+{
+	return true;
+}
+
+std::string VCMIDirsWIN32::pathToUtf8(const bfs::path & path) const
+{
+	return TextOperations::filesystemPathToUtf8(path);
+}
+
+std::wstring VCMIDirsWIN32::utf8ToWstring(const std::string & str) const
+{
+	if(str.empty())
+		return {};
+
+	const int size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str.data(), static_cast<int>(str.size()), nullptr, 0);
+	if(size <= 0)
+		return {};
+
+	std::wstring result(size, L'\0');
+	if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str.data(), static_cast<int>(str.size()), result.data(), size) != size)
+		return {};
+
 	return result;
 }
 
-bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, const std::function<bfs::path()>& fallbackFunc) const
+template<typename Fallback>
+bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(
+	const std::string & key, Fallback && fallbackFunc) const
 {
+	if(const auto registryPath = getPathFromRegistry(key))
+		return *registryPath;
+
 	if (!dirsConfig || !dirsConfig->isStruct())
 		return fallbackFunc();
 
@@ -145,20 +365,73 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(const std::string& key, cons
 	if (!node.isString())
 		return fallbackFunc();
 
-	std::wstring raw = utf8ToWstring(node.String());
-	wchar_t expanded[MAX_PATH];
-	if (ExpandEnvironmentStringsW(raw.c_str(), expanded, MAX_PATH))
-		return bfs::path(expanded);
-	else
+	const std::wstring raw = utf8ToWstring(node.String());
+	if(raw.empty())
+		return fallbackFunc();
+
+	const DWORD expandedSize = ExpandEnvironmentStringsW(raw.c_str(), nullptr, 0);
+	if(expandedSize == 0)
 		return bfs::path(raw);
+
+	std::wstring expanded(expandedSize, L'\0');
+	if(ExpandEnvironmentStringsW(raw.c_str(), expanded.data(), expandedSize) != expandedSize)
+		return bfs::path(raw);
+
+	expanded.resize(expandedSize - 1);
+	return bfs::path(expanded);
 }
 
 bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
 {
+	const bfs::path applicationName(GameConstants::VCMI_PROJECT_NAME);
 	wchar_t profileDir[MAX_PATH];
-	if (SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
-		return bfs::path(profileDir) / "My Games" / "vcmi";
+	if(SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
+	{
+		const bfs::path documentsPath(profileDir);
+		if(!isOneDrivePath(documentsPath))
+			return documentsPath / userDataParentDirectoryName / applicationName;
+	}
+
+	if(SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_LOCAL_APPDATA, FALSE) != FALSE)
+		return bfs::path(profileDir) / applicationName;
+
 	return bfs::path(".");
+}
+
+bfs::path VCMIDirsWIN32::portableUserDataPath() const
+{
+	return binaryPath() / (std::string(GameConstants::VCMI_PROJECT_NAME) + "-data");
+}
+
+bool VCMIDirsWIN32::isOneDrivePath(const bfs::path & path) const
+{
+	wchar_t oneDrivePath[MAX_PATH];
+	const DWORD pathSize = ExpandEnvironmentStringsW(L"%OneDrive%", oneDrivePath, MAX_PATH);
+	if(pathSize == 0 || pathSize > MAX_PATH || std::wstring(oneDrivePath) == L"%OneDrive%")
+		return false;
+
+	bfs::path normalizedCandidate = path.lexically_normal();
+	normalizedCandidate.make_preferred();
+	bfs::path normalizedOneDrive = bfs::path(oneDrivePath).lexically_normal();
+	normalizedOneDrive.make_preferred();
+
+	const std::wstring candidate = normalizedCandidate.wstring();
+	std::wstring oneDrive = normalizedOneDrive.wstring();
+	if(boost::iequals(candidate, oneDrive))
+		return true;
+	oneDrive += bfs::path::preferred_separator;
+
+	return boost::istarts_with(candidate, oneDrive);
+}
+
+void VCMIDirsWIN32::removeObsoleteUserDataParent(const bfs::path & path) const
+{
+	const bfs::path parentPath = path.parent_path();
+	if(boost::iequals(parentPath.filename().wstring(), userDataParentDirectoryName))
+	{
+		boost::system::error_code error;
+		bfs::remove(parentPath, error);
+	}
 }
 
 bfs::path VCMIDirsWIN32::userDataPath() const
@@ -183,7 +456,7 @@ bfs::path VCMIDirsWIN32::userLogsPath() const
 
 bfs::path VCMIDirsWIN32::userSavePath() const
 {
-	return getPathFromConfigOrDefault("userSavePath", [this] { return userDataPath() / "Saves"; });
+	return getPathFromConfigOrDefault("userSavePath", [this] { return userDataPath() / "saves"; });
 }
 
 std::vector<bfs::path> VCMIDirsWIN32::dataPaths() const
@@ -194,8 +467,8 @@ std::vector<bfs::path> VCMIDirsWIN32::dataPaths() const
 bfs::path VCMIDirsWIN32::clientPath() const { return binaryPath() / "VCMI_client.exe"; }
 bfs::path VCMIDirsWIN32::mapEditorPath() const { return binaryPath() / "VCMI_mapeditor.exe"; }
 bfs::path VCMIDirsWIN32::serverPath() const { return binaryPath() / "VCMI_server.exe"; }
-
 bfs::path VCMIDirsWIN32::binaryPath() const { return ".";  }
+
 #elif defined(VCMI_UNIX)
 class IVCMIDirsUNIX : public IVCMIDirs
 {
@@ -570,7 +843,7 @@ bfs::path VCMIDirsXDG::binaryPath() const
 // Getters for interfaces are separated for clarity.
 namespace VCMIDirs
 {
-	const IVCMIDirs& get()
+	IVCMIDirs & get()
 	{
 		#ifdef VCMI_WINDOWS
 			static VCMIDirsWIN32 singleton;

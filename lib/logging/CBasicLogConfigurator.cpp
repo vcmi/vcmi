@@ -14,8 +14,8 @@
 #include "../CConfigHandler.h"
 #include "../CConsoleHandler.h"
 
-CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path filePath, CConsoleHandler * const console) :
-	filePath(std::move(filePath)), console(console), appendToLogFile(false) {}
+CBasicLogConfigurator::CBasicLogConfigurator(boost::filesystem::path filePath, CConsoleHandler * const console, bool appendToLogFile) :
+	filePath(std::move(filePath)), console(console), appendToLogFile(appendToLogFile) {}
 
 void CBasicLogConfigurator::configureDefault()
 {
