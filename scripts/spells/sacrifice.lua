@@ -32,32 +32,56 @@ function Script:adjustTargetTypes(mechanics, types)
 	return types
 end
 
---- Require at least one dead unit AND one alive unit, both owner-matching.
+--- Require at least one injured unit AND one alive unit, both owner-matching.
 function Script:applicableGeneral(mechanics, problem)
 	local units = mechanics:getBattle():getUnitsIf(function(unit)
-		return unit:isValidTarget(true) and mechanics:isReceptive(unit) and mechanics:ownerMatches(unit)
+		return unit:isValidTarget(true)
+			and mechanics:isReceptive(unit)
+			and mechanics:ownerMatches(unit)
 	end)
 
-	local hasDeadTarget  = false
-	local hasAliveVictim = false
+	local hasFullUnit = false
+	local hasDead = false
+	local injuredCount = 0
+
 	for _, unit in ipairs(units) do
-		if unit:isDead()  then hasDeadTarget  = true end
-		if unit:isAlive() then hasAliveVictim = true end
-		if hasDeadTarget and hasAliveVictim then break end
+		local dead = unit:isDead()
+		local alive = unit:isAlive()
+		local injured = (unit:getTotalHealth() - unit:getAvailableHealth()) > 0
+
+		if alive and injured then
+			injuredCount = injuredCount + 1
+		elseif alive then
+			hasFullUnit = true
+		elseif dead then
+			hasDead = true
+		end
+
+		--- Two units that are both alive and injured.
+		if injuredCount >= 2 then
+			return true
+		end
+
+		--- One alive+injured unit and one non-injured or dead unit.
+		if injuredCount >= 1 and (hasFullUnit or hasDead) then
+			return true
+		end
+
+		--- One non-injured unit and one dead unit.
+		if hasFullUnit and hasDead then
+			return true
+		end
 	end
 
-	if not (hasDeadTarget and hasAliveVictim) then
-		problem:addStandard(mechanics, ENUM.SpellCastProblem.noAppropriateTarget)
-		return false
-	end
-	return true
+	problem:addStandard(mechanics, ENUM.SpellCastProblem.noAppropriateTarget)
+	return false
 end
 
---- First target must be a dead unit; second must be an alive, receptive, owner-matching unit.
+--- First target must be an injured unit; second must be an alive, receptive, owner-matching unit.
 function Script:applicableTarget(mechanics, problem, target)
 	if #target == 0 then return false end
-	local deadUnit = target[1].unit
-	if not deadUnit or deadUnit:isAlive() then return false end
+	local injuredUnit = target[1].unit
+	if not injuredUnit or (injuredUnit:getTotalHealth() - injuredUnit:getAvailableHealth()) == 0 then return false end
 	if #target < 2 then return true end
 	local victim = target[2].unit
 	if not victim or not victim:isAlive() then return false end
