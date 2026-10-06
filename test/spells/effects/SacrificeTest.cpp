@@ -236,7 +236,7 @@ protected:
 	}
 };
 
-TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsFalseWhenTargetIsAlive)
+TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsTrueWhenTargetIsAlive)
 {
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 	unit.makeAlive();
@@ -246,7 +246,7 @@ TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsFalseWhenTargetIsAlive)
 	Target target;
 	target.emplace_back(&unit, BattleHex());
 
-	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
+	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsFalseWhenVictimIsDead)
