@@ -221,6 +221,19 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 		//backward compatibility for VCMI maps that use old Pandora Box format
 		if(!handler.getCurrent()["guards"].Vector().empty())
 			CCreatureSet::serializeJson(handler, "guards", 7);
+
+
+		auto exists = [&handler](std::string keyword)
+		{
+			return !handler.getCurrent()[keyword].isNull();
+		};
+
+		bool isLegacy = false;
+
+		if(exists("experience") || exists("mana") || exists("morale") || exists("luck") ||
+		   exists("resources") || exists("primarySkills") || exists("artifacts") || exists("spells") ||
+		   exists("creatures") || exists("secondarySkills"))
+			isLegacy = true;
 		
 		Rewardable::VisitInfo vinfo;
 		vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
@@ -273,7 +286,8 @@ void CGPandoraBox::serializeJsonOptions(JsonSerializeFormat & handler)
 			}
 		}
 
-		configuration.info.push_back(vinfo);
+		if(isLegacy)
+			configuration.info.push_back(vinfo);
 	}
 }
 
