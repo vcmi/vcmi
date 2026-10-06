@@ -204,20 +204,20 @@ TEST_F(SacrificeApplicableGeneralTest, ReturnsFalseWhenNoInjuredUnits)
 	EXPECT_FALSE(subject->applicableGeneral(problemMock, &mechanicsMock));
 }
 
-TEST_F(SacrificeApplicableGeneralTest, ReturnsFalseWhenNoInjuredUnits)
+TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWhenInjuredUnits)
 {
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 	unit.makeAlive();
 	EXPECT_CALL(unit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
 	EXPECT_CALL(unit, getTotalHealth()).WillRepeatedly(Return(100));
-	EXPECT_CALL(unit, getAvailableHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(unit, getAvailableHealth()).WillRepeatedly(Return(50));
 	EXPECT_CALL(unit, isInvincible()).WillRepeatedly(Return(false));
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&unit))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillRepeatedly(Return(true));
 
 	EXPECT_CALL(mechanicsMock, adaptProblem(_, _)).WillOnce(Return(false));
-	EXPECT_FALSE(subject->applicableGeneral(problemMock, &mechanicsMock));
+	EXPECT_TRUE(subject->applicableGeneral(problemMock, &mechanicsMock));
 }
 
 TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWithInjuredAndAliveUnits)
