@@ -34,6 +34,7 @@ class WindowsUserDirectoryManager : public QObject
 	bool isDirectoryWritable(const QString & path) const;
 	bool removePath(const QString & path) const;
 	bool reportPermissionError(const QString & message) const;
+	bool confirmOneDriveTarget(const IVCMIDirs & dirs, const QString & target) const;
 	bool validateTarget(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & source, const QString & target, bool & selectAnother) const;
 	qint64 directorySize(const QString & path) const;
 	QString formattedDataSize(qint64 bytes) const;

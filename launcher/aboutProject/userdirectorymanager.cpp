@@ -65,7 +65,7 @@ bool WindowsUserDirectoryManager::removePath(const QString & path) const
 	if(remove() || !QFileInfo::exists(path))
 		return true;
 
-	// QFile/QDir may not remove entries carrying the Windows read-only attribute, even when the user has permission - deleteting using Windows Explorer clears it automatically
+	// QFile/QDir may not remove entries carrying the Windows read-only attribute, even when the user has permission - deleting using Windows Explorer clears it automatically
 	QStringList remainingPaths{path};
 	QDirIterator iterator(path, QDir::NoDotAndDotDot | QDir::AllEntries | QDir::Hidden | QDir::System, QDirIterator::Subdirectories);
 	while(iterator.hasNext())
@@ -113,7 +113,26 @@ bool WindowsUserDirectoryManager::reportPermissionError(const QString & message)
 	return false;
 }
 
-bool WindowsUserDirectoryManager::validateTarget(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & source, const QString & target, bool & selectAnother) const{
+bool WindowsUserDirectoryManager::confirmOneDriveTarget(const IVCMIDirs & dirs, const QString & target) const
+{
+	if(!dirs.isOneDrivePath(qstringToPath(target)))
+		return true;
+
+	QMessageBox warning(QMessageBox::Warning, tr("OneDrive directory selected"), tr("The selected directory is synchronized by OneDrive:\n%1\n\nOneDrive may lock files while synchronizing them. This can prevent VCMI from writing data and may cause mod installation, game startup, saving, or other operations to fail.").arg(QDir::toNativeSeparators(target)), QMessageBox::NoButton, parent);
+	auto * continueButton = warning.addButton(tr("Continue anyway"), QMessageBox::DestructiveRole);
+	auto * selectButton = warning.addButton(tr("Select another location"), QMessageBox::RejectRole);
+	warning.setDefaultButton(selectButton);
+	warning.exec();
+
+	if(warning.clickedButton() != continueButton)
+		return false;
+
+	const auto confirmation = QMessageBox::warning(parent, tr("Confirm OneDrive directory"), tr("Using a OneDrive-synchronized directory can make VCMI unreliable and may cause data-writing operations to fail.\n\nDo you really want to use this directory?"), QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+	return confirmation == QMessageBox::Yes;
+}
+
+bool WindowsUserDirectoryManager::validateTarget(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & source, const QString & target, bool & selectAnother) const
+{
 	if(isSameOrChildPath(target, source) && isSameOrChildPath(source, target))
 	{
 		logGlobal->info("User directory change skipped because source and target are the same: %s", source.toStdString());
@@ -122,7 +141,7 @@ bool WindowsUserDirectoryManager::validateTarget(const IVCMIDirs & dirs, EUserDi
 	}
 
 	const QString binaryPath = QCoreApplication::applicationDirPath();
-	const QString portableDataPath = QDir(binaryPath).filePath(QStringLiteral("vcmi-data"));
+	const QString portableDataPath = QDir(binaryPath).filePath(QStringLiteral("VCMI-data"));
 	if(pathsOverlap(target, binaryPath) && normalizedPath(target).compare(normalizedPath(portableDataPath), Qt::CaseInsensitive) != 0)
 	{
 		QMessageBox::warning(parent, tr("Invalid directory"), tr("A user directory cannot be the VCMI installation directory, contain it, or be located inside it."));
@@ -147,6 +166,12 @@ bool WindowsUserDirectoryManager::validateTarget(const IVCMIDirs & dirs, EUserDi
 	if(!isDirectoryWritable(target))
 	{
 		selectAnother = reportPermissionError(tr("The selected directory is not writable:\n%1\n\nSelect another location or restart the launcher as administrator.").arg(QDir::toNativeSeparators(target)));
+		return false;
+	}
+
+	if(!confirmOneDriveTarget(dirs, target))
+	{
+		selectAnother = true;
 		return false;
 	}
 
@@ -254,7 +279,6 @@ bool WindowsUserDirectoryManager::copyDirectoryContents(const QString & source, 
 
 		if(overwrite && QFileInfo::exists(destinationPath))
 		{
-			const QFileInfo destinationInfo(destinationPath);
 			const bool removed = removePath(destinationPath);
 			if(!removed)
 			{
@@ -352,7 +376,16 @@ bool WindowsUserDirectoryManager::restoreDisplacedDirectory(const QString & targ
 		return true;
 
 	const QString failedPath = QFileInfo(target).dir().filePath(QStringLiteral(".%1-vcmi-failed-%2").arg(QFileInfo(target).fileName(), QUuid::createUuid().toString(QUuid::Id128)));
-	return QDir().rename(target, failedPath) && QDir().rename(displacedPath, target) && removePath(failedPath);
+	if(!QDir().rename(target, failedPath))
+		return false;
+
+	if(!QDir().rename(displacedPath, target))
+	{
+		QDir().rename(failedPath, target);
+		return false;
+	}
+
+	return removePath(failedPath);
 }
 
 void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, const QString & title) const
@@ -373,7 +406,7 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 
 		if(normalizedPath(selected).compare(normalizedPath(binaryPath), Qt::CaseInsensitive) == 0)
 		{
-			selected = QDir(binaryPath).filePath(QStringLiteral("vcmi-data"));
+			selected = QDir(binaryPath).filePath(QStringLiteral("VCMI-data"));
 			QMessageBox::information(parent, tr("Using a data subdirectory"), tr("User data cannot be stored directly in the VCMI installation directory.\n\nThe following compatible directory will be used instead:\n%1").arg(QDir::toNativeSeparators(selected)));
 			if(!QDir().mkpath(selected))
 			{
@@ -391,18 +424,23 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 			return;
 	}
 	const QString oldLogPath = pathToQString(dirs.userLogsPath());
-	const bool sourceContainsActiveUserDirectory = containsActiveUserDirectory(dirs, directory, source);
 	bool moveExistingData = false;
 	bool downloadsPaused = false;
+	bool cancelPausedDownloadsOnExit = false;
 	QString targetBackupPath;
 	QString displacedTargetPath;
 	QString relocatedSourcePath = source;
 	EExistingTargetAction completedTargetAction = EExistingTargetAction::MERGE;
 
-	auto cancelPausedDownloads = vstd::makeScopeGuard([&downloadsPaused, mainWindow]()
+	auto finishPausedDownloads = vstd::makeScopeGuard([&downloadsPaused, &cancelPausedDownloadsOnExit, mainWindow]()
 	{
 		if(downloadsPaused && mainWindow)
-			mainWindow->getModView()->cancelDownloads();
+		{
+			if(cancelPausedDownloadsOnExit)
+				mainWindow->getModView()->cancelDownloads();
+			else
+				mainWindow->getModView()->resumeDownloads();
+		}
 	});
 
 	auto pauseDownloads = [&downloadsPaused, mainWindow]()
@@ -466,7 +504,7 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 			completedTargetAction = targetAction;
 
 			const bool installInPlace = targetAction == EExistingTargetAction::MERGE || !targetParentWritable;
-			const qint64 requiredSpace = sourceSize + (!installInPlace && targetAction == EExistingTargetAction::MERGE ? directorySize(selected) : 0);
+			const qint64 requiredSpace = installInPlace ? sourceSize * 2 : sourceSize;
 			const QStorageInfo currentStorage(selected);
 
 			if(currentStorage.isValid() && currentStorage.isReady() && currentStorage.bytesAvailable() >= 0 && currentStorage.bytesAvailable() < requiredSpace)
@@ -545,7 +583,10 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 		logGlobal->error("Failed to save new user directory '%s'", selected.toStdString());
 
 		if(!restoreDisplacedDirectory(selected, displacedTargetPath))
+		{
 			logGlobal->error("Failed to restore target directory '%s' after settings error", selected.toStdString());
+			cancelPausedDownloadsOnExit = true;
+		}
 
 		QMessageBox::critical(parent, tr("Error"), tr("Failed to save directory settings to config/dirs.json or the current user's registry."));
 		return;
@@ -558,12 +599,29 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 	{
 		logGlobal->error("Failed to reload user directory '%s'", selected.toStdString());
 
-		if(!dirs.setUserPath(directory, qstringToPath(source)))
+		const bool settingRestored = dirs.setUserPath(directory, qstringToPath(source));
+		if(!settingRestored)
 			logGlobal->error("Failed to restore user directory setting '%s'", source.toStdString());
 
-		if(!restoreDisplacedDirectory(selected, displacedTargetPath))
+		const bool targetRestored = restoreDisplacedDirectory(selected, displacedTargetPath);
+		if(!targetRestored)
 			logGlobal->error("Failed to restore target directory '%s' after reload error", selected.toStdString());
 
+		bool oldDirectoryReloaded = false;
+		if(settingRestored)
+		{
+			const QString restoredLogPath = pathToQString(dirs.userLogsPath());
+			parent->directoriesChanged(newLogPath == restoredLogPath ? QString() : restoredLogPath);
+			oldDirectoryReloaded = mainWindow && mainWindow->reloadDirectories();
+			if(!oldDirectoryReloaded)
+				logGlobal->error("Failed to reload restored user directory '%s'", source.toStdString());
+		}
+
+		cancelPausedDownloadsOnExit = !settingRestored || !targetRestored || !oldDirectoryReloaded;
+		const QString message = cancelPausedDownloadsOnExit
+			? tr("The launcher could not reload data from the selected directory and could not fully restore the previous state. Active downloads were cancelled to prevent data corruption.")
+			: tr("The launcher could not reload data from the selected directory. The previous directory has been restored.");
+		QMessageBox::critical(parent, tr("Reload failed"), message);
 		return;
 	}
 
@@ -575,26 +633,40 @@ void WindowsUserDirectoryManager::changeDirectory(EUserDirectory directory, cons
 
 	if(moveExistingData)
 	{
-		if(sourceContainsActiveUserDirectory)
-			QMessageBox::warning(parent, tr("Original files kept"), tr("The original directory still contains another active VCMI directory and cannot be removed safely."));
+		const bool sourceRelocatedIntoBackup = completedTargetAction == EExistingTargetAction::BACK_UP
+			&& !displacedTargetPath.isEmpty()
+			&& isSameOrChildPath(relocatedSourcePath, displacedTargetPath);
+
+		if(sourceRelocatedIntoBackup)
+			logGlobal->info("Keeping the relocated source '%s' as part of the target backup", relocatedSourcePath.toStdString());
 		else if(isSameOrChildPath(selected, relocatedSourcePath) || (!displacedTargetPath.isEmpty() && isSameOrChildPath(displacedTargetPath, relocatedSourcePath)))
 		{
 			QDir sourceDirectory(relocatedSourcePath);
 			bool removalFailed = false;
+			bool activeDirectoryKept = false;
 			for(const auto & entry : sourceDirectory.entryInfoList(QDir::NoDotAndDotDot | QDir::AllEntries))
 			{
 				const QString entryPath = entry.absoluteFilePath();
 				if(isSameOrChildPath(selected, entryPath) || (!displacedTargetPath.isEmpty() && isSameOrChildPath(displacedTargetPath, entryPath)))
 					continue;
+				if(containsActiveUserDirectory(dirs, directory, entryPath))
+				{
+					activeDirectoryKept = true;
+					continue;
+				}
 				if(!removePath(entryPath))
 				{
 					removalFailed = true;
 					logGlobal->warn("Failed to remove old user data '%s'", entryPath.toStdString());
 				}
 			}
+			if(activeDirectoryKept)
+				QMessageBox::warning(parent, tr("Original files kept"), tr("Some original files contain another active VCMI directory and were kept."));
 			if(removalFailed)
 				QMessageBox::warning(parent, tr("Original files kept"), tr("The data was copied and reloaded, but some original files could not be removed."));
 		}
+		else if(containsActiveUserDirectory(dirs, directory, relocatedSourcePath))
+			QMessageBox::warning(parent, tr("Original files kept"), tr("The original directory still contains another active VCMI directory and cannot be removed safely."));
 		else if(QFileInfo::exists(relocatedSourcePath) && !removePath(relocatedSourcePath))
 			QMessageBox::warning(parent, tr("Original files kept"), tr("The data was copied and reloaded, but the original directory could not be removed."));
 		else
