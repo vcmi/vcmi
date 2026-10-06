@@ -844,6 +844,13 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
 	{
 		reader->readBitmaskSpells(map->allowedSpells, true);
 		reader->readBitmaskSkills(map->allowedAbilities, true);
+
+		// The map only knows the original skills and allows every one it does not ban, including skills
+		// that a mod disabled (marked as special). Keep those disabled
+		vstd::erase_if(map->allowedAbilities, [](const SecondarySkill & skill)
+		{
+			return skill.toSkill()->isSpecial();
+		});
 	}
 }
 
