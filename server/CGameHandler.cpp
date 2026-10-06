@@ -833,12 +833,6 @@ void CGameHandler::addQuest(const PlayerColor & player, const QuestInfo & quest)
 	sendAndApply(aq);
 }
 
-/// Object the hero interacts with on the tile: the top one, or the one below it if the hero itself is on top
-static ObjectInstanceID objectToVisitOnTile(const TerrainTile & t, const CGHeroInstance * h)
-{
-	return t.topVisitableObj(t.topVisitableObj() == h->id);
-}
-
 bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode movementMode, bool transit, PlayerColor asker, const EPathfindingLayer & layer)
 {
 	const CGHeroInstance *h = gameInfo().getHero(hid);
@@ -866,8 +860,8 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	const CGObjectInstance * objectToVisit = nullptr;
 	const CGObjectInstance * guardian = nullptr;
 
-	if (!t.visitableObjects.empty())
-		objectToVisit = gameState().getObjInstance(t.visitableObjects.back());
+	if (const ObjectInstanceID objectID = t.objectVisitedBy(h->id); objectID.hasValue())
+		objectToVisit = gameState().getObjInstance(objectID);
 
 	if (gameInfo().isInTheMap(guardPos))
 	{
@@ -1015,7 +1009,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 		tmh.result = result;
 		sendAndApply(tmh);
 
-		if (visitDest == VISIT_DEST && objectToVisit && objectToVisit->id == h->id)
+		if (visitDest == VISIT_DEST && tmh.start == tmh.end)
 		{ // Hero should be always able to visit any object he is staying on even if there are guards around
 			visitObjectOnTile(t, h);
 		}
@@ -1039,7 +1033,7 @@ bool CGameHandler::moveHero(ObjectInstanceID hid, int3 dst, EMovementMode moveme
 	auto blockingVisit = [&]() -> bool
 	{
 		// only the object that visitObjectOnTile() would visit may block the hero, same as in pathfinder
-		const ObjectInstanceID objectID = objectToVisitOnTile(t, h);
+		const ObjectInstanceID objectID = t.objectVisitedBy(h->id);
 		if (!objectID.hasValue())
 			return false;
 
@@ -1150,11 +1144,11 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	if (((h->getOwner() != t->getOwner())
 		&& complain("Cannot teleport hero to another player"))
 
-	|| (from->getFactionID() != t->getFactionID()
-		&& complain("Source town and destination town should belong to the same faction"))
-
 	|| ((!from || !from->hasBuilt(BuildingSubID::CASTLE_GATE))
 		&& complain("Hero must be in town with Castle gate for teleporting"))
+
+	|| (from->getFactionID() != t->getFactionID()
+		&& complain("Source town and destination town should belong to the same faction"))
 
 	|| (!t->hasBuilt(BuildingSubID::CASTLE_GATE)
 		&& complain("Cannot teleport hero to town without Castle gate in it")))
@@ -4028,7 +4022,7 @@ bool CGameHandler::dig(const CGHeroInstance *h)
 
 void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h)
 {
-	const ObjectInstanceID objectID = objectToVisitOnTile(t, h);
+	const ObjectInstanceID objectID = t.objectVisitedBy(h->id);
 	if (objectID.hasValue())
 		objectVisited(gameState().getObjInstance(objectID), h);
 }

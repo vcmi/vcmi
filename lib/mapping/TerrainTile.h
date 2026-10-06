@@ -33,6 +33,8 @@ struct DLL_LINKAGE TerrainTile
 	bool isClear(const TerrainTile * from = nullptr) const;
 	/// Gets the ID of the top visitable object or -1 if there is none.
 	ObjectInstanceID topVisitableObj(bool excludeTop = false) const;
+	/// Object the hero interacts with on this tile: the top one, or the one below it if the hero itself is on top
+	ObjectInstanceID objectVisitedBy(ObjectInstanceID heroID) const;
 	inline bool isWater() const;
 	inline bool isLand() const;
 	EDiggingStatus getDiggingStatus(bool excludeTop = true) const;

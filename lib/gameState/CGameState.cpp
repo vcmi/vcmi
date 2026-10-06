@@ -305,9 +305,7 @@ void CGameState::updateEntity(Metatype metatype, int32_t index, const JsonNode &
 void CGameState::updateOnLoad(const StartInfo & si)
 {
 	assert(services);
-	// A save can contain a town that points to a hero assigned elsewhere. Remove stale town links before use.
-	for(auto * town : map->getObjects<CGTownInstance>())
-		town->repairHeroAssignments();
+	repairTownHeroLinks();
 
 	scenarioOps->playerInfos = si.playerInfos;
 	for(auto & i : si.playerInfos)
@@ -337,6 +335,39 @@ void CGameState::updateOnLoad(const StartInfo & si)
 	scenarioOps->extraOptionsInfo = si.extraOptionsInfo;
 	scenarioOps->turnTimerInfo = si.turnTimerInfo;
 	scenarioOps->simturnsInfo = si.simturnsInfo;
+}
+
+void CGameState::repairTownHeroLinks()
+{
+	for(auto * town : map->getObjects<CGTownInstance>())
+	{
+		for(auto * slot : {&town->visitingHero, &town->garrisonHero})
+		{
+			const auto * hero = getHero(*slot);
+			const bool garrisoned = slot == &town->garrisonHero;
+			if(!slot->hasValue() || (hero && hero->getVisitedTown() == town && hero->isGarrisoned() == garrisoned && hero->visitablePos() == town->visitablePos()))
+				continue;
+
+			logGlobal->warn("Town %s: removing invalid hero assignment %d", town->getNameTextID(), slot->getNum());
+			if(hero && hero->getVisitedTown() == town)
+				town->setTownHero(*slot, nullptr, false);
+			else
+				*slot = {};
+		}
+		town->updateMoraleBonusFromArmy();
+	}
+
+	for(auto * hero : map->getObjects<CGHeroInstance>())
+	{
+		const auto * town = hero->getVisitedTown();
+		if(!town || town->getVisitingHero() == hero || town->getGarrisonHero() == hero)
+			continue;
+
+		logGlobal->warn("Hero %s: removing invalid link to town %s", hero->getNameTextID(), town->getNameTextID());
+		hero->detachFromBonusSystem(*this);
+		hero->setVisitedTown(nullptr, false);
+		hero->attachToBonusSystem(*this);
+	}
 }
 
 void CGameState::initNewGame(const IMapService * mapService, vstd::RNG & randomGenerator, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking)
@@ -1078,16 +1109,11 @@ void CGameState::initVisitingAndGarrisonedHeroes()
 		//init visiting and garrisoned heroes
 		for(CGHeroInstance * h : player.second.getHeroes())
 		{
-			for(CGTownInstance * t : player.second.getTowns())
+			CGTownInstance * t = getTown(map->getTile(h->visitablePos()).objectVisitedBy(h->id));
+			if(t && t->getOwner() == player.first)
 			{
-				if(h->visitablePos().z != t->visitablePos().z)
-					continue;
-
-				if (t->visitableAt(h->visitablePos()))
-				{
-					assert(t->getVisitingHero() == nullptr);
-					t->setVisitingHero(h);
-				}
+				assert(t->getVisitingHero() == nullptr);
+				t->setVisitingHero(h);
 			}
 		}
 	}

@@ -767,103 +767,41 @@ void CGTownInstance::recreateBuildingsBonuses()
 	}
 }
 
+void CGTownInstance::setTownHero(ObjectInstanceID & slot, CGHeroInstance * hero, bool garrisoned)
+{
+	if(hero)
+	{
+		if(slot.hasValue() || hero->getVisitedTown())
+			throw std::runtime_error("Hero or town slot is already assigned");
+		assert(hero->visitablePos() == visitablePos());
+
+		hero->detachFromBonusSystem(cb->gameState());
+		hero->setVisitedTown(this, garrisoned);
+		hero->attachToBonusSystem(cb->gameState());
+		slot = hero->id;
+	}
+	else if(slot.hasValue())
+	{
+		auto * oldHero = cb->gameState().getHero(slot);
+		if(!oldHero || oldHero->getVisitedTown() != this)
+			throw std::runtime_error("Town hero assignment is inconsistent");
+
+		oldHero->detachFromBonusSystem(cb->gameState());
+		oldHero->setVisitedTown(nullptr, false);
+		oldHero->attachToBonusSystem(cb->gameState());
+		slot = {};
+	}
+}
+
 void CGTownInstance::setVisitingHero(CGHeroInstance *h)
 {
-	if(h && getVisitingHero() == h)
-	{
-		if(h->getVisitedTown() != this || h->isGarrisoned())
-			throw std::runtime_error("Town visiting hero assignment is inconsistent");
-		return;
-	}
-
-	if(visitingHero.hasValue())
-	{
-		auto * oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState().getObjInstance(visitingHero));
-		if(!oldVisitor)
-			throw std::runtime_error("Town visiting hero slot does not reference a hero");
-		if(oldVisitor->getVisitedTown() != this || oldVisitor->isGarrisoned())
-			throw std::runtime_error("Town visiting hero assignment is inconsistent");
-
-		oldVisitor->detachFromBonusSystem(cb->gameState());
-		oldVisitor->setVisitedTown(nullptr, false);
-		oldVisitor->attachToBonusSystem(cb->gameState());
-		visitingHero = {};
-	}
-
-	if(h)
-	{
-		assert(h->visitablePos() == visitablePos());
-		h->detachFromBonusSystem(cb->gameState());
-		h->setVisitedTown(this, false);
-		h->attachToBonusSystem(cb->gameState());
-		visitingHero = h->id;
-	}
+	setTownHero(visitingHero, h, false);
 }
 
 void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 {
-	if(h && getGarrisonHero() == h)
-	{
-		if(h->getVisitedTown() != this || !h->isGarrisoned())
-			throw std::runtime_error("Town garrison hero assignment is inconsistent");
-		return;
-	}
-
-	if(garrisonHero.hasValue())
-	{
-		auto * oldVisitor = dynamic_cast<CGHeroInstance*>(cb->gameState().getObjInstance(garrisonHero));
-		if(!oldVisitor)
-			throw std::runtime_error("Town garrison hero slot does not reference a hero");
-		if(oldVisitor->getVisitedTown() != this || !oldVisitor->isGarrisoned())
-			throw std::runtime_error("Town garrison hero assignment is inconsistent");
-
-		oldVisitor->detachFromBonusSystem(cb->gameState());
-		oldVisitor->setVisitedTown(nullptr, false);
-		oldVisitor->attachToBonusSystem(cb->gameState());
-		garrisonHero = {};
-	}
-
-	if(h)
-	{
-		assert(h->visitablePos() == visitablePos());
-		h->detachFromBonusSystem(cb->gameState());
-		h->setVisitedTown(this, true);
-		h->attachToBonusSystem(cb->gameState());
-		garrisonHero = h->id;
-	}
-
+	setTownHero(garrisonHero, h, true);
 	updateMoraleBonusFromArmy(); //avoid giving morale bonus for same army twice
-}
-
-void CGTownInstance::repairHeroAssignments()
-{
-	const auto repairAssignment = [this](ObjectInstanceID & heroId, bool garrisoned, const char * description)
-	{
-		if(!heroId.hasValue())
-			return false;
-
-		auto * hero = dynamic_cast<CGHeroInstance*>(cb->gameState().getObjInstance(heroId));
-		const bool valid = hero
-			&& hero->getVisitedTown() == this
-			&& hero->isGarrisoned() == garrisoned
-			&& hero->visitablePos() == visitablePos();
-		if(valid)
-			return false;
-
-		logGlobal->warn("Removing invalid %s hero assignment from town %d.", description, id);
-		if(hero && hero->getVisitedTown() == this && hero->isGarrisoned() == garrisoned)
-		{
-			hero->detachFromBonusSystem(cb->gameState());
-			hero->setVisitedTown(nullptr, false);
-			hero->attachToBonusSystem(cb->gameState());
-		}
-		heroId = {};
-		return true;
-	};
-
-	repairAssignment(visitingHero, false, "visiting");
-	if(repairAssignment(garrisonHero, true, "garrison"))
-		updateMoraleBonusFromArmy();
 }
 
 const CGHeroInstance * CGTownInstance::getVisitingHero() const

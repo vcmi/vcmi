@@ -183,6 +183,8 @@ void ApplyGhNetPackVisitor::visitUpgradeCreature(UpgradeCreature & pack)
 void ApplyGhNetPackVisitor::visitGarrisonHeroSwap(GarrisonHeroSwap & pack)
 {
 	const CGTownInstance * town = gh.gameInfo().getTown(pack.tid);
+	if(!town)
+		gh.throwNotAllowedAction(connection);
 	if(!gh.isPlayerOwns(connection, &pack, pack.tid) && !(town->getGarrisonHero() && gh.isPlayerOwns(connection, &pack, town->getGarrisonHero()->id)))
 		gh.throwNotAllowedAction(connection); //neither town nor garrisoned hero (if present) is ours
 	gh.throwIfPlayerNotActive(connection, &pack);

@@ -69,3 +69,32 @@ TEST_F(HeroMovementTest, sharedEntranceInteractsOnlyWithTopTown)
 	EXPECT_EQ(neutralTown->getOwner(), PlayerColor::NEUTRAL);
 	EXPECT_EQ(gameState()->getBattle(player), nullptr);
 }
+
+/// A hero starting on an entrance shared by two towns of its owner visits only the top town
+TEST_F(HeroMovementTest, heroStartingOnSharedEntranceVisitsOnlyTopTown)
+{
+	const PlayerColor player(0);
+	const int3 townPos(10, 10, 0);
+	const int3 entrance(8, 10, 0);
+
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.playerActive(player)
+		.town(townPos, FactionID::CASTLE, player)
+		.town(townPos, FactionID::CASTLE, player)
+		.hero(int3(9, 10, 0), HeroTypeID(0), player);
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	ASSERT_NE(hero, nullptr);
+	ASSERT_EQ(hero->visitablePos(), entrance);
+
+	const auto & tile = map()->getTile(entrance);
+	const auto * topTown = gameState()->getTown(tile.objectVisitedBy(hero->id));
+	ASSERT_NE(topTown, nullptr);
+
+	EXPECT_EQ(hero->getVisitedTown(), topTown);
+	for(const auto * town : findAll<CGTownInstance>())
+		EXPECT_EQ(town->getVisitingHero(), town == topTown ? hero : nullptr);
+}
