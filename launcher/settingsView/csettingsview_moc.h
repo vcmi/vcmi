@@ -63,6 +63,7 @@ private slots:
 	void on_buttonRepositoryExtra_toggled(bool value);
 	void on_lineEditRepositoryExtra_textEdited(const QString &arg1);
 	void on_lineEditHttpProxy_textEdited(const QString &arg1);
+	void on_buttonHttpProxyHelp_clicked();
 	void on_spinBoxInterfaceScaling_valueChanged(int arg1);
 	void on_refreshRepositoriesButton_clicked();
 	void on_buttonConfigEditor_clicked();

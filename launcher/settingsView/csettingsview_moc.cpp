@@ -19,6 +19,7 @@
 #include "../../vcmiqt/jsonutils.h"
 #include "../languages.h"
 
+#include <QDesktopServices>
 #include <QFileInfo>
 #include <QGuiApplication>
 
@@ -827,6 +828,11 @@ void CSettingsView::on_lineEditHttpProxy_textEdited(const QString &arg1)
 {
 	Settings node = settings.write["launcher"]["httpProxy"];
 	node->String() = arg1.trimmed().toStdString();
+}
+
+void CSettingsView::on_buttonHttpProxyHelp_clicked()
+{
+	QDesktopServices::openUrl(QUrl("https://curl.se/libcurl/c/CURLOPT_PROXY.html"));
 }
 
 void CSettingsView::on_spinBoxInterfaceScaling_valueChanged(int arg1)
