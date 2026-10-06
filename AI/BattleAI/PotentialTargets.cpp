@@ -30,7 +30,7 @@ PotentialTargets::PotentialTargets(
 
 	auto aliveUnits = state->battleGetUnitsIf([=](const battle::Unit * unit)
 	{
-		return unit->isValidTarget() && unit->unitId() != attackerInfo->unitId();
+		return unit->isValidTarget() && !unit->isInvincible() && unit->unitId() != attackerInfo->unitId();
 	});
 
 	for(auto defender : aliveUnits)
