@@ -9,7 +9,7 @@
  */
 #include "StdInc.h"
 #include "aboutproject_moc.h"
-#include "userdirectorymanager.h"
+#include "../datamanager.h"
 #include "ui_aboutproject_moc.h"
 
 #include "../updatedialog_moc.h"
@@ -43,13 +43,12 @@ AboutProjectView::AboutProjectView(QWidget * parent)
 	ui->lineEditBuildVersion->setText(QString(GameConstants::VCMI_VERSION));
 	ui->lineEditOperatingSystem->setText(QSysInfo::prettyProductName());
 
-#ifndef VCMI_WINDOWS
-	ui->changeUserDataDir->hide();
-	ui->changeTempDir->hide();
-	ui->changeCacheDir->hide();
-	ui->changeConfigDir->hide();
-	ui->changeSaveDir->hide();
-#endif
+	const bool directoryChangesSupported = VCMIDirs::get().supportsUserPathChange();
+	ui->changeUserDataDir->setVisible(directoryChangesSupported);
+	ui->changeTempDir->setVisible(directoryChangesSupported);
+	ui->changeCacheDir->setVisible(directoryChangesSupported);
+	ui->changeConfigDir->setVisible(directoryChangesSupported);
+	ui->changeSaveDir->setVisible(directoryChangesSupported);
 
 #ifdef VCMI_MOBILE
 	// On mobile platforms these directories are generally not accessible from phone itself, only via USB connection from PC
@@ -112,14 +111,11 @@ void AboutProjectView::on_openConfigDir_clicked()
 
 void AboutProjectView::changeDirectory(EUserDirectory directory, const QString & title)
 {
-#if defined(VCMI_WINDOWS)
-	WindowsUserDirectoryManager manager(this);
+	datamanager manager(this, [this](const QString & changedLogPath)
+	{
+		directoriesChanged(changedLogPath);
+	});
 	manager.changeDirectory(directory, title);
-#else
-	// TODO: Every Non-Windows OS is unsupported right now
-	Q_UNUSED(directory);
-	Q_UNUSED(title);
-#endif
 }
 
 void AboutProjectView::directoriesChanged(const QString & changedLogPath)

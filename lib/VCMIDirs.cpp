@@ -81,6 +81,11 @@ bool IVCMIDirs::setUserPath(EUserDirectory, const bfs::path &)
 	return false;
 }
 
+bool IVCMIDirs::supportsUserPathChange() const
+{
+	return false;
+}
+
 bool IVCMIDirs::isOneDrivePath(const bfs::path &) const
 {
 	return false;
@@ -109,6 +114,7 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 
 		bfs::path binaryPath() const override;
 		bool setUserPath(EUserDirectory directory, const bfs::path & path) override;
+		bool supportsUserPathChange() const override;
 		bool isOneDrivePath(const bfs::path & path) const override;
 
 	protected:
@@ -306,6 +312,11 @@ bool VCMIDirsWIN32::setUserPath(EUserDirectory directory, const bfs::path & path
 		return setPathInConfig("userSavePath", path);
 	}
 	return false;
+}
+
+bool VCMIDirsWIN32::supportsUserPathChange() const
+{
+	return true;
 }
 
 std::string VCMIDirsWIN32::pathToUtf8(const bfs::path & path) const

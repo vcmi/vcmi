@@ -9,7 +9,7 @@ set(launcher_SRCS
 		aboutProject/aboutproject_moc.cpp
 		aboutProject/dataexporter.cpp
 		aboutProject/deviceinfo.cpp
-		aboutProject/userdirectorymanager.cpp
+		datamanager.cpp
 		modManager/cdownloadmanager_moc.cpp
 		modManager/modstateitemmodel_moc.cpp
 		modManager/cmodlistview_moc.cpp
@@ -52,7 +52,7 @@ set(launcher_HEADERS
 		StdInc.h
 		aboutProject/aboutproject_moc.h
 		aboutProject/deviceinfo.h
-		aboutProject/userdirectorymanager.h
+		datamanager.h
 		modManager/cdownloadmanager_moc.h
 		modManager/modstateitemmodel_moc.h
 		modManager/cmodlistview_moc.h
