@@ -935,9 +935,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		{
 			const bool alwaysAddSkills = reader->readBool();
 			const bool cannotGainXP = reader->readBool();
-			const int32_t level = reader->readInt32();
-			if(level <= 0)
-				logGlobal->warn("Map '%s': Hero %d has invalid level %d!", mapName, heroID, level);
+			const int32_t level = reader->readInt32Checked(1, std::numeric_limits<int32_t>::max());
 
 			auto * hero = map->tryGetFromHeroPool(HeroTypeID(heroID));
 
@@ -1182,11 +1180,8 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 {
 	if(features.levelHOTA5)
 	{
-		int32_t movementMode = reader->readInt32(); // Give, Take, Nullify, Set, Replenish
+		int32_t movementMode = reader->readInt32Checked(0, 4); // Give, Take, Nullify, Set, Replenish
 		int32_t movementAmount = reader->readInt32();
-		if (movementMode < 0 || movementMode > 4)
-			logGlobal->warn("Map '%s': Object at %s has invalid movement mode %d! Ignoring.", mapName, mapPosition.toString(), movementMode);
-		assert(movementMode >= 0 && movementMode <= 4);
 
 		auto & boxReward = object->configuration.info.back();
 
@@ -1216,10 +1211,7 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 
 	if(features.levelHOTA6)
 	{
-		int32_t allowedDifficultiesMask = reader->readInt32();
-		if (allowedDifficultiesMask <= 0 || allowedDifficultiesMask >= 32)
-			logGlobal->warn("Map '%s': Object at %s has invalid difficulties mask %d!", mapName, mapPosition.toString(), allowedDifficultiesMask);
-		assert(allowedDifficultiesMask > 0 && allowedDifficultiesMask < 32);
+		int32_t allowedDifficultiesMask = reader->readInt32Checked(1, 31);
 		object->presentOnDifficulties = MapDifficultySet(allowedDifficultiesMask);
 	}
 
@@ -1273,12 +1265,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readMonster(const int3 & mapPos
 		// 100 = default, percent of monsters that will join on successful aggression check
 		object->joiningPercentage = reader->readInt32();
 		// Presence of upgraded stack, -1 = random, 0 = never, 1 = always
-		int32_t upgradedPresence = reader->readInt32();
-		if(upgradedPresence < -1 || upgradedPresence > 1)
-		{
-			logGlobal->warn("Map '%s': Wandering monster at %s has out of range upgraded stack presence %d! Using random.", mapName, mapPosition.toString(), upgradedPresence);
-			upgradedPresence = static_cast<int32_t>(CGCreature::UpgradedStackPresence::RANDOM);
-		}
+		int32_t upgradedPresence = reader->readInt32Checked(-1, 1);
 		object->upgradedStackPresence = static_cast<CGCreature::UpgradedStackPresence>(upgradedPresence);
 		// How many creature stacks will be present on battlefield, -1 = default
 		object->stacksCount = reader->readInt32();
@@ -1697,15 +1684,11 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readBank(const int3 & mapPositi
 	if(features.levelHOTA3)
 	{
 		// index of guards preset. -1 = random, 0-4 = index of possible guards settings
-		int32_t guardsPresetIndex = reader->readInt32();
+		int32_t guardsPresetIndex = reader->readInt32Checked(-1, 4);
 
 		//TODO: HotA
 		// presence of upgraded stack: -1 = random, 0 = never, 1 = always
 		int8_t upgradedStackPresence = reader->readInt8Checked(-1, 1);
-
-		if (!vstd::iswithin(guardsPresetIndex, -1, 4))
-			logGlobal->warn("Map '%s': Creature bank at %s has invalid guards preset %d!", mapName, mapPosition.toString(), guardsPresetIndex);
-		assert(vstd::iswithin(guardsPresetIndex, -1, 4));
 
 		// list of possible artifacts in reward
 		// - if list is empty, artifacts are either not present in reward or random
@@ -2467,9 +2450,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 	{
 		const bool alwaysAddSkills = reader->readBool();
 		const bool cannotGainXP = reader->readBool();
-		const int32_t level = reader->readInt32();
-		if(level <= 0)
-			logGlobal->warn("Map '%s': Hero %d has invalid level %d!", mapName, object->subID.num, level);
+		const int32_t level = reader->readInt32Checked(1, std::numeric_limits<int32_t>::max());
 
 		if(level > 1)
 		{
@@ -2758,10 +2739,7 @@ EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position, con
 			if(missionSubID == 2)
 			{
 				missionId = EQuestMission::HOTA_GAME_DIFFICULTY;
-				int32_t difficultyMask = reader->readUInt32();
-				if (difficultyMask <= 0 || difficultyMask >= 32)
-					logGlobal->warn("Map '%s': Quest at %s has invalid difficulties mask %d!", mapName, position.toString(), difficultyMask);
-				assert(difficultyMask > 0 && difficultyMask < 32);
+				int32_t difficultyMask = reader->readInt32Checked(1, 31);
 				quest.mission.allowedDifficulties = MapDifficultySet(static_cast<uint8_t>(difficultyMask));
 				break;
 			}
@@ -2983,10 +2961,7 @@ void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & me
 
 	if (features.levelHOTA7)
 	{
-		int32_t affectedDifficulties = reader->readInt32();
-		if (affectedDifficulties <= 0 || affectedDifficulties >= 32)
-			logGlobal->warn("Map '%s': Event '%s' has invalid difficulties mask %d!", mapName, event.name, affectedDifficulties);
-		assert(affectedDifficulties > 0 && affectedDifficulties < 32);
+		int32_t affectedDifficulties = reader->readInt32Checked(1, 31);
 		event.affectedDifficulties = MapDifficultySet(affectedDifficulties);
 	}
 
