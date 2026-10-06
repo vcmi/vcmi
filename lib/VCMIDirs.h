@@ -54,6 +54,8 @@ public:
 
 	// Path where vcmi binaries can be found
 	virtual boost::filesystem::path binaryPath() const = 0;
+	// Optional user-data location supported inside the application installation.
+	virtual boost::filesystem::path portableUserDataPath() const;
 
 	virtual std::string genHelpString() const;
 
@@ -69,6 +71,9 @@ public:
 
 	/// Returns true when the path is stored inside a OneDrive-synchronized directory.
 	virtual bool isOneDrivePath(const boost::filesystem::path & path) const;
+
+	/// Removes a platform-specific legacy user-data parent if it became empty.
+	virtual void removeObsoleteUserDataParent(const boost::filesystem::path & path) const;
 };
 
 namespace VCMIDirs

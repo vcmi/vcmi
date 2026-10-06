@@ -41,6 +41,15 @@ QString datamanager::normalizedPath(const QString & path) const
 	return QDir::cleanPath(canonicalPath.isEmpty() ? info.absoluteFilePath() : canonicalPath);
 }
 
+Qt::CaseSensitivity datamanager::pathCaseSensitivity() const
+{
+#if defined(VCMI_WINDOWS)
+	return Qt::CaseInsensitive;
+#else
+	return Qt::CaseSensitive;
+#endif
+}
+
 bool datamanager::pathsOverlap(const QString & first, const QString & second) const
 {
 	return isSameOrChildPath(first, second) || isSameOrChildPath(second, first);
@@ -87,24 +96,9 @@ bool datamanager::removePath(const QString & path) const
 #endif
 }
 
-void datamanager::removeObsoleteParent(const QString & path) const
-{
-#if defined(VCMI_WINDOWS)
-	const QFileInfo sourceParent(QFileInfo(path).dir().absolutePath());
-	if(sourceParent.fileName().compare(QStringLiteral("My Games"), Qt::CaseInsensitive) == 0)
-		QDir().rmdir(sourceParent.absoluteFilePath());
-#else
-	Q_UNUSED(path);
-#endif
-}
-
 QString datamanager::installationDataPath() const
 {
-#if defined(VCMI_WINDOWS)
-	return QDir(QCoreApplication::applicationDirPath()).filePath(QStringLiteral("VCMI-data"));
-#else
-	return {};
-#endif
+	return pathToQString(VCMIDirs::get().portableUserDataPath());
 }
 
 bool datamanager::reportPermissionError(const QString & message) const
@@ -176,7 +170,7 @@ bool datamanager::validateTarget(const IVCMIDirs & dirs, EUserDirectory changedD
 
 	const QString binaryPath = QCoreApplication::applicationDirPath();
 	const QString compatibleInstallationPath = installationDataPath();
-	const bool usesCompatibleInstallationPath = !compatibleInstallationPath.isEmpty() && normalizedPath(target).compare(normalizedPath(compatibleInstallationPath), Qt::CaseInsensitive) == 0;
+	const bool usesCompatibleInstallationPath = !compatibleInstallationPath.isEmpty() && normalizedPath(target).compare(normalizedPath(compatibleInstallationPath), pathCaseSensitivity()) == 0;
 
 	if(pathsOverlap(target, binaryPath) && !usesCompatibleInstallationPath)
 	{
@@ -240,13 +234,13 @@ bool datamanager::isSameOrChildPath(const QString & path, const QString & parent
 	const QString cleanPath = normalizedPath(path);
 	QString cleanParent = normalizedPath(parentPath);
 
-	if(cleanPath.compare(cleanParent, Qt::CaseInsensitive) == 0)
+	if(cleanPath.compare(cleanParent, pathCaseSensitivity()) == 0)
 		return true;
 
-	if(!cleanParent.endsWith(QDir::separator()))
-		cleanParent += QDir::separator();
+	if(!cleanParent.endsWith(QLatin1Char('/')))
+		cleanParent += QLatin1Char('/');
 
-	return cleanPath.startsWith(cleanParent, Qt::CaseInsensitive);
+	return cleanPath.startsWith(cleanParent, pathCaseSensitivity());
 }
 
 bool datamanager::containsActiveUserDirectory(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & path) const
@@ -354,27 +348,34 @@ bool datamanager::copyDirectoryContents(const QString & source, const QString & 
 	return true;
 }
 
-std::optional<datamanager::EExistingTargetAction> datamanager::askExistingTargetAction(const QString & target) const
+std::optional<datamanager::EExistingTargetAction> datamanager::askExistingTargetAction(const QString & target, bool mergeOnly) const
 {
 	QMessageBox dialog(QMessageBox::Question, tr("Directory is not empty"), tr("The target directory already contains files:\n%1\n\nHow should they be handled?").arg(QDir::toNativeSeparators(target)), QMessageBox::NoButton, parent);
-	dialog.setInformativeText(tr("Merge keeps files that exist only in the target and overwrites conflicts.\nBack up and replace moves the current target to a _backup directory.\nClean replacement removes the current target after the new copy is ready."));
+	dialog.setInformativeText(mergeOnly
+		? tr("The source and target are in the same directory tree. Only merge is available for this move. Merge keeps files that exist only in the target and overwrites conflicts.")
+		: tr("Merge keeps files that exist only in the target and overwrites conflicts.\nBack up and replace moves the current target to a _backup directory.\nClean replacement removes the current target after the new copy is ready."));
 
-	const auto * const mergeButton = dialog.addButton(tr("Merge and overwrite"), QMessageBox::AcceptRole);
-	auto * const backupButton = dialog.addButton(tr("Back up and replace"), QMessageBox::ActionRole);
-	const auto * const replaceButton = dialog.addButton(tr("Clean replacement"), QMessageBox::DestructiveRole);
+	auto * const mergeButton = dialog.addButton(tr("Merge and overwrite"), QMessageBox::AcceptRole);
+	QPushButton * backupButton = nullptr;
+	QPushButton * replaceButton = nullptr;
+	if(!mergeOnly)
+	{
+		backupButton = dialog.addButton(tr("Back up and replace"), QMessageBox::ActionRole);
+		replaceButton = dialog.addButton(tr("Clean replacement"), QMessageBox::DestructiveRole);
+	}
 
 	dialog.addButton(QMessageBox::Cancel);
-	dialog.setDefaultButton(backupButton);
+	dialog.setDefaultButton(mergeOnly ? mergeButton : backupButton);
 
 	dialog.exec();
 
 	if(dialog.clickedButton() == mergeButton)
 		return EExistingTargetAction::MERGE;
 
-	if(dialog.clickedButton() == backupButton)
+	if(!mergeOnly && dialog.clickedButton() == backupButton)
 		return EExistingTargetAction::BACK_UP;
 
-	if(dialog.clickedButton() == replaceButton)
+	if(!mergeOnly && dialog.clickedButton() == replaceButton)
 	{
 		const auto answer = QMessageBox::warning(parent, tr("Confirm clean replacement"), tr("Clean replacement will permanently remove all files currently in the target directory after the new data has been copied successfully.\n\nDo you really want to continue?"), QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
 		if(answer != QMessageBox::Yes)
@@ -466,7 +467,7 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 		logGlobal->info("Changing user directory from '%s' to '%s'", source.toStdString(), selected.toStdString());
 
 		const QString compatibleInstallationPath = installationDataPath();
-		if(!compatibleInstallationPath.isEmpty() && normalizedPath(selected).compare(normalizedPath(binaryPath), Qt::CaseInsensitive) == 0)
+		if(!compatibleInstallationPath.isEmpty() && normalizedPath(selected).compare(normalizedPath(binaryPath), pathCaseSensitivity()) == 0)
 		{
 			selected = compatibleInstallationPath;
 			QMessageBox::information(parent, tr("Using a data subdirectory"), tr("User data cannot be stored directly in the VCMI installation directory.\n\nThe following compatible directory will be used instead:\n%1").arg(QDir::toNativeSeparators(selected)));
@@ -490,9 +491,7 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 	bool moveExistingData = false;
 	bool downloadsPaused = false;
 	bool cancelPausedDownloadsOnExit = false;
-	QString targetBackupPath;
 	QString displacedTargetPath;
-	QString relocatedSourcePath = source;
 	EExistingTargetAction completedTargetAction = EExistingTargetAction::MERGE;
 
 	auto finishPausedDownloads = vstd::makeScopeGuard([&downloadsPaused, &cancelPausedDownloadsOnExit, mainWindow]()
@@ -544,14 +543,15 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 		if(answer == QMessageBox::Yes)
 		{
 			const QString targetParent = QFileInfo(selected).dir().absolutePath();
+			const bool sameDirectoryTree = pathsOverlap(source, selected);
 
 			moveExistingData = moveCheckBox.isChecked();
-			EExistingTargetAction targetAction = EExistingTargetAction::REPLACE;
+			EExistingTargetAction targetAction = sameDirectoryTree ? EExistingTargetAction::MERGE : EExistingTargetAction::REPLACE;
 			const bool targetIsEmpty = QDir(selected).entryList(QDir::NoDotAndDotDot | QDir::AllEntries).isEmpty();
 
 			if(!targetIsEmpty)
 			{
-				const auto selectedAction = askExistingTargetAction(selected);
+				const auto selectedAction = askExistingTargetAction(selected, sameDirectoryTree);
 				if(!selectedAction)
 					return EChangeResult::DONE;
 
@@ -581,7 +581,7 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 			pauseDownloads();
 
 			const bool targetInsideSource = isSameOrChildPath(selected, source);
-			const QString stagingParent = installInPlace ? selected : (targetInsideSource ? QFileInfo(source).dir().absolutePath() : targetParent);
+			const QString stagingParent = installInPlace ? selected : targetParent;
 
 			QTemporaryDir stagingDirectory(QDir(stagingParent).filePath(QStringLiteral(".vcmi-transfer-XXXXXX")));
 
@@ -629,15 +629,8 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 			progress.reset();
 
 			if(!installInPlace)
-			{
 				stagingDirectory.setAutoRemove(false);
 
-				if(isSameOrChildPath(source, selected))
-					relocatedSourcePath = QDir(displacedTargetPath).filePath(QDir(selected).relativeFilePath(source));
-			}
-
-			if(targetAction == EExistingTargetAction::BACK_UP)
-				targetBackupPath = displacedTargetPath;
 		}
 	}
 
@@ -698,15 +691,9 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 
 	if(moveExistingData)
 	{
-		const bool sourceRelocatedIntoBackup = completedTargetAction == EExistingTargetAction::BACK_UP
-			&& !displacedTargetPath.isEmpty()
-			&& isSameOrChildPath(relocatedSourcePath, displacedTargetPath);
-
-		if(sourceRelocatedIntoBackup)
-			logGlobal->info("Keeping the relocated source '%s' as part of the target backup", relocatedSourcePath.toStdString());
-		else if(isSameOrChildPath(selected, relocatedSourcePath) || (!displacedTargetPath.isEmpty() && isSameOrChildPath(displacedTargetPath, relocatedSourcePath)))
+		if(isSameOrChildPath(selected, source) || (!displacedTargetPath.isEmpty() && isSameOrChildPath(displacedTargetPath, source)))
 		{
-			QDir sourceDirectory(relocatedSourcePath);
+			QDir sourceDirectory(source);
 			bool removalFailed = false;
 			bool activeDirectoryKept = false;
 
@@ -734,12 +721,12 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 			if(removalFailed)
 				QMessageBox::warning(parent, tr("Original files kept"), tr("The data was copied and reloaded, but some original files could not be removed."));
 		}
-		else if(containsActiveUserDirectory(dirs, directory, relocatedSourcePath))
+		else if(containsActiveUserDirectory(dirs, directory, source))
 			QMessageBox::warning(parent, tr("Original files kept"), tr("The original directory still contains another active VCMI directory and cannot be removed safely."));
-		else if(QFileInfo::exists(relocatedSourcePath) && !removePath(relocatedSourcePath))
+		else if(QFileInfo::exists(source) && !removePath(source))
 			QMessageBox::warning(parent, tr("Original files kept"), tr("The data was copied and reloaded, but the original directory could not be removed."));
 		else
-			removeObsoleteParent(relocatedSourcePath);
+			dirs.removeObsoleteUserDataParent(qstringToPath(source));
 	}
 
 	if(completedTargetAction == EExistingTargetAction::REPLACE && !displacedTargetPath.isEmpty() && !removePath(displacedTargetPath))
@@ -748,7 +735,9 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 		QMessageBox::warning(parent, tr("Cleanup failed"), tr("The new data was installed, but the replaced directory could not be removed: %1").arg(displacedTargetPath));
 	}
 
-	const QString message = targetBackupPath.isEmpty() ? tr("The launcher has reloaded files from the new directory.") : tr("The launcher has reloaded files from the new directory.\n\nThe previous target was saved to:\n%1").arg(QDir::toNativeSeparators(targetBackupPath));
+	const QString message = completedTargetAction == EExistingTargetAction::BACK_UP
+		? tr("The launcher has reloaded files from the new directory.\n\nThe previous target was saved to:\n%1").arg(QDir::toNativeSeparators(displacedTargetPath))
+		: tr("The launcher has reloaded files from the new directory.");
 	QMessageBox::information(parent, tr("Directory changed"), message);
 	logGlobal->info("User directory change to '%s' completed successfully", selected.toStdString());
 	return EChangeResult::DONE;

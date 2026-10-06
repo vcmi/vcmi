@@ -45,7 +45,7 @@ AboutProjectView::AboutProjectView(QWidget * parent)
 
 	const bool directoryChangesSupported = VCMIDirs::get().supportsUserPathChange();
 	ui->changeUserDataDir->setVisible(directoryChangesSupported);
-	ui->changeTempDir->setVisible(directoryChangesSupported);
+	ui->changeLogsDir->setVisible(directoryChangesSupported);
 	ui->changeCacheDir->setVisible(directoryChangesSupported);
 	ui->changeConfigDir->setVisible(directoryChangesSupported);
 	ui->changeSaveDir->setVisible(directoryChangesSupported);
@@ -57,7 +57,7 @@ AboutProjectView::AboutProjectView(QWidget * parent)
 #ifdef VCMI_ANDROID
 	hideAndStretchWidget(ui->gridLayout, ui->openUserDataDir, ui->lineEditUserDataDir);
 	hideAndStretchWidget(ui->gridLayout, ui->openCacheDir, ui->lineEditCacheDir);
-	hideAndStretchWidget(ui->gridLayout, ui->openTempDir, ui->lineEditTempDir);
+	hideAndStretchWidget(ui->gridLayout, ui->openLogsDir, ui->lineEditLogsDir);
 	hideAndStretchWidget(ui->gridLayout, ui->openConfigDir, ui->lineEditConfigDir);
 	hideAndStretchWidget(ui->gridLayout, ui->openSaveDir, ui->lineEditSaveDir);
 #endif
@@ -72,7 +72,7 @@ void AboutProjectView::refreshDirectoryPaths()
 	ui->lineEditUserDataDir->setText(pathToQString(dirs.userDataPath()));
 	ui->lineEditCacheDir->setText(pathToQString(dirs.userCachePath()));
 	ui->lineEditConfigDir->setText(pathToQString(dirs.userConfigPath()));
-	ui->lineEditTempDir->setText(pathToQString(dirs.userLogsPath()));
+	ui->lineEditLogsDir->setText(pathToQString(dirs.userLogsPath()));
 	ui->lineEditSaveDir->setText(pathToQString(dirs.userSavePath()));
 }
 
@@ -99,9 +99,9 @@ void AboutProjectView::on_openUserDataDir_clicked()
 	Helper::revealDirectoryInFileBrowser(ui->lineEditUserDataDir->text());
 }
 
-void AboutProjectView::on_openTempDir_clicked()
+void AboutProjectView::on_openLogsDir_clicked()
 {
-	Helper::revealDirectoryInFileBrowser(ui->lineEditTempDir->text());
+	Helper::revealDirectoryInFileBrowser(ui->lineEditLogsDir->text());
 }
 
 void AboutProjectView::on_openConfigDir_clicked()
@@ -130,7 +130,7 @@ void AboutProjectView::on_changeUserDataDir_clicked()
 	changeDirectory(EUserDirectory::DATA, tr("Select user data directory"));
 }
 
-void AboutProjectView::on_changeTempDir_clicked()
+void AboutProjectView::on_changeLogsDir_clicked()
 {
 	changeDirectory(EUserDirectory::LOGS, tr("Select log files directory"));
 }

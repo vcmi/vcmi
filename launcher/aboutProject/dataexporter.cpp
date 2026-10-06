@@ -350,13 +350,13 @@ void AboutProjectView::on_pushButtonExportSaves_clicked()
 
 void AboutProjectView::on_pushButtonExportLogs_clicked()
 {
-	QDir tempDir(ui->lineEditTempDir->text());
+	QDir logsDir(ui->lineEditLogsDir->text());
 	const QString outPath = chooseLogArchivePath(this);
 
 	if(outPath.isEmpty())
 		return;
 
-	QFileInfoList files = tempDir.entryInfoList({ "*.txt" }, QDir::Files, QDir::Name);
+	QFileInfoList files = logsDir.entryInfoList({ "*.txt" }, QDir::Files, QDir::Name);
 	files.append(QDir(ui->lineEditConfigDir->text()).entryInfoList({ "*.json", "*.ini" }, QDir::Files, QDir::Name));
 	const QString listing = buildDataDirListing(ui->lineEditUserDataDir->text());
 
