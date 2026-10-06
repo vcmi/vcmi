@@ -16,8 +16,13 @@ class ProgressOverlay;
 enum class EUserDirectory;
 
 /// Moves launcher-managed user directories and safely switches the active VCMI paths.
-class datamanager : public QObject
+class datamanager final : public QObject
 {
+public:
+	datamanager(QWidget * parent, std::function<void(const QString &)> onDirectoriesChanged);
+	void changeDirectory(EUserDirectory directory, const QString & title) const;
+
+private:
 	QWidget * parent;
 	std::function<void(const QString &)> onDirectoriesChanged;
 
@@ -37,6 +42,7 @@ class datamanager : public QObject
 	EChangeResult changeDirectoryOnce(EUserDirectory directory, const QString & title) const;
 
 	QString normalizedPath(const QString & path) const;
+	Qt::CaseSensitivity pathCaseSensitivity() const;
 	bool isSameOrChildPath(const QString & path, const QString & parentPath) const;
 	bool pathsOverlap(const QString & first, const QString & second) const;
 	bool isDirectoryWritable(const QString & path) const;
@@ -48,18 +54,13 @@ class datamanager : public QObject
 	qint64 directorySize(const QString & path) const;
 	bool copyDirectoryContents(const QString & source, const QString & destination, ProgressOverlay & progress, QString & error, bool overwrite = false, const QString & excludedPath = {}) const;
 
-	std::optional<EExistingTargetAction> askExistingTargetAction(const QString & target) const;
+	std::optional<EExistingTargetAction> askExistingTargetAction(const QString & target, bool mergeOnly) const;
 	QString availableBackupPath(const QString & target) const;
 	bool installStagedDirectory(const QString & staging, const QString & target, EExistingTargetAction action, QString & displacedPath, QString & error) const;
 	bool restoreDisplacedDirectory(const QString & target, const QString & displacedPath) const;
 
 	QString installationDataPath() const;
-	void removeObsoleteParent(const QString & path) const;
 	bool reportPermissionError(const QString & message) const;
 
 	QString formattedDataSize(qint64 bytes) const;
-
-public:
-	datamanager(QWidget * parent, std::function<void(const QString &)> onDirectoriesChanged);
-	void changeDirectory(EUserDirectory directory, const QString & title) const;
 };

@@ -21,18 +21,9 @@ class AboutProjectView : public QWidget
 {
 	Q_OBJECT
 
-	void changeEvent(QEvent * event) override;
-
-	/// Hides a widget and expands second widgets to take place of first widget in layout
-	void hideAndStretchWidget(QGridLayout * layout, QWidget * toHide, QWidget * toStretch);
-
-	void refreshDirectoryPaths();
-	void changeDirectory(EUserDirectory directory, const QString & title);
-
 public:
 	explicit AboutProjectView(QWidget * parent = nullptr);
 	~AboutProjectView() override;
-	void directoriesChanged(const QString & changedLogPath);
 
 signals:
 	void logDirectoryChanged(const QString & path);
@@ -44,7 +35,7 @@ private slots:
 
 	void on_openUserDataDir_clicked();
 
-	void on_openTempDir_clicked();
+	void on_openLogsDir_clicked();
 
 	void on_pushButtonDiscord_clicked();
 
@@ -62,7 +53,7 @@ private slots:
 
 	void on_changeUserDataDir_clicked();
 
-	void on_changeTempDir_clicked();
+	void on_changeLogsDir_clicked();
 
 	void on_openCacheDir_clicked();
 
@@ -75,5 +66,14 @@ private slots:
 	void on_changeSaveDir_clicked();
 
 private:
+	void changeEvent(QEvent * event) override;
+
+	/// Hides a widget and expands second widgets to take place of first widget in layout
+	void hideAndStretchWidget(QGridLayout * layout, QWidget * toHide, QWidget * toStretch);
+
+	void refreshDirectoryPaths();
+	void changeDirectory(EUserDirectory directory, const QString & title);
+	void directoriesChanged(const QString & changedLogPath);
+
 	std::unique_ptr<Ui::AboutProjectView> ui;
 };

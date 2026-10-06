@@ -116,7 +116,7 @@
       </widget>
      </item>
      <item row="8" column="0">
-      <widget class="QLabel" name="labelTempDir">
+      <widget class="QLabel" name="labelLogsDir">
        <property name="text">
         <string>Log files directory</string>
        </property>
@@ -130,7 +130,7 @@
       </widget>
      </item>
      <item row="8" column="1">
-      <widget class="QLineEdit" name="lineEditTempDir">
+      <widget class="QLineEdit" name="lineEditLogsDir">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -166,14 +166,14 @@
       </widget>
      </item>
      <item row="8" column="2">
-      <widget class="QPushButton" name="openTempDir">
+      <widget class="QPushButton" name="openLogsDir">
        <property name="text">
         <string>Open</string>
        </property>
       </widget>
      </item>
      <item row="8" column="3">
-      <widget class="QPushButton" name="changeTempDir">
+      <widget class="QPushButton" name="changeLogsDir">
        <property name="text">
         <string>Change</string>
        </property>
