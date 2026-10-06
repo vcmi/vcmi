@@ -450,7 +450,7 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 		if(skill.first != SecondarySkill::NONE && skill.first.toSkill()->offerCooldown > 0)
 			secSkillsGainedAtLevel[skill.first] = level;
 
-	if(mapSpecifiedLevel.has_value())
+	if(mapLevel.has_value())
 	{
 		initializeMapSpecifiedLevel(gameRandomizer);
 	}
@@ -483,6 +483,10 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 		commander = std::make_unique<CCommanderInstance>(cb, getHeroClass()->commander);
 		commander->setArmy(getArmy()); //TODO: separate function for setting commanders
 		commander->giveTotalStackExperience(exp); //after our exp is set
+		const ui32 automaticLevelLimit = std::min(level, cb->getHeroLevelLimit());
+		while(commander->level < automaticLevelLimit)
+			commander->levelUpAutomatically(gameRandomizer.getDefault());
+		vstd::amax(commander->level, level);
 	}
 
 	//copy active (probably growing) bonuses from hero prototype to hero object
@@ -653,6 +657,22 @@ MetaString CGHeroInstance::getMovementPointsTextIfOwner(PlayerColor player) cons
 	return output;
 }
 
+MetaString CGHeroInstance::getExperienceDescription() const
+{
+	if(!canGainExperience())
+	{
+		MetaString text = MetaString::createFromTextID("core.genrltxt.1"); //can gain no more XP
+		text.replaceTextID(getNameTextID());
+		return text;
+	}
+
+	MetaString text = MetaString::createFromTextID("core.genrltxt.2");
+	text.replaceNumber(level);
+	text.replaceNumber(LIBRARY->heroh->reqExp(level + 1));
+	text.replaceNumber(exp);
+	return text;
+}
+
 ui8 CGHeroInstance::maxlevelsToMagicSchool() const
 {
 	return getHeroClass()->isMagicHero() ? 3 : 4;
@@ -806,7 +826,7 @@ ui64 CGHeroInstance::estimateHeroCombatValue() const
 
 bool CGHeroInstance::canGainExperience() const
 {
-	return !cannotGainExperience;
+	return !cannotGainExperience && level < cb->getHeroLevelLimit();
 }
 
 TExpType CGHeroInstance::calculateXp(TExpType exp) const
@@ -1472,12 +1492,12 @@ void CGHeroInstance::setExperience(si64 value, ChangeValueMode mode)
 
 bool CGHeroInstance::gainsLevel() const
 {
-	return level < LIBRARY->heroh->maxSupportedLevel() && exp >= static_cast<TExpType>(LIBRARY->heroh->reqExp(level+1));
+	return level < cb->getHeroLevelLimit() && exp >= static_cast<TExpType>(LIBRARY->heroh->reqExp(level+1));
 }
 
 TExpType CGHeroInstance::experienceToGainLevels(ui32 levels) const
 {
-	const ui32 targetLevel = std::min(level + levels, LIBRARY->heroh->maxSupportedLevel());
+	const ui32 targetLevel = std::min(level + levels, cb->getHeroLevelLimit());
 	if(targetLevel <= level)
 		return 0;
 
@@ -1522,43 +1542,31 @@ void CGHeroInstance::levelUpAutomatically(IGameRandomizer & gameRandomizer)
 
 void CGHeroInstance::initializeMapSpecifiedLevel(IGameRandomizer & gameRandomizer)
 {
-	assert(mapSpecifiedLevel.has_value());
-	assert(*mapSpecifiedLevel > 0);
+	assert(mapLevel.has_value());
+	assert(mapLevel->level > 0);
 
-	const ui32 targetLevel = *mapSpecifiedLevel;
-	const bool addSkills = mapSpecifiedLevelAddsSkills;
+	const auto [targetLevel, addSkills] = *mapLevel;
+	mapLevel.reset();
 
-	mapSpecifiedLevel.reset();
-	mapSpecifiedLevelAddsSkills = true;
+	if(exp == UNINITIALIZED_EXPERIENCE)
+		exp = 0;
 
-	// A HotA hero with cannotGainXP is a map-authored final snapshot.
-	if(cannotGainExperience)
+	if(addSkills && !cannotGainExperience)
 	{
-		level = targetLevel;
-		nodeHasChanged();
-
-		if(exp == UNINITIALIZED_EXPERIENCE)
-			exp = 0;
-		return;
-	}
-
-	level = 1;
-
-	if(addSkills)
-	{
-		while(level < targetLevel)
+		const ui32 automaticLevelLimit = std::min(targetLevel, cb->getHeroLevelLimit());
+		while(level < automaticLevelLimit)
 			levelUpAutomaticallyOnce(gameRandomizer);
 	}
-	else
+
+	if(level < targetLevel)
 	{
 		level = targetLevel;
 		nodeHasChanged();
 	}
 
-	if(targetLevel <= LIBRARY->heroh->maxSupportedLevel())
-		exp = LIBRARY->heroh->reqExp(targetLevel);
-	else if(exp == UNINITIALIZED_EXPERIENCE)
-		exp = 0;
+	// A HotA hero with cannotGainXP is a map-authored final snapshot, its experience is kept as is
+	if(!cannotGainExperience && targetLevel <= LIBRARY->heroh->maxSupportedLevel())
+		exp = std::max(exp, LIBRARY->heroh->reqExp(targetLevel));
 }
 
 bool CGHeroInstance::hasVisions(const CGObjectInstance * target, BonusSubtypeID subtype) const
@@ -1621,13 +1629,38 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 	handler.serializeString("biography", biographyCustomTextId);
 	handler.serializeInt("experience", exp, 0);
 
-	if(!handler.saving && exp != UNINITIALIZED_EXPERIENCE) //do not gain levels if experience is not initialized
+	std::optional<si64> explicitLevel;
+	bool explicitLevelAddsSkills = true;
+
+	if(mapLevel)
 	{
-		while (gainsLevel())
-		{
-			++level;
-		}
+		explicitLevel = mapLevel->level;
+		explicitLevelAddsSkills = mapLevel->addSkills;
 	}
+
+	// level of an initialized hero that can not be derived from experience
+	if(handler.saving && !explicitLevel && level > 1 && level != LIBRARY->heroh->level(exp))
+	{
+		explicitLevel = level;
+		explicitLevelAddsSkills = false;
+	}
+
+	handler.serializeInt("level", explicitLevel);
+	handler.serializeBool("levelAddsSkills", explicitLevelAddsSkills, true);
+	handler.serializeBool("cannotGainExperience", cannotGainExperience, false);
+
+	if(!handler.saving && explicitLevel)
+	{
+		if(*explicitLevel > 0 && *explicitLevel <= std::numeric_limits<ui32>::max())
+		{
+			mapLevel = MapHeroLevel{static_cast<ui32>(*explicitLevel), explicitLevelAddsSkills};
+		}
+		else
+			logGlobal->warn("Hero %s: invalid level %d, ignoring", instanceName, *explicitLevel);
+	}
+
+	if(!handler.saving && !mapLevel && exp != UNINITIALIZED_EXPERIENCE) //do not gain levels if experience is not initialized
+		vstd::amax(level, LIBRARY->heroh->level(exp));
 
 	handler.serializeString("name", nameCustomTextId);
 	handler.serializeInt("gender", gender, 0);

@@ -187,6 +187,12 @@ TinyH3MBuilder & TinyH3MBuilder::difficulty(EMapDifficulty d)
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::heroLevelLimit(uint8_t level)
+{
+	mapHeroLevelLimit = level;
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::hotaVersion(uint32_t version)
 {
 	hotaFormatVersion = version;
@@ -739,7 +745,7 @@ void TinyH3MBuilder::writeHeader(TinyH3MWriter & w) const
 	w.writeUInt8(static_cast<uint8_t>(mapDifficulty));
 
 	if(features.levelAB)
-		w.writeUInt8(/*levelLimit*/ 0);
+		w.writeUInt8(mapHeroLevelLimit);
 
 	writePlayerInfo(w);
 	writeStandardVictoryLoss(w);

@@ -121,7 +121,7 @@ void Rewardable::Interface::grantRewardBeforeLevelup(IGameEventCallback & gameEv
 	TExpType expToGive = 0;
 
 	if (info.reward.heroLevel > 0)
-		expToGive += LIBRARY->heroh->reqExp(hero->level+info.reward.heroLevel) - LIBRARY->heroh->reqExp(hero->level);
+		expToGive += hero->experienceToGainLevels(info.reward.heroLevel);
 
 	if (info.reward.heroExperience > 0)
 		expToGive += hero->calculateXp(info.reward.heroExperience);

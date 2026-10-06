@@ -23,6 +23,7 @@ public:
 	MOCK_CONST_METHOD0(getCalendar, Calendar());
 	MOCK_CONST_METHOD0(getStartInfo, const StartInfo *());
 	MOCK_CONST_METHOD0(getMapHeader, const CMapHeader *());
+	MOCK_CONST_METHOD0(getHeroLevelLimit, ui32());
 	MOCK_CONST_METHOD0(getMapSize, int3());
 	MOCK_CONST_METHOD0(getInitialStartInfo, const StartInfo *());
 

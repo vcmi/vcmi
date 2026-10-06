@@ -873,16 +873,22 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 	assert(heroesCount <= features.heroesCount);
 
+	const auto createPredefinedHero = [this](int heroID)
+	{
+		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, HeroTypeID(heroID).toHeroType()->heroClass->getIndex());
+		auto object = handler->create(map->cb, handler->getTemplates().front());
+		auto hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
+		hero->subID = heroID;
+		return hero;
+	};
+
 	for(int heroID = 0; heroID < heroesCount; heroID++)
 	{
 		bool custom = reader->readBool();
 		if(!custom)
 			continue;
 
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, HeroTypeID(heroID).toHeroType()->heroClass->getIndex());
-		auto object = handler->create(map->cb, handler->getTemplates().front());
-		auto hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
-		hero->subID = heroID;
+		auto hero = createPredefinedHero(heroID);
 
 		bool hasExp = reader->readBool();
 		if(hasExp)
@@ -946,13 +952,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 			if(!hero && (level > 1 || cannotGainXP))
 			{
-				const auto heroType = HeroTypeID(heroID);
-				auto handler = LIBRARY->objtypeh->getHandlerFor(
-					Obj::HERO,
-					heroType.toHeroType()->heroClass->getIndex());
-				auto object = handler->create(map->cb, handler->getTemplates().front());
-				auto heroObject = std::dynamic_pointer_cast<CGHeroInstance>(object);
-				heroObject->subID = heroID;
+				auto heroObject = createPredefinedHero(heroID);
 				map->addToHeroPool(heroObject);
 				hero = heroObject.get();
 			}
@@ -961,9 +961,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 			{
 				if(level > 1)
 				{
-					hero->mapSpecifiedLevel = static_cast<ui32>(level);
-					hero->mapSpecifiedLevelAddsSkills = alwaysAddSkills;
-					hero->level = static_cast<ui32>(level);
+					hero->mapLevel = MapHeroLevel{static_cast<ui32>(level), alwaysAddSkills};
 				}
 				hero->cannotGainExperience = cannotGainXP;
 			}
@@ -2544,9 +2542,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 
 		if(level > 1)
 		{
-			object->mapSpecifiedLevel = static_cast<ui32>(level);
-			object->mapSpecifiedLevelAddsSkills = alwaysAddSkills;
-			object->level = static_cast<ui32>(level);
+			object->mapLevel = MapHeroLevel{static_cast<ui32>(level), alwaysAddSkills};
 		}
 		object->cannotGainExperience = cannotGainXP;
 	}

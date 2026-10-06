@@ -95,6 +95,8 @@ public:
 
 	//// Returns game settings for current map
 	virtual const IGameSettings & getSettings() const = 0;
+	/// Returns highest level that heroes and commanders can reach by gaining experience on current map
+	virtual ui32 getHeroLevelLimit() const = 0;
 
 	/// Returns dimesions for current map. 'z' coordinate indicates number of level (2 for maps with underground layer)
 	virtual int3 getMapSize() const = 0;

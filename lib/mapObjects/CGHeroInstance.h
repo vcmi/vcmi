@@ -52,6 +52,13 @@ protected:
 };
 
 
+/// Hero level set by the map, applied by CGHeroInstance::initHero
+struct MapHeroLevel
+{
+	ui32 level = 1;
+	bool addSkills = true; ///< roll level-up skills for every level instead of setting the level directly
+};
+
 class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet, public spells::Caster, public AFactionMember, public ICreatureUpgrader, public IOwnableObject, public scripting::ApiRawPointer<CGHeroInstance>
 {
 public:
@@ -77,12 +84,8 @@ private:
 	ui32 movement; //remaining movement points
 	bool inTownGarrison; // if hero is in town garrison
 
-	// HotA map-authored hero initialization options. The level/skill flags are
-	// consumed exactly once by initHero(); cannotGainExperience is runtime state
-	// and is serialized so the restriction survives save/load.
-	std::optional<ui32> mapSpecifiedLevel;
-	bool mapSpecifiedLevelAddsSkills = true;
-	bool cannotGainExperience = false;
+	std::optional<MapHeroLevel> mapLevel; ///< applied and cleared by initHero
+	bool cannotGainExperience = false; ///< hero receives no experience and gains no levels
 
 	IGameInfoCallback * getCallback() const final { return cb; }
 
@@ -238,6 +241,7 @@ public:
 
 	/// Combat value of this hero: value of its army, scaled by contribution of the hero itself
 	ui64 estimateHeroCombatValue() const;
+	/// Returns true if hero is not locked by map options and is below map level limit
 	bool canGainExperience() const;
 	TExpType calculateXp(TExpType exp) const; //apply learning skill
 	int getBasePrimarySkillValue(PrimarySkill which) const; //the value of a base-skill without items or temporary bonuses
@@ -324,6 +328,8 @@ public:
 	MetaString getObjectName() const override;
 	MetaString getHoverText(PlayerColor player) const override;
 	MetaString getMovementPointsTextIfOwner(PlayerColor player) const;
+	/// Hero level and experience for UI, or a notice that hero can not gain more levels
+	MetaString getExperienceDescription() const;
 
 	TObjectTypeHandler getObjectHandler() const override;
 
@@ -389,8 +395,6 @@ public:
 
 		if(h.hasFeature(Handler::Version::HOTA_HERO_LEVEL_OPTIONS))
 			h & cannotGainExperience;
-		else if(!h.saving)
-			cannotGainExperience = false;
 
 		if(!h.saving && h.loadingGamestate)
 			attachCommanderToArmy();

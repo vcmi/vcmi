@@ -106,6 +106,8 @@ public:
 	TinyH3MBuilder & name(std::string s);
 	TinyH3MBuilder & description(std::string s);
 	TinyH3MBuilder & difficulty(EMapDifficulty d);
+	/// Maximum hero level, 0 for no limit. Written only for AB+ formats.
+	TinyH3MBuilder & heroLevelLimit(uint8_t level);
 
 	/// Plain-text Lua script for the built map. Not part of the H3M bytes (H3M cannot embed Lua) -
 	/// retrieve via script() and hand it to the loader/service to set as CMap::scriptSource.
@@ -363,6 +365,7 @@ private:
 	std::string    mapDescription;
 	std::string    mapScript;
 	EMapDifficulty mapDifficulty = EMapDifficulty::NORMAL;
+	uint8_t        mapHeroLevelLimit = 0;
 
 	std::array<bool, 8> playerEnabled{};
 	std::vector<std::pair<MapObjectID, MapObjectSubID>> templates;

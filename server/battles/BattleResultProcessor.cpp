@@ -367,7 +367,7 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		if (loserHero != nullptr)
 		{
 			for(auto & hero : gameHandler->gameState().getPlayerState(finishingBattle->loser)->getHeroes())
-				if(!strongestHero || hero->exp > strongestHero->exp)
+				if(!strongestHero || std::tie(hero->level, hero->exp) > std::tie(strongestHero->level, strongestHero->exp))
 					strongestHero = hero;
 			if(strongestHero->id == finishingBattle->loserId && strongestHero->level > 5 && finishingBattle->victor.isValidPlayer())
 				gameHandler->statistics->getPlayerAccumulator(finishingBattle->victor).lastDefeatedStrongestHeroDay = gameHandler->gameState().getCalendar().getCurrentDay();

@@ -823,9 +823,11 @@ void HeroChainCalculationTask::calculateHeroChain(
 		if(other->actor->isMovable)
 		{
 			bool hasLessMp = carrier->turns > other->turns || (carrier->turns == other->turns && carrier->moveRemains < other->moveRemains);
-			bool hasLessExperience = carrier->actor->hero->exp < other->actor->hero->exp;
+			const auto * carrierHero = carrier->actor->hero;
+			const auto * otherHero = other->actor->hero;
+			bool hasLowerLevel = std::tie(carrierHero->level, carrierHero->exp) < std::tie(otherHero->level, otherHero->exp);
 
-			if(hasLessMp && hasLessExperience)
+			if(hasLessMp && hasLowerLevel)
 			{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 				logAi->trace("Exchange at %s is inefficient. Blocked.", carrier->coord.toString());
