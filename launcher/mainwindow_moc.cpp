@@ -211,6 +211,20 @@ bool MainWindow::reloadDirectories()
 		QMessageBox::critical(this, tr("Failed to reload directories"), QString::fromUtf8(e.what()));
 		return false;
 	}
+	catch(const std::exception & e)
+	{
+		logGlobal->error("Failed to reload launcher directories: %s", e.what());
+		progressOverlay.reset();
+		QMessageBox::critical(this, tr("Failed to reload directories"), QString::fromUtf8(e.what()));
+		return false;
+	}
+	catch(...)
+	{
+		logGlobal->error("Failed to reload launcher directories due to an unknown error");
+		progressOverlay.reset();
+		QMessageBox::critical(this, tr("Failed to reload directories"), tr("An unknown error occurred while reloading launcher data."));
+		return false;
+	}
 }
 
 void MainWindow::setGamepadStartAllowed(bool allowed)

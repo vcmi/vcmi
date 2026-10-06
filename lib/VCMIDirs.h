@@ -64,6 +64,8 @@ public:
 
 	/// Changes a user directory and persists it if supported by the platform.
 	virtual bool setUserPath(EUserDirectory directory, const boost::filesystem::path & path);
+	/// Whether the launcher can expose controls backed by setUserPath().
+	virtual bool supportsUserPathChange() const;
 
 	/// Returns true when the path is stored inside a OneDrive-synchronized directory.
 	virtual bool isOneDrivePath(const boost::filesystem::path & path) const;
