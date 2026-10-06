@@ -51,7 +51,7 @@ Identifier MapReaderH3M::validateIdentifier(const Identifier & identifier, int32
 	if(identifier == Identifier::NONE || (identifier.getNum() >= 0 && identifier.getNum() < count))
 		return identifier;
 
-	logGlobal->warn("Map '%s': Map contains invalid %s %d. Will be removed!", mapName, typeName, identifier.getNum());
+	logGlobal->warn("Map '%s': Map contains invalid %s %d!", mapName, typeName, identifier.getNum());
 	return Identifier::NONE;
 }
 

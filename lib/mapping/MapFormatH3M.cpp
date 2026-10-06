@@ -894,7 +894,10 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		bool hasSecSkills = reader->readBool();
 		if(hasSecSkills)
 		{
-			int32_t howMany = reader->readInt32Checked(0, 8);
+			uint32_t howMany = reader->readUInt32();
+			if (howMany > 8)
+				logGlobal->warn("Map '%s': Hero %d has suspiciously large number of secondary skills: %d", mapName, heroID, howMany);
+			assert(howMany <= 8);
 			hero->secSkills.resize(howMany);
 			for(int yy = 0; yy < howMany; ++yy)
 			{
@@ -2357,7 +2360,10 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 			object->secSkills.clear();
 		}
 
-		int32_t skillsCount = reader->readInt32Checked(0, 8);
+		uint32_t skillsCount = reader->readUInt32();
+		if (skillsCount > 8)
+			logGlobal->warn("Map '%s': Hero at %s has suspiciously large number of secondary skills: %d", mapName, mapPosition.toString(), skillsCount);
+		assert(skillsCount <= 8);
 		object->secSkills.resize(skillsCount);
 		for(int i = 0; i < skillsCount; ++i)
 		{
