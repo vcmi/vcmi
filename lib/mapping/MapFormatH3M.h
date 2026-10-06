@@ -216,7 +216,6 @@ private:
 	std::shared_ptr<CGObjectInstance> readGrail(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readHotaBattleLocation(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readQuestGuard(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	std::shared_ptr<CGObjectInstance> readQuestGate(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
@@ -264,6 +263,9 @@ private:
 	* read optional message and optional guards
 	*/
 	void readMessageAndGuards(MetaString & message, CArmedInstance * guards, const int3 & position, const ObjectInstanceID & idToBeGiven);
+
+	/// reads reference to HotA event system handler and returns its script name
+	std::string readEventHandler(const std::string & bucket);
 
 	/// reads string from input stream and converts it to unicode
 	std::string readBasicString();

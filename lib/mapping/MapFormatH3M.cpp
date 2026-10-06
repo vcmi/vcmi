@@ -110,6 +110,17 @@ void CMapLoaderH3M::readHeader()
 	if(mapHeader->version == EMapFormat::HOTA)
 	{
 		uint32_t hotaVersion = reader->readUInt32();
+
+		const JsonNode & hotaFormat = LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS);
+
+		// hota mod versions that predate the maxVersion field are recognized by their own version instead
+		int maxSupportedVersion = hotaFormat["maxVersion"].isNull()
+			? (LIBRARY->modh->getModInfo("hota").getVersion() < CModVersion(1, 8, 0) ? 8 : 9)
+			: hotaFormat["maxVersion"].Integer();
+
+		if(hotaVersion > maxSupportedVersion)
+			throw std::runtime_error("Unsupported HotA map format version " + std::to_string(hotaVersion));
+
 		features = MapFormatFeaturesH3M::find(mapHeader->version, hotaVersion);
 		reader->setFormatLevel(features);
 
@@ -187,17 +198,6 @@ void CMapLoaderH3M::readHeader()
 				logGlobal->warn("Map '%s': Variable '%s' (%d, %d) shared with campaign is not implemented!", mapName, variableName, variableUnknownA, static_cast<int>(variableUnknownB));
 			}
 		}
-
-		const JsonNode & hotaFormat = LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS);
-
-		// hota mod versions that predate the maxVersion field are recognized by their own version instead
-		int maxSupportedVersion = hotaFormat["maxVersion"].isNull()
-			? (LIBRARY->modh->getModInfo("hota").getVersion() < CModVersion(1, 8, 0) ? 8 : 9)
-			: hotaFormat["maxVersion"].Integer();
-
-		if(hotaVersion > maxSupportedVersion)
-			throw std::runtime_error("Unsupported map format! Format ID " + std::to_string(static_cast<int>(mapHeader->version)));
-
 	}
 	else
 	{
@@ -244,19 +244,6 @@ void CMapLoaderH3M::readPlayerInfo()
 
 		playerInfo.canHumanPlay = reader->readBool();
 		playerInfo.canComputerPlay = reader->readBool();
-
-		// If nobody can play with this player - skip loading of these properties
-		if((!(playerInfo.canHumanPlay || playerInfo.canComputerPlay)))
-		{
-			if(features.levelROE)
-				reader->skipUnused(6);
-			if(features.levelAB)
-				reader->skipUnused(6);
-			if(features.levelSOD)
-				reader->skipUnused(1);
-			continue;
-		}
-
 		playerInfo.aiTactic = static_cast<EAiTactic>(reader->readInt8Checked(-1, 3));
 
 		if(features.levelSOD)
@@ -304,7 +291,7 @@ void CMapLoaderH3M::readPlayerInfo()
 
 		if(features.levelAB)
 		{
-			reader->skipUnused(1); //TODO: check meaning?
+            reader->skipUnused(1); //Number of hero placeholders on map - unused
 			size_t heroCount = reader->readUInt32();
 			for(size_t pp = 0; pp < heroCount; ++pp)
 			{
@@ -334,7 +321,6 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	standardVictory.effect.type = EventEffect::VICTORY;
 	standardVictory.effect.toOtherMessage.appendTextID("core.genrltxt.5");
 	standardVictory.identifier = "standardVictory";
-	standardVictory.description.clear(); // TODO: display in quest window
 	standardVictory.onFulfill.appendTextID("core.genrltxt.659");
 	standardVictory.trigger = EventExpression(victoryCondition);
 
@@ -342,7 +328,6 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	standardDefeat.effect.type = EventEffect::DEFEAT;
 	standardDefeat.effect.toOtherMessage.appendTextID("core.genrltxt.8");
 	standardDefeat.identifier = "standardDefeat";
-	standardDefeat.description.clear(); // TODO: display in quest window
 	standardDefeat.onFulfill.appendTextID("core.genrltxt.7");
 	standardDefeat.trigger = EventExpression(defeatCondition);
 
@@ -359,7 +344,6 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		TriggeredEvent specialVictory;
 		specialVictory.effect.type = EventEffect::VICTORY;
 		specialVictory.identifier = "specialVictory";
-		specialVictory.description.clear(); // TODO: display in quest window
 
 		mapHeader->victoryIconIndex = static_cast<ui16>(vicCondition);
 
@@ -608,7 +592,6 @@ void CMapLoaderH3M::readVictoryLossConditions()
 		specialDefeat.effect.type = EventEffect::DEFEAT;
 		specialDefeat.effect.toOtherMessage.appendTextID("core.genrltxt.5");
 		specialDefeat.identifier = "specialDefeat";
-		specialDefeat.description.clear(); // TODO: display in quest window
 
 		mapHeader->defeatIconIndex = static_cast<ui16>(lossCond);
 
@@ -871,7 +854,8 @@ void CMapLoaderH3M::readPredefinedHeroes()
 	if(features.levelHOTA0)
 		heroesCount = reader->readUInt32();
 
-	assert(heroesCount <= features.heroesCount);
+	if(heroesCount > features.heroesCount)
+		logGlobal->warn("Map '%s': Map contains %d predefined heroes, but only %d are supported!", mapName, heroesCount, features.heroesCount);
 
 	const auto createPredefinedHero = [this](int heroID)
 	{
@@ -903,7 +887,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 		bool hasSecSkills = reader->readBool();
 		if(hasSecSkills)
 		{
-			uint32_t howMany = reader->readUInt32();
+			int32_t howMany = reader->readInt32Checked(0, 8);
 			hero->secSkills.resize(howMany);
 			for(int yy = 0; yy < howMany; ++yy)
 			{
@@ -1232,11 +1216,7 @@ void CMapLoaderH3M::readBoxHotaContent(CGPandoraBox * object, const int3 & mapPo
 	{
 		bool usesEventSystem = reader->readBool();
 		if(usesEventSystem)
-		{
-			int32_t eventID = reader->readInt32();
-			reader->readBool(); // TODO: 'synchronize objects' flag, not implemented
-			object->heroVisitScriptHandler = scriptConverter->eventHandlerName("heroEvents", eventID);
-		}
+			object->heroVisitScriptHandler = readEventHandler("heroEvents");
 	}
 }
 
@@ -1556,8 +1536,8 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readDwellingRandom(const int3 &
 
 	if(hasLevelInfo)
 	{
-		object->randomizationInfo->minLevel = std::max(reader->readUInt8(), static_cast<ui8>(0)) + 1;
-		object->randomizationInfo->maxLevel = std::min(reader->readUInt8(), static_cast<ui8>(6)) + 1;
+		object->randomizationInfo->minLevel = reader->readInt8Checked(0, 6) + 1;
+		object->randomizationInfo->maxLevel = reader->readInt8Checked(0, 6) + 1;
 	}
 	else
 	{
@@ -1669,26 +1649,15 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & map
 {
 	auto object = readGeneric(mapPosition, objectTemplate);
 	auto guard = std::dynamic_pointer_cast<QuestSource>(object);
-	if (guard)
-	{
-		Quest & quest = guard->addQuest();
-		readQuest(quest, mapPosition);
-        readQuestGiverName(quest, mapPosition, 0);
-	}
-	return guard;
-}
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGate(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
-{
-	auto object = readGeneric(mapPosition, objectTemplate);
-	auto gate = std::dynamic_pointer_cast<QuestSource>(object);
-	if (gate)
-	{
-		Quest & quest = gate->addQuest();
-		readQuest(quest, mapPosition);
-        readQuestGiverName(quest, mapPosition, 0);
-	}
-	return gate;
+	// quest must be read even if object is not recognized to keep stream position
+	Quest unusedQuest;
+	Quest & quest = guard ? guard->addQuest() : unusedQuest;
+	readQuest(quest, mapPosition);
+	readQuestGiverName(quest, mapPosition, 0);
+	questsToResolve.erase(&unusedQuest);
+
+	return object;
 }
 
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
@@ -1903,7 +1872,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readWagon(const int3 & mapPosit
 
 	if(features.levelHOTA5)
 	{
-		int32_t content = reader->readInt32();
+		int32_t content = reader->readInt32Checked(-1, 1);
 
 		switch(content)
 		{
@@ -1960,7 +1929,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readRewardWithAmount(const int3
 
 	if(features.levelHOTA5)
 	{
-		int32_t content = reader->readInt32();
+		int32_t content = reader->readInt32Checked(-1, 0);
 
 		switch(content)
 		{
@@ -2226,7 +2195,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 
 		case Obj::BORDER_GATE:
 			if (subid == 1000) // HotA hacks - Quest Gate
-				return readQuestGate(mapPosition, objectTemplate);
+				return readQuestGuard(mapPosition, objectTemplate);
 			if (subid == 1001) // HotA hacks - Grave
 				return readHotaGrave(mapPosition, objectTemplate);
 			return readGeneric(mapPosition, objectTemplate);
@@ -2413,6 +2382,9 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 	if(hasName)
 		object->nameCustomTextId = readLocalizedString(TextIdentifier("heroes", object->getHeroTypeID().getNum(), "name"));
 
+	if(hasName && !heroType.hasValue())
+		logGlobal->warn("Map '%s': Random hero at %s has custom name, which may override names of other random heroes!", mapName, mapPosition.toString());
+
 	if(features.levelSOD)
 	{
 		bool hasCustomExperience = reader->readBool();
@@ -2442,7 +2414,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHero(const int3 & mapPositi
 			object->secSkills.clear();
 		}
 
-		uint32_t skillsCount = reader->readUInt32();
+		int32_t skillsCount = reader->readInt32Checked(0, 8);
 		object->secSkills.resize(skillsCount);
 		for(int i = 0; i < skillsCount; ++i)
 		{
@@ -2834,8 +2806,7 @@ EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position, con
 			if(missionSubID == 3)
 			{
 				missionId = EQuestMission::HOTA_SCRIPTED;
-				quest.scriptHandler = scriptConverter->eventHandlerName("questEvents", reader->readUInt32());
-				reader->readBool(); // TODO: meaning unknown, HotaScriptConverter's questEvents bucket doesn't need it
+				quest.scriptHandler = readEventHandler("questEvents");
 				break;
 			}
 			break;
@@ -3060,11 +3031,7 @@ void CMapLoaderH3M::readEventCommon(CMapEvent & event, const TextIdentifier & me
 	{
 		bool usesEventSystem = reader->readBool();
 		if(usesEventSystem)
-		{
-			int32_t eventID = reader->readInt32();
-			reader->readBool(); // TODO: 'synchronize objects' flag, not implemented
-			event.scriptHandler = scriptConverter->eventHandlerName(scriptBucket, eventID);
-		}
+			event.scriptHandler = readEventHandler(scriptBucket);
 	}
 }
 
@@ -3096,6 +3063,17 @@ void CMapLoaderH3M::readMessageAndGuards(MetaString & message, CArmedInstance * 
 
 		reader->skipZero(4);
 	}
+}
+
+std::string CMapLoaderH3M::readEventHandler(const std::string & bucket)
+{
+	int32_t eventID = reader->readInt32();
+	reader->readBool(); // TODO: 'synchronize objects' flag, not implemented
+
+	if(!scriptConverter)
+		logGlobal->warn("Map '%s': Event %d from '%s' is used, but event system is disabled!", mapName, eventID, bucket);
+
+	return HotaScriptConverter::eventHandlerName(bucket, eventID);
 }
 
 std::string CMapLoaderH3M::readBasicString()

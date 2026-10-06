@@ -87,12 +87,16 @@ public:
 
 	uint32_t readUInt32();
 	int32_t readInt32();
+	int32_t readInt32Checked(int32_t lowerLimit, int32_t upperLimit);
 
 	std::string readBaseString();
 
 private:
 	template<class Identifier>
 	Identifier remapIdentifier(const Identifier & identifier);
+
+	template<class Identifier>
+	Identifier validateIdentifier(const Identifier & identifier, int32_t count, const std::string & typeName);
 
 	template<class Identifier>
 	void readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert);

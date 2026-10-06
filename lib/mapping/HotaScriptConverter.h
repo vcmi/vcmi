@@ -37,7 +37,7 @@ public:
 
 	/// Stable key of the Lua handler for an event bucket + id. Shared by the converter (which emits
 	/// the handler table key) and the H3M loader (which tags objects/events with the handler to fire).
-	std::string eventHandlerName(const std::string & bucket, int eventID);
+	static std::string eventHandlerName(const std::string & bucket, int eventID);
 
 private:
 	MapReaderH3M & reader;
