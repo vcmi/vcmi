@@ -1179,15 +1179,8 @@ SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(
 	const spells::Mode spellMode,
 	const BattleHex & targetHex) const
 {
-	auto result = std::make_unique<spells::effects::SpellEffectValue>();
-	RETURN_IF_NOT_BATTLE(result);
-	if(!spell || !caster || !targetHex.isValid())
-		return result;
-
-	spells::BattleCast params(this, caster, spellMode, spell);
-	std::unique_ptr<spells::Mechanics> mech = spell->battleMechanics(&params);
-	if(!mech)
-		return result;
+	if(!targetHex.isValid())
+		return std::make_unique<spells::effects::SpellEffectValue>();
 
 	spells::Target aim;
 	aim.emplace_back(targetHex);
@@ -1195,7 +1188,27 @@ SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(
 	if(hoveredUnit)
 		aim.emplace_back(spells::Destination(hoveredUnit));
 
+	return getSpellEffectValue(spell, caster, spellMode, aim);
+}
+
+SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(
+	const CSpell * spell,
+	const spells::Caster * caster,
+	const spells::Mode spellMode,
+	const battle::Target & aim) const
+{
+	auto result = std::make_unique<spells::effects::SpellEffectValue>();
+	RETURN_IF_NOT_BATTLE(result);
+	if(!spell || !caster || aim.empty())
+		return result;
+
+	spells::BattleCast params(this, caster, spellMode, spell);
+	std::unique_ptr<spells::Mechanics> mech = spell->battleMechanics(&params);
+	if(!mech)
+		return result;
+
 	const spells::Target spellTarget = mech->canonicalizeTarget(aim);
+	const battle::Unit * hoveredUnit = aim.back().unitValue;
 
 	mech->forEachEffect([&](const spells::effects::Effect &e){
 		auto effTarget = e.transformTarget(mech.get(), aim, spellTarget);

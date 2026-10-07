@@ -510,7 +510,7 @@ Spell can be used on dead units, but only if corpse is not blocked by a living u
 
 ### Sacrifice
 
-Sacrifice spell. Allows to destroy first target, while healing the second one. Destroyed unit is completely removed from the game.
+Sacrifice spell. Heals or resurrects the first target by destroying the second one. The first target is an injured unit, or a dead unit whose hexes are not occupied by an alive unit; dead units are only accepted if `healLevel` allows resurrection. The second target is a different alive unit, which is completely removed from the game.
 
 Effect configuration is identical to [Heal effect](#heal).
 
