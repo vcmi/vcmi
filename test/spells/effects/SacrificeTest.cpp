@@ -323,7 +323,6 @@ protected:
 TEST_F(SacrificeApplicableTargetNegativeTest, ReturnsFalseWhenTargetIsNotInjured)
 {
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
-	unit.makeAlive();
 	EXPECT_CALL(unit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
 	EXPECT_CALL(unit, getTotalHealth()).WillRepeatedly(Return(100));
 	EXPECT_CALL(unit, getAvailableHealth()).WillRepeatedly(Return(100));
