@@ -2637,6 +2637,7 @@ void CMapLoaderH3M::readSeerHutQuest(Quest & quest, const int3 & position, const
 			case ESeerHutRewardType::MANA_POINTS:
 			{
 				reward.manaDiff = reader->readUInt32();
+				reward.manaOverflowFactor = 100;
 				break;
 			}
 			case ESeerHutRewardType::MORALE:

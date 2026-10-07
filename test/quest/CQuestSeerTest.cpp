@@ -415,3 +415,24 @@ TEST_F(QuestSeerTest, Timeout_expiresOnLastDay)
 	EXPECT_TRUE(gameEvents().blockingDialogs.empty())
 		<< "expired seer must not offer its reward";
 }
+
+TEST_F(QuestSeerTest, ManaReward_exceedsFullManaPool)
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.playerActive(PlayerColor(0))
+		.hero({5, 5, 0}, HeroTypeID(6), PlayerColor(0))
+		.seerHut({10, 10, 0}, TinyH3M::TinyH3MBuilder::missionLevel(1), TinyH3M::TinyH3MBuilder::rewardMana(25));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(builder)));
+
+	auto * hero = findHeroAt({5, 5, 0});
+	ASSERT_NE(hero, nullptr);
+	ASSERT_EQ(hero->mana, hero->manaLimit()) << "scenario assumes a hero with full mana";
+
+	visit(hero, findObjectAt({10, 10, 0}));
+	ASSERT_EQ(gameEvents().blockingDialogs.size(), 1u);
+	answerDialog(hero, 1);
+
+	ASSERT_FALSE(gameEvents().manaPointsSet.empty());
+	EXPECT_EQ(gameEvents().manaPointsSet.back().second, hero->manaLimit() + 25);
+}
