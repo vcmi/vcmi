@@ -32,16 +32,16 @@ function Script:adjustTargetTypes(mechanics, types)
 	return types
 end
 
---- Require at least one injured unit AND one alive unit, both owner-matching.
+--- Require at least one injured or dead-and-not-blocked unit AND one alive or injured unit, both owner-matching.
 function Script:applicableGeneral(mechanics, problem)
 	local units = mechanics:getBattle():getUnitsIf(function(unit)
 		return unit:isValidTarget(true)
 			and mechanics:isReceptive(unit)
 			and mechanics:ownerMatches(unit)
 	end)
-
+	local battle = mechanics:getBattle()
 	local hasFullUnit = false
-	local hasDead = false
+	local hasUnblockedDead = false
 	local injuredCount = 0
 
 	for _, unit in ipairs(units) do
@@ -54,7 +54,13 @@ function Script:applicableGeneral(mechanics, problem)
 		elseif alive then
 			hasFullUnit = true
 		elseif dead then
-			hasDead = true
+			local hexes = unit:getHexes()
+			for i = 1, hexes:size() do
+				if battle:getUnitByPos(hexes:at(i), true) ~= nil then
+					goto continue
+				end
+			end
+			hasUnblockedDead = true
 		end
 
 		--- Two units that are both alive and injured.
@@ -63,25 +69,35 @@ function Script:applicableGeneral(mechanics, problem)
 		end
 
 		--- One alive+injured unit and one non-injured or dead unit.
-		if injuredCount >= 1 and (hasFullUnit or hasDead) then
+		if injuredCount >= 1 and (hasFullUnit or hasUnblockedDead) then
 			return true
 		end
 
 		--- One non-injured unit and one dead unit.
-		if hasFullUnit and hasDead then
+		if hasFullUnit and hasUnblockedDead then
 			return true
 		end
+		::continue::
 	end
 
 	problem:addStandard(mechanics, ENUM.SpellCastProblem.noAppropriateTarget)
 	return false
 end
 
---- First target must be an injured unit; second must be an alive, receptive, owner-matching unit.
+--- First target must be an injured or dead-and-not-blocked unit; second must be an alive, receptive, owner-matching unit.
 function Script:applicableTarget(mechanics, problem, target)
 	if #target == 0 then return false end
 	local injuredUnit = target[1].unit
 	if not injuredUnit or (injuredUnit:getTotalHealth() - injuredUnit:getAvailableHealth()) == 0 then return false end
+	if injuredUnit:isDead() then
+		local battle = mechanics:getBattle()
+		local hexes = injuredUnit:getHexes()
+		for i = 1, hexes:size() do
+			if battle:getUnitByPos(hexes:at(i), true) ~= nil then
+				return false
+			end
+		end
+	end
 	if #target < 2 then return true end
 	local victim = target[2].unit
 	if not victim or not victim:isAlive() then return false end
