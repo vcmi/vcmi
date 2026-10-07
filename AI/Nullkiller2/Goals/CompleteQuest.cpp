@@ -237,19 +237,23 @@ TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * aiNk) const
 {
 	const auto * killQuest = q.getQuest(aiNk->cc.get());
 
+	const auto & destroyedByUs = aiNk->cc->getPlayerState(aiNk->playerID)->destroyedObjects;
+
 	TGoalVec solutions;
 	for(const auto & targetId : killQuest->mission.destroyedObjects)
 	{
-		const auto obj = aiNk->cc->getObj(targetId);
-		if(!obj)
-		{
-			vstd::concatenate(solutions, CaptureObjectsBehavior(q.getObject(aiNk->cc.get())).decompose(aiNk));
+		if(destroyedByUs.count(targetId))
 			continue;
-		}
 
-		if(aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner) == PlayerRelations::ENEMIES)
+		// a target hidden by fog of war is not reported by getObj, so it is skipped until seen again
+		const auto * obj = aiNk->cc->getObj(targetId, false);
+		if(obj && aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner) == PlayerRelations::ENEMIES)
 			vstd::concatenate(solutions, CaptureObjectsBehavior(obj).decompose(aiNk));
 	}
+
+	if(std::ranges::all_of(killQuest->mission.destroyedObjects, [&](const ObjectInstanceID & targetId){ return destroyedByUs.count(targetId) != 0; }))
+		vstd::concatenate(solutions, CaptureObjectsBehavior(q.getObject(aiNk->cc.get())).decompose(aiNk));
+
 	return solutions;
 }
 
