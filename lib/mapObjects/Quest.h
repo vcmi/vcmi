@@ -181,6 +181,9 @@ public:
 	/// quest is satisfied). False for seer huts, which are optional visits.
 	virtual bool requiresQuestToPass() const = 0;
 
+	/// True when a hero of this player must stop on this object before passing through it.
+	virtual bool requiresVisitBeforePassing(PlayerColor player) const { return false; }
+
 	/// Quest-log identity: a shared type-quest (keymaster colour) for border guards/gates,
 	/// otherwise this object's own instance id.
 	virtual QuestInfo getQuestIdentity() const = 0;
@@ -374,6 +377,7 @@ public:
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	bool requiresQuestToPass() const override { return true; }
+	bool requiresVisitBeforePassing(PlayerColor player) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	bool passableFor(PlayerColor color) const override;
 	bool passableFor(const CGHeroInstance * hero) const override;

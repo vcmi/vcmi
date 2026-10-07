@@ -52,12 +52,6 @@ namespace AIPathfinding
 			|| quest->checkQuest(hero);
 	}
 
-	bool QuestAction::needsInitialVisit(const Nullkiller * aiNk, const CGHeroInstance * hero) const
-	{
-		const auto * quest = questInfo.getQuest(aiNk->cc.get());
-		return quest && !quest->isKnownTo(hero->getOwner());
-	}
-
 	Goals::TSubgoal QuestAction::decompose(const Nullkiller * aiNk, const CGHeroInstance * hero) const
 	{
 		return Goals::sptr(Goals::CompleteQuest(questInfo, *aiNk->cc));

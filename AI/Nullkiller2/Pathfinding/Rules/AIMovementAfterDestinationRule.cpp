@@ -224,9 +224,7 @@ namespace AIPathfinding
 			destinationNode = nodeStorage->getAINode(destination.node);
 		}
 
-		const bool isPassableQuestGate = questSource->requiresQuestToPass()
-			&& !destination.nodeObject->isBlockedVisitable();
-		if((isPassableQuestGate && questAction.needsInitialVisit(aiNk, destinationNode->actor->hero)) || !canAct)
+		if(!canAct || questSource->requiresVisitBeforePassing(destinationNode->actor->hero->getOwner()))
 		{
 			nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
 			{

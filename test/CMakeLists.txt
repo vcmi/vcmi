@@ -135,6 +135,7 @@ set(test_SRCS
 		texts/TextOperationsTest.cpp
 
 		mock/BattleFake.cpp
+		mock/GameHandlerTestClient.cpp
 		mock/GameHandlerTestServer.cpp
 		mock/mock_IGameEventCallback.cpp
  		mock/mock_MapService.cpp
@@ -163,6 +164,7 @@ set(test_HEADERS
 		server/battles/BattleTestFixture.h
 
 		mock/BattleFake.h
+		mock/GameHandlerTestClient.h
 		mock/GameHandlerTestServer.h
 		mock/mock_BonusBearer.h
 		mock/mock_CStack.h

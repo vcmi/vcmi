@@ -89,10 +89,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 				auto questInfo = QuestInfo(node.obj->id);
 				auto questAction = std::make_shared<AIPathfinding::QuestAction>(questInfo);
-				const bool needsInitialVisit = !node.obj->isBlockedVisitable()
-					&& questAction->needsInitialVisit(aiNk, targetHero);
-
-				if(needsInitialVisit || !questAction->canAct(aiNk, targetHero))
+				if(source->requiresVisitBeforePassing(targetHero->getOwner()) || !questAction->canAct(aiNk, targetHero))
 				{
 					transitionAction = questAction;
 				}

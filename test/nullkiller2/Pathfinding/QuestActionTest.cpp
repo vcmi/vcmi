@@ -14,57 +14,24 @@
 #include "AI/Nullkiller2/Pathfinding/Actions/QuestAction.h"
 #include "AI/Nullkiller2/Pathfinding/GraphPaths.h"
 
-#include "mock/GameHandlerTestServer.h"
+#include "mock/GameHandlerTestClient.h"
 #include "mock/TinyH3MBuilder.h"
 #include "nullkiller2/NullkillerTest.h"
 
-#include "server/CGameHandler.h"
-
 #include "lib/callback/CCallback.h"
-#include "lib/callback/IClient.h"
 #include "lib/gameState/CGameState.h"
 #include "lib/mapObjects/CGHeroInstance.h"
 #include "lib/networkPacks/PacksForClient.h"
-#include "lib/networkPacks/PacksForServer.h"
-#include "lib/serializer/CMemorySerializer.h"
 
 namespace
 {
 const PlayerColor PLAYER = PlayerColor(0);
+const PlayerColor ENEMY = PlayerColor(1);
 const int3 HERO_ANCHOR_POS(5, 5, 0);
 const int3 HERO_POS(4, 5, 0);
 const int3 GATE_ANCHOR_POS(5, 6, 0);
 const int3 GATE_POS(4, 6, 0);
 const int3 TARGET_POS(4, 8, 0);
-
-class GameHandlerClient : public IClient
-{
-public:
-	explicit GameHandlerClient(CGameHandler & gameHandler)
-		: gameHandler(gameHandler)
-	{}
-
-	std::optional<BattleAction> makeSurrenderRetreatDecision(
-		PlayerColor,
-		const BattleID &,
-		const BattleStateInfoForRetreat &) override
-	{
-		return std::nullopt;
-	}
-
-	int sendRequest(const CPackForServer & request, PlayerColor player, bool) override
-	{
-		request.player = player;
-		request.requestID = ++lastRequestID;
-		auto serverRequest = CMemorySerializer::deepCopy(request);
-		gameHandler.handleReceivedPack(GameConnectionID::FIRST_CONNECTION, *serverRequest);
-		return lastRequestID;
-	}
-
-private:
-	CGameHandler & gameHandler;
-	int lastRequestID = 0;
-};
 
 TinyH3M::TinyH3MBuilder makeGateMap()
 {
@@ -76,7 +43,9 @@ TinyH3M::TinyH3MBuilder makeGateMap()
 		.playerActive(PLAYER)
 		.hero(HERO_ANCHOR_POS, HeroTypeID(0), PLAYER)
 		.heroGarrison({{CreatureID(27), 1}})
-		.questGate(GATE_ANCHOR_POS, TinyH3M::TinyH3MBuilder::missionLevel(1));
+		.questGate(GATE_ANCHOR_POS, TinyH3M::TinyH3MBuilder::missionLevel(1))
+		.playerActive(ENEMY)
+		.hero({30, 30, 0}, HeroTypeID(1), ENEMY);
 
 	return builder;
 }
@@ -136,10 +105,7 @@ TEST_F(Nullkiller2_Pathfinding_QuestAction, addsInitialVisitBeforeCrossingUnopen
 	startWithMap(makeGateMap());
 	revealMapAndEncloseHero();
 
-	gameState()->actingPlayers.insert(PLAYER);
-	GameHandlerTestServer server(gameState(), PLAYER);
-	CGameHandler gameHandler(server, gameState());
-	GameHandlerClient client(gameHandler);
+	GameHandlerTestClient client(gameState(), PLAYER);
 	const auto paths = updateAndGetPaths(TARGET_POS, &client);
 	ASSERT_FALSE(paths.empty()) << "the satisfiable gate should not block planning";
 

@@ -1027,6 +1027,13 @@ void QuestGate::serializeJsonOptions(JsonSerializeFormat & handler)
 	serializeJsonSingleQuest(handler);
 }
 
+bool QuestGate::requiresVisitBeforePassing(PlayerColor player) const
+{
+	const auto * quest = getActiveQuest();
+	// the player learns of a border gate from the keymaster tent, so it needs no first visit
+	return quest && !quest->isKnownTo(player) && quest->missionKind != EQuestMission::KEYMASTER;
+}
+
 void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(allQuests().empty())
