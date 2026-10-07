@@ -9,7 +9,9 @@
 */
 #include "StdInc.h"
 #include "../../../lib/GameLibrary.h"
+#include "../../../lib/CPlayerState.h"
 #include "../../../lib/mapObjects/Quest.h"
+#include "../../../lib/rewardable/Interface.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../AIGateway.h"
 #include "../Behaviors/CaptureObjectsBehavior.h"
@@ -168,12 +170,49 @@ TGoalVec CompleteQuest::missionArmy(const Nullkiller * aiNk) const
 
 TGoalVec CompleteQuest::missionIncreasePrimaryStat(const Nullkiller * aiNk) const
 {
-	return tryCompleteQuest(aiNk);
+	TGoalVec solutions = tryCompleteQuest(aiNk);
+	if(!solutions.empty())
+		return solutions;
+
+	const auto & required = q.getQuest(aiNk->cc.get())->mission.primary;
+	return visitObjectsGranting(aiNk, [&required](const Rewardable::Reward & reward)
+	{
+		for(size_t i = 0; i < required.size() && i < reward.primary.size(); ++i)
+			if(required[i] > 0 && reward.primary[i] > 0)
+				return true;
+		return false;
+	});
 }
 
 TGoalVec CompleteQuest::missionLevel(const Nullkiller * aiNk) const
 {
-	return tryCompleteQuest(aiNk);
+	TGoalVec solutions = tryCompleteQuest(aiNk);
+	if(!solutions.empty())
+		return solutions;
+
+	return visitObjectsGranting(aiNk, [](const Rewardable::Reward & reward)
+	{
+		return reward.heroExperience > 0 || reward.heroLevel > 0;
+	});
+}
+
+TGoalVec CompleteQuest::visitObjectsGranting(const Nullkiller * aiNk, const std::function<bool(const Rewardable::Reward &)> & grantsProgress) const
+{
+	const auto * questObject = q.getObject(aiNk->cc.get());
+	std::vector<const CGObjectInstance *> sources;
+
+	for(const auto * obj : aiNk->memory->visitableIdsToObjsVector(*aiNk->cc))
+	{
+		const auto * rewardable = dynamic_cast<const Rewardable::Interface *>(obj);
+		if(!rewardable || obj == questObject)
+			continue;
+
+		if(std::ranges::any_of(rewardable->configuration.info, [&](const Rewardable::VisitInfo & info){ return grantsProgress(info.reward); }))
+			sources.push_back(obj);
+	}
+
+	// shouldVisit, applied to every route, keeps out heroes that the object would not reward
+	return CaptureObjectsBehavior(sources).decompose(aiNk);
 }
 
 TGoalVec CompleteQuest::missionKeymaster(const Nullkiller * aiNk) const
