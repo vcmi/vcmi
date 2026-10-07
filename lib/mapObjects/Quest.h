@@ -232,6 +232,17 @@ public:
 
 	void getVisitText(MetaString & text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
 
+	MetaString getHoverText(PlayerColor player) const override;
+	MetaString getHoverText(const CGHeroInstance * hero) const override;
+	MetaString getPopupText(PlayerColor player) const override;
+	MetaString getPopupText(const CGHeroInstance * hero) const override;
+	std::vector<Component> getPopupComponents(PlayerColor player) const override;
+	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
+	std::vector<Component> getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const;
+
+	/// Remembers the name and portrait of the hero a "be a specific hero" mission asks for, as placed on the map
+	void resolveRequiredHero(const CMap & map);
+
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CRewardableObject&>(*this);
@@ -270,6 +281,11 @@ protected:
 	void syncActiveReward();
 	/// Records that a player has been shown the active quest (SEERHUT_VISITED).
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
+	/// Object name / seer header followed by the active quest's rollover; onHover
+	/// picks the short hover variant, otherwise the longer description variant.
+	MetaString buildText(PlayerColor player, bool onHover) const;
+	/// Fills the visit and completion texts the map left empty with the defaults of the quest's mission kind.
+	static void defineDefaultTexts(Quest & quest);
 	/// H3M-shaped JSON layout: a single "quest" struct and no separate reward. Used by
 	/// quest guards and quest gates; seer huts store a "quests" array instead.
 	void serializeJsonSingleQuest(JsonSerializeFormat & handler);
@@ -295,13 +311,6 @@ public:
 	void setSeerName(CMap & map, const std::string & newName);
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
-	MetaString getHoverText(PlayerColor player) const override;
-	MetaString getHoverText(const CGHeroInstance * hero) const override;
-	MetaString getPopupText(PlayerColor player) const override;
-	MetaString getPopupText(const CGHeroInstance * hero) const override;
-	std::vector<Component> getPopupComponents(PlayerColor player) const override;
-	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
-	std::vector<Component> getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const;
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const override;
@@ -322,9 +331,6 @@ public:
 			h & legacySeerName;
 	}
 protected:
-	/// Object name / seer header followed by the active quest's rollover; onHover
-	/// picks the short hover variant, otherwise the longer description variant.
-	MetaString buildText(PlayerColor player, bool onHover) const;
 	/// Once the reward of a finished quest is fully handed over, move on to the next
 	/// quest and state it right away - still as part of the visit that finished it.
 	void offerNextQuest(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const;

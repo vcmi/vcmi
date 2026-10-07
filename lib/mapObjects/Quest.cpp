@@ -613,30 +613,35 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 			if(!seerNameTextID.empty())
 				q.firstVisitText.replaceTextID(seerNameTextID);
 		}
-		else if(q.missionKind == EQuestMission::KEYMASTER)
-		{
-			// border guard: "you need the key" shown on first and on every blocked revisit
-			if(q.firstVisitText.empty())
-				q.firstVisitText.appendTextID("core.advevent", 18);
-			if(q.nextVisitText.empty())
-				q.nextVisitText.appendTextID("core.advevent", 18);
-		}
 		else
-		{
-			const std::string & questName = Quest::missionName(q.missionKind);
-			if(q.firstVisitText.empty())
-				q.firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(0), q.textOption).get());
-			if(q.nextVisitText.empty())
-				q.nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(1), q.textOption).get());
-			if(q.completedText.empty())
-				q.completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(2), q.textOption).get());
-		}
+			defineDefaultTexts(q);
 	}
 
 	selectInitialQuest();
 	if(!isEmpty())
 		getQuest().getCompletionText(cb, configuration.onSelect);
 	syncActiveReward();
+}
+
+void QuestSource::defineDefaultTexts(Quest & q)
+{
+	if(q.missionKind == EQuestMission::KEYMASTER)
+	{
+		// border guard or gate: "you need the key" shown on first and on every blocked revisit
+		if(q.firstVisitText.empty())
+			q.firstVisitText.appendTextID("core.advevent", 18);
+		if(q.nextVisitText.empty())
+			q.nextVisitText.appendTextID("core.advevent", 18);
+		return;
+	}
+
+	const std::string & questName = Quest::missionName(q.missionKind);
+	if(q.firstVisitText.empty())
+		q.firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(0), q.textOption).get());
+	if(q.nextVisitText.empty())
+		q.nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(1), q.textOption).get());
+	if(q.completedText.empty())
+		q.completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(2), q.textOption).get());
 }
 
 std::string SeerHut::getQuestGiverName() const
@@ -655,7 +660,7 @@ void SeerHut::setSeerName(CMap & map, const std::string & newName)
 	seerNameTextID = mapRegisterLocalizedString("map", map, TextIdentifier("map", "seerHut", instanceName, "name"), newName);
 }
 
-MetaString SeerHut::buildText(PlayerColor player, bool onHover) const
+MetaString QuestSource::buildText(PlayerColor player, bool onHover) const
 {
 	bool questActive = !isEmpty() && getQuest().activeForPlayers.count(player);
 
@@ -676,22 +681,22 @@ MetaString SeerHut::buildText(PlayerColor player, bool onHover) const
 	return text;
 }
 
-MetaString SeerHut::getHoverText(PlayerColor player) const { return buildText(player, true); }
-MetaString SeerHut::getHoverText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), true); }
-MetaString SeerHut::getPopupText(PlayerColor player) const { return buildText(player, false); }
-MetaString SeerHut::getPopupText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), false); }
+MetaString QuestSource::getHoverText(PlayerColor player) const { return buildText(player, true); }
+MetaString QuestSource::getHoverText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), true); }
+MetaString QuestSource::getPopupText(PlayerColor player) const { return buildText(player, false); }
+MetaString QuestSource::getPopupText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), false); }
 
-std::vector<Component> SeerHut::getPopupComponents(PlayerColor player) const
+std::vector<Component> QuestSource::getPopupComponents(PlayerColor player) const
 {
 	return getPopupComponents(player, nullptr);
 }
 
-std::vector<Component> SeerHut::getPopupComponents(const CGHeroInstance * hero) const
+std::vector<Component> QuestSource::getPopupComponents(const CGHeroInstance * hero) const
 {
 	return getPopupComponents(hero->getOwner(), hero);
 }
 
-std::vector<Component> SeerHut::getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const
+std::vector<Component> QuestSource::getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const
 {
 	std::vector<Component> result;
 	if (!isEmpty() && getQuest().activeForPlayers.count(player))
@@ -1027,9 +1032,10 @@ void QuestGate::initObj(IGameRandomizer & gameRandomizer)
 	if(allQuests().empty())
 		return; // a gate without any quest is a doorway that stands open
 
-	getQuest().defineQuestName();
-	if(getQuest().firstVisitText.empty())
-		getQuest().firstVisitText.appendTextID("core.advevent", 18);
+	Quest & quest = getQuest();
+	quest.defineQuestName();
+	quest.textOption = gameRandomizer.getDefault().nextInt(3, 5); // "the guards ..." variants of the quest texts
+	defineDefaultTexts(quest);
 }
 
 void QuestGate::serializeJsonOptions(JsonSerializeFormat & handler)
@@ -1058,7 +1064,8 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 	// the player has seen the gate and now knows what it asks for - the pathfinder
 	// only routes heroes through a gate whose quest is known
-	if(!getQuest().isKnownTo(h->getOwner()))
+	bool firstVisit = !getQuest().isKnownTo(h->getOwner());
+	if(firstVisit)
 		gameEvents.setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
 
 	if(checkQuest(h))
@@ -1070,7 +1077,10 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 		return;
 	}
 
-	h->showInfoDialog(gameEvents, 18);
+	InfoWindow iw;
+	iw.player = h->getOwner();
+	getVisitText(iw.text, iw.components, firstVisit, h);
+	gameEvents.showInfoDialog(&iw);
 
 	// same-colour borders are one type-quest, logged once for the player
 	if(!hasQuestInLog(h->getOwner()))

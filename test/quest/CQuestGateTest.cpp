@@ -12,6 +12,7 @@
 #include "QuestTest.h"
 
 #include "../../lib/CPlayerState.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/Quest.h"
 #include "../../lib/pathfinder/CGPathNode.h"
@@ -228,4 +229,20 @@ TEST_F(QuestGateTest, GateWithQuestForCurrentDifficultyOpens)
 	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s), EMapDifficulty::NORMAL));
 
 	EXPECT_TRUE(expectAt<QuestGate>(kGatePos)->passableFor(findHeroAt(kHeroPos)));
+}
+
+TEST_F(QuestGateTest, BlockedVisitStatesRequirement)
+{
+	auto s = gateScenario(B::missionLevel(99));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * hero = findHeroAt(kHeroPos);
+	auto * gate = expectAt<QuestGate>(kGatePos);
+
+	visit(hero, gate);
+	ASSERT_FALSE(gameEvents().infoWindows.empty());
+	const auto & window = gameEvents().infoWindows.back();
+	EXPECT_NE(window.text.toString(LIBRARY->staticTexts()).find("99"), std::string::npos) << "the gate names the level it asks for";
+	EXPECT_FALSE(window.components.empty());
+	EXPECT_FALSE(gate->getPopupComponents(PlayerColor(0)).empty()) << "a known gate shows its requirement on right-click";
 }
