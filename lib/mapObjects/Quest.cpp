@@ -188,7 +188,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 	}
 	
 	if(!mission.heroes.empty())
-		text.replaceTextID(LIBRARY->heroh->getById(mission.heroes.front())->getNameTextID());
+		text.replaceTextID(heroNameTextID.empty() ? LIBRARY->heroh->getById(mission.heroes.front())->getNameTextID() : heroNameTextID);
 	
 	if(!mission.artifacts.empty())
 	{
@@ -268,7 +268,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
 {
 	bool failRequirements = (h ? !checkQuest(h) : true);
-	mission.loadComponents(components, h);
+	loadComponents(components, h);
 
 	if(firstVisit)
 		iwText.append(firstVisitText);
@@ -279,6 +279,18 @@ void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::
 		iwText.appendTextID("core.seerhut.time", textOption);
 	
 	addTextReplacements(cb, iwText, components);
+}
+
+void Quest::loadComponents(std::vector<Component> & components, const CGHeroInstance * h) const
+{
+	mission.loadComponents(components, h);
+
+	if(missionKind != EQuestMission::HERO || !heroPortrait.isValid())
+		return;
+
+	for(auto & component : components)
+		if(component.type == ComponentType::HERO_PORTRAIT)
+			component.subType = heroPortrait;
 }
 
 void Quest::getHoverText(const IGameInfoCallback * cb, MetaString &ms, bool onHover) const
@@ -563,6 +575,27 @@ void SeerHut::setObjToKill()
 	}
 }
 
+void QuestSource::resolveRequiredHero(const CMap & map)
+{
+	for(const auto & qp : allQuests())
+	{
+		Quest & q = *qp;
+		// only a single required hero has a name and portrait slot to fill
+		if(q.missionKind != EQuestMission::HERO || q.mission.heroes.size() != 1)
+			continue;
+
+		for(const auto * hero : map.getObjects<CGHeroInstance>())
+		{
+			if(hero->getHeroTypeID() == q.mission.heroes.front())
+			{
+				q.heroNameTextID = hero->getNameTextID();
+				q.heroPortrait = hero->getPortraitSource();
+				break;
+			}
+		}
+	}
+}
+
 void SeerHut::init(vstd::RNG & rand)
 {
 	auto names = LIBRARY->generaltexth->findStringsWithPrefix("core.seerhut.names");
@@ -700,7 +733,7 @@ std::vector<Component> QuestSource::getPopupComponents(PlayerColor player, const
 {
 	std::vector<Component> result;
 	if (!isEmpty() && getQuest().activeForPlayers.count(player))
-		getQuest().mission.loadComponents(result, hero);
+		getQuest().loadComponents(result, hero);
 	return result;
 }
 

@@ -65,7 +65,8 @@ public:
 
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info
-	// needed for messages / hover text
+	// needed for messages / hover text. Hero name and portrait also keep the map
+	// customization of the hero that a "be a specific hero" mission asks for
 	ui8 textOption = 0;
 	ui8 completedOption = 0;
 	CreatureID stackToKill;
@@ -90,6 +91,8 @@ public:
 	/// True once the player has been shown this quest (i.e. is aware of its requirements).
 	bool isKnownTo(PlayerColor player) const { return activeForPlayers.count(player) != 0; }
 	void getVisitText(const IGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
+	/// Components of the mission, with the map-customized portrait of the required hero
+	void loadComponents(std::vector<Component> & components, const CGHeroInstance * h) const;
 	void getCompletionText(const IGameInfoCallback * cb, MetaString &text) const;
 	void getHoverText(const IGameInfoCallback * cb, MetaString &text, bool onHover) const;
 	void getQuestlogText(const IGameInfoCallback * cb, MetaString &text, bool onHover) const;
