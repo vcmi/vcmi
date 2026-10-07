@@ -274,7 +274,7 @@ DLL_LINKAGE std::string MetaString::toString(const ITranslator * translator) con
 	return dst;
 }
 
-DLL_LINKAGE std::string MetaString::buildList(const ITranslator * translator) const
+DLL_LINKAGE std::string MetaString::buildList(const ITranslator * translator, const std::string & lastSeparatorTextID) const
 {
 	assert(translator != nullptr);
 
@@ -299,7 +299,7 @@ DLL_LINKAGE std::string MetaString::buildList(const ITranslator * translator) co
 		if(i > 0 && isListEntry(message.at(i)))
 		{
 			if(i == lastEntry)
-				lista += translator->translate("core.genrltxt", 141); //" and "
+				lista += translator->translate(lastSeparatorTextID);
 			else
 				lista += ", ";
 		}

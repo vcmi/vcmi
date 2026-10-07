@@ -21,6 +21,7 @@
 #include "../callback/IGameEventCallback.h"
 #include "../callback/IGameRandomizer.h"
 #include "../entities/artifact/CArtifact.h"
+#include "../entities/hero/CHeroClass.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../entities/ResourceTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -232,7 +233,16 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 		for(auto & p : mission.players)
 			loot.appendName(p);
 		
-		text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts(), "vcmi.list.or"));
+	}
+
+	if(!mission.heroClasses.empty())
+	{
+		MetaString loot;
+		for(const auto & heroClass : mission.heroClasses)
+			loot.appendTextID(heroClass.toEntity(LIBRARY)->getNameTextID());
+
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts(), "vcmi.list.or"));
 	}
 	
 	if(lastDay >= 0)

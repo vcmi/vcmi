@@ -18,6 +18,8 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/Quest.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/entities/hero/CHeroClass.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 // Seer hut behaviour as a player would experience it: visiting, accepting,
 // re-visiting, completing, and the various ways missions can be satisfied.
@@ -435,4 +437,25 @@ TEST_F(QuestSeerTest, ManaReward_exceedsFullManaPool)
 
 	ASSERT_FALSE(gameEvents().manaPointsSet.empty());
 	EXPECT_EQ(gameEvents().manaPointsSet.back().second, hero->manaLimit() + 25);
+}
+
+TEST_F(QuestSeerTest, HeroClass_textListsAcceptedClasses)
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::HOTA);
+	builder
+		.hotaVersion(3)
+		.playerActive(PlayerColor(0))
+		.hero({5, 5, 0}, HeroTypeID(6), PlayerColor(0)) // Christian, a knight
+		.seerHut({10, 10, 0}, TinyH3M::TinyH3MBuilder::missionHeroClass({HeroClassID(1), HeroClassID(2)}), TinyH3M::TinyH3MBuilder::rewardExperience(100));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(builder)));
+
+	visit(findHeroAt({5, 5, 0}), findObjectAt({10, 10, 0}));
+	ASSERT_FALSE(gameEvents().infoWindows.empty());
+	const std::string text = gameEvents().infoWindows.back().text.toString(LIBRARY->staticTexts());
+
+	const std::string expected = HeroClassID(1).toEntity(LIBRARY)->getNameTranslated()
+		+ LIBRARY->generaltexth->translate("vcmi.list.or")
+		+ HeroClassID(2).toEntity(LIBRARY)->getNameTranslated();
+	EXPECT_NE(text.find(expected), std::string::npos) << text;
+	EXPECT_EQ(text.find("%s"), std::string::npos) << text;
 }

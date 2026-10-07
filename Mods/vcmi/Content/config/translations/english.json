@@ -822,6 +822,7 @@
 	"vcmi.keyBindings.resetConfirm": "Do you want to reset all key bindings to default?",
 	"vcmi.kingdomOverview.secSkillOverflow.help": "{More skills}\n\nThis hero has more skills.\nYou can see all of them in the hero overview.",
 	"vcmi.kingdomOverview.secSkillOverflow.hover": "More skills",
+	"vcmi.list.or": " or ",
 	"vcmi.lobby.author": "Author",
 	"vcmi.lobby.backToLobby": "Return to lobby",
 	"vcmi.lobby.battleOnlyMode": "Battle Mode",
