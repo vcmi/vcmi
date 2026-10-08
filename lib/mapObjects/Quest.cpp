@@ -317,6 +317,10 @@ void Quest::getQuestlogText(const IGameInfoCallback * cb, MetaString &ms, bool o
 	else
 		ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), missionState(4), textOption).get());
 
+	// unlike other level quest texts, H3 quest log expects the required level as %s
+	if(missionKind == EQuestMission::LEVEL)
+		ms.replaceRawString(std::to_string(mission.heroLevel));
+
 	std::vector<Component> components;
 	addTextReplacements(cb, ms, components);
 }

@@ -104,6 +104,8 @@ std::string CompleteQuest::questToString() const
 
 	MetaString ms;
 	q.getQuest(&cc)->getQuestlogText(&cc, ms, false);
+	if(const auto * object = q.getObject(&cc))
+		ms.replaceRawString(object->getObjectName().toString(LIBRARY->staticTexts()));
 
 	return ms.toString(LIBRARY->staticTexts());
 }

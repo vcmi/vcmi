@@ -459,3 +459,17 @@ TEST_F(QuestSeerTest, HeroClass_textListsAcceptedClasses)
 	EXPECT_NE(text.find(expected), std::string::npos) << text;
 	EXPECT_EQ(text.find("%s"), std::string::npos) << text;
 }
+
+TEST_F(QuestSeerTest, Level_questlogTextNamesRequiredLevel)
+{
+	auto s = seerLevel();
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
+
+	MetaString text;
+	expectAt<SeerHut>(s.questPos2)->getQuest().getQuestlogText(gameState().get(), text, false);
+	const std::string log = text.toString(LIBRARY->staticTexts());
+
+	// the seer to visit is the second placeholder, left for the quest log window to fill
+	EXPECT_EQ(log.find("level %s"), std::string::npos) << log;
+	EXPECT_NE(log.find("10"), std::string::npos) << log;
+}
