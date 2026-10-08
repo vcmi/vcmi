@@ -11,60 +11,20 @@
 #include "AI/Nullkiller2/AIGateway.h"
 #include "AI/Nullkiller2/Engine/Nullkiller.h"
 
-#include "mock/GameHandlerTestServer.h"
+#include "mock/GameHandlerTestClient.h"
 #include "mock/TinyH3MBuilder.h"
 #include "nullkiller2/NullkillerTest.h"
 
-#include "server/CGameHandler.h"
-
 #include "lib/callback/CCallback.h"
-#include "lib/callback/IClient.h"
 #include "lib/gameState/CGameState.h"
 #include "lib/mapObjects/CGHeroInstance.h"
 #include "lib/mapObjects/CGTownInstance.h"
 #include "lib/networkPacks/PacksForClient.h"
-#include "lib/networkPacks/PacksForServer.h"
-#include "lib/serializer/CMemorySerializer.h"
 
 namespace
 {
 const PlayerColor PLAYER(0);
 const PlayerColor ENEMY(1);
-
-class GameHandlerClient : public IClient
-{
-public:
-	GameHandlerClient(const std::shared_ptr<CGameState> & gameState, PlayerColor player)
-		: server(gameState, player)
-		, gameHandler(server, gameState)
-	{
-		gameState->actingPlayers.insert(player);
-	}
-
-	std::optional<BattleAction> makeSurrenderRetreatDecision(
-		PlayerColor,
-		const BattleID &,
-		const BattleStateInfoForRetreat &) override
-	{
-		return std::nullopt;
-	}
-
-	int sendRequest(const CPackForServer & request, PlayerColor player, bool) override
-	{
-		request.player = player;
-		request.requestID = ++lastRequestID;
-		auto serverRequest = CMemorySerializer::deepCopy(request);
-		gameHandler.handleReceivedPack(
-			GameConnectionID::FIRST_CONNECTION,
-			*serverRequest);
-		return lastRequestID;
-	}
-
-private:
-	GameHandlerTestServer server;
-	CGameHandler gameHandler;
-	int lastRequestID = 0;
-};
 
 TinyH3M::TinyH3MBuilder makeGarrisonUpgradeMap()
 {
@@ -120,7 +80,7 @@ TEST_F(Nullkiller2_Behaviors_GatherArmyBehavior, upgradesPikemenCarriedByGarriso
 	putHeroInGarrison(*hero, *town);
 	grantResources(PLAYER, GameResID(GameResID::GOLD), 1000000);
 
-	GameHandlerClient client(gameState(), PLAYER);
+	GameHandlerTestClient client(gameState(), PLAYER);
 	const auto gateway = makeGateway(PLAYER, &client);
 	gateway->nullkiller->makeTurn();
 

@@ -21,6 +21,7 @@
 #include "../callback/IGameEventCallback.h"
 #include "../callback/IGameRandomizer.h"
 #include "../entities/artifact/CArtifact.h"
+#include "../entities/hero/CHeroClass.h"
 #include "../entities/hero/CHeroHandler.h"
 #include "../entities/ResourceTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
@@ -187,7 +188,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 	}
 	
 	if(!mission.heroes.empty())
-		text.replaceTextID(LIBRARY->heroh->getById(mission.heroes.front())->getNameTextID());
+		text.replaceTextID(heroNameTextID.empty() ? LIBRARY->heroh->getById(mission.heroes.front())->getNameTextID() : heroNameTextID);
 	
 	if(!mission.artifacts.empty())
 	{
@@ -232,7 +233,16 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 		for(auto & p : mission.players)
 			loot.appendName(p);
 		
-		text.replaceRawString(loot.buildList(LIBRARY->staticTexts()));
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts(), "vcmi.list.or"));
+	}
+
+	if(!mission.heroClasses.empty())
+	{
+		MetaString loot;
+		for(const auto & heroClass : mission.heroClasses)
+			loot.appendTextID(heroClass.toEntity(LIBRARY)->getNameTextID());
+
+		text.replaceRawString(loot.buildList(LIBRARY->staticTexts(), "vcmi.list.or"));
 	}
 	
 	if(lastDay >= 0)
@@ -258,7 +268,7 @@ void Quest::addTextReplacements(const IGameInfoCallback * cb, MetaString & text,
 void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::vector<Component> &components, bool firstVisit, const CGHeroInstance * h) const
 {
 	bool failRequirements = (h ? !checkQuest(h) : true);
-	mission.loadComponents(components, h);
+	loadComponents(components, h);
 
 	if(firstVisit)
 		iwText.append(firstVisitText);
@@ -269,6 +279,18 @@ void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::
 		iwText.appendTextID("core.seerhut.time", textOption);
 	
 	addTextReplacements(cb, iwText, components);
+}
+
+void Quest::loadComponents(std::vector<Component> & components, const CGHeroInstance * h) const
+{
+	mission.loadComponents(components, h);
+
+	if(missionKind != EQuestMission::HERO || !heroPortrait.isValid())
+		return;
+
+	for(auto & component : components)
+		if(component.type == ComponentType::HERO_PORTRAIT)
+			component.subType = heroPortrait;
 }
 
 void Quest::getHoverText(const IGameInfoCallback * cb, MetaString &ms, bool onHover) const
@@ -294,6 +316,10 @@ void Quest::getQuestlogText(const IGameInfoCallback * cb, MetaString &ms, bool o
 		ms.append(scriptHintText);
 	else
 		ms.appendTextID(TextIdentifier("core", "seerhut", "quest", missionName(missionKind), missionState(4), textOption).get());
+
+	// unlike other level quest texts, H3 quest log expects the required level as %s
+	if(missionKind == EQuestMission::LEVEL)
+		ms.replaceRawString(std::to_string(mission.heroLevel));
 
 	std::vector<Component> components;
 	addTextReplacements(cb, ms, components);
@@ -553,6 +579,27 @@ void SeerHut::setObjToKill()
 	}
 }
 
+void QuestSource::resolveRequiredHero(const CMap & map)
+{
+	for(const auto & qp : allQuests())
+	{
+		Quest & q = *qp;
+		// only a single required hero has a name and portrait slot to fill
+		if(q.missionKind != EQuestMission::HERO || q.mission.heroes.size() != 1)
+			continue;
+
+		for(const auto * hero : map.getObjects<CGHeroInstance>())
+		{
+			if(hero->getHeroTypeID() == q.mission.heroes.front())
+			{
+				q.heroNameTextID = hero->getNameTextID();
+				q.heroPortrait = hero->getPortraitSource();
+				break;
+			}
+		}
+	}
+}
+
 void SeerHut::init(vstd::RNG & rand)
 {
 	auto names = LIBRARY->generaltexth->findStringsWithPrefix("core.seerhut.names");
@@ -603,30 +650,35 @@ void SeerHut::initObj(IGameRandomizer & gameRandomizer)
 			if(!seerNameTextID.empty())
 				q.firstVisitText.replaceTextID(seerNameTextID);
 		}
-		else if(q.missionKind == EQuestMission::KEYMASTER)
-		{
-			// border guard: "you need the key" shown on first and on every blocked revisit
-			if(q.firstVisitText.empty())
-				q.firstVisitText.appendTextID("core.advevent", 18);
-			if(q.nextVisitText.empty())
-				q.nextVisitText.appendTextID("core.advevent", 18);
-		}
 		else
-		{
-			const std::string & questName = Quest::missionName(q.missionKind);
-			if(q.firstVisitText.empty())
-				q.firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(0), q.textOption).get());
-			if(q.nextVisitText.empty())
-				q.nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(1), q.textOption).get());
-			if(q.completedText.empty())
-				q.completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(2), q.textOption).get());
-		}
+			defineDefaultTexts(q);
 	}
 
 	selectInitialQuest();
 	if(!isEmpty())
 		getQuest().getCompletionText(cb, configuration.onSelect);
 	syncActiveReward();
+}
+
+void QuestSource::defineDefaultTexts(Quest & q)
+{
+	if(q.missionKind == EQuestMission::KEYMASTER)
+	{
+		// border guard or gate: "you need the key" shown on first and on every blocked revisit
+		if(q.firstVisitText.empty())
+			q.firstVisitText.appendTextID("core.advevent", 18);
+		if(q.nextVisitText.empty())
+			q.nextVisitText.appendTextID("core.advevent", 18);
+		return;
+	}
+
+	const std::string & questName = Quest::missionName(q.missionKind);
+	if(q.firstVisitText.empty())
+		q.firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(0), q.textOption).get());
+	if(q.nextVisitText.empty())
+		q.nextVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(1), q.textOption).get());
+	if(q.completedText.empty())
+		q.completedText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(2), q.textOption).get());
 }
 
 std::string SeerHut::getQuestGiverName() const
@@ -645,7 +697,7 @@ void SeerHut::setSeerName(CMap & map, const std::string & newName)
 	seerNameTextID = mapRegisterLocalizedString("map", map, TextIdentifier("map", "seerHut", instanceName, "name"), newName);
 }
 
-MetaString SeerHut::buildText(PlayerColor player, bool onHover) const
+MetaString QuestSource::buildText(PlayerColor player, bool onHover) const
 {
 	bool questActive = !isEmpty() && getQuest().activeForPlayers.count(player);
 
@@ -666,26 +718,26 @@ MetaString SeerHut::buildText(PlayerColor player, bool onHover) const
 	return text;
 }
 
-MetaString SeerHut::getHoverText(PlayerColor player) const { return buildText(player, true); }
-MetaString SeerHut::getHoverText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), true); }
-MetaString SeerHut::getPopupText(PlayerColor player) const { return buildText(player, false); }
-MetaString SeerHut::getPopupText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), false); }
+MetaString QuestSource::getHoverText(PlayerColor player) const { return buildText(player, true); }
+MetaString QuestSource::getHoverText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), true); }
+MetaString QuestSource::getPopupText(PlayerColor player) const { return buildText(player, false); }
+MetaString QuestSource::getPopupText(const CGHeroInstance * hero) const { return buildText(hero->getOwner(), false); }
 
-std::vector<Component> SeerHut::getPopupComponents(PlayerColor player) const
+std::vector<Component> QuestSource::getPopupComponents(PlayerColor player) const
 {
 	return getPopupComponents(player, nullptr);
 }
 
-std::vector<Component> SeerHut::getPopupComponents(const CGHeroInstance * hero) const
+std::vector<Component> QuestSource::getPopupComponents(const CGHeroInstance * hero) const
 {
 	return getPopupComponents(hero->getOwner(), hero);
 }
 
-std::vector<Component> SeerHut::getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const
+std::vector<Component> QuestSource::getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const
 {
 	std::vector<Component> result;
 	if (!isEmpty() && getQuest().activeForPlayers.count(player))
-		getQuest().mission.loadComponents(result, hero);
+		getQuest().loadComponents(result, hero);
 	return result;
 }
 
@@ -1017,14 +1069,22 @@ void QuestGate::initObj(IGameRandomizer & gameRandomizer)
 	if(allQuests().empty())
 		return; // a gate without any quest is a doorway that stands open
 
-	getQuest().defineQuestName();
-	if(getQuest().firstVisitText.empty())
-		getQuest().firstVisitText.appendTextID("core.advevent", 18);
+	Quest & quest = getQuest();
+	quest.defineQuestName();
+	quest.textOption = gameRandomizer.getDefault().nextInt(3, 5); // "the guards ..." variants of the quest texts
+	defineDefaultTexts(quest);
 }
 
 void QuestGate::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	serializeJsonSingleQuest(handler);
+}
+
+bool QuestGate::requiresVisitBeforePassing(PlayerColor player) const
+{
+	const auto * quest = getActiveQuest();
+	// the player learns of a border gate from the keymaster tent, so it needs no first visit
+	return quest && !quest->isKnownTo(player) && quest->missionKind != EQuestMission::KEYMASTER;
 }
 
 void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -1041,7 +1101,8 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 
 	// the player has seen the gate and now knows what it asks for - the pathfinder
 	// only routes heroes through a gate whose quest is known
-	if(!getQuest().isKnownTo(h->getOwner()))
+	bool firstVisit = !getQuest().isKnownTo(h->getOwner());
+	if(firstVisit)
 		gameEvents.setObjPropertyID(id, ObjProperty::SEERHUT_VISITED, h->getOwner());
 
 	if(checkQuest(h))
@@ -1053,7 +1114,10 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 		return;
 	}
 
-	h->showInfoDialog(gameEvents, 18);
+	InfoWindow iw;
+	iw.player = h->getOwner();
+	getVisitText(iw.text, iw.components, firstVisit, h);
+	gameEvents.showInfoDialog(&iw);
 
 	// same-colour borders are one type-quest, logged once for the player
 	if(!hasQuestInLog(h->getOwner()))

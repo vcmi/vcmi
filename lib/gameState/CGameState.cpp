@@ -1068,6 +1068,8 @@ void CGameState::initMapObjects(IGameRandomizer & gameRandomizer)
 	// getObjects<SeerHut>() already yields exactly seer huts + quest guards
 	for(auto & q : map->getObjects<SeerHut>())
 		q->setObjToKill();
+	for(auto & q : map->getObjects<QuestSource>())
+		q->resolveRequiredHero(*map);
 	CGSubterraneanGate::postInit(this); //pairing subterranean gates
 
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized

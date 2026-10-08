@@ -179,7 +179,7 @@ void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("manaDiff", manaDiff);
 	handler.serializeInt("manaOverflowFactor", manaOverflowFactor);
 	handler.serializeInt("movePoints", movePoints);
-	handler.serializeInt("moveOverflowFactor", manaOverflowFactor);
+	handler.serializeInt("moveOverflowFactor", moveOverflowFactor);
 	handler.serializeIdArray("artifacts", grantedArtifacts);
 	handler.serializeIdArray("takenArtifacts", takenArtifacts);
 	handler.serializeIdArray("takenArtifactSlots", takenArtifactSlots);

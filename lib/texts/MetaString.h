@@ -138,8 +138,8 @@ public:
 	/// erases any existing content in the string
 	void clear();
 
-	///used to handle loot from creature bank
-	std::string buildList(const ITranslator * translator) const;
+	///used to handle loot from creature bank; the last two entries are joined with the text of lastSeparatorTextID
+	std::string buildList(const ITranslator * translator, const std::string & lastSeparatorTextID = "core.genrltxt.141") const;
 
 	/// Convert all stored values into a single, user-readable string.
 	/// Translator must not be null - use LIBRARY->staticTexts() if no better one is at hand
