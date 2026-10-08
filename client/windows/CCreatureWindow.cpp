@@ -896,7 +896,7 @@ bool CStackWindow::isCommanderLevelUpDialog() const
 
 void CStackWindow::submitSelection()
 {
-	if(!selectionSubmitted)
+    if(!selectionSubmitted && questionID.hasValue())
 	{
 		if(info->levelupInfo)
 		{
