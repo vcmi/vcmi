@@ -6,27 +6,27 @@
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="29"/>
         <source>Abilities</source>
-        <translation type="unfinished">Gebėjimai</translation>
+        <translation type="unfinished">Abilities</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="52"/>
         <source>Deselect All</source>
-        <translation type="unfinished">Atžymėti viską</translation>
+        <translation type="unfinished">Deselect All</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="59"/>
         <source>Select All</source>
-        <translation type="unfinished">Pasirinkti viską</translation>
+        <translation type="unfinished">Select All</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="66"/>
         <source>Customize</source>
-        <translation type="unfinished">Pritaikyti</translation>
+        <translation type="unfinished">Customize</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.ui" line="97"/>
         <source>&lt;font color=&apos;red&apos;&gt;Displayed skills assume default witch hut implementation. Mods can overwrite it.&lt;/font&gt;</source>
-        <translation type="unfinished">&lt;font color=&apos;red&apos;&gt;Rodomi įgūdžiai atitinka numatytąją raganos namelio įgyvendinimo versiją. Modifikacijos gali ją pakeisti.&lt;/font&gt;</translation>
+        <translation type="unfinished">&lt;font color=&apos;red&apos;&gt;Displayed skills assume default witch hut implementation. Mods can overwrite it.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -34,17 +34,17 @@
     <message>
         <location filename="../inspector/armywidget.ui" line="23"/>
         <source>Army settings</source>
-        <translation type="unfinished">Armijos nustatymai</translation>
+        <translation type="unfinished">Army settings</translation>
     </message>
     <message>
         <location filename="../inspector/armywidget.ui" line="142"/>
         <source>Wide formation</source>
-        <translation type="unfinished">Plati rikiuotė</translation>
+        <translation type="unfinished">Wide formation</translation>
     </message>
     <message>
         <location filename="../inspector/armywidget.ui" line="129"/>
         <source>Tight formation</source>
-        <translation type="unfinished">Glaudi rikiuotė</translation>
+        <translation type="unfinished">Tight formation</translation>
     </message>
 </context>
 <context>
@@ -53,22 +53,22 @@
         <location filename="../inspector/artifactwidget.ui" line="29"/>
         <location filename="../inspector/artifactwidget.ui" line="44"/>
         <source>Artifact</source>
-        <translation type="unfinished">Artefaktas</translation>
+        <translation type="unfinished">Artifact</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="57"/>
         <source>Equip where:</source>
-        <translation type="unfinished">Aprūpinti čia:</translation>
+        <translation type="unfinished">Equip where:</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="73"/>
         <source>Save</source>
-        <translation type="unfinished">Išsaugoti</translation>
+        <translation type="unfinished">Save</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="86"/>
         <source>Cancel</source>
-        <translation type="unfinished">Atšaukti</translation>
+        <translation type="unfinished">Cancel</translation>
     </message>
 </context>
 <context>
@@ -77,52 +77,52 @@
         <location filename="../campaigneditor/campaigneditor.ui" line="14"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="188"/>
         <source>VCMI Campaign Editor</source>
-        <translation type="unfinished">VCMI kampanijų redaktorius</translation>
+        <translation type="unfinished">VCMI Campaign Editor</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="36"/>
         <source>File</source>
-        <translation type="unfinished">Failas</translation>
+        <translation type="unfinished">File</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="48"/>
         <source>Edit</source>
-        <translation type="unfinished">Redaguoti</translation>
+        <translation type="unfinished">Edit</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="55"/>
         <source>View</source>
-        <translation type="unfinished">Peržiūrėti</translation>
+        <translation type="unfinished">View</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="67"/>
         <source>Toolbar</source>
-        <translation type="unfinished">Įrankių juosta</translation>
+        <translation type="unfinished">Toolbar</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="107"/>
         <source>Open</source>
-        <translation type="unfinished">Atidaryti</translation>
+        <translation type="unfinished">Open</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="115"/>
         <source>Open Campaignset</source>
-        <translation type="unfinished">Atidaryti kampanijų rinkinį</translation>
+        <translation type="unfinished">Open Campaignset</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="123"/>
         <source>Save</source>
-        <translation type="unfinished">Išsaugoti</translation>
+        <translation type="unfinished">Save</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="131"/>
         <source>New</source>
-        <translation type="unfinished">Naujas</translation>
+        <translation type="unfinished">New</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="139"/>
         <source>Save as...</source>
-        <translation type="unfinished">Įrašyti kaip...</translation>
+        <translation type="unfinished">Save as...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="142"/>
@@ -133,24 +133,24 @@
         <location filename="../campaigneditor/campaigneditor.ui" line="147"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="150"/>
         <source>Campaign Properties</source>
-        <translation type="unfinished">Kampanijos ypatybės</translation>
+        <translation type="unfinished">Campaign Properties</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="161"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="164"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished">Scenarijaus ypatybės</translation>
+        <translation type="unfinished">Scenario Properties</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="175"/>
         <location filename="../campaigneditor/campaigneditor.ui" line="178"/>
         <source>Show full background</source>
-        <translation type="unfinished">Rodyti visą foną</translation>
+        <translation type="unfinished">Show full background</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="186"/>
         <source>Exit</source>
-        <translation type="unfinished">Išėjimas</translation>
+        <translation type="unfinished">Exit</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="189"/>
@@ -160,33 +160,33 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="153"/>
         <source>Scenario editor</source>
-        <translation type="unfinished">Scenarijų redaktorius</translation>
+        <translation type="unfinished">Scenario editor</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="176"/>
         <source>Confirmation</source>
-        <translation type="unfinished">Patvirtinimas</translation>
+        <translation type="unfinished">Confirmation</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="176"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished">Neišsaugoti pakeitimai bus prarasti; ar tikrai norite tęsti?</translation>
+        <translation type="unfinished">Unsaved changes will be lost, are you sure?</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="82"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="462"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished">Nepavyko atidaryti kampanijos</translation>
+        <translation type="unfinished">Failed to open campaign</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="202"/>
         <source>Validation failed</source>
-        <translation type="unfinished">Tikrinimas nepavyko</translation>
+        <translation type="unfinished">Validation failed</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="202"/>
         <source>Campaign has no maps defined.</source>
-        <translation type="unfinished">Kampanijai neapibrėžti jokie žemėlapiai.</translation>
+        <translation type="unfinished">Campaign has no maps defined.</translation>
     </message>
     <message>
         <source>Open map</source>
@@ -195,53 +195,53 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="280"/>
         <source>Open campaign</source>
-        <translation type="unfinished">Atvira kampanija</translation>
+        <translation type="unfinished">Open campaign</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="282"/>
         <source>All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</source>
-        <translation type="unfinished">Visos palaikomos kampanijos (*.vcmp *.h3c);;VCMI kampanijos (*.vcmp);;HoMM3 kampanijos (*.h3c)</translation>
+        <translation type="unfinished">All supported campaigns (*.vcmp *.h3c);;VCMI campaigns(*.vcmp);;HoMM3 campaigns(*.h3c)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="311"/>
         <source>Open Campaign set</source>
-        <translation type="unfinished">Atviras kampanijos rinkinys</translation>
+        <translation type="unfinished">Open Campaign set</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="311"/>
         <source>Select Campaign set</source>
-        <translation type="unfinished">Pasirinkti kampanijų rinkinį</translation>
+        <translation type="unfinished">Select Campaign set</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="325"/>
         <source>Open Campaign</source>
-        <translation type="unfinished">Atvira kampanija</translation>
+        <translation type="unfinished">Open Campaign</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="325"/>
         <source>Select Campaign</source>
-        <translation type="unfinished">Pasirinkti kampaniją</translation>
+        <translation type="unfinished">Select Campaign</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="341"/>
         <source>Save campaign</source>
-        <translation type="unfinished">Išsaugoti kampaniją</translation>
+        <translation type="unfinished">Save campaign</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="343"/>
         <source>VCMI campaigns (*.vcmp)</source>
-        <translation type="unfinished">VCMI kampanijos (*.vcmp)</translation>
+        <translation type="unfinished">VCMI campaigns (*.vcmp)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="480"/>
         <source>Mods are required</source>
-        <translation type="unfinished">Reikalingi modai</translation>
+        <translation type="unfinished">Mods are required</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="488"/>
         <location filename="../campaigneditor/campaigneditor.cpp" line="493"/>
         <source>Failed to open map</source>
-        <translation type="unfinished">Nepavyko atidaryti žemėlapio</translation>
+        <translation type="unfinished">Failed to open map</translation>
     </message>
 </context>
 <context>
@@ -250,133 +250,133 @@
         <location filename="../campaigneditor/campaignproperties.ui" line="14"/>
         <location filename="../campaigneditor/campaignproperties.cpp" line="30"/>
         <source>Campaign Properties</source>
-        <translation type="unfinished">Kampanijos ypatybės</translation>
+        <translation type="unfinished">Campaign Properties</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="30"/>
         <source>General</source>
-        <translation type="unfinished">Bendroji informacija</translation>
+        <translation type="unfinished">General</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="36"/>
         <source>Campaign name</source>
-        <translation type="unfinished">Kampanijos pavadinimas</translation>
+        <translation type="unfinished">Campaign name</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="46"/>
         <source>Campaign description</source>
-        <translation type="unfinished">Kampanijos aprašymas</translation>
+        <translation type="unfinished">Campaign description</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="56"/>
         <source>Author</source>
-        <translation type="unfinished">Autorius</translation>
+        <translation type="unfinished">Author</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="66"/>
         <source>Author contact (e.g. e-mail)</source>
-        <translation type="unfinished">Autoriaus kontaktiniai duomenys (pvz., el. paštas)</translation>
+        <translation type="unfinished">Author contact (e.g. e-mail)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="76"/>
         <source>Campaign creation date</source>
-        <translation type="unfinished">Kampanijos sukūrimo data</translation>
+        <translation type="unfinished">Campaign creation date</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="86"/>
         <source>Campaign version</source>
-        <translation type="unfinished">Kampanijos versija</translation>
+        <translation type="unfinished">Campaign version</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="96"/>
         <source>Music</source>
-        <translation type="unfinished">Muzika</translation>
+        <translation type="unfinished">Music</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="106"/>
         <source>Scenario difficulty is user selectable</source>
-        <translation type="unfinished">Scenarijaus sudėtingumą pasirenka vartotojas.</translation>
+        <translation type="unfinished">Scenario difficulty is user selectable</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="114"/>
         <location filename="../campaigneditor/campaignproperties.ui" line="197"/>
         <source>Regions</source>
-        <translation type="unfinished">Regionai</translation>
+        <translation type="unfinished">Regions</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="120"/>
         <source>Regions Preset</source>
-        <translation type="unfinished">Regionų išankstinė nuostata</translation>
+        <translation type="unfinished">Regions Preset</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="137"/>
         <source>Background</source>
-        <translation type="unfinished">Aplinkybės</translation>
+        <translation type="unfinished">Background</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="147"/>
         <source>Suffix</source>
-        <translation type="unfinished">Priesaga</translation>
+        <translation type="unfinished">Suffix</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="173"/>
         <source>Prefix</source>
-        <translation type="unfinished">Priešdėlis</translation>
+        <translation type="unfinished">Prefix</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="183"/>
         <source>Color suffix length</source>
-        <translation type="unfinished">Spalvos priesagos ilgis</translation>
+        <translation type="unfinished">Color suffix length</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="226"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="233"/>
         <source>Remove</source>
-        <translation type="unfinished">Pašalinti</translation>
+        <translation type="unfinished">Remove</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="258"/>
         <source>Misc</source>
-        <translation type="unfinished">Įvairūs</translation>
+        <translation type="unfinished">Misc</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="264"/>
         <source>Loading background image</source>
-        <translation type="unfinished">Įkeliamas fono paveikslėlis</translation>
+        <translation type="unfinished">Loading background image</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="274"/>
         <source>Video rim image</source>
-        <translation type="unfinished">Vaizdo įrašo kadras</translation>
+        <translation type="unfinished">Video rim image</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="292"/>
         <source>Enable rim image</source>
-        <translation type="unfinished">Įjungti ratlankio vaizdą</translation>
+        <translation type="unfinished">Enable rim image</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="304"/>
         <source>Intro video</source>
-        <translation type="unfinished">Įvadinis vaizdo įrašas</translation>
+        <translation type="unfinished">Intro video</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.ui" line="314"/>
         <source>Outro video</source>
-        <translation type="unfinished">Baigiamasis vaizdo įrašas</translation>
+        <translation type="unfinished">Outro video</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="59"/>
         <source>Custom</source>
-        <translation type="unfinished">Individualus</translation>
+        <translation type="unfinished">Custom</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="151"/>
         <source>Infix</source>
-        <translation type="unfinished">Intarpas</translation>
+        <translation type="unfinished">Infix</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="151"/>
@@ -386,27 +386,27 @@
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="151"/>
         <source>Y</source>
-        <translation type="unfinished">Taip</translation>
+        <translation type="unfinished">Y</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="151"/>
         <source>Label Pos X</source>
-        <translation type="unfinished">Etiketės X padėtis</translation>
+        <translation type="unfinished">Label Pos X</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="151"/>
         <source>Label Pos Y</source>
-        <translation type="unfinished">Etiketės Y padėtis</translation>
+        <translation type="unfinished">Label Pos Y</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="203"/>
         <source>Fewer Scenarios</source>
-        <translation type="unfinished">Mažiau scenarijų</translation>
+        <translation type="unfinished">Fewer Scenarios</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaignproperties.cpp" line="203"/>
         <source>New Region setup supports fewer scenarios than before. Some will removed. Continue?</source>
-        <translation type="unfinished">Naujos srities konfigūracija palaiko mažiau scenarijų nei anksčiau. Kai kurie iš jų bus pašalinti. Tęsti?</translation>
+        <translation type="unfinished">New Region setup supports fewer scenarios than before. Some will removed. Continue?</translation>
     </message>
 </context>
 <context>
@@ -415,108 +415,108 @@
         <location filename="../mainwindow.ui" line="14"/>
         <location filename="../mainwindow.cpp" line="530"/>
         <source>VCMI Map Editor</source>
-        <translation type="unfinished">VCMI žemėlapių redaktorius</translation>
+        <translation type="unfinished">VCMI Map Editor</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="59"/>
         <source>File</source>
-        <translation type="unfinished">Failas</translation>
+        <translation type="unfinished">File</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="63"/>
         <location filename="../mainwindow.ui" line="1044"/>
         <source>Open Recent</source>
-        <translation type="unfinished">Atidaryti neseniai naudotus</translation>
+        <translation type="unfinished">Open Recent</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="84"/>
         <source>Map</source>
-        <translation type="unfinished">Žemėlapis</translation>
+        <translation type="unfinished">Map</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="97"/>
         <source>Edit</source>
-        <translation type="unfinished">Redaguoti</translation>
+        <translation type="unfinished">Edit</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="110"/>
         <source>View</source>
-        <translation type="unfinished">Peržiūrėti</translation>
+        <translation type="unfinished">View</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="122"/>
         <source>Player</source>
-        <translation type="unfinished">Žaidėjas</translation>
+        <translation type="unfinished">Player</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="142"/>
         <source>Toolbar</source>
-        <translation type="unfinished">Įrankių juosta</translation>
+        <translation type="unfinished">Toolbar</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="203"/>
         <source>Minimap</source>
-        <translation type="unfinished">Mini žemėlapis</translation>
+        <translation type="unfinished">Minimap</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="276"/>
         <source>Map Objects View</source>
-        <translation type="unfinished">Žemėlapio objektų rodinys</translation>
+        <translation type="unfinished">Map Objects View</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="320"/>
         <source>Browser</source>
-        <translation type="unfinished">Naršyklė</translation>
+        <translation type="unfinished">Browser</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="398"/>
         <source>Inspector</source>
-        <translation type="unfinished">Inspektorius</translation>
+        <translation type="unfinished">Inspector</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="440"/>
         <source>Property</source>
-        <translation type="unfinished">Nuosavybė</translation>
+        <translation type="unfinished">Property</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="445"/>
         <source>Value</source>
-        <translation type="unfinished">Vertė</translation>
+        <translation type="unfinished">Value</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="469"/>
         <source>Tools</source>
-        <translation type="unfinished">Įrankiai</translation>
+        <translation type="unfinished">Tools</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="833"/>
         <source>Painting</source>
-        <translation type="unfinished">Tapyba</translation>
+        <translation type="unfinished">Painting</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="885"/>
         <source>Terrains</source>
-        <translation type="unfinished">Reljefai</translation>
+        <translation type="unfinished">Terrains</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="928"/>
         <source>Roads</source>
-        <translation type="unfinished">Keliai</translation>
+        <translation type="unfinished">Roads</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="968"/>
         <source>Rivers</source>
-        <translation type="unfinished">Upės</translation>
+        <translation type="unfinished">Rivers</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1002"/>
         <source>Preview</source>
-        <translation type="unfinished">Peržiūra</translation>
+        <translation type="unfinished">Preview</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1036"/>
         <source>Open</source>
-        <translation type="unfinished">Atidaryti</translation>
+        <translation type="unfinished">Open</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1039"/>
@@ -526,12 +526,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1049"/>
         <source>More...</source>
-        <translation type="unfinished">Daugiau...</translation>
+        <translation type="unfinished">More...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1057"/>
         <source>Save</source>
-        <translation type="unfinished">Išsaugoti</translation>
+        <translation type="unfinished">Save</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1060"/>
@@ -541,7 +541,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1065"/>
         <source>New</source>
-        <translation type="unfinished">Naujas</translation>
+        <translation type="unfinished">New</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1068"/>
@@ -551,7 +551,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1073"/>
         <source>Save as...</source>
-        <translation type="unfinished">Įrašyti kaip...</translation>
+        <translation type="unfinished">Save as...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1076"/>
@@ -562,19 +562,19 @@
         <location filename="../mainwindow.ui" line="1081"/>
         <location filename="../mainwindow.ui" line="1084"/>
         <source>Campaign editor</source>
-        <translation type="unfinished">Kampanijų redaktorius</translation>
+        <translation type="unfinished">Campaign editor</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1089"/>
         <location filename="../mainwindow.ui" line="1092"/>
         <source>Template editor</source>
-        <translation type="unfinished">Šablonų redaktorius</translation>
+        <translation type="unfinished">Template editor</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1100"/>
         <location filename="../mainwindow.ui" line="1103"/>
         <source>View underground</source>
-        <translation type="unfinished">Požeminis vaizdas</translation>
+        <translation type="unfinished">View underground</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1106"/>
@@ -584,7 +584,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1114"/>
         <source>Pass</source>
-        <translation type="unfinished">Praleisti</translation>
+        <translation type="unfinished">Pass</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1117"/>
@@ -594,7 +594,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1122"/>
         <source>Cut</source>
-        <translation type="unfinished">Kirpti</translation>
+        <translation type="unfinished">Cut</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1125"/>
@@ -604,7 +604,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1130"/>
         <source>Copy</source>
-        <translation type="unfinished">Kopijuoti</translation>
+        <translation type="unfinished">Copy</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1133"/>
@@ -614,7 +614,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1138"/>
         <source>Paste</source>
-        <translation type="unfinished">Įklijuoti</translation>
+        <translation type="unfinished">Paste</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1141"/>
@@ -624,17 +624,17 @@
     <message>
         <location filename="../mainwindow.ui" line="1146"/>
         <source>Fill</source>
-        <translation type="unfinished">Užpildyti</translation>
+        <translation type="unfinished">Fill</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1149"/>
         <source>Fills the selection with obstacles</source>
-        <translation type="unfinished">Užpildo pažymėtą sritį kliūtimis</translation>
+        <translation type="unfinished">Fills the selection with obstacles</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1160"/>
         <source>Grid</source>
-        <translation type="unfinished">Tinklelis</translation>
+        <translation type="unfinished">Grid</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1163"/>
@@ -644,12 +644,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1171"/>
         <source>General</source>
-        <translation type="unfinished">Bendroji informacija</translation>
+        <translation type="unfinished">General</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1174"/>
         <source>Map title and description</source>
-        <translation type="unfinished">Žemėlapio pavadinimas ir aprašymas</translation>
+        <translation type="unfinished">Map title and description</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1177"/>
@@ -659,7 +659,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1185"/>
         <source>Players settings</source>
-        <translation type="unfinished">Žaidėjo nustatymai</translation>
+        <translation type="unfinished">Players settings</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1188"/>
@@ -670,7 +670,7 @@
         <location filename="../mainwindow.ui" line="1196"/>
         <location filename="../mainwindow.ui" line="1199"/>
         <source>Undo</source>
-        <translation type="unfinished">Atšaukti</translation>
+        <translation type="unfinished">Undo</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1202"/>
@@ -680,7 +680,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1213"/>
         <source>Redo</source>
-        <translation type="unfinished">Pakartoti</translation>
+        <translation type="unfinished">Redo</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1216"/>
@@ -690,7 +690,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1227"/>
         <source>Erase</source>
-        <translation type="unfinished">Ištrinti</translation>
+        <translation type="unfinished">Erase</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1230"/>
@@ -700,7 +700,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1238"/>
         <source>Neutral</source>
-        <translation type="unfinished">Neutralus</translation>
+        <translation type="unfinished">Neutral</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1241"/>
@@ -710,7 +710,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1246"/>
         <source>Validate</source>
-        <translation type="unfinished">Patvirtinti</translation>
+        <translation type="unfinished">Validate</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1249"/>
@@ -721,14 +721,14 @@
         <location filename="../mainwindow.ui" line="1257"/>
         <location filename="../mainwindow.cpp" line="1592"/>
         <source>Select map layer type</source>
-        <translation type="unfinished">Pasirinkite žemėlapio sluoksnio tipą</translation>
+        <translation type="unfinished">Select map layer type</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1268"/>
         <location filename="../mainwindow.cpp" line="1532"/>
         <location filename="../mainwindow.cpp" line="1547"/>
         <source>Add level</source>
-        <translation type="unfinished">Pridėti lygį</translation>
+        <translation type="unfinished">Add level</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
@@ -736,17 +736,17 @@
         <location filename="../mainwindow.cpp" line="1445"/>
         <location filename="../mainwindow.cpp" line="1503"/>
         <source>Update appearance</source>
-        <translation type="unfinished">Atnaujinti išvaizdą</translation>
+        <translation type="unfinished">Update appearance</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1287"/>
         <source>Recreate obstacles</source>
-        <translation type="unfinished">Atkurkite kliūtis</translation>
+        <translation type="unfinished">Recreate obstacles</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1298"/>
         <source>Player 1</source>
-        <translation type="unfinished">1 žaidėjas</translation>
+        <translation type="unfinished">Player 1</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1301"/>
@@ -756,7 +756,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1309"/>
         <source>Player 2</source>
-        <translation type="unfinished">2-as žaidėjas</translation>
+        <translation type="unfinished">Player 2</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1312"/>
@@ -766,7 +766,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1320"/>
         <source>Player 3</source>
-        <translation type="unfinished">3 žaidėjas</translation>
+        <translation type="unfinished">Player 3</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1323"/>
@@ -776,7 +776,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1331"/>
         <source>Player 4</source>
-        <translation type="unfinished">4-as žaidėjas</translation>
+        <translation type="unfinished">Player 4</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1334"/>
@@ -786,7 +786,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1342"/>
         <source>Player 5</source>
-        <translation type="unfinished">5-as žaidėjas</translation>
+        <translation type="unfinished">Player 5</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1345"/>
@@ -796,7 +796,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1353"/>
         <source>Player 6</source>
-        <translation type="unfinished">6-as žaidėjas</translation>
+        <translation type="unfinished">Player 6</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1356"/>
@@ -806,7 +806,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1364"/>
         <source>Player 7</source>
-        <translation type="unfinished">7-as žaidėjas</translation>
+        <translation type="unfinished">Player 7</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1367"/>
@@ -816,7 +816,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1375"/>
         <source>Player 8</source>
-        <translation type="unfinished">8-as žaidėjas</translation>
+        <translation type="unfinished">Player 8</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1378"/>
@@ -826,7 +826,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1383"/>
         <source>Export as...</source>
-        <translation type="unfinished">Eksportuoti kaip...</translation>
+        <translation type="unfinished">Export as...</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1386"/>
@@ -836,7 +836,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1394"/>
         <source>Translations</source>
-        <translation type="unfinished">Vertimai</translation>
+        <translation type="unfinished">Translations</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1397"/>
@@ -847,7 +847,7 @@
         <location filename="../mainwindow.ui" line="1402"/>
         <location filename="../mainwindow.ui" line="1405"/>
         <source>h3m converter</source>
-        <translation type="unfinished">h3m konverteris</translation>
+        <translation type="unfinished">h3m converter</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1408"/>
@@ -858,7 +858,7 @@
         <location filename="../mainwindow.ui" line="1413"/>
         <location filename="../mainwindow.ui" line="1416"/>
         <source>h3c converter</source>
-        <translation type="unfinished">„H3C“ keitiklis</translation>
+        <translation type="unfinished">h3c converter</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1419"/>
@@ -868,7 +868,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1424"/>
         <source>Exit</source>
-        <translation type="unfinished">Išėjimas</translation>
+        <translation type="unfinished">Exit</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1427"/>
@@ -878,12 +878,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1432"/>
         <source>Lock</source>
-        <translation type="unfinished">Užrakinti</translation>
+        <translation type="unfinished">Lock</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1435"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
-        <translation type="unfinished">Užrakinkite objektus žemėlapyje, kad išvengtumėte nereikalingų pakeitimų</translation>
+        <translation type="unfinished">Lock objects on map to avoid unnecessary changes</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1438"/>
@@ -893,12 +893,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1443"/>
         <source>Unlock</source>
-        <translation type="unfinished">Atrakinti</translation>
+        <translation type="unfinished">Unlock</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1446"/>
         <source>Unlock all objects on the map</source>
-        <translation type="unfinished">Atrakinkite visus žemėlapio objektus</translation>
+        <translation type="unfinished">Unlock all objects on the map</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1260"/>
@@ -909,7 +909,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1454"/>
         <source>Zoom in</source>
-        <translation type="unfinished">Padidinti vaizdą</translation>
+        <translation type="unfinished">Zoom in</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1457"/>
@@ -919,7 +919,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1462"/>
         <source>Zoom out</source>
-        <translation type="unfinished">Atitolinti</translation>
+        <translation type="unfinished">Zoom out</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1465"/>
@@ -929,7 +929,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1470"/>
         <source>Zoom reset</source>
-        <translation type="unfinished">Atkurti mastelį</translation>
+        <translation type="unfinished">Zoom reset</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1473"/>
@@ -939,324 +939,324 @@
     <message>
         <location filename="../mainwindow.cpp" line="476"/>
         <source>Mapeditor</source>
-        <translation type="unfinished">Žemėlapių redaktorius</translation>
+        <translation type="unfinished">Mapeditor</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="477"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
-        <translation type="unfinished">„Android“ skirta žemėlapių redagavimo priemonė yra eksperimentinė.
+        <translation type="unfinished">Mapeditor on Android is experimental.
 
-Norint užtikrinti geriausią patirtį, rekomenduojame žemėlapių redagavimo priemone naudotis planšetiniame kompiuteryje (arba naudojant pelę ar rašiklį).</translation>
+For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="496"/>
         <source>Confirmation</source>
-        <translation type="unfinished">Patvirtinimas</translation>
+        <translation type="unfinished">Confirmation</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="496"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished">Neišsaugoti pakeitimai bus prarasti; ar tikrai norite tęsti?</translation>
+        <translation type="unfinished">Unsaved changes will be lost, are you sure?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1520"/>
         <location filename="../mainwindow.cpp" line="1609"/>
         <source>Level %1: %2</source>
-        <translation type="unfinished">%1 lygis: %2</translation>
+        <translation type="unfinished">Level %1: %2</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="589"/>
         <source>Mods are required</source>
-        <translation type="unfinished">Reikalingi modai</translation>
+        <translation type="unfinished">Mods are required</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="597"/>
         <location filename="../mainwindow.cpp" line="603"/>
         <source>Failed to open map</source>
-        <translation type="unfinished">Nepavyko atidaryti žemėlapio</translation>
+        <translation type="unfinished">Failed to open map</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="634"/>
         <source>Open map</source>
-        <translation type="unfinished">Atidaryti žemėlapį</translation>
+        <translation type="unfinished">Open map</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="636"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
-        <translation type="unfinished">Visi palaikomi žemėlapiai (*.vmap *.h3m);;VCMI žemėlapiai (*.vmap);;HoMM3 žemėlapiai (*.h3m)</translation>
+        <translation type="unfinished">All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="691"/>
         <source>Recently Opened Files</source>
-        <translation type="unfinished">Neseniai atverti failai</translation>
+        <translation type="unfinished">Recently Opened Files</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="744"/>
         <source>Map validation</source>
-        <translation type="unfinished">Žemėlapio tikrinimas</translation>
+        <translation type="unfinished">Map validation</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="746"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
-        <translation type="unfinished">Žemėlapis turi kritinių problemų ir greičiausiai nebus tinkamas žaisti. Atidarykite „Validator“ iš žemėlapio meniu, kad pamatytumėte rastas problemas.</translation>
+        <translation type="unfinished">Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="748"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
-        <translation type="unfinished">Žemėlapyje yra klaidų. Atidarykite tikrintuvą (Validator) žemėlapio meniu, kad pamatytumėte rastas problemas.</translation>
+        <translation type="unfinished">Map has some errors. Open Validator from the Map menu to see issues found</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="775"/>
         <source>Failed to save map</source>
-        <translation type="unfinished">Nepavyko išsaugoti žemėlapio</translation>
+        <translation type="unfinished">Failed to save map</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="788"/>
         <source>Save map</source>
-        <translation type="unfinished">Išsaugoti žemėlapį</translation>
+        <translation type="unfinished">Save map</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="789"/>
         <source>VCMI maps (*.vmap)</source>
-        <translation type="unfinished">VCMI žemėlapiai (*.vmap)</translation>
+        <translation type="unfinished">VCMI maps (*.vmap)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1004"/>
         <source>Type</source>
-        <translation type="unfinished">Tipas</translation>
+        <translation type="unfinished">Type</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1017"/>
         <source>Towns</source>
-        <translation type="unfinished">Miesteliai</translation>
+        <translation type="unfinished">Towns</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1018"/>
         <source>Objects</source>
-        <translation type="unfinished">Objektai</translation>
+        <translation type="unfinished">Objects</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1019"/>
         <source>Heroes</source>
-        <translation type="unfinished">Herojai</translation>
+        <translation type="unfinished">Heroes</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1020"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefaktai</translation>
+        <translation type="unfinished">Artifacts</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1021"/>
         <source>Resources</source>
-        <translation type="unfinished">Ištekliai</translation>
+        <translation type="unfinished">Resources</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1022"/>
         <source>Banks</source>
-        <translation type="unfinished">Bankai</translation>
+        <translation type="unfinished">Banks</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1023"/>
         <source>Dwellings</source>
-        <translation type="unfinished">Gyvenamieji būstai</translation>
+        <translation type="unfinished">Dwellings</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1024"/>
         <source>Grounds</source>
-        <translation type="unfinished">Pagrindas</translation>
+        <translation type="unfinished">Grounds</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1025"/>
         <source>Teleports</source>
-        <translation type="unfinished">Teleportai</translation>
+        <translation type="unfinished">Teleports</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1026"/>
         <source>Mines</source>
-        <translation type="unfinished">Kasyklos</translation>
+        <translation type="unfinished">Mines</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1027"/>
         <source>Triggers</source>
-        <translation type="unfinished">Provokuojantys veiksniai</translation>
+        <translation type="unfinished">Triggers</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1028"/>
         <source>Monsters</source>
-        <translation type="unfinished">Monstrai</translation>
+        <translation type="unfinished">Monsters</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1029"/>
         <source>Quests</source>
-        <translation type="unfinished">Užduotys</translation>
+        <translation type="unfinished">Quests</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1030"/>
         <source>Wog Objects</source>
-        <translation type="unfinished">„Wog“ objektai</translation>
+        <translation type="unfinished">Wog Objects</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1031"/>
         <source>Obstacles</source>
-        <translation type="unfinished">Kliūtys</translation>
+        <translation type="unfinished">Obstacles</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1032"/>
         <source>Other</source>
-        <translation type="unfinished">Kita</translation>
+        <translation type="unfinished">Other</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1169"/>
         <source>Mods loading problem</source>
-        <translation type="unfinished">Modifikacijų įkėlimo problema</translation>
+        <translation type="unfinished">Mods loading problem</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1169"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
-        <translation type="unfinished">Kritinė klaida įkeliant modifikacijas. Išjunkite netinkamas modifikacijas ir paleiskite iš naujo.</translation>
+        <translation type="unfinished">Critical error during Mods loading. Disable invalid mods and restart.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1175"/>
         <source>Undo clicked</source>
-        <translation type="unfinished">Paspausta „Anuliuoti“</translation>
+        <translation type="unfinished">Undo clicked</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1186"/>
         <source>Redo clicked</source>
-        <translation type="unfinished">Paspausta „Grąžinti veiksmą“</translation>
+        <translation type="unfinished">Redo clicked</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1197"/>
         <source>Passability clicked</source>
-        <translation type="unfinished">Pravažumo pojūtis tapo aiškus</translation>
+        <translation type="unfinished">Passability clicked</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1210"/>
         <source>Grid clicked</source>
-        <translation type="unfinished">Tinklelis paspaustas</translation>
+        <translation type="unfinished">Grid clicked</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1291"/>
         <source>Fill clicked</source>
-        <translation type="unfinished">Paspausta „Užpildyti“</translation>
+        <translation type="unfinished">Fill clicked</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1441"/>
         <source>No objects selected</source>
-        <translation type="unfinished">Nepasirinkta jokių objektų</translation>
+        <translation type="unfinished">No objects selected</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1445"/>
         <source>This operation is irreversible. Do you want to continue?</source>
-        <translation type="unfinished">Šis veiksmas yra negrįžtamas. Ar norite tęsti?</translation>
+        <translation type="unfinished">This operation is irreversible. Do you want to continue?</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1503"/>
         <source>Errors occurred. %1 objects were not updated</source>
-        <translation type="unfinished">Įvyko klaidų. %1 objektų nebuvo atnaujinta.</translation>
+        <translation type="unfinished">Errors occurred. %1 objects were not updated</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1532"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
-        <translation type="unfinished">Šiame žemėlapyje jau yra maksimalus redaktoriaus palaikomas lygių skaičius.</translation>
+        <translation type="unfinished">This map already has the maximum number of levels supported by the editor.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1548"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
-        <translation type="unfinished">Pasirinkite naujo lygio tipą.
+        <translation type="unfinished">Select the type of the new level.
 
-Įspėjimas: pridėjus lygių, jų nebegalima pašalinti.</translation>
+Warning: levels cannot be removed once added.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1593"/>
         <source>Type:</source>
-        <translation type="unfinished">Tipas:</translation>
+        <translation type="unfinished">Type:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1654"/>
         <source>Image format</source>
-        <translation type="unfinished">Vaizdo formatas</translation>
+        <translation type="unfinished">Image format</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1655"/>
         <source>Select image format:</source>
-        <translation type="unfinished">Pasirinkite vaizdo formatą:</translation>
+        <translation type="unfinished">Select image format:</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1669"/>
         <location filename="../mainwindow.cpp" line="1673"/>
         <source>Save to image</source>
-        <translation type="unfinished">Išsaugoti kaip paveikslėlį</translation>
+        <translation type="unfinished">Save to image</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1715"/>
         <source>Failed to save image</source>
-        <translation type="unfinished">Nepavyko išsaugoti paveikslėlio</translation>
+        <translation type="unfinished">Failed to save image</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1715"/>
         <source>Cannot save image to %1.</source>
-        <translation type="unfinished">Nepavyko įrašyti paveikslėlio į %1.</translation>
+        <translation type="unfinished">Cannot save image to %1.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1735"/>
         <source>Select maps to convert</source>
-        <translation type="unfinished">Pasirinkite žemėlapius konvertavimui</translation>
+        <translation type="unfinished">Select maps to convert</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1737"/>
         <source>HoMM3 maps(*.h3m)</source>
-        <translation type="unfinished">HoMM3 žemėlapiai (*.h3m)</translation>
+        <translation type="unfinished">HoMM3 maps(*.h3m)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1743"/>
         <location filename="../mainwindow.cpp" line="1750"/>
         <source>Choose directory to save converted maps</source>
-        <translation type="unfinished">Pasirinkite aplanką konvertuotiems žemėlapiams išsaugoti</translation>
+        <translation type="unfinished">Choose directory to save converted maps</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1745"/>
         <source>Directory</source>
-        <translation type="unfinished">Katalogas</translation>
+        <translation type="unfinished">Directory</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1766"/>
         <source>Operation completed</source>
-        <translation type="unfinished">Operacija baigta</translation>
+        <translation type="unfinished">Operation completed</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1766"/>
         <source>Successfully converted %1 maps</source>
-        <translation type="unfinished">Sėkmingai konvertuoti %1 žemėlapiai</translation>
+        <translation type="unfinished">Successfully converted %1 maps</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1770"/>
         <source>Failed to convert the map. Abort operation</source>
-        <translation type="unfinished">Nepavyko konvertuoti žemėlapio. Operacija nutraukta.</translation>
+        <translation type="unfinished">Failed to convert the map. Abort operation</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1778"/>
         <source>Select campaign to convert</source>
-        <translation type="unfinished">Pasirinkite kampaniją konvertavimui</translation>
+        <translation type="unfinished">Select campaign to convert</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1779"/>
         <source>HoMM3 campaigns (*.h3c)</source>
-        <translation type="unfinished">„HoMM3“ kampanijos (*.h3c)</translation>
+        <translation type="unfinished">HoMM3 campaigns (*.h3c)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1785"/>
         <source>Select destination file</source>
-        <translation type="unfinished">Pasirinkite paskirties failą</translation>
+        <translation type="unfinished">Select destination file</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1786"/>
         <source>VCMI campaigns (*.vcmp)</source>
-        <translation type="unfinished">VCMI kampanijos (*.vcmp)</translation>
+        <translation type="unfinished">VCMI campaigns (*.vcmp)</translation>
     </message>
 </context>
 <context>
@@ -1265,7 +1265,7 @@ Warning: levels cannot be removed once added.</source>
         <location filename="../templateeditor/entitiesselector.ui" line="14"/>
         <location filename="../templateeditor/entitiesselector.ui" line="20"/>
         <source>Select Entities</source>
-        <translation type="unfinished">Pasirinkti objektus</translation>
+        <translation type="unfinished">Select Entities</translation>
     </message>
 </context>
 <context>
@@ -1273,27 +1273,27 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">Forma</translation>
+        <translation type="unfinished">Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="34"/>
         <source>Timed events</source>
-        <translation type="unfinished">Laiku ribojami įvykiai</translation>
+        <translation type="unfinished">Timed events</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="60"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.ui" line="73"/>
         <source>Remove</source>
-        <translation type="unfinished">Pašalinti</translation>
+        <translation type="unfinished">Remove</translation>
     </message>
     <message>
         <location filename="../mapsettings/eventsettings.cpp" line="153"/>
         <source>New event</source>
-        <translation type="unfinished">Naujas renginys</translation>
+        <translation type="unfinished">New event</translation>
     </message>
 </context>
 <context>
@@ -1302,12 +1302,12 @@ Warning: levels cannot be removed once added.</source>
         <location filename="../templateeditor/factionselector.ui" line="14"/>
         <location filename="../templateeditor/factionselector.ui" line="20"/>
         <source>Select Factions</source>
-        <translation type="unfinished">Pasirinkite frakcijas</translation>
+        <translation type="unfinished">Select Factions</translation>
     </message>
     <message>
         <location filename="../templateeditor/factionselector.cpp" line="26"/>
         <source>Faction Selector</source>
-        <translation type="unfinished">Frakcijos pasirinkimas</translation>
+        <translation type="unfinished">Faction Selector</translation>
     </message>
 </context>
 <context>
@@ -1315,47 +1315,47 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">Forma</translation>
+        <translation type="unfinished">Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="32"/>
         <source>Map name</source>
-        <translation type="unfinished">Žemėlapio pavadinimas</translation>
+        <translation type="unfinished">Map name</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="42"/>
         <source>Map description</source>
-        <translation type="unfinished">Žemėlapio aprašymas</translation>
+        <translation type="unfinished">Map description</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="52"/>
         <source>Author</source>
-        <translation type="unfinished">Autorius</translation>
+        <translation type="unfinished">Author</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="62"/>
         <source>Author contact (e.g. email)</source>
-        <translation type="unfinished">Autoriaus kontaktiniai duomenys (pvz., el. paštas)</translation>
+        <translation type="unfinished">Author contact (e.g. email)</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="72"/>
         <source>Map Creation Time</source>
-        <translation type="unfinished">Žemėlapio kūrimo laikas</translation>
+        <translation type="unfinished">Map Creation Time</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="86"/>
         <source>Map Version</source>
-        <translation type="unfinished">Žemėlapio versija</translation>
+        <translation type="unfinished">Map Version</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="120"/>
         <source>Limit maximum heroes level</source>
-        <translation type="unfinished">Apriboti maksimalų herojų lygį</translation>
+        <translation type="unfinished">Limit maximum heroes level</translation>
     </message>
     <message>
         <location filename="../mapsettings/generalsettings.ui" line="129"/>
         <source>Difficulty</source>
-        <translation type="unfinished">Sunkumas</translation>
+        <translation type="unfinished">Difficulty</translation>
     </message>
 </context>
 <context>
@@ -1363,7 +1363,7 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../generatorprogress.ui" line="29"/>
         <source>Generating map</source>
-        <translation type="unfinished">Generuojamas žemėlapis</translation>
+        <translation type="unfinished">Generating map</translation>
     </message>
 </context>
 <context>
@@ -1371,37 +1371,37 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="29"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefaktai</translation>
+        <translation type="unfinished">Artifacts</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="71"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="87"/>
         <source>Remove</source>
-        <translation type="unfinished">Pašalinti</translation>
+        <translation type="unfinished">Remove</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="130"/>
         <source>Slot</source>
-        <translation type="unfinished">Lošimo automatas</translation>
+        <translation type="unfinished">Slot</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="135"/>
         <source>Artifact</source>
-        <translation type="unfinished">Artefaktas</translation>
+        <translation type="unfinished">Artifact</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="158"/>
         <source>Save</source>
-        <translation type="unfinished">Išsaugoti</translation>
+        <translation type="unfinished">Save</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="165"/>
         <source>Cancel</source>
-        <translation type="unfinished">Atšaukti</translation>
+        <translation type="unfinished">Cancel</translation>
     </message>
 </context>
 <context>
@@ -1409,7 +1409,7 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="14"/>
         <source>Hero skills</source>
-        <translation type="unfinished">Herojaus įgūdžiai</translation>
+        <translation type="unfinished">Hero skills</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="28"/>
@@ -1417,32 +1417,32 @@ Warning: levels cannot be removed once added.</source>
         <location filename="../inspector/heroskillswidget.ui" line="48"/>
         <location filename="../inspector/heroskillswidget.ui" line="58"/>
         <source>TextLabel</source>
-        <translation type="unfinished">Teksto etiketė</translation>
+        <translation type="unfinished">TextLabel</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="97"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="113"/>
         <source>Remove</source>
-        <translation type="unfinished">Pašalinti</translation>
+        <translation type="unfinished">Remove</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="153"/>
         <source>Skill</source>
-        <translation type="unfinished">Įgūdis</translation>
+        <translation type="unfinished">Skill</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="158"/>
         <source>Level</source>
-        <translation type="unfinished">Lygis</translation>
+        <translation type="unfinished">Level</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="166"/>
         <source>Customize skills</source>
-        <translation type="unfinished">Pritaikyti įgūdžius</translation>
+        <translation type="unfinished">Customize skills</translation>
     </message>
 </context>
 <context>
@@ -1450,37 +1450,37 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="29"/>
         <source>Spells</source>
-        <translation type="unfinished">Burtai</translation>
+        <translation type="unfinished">Spells</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="47"/>
         <source>Customize spells</source>
-        <translation type="unfinished">Pritaikyti burtus</translation>
+        <translation type="unfinished">Customize spells</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="79"/>
         <source>Level 1</source>
-        <translation type="unfinished">1 lygis</translation>
+        <translation type="unfinished">Level 1</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="120"/>
         <source>Level 2</source>
-        <translation type="unfinished">2 lygis</translation>
+        <translation type="unfinished">Level 2</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="161"/>
         <source>Level 3</source>
-        <translation type="unfinished">3 lygis</translation>
+        <translation type="unfinished">Level 3</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="202"/>
         <source>Level 4</source>
-        <translation type="unfinished">4 lygis</translation>
+        <translation type="unfinished">Level 4</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.ui" line="243"/>
         <source>Level 5</source>
-        <translation type="unfinished">5 lygis</translation>
+        <translation type="unfinished">Level 5</translation>
     </message>
 </context>
 <context>
@@ -1488,22 +1488,22 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../mapsettings/heroessettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">Forma</translation>
+        <translation type="unfinished">Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="47"/>
         <source>All heroes</source>
-        <translation type="unfinished">Visi herojai</translation>
+        <translation type="unfinished">All heroes</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="48"/>
         <source>Exclusive heroes</source>
-        <translation type="unfinished">Išskirtiniai herojai</translation>
+        <translation type="unfinished">Exclusive heroes</translation>
     </message>
     <message>
         <location filename="../mapsettings/heroessettings.h" line="49"/>
         <source>Banned Heroes</source>
-        <translation type="unfinished">Uždrausti herojai</translation>
+        <translation type="unfinished">Banned Heroes</translation>
     </message>
 </context>
 <context>
@@ -1511,47 +1511,47 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">Forma</translation>
+        <translation type="unfinished">Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="40"/>
         <source>Defeat message</source>
-        <translation type="unfinished">Pralaimėjimo pranešimas</translation>
+        <translation type="unfinished">Defeat message</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="59"/>
         <source>7 days without town</source>
-        <translation type="unfinished">7 dienos be miesto</translation>
+        <translation type="unfinished">7 days without town</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.ui" line="72"/>
         <source>Parameters</source>
-        <translation type="unfinished">Parametrai</translation>
+        <translation type="unfinished">Parameters</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="38"/>
         <source>No special loss</source>
-        <translation type="unfinished">Jokio ypatingo nuostolio</translation>
+        <translation type="unfinished">No special loss</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="39"/>
         <source>Lose castle</source>
-        <translation type="unfinished">Pralaimėti pilį</translation>
+        <translation type="unfinished">Lose castle</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="40"/>
         <source>Lose hero</source>
-        <translation type="unfinished">Prarasti herojų</translation>
+        <translation type="unfinished">Lose hero</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="41"/>
         <source>Time expired</source>
-        <translation type="unfinished">Laikas baigėsi</translation>
+        <translation type="unfinished">Time expired</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="42"/>
         <source>Days without town</source>
-        <translation type="unfinished">Dienos be miesto</translation>
+        <translation type="unfinished">Days without town</translation>
     </message>
 </context>
 <context>
@@ -1559,24 +1559,26 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../mapcontroller.cpp" line="640"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
-        <translation type="unfinished">Herojaus %1 negalima sukurti kaip neutralaus.</translation>
+        <translation type="unfinished">Hero %1 cannot be created as NEUTRAL.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="654"/>
         <source>Missing Required Mod</source>
-        <translation type="unfinished">Trūksta būtino modifikacijos failo</translation>
+        <translation type="unfinished">Missing Required Mod</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="654"/>
         <source>
 
 Do you want to do that now ?</source>
-        <translation type="unfinished">Ar norite tai padaryti dabar?</translation>
+        <translation type="unfinished">
+
+Do you want to do that now ?</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="664"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
-        <translation type="unfinished">Šio objekto modifikacija yra būtina, kad žemėlapis išliktų tinkamas naudoti.</translation>
+        <translation type="unfinished">This object&apos;s mod is mandatory for map to remain valid.</translation>
     </message>
 </context>
 <context>
@@ -1584,7 +1586,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../mapview.cpp" line="671"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">Nepavyksta įdėti objekto</translation>
+        <translation type="unfinished">Can&apos;t place object</translation>
     </message>
 </context>
 <context>
@@ -1593,22 +1595,22 @@ Do you want to do that now ?</source>
         <location filename="../maplayerselectiondialog.ui" line="20"/>
         <location filename="../maplayerselectiondialog.cpp" line="29"/>
         <source>Map Layer Configuration</source>
-        <translation type="unfinished">Žemėlapio sluoksnio konfigūracija</translation>
+        <translation type="unfinished">Map Layer Configuration</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Level</source>
-        <translation type="unfinished">Lygis</translation>
+        <translation type="unfinished">Level</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Map Layer</source>
-        <translation type="unfinished">Žemėlapio sluoksnis</translation>
+        <translation type="unfinished">Map Layer</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="47"/>
         <source>Level %1</source>
-        <translation type="unfinished">%1 lygis</translation>
+        <translation type="unfinished">Level %1</translation>
     </message>
 </context>
 <context>
@@ -1616,67 +1618,67 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="23"/>
         <source>Map settings</source>
-        <translation type="unfinished">Žemėlapio nustatymai</translation>
+        <translation type="unfinished">Map settings</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="42"/>
         <source>General</source>
-        <translation type="unfinished">Bendroji informacija</translation>
+        <translation type="unfinished">General</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="61"/>
         <source>Mods</source>
-        <translation type="unfinished">Modifikacijos</translation>
+        <translation type="unfinished">Mods</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="80"/>
         <source>Events</source>
-        <translation type="unfinished">Renginiai</translation>
+        <translation type="unfinished">Events</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="99"/>
         <source>Victory</source>
-        <translation type="unfinished">Pergalė</translation>
+        <translation type="unfinished">Victory</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="118"/>
         <source>Loss</source>
-        <translation type="unfinished">Netektis</translation>
+        <translation type="unfinished">Loss</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="137"/>
         <source>Timed</source>
-        <translation type="unfinished">Laiku ribojamas</translation>
+        <translation type="unfinished">Timed</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="156"/>
         <source>Rumors</source>
-        <translation type="unfinished">Gandai</translation>
+        <translation type="unfinished">Rumors</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="179"/>
         <source>Abilities</source>
-        <translation type="unfinished">Gebėjimai</translation>
+        <translation type="unfinished">Abilities</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="214"/>
         <source>Spells</source>
-        <translation type="unfinished">Burtai</translation>
+        <translation type="unfinished">Spells</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="249"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefaktai</translation>
+        <translation type="unfinished">Artifacts</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="284"/>
         <source>Heroes</source>
-        <translation type="unfinished">Herojai</translation>
+        <translation type="unfinished">Heroes</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="306"/>
         <source>Ok</source>
-        <translation type="unfinished">Gerai</translation>
+        <translation type="unfinished">Ok</translation>
     </message>
 </context>
 <context>
@@ -1691,7 +1693,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/messagewidget.ui" line="23"/>
         <source>Message</source>
-        <translation type="unfinished">Žinutė</translation>
+        <translation type="unfinished">Message</translation>
     </message>
 </context>
 <context>
@@ -1700,22 +1702,22 @@ Do you want to do that now ?</source>
         <location filename="../templateeditor/mineselector.ui" line="14"/>
         <location filename="../templateeditor/mineselector.ui" line="20"/>
         <source>Select Mines</source>
-        <translation type="unfinished">Pasirinkti minas</translation>
+        <translation type="unfinished">Select Mines</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="30"/>
         <source>Mine Selector</source>
-        <translation type="unfinished">Kasyklų parinkiklis</translation>
+        <translation type="unfinished">Mine Selector</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="36"/>
         <source>Resource</source>
-        <translation type="unfinished">Išteklius</translation>
+        <translation type="unfinished">Resource</translation>
     </message>
     <message>
         <location filename="../templateeditor/mineselector.cpp" line="36"/>
         <source>Mines</source>
-        <translation type="unfinished">Kasyklos</translation>
+        <translation type="unfinished">Mines</translation>
     </message>
 </context>
 <context>
@@ -1723,47 +1725,47 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">Forma</translation>
+        <translation type="unfinished">Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="32"/>
         <source>Mandatory mods to play this map</source>
-        <translation type="unfinished">Būtini modai šiam žemėlapiui žaisti</translation>
+        <translation type="unfinished">Mandatory mods to play this map</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="46"/>
         <source>Mod name</source>
-        <translation type="unfinished">Modifikacijos pavadinimas</translation>
+        <translation type="unfinished">Mod name</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="51"/>
         <source>Version</source>
-        <translation type="unfinished">Versija</translation>
+        <translation type="unfinished">Version</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="61"/>
         <source>Automatic assignment</source>
-        <translation type="unfinished">Automatinis priskyrimas</translation>
+        <translation type="unfinished">Automatic assignment</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="68"/>
         <source>Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</source>
-        <translation type="unfinished">Nustatykite reikiamus modifikacijų (modų) paketus pagal žemėlapyje išdėstytus objektus. Šis metodas gali sukelti problemų, jei naudojate modifikacijų pridėtus pritaikytus apdovanojimus, įgulas ir pan.</translation>
+        <translation type="unfinished">Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="71"/>
         <source>Map objects mods</source>
-        <translation type="unfinished">Žemėlapio objektų modifikacijos</translation>
+        <translation type="unfinished">Map objects mods</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="81"/>
         <source>Set all mods having a game content as mandatory</source>
-        <translation type="unfinished">Nustatykite visus žaidimo turinį turinčius modifikacijų paketus kaip privalomus.</translation>
+        <translation type="unfinished">Set all mods having a game content as mandatory</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="84"/>
         <source>Full content mods</source>
-        <translation type="unfinished">Visapusiški turinio modai</translation>
+        <translation type="unfinished">Full content mods</translation>
     </message>
 </context>
 <context>
@@ -1771,37 +1773,37 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="14"/>
         <source>Select Objects</source>
-        <translation type="unfinished">Pasirinkti objektus</translation>
+        <translation type="unfinished">Select Objects</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="20"/>
         <source>Objects</source>
-        <translation type="unfinished">Objektai</translation>
+        <translation type="unfinished">Objects</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="30"/>
         <source>Required Objects</source>
-        <translation type="unfinished">Būtini objektai</translation>
+        <translation type="unfinished">Required Objects</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="40"/>
         <source>Banned Objects</source>
-        <translation type="unfinished">Draudžiami daiktai</translation>
+        <translation type="unfinished">Banned Objects</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.ui" line="50"/>
         <source>Banned Object Categories</source>
-        <translation type="unfinished">Draudžiamų objektų kategorijos</translation>
+        <translation type="unfinished">Banned Object Categories</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="35"/>
         <source>Object Selector</source>
-        <translation type="unfinished">Objektų parinkiklis</translation>
+        <translation type="unfinished">Object Selector</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="99"/>
         <source>Category</source>
-        <translation type="unfinished">Kategorija</translation>
+        <translation type="unfinished">Category</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="99"/>
@@ -1809,73 +1811,73 @@ Do you want to do that now ?</source>
         <location filename="../templateeditor/objectselector.cpp" line="229"/>
         <location filename="../templateeditor/objectselector.cpp" line="313"/>
         <source>Action</source>
-        <translation type="unfinished">Veiksmas</translation>
+        <translation type="unfinished">Action</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="103"/>
         <source>Other</source>
-        <translation type="unfinished">Kita</translation>
+        <translation type="unfinished">Other</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="104"/>
         <source>All</source>
-        <translation type="unfinished">Visi</translation>
+        <translation type="unfinished">All</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="105"/>
         <location filename="../templateeditor/objectselector.cpp" line="260"/>
         <source>None</source>
-        <translation type="unfinished">Nėra</translation>
+        <translation type="unfinished">None</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="106"/>
         <source>Creature bank</source>
-        <translation type="unfinished">Būtybių bankas</translation>
+        <translation type="unfinished">Creature bank</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="107"/>
         <source>Bonus</source>
-        <translation type="unfinished">Premija</translation>
+        <translation type="unfinished">Bonus</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="108"/>
         <source>Dwelling</source>
-        <translation type="unfinished">Gyvenamasis būstas</translation>
+        <translation type="unfinished">Dwelling</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="109"/>
         <source>Resource</source>
-        <translation type="unfinished">Išteklius</translation>
+        <translation type="unfinished">Resource</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="110"/>
         <source>Resource generator</source>
-        <translation type="unfinished">Išteklių generatorius</translation>
+        <translation type="unfinished">Resource generator</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="111"/>
         <source>Spell scroll</source>
-        <translation type="unfinished">Burto ritinys</translation>
+        <translation type="unfinished">Spell scroll</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="112"/>
         <source>Random artifact</source>
-        <translation type="unfinished">Atsitiktinis artefaktas</translation>
+        <translation type="unfinished">Random artifact</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="113"/>
         <source>Pandoras box</source>
-        <translation type="unfinished">Pandoros skrynia</translation>
+        <translation type="unfinished">Pandoras box</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="114"/>
         <source>Quest artifact</source>
-        <translation type="unfinished">Užduoties artefaktas</translation>
+        <translation type="unfinished">Quest artifact</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="115"/>
         <source>Seer hut</source>
-        <translation type="unfinished">Regėtojo būdelė</translation>
+        <translation type="unfinished">Seer hut</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="127"/>
@@ -1883,7 +1885,7 @@ Do you want to do that now ?</source>
         <location filename="../templateeditor/objectselector.cpp" line="264"/>
         <location filename="../templateeditor/objectselector.cpp" line="348"/>
         <source>Delete</source>
-        <translation type="unfinished">Ištrinti</translation>
+        <translation type="unfinished">Delete</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="142"/>
@@ -1891,39 +1893,39 @@ Do you want to do that now ?</source>
         <location filename="../templateeditor/objectselector.cpp" line="281"/>
         <location filename="../templateeditor/objectselector.cpp" line="363"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="167"/>
         <location filename="../templateeditor/objectselector.cpp" line="229"/>
         <location filename="../templateeditor/objectselector.cpp" line="313"/>
         <source>Object</source>
-        <translation type="unfinished">Objektas</translation>
+        <translation type="unfinished">Object</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="229"/>
         <source>Count</source>
-        <translation type="unfinished">Skaičiuoti</translation>
+        <translation type="unfinished">Count</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="229"/>
         <source>Guard</source>
-        <translation type="unfinished">Sargas</translation>
+        <translation type="unfinished">Guard</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="313"/>
         <source>Value</source>
-        <translation type="unfinished">Vertė</translation>
+        <translation type="unfinished">Value</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="313"/>
         <source>Probability</source>
-        <translation type="unfinished">Tikimybė</translation>
+        <translation type="unfinished">Probability</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="313"/>
         <source>Max per zone</source>
-        <translation type="unfinished">Maksimalus kiekis vienoje zonoje</translation>
+        <translation type="unfinished">Max per zone</translation>
     </message>
 </context>
 <context>
@@ -1931,27 +1933,27 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../playerparams.ui" line="89"/>
         <source>Human/CPU</source>
-        <translation type="unfinished">Žmogus / CPU</translation>
+        <translation type="unfinished">Human/CPU</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="76"/>
         <source>CPU only</source>
-        <translation type="unfinished">Tik procesorius</translation>
+        <translation type="unfinished">CPU only</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="96"/>
         <source>Team</source>
-        <translation type="unfinished">Komanda</translation>
+        <translation type="unfinished">Team</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="134"/>
         <source>Main town</source>
-        <translation type="unfinished">Pagrindinis miestas</translation>
+        <translation type="unfinished">Main town</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="117"/>
         <source>Color</source>
-        <translation type="unfinished">Spalva</translation>
+        <translation type="unfinished">Color</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="164"/>
@@ -1961,27 +1963,27 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../playerparams.ui" line="221"/>
         <source>Random faction</source>
-        <translation type="unfinished">Atsitiktinė frakcija</translation>
+        <translation type="unfinished">Random faction</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="179"/>
         <source>Generate hero at main</source>
-        <translation type="unfinished">Sukurti pagrindinį herojų</translation>
+        <translation type="unfinished">Generate hero at main</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="156"/>
         <source>(default)</source>
-        <translation type="unfinished">(numatytasis)</translation>
+        <translation type="unfinished">(default)</translation>
     </message>
     <message>
         <location filename="../playerparams.cpp" line="28"/>
         <source>No team</source>
-        <translation type="unfinished">Nėra komandos</translation>
+        <translation type="unfinished">No team</translation>
     </message>
     <message>
         <location filename="../playerparams.cpp" line="109"/>
         <source>Player ID: %1</source>
-        <translation type="unfinished">Žaidėjo ID: %1</translation>
+        <translation type="unfinished">Player ID: %1</translation>
     </message>
 </context>
 <context>
@@ -1989,22 +1991,22 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="46"/>
         <source>Select Player</source>
-        <translation type="unfinished">Pasirinkti žaidėją</translation>
+        <translation type="unfinished">Select Player</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="55"/>
         <source>Hero cannot be created as NEUTRAL</source>
-        <translation type="unfinished">Herojaus negalima sukurti kaip neutralaus.</translation>
+        <translation type="unfinished">Hero cannot be created as NEUTRAL</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="61"/>
         <source>Switch to one of the available players:</source>
-        <translation type="unfinished">Perjunkite į vieną iš galimų grotuvų:</translation>
+        <translation type="unfinished">Switch to one of the available players:</translation>
     </message>
     <message>
         <location filename="../PlayerSelectionDialog.cpp" line="90"/>
         <source>Shortcut: %1</source>
-        <translation type="unfinished">Spartusis klavišas: %1</translation>
+        <translation type="unfinished">Shortcut: %1</translation>
     </message>
 </context>
 <context>
@@ -2012,7 +2014,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/playerselectionwidget.ui" line="14"/>
         <source>Select players</source>
-        <translation type="unfinished">Pasirinkite žaidėjus</translation>
+        <translation type="unfinished">Select players</translation>
     </message>
 </context>
 <context>
@@ -2020,12 +2022,12 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="20"/>
         <source>Player settings</source>
-        <translation type="unfinished">Grotuvo nustatymai</translation>
+        <translation type="unfinished">Player settings</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="63"/>
         <source>Players</source>
-        <translation type="unfinished">Žaidėjai</translation>
+        <translation type="unfinished">Players</translation>
     </message>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="74"/>
@@ -2035,7 +2037,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../PlayerSettingsDialog.ui" line="117"/>
         <source>Ok</source>
-        <translation type="unfinished">Gerai</translation>
+        <translation type="unfinished">Ok</translation>
     </message>
 </context>
 <context>
@@ -2043,7 +2045,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/portraitwidget.ui" line="14"/>
         <source>Portrait</source>
-        <translation type="unfinished">Portretas</translation>
+        <translation type="unfinished">Portrait</translation>
     </message>
     <message>
         <location filename="../inspector/portraitwidget.ui" line="52"/>
@@ -2054,7 +2056,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/portraitwidget.ui" line="85"/>
         <source>Default</source>
-        <translation type="unfinished">Numatytoji</translation>
+        <translation type="unfinished">Default</translation>
     </message>
 </context>
 <context>
@@ -2062,93 +2064,93 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="24"/>
         <source>Beginner</source>
-        <translation type="unfinished">Pradedantysis</translation>
+        <translation type="unfinished">Beginner</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="25"/>
         <source>Advanced</source>
-        <translation type="unfinished">Pažengusiems</translation>
+        <translation type="unfinished">Advanced</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="26"/>
         <source>Expert</source>
-        <translation type="unfinished">Ekspertas</translation>
+        <translation type="unfinished">Expert</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="173"/>
         <source>Default secondary skills:</source>
-        <translation type="unfinished">Numatytieji antriniai įgūdžiai:</translation>
+        <translation type="unfinished">Default secondary skills:</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="178"/>
         <source>Random hero secondary skills</source>
-        <translation type="unfinished">Atsitiktiniai herojaus antriniai įgūdžiai</translation>
+        <translation type="unfinished">Random hero secondary skills</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.cpp" line="184"/>
         <source>Secondary skills:</source>
-        <translation type="unfinished">Papildomi įgūdžiai:</translation>
+        <translation type="unfinished">Secondary skills:</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1009"/>
         <source>Compliant</source>
-        <translation type="unfinished">Atitinkantis reikalavimus</translation>
+        <translation type="unfinished">Compliant</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1010"/>
         <source>Friendly</source>
-        <translation type="unfinished">Draugiškas</translation>
+        <translation type="unfinished">Friendly</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1011"/>
         <source>Aggressive</source>
-        <translation type="unfinished">Agresyvus</translation>
+        <translation type="unfinished">Aggressive</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1012"/>
         <source>Hostile</source>
-        <translation type="unfinished">Priešiškas</translation>
+        <translation type="unfinished">Hostile</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1013"/>
         <source>Savage</source>
-        <translation type="unfinished">Negailestingas</translation>
+        <translation type="unfinished">Savage</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="362"/>
         <location filename="../inspector/inspector.cpp" line="365"/>
         <source>No patrol</source>
-        <translation type="unfinished">Nėra patruliavimo</translation>
+        <translation type="unfinished">No patrol</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="305"/>
         <source>POWER RANK</source>
-        <translation type="unfinished">JĖGOS REITINGAS</translation>
+        <translation type="unfinished">POWER RANK</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="305"/>
         <source>HERO TYPE</source>
-        <translation type="unfinished">HEROJAUS TIPAS</translation>
+        <translation type="unfinished">HERO TYPE</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="328"/>
         <source>Hero class</source>
-        <translation type="unfinished">Herojaus klasė</translation>
+        <translation type="unfinished">Hero class</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="337"/>
         <source>Portrait</source>
-        <translation type="unfinished">Portretas</translation>
+        <translation type="unfinished">Portrait</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="340"/>
         <source>Skills</source>
-        <translation type="unfinished">Įgūdžiai</translation>
+        <translation type="unfinished">Skills</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="342"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefaktai</translation>
+        <translation type="unfinished">Artifacts</translation>
     </message>
     <message numerus="yes">
         <location filename="../inspector/inspector.cpp" line="364"/>
@@ -2163,32 +2165,32 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/inspector.cpp" line="377"/>
         <source>Buildings</source>
-        <translation type="unfinished">Pastatai</translation>
+        <translation type="unfinished">Buildings</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="379"/>
         <source>Events</source>
-        <translation type="unfinished">Renginiai</translation>
+        <translation type="unfinished">Events</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="419"/>
         <source>Resource</source>
-        <translation type="unfinished">Išteklius</translation>
+        <translation type="unfinished">Resource</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="450"/>
         <source>Artifact reward</source>
-        <translation type="unfinished">Artefakto apdovanojimas</translation>
+        <translation type="unfinished">Artifact reward</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="518"/>
         <source>Quest</source>
-        <translation type="unfinished">Užduotis</translation>
+        <translation type="unfinished">Quest</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="536"/>
         <source>Identifier</source>
-        <translation type="unfinished">Identifikatorius</translation>
+        <translation type="unfinished">Identifier</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="537"/>
@@ -2198,12 +2200,12 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/inspector.cpp" line="538"/>
         <source>SubID</source>
-        <translation type="unfinished">Papildomas ID</translation>
+        <translation type="unfinished">SubID</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="539"/>
         <source>InstanceName</source>
-        <translation type="unfinished">Egzemplioriaus pavadinimas</translation>
+        <translation type="unfinished">InstanceName</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="544"/>
@@ -2214,13 +2216,13 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="935"/>
         <location filename="../inspector/inspector.cpp" line="1063"/>
         <source>neutral</source>
-        <translation type="unfinished">neutralus</translation>
+        <translation type="unfinished">neutral</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="253"/>
         <location filename="../inspector/inspector.cpp" line="451"/>
         <source>Army</source>
-        <translation type="unfinished">Armija</translation>
+        <translation type="unfinished">Army</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="260"/>
@@ -2233,31 +2235,31 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="547"/>
         <location filename="../inspector/inspector.cpp" line="594"/>
         <source>Owner</source>
-        <translation type="unfinished">Savininkas</translation>
+        <translation type="unfinished">Owner</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="265"/>
         <location filename="../inspector/inspector.cpp" line="719"/>
         <source>Same as town</source>
-        <translation type="unfinished">Taip pat, kaip ir mieste</translation>
+        <translation type="unfinished">Same as town</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="281"/>
         <location filename="../inspector/inspector.cpp" line="734"/>
         <source>Removable units</source>
-        <translation type="unfinished">Nuimami blokai</translation>
+        <translation type="unfinished">Removable units</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="306"/>
         <location filename="../inspector/inspector.cpp" line="742"/>
         <source>Placeholder type</source>
-        <translation type="unfinished">Vietos žymeklio tipas</translation>
+        <translation type="unfinished">Placeholder type</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="309"/>
         <location filename="../inspector/inspector.cpp" line="760"/>
         <source>Power rank</source>
-        <translation type="unfinished">Jėgos reitingas</translation>
+        <translation type="unfinished">Power rank</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="317"/>
@@ -2265,67 +2267,67 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="763"/>
         <location filename="../inspector/inspector.cpp" line="787"/>
         <source>Hero type</source>
-        <translation type="unfinished">Herojaus tipas</translation>
+        <translation type="unfinished">Hero type</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="327"/>
         <location filename="../inspector/inspector.cpp" line="784"/>
         <source>Experience</source>
-        <translation type="unfinished">Patirtis</translation>
+        <translation type="unfinished">Experience</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="332"/>
         <location filename="../inspector/inspector.cpp" line="333"/>
         <source>MALE</source>
-        <translation type="unfinished">VYRAS</translation>
+        <translation type="unfinished">MALE</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="332"/>
         <location filename="../inspector/inspector.cpp" line="333"/>
         <source>FEMALE</source>
-        <translation type="unfinished">MOTERIS</translation>
+        <translation type="unfinished">FEMALE</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="333"/>
         <location filename="../inspector/inspector.cpp" line="773"/>
         <source>Gender</source>
-        <translation type="unfinished">Lytis</translation>
+        <translation type="unfinished">Gender</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="335"/>
         <location filename="../inspector/inspector.cpp" line="776"/>
         <source>Name</source>
-        <translation type="unfinished">Vardas</translation>
+        <translation type="unfinished">Name</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="336"/>
         <location filename="../inspector/inspector.cpp" line="780"/>
         <source>Biography</source>
-        <translation type="unfinished">Biografija</translation>
+        <translation type="unfinished">Biography</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="341"/>
         <location filename="../inspector/inspector.cpp" line="378"/>
         <source>Spells</source>
-        <translation type="unfinished">Burtai</translation>
+        <translation type="unfinished">Spells</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="366"/>
         <location filename="../inspector/inspector.cpp" line="799"/>
         <source>Patrol radius</source>
-        <translation type="unfinished">Patruliavimo spindulys</translation>
+        <translation type="unfinished">Patrol radius</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="374"/>
         <location filename="../inspector/inspector.cpp" line="676"/>
         <source>Town name</source>
-        <translation type="unfinished">Miesto pavadinimas</translation>
+        <translation type="unfinished">Town name</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="381"/>
         <location filename="../inspector/inspector.cpp" line="680"/>
         <source>Same as player</source>
-        <translation type="unfinished">Tas pats, kas žaidėjas</translation>
+        <translation type="unfinished">Same as player</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="388"/>
@@ -2338,19 +2340,19 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="705"/>
         <location filename="../inspector/inspector.cpp" line="824"/>
         <source>Message</source>
-        <translation type="unfinished">Žinutė</translation>
+        <translation type="unfinished">Message</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="408"/>
         <location filename="../inspector/inspector.cpp" line="709"/>
         <source>Spell</source>
-        <translation type="unfinished">Burtažodis</translation>
+        <translation type="unfinished">Spell</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="420"/>
         <location filename="../inspector/inspector.cpp" line="697"/>
         <source>Productivity</source>
-        <translation type="unfinished">Produktyvumas</translation>
+        <translation type="unfinished">Productivity</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="427"/>
@@ -2358,13 +2360,13 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="816"/>
         <location filename="../inspector/inspector.cpp" line="833"/>
         <source>Amount</source>
-        <translation type="unfinished">Kiekis</translation>
+        <translation type="unfinished">Amount</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="446"/>
         <location filename="../inspector/inspector.cpp" line="827"/>
         <source>Character</source>
-        <translation type="unfinished">Personažas</translation>
+        <translation type="unfinished">Character</translation>
     </message>
     <message>
         <source>Abilities</source>
@@ -2374,334 +2376,335 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="503"/>
         <location filename="../inspector/inspector.cpp" line="654"/>
         <source>Available for</source>
-        <translation type="unfinished">Galima įsigyti / prieinama</translation>
+        <translation type="unfinished">Available for</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="978"/>
         <source>Select town</source>
-        <translation type="unfinished">Pasirinkite miestą</translation>
+        <translation type="unfinished">Select town</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="989"/>
         <location filename="../inspector/playerselectionwidget.cpp" line="104"/>
         <source>Available for:
 </source>
-        <translation type="unfinished">Galima įsigyti:</translation>
+        <translation type="unfinished">Available for:
+</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="448"/>
         <location filename="../inspector/inspector.cpp" line="829"/>
         <source>Never flees</source>
-        <translation type="unfinished">Niekada nebėga</translation>
+        <translation type="unfinished">Never flees</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="449"/>
         <location filename="../inspector/inspector.cpp" line="831"/>
         <source>Not growing</source>
-        <translation type="unfinished">Neauga</translation>
+        <translation type="unfinished">Not growing</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="485"/>
         <location filename="../inspector/inspector.cpp" line="526"/>
         <source>Reward</source>
-        <translation type="unfinished">Apdovanojimas</translation>
+        <translation type="unfinished">Reward</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="499"/>
         <location filename="../inspector/inspector.cpp" line="645"/>
         <source>Remove after</source>
-        <translation type="unfinished">Pašalinti po</translation>
+        <translation type="unfinished">Remove after</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="500"/>
         <location filename="../inspector/inspector.cpp" line="648"/>
         <source>Human trigger</source>
-        <translation type="unfinished">Žmogaus trigeris</translation>
+        <translation type="unfinished">Human trigger</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="501"/>
         <location filename="../inspector/inspector.cpp" line="651"/>
         <source>Cpu trigger</source>
-        <translation type="unfinished">CPU paleidiklis</translation>
+        <translation type="unfinished">Cpu trigger</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="510"/>
         <location filename="../inspector/inspector.cpp" line="841"/>
         <source>First visit text</source>
-        <translation type="unfinished">Pirmojo vizito tekstas</translation>
+        <translation type="unfinished">First visit text</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="511"/>
         <location filename="../inspector/inspector.cpp" line="844"/>
         <source>Next visit text</source>
-        <translation type="unfinished">Kito vizito tekstas</translation>
+        <translation type="unfinished">Next visit text</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="512"/>
         <location filename="../inspector/inspector.cpp" line="847"/>
         <source>Completed text</source>
-        <translation type="unfinished">Užbaigtas tekstas</translation>
+        <translation type="unfinished">Completed text</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="513"/>
         <location filename="../inspector/inspector.cpp" line="527"/>
         <location filename="../inspector/inspector.cpp" line="850"/>
         <source>Repeat quest</source>
-        <translation type="unfinished">Pakartoti užduotį</translation>
+        <translation type="unfinished">Repeat quest</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="514"/>
         <location filename="../inspector/inspector.cpp" line="852"/>
         <source>Time limit</source>
-        <translation type="unfinished">Laiko limitas</translation>
+        <translation type="unfinished">Time limit</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="933"/>
         <source>UNFLAGGABLE</source>
-        <translation type="unfinished">Nenurimstantis</translation>
+        <translation type="unfinished">UNFLAGGABLE</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="445"/>
         <source>Can&apos;t place object</source>
-        <translation type="unfinished">Nepavyksta įdėti objekto</translation>
+        <translation type="unfinished">Can&apos;t place object</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="622"/>
         <source>There can only be one grail object on the map.</source>
-        <translation type="unfinished">Žemėlapyje gali būti tik vienas Gralio objektas.</translation>
+        <translation type="unfinished">There can only be one grail object on the map.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="677"/>
         <source> (submod of %1)</source>
-        <translation type="unfinished">(%1 papildomas modulis)</translation>
+        <translation type="unfinished"> (submod of %1)</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="679"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translation type="unfinished">Modifikācija &apos;%1&apos;%2 ir nepieciešama objektam kartē.
-Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vispārīgi iestatījumi.</translation>
+        <translation type="unfinished">The mod &apos;%1&apos;%2, is required by an object on the map.
+Add it to the map&apos;s required mods in Map-&gt;General settings.</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="219"/>
         <location filename="../inspector/townspellswidget.cpp" line="180"/>
         <source>Custom Spells:</source>
-        <translation type="unfinished">Individualūs burtai:</translation>
+        <translation type="unfinished">Custom Spells:</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="228"/>
         <location filename="../inspector/townspellswidget.cpp" line="200"/>
         <source>Default Spells</source>
-        <translation type="unfinished">Numatytieji burtai</translation>
+        <translation type="unfinished">Default Spells</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="216"/>
         <location filename="../inspector/portraitwidget.cpp" line="153"/>
         <location filename="../inspector/scholarwidget.cpp" line="207"/>
         <source>Default</source>
-        <translation type="unfinished">Numatytoji</translation>
+        <translation type="unfinished">Default</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="218"/>
         <source>Custom</source>
-        <translation type="unfinished">Individualus</translation>
+        <translation type="unfinished">Custom</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="452"/>
         <source>Quest:</source>
-        <translation type="unfinished">Užduotis:</translation>
+        <translation type="unfinished">Quest:</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="453"/>
         <source>Day of Week: %1</source>
-        <translation type="unfinished">Savaitės diena: %1</translation>
+        <translation type="unfinished">Day of Week: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="454"/>
         <source>Days Passed: %1</source>
-        <translation type="unfinished">Praėjusios dienos: %1</translation>
+        <translation type="unfinished">Days Passed: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="455"/>
         <location filename="../inspector/rewardswidget.cpp" line="795"/>
         <source>Hero Level: %1</source>
-        <translation type="unfinished">Herojaus lygis: %1</translation>
+        <translation type="unfinished">Hero Level: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="456"/>
         <location filename="../inspector/rewardswidget.cpp" line="796"/>
         <source>Hero Experience: %1</source>
-        <translation type="unfinished">Herojaus patirtis: %1</translation>
+        <translation type="unfinished">Hero Experience: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="457"/>
         <source>Mana Points: %1</source>
-        <translation type="unfinished">Manos taškai: %1</translation>
+        <translation type="unfinished">Mana Points: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="458"/>
         <location filename="../inspector/rewardswidget.cpp" line="798"/>
         <source>Mana Percentage: %1</source>
-        <translation type="unfinished">Manos procentinė dalis: %1</translation>
+        <translation type="unfinished">Mana Percentage: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="459"/>
         <location filename="../inspector/rewardswidget.cpp" line="801"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
-        <translation type="unfinished">Pagrindiniai įgūdžiai: %1/%2/%3/%4</translation>
+        <translation type="unfinished">Primary Skills: %1/%2/%3/%4</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="470"/>
         <location filename="../inspector/rewardswidget.cpp" line="811"/>
         <source>Resources: %1</source>
-        <translation type="unfinished">Ištekliai: %1</translation>
+        <translation type="unfinished">Resources: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="477"/>
         <location filename="../inspector/rewardswidget.cpp" line="817"/>
         <source>Artifacts: %1</source>
-        <translation type="unfinished">Artefaktai: %1</translation>
+        <translation type="unfinished">Artifacts: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="484"/>
         <location filename="../inspector/rewardswidget.cpp" line="823"/>
         <source>Spells: %1</source>
-        <translation type="unfinished">Burtai: %1</translation>
+        <translation type="unfinished">Spells: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="491"/>
         <location filename="../inspector/rewardswidget.cpp" line="829"/>
         <source>Secondary Skills: %1</source>
-        <translation type="unfinished">Papildomi įgūdžiai: %1</translation>
+        <translation type="unfinished">Secondary Skills: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="498"/>
         <location filename="../inspector/rewardswidget.cpp" line="835"/>
         <source>Creatures: %1</source>
-        <translation type="unfinished">Padarai: %1</translation>
+        <translation type="unfinished">Creatures: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="505"/>
         <source>Heroes: %1</source>
-        <translation type="unfinished">Herojai: %1</translation>
+        <translation type="unfinished">Heroes: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="512"/>
         <source>Hero Classes: %1</source>
-        <translation type="unfinished">Herojų klasės: %1</translation>
+        <translation type="unfinished">Hero Classes: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="521"/>
         <source>Players: %1</source>
-        <translation type="unfinished">Žaidėjai: %1</translation>
+        <translation type="unfinished">Players: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="791"/>
         <source>Rewards:</source>
-        <translation type="unfinished">Apdovanojimai:</translation>
+        <translation type="unfinished">Rewards:</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="794"/>
         <source>Reward Message: %1</source>
-        <translation type="unfinished">Apdovanojimo pranešimas: %1</translation>
+        <translation type="unfinished">Reward Message: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="797"/>
         <source>Mana Diff: %1</source>
-        <translation type="unfinished">Manos skirtumas: %1</translation>
+        <translation type="unfinished">Mana Diff: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="799"/>
         <source>Move Points: %1</source>
-        <translation type="unfinished">Perkelti taškus: %1</translation>
+        <translation type="unfinished">Move Points: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="800"/>
         <source>Move Percentage: %1</source>
-        <translation type="unfinished">Perkėlimo procentinė dalis: %1</translation>
+        <translation type="unfinished">Move Percentage: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="838"/>
         <source>Spell Cast: %1 (%2)</source>
-        <translation type="unfinished">Burto atlikimas: %1 (%2)</translation>
+        <translation type="unfinished">Spell Cast: %1 (%2)</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="846"/>
         <source>Bonuses: %1</source>
-        <translation type="unfinished">Premijos: %1</translation>
+        <translation type="unfinished">Bonuses: %1</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="365"/>
         <source>Built buildings:</source>
-        <translation type="unfinished">Pastatyti pastatai:</translation>
+        <translation type="unfinished">Built buildings:</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="376"/>
         <source>Forbidden buildings:</source>
-        <translation type="unfinished">Draudžiami pastatai:</translation>
+        <translation type="unfinished">Forbidden buildings:</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="186"/>
         <source>Town Events:</source>
-        <translation type="unfinished">Miesto renginiai:</translation>
+        <translation type="unfinished">Town Events:</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.cpp" line="181"/>
         <source>Required:</source>
-        <translation type="unfinished">Būtina:</translation>
+        <translation type="unfinished">Required:</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.cpp" line="188"/>
         <source>Possible:</source>
-        <translation type="unfinished">Galima:</translation>
+        <translation type="unfinished">Possible:</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="249"/>
         <source>Failed to open campaign</source>
-        <translation type="unfinished">Nepavyko atidaryti kampanijos</translation>
+        <translation type="unfinished">Failed to open campaign</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="36"/>
         <source>Where do you want to open the file from?</source>
-        <translation type="unfinished">Iš kur norite atidaryti failą?</translation>
+        <translation type="unfinished">Where do you want to open the file from?</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="37"/>
         <location filename="../androidfilepicker.cpp" line="98"/>
         <source>Internal</source>
-        <translation type="unfinished">Vidinis</translation>
+        <translation type="unfinished">Internal</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="38"/>
         <location filename="../androidfilepicker.cpp" line="99"/>
         <source>External</source>
-        <translation type="unfinished">Išorinis</translation>
+        <translation type="unfinished">External</translation>
     </message>
     <message>
         <location filename="../androidfilepicker.cpp" line="97"/>
         <source>Where do you want to save the file?</source>
-        <translation type="unfinished">Kur norite išsaugoti failą?</translation>
+        <translation type="unfinished">Where do you want to save the file?</translation>
     </message>
     <message>
         <location filename="../helper.cpp" line="96"/>
         <source>Close</source>
-        <translation type="unfinished">Uždaryti</translation>
+        <translation type="unfinished">Close</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.cpp" line="216"/>
         <source>Invalid</source>
-        <translation type="unfinished">Negaliojantis</translation>
+        <translation type="unfinished">Invalid</translation>
     </message>
     <message>
         <location filename="../mapsettings/abstractsettings.cpp" line="116"/>
         <source>Hero placeholder (power rank %1)</source>
-        <translation type="unfinished">Herojaus vietos žymeklis (galios rangas %1)</translation>
+        <translation type="unfinished">Hero placeholder (power rank %1)</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
-        <translation type="unfinished">Atsitiktinis</translation>
+        <translation type="unfinished">Random</translation>
     </message>
 </context>
 <context>
@@ -2709,32 +2712,32 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../inspector/questwidget.ui" line="17"/>
         <source>Mission goal</source>
-        <translation type="unfinished">Misijos tikslas</translation>
+        <translation type="unfinished">Mission goal</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="28"/>
         <source>Day of week</source>
-        <translation type="unfinished">Savaitės diena</translation>
+        <translation type="unfinished">Day of week</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="45"/>
         <source>Days passed</source>
-        <translation type="unfinished">Bėgo dienos</translation>
+        <translation type="unfinished">Days passed</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="79"/>
         <source>Hero level</source>
-        <translation type="unfinished">Herojaus lygis</translation>
+        <translation type="unfinished">Hero level</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="96"/>
         <source>Hero experience</source>
-        <translation type="unfinished">Herojaus patirtis</translation>
+        <translation type="unfinished">Hero experience</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="136"/>
         <source>Spell points</source>
-        <translation type="unfinished">Burto taškai</translation>
+        <translation type="unfinished">Spell points</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="156"/>
@@ -2744,7 +2747,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../inspector/questwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
-        <translation type="unfinished">Nužudyti herojų / pabaisą</translation>
+        <translation type="unfinished">Kill hero/monster</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="197"/>
@@ -2754,87 +2757,87 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../inspector/questwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation type="unfinished">Pagrindiniai įgūdžiai</translation>
+        <translation type="unfinished">Primary skills</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="221"/>
         <source>Attack</source>
-        <translation type="unfinished">Ataka</translation>
+        <translation type="unfinished">Attack</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="231"/>
         <source>Defence</source>
-        <translation type="unfinished">Gynyba</translation>
+        <translation type="unfinished">Defence</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation type="unfinished">Burtų galia</translation>
+        <translation type="unfinished">Spell power</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="251"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Žinios</translation>
+        <translation type="unfinished">Knowledge</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation type="unfinished">Ištekliai</translation>
+        <translation type="unfinished">Resources</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="338"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefaktai</translation>
+        <translation type="unfinished">Artifacts</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="370"/>
         <source>Spells</source>
-        <translation type="unfinished">Burtai</translation>
+        <translation type="unfinished">Spells</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation type="unfinished">Įgūdžiai</translation>
+        <translation type="unfinished">Skills</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="442"/>
         <source>Creatures</source>
-        <translation type="unfinished">Būtybės</translation>
+        <translation type="unfinished">Creatures</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="491"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="498"/>
         <source>Remove</source>
-        <translation type="unfinished">Pašalinti</translation>
+        <translation type="unfinished">Remove</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="538"/>
         <source>Heroes</source>
-        <translation type="unfinished">Herojai</translation>
+        <translation type="unfinished">Heroes</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation type="unfinished">Herojų klasės</translation>
+        <translation type="unfinished">Hero classes</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="602"/>
         <source>Players</source>
-        <translation type="unfinished">Žaidėjai</translation>
+        <translation type="unfinished">Players</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="43"/>
         <source>None</source>
-        <translation type="unfinished">Nėra</translation>
+        <translation type="unfinished">None</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="45"/>
         <source>Day %1</source>
-        <translation type="unfinished">%1 diena</translation>
+        <translation type="unfinished">Day %1</translation>
     </message>
 </context>
 <context>
@@ -2842,7 +2845,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../inspector/rewardswidget.ui" line="17"/>
         <source>Rewards</source>
-        <translation type="unfinished">Apdovanojimai</translation>
+        <translation type="unfinished">Rewards</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="33"/>
@@ -2850,7 +2853,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../inspector/rewardswidget.ui" line="841"/>
         <location filename="../inspector/rewardswidget.ui" line="1430"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="43"/>
@@ -2858,100 +2861,100 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../inspector/rewardswidget.ui" line="848"/>
         <location filename="../inspector/rewardswidget.ui" line="1437"/>
         <source>Remove</source>
-        <translation type="unfinished">Pašalinti</translation>
+        <translation type="unfinished">Remove</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="64"/>
         <source>Visit mode</source>
-        <translation type="unfinished">Lankytojo režimas</translation>
+        <translation type="unfinished">Visit mode</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="85"/>
         <source>Select mode</source>
-        <translation type="unfinished">Pasirinkti režimą</translation>
+        <translation type="unfinished">Select mode</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="107"/>
         <source>On select text</source>
-        <translation type="unfinished">Pasirinkus tekstą</translation>
+        <translation type="unfinished">On select text</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="114"/>
         <source>Can refuse</source>
-        <translation type="unfinished">Gali atsisakyti</translation>
+        <translation type="unfinished">Can refuse</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="121"/>
         <source>Reset parameters</source>
-        <translation type="unfinished">Atkurti parametrus</translation>
+        <translation type="unfinished">Reset parameters</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="141"/>
         <source>Period</source>
-        <translation type="unfinished">Laikotarpis</translation>
+        <translation type="unfinished">Period</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="148"/>
         <source> days</source>
-        <translation type="unfinished">dienos</translation>
+        <translation type="unfinished"> days</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="158"/>
         <source> weeks</source>
-        <translation type="unfinished">savaitės</translation>
+        <translation type="unfinished"> weeks</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="168"/>
         <source> months</source>
-        <translation type="unfinished">mėnesiai</translation>
+        <translation type="unfinished"> months</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="180"/>
         <source>Reset visitors</source>
-        <translation type="unfinished">Iš naujo nustatyti lankytojus</translation>
+        <translation type="unfinished">Reset visitors</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="187"/>
         <source>Reset rewards</source>
-        <translation type="unfinished">Atkurti atlygius</translation>
+        <translation type="unfinished">Reset rewards</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="199"/>
         <source>Window type</source>
-        <translation type="unfinished">Lango tipas</translation>
+        <translation type="unfinished">Window type</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="219"/>
         <source>Event info</source>
-        <translation type="unfinished">Informacija apie renginį</translation>
+        <translation type="unfinished">Event info</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="237"/>
         <source>Message to be displayed on granting of this reward</source>
-        <translation type="unfinished">Pranešimas, rodomas skiriant šį apdovanojimą</translation>
+        <translation type="unfinished">Message to be displayed on granting of this reward</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="248"/>
         <source>Reward</source>
-        <translation type="unfinished">Apdovanojimas</translation>
+        <translation type="unfinished">Reward</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="268"/>
         <location filename="../inspector/rewardswidget.ui" line="1055"/>
         <source>Hero level</source>
-        <translation type="unfinished">Herojaus lygis</translation>
+        <translation type="unfinished">Hero level</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="285"/>
         <location filename="../inspector/rewardswidget.ui" line="1072"/>
         <source>Hero experience</source>
-        <translation type="unfinished">Herojaus patirtis</translation>
+        <translation type="unfinished">Hero experience</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="325"/>
         <location filename="../inspector/rewardswidget.ui" line="1112"/>
         <source>Spell points</source>
-        <translation type="unfinished">Burto taškai</translation>
+        <translation type="unfinished">Spell points</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="348"/>
@@ -2964,166 +2967,166 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../inspector/rewardswidget.ui" line="361"/>
         <source>Overflow</source>
-        <translation type="unfinished">Perpildymas</translation>
+        <translation type="unfinished">Overflow</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="385"/>
         <source>Movement</source>
-        <translation type="unfinished">Judėjimas</translation>
+        <translation type="unfinished">Movement</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="428"/>
         <source>Remove object</source>
-        <translation type="unfinished">Pašalinti objektą</translation>
+        <translation type="unfinished">Remove object</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="437"/>
         <location filename="../inspector/rewardswidget.ui" line="1157"/>
         <source>Primary skills</source>
-        <translation type="unfinished">Pagrindiniai įgūdžiai</translation>
+        <translation type="unfinished">Primary skills</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="452"/>
         <location filename="../inspector/rewardswidget.ui" line="1172"/>
         <source>Attack</source>
-        <translation type="unfinished">Ataka</translation>
+        <translation type="unfinished">Attack</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="466"/>
         <location filename="../inspector/rewardswidget.ui" line="1182"/>
         <source>Defence</source>
-        <translation type="unfinished">Gynyba</translation>
+        <translation type="unfinished">Defence</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="480"/>
         <location filename="../inspector/rewardswidget.ui" line="1192"/>
         <source>Spell power</source>
-        <translation type="unfinished">Burtų galia</translation>
+        <translation type="unfinished">Spell power</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="494"/>
         <location filename="../inspector/rewardswidget.ui" line="1202"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Žinios</translation>
+        <translation type="unfinished">Knowledge</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="524"/>
         <location filename="../inspector/rewardswidget.ui" line="1228"/>
         <source>Resources</source>
-        <translation type="unfinished">Ištekliai</translation>
+        <translation type="unfinished">Resources</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="573"/>
         <location filename="../inspector/rewardswidget.ui" line="1277"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefaktai</translation>
+        <translation type="unfinished">Artifacts</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="605"/>
         <location filename="../inspector/rewardswidget.ui" line="1309"/>
         <source>Spells</source>
-        <translation type="unfinished">Burtai</translation>
+        <translation type="unfinished">Spells</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="637"/>
         <location filename="../inspector/rewardswidget.ui" line="1341"/>
         <source>Skills</source>
-        <translation type="unfinished">Įgūdžiai</translation>
+        <translation type="unfinished">Skills</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="677"/>
         <location filename="../inspector/rewardswidget.ui" line="1381"/>
         <source>Creatures</source>
-        <translation type="unfinished">Būtybės</translation>
+        <translation type="unfinished">Creatures</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="770"/>
         <source>Bonuses</source>
-        <translation type="unfinished">Premijos</translation>
+        <translation type="unfinished">Bonuses</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="787"/>
         <location filename="../inspector/rewardswidget.ui" line="879"/>
         <source>Duration</source>
-        <translation type="unfinished">Trukmė</translation>
+        <translation type="unfinished">Duration</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="797"/>
         <location filename="../inspector/rewardswidget.ui" line="884"/>
         <source>Type</source>
-        <translation type="unfinished">Tipas</translation>
+        <translation type="unfinished">Type</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="807"/>
         <location filename="../inspector/rewardswidget.ui" line="889"/>
         <source>Value</source>
-        <translation type="unfinished">Vertė</translation>
+        <translation type="unfinished">Value</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="898"/>
         <source>Cast</source>
-        <translation type="unfinished">Aktorių sudėtis</translation>
+        <translation type="unfinished">Cast</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="904"/>
         <source>Cast an adventure map spell</source>
-        <translation type="unfinished">Panaudokite nuotykių žemėlapio burtą</translation>
+        <translation type="unfinished">Cast an adventure map spell</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="913"/>
         <source>Spell</source>
-        <translation type="unfinished">Burtažodis</translation>
+        <translation type="unfinished">Spell</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="934"/>
         <source>Magic school level</source>
-        <translation type="unfinished">Magijos mokyklos lygis</translation>
+        <translation type="unfinished">Magic school level</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="984"/>
         <source>Limiter</source>
-        <translation type="unfinished">Ribotuvas</translation>
+        <translation type="unfinished">Limiter</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1004"/>
         <source>Day of week</source>
-        <translation type="unfinished">Savaitės diena</translation>
+        <translation type="unfinished">Day of week</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1021"/>
         <source>Days passed</source>
-        <translation type="unfinished">Bėgo dienos</translation>
+        <translation type="unfinished">Days passed</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1477"/>
         <source>Heroes</source>
-        <translation type="unfinished">Herojai</translation>
+        <translation type="unfinished">Heroes</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1509"/>
         <source>Hero classes</source>
-        <translation type="unfinished">Herojų klasės</translation>
+        <translation type="unfinished">Hero classes</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="1541"/>
         <source>Players</source>
-        <translation type="unfinished">Žaidėjai</translation>
+        <translation type="unfinished">Players</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="57"/>
         <source>None</source>
-        <translation type="unfinished">Nėra</translation>
+        <translation type="unfinished">None</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="59"/>
         <source>Day %1</source>
-        <translation type="unfinished">%1 diena</translation>
+        <translation type="unfinished">Day %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="252"/>
         <location filename="../inspector/rewardswidget.cpp" line="625"/>
         <source>Reward %1</source>
-        <translation type="unfinished">Atlygis %1</translation>
+        <translation type="unfinished">Reward %1</translation>
     </message>
 </context>
 <context>
@@ -3131,27 +3134,27 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">Forma</translation>
+        <translation type="unfinished">Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="37"/>
         <source>Tavern rumors</source>
-        <translation type="unfinished">Smuklės gandai</translation>
+        <translation type="unfinished">Tavern rumors</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="63"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.ui" line="82"/>
         <source>Remove</source>
-        <translation type="unfinished">Pašalinti</translation>
+        <translation type="unfinished">Remove</translation>
     </message>
     <message>
         <location filename="../mapsettings/rumorsettings.cpp" line="60"/>
         <source>New rumor</source>
-        <translation type="unfinished">Naujas gandas</translation>
+        <translation type="unfinished">New rumor</translation>
     </message>
 </context>
 <context>
@@ -3160,79 +3163,79 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../campaigneditor/scenarioproperties.ui" line="14"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="40"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished">Scenarijaus ypatybės</translation>
+        <translation type="unfinished">Scenario Properties</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="36"/>
         <source>General</source>
-        <translation type="unfinished">Bendroji informacija</translation>
+        <translation type="unfinished">General</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="42"/>
         <source>Region name</source>
-        <translation type="unfinished">Regiono pavadinimas</translation>
+        <translation type="unfinished">Region name</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="56"/>
         <source>Region color</source>
-        <translation type="unfinished">Regiono spalva</translation>
+        <translation type="unfinished">Region color</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="66"/>
         <source>Scenario name</source>
-        <translation type="unfinished">Scenarijaus pavadinimas</translation>
+        <translation type="unfinished">Scenario name</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="80"/>
         <source>Map file</source>
-        <translation type="unfinished">Žemėlapio failas</translation>
+        <translation type="unfinished">Map file</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="96"/>
         <source>Import...</source>
-        <translation type="unfinished">Importuoti...</translation>
+        <translation type="unfinished">Import...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="103"/>
         <source>Export...</source>
-        <translation type="unfinished">Eksportuoti...</translation>
+        <translation type="unfinished">Export...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="110"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="598"/>
         <source>Remove</source>
-        <translation type="unfinished">Pašalinti</translation>
+        <translation type="unfinished">Remove</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="119"/>
         <source>Default difficulty</source>
-        <translation type="unfinished">Numatytasis sunkumas</translation>
+        <translation type="unfinished">Default difficulty</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="129"/>
         <source>Prerequisites</source>
-        <translation type="unfinished">Būtinosios sąlygos</translation>
+        <translation type="unfinished">Prerequisites</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="139"/>
         <source>Region right-click text</source>
-        <translation type="unfinished">Regiono dešiniojo pelės mygtuko paspaudimo tekstas</translation>
+        <translation type="unfinished">Region right-click text</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="150"/>
         <source>Prologue/Epilogue</source>
-        <translation type="unfinished">Prologas / Epilogas</translation>
+        <translation type="unfinished">Prologue/Epilogue</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="168"/>
         <source>Prologue</source>
-        <translation type="unfinished">Prologas</translation>
+        <translation type="unfinished">Prologue</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="180"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="276"/>
         <source>Enabled</source>
-        <translation type="unfinished">Įjungta</translation>
+        <translation type="unfinished">Enabled</translation>
     </message>
     <message>
         <source>Video</source>
@@ -3246,209 +3249,209 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../campaigneditor/scenarioproperties.ui" line="192"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="288"/>
         <source>Videos</source>
-        <translation type="unfinished">Vaizdo įrašai</translation>
+        <translation type="unfinished">Videos</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="212"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="308"/>
         <source>Music</source>
-        <translation type="unfinished">Muzika</translation>
+        <translation type="unfinished">Music</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="232"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="325"/>
         <source>Voice</source>
-        <translation type="unfinished">Balsas</translation>
+        <translation type="unfinished">Voice</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="249"/>
         <location filename="../campaigneditor/scenarioproperties.ui" line="342"/>
         <source>Text</source>
-        <translation type="unfinished">Tekstas</translation>
+        <translation type="unfinished">Text</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="264"/>
         <source>Epilogue</source>
-        <translation type="unfinished">Epilogas</translation>
+        <translation type="unfinished">Epilogue</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="358"/>
         <source>Crossover</source>
-        <translation type="unfinished">Krosoveris</translation>
+        <translation type="unfinished">Crossover</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="364"/>
         <source>Crossover heroes retain</source>
-        <translation type="unfinished">Krosoverių herojai išlieka</translation>
+        <translation type="unfinished">Crossover heroes retain</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="370"/>
         <source>Experience</source>
-        <translation type="unfinished">Patirtis</translation>
+        <translation type="unfinished">Experience</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="377"/>
         <source>Primary skills</source>
-        <translation type="unfinished">Pagrindiniai įgūdžiai</translation>
+        <translation type="unfinished">Primary skills</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="384"/>
         <source>Secondary skills</source>
-        <translation type="unfinished">Papildomi įgūdžiai</translation>
+        <translation type="unfinished">Secondary skills</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="391"/>
         <source>Spells</source>
-        <translation type="unfinished">Burtai</translation>
+        <translation type="unfinished">Spells</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="398"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefaktai</translation>
+        <translation type="unfinished">Artifacts</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="431"/>
         <source>All</source>
-        <translation type="unfinished">Visi</translation>
+        <translation type="unfinished">All</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="438"/>
         <source>None</source>
-        <translation type="unfinished">Nėra</translation>
+        <translation type="unfinished">None</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="465"/>
         <source>Crossover artifacts</source>
-        <translation type="unfinished">Perėjimo artefaktai</translation>
+        <translation type="unfinished">Crossover artifacts</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="494"/>
         <source>Starting</source>
-        <translation type="unfinished">Pradžia</translation>
+        <translation type="unfinished">Starting</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="500"/>
         <source>Starting options are</source>
-        <translation type="unfinished">Pradinės parinktys yra</translation>
+        <translation type="unfinished">Starting options are</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="507"/>
         <source>Starting bonus options</source>
-        <translation type="unfinished">Pradinės premijos pasirinkimo galimybės</translation>
+        <translation type="unfinished">Starting bonus options</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="514"/>
         <source>Hero crossover options</source>
-        <translation type="unfinished">Herojų susijungimo parinktys</translation>
+        <translation type="unfinished">Hero crossover options</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="521"/>
         <source>Starting hero options</source>
-        <translation type="unfinished">Pradinių herojų pasirinkimai</translation>
+        <translation type="unfinished">Starting hero options</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="539"/>
         <source>Bonus</source>
-        <translation type="unfinished">Premija</translation>
+        <translation type="unfinished">Bonus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="545"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="486"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="496"/>
         <source>Player position</source>
-        <translation type="unfinished">Žaidėjo pozicija</translation>
+        <translation type="unfinished">Player position</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="555"/>
         <source>Starting bonus option</source>
-        <translation type="unfinished">Pradinės premijos pasirinkimas</translation>
+        <translation type="unfinished">Starting bonus option</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="566"/>
         <source>Crossover/ Starting hero</source>
-        <translation type="unfinished">Krosoveris / Pradinis herojus</translation>
+        <translation type="unfinished">Crossover/ Starting hero</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="584"/>
         <source>Add...</source>
-        <translation type="unfinished">Pridėti...</translation>
+        <translation type="unfinished">Add...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="591"/>
         <source>Edit...</source>
-        <translation type="unfinished">Redaguoti...</translation>
+        <translation type="unfinished">Edit...</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="126"/>
         <source>Strongest</source>
-        <translation type="unfinished">Stipriausias</translation>
+        <translation type="unfinished">Strongest</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="127"/>
         <source>Generated</source>
-        <translation type="unfinished">Sugeneruota</translation>
+        <translation type="unfinished">Generated</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="128"/>
         <source>Random</source>
-        <translation type="unfinished">Atsitiktinis</translation>
+        <translation type="unfinished">Random</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="154"/>
         <source>No map</source>
-        <translation type="unfinished">Nėra žemėlapio</translation>
+        <translation type="unfinished">No map</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="197"/>
         <source>Player</source>
-        <translation type="unfinished">Žaidėjas</translation>
+        <translation type="unfinished">Player</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="405"/>
         <source>Open map</source>
-        <translation type="unfinished">Atidaryti žemėlapį</translation>
+        <translation type="unfinished">Open map</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="407"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
-        <translation type="unfinished">Visi palaikomi žemėlapiai (*.vmap *.h3m);;VCMI žemėlapiai (*.vmap);;HoMM3 žemėlapiai (*.h3m)</translation>
+        <translation type="unfinished">All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="416"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="455"/>
         <source>Error</source>
-        <translation type="unfinished">Klaida</translation>
+        <translation type="unfinished">Error</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="416"/>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="455"/>
         <source>Could not open the file.</source>
-        <translation type="unfinished">Nepavyko atidaryti failo.</translation>
+        <translation type="unfinished">Could not open the file.</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="443"/>
         <source>Save map</source>
-        <translation type="unfinished">Išsaugoti žemėlapį</translation>
+        <translation type="unfinished">Save map</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="445"/>
         <source>VCMI maps (*.vmap);</source>
-        <translation type="unfinished">VCMI žemėlapiai (*.vmap);</translation>
+        <translation type="unfinished">VCMI maps (*.vmap);</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="445"/>
         <source>HoMM3 maps (*.h3m);</source>
-        <translation type="unfinished">„HoMM3“ žemėlapiai (*.h3m);</translation>
+        <translation type="unfinished">HoMM3 maps (*.h3m);</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="486"/>
         <source>Source scenario</source>
-        <translation type="unfinished">Pradinis scenarijus</translation>
+        <translation type="unfinished">Source scenario</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="496"/>
         <source>Hero</source>
-        <translation type="unfinished">Didvyris</translation>
+        <translation type="unfinished">Hero</translation>
     </message>
 </context>
 <context>
@@ -3456,27 +3459,27 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../inspector/scholarwidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished">Mokslininkas</translation>
+        <translation type="unfinished">Scholar</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">Atsitiktinis</translation>
+        <translation type="unfinished">Random</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="105"/>
         <source>Primary Skill</source>
-        <translation type="unfinished">Pagrindinis įgūdis</translation>
+        <translation type="unfinished">Primary Skill</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="138"/>
         <source>Secondary Skill</source>
-        <translation type="unfinished">Papildomas įgūdis</translation>
+        <translation type="unfinished">Secondary Skill</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="174"/>
         <source>Spell</source>
-        <translation type="unfinished">Burtažodis</translation>
+        <translation type="unfinished">Spell</translation>
     </message>
 </context>
 <context>
@@ -3484,7 +3487,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="158"/>
         <source>Can&apos;t open editor!</source>
-        <translation type="unfinished">Nepavyksta atidaryti redaktoriaus!</translation>
+        <translation type="unfinished">Can&apos;t open editor!</translation>
     </message>
 </context>
 <context>
@@ -3492,27 +3495,27 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../inspector/shrinewidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished">Mokslininkas</translation>
+        <translation type="unfinished">Scholar</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">Atsitiktinis</translation>
+        <translation type="unfinished">Random</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="111"/>
         <source>Spell</source>
-        <translation type="unfinished">Burtažodis</translation>
+        <translation type="unfinished">Spell</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="77"/>
         <source>MapEditor was unable to read intended spell level for this shrine type</source>
-        <translation type="unfinished">„MapEditor“ nepavyko nuskaityti numatytojo burto lygio šiam šventovės tipui.</translation>
+        <translation type="unfinished">MapEditor was unable to read intended spell level for this shrine type</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="92"/>
         <source>Intended spell level %1 for this shrine type is invalid</source>
-        <translation type="unfinished">Šiam šventovės tipui numatytas burto lygis %1 yra netinkamas.</translation>
+        <translation type="unfinished">Intended spell level %1 for this shrine type is invalid</translation>
     </message>
 </context>
 <context>
@@ -3520,12 +3523,12 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="14"/>
         <source>Scenario Properties</source>
-        <translation type="unfinished">Scenarijaus ypatybės</translation>
+        <translation type="unfinished">Scenario Properties</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="20"/>
         <source>Select a bonus type</source>
-        <translation type="unfinished">Pasirinkite premijos tipą</translation>
+        <translation type="unfinished">Select a bonus type</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="27"/>
@@ -3533,13 +3536,13 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../campaigneditor/startingbonus.ui" line="110"/>
         <location filename="../campaigneditor/startingbonus.ui" line="270"/>
         <source>Spell</source>
-        <translation type="unfinished">Burtažodis</translation>
+        <translation type="unfinished">Spell</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="34"/>
         <location filename="../campaigneditor/startingbonus.ui" line="134"/>
         <source>Creature</source>
-        <translation type="unfinished">Padaras</translation>
+        <translation type="unfinished">Creature</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="41"/>
@@ -3547,26 +3550,26 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../campaigneditor/startingbonus.ui" line="190"/>
         <location filename="../campaigneditor/startingbonus.cpp" line="365"/>
         <source>Building</source>
-        <translation type="unfinished">Pastatas</translation>
+        <translation type="unfinished">Building</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="48"/>
         <location filename="../campaigneditor/startingbonus.ui" line="214"/>
         <location filename="../campaigneditor/startingbonus.ui" line="230"/>
         <source>Artifact</source>
-        <translation type="unfinished">Artefaktas</translation>
+        <translation type="unfinished">Artifact</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="55"/>
         <location filename="../campaigneditor/startingbonus.ui" line="254"/>
         <source>Spell scroll</source>
-        <translation type="unfinished">Burto ritinys</translation>
+        <translation type="unfinished">Spell scroll</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="62"/>
         <location filename="../campaigneditor/startingbonus.ui" line="294"/>
         <source>Primary skill</source>
-        <translation type="unfinished">Pagrindinis įgūdis</translation>
+        <translation type="unfinished">Primary skill</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="69"/>
@@ -3574,14 +3577,14 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../campaigneditor/startingbonus.ui" line="380"/>
         <location filename="../campaigneditor/startingbonus.cpp" line="389"/>
         <source>Secondary skill</source>
-        <translation type="unfinished">Papildomas įgūdis</translation>
+        <translation type="unfinished">Secondary skill</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="76"/>
         <location filename="../campaigneditor/startingbonus.ui" line="414"/>
         <location filename="../campaigneditor/startingbonus.cpp" line="393"/>
         <source>Resource</source>
-        <translation type="unfinished">Išteklius</translation>
+        <translation type="unfinished">Resource</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="100"/>
@@ -3591,128 +3594,128 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../campaigneditor/startingbonus.ui" line="300"/>
         <location filename="../campaigneditor/startingbonus.ui" line="370"/>
         <source>Recipient</source>
-        <translation type="unfinished">Gavėjas</translation>
+        <translation type="unfinished">Recipient</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="150"/>
         <source>Creature type</source>
-        <translation type="unfinished">Padaro tipas</translation>
+        <translation type="unfinished">Creature type</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="160"/>
         <location filename="../campaigneditor/startingbonus.ui" line="430"/>
         <source>Quantity</source>
-        <translation type="unfinished">Kiekis</translation>
+        <translation type="unfinished">Quantity</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="310"/>
         <source>Attack skill</source>
-        <translation type="unfinished">Atakos įgūdis</translation>
+        <translation type="unfinished">Attack skill</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="320"/>
         <source>Defense skill</source>
-        <translation type="unfinished">Gynybos įgūdis</translation>
+        <translation type="unfinished">Defense skill</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="330"/>
         <source>Spell power</source>
-        <translation type="unfinished">Burtų galia</translation>
+        <translation type="unfinished">Spell power</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="340"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Žinios</translation>
+        <translation type="unfinished">Knowledge</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="390"/>
         <source>Mastery</source>
-        <translation type="unfinished">Meistriškumas</translation>
+        <translation type="unfinished">Mastery</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="420"/>
         <source>Resource type</source>
-        <translation type="unfinished">Ištekliaus tipas</translation>
+        <translation type="unfinished">Resource type</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="36"/>
         <source>Edit Starting Bonus</source>
-        <translation type="unfinished">Redaguoti pradinę premiją</translation>
+        <translation type="unfinished">Edit Starting Bonus</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="64"/>
         <source>Strongest</source>
-        <translation type="unfinished">Stipriausias</translation>
+        <translation type="unfinished">Strongest</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="65"/>
         <source>Generated</source>
-        <translation type="unfinished">Sugeneruota</translation>
+        <translation type="unfinished">Generated</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="66"/>
         <source>Random</source>
-        <translation type="unfinished">Atsitiktinis</translation>
+        <translation type="unfinished">Random</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="97"/>
         <source>Main town is of random faction</source>
-        <translation type="unfinished">Pagrindinis miestas priklauso atsitiktinei frakcijai.</translation>
+        <translation type="unfinished">Main town is of random faction</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="109"/>
         <source>Player does not have a main town!</source>
-        <translation type="unfinished">Žaidėjas neturi pagrindinio miesto!</translation>
+        <translation type="unfinished">Player does not have a main town!</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="134"/>
         <source>Common (%1 and %2)</source>
-        <translation type="unfinished">Bendras (%1 ir %2)</translation>
+        <translation type="unfinished">Common (%1 and %2)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="139"/>
         <source>Rare (%1, %2, %3, %4)</source>
-        <translation type="unfinished">Reti (%1, %2, %3, %4)</translation>
+        <translation type="unfinished">Rare (%1, %2, %3, %4)</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="321"/>
         <source>strongest hero</source>
-        <translation type="unfinished">stipriausias herojus</translation>
+        <translation type="unfinished">strongest hero</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="323"/>
         <source>generated hero</source>
-        <translation type="unfinished">sukurtas herojus</translation>
+        <translation type="unfinished">generated hero</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="325"/>
         <source>random hero</source>
-        <translation type="unfinished">atsitiktinis herojus</translation>
+        <translation type="unfinished">random hero</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="356"/>
         <source>%1 spell for %2</source>
-        <translation type="unfinished">%1 burtas, skirtas %2</translation>
+        <translation type="unfinished">%1 spell for %2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="361"/>
         <source>%1 %2 for %3</source>
-        <translation type="unfinished">%1 %2, skirta %3</translation>
+        <translation type="unfinished">%1 %2 for %3</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="370"/>
         <source>%1 artifact for %2</source>
-        <translation type="unfinished">%1 artefaktas, skirtas %2</translation>
+        <translation type="unfinished">%1 artifact for %2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="375"/>
         <source>%1 spell scroll for %2</source>
-        <translation type="unfinished">%1 burto ritinys, skirtas %2</translation>
+        <translation type="unfinished">%1 spell scroll for %2</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="380"/>
         <source>Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5</source>
-        <translation type="unfinished">Pagrindinis įgūdis (Puolimas: %1, Gynyba: %2, Burtai: %3, Žinios: %4) – %5</translation>
+        <translation type="unfinished">Primary skill (Attack: %1, Defense: %2, Spell: %3, Knowledge: %4) for %5</translation>
     </message>
 </context>
 <context>
@@ -3721,69 +3724,69 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../templateeditor/templateeditor.ui" line="14"/>
         <location filename="../templateeditor/templateeditor.cpp" line="663"/>
         <source>VCMI Template Editor</source>
-        <translation type="unfinished">VCMI šablonų redaktorius</translation>
+        <translation type="unfinished">VCMI Template Editor</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="36"/>
         <source>File</source>
-        <translation type="unfinished">Failas</translation>
+        <translation type="unfinished">File</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="47"/>
         <source>Edit</source>
-        <translation type="unfinished">Redaguoti</translation>
+        <translation type="unfinished">Edit</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="55"/>
         <source>View</source>
-        <translation type="unfinished">Peržiūrėti</translation>
+        <translation type="unfinished">View</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="70"/>
         <source>Toolbar</source>
-        <translation type="unfinished">Įrankių juosta</translation>
+        <translation type="unfinished">Toolbar</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="116"/>
         <source>Selected Template:</source>
-        <translation type="unfinished">Pasirinktas šablonas:</translation>
+        <translation type="unfinished">Selected Template:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="139"/>
         <location filename="../templateeditor/templateeditor.ui" line="1327"/>
         <location filename="../templateeditor/templateeditor.cpp" line="283"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="146"/>
         <source>Remove</source>
-        <translation type="unfinished">Pašalinti</translation>
+        <translation type="unfinished">Remove</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="153"/>
         <source>Rename</source>
-        <translation type="unfinished">Pervardyti</translation>
+        <translation type="unfinished">Rename</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="217"/>
         <source>General</source>
-        <translation type="unfinished">Bendroji informacija</translation>
+        <translation type="unfinished">General</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="223"/>
         <source>Name</source>
-        <translation type="unfinished">Vardas</translation>
+        <translation type="unfinished">Name</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="235"/>
         <source>Description</source>
-        <translation type="unfinished">Aprašymas</translation>
+        <translation type="unfinished">Description</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="247"/>
         <source>Min Size</source>
-        <translation type="unfinished">Minimalus dydis</translation>
+        <translation type="unfinished">Min Size</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="266"/>
@@ -3797,7 +3800,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../templateeditor/templateeditor.ui" line="395"/>
         <location filename="../templateeditor/templateeditor.ui" line="617"/>
         <source>Y</source>
-        <translation type="unfinished">Taip</translation>
+        <translation type="unfinished">Y</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="326"/>
@@ -3809,87 +3812,87 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="346"/>
         <source>Max Size</source>
-        <translation type="unfinished">Maksimalus dydis</translation>
+        <translation type="unfinished">Max Size</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="445"/>
         <location filename="../templateeditor/templateeditor.ui" line="451"/>
         <source>Players</source>
-        <translation type="unfinished">Žaidėjai</translation>
+        <translation type="unfinished">Players</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="461"/>
         <source>Human</source>
-        <translation type="unfinished">Žmogus</translation>
+        <translation type="unfinished">Human</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="474"/>
         <source>Allowed water content</source>
-        <translation type="unfinished">Leistinas vandens kiekis</translation>
+        <translation type="unfinished">Allowed water content</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="480"/>
         <location filename="../templateeditor/templateeditor.cpp" line="421"/>
         <location filename="../templateeditor/templateeditor.cpp" line="434"/>
         <source>None</source>
-        <translation type="unfinished">Nėra</translation>
+        <translation type="unfinished">None</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="487"/>
         <location filename="../templateeditor/templateeditor.cpp" line="437"/>
         <source>Normal</source>
-        <translation type="unfinished">Normalus</translation>
+        <translation type="unfinished">Normal</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="494"/>
         <source>Islands</source>
-        <translation type="unfinished">Salos</translation>
+        <translation type="unfinished">Islands</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="504"/>
         <source>Entities</source>
-        <translation type="unfinished">Subjektai</translation>
+        <translation type="unfinished">Entities</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="510"/>
         <source>Banned Spells</source>
-        <translation type="unfinished">Uždrausti burtažodžiai</translation>
+        <translation type="unfinished">Banned Spells</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="517"/>
         <source>Banned Artifacts</source>
-        <translation type="unfinished">Uždrausti artefaktai</translation>
+        <translation type="unfinished">Banned Artifacts</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="524"/>
         <source>Banned Skills</source>
-        <translation type="unfinished">Uždrausti įgūdžiai</translation>
+        <translation type="unfinished">Banned Skills</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="531"/>
         <source>Banned Heroes</source>
-        <translation type="unfinished">Uždrausti herojai</translation>
+        <translation type="unfinished">Banned Heroes</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="563"/>
         <source>Zone</source>
-        <translation type="unfinished">Zona</translation>
+        <translation type="unfinished">Zone</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="569"/>
         <source>Visualisation</source>
-        <translation type="unfinished">Vizualizacija</translation>
+        <translation type="unfinished">Visualisation</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="575"/>
         <source>Position</source>
-        <translation type="unfinished">Pareigos</translation>
+        <translation type="unfinished">Position</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="647"/>
         <location filename="../templateeditor/templateeditor.ui" line="703"/>
         <source>Size</source>
-        <translation type="unfinished">Dydis</translation>
+        <translation type="unfinished">Size</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="675"/>
@@ -3900,47 +3903,47 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../templateeditor/templateeditor.ui" line="691"/>
         <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Type</source>
-        <translation type="unfinished">Tipas</translation>
+        <translation type="unfinished">Type</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="719"/>
         <source>Owner</source>
-        <translation type="unfinished">Savininkas</translation>
+        <translation type="unfinished">Owner</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="731"/>
         <source>Forced level</source>
-        <translation type="unfinished">Priverstinis lygis</translation>
+        <translation type="unfinished">Forced level</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="743"/>
         <source>Zone link</source>
-        <translation type="unfinished">Zonos nuoroda</translation>
+        <translation type="unfinished">Zone link</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="749"/>
         <location filename="../templateeditor/templateeditor.ui" line="1247"/>
         <location filename="../templateeditor/templateeditor.ui" line="1253"/>
         <source>Mines</source>
-        <translation type="unfinished">Kasyklos</translation>
+        <translation type="unfinished">Mines</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="756"/>
         <location filename="../templateeditor/templateeditor.ui" line="1269"/>
         <source>Custom objects</source>
-        <translation type="unfinished">Individualūs objektai</translation>
+        <translation type="unfinished">Custom objects</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="763"/>
         <location filename="../templateeditor/templateeditor.ui" line="1141"/>
         <source>Towns</source>
-        <translation type="unfinished">Miesteliai</translation>
+        <translation type="unfinished">Towns</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="770"/>
         <location filename="../templateeditor/templateeditor.ui" line="1111"/>
         <source>Terrain</source>
-        <translation type="unfinished">Reljefas</translation>
+        <translation type="unfinished">Terrain</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="787"/>
@@ -3948,17 +3951,17 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../templateeditor/templateeditor.ui" line="1237"/>
         <location filename="../templateeditor/templateeditor.cpp" line="396"/>
         <source>Treasure</source>
-        <translation type="unfinished">Lobiai</translation>
+        <translation type="unfinished">Treasure</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="850"/>
         <source>Town info</source>
-        <translation type="unfinished">Informacija apie miestą</translation>
+        <translation type="unfinished">Town info</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="856"/>
         <source>Town count</source>
-        <translation type="unfinished">Miestų skaičius</translation>
+        <translation type="unfinished">Town count</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="868"/>
@@ -3966,7 +3969,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../templateeditor/templateeditor.ui" line="994"/>
         <location filename="../templateeditor/templateeditor.ui" line="1057"/>
         <source>Player</source>
-        <translation type="unfinished">Žaidėjas</translation>
+        <translation type="unfinished">Player</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="894"/>
@@ -3974,107 +3977,107 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../templateeditor/templateeditor.ui" line="1020"/>
         <location filename="../templateeditor/templateeditor.ui" line="1083"/>
         <source>Neutral</source>
-        <translation type="unfinished">Neutralus</translation>
+        <translation type="unfinished">Neutral</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="919"/>
         <source>Castle count</source>
-        <translation type="unfinished">Pilčių skaičius</translation>
+        <translation type="unfinished">Castle count</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="982"/>
         <source>Town density</source>
-        <translation type="unfinished">Miesto tankumas</translation>
+        <translation type="unfinished">Town density</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1045"/>
         <source>Castle density</source>
-        <translation type="unfinished">Pilčių tankumas</translation>
+        <translation type="unfinished">Castle density</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1117"/>
         <source>Match terrain to town</source>
-        <translation type="unfinished">Pritaikykite reljefą miestui</translation>
+        <translation type="unfinished">Match terrain to town</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1124"/>
         <source>Terrain types</source>
-        <translation type="unfinished">Reljefo tipai</translation>
+        <translation type="unfinished">Terrain types</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1131"/>
         <source>Banned terrain types</source>
-        <translation type="unfinished">Draudžiami vietovės tipai</translation>
+        <translation type="unfinished">Banned terrain types</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1147"/>
         <source>Towns are same type</source>
-        <translation type="unfinished">Miestai yra to paties tipo.</translation>
+        <translation type="unfinished">Towns are same type</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1154"/>
         <source>Allowed towns</source>
-        <translation type="unfinished">Leidžiami miestai</translation>
+        <translation type="unfinished">Allowed towns</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1161"/>
         <source>Banned towns</source>
-        <translation type="unfinished">Uždrausti miestai</translation>
+        <translation type="unfinished">Banned towns</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1168"/>
         <source>Town hints</source>
-        <translation type="unfinished">Miesto patarimai</translation>
+        <translation type="unfinished">Town hints</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1178"/>
         <source>Monsters</source>
-        <translation type="unfinished">Monstrai</translation>
+        <translation type="unfinished">Monsters</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1184"/>
         <source>Allowed monsters</source>
-        <translation type="unfinished">Leidžiami monstrai</translation>
+        <translation type="unfinished">Allowed monsters</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1191"/>
         <source>Banned monsters</source>
-        <translation type="unfinished">Uždrausti monstrai</translation>
+        <translation type="unfinished">Banned monsters</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1209"/>
         <source>Strength</source>
-        <translation type="unfinished">Stiprybė</translation>
+        <translation type="unfinished">Strength</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1263"/>
         <source>Objects</source>
-        <translation type="unfinished">Objektai</translation>
+        <translation type="unfinished">Objects</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1301"/>
         <source>Connections</source>
-        <translation type="unfinished">Ryšiai</translation>
+        <translation type="unfinished">Connections</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1345"/>
         <source>Open</source>
-        <translation type="unfinished">Atidaryti</translation>
+        <translation type="unfinished">Open</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1353"/>
         <source>Save</source>
-        <translation type="unfinished">Išsaugoti</translation>
+        <translation type="unfinished">Save</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1361"/>
         <source>New</source>
-        <translation type="unfinished">Naujas</translation>
+        <translation type="unfinished">New</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1369"/>
         <source>Save as...</source>
-        <translation type="unfinished">Įrašyti kaip...</translation>
+        <translation type="unfinished">Save as...</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1372"/>
@@ -4084,12 +4087,12 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1377"/>
         <source>Add zone</source>
-        <translation type="unfinished">Pridėti zoną</translation>
+        <translation type="unfinished">Add zone</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1388"/>
         <source>Remove zone</source>
-        <translation type="unfinished">Pašalinti zoną</translation>
+        <translation type="unfinished">Remove zone</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1391"/>
@@ -4100,7 +4103,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1396"/>
         <source>Auto position</source>
-        <translation type="unfinished">Automatinė padėtis</translation>
+        <translation type="unfinished">Auto position</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1399"/>
@@ -4110,7 +4113,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1404"/>
         <source>Zoom in</source>
-        <translation type="unfinished">Padidinti vaizdą</translation>
+        <translation type="unfinished">Zoom in</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1407"/>
@@ -4120,7 +4123,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1412"/>
         <source>Zoom out</source>
-        <translation type="unfinished">Atitolinti</translation>
+        <translation type="unfinished">Zoom out</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1415"/>
@@ -4130,7 +4133,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1420"/>
         <source>Zoom auto</source>
-        <translation type="unfinished">Automatinis priartinimas</translation>
+        <translation type="unfinished">Zoom auto</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1423"/>
@@ -4140,7 +4143,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1428"/>
         <source>Zoom reset</source>
-        <translation type="unfinished">Atkurti mastelį</translation>
+        <translation type="unfinished">Zoom reset</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1431"/>
@@ -4150,7 +4153,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1436"/>
         <source>Exit</source>
-        <translation type="unfinished">Išėjimas</translation>
+        <translation type="unfinished">Exit</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1439"/>
@@ -4160,23 +4163,23 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="254"/>
         <source>Min</source>
-        <translation type="unfinished">Min.</translation>
+        <translation type="unfinished">Min</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="254"/>
         <source>Max</source>
-        <translation type="unfinished">Maksas</translation>
+        <translation type="unfinished">Max</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="254"/>
         <source>Action</source>
-        <translation type="unfinished">Veiksmas</translation>
+        <translation type="unfinished">Action</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="272"/>
         <location filename="../templateeditor/templateeditor.cpp" line="487"/>
         <source>Delete</source>
-        <translation type="unfinished">Ištrinti</translation>
+        <translation type="unfinished">Delete</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="311"/>
@@ -4186,234 +4189,234 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="313"/>
         <source>Max treasure: %1</source>
-        <translation type="unfinished">Didžiausias lobis: %1</translation>
+        <translation type="unfinished">Max treasure: %1</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="394"/>
         <source>Player start</source>
-        <translation type="unfinished">Žaidėjo pradžia</translation>
+        <translation type="unfinished">Player start</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="395"/>
         <source>CPU start</source>
-        <translation type="unfinished">CPU paleidimas</translation>
+        <translation type="unfinished">CPU start</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="397"/>
         <source>Junction</source>
-        <translation type="unfinished">Sankryža</translation>
+        <translation type="unfinished">Junction</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="398"/>
         <source>Water</source>
-        <translation type="unfinished">Vanduo</translation>
+        <translation type="unfinished">Water</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="399"/>
         <source>Sealed</source>
-        <translation type="unfinished">Užsandarinta</translation>
+        <translation type="unfinished">Sealed</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="426"/>
         <source>Automatic</source>
-        <translation type="unfinished">Automatinis</translation>
+        <translation type="unfinished">Automatic</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="427"/>
         <source>Surface</source>
-        <translation type="unfinished">Paviršius</translation>
+        <translation type="unfinished">Surface</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="428"/>
         <source>Underground</source>
-        <translation type="unfinished">Požemis</translation>
+        <translation type="unfinished">Underground</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="435"/>
         <location filename="../templateeditor/templateeditor.cpp" line="474"/>
         <source>Random</source>
-        <translation type="unfinished">Atsitiktinis</translation>
+        <translation type="unfinished">Random</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="436"/>
         <source>Weak</source>
-        <translation type="unfinished">Silpnas</translation>
+        <translation type="unfinished">Weak</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="438"/>
         <source>Strong</source>
-        <translation type="unfinished">Stiprus</translation>
+        <translation type="unfinished">Strong</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Zone A</source>
-        <translation type="unfinished">A zona</translation>
+        <translation type="unfinished">Zone A</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Zone B</source>
-        <translation type="unfinished">B zona</translation>
+        <translation type="unfinished">Zone B</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Guard</source>
-        <translation type="unfinished">Sargas</translation>
+        <translation type="unfinished">Guard</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="455"/>
         <source>Road</source>
-        <translation type="unfinished">Kelias</translation>
+        <translation type="unfinished">Road</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="469"/>
         <source>Guarded</source>
-        <translation type="unfinished">Atsargus</translation>
+        <translation type="unfinished">Guarded</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="470"/>
         <source>Fictive</source>
-        <translation type="unfinished">Išgalvotas</translation>
+        <translation type="unfinished">Fictive</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="471"/>
         <source>Repulsive</source>
-        <translation type="unfinished">Atstumiantis</translation>
+        <translation type="unfinished">Repulsive</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="472"/>
         <source>Wide</source>
-        <translation type="unfinished">Platus</translation>
+        <translation type="unfinished">Wide</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="473"/>
         <source>Force portal</source>
-        <translation type="unfinished">Jėgos portalas</translation>
+        <translation type="unfinished">Force portal</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="475"/>
         <source>Yes</source>
-        <translation type="unfinished">Taip</translation>
+        <translation type="unfinished">Yes</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="476"/>
         <source>No</source>
-        <translation type="unfinished">Ne</translation>
+        <translation type="unfinished">No</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="591"/>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-        <translation type="unfinished">A zona: %1
-B zona: %2
-Sargas: %3</translation>
+        <translation type="unfinished">Zone A: %1
+Zone B: %2
+Guard: %3</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="651"/>
         <source>Confirmation</source>
-        <translation type="unfinished">Patvirtinimas</translation>
+        <translation type="unfinished">Confirmation</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="651"/>
         <source>Unsaved changes will be lost, are you sure?</source>
-        <translation type="unfinished">Neišsaugoti pakeitimai bus prarasti; ar tikrai norite tęsti?</translation>
+        <translation type="unfinished">Unsaved changes will be lost, are you sure?</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="675"/>
         <source>Validation failed!</source>
-        <translation type="unfinished">Patvirtinti nepavyko!</translation>
+        <translation type="unfinished">Validation failed!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="680"/>
         <source>No player range defined.</source>
-        <translation type="unfinished">Žaidėjų diapazonas nenurodytas.</translation>
+        <translation type="unfinished">No player range defined.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="687"/>
         <source>Invalid range for players.</source>
-        <translation type="unfinished">Netinkamas žaidėjų diapazonas.</translation>
+        <translation type="unfinished">Invalid range for players.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="695"/>
         <source>Invalid range for human players.</source>
-        <translation type="unfinished">Netinkamas diapazonas žmonėms žaidėjams.</translation>
+        <translation type="unfinished">Invalid range for human players.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="710"/>
         <source>Connection references non-existing zone(s): %1 - %2</source>
-        <translation type="unfinished">Ryšys nurodo neegzistuojančią (-ias) zoną (-as): %1 – %2</translation>
+        <translation type="unfinished">Connection references non-existing zone(s): %1 - %2</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="722"/>
         <source>Zone %1 has no connections.</source>
-        <translation type="unfinished">Zona %1 neturi ryšių.</translation>
+        <translation type="unfinished">Zone %1 has no connections.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="746"/>
         <source>Player %1 must have exactly one player start zone (found %2).</source>
-        <translation type="unfinished">Žaidėjas %1 privalo turėti lygiai vieną žaidėjo pradinę zoną (rasta %2).</translation>
+        <translation type="unfinished">Player %1 must have exactly one player start zone (found %2).</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="783"/>
         <source>Open template</source>
-        <translation type="unfinished">Atidaryti šabloną</translation>
+        <translation type="unfinished">Open template</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="785"/>
         <source>VCMI templates(*.json)</source>
-        <translation type="unfinished">VCMI šablonai (*.json)</translation>
+        <translation type="unfinished">VCMI templates(*.json)</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="803"/>
         <source>Save template</source>
-        <translation type="unfinished">Išsaugoti šabloną</translation>
+        <translation type="unfinished">Save template</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="804"/>
         <source>VCMI templates (*.json)</source>
-        <translation type="unfinished">VCMI šablonai (*.json)</translation>
+        <translation type="unfinished">VCMI templates (*.json)</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="943"/>
         <location filename="../templateeditor/templateeditor.cpp" line="984"/>
         <source>Enter Name</source>
-        <translation type="unfinished">Įveskite vardą</translation>
+        <translation type="unfinished">Enter Name</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="943"/>
         <location filename="../templateeditor/templateeditor.cpp" line="984"/>
         <source>Name:</source>
-        <translation type="unfinished">Vardas:</translation>
+        <translation type="unfinished">Name:</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="950"/>
         <source>Already existing!</source>
-        <translation type="unfinished">Jau egzistuojantis!</translation>
+        <translation type="unfinished">Already existing!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="950"/>
         <source>A template with this name is already existing.</source>
-        <translation type="unfinished">Šiuo pavadinimu šablonas jau egzistuoja.</translation>
+        <translation type="unfinished">A template with this name is already existing.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="967"/>
         <source>Too few templates!</source>
-        <translation type="unfinished">Per mažai šablonų!</translation>
+        <translation type="unfinished">Too few templates!</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="967"/>
         <source>At least one template should remain after removing.</source>
-        <translation type="unfinished">Po pašalinimo turėtų likti bent vienas šablonas.</translation>
+        <translation type="unfinished">At least one template should remain after removing.</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1217"/>
         <source>Too few zones</source>
-        <translation type="unfinished">Per mažai zonų</translation>
+        <translation type="unfinished">Too few zones</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="1217"/>
         <source>Create at least two zones before adding a connection.</source>
-        <translation type="unfinished">Prieš pridėdami ryšį, sukurkite bent dvi zonas.</translation>
+        <translation type="unfinished">Create at least two zones before adding a connection.</translation>
     </message>
 </context>
 <context>
@@ -4421,77 +4424,77 @@ Sargas: %3</translation>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="17"/>
         <source>Timed event</source>
-        <translation type="unfinished">Laiku ribojamas renginys</translation>
+        <translation type="unfinished">Timed event</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="28"/>
         <source>Event name</source>
-        <translation type="unfinished">Renginio pavadinimas</translation>
+        <translation type="unfinished">Event name</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="35"/>
         <source>Type event message text</source>
-        <translation type="unfinished">Įveskite įvykio pranešimo tekstą</translation>
+        <translation type="unfinished">Type event message text</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="47"/>
         <source>affects human</source>
-        <translation type="unfinished">veikia žmogų</translation>
+        <translation type="unfinished">affects human</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="54"/>
         <source>affects AI</source>
-        <translation type="unfinished">veikia dirbtinį intelektą</translation>
+        <translation type="unfinished">affects AI</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="70"/>
         <source>Day of first occurrence</source>
-        <translation type="unfinished">Pirmojo pasireiškimo diena</translation>
+        <translation type="unfinished">Day of first occurrence</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="91"/>
         <source>Repeat after (0 = no repeat)</source>
-        <translation type="unfinished">Kartoti po (0 = nekartoti)</translation>
+        <translation type="unfinished">Repeat after (0 = no repeat)</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="112"/>
         <source>Affected players</source>
-        <translation type="unfinished">Paveikti žaidėjai</translation>
+        <translation type="unfinished">Affected players</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="135"/>
         <source>Resources</source>
-        <translation type="unfinished">Ištekliai</translation>
+        <translation type="unfinished">Resources</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="194"/>
         <source>type</source>
-        <translation type="unfinished">tipas</translation>
+        <translation type="unfinished">type</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="199"/>
         <source>qty</source>
-        <translation type="unfinished">kiekis</translation>
+        <translation type="unfinished">qty</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="211"/>
         <source>Objects to delete</source>
-        <translation type="unfinished">Objektai, kuriuos reikia pašalinti</translation>
+        <translation type="unfinished">Objects to delete</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="218"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="225"/>
         <source>Remove</source>
-        <translation type="unfinished">Pašalinti</translation>
+        <translation type="unfinished">Remove</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="235"/>
         <source>Ok</source>
-        <translation type="unfinished">Gerai</translation>
+        <translation type="unfinished">Ok</translation>
     </message>
 </context>
 <context>
@@ -4499,42 +4502,42 @@ Sargas: %3</translation>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="29"/>
         <source>Buildings</source>
-        <translation type="unfinished">Pastatai</translation>
+        <translation type="unfinished">Buildings</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="53"/>
         <source>Build all</source>
-        <translation type="unfinished">Viską sukurti</translation>
+        <translation type="unfinished">Build all</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="60"/>
         <source>Demolish all</source>
-        <translation type="unfinished">Viską nugriauti</translation>
+        <translation type="unfinished">Demolish all</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="67"/>
         <source>Enable all</source>
-        <translation type="unfinished">Įjungti viską</translation>
+        <translation type="unfinished">Enable all</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="74"/>
         <source>Disable all</source>
-        <translation type="unfinished">Išjungti viską</translation>
+        <translation type="unfinished">Disable all</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="134"/>
         <source>Type</source>
-        <translation type="unfinished">Tipas</translation>
+        <translation type="unfinished">Type</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="134"/>
         <source>Enabled</source>
-        <translation type="unfinished">Įjungta</translation>
+        <translation type="unfinished">Enabled</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.cpp" line="134"/>
         <source>Built</source>
-        <translation type="unfinished">Pastatytas</translation>
+        <translation type="unfinished">Built</translation>
     </message>
 </context>
 <context>
@@ -4542,77 +4545,77 @@ Sargas: %3</translation>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="23"/>
         <source>Town event</source>
-        <translation type="unfinished">Miesto renginys</translation>
+        <translation type="unfinished">Town event</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="42"/>
         <source>General</source>
-        <translation type="unfinished">Bendroji informacija</translation>
+        <translation type="unfinished">General</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="57"/>
         <source>Event name</source>
-        <translation type="unfinished">Renginio pavadinimas</translation>
+        <translation type="unfinished">Event name</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="64"/>
         <source>Type event message text</source>
-        <translation type="unfinished">Įveskite įvykio pranešimo tekstą</translation>
+        <translation type="unfinished">Type event message text</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="85"/>
         <source>Day of first occurrence</source>
-        <translation type="unfinished">Pirmojo pasireiškimo diena</translation>
+        <translation type="unfinished">Day of first occurrence</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="99"/>
         <source>Repeat after (0 = no repeat)</source>
-        <translation type="unfinished">Kartoti po (0 = nekartoti)</translation>
+        <translation type="unfinished">Repeat after (0 = no repeat)</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="123"/>
         <source>Affected players</source>
-        <translation type="unfinished">Paveikti žaidėjai</translation>
+        <translation type="unfinished">Affected players</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="146"/>
         <source>affects human</source>
-        <translation type="unfinished">veikia žmogų</translation>
+        <translation type="unfinished">affects human</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="155"/>
         <source>affects AI</source>
-        <translation type="unfinished">veikia dirbtinį intelektą</translation>
+        <translation type="unfinished">affects AI</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="166"/>
         <source>Resources</source>
-        <translation type="unfinished">Ištekliai</translation>
+        <translation type="unfinished">Resources</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="198"/>
         <source>Buildings</source>
-        <translation type="unfinished">Pastatai</translation>
+        <translation type="unfinished">Buildings</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="219"/>
         <source>Creatures</source>
-        <translation type="unfinished">Būtybės</translation>
+        <translation type="unfinished">Creatures</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="258"/>
         <source>OK</source>
-        <translation type="unfinished">Gerai</translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.cpp" line="175"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
-        <translation type="unfinished">Padaro lygis %1 / Padaro lygio %1 patobulinimas</translation>
+        <translation type="unfinished">Creature level %1 / Creature level %1 Upgrade</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.cpp" line="217"/>
         <source>Day %1 - %2</source>
-        <translation type="unfinished">%1 – %2 diena</translation>
+        <translation type="unfinished">Day %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -4620,7 +4623,7 @@ Sargas: %3</translation>
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="190"/>
         <source>Day %1 - %2</source>
-        <translation type="unfinished">%1 – %2 diena</translation>
+        <translation type="unfinished">Day %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -4628,32 +4631,32 @@ Sargas: %3</translation>
     <message>
         <location filename="../inspector/towneventswidget.ui" line="29"/>
         <source>Town events</source>
-        <translation type="unfinished">Miesto renginiai</translation>
+        <translation type="unfinished">Town events</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.ui" line="37"/>
         <source>Timed events</source>
-        <translation type="unfinished">Laiku ribojami įvykiai</translation>
+        <translation type="unfinished">Timed events</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.ui" line="63"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.ui" line="76"/>
         <source>Remove</source>
-        <translation type="unfinished">Pašalinti</translation>
+        <translation type="unfinished">Remove</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="110"/>
         <source>Day %1 - %2</source>
-        <translation type="unfinished">%1 – %2 diena</translation>
+        <translation type="unfinished">Day %1 - %2</translation>
     </message>
     <message>
         <location filename="../inspector/towneventswidget.cpp" line="131"/>
         <source>New event</source>
-        <translation type="unfinished">Naujas renginys</translation>
+        <translation type="unfinished">New event</translation>
     </message>
 </context>
 <context>
@@ -4661,57 +4664,57 @@ Sargas: %3</translation>
     <message>
         <location filename="../templateeditor/townhintselector.ui" line="14"/>
         <source>Select Town hints</source>
-        <translation type="unfinished">Pasirinkite miesto užuominas</translation>
+        <translation type="unfinished">Select Town hints</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.ui" line="20"/>
         <source>Town hints</source>
-        <translation type="unfinished">Miesto patarimai</translation>
+        <translation type="unfinished">Town hints</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="25"/>
         <source>Town hint Selector</source>
-        <translation type="unfinished">Miesto užuominų parinkiklis</translation>
+        <translation type="unfinished">Town hint Selector</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="31"/>
         <source>Type</source>
-        <translation type="unfinished">Tipas</translation>
+        <translation type="unfinished">Type</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="31"/>
         <source>Value</source>
-        <translation type="unfinished">Vertė</translation>
+        <translation type="unfinished">Value</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="31"/>
         <source>Action</source>
-        <translation type="unfinished">Veiksmas</translation>
+        <translation type="unfinished">Action</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="34"/>
         <source>Like Zone</source>
-        <translation type="unfinished">„Like Zone“</translation>
+        <translation type="unfinished">Like Zone</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="35"/>
         <source>Not like zone (comma separated)</source>
-        <translation type="unfinished">Neatitinka zonos (atskirta kableliais)</translation>
+        <translation type="unfinished">Not like zone (comma separated)</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="36"/>
         <source>Related to zone terrain</source>
-        <translation type="unfinished">Susiję su zonos reljefu</translation>
+        <translation type="unfinished">Related to zone terrain</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="61"/>
         <source>Delete</source>
-        <translation type="unfinished">Ištrinti</translation>
+        <translation type="unfinished">Delete</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="100"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
 </context>
 <context>
@@ -4719,17 +4722,17 @@ Sargas: %3</translation>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="29"/>
         <source>Spells</source>
-        <translation type="unfinished">Burtai</translation>
+        <translation type="unfinished">Spells</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="47"/>
         <source>Customize spells</source>
-        <translation type="unfinished">Pritaikyti burtus</translation>
+        <translation type="unfinished">Customize spells</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="76"/>
         <source>Level 1</source>
-        <translation type="unfinished">1 lygis</translation>
+        <translation type="unfinished">Level 1</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="93"/>
@@ -4738,7 +4741,7 @@ Sargas: %3</translation>
         <location filename="../inspector/townspellswidget.ui" line="231"/>
         <location filename="../inspector/townspellswidget.ui" line="277"/>
         <source>Spell that may appear in mage guild</source>
-        <translation type="unfinished">Burtas, kuris gali pasirodyti magų gildijoje</translation>
+        <translation type="unfinished">Spell that may appear in mage guild</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="100"/>
@@ -4747,27 +4750,27 @@ Sargas: %3</translation>
         <location filename="../inspector/townspellswidget.ui" line="238"/>
         <location filename="../inspector/townspellswidget.ui" line="284"/>
         <source>Spell that must appear in mage guild</source>
-        <translation type="unfinished">Burtažodis, kuris privalo būti magų gildijoje</translation>
+        <translation type="unfinished">Spell that must appear in mage guild</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="122"/>
         <source>Level 2</source>
-        <translation type="unfinished">2 lygis</translation>
+        <translation type="unfinished">Level 2</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="168"/>
         <source>Level 3</source>
-        <translation type="unfinished">3 lygis</translation>
+        <translation type="unfinished">Level 3</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="214"/>
         <source>Level 4</source>
-        <translation type="unfinished">4 lygis</translation>
+        <translation type="unfinished">Level 4</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="260"/>
         <source>Level 5</source>
-        <translation type="unfinished">5 lygis</translation>
+        <translation type="unfinished">Level 5</translation>
     </message>
 </context>
 <context>
@@ -4775,43 +4778,43 @@ Sargas: %3</translation>
     <message>
         <location filename="../mapsettings/translations.ui" line="14"/>
         <source>Map translations</source>
-        <translation type="unfinished">Žemėlapių vertimai</translation>
+        <translation type="unfinished">Map translations</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="31"/>
         <source>Language</source>
-        <translation type="unfinished">Kalba</translation>
+        <translation type="unfinished">Language</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="48"/>
         <source>Supported</source>
-        <translation type="unfinished">Palaikoma</translation>
+        <translation type="unfinished">Supported</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="70"/>
         <source>String ID</source>
-        <translation type="unfinished">Eilutės ID</translation>
+        <translation type="unfinished">String ID</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.ui" line="75"/>
         <source>Text</source>
-        <translation type="unfinished">Tekstas</translation>
+        <translation type="unfinished">Text</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.cpp" line="178"/>
         <location filename="../mapsettings/translations.cpp" line="182"/>
         <source>Remove translation</source>
-        <translation type="unfinished">Pašalinti vertimą</translation>
+        <translation type="unfinished">Remove translation</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.cpp" line="178"/>
         <source>Default language cannot be removed</source>
-        <translation type="unfinished">Numatytosios kalbos pašalinti negalima.</translation>
+        <translation type="unfinished">Default language cannot be removed</translation>
     </message>
     <message>
         <location filename="../mapsettings/translations.cpp" line="182"/>
         <source>All existing text records for this language will be removed. Continue?</source>
-        <translation type="unfinished">Visi šios kalbos tekstiniai įrašai bus pašalinti. Tęsti?</translation>
+        <translation type="unfinished">All existing text records for this language will be removed. Continue?</translation>
     </message>
 </context>
 <context>
@@ -4820,42 +4823,42 @@ Sargas: %3</translation>
         <location filename="../templateeditor/treasureselector.ui" line="14"/>
         <location filename="../templateeditor/treasureselector.ui" line="20"/>
         <source>Select Treasures</source>
-        <translation type="unfinished">Atrinkti lobiai</translation>
+        <translation type="unfinished">Select Treasures</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="27"/>
         <source>Treasure Selector</source>
-        <translation type="unfinished">Lobių parinkiklis</translation>
+        <translation type="unfinished">Treasure Selector</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="33"/>
         <source>Min</source>
-        <translation type="unfinished">Min.</translation>
+        <translation type="unfinished">Min</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="33"/>
         <source>Max</source>
-        <translation type="unfinished">Maksas</translation>
+        <translation type="unfinished">Max</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="33"/>
         <source>Density</source>
-        <translation type="unfinished">Tankis</translation>
+        <translation type="unfinished">Density</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="33"/>
         <source>Action</source>
-        <translation type="unfinished">Veiksmas</translation>
+        <translation type="unfinished">Action</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="51"/>
         <source>Delete</source>
-        <translation type="unfinished">Ištrinti</translation>
+        <translation type="unfinished">Delete</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="66"/>
         <source>Add</source>
-        <translation type="unfinished">Pridėti</translation>
+        <translation type="unfinished">Add</translation>
     </message>
 </context>
 <context>
@@ -4863,27 +4866,27 @@ Sargas: %3</translation>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="77"/>
         <source>Terrain Selector</source>
-        <translation type="unfinished">Reljefo parinkiklis</translation>
+        <translation type="unfinished">Terrain Selector</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="81"/>
         <source>Spell Selector</source>
-        <translation type="unfinished">Burto pasirinkimo įrankis</translation>
+        <translation type="unfinished">Spell Selector</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="85"/>
         <source>Artifact Selector</source>
-        <translation type="unfinished">Artefaktų parinkiklis</translation>
+        <translation type="unfinished">Artifact Selector</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="89"/>
         <source>Skill Selector</source>
-        <translation type="unfinished">Įgūdžių pasirinkimo įrankis</translation>
+        <translation type="unfinished">Skill Selector</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="93"/>
         <source>Hero Type Selector</source>
-        <translation type="unfinished">Herojaus tipo pasirinkimo įrankis</translation>
+        <translation type="unfinished">Hero Type Selector</translation>
     </message>
 </context>
 <context>
@@ -4891,177 +4894,177 @@ Sargas: %3</translation>
     <message>
         <location filename="../validator.ui" line="17"/>
         <source>Map validation results</source>
-        <translation type="unfinished">Žemėlapio tikrinimo rezultatai</translation>
+        <translation type="unfinished">Map validation results</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="51"/>
         <source>Map is not loaded</source>
-        <translation type="unfinished">Žemėlapis neįkeltas</translation>
+        <translation type="unfinished">Map is not loaded</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="73"/>
         <source>No factions allowed for player %1</source>
-        <translation type="unfinished">Žaidėjui %1 frakcijos neleidžiamos.</translation>
+        <translation type="unfinished">No factions allowed for player %1</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="76"/>
         <source>No players allowed to play this map</source>
-        <translation type="unfinished">Žaidėjams neleidžiama žaisti šiame žemėlapyje.</translation>
+        <translation type="unfinished">No players allowed to play this map</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="78"/>
         <source>Map is allowed for one player and cannot be started</source>
-        <translation type="unfinished">Žemėlapis skirtas vienam žaidėjui, tačiau jo nepavyksta pradėti.</translation>
+        <translation type="unfinished">Map is allowed for one player and cannot be started</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="80"/>
         <source>No human players allowed to play this map</source>
-        <translation type="unfinished">Šiame žemėlapyje žmonėms žaisti neleidžiama.</translation>
+        <translation type="unfinished">No human players allowed to play this map</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="91"/>
         <source>Object&apos;s %1 visitable position %2 is outside of the map bounds</source>
-        <translation type="unfinished">Objekto %1 pasiekiama pozicija %2 yra už žemėlapio ribų.</translation>
+        <translation type="unfinished">Object&apos;s %1 visitable position %2 is outside of the map bounds</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="106"/>
         <source>Object %1 is assigned to non-playable player %2</source>
-        <translation type="unfinished">Objektas %1 priskirtas nežaidžiančiam žaidėjui %2</translation>
+        <translation type="unfinished">Object %1 is assigned to non-playable player %2</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="151"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
-        <translation type="unfinished">Burto ritiniui %1 nepriskirtas egzempliorius, todėl jis turi būti pašalintas.</translation>
+        <translation type="unfinished">Spell scroll %1 doesn&apos;t have instance assigned and must be removed</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="157"/>
         <source>Artifact %1 is prohibited by map settings</source>
-        <translation type="unfinished">Artefaktas %1 uždraustas pagal žemėlapio nustatymus</translation>
+        <translation type="unfinished">Artifact %1 is prohibited by map settings</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="227"/>
         <source>Player %1 has no towns and heroes assigned</source>
-        <translation type="unfinished">Žaidėjui %1 nepriskirta jokių miestų ar herojų.</translation>
+        <translation type="unfinished">Player %1 has no towns and heroes assigned</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="119"/>
         <source>Prison %1 must be a NEUTRAL</source>
-        <translation type="unfinished">Kalėjimas %1 turi būti NEUTRALUS</translation>
+        <translation type="unfinished">Prison %1 must be a NEUTRAL</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="100"/>
         <source>Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</source>
-        <translation type="unfinished">Valdomas objektas %1 negali būti pažymėtas vėliava, tačiau privalo turėti neutralų savininką arba priklausyti žaidėjui.</translation>
+        <translation type="unfinished">Ownable object %1 is UNFLAGGABLE but must have NEUTRAL or player owner</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="124"/>
         <source>Hero %1 must have an owner</source>
-        <translation type="unfinished">Herojus %1 privalo turėti savininką</translation>
+        <translation type="unfinished">Hero %1 must have an owner</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="131"/>
         <source>Hero %1 is prohibited by map settings</source>
-        <translation type="unfinished">Herojus %1 uždraustas pagal žemėlapio nustatymus</translation>
+        <translation type="unfinished">Hero %1 is prohibited by map settings</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="134"/>
         <source>Hero %1 has duplicate on map</source>
-        <translation type="unfinished">Herojus %1 žemėlapyje turi dublikatą.</translation>
+        <translation type="unfinished">Hero %1 has duplicate on map</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="137"/>
         <source>Hero %1 has an empty type and must be removed</source>
-        <translation type="unfinished">Herojus %1 turi tuščią tipą ir turi būti pašalintas.</translation>
+        <translation type="unfinished">Hero %1 has an empty type and must be removed</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="148"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
-        <translation type="unfinished">Burto ritinys %1 uždraustas pagal žemėlapio nustatymus.</translation>
+        <translation type="unfinished">Spell scroll %1 is prohibited by map settings</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="166"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
-        <translation type="unfinished">Raganos namelyje (x: %1, y: %2, %3 sluoksnis) yra netinkamas apdovanojimas.</translation>
+        <translation type="unfinished">A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="171"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
-        <translation type="unfinished">Raganos trobelės (x: %1, y: %2, %3) redaktorius negali patvirtinti.</translation>
+        <translation type="unfinished">A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="184"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
-        <translation type="unfinished">Mokslininkas (x: %1, y: %2, %3 sluoksnis) turi netinkamą atlygį.</translation>
+        <translation type="unfinished">A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="190"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished">Mokslininkas (x: %1, y: %2, %3 sluoksnis) suteikia apdovanojimą, kurį draudžia žemėlapio nuostatos. Ar tai numatyta?</translation>
+        <translation type="unfinished">A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="196"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
-        <translation type="unfinished">Redaktorius negali patvirtinti objekto (x: %1, y: %2, sluoksnis %3).</translation>
+        <translation type="unfinished">A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="207"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
-        <translation type="unfinished">Šventovėje, esančioje x: %1, y: %2, %3 sluoksnyje, yra netinkamas burtas.</translation>
+        <translation type="unfinished">A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="213"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished">Šventovė, esanti x: %1, y: %2, %3 sluoksnyje, suteikia žemėlapio nustatymais uždraustą burtą. Ar tai numatyta?</translation>
+        <translation type="unfinished">A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="229"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
-        <translation type="unfinished">Žaidėjas %1 neturi jokio pradinio miesto.</translation>
+        <translation type="unfinished">Player %1 doesn&apos;t have any starting town</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="235"/>
         <source>Map name is not specified</source>
-        <translation type="unfinished">Žemėlapio pavadinimas nenurodytas</translation>
+        <translation type="unfinished">Map name is not specified</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="237"/>
         <source>Map description is not specified</source>
-        <translation type="unfinished">Žemėlapio aprašymas nenurodytas.</translation>
+        <translation type="unfinished">Map description is not specified</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="254"/>
         <source>defeat a specific hero</source>
-        <translation type="unfinished">įveikti konkretų herojų</translation>
+        <translation type="unfinished">defeat a specific hero</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="255"/>
         <source>lose a specific hero</source>
-        <translation type="unfinished">prarasti konkretų herojų</translation>
+        <translation type="unfinished">lose a specific hero</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="258"/>
         <source>hero placeholder</source>
-        <translation type="unfinished">Pagrindinės iliustracijos vieta</translation>
+        <translation type="unfinished">hero placeholder</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="260"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
-        <translation type="unfinished">Sužadinamas įvykis „%1“ naudoja „%2“ sąlygą, nukreiptą į „%3“ (vieta: „%4“). Ši konfigūracija yra neįprasta, todėl jos reikėtų vengti; žemėlapis išliks žaidžiamas, tačiau sąlyga liks neišspręsta, nebent palaikomas vietos laikinojo žymeklio (angl. *placeholder*) pakeitimas.</translation>
+        <translation type="unfinished">Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="328"/>
         <source>The map is valid and has no issues.</source>
-        <translation type="unfinished">Žemėlapis yra galiojantis ir su juo nėra jokių problemų.</translation>
+        <translation type="unfinished">The map is valid and has no issues.</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="273"/>
         <source>Exception occurs during validation: %1</source>
-        <translation type="unfinished">Patvirtinimo metu įvyko išimtis: %1</translation>
+        <translation type="unfinished">Exception occurs during validation: %1</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="277"/>
         <source>Unknown exception occurs during validation</source>
-        <translation type="unfinished">Tikrinimo metu įvyko nežinoma išimtis.</translation>
+        <translation type="unfinished">Unknown exception occurs during validation</translation>
     </message>
 </context>
 <context>
@@ -5069,82 +5072,82 @@ Sargas: %3</translation>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished">Forma</translation>
+        <translation type="unfinished">Form</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="40"/>
         <source>Victory message</source>
-        <translation type="unfinished">Pergalės žinutė</translation>
+        <translation type="unfinished">Victory message</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="59"/>
         <source>Only for human players</source>
-        <translation type="unfinished">Tik žmonėms žaidėjams</translation>
+        <translation type="unfinished">Only for human players</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="66"/>
         <source>Allow standard victory</source>
-        <translation type="unfinished">Leisti pasiekti standartinę pergalę</translation>
+        <translation type="unfinished">Allow standard victory</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.ui" line="79"/>
         <source>Parameters</source>
-        <translation type="unfinished">Parametrai</translation>
+        <translation type="unfinished">Parameters</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="42"/>
         <source>No special victory</source>
-        <translation type="unfinished">Jokios ypatingos pergalės</translation>
+        <translation type="unfinished">No special victory</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Capture artifact</source>
-        <translation type="unfinished">Užgrobti artefaktą</translation>
+        <translation type="unfinished">Capture artifact</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
         <source>Hire creatures</source>
-        <translation type="unfinished">Samdyti būtybes</translation>
+        <translation type="unfinished">Hire creatures</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="45"/>
         <source>Accumulate resources</source>
-        <translation type="unfinished">Kaupti išteklius</translation>
+        <translation type="unfinished">Accumulate resources</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="46"/>
         <source>Construct building</source>
-        <translation type="unfinished">Statyti pastatą</translation>
+        <translation type="unfinished">Construct building</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="47"/>
         <source>Capture town</source>
-        <translation type="unfinished">Užimti miestą</translation>
+        <translation type="unfinished">Capture town</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="48"/>
         <source>Defeat hero</source>
-        <translation type="unfinished">Nugalėti herojų</translation>
+        <translation type="unfinished">Defeat hero</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="49"/>
         <source>Transport artifact</source>
-        <translation type="unfinished">Transporto artefaktas</translation>
+        <translation type="unfinished">Transport artifact</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="50"/>
         <source>Kill monster</source>
-        <translation type="unfinished">Nužudyk pabaisą</translation>
+        <translation type="unfinished">Kill monster</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="51"/>
         <source>Capture all mines</source>
-        <translation type="unfinished">Užimkite visas minas</translation>
+        <translation type="unfinished">Capture all mines</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="454"/>
         <source>Any town</source>
-        <translation type="unfinished">Bet kuris miestas</translation>
+        <translation type="unfinished">Any town</translation>
     </message>
 </context>
 <context>
@@ -5152,22 +5155,22 @@ Sargas: %3</translation>
     <message>
         <location filename="../windownewmap.ui" line="20"/>
         <source>Create new map</source>
-        <translation type="unfinished">Sukurti naują žemėlapį</translation>
+        <translation type="unfinished">Create new map</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="35"/>
         <source>Map size</source>
-        <translation type="unfinished">Žemėlapio dydis</translation>
+        <translation type="unfinished">Map size</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="203"/>
         <source>Height</source>
-        <translation type="unfinished">Ūgis</translation>
+        <translation type="unfinished">Height</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="164"/>
         <source>Width</source>
-        <translation type="unfinished">Plotis</translation>
+        <translation type="unfinished">Width</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="96"/>
@@ -5177,47 +5180,47 @@ Sargas: %3</translation>
     <message>
         <location filename="../windownewmap.ui" line="358"/>
         <source>Random map</source>
-        <translation type="unfinished">Atsitiktinis žemėlapis</translation>
+        <translation type="unfinished">Random map</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="370"/>
         <source>Players</source>
-        <translation type="unfinished">Žaidėjai</translation>
+        <translation type="unfinished">Players</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="81"/>
         <source>S  (36x36)</source>
-        <translation type="unfinished">S (36x36)</translation>
+        <translation type="unfinished">S  (36x36)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="86"/>
         <source>M  (72x72)</source>
-        <translation type="unfinished">M (72x72)</translation>
+        <translation type="unfinished">M  (72x72)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="91"/>
         <source>L  (108x108)</source>
-        <translation type="unfinished">D (108 x 108)</translation>
+        <translation type="unfinished">L  (108x108)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="101"/>
         <source>H  (180x180)</source>
-        <translation type="unfinished">Aukšta (180 x 180)</translation>
+        <translation type="unfinished">H  (180x180)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="106"/>
         <source>XH (216x216)</source>
-        <translation type="unfinished">XH (216 x 216)</translation>
+        <translation type="unfinished">XH (216x216)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="111"/>
         <source>G  (252x252)</source>
-        <translation type="unfinished">G (252 x 252)</translation>
+        <translation type="unfinished">G  (252x252)</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="300"/>
         <source>Levels</source>
-        <translation type="unfinished">Lygiai</translation>
+        <translation type="unfinished">Levels</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="398"/>
@@ -5225,154 +5228,154 @@ Sargas: %3</translation>
         <location filename="../windownewmap.ui" line="620"/>
         <location filename="../windownewmap.ui" line="760"/>
         <source>Random</source>
-        <translation type="unfinished">Atsitiktinis</translation>
+        <translation type="unfinished">Random</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="490"/>
         <source>Human teams</source>
-        <translation type="unfinished">Žmonių komandos</translation>
+        <translation type="unfinished">Human teams</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="477"/>
         <source>Computer teams</source>
-        <translation type="unfinished">Kompiuterių grupės</translation>
+        <translation type="unfinished">Computer teams</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="253"/>
         <source>Standard size</source>
-        <translation type="unfinished">Standartinis dydis</translation>
+        <translation type="unfinished">Standard size</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="278"/>
         <source>Custom size</source>
-        <translation type="unfinished">Individualus dydis</translation>
+        <translation type="unfinished">Custom size</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="326"/>
         <source>Layer</source>
-        <translation type="unfinished">Sluoksnis</translation>
+        <translation type="unfinished">Layer</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="458"/>
         <source>Humans</source>
-        <translation type="unfinished">Žmonės</translation>
+        <translation type="unfinished">Humans</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="521"/>
         <source>Computers</source>
-        <translation type="unfinished">Kompiuteriai</translation>
+        <translation type="unfinished">Computers</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="587"/>
         <source>Monster strength</source>
-        <translation type="unfinished">Milžiniška jėga</translation>
+        <translation type="unfinished">Monster strength</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="648"/>
         <source>Weak</source>
-        <translation type="unfinished">Silpnas</translation>
+        <translation type="unfinished">Weak</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="673"/>
         <location filename="../windownewmap.ui" line="813"/>
         <source>Normal</source>
-        <translation type="unfinished">Normalus</translation>
+        <translation type="unfinished">Normal</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="698"/>
         <source>Strong</source>
-        <translation type="unfinished">Stiprus</translation>
+        <translation type="unfinished">Strong</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="727"/>
         <source>Water content</source>
-        <translation type="unfinished">Vandens kiekis</translation>
+        <translation type="unfinished">Water content</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="788"/>
         <source>None</source>
-        <translation type="unfinished">Nėra</translation>
+        <translation type="unfinished">None</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="838"/>
         <source>Islands</source>
-        <translation type="unfinished">Salos</translation>
+        <translation type="unfinished">Islands</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="867"/>
         <source>Roads</source>
-        <translation type="unfinished">Keliai</translation>
+        <translation type="unfinished">Roads</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="888"/>
         <source>Dirt</source>
-        <translation type="unfinished">Purvas</translation>
+        <translation type="unfinished">Dirt</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="901"/>
         <source>Gravel</source>
-        <translation type="unfinished">Žvyras</translation>
+        <translation type="unfinished">Gravel</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="914"/>
         <source>Cobblestone</source>
-        <translation type="unfinished">Grindinys iš akmenų</translation>
+        <translation type="unfinished">Cobblestone</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="947"/>
         <location filename="../windownewmap.ui" line="974"/>
         <source>Template</source>
-        <translation type="unfinished">Šablonas</translation>
+        <translation type="unfinished">Template</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="1012"/>
         <source>Custom seed</source>
-        <translation type="unfinished">Individuali sėkla</translation>
+        <translation type="unfinished">Custom seed</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="1049"/>
         <source>Generate random map</source>
-        <translation type="unfinished">Sukurti atsitiktinį žemėlapį</translation>
+        <translation type="unfinished">Generate random map</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="1077"/>
         <source>OK</source>
-        <translation type="unfinished">Gerai</translation>
+        <translation type="unfinished">OK</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="1096"/>
         <source>Cancel</source>
-        <translation type="unfinished">Atšaukti</translation>
+        <translation type="unfinished">Cancel</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="310"/>
         <source>No template</source>
-        <translation type="unfinished">Nėra šablono</translation>
+        <translation type="unfinished">No template</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="310"/>
         <source>No template for parameters specified. Random map cannot be generated.</source>
-        <translation type="unfinished">Nenurodytas parametrų šablonas. Atsitiktinio žemėlapio sugeneruoti nepavyks.</translation>
+        <translation type="unfinished">No template for parameters specified. Random map cannot be generated.</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="332"/>
         <source>RMG failure</source>
-        <translation type="unfinished">RMG gedimas</translation>
+        <translation type="unfinished">RMG failure</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="360"/>
         <source>Multilevel support</source>
-        <translation type="unfinished">Įvairių lygių palaikymas</translation>
+        <translation type="unfinished">Multilevel support</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="360"/>
         <source>Multilevel support is highly experimental yet. Expect issues.</source>
-        <translation type="unfinished">Daugiapakopis palaikymas vis dar yra labai eksperimentinės stadijos. Tikėkitės problemų.</translation>
+        <translation type="unfinished">Multilevel support is highly experimental yet. Expect issues.</translation>
     </message>
     <message>
         <location filename="../windownewmap.cpp" line="484"/>
         <source>[default]</source>
-        <translation type="unfinished">[numatytasis]</translation>
+        <translation type="unfinished">[default]</translation>
     </message>
 </context>
 <context>
@@ -5380,27 +5383,27 @@ Sargas: %3</translation>
     <message>
         <location filename="../mainwindow.cpp" line="186"/>
         <source>Filepath of the map to open.</source>
-        <translation type="unfinished">Atidaromo žemėlapio failo kelias.</translation>
+        <translation type="unfinished">Filepath of the map to open.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="189"/>
         <source>Extract original H3 archives into a separate folder.</source>
-        <translation type="unfinished">Išskleiskite originalius H3 archyvus į atskirą aplanką.</translation>
+        <translation type="unfinished">Extract original H3 archives into a separate folder.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="190"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
-        <translation type="unfinished">Iš išskleisto archyvo „TwCrPort“, „CPRSMALL“, „FlagPort“, „ITPA“, „ITPt“, „Un32“ ir „Un44“ išskaidomi į atskirus PNG failus.</translation>
+        <translation type="unfinished">From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="191"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
-        <translation type="unfinished">Iš išskleisto archyvo konvertuoja atskirus paveikslėlius (esančius aplanke „Images“) iš .pcx į .png formatą.</translation>
+        <translation type="unfinished">From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="192"/>
         <source>Delete original files, for the ones split / converted.</source>
-        <translation type="unfinished">Ištrinti originalius failus (tuos, kurie buvo padalyti arba konvertuoti).</translation>
+        <translation type="unfinished">Delete original files, for the ones split / converted.</translation>
     </message>
 </context>
 <context>
