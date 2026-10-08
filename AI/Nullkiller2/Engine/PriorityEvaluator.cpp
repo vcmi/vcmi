@@ -20,6 +20,7 @@
 #include "../../../lib/RoadHandler.h"
 #include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/GameLibrary.h"
+#include "../../../lib/entities/hero/CHeroHandler.h"
 #include "../../../lib/StartInfo.h"
 #include "../../../lib/GameSettings.h"
 #include "../../../lib/filesystem/Filesystem.h"
@@ -705,6 +706,15 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 					totalValue += value;
 				}
 			}
+
+			// each gained level is worth as much as a Tree of Knowledge visit
+			TExpType gainedExp = 0;
+			if(info.reward.heroLevel > 0)
+				gainedExp += hero->experienceToGainLevels(info.reward.heroLevel);
+			if(info.reward.heroExperience > 0)
+				gainedExp += hero->calculateXp(info.reward.heroExperience);
+			if(gainedExp > 0)
+				totalValue += LIBRARY->heroh->level(hero->exp + gainedExp) - hero->level;
 		}
 
 		return totalValue;
