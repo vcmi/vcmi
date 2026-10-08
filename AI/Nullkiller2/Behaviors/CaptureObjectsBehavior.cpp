@@ -61,7 +61,7 @@ std::string CaptureObjectsBehavior::toString() const
 
 bool CaptureObjectsBehavior::operator==(const CaptureObjectsBehavior & other) const
 {
-	if(specificObjects != other.specificObjects)
+	if(specificObjects != other.specificObjects || forceVisit != other.forceVisit)
 		return false;
 
 	if(specificObjects)
@@ -240,7 +240,7 @@ void CaptureObjectsBehavior::decomposeObjects(
 #if NK2AI_TRACE_LEVEL >= 1
 				logAi->trace("Found %d paths", paths.size());
 #endif
-				vstd::concatenate(tasksLocal, getVisitGoals(paths, nullkiller, objToVisit, specificObjects));
+				vstd::concatenate(tasksLocal, getVisitGoals(paths, nullkiller, objToVisit, forceVisit));
 			}
 
 			std::lock_guard lock(sync); // FIXME: consider using tbb::parallel_reduce instead to avoid mutex overhead

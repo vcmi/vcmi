@@ -211,8 +211,8 @@ TGoalVec CompleteQuest::visitObjectsGranting(const Nullkiller * aiNk, const std:
 			sources.push_back(obj);
 	}
 
-	// shouldVisit, applied to every route, keeps out heroes that the object would not reward
-	return CaptureObjectsBehavior(sources).decompose(aiNk);
+	// shouldVisit keeps out heroes that the object would not reward, such as a seer asking for another hero
+	return CaptureObjectsBehavior(sources).withoutForcedVisit().decompose(aiNk);
 }
 
 TGoalVec CompleteQuest::missionKeymaster(const Nullkiller * aiNk) const
