@@ -29,6 +29,7 @@ set(lib_SRCS
 	logging/CLogger.cpp
 	logging/VisualLogger.cpp
 
+	network/HttpDownloader.cpp
 	network/NetworkConnection.cpp
 	network/NetworkDiscovery.cpp
 	network/NetworkHandler.cpp
@@ -390,6 +391,7 @@ set(lib_HEADERS
 	logging/CLogger.h
 	logging/VisualLogger.h
 
+	network/HttpDownloader.h
 	network/NetworkConnection.h
 	network/NetworkDefines.h
 	network/NetworkDiscovery.h
@@ -867,6 +869,10 @@ endif()
 
 if(IOS)
 	target_link_libraries(vcmiMain PUBLIC iOS_utils)
+endif()
+
+if(ENABLE_LIBCURL)
+	target_link_libraries(vcmiMain PUBLIC CURL::libcurl)
 endif()
 
 target_include_directories(vcmiMain

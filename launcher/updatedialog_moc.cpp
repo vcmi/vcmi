@@ -13,9 +13,7 @@
 
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameConstants.h"
-
-#include <QNetworkReply>
-#include <QNetworkRequest>
+#include "../vcmiqt/jsonutils.h"
 
 UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 	QDialog(parent),
@@ -52,29 +50,30 @@ UpdateDialog::UpdateDialog(bool calledManually, QWidget *parent):
 #endif
 	
 	QString url = QString::fromStdString(settings["launcher"]["updateConfigUrl"].String());
-		
-	QNetworkReply *response = networkManager.get(QNetworkRequest(QUrl(url)));
-	
-	connect(response, &QNetworkReply::finished, [&, response]{
-		response->deleteLater();
-		
-		if(response->error() != QNetworkReply::NoError)
-		{
-			ui->versionLabel->setStyleSheet("QLabel { background-color : red; color : black; }");
-			ui->versionLabel->setText(tr("Network error"));
-			ui->plainTextEdit->setPlainText(response->errorString());
-			return;
-		}
-		
-		auto byteArray = response->readAll();
-		JsonNode node(reinterpret_cast<const std::byte*>(byteArray.constData()), byteArray.size(), "<network packet from server at updateConfigUrl>");
-		loadFromJson(node);
+
+	connect(&downloadManager, &CDownloadManager::finished, this, [this](const QStringList & savedFiles, const QStringList &, const QStringList & errors)
+	{
+		onDownloadFinished(savedFiles, errors);
 	});
+	downloadManager.downloadFile(QUrl(url), "vcmi-updates.json");
 }
 
 UpdateDialog::~UpdateDialog()
 {
 	delete ui;
+}
+
+void UpdateDialog::onDownloadFinished(const QStringList & savedFiles, const QStringList & errors)
+{
+	if(savedFiles.isEmpty())
+	{
+		ui->versionLabel->setStyleSheet("QLabel { background-color : red; color : black; }");
+		ui->versionLabel->setText(tr("Network error"));
+		ui->plainTextEdit->setPlainText(errors.join("\n"));
+		return;
+	}
+
+	loadFromJson(JsonUtils::jsonFromFile(savedFiles.front()));
 }
 
 void UpdateDialog::showUpdateDialog(bool isManually)

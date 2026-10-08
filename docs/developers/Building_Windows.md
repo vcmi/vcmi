@@ -321,6 +321,7 @@ Use this setup only if you specifically need a MinGW build. It does not use Cona
      mingw-w64-ucrt-x86_64-boost \
      mingw-w64-ucrt-x86_64-zlib \
      mingw-w64-ucrt-x86_64-minizip \
+     mingw-w64-ucrt-x86_64-curl \
      mingw-w64-ucrt-x86_64-ffmpeg \
      mingw-w64-ucrt-x86_64-SDL2 \
      mingw-w64-ucrt-x86_64-SDL2_image \

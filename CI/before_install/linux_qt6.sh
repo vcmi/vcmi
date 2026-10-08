@@ -16,6 +16,7 @@ sudo eatmydata apt -yq --no-install-recommends \
   -o APT::Keep-Downloaded-Packages=true \
   -o Acquire::Retries=3 -o Dpkg::Use-Pty=0 \
   install \
+  libcurl4-openssl-dev \
   libboost-dev libboost-filesystem-dev libboost-date-time-dev \
   libboost-program-options-dev libboost-iostreams-dev \
   libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev \

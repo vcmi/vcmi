@@ -19,6 +19,7 @@
 #include "../../vcmiqt/jsonutils.h"
 #include "../languages.h"
 
+#include <QDesktopServices>
 #include <QFileInfo>
 #include <QGuiApplication>
 
@@ -244,6 +245,7 @@ void CSettingsView::loadSettings()
 
 	ui->lineEditRepositoryDefault->setText(QString::fromStdString(settings["launcher"]["defaultRepositoryURL"].String()));
 	ui->lineEditRepositoryExtra->setText(QString::fromStdString(settings["launcher"]["extraRepositoryURL"].String()));
+	ui->lineEditHttpProxy->setText(QString::fromStdString(settings["launcher"]["httpProxy"].String()));
 
 	ui->lineEditRepositoryDefault->setEnabled(settings["launcher"]["defaultRepositoryEnabled"].Bool());
 	ui->lineEditRepositoryExtra->setEnabled(settings["launcher"]["extraRepositoryEnabled"].Bool());
@@ -820,6 +822,17 @@ void CSettingsView::on_lineEditRepositoryExtra_textEdited(const QString &arg1)
 {
 	Settings node = settings.write["launcher"]["extraRepositoryURL"];
 	node->String() = arg1.toStdString();
+}
+
+void CSettingsView::on_lineEditHttpProxy_textEdited(const QString &arg1)
+{
+	Settings node = settings.write["launcher"]["httpProxy"];
+	node->String() = arg1.trimmed().toStdString();
+}
+
+void CSettingsView::on_buttonHttpProxyHelp_clicked()
+{
+	QDesktopServices::openUrl(QUrl("https://curl.se/libcurl/c/CURLOPT_PROXY.html"));
 }
 
 void CSettingsView::on_spinBoxInterfaceScaling_valueChanged(int arg1)

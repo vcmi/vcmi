@@ -387,6 +387,12 @@ if(ENABLE_LAUNCHER)
 	add_definitions(-DENABLE_LAUNCHER)
 endif()
 
+# libcurl is used only for downloads in launcher
+set(ENABLE_LIBCURL ${ENABLE_LAUNCHER})
+if(ENABLE_LIBCURL)
+	add_definitions(-DENABLE_LIBCURL)
+endif()
+
 if(ENABLE_EDITOR)
 	add_definitions(-DENABLE_EDITOR)
 endif()
@@ -586,6 +592,10 @@ if(NOT minizip_FOUND)
 	add_library(minizip::minizip ALIAS MINIZIP::minizip-ng)
 endif()
 
+if(ENABLE_LIBCURL)
+	find_package(CURL REQUIRED)
+endif()
+
 if (ENABLE_CLIENT)
 	if (ENABLE_VIDEO)
 		find_package(ffmpeg REQUIRED COMPONENTS avutil swscale avformat avcodec swresample)
@@ -667,8 +677,8 @@ endif()
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
-	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
-	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 	if(ENABLE_TEMPLATE_EDITOR)
 		find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Svg Xml)
