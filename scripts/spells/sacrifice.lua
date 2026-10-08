@@ -77,6 +77,7 @@ function Script:applicableTarget(mechanics, problem, target)
 	local victim = target[2].unit
 	if not victim or not victim:isAlive() then return false end
 	if victim:unitID() == healed:unitID() then return false end
+	if victim:isClone() then return false end
 	if not mechanics:isReceptive(victim) then return false end
 	if mechanics:isSmart() and not mechanics:ownerMatches(victim) then return false end
 	return true
