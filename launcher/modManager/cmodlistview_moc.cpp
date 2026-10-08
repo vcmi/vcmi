@@ -874,10 +874,21 @@ void CModListView::downloadProgress(QString currentFile, qint64 current, qint64 
 
 	const auto toMegabytes = [](qint64 bytes){ return QString::number(bytes / (1024.0 * 1024.0), 'f', 1); };
 
+	// progress is summed over all downloads in the batch, which run concurrently
+	const auto batchFiles = enqueuedDownloadDescriptions.keys();
+	const bool batchHasOnlyMods = std::all_of(batchFiles.begin(), batchFiles.end(), [this](const QString & file)
+	{
+		return file.endsWith(".zip") && enqueuedModDownloads.contains(file.chopped(4));
+	});
+
+	QString progressBarFormat;
+	if(batchHasOnlyMods && enqueuedModDownloads.size() > 1)
+		progressBarFormat = tr("Downloading %n mods. %p% (%v MB out of %m MB) finished", "", static_cast<int>(enqueuedModDownloads.size()));
+	else
+		progressBarFormat = tr("Downloading %1. %p% (%v MB out of %m MB) finished").arg(enqueuedDownloadDescriptions.value(activeDownloadFile, activeDownloadFile));
+
 	// text shows megabytes, but %v and %m of progress bar would show its range, which is in kilobytes
-	const auto currentDescription = enqueuedDownloadDescriptions.value(activeDownloadFile, activeDownloadFile);
-	const auto progressBarFormat = tr("Downloading %1. %p% (%v MB out of %m MB) finished")
-		.arg(currentDescription)
+	progressBarFormat
 		.replace("%v", toMegabytes(current))
 		.replace("%m", toMegabytes(max));
 	ui->progressBar->setFormat(progressBarFormat);
