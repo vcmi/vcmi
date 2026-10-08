@@ -166,13 +166,11 @@ DLL_LINKAGE bool ArtifactUtils::isArtRemovable(const std::pair<ArtifactPosition,
 
 DLL_LINKAGE bool ArtifactUtils::checkSpellbookIsNeeded(const CGHeroInstance * heroPtr, const ArtifactID & artID, const ArtifactPosition & slot)
 {
-	// Preserve native Titan's Thunder behavior in addition to the generic bonus
 	const auto * artifact = artID.toArtifact();
 
-	if((artID == ArtifactID::TITANS_THUNDER && slot == ArtifactPosition::RIGHT_HAND)
-	|| (artifact
+	if(artifact
 		&& artifact->hasBonusOfType(BonusType::GRANTS_SPELLBOOK)
-		&& vstd::contains(ArtifactUtils::commonWornSlots(), slot)))
+		&& vstd::contains(ArtifactUtils::commonWornSlots(), slot))
 	{
 		if(heroPtr && !heroPtr->hasSpellbook())
 		{
