@@ -81,26 +81,6 @@ bool executeSpecialAction(
 }
 }
 
-bool Goals::shouldSkipCompletedChainNode(
-	size_t nodeIndex,
-	size_t nodeCount,
-	const int3 & heroPosition,
-	const int3 & nodePosition,
-	const int3 & followingNodePosition,
-	ObjectInstanceID heroWhirlpool,
-	ObjectInstanceID nodeWhirlpool)
-{
-	if(nodeIndex > 0 && heroPosition == nodePosition)
-		return true;
-
-	const bool hasFollowingNode = nodeIndex + 1 < nodeCount;
-	const bool positionChanged = heroPosition != followingNodePosition;
-	return hasFollowingNode
-		&& positionChanged
-		&& heroWhirlpool.hasValue()
-		&& heroWhirlpool == nodeWhirlpool;
-}
-
 ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance * obj)
 	:ElementarGoal(Goals::EXECUTE_HERO_CHAIN), chainPath(path), closestWayRatio(1)
 {
@@ -321,18 +301,13 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 				auto sourceWhirlpool = findWhirlpool(hero->visitablePos());
 				auto targetWhirlpool = findWhirlpool(node->coord);
-				const int3 followingNodePosition = i + 1 < chainPath.nodes.size()
-					? chainPath.nodes[i + 1].coord
-					: int3(-1);
+				const bool heroAlreadyOnNode = i > 0 && hero->visitablePos() == node->coord;
+				const bool stalledOnWhirlpool = i != chainPath.nodes.size() - 1
+					&& hero->visitablePos() != chainPath.nodes[i + 1].coord
+					&& sourceWhirlpool.hasValue()
+					&& sourceWhirlpool == targetWhirlpool;
 
-				if(shouldSkipCompletedChainNode(
-					i,
-					chainPath.nodes.size(),
-					hero->visitablePos(),
-					node->coord,
-					followingNodePosition,
-					sourceWhirlpool,
-					targetWhirlpool))
+				if(heroAlreadyOnNode || stalledOnWhirlpool)
 				{
 					if(hero->visitablePos() != node->coord)
 						logAi->trace("AI exited whirlpool at %s but expected at %s", hero->visitablePos().toString(), node->coord.toString());

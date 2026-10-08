@@ -22,24 +22,6 @@
 
 #include <tbb/global_control.h>
 
-namespace NK2AI
-{
-class NullkillerTaskFailureTestAccess
-{
-public:
-	static bool executeTask(Nullkiller & ai, const Goals::TTask & task)
-	{
-		return ai.executeTask(task);
-	}
-
-	static void prepareState(Nullkiller & ai)
-	{
-		ai.resetState();
-		ai.updateState();
-	}
-};
-}
-
 namespace
 {
 const PlayerColor PLAYER(0);
@@ -120,6 +102,41 @@ protected:
 };
 }
 
+TEST(Nullkiller2_Engine_TaskFailure, triesNextTaskWhenAnotherCandidateIsAvailable)
+{
+	EXPECT_EQ(
+		NK2AI::chooseTaskFailureAction(false, true, false),
+		NK2AI::TaskFailureAction::TRY_NEXT_TASK);
+}
+
+TEST(Nullkiller2_Engine_TaskFailure, replansAfterPreviousProgressEvenWithRemainingTasks)
+{
+	EXPECT_EQ(
+		NK2AI::chooseTaskFailureAction(true, true, false),
+		NK2AI::TaskFailureAction::REPLAN);
+}
+
+TEST(Nullkiller2_Engine_TaskFailure, replansAfterPreviousProgress)
+{
+	EXPECT_EQ(
+		NK2AI::chooseTaskFailureAction(true, false, false),
+		NK2AI::TaskFailureAction::REPLAN);
+}
+
+TEST(Nullkiller2_Engine_TaskFailure, replansWhenAnotherHeroCanStillMove)
+{
+	EXPECT_EQ(
+		NK2AI::chooseTaskFailureAction(false, false, true),
+		NK2AI::TaskFailureAction::REPLAN);
+}
+
+TEST(Nullkiller2_Engine_TaskFailure, stopsWhenNoProgressOrAlternativeExists)
+{
+	EXPECT_EQ(
+		NK2AI::chooseTaskFailureAction(false, false, false),
+		NK2AI::TaskFailureAction::STOP_TURN);
+}
+
 TEST_F(FailedEscapeRouteTest, replanningAvoidsFailedMultiNodeEscapeRoute)
 {
 	tbb::global_control singleThread(tbb::global_control::max_allowed_parallelism, 1);
@@ -135,7 +152,7 @@ TEST_F(FailedEscapeRouteTest, replanningAvoidsFailedMultiNodeEscapeRoute)
 
 	auto gateway = makeGateway(PLAYER);
 	auto & ai = *gateway->nullkiller;
-	NK2AI::NullkillerTaskFailureTestAccess::prepareState(ai);
+	NK2AI::NullkillerTestAccess::prepareState(ai);
 
 	NK2AI::Goals::EscapeBehavior escape;
 	const auto initialGoals = escape.decompose(&ai);
@@ -148,7 +165,7 @@ TEST_F(FailedEscapeRouteTest, replanningAvoidsFailedMultiNodeEscapeRoute)
 		*escapingHero,
 		failedDestination,
 		escapingHero->visitablePos()));
-	ASSERT_FALSE(NK2AI::NullkillerTaskFailureTestAccess::executeTask(ai, failedTask));
+	ASSERT_FALSE(NK2AI::NullkillerTestAccess::executeTask(ai, failedTask));
 
 	const auto replannedGoals = escape.decompose(&ai);
 	const auto * replannedChain = findHeroChain(replannedGoals, escapingHero);

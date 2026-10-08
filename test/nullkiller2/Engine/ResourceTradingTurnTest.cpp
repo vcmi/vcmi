@@ -10,12 +10,12 @@
 
 #include "AI/Nullkiller2/AIGateway.h"
 
+#include "mock/GameHandlerTestClient.h"
 #include "mock/TinyH3MBuilder.h"
 #include "nullkiller2/NullkillerTest.h"
 
 #include "lib/CPlayerState.h"
 #include "lib/callback/CCallback.h"
-#include "lib/callback/IClient.h"
 #include "lib/constants/NumericConstants.h"
 #include "lib/gameState/CGameState.h"
 #include "lib/gameState/TavernHeroesPool.h"
@@ -29,112 +29,66 @@
 namespace
 {
 const PlayerColor PLAYER = PlayerColor(0);
+const PlayerColor ENEMY = PlayerColor(1);
 
-class ApplyingClient : public IClient
+/// Counts contiguous runs of marketplace trades; any other request ends the current run
+class TradingPhaseClient : public GameHandlerTestClient
 {
 public:
-	std::optional<BattleAction> makeSurrenderRetreatDecision(
-		PlayerColor,
-		const BattleID &,
-		const BattleStateInfoForRetreat &) override
+	using GameHandlerTestClient::GameHandlerTestClient;
+
+	int sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize) override
 	{
-		return std::nullopt;
-	}
-
-	int sendRequest(const CPackForServer & request, PlayerColor player, bool) override
-	{
-		if(const auto * trade = dynamic_cast<const TradeOnMarketplace *>(&request))
-			applyTrade(*trade, player);
-		else if(const auto * recruit = dynamic_cast<const RecruitCreatures *>(&request))
-			applyRecruitment(*recruit, player);
-
-		return ++lastRequestID;
-	}
-
-	void setGameState(CGameState * value)
-	{
-		gameState = value;
-	}
-
-	int getMarketplaceTrades() const
-	{
-		return marketplaceTrades;
-	}
-
-	int getTradingPhases() const
-	{
-		return tradingPhases;
-	}
-
-	int getRecruitmentRequests() const
-	{
-		return recruitmentRequests;
-	}
-
-private:
-	void applyTrade(const TradeOnMarketplace & request, PlayerColor player)
-	{
-		ASSERT_NE(gameState, nullptr);
-		ASSERT_EQ(request.mode, EMarketMode::RESOURCE_RESOURCE);
-
-		if(!tradingPhaseActive)
+		if(dynamic_cast<const TradeOnMarketplace *>(&request))
 		{
-			++tradingPhases;
+			if(!tradingPhaseActive)
+				++tradingPhases;
+
 			tradingPhaseActive = true;
+			++marketplaceTrades;
 		}
-
-		const auto * market = gameState->getMarket(request.marketId);
-		ASSERT_NE(market, nullptr);
-		ASSERT_EQ(request.r1.size(), request.r2.size());
-		ASSERT_EQ(request.r1.size(), request.val.size());
-
-		auto & resources = gameState->players.at(player).resources;
-		for(size_t index = 0; index < request.r1.size(); ++index)
+		else
 		{
-			const auto soldResource = request.r1[index].as<GameResID>();
-			const auto boughtResource = request.r2[index].as<GameResID>();
-			int givenPerUnit = 0;
-			int receivedPerUnit = 0;
-			market->getOffer(
-				soldResource,
-				boughtResource,
-				givenPerUnit,
-				receivedPerUnit,
-				EMarketMode::RESOURCE_RESOURCE);
+			tradingPhaseActive = false;
 
-			ASSERT_GT(givenPerUnit, 0);
-			ASSERT_GT(receivedPerUnit, 0);
-			ASSERT_EQ(request.val[index] % givenPerUnit, 0);
-
-			resources[soldResource] -= request.val[index];
-			resources[boughtResource] += request.val[index] / givenPerUnit * receivedPerUnit;
+			if(dynamic_cast<const RecruitCreatures *>(&request))
+				++recruitmentRequests;
 		}
 
-		++marketplaceTrades;
+		return GameHandlerTestClient::sendRequest(request, player, waitTillRealize);
 	}
 
-	void applyRecruitment(const RecruitCreatures & request, PlayerColor player)
-	{
-		ASSERT_NE(gameState, nullptr);
-		auto * town = gameState->getTown(request.tid);
-		ASSERT_NE(town, nullptr);
-		ASSERT_GE(request.level, 0);
-		ASSERT_LT(request.level, static_cast<int>(town->creatures.size()));
-		ASSERT_GE(town->creatures[request.level].first, request.amount);
-
-		town->creatures[request.level].first -= request.amount;
-		gameState->players.at(player).resources -=
-			request.crid.toCreature()->getFullRecruitCost() * request.amount;
-		tradingPhaseActive = false;
-		++recruitmentRequests;
-	}
-
-	CGameState * gameState = nullptr;
-	bool tradingPhaseActive = false;
-	int lastRequestID = 0;
 	int marketplaceTrades = 0;
 	int tradingPhases = 0;
 	int recruitmentRequests = 0;
+
+private:
+	bool tradingPhaseActive = false;
+};
+
+/// Drops marketplace trades as a server that rejects them; forwards trades after the limit so a retry loop still ends
+class TradeRejectingClient : public GameHandlerTestClient
+{
+public:
+	static constexpr int REJECTION_LIMIT = 10;
+
+	using GameHandlerTestClient::GameHandlerTestClient;
+
+	int sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize) override
+	{
+		if(dynamic_cast<const TradeOnMarketplace *>(&request) && rejectedTrades < REJECTION_LIMIT)
+		{
+			++rejectedTrades;
+			return ++lastRejectedRequestID;
+		}
+
+		return GameHandlerTestClient::sendRequest(request, player, waitTillRealize);
+	}
+
+	int rejectedTrades = 0;
+
+private:
+	int lastRejectedRequestID = 0;
 };
 
 class ResourceTradingTurnTest : public NullkillerTest
@@ -147,9 +101,22 @@ public:
 			.size(36, false)
 			.playerActive(PLAYER)
 			.randomTown({9, 5, 0}, PLAYER)
-			.hero({25, 25, 0}, HeroTypeID(0), PLAYER);
+			.hero({25, 25, 0}, HeroTypeID(0), PLAYER)
+			.playerActive(ENEMY)
+			.randomTown({30, 30, 0}, ENEMY);
 
 		startWithMap(std::move(builder));
+	}
+
+	void prepareTradingTurn()
+	{
+		auto * town = findFirst<CGTownInstance>();
+		ASSERT_NE(town, nullptr);
+		auto * hero = findHeroByOwner(PLAYER);
+		ASSERT_NE(hero, nullptr);
+		prepareTradingCycle(*town);
+		SetMovePoints stopHero(hero->id, 0);
+		gameState()->apply(stopHero);
 	}
 
 	void prepareTradingCycle(CGTownInstance & town)
@@ -188,33 +155,35 @@ public:
 			TavernSlotRole::NONE,
 			false);
 	}
-
-protected:
-	ApplyingClient client;
 };
 }
 
 TEST_F(ResourceTradingTurnTest, tradesForArmyOnlyOncePerTurn)
 {
 	startGame();
-
-	auto * town = findFirst<CGTownInstance>();
-	ASSERT_NE(town, nullptr);
-	auto * hero = findHeroByOwner(PLAYER);
-	ASSERT_NE(hero, nullptr);
-	prepareTradingCycle(*town);
-	SetMovePoints stopHero(hero->id, 0);
-	gameState()->apply(stopHero);
-	client.setGameState(gameState().get());
-
+	ASSERT_NO_FATAL_FAILURE(prepareTradingTurn());
+	TradingPhaseClient client(gameState(), PLAYER);
 	auto gateway = makeGateway(PLAYER, &client);
 
 	gateway->nullkiller->makeTurn();
 
-	EXPECT_GT(client.getRecruitmentRequests(), 0)
+	EXPECT_GT(client.recruitmentRequests, 0)
 		<< "the fixture must consume traded gold by buying army";
-	EXPECT_GT(client.getMarketplaceTrades(), 0)
+	EXPECT_GT(client.marketplaceTrades, 0)
 		<< "the fixture must fund army purchases through a marketplace";
-	EXPECT_EQ(client.getTradingPhases(), 1)
-		<< "army purchases must not reopen the turn's resource-trading budget";
+	EXPECT_EQ(client.tradingPhases, 1)
+		<< "all resource trades of a turn must happen in a single trading step";
+}
+
+TEST_F(ResourceTradingTurnTest, stopsTradingWhenServerRejectsTrade)
+{
+	startGame();
+	ASSERT_NO_FATAL_FAILURE(prepareTradingTurn());
+	TradeRejectingClient client(gameState(), PLAYER);
+	auto gateway = makeGateway(PLAYER, &client);
+
+	gateway->nullkiller->makeTurn();
+
+	EXPECT_EQ(client.rejectedTrades, 1)
+		<< "a rejected trade must not be retried in the same trading step";
 }

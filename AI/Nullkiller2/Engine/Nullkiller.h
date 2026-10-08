@@ -78,12 +78,12 @@ enum class TaskFailureAction
 
 TaskFailureAction chooseTaskFailureAction(bool hasAnySuccess, bool hasRemainingTasks, bool canReplan);
 
-class NullkillerTaskFailureTestAccess;
+class NullkillerTestAccess;
 
 class Nullkiller
 {
 private:
-	friend class NullkillerTaskFailureTestAccess;
+	friend class NullkillerTestAccess;
 
 	struct FailedHeroPath
 	{

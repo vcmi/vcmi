@@ -70,9 +70,6 @@ namespace Goals
 
 	bool shouldLockTownDefender(const CGTownInstance & town, const CGHeroInstance & defender, const HitMapInfo & threat, float safeAttackRatio)
 	{
-		if(defender.getOwner() != town.getOwner())
-			return false;
-
 		if(threat.danger == 0 || threat.turn > 1)
 			return false;
 
@@ -84,9 +81,6 @@ namespace Goals
 
 	int countTownThreatsCoveredByDefender(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio)
 	{
-		if(defender.getOwner() != town.getOwner())
-			return 0;
-
 		int result = 0;
 		const auto townDefence = estimateTownDefence(town, nullptr);
 		const auto defenceWithHero = estimateTownDefence(town, &defender);
@@ -113,9 +107,6 @@ namespace Goals
 
 	bool shouldReserveTownDefender(const CGTownInstance & town, const CGHeroInstance & defender, const std::vector<HitMapInfo> & threats, float safeAttackRatio)
 	{
-		if(defender.getOwner() != town.getOwner())
-			return false;
-
 		const auto townDefence = estimateTownDefence(town, nullptr);
 		const auto defenceWithHero = estimateTownDefence(town, &defender);
 

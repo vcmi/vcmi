@@ -11,78 +11,41 @@
 #include "AI/Nullkiller2/AIGateway.h"
 #include "AI/Nullkiller2/Goals/ExecuteHeroChain.h"
 
+#include "mock/GameHandlerTestClient.h"
 #include "mock/TinyH3MBuilder.h"
 #include "nullkiller2/NullkillerTest.h"
 
-#include "lib/callback/IClient.h"
 #include "lib/gameState/CGameState.h"
 #include "lib/mapObjects/CGHeroInstance.h"
-#include "lib/networkPacks/PacksForClient.h"
+#include "lib/mapObjects/MiscObjects.h"
 #include "lib/networkPacks/PacksForServer.h"
 
 namespace
 {
 const PlayerColor PLAYER(0);
-const ObjectInstanceID WHIRLPOOL(10);
+const PlayerColor ENEMY(1);
+const int3 HERO_ANCHOR_POS(6, 5, 0);
+const int3 HERO_POS(5, 5, 0);
+const int3 SCROLL_POS(6, 5, 0);
+const int3 BEYOND_SCROLL_POS(7, 5, 0);
 
-class BlockingVisitClient : public IClient
+class MoveCountingClient : public GameHandlerTestClient
 {
 public:
-	std::optional<BattleAction> makeSurrenderRetreatDecision(
-		PlayerColor,
-		const BattleID &,
-		const BattleStateInfoForRetreat &) override
+	using GameHandlerTestClient::GameHandlerTestClient;
+
+	int sendRequest(const CPackForServer & request, PlayerColor player, bool waitTillRealize) override
 	{
-		return std::nullopt;
-	}
+		if(dynamic_cast<const MoveHero *>(&request))
+			++movementRequests;
 
-	int sendRequest(const CPackForServer & request, PlayerColor player, bool) override
-	{
-		const auto * movement = dynamic_cast<const MoveHero *>(&request);
-		if(!movement)
-			return ++lastRequestID;
-
-		auto * hero = gameState->getHero(movement->hid);
-		EXPECT_NE(hero, nullptr);
-		EXPECT_FALSE(movement->path.empty());
-		if(!hero || movement->path.empty())
-			return ++lastRequestID;
-
-		TryMoveHero result;
-		result.id = hero->id;
-		result.start = hero->pos;
-		result.end = movement->path.back();
-		result.movePoints = 0;
-		result.result = TryMoveHero::BLOCKING_VISIT;
-		gameState->apply(result);
-		gateway->heroMoved(result, false);
-
-		RemoveObject removeObject(blockingObject, player);
-		gameState->apply(removeObject);
-		++movementRequests;
-		return ++lastRequestID;
-	}
-
-	void connect(CGameState & state, NK2AI::AIGateway & aiGateway, ObjectInstanceID object)
-	{
-		gameState = &state;
-		gateway = &aiGateway;
-		blockingObject = object;
+		return GameHandlerTestClient::sendRequest(request, player, waitTillRealize);
 	}
 
 	int movementRequests = 0;
-
-private:
-	CGameState * gameState = nullptr;
-	NK2AI::AIGateway * gateway = nullptr;
-	ObjectInstanceID blockingObject;
-	int lastRequestID = 0;
 };
 
-NK2AI::AIPathNodeInfo pathNode(
-	const CGHeroInstance & hero,
-	const int3 & coordinate,
-	uint8_t turns)
+NK2AI::AIPathNodeInfo pathNode(const CGHeroInstance & hero, const int3 & coordinate)
 {
 	NK2AI::AIPathNodeInfo node{};
 	node.coord = coordinate;
@@ -90,7 +53,7 @@ NK2AI::AIPathNodeInfo pathNode(
 	node.targetHero = &hero;
 	node.parentIndex = -1;
 	node.chainMask = 1;
-	node.turns = turns;
+	node.turns = 0;
 	return node;
 }
 
@@ -103,67 +66,44 @@ protected:
 		builder
 			.size(36, false)
 			.playerActive(PLAYER)
-			.hero({6, 5, 0}, HeroTypeID(0), PLAYER)
+			.hero(HERO_ANCHOR_POS, HeroTypeID(0), PLAYER)
 			.heroGarrison({{CreatureID(0), 1}})
-			.scroll({6, 5, 0}, SpellID(0));
+			.scroll(SCROLL_POS, SpellID(0))
+			.playerActive(ENEMY)
+			.hero({30, 30, 0}, HeroTypeID(1), ENEMY);
 
 		startWithMap(std::move(builder));
 	}
-
-	const CGObjectInstance * findScroll() const
-	{
-		for(const auto & object : map()->objects)
-		{
-			if(object && object->ID == Obj::SPELL_SCROLL)
-				return object.get();
-		}
-
-		return nullptr;
-	}
-
-	BlockingVisitClient client;
 };
 }
 
-TEST(Nullkiller2_Goals_ExecuteHeroChain, recognizesCompletedAndStalledNodes)
-{
-	const int3 position(10, 10, 0);
-
-	EXPECT_TRUE(NK2AI::Goals::shouldSkipCompletedChainNode(
-		1, 2, position, position, int3(-1), ObjectInstanceID::NONE, ObjectInstanceID::NONE));
-	EXPECT_FALSE(NK2AI::Goals::shouldSkipCompletedChainNode(
-		0, 2, position, int3(11, 11, 0), position, WHIRLPOOL, WHIRLPOOL));
-	EXPECT_TRUE(NK2AI::Goals::shouldSkipCompletedChainNode(
-		0, 2, int3(12, 12, 0), int3(11, 11, 0), position, WHIRLPOOL, WHIRLPOOL));
-}
-
-TEST_F(ExecuteHeroChainMovementTest, blockingVisitIsProgressInsteadOfRouteFailure)
+TEST_F(ExecuteHeroChainMovementTest, blockingVisitOnRouteStopsChainForReplanning)
 {
 	startGame();
+	revealMap(PLAYER);
 
 	auto * hero = findHeroByOwner(PLAYER);
-	const auto * scroll = findScroll();
+	auto * scroll = findFirst<CGArtifact>();
 	ASSERT_NE(hero, nullptr);
 	ASSERT_NE(scroll, nullptr);
-	const auto startPosition = hero->visitablePos();
-	const auto scrollPosition = scroll->visitablePos();
+	ASSERT_EQ(hero->visitablePos(), HERO_POS);
+	ASSERT_EQ(scroll->visitablePos(), SCROLL_POS);
 	const auto scrollID = scroll->id;
 	hero->setMovementPoints(2000);
 
+	MoveCountingClient client(gameState(), PLAYER);
 	auto gateway = makeGateway(PLAYER, &client);
-	client.connect(*gameState(), *gateway, scrollID);
 
 	NK2AI::AIPath path;
 	path.targetHero = hero;
 	path.heroArmy = hero;
 	path.chainMask = 1;
-	path.nodes.push_back(pathNode(*hero, scrollPosition + int3(2, 0, 0), 1));
-	path.nodes.push_back(pathNode(*hero, scrollPosition + int3(1, 0, 0), 0));
-	path.nodes.push_back(pathNode(*hero, scrollPosition, 0));
+	path.nodes.push_back(pathNode(*hero, BEYOND_SCROLL_POS));
+	path.nodes.push_back(pathNode(*hero, SCROLL_POS));
+	path.nodes.push_back(pathNode(*hero, HERO_POS));
 
 	EXPECT_NO_THROW(NK2AI::Goals::ExecuteHeroChain(path).accept(gateway.get()));
-	EXPECT_EQ(client.movementRequests, 1);
-	EXPECT_EQ(gameState()->getObjInstance(scrollID), nullptr);
-	EXPECT_EQ(hero->visitablePos(), startPosition);
-	EXPECT_EQ(hero->movementPointsRemaining(), 0);
+	EXPECT_EQ(gameState()->getObjInstance(scrollID), nullptr) << "the hero must pick up the scroll";
+	EXPECT_EQ(hero->visitablePos(), HERO_POS) << "picking up a scroll does not move the hero";
+	EXPECT_EQ(client.movementRequests, 1) << "the chain must stop after the pickup instead of following the stale route";
 }

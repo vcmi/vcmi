@@ -183,7 +183,20 @@ bool ResourceTrader::tradeHelper(
 		return false;
 	}
 
+	const TResources resourcesBeforeTrade = cc.getResourceAmount();
 	cc.trade(market.getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), givenMultiplied);
+
+	// the server reports rejected requests as applied, so only the resource change shows whether the trade happened
+	if(cc.getResourceAmount() == resourcesBeforeTrade)
+	{
+		logAi->error(
+			"ResourceTrader: Trade of %d %s for %s was rejected",
+			givenMultiplied,
+			GameResID::encode(mostExpendable),
+			GameResID::encode(mostWanted));
+		return false;
+	}
+
 	logAi->debug(
 		"ResourceTrader: Traded %d %s for %d %s",
 		givenMultiplied,

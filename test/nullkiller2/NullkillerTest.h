@@ -11,6 +11,26 @@
 #include "../mock/TinyMapGameTest.h"
 
 #include "../../AI/Nullkiller2/AIGateway.h"
+#include "../../AI/Nullkiller2/Engine/Nullkiller.h"
+
+namespace NK2AI
+{
+/// Exposes private Nullkiller steps of makeTurn to tests
+class NullkillerTestAccess
+{
+public:
+	static bool executeTask(Nullkiller & ai, const Goals::TTask & task)
+	{
+		return ai.executeTask(task);
+	}
+
+	static void prepareState(Nullkiller & ai)
+	{
+		ai.resetState();
+		ai.updateState();
+	}
+};
+}
 
 class NullkillerTest : public TinyMapGameTest
 {
