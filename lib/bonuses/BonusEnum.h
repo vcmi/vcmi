@@ -213,6 +213,7 @@ class JsonNode;
 	BONUS_NAME(ALIGNMENT_MIX) /*creatures of alignment in subtype can be mixed with other mixable alignments without morale penalty*/\
 	BONUS_NAME(BLOCK_CREATURE_MAGIC) /*blocks casting of magical spells and abilities by creatures, eg. Cursed Ground*/ \
 	BONUS_NAME(BLOCK_NATIVE_TERRAIN_BONUS) /*blocks bonuses of native terrain for creatures, eg. Cursed Ground*/ \
+	BONUS_NAME(GRANTS_SPELLBOOK) /*equipped artifact grants a Spell Book if hero does not already have one*/\
 
 	/* end of list */
 

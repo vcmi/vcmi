@@ -1439,3 +1439,7 @@ Enforce the "week of" to a special creature. If this bonus is existing multiple 
 
 - val: how many additional creatures should generated
 - subtype - id of creature
+
+### GRANTS_SPELLBOOK
+
+When this bonus is present on a worn artifact, the artifact grants a Spell Book to its hero if the hero does not already have one. Has no effect while the artifact is in the backpack.
