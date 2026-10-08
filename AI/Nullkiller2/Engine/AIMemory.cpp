@@ -78,6 +78,10 @@ void AIMemory::markObjectVisited(const CGObjectInstance * obj)
 	if(obj->ID == Obj::MONSTER)
 		return;
 
+	// first visit only reveals the quest, the object stays a target until the quest is completed
+	if(obj->asQuestSource())
+		return;
+
 	alreadyVisited.insert(obj->id);
 }
 
