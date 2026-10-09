@@ -209,6 +209,11 @@ FactionID MapReaderH3M::toFaction(int32_t raw)
 	return remapIdentifier(validateIdentifier(FactionID(raw), features.factionsCount, "faction"));
 }
 
+HeroClassID MapReaderH3M::readHeroClass32()
+{
+	return remapIdentifier(HeroClassID(readInt32()));
+}
+
 TerrainId MapReaderH3M::readTerrain()
 {
 	uint8_t raw = readUInt8();

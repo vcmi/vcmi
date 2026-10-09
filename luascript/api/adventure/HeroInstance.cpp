@@ -11,12 +11,15 @@
 
 #include "HeroInstance.h"
 
+#include <vcmi/HeroType.h>
+
 #include "../Registry.h"
 #include "../library/BonusBearerBindings.h"
 
 #include "StackInstance.h"
 
 #include "../../../lib/CCreatureHandler.h"
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/entities/artifact/CArtifactInstance.h"
 
 namespace scripting::api
@@ -51,6 +54,12 @@ void HeroInstanceProxy::registerMethods(MethodRegistrar & R)
 		{{"skill", "Secondary skill JSON key."}},
 		{"Mastery level (0 = none, 1 = basic, 2 = advanced, 3 = expert)."},
 		"Returns the hero's mastery of the given secondary skill.");
+	R.function<&HeroInstanceProxy::getHeroType>("getHeroType",
+		{"Type of the hero, comparable with the result of Services:getHeroTypeByName."},
+		"Returns the hero type (Orrin, Kyrre, Astral...) of this hero.");
+	R.function<&HeroInstanceProxy::getHeroClass>("getHeroClass",
+		{"Class of the hero, comparable with the result of Services:getHeroClassByName."},
+		"Returns the hero class of this hero.");
 	R.function<&HeroInstanceProxy::hasArtifact>("hasArtifact",
 		{{"artifact", "Artifact JSON key."}},
 		{"True if the hero owns the artifact."},
@@ -83,6 +92,16 @@ int HeroInstanceProxy::getLevel(const CGHeroInstance & hero)
 int64_t HeroInstanceProxy::getExperience(const CGHeroInstance & hero)
 {
 	return hero.exp;
+}
+
+const HeroType * HeroInstanceProxy::getHeroType(const CGHeroInstance & hero)
+{
+	return hero.getHeroTypeID().toEntity(LIBRARY);
+}
+
+const HeroClass * HeroInstanceProxy::getHeroClass(const CGHeroInstance & hero)
+{
+	return hero.getHeroClassID().toEntity(LIBRARY);
 }
 
 bool HeroInstanceProxy::hasArtifact(const CGHeroInstance & hero, ArtifactID artifact)

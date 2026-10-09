@@ -1229,6 +1229,14 @@ function HeroInstance:getPrimarySkill(skill) end
 ---@return integer # Mastery level (0 = none, 1 = basic, 2 = advanced, 3 = expert).
 function HeroInstance:getSecondarySkill(skill) end
 
+---Returns the hero type (Orrin, Kyrre, Astral...) of this hero.
+---@return HeroType # Type of the hero, comparable with the result of Services:getHeroTypeByName.
+function HeroInstance:getHeroType() end
+
+---Returns the hero class of this hero.
+---@return HeroClass # Class of the hero, comparable with the result of Services:getHeroClassByName.
+function HeroInstance:getHeroClass() end
+
 ---Returns whether the hero owns the given artifact, either as equipped or in the backpack.
 ---@param artifact integer # Artifact JSON key.
 ---@return boolean # True if the hero owns the artifact.

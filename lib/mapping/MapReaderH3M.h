@@ -38,6 +38,7 @@ public:
 	HeroTypeID readHero();
 	HeroTypeID readHero32();
 	HeroTypeID readHeroPortrait();
+	HeroClassID readHeroClass32();
 	FactionID readFaction32();
 	TerrainId readTerrain();
 	RoadId readRoad();

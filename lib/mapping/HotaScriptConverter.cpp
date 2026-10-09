@@ -66,6 +66,7 @@ enum class HotaScriptCondition : int32_t
 	NOT_EQUAL = 10,
 	CURRENT_PLAYER = 11,
 	HERO_OWNER = 12,
+	HERO_CLASS = 13,
 	PLAYER_DEFEATED_MONSTER = 14,
 	PLAYER_DEFEATED_HERO = 15,
 	HERO_SECONDARY_SKILL = 16,
@@ -73,7 +74,8 @@ enum class HotaScriptCondition : int32_t
 	PLAYER_OWNS_TOWN = 18,
 	PLAYER_IS_HUMAN = 19,
 	PLAYER_STARTING_FACTION = 20,
-	TOWN_IS_NEUTRAL = 21
+	TOWN_IS_NEUTRAL = 21,
+	HERO_TYPE = 22
 };
 
 enum class HotaScriptExpression : int32_t
@@ -906,6 +908,10 @@ std::string HotaScriptConverter::loadConditionInternal()
 		}
 		case HotaScriptCondition::TOWN_IS_NEUTRAL:
 			return "(town:getOwner() == ENUM.PlayerColor.neutral)";
+		case HotaScriptCondition::HERO_CLASS:
+			return "(hero:getHeroClass() == " + entityRef("getHeroClassByName", reader.readHeroClass32()) + ")";
+		case HotaScriptCondition::HERO_TYPE:
+			return "(hero:getHeroType() == " + entityRef("getHeroTypeByName", reader.readHero32()) + ")";
 		case HotaScriptCondition::PLAYER_DEFEATED:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
