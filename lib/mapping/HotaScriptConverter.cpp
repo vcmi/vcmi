@@ -737,9 +737,12 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string targetBucket = bucketName(eventType);
 
 				// The call forwards the caller's locals, so the target handler must take the same
-				// parameters - a town handler invoked from a hero event would bind `object` to `town`
-				const std::string & args = bucketTraits(currentBucket).args;
-				if(bucketTraits(targetBucket).args != args)
+				// parameters - a town handler invoked from a hero event would bind `object` to `town`.
+				// Player handlers are the exception: every other bucket has `player` as a local, taken from the owner
+				std::string args = bucketTraits(currentBucket).args;
+				if(targetBucket == "playerEvents")
+					args = bucketTraits(targetBucket).args;
+				else if(bucketTraits(targetBucket).args != args)
 					throw unsupported("EXECUTE_EVENT targeting " + targetBucket + ", which takes different parameters");
 
 				result += pad + "Map:" + eventHandlerName(targetBucket, eventID) + "(" + args + ")\n";
