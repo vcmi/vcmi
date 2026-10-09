@@ -427,7 +427,9 @@ std::string HotaScriptConverter::loadImageList(int count)
 	{
 		int imageType = reader.readInt32();
 		int imageSubtype = reader.readInt32();
-		std::string amount = loadExpression();
+		bool isVariable = reader.readBool();
+		int value = reader.readInt32();
+		std::string amount = isVariable ? "game:getMapVariable(" + varRef(value) + ")" : num(value);
 		if(i != 0)
 			result += ", ";
 		result += "{" + num(imageType) + ", " + num(imageSubtype) + ", " + amount + "}";
