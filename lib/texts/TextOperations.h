@@ -16,8 +16,8 @@ namespace TextOperations
 	/// returns 32-bit UTF codepoint for UTF-8 character symbol
 	uint32_t DLL_LINKAGE getUnicodeCodepoint(const char *data, size_t maxSize);
 
-	/// returns 32-bit UTF codepoint for character symbol in selected single-byte encoding
-	uint32_t DLL_LINKAGE getUnicodeCodepoint(char data, const std::string & encoding );
+	/// returns 32-bit UTF codepoint for single-byte character in selected encoding, or std::nullopt if this byte is not a complete character in it
+	std::optional<uint32_t> DLL_LINKAGE getUnicodeCodepoint(char data, const std::string & encoding);
 
 	/// returns length (in bytes) of UTF-8 character starting from specified character
 	size_t DLL_LINKAGE getUnicodeCharacterSize(char firstByte);
