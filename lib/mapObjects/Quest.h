@@ -74,8 +74,8 @@ public:
 	std::string heroNameTextID; //backup of hero name identifier, the hero itself is gone by then
 	HeroTypeID heroPortrait;
 
-	/// Map-defined name of this quest's giver, overriding the seer hut's own name. Only seer huts show it.
-	std::string questGiverNameTextID;
+	/// Map-defined message for the quest running out of time
+	std::string timeoutTextID;
 
 	MetaString firstVisitText;
 	MetaString nextVisitText;
@@ -134,7 +134,7 @@ public:
 			h & scriptHintText;
 		}
 		if(h.hasFeature(Handler::Version::SEER_HUT_NAME_TEXT_ID))
-			h & questGiverNameTextID;
+			h & timeoutTextID; // older saves hold a quest giver name here instead
 		// legacy "text was customized" flags; now derived on the fly from text
 		// emptiness in initObj. Kept on the wire for save compatibility.
 		bool isCustomFirst = !firstVisitText.empty();

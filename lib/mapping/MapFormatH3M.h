@@ -286,8 +286,8 @@ private:
 
 	/// reads string from input stream and converts it to unicode
 	std::string readBasicString();
-	/// reads name that map maker gave to quest giver, if map format has one
-    void readQuestGiverName(Quest & quest, const int3 & position, int questIndex);
+	/// reads custom message for quest running out of time, if map format has one
+	void readQuestTimeoutMessage(Quest & quest, const int3 & position, int questIndex);
 
 	/// reads string from input stream, converts it to unicode and attempts to translate it
 	std::string readLocalizedString(const TextIdentifier & identifier);

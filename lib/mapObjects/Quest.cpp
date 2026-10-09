@@ -365,7 +365,7 @@ void Quest::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeBool("repeatedQuest", repeatedQuest, false);
 
 	handler.serializeInt("timeLimit", lastDay, -1);
-	handler.serializeString("questGiverName", questGiverNameTextID);
+	handler.serializeString("timeoutText", timeoutTextID);
 	handler.serializeStruct("limiter", mission);
 
 	// kill quests have a single target; kept as a scalar "killTarget" key for map
@@ -604,7 +604,8 @@ void SeerHut::init(vstd::RNG & rand)
 {
 	auto names = LIBRARY->generaltexth->findStringsWithPrefix("core.seerhut.names");
 
-	seerNameTextID = *RandomGeneratorUtil::nextItem(names, rand);
+	if(seerNameTextID.empty())
+		seerNameTextID = *RandomGeneratorUtil::nextItem(names, rand);
 
 	bool h3BugTakesArmy = cb->getSettings().getBoolean(EGameSettings::MAP_OBJECTS_H3_BUG_QUEST_TAKES_ENTIRE_ARMY);
 	for(const auto & q : allQuests())
@@ -683,13 +684,7 @@ void QuestSource::defineDefaultTexts(Quest & q)
 
 std::string SeerHut::getQuestGiverName() const
 {
-	if(seerNameTextID.empty()) // quest guards have no seer of their own
-		return {};
-
-	if(!isEmpty() && !getQuest().questGiverNameTextID.empty())
-		return getQuest().questGiverNameTextID;
-
-	return seerNameTextID;
+	return seerNameTextID; // empty for quest guards, which have no seer of their own
 }
 
 void SeerHut::setSeerName(CMap & map, const std::string & newName)
@@ -882,6 +877,7 @@ void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 
 	//quest and reward
 	CRewardableObject::serializeJsonOptions(handler);
+	handler.serializeString("seerName", seerNameTextID);
 
 	bool oldVersion = false;
 	{

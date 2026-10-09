@@ -1658,7 +1658,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readQuestGuard(const int3 & map
 	Quest unusedQuest;
 	Quest & quest = guard ? guard->addQuest() : unusedQuest;
 	readQuest(quest, mapPosition);
-	readQuestGiverName(quest, mapPosition, 0);
+	readQuestTimeoutMessage(quest, mapPosition, 0);
 	questsToResolve.erase(&unusedQuest);
 
 	return object;
@@ -2492,7 +2492,10 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readSeerHut(const int3 & positi
 		}
 	}
 
-	reader->skipZero(features.levelHOTA10 ? 3 : 2);
+	if(features.levelHOTA10 && reader->readBool())
+		hut->seerNameTextID = readLocalizedString(TextIdentifier("seerHut", position.x, position.y, position.z, "name"));
+
+	reader->skipZero(2);
 
 	return hut;
 }
@@ -2534,7 +2537,7 @@ void CMapLoaderH3M::readSeerHutQuest(Quest & quest, const int3 & position, const
 
 	if(missionType != EQuestMission::NONE)
 	{
-        readQuestGiverName(quest, position, questIndex);
+		readQuestTimeoutMessage(quest, position, questIndex);
 
 		auto rewardType = static_cast<ESeerHutRewardType>(reader->readInt8Strict(0, 10));
 		Rewardable::VisitInfo vinfo;
@@ -2635,12 +2638,13 @@ void CMapLoaderH3M::readSeerHutQuest(Quest & quest, const int3 & position, const
 	}
 }
 
-void CMapLoaderH3M::readQuestGiverName(Quest & quest, const int3 & position, int questIndex)
+void CMapLoaderH3M::readQuestTimeoutMessage(Quest & quest, const int3 & position, int questIndex)
 {
 	if(!features.levelHOTA10)
 		return;
 
-    quest.questGiverNameTextID = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex, "giverName"));
+	// TODO: stored, but not shown in game when the quest runs out of time
+	quest.timeoutTextID = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex, "timeout"));
 }
 
 EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position, const int questIndex)
