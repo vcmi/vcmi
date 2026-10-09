@@ -1617,9 +1617,9 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHeroPlaceholder(const int3 
 
 		for (int i = 0; i < artifactsToGive; ++i)
 		{
-			// NOTE: this might actually be 2 bytes for artifact ID + 2 bytes for spell scroll
-			ArtifactID startingArtifact = reader->readArtifact32();
-			logGlobal->warn("Map '%s': Hero placeholder: not implemented option to give hero artifact %d", mapName, startingArtifact.toEntity(LIBRARY)->getJsonKey());
+			ArtifactID startingArtifact = reader->readArtifact();
+			reader->readSpell16(); // spell of a spell scroll
+			logGlobal->warn("Map '%s': Hero placeholder: not implemented option to give hero artifact %d", mapName, startingArtifact.getNum());
 		}
 	}
 
