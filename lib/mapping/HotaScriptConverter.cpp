@@ -570,7 +570,13 @@ std::string HotaScriptConverter::loadActions(int indent)
 				if(mode == 1 || mode == 2)
 				{
 					reader.readBool(); // show OR between images
-					reader.readInt32(); // unknown
+					// TODO: images shown besides the two choices, unclear where HotA displays them
+					int extraImagesCount = reader.readInt32();
+					if(extraImagesCount != 0)
+					{
+						loadImageList(extraImagesCount);
+						logGlobal->warn("Map '%s': question with %d extra images is not implemented!", mapName, extraImagesCount);
+					}
 				}
 
 				result += pad + "server:showQuestion{\n";
