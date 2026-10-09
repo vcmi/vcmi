@@ -334,6 +334,27 @@ Power of `summon` effect cast by hero is affected by [SPECIFIC_SPELL_DAMAGE](../
 
 To restrict spell from casting it on "wrong" side in combat, you can use `smart` target modifier. If this flag is set, and spell has `positive` flag, it can only affect friendly units. Similarly, spells with `negative` flag and `smart` target modifier can only affect enemies. This affects both primary targets and any secondary targets in case of area of effect or massive spells.
 
+## Target conditions
+
+`targetCondition` decides which units a spell can affect. Conditions in `allOf` must all be met, at least one condition in `anyOf` must be met, and any condition in `noneOf` makes the unit immune. Value of each condition is either `"normal"`, which can be ignored by effects that negate immunities (like Orb of Vulnerability), or `"absolute"`, which can not.
+
+Supported conditions:
+
+- `"bonus.BONUS_TYPE"`: unit has bonus of this type, for example `"bonus.MIND_IMMUNITY"`
+- `"creature.creatureName"`: unit is of this creature type, for example `"creature.imp"`
+- `"spell.spellName"`: unit is affected by this spell, for example `"spell.berserk"`
+- `"healthValueSpecial"`: total health of the unit is not greater than [spell power](#spell-power) of the spell, modified by bonuses that affect spell damage. Used by Hypnotize
+
+Note that bonuses granted by a spell, such as [HYPNOTIZED](../Bonus/Bonus_Types.md#hypnotized), always affect the whole unit. To make a spell that can only affect weak units, like Hypnotize does, add `healthValueSpecial` condition to `allOf` list of the spell:
+
+```json
+"targetCondition" : {
+	"allOf" : {
+		"healthValueSpecial" : "absolute"
+	}
+}
+```
+
 ## Configurable battle effects
 
 ### Common format
