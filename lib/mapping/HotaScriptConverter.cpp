@@ -815,6 +815,10 @@ std::string HotaScriptConverter::loadCondition()
 
 std::string HotaScriptConverter::loadConditionInternal()
 {
+	// HotA editor writes 0 when the condition has no target object selected
+	// TODO: unknown whether HotA treats such condition as always true or as always false
+	constexpr uint32_t noTargetObject = 0;
+
 	auto conditionCode = static_cast<HotaScriptCondition>(reader.readInt32());
 	switch(conditionCode)
 	{
@@ -903,21 +907,20 @@ std::string HotaScriptConverter::loadConditionInternal()
 			return "playerStartingFaction(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + entityRef("getFactionByName", faction) + ")";
 		}
 		case HotaScriptCondition::PLAYER_DEFEATED_MONSTER:
-		{
-			PlayerColor conditionPlayer = reader.readPlayer32();
-			uint32_t targetObjectID = reader.readUInt32();
-			return "playerDestroyedObject(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
-		}
 		case HotaScriptCondition::PLAYER_DEFEATED_HERO:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
 			uint32_t targetObjectID = reader.readUInt32();
+			if(targetObjectID == noTargetObject)
+				return "false";
 			return "playerDestroyedObject(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
 		}
 		case HotaScriptCondition::PLAYER_OWNS_TOWN:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
 			uint32_t targetObjectID = reader.readUInt32();
+			if(targetObjectID == noTargetObject)
+				return "false";
 			return "playerOwnsTown(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
 		}
 		default:
