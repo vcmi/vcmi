@@ -718,16 +718,29 @@ std::string HotaScriptConverter::loadActions(int indent)
 			}
 			case HotaScriptActions::CONSTRUCT_BUILDING:
 			{
-				BuildingID building = reader.readBuilding32(std::nullopt);
-				int unknownA = reader.readInt16(); // faction ID?
-				int unknownB = reader.readInt16(); // faction building ID?
+				int rawBuilding = reader.readInt32();
+				int rawFaction = reader.readInt16(); // -1 for buildings common to all factions
+				reader.readInt16(); // unknown, seen as -1 and 0
 				reader.readBool(); // showMessage flag
-				// the building was read without faction context, so a set faction field would mean the emitted
-				// building id is the wrong one - refuse rather than erect something else
-				if(unknownA != -1 || unknownB != -1)
-					throw unsupported("CONSTRUCT_BUILDING with faction fields set to " + num(unknownA) + "/" + num(unknownB));
 
-				result += pad + "server:constructBuilding(town, " + num(building.getNum()) + ")\n";
+				std::optional<FactionID> faction;
+				if(rawFaction != -1)
+				{
+					faction = reader.toFaction(rawFaction);
+					if(!faction->hasValue())
+						throw unsupported("CONSTRUCT_BUILDING with unknown faction " + num(rawFaction));
+				}
+
+				BuildingID building = reader.toBuilding(rawBuilding, faction);
+				if(building == BuildingID::NONE)
+					throw unsupported("CONSTRUCT_BUILDING with unknown building " + num(rawBuilding) + " for faction " + num(rawFaction));
+
+				std::string construct = "server:constructBuilding(town, " + num(building.getNum()) + ")";
+				// a faction-specific id names a building slot that holds something else in other factions
+				if(faction)
+					result += pad + "if town:getFaction() == " + entityRef("getFactionByName", *faction) + " then " + construct + " end\n";
+				else
+					result += pad + construct + "\n";
 				break;
 			}
 			case HotaScriptActions::EXECUTE_EVENT:

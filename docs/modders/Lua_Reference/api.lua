@@ -1638,6 +1638,10 @@ function TownInstance:getOwner() end
 ---@return Building[] # Every building standing in this town.
 function TownInstance:getBuildings() end
 
+---Returns the faction (Castle, Rampart, Tower...) of this town.
+---@return Faction # Faction of the town, comparable with the result of Services:getFactionByName.
+function TownInstance:getFaction() end
+
 ---Represents a creature stack participating in the current battle. Provides access to the live combat state — position, owner, current health, applied bonuses, ability checks. To stage modifications, copy into a UnitState, edit it, then commit via server.
 ---@class Unit
 local Unit = {}

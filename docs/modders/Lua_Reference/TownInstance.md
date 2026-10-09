@@ -13,3 +13,9 @@ Returns the player color that owns this town, or the neutral player when it is u
 Returns the buildings that have been built in this town, upgrades of other buildings among them.
 
 - returns [`Building[]`](Building.md) — Every building standing in this town.
+
+### getFaction
+
+Returns the faction (Castle, Rampart, Tower...) of this town.
+
+- returns [`Faction`](Faction.md) — Faction of the town, comparable with the result of Services:getFactionByName.

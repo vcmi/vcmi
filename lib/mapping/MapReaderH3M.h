@@ -59,6 +59,9 @@ public:
 	ArtifactID toArtifact(int32_t raw);
 	SpellID toSpell(int32_t raw);
 	GameResID toGameResID(int32_t raw);
+	FactionID toFaction(int32_t raw);
+	/// faction of nullopt means building id that is common to all factions
+	BuildingID toBuilding(int32_t raw, std::optional<FactionID> faction);
 
 	void readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction);
 	void readBitmaskFactions(std::set<FactionID> & dest, bool invert);

@@ -201,8 +201,12 @@ CreatureID MapReaderH3M::readCreature(const std::string & context)
 
 FactionID MapReaderH3M::readFaction32()
 {
-	FactionID result(readInt32());
-	return remapIdentifier(validateIdentifier(result, features.factionsCount, "faction"));
+	return toFaction(readInt32());
+}
+
+FactionID MapReaderH3M::toFaction(int32_t raw)
+{
+	return remapIdentifier(validateIdentifier(FactionID(raw), features.factionsCount, "faction"));
 }
 
 TerrainId MapReaderH3M::readTerrain()
@@ -376,6 +380,11 @@ BuildingID MapReaderH3M::readBuilding32(std::optional<FactionID> faction)
 {
 	uint32_t value = readUInt32();
 	return remapper.remapBuilding(faction, value);
+}
+
+BuildingID MapReaderH3M::toBuilding(int32_t raw, std::optional<FactionID> faction)
+{
+	return remapper.remapBuilding(faction, BuildingID(raw));
 }
 
 void MapReaderH3M::readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction)

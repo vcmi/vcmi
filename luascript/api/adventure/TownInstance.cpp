@@ -11,6 +11,9 @@
 
 #include "TownInstance.h"
 
+#include <vcmi/Faction.h>
+
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/entities/building/CBuilding.h"
 #include "../../../lib/entities/faction/CTown.h"
 #include "../../../lib/mapObjects/CGObjectInstance.h"
@@ -25,6 +28,14 @@ void TownInstanceProxy::registerMethods(MethodRegistrar & R)
 	R.function<&TownInstanceProxy::getBuildings>("getBuildings",
 		{"Every building standing in this town."},
 		"Returns the buildings that have been built in this town, upgrades of other buildings among them.");
+	R.function<&TownInstanceProxy::getFaction>("getFaction",
+		{"Faction of the town, comparable with the result of Services:getFactionByName."},
+		"Returns the faction (Castle, Rampart, Tower...) of this town.");
+}
+
+const Faction * TownInstanceProxy::getFaction(const CGTownInstance & town)
+{
+	return town.getFactionID().toEntity(LIBRARY);
 }
 
 std::vector<const CBuilding *> TownInstanceProxy::getBuildings(const CGTownInstance & town)
