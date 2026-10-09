@@ -315,7 +315,6 @@ void CMapLoaderH3M::readVictoryLossConditions()
 	{
 		if (value != expected)
 			logGlobal->warn("Map '%s': Victory condition %d has unexpected value of '%s' flag!", mapName, static_cast<int>(vicCondition), flagName);
-		assert(value == expected);
 	};
 
 	EventCondition victoryCondition(EventCondition::STANDARD_WIN);
