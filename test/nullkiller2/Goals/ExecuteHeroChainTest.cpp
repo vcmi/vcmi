@@ -107,3 +107,26 @@ TEST_F(ExecuteHeroChainMovementTest, blockingVisitOnRouteStopsChainForReplanning
 	EXPECT_EQ(hero->visitablePos(), HERO_POS) << "picking up a scroll does not move the hero";
 	EXPECT_EQ(client.movementRequests, 1) << "the chain must stop after the pickup instead of following the stale route";
 }
+
+TEST_F(ExecuteHeroChainMovementTest, repeatedIdleChainFailsForReplanning)
+{
+	startGame();
+
+	auto * hero = findHeroByOwner(PLAYER);
+	ASSERT_NE(hero, nullptr);
+	hero->setMovementPoints(2000);
+
+	MoveCountingClient client(gameState(), PLAYER);
+	auto gateway = makeGateway(PLAYER, &client);
+
+	NK2AI::AIPath path;
+	path.targetHero = hero;
+	path.heroArmy = hero;
+	path.chainMask = 1;
+	path.nodes.push_back(pathNode(*hero, HERO_POS));
+
+	EXPECT_NO_THROW(NK2AI::Goals::ExecuteHeroChain(path).accept(gateway.get()));
+	EXPECT_THROW(NK2AI::Goals::ExecuteHeroChain(path).accept(gateway.get()), NK2AI::cannotFulfillGoalException)
+		<< "an idle chain counted as success would be selected again on every pass";
+	EXPECT_EQ(client.movementRequests, 0);
+}

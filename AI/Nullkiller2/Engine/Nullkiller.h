@@ -100,6 +100,7 @@ private:
 	ObjectInstanceID targetObject;
 	HeroMap<HeroLockedReason> lockedHeroes;
 	std::vector<FailedHeroPath> failedHeroPaths;
+	std::vector<FailedHeroPath> idleInteractions;
 	std::unique_ptr<PathfinderCache> pathfinderCache;
 	ScanDepth scanDepth;
 	TResources lockedResources;
@@ -163,6 +164,8 @@ public:
 	void unlockHero(const CGHeroInstance * hero);
 	bool canReleaseDefenderForTownCapture(const CGHeroInstance * hero, const CGObjectInstance * target, const AIPath & path) const;
 	bool arePathHeroesLocked(const AIPath & path, const CGHeroInstance * releasedDefender = nullptr) const;
+	/// Records an interaction that left the hero in place; true if it already happened this turn
+	bool repeatsIdleInteraction(const CGHeroInstance * hero, const int3 & tile);
 	TResources getFreeResources() const;
 	int32_t getFreeGold() const { return getFreeResources()[EGameResID::GOLD]; }
 	void lockResources(const TResources & res);

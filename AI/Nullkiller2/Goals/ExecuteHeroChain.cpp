@@ -326,6 +326,11 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 									"Hero %s completed an interaction towards %s without occupying the tile. Replanning the remaining route.",
 									hero->getNameTextID(),
 									node->coord.toString());
+
+								// e.g. quest guard that is still closed or own hero standing on a teleport exit
+								if(aiGw->nullkiller->repeatsIdleInteraction(hero, node->coord))
+									throw cannotFulfillGoalException("Repeated interaction did not move the hero.");
+
 								return;
 							}
 
@@ -404,6 +409,9 @@ bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * h
 	if(tile == hero->visitablePos() && aiGw->cc->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
 		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTextID(), tile.toString());
+
+		if(aiGw->nullkiller->repeatsIdleInteraction(hero, tile))
+			throw cannotFulfillGoalException("Hero keeps targeting the tile it stands on.");
 
 		return true;
 	}

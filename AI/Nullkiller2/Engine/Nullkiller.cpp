@@ -316,6 +316,7 @@ void Nullkiller::resetState()
 	scanDepth = ScanDepth::MAIN_FULL;
 	lockedHeroes.clear();
 	failedHeroPaths.clear();
+	idleInteractions.clear();
 	resetTaskExecutionContext();
 	dangerHitMap->resetHitmap();
 	useHeroChain = true;
@@ -957,6 +958,21 @@ bool Nullkiller::rememberActivePathFailure()
 		activePathHeroID.getNum(),
 		activePathDestination.toString());
 	return true;
+}
+
+bool Nullkiller::repeatsIdleInteraction(const CGHeroInstance * hero, const int3 & tile)
+{
+	const FailedHeroPath interaction{ hero->id, tile };
+	const auto sameInteraction = [&interaction](const FailedHeroPath & other)
+	{
+		return other.hero == interaction.hero && other.destination == interaction.destination;
+	};
+
+	if(vstd::contains_if(idleInteractions, sameInteraction))
+		return true;
+
+	idleInteractions.push_back(interaction);
+	return false;
 }
 
 bool Nullkiller::isPathKnownToFail(const AIPathNodeInfo & node) const
