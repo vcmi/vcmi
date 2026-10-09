@@ -478,9 +478,17 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	});
 #endif
 
-	//Load map from command line
+	//Load map or campaign from command line
 	if(!mapFilePath.isEmpty())
-		openMap(mapFilePath);
+	{
+		if(mapFilePath.endsWith(".h3c", Qt::CaseInsensitive) || mapFilePath.endsWith(".vcmp", Qt::CaseInsensitive))
+		{
+			hide();
+			openCampaign(mapFilePath);
+		}
+		else
+			openMap(mapFilePath);
+	}
 }
 
 EditorMainWindow::~EditorMainWindow()
