@@ -119,6 +119,7 @@ set(test_SRCS
 		server/battles/FireShieldTest.cpp
 		server/battles/HotaAbilitiesTest.cpp
 		server/battles/LifeDrainTest.cpp
+		server/battles/WarMachineResurrectionTest.cpp
 		server/battles/MeleeActionTest.cpp
 		server/battles/MoatActionTest.cpp
 		server/battles/NoTargetActionTest.cpp
