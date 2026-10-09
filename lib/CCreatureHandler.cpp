@@ -949,10 +949,53 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	creature->sounds.endMoving = AudioPath::fromJson(sounds["endMoving"]);
 }
 
+namespace
+{
+
+/// Ranks of stack experience that share the same value of a bonus
+struct StackExperienceRange
+{
+	int value;
+	int firstRank;
+	int lastRank;
+	bool openEnded; ///< value is also kept by all ranks above the last one
+
+	std::shared_ptr<RankRangeLimiter> limiter() const
+	{
+		// limiter excludes both of its bounds
+		if (openEnded)
+			return std::make_shared<RankRangeLimiter>(firstRank - 1);
+		return std::make_shared<RankRangeLimiter>(firstRank - 1, lastRank + 1);
+	}
+};
+
+/// Splits values of a bonus for ranks 1, 2, ... into ranges of ranks with the same value, so that a stack
+/// of any rank receives a single bonus with the total value for its rank. Ranks with no bonus are skipped.
+std::vector<StackExperienceRange> stackExperienceRanges(const std::vector<int> & rankValues)
+{
+	std::vector<StackExperienceRange> result;
+	size_t rangeStart = 0;
+	for (size_t i = 1; i <= rankValues.size(); ++i)
+	{
+		if (i < rankValues.size() && rankValues[i] == rankValues[rangeStart])
+			continue;
+
+		if (rankValues[rangeStart] != 0)
+			result.push_back({rankValues[rangeStart], static_cast<int>(rangeStart) + 1, static_cast<int>(i), i == rankValues.size()});
+
+		rangeStart = i;
+	}
+	return result;
+}
+
+}
+
 void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode & input) const
 {
-	for (const JsonNode &exp : input.Vector())
+	for (size_t entryIndex = 0; entryIndex < input.Vector().size(); ++entryIndex)
 	{
+		const JsonNode & exp = input.Vector()[entryIndex];
+		const std::string descriptionID = creature->getBonusTextID("stackExperience" + std::to_string(entryIndex));
 		const JsonVector &values = exp["values"].Vector();
 		// RankRangeLimiter uses strict bounds (rank > minRank), so level 1 bonus
 		// must start from 0 to map values[0] -> rank 1 and values[9] -> rank 10.
@@ -966,7 +1009,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					// parse each bonus separately
 					// we can not create copies since identifiers resolution does not tracks copies
 					// leading to unset identifier values in copies
-					auto bonus = JsonUtils::parseBonus (exp["bonus"]);
+					auto bonus = JsonUtils::parseBonus (exp["bonus"], descriptionID);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
 					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
@@ -978,22 +1021,20 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 		}
 		else
 		{
-			int lastVal = 0;
+			std::vector<int> rankValues;
 			for (const JsonNode &val : values)
-			{
-				if (val.Integer() != lastVal)
-				{
-					JsonNode bonusInput = exp["bonus"];
-					bonusInput["val"].Float() = val.Integer() - lastVal;
+				rankValues.push_back(static_cast<int>(val.Integer()));
 
-					auto bonus = JsonUtils::parseBonus (bonusInput);
-					bonus->source = BonusSource::STACK_EXPERIENCE;
-					bonus->duration = BonusDuration::PERMANENT;
-					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
-					creature->addNewBonus (bonus);
-				}
-				lastVal = static_cast<int>(val.Float());
-				++lowerLimit;
+			for (const auto & range : stackExperienceRanges(rankValues))
+			{
+				JsonNode bonusInput = exp["bonus"];
+				bonusInput["val"].Float() = range.value;
+
+				auto bonus = JsonUtils::parseBonus (bonusInput, descriptionID);
+				bonus->source = BonusSource::STACK_EXPERIENCE;
+				bonus->duration = BonusDuration::PERMANENT;
+				bonus->addLimiter(range.limiter());
+				creature->addNewBonus (bonus);
 			}
 		}
 	}
@@ -1262,9 +1303,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	}
 
 	//limiters, range
-	si32 lastVal;
 	si32 curVal;
-	si32 lastLev = 0;
 
 	if (enable) //0 and 2 means non-active, 1 - active
 	{
@@ -1284,28 +1323,21 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	}
 	else
 	{
-		lastVal = static_cast<si32>(parser.readNumber());
-		if (b.type == BonusType::HATE)
-			lastVal *= 10; //odd fix
+		const int hateMultiplier = b.type == BonusType::HATE ? 10 : 1; //odd fix
 		//FIXME: value for zero level should be stored in our config files (independent of stack exp)
+		const si32 baseVal = static_cast<si32>(parser.readNumber()) * hateMultiplier;
+
+		// FIXME: recheck - value from column of rank N is given to stacks starting from rank N+1, so value of rank 10 is never used
+		// while json stack experience gives value of rank N to stacks of rank N
+		std::vector<int> rankValues = { 0 };
 		for (int i = 1; i < 11; ++i)
+			rankValues.push_back(static_cast<si32>(parser.readNumber()) * hateMultiplier - baseVal);
+
+		for (const auto & range : stackExperienceRanges(rankValues))
 		{
-			curVal = static_cast<si32>(parser.readNumber());
-			if (b.type == BonusType::HATE)
-				curVal *= 10; //odd fix
-			if (curVal > lastVal) //threshold, add new bonus
-			{
-				b.val = curVal - lastVal;
-				lastVal = curVal;
-				b.limiter.reset (new RankRangeLimiter(i));
-				bl.push_back(std::make_shared<Bonus>(b));
-				lastLev = i; //start new range from here, i = previous rank
-			}
-			else if (curVal < lastVal)
-			{
-				b.val = lastVal;
-				b.limiter.reset (new RankRangeLimiter(lastLev, i));
-			}
+			b.val = range.value;
+			b.limiter = range.limiter();
+			bl.push_back(std::make_shared<Bonus>(b));
 		}
 	}
 
