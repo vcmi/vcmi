@@ -291,6 +291,9 @@ class CGWhirlpool : public CGMonolith
 public:
 	using CGMonolith::CGMonolith;
 
+	/// Tiles of the given whirlpools that a hero can arrive at: tiles where the whirlpool is visitable and no hero stands
+	static TTeleportExitsList getPassableExitTiles(const IGameInfoCallback & gameInfo, const std::vector<ObjectInstanceID> & exits);
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<CGMonolith&>(*this);
