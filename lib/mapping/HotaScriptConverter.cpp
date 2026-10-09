@@ -238,6 +238,15 @@ local function changeResources(server, player, amounts, sign)
 	end
 end
 
+-- Sets the player's treasury to the given resource set, in the same order as changeResources.
+local function setResources(game, server, player, amounts)
+	for index, key in ipairs(RESOURCES) do
+		local resource = LIBRARY:getResourceByName(key)
+		local delta = amounts[index] - game:getResource(player, resource)
+		if delta ~= 0 then server:giveResource(player, resource, delta) end
+	end
+end
+
 -- HotA object-identity predicates. The engine only offers the lookups; the comparison lives here.
 local function heroOwner(game, heroType, player)
 	local hero = game:getHeroByType(heroType)
@@ -738,7 +747,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 			}
 			case HotaScriptActions::RESOURCES:
 			{
-				int mode = reader.readInt8(); // 0 = give, 1 = take
+				int mode = reader.readInt8(); // 0 = give, 1 = take, 2 = set
 				std::string amounts;
 				for(int i = 0; i < 7; ++i)
 				{
@@ -747,15 +756,12 @@ std::string HotaScriptConverter::loadActions(int indent)
 					amounts += loadExpression();
 				}
 				reader.readBool(); // showMessage flag
-				// spell and movement points read the same field as 0 = add, 1 = subtract, 2 = set the total,
-				// so mode 2 likely sets the treasury - unverified, no known map uses it here
-				if(mode != 0 && mode != 1)
-				{
-					logGlobal->warn("Map '%s': RESOURCES event with unknown mode %d, possibly 'set total'!", mapName, mode);
+				if(mode == 2)
+					result += pad + "setResources(game, server, player, {" + amounts + "})\n";
+				else if(mode == 0 || mode == 1)
+					result += pad + "changeResources(server, player, {" + amounts + "}, " + (mode == 0 ? "1" : "-1") + ")\n";
+				else
 					throw unsupported("RESOURCES with mode " + num(mode));
-				}
-
-				result += pad + "changeResources(server, player, {" + amounts + "}, " + (mode == 0 ? "1" : "-1") + ")\n";
 				break;
 			}
 			case HotaScriptActions::PRIMARY_SKILL:
