@@ -20,6 +20,7 @@ class HotaScriptConverter;
 class MetaString;
 class CArtifactInstance;
 class CArmedInstance;
+class CRewardableObject;
 class CGObjectInstance;
 class SeerHut;
 class QuestSource;
@@ -219,7 +220,6 @@ private:
 	std::shared_ptr<CGObjectInstance> readGrail(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readHotaBattleLocation(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readQuestGuard(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
-	std::shared_ptr<CGObjectInstance> readQuestGate(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readShipyard(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readLighthouse(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readGeneric(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
@@ -235,6 +235,22 @@ private:
 	std::shared_ptr<CGObjectInstance> readRewardWithAmount(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readBlackMarket(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readUniversity(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
+
+	/// Reward settings shared by several HotA objects. Fields not used by specific object or content are often garbage
+	struct HotaRewardBlock
+	{
+		int32_t content;
+		int32_t artifact;
+		int32_t amountA;
+		int8_t resourceA;
+		int32_t amountB;
+		int8_t resourceB;
+	};
+
+	HotaRewardBlock readHotaRewardBlock();
+	void presetEntityVariable(CRewardableObject & object, const std::string & category, const std::string & name, const std::string & jsonKey);
+	/// presets resource and its amount, if resource is valid
+	void presetResourceVariable(CRewardableObject & object, int8_t resourceRaw, int32_t amount, const std::string & suffix);
 
 	/**
 	 * Reads a creature set.
@@ -268,10 +284,13 @@ private:
 	*/
 	void readMessageAndGuards(MetaString & message, CArmedInstance * guards, const int3 & position, const ObjectInstanceID & idToBeGiven);
 
+	/// reads reference to HotA event system handler and returns its script name
+	std::string readEventHandler(const std::string & bucket);
+
 	/// reads string from input stream and converts it to unicode
 	std::string readBasicString();
-	/// reads name that map maker gave to quest giver, if map format has one
-    void readQuestGiverName(Quest & quest, const int3 & position, int questIndex);
+	/// reads custom message for quest running out of time, if map format has one
+	void readQuestTimeoutMessage(Quest & quest, const int3 & position, int questIndex);
 
 	/// reads string from input stream, converts it to unicode and attempts to translate it
 	std::string readLocalizedString(const TextIdentifier & identifier);
@@ -291,14 +310,10 @@ private:
 	std::map<si32, ObjectInstanceID> questIdentifierToId;
 	std::map<Quest*, si32> questsToResolve;
 
-	/** ptr to the map object which gets filled by data from the buffer */
-	CMap * map;
-
-	/**
-	 * ptr to the map header object which gets filled by data from the buffer.
-	 * (when loading a map then the mapHeader ptr points to the same object)
-	 */
-	std::unique_ptr<CMapHeader> mapHeader;
+	/// map being loaded, owned by caller. Null when only header is loaded
+	CMap * map = nullptr;
+	/// header being loaded, owned by caller. Points to the same object as map when full map is loaded
+	CMapHeader * mapHeader = nullptr;
 	std::unique_ptr<MapReaderH3M> reader;
 	std::unique_ptr<HotaScriptConverter> scriptConverter;
 	CInputStream * inputStream;

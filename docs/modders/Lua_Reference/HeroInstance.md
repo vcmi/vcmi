@@ -86,6 +86,18 @@ Returns the hero's mastery of the given secondary skill.
 
 - returns `integer` — Mastery level (0 = none, 1 = basic, 2 = advanced, 3 = expert).
 
+### getHeroType
+
+Returns the hero type (Orrin, Kyrre, Astral...) of this hero.
+
+- returns [`HeroType`](HeroType.md) — Type of the hero, comparable with the result of Services:getHeroTypeByName.
+
+### getHeroClass
+
+Returns the hero class of this hero.
+
+- returns [`HeroClass`](HeroClass.md) — Class of the hero, comparable with the result of Services:getHeroClassByName.
+
 ### hasArtifact
 
 Returns whether the hero owns the given artifact, either as equipped or in the backpack.

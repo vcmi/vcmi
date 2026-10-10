@@ -24,7 +24,7 @@ enum class EMapFormat : uint8_t;
 class MapReaderH3M
 {
 public:
-	explicit MapReaderH3M(CInputStream * stream);
+	MapReaderH3M(CInputStream * stream, const std::string & mapName);
 
 	void setFormatLevel(const MapFormatFeaturesH3M & features);
 	void setIdentifierRemapper(const MapIdentifiersH3M & remapper);
@@ -38,6 +38,7 @@ public:
 	HeroTypeID readHero();
 	HeroTypeID readHero32();
 	HeroTypeID readHeroPortrait();
+	HeroClassID readHeroClass32();
 	FactionID readFaction32();
 	TerrainId readTerrain();
 	RoadId readRoad();
@@ -52,7 +53,16 @@ public:
 	GameResID readGameResID();
 	GameResID readGameResID32();
 	PlayerColor readPlayer();
+
 	PlayerColor readPlayer32();
+
+	/// validate and remap already read raw value, for fields that may contain garbage depending on other fields
+	ArtifactID toArtifact(int32_t raw);
+	SpellID toSpell(int32_t raw);
+	GameResID toGameResID(int32_t raw);
+	FactionID toFaction(int32_t raw);
+	/// faction of nullopt means building id that is common to all factions
+	BuildingID toBuilding(int32_t raw, std::optional<FactionID> faction);
 
 	void readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction);
 	void readBitmaskFactions(std::set<FactionID> & dest, bool invert);
@@ -80,13 +90,17 @@ public:
 
 	uint8_t readUInt8();
 	int8_t readInt8();
+	/// clamps out of range value with a warning
 	int8_t readInt8Checked(int8_t lowerLimit, int8_t upperLimit);
+	/// throws on out of range value, for values that define layout of following data
+	int8_t readInt8Strict(int8_t lowerLimit, int8_t upperLimit);
 
 	int16_t readInt16();
 	uint16_t readUInt16();
 
 	uint32_t readUInt32();
 	int32_t readInt32();
+	int32_t readInt32Checked(int32_t lowerLimit, int32_t upperLimit);
 
 	std::string readBaseString();
 
@@ -95,10 +109,14 @@ private:
 	Identifier remapIdentifier(const Identifier & identifier);
 
 	template<class Identifier>
+	Identifier validateIdentifier(const Identifier & identifier, int32_t count, const std::string & typeName);
+
+	template<class Identifier>
 	void readBitmask(std::set<Identifier> & dest, int bytesToRead, int objectsToRead, bool invert);
 
 	MapFormatFeaturesH3M features;
 	MapIdentifiersH3M remapper;
 
 	std::unique_ptr<CBinaryReader> reader;
+	std::string mapName;
 };

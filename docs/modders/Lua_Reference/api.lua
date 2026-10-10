@@ -1229,6 +1229,14 @@ function HeroInstance:getPrimarySkill(skill) end
 ---@return integer # Mastery level (0 = none, 1 = basic, 2 = advanced, 3 = expert).
 function HeroInstance:getSecondarySkill(skill) end
 
+---Returns the hero type (Orrin, Kyrre, Astral...) of this hero.
+---@return HeroType # Type of the hero, comparable with the result of Services:getHeroTypeByName.
+function HeroInstance:getHeroType() end
+
+---Returns the hero class of this hero.
+---@return HeroClass # Class of the hero, comparable with the result of Services:getHeroClassByName.
+function HeroInstance:getHeroClass() end
+
 ---Returns whether the hero owns the given artifact, either as equipped or in the backpack.
 ---@param artifact integer # Artifact JSON key.
 ---@return boolean # True if the hero owns the artifact.
@@ -1637,6 +1645,10 @@ function TownInstance:getOwner() end
 ---Returns the buildings that have been built in this town, upgrades of other buildings among them.
 ---@return Building[] # Every building standing in this town.
 function TownInstance:getBuildings() end
+
+---Returns the faction (Castle, Rampart, Tower...) of this town.
+---@return Faction # Faction of the town, comparable with the result of Services:getFactionByName.
+function TownInstance:getFaction() end
 
 ---Represents a creature stack participating in the current battle. Provides access to the live combat state — position, owner, current health, applied bonuses, ability checks. To stage modifications, copy into a UnitState, edit it, then commit via server.
 ---@class Unit

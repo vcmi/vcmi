@@ -66,6 +66,7 @@ enum class HotaScriptCondition : int32_t
 	NOT_EQUAL = 10,
 	CURRENT_PLAYER = 11,
 	HERO_OWNER = 12,
+	HERO_CLASS = 13,
 	PLAYER_DEFEATED_MONSTER = 14,
 	PLAYER_DEFEATED_HERO = 15,
 	HERO_SECONDARY_SKILL = 16,
@@ -73,7 +74,8 @@ enum class HotaScriptCondition : int32_t
 	PLAYER_OWNS_TOWN = 18,
 	PLAYER_IS_HUMAN = 19,
 	PLAYER_STARTING_FACTION = 20,
-	TOWN_IS_NEUTRAL = 21
+	TOWN_IS_NEUTRAL = 21,
+	HERO_TYPE = 22
 };
 
 enum class HotaScriptExpression : int32_t
@@ -110,10 +112,10 @@ static std::string boolStr(bool value)
 
 /// Renders a string as a quoted Lua literal. Only used for editor-supplied variable names, which
 /// are expected to be plain identifiers - anything needing escaping means a malformed map.
-static std::string luaString(const std::string & value)
+std::string HotaScriptConverter::luaString(const std::string & value) const
 {
 	if(value.find_first_of("\\\"\n\r") != std::string::npos)
-		throw std::runtime_error("Script variable name contains unsupported characters: " + value);
+		throw std::runtime_error("Map '" + mapName + "': Script variable name contains unsupported characters: " + value);
 
 	return '"' + value + '"';
 }
@@ -157,7 +159,7 @@ static std::string entityRef(const std::string & lookup, IdentifierType identifi
 }
 
 /// EXECUTE_EVENT stores the target bucket as an integer in map order.
-static std::string bucketName(int eventType)
+std::string HotaScriptConverter::bucketName(int eventType) const
 {
 	switch(eventType)
 	{
@@ -165,7 +167,7 @@ static std::string bucketName(int eventType)
 		case 1: return "playerEvents";
 		case 2: return "townEvents";
 		case 3: return "questEvents";
-		default: throw std::runtime_error("Unknown event bucket code:" + std::to_string(eventType));
+		default: throw unsupported("Unknown event bucket code " + std::to_string(eventType));
 	}
 }
 
@@ -235,6 +237,15 @@ local function changeResources(server, player, amounts, sign)
 	for index, key in ipairs(RESOURCES) do
 		local amount = amounts[index]
 		if amount and amount ~= 0 then server:giveResource(player, LIBRARY:getResourceByName(key), sign * amount) end
+	end
+end
+
+-- Sets the player's treasury to the given resource set, in the same order as changeResources.
+local function setResources(game, server, player, amounts)
+	for index, key in ipairs(RESOURCES) do
+		local resource = LIBRARY:getResourceByName(key)
+		local delta = amounts[index] - game:getResource(player, resource)
+		if delta ~= 0 then server:giveResource(player, resource, delta) end
 	end
 end
 
@@ -427,7 +438,9 @@ std::string HotaScriptConverter::loadImageList(int count)
 	{
 		int imageType = reader.readInt32();
 		int imageSubtype = reader.readInt32();
-		std::string amount = loadExpression();
+		bool isVariable = reader.readBool();
+		int value = reader.readInt32();
+		std::string amount = isVariable ? "game:getMapVariable(" + varRef(value) + ")" : num(value);
 		if(i != 0)
 			result += ", ";
 		result += "{" + num(imageType) + ", " + num(imageSubtype) + ", " + amount + "}";
@@ -568,7 +581,13 @@ std::string HotaScriptConverter::loadActions(int indent)
 				if(mode == 1 || mode == 2)
 				{
 					reader.readBool(); // show OR between images
-					reader.readInt32(); // unknown
+					// TODO: images shown besides the two choices, unclear where HotA displays them
+					int extraImagesCount = reader.readInt32();
+					if(extraImagesCount != 0)
+					{
+						loadImageList(extraImagesCount);
+						logGlobal->warn("Map '%s': question with %d extra images is not implemented!", mapName, extraImagesCount);
+					}
 				}
 
 				result += pad + "server:showQuestion{\n";
@@ -701,16 +720,29 @@ std::string HotaScriptConverter::loadActions(int indent)
 			}
 			case HotaScriptActions::CONSTRUCT_BUILDING:
 			{
-				BuildingID building = reader.readBuilding32(std::nullopt);
-				int unknownA = reader.readInt16(); // faction ID?
-				int unknownB = reader.readInt16(); // faction building ID?
+				int rawBuilding = reader.readInt32();
+				int rawFaction = reader.readInt16(); // -1 for buildings common to all factions
+				reader.readInt16(); // unknown, seen as -1 and 0
 				reader.readBool(); // showMessage flag
-				// the building was read without faction context, so a set faction field would mean the emitted
-				// building id is the wrong one - refuse rather than erect something else
-				if(unknownA != -1 || unknownB != -1)
-					throw unsupported("CONSTRUCT_BUILDING with faction fields set to " + num(unknownA) + "/" + num(unknownB));
 
-				result += pad + "server:constructBuilding(town, " + num(building.getNum()) + ")\n";
+				std::optional<FactionID> faction;
+				if(rawFaction != -1)
+				{
+					faction = reader.toFaction(rawFaction);
+					if(!faction->hasValue())
+						throw unsupported("CONSTRUCT_BUILDING with unknown faction " + num(rawFaction));
+				}
+
+				BuildingID building = reader.toBuilding(rawBuilding, faction);
+				if(building == BuildingID::NONE)
+					throw unsupported("CONSTRUCT_BUILDING with unknown building " + num(rawBuilding) + " for faction " + num(rawFaction));
+
+				std::string construct = "server:constructBuilding(town, " + num(building.getNum()) + ")";
+				// a faction-specific id names a building slot that holds something else in other factions
+				if(faction)
+					result += pad + "if town:getFaction() == " + entityRef("getFactionByName", *faction) + " then " + construct + " end\n";
+				else
+					result += pad + construct + "\n";
 				break;
 			}
 			case HotaScriptActions::EXECUTE_EVENT:
@@ -720,9 +752,12 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string targetBucket = bucketName(eventType);
 
 				// The call forwards the caller's locals, so the target handler must take the same
-				// parameters - a town handler invoked from a hero event would bind `object` to `town`
-				const std::string & args = bucketTraits(currentBucket).args;
-				if(bucketTraits(targetBucket).args != args)
+				// parameters - a town handler invoked from a hero event would bind `object` to `town`.
+				// Player handlers are the exception: every other bucket has `player` as a local, taken from the owner
+				std::string args = bucketTraits(currentBucket).args;
+				if(targetBucket == "playerEvents")
+					args = bucketTraits(targetBucket).args;
+				else if(bucketTraits(targetBucket).args != args)
 					throw unsupported("EXECUTE_EVENT targeting " + targetBucket + ", which takes different parameters");
 
 				result += pad + "Map:" + eventHandlerName(targetBucket, eventID) + "(" + args + ")\n";
@@ -730,7 +765,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 			}
 			case HotaScriptActions::RESOURCES:
 			{
-				int mode = reader.readInt8(); // 0 = give, 1 = take
+				int mode = reader.readInt8(); // 0 = give, 1 = take, 2 = set
 				std::string amounts;
 				for(int i = 0; i < 7; ++i)
 				{
@@ -739,15 +774,12 @@ std::string HotaScriptConverter::loadActions(int indent)
 					amounts += loadExpression();
 				}
 				reader.readBool(); // showMessage flag
-				// spell and movement points read the same field as 0 = add, 1 = subtract, 2 = set the total,
-				// so mode 2 likely sets the treasury - unverified, no known map uses it here
-				if(mode != 0 && mode != 1)
-				{
-					logGlobal->warn("Map '%s': RESOURCES event with unknown mode %d, possibly 'set total'!", mapName, mode);
+				if(mode == 2)
+					result += pad + "setResources(game, server, player, {" + amounts + "})\n";
+				else if(mode == 0 || mode == 1)
+					result += pad + "changeResources(server, player, {" + amounts + "}, " + (mode == 0 ? "1" : "-1") + ")\n";
+				else
 					throw unsupported("RESOURCES with mode " + num(mode));
-				}
-
-				result += pad + "changeResources(server, player, {" + amounts + "}, " + (mode == 0 ? "1" : "-1") + ")\n";
 				break;
 			}
 			case HotaScriptActions::PRIMARY_SKILL:
@@ -787,7 +819,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				break;
 			}
 			default:
-				throw std::runtime_error("Unknown event action code:" + std::to_string(static_cast<int>(actionType)));
+				throw unsupported("Unknown event action code " + std::to_string(static_cast<int>(actionType)));
 		}
 	}
 	return result;
@@ -801,6 +833,10 @@ std::string HotaScriptConverter::loadCondition()
 
 std::string HotaScriptConverter::loadConditionInternal()
 {
+	// HotA editor writes 0 when the condition has no target object selected
+	// TODO: unknown whether HotA treats such condition as always true or as always false
+	constexpr uint32_t noTargetObject = 0;
+
 	auto conditionCode = static_cast<HotaScriptCondition>(reader.readInt32());
 	switch(conditionCode)
 	{
@@ -872,6 +908,10 @@ std::string HotaScriptConverter::loadConditionInternal()
 		}
 		case HotaScriptCondition::TOWN_IS_NEUTRAL:
 			return "(town:getOwner() == ENUM.PlayerColor.neutral)";
+		case HotaScriptCondition::HERO_CLASS:
+			return "(hero:getHeroClass() == " + entityRef("getHeroClassByName", reader.readHeroClass32()) + ")";
+		case HotaScriptCondition::HERO_TYPE:
+			return "(hero:getHeroType() == " + entityRef("getHeroTypeByName", reader.readHero32()) + ")";
 		case HotaScriptCondition::PLAYER_DEFEATED:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
@@ -889,25 +929,24 @@ std::string HotaScriptConverter::loadConditionInternal()
 			return "playerStartingFaction(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + entityRef("getFactionByName", faction) + ")";
 		}
 		case HotaScriptCondition::PLAYER_DEFEATED_MONSTER:
-		{
-			PlayerColor conditionPlayer = reader.readPlayer32();
-			uint32_t targetObjectID = reader.readUInt32();
-			return "playerDestroyedObject(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
-		}
 		case HotaScriptCondition::PLAYER_DEFEATED_HERO:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
 			uint32_t targetObjectID = reader.readUInt32();
+			if(targetObjectID == noTargetObject)
+				return "false";
 			return "playerDestroyedObject(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
 		}
 		case HotaScriptCondition::PLAYER_OWNS_TOWN:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
 			uint32_t targetObjectID = reader.readUInt32();
+			if(targetObjectID == noTargetObject)
+				return "false";
 			return "playerOwnsTown(game, resolvePlayer(" + num(conditionPlayer.getNum()) + ", player), " + questObjectRef(targetObjectID) + ")";
 		}
 		default:
-			throw std::runtime_error("Unknown event condition code:" + std::to_string(static_cast<int>(conditionCode)));
+			throw unsupported("Unknown event condition code " + std::to_string(static_cast<int>(conditionCode)));
 	}
 }
 
@@ -990,7 +1029,7 @@ std::string HotaScriptConverter::loadExpressionInternal()
 			return "hero:ownedArtifacts(" + entityRef("getArtifactByName", artifact) + ")";
 		}
 		default:
-			throw std::runtime_error("Unknown event expression code:" + std::to_string(static_cast<int>(expressionCode)));
+			throw unsupported("Unknown event expression code " + std::to_string(static_cast<int>(expressionCode)));
 	}
 }
 

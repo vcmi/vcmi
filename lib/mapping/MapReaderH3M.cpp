@@ -45,8 +45,19 @@ Identifier MapReaderH3M::remapIdentifier(const Identifier & identifier)
 	return remapper.remap(identifier);
 }
 
-MapReaderH3M::MapReaderH3M(CInputStream * stream)
+template<class Identifier>
+Identifier MapReaderH3M::validateIdentifier(const Identifier & identifier, int32_t count, const std::string & typeName)
+{
+	if(identifier == Identifier::NONE || (identifier.getNum() >= 0 && identifier.getNum() < count))
+		return identifier;
+
+	logGlobal->warn("Map '%s': Map contains invalid %s %d!", mapName, typeName, identifier.getNum());
+	return Identifier::NONE;
+}
+
+MapReaderH3M::MapReaderH3M(CInputStream * stream, const std::string & mapName)
 	: reader(std::make_unique<CBinaryReader>(stream))
+	, mapName(mapName)
 {
 }
 
@@ -75,7 +86,7 @@ ArtifactID MapReaderH3M::readArtifact()
 	if (result.getNum() < features.artifactsCount)
 		return remapIdentifier(result);
 
-	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
+	logGlobal->warn("Map '%s': Map contains invalid artifact %d. Will be removed!", mapName, result.getNum());
 	return ArtifactID::NONE;
 }
 
@@ -89,22 +100,18 @@ ArtifactID MapReaderH3M::readArtifact8()
 	if (result.getNum() < features.artifactsCount)
 		return remapIdentifier(result);
 
-	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
+	logGlobal->warn("Map '%s': Map contains invalid artifact %d. Will be removed!", mapName, result.getNum());
 	return ArtifactID::NONE;
 }
 
 ArtifactID MapReaderH3M::readArtifact32()
 {
-	ArtifactID result(reader->readInt32());
+	return toArtifact(reader->readInt32());
+}
 
-	if(result == ArtifactID::NONE)
-		return ArtifactID::NONE;
-
-	if (result.getNum() < features.artifactsCount)
-		return remapIdentifier(result);
-
-	logGlobal->warn("Map contains invalid artifact %d. Will be removed!", result.getNum());
-	return ArtifactID::NONE;
+ArtifactID MapReaderH3M::toArtifact(int32_t raw)
+{
+	return remapIdentifier(validateIdentifier(ArtifactID(raw), features.artifactsCount, "artifact"));
 }
 
 HeroTypeID MapReaderH3M::readHero()
@@ -112,18 +119,15 @@ HeroTypeID MapReaderH3M::readHero()
 	HeroTypeID result(reader->readUInt8());
 
 	if(result.getNum() == features.heroIdentifierInvalid)
-		return HeroTypeID(-1);
+		return HeroTypeID::NONE;
 
-	assert(result.getNum() < features.heroesCount);
-	return remapIdentifier(result);
+	return remapIdentifier(validateIdentifier(result, features.heroesCount, "hero"));
 }
 
 HeroTypeID MapReaderH3M::readHero32()
 {
 	HeroTypeID result(reader->readInt32());
-
-	assert(result.getNum() < features.heroesCount);
-	return remapIdentifier(result);
+	return remapIdentifier(validateIdentifier(result, features.heroesCount, "hero"));
 }
 
 HeroTypeID MapReaderH3M::readHeroPortrait()
@@ -135,7 +139,7 @@ HeroTypeID MapReaderH3M::readHeroPortrait()
 
 	if (result.getNum() >= features.heroesPortraitsCount)
 	{
-		logGlobal->warn("Map contains invalid hero portrait ID %d. Will be reset!", result.getNum() );
+		logGlobal->warn("Map '%s': Map contains invalid hero portrait ID %d. Will be reset!", mapName, result.getNum() );
 		return HeroTypeID::NONE;
 	}
 
@@ -160,9 +164,9 @@ CreatureID MapReaderH3M::readCreature32(const std::string & context)
 		return randomIndex;
 
 	if(context.empty())
-		logGlobal->warn("Map contains invalid creature %d. Will be removed!", result.getNum());
+		logGlobal->warn("Map '%s': Map contains invalid creature %d. Will be removed!", mapName, result.getNum());
 	else
-		logGlobal->warn("Map contains invalid creature %d in %s. Will be removed!", result.getNum(), context);
+		logGlobal->warn("Map '%s': Map contains invalid creature %d in %s. Will be removed!", mapName, result.getNum(), context);
 	return CreatureID::NONE;
 }
 
@@ -189,17 +193,25 @@ CreatureID MapReaderH3M::readCreature(const std::string & context)
 		return randomIndex;
 
 	if(context.empty())
-		logGlobal->warn("Map contains invalid creature %d. Will be removed!", result.getNum());
+		logGlobal->warn("Map '%s': Map contains invalid creature %d. Will be removed!", mapName, result.getNum());
 	else
-		logGlobal->warn("Map contains invalid creature %d in %s. Will be removed!", result.getNum(), context);
+		logGlobal->warn("Map '%s': Map contains invalid creature %d in %s. Will be removed!", mapName, result.getNum(), context);
 	return CreatureID::NONE;
 }
 
 FactionID MapReaderH3M::readFaction32()
 {
-	FactionID result(readInt32());
-	assert(result.getNum() < features.factionsCount);
-	return remapIdentifier(result);
+	return toFaction(readInt32());
+}
+
+FactionID MapReaderH3M::toFaction(int32_t raw)
+{
+	return remapIdentifier(validateIdentifier(FactionID(raw), features.factionsCount, "faction"));
+}
+
+HeroClassID MapReaderH3M::readHeroClass32()
+{
+	return remapIdentifier(HeroClassID(readInt32()));
 }
 
 TerrainId MapReaderH3M::readTerrain()
@@ -211,8 +223,8 @@ TerrainId MapReaderH3M::readTerrain()
 		// Map uses terrain index we don't support (e.g. extended terrain from other editor/mod)
 		// Fallback: clamp to last known terrain
 		logGlobal->warn(
-			"MapReaderH3M::readTerrain: map uses terrain %u but only %u types are supported. "
-			"Clamping to %u.",
+			"Map '%s': Map uses terrain %u but only %u types are supported. Clamping to %u.",
+			mapName,
 			raw, features.terrainsCount, features.terrainsCount ? features.terrainsCount - 1 : 0);
 
 		raw = features.terrainsCount ? features.terrainsCount - 1 : 0;
@@ -233,8 +245,8 @@ RoadId MapReaderH3M::readRoad()
 		// Map uses extended road type not supported by current config.
 		// Fallback: use the last supported road type (usually cobblestone).
 		logGlobal->warn(
-			"MapReaderH3M::readRoad: map uses road type %u but only %u types are supported. "
-			"Clamping to %u.",
+			"Map '%s': Map uses road type %u but only %u types are supported. Clamping to %u.",
+			mapName,
 			type, features.roadsCount, features.roadsCount);
 
 		type = features.roadsCount;
@@ -256,8 +268,8 @@ RiverId MapReaderH3M::readRiver()
 		const uint8_t fallback = features.riversCount ? features.riversCount : 0;
 
 		logGlobal->warn(
-			"MapReaderH3M::readRiver: map uses river type %u but only %u types are supported. "
-			"Clamping to %u.",
+			"Map '%s': Map uses river type %u but only %u types are supported. Clamping to %u.",
+			mapName,
 			type, features.riversCount, fallback);
 
 		type = fallback;
@@ -269,29 +281,25 @@ RiverId MapReaderH3M::readRiver()
 PrimarySkill MapReaderH3M::readPrimary()
 {
 	PrimarySkill result(readUInt8());
-	assert(result <= PrimarySkill::KNOWLEDGE );
-	return result;
+	return validateIdentifier(result, GameConstants::PRIMARY_SKILLS, "primary skill");
 }
 
 PrimarySkill MapReaderH3M::readPrimary32()
 {
 	PrimarySkill result(readInt32());
-	assert(result <= PrimarySkill::KNOWLEDGE );
-	return result;
+	return validateIdentifier(result, GameConstants::PRIMARY_SKILLS, "primary skill");
 }
 
 SecondarySkill MapReaderH3M::readSkill()
 {
 	SecondarySkill result(readUInt8());
-	assert(result.getNum() < features.skillsCount);
-	return remapIdentifier(result);
+	return remapIdentifier(validateIdentifier(result, features.skillsCount, "secondary skill"));
 }
 
 SecondarySkill MapReaderH3M::readSkill32()
 {
 	SecondarySkill result(readInt32());
-	assert(result.getNum() < features.skillsCount);
-	return remapIdentifier(result);
+	return remapIdentifier(validateIdentifier(result, features.skillsCount, "secondary skill"));
 }
 
 SpellID MapReaderH3M::readSpell()
@@ -302,40 +310,39 @@ SpellID MapReaderH3M::readSpell()
 	if(result.getNum() == features.spellIdentifierInvalid - 1)
 		return SpellID::PRESET;
 
-	assert(result.getNum() < features.spellsCount);
-	return remapIdentifier(result);
+	return remapIdentifier(validateIdentifier(result, features.spellsCount, "spell"));
 }
 
 SpellID MapReaderH3M::readSpell16()
 {
-	SpellID result(readInt16());
-	if(result.getNum() == features.spellIdentifierInvalid)
-		return SpellID::NONE;
-	assert(result.getNum() < features.spellsCount);
-	return result;
+	return toSpell(readInt16());
 }
 
 SpellID MapReaderH3M::readSpell32()
 {
-	SpellID result(readInt32());
-	if(result.getNum() == features.spellIdentifierInvalid)
+	return toSpell(readInt32());
+}
+
+SpellID MapReaderH3M::toSpell(int32_t raw)
+{
+	if(raw == features.spellIdentifierInvalid)
 		return SpellID::NONE;
-	assert(result.getNum() < features.spellsCount);
-	return result;
+	return validateIdentifier(SpellID(raw), features.spellsCount, "spell");
 }
 
 GameResID MapReaderH3M::readGameResID()
 {
-	GameResID result(readInt8());
-	assert(result.getNum() < features.resourcesCount);
-	return result;
+	return toGameResID(readInt8());
 }
 
 GameResID MapReaderH3M::readGameResID32()
 {
-	GameResID result(readInt32());
-	assert(result.getNum() < features.resourcesCount);
-	return result;
+	return toGameResID(readInt32());
+}
+
+GameResID MapReaderH3M::toGameResID(int32_t raw)
+{
+	return validateIdentifier(GameResID(raw), features.resourcesCount, "resource");
 }
 
 PlayerColor MapReaderH3M::readPlayer()
@@ -347,7 +354,7 @@ PlayerColor MapReaderH3M::readPlayer()
 
 	if (value >= PlayerColor::PLAYER_LIMIT_I)
 	{
-		logGlobal->warn("Map contains invalid player ID %d. Will be reset!", value );
+		logGlobal->warn("Map '%s': Map contains invalid player ID %d. Will be reset!", mapName, value);
 		return PlayerColor::NEUTRAL;
 	}
 
@@ -361,9 +368,13 @@ PlayerColor MapReaderH3M::readPlayer32()
 	if (value == 255)
 		return PlayerColor::NEUTRAL;
 
+	// HotA scripts use it as "current hero" marker
+	if (value == 254)
+		return PlayerColor::UNFLAGGABLE;
+
 	if (value >= PlayerColor::PLAYER_LIMIT_I)
 	{
-		logGlobal->warn("Map contains invalid player ID %d. Will be reset!", value );
+		logGlobal->warn("Map '%s': Map contains invalid player ID %d. Will be reset!", mapName, value);
 		return PlayerColor::NEUTRAL;
 	}
 
@@ -374,6 +385,11 @@ BuildingID MapReaderH3M::readBuilding32(std::optional<FactionID> faction)
 {
 	uint32_t value = readUInt32();
 	return remapper.remapBuilding(faction, value);
+}
+
+BuildingID MapReaderH3M::toBuilding(int32_t raw, std::optional<FactionID> faction)
+{
+	return remapper.remapBuilding(faction, BuildingID(raw));
 }
 
 void MapReaderH3M::readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction)
@@ -422,9 +438,10 @@ void MapReaderH3M::readBitmaskHeroesSized(std::set<HeroTypeID> & dest, bool inve
 {
 	uint32_t heroesCount = readUInt32();
 	uint32_t heroesBytes = (heroesCount + 7) / 8;
-	assert(heroesCount <= features.heroesCount);
+	if(heroesCount > features.heroesCount)
+		logGlobal->warn("Map '%s': Map contains %d heroes, but only %d are supported. Extra heroes will be ignored!", mapName, heroesCount, features.heroesCount);
 
-	readBitmask<HeroTypeID>(dest, heroesBytes, heroesCount, invert);
+	readBitmask<HeroTypeID>(dest, heroesBytes, std::min<int>(heroesCount, features.heroesCount), invert);
 }
 
 void MapReaderH3M::readBitmaskArtifacts(std::set<ArtifactID> &dest, bool invert)
@@ -436,9 +453,10 @@ void MapReaderH3M::readBitmaskArtifactsSized(std::set<ArtifactID> &dest, bool in
 {
 	uint32_t artifactsCount = reader->readUInt32();
 	uint32_t artifactsBytes = (artifactsCount + 7) / 8;
-	assert(artifactsCount <= features.artifactsCount);
+	if(artifactsCount > features.artifactsCount)
+		logGlobal->warn("Map '%s': Map contains %d artifacts, but only %d are supported. Extra artifacts will be ignored!", mapName, artifactsCount, features.artifactsCount);
 
-	readBitmask<ArtifactID>(dest, artifactsBytes, artifactsCount, invert);
+	readBitmask<ArtifactID>(dest, artifactsBytes, std::min<int>(artifactsCount, features.artifactsCount), invert);
 }
 
 void MapReaderH3M::readBitmaskSpells(std::set<SpellID> & dest, bool invert)
@@ -495,7 +513,7 @@ std::shared_ptr<ObjectTemplate> MapReaderH3M::readObjectTemplate()
 
 void MapReaderH3M::remapTemplate(ObjectTemplate & tmpl)
 {
-	remapper.remapTemplate(tmpl);
+	remapper.remapTemplate(tmpl, mapName);
 }
 
 void MapReaderH3M::skipUnused(size_t amount)
@@ -505,15 +523,13 @@ void MapReaderH3M::skipUnused(size_t amount)
 
 void MapReaderH3M::skipZero(size_t amount)
 {
-#ifdef NDEBUG
-	skipUnused(amount);
-#else
 	for(size_t i = 0; i < amount; ++i)
 	{
 		uint8_t value = reader->readUInt8();
+		if(value != 0)
+			logGlobal->warn("Map '%s': Expected zero byte, but %d found!", mapName, static_cast<int>(value));
 		assert(value == 0);
 	}
-#endif
 }
 
 void MapReaderH3M::readResources(TResources & resources)
@@ -529,7 +545,8 @@ bool MapReaderH3M::readBool()
 	if(raw != 0 && raw != 1)
 	{
 		logGlobal->warn(
-			"MapReaderH3M: invalid bool value %u in H3M data, using LSB (%u) as value",
+			"Map '%s': Invalid bool value %u, using LSB (%u) as value",
+			mapName,
 			static_cast<unsigned>(raw),
 			static_cast<unsigned>(raw & 1));
 	}
@@ -537,14 +554,33 @@ bool MapReaderH3M::readBool()
 	return (raw & 1) != 0;
 }
 
+int32_t MapReaderH3M::readInt32Checked(int32_t lowerLimit, int32_t upperLimit)
+{
+	int32_t result = readInt32();
+	int32_t resultClamped = std::clamp(result, lowerLimit, upperLimit);
+	if (result != resultClamped)
+		logGlobal->warn("Map '%s': Map contains out of range value %d! Expected %d-%d", mapName, result, lowerLimit, upperLimit);
+
+	return resultClamped;
+}
+
 int8_t MapReaderH3M::readInt8Checked(int8_t lowerLimit, int8_t upperLimit)
 {
 	int8_t result = readInt8();
 	int8_t resultClamped = std::clamp(result, lowerLimit, upperLimit);
 	if (result != resultClamped)
-		logGlobal->warn("Map contains out of range value %d! Expected %d-%d", static_cast<int>(result), static_cast<int>(lowerLimit), static_cast<int>(upperLimit));
+		logGlobal->warn("Map '%s': Map contains out of range value %d! Expected %d-%d", mapName, static_cast<int>(result), static_cast<int>(lowerLimit), static_cast<int>(upperLimit));
 
 	return resultClamped;
+}
+
+int8_t MapReaderH3M::readInt8Strict(int8_t lowerLimit, int8_t upperLimit)
+{
+	int8_t result = readInt8();
+	if (result < lowerLimit || result > upperLimit)
+		throw std::runtime_error("Map '" + mapName + "': Map contains out of range value " + std::to_string(result) + ", expected " + std::to_string(lowerLimit) + "-" + std::to_string(upperLimit));
+
+	return result;
 }
 
 uint8_t MapReaderH3M::readUInt8()
