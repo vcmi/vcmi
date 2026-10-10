@@ -230,7 +230,6 @@ set(editor_TS
 	"${translationsDir}/japanese.ts"
 	"${translationsDir}/korean.ts"
 	"${translationsDir}/latvian.ts"
-	"${translationsDir}/lithuanian.ts"
 	"${translationsDir}/norwegian.ts"
 	"${translationsDir}/polish.ts"
 	"${translationsDir}/portuguese.ts"
