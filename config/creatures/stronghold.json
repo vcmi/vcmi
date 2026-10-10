@@ -203,7 +203,7 @@
 			"castLength" :
 			{
 				"type" : "CREATURE_ENCHANT_POWER",
-				"val" : 3
+				"val" : 6
 			}
 		},
 		"graphics" :

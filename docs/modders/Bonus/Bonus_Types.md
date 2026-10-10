@@ -1138,7 +1138,7 @@ Affected unit will cast specified spell before his turn (Enchanter)
 
 - val - spell mastery level
 - subtype - spell identifier
-- addInfo - cooldown before next cast, in number of turns
+- addInfo - cooldown before next cast, in number of turns. Can also be a struct with parameters `cooldown` and `weight`, where weight is relative chance to select this spell among spells that can be cast (default is 1)
 
 ### RANDOM_SPELLCASTER
 

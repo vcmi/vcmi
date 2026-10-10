@@ -328,7 +328,6 @@
 							"SPELLCASTER", 
 							"FEROCITY", 
 							"PRIMARY_SKILL", 
-							"ENCHANTER",
 							"SLAYER",
 							"SPELL_IMMUNITY",
 							"DARKNESS", 
@@ -361,6 +360,30 @@
 					"addInfo" : {
 						"type" : "boolean",
 						"description" : "If true, spell can be cast without spellbook"
+					}
+				}
+			}
+		},
+		{
+			"if" : {
+				"properties" : {
+					"type" : { "enum" : [ "ENCHANTER" ] }
+				}
+			},
+			"then" : {
+				"properties" : {
+					"addInfo" : {
+						"anyOf" : [
+							{ "type" : "number" },
+							{
+								"type" : "object",
+								"additionalProperties" : false,
+								"properties" : {
+									"cooldown" : { "type" : "number", "description" : "Number of turns before next cast" },
+									"weight" : { "type" : "number", "description" : "Relative chance to select this spell among spells that can be cast" }
+								}
+							}
+						]
 					}
 				}
 			}

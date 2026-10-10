@@ -121,7 +121,6 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		case BonusType::SPELLCASTER:
 		case BonusType::FEROCITY:
 		case BonusType::PRIMARY_SKILL:
-		case BonusType::ENCHANTER:
 		case BonusType::SLAYER:
 		case BonusType::SPELL_IMMUNITY:
 		case BonusType::DARKNESS:
@@ -131,6 +130,20 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			// 1 number
 			var = static_cast<int32_t>(getFirstValue(value).Integer());
 			break;
+		case BonusType::ENCHANTER:
+		{
+			BonusParametersEnchanter loadedData;
+			if (value.isStruct())
+			{
+				loadedData.cooldown = static_cast<int32_t>(value["cooldown"].Integer());
+				if (!value["weight"].isNull())
+					loadedData.weight = std::max<int32_t>(0, static_cast<int32_t>(value["weight"].Integer()));
+			}
+			else
+				loadedData.cooldown = static_cast<int32_t>(getFirstValue(value).Integer());
+			var = loadedData;
+			break;
+		}
 		case BonusType::SPECIAL_UPGRADE:
 			// 1 creature ID
 			LIBRARY->identifiers()->requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = CreatureID(identifier); });

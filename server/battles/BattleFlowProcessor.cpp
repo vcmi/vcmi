@@ -30,6 +30,13 @@
 
 #include <vstd/RNG.h>
 
+static BonusParametersEnchanter enchanterParameters(const Bonus & bonus)
+{
+	if(!bonus.parameters)
+		return {};
+	return bonus.parameters->toCustom<BonusParametersEnchanter>();
+}
+
 BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
 	, gameHandler(newGameHandler)
@@ -849,7 +856,16 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			bool cast = false;
 			while(!bl.empty() && !cast)
 			{
-				auto bonus = *RandomGeneratorUtil::nextItem(bl, gameHandler->getRandomGenerator());
+				// H3: spell is selected randomly using weights, among spells that can be cast
+				std::vector<int> weights;
+				for(const auto & candidate : bl)
+					weights.push_back(enchanterParameters(*candidate).weight);
+
+				int64_t selectedIndex = RandomGeneratorUtil::nextItemWeighted(weights, gameHandler->getRandomGenerator());
+				if(selectedIndex < 0)
+					break;
+
+				auto bonus = bl[selectedIndex];
 				auto spellID = bonus->subtype.as<SpellID>();
 				const CSpell * spell = SpellID(spellID).toSpell();
 				bl.remove_if([&bonus](const Bonus * b)
@@ -857,7 +873,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 					return b == bonus.get();
 				});
 
-				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->parameters && bonus->parameters->toNumber() != 0)
+				if (battle.battleGetEnchanterCounter(side) != 0 && enchanterParameters(*bonus).cooldown != 0)
 					continue; // cooldown
 
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
@@ -868,7 +884,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				{
 					cast = true;
 
-					int cooldown = bonus->parameters ? bonus->parameters->toNumber() : 0;
+					int cooldown = enchanterParameters(*bonus).cooldown;
 					if (cooldown != 0)
 					{
 						BattleSetStackProperty ssp;
