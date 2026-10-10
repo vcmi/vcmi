@@ -338,7 +338,6 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					continue;
 				}
 
-				const int3 movementStart = hero->visitablePos();
 				if(hero->movementPointsRemaining())
 				{
 					try
@@ -366,25 +365,33 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							continue;
 						}
 
-						if(movementResult == HeroMovementResult::PROGRESSED)
+						// a multi-turn node is expected to stop short: lock the hero below and keep its dependants waiting
+						const bool stoppedAsPlanned = node->turns > 0
+							&& (movementResult == HeroMovementResult::PROGRESSED
+								|| aiGw->nullkiller->getPathsInfo(hero)->getPathInfo(node->coord)->reachable());
+
+						if(!stoppedAsPlanned)
 						{
+							if(movementResult == HeroMovementResult::PROGRESSED)
+							{
+								logAi->debug(
+									"Pausing hero chain for %s: movement towards %s stopped at %s with %d MP left",
+									hero->getNameTextID(),
+									node->coord.toString(),
+									hero->visitablePos().toString(),
+									hero->movementPointsRemaining());
+
+								aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+								return;
+							}
+
 							logAi->debug(
-								"Pausing hero chain for %s: movement towards %s stopped at %s with %d MP left",
+								"Replanning stale hero chain for %s: no current path to %s",
 								hero->getNameTextID(),
-								node->coord.toString(),
-								hero->visitablePos().toString(),
-								hero->movementPointsRemaining());
+								node->coord.toString());
 
-							aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
-							return;
+							throw cannotFulfillGoalException("Hero cannot reach hero chain target.");
 						}
-
-						logAi->debug(
-							"Replanning stale hero chain for %s: no current path to %s",
-							hero->getNameTextID(),
-							node->coord.toString());
-
-						throw cannotFulfillGoalException("Hero cannot reach hero chain target.");
 					}
 					catch(const cannotFulfillGoalException &)
 					{
@@ -397,19 +404,6 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 						throw;
 					}
-				}
-
-				if(hero->visitablePos() != movementStart)
-				{
-					logAi->debug(
-						"Pausing hero chain for %s: movement towards %s stopped at %s with %d MP left",
-						hero->getNameTextID(),
-						node->coord.toString(),
-						hero->visitablePos().toString(),
-						hero->movementPointsRemaining());
-
-					aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
-					return;
 				}
 			}
 
