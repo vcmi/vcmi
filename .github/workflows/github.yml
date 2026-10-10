@@ -765,6 +765,9 @@ jobs:
             os: windows-11-arm
 
     runs-on: ${{ matrix.os }}
+    env:
+      # sign only master and manual builds to conserve SignPath quota
+      SIGNPATH_API_TOKEN: ${{ (github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch') && secrets.SIGNPATH_API_TOKEN || '' }}
     defaults:
       run:
         shell: bash
@@ -827,6 +830,29 @@ jobs:
         "${{ github.workspace }}\artifact"
         "${{ github.workspace }}\ucrt"
       shell: cmd
+
+    # SignPath can only sign files that are already uploaded as workflow artifact
+    - name: Upload unsigned VCMI Installer
+      id: upload_unsigned_installer
+      if: ${{ env.SIGNPATH_API_TOKEN != '' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ env.VCMI_PACKAGE_FILE_NAME }}-unsigned
+        retention-days: 1
+        path: |
+          ${{ github.workspace }}/CI/wininstaller/Output/*.exe
+
+    - name: Sign VCMI Installer
+      if: ${{ env.SIGNPATH_API_TOKEN != '' }}
+      uses: signpath/github-action-submit-signing-request@v2
+      with:
+        api-token: ${{ env.SIGNPATH_API_TOKEN }}
+        organization-id: '091f52d0-6021-4c04-bbdf-a3736f7730b4'
+        project-slug: 'vcmi'
+        signing-policy-slug: 'test-signing'
+        github-artifact-id: ${{ steps.upload_unsigned_installer.outputs.artifact-id }}
+        wait-for-completion: true
+        output-artifact-directory: ${{ github.workspace }}/CI/wininstaller/Output
 
     - name: Upload VCMI Installer Artifacts
       id: upload_installer
@@ -959,6 +985,7 @@ jobs:
             name=$(basename "$d")
             case "$name" in
               partial-json-*) continue ;;
+              *-unsigned) continue ;;
               *-msvc-x64-symbols)   (cd "$d" && zip -qr9 "$GITHUB_WORKSPACE/release/VCMI-Windows-x64-symbols.zip" .) ;;
               *-msvc-x86-symbols)   (cd "$d" && zip -qr9 "$GITHUB_WORKSPACE/release/VCMI-Windows-x86-symbols.zip" .) ;;
               *-msvc-arm64-symbols) (cd "$d" && zip -qr9 "$GITHUB_WORKSPACE/release/VCMI-Windows-arm64-symbols.zip" .) ;;
