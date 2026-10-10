@@ -192,6 +192,9 @@ private:
 	 */
 	void readObjects();
 
+	/// Replaces outdated template of a garrison with the one from config, keeping the garrison entrance in place
+	void adjustOutdatedGarrisonTemplate(CGObjectInstance & object);
+
 	/// Reads single object from input stream based on template
 	std::shared_ptr<CGObjectInstance> readObject(MapObjectID id, MapObjectSubID subid, std::shared_ptr<const ObjectTemplate> objectTemplate, const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);
 	std::shared_ptr<CGObjectInstance> readEvent(const int3 & objectPosition, const ObjectInstanceID & idToBeGiven);

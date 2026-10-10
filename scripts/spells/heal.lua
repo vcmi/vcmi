@@ -45,6 +45,7 @@ function Script:isValidTarget(mechanics, unit)
 				return other ~= unit and other:isValidTarget(false) and other:coversPos(hex)
 			end)
 			if #blockers > 0 then return false end
+			if #mechanics:getBattle():getObstaclesOnPos(hex, true) > 0 then return false end
 		end
 	end
 

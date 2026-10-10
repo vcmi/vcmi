@@ -29,6 +29,7 @@ set(test_SRCS
 
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp
+		entity/StackExperienceBonusesTest.cpp
 		entity/CFactionTest.cpp
 		entity/CHeroClassTest.cpp
 		entity/CHeroTest.cpp
@@ -119,6 +120,7 @@ set(test_SRCS
 		server/battles/FireShieldTest.cpp
 		server/battles/HotaAbilitiesTest.cpp
 		server/battles/LifeDrainTest.cpp
+		server/battles/WarMachineResurrectionTest.cpp
 		server/battles/MeleeActionTest.cpp
 		server/battles/MoatActionTest.cpp
 		server/battles/NoTargetActionTest.cpp

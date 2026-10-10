@@ -2297,12 +2297,40 @@ void CMapLoaderH3M::readObjects()
 			newObject->subID = remappedTemplate->subid;
 		}
 		newObject->appearance = remappedTemplate;
+		adjustOutdatedGarrisonTemplate(*newObject);
 
 		if (newObject->isVisitable() && !map->isInTheMap(newObject->visitablePos()))
 			logGlobal->error("Map '%s': Object at %s - outside of map borders!", mapName, mapPosition.toString());
 
 		map->generateUniqueInstanceName(newObject.get());
 		map->addNewObject(newObject);
+	}
+}
+
+void CMapLoaderH3M::adjustOutdatedGarrisonTemplate(CGObjectInstance & object)
+{
+	// HotA 1.8 has moved graphics of water garrisons by one tile without renaming them, while maps made by older
+	// versions keep the old template, so new graphics would be drawn one tile away from tiles that garrison occupies.
+	// Template from config matches the graphics, and entrance is kept where the map author has placed it
+	if(object.ID != Obj::GARRISON && object.ID != Obj::GARRISON2)
+		return;
+
+	if(!object.appearance->isVisitable())
+		return;
+
+	for(const auto & configTemplate : LIBRARY->objtypeh->getHandlerFor(object.ID, object.subID)->getTemplates())
+	{
+		if(configTemplate->animationFile != object.appearance->animationFile || !configTemplate->isVisitable())
+			continue;
+
+		const int3 offsetChange = configTemplate->getVisitableOffset() - object.appearance->getVisitableOffset();
+		if(offsetChange == int3())
+			return;
+
+		logGlobal->debug("Map '%s': Garrison at %s uses outdated template '%s', moving it by %s", mapName, object.anchorPos().toString(), object.appearance->animationFile.getOriginalName(), offsetChange.toString());
+		object.setAnchorPos(object.anchorPos() + offsetChange);
+		object.appearance = configTemplate;
+		return;
 	}
 }
 

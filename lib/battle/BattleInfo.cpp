@@ -736,13 +736,15 @@ void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDe
 
 	if(!changedStack->alive() && healthDelta > 0)
 	{
-		//checking if we resurrect a stack that is under a living stack
-		auto accessibility = getAccessibility();
-
-		if(!accessibility.accessible(changedStack->getPosition(), changedStack))
+		// Accessibility is not used here, since double-wide war machines stand partially on side columns,
+		// which are never accessible to units
+		for(const auto & hex : changedStack->getHexes())
 		{
-			logNetwork->error("Cannot resurrect %s because hex %d is occupied!", changedStack->nodeName(), changedStack->getPosition());
-			return; //position is already occupied
+			if(battleGetUnitByPos(hex, true) != nullptr || !battleGetAllObstaclesOnPos(hex, true).empty())
+			{
+				logNetwork->error("Cannot resurrect %s because hex %d is occupied!", changedStack->nodeName(), hex.toInt());
+				return; //position is already occupied
+			}
 		}
 	}
 
