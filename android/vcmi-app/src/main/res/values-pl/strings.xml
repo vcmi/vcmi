@@ -13,6 +13,6 @@
     <string name="data_folder_name">Dane VCMI</string>
     <string name="notification_channel_running">Działa w tle</string>
     <string name="notification_channel_game">Wydarzenia w grze</string>
-    <string name="notification_running_title">VMI działa</string>
+    <string name="notification_running_title">VCMI działa</string>
     <string name="notification_running_text">Gra zostanie aktywna w tle</string>
 </resources>
