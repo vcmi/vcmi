@@ -366,6 +366,11 @@ void AdventureMapInterface::keyPressed(EShortcut key)
 	ENGINE->fakeMouseMove();
 }
 
+void AdventureMapInterface::keyCanceled(EShortcut key)
+{
+	keyReleased(key);
+}
+
 void AdventureMapInterface::keyReleased(EShortcut key)
 {
 	heldScrollShortcuts.erase(key);

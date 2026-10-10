@@ -70,6 +70,7 @@ protected:
 	void tick(uint32_t msPassed) override;
 
 	bool receiveEvent(const Point & position, int eventType) const override;
+	void gestureCanceled() override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 

@@ -136,6 +136,7 @@ protected:
 
 	void keyPressed(EShortcut key) override;
 	void keyReleased(EShortcut key) override;
+	void keyCanceled(EShortcut key) override;
 
 	void onScreenResize() override;
 

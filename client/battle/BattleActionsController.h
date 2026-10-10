@@ -58,7 +58,7 @@ class BattleActionsController
 	std::string actionGetStatusMessage(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 	std::string actionGetStatusMessageBlocked(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 
-	void actionRealize(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
+	void actionRealize(PossiblePlayerBattleAction action, const BattleHex & hoveredHex, const std::function<void(const CStack *)> & showStackInfo);
 
 	PossiblePlayerBattleAction selectAction(const BattleHex & myNumber);
 
@@ -100,6 +100,13 @@ public:
 	/// returns true if currently selected action allows long weapon reach for melee attacks
 	bool currentActionUsesLongWeapon(const BattleHex & hoveredHex);
 
+	/// returns true when the selected legal action uses a melee approach direction
+	bool currentActionHasAttackDirection(const BattleHex & hoveredHex);
+
+	/// Short presentation of the same legal action used by the pointer entry.
+	std::string primaryActionText(const BattleHex & hex);
+	std::string secondaryActionText(const BattleHex & hex, bool persistentInfo) const;
+
 	/// enter targeted spellcasting mode for creature, e.g. via "F" hotkey
 	void enterCreatureCastingMode();
 
@@ -111,15 +118,16 @@ public:
 
 	/// update cursor and status bar according to new active hex
 	void onHexHovered(const BattleHex & hoveredHex);
+	void onHexRightHovered(const BattleHex & hoveredHex);
 
 	/// called when cursor is no longer over battlefield and cursor/battle log should be reset
 	void onHoverEnded();
 
 	/// performs action according to selected hex
-	void onHexLeftClicked(const BattleHex & clickedHex);
+	void onHexLeftClicked(const BattleHex & clickedHex, const std::function<void(const CStack *)> & showStackInfo = {});
 
 	/// performs action according to selected hex
-	void onHexRightClicked(const BattleHex & clickedHex);
+	void onHexRightClicked(const BattleHex & clickedHex, const std::function<void(const CStack *)> & showStackInfo = {}, const std::function<void(const std::string &)> & showTextInfo = {});
 
 	const spells::Caster * getCurrentSpellcaster() const;
 	const CSpell * getCurrentSpell(const BattleHex & hoveredHex);

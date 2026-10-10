@@ -80,6 +80,14 @@ void CSlider::gesturePanning(const Point & initialPosition, const Point & curren
 		mouseDragged(currentPosition, lastUpdateDistance);
 }
 
+void CSlider::gestureCanceled()
+{
+	touchDragging = false;
+	dragOffset = 0;
+	slider->clickCancel(ENGINE->getCursorPosition());
+	Scrollable::gestureCanceled();
+}
+
 void CSlider::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	if (on && slider->pos.isInside(initialPosition))

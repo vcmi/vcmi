@@ -12,6 +12,7 @@
 #include "../../lib/battle/BattleHexArray.h"
 #include "../../lib/Point.h"
 #include "../gui/CIntObject.h"
+#include "../widgets/ControllerPrompt.h"
 
 class CStack;
 class Rect;
@@ -26,6 +27,39 @@ class BattleInterface;
 class BattleFieldController : public CIntObject
 {
 	BattleInterface & owner;
+
+	ControllerPrompt::Renderer promptRenderer;
+	void showControllerPrompts(Canvas & canvas);
+	bool nativeController = true;
+	bool controllerFocusInitialized = false;
+	std::array<double, 2> navigationAxis{};
+	uint32_t navigationRepeat = 0;
+	std::array<double, 2> unitNavigationAxis{};
+	uint32_t unitNavigationRepeat = 0;
+	const CStack * controllerActor = nullptr;
+	int attackDirectionStep = 0;
+	uint32_t attackDirectionRepeat = 0;
+	const CStack * attackDirectionActor = nullptr;
+	BattleHex attackDirectionTarget;
+
+	bool usesNativeController() const;
+	bool allowsControllerPrimaryAction() const;
+	void resetControllerPress();
+	void controllerInputCanceled() override;
+	void focusHex(BattleHex hex);
+	void moveControllerFocus();
+	void moveControllerUnitFocus();
+	bool hasControllerAttackDirections() const;
+	bool cycleControllerAttackDirection(int step);
+	std::array<Point, 8> attackDirectionPoints(const BattleHex & target) const;
+	bool controllerAxisMoved(EShortcut axis, double value) override;
+	bool translateControllerShortcuts(std::vector<EShortcut> & shortcuts) const override;
+	void keyPressed(EShortcut key) override;
+	void keyReleased(EShortcut key) override;
+	void keyCanceled(EShortcut key) override;
+	void inputModeChanged(InputMode mode) override;
+	void clickReleased(const Point & cursorPosition) override;
+	void activateHoveredHex();
 
 	std::shared_ptr<IImage> background;
 	std::shared_ptr<IImage> cellBorder;
@@ -123,6 +157,7 @@ class BattleFieldController : public CIntObject
 	bool receiveEvent(const Point & position, int eventType) const override;
 
 public:
+	void activeStackChanged();
 	BattleFieldController(BattleInterface & owner);
 
 	void createHeroes();

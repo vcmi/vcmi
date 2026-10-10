@@ -16,8 +16,12 @@ namespace ControllerPrompt
 enum class Family
 {
 	UNKNOWN,
+	GENERIC,
 	PLAYSTATION,
-	XBOX
+	XBOX,
+	NINTENDO,
+	/// Nintendo devices whose input mapping already reports printed face labels.
+	NINTENDO_LABELS
 };
 
 }

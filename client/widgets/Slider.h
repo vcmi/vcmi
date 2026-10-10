@@ -99,6 +99,7 @@ public:
 	void clickReleased(const Point & cursorPosition) override;
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
+	void gestureCanceled() override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void showAll(Canvas & to) override;
 

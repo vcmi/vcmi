@@ -12,6 +12,7 @@
 class Point;
 
 class AEventsReceiver;
+class IShowActivatable;
 enum class MouseButton;
 enum class EShortcut;
 enum class InputMode;
@@ -36,8 +37,18 @@ class EventDispatcher
 	EventReceiversList panningInterested;
 	EventReceiversList inputModeChangeInterested;
 	EventReceiversList keyNameInterested;
+	EventReceiversList controllerAxisInterested;
 
 	std::vector<AEventsReceiver *> touchPressedElements;
+
+	struct ControllerPress
+	{
+		std::vector<EShortcut> shortcuts;
+		std::weak_ptr<IShowActivatable> window;
+		bool canceled = false;
+		bool popup = false;
+	};
+	std::map<std::pair<int, std::string>, ControllerPress> controllerPresses;
 
 	void handleLeftButtonClick(const Point & position, int tolerance, bool isPressed);
 	void handleDoubleButtonClick(const Point & position, int tolerance);
@@ -59,6 +70,16 @@ public:
 	/// Shortcut events (e.g. keyboard keys)
 	void dispatchShortcutPressed(const std::vector<EShortcut> & shortcuts);
 	void dispatchShortcutReleased(const std::vector<EShortcut> & shortcuts);
+
+	void dispatchControllerButtonPressed(int instance, const std::string & control, bool consumed = false);
+	void dispatchControllerButtonReleased(int instance, const std::string & control);
+	void cancelControllerInput(bool dismissPopup);
+	void forgetController(int instance);
+	bool isControllerShortcutPressed(EShortcut shortcut) const;
+	void dispatchGesturePanningCanceled();
+
+	bool dispatchControllerAxis(const std::vector<EShortcut> & axes, double value);
+	std::vector<EShortcut> translateControllerShortcuts(std::vector<EShortcut> shortcuts);
 
 	/// Key events (to get keyname of pressed key)
 	void dispatchKeyPressed(const std::string & keyName);
