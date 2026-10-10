@@ -64,12 +64,13 @@ enum class ESerializationVersion : int32_t
 	BATTLE_RESTORE_ARTIFACT_CHARGES, // battle stores initial charges of artifacts to restore them if battle is cancelled
 	CREATURE_REFUSED_JOINING_REMOVED, // wandering creatures no longer store a refused offer to join, the visit tracks it
 	HOTA_HERO_LEVEL_OPTIONS, // persist HotA per-hero experience lock
+	BOAT_LAST_HERO, // boat remembers the last hero that used it, so Summon Boat can prefer boat of the caster
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = HOTA_HERO_LEVEL_OPTIONS,
+	CURRENT = BOAT_LAST_HERO,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
