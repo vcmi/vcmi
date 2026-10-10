@@ -17,6 +17,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/callback/CAdventureAI.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
 
@@ -24,6 +25,13 @@ class AsyncRunner;
 
 namespace NK2AI
 {
+
+enum class HeroMovementResult
+{
+	COMPLETE,
+	PROGRESSED,
+	BLOCKED
+};
 
 class AIStatus
 {
@@ -35,6 +43,7 @@ class AIStatus
 	std::map<QuestionID, std::string> remainingQuestions;
 	std::map<int, QuestionID> requestToQuestionID; //IDs of answer-requests sent to server => question ids (so we can match answer confirmation from server to the question)
 	std::vector<ObjectInstanceID> objectsBeingVisited;
+	std::map<ObjectInstanceID, TryMoveHero> lastMovementResults;
 	bool ongoingHeroMovement;
 	bool ongoingChannelProbing; // true if AI currently explore bidirectional teleport channel exits
 
@@ -59,6 +68,9 @@ public:
 	void receivedAnswerConfirmation(int answerRequestID, int result);
 	void heroVisit(const CGObjectInstance * obj, bool started);
 	ObjectInstanceID getCurrentVisitedObject();
+	void clearLastMovementResult(ObjectInstanceID heroID);
+	void recordMovementResult(const TryMoveHero & details);
+	std::optional<TryMoveHero> getLastMovementResult(ObjectInstanceID heroID);
 };
 
 // The gateway is responsible for AI events handling. Copied from VCAI.h and refined a bit
@@ -81,6 +93,7 @@ public:
 	std::atomic<bool> lastAdventureCastSucceeded = true;
 
 	std::unique_ptr<Nullkiller> nullkiller;
+	std::atomic_bool oneWayPortalStateDirty = false;
 
 	AIGateway();
 	~AIGateway();
@@ -159,6 +172,7 @@ public:
 	bool canRetreatFromBattle(const BattleID & battleID, const CGHeroInstance * hero) const;
 
 	void makeTurn();
+	void saveOneWayPortalState();
 
 	void buildArmyIn(const CGTownInstance * t);
 	void endTurn();
@@ -171,7 +185,7 @@ public:
 	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr heroPtr);
 	bool makePossibleUpgrades(const CArmedInstance * obj);
 
-	bool moveHeroToTile(int3 dst, const HeroPtr & heroPtr);
+	HeroMovementResult moveHeroToTile(int3 dst, const HeroPtr & heroPtr);
 	/// whether the server allows swapping garrison and visiting heroes of the town
 	bool canSwapGarrisonHero(const CGTownInstance * town) const;
 	void buildStructure(const CGTownInstance * t, BuildingID building);
