@@ -1075,12 +1075,12 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 	waitWhileDialog();
 }
 
-void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components, uint32_t timeoutMs)
+void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components, uint32_t timeoutMs, QuestionID questionID)
 {
 	waitWhileDialog();
 	movementController->requestMovementAbort();
 	GAME->interface()->showingDialog->setBusy();
-	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID, timeoutMs);
+	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID, timeoutMs, questionID);
 }
 
 void CPlayerInterface::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
@@ -1116,7 +1116,7 @@ void CPlayerInterface::showBlockingDialog(const std::string &text, const std::ve
 			intComps.push_back(uiComponent); //will be deleted by close in window
 		}
 
-		showYesNoDialog(text, [this, questionID](){ cb->selectionMade(1, questionID); }, [this, questionID](){ cb->selectionMade(0, questionID); }, intComps);
+		showYesNoDialog(text, [this, questionID](){ cb->selectionMade(1, questionID); }, [this, questionID](){ cb->selectionMade(0, questionID); }, intComps, 0, questionID);
 	}
 	else if (selection)
 	{
