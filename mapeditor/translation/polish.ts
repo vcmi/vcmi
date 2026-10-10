@@ -948,7 +948,7 @@
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
         <translation>Edytor map na Androidzie jest w wersji eksperymentalnej.
 
-Zalecamy używanie edytora map na tablecie (albo z myszką/piórkiem)</translation>
+Zalecamy używanie edytora map na tablecie (albo z myszką/piórkiem).</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="496"/>
@@ -1095,7 +1095,7 @@ Zalecamy używanie edytora map na tablecie (albo z myszką/piórkiem)</translati
     <message>
         <location filename="../mainwindow.cpp" line="1030"/>
         <source>Wog Objects</source>
-        <translation>Obiekty WOG</translation>
+        <translation>Obiekty WoG</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1031"/>
@@ -1200,7 +1200,7 @@ Uwaga: po dodaniu, poziomy nie będą mogły zostać usunięte.</translation>
     <message>
         <location filename="../mainwindow.cpp" line="1715"/>
         <source>Cannot save image to %1.</source>
-        <translation>Nie można zapisać obrazu do %1</translation>
+        <translation>Nie można zapisać obrazu do %1.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1735"/>
@@ -2181,31 +2181,31 @@ Czy chcesz to zrobić teraz?</translation>
         <location filename="../inspector/inspector.cpp" line="452"/>
         <location filename="../inspector/inspector.cpp" line="839"/>
         <source>Aggression</source>
-        <translation type="unfinished"></translation>
+        <translation>Agresja</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="453"/>
         <location filename="../inspector/inspector.cpp" line="841"/>
         <source>Join only for money</source>
-        <translation type="unfinished"></translation>
+        <translation>Dołączy tylko za pieniądze</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="454"/>
         <location filename="../inspector/inspector.cpp" line="843"/>
         <source>Joining percentage</source>
-        <translation type="unfinished"></translation>
+        <translation>Procentowa szansa na przyłączenie się</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="458"/>
         <location filename="../inspector/inspector.cpp" line="845"/>
         <source>Upgraded stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Ulepszony oddział</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="460"/>
         <location filename="../inspector/inspector.cpp" line="847"/>
         <source>Stacks count</source>
-        <translation type="unfinished"></translation>
+        <translation>Liczebność oddziałów</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="461"/>
@@ -2251,12 +2251,12 @@ Czy chcesz to zrobić teraz?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="1038"/>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>Nigdy</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1039"/>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>Zawsze</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="253"/>
@@ -2734,32 +2734,32 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../inspector/questwidget.ui" line="37"/>
         <source>Delete</source>
-        <translation type="unfinished">Usuń</translation>
+        <translation>Usuń</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
         <source>First Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Pierwsza wizyta</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="94"/>
         <source>Next Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolejna wizyta</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="116"/>
         <source>Completed</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukończony</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="148"/>
         <source>Repeatable</source>
-        <translation type="unfinished"></translation>
+        <translation>Powtarzalny</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="158"/>
         <source>Set Deadline</source>
-        <translation type="unfinished"></translation>
+        <translation>Ustal termin ostateczny</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="179"/>
@@ -2890,7 +2890,7 @@ Dodaj go do wymaganych modów w Ustawieniach ogólnych mapy.</translation>
     <message>
         <location filename="../inspector/questwidget.cpp" line="303"/>
         <source>%1 quest on position %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 zadanie na pozycji %2</translation>
     </message>
 </context>
 <context>
