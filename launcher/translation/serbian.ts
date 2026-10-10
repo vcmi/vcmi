@@ -440,7 +440,9 @@
 Encountered errors:
 
 </source>
-        <translation type="unfinished">Није могуће преузети све датотеке.\n\nДошло је до грешака:</translation>
+        <translation type="unfinished">Није могуће преузети све датотеке.
+
+Дошло је до грешака:</translation>
     </message>
     <message>
         <source>
@@ -587,7 +589,8 @@ Process successfully downloaded files?</source>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished">Није успело увоз следећих мапа:\n%1</translation>
+        <translation type="unfinished">Није успело увоз следећих мапа:
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1662"/>
@@ -775,7 +778,13 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished">Изаберите режим приказа за игру\n\nУ прозору - игра ће се покретати унутар прозора који покрива део екрана.\n\nРежим без ивица у прозору - игра ће се покретати у прозору преко целог екрана, који одговара резолуцији вашег екрана.\n\nЕксклузивни режим преко целог екрана - игра ће покрити цео екран и користити изабрану резолуцију.</translation>
+        <translation type="unfinished">Изаберите режим приказа за игру
+
+У прозору - игра ће се покретати унутар прозора који покрива део екрана.
+
+Режим без ивица у прозору - игра ће се покретати у прозору преко целог екрана, који одговара резолуцији вашег екрана.
+
+Ексклузивни режим преко целог екрана - игра ће покрити цео екран и користити изабрану резолуцију.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
@@ -1369,9 +1378,10 @@ Heroes® of Might and Magic® III HD тренутно није подржан!</
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="543"/>
-        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
+        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer.
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished">Ако поседујете Heroes III на gog.com, можете преузети резервну копију офлајн инсталера са gog.com. VCMI ће затим увести податке из Heroes III користећи офлајн инсталер.\nОфлајн инсталер се састоји од две датотеке: „.exe“ и „.bin“ - морате преузети обе.</translation>
+        <translation type="unfinished">Ако поседујете Heroes III на gog.com, можете преузети резервну копију офлајн инсталера са gog.com. VCMI ће затим увести податке из Heroes III користећи офлајн инсталер.
+Офлајн инсталер се састоји од две датотеке: „.exe“ и „.bin“ - морате преузети обе.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
@@ -1424,13 +1434,15 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="565"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">VCMI не подржава датотеке за Heroes III: HD Edition.\nИзаберите директоријум са игром Heroes III: Complete Edition или Heroes III: Shadow of Death.</translation>
+        <translation type="unfinished">VCMI не подржава датотеке за Heroes III: HD Edition.
+Изаберите директоријум са игром Heroes III: Complete Edition или Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="567"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">Пронађена је непозната или неподржана верзија игре Heroes III.\nИзаберите директоријум са игром Heroes III: Complete Edition или Heroes III: Shadow of Death.</translation>
+        <translation type="unfinished">Пронађена је непозната или неподржана верзија игре Heroes III.
+Изаберите директоријум са игром Heroes III: Complete Edition или Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="488"/>
@@ -1560,7 +1572,8 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="562"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished">Није успело откривање важећих података за Heroes III у изабраном директоријуму.\nИзаберите директоријум са инсталираним подацима за Heroes III.</translation>
+        <translation type="unfinished">Није успело откривање важећих података за Heroes III у изабраном директоријуму.
+Изаберите директоријум са инсталираним подацима за Heroes III.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="529"/>
@@ -1621,7 +1634,8 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">Грешка у току приликом распакивања датотека!\nразлог грешке:</translation>
+        <translation type="unfinished">Грешка у току приликом распакивања датотека!
+разлог грешке:</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
@@ -1670,7 +1684,9 @@ Bin (%n bytes):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation type="unfinished">Интерни процес копирања није успео. Довољно простора на уређају?\n\n%1</translation>
+        <translation type="unfinished">Интерни процес копирања није успео. Довољно простора на уређају?
+
+%1</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
@@ -1688,7 +1704,10 @@ Bin (%n bytes):
 %1
 
 %2</source>
-        <translation type="unfinished">Језичка неусклађеност!\n%1\n\n%2</translation>
+        <translation type="unfinished">Језичка неусклађеност!
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="168"/>
@@ -1696,14 +1715,19 @@ Bin (%n bytes):
 %1
 
 %2</source>
-        <translation type="unfinished">Позната је само једна датотека! Можда су датотеке оштећене? Молимо вас да их поново преузмете.\n%1\n\n%2</translation>
+        <translation type="unfinished">Позната је само једна датотека! Можда су датотеке оштећене? Молимо вас да их поново преузмете.
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="174"/>
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation type="unfinished">Непознате датотеке! Можда су датотеке оштећене? Молимо вас да их поново преузмете.\n\n%1</translation>
+        <translation type="unfinished">Непознате датотеке! Можда су датотеке оштећене? Молимо вас да их поново преузмете.
+
+%1</translation>
     </message>
 </context>
 <context>
@@ -2369,7 +2393,13 @@ Reason: %2</source>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="obsolete">Ова опција вам омогућава да увезете додатне датотеке са подацима у вашу VCMI инсталацију. Тренутно су подржане следеће опције:\n\n- Мапе за Heroes III (.h3m или .vmap).\n- Кампање за Heroes III (.h3c или .vcmp).\n- Хронике за Heroes III коришћењем офлајн резервне копије инсталера са GOG.com (.exe).\n- VCMI модови у zip формату (.zip)\n- VCMI конфигурационе датотеке (.json)</translation>
+        <translation type="obsolete">Ова опција вам омогућава да увезете додатне датотеке са подацима у вашу VCMI инсталацију. Тренутно су подржане следеће опције:
+
+- Мапе за Heroes III (.h3m или .vmap).
+- Кампање за Heroes III (.h3c или .vcmp).
+- Хронике за Heroes III коришћењем офлајн резервне копије инсталера са GOG.com (.exe).
+- VCMI модови у zip формату (.zip)
+- VCMI конфигурационе датотеке (.json)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="333"/>
@@ -2421,7 +2451,9 @@ Reason: %2</source>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished">Нова верзија неких модова које сте инсталирали сада је доступна у репозиторијуму модова. Користите ову опцију да бисте аутоматски ажурирали све своје модове на најновију верзију.\n\nУПОЗОРЕЊЕ: У неким случајевима, ажуриране верзије модова можда неће бити компатибилне са вашим постојећим сачуваним датотекама. Можда ћете желети да одложите ажурирање модова док не завршите било коју од текућих игара.</translation>
+        <translation type="unfinished">Нова верзија неких модова које сте инсталирали сада је доступна у репозиторијуму модова. Користите ову опцију да бисте аутоматски ажурирали све своје модове на најновију верзију.
+
+УПОЗОРЕЊЕ: У неким случајевима, ажуриране верзије модова можда неће бити компатибилне са вашим постојећим сачуваним датотекама. Можда ћете желети да одложите ажурирање модова док не завршите било коју од текућих игара.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="476"/>

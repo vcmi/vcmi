@@ -440,7 +440,9 @@
 Encountered errors:
 
 </source>
-        <translation type="unfinished">Nevarēja lejupielādēt visus failus.\n\nRadās kļūdas:</translation>
+        <translation type="unfinished">Nevarēja lejupielādēt visus failus.
+
+Radās kļūdas:</translation>
     </message>
     <message>
         <source>
@@ -587,7 +589,8 @@ Process successfully downloaded files?</source>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished">Neizdevās importēt šādas kartes:\n%1</translation>
+        <translation type="unfinished">Neizdevās importēt šādas kartes:
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1662"/>
@@ -775,7 +778,13 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished">Izvēlieties spēles displeja režīmu\n\nLoga režīmā — spēle darbosies logā, kas aizņem daļu no jūsu ekrāna.\n\nBezmalu loga režīms — spēle darbosies pilnekrāna logā, kas atbilst jūsu ekrāna izšķirtspējai.\n\nPilnekrāna ekskluzīvais režīms — spēle aizņems visu jūsu ekrānu un izmantos atlasīto izšķirtspēju.</translation>
+        <translation type="unfinished">Izvēlieties spēles displeja režīmu
+
+Loga režīmā — spēle darbosies logā, kas aizņem daļu no jūsu ekrāna.
+
+Bezmalu loga režīms — spēle darbosies pilnekrāna logā, kas atbilst jūsu ekrāna izšķirtspējai.
+
+Pilnekrāna ekskluzīvais režīms — spēle aizņems visu jūsu ekrānu un izmantos atlasīto izšķirtspēju.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
@@ -1369,9 +1378,10 @@ Heroes® of Might and Magic® III HD pašlaik netiek atbalstīts!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="543"/>
-        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
+        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer.
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished">Ja jums pieder spēle Heroes III vietnē gog.com, varat lejupielādēt bezsaistes instalētāja dublējumu no vietnes gog.com. Pēc tam VCMI importēs Heroes III datus, izmantojot bezsaistes instalētāju.\nBezsaistes instalētājs sastāv no diviem failiem: \&quot;.exe\&quot; un \&quot;.bin\&quot; — jums ir jālejupielādē abi.</translation>
+        <translation type="unfinished">Ja jums pieder spēle Heroes III vietnē gog.com, varat lejupielādēt bezsaistes instalētāja dublējumu no vietnes gog.com. Pēc tam VCMI importēs Heroes III datus, izmantojot bezsaistes instalētāju.
+Bezsaistes instalētājs sastāv no diviem failiem: \&quot;.exe\&quot; un \&quot;.bin\&quot; — jums ir jālejupielādē abi.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
@@ -1424,13 +1434,15 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="565"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">VCMI neatbalsta Heroes III: HD Edition failus.\nLūdzu, atlasiet direktoriju, kurā atrodas Heroes III: Complete Edition vai Heroes III: Shadow of Death.</translation>
+        <translation type="unfinished">VCMI neatbalsta Heroes III: HD Edition failus.
+Lūdzu, atlasiet direktoriju, kurā atrodas Heroes III: Complete Edition vai Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="567"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">Atrasta nezināma vai neatbalstīta Heroes III versija.\nLūdzu, atlasiet direktoriju ar Heroes III: Complete Edition vai Heroes III: Shadow of Death.</translation>
+        <translation type="unfinished">Atrasta nezināma vai neatbalstīta Heroes III versija.
+Lūdzu, atlasiet direktoriju ar Heroes III: Complete Edition vai Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="488"/>
@@ -1560,7 +1572,8 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="562"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished">Izvēlētajā direktorijā neizdevās atrast derīgus Heroes III datus.\nLūdzu, atlasiet direktoriju ar instalētajiem Heroes III datiem.</translation>
+        <translation type="unfinished">Izvēlētajā direktorijā neizdevās atrast derīgus Heroes III datus.
+Lūdzu, atlasiet direktoriju ar instalētajiem Heroes III datiem.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="529"/>
@@ -1621,7 +1634,8 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">Straumēšanas kļūda, izvelkot failus!\nKļūdas iemesls:</translation>
+        <translation type="unfinished">Straumēšanas kļūda, izvelkot failus!
+Kļūdas iemesls:</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
@@ -1674,7 +1688,9 @@ Atkritne (%n baiti):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation type="unfinished">Iekšējās kopēšanas process neizdevās. Vai ierīcē ir pietiekami daudz vietas?\n\n%1</translation>
+        <translation type="unfinished">Iekšējās kopēšanas process neizdevās. Vai ierīcē ir pietiekami daudz vietas?
+
+%1</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
@@ -1692,7 +1708,10 @@ Atkritne (%n baiti):
 %1
 
 %2</source>
-        <translation type="unfinished">Valodas neatbilstība!\n%1\n\n%2</translation>
+        <translation type="unfinished">Valodas neatbilstība!
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="168"/>
@@ -1700,14 +1719,19 @@ Atkritne (%n baiti):
 %1
 
 %2</source>
-        <translation type="unfinished">Zināms tikai viens fails! Varbūt faili ir bojāti? Lūdzu, lejupielādējiet vēlreiz.\n%1\n\n%2</translation>
+        <translation type="unfinished">Zināms tikai viens fails! Varbūt faili ir bojāti? Lūdzu, lejupielādējiet vēlreiz.
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="174"/>
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation type="unfinished">Nezināmi faili! Varbūt faili ir bojāti? Lūdzu, lejupielādējiet vēlreiz.\n\n%1</translation>
+        <translation type="unfinished">Nezināmi faili! Varbūt faili ir bojāti? Lūdzu, lejupielādējiet vēlreiz.
+
+%1</translation>
     </message>
 </context>
 <context>
@@ -2130,7 +2154,8 @@ Atkritne (%n baiti):
         <location filename="../main.cpp" line="159"/>
         <source>Failed to start %1
 Reason: %2</source>
-        <translation type="unfinished">Neizdevās startēt %1\nIemesls: %2</translation>
+        <translation type="unfinished">Neizdevās startēt %1
+Iemesls: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
@@ -2375,7 +2400,13 @@ Instalētas %n/%1</numerusform>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="obsolete">Šī opcija ļauj importēt papildu datu failus jūsu VCMI instalācijā. Pašlaik tiek atbalstītas šādas opcijas:\n\n- Heroes III kartes (.h3m vai .vmap).\n- Heroes III kampaņas (.h3c vai .vcmp).\n- Heroes III hronikas, izmantojot bezsaistes dublējuma instalētāju no GOG.com (.exe).\n- VCMI modifikācijas zip formātā (.zip).\n- VCMI konfigurācijas faili (.json).</translation>
+        <translation type="obsolete">Šī opcija ļauj importēt papildu datu failus jūsu VCMI instalācijā. Pašlaik tiek atbalstītas šādas opcijas:
+
+- Heroes III kartes (.h3m vai .vmap).
+- Heroes III kampaņas (.h3c vai .vcmp).
+- Heroes III hronikas, izmantojot bezsaistes dublējuma instalētāju no GOG.com (.exe).
+- VCMI modifikācijas zip formātā (.zip).
+- VCMI konfigurācijas faili (.json).</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="333"/>
@@ -2427,7 +2458,9 @@ Instalētas %n/%1</numerusform>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished">Modifikāciju krātuvē tagad ir pieejama jauna dažu instalēto modifikāciju versija. Izmantojiet šo opciju, lai automātiski atjauninātu visas modifikācijas uz jaunāko versiju.\n\nBRĪDINĀJUMS. Dažos gadījumos atjauninātās modifikāciju versijas var nebūt saderīgas ar jūsu esošajiem saglabātajiem failiem. Iespējams, vēlēsities atlikt modifikāciju atjaunināšanu, līdz pabeigsit kādu no savām iesāktajām spēlēm.</translation>
+        <translation type="unfinished">Modifikāciju krātuvē tagad ir pieejama jauna dažu instalēto modifikāciju versija. Izmantojiet šo opciju, lai automātiski atjauninātu visas modifikācijas uz jaunāko versiju.
+
+BRĪDINĀJUMS. Dažos gadījumos atjauninātās modifikāciju versijas var nebūt saderīgas ar jūsu esošajiem saglabātajiem failiem. Iespējams, vēlēsities atlikt modifikāciju atjaunināšanu, līdz pabeigsit kādu no savām iesāktajām spēlēm.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="476"/>

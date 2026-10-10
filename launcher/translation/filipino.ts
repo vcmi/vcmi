@@ -440,7 +440,9 @@
 Encountered errors:
 
 </source>
-        <translation type="unfinished">Hindi ma-download ang lahat ng file.\n\nMga error na naranasan:</translation>
+        <translation type="unfinished">Hindi ma-download ang lahat ng file.
+
+Mga error na naranasan:</translation>
     </message>
     <message>
         <source>
@@ -586,7 +588,8 @@ Process successfully downloaded files?</source>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished">Nabigong i-import ang mga sumusunod na mapa:\n%1</translation>
+        <translation type="unfinished">Nabigong i-import ang mga sumusunod na mapa:
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1662"/>
@@ -774,7 +777,13 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished">Pumili ng display mode para sa laro\n\nNaka-window - tatakbo ang laro sa loob ng isang window na sumasakop sa bahagi ng iyong screen.\n\nBorderless Windowed Mode - tatakbo ang laro sa isang full-screen window, na tumutugma sa resolution ng iyong screen.\n\nFullscreen Exclusive Mode - sasaklawin ng laro ang kabuuan ng iyong screen at gagamit ng napiling resolution.</translation>
+        <translation type="unfinished">Pumili ng display mode para sa laro
+
+Naka-window - tatakbo ang laro sa loob ng isang window na sumasakop sa bahagi ng iyong screen.
+
+Borderless Windowed Mode - tatakbo ang laro sa isang full-screen window, na tumutugma sa resolution ng iyong screen.
+
+Fullscreen Exclusive Mode - sasaklawin ng laro ang kabuuan ng iyong screen at gagamit ng napiling resolution.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
@@ -1368,9 +1377,11 @@ Ang Heroes® of Might and Magic® III HD ay kasalukuyang hindi sinusuportahan!</
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="543"/>
-        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
+        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer.
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished">Kung mayroon kang Heroes III sa gog.com, maaari kang mag-download ng backup na offline installer mula sa gog.com. Pagkatapos ay i-import ng VCMI ang data ng Heroes III gamit ang offline installer.\n\nAng offline installer ay binubuo ng dalawang file: \&quot;.exe\&quot; at \&quot;.bin\&quot; - dapat mong i-download ang pareho.</translation>
+        <translation type="unfinished">Kung mayroon kang Heroes III sa gog.com, maaari kang mag-download ng backup na offline installer mula sa gog.com. Pagkatapos ay i-import ng VCMI ang data ng Heroes III gamit ang offline installer.
+
+Ang offline installer ay binubuo ng dalawang file: \&quot;.exe\&quot; at \&quot;.bin\&quot; - dapat mong i-download ang pareho.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
@@ -1423,13 +1434,15 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="565"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">Hindi sinusuportahan ng VCMI ang mga file ng Heroes III: HD Edition.\nPiliin ang direktoryo kung saan makikita ang Heroes III: Complete Edition o Heroes III: Shadow of Death.</translation>
+        <translation type="unfinished">Hindi sinusuportahan ng VCMI ang mga file ng Heroes III: HD Edition.
+Piliin ang direktoryo kung saan makikita ang Heroes III: Complete Edition o Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="567"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">May natagpuang hindi alam o hindi sinusuportahang bersyon ng Heroes III.\nPiliin ang direktoryo na may Heroes III: Complete Edition o Heroes III: Shadow of Death.</translation>
+        <translation type="unfinished">May natagpuang hindi alam o hindi sinusuportahang bersyon ng Heroes III.
+Piliin ang direktoryo na may Heroes III: Complete Edition o Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="488"/>
@@ -1559,7 +1572,8 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="562"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished">Nabigong matukoy ang wastong datos ng Heroes III sa napiling direktoryo.\nPiliin ang direktoryo na may naka-install na datos ng Heroes III.</translation>
+        <translation type="unfinished">Nabigong matukoy ang wastong datos ng Heroes III sa napiling direktoryo.
+Piliin ang direktoryo na may naka-install na datos ng Heroes III.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="529"/>
@@ -1620,7 +1634,8 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">May error sa stream habang kinukuha ang mga file!\ndahilan ng error:</translation>
+        <translation type="unfinished">May error sa stream habang kinukuha ang mga file!
+dahilan ng error:</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
@@ -1665,7 +1680,9 @@ Lalagyan ng basurahan (%n byte):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation type="unfinished">Nabigo ang proseso ng panloob na pagkopya. Sapat na espasyo sa device?\n\n%1</translation>
+        <translation type="unfinished">Nabigo ang proseso ng panloob na pagkopya. Sapat na espasyo sa device?
+
+%1</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
@@ -1683,7 +1700,10 @@ Lalagyan ng basurahan (%n byte):
 %1
 
 %2</source>
-        <translation type="unfinished">Hindi pagtutugma ng wika!\n%1\n\n%2</translation>
+        <translation type="unfinished">Hindi pagtutugma ng wika!
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="168"/>
@@ -1691,14 +1711,19 @@ Lalagyan ng basurahan (%n byte):
 %1
 
 %2</source>
-        <translation type="unfinished">Isang file lang ang alam! Baka sira na ang mga file? Paki-download muli.\n%1\n\n%2</translation>
+        <translation type="unfinished">Isang file lang ang alam! Baka sira na ang mga file? Paki-download muli.
+%1
+
+%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="174"/>
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation type="unfinished">Mga hindi kilalang file! Baka sira na ang mga file? Paki-download muli.\n\n%1</translation>
+        <translation type="unfinished">Mga hindi kilalang file! Baka sira na ang mga file? Paki-download muli.
+
+%1</translation>
     </message>
 </context>
 <context>
@@ -2121,7 +2146,8 @@ Lalagyan ng basurahan (%n byte):
         <location filename="../main.cpp" line="159"/>
         <source>Failed to start %1
 Reason: %2</source>
-        <translation type="unfinished">Nabigong simulan ang %1\nDahilan: %2</translation>
+        <translation type="unfinished">Nabigong simulan ang %1
+Dahilan: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
@@ -2362,7 +2388,13 @@ Naka-install ang %n/%1</numerusform>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="obsolete">Ang opsyong ito ay nagbibigay-daan sa iyong mag-import ng mga karagdagang data file sa iyong VCMI installation. Sa ngayon, ang mga sumusunod na opsyon ay sinusuportahan:\n\n- Heroes III Maps (.h3m o .vmap).\n- Heroes III Campaigns (.h3c o .vcmp).\n- Heroes III Chronicles gamit ang offline backup installer mula sa GOG.com (.exe).\n- VCMI mods sa zip format (.zip)\n- VCMI configuration files (.json)</translation>
+        <translation type="obsolete">Ang opsyong ito ay nagbibigay-daan sa iyong mag-import ng mga karagdagang data file sa iyong VCMI installation. Sa ngayon, ang mga sumusunod na opsyon ay sinusuportahan:
+
+- Heroes III Maps (.h3m o .vmap).
+- Heroes III Campaigns (.h3c o .vcmp).
+- Heroes III Chronicles gamit ang offline backup installer mula sa GOG.com (.exe).
+- VCMI mods sa zip format (.zip)
+- VCMI configuration files (.json)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="333"/>
@@ -2414,7 +2446,9 @@ Naka-install ang %n/%1</numerusform>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished">Mayroon nang bagong bersyon ng ilan sa mga mod na na-install mo sa mod repository. Gamitin ang opsyong ito para awtomatikong i-update ang lahat ng iyong mod sa pinakabagong bersyon.\n\nBABALA: Sa ilang pagkakataon, ang mga na-update na bersyon ng mga mod ay maaaring hindi tugma sa iyong mga kasalukuyang save. Maaari mong ipagpaliban ang pag-update ng mod hanggang sa matapos mo ang alinman sa iyong mga kasalukuyang laro.</translation>
+        <translation type="unfinished">Mayroon nang bagong bersyon ng ilan sa mga mod na na-install mo sa mod repository. Gamitin ang opsyong ito para awtomatikong i-update ang lahat ng iyong mod sa pinakabagong bersyon.
+
+BABALA: Sa ilang pagkakataon, ang mga na-update na bersyon ng mga mod ay maaaring hindi tugma sa iyong mga kasalukuyang save. Maaari mong ipagpaliban ang pag-update ng mod hanggang sa matapos mo ang alinman sa iyong mga kasalukuyang laro.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="476"/>

@@ -4353,7 +4353,9 @@ Voeg deze toe aan de vereiste mods van de kaart in de instellingen van Kaart &gt
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-        <translation type="unfinished">Zone A: 1%\nZone B: 2%\nBewaker: 3%</translation>
+        <translation type="unfinished">Zone A: 1%
+Zone B: 2%
+Bewaker: 3%</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="651"/>

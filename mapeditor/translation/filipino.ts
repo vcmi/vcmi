@@ -2505,7 +2505,8 @@ Do you want to do that now ?</source>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translation type="unfinished">Ang mod na &apos;%1&apos;%2, ay kinakailangan ng isang bagay sa mapa.\nIdagdag ito sa mga kinakailangang mod ng mapa sa Map-&gt;General settings.</translation>
+        <translation type="unfinished">Ang mod na &apos;%1&apos;%2, ay kinakailangan ng isang bagay sa mapa.
+Idagdag ito sa mga kinakailangang mod ng mapa sa Map-&gt;General settings.</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="219"/>
@@ -4351,7 +4352,9 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-        <translation type="unfinished">Sona A: %1\nSona B: %2\nBantay: %3</translation>
+        <translation type="unfinished">Sona A: %1
+Sona B: %2
+Bantay: %3</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="651"/>

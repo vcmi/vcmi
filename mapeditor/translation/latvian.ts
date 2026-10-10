@@ -2506,7 +2506,8 @@ Do you want to do that now ?</source>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translation type="unfinished">Modifikācija &apos;%1&apos;%2 ir nepieciešama objektam kartē.\nPievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vispārīgi iestatījumi.</translation>
+        <translation type="unfinished">Modifikācija &apos;%1&apos;%2 ir nepieciešama objektam kartē.
+Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vispārīgi iestatījumi.</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="219"/>
@@ -4352,7 +4353,9 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-        <translation type="unfinished">A zona: %1\nB zona: %2\nAizsargs: %3</translation>
+        <translation type="unfinished">A zona: %1
+B zona: %2
+Aizsargs: %3</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="651"/>
