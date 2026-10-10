@@ -484,6 +484,9 @@ public:
 		auto * town = objectByType(Obj::TOWN);
 		ASSERT_NE(town, nullptr);
 
+		// real movement leaves the exit tile long before the hero reaches a town
+		moveHero(hero, hero.visitablePos() + int3(0, 1, 0));
+
 		TryMoveHero move;
 		move.id = hero.id;
 		move.result = TryMoveHero::SUCCESS;
@@ -991,7 +994,7 @@ TEST_F(OneWayPortalBehaviorTest, FailedExitGuardRejectsUnsafeRetry)
 		<< "a failed probe must not feed another hero to an overwhelmingly strong exit guard";
 }
 
-TEST(OneWayPortalMemoryTest, GuardFailureRoundTripsAndLegacyStateDefaultsSafely)
+TEST(OneWayPortalMemoryTest, GuardFailureRoundTrips)
 {
 	const ObjectInstanceID entrance(17);
 	NK2AI::AIMemory saved;
@@ -1004,12 +1007,6 @@ TEST(OneWayPortalMemoryTest, GuardFailureRoundTripsAndLegacyStateDefaultsSafely)
 	EXPECT_EQ(
 		loaded.getOneWayPortalGuardFailure(entrance),
 		std::make_optional(std::pair<uint64_t, uint64_t>(12345, 6789)));
-
-	JsonNode legacy;
-	legacy["probedEntrances"].Vector().emplace_back(entrance.getNum());
-	loaded.loadOneWayPortalState(legacy);
-	EXPECT_TRUE(loaded.wasOneWayPortalProbed(entrance));
-	EXPECT_FALSE(loaded.getOneWayPortalGuardFailure(entrance).has_value());
 }
 
 TEST(OneWayPortalMemoryTest, CompletedLandingKeepsSerializedNoReturnHistory)

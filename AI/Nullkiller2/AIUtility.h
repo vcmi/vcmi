@@ -223,8 +223,9 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGObjectInstance * obj);
 int getDuplicatingSlots(const CArmedInstance * army);
 const CGObjectInstance * findObjectOfType(const std::vector<const CGObjectInstance *> & objects, Obj type);
-/// True if the player has no towns and this hero is the only one left
+/// True if this is the only hero of a player that has no towns left
 bool isSoleNoTownHero(const CGHeroInstance * hero, const Nullkiller * aiNk);
+uint64_t getPortalHeroStrength(const CGHeroInstance * hero, const CCreatureSet * army);
 
 template <class T>
 class SharedPool

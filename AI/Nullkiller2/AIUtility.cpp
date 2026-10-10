@@ -46,6 +46,11 @@ bool isSoleNoTownHero(const CGHeroInstance * hero, const Nullkiller * aiNk)
 		&& heroes.front() == hero;
 }
 
+uint64_t getPortalHeroStrength(const CGHeroInstance * hero, const CCreatureSet * army)
+{
+	return static_cast<uint64_t>(getNormalizedHeroStrength(hero) * army->estimateCombatValue());
+}
+
 const CGObjectInstance * ObjectIdRef::operator->() const
 {
 	return cpsic->getObj(id, false);

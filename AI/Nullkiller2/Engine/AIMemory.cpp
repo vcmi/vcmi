@@ -146,7 +146,6 @@ void AIMemory::recordOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInst
 {
 	clearOneWayPortalReservation(entrance);
 	oneWayPortalLastTraversalDay[entrance] = day;
-	observedOneWayPortalExits[entrance].insert(exit);
 	oneWayPortalGuardFailures.erase(entrance);
 	oneWayPortalJourneys[hero] = {entrance, exit};
 	oneWayPortalUnreturnedEntrances[hero].insert(entrance);
@@ -257,7 +256,6 @@ void AIMemory::resetOneWayPortalState()
 {
 	oneWayPortalReservations.clear();
 	oneWayPortalLastTraversalDay.clear();
-	observedOneWayPortalExits.clear();
 	oneWayPortalGuardFailures.clear();
 	oneWayPortalJourneys.clear();
 	oneWayPortalUnreturnedEntrances.clear();
@@ -379,12 +377,8 @@ void AIMemory::removeOneWayPortalObject(ObjectInstanceID object)
 {
 	oneWayPortalReservations.erase(object);
 	oneWayPortalLastTraversalDay.erase(object);
-	observedOneWayPortalExits.erase(object);
 	oneWayPortalGuardFailures.erase(object);
 	oneWayPortalsWithKnownReturn.erase(object);
-
-	for(auto & observed : observedOneWayPortalExits)
-		observed.second.erase(object);
 
 	vstd::erase_if(oneWayPortalJourneys, [&](const auto & journey)
 	{

@@ -110,7 +110,6 @@ void Nullkiller::init(const std::shared_ptr<CCallback> & cbInput, AIGateway * ai
 	cc = cbInput;
 	aiGw = aiGwInput;
 	playerID = aiGwInput->playerID;
-	memory->resetOneWayPortalState();
 
 	settings = std::make_unique<Settings>(cc->getStartInfo()->difficulty);
 

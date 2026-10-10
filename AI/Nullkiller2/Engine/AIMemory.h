@@ -22,7 +22,6 @@ class AIMemory
 private:
 	std::map<ObjectInstanceID, ObjectInstanceID> oneWayPortalReservations;
 	std::map<ObjectInstanceID, int> oneWayPortalLastTraversalDay;
-	std::map<ObjectInstanceID, std::set<ObjectInstanceID>> observedOneWayPortalExits;
 	std::map<ObjectInstanceID, std::pair<uint64_t, uint64_t>> oneWayPortalGuardFailures;
 	std::map<ObjectInstanceID, std::pair<ObjectInstanceID, ObjectInstanceID>> oneWayPortalJourneys;
 	std::map<ObjectInstanceID, std::set<ObjectInstanceID>> oneWayPortalUnreturnedEntrances;

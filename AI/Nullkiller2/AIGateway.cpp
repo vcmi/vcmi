@@ -43,9 +43,7 @@
 namespace NK2AI
 {
 
-namespace
-{
-bool containsOwnedTown(
+static bool containsOwnedTown(
 	const std::vector<const CGObjectInstance *> & objects,
 	PlayerColor player)
 {
@@ -53,7 +51,6 @@ bool containsOwnedTown(
 	{
 		return object->ID == Obj::TOWN && object->getOwner() == player;
 	});
-}
 }
 
 AIGateway::AIGateway()
@@ -139,12 +136,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 
 	if(hero && hero->getOwner() == playerID)
 	{
-		const auto journey = nullkiller->memory->getOneWayPortalJourney(hero->id);
-		if(journey && containsOwnedTown(toObjects, playerID))
-		{
-			nullkiller->memory->markOneWayPortalReturn(hero->id);
-		}
-		else if(journey)
+		if(const auto journey = nullkiller->memory->getOneWayPortalJourney(hero->id))
 		{
 			const auto * exit = cc->getObj(journey->second, false);
 			if(exit && from == exit->visitablePos() && to != from)
@@ -156,6 +148,10 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 					journey->first.getNum());
 			}
 		}
+
+		// the hero usually walks home long after the landing journey has been completed
+		if(containsOwnedTown(toObjects, playerID))
+			nullkiller->memory->markOneWayPortalReturn(hero->id);
 	}
 }
 
@@ -1343,7 +1339,7 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 				throw cannotFulfillGoalException("Hero movement path diverged.");
 			}
 
-			auto currentObject = getObj(currentCoord, currentCoord == heroPtr->visitablePos());
+			auto currentObject = getObj(currentCoord, true);
 			auto nextObjectTop = getObj(nextCoord, false);
 			auto nextObject = getObj(nextCoord, true);
 			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
@@ -1377,9 +1373,6 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 					? HeroMovementResult::BLOCKED
 					: HeroMovementResult::PROGRESSED;
 			}
-
-			if(nextCoord == heroPtr->visitablePos())
-				continue;
 
 			bool isConnected = false;
 			bool isNextObjectTeleport = false;

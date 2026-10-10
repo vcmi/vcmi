@@ -103,8 +103,7 @@ void AttackOneWayPortalGuard::accept(AIGateway * aiGw)
 		objid);
 
 	const uint64_t guardDanger = aiGw->nullkiller->dangerEvaluator->evaluateDanger(currentGuard);
-	const uint64_t heroStrength = static_cast<uint64_t>(
-		getNormalizedHeroStrength(hero) * hero->estimateCombatValue());
+	const uint64_t heroStrength = getPortalHeroStrength(hero, hero);
 	auto recordFailureIfHeroWasLost = [&]()
 	{
 		if(heroPtr.isVerified(false))

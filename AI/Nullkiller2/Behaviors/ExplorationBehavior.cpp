@@ -76,11 +76,6 @@ bool isBetterPortalPath(const AIPath & candidate, const AIPath & current)
 	return candidate.targetHero->estimateHeroCombatValue() < current.targetHero->estimateHeroCombatValue();
 }
 
-uint64_t getPortalHeroStrength(const CGHeroInstance * hero, const CCreatureSet * army)
-{
-	return static_cast<uint64_t>(getNormalizedHeroStrength(hero) * army->estimateCombatValue());
-}
-
 bool isBetterPortalReinforcementPath(const AIPath & candidate, const AIPath & current)
 {
 	const uint64_t candidateStrength = getPortalHeroStrength(candidate.targetHero, candidate.heroArmy);
