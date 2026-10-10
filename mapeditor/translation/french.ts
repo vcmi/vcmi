@@ -2195,24 +2195,6 @@ Voulez-vous le faire maintenant&#x202f;?</translation>
         <translation>Pourcentage d&apos;adhésion</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="452"/>
-        <location filename="../inspector/inspector.cpp" line="839"/>
-        <source>Aggression</source>
-        <translation>Agression</translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="453"/>
-        <location filename="../inspector/inspector.cpp" line="841"/>
-        <source>Join only for money</source>
-        <translation>Rejoindre seulement pour l&apos;argent</translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="454"/>
-        <location filename="../inspector/inspector.cpp" line="843"/>
-        <source>Joining percentage</source>
-        <translation>Pourcentage d&apos;adhésion</translation>
-    </message>
-    <message>
         <location filename="../inspector/inspector.cpp" line="458"/>
         <location filename="../inspector/inspector.cpp" line="845"/>
         <source>Upgraded stack</source>
@@ -2274,16 +2256,6 @@ Voulez-vous le faire maintenant&#x202f;?</translation>
         <location filename="../inspector/inspector.cpp" line="1039"/>
         <source>Always</source>
         <translation>Toujours</translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="1038"/>
-        <source>Never</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="1039"/>
-        <source>Always</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="253"/>
