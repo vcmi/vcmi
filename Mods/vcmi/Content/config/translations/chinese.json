@@ -391,6 +391,7 @@
 	"vcmi.battleOptions.stackInfoBasicPanel.help": "{悬停时显示单位信息面板}\n\n始终显示鼠标所指单位的信息面板，并显示其属性。",
 	"vcmi.battleOptions.stackInfoBasicPanel.hover": "悬停时显示单位信息面板",
 	"vcmi.battleResultsWindow.applyResultsLabel": "接受战斗结果？",
+	"vcmi.battleResultsWindow.capturedArtifacts": "你缴获了敌人的宝物！",
 	"vcmi.battleResultsWindow.spellDurationRemaining.0": "剩余持续时间： %d回合",
 	"vcmi.battleResultsWindow.spellDurationRemaining.1": "剩余持续时间： %d回合",
 	"vcmi.battleResultsWindow.spellDurationRemaining.2": "剩余持续时间： %d回合",
