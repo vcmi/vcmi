@@ -641,6 +641,9 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	if (color != PlayerColor::CANNOT_DETERMINE && parameters.palette)
 		parameters.playerColored(color);
 
+	if (drawsOnlyExtraLayers(mode, parameters.palette))
+		return nullptr;
+
 	if (upscalingSource)
 		return upscalingSource->scaleInteger(scalingFactor, parameters.palette, mode);
 	else
