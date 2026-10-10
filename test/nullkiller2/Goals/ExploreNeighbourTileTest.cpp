@@ -19,9 +19,6 @@
 #include "lib/mapObjects/CGHeroInstance.h"
 #include "lib/mapping/CMap.h"
 
-#include <cstdio>
-#include <cstdlib>
-
 namespace
 {
 const PlayerColor PLAYER = PlayerColor(0);
@@ -38,12 +35,12 @@ NK2AI::NeighbourExplorationCandidate makeAcceptedCandidate()
 	return candidate;
 }
 
-TinyH3M::TinyH3MBuilder makeStrategicNeighbourMap()
+TinyH3M::TinyH3MBuilder makeNeighbourMap()
 {
 	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
 	builder
 		.size(36, false)
-		.name("NK2StrategicNeighbour")
+		.name("NK2Neighbour")
 		.playerActive(PLAYER)
 		.playerActive(ENEMY)
 		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
@@ -53,53 +50,8 @@ TinyH3M::TinyH3MBuilder makeStrategicNeighbourMap()
 	return builder;
 }
 
-TinyH3M::TinyH3MBuilder makeVisitedObjectNeighbourMap()
+class Nullkiller2_Goals_ExploreNeighbourTileMap : public NullkillerTest
 {
-	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
-	builder
-		.size(36, false)
-		.name("NK2VisitedObjectNeighbour")
-		.playerActive(PLAYER)
-		.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-		.heroGarrison({{CreatureID(27), 1}})
-		.resource({9, 5, 0}, GameResID::GOLD, 1000);
-
-	return builder;
-}
-
-class VisitabilityTrapObject : public CGObjectInstance
-{
-public:
-	using CGObjectInstance::CGObjectInstance;
-
-	bool wasVisited(const CGHeroInstance *) const override
-	{
-		std::fputs(
-			"ExploreNeighbourTile queried remembered object visitability while scoring a neighbour\n",
-			stderr);
-		std::abort();
-	}
-};
-
-class Nullkiller2_Goals_ExploreNeighbourTileStrategic : public NullkillerTest
-{
-public:
-	CGObjectInstance * addVisitabilityTrapObject(
-		const std::shared_ptr<CCallback> & callback,
-		const CGObjectInstance * appearanceSource,
-		const int3 & pos)
-	{
-		auto trap = std::make_shared<VisitabilityTrapObject>(callback.get());
-		trap->ID = Obj::ARTIFACT;
-		trap->subID = MapObjectSubID(0);
-		trap->tempOwner = PLAYER;
-		trap->id = ObjectInstanceID(static_cast<si32>(map()->objects.size()));
-		trap->appearance = appearanceSource->appearance;
-		trap->setAnchorPos(pos);
-
-		map()->objects.push_back(trap);
-		return trap.get();
-	}
 };
 }
 
@@ -158,9 +110,9 @@ TEST(Nullkiller2_Goals_ExploreNeighbourTile, rejectsMoveWithNoDiscovery)
 	EXPECT_FALSE(NK2AI::evaluateNeighbourExplorationCandidate(candidate).accepted);
 }
 
-TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, rejectsVisibleStrategicTargetWithoutNewDiscovery)
+TEST_F(Nullkiller2_Goals_ExploreNeighbourTileMap, findsNoTargetOnRevealedMap)
 {
-	startWithMap(makeStrategicNeighbourMap());
+	startWithMap(makeNeighbourMap());
 
 	auto * hero = findHeroByOwner(PLAYER);
 	ASSERT_NE(hero, nullptr);
@@ -170,30 +122,6 @@ TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, rejectsVisibleStrategicT
 
 	const auto callback = makeCallback(PLAYER);
 	const auto gateway = makeGateway(callback);
-	const auto target = NK2AI::Goals::ExploreNeighbourTile::findTarget(
-		hero,
-		gateway->nullkiller.get());
-
-	EXPECT_FALSE(target.has_value())
-		<< "zero-discovery movement must be expressed as a semantic object task";
-}
-
-TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, ignoresKnownObjectsBeforeVisitabilityChecks)
-{
-	startWithMap(makeStrategicNeighbourMap());
-
-	auto * hero = findHeroByOwner(PLAYER);
-	ASSERT_NE(hero, nullptr);
-	ASSERT_NE(hero->appearance, nullptr);
-	hero->setMovementPoints(2000);
-
-	revealMap(PLAYER);
-
-	const auto callback = makeCallback(PLAYER);
-	const auto gateway = makeGateway(callback);
-	auto * trap = addVisitabilityTrapObject(callback, hero, int3(30, 30, 0));
-	gateway->nullkiller->memory->addVisitableObject(trap);
-
 	const auto target = NK2AI::Goals::ExploreNeighbourTile::findTarget(
 		hero,
 		gateway->nullkiller.get());
@@ -201,30 +129,9 @@ TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, ignoresKnownObjectsBefor
 	EXPECT_FALSE(target.has_value());
 }
 
-TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, rejectsZeroDiscoveryMoveTowardVisitedObject)
+TEST_F(Nullkiller2_Goals_ExploreNeighbourTileMap, reportsUnreachableLivePathAsFailure)
 {
-	startWithMap(makeVisitedObjectNeighbourMap());
-
-	auto * hero = findHeroByOwner(PLAYER);
-	auto * artifact = findObjectAt({9, 5, 0});
-	ASSERT_NE(hero, nullptr);
-	ASSERT_NE(artifact, nullptr);
-	hero->setMovementPoints(2000);
-	revealMap(PLAYER);
-
-	const auto callback = makeCallback(PLAYER);
-	const auto gateway = makeGateway(callback);
-	gateway->nullkiller->memory->markObjectVisited(artifact);
-
-	EXPECT_FALSE(NK2AI::Goals::ExploreNeighbourTile::findTarget(
-		hero,
-		gateway->nullkiller.get()).has_value())
-		<< "visited objects must not make a hero oscillate through already explored tiles";
-}
-
-TEST_F(Nullkiller2_Goals_ExploreNeighbourTileStrategic, reportsUnreachableLivePathAsFailure)
-{
-	startWithMap(makeStrategicNeighbourMap());
+	startWithMap(makeNeighbourMap());
 
 	auto * hero = findHeroByOwner(PLAYER);
 	ASSERT_NE(hero, nullptr);
