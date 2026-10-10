@@ -41,6 +41,21 @@ TinyH3M::TinyH3MBuilder makeQuestlessSeerMap()
 	return builder;
 }
 
+TinyH3M::TinyH3MBuilder makeQuestGuardMap()
+{
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::HOTA);
+	builder
+		.hotaVersion(3)
+		.size(36, false)
+		.name("NK2KnownQuestGuard")
+		.playerActive(PLAYER)
+		.randomTown({2, 2, 0}, PLAYER)
+		.hero(HERO_POS, HeroTypeID(0), PLAYER)
+		.questGuard(SEER_POS, TinyH3M::TinyH3MBuilder::missionLevel(30));
+
+	return builder;
+}
+
 class Nullkiller2_AIUtility : public NullkillerTest {};
 }
 
@@ -60,4 +75,24 @@ TEST_F(Nullkiller2_AIUtility, trackedSeerWithoutActiveQuestIsNotVisitable)
 	gateway->initGameInterface(std::shared_ptr<Environment>(), callback);
 
 	EXPECT_FALSE(NK2AI::shouldVisit(gateway->nullkiller.get(), hero, seer));
+}
+
+// quest objects are never remembered as visited, so a known but unmet guard would be revisited every pass
+TEST_F(Nullkiller2_AIUtility, knownUnmetQuestGuardIsNotVisitable)
+{
+	ASSERT_NO_FATAL_FAILURE(startWithMap(makeQuestGuardMap()));
+
+	const auto * hero = findHeroAt(HERO_POS);
+	const auto * guard = expectAt<QuestGuard>(SEER_POS);
+	ASSERT_NE(hero, nullptr);
+
+	const auto callback = makeCallback(PLAYER);
+	auto gateway = std::make_unique<NK2AI::AIGateway>();
+	gateway->initGameInterface(std::shared_ptr<Environment>(), callback);
+
+	EXPECT_TRUE(NK2AI::shouldVisit(gateway->nullkiller.get(), hero, guard));
+
+	gameState()->players.at(PLAYER).quests.push_back(guard->getQuestIdentity());
+
+	EXPECT_FALSE(NK2AI::shouldVisit(gateway->nullkiller.get(), hero, guard));
 }

@@ -12,6 +12,7 @@
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../Pathfinding/Actions/DimensionDoorAction.h"
+#include "../Pathfinding/Actions/QuestAction.h"
 
 namespace NK2AI
 {
@@ -219,6 +220,16 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 						throw cannotFulfillGoalException("Hero was lost!");
 					}
 
+					// quest visit changes passability of its object, so live paths beyond it are stale
+					if(dynamic_cast<const AIPathfinding::QuestAction *>(node->specialAction.get()))
+					{
+						logAi->debug(
+							"Hero %s visited quest object at %s. Replanning the remaining route.",
+							hero->getNameTextID(),
+							node->coord.toString());
+						return;
+					}
+
 					// hero can be already on the target tile after move in specialAction->execute()
 					if(node->coord == heroPtr->visitablePos())
 						continue;
@@ -261,7 +272,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							hero->getNameTextID(),
 							node->coord.toString());
 
-						return;
+						throw cannotFulfillGoalException("Hero chain target is no longer reachable.");
 					}
 
 					if(targetNode->turns != 0)
@@ -273,7 +284,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							static_cast<int>(targetNode->turns),
 							hero->movementPointsRemaining());
 
-						return;
+						throw cannotFulfillGoalException("Hero chain target is no longer reachable this turn.");
 					}
 				}
 
@@ -290,10 +301,16 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 				auto sourceWhirlpool = findWhirlpool(hero->visitablePos());
 				auto targetWhirlpool = findWhirlpool(node->coord);
+				const bool heroAlreadyOnNode = i > 0 && hero->visitablePos() == node->coord;
+				const bool stalledOnWhirlpool = i != chainPath.nodes.size() - 1
+					&& hero->visitablePos() != chainPath.nodes[i + 1].coord
+					&& sourceWhirlpool.hasValue()
+					&& sourceWhirlpool == targetWhirlpool;
 
-				if(i != chainPath.nodes.size() - 1 && sourceWhirlpool.hasValue() && sourceWhirlpool == targetWhirlpool)
+				if(heroAlreadyOnNode || stalledOnWhirlpool)
 				{
-					logAi->trace("AI exited whirlpool at %s but expected at %s", hero->visitablePos().toString(), node->coord.toString());
+					if(hero->visitablePos() != node->coord)
+						logAi->trace("AI exited whirlpool at %s but expected at %s", hero->visitablePos().toString(), node->coord.toString());
 					continue;
 				}
 
@@ -303,6 +320,20 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					{
 						if(moveHeroToTile(aiGw, hero, node->coord))
 						{
+							if(hero->visitablePos() != node->coord)
+							{
+								logAi->debug(
+									"Hero %s completed an interaction towards %s without occupying the tile. Replanning the remaining route.",
+									hero->getNameTextID(),
+									node->coord.toString());
+
+								// e.g. quest guard that is still closed or own hero standing on a teleport exit
+								if(aiGw->nullkiller->repeatsIdleInteraction(hero, node->coord))
+									throw cannotFulfillGoalException("Repeated interaction did not move the hero.");
+
+								return;
+							}
+
 							continue;
 						}
 					}
@@ -345,7 +376,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					node->coord.toString(),
 					hero->visitablePos().toString());
 
-				return;
+				throw cannotFulfillGoalException("Hero did not reach the expected hero chain destination.");
 			}
 			
 			// no exception means we were not able to reach the tile
@@ -378,6 +409,9 @@ bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * h
 	if(tile == hero->visitablePos() && aiGw->cc->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
 		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTextID(), tile.toString());
+
+		if(aiGw->nullkiller->repeatsIdleInteraction(hero, tile))
+			throw cannotFulfillGoalException("Hero keeps targeting the tile it stands on.");
 
 		return true;
 	}

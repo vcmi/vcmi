@@ -671,6 +671,7 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 	}
 	case Obj::BORDERGUARD: //open borderguard if possible
 		return obj->cb->getPlayerState(aiNk->playerID)->wasKeymasterVisited(obj->subID);
+	case Obj::QUEST_GUARD:
 	case Obj::SEER_HUT:
 	{
 		const auto * source = obj->asQuestSource();

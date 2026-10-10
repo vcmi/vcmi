@@ -12,9 +12,15 @@
 #include "AI/Nullkiller2/Behaviors/DefenceBehavior.h"
 #include "AI/Nullkiller2/Behaviors/DefenceBehaviorUtils.h"
 #include "AI/Nullkiller2/Pathfinding/AINodeStorage.h"
+#include "mock/TinyH3MBuilder.h"
 #include "mock/TownFake.h"
+#include "nullkiller2/NullkillerTest.h"
 
+#include "lib/CPlayerState.h"
+#include "lib/gameState/CGameState.h"
 #include "lib/mapObjects/CGHeroInstance.h"
+#include "lib/mapObjects/CGTownInstance.h"
+#include "lib/networkPacks/PacksForClient.h"
 
 namespace
 {
@@ -321,4 +327,80 @@ TEST(Nullkiller2_Behaviors_DefenceBehavior, sameTurnReturnPathRejectsPathWithout
 
 	EXPECT_FALSE(NK2AI::Goals::isSafeSameTurnReturnPath(defender, path, 1.0f, 1.0f))
 		<< "a one-way reachable attack is not enough when the defender must be back after turn end";
+}
+
+namespace
+{
+const PlayerColor PLAYER(0);
+const PlayerColor ALLY(1);
+const PlayerColor ENEMY(2);
+
+class Nullkiller2_Behaviors_DefenceBehaviorMap : public NullkillerTest
+{
+protected:
+	void startGame()
+	{
+		TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+		builder
+			.size(36, false)
+			.playerActive(PLAYER)
+			.playerActive(ALLY)
+			.playerActive(ENEMY)
+			.town({9, 5, 0}, FactionID::CASTLE, PLAYER)
+			.hero({11, 8, 0}, HeroTypeID(0), PLAYER)
+			.heroGarrison({{CreatureID::ARCHER, 20}})
+			.hero({20, 20, 0}, HeroTypeID(1), ALLY)
+			.heroGarrison({{CreatureID::ARCHER, 1}})
+			.hero({14, 5, 0}, HeroTypeID(2), ENEMY)
+			.heroGarrison({{CreatureID::ARCHER, 20}});
+
+		startWithMap(std::move(builder));
+	}
+
+	void makeAllies(PlayerColor first, PlayerColor second)
+	{
+		auto & firstTeam = gameState()->teams.at(gameState()->players.at(first).team);
+		auto & secondTeam = gameState()->teams.at(gameState()->players.at(second).team);
+		secondTeam.players.erase(second);
+		firstTeam.players.insert(second);
+		gameState()->players.at(second).team = firstTeam.id;
+	}
+
+	void putHeroInTown(CGHeroInstance & hero, CGTownInstance & town)
+	{
+		ChangeObjPos moveHero;
+		moveHero.objid = hero.id;
+		moveHero.nPos = town.visitablePos();
+		moveHero.initiator = hero.getOwner();
+		gameState()->apply(moveHero);
+		town.setVisitingHero(&hero);
+	}
+};
+}
+
+TEST_F(Nullkiller2_Behaviors_DefenceBehaviorMap, alliedVisitingHeroIsNotUsedForTownDefence)
+{
+	startGame();
+	makeAllies(PLAYER, ALLY);
+	revealMap(PLAYER);
+
+	auto * town = findFirst<CGTownInstance>();
+	auto * allyHero = findHeroByOwner(ALLY);
+	ASSERT_NE(town, nullptr);
+	ASSERT_NE(allyHero, nullptr);
+	putHeroInTown(*allyHero, *town);
+	ASSERT_EQ(town->getVisitingHero(), allyHero);
+
+	auto gateway = makeGateway(PLAYER);
+	NK2AI::NullkillerTestAccess::prepareState(*gateway->nullkiller);
+
+	const auto tasks = NK2AI::Goals::DefenceBehavior().decompose(gateway->nullkiller.get());
+
+	for(const auto & task : tasks)
+	{
+		const bool usesAllyHero = task->isElementar()
+			? task->asTask()->isObjectAffected(allyHero->id)
+			: task->hero == allyHero;
+		EXPECT_FALSE(usesAllyHero) << task->toString();
+	}
 }
