@@ -341,6 +341,8 @@ protected:
 
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	/// Loads reward from old VCMI maps that used single "reward" entry
+	void readOrWriteReward18(JsonSerializeFormat & handler);
+	void readReward17(JsonSerializeFormat & handler);
 	void readLegacyReward(JsonSerializeFormat & handler);
 };
 

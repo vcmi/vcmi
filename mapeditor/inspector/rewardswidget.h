@@ -12,6 +12,7 @@
 #include <QDialog>
 #include "baseinspectoritemdelegate.h"
 #include "../../lib/mapObjects/CRewardableObject.h"
+#include <inspector/segments/rewardwidget.h>
 
 
 namespace Ui {
@@ -47,19 +48,9 @@ private slots:
 
 	void on_visitInfoList_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
 
-	void on_rCreatureAdd_clicked();
-
-	void on_rCreatureRemove_clicked();
-
 	void on_lCreatureAdd_clicked();
 
 	void on_lCreatureRemove_clicked();
-
-	void on_castSpellCheck_toggled(bool checked);
-
-	void on_bonusAdd_clicked();
-
-	void on_bonusRemove_clicked();
 
 private:
 	
@@ -71,6 +62,7 @@ private:
 	Ui::RewardsWidget *ui;
 	CRewardableObject & object;
 	CMap & map;
+	std::unique_ptr<RewardWidget> rewardWidget;
 };
 
 class RewardsDelegate : public BaseInspectorItemDelegate

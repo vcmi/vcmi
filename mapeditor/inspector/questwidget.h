@@ -11,7 +11,7 @@
 #include "../StdInc.h"
 #include <QDialog>
 #include "baseinspectoritemdelegate.h"
-#include "../../lib/mapObjects/Quest.h"
+#include "lib/mapObjects/Quest.h"
 
 
 namespace Ui {
@@ -20,6 +20,7 @@ class QuestWidget;
 
 class MapController;
 class TextIdentifier;
+class RewardWidget;
 
 class QuestWidget : public QDialog
 {
@@ -42,6 +43,9 @@ private slots:
 	void on_lCreatureAdd_clicked();
 	void on_lCreatureRemove_clicked();
 	void on_addQuestButton_clicked();
+	void on_rewardButton_clicked();
+	void on_moveUpButton_clicked();
+	void on_moveDownButton_clicked();
 	void on_deleteQuestButton_clicked();
 	void on_deadlineCheckbox_stateChanged(int state);
 	void on_repetableCheckbox_stateChanged(int state);
@@ -50,13 +54,16 @@ private:
 	void onCreatureAdd(QTableWidget * listWidget, QComboBox * comboWidget, QSpinBox * spinWidget);
 	void setTranslationIdentifiers();
 	void setTranslation(MetaString & metastring, const TextIdentifier & identifier, const std::string & translation);
-	void highlightModifiedTabs();
+	void shiftSelectedQuest(int shift);
+	void disableReward(bool disabled);
+	void printQuestInformation();
 	
 	QuestSource & questSource;
 	std::shared_ptr<Quest> selectedQuest;
 	bool questDataLoaded = false;
 	MapController & controller;
 	Ui::QuestWidget *ui;
+	std::unique_ptr<RewardWidget> rewardWidget;
 };
 
 class QuestDelegate : public BaseInspectorItemDelegate
@@ -70,7 +77,6 @@ public:
 	QWidget * createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
 	void setEditorData(QWidget * editor, const QModelIndex & index) const override;
 	void setModelData(QWidget * editor, QAbstractItemModel * model, const QModelIndex & index) const override;
-	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 	
 protected:
 	bool eventFilter(QObject * object, QEvent * event) override;
