@@ -2179,31 +2179,31 @@ Szeretné ezt most megtenni?</translation>
         <location filename="../inspector/inspector.cpp" line="452"/>
         <location filename="../inspector/inspector.cpp" line="839"/>
         <source>Aggression</source>
-        <translation type="unfinished"></translation>
+        <translation>Agresszió</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="453"/>
         <location filename="../inspector/inspector.cpp" line="841"/>
         <source>Join only for money</source>
-        <translation type="unfinished"></translation>
+        <translation>Csatlakozás csak a pénzért</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="454"/>
         <location filename="../inspector/inspector.cpp" line="843"/>
         <source>Joining percentage</source>
-        <translation type="unfinished"></translation>
+        <translation>Csatlakozási százalék</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="458"/>
         <location filename="../inspector/inspector.cpp" line="845"/>
         <source>Upgraded stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Továbbfejlesztett verem</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="460"/>
         <location filename="../inspector/inspector.cpp" line="847"/>
         <source>Stacks count</source>
-        <translation type="unfinished"></translation>
+        <translation>Vermek száma</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="461"/>
@@ -2249,12 +2249,12 @@ Szeretné ezt most megtenni?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="1038"/>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>Soha</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1039"/>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>Mindig</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="253"/>
@@ -2732,32 +2732,32 @@ Adja hozzá a térkép szükséges modjai közé a Térkép-&gt;Általános beá
     <message>
         <location filename="../inspector/questwidget.ui" line="37"/>
         <source>Delete</source>
-        <translation type="unfinished">Törlés</translation>
+        <translation>Törlés</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
         <source>First Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Első látogatás</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="94"/>
         <source>Next Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Következő látogatás</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="116"/>
         <source>Completed</source>
-        <translation type="unfinished"></translation>
+        <translation>Elkészült</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="148"/>
         <source>Repeatable</source>
-        <translation type="unfinished"></translation>
+        <translation>Megismételhető</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="158"/>
         <source>Set Deadline</source>
-        <translation type="unfinished"></translation>
+        <translation>Határidő beállítása</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="179"/>
@@ -2888,7 +2888,7 @@ Adja hozzá a térkép szükséges modjai közé a Térkép-&gt;Általános beá
     <message>
         <location filename="../inspector/questwidget.cpp" line="303"/>
         <source>%1 quest on position %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1. küldetés a(z) %2. pozíción</translation>
     </message>
 </context>
 <context>
