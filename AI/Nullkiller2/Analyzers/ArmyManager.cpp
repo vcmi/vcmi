@@ -330,9 +330,7 @@ BestArmyInfo ArmyManager::getBestArmyInfo(
 	}
 
 	// not a count of allowed factions: the loop above may stop after allowing a faction it then left out
-	if(bestValue > currentStrength
-		&& resultingArmy.size() <= GameConstants::ARMY_SIZE
-		&& source->needsLastStack()
+	if(bestValue > currentStrength && resultingArmy.size() <= GameConstants::ARMY_SIZE && source->needsLastStack()
 		&& takesWholeSource(source, resultingArmy))
 	{
 		auto weakest = getBestUnitForScout(resultingArmy, armyTerrain);
@@ -502,7 +500,7 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 		vstd::amin(ci.count, availableRes.affordableCount(ci.creID.toCreature()->getFullRecruitCost())); //max count we can afford
 
 		int disbandMalus = 0;
-		
+
 		if (shouldDisband)
 		{
 			disbandMalus = leastValuableStackValue.affordableCount(ci.creID.toCreature()->getFullRecruitCost());
@@ -690,7 +688,7 @@ ArmyUpgradeInfo ArmyManager::calculateCreaturesUpgrade(
 
 	TResources resourcesLeft = availableResources;
 	ArmyUpgradeInfo result;
-	
+
 	result.resultingArmy = convertToSlots(army);
 
 	for(auto upgrade : upgrades)

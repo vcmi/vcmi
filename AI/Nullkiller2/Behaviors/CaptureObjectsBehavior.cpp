@@ -8,7 +8,6 @@
 *
 */
 #include "StdInc.h"
-#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
@@ -55,9 +54,7 @@ static std::optional<AIPath> findCreatureBankRewardPreparationPath(const Nullkil
 		if(!isSafeToVisit(rewardHero, &remainingArmy, rewardPath.getTotalDanger(), nullkiller->settings->getSafeAttackRatio()))
 			continue;
 
-		if(!bestPath
-			|| path.turn() < bestPath->turn()
-			|| (path.turn() == bestPath->turn() && path.movementCost() < bestPath->movementCost()))
+		if(!bestPath || path.turn() < bestPath->turn() || (path.turn() == bestPath->turn() && path.movementCost() < bestPath->movementCost()))
 			bestPath = &path;
 	}
 

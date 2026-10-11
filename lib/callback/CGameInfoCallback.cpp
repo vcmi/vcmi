@@ -30,7 +30,6 @@
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
 #include "../TerrainHandler.h"
-#include "../CCreatureHandler.h"
 
 
 const IMarket * CGameInfoCallback::getMarket(ObjectInstanceID objid) const

@@ -12,7 +12,6 @@
 #include "CRewardableObject.h"
 
 #include "../CPlayerState.h"
-#include "../CCreatureHandler.h"
 #include "../IGameSettings.h"
 #include "../battle/BattleLayout.h"
 #include "../battle/CombatValue.h"
@@ -181,17 +180,20 @@ bool CRewardableObject::wasVisited(PlayerColor player) const
 		case Rewardable::VISIT_LIMITER:
 			return false;
 		case Rewardable::VISIT_ONCE:
-			if(!onceVisitableObjectCleared) return false;
+			if(!onceVisitableObjectCleared)
+				return false;
 			for(PlayerColor teamPlayer : cb->getPlayerTeam(player)->players)
-				if(cb->getPlayerState(teamPlayer)->visitedObjects.count(ObjectInstanceID(id)) != 0) return true;
+				if(cb->getPlayerState(teamPlayer)->visitedObjects.contains(ObjectInstanceID(id)))
+					return true;
 			return false;
 		case Rewardable::VISIT_PLAYER:
-			return cb->getPlayerState(player)->visitedObjects.count(ObjectInstanceID(id)) != 0;
+			return cb->getPlayerState(player)->visitedObjects.contains(ObjectInstanceID(id));
 		case Rewardable::VISIT_PLAYER_GLOBAL:
-			return cb->getPlayerState(player)->visitedObjectsGlobal.count({ID, subID}) != 0;
+			return cb->getPlayerState(player)->visitedObjectsGlobal.contains({ID, subID});
 		case Rewardable::VISIT_TEAM_GLOBAL:
 			for(PlayerColor teamPlayer : cb->getPlayerTeam(player)->players)
-				if(cb->getPlayerState(teamPlayer)->visitedObjectsGlobal.count({ID, subID}) != 0) return true;
+				if(cb->getPlayerState(teamPlayer)->visitedObjectsGlobal.contains({ID, subID}))
+					return true;
 			return false;
 		default:
 			return false;

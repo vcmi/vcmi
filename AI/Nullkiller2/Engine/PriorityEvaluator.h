@@ -9,11 +9,7 @@
 */
 #pragma once
 
-#include "../Goals/CGoal.h"
 #include "../Pathfinding/AIPathfinder.h"
-#include "mapObjects/CGObjectInstance.h"
-#include <cstdint>
-#include <utility>
 
 struct RewardableObjectInfo;
 

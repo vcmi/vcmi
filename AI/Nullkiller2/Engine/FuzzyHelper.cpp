@@ -13,12 +13,10 @@
 #include "../Goals/Goals.h"
 #include "Nullkiller.h"
 
-#include "../../../lib/callback/CGameInfoCallback.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/mapObjects/CRewardableObject.h"
-#include "../../../lib/mapping/MapDifficulty.h"
 #include "../../../lib/rewardable/Info.h"
 #include "../../../lib/StartInfo.h"
 
