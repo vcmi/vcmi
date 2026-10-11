@@ -14,8 +14,6 @@
 #include "ResourceSet.h"
 #include "callback/GameCallbackHolder.h"
 
-#include <optional>
-
 namespace vstd
 {
 class RNG;

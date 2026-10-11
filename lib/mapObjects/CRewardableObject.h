@@ -12,7 +12,6 @@
 #include "army/CArmedInstance.h"
 
 #include "../rewardable/Interface.h"
-#include "constants/EntityIdentifiers.h"
 
 struct DLL_LINKAGE GuardState
 {

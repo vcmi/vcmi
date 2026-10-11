@@ -13,10 +13,6 @@
 #include "../json/JsonNode.h"
 #include "../mapObjectConstructors/IObjectInfo.h"
 #include "../mapObjects/army/CStackBasicDescriptor.h"
-#include <cstdint>
-#include <optional>
-#include <utility>
-#include <vector>
 
 class MetaString;
 class IGameInfoCallback;
@@ -69,7 +65,12 @@ public:
 	bool givesArtifacts() const override;
 	bool givesCreatures() const override;
 	bool givesOnlyCreatures() const override;
+
+	/// Empty outer vector means possibilities cannot be determined.
+	/// Empty inner vector means this particular reward tier gives no creatures.
+	/// Non-empty inner vector contains creature stacks granted by that tier.
 	CreatureRewardVariants getPossibleCreatureRewards() const;
+
 	bool givesSpells() const override;
 
 	bool givesBonuses() const override;

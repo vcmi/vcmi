@@ -45,10 +45,10 @@ public:
 	}
 };
 
-class GameInfoCallbackForTest : public CGameInfoCallback
+class GameInfoCallbackMock : public CGameInfoCallback
 {
 public:
-	explicit GameInfoCallbackForTest(PlayerColor player)
+	explicit GameInfoCallbackMock(PlayerColor player)
 		: player(player)
 	{
 	}
@@ -87,7 +87,7 @@ TEST(CRewardableObject, rewardValuesRespectScoutingVisibility)
 	} objectCallback;
 	TeamState team;
 	CRewardableObject object(&objectCallback);
-	GameInfoCallbackForTest callback(visitor);
+	GameInfoCallbackMock callback(visitor);
 	object.id = ObjectInstanceID(42); // Arbitrary rewardable object instance used to track scouting.
 	object.configuration.info.emplace_back();
 	object.configuration.info.back().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
@@ -162,7 +162,7 @@ TEST(CRewardableObject, onceVisitStateIsSharedOnlyWithClearingPlayersTeam)
 	EXPECT_FALSE(object.wasVisited(player));
 	EXPECT_TRUE(object.wasVisited(enemy));
 
-	GameInfoCallbackForTest infoCallback(player);
+	GameInfoCallbackMock infoCallback(player);
 	const auto info = infoCallback.getRewardableObjectInfo(&object);
 	ASSERT_TRUE(info);
 	EXPECT_EQ(info->rewardAvailable, true);
@@ -204,7 +204,7 @@ TEST(CRewardableObject, globallyVisitedObjectInfoIsScoutedAndUnavailable)
 	TeamState team;
 	CRewardableObject object(&objectCallback);
 	CGHeroInstance hero(&objectCallback);
-	GameInfoCallbackForTest callback(ally);
+	GameInfoCallbackMock callback(ally);
 	object.ID = Obj::CARTOGRAPHER;
 	object.subID = MapObjectSubID(1);
 	object.id = ObjectInstanceID(42);

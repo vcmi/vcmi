@@ -8,7 +8,6 @@
 *
 */
 #include "StdInc.h"
-#include <limits>
 
 #include "PriorityEvaluator.h"
 #include "Nullkiller.h"
@@ -19,16 +18,11 @@
 #include "../../../lib/mapObjects/CGResource.h"
 #include "../../../lib/mapObjects/CRewardableObject.h"
 #include "../../../lib/mapping/TerrainTile.h"
-#include "../../../lib/rewardable/Info.h"
-#include "../../../lib/rewardable/Reward.h"
 #include "../../../lib/CPlayerState.h"
-#include "../../../lib/RoadHandler.h"
 #include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/GameLibrary.h"
-#include "../../../lib/entities/hero/CHeroHandler.h"
 #include "../../../lib/StartInfo.h"
 #include "../../../lib/GameSettings.h"
-#include "../../../lib/filesystem/Filesystem.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/AdventureSpellCast.h"
 #include "../Goals/BuildThis.h"
