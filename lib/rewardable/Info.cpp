@@ -25,7 +25,6 @@
 #include "../modding/IdentifierStorage.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../entities/ResourceTypeHandler.h"
-#include "../constants/EntityIdentifiers.h"
 
 #include <vstd/RNG.h>
 
@@ -174,7 +173,7 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, IGam
 	limiter.canLearnSpells  = randomizer.loadSpells(source["canLearnSpells"], variables);
 	limiter.creatures = randomizer.loadCreatures(source["creatures"], variables);
 	limiter.canReceiveCreatures = randomizer.loadCreatures(source["canReceiveCreatures"], variables);
-	
+
 	limiter.players = randomizer.loadColors(source["colors"], variables);
 	limiter.heroes = randomizer.loadHeroes(source["heroes"]);
 	limiter.heroClasses = randomizer.loadHeroClasses(source["heroClasses"]);
@@ -523,7 +522,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGame
 		object.infoWindowType = EInfoWindowMode::AUTO;
 	else
 		object.infoWindowType = parameters["showInInfobox"].Bool() ? EInfoWindowMode::INFO : EInfoWindowMode::MODAL;
-	
+
 	auto visitMode = parameters["visitMode"].String();
 	for(int i = 0; i < Rewardable::VisitModeString.size(); ++i)
 	{
@@ -533,7 +532,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGame
 			break;
 		}
 	}
-	
+
 	auto selectMode = parameters["selectMode"].String();
 	for(int i = 0; i < Rewardable::SelectModeString.size(); ++i)
 	{
@@ -611,9 +610,6 @@ bool Rewardable::Info::givesOnlyCreatures() const
 		&& !testForKey(parameters, "changeCreatures");
 }
 
-/// Empty outer vector means possibilities cannot be determined.
-/// Empty inner vector means this particular reward tier gives no creatures.
-/// Non-empty inner vector contains creature stacks granted by that tier.
 Rewardable::Info::CreatureRewardVariants Rewardable::Info::getPossibleCreatureRewards() const
 {
 	CreatureRewardVariants result;
