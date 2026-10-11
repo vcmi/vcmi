@@ -22,6 +22,7 @@
 #include "lib/CConfigHandler.h"
 
 #include <SDL_version.h>
+#include <SDL_hints.h>
 
 namespace
 {
@@ -40,8 +41,16 @@ ControllerPrompt::Family controllerPromptFamily(SDL_GameController * controller)
 	case SDL_CONTROLLER_TYPE_XBOX360:
 	case SDL_CONTROLLER_TYPE_XBOXONE:
 		return ControllerPrompt::Family::XBOX;
+	case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
+#if SDL_VERSION_ATLEAST(2,24,0)
+	case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
+	case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
+	case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_PAIR:
+#endif
+		return SDL_GetHintBoolean(SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, SDL_TRUE)
+			? ControllerPrompt::Family::NINTENDO_LABELS : ControllerPrompt::Family::NINTENDO;
 	default:
-		return ControllerPrompt::Family::UNKNOWN;
+		return ControllerPrompt::Family::GENERIC;
 	}
 #else
 	static_cast<void>(controller);

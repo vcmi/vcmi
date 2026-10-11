@@ -111,6 +111,7 @@ set(vcmiclientcommon_SRCS
 	widgets/CGarrisonInt.cpp
 	widgets/CreatureCostBox.cpp
 	widgets/ComboBox.cpp
+	widgets/ControllerPrompt.cpp
 	widgets/ControllerActionButton.cpp
 	widgets/CTextInput.cpp
 	widgets/GraphicalPrimitiveCanvas.cpp
@@ -242,6 +243,7 @@ set(vcmiclientcommon_HEADERS
 	battle/UnitActionPanel.h
 
 	gui/CIntObject.h
+	gui/ControllerPromptFamily.h
 	gui/CursorHandler.h
 	gui/EventDispatcher.h
 	gui/EventsReceiver.h
@@ -334,6 +336,7 @@ set(vcmiclientcommon_HEADERS
 	widgets/CGarrisonInt.h
 	widgets/CreatureCostBox.h
 	widgets/ComboBox.h
+	widgets/ControllerPrompt.h
 	widgets/ControllerActionButton.h
 	widgets/CTextInput.h
 	widgets/GraphicalPrimitiveCanvas.h

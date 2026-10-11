@@ -14,7 +14,7 @@
 #include <SDL_gamecontroller.h>
 
 #include "lib/Point.h"
-#include "ControllerPromptFamily.h"
+#include "gui/ControllerPromptFamily.h"
 #include "gui/Shortcut.h"
 
 /// Class that handles game controller input from SDL events

@@ -35,8 +35,13 @@ ControllerPrompt::Family controllerPromptFamily(SDL_Gamepad * controller)
 	case SDL_GAMEPAD_TYPE_XBOX360:
 	case SDL_GAMEPAD_TYPE_XBOXONE:
 		return ControllerPrompt::Family::XBOX;
+	case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO:
+	case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
+	case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
+	case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR:
+		return ControllerPrompt::Family::NINTENDO;
 	default:
-		return ControllerPrompt::Family::UNKNOWN;
+		return ControllerPrompt::Family::GENERIC;
 	}
 }
 
