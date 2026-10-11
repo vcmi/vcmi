@@ -142,6 +142,11 @@ void RadialMenu::gesturePanning(const Point & initialPosition, const Point & cur
 	}
 }
 
+void RadialMenu::gestureCanceled()
+{
+	ENGINE->windows().popWindows(1);
+}
+
 void RadialMenu::gesture(bool on, const Point & initialPosition, const Point & finalPosition)
 {
 	if (on)

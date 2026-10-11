@@ -16,6 +16,7 @@ class JsonNode;
 
 class ShortcutHandler
 {
+	bool initialized = false;
 	std::multimap<std::string, EShortcut> mappedKeyboardShortcuts;
 	std::multimap<std::string, EShortcut> mappedJoystickShortcuts;
 	std::multimap<std::string, EShortcut> mappedJoystickAxes;

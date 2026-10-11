@@ -11,6 +11,8 @@
 #include "StdInc.h"
 
 #include "ShortcutHandler.h"
+#include "GameEngine.h"
+#include "events/InputHandler.h"
 #include "Shortcut.h"
 
 #include "../../lib/CConfigHandler.h"
@@ -23,6 +25,9 @@ ShortcutHandler::ShortcutHandler()
 
 void ShortcutHandler::reloadShortcuts()
 {
+	if(initialized)
+		ENGINE->input().cancelControllerInput();
+	initialized = true;
 	mappedKeyboardShortcuts = loadShortcuts(keyBindingsConfig["keyboard"]);
 	mappedJoystickShortcuts = loadShortcuts(keyBindingsConfig["joystickButtons"]);
 	mappedJoystickAxes = loadShortcuts(keyBindingsConfig["joystickAxes"]);

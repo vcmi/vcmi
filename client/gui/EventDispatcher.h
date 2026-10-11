@@ -12,6 +12,7 @@
 class Point;
 
 class AEventsReceiver;
+class IShowActivatable;
 enum class MouseButton;
 enum class EShortcut;
 enum class InputMode;
@@ -39,6 +40,15 @@ class EventDispatcher
 
 	std::vector<AEventsReceiver *> touchPressedElements;
 
+	struct ControllerPress
+	{
+		std::vector<EShortcut> shortcuts;
+		std::weak_ptr<IShowActivatable> window;
+		bool canceled = false;
+		bool popup = false;
+	};
+	std::map<std::pair<int, std::string>, ControllerPress> controllerPresses;
+
 	void handleLeftButtonClick(const Point & position, int tolerance, bool isPressed);
 	void handleDoubleButtonClick(const Point & position, int tolerance);
 	AEventsReceiver * findElementInToleranceRange(const EventReceiversList & list, const Point & position, int eventToTest, int tolerance);
@@ -59,6 +69,12 @@ public:
 	/// Shortcut events (e.g. keyboard keys)
 	void dispatchShortcutPressed(const std::vector<EShortcut> & shortcuts);
 	void dispatchShortcutReleased(const std::vector<EShortcut> & shortcuts);
+
+	void dispatchControllerButtonPressed(int instance, const std::string & control);
+	void dispatchControllerButtonReleased(int instance, const std::string & control);
+	void cancelControllerInput(bool dismissPopup);
+	void forgetController(int instance);
+	void dispatchGesturePanningCanceled();
 
 	/// Key events (to get keyname of pressed key)
 	void dispatchKeyPressed(const std::string & keyName);

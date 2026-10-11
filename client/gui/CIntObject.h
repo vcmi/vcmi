@@ -138,6 +138,7 @@ public:
 	CKeyShortcut(EShortcut key);
 	void keyPressed(EShortcut key) override;
 	void keyReleased(EShortcut key) override;
+	void keyCanceled(EShortcut key) override;
 };
 
 class WindowBase : public CIntObject
