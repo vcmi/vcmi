@@ -17,7 +17,7 @@ using namespace Goals;
 
 bool OneWayPortalProbe::operator==(const OneWayPortalProbe & other) const
 {
-	return tile == other.tile;
+	return tile == other.tile && hero == other.hero && rewardsBehind == other.rewardsBehind;
 }
 
 std::string OneWayPortalProbe::toString() const

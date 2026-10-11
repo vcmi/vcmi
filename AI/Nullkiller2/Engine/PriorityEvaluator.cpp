@@ -914,8 +914,29 @@ class OneWayPortalProbeEvaluator : public IEvaluationContextBuilder
 public:
 	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
 	{
-		if(task->goalType == Goals::ONE_WAY_PORTAL_PROBE)
+		if(task->goalType != Goals::ONE_WAY_PORTAL_PROBE)
+			return;
+
+		const auto & probe = dynamic_cast<Goals::OneWayPortalProbe &>(*task);
+		if(probe.rewardsBehind.empty())
+		{
 			evaluationContext.isOneWayPortalProbe = true;
+			return;
+		}
+
+		const auto & evaluator = evaluationContext.evaluator;
+		const auto role = evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(probe.hero);
+		for(const ObjectInstanceID objectId : probe.rewardsBehind)
+		{
+			const auto * target = evaluator.aiNk->cc->getObj(objectId, false);
+			if(!target)
+				continue;
+
+			evaluationContext.goldReward += evaluator.getGoldReward(target, probe.hero);
+			evaluationContext.armyReward += evaluator.getArmyReward(target, probe.hero, probe.hero, false);
+			evaluationContext.skillReward += evaluator.getSkillReward(target, probe.hero, role);
+			evaluationContext.addNonCriticalStrategicalValue(evaluator.getStrategicalValue(target, probe.hero));
+		}
 	}
 };
 

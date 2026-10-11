@@ -146,7 +146,6 @@ void AIMemory::recordOneWayPortalTraversal(ObjectInstanceID entrance, ObjectInst
 {
 	clearOneWayPortalReservation(entrance);
 	oneWayPortalLastTraversalDay[entrance] = day;
-	oneWayPortalGuardFailures.erase(entrance);
 	oneWayPortalJourneys[hero] = {entrance, exit};
 	oneWayPortalUnreturnedEntrances[hero].insert(entrance);
 
@@ -192,23 +191,6 @@ std::vector<ObjectInstanceID> AIMemory::getUnreturnedOneWayPortalHeroes(ObjectIn
 	return result;
 }
 
-void AIMemory::recordOneWayPortalGuardFailure(
-	ObjectInstanceID entrance,
-	uint64_t guardDanger,
-	uint64_t failedHeroStrength)
-{
-	oneWayPortalGuardFailures[entrance] = {guardDanger, failedHeroStrength};
-}
-
-std::optional<std::pair<uint64_t, uint64_t>> AIMemory::getOneWayPortalGuardFailure(ObjectInstanceID entrance) const
-{
-	const auto failure = oneWayPortalGuardFailures.find(entrance);
-	if(failure == oneWayPortalGuardFailures.end())
-		return std::nullopt;
-
-	return failure->second;
-}
-
 std::optional<std::pair<ObjectInstanceID, ObjectInstanceID>> AIMemory::getOneWayPortalJourney(ObjectInstanceID hero) const
 {
 	const auto journey = oneWayPortalJourneys.find(hero);
@@ -218,9 +200,22 @@ std::optional<std::pair<ObjectInstanceID, ObjectInstanceID>> AIMemory::getOneWay
 	return journey->second;
 }
 
-bool AIMemory::completeOneWayPortalJourney(ObjectInstanceID hero)
+void AIMemory::completeOneWayPortalJourney(ObjectInstanceID hero)
 {
-	return oneWayPortalJourneys.erase(hero) != 0;
+	oneWayPortalJourneys.erase(hero);
+}
+
+void AIMemory::removeStaleOneWayPortalJourneys(const CCallback & cc)
+{
+	// a save can predate the hero leaving the exit, or its death during another player's turn
+	vstd::erase_if(oneWayPortalJourneys, [&](const auto & journey)
+	{
+		const auto * hero = cc.getHero(journey.first);
+		const auto * exit = cc.getObj(journey.second.second, false);
+		return !hero
+			|| hero->getOwner() != cc.getPlayerID()
+			|| (exit && hero->visitablePos() != exit->visitablePos());
+	});
 }
 
 void AIMemory::markOneWayPortalReturn(ObjectInstanceID hero)
@@ -256,7 +251,6 @@ void AIMemory::resetOneWayPortalState()
 {
 	oneWayPortalReservations.clear();
 	oneWayPortalLastTraversalDay.clear();
-	oneWayPortalGuardFailures.clear();
 	oneWayPortalJourneys.clear();
 	oneWayPortalUnreturnedEntrances.clear();
 	oneWayPortalsWithKnownReturn.clear();
@@ -290,24 +284,6 @@ void AIMemory::loadOneWayPortalState(const JsonNode & source)
 	{
 		if(const auto entrance = readObjectId(value["entrance"]))
 			oneWayPortalLastTraversalDay[*entrance] = static_cast<int>(value["day"].Integer());
-	}
-
-	for(const auto & value : source["guardFailures"].Vector())
-	{
-		const auto entrance = readObjectId(value["entrance"]);
-		if(!entrance
-			|| value["danger"].getType() != JsonNode::JsonType::DATA_INTEGER
-			|| value["heroStrength"].getType() != JsonNode::JsonType::DATA_INTEGER
-			|| value["danger"].Integer() < 0
-			|| value["heroStrength"].Integer() < 0)
-		{
-			continue;
-		}
-
-		oneWayPortalGuardFailures[*entrance] = {
-			static_cast<uint64_t>(value["danger"].Integer()),
-			static_cast<uint64_t>(value["heroStrength"].Integer())
-		};
 	}
 
 	for(const auto & value : source["journeys"].Vector())
@@ -346,15 +322,6 @@ void AIMemory::saveOneWayPortalState(JsonNode & destination) const
 		destination["lastTraversals"].Vector().push_back(std::move(value));
 	}
 
-	for(const auto & [entrance, failure] : oneWayPortalGuardFailures)
-	{
-		JsonNode value;
-		value["entrance"].Integer() = entrance.getNum();
-		value["danger"].Integer() = static_cast<int64_t>(failure.first);
-		value["heroStrength"].Integer() = static_cast<int64_t>(failure.second);
-		destination["guardFailures"].Vector().push_back(std::move(value));
-	}
-
 	for(const auto & [hero, journey] : oneWayPortalJourneys)
 	{
 		JsonNode value;
@@ -377,7 +344,6 @@ void AIMemory::removeOneWayPortalObject(ObjectInstanceID object)
 {
 	oneWayPortalReservations.erase(object);
 	oneWayPortalLastTraversalDay.erase(object);
-	oneWayPortalGuardFailures.erase(object);
 	oneWayPortalsWithKnownReturn.erase(object);
 
 	vstd::erase_if(oneWayPortalJourneys, [&](const auto & journey)

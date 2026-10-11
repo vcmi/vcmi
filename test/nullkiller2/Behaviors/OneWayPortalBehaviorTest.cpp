@@ -12,7 +12,6 @@
 #include "AI/Nullkiller2/AIGateway.h"
 #include "AI/Nullkiller2/Behaviors/ExplorationBehavior.h"
 #include "AI/Nullkiller2/Engine/Nullkiller.h"
-#include "AI/Nullkiller2/Goals/ExecuteHeroChain.h"
 #include "AI/Nullkiller2/Pathfinding/AIPathfinder.h"
 
 #include "mock/TinyH3MBuilder.h"
@@ -212,6 +211,23 @@ TinyH3M::TinyH3MBuilder makeIsolatedEnemyPortalMap()
 	builder
 		.playerActive(ENEMY)
 		.randomTown({30, 24, 0}, ENEMY);
+
+	for(int y = 0; y < 36; ++y)
+		builder.terrain({20, y, 0}, TerrainId::WATER);
+
+	return builder;
+}
+
+/// Main and scout with a treasure at home; the far side is cut off by water and holds another treasure
+TinyH3M::TinyH3MBuilder makeRewardsBehindPortalMap(bool withFarTown)
+{
+	auto builder = makeOneWayPortalMap({500, 1});
+	builder
+		.resource({8, 12, 0}, GameResID::GOLD, 1000)
+		.resource({28, 26, 0}, GameResID::GOLD, 1000);
+
+	if(withFarTown)
+		builder.randomTown({30, 30, 0}, PlayerColor::NEUTRAL);
 
 	for(int y = 0; y < 36; ++y)
 		builder.terrain({20, y, 0}, TerrainId::WATER);
@@ -469,6 +485,16 @@ public:
 		gameState->apply(move);
 		gateway->heroMoved(move, false);
 		ASSERT_EQ(hero.visitablePos(), destination);
+	}
+
+	/// Removes the hero as if it was defeated
+	void loseHero(const CGHeroInstance & hero, bool notifyGateway = true)
+	{
+		if(notifyGateway)
+			gateway->objectRemoved(&hero, PLAYER);
+
+		RemoveObject removal(hero.id, PLAYER);
+		gameState->apply(removal);
 	}
 
 	void finishTurn()
@@ -941,38 +967,76 @@ TEST_F(OneWayPortalBehaviorTest, StrongerMainReinforcesCompletedLandingForIsolat
 		<< "an expedition at the strongest available force must not cause portal flooding";
 }
 
-TEST_F(OneWayPortalBehaviorTest, FailedExitGuardAllowsStrongerMainRetry)
+TEST_F(OneWayPortalBehaviorTest, LostExpeditionIsRetriedByHeroThatBeatsVisibleExitGuard)
 {
-	startWithMap(makeOneWayPortalMap({500, 1, 1}));
-	setAllTilesVisible(true);
+	auto builder = makeOneWayPortalMap({500, 1, 1});
+	builder.monster({30, 30, 0}, CreatureID::ARCHER, 20);
+	// the exit corner is cut off, so the guard is not a target for heroes on the home side
+	for(int i = 0; i <= 3; ++i)
+	{
+		builder.terrain({3, i, 0}, TerrainId::WATER);
+		builder.terrain({i, 3, 0}, TerrainId::WATER);
+	}
+	startWithMap(std::move(builder));
 
 	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
 	auto * exit = objectByType(Obj::MONOLITH_ONE_WAY_EXIT);
+	auto * guard = objectByType(Obj::MONSTER);
 	ASSERT_NE(entrance, nullptr);
 	ASSERT_NE(exit, nullptr);
+	ASSERT_NE(guard, nullptr);
+
+	moveToVisitable(*exit, {0, 0, 0});
+	moveToVisitable(*guard, {1, 1, 0});
+	recalculateGuardingPositions();
+	setAllTilesVisible(true);
 	preparePlanning();
 
 	const auto heroes = heroesByStrength();
-	auto * failedScout = heroes.back();
-	teleportHero(*failedScout, *entrance, *exit);
-	getGateway().nullkiller->memory->recordOneWayPortalGuardFailure(
-		entrance->id,
-		1,
-		failedScout->estimateHeroCombatValue());
-	getGateway().nullkiller->memory->removeOneWayPortalHero(failedScout->id);
+	ASSERT_EQ(heroes.size(), 3);
+	teleportHero(*heroes.back(), *entrance, *exit);
+	loseHero(*heroes.back());
 	advanceDay();
 
 	const auto retries = portalTasks(decomposePortalBehavior(), *entrance);
 	ASSERT_EQ(retries.size(), 1)
-		<< "losing the exit fight must not permanently suppress a safe main-force retry";
+		<< "losing the expedition must not suppress a hero that beats the guard seen at the exit";
 	EXPECT_TRUE(retries.front()->asTask()->isObjectAffected(heroes.front()->id));
-	EXPECT_FALSE(retries.front()->asTask()->isObjectAffected(heroes[1]->id));
-	EXPECT_FALSE(retries.front()->asTask()->isObjectAffected(failedScout->id));
+	EXPECT_FALSE(retries.front()->asTask()->isObjectAffected(heroes[1]->id))
+		<< "another scout must not follow into the same guard";
 }
 
-TEST_F(OneWayPortalBehaviorTest, FailedExitGuardRejectsUnsafeRetry)
+TEST_F(OneWayPortalBehaviorTest, LostExpeditionIsNotRetriedIntoOverwhelmingExitGuard)
 {
-	startWithMap(makeOneWayPortalMap({100, 1}));
+	auto builder = makeOneWayPortalMap({100, 1});
+	builder.monster({30, 30, 0}, CreatureID::ARCHER, 1000);
+	startWithMap(std::move(builder));
+
+	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	auto * exit = objectByType(Obj::MONOLITH_ONE_WAY_EXIT);
+	auto * guard = objectByType(Obj::MONSTER);
+	ASSERT_NE(entrance, nullptr);
+	ASSERT_NE(exit, nullptr);
+	ASSERT_NE(guard, nullptr);
+
+	moveToVisitable(*exit, {0, 0, 0});
+	moveToVisitable(*guard, {1, 1, 0});
+	recalculateGuardingPositions();
+	setAllTilesVisible(true);
+	preparePlanning();
+
+	auto * scout = heroesByStrength().back();
+	teleportHero(*scout, *entrance, *exit);
+	loseHero(*scout);
+	advanceDay();
+
+	EXPECT_TRUE(portalTasks(decomposePortalBehavior(), *entrance).empty())
+		<< "no hero may follow a lost expedition into a visible guard it can not beat";
+}
+
+TEST_F(OneWayPortalBehaviorTest, ReloadDropsLandingOfHeroLostAfterSave)
+{
+	startWithMap(makeOneWayPortalMap({500, 1}));
 	setAllTilesVisible(true);
 
 	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
@@ -981,32 +1045,17 @@ TEST_F(OneWayPortalBehaviorTest, FailedExitGuardRejectsUnsafeRetry)
 	ASSERT_NE(exit, nullptr);
 	preparePlanning();
 
-	auto * failedScout = heroesByStrength().back();
-	teleportHero(*failedScout, *entrance, *exit);
-	getGateway().nullkiller->memory->recordOneWayPortalGuardFailure(
-		entrance->id,
-		std::numeric_limits<uint64_t>::max() / 2,
-		failedScout->estimateHeroCombatValue());
-	getGateway().nullkiller->memory->removeOneWayPortalHero(failedScout->id);
-	advanceDay();
+	auto * scout = heroesByStrength().back();
+	teleportHero(*scout, *entrance, *exit);
+	finishTurn();
+	ASSERT_TRUE(getGateway().nullkiller->memory->hasActiveOneWayPortalJourney(entrance->id));
 
-	EXPECT_TRUE(portalTasks(decomposePortalBehavior(), *entrance).empty())
-		<< "a failed probe must not feed another hero to an overwhelmingly strong exit guard";
-}
+	// the hero dies during another player's turn, after the AI state was saved
+	loseHero(*scout, false);
+	restartGateway();
 
-TEST(OneWayPortalMemoryTest, GuardFailureRoundTrips)
-{
-	const ObjectInstanceID entrance(17);
-	NK2AI::AIMemory saved;
-	saved.recordOneWayPortalGuardFailure(entrance, 12345, 6789);
-
-	JsonNode serialized;
-	saved.saveOneWayPortalState(serialized);
-	NK2AI::AIMemory loaded;
-	loaded.loadOneWayPortalState(serialized);
-	EXPECT_EQ(
-		loaded.getOneWayPortalGuardFailure(entrance),
-		std::make_optional(std::pair<uint64_t, uint64_t>(12345, 6789)));
+	EXPECT_FALSE(getGateway().nullkiller->memory->hasActiveOneWayPortalJourney(entrance->id))
+		<< "a landing of a hero that no longer exists must not keep the portal closed";
 }
 
 TEST(OneWayPortalMemoryTest, CompletedLandingKeepsSerializedNoReturnHistory)
@@ -1017,7 +1066,7 @@ TEST(OneWayPortalMemoryTest, CompletedLandingKeepsSerializedNoReturnHistory)
 	NK2AI::AIMemory saved;
 	saved.recordOneWayPortalTraversal(entrance, exit, hero, 3);
 	ASSERT_TRUE(saved.hasActiveOneWayPortalJourney(entrance));
-	ASSERT_TRUE(saved.completeOneWayPortalJourney(hero));
+	saved.completeOneWayPortalJourney(hero);
 	EXPECT_FALSE(saved.hasActiveOneWayPortalJourney(entrance));
 	EXPECT_EQ(saved.getUnreturnedOneWayPortalHeroes(entrance), std::vector{hero});
 
@@ -1127,4 +1176,90 @@ TEST_F(OneWayPortalBehaviorTest, ReturningThroughPortalChainAllowsOneScoutOnNext
 	advanceDay();
 	EXPECT_EQ(portalTasks(decomposePortalBehavior(), *entrances.front()).size(), 1)
 		<< "a scout that returned through a portal chain must reopen every entrance in that chain";
+}
+
+TEST_F(OneWayPortalBehaviorTest, BusyMainDoesNotProbeWhileScoutIsUnavailable)
+{
+	auto builder = makeOneWayPortalMap({500, 1});
+	builder.resource({8, 12, 0}, GameResID::GOLD, 1000);
+	startWithMap(std::move(builder));
+	setAllTilesVisible(true);
+
+	const auto heroes = heroesByStrength();
+	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	ASSERT_NE(entrance, nullptr);
+	preparePlanning();
+	getGateway().nullkiller->lockHero(heroes.back(), NK2AI::HeroLockedReason::HERO_CHAIN);
+
+	EXPECT_TRUE(portalTasks(decomposePreparedPortalBehavior(), *entrance).empty())
+		<< "a main hero with useful tasks on this side must not make the blind probe";
+}
+
+TEST_F(OneWayPortalBehaviorTest, LandedHeroStepsOffExit)
+{
+	startWithMap(makeOneWayPortalMap({500, 1}));
+	setAllTilesVisible(true);
+
+	auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	auto * exit = objectByType(Obj::MONOLITH_ONE_WAY_EXIT);
+	ASSERT_NE(entrance, nullptr);
+	ASSERT_NE(exit, nullptr);
+	preparePlanning();
+
+	auto * scout = heroesByStrength().back();
+	teleportHero(*scout, *entrance, *exit);
+
+	const auto goals = decomposePortalBehavior();
+	const auto stepAside = std::ranges::find_if(goals, [&](const auto & goal)
+	{
+		return goal->asTask()->isObjectAffected(scout->id);
+	});
+	ASSERT_NE(stepAside, goals.end())
+		<< "a hero left on the exit blocks every later arrival";
+
+	EXPECT_NO_THROW((*stepAside)->asTask()->accept(&getGateway()));
+	EXPECT_NE(scout->visitablePos(), exit->visitablePos());
+}
+
+TEST_F(OneWayPortalBehaviorTest, BusyMainCrossesScoutedPortalOnlyWithTownBehind)
+{
+	for(const bool withFarTown : {false, true})
+	{
+		SCOPED_TRACE(withFarTown ? "town behind the portal" : "no town behind the portal");
+		TearDown();
+		SetUp();
+		startWithMap(makeRewardsBehindPortalMap(withFarTown));
+		setAllTilesVisible(true);
+
+		auto * entrance = objectByType(Obj::MONOLITH_ONE_WAY_ENTRANCE);
+		auto * exit = objectByType(Obj::MONOLITH_ONE_WAY_EXIT);
+		ASSERT_NE(entrance, nullptr);
+		ASSERT_NE(exit, nullptr);
+		preparePlanning();
+
+		const auto heroes = heroesByStrength();
+		auto * main = heroes.front();
+		auto * scout = heroes.back();
+		teleportHero(*scout, *entrance, *exit);
+		moveHero(*scout, exit->visitablePos() + int3(1, 0, 0));
+		advanceDay();
+
+		const auto crossings = portalTasks(decomposePortalBehavior(), *entrance);
+		if(!withFarTown)
+		{
+			EXPECT_TRUE(crossings.empty())
+				<< "without a return route or a town to settle in, treasure must not lure the main hero through";
+			continue;
+		}
+
+		ASSERT_EQ(crossings.size(), 1);
+		EXPECT_TRUE(crossings.front()->asTask()->isObjectAffected(main->id));
+
+		getGateway().nullkiller->dangerHitMap->updateHitMap();
+		auto & evaluator = *getGateway().nullkiller->priorityEvaluator;
+		const auto context = evaluator.buildEvaluationContext(crossings.front());
+		EXPECT_EQ(evaluator.evaluate(crossings.front(), NK2AI::PriorityEvaluator::PriorityTier::ONE_WAY_PORTAL_PROBE, context), 0)
+			<< "a crossing for rewards must not run ahead of ordinary gathering";
+		EXPECT_GT(context.goldReward, 0);
+	}
 }

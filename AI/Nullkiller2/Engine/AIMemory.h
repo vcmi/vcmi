@@ -22,7 +22,6 @@ class AIMemory
 private:
 	std::map<ObjectInstanceID, ObjectInstanceID> oneWayPortalReservations;
 	std::map<ObjectInstanceID, int> oneWayPortalLastTraversalDay;
-	std::map<ObjectInstanceID, std::pair<uint64_t, uint64_t>> oneWayPortalGuardFailures;
 	std::map<ObjectInstanceID, std::pair<ObjectInstanceID, ObjectInstanceID>> oneWayPortalJourneys;
 	std::map<ObjectInstanceID, std::set<ObjectInstanceID>> oneWayPortalUnreturnedEntrances;
 	std::set<ObjectInstanceID> oneWayPortalsWithKnownReturn;
@@ -50,13 +49,9 @@ public:
 	bool hasKnownOneWayPortalReturn(ObjectInstanceID entrance) const;
 	bool hasActiveOneWayPortalJourney(ObjectInstanceID entrance) const;
 	std::vector<ObjectInstanceID> getUnreturnedOneWayPortalHeroes(ObjectInstanceID entrance) const;
-	void recordOneWayPortalGuardFailure(
-		ObjectInstanceID entrance,
-		uint64_t guardDanger,
-		uint64_t failedHeroStrength);
-	std::optional<std::pair<uint64_t, uint64_t>> getOneWayPortalGuardFailure(ObjectInstanceID entrance) const;
 	std::optional<std::pair<ObjectInstanceID, ObjectInstanceID>> getOneWayPortalJourney(ObjectInstanceID hero) const;
-	bool completeOneWayPortalJourney(ObjectInstanceID hero);
+	void completeOneWayPortalJourney(ObjectInstanceID hero);
+	void removeStaleOneWayPortalJourneys(const CCallback & cc);
 	void markOneWayPortalReturn(ObjectInstanceID hero);
 	void removeOneWayPortalHero(ObjectInstanceID hero);
 	void resetOneWayPortalState();

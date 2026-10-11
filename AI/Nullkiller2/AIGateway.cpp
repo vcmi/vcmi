@@ -603,16 +603,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	nullkiller->init(callback, this);
 	nullkiller->memory->loadOneWayPortalState(
 		(*cc->getPlayerState(playerID)->playerLocalSettings)["nullkiller2"]["oneWayPortals"]);
-	for(const auto * hero : cc->getHeroesInfo())
-	{
-		const auto journey = nullkiller->memory->getOneWayPortalJourney(hero->id);
-		if(!journey)
-			continue;
-
-		const auto * exit = cc->getObj(journey->second, false);
-		if(exit && hero->visitablePos() != exit->visitablePos())
-			nullkiller->memory->completeOneWayPortalJourney(hero->id);
-	}
+	nullkiller->memory->removeStaleOneWayPortalJourneys(*cc);
 	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
 }
 

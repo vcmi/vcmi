@@ -42,11 +42,12 @@ bool hasAlternativeProgress(
 			continue;
 
 		const auto paths = aiNk->pathfinder->getPathInfo(object->visitablePos(), false);
-		const bool reachableByHero = vstd::contains_if(paths, [hero](const AIPath & path)
+		const bool reachableByHero = vstd::contains_if(paths, [hero, aiNk](const AIPath & path)
 		{
 			return path.targetHero == hero
 				&& path.exchangeCount <= 1
-				&& !path.getFirstBlockedAction();
+				&& !path.getFirstBlockedAction()
+				&& isSafeToVisit(hero, path.heroArmy, path.getTotalDanger(), aiNk->settings->getSafeAttackRatio());
 		});
 		if(reachableByHero)
 			return true;
@@ -104,48 +105,14 @@ std::optional<uint64_t> getStrongestUnreturnedPortalHeroStrength(
 	return result;
 }
 
-bool hasEnemyObjectiveIsolatedBehindPortal(
-	const CGObjectInstance * entrance,
-	const Nullkiller * aiNk)
-{
-	const auto unreturnedHeroes = aiNk->memory->getUnreturnedOneWayPortalHeroes(entrance->id);
-	for(const ObjectInstanceID objectId : aiNk->memory->visitableObjs)
-	{
-		const auto * object = aiNk->cc->getObj(objectId, false);
-		if(!object
-			|| (object->ID != Obj::TOWN && object->ID != Obj::HERO)
-			|| !object->getOwner().isValidPlayer()
-			|| aiNk->cc->getPlayerRelations(aiNk->playerID, object->getOwner()) != PlayerRelations::ENEMIES
-			|| !aiNk->cc->isVisible(object->visitablePos()))
-		{
-			continue;
-		}
-
-		const auto paths = aiNk->pathfinder->getPathInfo(
-			object->visitablePos(),
-			aiNk->isObjectGraphAllowed());
-		const bool reachableWithoutExpedition = vstd::contains_if(paths, [&](const AIPath & path)
-		{
-			return path.targetHero
-				&& path.targetHero->getOwner() == aiNk->playerID
-				&& !vstd::contains(unreturnedHeroes, path.targetHero->id)
-				&& !path.getFirstBlockedAction();
-		});
-		if(!reachableWithoutExpedition)
-			return true;
-	}
-	return false;
-}
-
 std::optional<AIPath> findBestPortalPath(
 	const std::vector<AIPath> & paths,
 	const Nullkiller * aiNk,
 	const CGObjectInstance * entrance,
 	std::optional<HeroRole> requiredRole,
 	std::optional<ObjectInstanceID> requiredHero,
-	std::optional<std::pair<uint64_t, uint64_t>> guardFailure = std::nullopt,
 	std::optional<uint64_t> minimumStrength = std::nullopt,
-	bool preferStrongest = false)
+	bool idleOnly = false)
 {
 	std::optional<AIPath> result;
 
@@ -208,7 +175,17 @@ std::optional<AIPath> findBestPortalPath(
 			continue;
 		}
 
-		const bool desperation = isPortalDesperationHero(hero, entrance, aiNk);
+		const bool soleHero = isSoleNoTownHero(hero, aiNk);
+		const bool idle = (idleOnly || soleHero) && !hasAlternativeProgress(hero, entrance, aiNk);
+		if(idleOnly && !idle)
+		{
+			logAi->trace(
+				"One-way portal candidate %s rejected: hero still has useful tasks on this side",
+				hero->getNameTextID());
+			continue;
+		}
+
+		const bool desperation = soleHero && idle;
 		if(hero->isMissionCritical() && !desperation)
 		{
 			logAi->trace(
@@ -241,34 +218,8 @@ std::optional<AIPath> findBestPortalPath(
 			continue;
 		}
 
-		if(guardFailure)
-		{
-			if(heroStrength <= guardFailure->second)
-			{
-				logAi->trace(
-					"One-way portal retry candidate %s rejected: strength %lld does not exceed failed hero strength %lld",
-					hero->getNameTextID(),
-					static_cast<long long>(heroStrength),
-					static_cast<long long>(guardFailure->second));
-				continue;
-			}
-
-			if(!isSafeToVisit(
-				hero,
-				path.heroArmy,
-				guardFailure->first,
-				aiNk->settings->getSafeAttackRatio()))
-			{
-				logAi->trace(
-					"One-way portal retry candidate %s rejected: remembered exit guard danger %lld is unsafe",
-					hero->getNameTextID(),
-					static_cast<long long>(guardFailure->first));
-				continue;
-			}
-		}
-
 		if(!result
-			|| (preferStrongest
+			|| (minimumStrength
 				? isBetterPortalReinforcementPath(path, *result)
 				: isBetterPortalPath(path, *result)))
 			result = path;
@@ -290,15 +241,59 @@ const CGObjectInstance * getVisibleEntranceGuard(
 	return guard != guards.end() ? *guard : nullptr;
 }
 
+/// True if every known exit is in sight, a free one exists and none of them lands the hero next to a threat it can not beat
+bool isPortalLandingSafe(
+	const CGObjectInstance * entrance,
+	const AIPath & path,
+	const Nullkiller * aiNk)
+{
+	const auto * teleport = dynamic_cast<const CGTeleport *>(entrance);
+	if(!teleport)
+		return false;
+
+	bool hasFreeExit = false;
+	for(const ObjectInstanceID exitId : aiNk->cc->getTeleportChannelExits(teleport->channel))
+	{
+		const auto * exit = aiNk->cc->getObj(exitId, false);
+		if(!exit || !aiNk->cc->isVisible(exit->visitablePos()))
+			return false;
+
+		// an own hero standing on the exit makes it impassable
+		const auto * occupant = findObjectOfType(aiNk->cc->getVisitableObjs(exit->visitablePos(), false), Obj::HERO);
+		if(occupant && occupant->getOwner() == aiNk->playerID)
+			continue;
+
+		if(!isSafeToVisit(
+			path.targetHero,
+			path.heroArmy,
+			aiNk->dangerEvaluator->evaluateDanger(exit->visitablePos(), path.targetHero),
+			aiNk->settings->getSafeAttackRatio()))
+		{
+			return false;
+		}
+
+		hasFreeExit = true;
+	}
+	return hasFreeExit;
+}
+
 std::optional<AIPath> findPortalProbePath(
 	const CGObjectInstance * entrance,
 	const Nullkiller * aiNk,
-	std::optional<std::pair<uint64_t, uint64_t>> guardFailure,
-	std::optional<uint64_t> minimumStrength)
+	std::optional<uint64_t> minimumStrength,
+	bool safeLandingOnly)
 {
-	const auto paths = aiNk->pathfinder->getPathInfo(
+	auto paths = aiNk->pathfinder->getPathInfo(
 		entrance->visitablePos(),
 		aiNk->isObjectGraphAllowed());
+	if(safeLandingOnly)
+	{
+		vstd::erase_if(paths, [&](const AIPath & path)
+		{
+			return !path.targetHero || !isPortalLandingSafe(entrance, path, aiNk);
+		});
+	}
+
 	const auto reservation = aiNk->memory->getOneWayPortalReservation(entrance->id);
 	if(reservation)
 	{
@@ -320,9 +315,7 @@ std::optional<AIPath> findPortalProbePath(
 			entrance,
 			std::nullopt,
 			reservation,
-			guardFailure,
-			minimumStrength,
-			minimumStrength.has_value()))
+			minimumStrength))
 		{
 			return reservedPath;
 		}
@@ -334,7 +327,9 @@ std::optional<AIPath> findPortalProbePath(
 		aiNk->memory->clearOneWayPortalReservation(entrance->id);
 	}
 
-	if(!guardFailure && !minimumStrength)
+	// a blind probe is a job for scouts; a main hero only goes when it has nothing left to do on this side
+	const bool blindProbe = !minimumStrength;
+	if(blindProbe)
 	{
 		if(auto scoutPath = findBestPortalPath(paths, aiNk, entrance, HeroRole::SCOUT, std::nullopt))
 			return scoutPath;
@@ -346,9 +341,104 @@ std::optional<AIPath> findPortalProbePath(
 		entrance,
 		HeroRole::MAIN,
 		std::nullopt,
-		guardFailure,
 		minimumStrength,
-		minimumStrength.has_value());
+		blindProbe);
+}
+
+/// Objects that only the heroes already sent through the portal can reach
+std::vector<const CGObjectInstance *> getObjectsBehindPortal(
+	const CGObjectInstance * entrance,
+	const Nullkiller * aiNk)
+{
+	std::vector<const CGObjectInstance *> result;
+	const auto expedition = aiNk->memory->getUnreturnedOneWayPortalHeroes(entrance->id);
+	if(expedition.empty())
+		return result;
+
+	const auto heroes = aiNk->cc->getHeroesInfo();
+	for(const ObjectInstanceID objectId : aiNk->memory->visitableObjs)
+	{
+		const auto * object = aiNk->cc->getObj(objectId, false);
+		if(!object || !aiNk->cc->isVisible(object->visitablePos()))
+			continue;
+
+		bool reachableByExpedition = false;
+		bool reachableFromHome = false;
+		for(const auto * hero : heroes)
+		{
+			if(!aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), object->visitablePos()))
+				continue;
+
+			if(vstd::contains(expedition, hero->id))
+				reachableByExpedition = true;
+			else
+				reachableFromHome = true;
+		}
+
+		if(reachableByExpedition && !reachableFromHome)
+			result.push_back(object);
+	}
+	return result;
+}
+
+/// Main hero route through an already scouted portal, taken for the sake of the objects behind it
+std::optional<AIPath> findPortalCrossingPath(
+	const CGObjectInstance * entrance,
+	const std::vector<const CGObjectInstance *> & objectsBehind,
+	const Nullkiller * aiNk)
+{
+	// without a way back the hero needs a town on the other side to keep fighting
+	const bool canSettle = aiNk->memory->hasKnownOneWayPortalReturn(entrance->id)
+		|| findObjectOfType(objectsBehind, Obj::TOWN);
+	if(!canSettle)
+		return std::nullopt;
+
+	const auto paths = aiNk->pathfinder->getPathInfo(
+		entrance->visitablePos(),
+		aiNk->isObjectGraphAllowed());
+	const auto path = findBestPortalPath(paths, aiNk, entrance, HeroRole::MAIN, std::nullopt);
+	if(!path || !isPortalLandingSafe(entrance, *path, aiNk))
+		return std::nullopt;
+
+	return path;
+}
+
+/// Shortest step off the exit onto a plain unguarded tile, so that other heroes can arrive through the portal
+std::optional<AIPath> findExitVacatingPath(
+	const CGHeroInstance * hero,
+	const CGObjectInstance * exit,
+	const Nullkiller * aiNk)
+{
+	std::optional<AIPath> result;
+	if(hero->visitablePos() != exit->visitablePos())
+		return result;
+
+	for(const int3 & direction : int3::getDirs())
+	{
+		const int3 destination = hero->visitablePos() + direction;
+		if(!aiNk->cc->isInTheMap(destination)
+			|| aiNk->cc->getGuardingCreaturePosition(destination).isValid()
+			|| !aiNk->cc->getVisitableObjs(destination, false).empty())
+		{
+			continue;
+		}
+
+		for(const auto & path : aiNk->pathfinder->getPathInfo(destination, false))
+		{
+			if(path.targetHero != hero
+				|| path.exchangeCount > 1
+				|| path.turn() != 0
+				|| path.getTotalDanger() != 0
+				|| path.getFirstBlockedAction())
+			{
+				continue;
+			}
+
+			if(!result || path.movementCost() < result->movementCost())
+				result = path;
+		}
+	}
+	return result;
 }
 
 std::optional<AIPath> findEntranceGuardPath(
@@ -402,10 +492,26 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 
 		const auto * exit = aiNk->cc->getObj(journey->second, false);
 		const auto * guard = AttackOneWayPortalGuard::findTrappingGuard(hero, aiNk);
-		if(!exit || !guard)
+		if(!exit)
 			continue;
 
-		// the guard is visible, so a lost fight reveals nothing; only a hero with nothing to lose attacks regardless
+		if(!guard)
+		{
+			if(const auto stepAside = findExitVacatingPath(hero, exit, aiNk))
+			{
+				logAi->debug(
+					"One-way portal intent: hero %s frees exit %d",
+					hero->getNameTextID(),
+					exit->id.getNum());
+				tasks.push_back(sptr(Composition()
+					.addNext(OneWayPortalProbe(exit->visitablePos()))
+					.addNext(ExecuteHeroChain(*stepAside))));
+			}
+			continue;
+		}
+
+		// the guard is visible, so a lost fight reveals nothing: a hero that can not win stays on the exit,
+		// only a hero with nothing to lose attacks regardless
 		const bool safeFight = !hero->isMissionCritical() && isSafeToVisit(
 			hero,
 			aiNk->dangerEvaluator->evaluateDanger(guard),
@@ -471,25 +577,58 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 			continue;
 		}
 
-		const auto guardFailure = aiNk->memory->getOneWayPortalGuardFailure(entrance->id);
+		const bool probed = aiNk->memory->wasOneWayPortalProbed(entrance->id);
+		const auto objectsBehind = probed
+			? getObjectsBehindPortal(entrance, aiNk)
+			: std::vector<const CGObjectInstance *>();
 		std::optional<uint64_t> reinforcementStrength;
+		bool probeAllowed = true;
+		bool expeditionLost = false;
 
-		if(aiNk->memory->wasOneWayPortalProbed(entrance->id)
+		if(probed
 			&& !aiNk->memory->hasKnownOneWayPortalReturn(entrance->id)
-			&& !guardFailure
 			&& !desperation)
 		{
 			reinforcementStrength = getStrongestUnreturnedPortalHeroStrength(entrance, aiNk);
-			if(!reinforcementStrength || !hasEnemyObjectiveIsolatedBehindPortal(entrance, aiNk))
+			// nobody is left to report from the other side, so the next hero relies on what is visible there
+			expeditionLost = !reinforcementStrength;
+			const bool enemyBehind = vstd::contains_if(objectsBehind, [aiNk](const CGObjectInstance * object)
+			{
+				return (object->ID == Obj::TOWN || object->ID == Obj::HERO)
+					&& object->getOwner().isValidPlayer()
+					&& aiNk->cc->getPlayerRelations(aiNk->playerID, object->getOwner()) == PlayerRelations::ENEMIES;
+			});
+			if(!expeditionLost && !enemyBehind)
 			{
 				logAi->debug(
 					"Suppressing repeated traffic through one-way portal %d: no return route is known",
 					entrance->id.getNum());
-				continue;
+				probeAllowed = false;
 			}
 		}
 
-		const auto path = findPortalProbePath(entrance, aiNk, guardFailure, reinforcementStrength);
+		auto path = probeAllowed
+			? findPortalProbePath(entrance, aiNk, reinforcementStrength, expeditionLost)
+			: std::nullopt;
+
+		// rewards behind a scouted portal can justify sending a main hero that is still busy on this side
+		std::vector<ObjectInstanceID> rewardsBehind;
+		if(!path && probed)
+		{
+			path = findPortalCrossingPath(entrance, objectsBehind, aiNk);
+			if(path)
+			{
+				for(const auto * object : objectsBehind)
+				{
+					if(shouldVisit(aiNk, path->targetHero, object))
+						rewardsBehind.push_back(object->id);
+				}
+			}
+
+			if(rewardsBehind.empty())
+				path.reset();
+		}
+
 		if(!path)
 		{
 			logAi->trace(
@@ -502,14 +641,14 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 		const bool desperationProbe = isPortalDesperationHero(path->targetHero, entrance, aiNk);
 		logAi->info(
 			"One-way portal intent: %s entrance %d channel %d with %s hero %s",
-			desperationProbe ? "desperation" : reinforcementStrength ? "reinforce" : "probe",
+			desperationProbe ? "desperation" : !rewardsBehind.empty() ? "cross" : reinforcementStrength ? "reinforce" : "probe",
 			entrance->id.getNum(),
 			teleport ? teleport->channel.getNum() : -1,
 			aiNk->heroManager->getHeroRoleOrDefaultInefficient(path->targetHero) == HeroRole::SCOUT ? "scout" : "main",
 			path->targetHero->getNameTextID());
 		Composition composition;
 		composition
-			.addNext(OneWayPortalProbe(entrance->visitablePos()))
+			.addNext(OneWayPortalProbe(entrance->visitablePos(), path->targetHero, rewardsBehind))
 			.addNext(ExecuteHeroChain(*path, entrance));
 
 		if(const auto blockedAction = path->getFirstBlockedAction())
