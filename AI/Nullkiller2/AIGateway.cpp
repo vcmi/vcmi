@@ -43,16 +43,6 @@
 namespace NK2AI
 {
 
-static bool containsOwnedTown(
-	const std::vector<const CGObjectInstance *> & objects,
-	PlayerColor player)
-{
-	return vstd::contains_if(objects, [player](const CGObjectInstance * object)
-	{
-		return object->ID == Obj::TOWN && object->getOwner() == player;
-	});
-}
-
 AIGateway::AIGateway()
 	:status(this)
 {
@@ -150,7 +140,8 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 		}
 
 		// the hero usually walks home long after the landing journey has been completed
-		if(containsOwnedTown(toObjects, playerID))
+		const auto * town = findObjectOfType(toObjects, Obj::TOWN);
+		if(town && town->getOwner() == playerID)
 			nullkiller->memory->markOneWayPortalReturn(hero->id);
 	}
 }
@@ -609,9 +600,11 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 
 void AIGateway::saveOneWayPortalState()
 {
-	JsonNode localState = *cc->getPlayerState(playerID)->playerLocalSettings;
+	const JsonNode & storedState = *cc->getPlayerState(playerID)->playerLocalSettings;
+	JsonNode localState = storedState;
 	nullkiller->memory->saveOneWayPortalState(localState["nullkiller2"]["oneWayPortals"]);
-	cc->saveLocalState(localState);
+	if(localState != storedState)
+		cc->saveLocalState(localState);
 }
 
 void AIGateway::yourTurn(QuestionID questionID)

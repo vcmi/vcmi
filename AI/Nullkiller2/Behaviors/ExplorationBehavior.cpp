@@ -57,14 +57,8 @@ bool hasAlternativeProgress(
 	return helper.scanMap();
 }
 
-bool isPortalDesperationHero(
-	const CGHeroInstance * hero,
-	const CGObjectInstance * entrance,
-	const Nullkiller * aiNk)
-{
-	return isSoleNoTownHero(hero, aiNk)
-		&& !hasAlternativeProgress(hero, entrance, aiNk);
-}
+/// Tells whether a hero has nothing left to do on its side of the portal
+using IdleHeroCheck = std::function<bool(const CGHeroInstance *)>;
 
 bool isBetterPortalPath(const AIPath & candidate, const AIPath & current)
 {
@@ -79,8 +73,8 @@ bool isBetterPortalPath(const AIPath & candidate, const AIPath & current)
 
 bool isBetterPortalReinforcementPath(const AIPath & candidate, const AIPath & current)
 {
-	const uint64_t candidateStrength = getPortalHeroStrength(candidate.targetHero, candidate.heroArmy);
-	const uint64_t currentStrength = getPortalHeroStrength(current.targetHero, current.heroArmy);
+	const uint64_t candidateStrength = getHeroFightingStrength(candidate.targetHero, candidate.heroArmy);
+	const uint64_t currentStrength = getHeroFightingStrength(current.targetHero, current.heroArmy);
 	if(candidateStrength != currentStrength)
 		return candidateStrength > currentStrength;
 
@@ -98,7 +92,7 @@ std::optional<uint64_t> getStrongestUnreturnedPortalHeroStrength(
 		if(!hero)
 			continue;
 
-		const uint64_t strength = getPortalHeroStrength(hero, hero);
+		const uint64_t strength = getHeroFightingStrength(hero, hero);
 		if(!result || strength > *result)
 			result = strength;
 	}
@@ -108,7 +102,7 @@ std::optional<uint64_t> getStrongestUnreturnedPortalHeroStrength(
 std::optional<AIPath> findBestPortalPath(
 	const std::vector<AIPath> & paths,
 	const Nullkiller * aiNk,
-	const CGObjectInstance * entrance,
+	const IdleHeroCheck & isIdle,
 	std::optional<HeroRole> requiredRole,
 	std::optional<ObjectInstanceID> requiredHero,
 	std::optional<uint64_t> minimumStrength = std::nullopt,
@@ -176,7 +170,7 @@ std::optional<AIPath> findBestPortalPath(
 		}
 
 		const bool soleHero = isSoleNoTownHero(hero, aiNk);
-		const bool idle = (idleOnly || soleHero) && !hasAlternativeProgress(hero, entrance, aiNk);
+		const bool idle = (idleOnly || soleHero) && isIdle(hero);
 		if(idleOnly && !idle)
 		{
 			logAi->trace(
@@ -207,7 +201,7 @@ std::optional<AIPath> findBestPortalPath(
 			continue;
 		}
 
-		const uint64_t heroStrength = getPortalHeroStrength(hero, path.heroArmy);
+		const uint64_t heroStrength = getHeroFightingStrength(hero, path.heroArmy);
 		if(minimumStrength && heroStrength <= *minimumStrength)
 		{
 			logAi->trace(
@@ -281,7 +275,8 @@ std::optional<AIPath> findPortalProbePath(
 	const CGObjectInstance * entrance,
 	const Nullkiller * aiNk,
 	std::optional<uint64_t> minimumStrength,
-	bool safeLandingOnly)
+	bool safeLandingOnly,
+	const IdleHeroCheck & isIdle)
 {
 	auto paths = aiNk->pathfinder->getPathInfo(
 		entrance->visitablePos(),
@@ -312,7 +307,7 @@ std::optional<AIPath> findPortalProbePath(
 		if(auto reservedPath = findBestPortalPath(
 			paths,
 			aiNk,
-			entrance,
+			isIdle,
 			std::nullopt,
 			reservation,
 			minimumStrength))
@@ -331,14 +326,14 @@ std::optional<AIPath> findPortalProbePath(
 	const bool blindProbe = !minimumStrength;
 	if(blindProbe)
 	{
-		if(auto scoutPath = findBestPortalPath(paths, aiNk, entrance, HeroRole::SCOUT, std::nullopt))
+		if(auto scoutPath = findBestPortalPath(paths, aiNk, isIdle, HeroRole::SCOUT, std::nullopt))
 			return scoutPath;
 	}
 
 	return findBestPortalPath(
 		paths,
 		aiNk,
-		entrance,
+		isIdle,
 		HeroRole::MAIN,
 		std::nullopt,
 		minimumStrength,
@@ -385,7 +380,8 @@ std::vector<const CGObjectInstance *> getObjectsBehindPortal(
 std::optional<AIPath> findPortalCrossingPath(
 	const CGObjectInstance * entrance,
 	const std::vector<const CGObjectInstance *> & objectsBehind,
-	const Nullkiller * aiNk)
+	const Nullkiller * aiNk,
+	const IdleHeroCheck & isIdle)
 {
 	// without a way back the hero needs a town on the other side to keep fighting
 	const bool canSettle = aiNk->memory->hasKnownOneWayPortalReturn(entrance->id)
@@ -396,7 +392,7 @@ std::optional<AIPath> findPortalCrossingPath(
 	const auto paths = aiNk->pathfinder->getPathInfo(
 		entrance->visitablePos(),
 		aiNk->isObjectGraphAllowed());
-	const auto path = findBestPortalPath(paths, aiNk, entrance, HeroRole::MAIN, std::nullopt);
+	const auto path = findBestPortalPath(paths, aiNk, isIdle, HeroRole::MAIN, std::nullopt);
 	if(!path || !isPortalLandingSafe(entrance, *path, aiNk))
 		return std::nullopt;
 
@@ -444,7 +440,8 @@ std::optional<AIPath> findExitVacatingPath(
 std::optional<AIPath> findEntranceGuardPath(
 	const CGObjectInstance * entrance,
 	const CGObjectInstance * guard,
-	const Nullkiller * aiNk)
+	const Nullkiller * aiNk,
+	const IdleHeroCheck & isIdle)
 {
 	std::optional<AIPath> result;
 
@@ -469,7 +466,7 @@ std::optional<AIPath> findEntranceGuardPath(
 		const auto path = findBestPortalPath(
 			paths,
 			aiNk,
-			entrance,
+			isIdle,
 			HeroRole::MAIN,
 			std::nullopt);
 		if(!path)
@@ -536,18 +533,29 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 			continue;
 		}
 
-		const bool desperation = vstd::contains_if(aiNk->cc->getHeroesInfo(), [aiNk, entrance](const CGHeroInstance * hero)
+		// the check walks every known object, so each hero is evaluated at most once per entrance
+		std::map<const CGHeroInstance *, bool> idleHeroes;
+		const IdleHeroCheck isIdle = [&](const CGHeroInstance * hero)
 		{
-			return isPortalDesperationHero(hero, entrance, aiNk);
+			const auto [cached, inserted] = idleHeroes.try_emplace(hero);
+			if(inserted)
+				cached->second = !hasAlternativeProgress(hero, entrance, aiNk);
+			return cached->second;
+		};
+
+		// a sole hero is the only candidate, so this also describes whichever hero ends up probing
+		const bool desperation = vstd::contains_if(aiNk->cc->getHeroesInfo(), [&](const CGHeroInstance * hero)
+		{
+			return isSoleNoTownHero(hero, aiNk) && isIdle(hero);
 		});
 
 		if(const auto * guard = getVisibleEntranceGuard(entrance, aiNk))
 		{
 			aiNk->memory->clearOneWayPortalReservation(entrance->id);
-			const auto mainPath = findEntranceGuardPath(entrance, guard, aiNk);
+			const auto mainPath = findEntranceGuardPath(entrance, guard, aiNk, isIdle);
 			if(mainPath)
 			{
-				logAi->info(
+				logAi->debug(
 					"One-way portal intent: clear entrance guard %d with main hero %s",
 					guard->id.getNum(),
 					mainPath->targetHero->getNameTextID());
@@ -608,14 +616,14 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 		}
 
 		auto path = probeAllowed
-			? findPortalProbePath(entrance, aiNk, reinforcementStrength, expeditionLost)
+			? findPortalProbePath(entrance, aiNk, reinforcementStrength, expeditionLost, isIdle)
 			: std::nullopt;
 
 		// rewards behind a scouted portal can justify sending a main hero that is still busy on this side
 		std::vector<ObjectInstanceID> rewardsBehind;
 		if(!path && probed)
 		{
-			path = findPortalCrossingPath(entrance, objectsBehind, aiNk);
+			path = findPortalCrossingPath(entrance, objectsBehind, aiNk, isIdle);
 			if(path)
 			{
 				for(const auto * object : objectsBehind)
@@ -638,10 +646,9 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 		}
 
 		const auto * teleport = dynamic_cast<const CGTeleport *>(entrance);
-		const bool desperationProbe = isPortalDesperationHero(path->targetHero, entrance, aiNk);
-		logAi->info(
+		logAi->debug(
 			"One-way portal intent: %s entrance %d channel %d with %s hero %s",
-			desperationProbe ? "desperation" : !rewardsBehind.empty() ? "cross" : reinforcementStrength ? "reinforce" : "probe",
+			desperation ? "desperation" : !rewardsBehind.empty() ? "cross" : reinforcementStrength ? "reinforce" : "probe",
 			entrance->id.getNum(),
 			teleport ? teleport->channel.getNum() : -1,
 			aiNk->heroManager->getHeroRoleOrDefaultInefficient(path->targetHero) == HeroRole::SCOUT ? "scout" : "main",

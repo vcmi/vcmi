@@ -225,7 +225,8 @@ int getDuplicatingSlots(const CArmedInstance * army);
 const CGObjectInstance * findObjectOfType(const std::vector<const CGObjectInstance *> & objects, Obj type);
 /// True if this is the only hero of a player that has no towns left
 bool isSoleNoTownHero(const CGHeroInstance * hero, const Nullkiller * aiNk);
-uint64_t getPortalHeroStrength(const CGHeroInstance * hero, const CCreatureSet * army);
+/// Combat value of the army scaled by the primary skills of the hero leading it
+uint64_t getHeroFightingStrength(const CGHeroInstance * hero, const CCreatureSet * army);
 
 template <class T>
 class SharedPool

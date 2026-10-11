@@ -46,7 +46,7 @@ bool isSoleNoTownHero(const CGHeroInstance * hero, const Nullkiller * aiNk)
 		&& heroes.front() == hero;
 }
 
-uint64_t getPortalHeroStrength(const CGHeroInstance * hero, const CCreatureSet * army)
+uint64_t getHeroFightingStrength(const CGHeroInstance * hero, const CCreatureSet * army)
 {
 	return static_cast<uint64_t>(getNormalizedHeroStrength(hero) * army->estimateCombatValue());
 }
@@ -155,7 +155,7 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 
 bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength, float safeAttackRatio)
 {
-	const ui64 heroStrength = getNormalizedHeroStrength(h) * heroArmy->estimateCombatValue();
+	const ui64 heroStrength = getHeroFightingStrength(h, heroArmy);
 
 	if(dangerStrength)
 	{
