@@ -182,6 +182,14 @@
     </message>
 </context>
 <context>
+    <name>CDownloadManager</name>
+    <message>
+        <location filename="../modManager/cdownloadmanager_moc.cpp" line="171"/>
+        <source>Failed to copy file %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CModListView</name>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
@@ -338,8 +346,8 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="217"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1124"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1183"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1188"/>
         <source>mods repository index</source>
         <translation>Index över moddförråd (repon)</translation>
     </message>
@@ -418,23 +426,31 @@
         <source>Open repository</source>
         <translation>Öppna förråd (repo)</translation>
     </message>
+    <message numerus="yes">
+        <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
+        <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="877"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="888"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Laddar ner %1. %p% (%v MB utav %m MB) slutfört</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="906"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="923"/>
         <source>Extracting content.zip (%1/%2) for %3</source>
         <translation>Extraherar innehåll.zip (%1/%2) för %3</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="913"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
         <source>Download failed</source>
         <translation>Nedladdning misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="914"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -455,7 +471,7 @@ Install successfully downloaded?</source>
 Installation framgångsrikt nedladdad?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1097"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
@@ -464,69 +480,69 @@ Orsak: %2.
 Vänligen rapportera detta problem till utvecklarna</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1200"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
         <source>Installing Heroes Chronicles</source>
         <translation>Installerar Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1291"/>
         <source>Extracting error!</source>
         <translation>Extraheringsfel!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1234"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
         <source>Invalid file selected</source>
         <translation>Ogiltig fil vald</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1234"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
         <translation>Du måste välja en installationsfil för Heroes Chronicles!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1425"/>
         <source>Save exists</source>
         <translation>Sparfilen finns redan</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1426"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>Sparfilen &apos;%1&apos; finns redan. Vill du skriva över den?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
         <translation>Det gick inte att importera sparfiler från %1.
 Orsak: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
         <source>Success</source>
         <translation>Lyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
         <source>Imported %1 save files</source>
         <translation>%1 sparfiler har importerats</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1457"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1499"/>
         <source>Installing mod %1</source>
         <translation>Installerar modd %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1489"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1530"/>
         <source>%1 requires: %2</source>
         <translation>%1 kräver: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1492"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1533"/>
         <source>Failed to enable mod</source>
         <translation>Misslyckades med att aktivera modd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1493"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1534"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
@@ -535,34 +551,46 @@ Orsak: %2</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
+        <source>Mods disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
+        <source>Following mods were disabled due to changes in installed mods:
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
         <source>Map exists</source>
         <translation>Kartan existerar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>Kartan ’%1’ finns redan. Vill ni skriva över den?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1003"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1062"/>
         <source>Yes to All</source>
         <translation>Ja till alla</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1004"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1063"/>
         <source>No to All</source>
         <translation>Nej till alla</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
         <source>Import complete</source>
         <translation>Importen är klar</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>%n karta importerades framgångsrikt.</numerusform>
@@ -570,24 +598,24 @@ Orsak: %2</translation>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
         <source>Uninstall mod</source>
         <translation>Avinstallera modd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation>Är ni säker på att ni vill avinstallera %1?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1097"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
         <source>Import failed</source>
         <translation>Importen misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="915"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="932"/>
         <source>
 
 Process successfully downloaded files?</source>
@@ -596,31 +624,47 @@ Process successfully downloaded files?</source>
 Behandla filer som har laddats ner?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1000"/>
+        <source>VCMI could not confirm that it is connected to the real download server.
+
+This usually happens on older systems, such as Windows 7, that are missing recent security updates.
+
+However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. In that case, downloaded files could be replaced with harmful ones.
+
+Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the &quot;Ignore SSL errors&quot; option.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
+        <source>Unable to verify download server</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>Det gick inte att importera följande kartor:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1662"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1696"/>
         <source>Operation failed</source>
         <translation>Åtgärden misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1697"/>
         <source>Encountered errors:
 </source>
         <translation>Fel påträffades:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1715"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1749"/>
         <source>screenshots</source>
         <translation>skärmbilder</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1721"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1755"/>
         <source>Screenshot %1</source>
         <translation>Skärmbild %1</translation>
     </message>
@@ -634,7 +678,7 @@ Behandla filer som har laddats ner?</translation>
     <name>CSettingsView</name>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="128"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="129"/>
         <source>Off</source>
         <translation>Av</translation>
     </message>
@@ -649,17 +693,17 @@ Behandla filer som har laddats ner?</translation>
         <translation>Gränssnittsskalning</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1362"/>
         <source>Neutral AI in battles</source>
         <translation>Neutralt AI i strider</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="911"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="938"/>
         <source>Enemy AI in battles</source>
         <translation>Fiendens AI i strider</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="948"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="975"/>
         <source>Additional repository</source>
         <translation>Ytterligare förråd (repo)</translation>
     </message>
@@ -674,7 +718,7 @@ Behandla filer som har laddats ner?</translation>
         <translation>Port-numret till onlinelobbyn</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1227"/>
         <source>Autocombat AI in battles</source>
         <translation>AI:t för automatiska strider</translation>
     </message>
@@ -684,7 +728,7 @@ Behandla filer som har laddats ner?</translation>
         <translation>Styrspakskänslighet</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1247"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1274"/>
         <source>Automatic (Linear)</source>
         <translation>Automatisk (Linjär)</translation>
     </message>
@@ -694,14 +738,14 @@ Behandla filer som har laddats ner?</translation>
         <translation>Haptisk återkoppling (vibrationer i kontrollen)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="882"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="909"/>
         <source>Software Cursor</source>
         <translation>Programvarustyrd muspekare</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="520"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="675"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="895"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="922"/>
         <source>Automatic</source>
         <translation>Automatisk</translation>
     </message>
@@ -711,7 +755,7 @@ Behandla filer som har laddats ner?</translation>
         <translation>Moddvalidering</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1385"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
         <source>Config editor</source>
         <translation>Konfigurationsredigerare</translation>
     </message>
@@ -746,17 +790,17 @@ Behandla filer som har laddats ner?</translation>
         <translation>Fullständig</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="918"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="945"/>
         <source>Allow portrait mode</source>
         <translation>Tillåt porträttläge</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1039"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1066"/>
         <source>Use scalable fonts</source>
         <translation>Använd skalbara teckensnitt</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1369"/>
         <source>Online Lobby address</source>
         <translation>Adressen till onlinelobbyn</translation>
     </message>
@@ -771,7 +815,7 @@ Behandla filer som har laddats ner?</translation>
         <translation>Markörskalning</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="961"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="988"/>
         <source>Scalable</source>
         <translation>Skalbar</translation>
     </message>
@@ -781,7 +825,7 @@ Behandla filer som har laddats ner?</translation>
         <translation>Diverse</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1443"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1470"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -803,7 +847,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>Teckensnittsskalning (experimentellt)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1020"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1047"/>
         <source>Original</source>
         <translation>Original</translation>
     </message>
@@ -858,32 +902,47 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>Använd läge för relativ pekare</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1222"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="819"/>
+        <source>HTTP proxy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="826"/>
+        <source>Open help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="833"/>
+        <source>Proxy server used for downloads, for example http://host:port or socks5h://host:port. If empty, proxy from environment variables is used</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
         <source>Autosaves per game (0 = unlimited)</source>
         <translation>Antal automatiska sparningar per spel (0 = obegränsat)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1237"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1264"/>
         <source>Nearest</source>
         <translation>Närmast</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1242"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1269"/>
         <source>Linear</source>
         <translation>Linjär</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1282"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1309"/>
         <source>Input - Touchscreen</source>
         <translation>Ingång/indata - Pekskärm</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1550"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1577"/>
         <source>Save Before Visit</source>
         <translation>Spara före besök</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="829"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="856"/>
         <source>Adventure Map Enemies</source>
         <translation>Fiender på äventyrskartan</translation>
     </message>
@@ -903,27 +962,27 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>Nätverk</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="989"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1016"/>
         <source>Audio</source>
         <translation>Ljud</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1436"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1463"/>
         <source>Relative Pointer Speed</source>
         <translation>Relativ pekarhastighet</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="941"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="968"/>
         <source>Music Volume</source>
         <translation>Musikvolym</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1315"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
         <source>Ignore SSL errors</source>
         <translation>Ignorera SSL-fel</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1267"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1294"/>
         <source>Input - Mouse</source>
         <translation>Ingång/indata - Mus</translation>
     </message>
@@ -933,7 +992,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>Långtryckets varaktighet</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1378"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1405"/>
         <source>Controller Click Tolerance</source>
         <translation>Tolerans för klick på styrenhet/kontroll</translation>
     </message>
@@ -943,27 +1002,27 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>Tolerans för pektryck</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1212"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1239"/>
         <source>Input - Controller</source>
         <translation>Ingång/indata - Kontroll</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1308"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
         <source>Sound Volume</source>
         <translation>Ljudvolym</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1456"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1483"/>
         <source>Windowed</source>
         <translation>Fönsterläge</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1461"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1488"/>
         <source>Borderless fullscreen</source>
         <translation>Kantlös helskärm</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1466"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1493"/>
         <source>Exclusive fullscreen</source>
         <translation>Exklusiv helskärm</translation>
     </message>
@@ -991,7 +1050,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>Musklickstolerans</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1136"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1163"/>
         <source>Sticks Acceleration</source>
         <translation>Styrspaks-acceleration</translation>
     </message>
@@ -1010,17 +1069,17 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>Standardförråd (repo)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1229"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
         <source>Renderer</source>
         <translation>Renderingsmotor</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="126"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
         <source>On</source>
         <translation>På</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1255"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1282"/>
         <source>Reserved screen area</source>
         <translation>Reserverat skärmområde</translation>
     </message>
@@ -1035,7 +1094,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>Kontrollera vid uppstart</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1193"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1220"/>
         <source>Fullscreen</source>
         <translation>Visningsläge</translation>
     </message>
@@ -1050,7 +1109,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>VCMI-språk</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="852"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="879"/>
         <source>Resolution</source>
         <translation>Upplösning</translation>
     </message>
@@ -1065,7 +1124,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>Vertikal-synkronisering (VSync)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="886"/>
         <source>Display index</source>
         <translation>Visningsindex/Displayindex</translation>
     </message>
@@ -1075,27 +1134,27 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation>Nätverksport</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1004"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1031"/>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="977"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1004"/>
         <source>Show intro</source>
         <translation>Visa intro</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="137"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="138"/>
         <source>StupidAI (deprecated)</source>
         <translation>StupidAI (föråldrad)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="141"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
         <source>BattleAI (default, recommended)</source>
         <translation>BattleAI (standard, rekommenderas)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="145"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
         <source>MMAI (experimental)</source>
         <translation>MMAI (experimentell)</translation>
     </message>
@@ -1104,37 +1163,37 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
         <translation type="vanished">Nullkiller (ersatt av Nullkiller2)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="158"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="159"/>
         <source>Nullkiller2 (default, recommended)</source>
         <translation>Nullkiller2 (standard, rekommenderas)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="168"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="169"/>
         <source>EmptyAI - No valid AI libraries found!</source>
         <translation>EmptyAI - Inga giltiga AI-bibliotek hittades!</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="763"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="765"/>
         <source>Active</source>
         <translation>Aktiv</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="768"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="770"/>
         <source>Disabled</source>
         <translation>Inaktiverad</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="769"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="771"/>
         <source>Enable</source>
         <translation>Aktivera</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="774"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="776"/>
         <source>Not Installed</source>
         <translation>Inte installerad</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="775"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="777"/>
         <source>Install</source>
         <translation>Installera</translation>
     </message>
@@ -1195,7 +1254,7 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <name>File size</name>
     <message>
         <location filename="../modManager/modstate.cpp" line="159"/>
-        <location filename="../modManager/modstatemodel.cpp" line="101"/>
+        <location filename="../modManager/modstatemodel.cpp" line="106"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
     </message>
@@ -1934,12 +1993,12 @@ Bin-filer (%n byte):
         <translation>Fel vid uppstart av körbar fil</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="460"/>
+        <location filename="../mainwindow_moc.cpp" line="465"/>
         <source>Replace config file?</source>
         <translation>Vill ni ersätta/skriva över konfigurationsfilen?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="460"/>
+        <location filename="../mainwindow_moc.cpp" line="465"/>
         <source>Do you want to replace %1?</source>
         <translation>Vill ni ersätta/skriva över %1?</translation>
     </message>
@@ -1960,79 +2019,101 @@ Bin-filer (%n byte):
 <context>
     <name>ModStateController</name>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="214"/>
         <source>Can not install submod</source>
-        <translation>Kan inte installera undermodd/submodd</translation>
+        <translation type="vanished">Kan inte installera undermodd/submodd</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="217"/>
         <source>Mod is already installed</source>
-        <translation>Modden är redan installerad</translation>
+        <translation type="vanished">Modden är redan installerad</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="226"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="207"/>
         <source>Can not uninstall submod</source>
         <translation>Kan inte avinstallera undermodd/submodd</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="229"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="210"/>
         <source>Mod is not installed</source>
         <translation>Modden är inte installerad</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="242"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="223"/>
+        <source>Mod is not located in user data directory and can not be managed by launcher</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="227"/>
+        <source>Mod directory is a git repository and can not be managed by launcher</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="245"/>
         <source>Mod is already enabled</source>
         <translation>Modden är redan aktiverad</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="245"/>
-        <location filename="../modManager/modstatecontroller.cpp" line="271"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="248"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="274"/>
         <source>Mod must be installed first</source>
         <translation>Modden måste installeras först</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="249"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="252"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
         <translation>Modden är inte kompatibel. Vänligen uppdatera VCMI och kontrollera att ni har de senaste moddrevisionerna</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="252"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="255"/>
         <source>Can not enable translation mod for a different language!</source>
         <translation>Kan inte aktivera översättnings-modd för ett annat språk!</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="257"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Required mod %1 is missing</source>
         <translation>Den obligatoriska modden %1 saknas</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="268"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="271"/>
         <source>Mod is already disabled</source>
         <translation>Modden är redan inaktiverad</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="281"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="304"/>
         <source>Mod archive is missing</source>
         <translation>Modd-arkiv saknas</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="286"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="309"/>
         <source>Mod archive is invalid or corrupted</source>
         <translation>Modd-arkivet är ogiltigt eller felaktigt</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="312"/>
-        <location filename="../modManager/modstatecontroller.cpp" line="332"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="317"/>
+        <source>Failed to remove directory %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="320"/>
+        <source>Failed to create directory %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="352"/>
         <source>Failed to extract mod data</source>
         <translation>Misslyckades att extrahera modd-data</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="344"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="359"/>
+        <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="386"/>
         <source>Mod data was not found</source>
         <translation>Moddata hittades inte</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="348"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="390"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
         <translation>Modden finns i en skyddad mapp. Vänligen ta bort den manuellt:
@@ -2161,30 +2242,30 @@ Bin-filer (%n byte):
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="158"/>
+        <location filename="../main.cpp" line="148"/>
         <source>Error starting executable</source>
         <translation>Fel vid uppstart av körbar fil</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="159"/>
+        <location filename="../main.cpp" line="149"/>
         <source>Failed to start %1
 Reason: %2</source>
         <translation>Startfel %1
 Orsak: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
         <source>Import failed</source>
         <translation>Import misslyckades</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
         <source>Failed to import save %1 from %2</source>
         <translation>Det gick inte att importera det sparade spelet %1 från %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
         <source>Failed to import save file %1</source>
         <translation>Det gick inte att importera den sparade filen %1</translation>
     </message>
@@ -2577,12 +2658,12 @@ Efter installationen måste ni ställa in uppskalningsfiltret på x2 eller högr
         <translation>Sök efter uppdateringar vid uppstart</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="64"/>
+        <location filename="../updatedialog_moc.cpp" line="71"/>
         <source>Network error</source>
         <translation>Nätverksfel</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="101"/>
+        <location filename="../updatedialog_moc.cpp" line="100"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
         <translation>Kan inte läsa in JSON från URL (JSON-data kan vara felaktiga)</translation>
     </message>
