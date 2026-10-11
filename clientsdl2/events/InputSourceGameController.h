@@ -49,7 +49,7 @@ class InputSourceGameController
 	void openGameController(int index);
 	int getJoystickIndex(SDL_GameController * controller);
 	double getRealAxisValue(int value) const;
-	void dispatchAxisShortcuts(int instance, int axisValue, const std::string & axisName);
+	void dispatchAxisShortcuts(int instance, int axisValue, const std::string & axisName, bool consumed = false);
 	void tryToConvertCursor();
 	void doCursorMove(int deltaX, int deltaY);
 	int getMoveDis(float planDis);

@@ -100,6 +100,9 @@ class BattleWindow : public InterfaceObjectConfigurable
 public:
 	BattleWindow(BattleInterface & owner );
 
+	/// Battlefield area available for prompts, excluding visible queue and side panels.
+	Rect controllerPromptArea(Rect field) const;
+
 	/// Closes window once battle finished
 	void close();
 

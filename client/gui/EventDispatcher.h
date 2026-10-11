@@ -37,6 +37,7 @@ class EventDispatcher
 	EventReceiversList panningInterested;
 	EventReceiversList inputModeChangeInterested;
 	EventReceiversList keyNameInterested;
+	EventReceiversList controllerAxisInterested;
 
 	std::vector<AEventsReceiver *> touchPressedElements;
 
@@ -70,11 +71,15 @@ public:
 	void dispatchShortcutPressed(const std::vector<EShortcut> & shortcuts);
 	void dispatchShortcutReleased(const std::vector<EShortcut> & shortcuts);
 
-	void dispatchControllerButtonPressed(int instance, const std::string & control);
+	void dispatchControllerButtonPressed(int instance, const std::string & control, bool consumed = false);
 	void dispatchControllerButtonReleased(int instance, const std::string & control);
 	void cancelControllerInput(bool dismissPopup);
 	void forgetController(int instance);
+	bool isControllerShortcutPressed(EShortcut shortcut) const;
 	void dispatchGesturePanningCanceled();
+
+	bool dispatchControllerAxis(const std::vector<EShortcut> & axes, double value);
+	std::vector<EShortcut> translateControllerShortcuts(std::vector<EShortcut> shortcuts);
 
 	/// Key events (to get keyname of pressed key)
 	void dispatchKeyPressed(const std::string & keyName);

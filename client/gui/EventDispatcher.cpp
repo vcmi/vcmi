@@ -46,6 +46,7 @@ void EventDispatcher::processLists(ui16 activityFlag, const Functor & cb)
 	processList(AEventsReceiver::GESTURE, panningInterested);
 	processList(AEventsReceiver::INPUT_MODE_CHANGE, inputModeChangeInterested);
 	processList(AEventsReceiver::KEY_NAME, keyNameInterested);
+	processList(AEventsReceiver::CONTROLLER_AXIS, controllerAxisInterested);
 }
 
 void EventDispatcher::activateElement(AEventsReceiver * elem, ui16 activityFlag)
@@ -82,12 +83,18 @@ void EventDispatcher::dispatchTimer(uint32_t msPassed)
 	}
 }
 
-void EventDispatcher::dispatchControllerButtonPressed(int instance, const std::string & control)
+void EventDispatcher::dispatchControllerButtonPressed(int instance, const std::string & control, bool consumed)
 {
 	const auto identity = std::make_pair(instance, control);
 	if(controllerPresses.count(identity))
 		return;
-	const auto shortcuts = ENGINE->shortcuts().translateJoystickButton(control);
+	if(consumed)
+	{
+		// Keep consumed analog presses paired until release, including across window changes.
+		controllerPresses.emplace(identity, ControllerPress{{}, {}, true});
+		return;
+	}
+	const auto shortcuts = translateControllerShortcuts(ENGINE->shortcuts().translateJoystickButton(control));
 	const auto window = ENGINE->windows().topWindow<IShowActivatable>();
 	controllerPresses.emplace(identity, ControllerPress{shortcuts, window});
 	dispatchKeyPressed(control);
@@ -145,8 +152,23 @@ void EventDispatcher::cancelControllerInput(bool dismissPopup)
 				if(vstd::contains(keyinterested, receiver))
 					receiver->keyCanceled(shortcut);
 	}
+	const auto receivers = controllerAxisInterested;
+	for(auto receiver : receivers)
+		if(vstd::contains(controllerAxisInterested, receiver))
+			receiver->controllerInputCanceled();
 	if(dismissPopup && popup && ENGINE->windows().isTopWindow(popup))
 		ENGINE->windows().popWindow(popup);
+}
+
+bool EventDispatcher::isControllerShortcutPressed(EShortcut shortcut) const
+{
+	const auto window = ENGINE->windows().topWindow<IShowActivatable>();
+	return std::any_of(controllerPresses.begin(), controllerPresses.end(), [&](const auto & entry)
+	{
+		const auto & press = entry.second;
+		return !press.canceled && press.window.lock() == window
+			&& vstd::contains(press.shortcuts, shortcut);
+	});
 }
 
 void EventDispatcher::forgetController(int instance)
@@ -163,6 +185,23 @@ void EventDispatcher::dispatchGesturePanningCanceled()
 			receiver->panningState = false;
 			receiver->gestureCanceled();
 		}
+}
+
+bool EventDispatcher::dispatchControllerAxis(const std::vector<EShortcut> & axes, double value)
+{
+	bool consumed = false;
+	for(auto receiver : controllerAxisInterested)
+		for(auto axis : axes)
+			consumed = receiver->controllerAxisMoved(axis, value) || consumed;
+	return consumed;
+}
+
+std::vector<EShortcut> EventDispatcher::translateControllerShortcuts(std::vector<EShortcut> shortcuts)
+{
+	for(auto receiver : keyinterested)
+		if(receiver->translateControllerShortcuts(shortcuts))
+			break;
+	return shortcuts;
 }
 
 void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & shortcutsVector)

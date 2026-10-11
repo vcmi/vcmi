@@ -78,9 +78,13 @@ public:
 	virtual void textInputted(const std::string & enteredText) {}
 	virtual void textEdited(const std::string & enteredText) {}
 
+	virtual bool controllerAxisMoved(EShortcut axis, double value) { return false; }
+	virtual bool translateControllerShortcuts(std::vector<EShortcut> & shortcuts) const { return false; }
+
 	virtual void keyPressed(EShortcut key) {}
 	virtual void keyReleased(EShortcut key) {}
 	virtual void keyCanceled(EShortcut key) {}
+	virtual void controllerInputCanceled() {}
 
 	virtual void keyPressed(const std::string & keyName) {}
 	virtual void keyReleased(const std::string & keyName) {}
@@ -110,7 +114,8 @@ public:
 		DRAG                = 1 << 11,
 		INPUT_MODE_CHANGE   = 1 << 12,
 		DRAG_POPUP          = 1 << 13,
-		KEY_NAME            = 1 << 14
+		KEY_NAME            = 1 << 14,
+		CONTROLLER_AXIS     = 1 << 15
 	};
 
 	/// Returns true if element is currently hovered by mouse

@@ -216,10 +216,10 @@ double InputSourceGameController::getRealAxisValue(int value) const
 	return clampedValue;
 }
 
-void InputSourceGameController::dispatchAxisShortcuts(int instance, int axisValue, const std::string & axisName)
+void InputSourceGameController::dispatchAxisShortcuts(int instance, int axisValue, const std::string & axisName, bool consumed)
 {
 	if(getRealAxisValue(axisValue) > configTriggerThreshold)
-		ENGINE->events().dispatchControllerButtonPressed(instance, axisName);
+		ENGINE->events().dispatchControllerButtonPressed(instance, axisName, consumed);
 	else
 		ENGINE->events().dispatchControllerButtonReleased(instance, axisName);
 }
@@ -236,6 +236,17 @@ void InputSourceGameController::handleEventAxisMotion(const SDL_GamepadAxisEvent
 	std::string axisName = SDL_GetGamepadStringForAxis(axisID);
 
 	auto axisActions = ENGINE->shortcuts().translateJoystickAxis(axisName);
+
+	if(ENGINE->events().dispatchControllerAxis(axisActions, getRealAxisValue(axis.value)))
+	{
+		cursorAxisValueX = 0;
+		cursorAxisValueY = 0;
+		scrollAxisValueX = 0;
+		scrollAxisValueY = 0;
+		scrollAxisMoved = false;
+		dispatchAxisShortcuts(axis.which, axis.value, axisName, true);
+		return;
+	}
 
 	for(const auto & action : axisActions)
 	{

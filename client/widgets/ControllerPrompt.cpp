@@ -47,7 +47,13 @@ std::optional<Glyph> resolve(Family family, const std::vector<std::string> & bin
 			}
 			return result;
 		}
-
+		if((binding == "leftshoulder" || binding == "rightshoulder") && state != State::DISABLED)
+		{
+			const std::string prefix = family == Family::PLAYSTATION ? "playstation" : "generic";
+			result.image = "controllerActionBar/" + prefix + "-shoulders-" + suffix + ".png";
+			result.source = Rect(binding == "leftshoulder" ? 0 : 36, 0, 36, 20);
+			return result;
+		}
 	}
 
 	// Unrecognized and compound remaps retain their exact configured names.

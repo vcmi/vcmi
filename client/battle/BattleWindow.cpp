@@ -418,6 +418,34 @@ void BattleWindow::updateQueue()
 	createQuickSpellWindow();
 }
 
+Rect BattleWindow::controllerPromptArea(Rect field) const
+{
+	const int center = field.center().x;
+	if(!queue->isDisabled() && queue->pos.intersectionTest(field))
+	{
+		const int bottom = queue->pos.y + queue->pos.h + 3;
+		field.h -= bottom - field.y;
+		field.y = bottom;
+	}
+	const std::array<const BattleSidePanel *, 4> panels = {
+		defenderHeroWindow.get(), attackerHeroWindow.get(), defenderStackWindow.get(), attackerStackWindow.get()};
+	for(const auto panel : panels)
+	{
+		const auto bounds = panel ? panel->visibleContentBounds() : std::nullopt;
+		if(!bounds || !bounds->intersectionTest(field))
+			continue;
+		if(bounds->center().x < center)
+		{
+			const int left = bounds->x + bounds->w + 3;
+			field.w -= left - field.x;
+			field.x = left;
+		}
+		else
+			field.w = bounds->x - 3 - field.x;
+	}
+	return field;
+}
+
 void BattleWindow::setPositionInfoWindow()
 {
 	int xOffsetAttacker = quickSpellWindow->isDisabled() ? 0 : -51;

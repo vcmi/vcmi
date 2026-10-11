@@ -13,6 +13,7 @@
 
 #include "../../CPlayerInterface.h"
 #include "../../GameEngine.h"
+#include "events/InputHandler.h"
 #include "../../GameInstance.h"
 #include "../../gui/Shortcut.h"
 #include "../../gui/ShortcutHandler.h"
@@ -89,7 +90,7 @@ void KeyBindingsWindow::fillList(int start)
 			for(auto & elem : group->second.Struct())
 			{
 				if(i >= start)
-					listElements.push_back(std::make_shared<KeyBindingElement>(elem.first, elem.second, listElements.size(), [this, group](const std::string & id, const std::string & keyName){
+					listElements.push_back(std::make_shared<KeyBindingElement>(elem.first, ENGINE->shortcuts().resolveBinding(elem.second, ENGINE->input().getActiveControllerPromptFamily()), listElements.size(), [this, group](const std::string & id, const std::string & keyName){
 						auto str = MetaString::createFromTextID("vcmi.keyBindings.inputSet");
 						str.replaceTextID("vcmi.keyBindings.keyBinding." + id);
 						str.replaceRawString(keyName);
@@ -110,7 +111,7 @@ void KeyBindingsWindow::fillList(int start)
 
 void KeyBindingsWindow::setKeyBinding(const std::string & id, const std::string & group, const std::string & keyName, bool append)
 {
-	auto existing = keyBindingsConfig[group][id];
+	auto existing = ENGINE->shortcuts().resolveBinding(keyBindingsConfig[group][id], ENGINE->input().getActiveControllerPromptFamily());
 	Settings existingWrite = keyBindingsConfig.write[group][id];
 	if((existing.isVector() || (existing.isString() && !existing.String().empty())) && append)
 	{
