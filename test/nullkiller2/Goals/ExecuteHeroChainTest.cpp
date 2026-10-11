@@ -45,18 +45,6 @@ public:
 	int movementRequests = 0;
 };
 
-NK2AI::AIPathNodeInfo pathNode(const CGHeroInstance & hero, const int3 & coordinate)
-{
-	NK2AI::AIPathNodeInfo node{};
-	node.coord = coordinate;
-	node.layer = EPathfindingLayer::LAND;
-	node.targetHero = &hero;
-	node.parentIndex = -1;
-	node.chainMask = 1;
-	node.turns = 0;
-	return node;
-}
-
 class ExecuteHeroChainMovementTest : public NullkillerTest
 {
 protected:

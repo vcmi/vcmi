@@ -42,12 +42,10 @@ TinyH3M::TinyH3MBuilder makePlannedArmyEvaluationMap()
 	return builder;
 }
 
-class PlannedArmyEvaluationTest : public NullkillerTest
-{
-};
+using Nullkiller2_Engine_PriorityEvaluatorMap = NullkillerTest;
 }
 
-TEST_F(PlannedArmyEvaluationTest, UsesPlannedArmyForGlobalLossBudget)
+TEST_F(Nullkiller2_Engine_PriorityEvaluatorMap, lossBudgetScalesWithCommittedArmyShare)
 {
 	startWithMap(makePlannedArmyEvaluationMap());
 
@@ -63,20 +61,13 @@ TEST_F(PlannedArmyEvaluationTest, UsesPlannedArmyForGlobalLossBudget)
 	path.heroArmy = plannedArmy;
 	path.exchangeCount = 1;
 	path.targetObjectDanger = 0;
-	path.armyLoss = plannedArmy->estimateCombatValue() * 2 / 5;
+	// the whole player-wide budget, lost by an army that is half of the matching forces
+	path.armyLoss = static_cast<uint64_t>(plannedArmy->estimateCombatValue() * gateway->nullkiller->settings->getMaxArmyLossTarget());
 	path.targetObjectArmyLoss = 0;
 	path.chainMask = 1;
-	path.nodes.push_back({
-		0.5f,
-		0,
-		{8, 5, 0},
-		EPathfindingLayer::LAND,
-		0,
-		targetHero,
-		-1,
-		1,
-		{},
-		false});
+	auto node = pathNode(*targetHero, {8, 5, 0});
+	node.cost = 0.5f;
+	path.nodes.push_back(node);
 
 	const auto task = sptr(NK2AI::Goals::Composition()
 		.addNext(NK2AI::Goals::ExplorationPoint({8, 5, 0}, 80))

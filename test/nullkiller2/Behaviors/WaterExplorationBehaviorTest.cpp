@@ -47,7 +47,7 @@ TinyH3M::TinyH3MBuilder makeShipyardMap(PlayerColor shipyardOwner)
 	return builder;
 }
 
-class WaterExplorationBehaviorTest : public NullkillerTest
+class Nullkiller2_Behaviors_WaterExploration : public NullkillerTest
 {
 public:
 	/// Starts the game with everything visible except a patch of sea beyond walking sight
@@ -69,13 +69,7 @@ public:
 	{
 		gateway = makeGateway(PLAYER);
 		findAll<CGHeroInstance>().front()->setMovementPoints(2500);
-		ai().heroManager->update();
-
-		NK2AI::PathfinderSettings settings;
-		settings.useHeroChain = false;
-		settings.useDimensionDoor = false;
-		ai().pathfinder->updatePaths(ai().getHeroesForPathfinding(), settings);
-		ai().decomposer->reset();
+		NullkillerTest::preparePlanning(*gateway);
 	}
 
 	NK2AI::Nullkiller & ai()
@@ -116,7 +110,7 @@ public:
 };
 }
 
-TEST_F(WaterExplorationBehaviorTest, OwnShipyardRouteBuildsBoatToReachHiddenSea)
+TEST_F(Nullkiller2_Behaviors_WaterExploration, ownShipyardRouteBuildsBoatToReachHiddenSea)
 {
 	start(PLAYER);
 	preparePlanning();
@@ -137,7 +131,7 @@ TEST_F(WaterExplorationBehaviorTest, OwnShipyardRouteBuildsBoatToReachHiddenSea)
 	EXPECT_TRUE(sailsFromShipyard);
 }
 
-TEST_F(WaterExplorationBehaviorTest, UncapturedShipyardIsVisitedFirst)
+TEST_F(Nullkiller2_Behaviors_WaterExploration, uncapturedShipyardIsVisitedFirst)
 {
 	start(PlayerColor::NEUTRAL);
 	preparePlanning();
@@ -153,7 +147,7 @@ TEST_F(WaterExplorationBehaviorTest, UncapturedShipyardIsVisitedFirst)
 	EXPECT_TRUE(visitsShipyard);
 }
 
-TEST_F(WaterExplorationBehaviorTest, MissingBoatResourcesAreReservedOnce)
+TEST_F(Nullkiller2_Behaviors_WaterExploration, missingBoatResourcesAreReservedOnce)
 {
 	start(PLAYER);
 	setResource(EGameResID::WOOD, 7);

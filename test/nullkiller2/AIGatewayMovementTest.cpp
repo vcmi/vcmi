@@ -8,104 +8,27 @@
  */
 #include "StdInc.h"
 
-#include "AI/Nullkiller2/AIGateway.h"
-#include "quest/QuestTest.h"
+#include "mock/TinyH3MBuilder.h"
+#include "nullkiller2/NullkillerTest.h"
+#include "nullkiller2/ScriptedMovementClient.h"
 
-#include "lib/CPlayerState.h"
 #include "lib/callback/CCallback.h"
-#include "lib/callback/IClient.h"
-#include "lib/mapObjects/CGHeroInstance.h"
-#include "lib/networkPacks/PacksForClient.h"
-#include "lib/networkPacks/PacksForServer.h"
 
 namespace
 {
 const PlayerColor PLAYER(0);
 
-enum class MovementReply
-{
-	ExhaustAfterFirstStep,
-	FailFirstStep
-};
-
-class RecordingMovementClient : public IClient
-{
-public:
-	std::optional<BattleAction> makeSurrenderRetreatDecision(PlayerColor, const BattleID &, const BattleStateInfoForRetreat &) override
-	{
-		return std::nullopt;
-	}
-
-	int sendRequest(const CPackForServer & request, PlayerColor, bool) override
-	{
-		const auto * movement = dynamic_cast<const MoveHero *>(&request);
-		if(!movement)
-			return ++lastRequestID;
-
-		auto * hero = gameState->getHero(movement->hid);
-		EXPECT_NE(hero, nullptr);
-		EXPECT_FALSE(movement->path.empty());
-		if(!hero || movement->path.empty())
-			return ++lastRequestID;
-
-		movementRequests++;
-		requestedDestinations.push_back(movement->path.back());
-
-		if(movementRequests > 1)
-		{
-			ADD_FAILURE() << "AI sent MoveHero after movement had already stopped; stale destination was " << movement->path.back().toString();
-			applyMovement(*hero, movement->path.back(), TryMoveHero::FAILED, hero->movementPointsRemaining());
-			return ++lastRequestID;
-		}
-
-		if(reply == MovementReply::FailFirstStep)
-			applyMovement(*hero, movement->path.back(), TryMoveHero::FAILED, hero->movementPointsRemaining());
-		else
-			applyMovement(*hero, movement->path.back(), TryMoveHero::SUCCESS, 0);
-
-		return ++lastRequestID;
-	}
-
-	void connect(CGameState & state, NK2AI::AIGateway & aiGateway, MovementReply replyMode)
-	{
-		gameState = &state;
-		gateway = &aiGateway;
-		reply = replyMode;
-	}
-
-	int movementRequests = 0;
-	std::vector<int3> requestedDestinations;
-
-private:
-	void applyMovement(const CGHeroInstance & hero, const int3 & destination, TryMoveHero::EResult result, ui32 movePoints)
-	{
-		TryMoveHero movementResult;
-		movementResult.id = hero.id;
-		movementResult.start = hero.pos;
-		movementResult.end = destination;
-		movementResult.result = result;
-		movementResult.movePoints = movePoints;
-
-		gameState->apply(movementResult);
-		gateway->heroMoved(movementResult, false);
-	}
-
-	CGameState * gameState = nullptr;
-	NK2AI::AIGateway * gateway = nullptr;
-	MovementReply reply = MovementReply::ExhaustAfterFirstStep;
-	int lastRequestID = 0;
-};
-
-class AIGatewayMovementTest : public QuestTest
+class Nullkiller2_AIGateway : public NullkillerTest
 {
 protected:
-	void startGame(MovementReply reply)
+	void startGame()
 	{
 		TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
 		builder.size(36, false)
 			.playerActive(PLAYER)
 			.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
-			.heroGarrison({{CreatureID::ARCHER, 1}});
+			.heroGarrison({{CreatureID::ARCHER, 1}})
+			.terrain(UNREACHABLE_TILE, TerrainId::ROCK);
 
 		startWithMap(std::move(builder));
 		revealMap(PLAYER);
@@ -114,21 +37,15 @@ protected:
 		ASSERT_NE(hero, nullptr);
 		hero->setMovementPoints(2000);
 
-		callback = std::make_shared<CCallback>(gameState(), std::optional<PlayerColor>{PLAYER}, &client);
-		gateway = std::make_unique<NK2AI::AIGateway>();
-		gateway->initGameInterface(std::shared_ptr<Environment>(), callback);
-		client.connect(*gameState(), *gateway, reply);
+		client = std::make_unique<ScriptedMovementClient>(gameState());
+		callback = makeCallback(PLAYER, client.get());
+		gateway = makeGateway(callback);
+		client->notify(*gateway);
 	}
 
-	void revealMap(PlayerColor player)
+	NK2AI::HeroMovementResult moveHeroTo(const int3 & destination)
 	{
-		auto * team = gameState()->getPlayerTeam(player);
-		ASSERT_NE(team, nullptr);
-
-		for(int z = 0; z < map()->levels(); ++z)
-			for(int x = 0; x < map()->width; ++x)
-				for(int y = 0; y < map()->height; ++y)
-					team->fogOfWarMap[int3(x, y, z)] = 1;
+		return gateway->moveHeroToTile(destination, NK2AI::HeroPtr(hero, callback.get()));
 	}
 
 	int3 distantDestination() const
@@ -136,32 +53,44 @@ protected:
 		return hero->visitablePos() + int3(4, 0, 0);
 	}
 
-	RecordingMovementClient client;
+	const int3 UNREACHABLE_TILE{20, 20, 0};
+
+	std::unique_ptr<ScriptedMovementClient> client;
 	std::shared_ptr<CCallback> callback;
 	std::unique_ptr<NK2AI::AIGateway> gateway;
 	CGHeroInstance * hero = nullptr;
 };
 }
 
-TEST_F(AIGatewayMovementTest, stopsRouteWhenMoveConsumesLastMovementPoint)
+TEST_F(Nullkiller2_AIGateway, stopsRouteWhenMoveConsumesLastMovementPoint)
 {
-	startGame(MovementReply::ExhaustAfterFirstStep);
+	startGame();
+	client->exhaustMovement();
 
 	const auto destination = distantDestination();
 
-	EXPECT_EQ(gateway->moveHeroToTile(destination, NK2AI::HeroPtr(hero, callback.get())), NK2AI::HeroMovementResult::PROGRESSED);
-	EXPECT_EQ(client.movementRequests, 1) << "the AI must not send a stale MoveHero after the hero reaches 0 movement points";
+	EXPECT_EQ(moveHeroTo(destination), NK2AI::HeroMovementResult::PROGRESSED);
+	EXPECT_EQ(client->movementRequests, 1) << "a hero without movement points must not request further steps";
 	EXPECT_EQ(hero->movementPointsRemaining(), 0);
 	EXPECT_NE(hero->visitablePos(), destination);
 }
 
-TEST_F(AIGatewayMovementTest, throwsAndStopsRouteAfterFailedMovePacket)
+TEST_F(Nullkiller2_AIGateway, throwsAndStopsRouteAfterFailedMovePacket)
 {
-	startGame(MovementReply::FailFirstStep);
+	startGame();
+	client->failMovement();
 
 	const auto startPosition = hero->visitablePos();
 
-	EXPECT_THROW(gateway->moveHeroToTile(distantDestination(), NK2AI::HeroPtr(hero, callback.get())), NK2AI::cannotFulfillGoalException);
-	EXPECT_EQ(client.movementRequests, 1) << "the AI must not continue through cached path nodes after TryMoveHero::FAILED";
+	EXPECT_THROW(moveHeroTo(distantDestination()), NK2AI::cannotFulfillGoalException);
+	EXPECT_EQ(client->movementRequests, 1) << "a rejected step must end the route";
 	EXPECT_EQ(hero->visitablePos(), startPosition);
+}
+
+TEST_F(Nullkiller2_AIGateway, reportsUnreachableTileAsBlocked)
+{
+	startGame();
+
+	EXPECT_EQ(moveHeroTo(UNREACHABLE_TILE), NK2AI::HeroMovementResult::BLOCKED);
+	EXPECT_EQ(client->movementRequests, 0);
 }

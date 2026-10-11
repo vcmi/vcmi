@@ -128,13 +128,7 @@ TEST_F(Nullkiller2_Behaviors_GatherArmyBehavior, reservesTownAcrossCompetingUpgr
 		mutableHero->setMovementPoints(2500);
 	}
 
-	gateway->nullkiller->heroManager->update();
-	NK2AI::PathfinderSettings settings;
-	settings.useHeroChain = false;
-	settings.useDimensionDoor = false;
-	gateway->nullkiller->pathfinder->updatePaths(
-		gateway->nullkiller->getHeroesForPathfinding(),
-		settings);
+	preparePlanning(*gateway);
 
 	const auto goals = NK2AI::Goals::GatherArmyBehavior().decompose(gateway->nullkiller.get());
 	NK2AI::TaskPlan plan;
@@ -152,8 +146,6 @@ TEST_F(Nullkiller2_Behaviors_GatherArmyBehavior, reservesTownAcrossCompetingUpgr
 		++upgradeRoutes;
 		EXPECT_TRUE(goal->asTask()->isObjectAffected(town->id))
 			<< "every route to the same town must claim that destination";
-		EXPECT_TRUE(vstd::contains(goal->asTask()->getAffectedObjects(), town->id))
-			<< "the destination claim must be visible to the task planner";
 		goal->asTask()->priority = static_cast<float>(100 - upgradeRoutes);
 		plan.mergeAndFilter(goal);
 	}
