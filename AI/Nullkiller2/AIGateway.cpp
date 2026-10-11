@@ -138,11 +138,6 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 					journey->first.getNum());
 			}
 		}
-
-		// the hero usually walks home long after the landing journey has been completed
-		const auto * town = findObjectOfType(toObjects, Obj::TOWN);
-		if(town && town->getOwner() == playerID)
-			nullkiller->memory->markOneWayPortalReturn(hero->id);
 	}
 }
 

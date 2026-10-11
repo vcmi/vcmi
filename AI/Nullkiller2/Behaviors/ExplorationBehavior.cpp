@@ -324,7 +324,8 @@ std::optional<AIPath> findPortalProbePath(
 
 	// a blind probe is a job for scouts; a main hero only goes when it has nothing left to do on this side
 	const bool blindProbe = !minimumStrength;
-	if(blindProbe)
+	// a scout learns nothing new from a portal that has already swallowed an expedition
+	if(blindProbe && !safeLandingOnly)
 	{
 		if(auto scoutPath = findBestPortalPath(paths, aiNk, isIdle, HeroRole::SCOUT, std::nullopt))
 			return scoutPath;
@@ -392,7 +393,14 @@ std::optional<AIPath> findPortalCrossingPath(
 	const auto paths = aiNk->pathfinder->getPathInfo(
 		entrance->visitablePos(),
 		aiNk->isObjectGraphAllowed());
-	const auto path = findBestPortalPath(paths, aiNk, isIdle, HeroRole::MAIN, std::nullopt);
+	// a hero no stronger than those already across can take nothing they can not
+	const auto path = findBestPortalPath(
+		paths,
+		aiNk,
+		isIdle,
+		HeroRole::MAIN,
+		std::nullopt,
+		getStrongestUnreturnedPortalHeroStrength(entrance, aiNk));
 	if(!path || !isPortalLandingSafe(entrance, *path, aiNk))
 		return std::nullopt;
 
@@ -533,6 +541,14 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 			continue;
 		}
 
+		// a hero that can walk into the entrance again has found the way back
+		for(const ObjectInstanceID heroId : aiNk->memory->getUnreturnedOneWayPortalHeroes(entrance->id))
+		{
+			const auto * hero = aiNk->cc->getHero(heroId);
+			if(hero && aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), entrance->visitablePos()))
+				aiNk->memory->markOneWayPortalReturn(heroId);
+		}
+
 		// the check walks every known object, so each hero is evaluated at most once per entrance
 		std::map<const CGHeroInstance *, bool> idleHeroes;
 		const IdleHeroCheck isIdle = [&](const CGHeroInstance * hero)
@@ -593,9 +609,12 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 		bool probeAllowed = true;
 		bool expeditionLost = false;
 
-		if(probed
-			&& !aiNk->memory->hasKnownOneWayPortalReturn(entrance->id)
-			&& !desperation)
+		if(probed && !desperation && aiNk->memory->hasKnownOneWayPortalReturn(entrance->id))
+		{
+			// nothing is left to reveal, so further traffic has to be paid for by the objects behind the portal
+			probeAllowed = false;
+		}
+		else if(probed && !desperation)
 		{
 			reinforcementStrength = getStrongestUnreturnedPortalHeroStrength(entrance, aiNk);
 			// nobody is left to report from the other side, so the next hero relies on what is visible there
@@ -626,9 +645,24 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 			path = findPortalCrossingPath(entrance, objectsBehind, aiNk, isIdle);
 			if(path)
 			{
+				const auto expedition = aiNk->memory->getUnreturnedOneWayPortalHeroes(entrance->id);
 				for(const auto * object : objectsBehind)
 				{
-					if(shouldVisit(aiNk, path->targetHero, object))
+					if(!shouldVisit(aiNk, path->targetHero, object))
+						continue;
+
+					// whatever the heroes already across can safely take is theirs and justifies nobody else
+					const auto objectPaths = aiNk->pathfinder->getPathInfo(object->visitablePos(), false);
+					const bool takenByExpedition = vstd::contains_if(objectPaths, [&](const AIPath & objectPath)
+					{
+						return vstd::contains(expedition, objectPath.targetHero->id)
+							&& isSafeToVisit(
+								objectPath.targetHero,
+								objectPath.heroArmy,
+								objectPath.getTotalDanger(),
+								aiNk->settings->getSafeAttackRatio());
+					});
+					if(!takenByExpedition)
 						rewardsBehind.push_back(object->id);
 				}
 			}

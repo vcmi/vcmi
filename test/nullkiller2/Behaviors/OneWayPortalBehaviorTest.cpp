@@ -113,13 +113,14 @@ public:
 		return builder;
 	}
 
-	/// Main and scout with a treasure at home; the far side is cut off by water and holds another treasure
+	/// Main and scout with a treasure at home; the far side is cut off by water and holds a treasure guarded against scouts
 	static TinyH3M::TinyH3MBuilder makeRewardsBehindPortalMap(bool withFarTown)
 	{
 		auto builder = makeOneWayPortalMap({500, 1});
 		builder
 			.resource({8, 12, 0}, GameResID::GOLD, 1000)
-			.resource({28, 26, 0}, GameResID::GOLD, 1000);
+			.resource({28, 26, 0}, GameResID::GOLD, 1000)
+			.monster({29, 26, 0}, CreatureID::ARCHER, 50);
 
 		if(withFarTown)
 			builder.randomTown({30, 30, 0}, PlayerColor::NEUTRAL);
@@ -562,7 +563,7 @@ TEST_F(Nullkiller2_Behaviors_OneWayPortal, reloadedProbeWithoutReturnDoesNotSche
 		<< "loading a save after a probe must not send another scout through the same portal";
 }
 
-TEST_F(Nullkiller2_Behaviors_OneWayPortal, returningThroughPortalChainAllowsOneScoutOnNextTurn)
+TEST_F(Nullkiller2_Behaviors_OneWayPortal, scoutedPortalWithReturnRouteIsNotProbedAgain)
 {
 	const int3 returnEntrance(24, 20, 0);
 	const int3 returnExit(12, 20, 0);
@@ -571,19 +572,35 @@ TEST_F(Nullkiller2_Behaviors_OneWayPortal, returningThroughPortalChainAllowsOneS
 	builder
 		.oneWayPortalEntrance(returnEntrance, 1)
 		.oneWayPortalExit(returnExit, 1);
+	addWaterWall(builder);
 	start(std::move(builder));
 
 	auto * firstScout = scout();
 	sendThroughPortal(*firstScout);
 	teleportHero(*firstScout, *requireObjectAt(returnEntrance), *requireObjectAt(returnExit));
-	returnHeroToTown(*firstScout);
+	advanceDay();
 
 	EXPECT_TRUE(portalTasks(decomposePortalBehavior()).empty())
-		<< "one entrance must not be traversed twice in the same turn";
+		<< "a portal that has nothing left to reveal must not keep pulling idle heroes through";
+}
 
+TEST_F(Nullkiller2_Behaviors_OneWayPortal, ownTownBehindPortalIsNotReturnRoute)
+{
+	const int3 farTown(30, 30, 0);
+
+	auto builder = makeOneWayPortalMap({500, 1, 1});
+	builder.randomTown(farTown, PLAYER);
+	addWaterWall(builder);
+	start(std::move(builder));
+
+	auto * firstScout = scout();
+	sendThroughPortal(*firstScout);
+	moveHero(*firstScout, exit->visitablePos() + int3(0, 1, 0));
+	moveHero(*firstScout, requireObjectAt(farTown)->visitablePos());
 	advanceDay();
-	EXPECT_EQ(portalTasks(decomposePortalBehavior()).size(), 1)
-		<< "a scout that returned through a portal chain must reopen every entrance in that chain";
+
+	EXPECT_TRUE(portalTasks(decomposePortalBehavior()).empty())
+		<< "a scout resting in a town it can not leave towards home has not found a way back";
 }
 
 TEST_F(Nullkiller2_Behaviors_OneWayPortal, busyMainDoesNotProbeWhileScoutIsUnavailable)
@@ -639,4 +656,31 @@ TEST_F(Nullkiller2_Behaviors_OneWayPortal, busyMainCrossesForTownBehindPortal)
 	EXPECT_EQ(evaluator.evaluate(crossings.front(), NK2AI::PriorityEvaluator::PriorityTier::ONE_WAY_PORTAL_PROBE, context), 0)
 		<< "a crossing for rewards must not run ahead of ordinary gathering";
 	EXPECT_GT(context.goldReward, 0);
+}
+
+TEST_F(Nullkiller2_Behaviors_OneWayPortal, secondMainDoesNotFollowStrongerMainAcross)
+{
+	auto builder = makeRewardsBehindPortalMap(true);
+	// the second town lets the AI keep two main heroes
+	builder
+		.randomTown({5, 15, 0}, PLAYER)
+		.hero({11, 10, 0}, HeroTypeID(2), PLAYER)
+		.heroGarrison({{CreatureID::ARCHER, 400}});
+	start(std::move(builder));
+
+	const auto heroes = heroesByStrength();
+	ASSERT_EQ(heroes.size(), 3);
+	sendThroughPortal(*heroes.back());
+	moveHero(*heroes.back(), exit->visitablePos() + int3(1, 0, 0));
+	advanceDay();
+
+	const auto crossings = portalTasks(decomposePortalBehavior());
+	ASSERT_EQ(crossings.size(), 1);
+	auto * firstMain = crossings.front()->asTask()->isObjectAffected(heroes[0]->id) ? heroes[0] : heroes[1];
+	sendThroughPortal(*firstMain);
+	moveHero(*firstMain, exit->visitablePos() + int3(1, 1, 0));
+	advanceDay();
+
+	EXPECT_TRUE(portalTasks(decomposePortalBehavior()).empty())
+		<< "rewards that a main hero behind the portal can take must not pull the remaining heroes after it";
 }
