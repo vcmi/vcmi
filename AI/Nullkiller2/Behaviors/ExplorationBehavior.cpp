@@ -30,15 +30,38 @@ using namespace Goals;
 
 namespace
 {
+/// Tells whether the hero has a safe task left on its side; `exclusiveOnly` limits that to objects no other own hero can reach
 bool hasAlternativeProgress(
 	const CGHeroInstance * hero,
-	const CGObjectInstance * entrance,
-	const Nullkiller * aiNk)
+	const Nullkiller * aiNk,
+	bool exclusiveOnly = false)
 {
-	for(const ObjectInstanceID objectId : aiNk->memory->visitableObjs)
+	// only the objects that capturing would offer count: visited or quest-locked ones never turn into a task
+	const HeroPtr heroPtr(hero, aiNk->cc.get());
+	auto candidates = aiNk->objectClusterizer->getNearbyObjects();
+	vstd::concatenate(candidates, aiNk->objectClusterizer->getFarObjects());
+	// building paths is costly, so it is left for the objects that the hero can reach at all
+	vstd::erase_if(candidates, [&](const CGObjectInstance * object)
 	{
-		const auto * object = aiNk->cc->getObj(objectId, false);
-		if(!object || object->id == entrance->id || !shouldVisit(aiNk, hero, object))
+		if(!object || !aiNk->pathfinder->isTileAccessible(heroPtr, object->visitablePos()))
+			return true;
+
+		return exclusiveOnly && vstd::contains_if(aiNk->cc->getHeroesInfo(), [&](const CGHeroInstance * other)
+		{
+			return other != hero
+				&& aiNk->pathfinder->isTileAccessible(HeroPtr(other, aiNk->cc.get()), object->visitablePos());
+		});
+	});
+
+	// a task is most likely found near the hero, which ends the search early
+	std::ranges::sort(candidates, {}, [hero](const CGObjectInstance * object)
+	{
+		return hero->visitablePos().dist2dSQ(object->visitablePos());
+	});
+
+	for(const auto * object : candidates)
+	{
+		if(!shouldVisit(aiNk, hero, object))
 			continue;
 
 		const auto paths = aiNk->pathfinder->getPathInfo(object->visitablePos(), false);
@@ -52,6 +75,9 @@ bool hasAlternativeProgress(
 		if(reachableByHero)
 			return true;
 	}
+
+	if(exclusiveOnly)
+		return false;
 
 	ExplorationHelper helper(hero, aiNk);
 	return helper.scanMap();
@@ -276,7 +302,8 @@ std::optional<AIPath> findPortalProbePath(
 	const Nullkiller * aiNk,
 	std::optional<uint64_t> minimumStrength,
 	bool safeLandingOnly,
-	const IdleHeroCheck & isIdle)
+	const IdleHeroCheck & isIdle,
+	const IdleHeroCheck & isFreeToLeave)
 {
 	auto paths = aiNk->pathfinder->getPathInfo(
 		entrance->visitablePos(),
@@ -327,7 +354,14 @@ std::optional<AIPath> findPortalProbePath(
 	// a scout learns nothing new from a portal that has already swallowed an expedition
 	if(blindProbe && !safeLandingOnly)
 	{
-		if(auto scoutPath = findBestPortalPath(paths, aiNk, isIdle, HeroRole::SCOUT, std::nullopt))
+		// objects that only the leaving hero can reach would be lost behind it
+		auto scoutPaths = paths;
+		vstd::erase_if(scoutPaths, [&](const AIPath & path)
+		{
+			return path.targetHero && !isFreeToLeave(path.targetHero);
+		});
+
+		if(auto scoutPath = findBestPortalPath(scoutPaths, aiNk, isIdle, HeroRole::SCOUT, std::nullopt))
 			return scoutPath;
 	}
 
@@ -531,6 +565,20 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 		}
 	}
 
+	// the checks walk every object worth capturing, so each hero is evaluated at most once
+	const auto cachedCheck = [aiNk](bool exclusiveOnly) -> IdleHeroCheck
+	{
+		return [aiNk, exclusiveOnly, cache = std::map<const CGHeroInstance *, bool>()](const CGHeroInstance * hero) mutable
+		{
+			const auto [cached, inserted] = cache.try_emplace(hero);
+			if(inserted)
+				cached->second = !hasAlternativeProgress(hero, aiNk, exclusiveOnly);
+			return cached->second;
+		};
+	};
+	const IdleHeroCheck isIdle = cachedCheck(false);
+	const IdleHeroCheck isFreeToLeave = cachedCheck(true);
+
 	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
 		const auto * entrance = aiNk->cc->getObj(objId, false);
@@ -548,16 +596,6 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 			if(hero && aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), entrance->visitablePos()))
 				aiNk->memory->markOneWayPortalReturn(heroId);
 		}
-
-		// the check walks every known object, so each hero is evaluated at most once per entrance
-		std::map<const CGHeroInstance *, bool> idleHeroes;
-		const IdleHeroCheck isIdle = [&](const CGHeroInstance * hero)
-		{
-			const auto [cached, inserted] = idleHeroes.try_emplace(hero);
-			if(inserted)
-				cached->second = !hasAlternativeProgress(hero, entrance, aiNk);
-			return cached->second;
-		};
 
 		// a sole hero is the only candidate, so this also describes whichever hero ends up probing
 		const bool desperation = vstd::contains_if(aiNk->cc->getHeroesInfo(), [&](const CGHeroInstance * hero)
@@ -635,7 +673,7 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 		}
 
 		auto path = probeAllowed
-			? findPortalProbePath(entrance, aiNk, reinforcementStrength, expeditionLost, isIdle)
+			? findPortalProbePath(entrance, aiNk, reinforcementStrength, expeditionLost, isIdle, isFreeToLeave)
 			: std::nullopt;
 
 		// rewards behind a scouted portal can justify sending a main hero that is still busy on this side

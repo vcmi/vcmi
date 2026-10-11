@@ -219,6 +219,9 @@ public:
 			hero->setMovementPoints(2500);
 
 		NullkillerTest::preparePlanning(*gateway);
+		// the idle check reads the objects that capturing would offer
+		gateway->nullkiller->dangerHitMap->updateHitMap();
+		gateway->nullkiller->objectClusterizer->clusterize();
 	}
 
 	void restartGateway()
@@ -683,4 +686,20 @@ TEST_F(Nullkiller2_Behaviors_OneWayPortal, secondMainDoesNotFollowStrongerMainAc
 
 	EXPECT_TRUE(portalTasks(decomposePortalBehavior()).empty())
 		<< "rewards that a main hero behind the portal can take must not pull the remaining heroes after it";
+}
+
+TEST_F(Nullkiller2_Behaviors_OneWayPortal, loneScoutCollectsItsSideBeforeProbing)
+{
+	auto builder = makeOneWayPortalMap({1}, false);
+	builder
+		.randomTown({30, 30, 0}, PLAYER)
+		.hero({28, 28, 0}, HeroTypeID(1), PLAYER)
+		.heroGarrison({{CreatureID::ARCHER, 500}})
+		.resource({8, 12, 0}, GameResID::GOLD, 1000);
+	addWaterWall(builder);
+	start(std::move(builder));
+
+	ASSERT_EQ(gateway->nullkiller->heroManager->getHeroRoleOrDefaultInefficient(scout()), NK2AI::HeroRole::SCOUT);
+	EXPECT_TRUE(portalTasks(decomposePortalBehavior()).empty())
+		<< "treasure that nobody else can reach must be collected before the hero leaves for good";
 }
