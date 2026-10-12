@@ -70,4 +70,10 @@ public:
 
 private:
 	void updateVisibleObjects(const int3 & tile);
+
+	/// Puts object on every tile of its footprint. Without `orderTiles` tiles are left in order of stamping, for orderTile()
+	void stampObject(const CGObjectInstance * object, bool orderTiles);
+
+	/// Orders objects of a tile that were stamped onto it without ordering
+	void orderTile(const int3 & tile);
 };
