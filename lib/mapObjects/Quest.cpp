@@ -598,10 +598,8 @@ void QuestSource::resolveRequiredHero(const CMap & map)
 
 void SeerHut::init(vstd::RNG & rand)
 {
-	auto names = LIBRARY->generaltexth->findStringsWithPrefix("core.seerhut.names");
-
 	if(seerNameTextID.empty())
-		seerNameTextID = *RandomGeneratorUtil::nextItem(names, rand);
+		seerNameTextID = TextIdentifier("core.seerhut.names", rand.nextInt(GameConstants::SEER_HUT_NAMES - 1)).get();
 
 	bool h3BugTakesArmy = cb->getSettings().getBoolean(EGameSettings::MAP_OBJECTS_H3_BUG_QUEST_TAKES_ENTIRE_ARMY);
 	for(const auto & q : allQuests())
