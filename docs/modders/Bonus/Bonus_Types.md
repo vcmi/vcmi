@@ -444,11 +444,15 @@ Changes 'val' parameter of spell effects that give bonuses to a specified value.
 
 ### SPECIAL_UPGRADE
 
-Allows creature being upgraded to another creature (Gelu, Dracon)
+Allows creature being upgraded to another creature (Gelu, Dracon).
 
-- subtype: identifier of creature that can being upgraded
-- addInfo: identifier of creature to which perform an upgrade
-- val: modifies the upgrade cost relative to the default 100% cost. If omitted or set to `0`, the cost is unchanged; negative values provide a discount, while positive values increase the upgrade cost.
+- subtype: optional identifier of creature that can be upgraded; when present, keeps the exact-creature behavior
+- addInfo: identifier of creature to upgrade into
+- val: modifies the upgrade cost relative to the default 100% cost. If omitted or set to `0`, the cost is unchanged; negative values provide a discount, while positive values increase the upgrade cost
+- if subtype is omitted, the bonus must have a limiter; normal bonus limiter rules determine which creature stacks receive the configured upgrade
+- `CREATURE_TYPE_LIMITER` with `includeUpgrades: true` can be used to apply one `SPECIAL_UPGRADE` to a base creature and its upgrades
+- a subtype-less `SPECIAL_UPGRADE` without a limiter does not create an upgrade offer
+- limiter-based applicability does not create native creature upgrade-chain offers; it only controls which stacks receive the configured `addInfo` target
 
 ## Artifact bonuses
 
