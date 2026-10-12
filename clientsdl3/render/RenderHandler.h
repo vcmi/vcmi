@@ -58,6 +58,11 @@ class RenderHandler final : public IRenderHandler
 
 	std::shared_ptr<ScalableImageShared> loadImageImpl(const ImageLocator & config);
 
+	/// Generates and upscales all frames of palette-animated terrains and rivers, which is too slow to do when such tile is first drawn
+	void preloadPaletteShiftedFrames();
+
+	std::vector<std::shared_ptr<ScalableImageShared>> paletteShiftedFrames;
+
 	std::shared_ptr<ISharedImage> loadImageFromFileUncached(const ImageLocator & locator);
 
 	ImageLocator getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, int scaling, EImageBlitMode mode);

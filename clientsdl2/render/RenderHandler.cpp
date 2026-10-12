@@ -47,6 +47,8 @@
 #include <vcmi/spells/Service.h>
 #include <vcmi/ResourceTypeService.h>
 
+#include <tbb/parallel_for.h>
+
 std::atomic<uint32_t> RenderHandler::placeholderDraws{0};
 
 void RenderHandler::notifyPlaceholderDrawn()
@@ -315,6 +317,23 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 	}
 
 	throw std::runtime_error("Invalid image locator received!");
+}
+
+void RenderHandler::preloadPaletteShiftedFrames()
+{
+	const auto & tiles = assetGenerator->getPaletteShiftedFrames();
+	std::vector<std::vector<std::shared_ptr<IImage>>> loaded(tiles.size());
+
+	// One task takes all frames of a tile: those are drawn from the same source image, which can't be used by several threads at once
+	tbb::parallel_for(size_t(0), tiles.size(), [&](size_t tile)
+	{
+		for(const ImageLocator & locator : tiles[tile])
+			loaded[tile].push_back(loadImage(locator));
+	});
+
+	paletteShiftedFrames.clear();
+	for(const auto & tile : loaded)
+		paletteShiftedFrames.insert(paletteShiftedFrames.end(), tile.begin(), tile.end());
 }
 
 void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_ptr<ScalableImageShared> image)
@@ -595,6 +614,7 @@ void RenderHandler::onLibraryLoadingFinished(const Services * services)
 	assert(animationLayouts.empty());
 	assetGenerator->initialize();
 	updateGeneratedAssets();
+	preloadPaletteShiftedFrames();
 
 	addImageListEntries(services->creatures());
 	addImageListEntries(services->heroTypes());

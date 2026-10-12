@@ -384,8 +384,16 @@ bool ScalableImageShared::drawTexture(SDL_Renderer * renderer, const Point & des
 		});
 }
 
+void ScalableImageShared::setPermanent()
+{
+	permanent = true;
+}
+
 void ScalableImageShared::releaseMemory()
 {
+	if(permanent)
+		return;
+
 	// The source at scale 1 stays: everything else is generated from it, and dropping it would
 	// turn a rebuild into a file decode. The rest - upscales, mirrored copies, player colours,
 	// grayscale - is what actually weighs, and it can all be made again.

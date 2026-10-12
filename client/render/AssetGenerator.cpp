@@ -531,8 +531,15 @@ AssetGenerator::CanvasPtr AssetGenerator::createChroniclesCampaignImages(int chr
 	return image;
 }
 
+const std::vector<std::vector<ImageLocator>> & AssetGenerator::getPaletteShiftedFrames() const
+{
+	return paletteShiftedFrames;
+}
+
 void AssetGenerator::createPaletteShiftedSprites()
 {
+	paletteShiftedFrames.clear();
+
 	for(auto entity : LIBRARY->terrainTypeHandler->objects)
 	{
 		if(entity->paletteAnimation.empty())
@@ -570,10 +577,13 @@ void AssetGenerator::generatePaletteShiftedAnimation(const AnimationPath & sprit
 
 	for(int tileIndex = 0; tileIndex < animation->size(); tileIndex++)
 	{
+		paletteShiftedFrames.emplace_back();
+
 		for(int paletteIndex = 0; paletteIndex < paletteTransformLength; paletteIndex++)
 		{
 			ImagePath spriteName = ImagePath::builtin(sprite.getName() + boost::str(boost::format("%02d") % tileIndex) + "_" + std::to_string(paletteIndex) + ".png");
 			layout[paletteIndex].push_back(ImageLocator(spriteName, EImageBlitMode::SIMPLE));
+			paletteShiftedFrames.back().push_back(layout[paletteIndex].back());
 
 			imageFiles[spriteName] = [this, sprite, paletteAnimations, tileIndex, paletteIndex](){
 				return createPaletteShiftedImage(sprite, paletteAnimations, tileIndex, paletteIndex);
