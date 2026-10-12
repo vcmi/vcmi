@@ -654,6 +654,13 @@ void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 	if(verify)
 		verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
 
+	// sent first, so that the server prepares the game while loading screen is constructed
+	LobbyPrepareStartGame lpsg;
+	sendLobbyPack(lpsg);
+
+	LobbyStartGame lsg;
+	sendLobbyPack(lsg);
+
 	if(!settings["session"]["headless"].Bool())
 	{
 		if(si->campState && !si->campState->getLoadingBackground().empty())
@@ -661,12 +668,6 @@ void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 		else
 			ENGINE->windows().createAndPushWindow<CLoadingScreen>();
 	}
-	
-	LobbyPrepareStartGame lpsg;
-	sendLobbyPack(lpsg);
-
-	LobbyStartGame lsg;
-	sendLobbyPack(lsg);
 }
 
 void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
