@@ -66,8 +66,20 @@ private:
 	bool allowDeadEndCancellation;
 	bool useCPathfinderAccessibility;
 
+	/// Outcomes of the water tiles considered as exploration targets, kept for diagnostics
+	struct WaterScanStats
+	{
+		int unreachable = 0;
+		int nothingToReveal = 0;
+		int noUsableRoute = 0;
+		int unsafe = 0;
+		int accepted = 0;
+	};
+	WaterScanStats waterScan;
+
 public:
 	ExplorationHelper(const CGHeroInstance * hero, const Nullkiller * aiNk, bool useCPathfinderAccessibility = false);
+	~ExplorationHelper();
 	Goals::TSubgoal makeComposition() const;
 	bool canUseDimensionDoor() const;
 	bool scanSector(int scanRadius);

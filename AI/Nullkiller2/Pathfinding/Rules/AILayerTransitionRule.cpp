@@ -164,6 +164,13 @@ namespace AIPathfinding
 				virtualBoats[boatLocation] = std::make_shared<BuildBoatAction>(aiNk->cc.get(), shipyard);
 				logAi->debug("Virtual boat added at %s", boatLocation.toString());
 			}
+			else
+			{
+				logAi->debug(
+					"Shipyard at %s can not build a boat, status %d",
+					shipyard->getObject()->visitablePos().toString(),
+					static_cast<int>(shipyard->shipyardStatus()));
+			}
 		}
 
 		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
