@@ -35,7 +35,7 @@ class CTrueTypeFont final : public IFont
 	int getFontStyle(const JsonNode & config) const;
 
 	/// colored glyphs keep their own colors and ignore the requested one
-	bool hasColorGlyphs(const std::string & text) const;
+	bool hasColorGlyphs(std::string_view text) const;
 
 	void renderText(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const override;
 	void renderTextImpl(SDL_Surface * surface, const std::string & data, const ColorRGBA & color, const Point & pos) const;
@@ -48,5 +48,5 @@ public:
 
 	size_t getLineHeightScaled() const override;
 	size_t getGlyphWidthScaled(const char * data) const override;
-	size_t getStringWidthScaled(const std::string & data) const override;
+	size_t getStringWidthScaled(std::string_view data) const override;
 };
