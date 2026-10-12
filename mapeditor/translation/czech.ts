@@ -2181,31 +2181,31 @@ Chcete to udělat nyní?</translation>
         <location filename="../inspector/inspector.cpp" line="452"/>
         <location filename="../inspector/inspector.cpp" line="839"/>
         <source>Aggression</source>
-        <translation type="unfinished"></translation>
+        <translation>Agresivita</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="453"/>
         <location filename="../inspector/inspector.cpp" line="841"/>
         <source>Join only for money</source>
-        <translation type="unfinished"></translation>
+        <translation>Jen za peníze</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="454"/>
         <location filename="../inspector/inspector.cpp" line="843"/>
         <source>Joining percentage</source>
-        <translation type="unfinished"></translation>
+        <translation>Připojení (%)</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="458"/>
         <location filename="../inspector/inspector.cpp" line="845"/>
         <source>Upgraded stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Vylepšený oddíl</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="460"/>
         <location filename="../inspector/inspector.cpp" line="847"/>
         <source>Stacks count</source>
-        <translation type="unfinished"></translation>
+        <translation>Počet oddílů</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="461"/>
@@ -2251,12 +2251,12 @@ Chcete to udělat nyní?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="1038"/>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>Nikdy</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1039"/>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>Vždy</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="253"/>
@@ -2726,17 +2726,17 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="293"/>
         <source>Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Den</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="298"/>
         <source>Week</source>
-        <translation type="unfinished"></translation>
+        <translation>Týden</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="303"/>
         <source>Month</source>
-        <translation type="unfinished"></translation>
+        <translation>Měsíc</translation>
     </message>
 </context>
 <context>
@@ -2749,32 +2749,32 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/questwidget.ui" line="37"/>
         <source>Delete</source>
-        <translation type="unfinished">Smazat</translation>
+        <translation>Smazat</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
         <source>First Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>První návštěva</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="94"/>
         <source>Next Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Další návštěva</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="116"/>
         <source>Completed</source>
-        <translation type="unfinished"></translation>
+        <translation>Splněno</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="148"/>
         <source>Repeatable</source>
-        <translation type="unfinished"></translation>
+        <translation>Opakovatelný</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="158"/>
         <source>Set Deadline</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavit lhůtu</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="179"/>
@@ -2905,7 +2905,7 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/questwidget.cpp" line="303"/>
         <source>%1 quest on position %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 úkol na pozici %2</translation>
     </message>
 </context>
 <context>

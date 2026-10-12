@@ -186,7 +186,7 @@
     <message>
         <location filename="../modManager/cdownloadmanager_moc.cpp" line="171"/>
         <source>Failed to copy file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor %1 se nepodařilo zkopírovat</translation>
     </message>
 </context>
 <context>
@@ -429,10 +429,10 @@
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
         <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Stahování %n modifikace. %p% (%v MB z %m MB) dokončeno</numerusform>
+            <numerusform>Stahování %n modifikací. %p% (%v MB z %m MB) dokončeno</numerusform>
+            <numerusform>Stahování %n modifikací. %p% (%v MB z %m MB) dokončeno</numerusform>
         </translation>
     </message>
     <message>
@@ -554,14 +554,16 @@ Důvod: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
         <source>Mods disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifikace deaktivovány</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kvůli změnám v nainstalovaných modifikacích byly deaktivovány následující modifikace:
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
@@ -634,12 +636,18 @@ This usually happens on older systems, such as Windows 7, that are missing recen
 However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. In that case, downloaded files could be replaced with harmful ones.
 
 Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the &quot;Ignore SSL errors&quot; option.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI nedokázalo ověřit, že je připojeno ke skutečnému serveru pro stahování.
+
+K tomu obvykle dochází na starších systémech, například Windows 7, kterým chybí novější bezpečnostní aktualizace.
+
+Může to však také znamenat, že někdo zasahuje do vašeho internetového připojení, například ve veřejné síti Wi-Fi. V takovém případě by stahované soubory mohly být nahrazeny škodlivými.
+
+Chcete tuto kontrolu vypnout a zkusit to znovu? Kdykoli ji můžete znovu zapnout v nastavení spouštěče pomocí volby „Ignorovat chyby SSL“.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
         <source>Unable to verify download server</source>
-        <translation type="unfinished"></translation>
+        <translation>Server pro stahování nelze ověřit</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
@@ -906,17 +914,17 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="819"/>
         <source>HTTP proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP proxy</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="826"/>
         <source>Open help</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevřít nápovědu</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="833"/>
         <source>Proxy server used for downloads, for example http://host:port or socks5h://host:port. If empty, proxy from environment variables is used</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy server používaný pro stahování, například http://host:port nebo socks5h://host:port. Pokud je pole prázdné, použije se proxy z proměnných prostředí</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
@@ -2047,12 +2055,12 @@ Bin (%n bajtů):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="223"/>
         <source>Mod is not located in user data directory and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifikace se nenachází ve složce uživatelských dat a nelze ji spravovat ve spouštěči</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="227"/>
         <source>Mod directory is a git repository and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Složka modifikace je repozitář Git a nelze ji spravovat ve spouštěči</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="245"/>
@@ -2098,12 +2106,12 @@ Bin (%n bajtů):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="317"/>
         <source>Failed to remove directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Složku %1 se nepodařilo odstranit</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="320"/>
         <source>Failed to create directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Složku %1 se nepodařilo vytvořit</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="352"/>
@@ -2113,7 +2121,7 @@ Bin (%n bajtů):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="359"/>
         <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Složku %1 se nepodařilo nahradit. Zavřete všechny aplikace, které ji mohou používat, například Průzkumník souborů, a zkuste to znovu.</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="386"/>
