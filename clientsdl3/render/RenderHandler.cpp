@@ -134,6 +134,7 @@ std::pair<std::string, CDefFile::SSpriteDef> RenderHandler::getAnimationSpriteDe
 {
 	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
 
+	std::lock_guard lock(animationCacheMutex);
 	return animationSpriteDefs[actualPath][group][frame];
 }
 
@@ -216,6 +217,7 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 
 	AnimationPath actualPath = AnimationPath::builtin(scaledSpritesPath.at(scalingFactor) + pathString);
 
+	std::lock_guard lock(animationLayoutMutex);
 	auto it = animationLayouts.find(actualPath);
 
 	if (it != animationLayouts.end() && (settings["video"]["useHdTextures"].Bool() || scalingFactor == 1))
@@ -257,6 +259,7 @@ int RenderHandler::getScalingFactor() const
 
 ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, int scaling, EImageBlitMode mode)
 {
+	std::lock_guard lock(animationLayoutMutex);
 	const auto & layout = getAnimationLayout(path, scaling, mode);
 	if (!layout.count(group))
 		return ImageLocator();
@@ -273,14 +276,17 @@ ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & pa
 
 std::shared_ptr<ScalableImageShared> RenderHandler::loadImageImpl(const ImageLocator & locator)
 {
-	auto it = imageFiles.find(locator);
-	if (it != imageFiles.end())
 	{
-		auto locked = it->second.lock();
-		if (locked)
+		std::lock_guard lock(imageCacheMutex);
+		auto it = imageFiles.find(locator);
+		if (it != imageFiles.end())
 		{
-			retainedAssets.store(locator, locked);
-			return locked;
+			auto locked = it->second.lock();
+			if (locked)
+			{
+				retainedAssets.store(locator, locked);
+				return locked;
+			}
 		}
 	}
 
@@ -345,7 +351,10 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 
 void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_ptr<ScalableImageShared> image)
 {
-	imageFiles[locator] = image;
+	{
+		std::lock_guard lock(imageCacheMutex);
+		imageFiles[locator] = image;
+	}
 	retainedAssets.store(locator, image);
 }
 
@@ -531,6 +540,7 @@ std::shared_ptr<CanvasImage> RenderHandler::createImage(const Point & size, Canv
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)
 {
+	std::lock_guard lock(animationLayoutMutex);
 	return std::make_shared<CAnimation>(path, getAnimationLayout(path, 1, mode), mode);
 }
 
