@@ -11,7 +11,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>有疑問？找到BUG？需要幫助？加入我們！</translation>
+        <translation>有疑問？找到 Bug？需要幫助？加入我們！</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
@@ -104,7 +104,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
         <source>Zip archives (*.zip)</source>
-        <translation>ZIP 壓縮檔 (*.zip)</translation>
+        <translation>Zip 壓縮檔 (*.zip)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
@@ -186,7 +186,7 @@
     <message>
         <location filename="../modManager/cdownloadmanager_moc.cpp" line="171"/>
         <source>Failed to copy file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>無法複製文件 %1</translation>
     </message>
 </context>
 <context>
@@ -194,7 +194,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
         <source>Filter</source>
-        <translation>過濾器</translation>
+        <translation>篩選</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="69"/>
@@ -434,8 +434,8 @@
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
         <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>正在下載 %n 個模組。 %p%（%v MB / %m MB）已完成</numerusform>
         </translation>
     </message>
     <message>
@@ -484,12 +484,18 @@ This usually happens on older systems, such as Windows 7, that are missing recen
 However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. In that case, downloaded files could be replaced with harmful ones.
 
 Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the &quot;Ignore SSL errors&quot; option.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI 無法確認目前連線到的是真實的下載伺服器。
+
+這種情況通常出現在缺少近期安全性更新的舊版系統（如 Windows 7）上。
+
+不過，這也可能意味著你的網路連線正遭到他人竄改（例如使用公共 Wi-Fi 時）。在此情況下，下載的檔案可能會被惡意檔案取代。
+
+你是否希望關閉此項檢查並重試？你可以隨時在啟動器設定中透過「忽略 SSL 錯誤」選項重新開啟該功能。</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
         <source>Unable to verify download server</source>
-        <translation type="unfinished"></translation>
+        <translation>無法驗證下載伺服器</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
@@ -547,7 +553,7 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
         <source>Success</source>
-        <translation type="unfinished">成功</translation>
+        <translation>成功</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
@@ -581,14 +587,16 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
         <source>Mods disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>模組已禁用</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>由於已安裝模組有更改，以下模組已停用：
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
@@ -872,7 +880,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="692"/>
         <source>Downscaling Filter</source>
-        <translation>圖像縮小過濾器</translation>
+        <translation>圖像縮小演算法</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="699"/>
@@ -887,7 +895,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="744"/>
         <source>Upscaling Filter</source>
-        <translation>圖像放大過濾器</translation>
+        <translation>圖像放大演算法</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="754"/>
@@ -902,17 +910,17 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="819"/>
         <source>HTTP proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP 代理</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="826"/>
         <source>Open help</source>
-        <translation type="unfinished"></translation>
+        <translation>打開幫助</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="833"/>
         <source>Proxy server used for downloads, for example http://host:port or socks5h://host:port. If empty, proxy from environment variables is used</source>
-        <translation type="unfinished"></translation>
+        <translation>用於下載的代理伺服器，例如 http://host:port 或 socks5h://host:port。如果留空，則使用環境變數中的代理設定</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
@@ -1280,7 +1288,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="173"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>有疑問？找到BUG？需要幫助？加入我們！</translation>
+        <translation>有疑問？找到 Bug？需要幫助？加入我們！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="182"/>
@@ -2011,12 +2019,12 @@ Bin (%n位元組):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="223"/>
         <source>Mod is not located in user data directory and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>模組不是存放在使用者資料夾中，無法由啟動器管理</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="227"/>
         <source>Mod directory is a git repository and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>模組資料夾是 Git 儲存庫，無法由啟動器管理</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="245"/>
@@ -2062,12 +2070,12 @@ Bin (%n位元組):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="317"/>
         <source>Failed to remove directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>刪除資料夾 %1 失敗</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="320"/>
         <source>Failed to create directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>建立資料夾 %1 失敗</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="352"/>
@@ -2077,7 +2085,7 @@ Bin (%n位元組):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="359"/>
         <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>無法取代資料夾 %1。請關閉所有可能正在使用該資料夾的應用程式（例如檔案總管），然後重試。</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="386"/>
@@ -2193,7 +2201,7 @@ Bin (%n位元組):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="56"/>
         <source>Artifacts</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
@@ -2229,7 +2237,7 @@ Reason: %2</source>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
         <source>Import failed</source>
-        <translation type="unfinished">匯入失敗</translation>
+        <translation>匯入失敗</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
@@ -2485,7 +2493,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Import failed</source>
-        <translation type="unfinished">匯入失敗</translation>
+        <translation>匯入失敗</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
@@ -2584,7 +2592,7 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
         <translation>要改善VCMI的畫質，你可以從Steam上安裝來自英雄無敵3高畫質版的檔案。選擇Steam上的英雄無敵3高畫質版資料夾。
 
-安裝完成後，你需要設定圖像放大過濾器到x2或更高，高畫質圖像效果才可見。</translation>
+安裝完成後，你需要設定圖像放大演算法到x2或更高，高畫質圖像效果才可見。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="572"/>
