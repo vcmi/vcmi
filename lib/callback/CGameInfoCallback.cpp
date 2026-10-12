@@ -522,11 +522,9 @@ EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) cons
 	if(!isVisible(tile))
 		return EDiggingStatus::UNKNOWN;
 
-	for(const auto & object : gameState().getMap().getObjects())
-	{
-		if(object->ID == Obj::HOLE && object->anchorPos() == tile)
-			return EDiggingStatus::TILE_OCCUPIED;
-	}
+	if(gameState().getMap().isHoleAt(tile))
+		return EDiggingStatus::TILE_OCCUPIED;
+
 	return getTile(tile)->getDiggingStatus();
 }
 

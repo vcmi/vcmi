@@ -45,18 +45,6 @@ public:
 	int movementRequests = 0;
 };
 
-NK2AI::AIPathNodeInfo pathNode(const CGHeroInstance & hero, const int3 & coordinate)
-{
-	NK2AI::AIPathNodeInfo node{};
-	node.coord = coordinate;
-	node.layer = EPathfindingLayer::LAND;
-	node.targetHero = &hero;
-	node.parentIndex = -1;
-	node.chainMask = 1;
-	node.turns = 0;
-	return node;
-}
-
 class ExecuteHeroChainMovementTest : public NullkillerTest
 {
 protected:
@@ -128,5 +116,31 @@ TEST_F(ExecuteHeroChainMovementTest, repeatedIdleChainFailsForReplanning)
 	EXPECT_NO_THROW(NK2AI::Goals::ExecuteHeroChain(path).accept(gateway.get()));
 	EXPECT_THROW(NK2AI::Goals::ExecuteHeroChain(path).accept(gateway.get()), NK2AI::cannotFulfillGoalException)
 		<< "an idle chain counted as success would be selected again on every pass";
+	EXPECT_EQ(client.movementRequests, 0);
+}
+
+TEST_F(ExecuteHeroChainMovementTest, multiTurnNodeLocksHeroWithoutMovementPoints)
+{
+	startGame();
+	revealMap(PLAYER);
+
+	auto * hero = findHeroByOwner(PLAYER);
+	ASSERT_NE(hero, nullptr);
+	hero->setMovementPoints(10); // not enough for a single step
+
+	MoveCountingClient client(gameState(), PLAYER);
+	auto gateway = makeGateway(PLAYER, &client);
+
+	auto node = pathNode(*hero, int3(20, 5, 0));
+	node.turns = 1;
+
+	NK2AI::AIPath path;
+	path.targetHero = hero;
+	path.heroArmy = hero;
+	path.chainMask = 1;
+	path.nodes.push_back(node);
+
+	EXPECT_NO_THROW(NK2AI::Goals::ExecuteHeroChain(path).accept(gateway.get()));
+	EXPECT_TRUE(gateway->nullkiller->isHeroLocked(hero)) << "the hero must wait for the next turn instead of failing the route";
 	EXPECT_EQ(client.movementRequests, 0);
 }

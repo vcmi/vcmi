@@ -36,6 +36,7 @@
 #include "../Markers/HeroExchange.h"
 #include "../Markers/ArmyUpgrade.h"
 #include "../Markers/DefendTown.h"
+#include "../Markers/OneWayPortalProbe.h"
 
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Spell.h>
@@ -97,6 +98,7 @@ EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	isArmyUpgrade(false),
 	isHero(false),
 	isEnemy(false),
+	isOneWayPortalProbe(false),
 	explorePriority(0),
 	powerRatio(0)
 {
@@ -907,6 +909,37 @@ public:
 	}
 };
 
+class OneWayPortalProbeEvaluator : public IEvaluationContextBuilder
+{
+public:
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::ONE_WAY_PORTAL_PROBE)
+			return;
+
+		const auto & probe = dynamic_cast<Goals::OneWayPortalProbe &>(*task);
+		if(probe.rewardsBehind.empty())
+		{
+			evaluationContext.isOneWayPortalProbe = true;
+			return;
+		}
+
+		const auto & evaluator = evaluationContext.evaluator;
+		const auto role = evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(probe.hero);
+		for(const ObjectInstanceID objectId : probe.rewardsBehind)
+		{
+			const auto * target = evaluator.aiNk->cc->getObj(objectId, false);
+			if(!target)
+				continue;
+
+			evaluationContext.goldReward += evaluator.getGoldReward(target, probe.hero);
+			evaluationContext.armyReward += evaluator.getArmyReward(target, probe.hero, probe.hero, false);
+			evaluationContext.skillReward += evaluator.getSkillReward(target, probe.hero, role);
+			evaluationContext.addNonCriticalStrategicalValue(evaluator.getStrategicalValue(target, probe.hero));
+		}
+	}
+};
+
 class AdventureSpellCastEvaluator : public IEvaluationContextBuilder
 {
 public:
@@ -1085,41 +1118,19 @@ public:
 		if(heroRole == HeroRole::MAIN)
 			evaluationContext.heroRole = heroRole;
 
-		// Assuming Slots() returns a collection of slots with slot.second->getCreatureID() and slot.second->estimateCombatValue()
-		float heroPower = 0;
+		const float armyPower = army->estimateCombatValue();
 		float totalPower = 0;
 
-		// Map to store the aggregated power of creatures by CreatureID
-		std::map<CreatureID, float> totalPowerByCreatureID;
+		std::set<CreatureID> armyCreatures;
+		for(const auto & slot : army->Slots())
+			armyCreatures.insert(slot.second->getCreatureID());
 
-		// Calculate hero power and total power by CreatureID
-		for (const auto & slot : hero->Slots())
-		{
-			CreatureID creatureID = slot.second->getCreatureID();
-			float slotPower = slot.second->estimateCombatValue();
+		for(const auto & creatureID : armyCreatures)
+			totalPower += aiNk->armyManager->getTotalCreaturesAvailable(creatureID).power;
 
-			// Add the power of this slot to the heroPower
-			heroPower += slotPower;
-
-			// Accumulate the total power for the specific CreatureID
-			if (totalPowerByCreatureID.find(creatureID) == totalPowerByCreatureID.end())
-			{
-				// First time encountering this CreatureID, retrieve total creatures' power
-				totalPowerByCreatureID[creatureID] = aiNk->armyManager->getTotalCreaturesAvailable(creatureID).power;
-			}
-		}
-
-		// Calculate total power based on unique CreatureIDs
-		for (const auto& entry : totalPowerByCreatureID)
-		{
-			totalPower += entry.second;
-		}
-
-		// Compute the power ratio if total power is greater than zero
-		if (totalPower > 0)
-		{
-			evaluationContext.powerRatio = heroPower / totalPower;
-		}
+		// Planned army may hold creatures that are not owned yet, to be upgraded or bought on the way
+		if(armyPower > 0)
+			evaluationContext.powerRatio = totalPower > armyPower ? armyPower / totalPower : 1.0f;
 
 		if (target)
 		{
@@ -1386,6 +1397,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk) : aiNk(aiNk)
 	evaluationContextBuilders.push_back(std::make_shared<StayAtTownManaRecoveryEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<AdventureSpellCastEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ExplorePointEvaluator>());
+	evaluationContextBuilders.push_back(std::make_shared<OneWayPortalProbeEvaluator>());
 }
 
 EvaluationContext PriorityEvaluator::buildEvaluationContext(const Goals::TSubgoal & goal) const
@@ -1467,6 +1479,9 @@ float PriorityEvaluator::evaluate(
 	const int priorityTier,
 	const EvaluationContext & evaluationContext)
 {
+	if(task->goalType == Goals::ATTACK_ONE_WAY_PORTAL_GUARD)
+		return priorityTier == PriorityTier::ESCAPE ? 1.0f : 0.0f;
+
 	const bool amIWithoutCastle = aiNk->cc->getPlayerState(aiNk->playerID)->daysWithoutCastle.has_value();
 	double result = 0;
 
@@ -1474,10 +1489,14 @@ float PriorityEvaluator::evaluate(
 		float score = 0;
 
 		// TODO: Mircea: Shouldn't it default to 0 instead of 1.0 in the end?
-		const float maxWillingToLose = amIWithoutCastle ? 1
-									 : aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio > 0
-										 ? aiNk->settings->getMaxArmyLossTarget() * evaluationContext.powerRatio
-										 : 1.0;
+		float maxWillingToLose = 1.0f;
+		if(!amIWithoutCastle && evaluationContext.powerRatio > 0)
+		{
+			// Convert the player-wide loss budget to a fraction of the committed army.
+			maxWillingToLose = std::min(
+				aiNk->settings->getMaxArmyLossTarget() / evaluationContext.powerRatio,
+				1.0f);
+		}
 		const float maxEnemyDangerRatio = evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
 		auto calendar = aiNk->cc->getCalendar();
 		const bool arriveNextWeek = calendar.getDayOfWeek() + evaluationContext.turn > calendar.getDaysInWeek();
@@ -1710,6 +1729,14 @@ float PriorityEvaluator::evaluate(
 				score *= evaluationContext.closestWayRatio;
 				score = evaluateMovement(score, evaluationContext.movementCost);
 
+				break;
+			}
+			case ONE_WAY_PORTAL_PROBE:
+			{
+				if(!evaluationContext.isOneWayPortalProbe)
+					return 0;
+
+				score = evaluateMovement(1.0f, evaluationContext.movementCost);
 				break;
 			}
 			case DEFEND: //Defend whatever if nothing else is to do

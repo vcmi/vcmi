@@ -63,7 +63,8 @@ namespace AIPathfinding
 		if(!object)
 			throw cannotFulfillGoalException("Quest object is no longer available.");
 
-		aiGw->moveHeroToTile(object->visitablePos(), HeroPtr(hero, aiGw->cc.get()));
+		if(aiGw->moveHeroToTile(object->visitablePos(), HeroPtr(hero, aiGw->cc.get())) == HeroMovementResult::BLOCKED)
+			throw cannotFulfillGoalException("Unable to reach quest target.");
 	}
 
 	std::string QuestAction::toString() const

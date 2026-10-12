@@ -68,6 +68,8 @@ void AIGateway::availableCreaturesChanged(const CGDwelling * town)
 void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 {
 	LOG_TRACE(logAi);
+	status.recordMovementResult(details);
+
 	const auto hero = cc->getHero(details.id);
 	if(!hero)
 		validateObject(ObjectIdRef(details.id, cc.get())); //enemy hero may have left visible area
@@ -77,11 +79,26 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));
 	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
 
-	const CGObjectInstance * o1 = vstd::frontOrNull(cc->getVisitableObjs(from, verbose));
-	const CGObjectInstance * o2 = vstd::frontOrNull(cc->getVisitableObjs(to, verbose));
+	const auto fromObjects = cc->getVisitableObjs(from, verbose);
+	const auto toObjects = cc->getVisitableObjs(to, verbose);
+	const CGObjectInstance * o1 = vstd::frontOrNull(fromObjects);
+	const CGObjectInstance * o2 = vstd::frontOrNull(toObjects);
 
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
+		const auto * oneWayEntrance = findObjectOfType(fromObjects, Obj::MONOLITH_ONE_WAY_ENTRANCE);
+		const auto * oneWayExit = findObjectOfType(toObjects, Obj::MONOLITH_ONE_WAY_EXIT);
+
+		if(hero && hero->getOwner() == playerID && oneWayEntrance && oneWayExit)
+		{
+			nullkiller->memory->recordOneWayPortalTraversal(
+				oneWayEntrance->id,
+				oneWayExit->id,
+				hero->id,
+				cc->getCalendar().getCurrentDay());
+			nullkiller->invalidatePaths();
+		}
+
 		auto t1 = dynamic_cast<const CGTeleport *>(o1);
 		auto t2 = dynamic_cast<const CGTeleport *>(o2);
 		if(t1 && t2)
@@ -105,6 +122,22 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 		auto boat = dynamic_cast<const CGBoat *>(o1);
 		if(boat)
 			memorizeVisitableObj(boat, nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
+	}
+
+	if(hero && hero->getOwner() == playerID)
+	{
+		if(const auto journey = nullkiller->memory->getOneWayPortalJourney(hero->id))
+		{
+			const auto * exit = cc->getObj(journey->second, false);
+			if(exit && from == exit->visitablePos() && to != from)
+			{
+				nullkiller->memory->completeOneWayPortalJourney(hero->id);
+				logAi->debug(
+					"Hero %s completed the landing from one-way portal %d",
+					hero->getNameTextID(),
+					journey->first.getNum());
+			}
+		}
 	}
 }
 
@@ -554,7 +587,19 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	cc->waitTillRealize = true;
 
 	nullkiller->init(callback, this);
+	nullkiller->memory->loadOneWayPortalState(
+		(*cc->getPlayerState(playerID)->playerLocalSettings)["nullkiller2"]["oneWayPortals"]);
+	nullkiller->memory->removeStaleOneWayPortalJourneys(*cc);
 	memorizeVisitableObjs(nullkiller->memory, nullkiller->dangerHitMap, playerID, cc);
+}
+
+void AIGateway::saveOneWayPortalState()
+{
+	const JsonNode & storedState = *cc->getPlayerState(playerID)->playerLocalSettings;
+	JsonNode localState = storedState;
+	nullkiller->memory->saveOneWayPortalState(localState["nullkiller2"]["oneWayPortals"]);
+	if(localState != storedState)
+		cc->saveLocalState(localState);
 }
 
 void AIGateway::yourTurn(QuestionID questionID)
@@ -828,6 +873,7 @@ void AIGateway::makeTurn()
 
 		const auto start = std::chrono::high_resolution_clock::now();
 		nullkiller->makeTurn();
+		saveOneWayPortalState();
 		const auto timeElapsedMs = timeElapsed(start);
 		if(timeElapsedMs > 5000)
 			logAi->warn("PERFORMANCE: NK2 makeTurn took %ld ms", timeElapsedMs);
@@ -1083,7 +1129,7 @@ bool AIGateway::canSwapGarrisonHero(const CGTownInstance * town) const
 	return town->getVisitingHero() || cc->getHeroCount(playerID, false) < cc->getSettings().getInteger(EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP);
 }
 
-bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
+HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 {
 	// a reply sent earlier, e.g. to a level-up, may open another question on the server,
 	// which would reject the movement
@@ -1116,6 +1162,20 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		}
 	};
 
+	auto throwOnFailedMovement = [&]() -> void
+	{
+		auto movementResult = status.getLastMovementResult(heroPtr->id);
+		if(movementResult && movementResult->result == TryMoveHero::FAILED)
+		{
+			logAi->warn(
+				"Movement request for hero %s from %s to %s failed.",
+				heroPtr->getNameTextID(),
+				movementResult->start.toString(),
+				movementResult->end.toString());
+			throw cannotFulfillGoalException("Hero movement request failed.");
+		}
+	};
+
 	logAi->debug("Moving hero %s to tile %s", heroPtr->getNameTextID(), dst.toString());
 	int3 startHpos = heroPtr->visitablePos();
 	bool ret = false;
@@ -1123,8 +1183,10 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 	{
 		//FIXME: this assertion fails also if AI moves onto defeated guarded object
 		//assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
+		status.clearLastMovementResult(heroPtr->id);
 		cc->moveHero(*heroPtr, heroPtr->convertFromVisitablePos(dst), false);
 		afterMovementCheck(); // TODO: is it feasible to hero get killed there if game work properly?
+		throwOnFailedMovement();
 		// If revisiting, teleport probing is never done, and so the entries into the list would remain unused and uncleared
 		teleportChannelProbingList.clear();
 		// not sure if AI can currently reconsider to attack bank while staying on it. Check issue 2084 on mantis for more information.
@@ -1136,8 +1198,8 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 		nullkiller->getPathsInfo(heroPtr.get())->getPath(path, dst);
 		if(path.nodes.empty())
 		{
-			logAi->error("Hero %s cannot reach %s.", heroPtr->getNameTextID(), dst.toString());
-			throw cannotFulfillGoalException("Hero cannot reach target tile.");
+			logAi->debug("Hero %s has no current path to %s.", heroPtr->getNameTextID(), dst.toString());
+			return HeroMovementResult::BLOCKED;
 		}
 		int i = (int)path.nodes.size() - 1;
 
@@ -1188,6 +1250,7 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 				}
 			}
 
+			status.clearLastMovementResult(heroPtr->id);
 			cc->moveHero(*heroPtr, heroPtr->convertFromVisitablePos(dst), transit, layer);
 		};
 
@@ -1201,10 +1264,12 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			destinationTeleport = exitId;
 			if(exitPos.isValid())
 				destinationTeleportPos = exitPos;
+			status.clearLastMovementResult(heroPtr->id);
 			cc->moveHero(*heroPtr, heroPtr->pos, false);
 			destinationTeleport = ObjectInstanceID();
 			destinationTeleportPos = int3(-1);
 			afterMovementCheck();
+			throwOnFailedMovement();
 		};
 
 		auto doChannelProbing = [&]() -> void
@@ -1243,7 +1308,17 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			const auto & nextNode = path.nodes[i - 1];
 			int3 nextCoord = nextNode.coord;
 
-			auto currentObject = getObj(currentCoord, currentCoord == heroPtr->visitablePos());
+			if(currentCoord != heroPtr->visitablePos())
+			{
+				logAi->warn(
+					"Stopping stale movement path for hero %s: expected current tile %s, actual tile is %s.",
+					heroPtr->getNameTextID(),
+					currentCoord.toString(),
+					heroPtr->visitablePos().toString());
+				throw cannotFulfillGoalException("Hero movement path diverged.");
+			}
+
+			auto currentObject = getObj(currentCoord, true);
 			auto nextObjectTop = getObj(nextCoord, false);
 			auto nextObject = getObj(nextCoord, true);
 			auto destTeleportObj = getDestTeleportObj(currentObject, nextObjectTop, nextObject);
@@ -1262,11 +1337,21 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 			if(nextNode.turns)
 			{
 				//blockedHeroes.insert(h); //to avoid attempts of moving heroes with very little MPs
-				return false;
+				return startHpos == heroPtr->visitablePos()
+					? HeroMovementResult::BLOCKED
+					: HeroMovementResult::PROGRESSED;
 			}
 
-			if(nextCoord == heroPtr->visitablePos())
-				continue;
+			if(heroPtr->movementPointsRemaining() <= 0)
+			{
+				logAi->debug(
+					"Stopping movement path for hero %s before moving to %s: no movement points left.",
+					heroPtr->getNameTextID(),
+					nextCoord.toString());
+				return startHpos == heroPtr->visitablePos()
+					? HeroMovementResult::BLOCKED
+					: HeroMovementResult::PROGRESSED;
+			}
 
 			bool isConnected = false;
 			bool isNextObjectTeleport = false;
@@ -1283,6 +1368,14 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 				doMovement(nextCoord, false, nextNode.layer);
 
 			afterMovementCheck();
+			throwOnFailedMovement();
+
+			auto movementResult = status.getLastMovementResult(heroPtr->id);
+			if(movementResult && movementResult->result == TryMoveHero::BLOCKING_VISIT)
+			{
+				i--;
+				break;
+			}
 
 			if(teleportChannelProbingList.size())
 				doChannelProbing();
@@ -1314,14 +1407,14 @@ bool AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & heroPtr)
 	{
 		ret = ret || (dst == heroPtr->visitablePos());
 
-		if(startHpos == heroPtr->visitablePos() && !ret) //we didn't move and didn't reach the target
-		{
-			throw cannotFulfillGoalException("Invalid path found!");
-		}
-
 		logAi->debug("Hero %s moved from %s to %s. Returning %d.", heroPtr->getNameTextID(), startHpos.toString(), heroPtr->visitablePos().toString(), ret);
 	}
-	return ret;
+
+	if(ret)
+		return HeroMovementResult::COMPLETE;
+	if(heroPtr.isVerified() && startHpos != heroPtr->visitablePos())
+		return HeroMovementResult::PROGRESSED;
+	return HeroMovementResult::BLOCKED;
 }
 
 void AIGateway::buildStructure(const CGTownInstance * t, BuildingID building)
@@ -1650,6 +1743,29 @@ ObjectInstanceID AIStatus::getCurrentVisitedObject()
 {
 	std::unique_lock<std::mutex> lock(mx);
 	return objectsBeingVisited.empty() ? ObjectInstanceID::NONE : objectsBeingVisited.back();
+}
+
+void AIStatus::clearLastMovementResult(ObjectInstanceID heroID)
+{
+	std::unique_lock<std::mutex> lock(mx);
+	lastMovementResults.erase(heroID);
+}
+
+void AIStatus::recordMovementResult(const TryMoveHero & details)
+{
+	std::unique_lock<std::mutex> lock(mx);
+	lastMovementResults[details.id] = details;
+	cv.notify_all();
+}
+
+std::optional<TryMoveHero> AIStatus::getLastMovementResult(ObjectInstanceID heroID)
+{
+	std::unique_lock<std::mutex> lock(mx);
+	auto result = lastMovementResults.find(heroID);
+	if(result == lastMovementResults.end())
+		return std::nullopt;
+
+	return result->second;
 }
 
 void AIStatus::setMove(bool ongoing)

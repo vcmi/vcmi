@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "AIUtility.h"
 #include "AIGateway.h"
+#include "Engine/Nullkiller.h"
 #include "Goals/Goals.h"
 
 #include "../../lib/UnlockGuard.h"
@@ -30,6 +31,25 @@
 
 namespace NK2AI
 {
+
+const CGObjectInstance * findObjectOfType(const std::vector<const CGObjectInstance *> & objects, Obj type)
+{
+	const auto object = std::ranges::find(objects, type, &CGObjectInstance::ID);
+	return object != objects.end() ? *object : nullptr;
+}
+
+bool isSoleNoTownHero(const CGHeroInstance * hero, const Nullkiller * aiNk)
+{
+	const auto heroes = aiNk->cc->getHeroesInfo();
+	return aiNk->cc->getTownsInfo().empty()
+		&& heroes.size() == 1
+		&& heroes.front() == hero;
+}
+
+uint64_t getHeroFightingStrength(const CGHeroInstance * hero, const CCreatureSet * army)
+{
+	return static_cast<uint64_t>(getNormalizedHeroStrength(hero) * army->estimateCombatValue());
+}
 
 const CGObjectInstance * ObjectIdRef::operator->() const
 {
@@ -135,7 +155,7 @@ bool HeroPtr::operator==(const HeroPtr & rhs) const
 
 bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint64_t dangerStrength, float safeAttackRatio)
 {
-	const ui64 heroStrength = getNormalizedHeroStrength(h) * heroArmy->estimateCombatValue();
+	const ui64 heroStrength = getHeroFightingStrength(h, heroArmy);
 
 	if(dangerStrength)
 	{
