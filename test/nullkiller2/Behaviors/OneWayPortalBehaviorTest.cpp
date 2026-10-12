@@ -332,19 +332,16 @@ public:
 
 TEST_F(Nullkiller2_Behaviors_OneWayPortal, scoutIsPreferredOverNearerMain)
 {
-	start(makeOneWayPortalMap({1, 100}));
+	start(makeOneWayPortalMap({1, 1, 100}));
 
-	const auto * scoutHero = scout();
 	const auto * main = mainHero();
 	ASSERT_LT(
 		main->visitablePos().dist2d(entrance->visitablePos()),
-		scoutHero->visitablePos().dist2d(entrance->visitablePos()));
+		scout()->visitablePos().dist2d(entrance->visitablePos()));
 
 	const auto probes = portalTasks(decomposePortalBehavior());
 
 	ASSERT_EQ(probes.size(), 1);
-	EXPECT_TRUE(probes.front()->asTask()->isObjectAffected(scoutHero->id))
-		<< "the one-way portal probe must use the scout";
 	EXPECT_FALSE(probes.front()->asTask()->isObjectAffected(main->id))
 		<< "the main must not be assigned while a scout is eligible";
 }
@@ -573,6 +570,7 @@ TEST_F(Nullkiller2_Behaviors_OneWayPortal, scoutedPortalWithReturnRouteIsNotProb
 
 	auto builder = makeOneWayPortalMap({500, 1, 1});
 	builder
+		.resource({8, 12, 0}, GameResID::GOLD, 1000)
 		.oneWayPortalEntrance(returnEntrance, 1)
 		.oneWayPortalExit(returnExit, 1);
 	addWaterWall(builder);
@@ -584,7 +582,7 @@ TEST_F(Nullkiller2_Behaviors_OneWayPortal, scoutedPortalWithReturnRouteIsNotProb
 	advanceDay();
 
 	EXPECT_TRUE(portalTasks(decomposePortalBehavior()).empty())
-		<< "a portal that has nothing left to reveal must not keep pulling idle heroes through";
+		<< "a portal that has nothing left to reveal must not keep pulling scouts and busy heroes through";
 }
 
 TEST_F(Nullkiller2_Behaviors_OneWayPortal, ownTownBehindPortalIsNotReturnRoute)
@@ -592,7 +590,9 @@ TEST_F(Nullkiller2_Behaviors_OneWayPortal, ownTownBehindPortalIsNotReturnRoute)
 	const int3 farTown(30, 30, 0);
 
 	auto builder = makeOneWayPortalMap({500, 1, 1});
-	builder.randomTown(farTown, PLAYER);
+	builder
+		.resource({8, 12, 0}, GameResID::GOLD, 1000)
+		.randomTown(farTown, PLAYER);
 	addWaterWall(builder);
 	start(std::move(builder));
 
@@ -702,4 +702,46 @@ TEST_F(Nullkiller2_Behaviors_OneWayPortal, loneScoutCollectsItsSideBeforeProbing
 	ASSERT_EQ(gateway->nullkiller->heroManager->getHeroRoleOrDefaultInefficient(scout()), NK2AI::HeroRole::SCOUT);
 	EXPECT_TRUE(portalTasks(decomposePortalBehavior()).empty())
 		<< "treasure that nobody else can reach must be collected before the hero leaves for good";
+}
+
+TEST_F(Nullkiller2_Behaviors_OneWayPortal, lastScoutStaysWithItsTown)
+{
+	auto builder = makeOneWayPortalMap({500, 1});
+	builder.resource({8, 12, 0}, GameResID::GOLD, 1000);
+	start(std::move(builder));
+
+	EXPECT_TRUE(portalTasks(decomposePortalBehavior()).empty())
+		<< "the only scout of a town must not leave it for a blind probe";
+}
+
+TEST_F(Nullkiller2_Behaviors_OneWayPortal, idleMainFollowsScoutAcross)
+{
+	auto builder = makeOneWayPortalMap({500, 1, 1});
+	addWaterWall(builder);
+	start(std::move(builder));
+
+	auto * landedScout = scout();
+	sendThroughPortal(*landedScout);
+	moveHero(*landedScout, exit->visitablePos() + int3(1, 0, 0));
+	advanceDay();
+
+	const auto crossings = portalTasks(decomposePortalBehavior());
+	ASSERT_EQ(crossings.size(), 1);
+	EXPECT_TRUE(crossings.front()->asTask()->isObjectAffected(mainHero()->id))
+		<< "a main hero with nothing left at home must carry on behind the portal";
+}
+
+TEST_F(Nullkiller2_Behaviors_OneWayPortal, busyMainLeavesNeutralRewardsToExpeditionWithTown)
+{
+	auto builder = makeRewardsBehindPortalMap(false);
+	builder.randomTown({30, 30, 0}, PLAYER);
+	start(std::move(builder));
+
+	auto * landedScout = scout();
+	sendThroughPortal(*landedScout);
+	moveHero(*landedScout, exit->visitablePos() + int3(1, 0, 0));
+	advanceDay();
+
+	EXPECT_TRUE(portalTasks(decomposePortalBehavior()).empty())
+		<< "heroes that hold a town behind the portal grow into its neutral rewards without help from home";
 }

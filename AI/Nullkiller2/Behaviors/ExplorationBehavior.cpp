@@ -64,6 +64,12 @@ bool hasAlternativeProgress(
 		if(!shouldVisit(aiNk, hero, object))
 			continue;
 
+		// weekly pickups are a job for scouts; only a dwelling that waits to be flagged keeps a main hero
+		const bool dwellingToFlag = dynamic_cast<const CGDwelling *>(object)
+			&& aiNk->cc->getPlayerRelations(aiNk->playerID, object->tempOwner) == PlayerRelations::ENEMIES;
+		if(!exclusiveOnly && isWeeklyRevisitable(aiNk->playerID, object) && !dwellingToFlag)
+			continue;
+
 		const auto paths = aiNk->pathfinder->getPathInfo(object->visitablePos(), false);
 		const bool reachableByHero = vstd::contains_if(paths, [hero, aiNk](const AIPath & path)
 		{
@@ -81,6 +87,24 @@ bool hasAlternativeProgress(
 
 	ExplorationHelper helper(hero, aiNk);
 	return helper.scanMap();
+}
+
+/// True if the scout's side has an own town that no other scout can reach
+bool isLastScoutAtHome(const CGHeroInstance * hero, const Nullkiller * aiNk)
+{
+	const auto heroes = aiNk->cc->getHeroesInfo();
+	return vstd::contains_if(aiNk->cc->getTownsInfo(), [&](const CGTownInstance * town)
+	{
+		if(!aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), town->visitablePos()))
+			return false;
+
+		return !vstd::contains_if(heroes, [&](const CGHeroInstance * other)
+		{
+			return other != hero
+				&& aiNk->heroManager->getHeroRoleOrDefaultInefficient(other) == HeroRole::SCOUT
+				&& aiNk->pathfinder->isTileAccessible(HeroPtr(other, aiNk->cc.get()), town->visitablePos());
+		});
+	});
 }
 
 /// Tells whether a hero has nothing left to do on its side of the portal
@@ -354,11 +378,13 @@ std::optional<AIPath> findPortalProbePath(
 	// a scout learns nothing new from a portal that has already swallowed an expedition
 	if(blindProbe && !safeLandingOnly)
 	{
-		// objects that only the leaving hero can reach would be lost behind it
+		// objects that only the leaving hero can reach would be lost behind it, and so would the weekly pickups of its towns
 		auto scoutPaths = paths;
 		vstd::erase_if(scoutPaths, [&](const AIPath & path)
 		{
-			return path.targetHero && !isFreeToLeave(path.targetHero);
+			return path.targetHero
+				&& aiNk->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero) == HeroRole::SCOUT
+				&& (!isFreeToLeave(path.targetHero) || isLastScoutAtHome(path.targetHero, aiNk));
 		});
 
 		if(auto scoutPath = findBestPortalPath(scoutPaths, aiNk, isIdle, HeroRole::SCOUT, std::nullopt))
@@ -411,30 +437,20 @@ std::vector<const CGObjectInstance *> getObjectsBehindPortal(
 	return result;
 }
 
-/// Main hero route through an already scouted portal, taken for the sake of the objects behind it
+/// Main hero route through an already scouted portal: a stronger hero for a town that waits to be taken, otherwise one with nothing left to do at home
 std::optional<AIPath> findPortalCrossingPath(
 	const CGObjectInstance * entrance,
-	const std::vector<const CGObjectInstance *> & objectsBehind,
+	bool townToTake,
 	const Nullkiller * aiNk,
 	const IdleHeroCheck & isIdle)
 {
-	// without a way back the hero needs a town on the other side to keep fighting
-	const bool canSettle = aiNk->memory->hasKnownOneWayPortalReturn(entrance->id)
-		|| findObjectOfType(objectsBehind, Obj::TOWN);
-	if(!canSettle)
-		return std::nullopt;
-
 	const auto paths = aiNk->pathfinder->getPathInfo(
 		entrance->visitablePos(),
 		aiNk->isObjectGraphAllowed());
 	// a hero no stronger than those already across can take nothing they can not
-	const auto path = findBestPortalPath(
-		paths,
-		aiNk,
-		isIdle,
-		HeroRole::MAIN,
-		std::nullopt,
-		getStrongestUnreturnedPortalHeroStrength(entrance, aiNk));
+	const auto path = townToTake
+		? findBestPortalPath(paths, aiNk, isIdle, HeroRole::MAIN, std::nullopt, getStrongestUnreturnedPortalHeroStrength(entrance, aiNk))
+		: findBestPortalPath(paths, aiNk, isIdle, HeroRole::MAIN, std::nullopt, std::nullopt, true);
 	if(!path || !isPortalLandingSafe(entrance, *path, aiNk))
 		return std::nullopt;
 
@@ -676,12 +692,18 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 			? findPortalProbePath(entrance, aiNk, reinforcementStrength, expeditionLost, isIdle, isFreeToLeave)
 			: std::nullopt;
 
-		// rewards behind a scouted portal can justify sending a main hero that is still busy on this side
+		// heroes already across grow into whatever is neutral there, so only a town still to be taken
+		// justifies sending a main hero that is busy on this side
+		const bool townToTake = vstd::contains_if(objectsBehind, [aiNk](const CGObjectInstance * object)
+		{
+			return object->ID == Obj::TOWN
+				&& aiNk->cc->getPlayerRelations(aiNk->playerID, object->getOwner()) == PlayerRelations::ENEMIES;
+		});
 		std::vector<ObjectInstanceID> rewardsBehind;
 		if(!path && probed)
 		{
-			path = findPortalCrossingPath(entrance, objectsBehind, aiNk, isIdle);
-			if(path)
+			path = findPortalCrossingPath(entrance, townToTake, aiNk, isIdle);
+			if(path && townToTake)
 			{
 				const auto expedition = aiNk->memory->getUnreturnedOneWayPortalHeroes(entrance->id);
 				for(const auto * object : objectsBehind)
@@ -701,12 +723,19 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 								aiNk->settings->getSafeAttackRatio());
 					});
 					if(!takenByExpedition)
+					{
+						logAi->debug(
+							"One-way portal %d crossing reward: %s at %s",
+							entrance->id.getNum(),
+							object->getTypeName(),
+							object->visitablePos().toString());
 						rewardsBehind.push_back(object->id);
+					}
 				}
-			}
 
-			if(rewardsBehind.empty())
-				path.reset();
+				if(rewardsBehind.empty())
+					path.reset();
+			}
 		}
 
 		if(!path)
@@ -720,7 +749,7 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 		const auto * teleport = dynamic_cast<const CGTeleport *>(entrance);
 		logAi->debug(
 			"One-way portal intent: %s entrance %d channel %d with %s hero %s",
-			desperation ? "desperation" : !rewardsBehind.empty() ? "cross" : reinforcementStrength ? "reinforce" : "probe",
+			desperation ? "desperation" : !rewardsBehind.empty() ? "cross" : reinforcementStrength ? "reinforce" : probed ? "follow" : "probe",
 			entrance->id.getNum(),
 			teleport ? teleport->channel.getNum() : -1,
 			aiNk->heroManager->getHeroRoleOrDefaultInefficient(path->targetHero) == HeroRole::SCOUT ? "scout" : "main",
