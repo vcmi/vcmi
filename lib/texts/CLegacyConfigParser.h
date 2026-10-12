@@ -32,6 +32,9 @@ class CLegacyConfigParser
 	/// reads "raw" string without encoding conversion
 	std::string readRawString();
 
+	/// returns true if position points at the end of current line or file
+	bool isEndOfLine(const char * position) const;
+
 public:
 	/// read one entry from current line. Return ""/0 if end of line reached
 	std::string readString();

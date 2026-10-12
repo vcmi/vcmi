@@ -27,9 +27,10 @@ void CGeneralTextHandler::detectInstallParameters()
 {
 	using LanguageFootprint = std::array<double, 16>;
 
-	static const std::array<LanguageFootprint, 7> knownFootprints =
+	static const std::array<LanguageFootprint, 8> knownFootprints =
 	{ {
 		{ { 0.1602, 0.0000, 0.0357, 0.0054, 0.0038, 0.0017, 0.0077, 0.0214, 0.0000, 0.0000, 0.1264, 0.1947, 0.2012, 0.1406, 0.0480, 0.0532 } },
+		{ { 0.0785, 0.0000, 0.0615, 0.0050, 0.0963, 0.0311, 0.0617, 0.0550, 0.0000, 0.0000, 0.2909, 0.1708, 0.0620, 0.0366, 0.0275, 0.0224 } },
 		{ { 0.0559, 0.0000, 0.1983, 0.0051, 0.0222, 0.0183, 0.4596, 0.2405, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000 } },
 		{ { 0.0493, 0.0000, 0.1926, 0.0047, 0.0230, 0.0121, 0.4133, 0.2780, 0.0002, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0259, 0.0008 } },
 		{ { 0.0534, 0.0000, 0.1705, 0.0047, 0.0418, 0.0208, 0.4775, 0.2191, 0.0001, 0.0000, 0.0000, 0.0000, 0.0000, 0.0005, 0.0036, 0.0080 } },
@@ -38,9 +39,10 @@ void CGeneralTextHandler::detectInstallParameters()
 		{ { 0.0559, 0.0000, 0.1807, 0.0059, 0.0036, 0.0013, 0.0046, 0.0134, 0.0000, 0.0004, 0.0000, 0.0487, 0.0209, 0.0060, 0.4615, 0.1972 } },
 	} };
 
-	static const std::array<std::string, 7> knownLanguages =
+	static const std::array<std::string, 8> knownLanguages =
 	{ {
 		"chinese",
+		"tchinese",
 		"english",
 		"french",
 		"german",

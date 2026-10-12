@@ -234,8 +234,19 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		}
 	}
 
+	// map and campaign texts are owned by maps and campaigns themselves, not by the library
 	std::map<std::string, ExportedStrings> textsByMod;
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
+
+	for (auto const & map : loadedMaps)
+		map->texts->exportAllTexts(textsByMod, false);
+
+	for (auto const & campaign : loadedCampaigns)
+	{
+		campaign->getTexts()->exportAllTexts(textsByMod, false);
+		for (auto const & scenarioTexts : campaign->getScenarioTexts())
+			scenarioTexts.second->exportAllTexts(textsByMod, false);
+	}
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
 	boost::filesystem::create_directories(outPath);

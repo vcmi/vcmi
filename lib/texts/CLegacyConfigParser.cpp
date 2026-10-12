@@ -46,10 +46,16 @@ std::string CLegacyConfigParser::extractQuotedPart()
 	curr++; // skip quote
 	const char * begin = curr;
 
-	while (curr != end && *curr != '\"' && *curr != '\t')
+	// some localizations have quoted strings without closing quote - end those on field or line separator
+	while (curr != end && *curr != '\"' && *curr != '\t' && *curr != '\r')
 		curr++;
 
-	return std::string(begin, curr++); //increment curr to close quote
+	std::string ret(begin, curr);
+
+	if (curr != end && *curr == '\"')
+		curr++; // skip closing quote
+
+	return ret;
 }
 
 std::string CLegacyConfigParser::extractQuotedString()
@@ -96,7 +102,7 @@ std::string CLegacyConfigParser::extractNormalString()
 
 std::string CLegacyConfigParser::readRawString()
 {
-	if (curr >= end || *curr == '\n')
+	if (isEndOfLine(curr))
 		return "";
 
 	std::string ret;
@@ -143,12 +149,18 @@ bool CLegacyConfigParser::isNextEntryEmpty() const
 	while (nextSymbol < end && *nextSymbol == ' ')
 		nextSymbol++; //find next meaningful symbol
 
-	return nextSymbol >= end || *nextSymbol == '\n' || *nextSymbol == '\r' || *nextSymbol == '\t';
+	return isEndOfLine(nextSymbol) || *nextSymbol == '\r' || *nextSymbol == '\t';
+}
+
+bool CLegacyConfigParser::isEndOfLine(const char * position) const
+{
+	// some localizations have unquoted multi-line strings, so only LF that is preceded by CR ends the line
+	return position >= end || (*position == '\n' && position != data.get() && position[-1] == '\r');
 }
 
 bool CLegacyConfigParser::endLine()
 {
-	while (curr < end && *curr !=  '\n')
+	while (!isEndOfLine(curr))
 		readString();
 
 	curr++;

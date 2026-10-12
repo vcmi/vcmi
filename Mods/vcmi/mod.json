@@ -41,7 +41,7 @@
 	"tchinese" : {
 		"skipValidation" : true,
 		"translations" : [
-			"config/translations/chinese.json"
+			"config/translations/tchinese.json"
 		]
 	},
 

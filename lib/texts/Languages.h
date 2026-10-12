@@ -102,7 +102,7 @@ inline const auto & getLanguageList()
 		{ "bulgarian",   "Bulgarian",   "Български",    "CP1251",      "bg_BG", "bg", "bul", "%d.%m.%Y %H:%M",    EPluralForms::EN_2, true },
 		{ "czech",       "Czech",       "Čeština",      "CP1250",      "cs_CZ", "cs", "cze", "%d.%m.%Y %H:%M",    EPluralForms::CZ_3, true },
 		{ "chinese",     "Simplified Chinese", "简体中文",  "GBK",      "zh_CN", "zh-CN", "chi", "%Y-%m-%d %H:%M", EPluralForms::VI_1, true },
-		{ "tchinese",    "Traditional Chinese", "正體字",   "GBK",      "zh_TW", "zh-TW", "chi", "%Y-%m-%d %H:%M", EPluralForms::VI_1, true },
+		{ "tchinese",    "Traditional Chinese", "正體字",  "BIG5",      "zh_TW", "zh-TW", "chi", "%Y-%m-%d %H:%M", EPluralForms::VI_1, true },
 		{ "dutch",       "Dutch",       "Nederlands",   "CP1252",      "nl_NL", "nl", "nld", "%Y-%m-%d %H:%M",    EPluralForms::EN_2, true },
 		{ "english",     "English",     "English",      "CP1252",      "en_US", "en", "eng", "%Y-%m-%d %H:%M",    EPluralForms::EN_2, true }, // English uses international date/time format here
 		{ "filipino",    "Filipino",    "Pilipino",     "CP1252",      "fil_FIL","fil","fil","%Y-%m-%d %H:%M",    EPluralForms::EN_2, true },
