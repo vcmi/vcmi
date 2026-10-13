@@ -50,7 +50,7 @@ ActionPreview CatapultAction::preview(const IGameInfoCallback & game, const CBat
 	return {"combatShootCatapult", {}, {}};
 }
 
-BattleAction CatapultAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<BattleAction> CatapultAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	BattleAction action = BattleAction::makeCatapultShot(context.actor);
 	action.aimToHex(context.hoveredHex);

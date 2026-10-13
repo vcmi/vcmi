@@ -51,7 +51,7 @@ BattleActionPreview LibActionEntry::preview(const BattleHex & hex) const
 
 void LibActionEntry::realize(const BattleHex & hex) const
 {
-	owner.sendCommand(option.type->build(*owner.getBattle(), option, getContext(hex)), &actor);
+	owner.sendCommand(option.type->build(*owner.getBattle(), option, getContext(hex)).value(), &actor);
 }
 
 SpellID LibActionEntry::getSpell() const
