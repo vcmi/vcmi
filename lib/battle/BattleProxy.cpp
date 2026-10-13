@@ -70,12 +70,13 @@ PlayerColor BattleProxy::getSidePlayer(BattleSide side) const
 
 const CArmedInstance * BattleProxy::getSideArmy(BattleSide side) const
 {
-	return subject->battleGetArmyObject(side);
+	//state getters are not subject to access checks, those are performed by callback methods
+	return subject->getBattle()->getSideArmy(side);
 }
 
 const CGHeroInstance * BattleProxy::getSideHero(BattleSide side) const
 {
-	return subject->battleGetFightingHero(side);
+	return subject->getBattle()->getSideHero(side);
 }
 
 ui8 BattleProxy::getTacticDist() const
