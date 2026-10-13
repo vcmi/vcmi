@@ -34,6 +34,9 @@ public:
 	/// Hands out everything written so far and leaves this serializer empty
 	std::vector<std::byte> extractBuffer();
 
+	/// Returns true if all data in the buffer has been read
+	bool isFullyRead() const;
+
 	template <typename T>
 	static std::unique_ptr<T> deepCopy(const T &data, IGameInfoCallback * cb = nullptr)
 	{
