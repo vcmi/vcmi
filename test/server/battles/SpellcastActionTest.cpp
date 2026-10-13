@@ -11,8 +11,10 @@
 
 #include "BattleTestFixture.h"
 
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/battle/BattleAction.h"
 #include "../../../lib/battle/Destination.h"
+#include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/spells/CSpell.h"
@@ -448,4 +450,233 @@ TEST_F(SpellcastActionTest, creatureWithoutCastsLeftIsRefused)
 
 	EXPECT_FALSE(castAsUnit(caster, SpellID::PROTECTION_FROM_AIR, ally->getPosition()));
 	EXPECT_FALSE(isAffectedBy(ally, SpellID::PROTECTION_FROM_AIR));
+}
+
+/// What the client shows and sends for the spell options of a hero and of a unit.
+class SpellOptionTest : public SpellcastActionTest
+{
+public:
+	static inline const BattleHex freeHex = BattleHex(7, 8);
+
+	static ActionOption heroOption(SpellID spell)
+	{
+		return BattleActionType::makeSpellOption(EActionType::HERO_SPELL, spell);
+	}
+
+	/// Query of the attacking hero about the hex, after the destinations chosen earlier
+	static ActionContext heroContext(const BattleHex & hex, const battle::Target & chosen = {})
+	{
+		return {nullptr, hex, std::nullopt, chosen, BattleSide::ATTACKER};
+	}
+
+	bool isLegal(const ActionOption & option, const ActionContext & context) const
+	{
+		return option.type->isLegal(*gameState(), *battle(), option, context);
+	}
+
+	ActionPreview preview(const ActionOption & option, const ActionContext & context) const
+	{
+		return option.type->preview(*gameState(), *battle(), option, context);
+	}
+
+	static std::string toString(const MetaString & text)
+	{
+		return text.toString(LIBRARY->staticTexts());
+	}
+
+	void prepareHero(SpellID spell, const CStack * active)
+	{
+		teachSpell(attackerSideHero, spell);
+		battle()->activeStack = active->unitId();
+	}
+};
+
+TEST_F(SpellOptionTest, heroSpellIsAimedAtUnit)
+{
+	startGame();
+	startBattle();
+
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	prepareHero(SpellID::BLESS, ally);
+	const auto option = heroOption(SpellID::BLESS);
+
+	EXPECT_TRUE(isLegal(option, heroContext(allyHex)));
+	const auto shown = preview(option, heroContext(allyHex));
+	EXPECT_EQ(shown.cursor, "castSpell");
+	EXPECT_EQ(toString(shown.statusText), "Cast Bless on Pikemen");
+	EXPECT_EQ(shown.shadedHexes, BattleHexArray({allyHex}));
+
+	EXPECT_FALSE(isLegal(option, heroContext(freeHex)));
+	const auto blocked = preview(option, heroContext(freeHex));
+	EXPECT_EQ(blocked.cursor, "combatBlocked");
+	EXPECT_FALSE(blocked.statusText.empty());
+
+	// one destination: no click adds a target step, and nothing is cast without a click
+	EXPECT_FALSE(option.type->buildTargetStep(*battle(), option, heroContext(allyHex)).has_value());
+	EXPECT_FALSE(option.type->build(*battle(), option, heroContext(BattleHex::INVALID)).has_value());
+
+	ASSERT_TRUE(act(option.type->build(*battle(), option, heroContext(allyHex)).value()));
+	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
+}
+
+TEST_F(SpellOptionTest, areaSpellShowsItsAreaAndUnitsInIt)
+{
+	startGame();
+	startBattle();
+
+	CStack * active = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	prepareHero(SpellID::FIREBALL, active);
+	const auto option = heroOption(SpellID::FIREBALL);
+
+	const BattleHex nextToEnemy = enemyHex.cloneInDirection(BattleHex::LEFT);
+	const auto shown = preview(option, heroContext(nextToEnemy));
+	EXPECT_EQ(shown.cursor, "castSpell");
+	EXPECT_EQ(shown.shadedHexes.size(), 7);
+	EXPECT_TRUE(shown.shadedHexes.contains(enemyHex));
+	EXPECT_EQ(shown.affectedUnits, std::vector<uint32_t>{enemy->unitId()});
+
+	// the unit on the hovered hex is not listed
+	EXPECT_TRUE(preview(option, heroContext(enemyHex)).affectedUnits.empty());
+}
+
+TEST_F(SpellOptionTest, massSpellIsCastWithoutClick)
+{
+	startGame();
+	for(auto school : {SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC})
+		attackerSideHero->setSecSkillLevel(school, 3, ChangeValueMode::ABSOLUTE);
+	startBattle();
+
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	prepareHero(SpellID::BLESS, ally);
+	const auto option = heroOption(SpellID::BLESS);
+
+	EXPECT_FALSE(isLegal(option, heroContext(allyHex)));
+	EXPECT_EQ(preview(option, heroContext(allyHex)).cursor, "combatBlocked");
+
+	EXPECT_TRUE(isLegal(option, heroContext(BattleHex::INVALID)));
+	ASSERT_TRUE(act(option.type->build(*battle(), option, heroContext(BattleHex::INVALID)).value()));
+	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
+}
+
+TEST_F(SpellOptionTest, teleportIsAimedAtUnitThenAtFreeHex)
+{
+	startGame();
+	startBattle();
+
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	prepareHero(SpellID::TELEPORT, ally);
+	const auto option = heroOption(SpellID::TELEPORT);
+
+	// the first click chooses the unit and sends nothing
+	EXPECT_EQ(preview(option, heroContext(allyHex)).cursor, "castSpell");
+	EXPECT_FALSE(option.type->build(*battle(), option, heroContext(allyHex)).has_value());
+	EXPECT_FALSE(option.type->buildTargetStep(*battle(), option, heroContext(freeHex)).has_value());
+	EXPECT_EQ(preview(option, heroContext(freeHex)).cursor, "combatBlocked");
+
+	const auto unitStep = option.type->buildTargetStep(*battle(), option, heroContext(allyHex));
+	ASSERT_TRUE(unitStep.has_value());
+	EXPECT_EQ(unitStep->unitValue, ally);
+	const battle::Target chosen = {*unitStep};
+
+	EXPECT_EQ(preview(option, heroContext(freeHex, chosen)).cursor, "combatTeleport");
+	EXPECT_FALSE(option.type->buildTargetStep(*battle(), option, heroContext(freeHex, chosen)).has_value());
+
+	EXPECT_FALSE(isLegal(option, heroContext(enemy->getPosition(), chosen)));
+	const auto blocked = preview(option, heroContext(enemy->getPosition(), chosen));
+	EXPECT_EQ(blocked.cursor, "combatBlocked");
+	EXPECT_FALSE(blocked.statusText.empty());
+
+	ASSERT_TRUE(isLegal(option, heroContext(freeHex, chosen)));
+	ASSERT_TRUE(act(option.type->build(*battle(), option, heroContext(freeHex, chosen)).value()));
+	EXPECT_EQ(ally->getPosition(), freeHex);
+}
+
+TEST_F(SpellOptionTest, sacrificeIsAimedAtDeadUnitThenAtVictim)
+{
+	startGame();
+	startBattle();
+
+	CStack * active = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	CStack * fallen = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	CStack * victim = addStack(BattleSide::ATTACKER, CreatureID(pikeman), freeHex, 2 * stackCount);
+
+	injure(fallen, fallen->getAvailableHealth());
+	ASSERT_FALSE(fallen->alive());
+
+	prepareHero(SpellID::SACRIFICE, active);
+	const auto option = heroOption(SpellID::SACRIFICE);
+
+	const auto fallenStep = option.type->buildTargetStep(*battle(), option, heroContext(allyHex));
+	ASSERT_TRUE(fallenStep.has_value());
+	const battle::Target chosen = {*fallenStep};
+
+	const auto shown = preview(option, heroContext(victim->getPosition(), chosen));
+	EXPECT_EQ(shown.cursor, "combatSacrifice");
+	EXPECT_THAT(toString(shown.statusText), ::testing::HasSubstr("Pikemen"));
+
+	// no unit to give up
+	EXPECT_FALSE(isLegal(option, heroContext(BattleHex(9, 8), chosen)));
+
+	ASSERT_TRUE(act(option.type->build(*battle(), option, heroContext(victim->getPosition(), chosen)).value()));
+	EXPECT_TRUE(fallen->alive());
+}
+
+TEST_F(SpellOptionTest, unitSpellIsTriedFirstOnUnitsItSuits)
+{
+	startGame();
+	startBattle();
+
+	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(stormElemental), casterHex, stackCount);
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	grantSpell(caster, BonusType::SPELLCASTER, SpellID::CURSE, 0);
+	battle()->activeStack = caster->unitId();
+
+	std::vector<ActionOption> options;
+	BattleActionType::collectAllOptions(*battle(), *caster, options);
+
+	const auto optionOf = [&options](SpellID spell)
+	{
+		for(const auto & option : options)
+			if(option.spell == spell)
+				return option;
+
+		ADD_FAILURE() << "no option of the spell";
+		return ActionOption{};
+	};
+
+	const auto positive = optionOf(SpellID::PROTECTION_FROM_AIR);
+	const auto negative = optionOf(SpellID::CURSE);
+	ASSERT_TRUE(positive.type && negative.type);
+	EXPECT_EQ(positive.button.value().spell, SpellID::PROTECTION_FROM_AIR);
+
+	const int melee = BattleActionType::find(EActionType::WALK_AND_ATTACK)->getPriority(*battle(), {}, *caster, enemy);
+
+	EXPECT_LT(positive.type->getPriority(*battle(), positive, *caster, ally), melee);
+	EXPECT_GT(positive.type->getPriority(*battle(), positive, *caster, enemy), melee);
+	EXPECT_LT(negative.type->getPriority(*battle(), negative, *caster, enemy), melee);
+	EXPECT_GT(negative.type->getPriority(*battle(), negative, *caster, ally), melee);
+	EXPECT_GT(positive.type->getPriority(*battle(), positive, *caster, nullptr), melee);
+
+	const ActionContext onAlly{caster, allyHex};
+	EXPECT_TRUE(isLegal(positive, onAlly));
+	ASSERT_TRUE(act(positive.type->build(*battle(), positive, onAlly).value()));
+	EXPECT_TRUE(isAffectedBy(ally, SpellID::PROTECTION_FROM_AIR));
+}
+
+TEST_F(SpellOptionTest, unitThatCastThisTurnHasNoSpellOptions)
+{
+	startGame();
+	startBattle();
+
+	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(stormElemental), casterHex, stackCount);
+	caster->castSpellThisTurn = true;
+
+	std::vector<ActionOption> options;
+	BattleActionType::collectAllOptions(*battle(), *caster, options);
+
+	for(const auto & option : options)
+		EXPECT_FALSE(option.spell.hasValue());
 }

@@ -775,8 +775,9 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 	const CStack * stack = owner.stacksController->getActiveStack();
 	auto hoveredHex = getHoveredHex();
 
+	// the active unit is deactivated while the next destination of a spell is chosen, and the preview of the spell is shown then
 	if(!stack)
-		return {};
+		return hoveredHex.isValid() ? owner.actionsController->getShadedHexes(hoveredHex) : BattleHexArray();
 
 	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, false);
 
@@ -956,7 +957,9 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighlights);
 	}
 
+	// the spell of a lib entry is not among these: its range is in the preview, which is shown as the movement target
 	bool useSpellRangeForMouse = hoveredHex != BattleHex::INVALID
+		&& owner.actionsController->getCurrentSpell(hoveredHex) != nullptr
 		&& (owner.actionsController->currentActionSpellcasting(getHoveredHex())
 			|| owner.actionsController->creatureSpellcastingModeActive()); //at least shooting with SPELL_LIKE_ATTACK can operate in spellcasting mode without being actual spellcast
 	bool useMoveRangeForMouse = !hoveredMoveHexes.empty() || !settings["battle"]["mouseShadow"].Bool();

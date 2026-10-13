@@ -44,25 +44,22 @@ class BattleActionsController
 	/// Selection of the last queried hex, reused by the per-frame queries until the next hover or change of the controller state
 	std::optional<HexSelection> cachedSelection;
 
-	/// spell for which player's hero is choosing destination
-	std::shared_ptr<BattleAction> heroSpellToCast;
+	/// true while the player chooses the target of a hero spell
+	bool heroSpellcasting = false;
 
-	// targets of multi-target spells cast by monsters
-	std::vector<BattleHex> monsterSpellTargets;
+	/// Destinations chosen so far for the target of the only remaining entry
+	battle::Target partialTarget;
 
-	// the monster that casts the spell 
-	const CStack * monsterCaster = nullptr;
+	/// Active unit, deactivated while the partial target is not empty
+	const CStack * suspendedStack = nullptr;
 
 	/// cached message that was set by this class in status bar
 	std::string currentConsoleMsg;
 
-	/// if true, active stack could possibly cast some target spell
-	std::vector<const CSpell *> creatureSpells;
+	/// Spell that the active unit rolled for its turn out of its weighted SPELLCASTER bonuses, if any
+	SpellID rolledCreatureSpell = SpellID::NONE;
 
-	/// stack that has been selected as first target for multi-target spells (Teleport & Sacrifice)
-	const CStack * selectedStack;
-
-	bool isCastingPossibleHere (const CSpell * spell, const CStack *shere, const BattleHex & myNumber);
+	bool isCastingPossibleHere (const CSpell * spell, const BattleHex & myNumber);
 	BattleActionEntries getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
 
 	/// True if the entry is a legacy entry of the given action kind
@@ -92,14 +89,10 @@ class BattleActionsController
 
 	const CStack * getStackForHex(const BattleHex & myNumber) ;
 
-	/// attempts to initialize spellcasting action for stack
-	/// will silently return if stack is not a spellcaster
+	/// Rolls the spell of the turn for a unit with weighted SPELLCASTER bonuses
 	void tryActivateStackSpellcasting(const CStack *casterStack);
 
-	/// returns spell that is currently being cast by hero or nullptr if none
-	const CSpell * getHeroSpellToCast() const;
-
-	/// if current stack is spellcaster, returns spell being cast, or null othervice
+	/// Spell of the SPELL_LIKE_ATTACK of the active unit, or of the walk and cast entry selected for the hex; nullptr otherwise
 	const CSpell * getStackSpellToCast(const BattleHex & hoveredHex);
 
 	/// returns true if current stack is a spellcaster
@@ -116,10 +109,7 @@ public:
 	/// returns true if UI is currently in "F" hotkey creature spell target selection mode
 	bool creatureSpellcastingModeActive() const;
 
-	/// returns true if one of the following is true:
-	/// - we are casting spell by hero
-	/// - we are casting spell by creature in targeted mode (F hotkey)
-	/// - current creature is spellcaster and preferred action for current hex is spellcast
+	/// returns true if the entry selected for the hex casts a spell
 	bool currentActionSpellcasting(const BattleHex & hoveredHex);
 
 	/// returns true if current hex action is "walk and spellcast" with active stack
@@ -147,6 +137,12 @@ public:
 	/// ends casting spell (eg. when spell has been cast or canceled)
 	void endCastingSpell();
 
+	const battle::Target & getPartialTarget() const;
+	/// Adds a destination chosen for the target of the entry, which stays the only entry until its action is sent or cancelled
+	void addTargetStep(const IBattleActionEntry & entry, const battle::Destination & destination);
+	/// Sends the action of the unit, or of the hero if there is no actor, and leaves the target selection of a spell
+	void sendAction(const BattleAction & action, const CStack * actor);
+
 	/// update cursor and status bar according to new active hex
 	void onHexHovered(const BattleHex & hoveredHex);
 	void onHexRightHovered(const BattleHex & hoveredHex);
@@ -160,6 +156,7 @@ public:
 	/// performs action according to selected hex
 	void onHexRightClicked(const BattleHex & clickedHex, const std::function<void(const CStack *)> & showStackInfo = {}, const std::function<void(const std::string &)> & showTextInfo = {});
 
+	/// Caster, spell and mode of the spell that the legacy code shows for the hex: a SPELL_LIKE_ATTACK or a walk and cast
 	const spells::Caster * getCurrentSpellcaster() const;
 	const CSpell * getCurrentSpell(const BattleHex & hoveredHex);
 	spells::Mode getCurrentCastMode() const;

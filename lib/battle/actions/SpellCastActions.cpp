@@ -121,14 +121,13 @@ ActionPreview SpellCastAction::preview(const IGameInfoCallback & game, const CBa
 	if(!mechanics || !context.hoveredHex.isValid())
 		return {"combatBlocked", {}, {}, {}};
 
-	const bool legal = buildTargetStep(battle, option, context).has_value() || isLegal(game, battle, option, context);
 	const auto step = mechanics->describeTargetStep(context.partialTarget, context.hoveredHex);
 
-	ActionPreview result;
-	result.cursor = legal ? step.cursor : "combatBlocked";
-	result.statusText = legal ? step.text : step.blockedText;
+	if(!buildTargetStep(battle, option, context) && !isLegal(game, battle, option, context))
+		return {"combatBlocked", step.blockedText, {}, {}};
 
-	// shown where the spell can't be cast too, as the outline of what the spell would cover
+	ActionPreview result{step.cursor, step.text, {}, {}};
+
 	for(const BattleHex & hex : mechanics->rangeInHexes(context.hoveredHex))
 		if(hex.getX() != 0 && hex.getX() != GameConstants::BFIELD_WIDTH - 1)
 			result.shadedHexes.insert(hex);
@@ -229,6 +228,17 @@ bool UnitSpellAction::isUnitAction() const
 ActionOption UnitSpellAction::makeOption(SpellID spell) const
 {
 	return {this, UnitActionButton{6, spell, {}, {}}, spell};
+}
+
+void UnitSpellAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+{
+	if(battle.battleTacticDist() || !actor.canCast())
+		return;
+
+	// a bonus with parameters is one of the spells that a unit rolls for the turn; the client adds the rolled one
+	for(const auto & bonus : *actor.getBonusesOfType(BonusType::SPELLCASTER))
+		if(!bonus->parameters && bonus->subtype.as<SpellID>().hasValue())
+			out.push_back(makeOption(bonus->subtype.as<SpellID>()));
 }
 
 int UnitSpellAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const

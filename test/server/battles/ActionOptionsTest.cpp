@@ -15,10 +15,6 @@
 #include "../../../lib/battle/PossiblePlayerBattleAction.h"
 #include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/bonuses/Bonus.h"
-#include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/spells/CSpell.h"
-
-#include <vcmi/spells/Magic.h>
 
 /// Prints the value of PossiblePlayerBattleAction::Actions, which gtest would otherwise print as raw bytes.
 static void PrintTo(const PossiblePlayerBattleAction & option, std::ostream * os)
@@ -44,20 +40,9 @@ struct UnitOptionsCase
 	int creature;
 	/// Grants the abilities no Heroes 3 creature combines with the rest, or nullptr.
 	void (*grant)(CStack * unit);
-	/// Spells the client lets a SPELLCASTER unit choose from.
-	std::vector<SpellID> spells;
 	std::vector<Option> expected;
 	/// Actions whose lib types offer an option
 	std::vector<EActionType> libActions;
-};
-
-/// How the client aims a hero spell, depending on the aim types of the spell at the hero's mastery.
-struct AimCase
-{
-	const char * name;
-	SpellID spell;
-	int mastery; ///< of every magic school
-	Option::Actions expected;
 };
 
 }
@@ -68,10 +53,9 @@ class ActionOptionsTest : public BattleTestFixture
 public:
 	static inline const BattleHex unitHex = BattleHex(3, 5);
 
-	std::vector<Option> optionsOf(const CStack * unit, const std::vector<SpellID> & spells = {}, bool tacticsMode = false) const
+	std::vector<Option> optionsOf(const CStack * unit, bool tacticsMode = false) const
 	{
 		BattleClientInterfaceData data;
-		data.creatureSpellsToCast = spells;
 		data.tacticsMode = tacticsMode;
 		return battle()->getClientActionsForStack(unit, data);
 	}
@@ -117,35 +101,35 @@ TEST_P(UnitOptionsTest, offersOptionsOfUnitAbilities)
 	if(scenario.grant)
 		scenario.grant(unit);
 
-	EXPECT_THAT(optionsOf(unit, scenario.spells), ::testing::UnorderedElementsAreArray(scenario.expected)) << scenario.name;
+	EXPECT_THAT(optionsOf(unit), ::testing::UnorderedElementsAreArray(scenario.expected)) << scenario.name;
 	EXPECT_THAT(typesOffered(unit), ::testing::UnorderedElementsAreArray(typesOf(scenario.libActions))) << scenario.name;
 }
 
 INSTANTIATE_TEST_SUITE_P(Units, UnitOptionsTest, ::testing::Values(
-	UnitOptionsCase{"melee", pikeman, nullptr, {},
+	UnitOptionsCase{"melee", pikeman, nullptr,
 		{}, {EActionType::WALK, EActionType::WALK_AND_ATTACK}},
-	UnitOptionsCase{"shooter", archer, nullptr, {},
+	UnitOptionsCase{"shooter", archer, nullptr,
 		{}, {EActionType::WALK, EActionType::SHOOT, EActionType::WALK_AND_ATTACK}},
-	UnitOptionsCase{"returning", harpy, nullptr, {},
+	UnitOptionsCase{"returning", harpy, nullptr,
 		{}, {EActionType::WALK, EActionType::WALK_AND_ATTACK, EActionType::WALK_AND_ATTACK_NO_RETURN}},
 	UnitOptionsCase{"longWeapon", pikeman, [](CStack * unit)
 		{
 			unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
-		}, {},
+		},
 		{}, {EActionType::WALK, EActionType::WALK_AND_ATTACK, EActionType::LONG_WEAPON_ATTACK}},
-	UnitOptionsCase{"spellcaster", stormElemental, nullptr, {SpellID::PROTECTION_FROM_AIR},
-		{Option(Option::AIMED_SPELL_CREATURE, SpellID::PROTECTION_FROM_AIR)}, {EActionType::WALK, EActionType::SHOOT, EActionType::WALK_AND_ATTACK}},
-	UnitOptionsCase{"randomSpellcaster", masterGenie, nullptr, {},
+	UnitOptionsCase{"spellcaster", stormElemental, nullptr,
+		{}, {EActionType::WALK, EActionType::SHOOT, EActionType::WALK_AND_ATTACK, EActionType::MONSTER_SPELL}},
+	UnitOptionsCase{"randomSpellcaster", masterGenie, nullptr,
 		{Option::RANDOM_GENIE_SPELL}, {EActionType::WALK, EActionType::WALK_AND_ATTACK}},
 	UnitOptionsCase{"adjacentSpellcaster", pikeman, [](CStack * unit)
 		{
 			BattleTestFixture::grantSpell(unit, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
-		}, {},
+		},
 		{Option(Option::WALK_AND_SPELLCAST, SpellID::BLESS)}, {EActionType::WALK, EActionType::WALK_AND_ATTACK}},
-	UnitOptionsCase{"firstAidTent", CreatureID::FIRST_AID_TENT, nullptr, {},
+	UnitOptionsCase{"firstAidTent", CreatureID::FIRST_AID_TENT, nullptr,
 		{}, {EActionType::STACK_HEAL}},
 	// the catapult has nothing to shoot at outside of a siege
-	UnitOptionsCase{"catapultInField", CreatureID::CATAPULT, nullptr, {},
+	UnitOptionsCase{"catapultInField", CreatureID::CATAPULT, nullptr,
 		{}, {}}
 ),
 	[](const ::testing::TestParamInfo<UnitOptionsCase> & info) { return info.param.name; });
@@ -182,7 +166,7 @@ TEST_F(ActionOptionsTest, tacticsPhaseOffersOnlyMoveWithoutPanelButton)
 	battle()->tacticDistance = 4;
 	battle()->tacticsSide = BattleSide::ATTACKER;
 
-	EXPECT_THAT(optionsOf(unit, {}, true), ::testing::IsEmpty());
+	EXPECT_THAT(optionsOf(unit, true), ::testing::IsEmpty());
 
 	std::vector<ActionOption> options;
 	BattleActionType::collectAllOptions(*battle(), *unit, options);
@@ -190,35 +174,3 @@ TEST_F(ActionOptionsTest, tacticsPhaseOffersOnlyMoveWithoutPanelButton)
 	EXPECT_EQ(options.front().type, walkType());
 	EXPECT_FALSE(options.front().button.has_value());
 }
-
-class SpellAimTest : public ActionOptionsTest, public ::testing::WithParamInterface<AimCase>
-{
-};
-
-TEST_P(SpellAimTest, aimsHeroSpellByItsTargets)
-{
-	const auto & scenario = GetParam();
-
-	startGame();
-
-	for(auto school : {SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC})
-		attackerSideHero->setSecSkillLevel(school, scenario.mastery, ChangeValueMode::ABSOLUTE);
-
-	startBattle();
-
-	const auto aim = battle()->getCasterAction(scenario.spell.toSpell(), attackerSideHero, spells::Mode::HERO);
-	EXPECT_EQ(aim, Option(scenario.expected, scenario.spell)) << scenario.name;
-}
-
-INSTANTIATE_TEST_SUITE_P(Spells, SpellAimTest, ::testing::Values(
-	AimCase{"unit",             SpellID::BLESS,           0, Option::AIMED_SPELL_CREATURE},
-	AimCase{"everyUnit",        SpellID::BLESS,           3, Option::NO_LOCATION},
-	AimCase{"nothing",          SpellID::ARMAGEDDON,      0, Option::NO_LOCATION},
-	AimCase{"anyHex",           SpellID::FIREBALL,        0, Option::ANY_LOCATION},
-	AimCase{"freeHexes",        SpellID::FIRE_WALL,       0, Option::FREE_LOCATION},
-	// the OBSTACLE aim type is reported as LOCATION, so the OBSTACLE option is never offered
-	AimCase{"obstacleAsAnyHex", SpellID::REMOVE_OBSTACLE, 0, Option::ANY_LOCATION},
-	AimCase{"unitThenHex",      SpellID::TELEPORT,        0, Option::TELEPORT},
-	AimCase{"deadThenLiveUnit", SpellID::SACRIFICE,       0, Option::SACRIFICE}
-),
-	[](const ::testing::TestParamInfo<AimCase> & info) { return info.param.name; });

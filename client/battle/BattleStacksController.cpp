@@ -961,9 +961,8 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 
 	std::vector<const CStack *> stacks;
 	auto target = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
-	if(!target)
-		return {};
-	stacks.push_back(target);
+	if(target)
+		stacks.push_back(target);
 
 	// the preview may be older than the last battle pack, so a unit it names may be dead or removed
 	for(const uint32_t unitID : owner.actionsController->getAffectedUnits(hoveredHex))

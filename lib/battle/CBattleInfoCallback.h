@@ -52,7 +52,6 @@ struct DLL_LINKAGE AttackableTiles
 
 struct DLL_LINKAGE BattleClientInterfaceData
 {
-	std::vector<SpellID> creatureSpellsToCast;
 	ui8 tacticsMode;
 };
 
@@ -169,7 +168,6 @@ public:
 	SpellID getRandomCastedSpell(vstd::RNG & rand, const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
 	std::vector<PossiblePlayerBattleAction> getClientActionsForStack(const CStack * stack, const BattleClientInterfaceData & data);
-	PossiblePlayerBattleAction getCasterAction(const CSpell * spell, const spells::Caster * caster, spells::Mode mode) const;
 
 	//convenience methods using the ones above
 	bool isInTacticRange(const BattleHex & dest) const;
