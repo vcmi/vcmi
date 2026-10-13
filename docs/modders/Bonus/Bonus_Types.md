@@ -442,7 +442,6 @@ Changes 'val' parameter of spell effects that give bonuses to a specified value.
 - subtype: affected spell identifier
 - addInfo: value to set 'val' parameter of targeted spell effects to
 
-
 ### SPECIAL_UPGRADE
 
 Allows a creature to be upgraded to another creature (Gelu, Dracon).
