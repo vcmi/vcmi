@@ -382,19 +382,19 @@ void BattleFieldController::keyPressed(EShortcut key)
 
 bool BattleFieldController::hasControllerAttackDirections() const
 {
-	if(!usesNativeController() || !allowsControllerPrimaryAction() || !hoveredHex.isAvailable() || !owner.actionsController->currentActionHasAttackDirection(hoveredHex))
+	if(!usesNativeController() || !allowsControllerPrimaryAction() || !hoveredHex.isAvailable())
 		return false;
-	const auto points = attackDirectionPoints(hoveredHex);
-	return std::count_if(points.begin(), points.end(), [](const Point & point) { return point.isValid(); }) > 1;
+	return owner.actionsController->getApproaches(hoveredHex).size() > 1;
 }
 
 bool BattleFieldController::cycleControllerAttackDirection(int step)
 {
 	if(!hasControllerAttackDirections())
 		return false;
-	const auto points = attackDirectionPoints(hoveredHex);
+	const auto approaches = owner.actionsController->getApproaches(hoveredHex);
+	const auto points = directionPoints(hoveredHex, approachDirections(approaches));
 	const std::array<int, 8> clockwise = {0, 6, 1, 2, 3, 7, 4, 5};
-	const auto current = selectAttackDirection(hoveredHex);
+	const auto current = selectApproach(hoveredHex, approaches).direction;
 	auto index = static_cast<int>(std::find(clockwise.begin(), clockwise.end(), current) - clockwise.begin());
 	for(size_t count = 0; count < clockwise.size(); ++count)
 	{
@@ -772,45 +772,9 @@ BattleHexArray BattleFieldController::getHighlightedHexesForSpellRange()
 
 BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 {
-	const CStack * stack = owner.stacksController->getActiveStack();
-	auto hoveredHex = getHoveredHex();
+	const BattleHex hoveredHex = getHoveredHex();
 
-	// the active unit is deactivated while the next destination of a spell is chosen, and the preview of the spell is shown then
-	if(!stack)
-		return hoveredHex.isValid() ? owner.actionsController->getShadedHexes(hoveredHex) : BattleHexArray();
-
-	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, false);
-
-	bool canReach = owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex);
-	bool adjacentSpellCaster = stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER) && stack->canCast();
-	bool canCastAdjacentSpell = false;
-	if (canReach && adjacentSpellCaster && hoveredStack)
-	{
-		spells::Mode mode = owner.actionsController->getCurrentCastMode();
-		auto * spell = owner.actionsController->getCurrentSpell(hoveredHex);
-		auto * caster = owner.actionsController->getCurrentSpellcaster();
-		if(caster && spell)
-		{
-			spells::Target target;
-			target.emplace_back(hoveredStack);
-			target.emplace_back(hoveredHex);
-
-			spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
-			canCastAdjacentSpell = spell->battleMechanics(&event)->canBeCastAt(target);
-		}
-	}
-
-	if(canCastAdjacentSpell)
-	{
-		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex), false);
-		assert(fromHex.isValid());
-		if(stack->doubleWide())
-			return {fromHex, stack->occupiedHex(fromHex)};
-
-		return {fromHex};
-	}
-
-	if (!hoveredHex.isValid())
+	if(!hoveredHex.isValid())
 		return {};
 
 	return owner.actionsController->getShadedHexes(hoveredHex);
@@ -957,7 +921,7 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighlights);
 	}
 
-	// the spell of a lib entry is not among these: its range is in the preview, which is shown as the movement target
+	// only the SPELL_LIKE_ATTACK of the active unit: the range of a spell entry is in its preview, which is shown as the movement target
 	bool useSpellRangeForMouse = hoveredHex != BattleHex::INVALID
 		&& owner.actionsController->getCurrentSpell(hoveredHex) != nullptr
 		&& (owner.actionsController->currentActionSpellcasting(getHoveredHex())
@@ -965,21 +929,9 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	bool useMoveRangeForMouse = !hoveredMoveHexes.empty() || !settings["battle"]["mouseShadow"].Bool();
 
 
-	BattleHexArray hoveredMouseHexes;
-	if(hoveredHex != BattleHex::INVALID && owner.actionsController->currentActionWalkAndCast(getHoveredHex()))
-	{
-		hoveredMouseHexes = hoveredSpellHexes;
-		for(const auto & hex : useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex)
-		{
-			hoveredMouseHexes.insert(hex);
-		}
-	}
-	else
-	{
-		hoveredMouseHexes = useSpellRangeForMouse
-			? hoveredSpellHexes
-			: ( useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex);
-	}
+	const BattleHexArray hoveredMouseHexes = useSpellRangeForMouse
+		? hoveredSpellHexes
+		: ( useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex);
 
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{
@@ -1101,39 +1053,17 @@ BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
 	return BattleHex::INVALID;
 }
 
-std::array<bool, 8> BattleFieldController::allowedAttackDirections(const BattleHex & myNumber) const
-{
-	const auto * attacker = owner.stacksController->getActiveStack();
-	assert(attacker);
-
-	std::array<bool, 8> allowedDirections;
-	for(size_t i = 0; i < allowedDirections.size(); ++i)
-		allowedDirections[i] = owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(i));
-	return allowedDirections;
-}
-
-std::array<Point, 8> BattleFieldController::attackDirectionPoints(const BattleHex & myNumber) const
-{
-	return directionPoints(myNumber, allowedAttackDirections(myNumber));
-}
-
-BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & myNumber) const
-{
-	const BattleHex::EDir direction = selectNearestDirection(myNumber, allowedAttackDirections(myNumber));
-
-	if(direction == BattleHex::NONE)
-		// Zero available tiles to attack from
-		logGlobal->error("Error: cannot find a hex to attack hex %d from!", myNumber);
-	return direction;
-}
-
-ActionApproach BattleFieldController::selectApproach(const BattleHex & hex, const std::vector<ActionApproach> & approaches) const
+std::array<bool, 8> BattleFieldController::approachDirections(const std::vector<ActionApproach> & approaches)
 {
 	std::array<bool, 8> allowedDirections{};
 	for(const auto & approach : approaches)
 		allowedDirections.at(approach.direction) = true;
+	return allowedDirections;
+}
 
-	const BattleHex::EDir direction = selectNearestDirection(hex, allowedDirections);
+ActionApproach BattleFieldController::selectApproach(const BattleHex & hex, const std::vector<ActionApproach> & approaches) const
+{
+	const BattleHex::EDir direction = selectNearestDirection(hex, approachDirections(approaches));
 
 	for(const auto & approach : approaches)
 		if(approach.direction == direction)

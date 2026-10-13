@@ -238,6 +238,30 @@ TEST_F(SpellcastActionTest, walkAndCastNeedsAdjacentSpellcasterAbility)
 	EXPECT_FALSE(isAffectedBy(ally, SpellID::BLESS));
 }
 
+TEST_F(SpellcastActionTest, walkAndCastIsRefusedWithoutMoving)
+{
+	startGame();
+	startBattle();
+
+	const BattleHex castFrom = allyHex.cloneInDirection(BattleHex::LEFT);
+
+	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	grantSpell(caster, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
+	grantSpell(caster, BonusType::ADJACENT_SPELLCASTER, SpellID::RESURRECTION, 0);
+
+	// a hex in reach that is not next to the target
+	EXPECT_FALSE(act(BattleAction::makeWalkAndCast(caster, castFrom.cloneInDirection(BattleHex::LEFT), ally, SpellID::BLESS)));
+	// the unit has no losses to restore
+	EXPECT_FALSE(act(BattleAction::makeWalkAndCast(caster, castFrom, ally, SpellID::RESURRECTION)));
+
+	caster->casts.use(caster->casts.available());
+	EXPECT_FALSE(act(BattleAction::makeWalkAndCast(caster, castFrom, ally, SpellID::BLESS)));
+
+	EXPECT_EQ(caster->getPosition(), casterHex);
+	EXPECT_TRUE(server.casts.empty());
+}
+
 TEST_F(SpellcastActionTest, quicksandOnTheWayCancelsAdjacentCast)
 {
 	startGame();
@@ -749,4 +773,49 @@ TEST_F(SpellOptionTest, genieOffersRandomSpellForOtherUnitsOfItsSide)
 	ASSERT_TRUE(act(option.type->build(*battle(), option, {genie, allyHex}).value()));
 	ASSERT_EQ(server.casts.size(), 1u);
 	EXPECT_EQ(server.casts.front().announcement.affectedCres, std::vector<ui32>{ally->unitId()});
+}
+
+TEST_F(SpellOptionTest, adjacentCasterApproachesTargetFromChosenSide)
+{
+	startGame();
+	startBattle();
+
+	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	grantSpell(caster, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
+	battle()->activeStack = caster->unitId();
+
+	std::vector<ActionOption> options;
+	BattleActionType::collectAllOptions(*battle(), *caster, options);
+
+	const auto found = std::find_if(options.begin(), options.end(), [](const ActionOption & option)
+	{
+		return option.type == BattleActionType::find(EActionType::WALK_AND_CAST);
+	});
+	ASSERT_NE(found, options.end());
+	const ActionOption option = *found;
+	EXPECT_EQ(option.spell, SpellID::BLESS);
+
+	const auto approaches = option.type->getApproaches(*battle(), option, *caster, allyHex);
+	const BattleHex castFrom = allyHex.cloneInDirection(BattleHex::LEFT);
+	const auto fromLeft = std::find_if(approaches.begin(), approaches.end(), [&castFrom](const ActionApproach & approach)
+	{
+		return approach.from == castFrom;
+	});
+	ASSERT_NE(fromLeft, approaches.end());
+
+	// nothing to cast on, and no cast on itself
+	EXPECT_TRUE(option.type->getApproaches(*battle(), option, *caster, freeHex).empty());
+	EXPECT_TRUE(option.type->getApproaches(*battle(), option, *caster, casterHex).empty());
+	EXPECT_FALSE(isLegal(option, {caster, freeHex}));
+
+	const ActionContext context{caster, allyHex, *fromLeft};
+	const auto shown = preview(option, context);
+	EXPECT_EQ(shown.cursor, "castSpell");
+	EXPECT_EQ(toString(shown.statusText), "Cast Bless on Pikemen");
+	EXPECT_EQ(shown.shadedHexes, BattleHexArray({castFrom, allyHex}));
+
+	ASSERT_TRUE(act(option.type->build(*battle(), option, context).value()));
+	EXPECT_EQ(caster->getPosition(), castFrom);
+	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
 }

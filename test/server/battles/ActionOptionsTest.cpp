@@ -125,7 +125,7 @@ INSTANTIATE_TEST_SUITE_P(Units, UnitOptionsTest, ::testing::Values(
 		{
 			BattleTestFixture::grantSpell(unit, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
 		},
-		{Option(Option::WALK_AND_SPELLCAST, SpellID::BLESS)}, {EActionType::WALK, EActionType::WALK_AND_ATTACK}},
+		{Option(Option::WALK_AND_SPELLCAST, SpellID::BLESS)}, {EActionType::WALK, EActionType::WALK_AND_ATTACK, EActionType::WALK_AND_CAST}},
 	UnitOptionsCase{"firstAidTent", CreatureID::FIRST_AID_TENT, nullptr,
 		{}, {EActionType::STACK_HEAL}},
 	// the catapult has nothing to shoot at outside of a siege

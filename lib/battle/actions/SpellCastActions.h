@@ -90,3 +90,20 @@ public:
 	void applyStartState(battle::CUnitState & actor, const BattleAction & action) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
+
+/// WALK_AND_CAST: an ADJACENT_SPELLCASTER unit moves next to a unit and casts the spell of the ability on it.
+/// The action targets the hex to cast from, followed by the unit
+class WalkAndCastAction : public BattleActionType
+{
+public:
+	bool isUnitAction() const override;
+
+	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
+	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
+	std::vector<ActionApproach> getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const override;
+	ActionPreview preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
+	std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
+
+	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
+	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
+};

@@ -195,69 +195,6 @@ void BattleActionProcessor::makeRangedAttack(const CBattleInfoCallback & battle,
 	removeBonuses(battle, destinationStack, defenderBonusesToRemove);
 }
 
-bool BattleActionProcessor::doWalkAndSpellcastAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
-	battle::Target target = ba.getTarget(&battle);
-	SpellID spellID = ba.spell;
-
-	if (!canStackAct(battle, stack))
-		return false;
-
-	if(target.size() < 2)
-	{
-		gameHandler->complain("Two destinations required for walk and spellcast action.");
-		return false;
-	}
-
-	BattleHex movementDestinationTile = target.at(0).hexValue;
-	BattleHex targetUnitTile = target.at(1).hexValue;
-	const CStack * destinationStack = battle.battleGetStackByPos(targetUnitTile, false);
-
-	if(!destinationStack)
-	{
-		gameHandler->complain("Invalid target for walk and spellcast");
-		return false;
-	}
-
-	auto bonus = stack->getBonus(Selector::typeSubtype(BonusType::ADJACENT_SPELLCASTER, BonusSubtypeID(spellID)));
-	if (!bonus)
-	{
-		gameHandler->complain("Creature cannot walk and spellcast.");
-		return false;
-	}
-
-	const auto movementResult = moveStack(battle, ba.stackNumber, movementDestinationTile);
-
-	if (movementResult.invalidRequest)
-	{
-		gameHandler->complain("Stack failed walk and spellcast - unable to reach target!");
-		return false;
-	}
-
-	if(movementResult.obstacleHit)
-	{
-		return true;
-	}
-
-	const CSpell * spell = spellID.toSpell();
-	spells::BattleCast parameters(&battle, stack, spells::Mode::CREATURE_ACTIVE, spell);
-	battle::Target spellTarget;
-	spellTarget.emplace_back(destinationStack);
-	int32_t spellLvl = std::max(0, bonus->val);
-	//Magic Plains raises level of spells cast by creatures; must match the client-side preview in BattleActionsController
-	if(spell->getLevel() > 0)
-		vstd::amax(spellLvl, stack->valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(SpellSchool::ANY)));
-	parameters.setSpellLevel(spellLvl);
-	parameters.cast(gameHandler->spellcastEnvironment(), spellTarget);
-
-	CombatEventPayload payload;
-	payload.spell = spell;
-	processBattleEventTriggers(battle, CombatEventType::UNIT_SPELLCAST, stack, nullptr, payload);
-
-	return true;
-}
-
 bool BattleActionProcessor::canStackAct(const CBattleInfoCallback & battle, const CStack * stack)
 {
 	spells::detail::ProblemImpl problem;
@@ -383,13 +320,6 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 		return true;
 	}
 
-	switch(ba.actionType)
-	{
-		case EActionType::WALK_AND_CAST:
-			return doWalkAndSpellcastAction(battle, ba);
-		default:
-			break;
-	}
 	gameHandler->complain("Unrecognized action type received!!");
 	return false;
 }
