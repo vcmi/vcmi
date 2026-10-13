@@ -13,17 +13,11 @@
 #include "../../lib/filesystem/Filesystem.h"
 
 #include "../../lib/mapping/CMap.h"
-#include "../../lib/rmg/CMapGenOptions.h"
-#include "../../lib/rmg/CMapGenerator.h"
 #include "../../lib/mapping/MapFormatJson.h"
 
 #include "../../lib/VCMIDirs.h"
 
-#include "MapComparer.h"
 #include "../JsonComparer.h"
-#include "mock/ZoneOptionsFake.h"
-
-static const int TEST_RANDOM_SEED = 1337;
 
 static void saveTestMap(CMemoryBuffer & serializeBuffer, const std::string & filename)
 {
@@ -34,56 +28,6 @@ static void saveTestMap(CMemoryBuffer & serializeBuffer, const std::string & fil
 	tmp.write((const char *)serializeBuffer.getBuffer().data(), serializeBuffer.getSize());
 	tmp.flush();
 	tmp.close();
-}
-
-TEST(MapFormat, DISABLED_Random)
-{
-	SCOPED_TRACE("MapFormat_Random start");
-
-	CMapGenOptions opt;
-	CRmgTemplate tmpl;
-	auto zoneOptions = std::make_shared<ZoneOptionsFake>();
-
-	const_cast<CRmgTemplate::CPlayerCountRange &>(tmpl.getHumanPlayers()).addRange(1, 4);
-	const_cast<CRmgTemplate::Zones &>(tmpl.getZones())[0] = zoneOptions;
-
-	zoneOptions->setOwner(1);
-	opt.setMapTemplate(&tmpl);
-
-	opt.setHeight(CMapHeader::MAP_SIZE_MIDDLE);
-	opt.setWidth(CMapHeader::MAP_SIZE_MIDDLE);
-	opt.setLevels(2);
-	opt.setHumanOrCpuPlayerCount(4);
-
-	opt.setPlayerTypeForStandardPlayer(PlayerColor(0), EPlayerType::HUMAN);
-	opt.setPlayerTypeForStandardPlayer(PlayerColor(1), EPlayerType::AI);
-	opt.setPlayerTypeForStandardPlayer(PlayerColor(2), EPlayerType::AI);
-	opt.setPlayerTypeForStandardPlayer(PlayerColor(3), EPlayerType::AI);
-
-	CMapGenerator gen(opt, nullptr, TEST_RANDOM_SEED);
-
-	std::unique_ptr<CMap> initialMap = gen.generate();
-	initialMap->name.appendRawString("Test");
-	SCOPED_TRACE("MapFormat_Random generated");
-
-	CMemoryBuffer serializeBuffer;
-	{
-		CMapSaverJson saver(&serializeBuffer);
-		saver.saveMap(initialMap);
-	}
-	SCOPED_TRACE("MapFormat_Random serialized");
-	saveTestMap(serializeBuffer, "test_random.vmap");
-	SCOPED_TRACE("MapFormat_Random saved");
-
-	serializeBuffer.seek(0);
-	{
-		CMapLoaderJson loader(&serializeBuffer);
-		std::unique_ptr<CMap> serialized = loader.loadMap(nullptr);
-
-		MapComparer c;
-		c(serialized, initialMap);
-	}
-	SCOPED_TRACE("MapFormat_Random finish");
 }
 
 static JsonNode getFromArchive(CZipLoader & archive, const std::string & archiveFilename)
