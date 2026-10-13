@@ -40,6 +40,7 @@ static constexpr LongWeaponAttackAction longWeaponAttackAction;
 static constexpr HeroSpellAction heroSpellAction;
 static constexpr UnitSpellAction unitSpellAction;
 static constexpr RandomSpellAction randomSpellAction;
+static constexpr WalkAndCastAction walkAndCastAction;
 
 namespace
 {
@@ -50,7 +51,7 @@ struct RegisteredActionType
 };
 }
 
-static constexpr std::array<RegisteredActionType, 17> registeredTypes = {{
+static constexpr std::array<RegisteredActionType, 18> registeredTypes = {{
 	{EActionType::NO_ACTION, &skipTurnAction},
 	{EActionType::BAD_MORALE, &badMoraleAction},
 	{EActionType::WAIT, &waitAction},
@@ -68,6 +69,7 @@ static constexpr std::array<RegisteredActionType, 17> registeredTypes = {{
 	{EActionType::HERO_SPELL, &heroSpellAction},
 	{EActionType::MONSTER_SPELL, &unitSpellAction},
 	{EActionType::RANDOM_SPELL, &randomSpellAction},
+	{EActionType::WALK_AND_CAST, &walkAndCastAction},
 }};
 
 const BattleActionType * BattleActionType::find(const BattleAction & action)

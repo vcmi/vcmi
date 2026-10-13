@@ -34,14 +34,18 @@ ActionContext LibActionEntry::getContext(const BattleHex & hex) const
 {
 	ActionContext context{actor, hex, std::nullopt, owner.actionsController->getPartialTarget(), owner.getBattle()->battleGetMySide()};
 
-	if(actor)
-	{
-		const auto approaches = option.type->getApproaches(*owner.getBattle(), option, *actor, hex);
-		if(!approaches.empty())
-			context.approach = owner.fieldController->selectApproach(hex, approaches);
-	}
+	const auto approaches = getApproaches(hex);
+	if(!approaches.empty())
+		context.approach = owner.fieldController->selectApproach(hex, approaches);
 
 	return context;
+}
+
+std::vector<ActionApproach> LibActionEntry::getApproaches(const BattleHex & hex) const
+{
+	if(!actor)
+		return {};
+	return option.type->getApproaches(*owner.getBattle(), option, *actor, hex);
 }
 
 int LibActionEntry::getPriority(const CStack *, const CStack * target) const

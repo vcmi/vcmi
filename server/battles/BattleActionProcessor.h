@@ -152,7 +152,6 @@ class BattleActionProcessor : boost::noncopyable
 	/// Reports every text of the problem, or `fallback` if it has none
 	void complain(const spells::Problem & problem, const std::string & fallback);
 
-	bool doWalkAndSpellcastAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 
 	bool dispatchBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool makeBattleActionImpl(const CBattleInfoCallback & battle, const BattleAction & ba);

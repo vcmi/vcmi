@@ -33,6 +33,8 @@ public:
 	SpellID getSpell() const override;
 	std::optional<UnitActionButton> getPanelButton() const override;
 
+	/// Ways to reach the hex that the cursor position selects between, empty if the option needs none
+	std::vector<ActionApproach> getApproaches(const BattleHex & hex) const;
 	const BattleActionType * getType() const;
 	/// True for a spell that is cast as soon as it is selected, by realize with an invalid hex
 	bool needsNoTarget() const;

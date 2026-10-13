@@ -12,7 +12,6 @@
 #include "BattleActionEntry.h"
 
 #include "../../lib/battle/CBattleInfoCallback.h"
-#include "../../lib/battle/PossiblePlayerBattleAction.h"
 
 class BattleAction;
 namespace spells {
@@ -26,8 +25,6 @@ class BattleInterface;
 /// As well as all relevant feedback for these actions in user interface
 class BattleActionsController
 {
-	class LegacyEntry;
-
 	BattleInterface & owner;
 	
 	/// all entries possible to select at the moment by player
@@ -59,24 +56,10 @@ class BattleActionsController
 	/// Spell that the active unit rolled for its turn out of its weighted SPELLCASTER bonuses, if any
 	SpellID rolledCreatureSpell = SpellID::NONE;
 
-	bool isCastingPossibleHere (const CSpell * spell, const BattleHex & myNumber);
 	BattleActionEntries getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
 
-	/// True if the entry is a legacy entry of the given action kind
-	static bool isLegacyAction(const IBattleActionEntry & entry, PossiblePlayerBattleAction::Actions kind);
 	/// True if the entry wraps an option of the lib type of the action type
 	static bool isLibAction(const IBattleActionEntry & entry, EActionType actionType);
-
-	int actionGetPriority(PossiblePlayerBattleAction action, const CStack * stack, const CStack * targetStack) const;
-
-	bool actionIsLegal(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
-
-	std::string actionGetCursor(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
-
-	std::string actionGetStatusMessage(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
-	std::string actionGetStatusMessageBlocked(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
-
-	void actionRealize(PossiblePlayerBattleAction action, const BattleHex & hoveredHex);
 
 	/// Highest priority entry that is legal for the hex, else the highest priority entry; nullptr if there are no entries
 	std::shared_ptr<const IBattleActionEntry> selectEntry(const BattleHex & myNumber);
@@ -91,9 +74,6 @@ class BattleActionsController
 
 	/// Rolls the spell of the turn for a unit with weighted SPELLCASTER bonuses
 	void tryActivateStackSpellcasting(const CStack *casterStack);
-
-	/// Spell of the SPELL_LIKE_ATTACK of the active unit, or of the walk and cast entry selected for the hex; nullptr otherwise
-	const CSpell * getStackSpellToCast(const BattleHex & hoveredHex);
 
 	/// returns true if current stack is a spellcaster
 	bool isActiveStackSpellcaster() const;
@@ -112,11 +92,8 @@ public:
 	/// returns true if the entry selected for the hex casts a spell
 	bool currentActionSpellcasting(const BattleHex & hoveredHex);
 
-	/// returns true if current hex action is "walk and spellcast" with active stack
-	bool currentActionWalkAndCast(const BattleHex& hoveredHex);
-
-	/// returns true when the selected legal action uses a melee approach direction
-	bool currentActionHasAttackDirection(const BattleHex & hoveredHex);
+	/// Approaches of the legal entry selected for the hex, empty if it needs none
+	std::vector<ActionApproach> getApproaches(const BattleHex & hoveredHex);
 
 	/// Short presentation of the same legal action used by the pointer entry.
 	std::string primaryActionText(const BattleHex & hex);
@@ -156,7 +133,7 @@ public:
 	/// performs action according to selected hex
 	void onHexRightClicked(const BattleHex & clickedHex, const std::function<void(const CStack *)> & showStackInfo = {}, const std::function<void(const std::string &)> & showTextInfo = {});
 
-	/// Caster, spell and mode of the spell that the legacy code shows for the hex: a SPELL_LIKE_ATTACK or a walk and cast
+	/// Caster, spell and mode of the SPELL_LIKE_ATTACK of the active unit, whose area BattleFieldController and BattleStacksController show in spellcasting mode
 	const spells::Caster * getCurrentSpellcaster() const;
 	const CSpell * getCurrentSpell(const BattleHex & hoveredHex);
 	spells::Mode getCurrentCastMode() const;
