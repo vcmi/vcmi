@@ -30,6 +30,7 @@ set(lualib_SRCS
 
 		api/spells/Mechanics.cpp
 		api/spells/Problem.cpp
+		api/spells/TargetStepDescriptor.cpp
 
 		api/library/Artifact.cpp
 		api/library/Bonus.cpp

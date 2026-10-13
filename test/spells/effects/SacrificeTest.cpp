@@ -121,6 +121,28 @@ TEST_F(SacrificeTest, NotApplicableWhenVictimHexIsEmpty)
 	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, transformed));
 }
 
+TEST_F(SacrificeTest, UnitToHealIsChosenWithEngineDescription)
+{
+	EXPECT_FALSE(subject->describeTargetStep(&mechanicsMock, {}, BattleHex(5, 5)).has_value());
+}
+
+TEST_F(SacrificeTest, VictimChoiceShowsSacrificeCursorAndHealthGain)
+{
+	auto & unit = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit, getPosition()).WillRepeatedly(Return(BattleHex(5, 5)));
+
+	Target chosen;
+	chosen.emplace_back(&unit, BattleHex());
+
+	// a hex without a unit, so the text names no victim
+	const auto step = subject->describeTargetStep(&mechanicsMock, chosen, BattleHex(5, 10));
+	ASSERT_TRUE(step.has_value());
+	EXPECT_EQ(step->cursor, "combatSacrifice");
+	EXPECT_FALSE(step->text.empty());
+	EXPECT_FALSE(step->blockedText.empty());
+	EXPECT_EQ(step->healthGainTextID, "vcmi.battleWindow.sacrificeAcquiredHealth");
+}
+
 #if 0
 
 TEST_F(SacrificeTest, NotApplicableWithoutVictim)

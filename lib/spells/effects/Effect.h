@@ -15,6 +15,7 @@
 
 #include "../../constants/EntityIdentifiers.h"
 #include "../../json/JsonNode.h"
+#include "../../texts/MetaString.h"
 
 class BattleHex;
 class BattleHexArray;
@@ -62,6 +63,15 @@ struct SpellEffectValue : public scripting::ApiSerializable<SpellEffectValue>
 	}
 };
 
+/// Description of the choice of one destination of a spell target, made by an effect
+struct EffectTargetStep
+{
+	std::string cursor; ///< cursor id from config/cursors.json
+	MetaString text; ///< status bar text for a hex the spell can be cast at
+	MetaString blockedText; ///< status bar text for a hex the spell can't be cast at, may be empty
+	std::string healthGainTextID; ///< if not empty, the health change of the spell is appended to the text, a health gain with the plural forms of this text id
+};
+
 class Effect
 {
 public:
@@ -96,6 +106,9 @@ public:
 
 	// Returns total damage or heal amount that this spell will result in when cast on unit
 	virtual SpellEffectValue getHealthChange(const Mechanics * m, const Target & spellTarget) const { return {};}
+
+	/// Describes the choice of the destination that follows the chosen ones, or returns nothing to leave it to the description of Mechanics
+	virtual std::optional<EffectTargetStep> describeTargetStep(const Mechanics * m, const Target & partialTarget, const BattleHex & hoveredHex) const { return std::nullopt; }
 
 	/// Initializes Effect from its (already preprocessed) JSON definition.
 	/// Reads common flags from the node and delegates the rest to initImpl.

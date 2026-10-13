@@ -49,6 +49,8 @@ public:
 
 	SpellEffectValue getHealthChange(const Mechanics * m, const Target & spellTarget) const override;
 
+	std::optional<EffectTargetStep> describeTargetStep(const Mechanics * m, const Target & partialTarget, const BattleHex & hoveredHex) const override;
+
 protected:
 	void initImpl(JsonNode data) override;
 

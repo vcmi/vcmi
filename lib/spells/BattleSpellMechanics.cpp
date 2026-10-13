@@ -802,21 +802,23 @@ TargetStepDescription BattleSpellMechanics::describeTargetStep(const Target & pa
 	Target aim = partialTarget;
 	aim.emplace_back(hoveredHex);
 
-	if(step > 0)
-	{
-		if(types.at(step) != AimType::CREATURE)
-			return {"combatTeleport", MetaString::createFromTextID("core.genrltxt.25"), MetaString::createFromTextID("core.genrltxt.24")};
-
-		// "Sacrifice the %s"
-		MetaString text = MetaString::createFromTextID("core.genrltxt.549");
-		if(hoveredUnit)
-			text.replaceName(hoveredUnit->creatureId(), hoveredUnit->getCount());
-		return {"combatSacrifice", describeEffectValue(text, aim, "vcmi.battleWindow.sacrificeAcquiredHealth"), MetaString::createFromTextID("core.genrltxt.543")};
-	}
-
 	// the unit is the last destination of a one-destination aim, so that an effect without a target of its own describes the hovered unit
 	if(types.size() == 1 && hoveredUnit)
 		aim.emplace_back(hoveredUnit);
+
+	std::optional<effects::EffectTargetStep> described;
+	effects->forEachEffect(getEffectLevel(), [&](const effects::Effect * e, bool & stop)
+	{
+		described = e->describeTargetStep(this, partialTarget, hoveredHex);
+		stop = described.has_value();
+	});
+
+	if(described)
+	{
+		if(!described->healthGainTextID.empty())
+			described->text = describeEffectValue(described->text, aim, described->healthGainTextID);
+		return {described->cursor, described->text, described->blockedText};
+	}
 
 	if(types.at(step) == AimType::CREATURE)
 	{
