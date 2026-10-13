@@ -12,6 +12,7 @@
 namespace GameConstants
 {
 	constexpr int PUZZLE_MAP_PIECES = 48;
+	constexpr int SEER_HUT_NAMES = 48;
 
 	constexpr int MAX_HEROES_PER_PLAYER = 8;
 	constexpr int AVAILABLE_HEROES_PER_PLAYER = 2;

@@ -588,24 +588,18 @@ void QuestSource::resolveRequiredHero(const CMap & map)
 		if(q.missionKind != EQuestMission::HERO || q.mission.heroes.size() != 1)
 			continue;
 
-		for(const auto * hero : map.getObjects<CGHeroInstance>())
+		if(const auto * hero = map.getHero(q.mission.heroes.front()))
 		{
-			if(hero->getHeroTypeID() == q.mission.heroes.front())
-			{
-				q.heroNameTextID = hero->getNameTextID();
-				q.heroPortrait = hero->getPortraitSource();
-				break;
-			}
+			q.heroNameTextID = hero->getNameTextID();
+			q.heroPortrait = hero->getPortraitSource();
 		}
 	}
 }
 
 void SeerHut::init(vstd::RNG & rand)
 {
-	auto names = LIBRARY->generaltexth->findStringsWithPrefix("core.seerhut.names");
-
 	if(seerNameTextID.empty())
-		seerNameTextID = *RandomGeneratorUtil::nextItem(names, rand);
+		seerNameTextID = TextIdentifier("core.seerhut.names", rand.nextInt(GameConstants::SEER_HUT_NAMES - 1)).get();
 
 	bool h3BugTakesArmy = cb->getSettings().getBoolean(EGameSettings::MAP_OBJECTS_H3_BUG_QUEST_TAKES_ENTIRE_ARMY);
 	for(const auto & q : allQuests())

@@ -64,8 +64,13 @@ void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface)
 		{
 			for (int x = 0; x < surf->w; ++x)
 			{
+				// getPixel resolves the format for every pixel, which is a locked lookup in SDL
+				const uint32_t pixel = format->bytes_per_pixel == 4
+					? *reinterpret_cast<const uint32_t *>(static_cast<const uint8_t *>(surf->pixels) + y * surf->pitch + x * 4)
+					: CSDL_Ext::getPixel(surf, x, y);
+
 				uint8_t alpha;
-				SDL_GetRGBA(CSDL_Ext::getPixel(surf, x, y), format, nullptr, nullptr, nullptr, nullptr, &alpha);
+				SDL_GetRGBA(pixel, format, nullptr, nullptr, nullptr, nullptr, &alpha);
 
 				if (alpha != SDL_ALPHA_TRANSPARENT)
 				{

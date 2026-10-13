@@ -83,6 +83,9 @@ class ScalableImageShared final : public ICacheableAsset, public std::enable_sha
 	/// standing in with the stretched 1x image until that finishes.
 	bool variantsReleased = false;
 
+	/// If set, releaseMemory() keeps everything
+	bool permanent = false;
+
 	std::shared_ptr<const ISharedImage> loadOrGenerateImage(EImageBlitMode mode, int8_t scalingFactor, PlayerColor color, ImageType upscalingSource) const;
 
 	/// Picks the variant matching the requested flips, generating it on first use
@@ -114,6 +117,9 @@ public:
 	/// Estimated memory footprint, for cache accounting
 	size_t bytesUsed() const override;
 	void releaseMemory() override;
+
+	/// Makes the image keep all its variants when cache drops it
+	void setPermanent();
 
 	std::shared_ptr<ScalableImageInstance> createImageReference();
 

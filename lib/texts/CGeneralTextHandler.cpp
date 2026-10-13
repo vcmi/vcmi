@@ -250,7 +250,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		parser.endLine(); // empty line
 		parser.endLine(); // header
 
-		for (size_t i = 0; i < 48; ++i)
+		for (size_t i = 0; i < GameConstants::SEER_HUT_NAMES; ++i)
 		{
 			registerString("core", {"core.seerhut.names", i}, parser.readString());
 			parser.endLine();

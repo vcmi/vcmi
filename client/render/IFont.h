@@ -29,7 +29,7 @@ public:
 	/// Returns width, in pixels of a character glyph. Pointer must contain at least characterSize valid bytes
 	virtual size_t getGlyphWidthScaled(const char * data) const = 0;
 	/// Return width of the string
-	virtual size_t getStringWidthScaled(const std::string & data) const;
+	virtual size_t getStringWidthScaled(std::string_view data) const;
 	/// Returns distance from top of the font glyphs to baseline
 	virtual size_t getFontAscentScaled() const = 0;
 
@@ -38,7 +38,7 @@ public:
 	/// Returns width, in pixels of a character glyph. Pointer must contain at least characterSize valid bytes
 	size_t getGlyphWidth(const char * data) const;
 	/// Return width of the string
-	size_t getStringWidth(const std::string & data) const;
+	size_t getStringWidth(std::string_view data) const;
 	/// Returns distance from top of the font glyphs to baseline
 	size_t getFontAscent() const;
 

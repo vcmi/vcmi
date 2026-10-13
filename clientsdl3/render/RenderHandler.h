@@ -42,6 +42,10 @@ class RenderHandler final : public IRenderHandler
 	
 	std::mutex animationCacheMutex;
 
+	/// Recursive, since layout is returned by reference and has to stay locked while the caller reads it
+	std::recursive_mutex animationLayoutMutex;
+	std::mutex imageCacheMutex;
+
 	std::pair<std::string, CDefFile::SSpriteDef> getAnimationSpriteDef(const AnimationPath & path, int frame, int group);
 	ImagePath getAnimationFrameName(const AnimationPath & path, int frame, int group);
 	std::shared_ptr<CDefFile> getAnimationFile(const AnimationPath & path);
@@ -53,6 +57,11 @@ class RenderHandler final : public IRenderHandler
 	void storeCachedImage(const ImageLocator & locator, std::shared_ptr<ScalableImageShared> image);
 
 	std::shared_ptr<ScalableImageShared> loadImageImpl(const ImageLocator & config);
+
+	/// Generates and upscales all frames of palette-animated terrains and rivers, which is too slow to do when such tile is first drawn
+	void preloadPaletteShiftedFrames();
+
+	std::vector<std::shared_ptr<ScalableImageShared>> paletteShiftedFrames;
 
 	std::shared_ptr<ISharedImage> loadImageFromFileUncached(const ImageLocator & locator);
 
