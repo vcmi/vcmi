@@ -35,7 +35,7 @@ bool CPlayerBattleCallback::battleCanFlee() const
 {
 	THROW_IF_NOT_BATTLE();
 	THROW_IF_CALLED_WITH_PLAYER();
-	return CBattleInfoEssentials::battleCanFlee(*getPlayerID());
+	return CBattleInfoEssentials::battleCanFlee(getPlayerID().value());
 }
 
 TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose, bool onlyAlive) const
@@ -56,7 +56,7 @@ int CPlayerBattleCallback::battleGetSurrenderCost() const
 {
 	THROW_IF_NOT_BATTLE();
 	THROW_IF_CALLED_WITH_PLAYER();
-	return CBattleInfoCallback::battleGetSurrenderCost(*getPlayerID());
+	return CBattleInfoCallback::battleGetSurrenderCost(getPlayerID().value());
 }
 
 const CGHeroInstance * CPlayerBattleCallback::battleGetMyHero() const

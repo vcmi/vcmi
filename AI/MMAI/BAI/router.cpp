@@ -170,7 +170,7 @@ void Router::initBattleInterface(std::shared_ptr<Environment> ENV, std::shared_p
 {
 	env = ENV;
 	cb = CB;
-	colorname = cb->getPlayerID()->toString();
+	colorname = cb->getPlayerID().value().toString();
 	bai.reset();
 }
 

@@ -207,11 +207,11 @@ BattleHex CBattleInfoEssentials::getTowerShooterHex(EWallPart part) const
 BattleSide CBattleInfoEssentials::battleGetMySide() const
 {
 	THROW_IF_NOT_BATTLE();
-	if(!getPlayerID() || getPlayerID()->isSpectator())
+	if(!getPlayerID() || getPlayerID().value().isSpectator())
 		return BattleSide::ALL_KNOWING;
-	if(*getPlayerID() == getBattle()->getSidePlayer(BattleSide::ATTACKER))
+	if(getPlayerID().value() == getBattle()->getSidePlayer(BattleSide::ATTACKER))
 		return BattleSide::LEFT_SIDE;
-	if(*getPlayerID() == getBattle()->getSidePlayer(BattleSide::DEFENDER))
+	if(getPlayerID().value() == getBattle()->getSidePlayer(BattleSide::DEFENDER))
 		return BattleSide::RIGHT_SIDE;
 
 	THROW_INVALID_CALL();

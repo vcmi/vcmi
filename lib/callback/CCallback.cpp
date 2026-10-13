@@ -58,7 +58,7 @@ int CCallback::sendQuestionAnswer(std::optional<int32_t> reply, QuestionID quest
 	}
 
 	QuestionAnswer pack(questionID, reply);
-	pack.player = *getPlayerID();
+	pack.player = getPlayerID().value();
 	return sendRequest(pack);
 }
 
@@ -91,7 +91,7 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, Crea
 
 void CCallback::endTurn()
 {
-	logGlobal->trace("Player %d ended his turn.", getPlayerID()->getNum());
+	logGlobal->trace("Player %d ended his turn.", getPlayerID().value().getNum());
 	EndTurn pack;
 	sendRequest(pack);
 }
@@ -307,7 +307,7 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 	assert(hero);
 
 	HireHero pack(hero->getHeroTypeID(), townOrTavern->id, nextHero);
-	pack.player = *getPlayerID();
+	pack.player = getPlayerID().value();
 	sendRequest(pack);
 }
 
@@ -315,7 +315,7 @@ void CCallback::saveLocalState(const JsonNode & data)
 {
 	SaveLocalState state;
 	state.data = data;
-	state.player = *getPlayerID();
+	state.player = getPlayerID().value();
 
 	sendRequest(state);
 }
@@ -337,7 +337,7 @@ void CCallback::gamePause(bool pause)
 	if(pause)
 	{
 		GamePause pack;
-		pack.player = *getPlayerID();
+		pack.player = getPlayerID().value();
 		sendRequest(pack);
 	}
 	else
@@ -351,7 +351,7 @@ void CCallback::sendMessage(const std::string &mess, const CGObjectInstance * cu
 	THROW_IF_CALLED_WITH_PLAYER();
 	PlayerMessage pm(mess, currentObject? currentObject->id : ObjectInstanceID(-1));
 	if(getPlayerID())
-		pm.player = *getPlayerID();
+		pm.player = getPlayerID().value();
 	sendRequest(pm);
 }
 

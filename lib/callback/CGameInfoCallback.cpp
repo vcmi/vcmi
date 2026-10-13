@@ -112,7 +112,7 @@ const CGObjectInstance * CGameInfoCallback::getObj(const ObjectInstanceID objId,
 	if(!ret)
 		return nullptr;
 
-	if(getPlayerID().has_value() && !isVisibleFor(ret, *getPlayerID()) && ret->tempOwner != getPlayerID())
+	if(getPlayerID().has_value() && !isVisibleFor(ret, getPlayerID().value()) && ret->tempOwner != getPlayerID())
 	{
 		if(verbose)
 			logGlobal->error("Cannot get object with id %d. Object is not visible.", objId.getNum());
@@ -204,7 +204,7 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 
 	if(obj->ID == Obj::TOWN || obj->ID == Obj::TAVERN)
 	{
-		int taverns = gameState().players.at(*getPlayerID()).valOfBonuses(BonusType::THIEVES_GUILD_ACCESS);
+		int taverns = gameState().players.at(getPlayerID().value()).valOfBonuses(BonusType::THIEVES_GUILD_ACCESS);
 		gameState().obtainPlayersStats(thi, taverns);
 	}
 	else if(obj->ID == Obj::DEN_OF_THIEVES)
@@ -221,7 +221,7 @@ int CGameInfoCallback::howManyTowns(PlayerColor Player) const
 
 bool CGameInfoCallback::getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject) const
 {
-	THROW_IF(getPlayerID().has_value() && !isVisibleFor(town, *getPlayerID()), "Town is not visible!");  //it's not a town or it's not visible for layer
+	THROW_IF(getPlayerID().has_value() && !isVisibleFor(town, getPlayerID().value()), "Town is not visible!");  //it's not a town or it's not visible for layer
 	bool detailed = hasAccess(town->tempOwner);
 
 	if(town->ID == Obj::TOWN)
@@ -277,9 +277,9 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 
 	if (infoLevel == InfoAboutHero::EInfoLevel::BASIC)
 	{
-		auto ourBattle = gameState().getBattle(*getPlayerID());
+		auto ourBattle = gameState().getBattle(getPlayerID().value());
 
-		if(ourBattle && ourBattle->playerHasAccessToHeroInfo(*getPlayerID(), h)) //if it's battle we can get enemy hero full data
+		if(ourBattle && ourBattle->playerHasAccessToHeroInfo(getPlayerID().value(), h)) //if it's battle we can get enemy hero full data
 			infoLevel = InfoAboutHero::EInfoLevel::INBATTLE;
 		else
 			THROW_IF(!isVisible(h->visitablePos()), "That hero is not visible!");
@@ -296,7 +296,7 @@ bool CGameInfoCallback::getHeroInfo(const CGObjectInstance * hero, InfoAboutHero
 	dest.initFromHero(h, infoLevel);
 
 	//DISGUISED bonus implementation
-	if(getPlayerRelations(*getPlayerID(), hero->tempOwner) == PlayerRelations::ENEMIES)
+	if(getPlayerRelations(getPlayerID().value(), hero->tempOwner) == PlayerRelations::ENEMIES)
 	{
 		//todo: bonus cashing
 		int disguiseLevel = h->valOfBonuses(BonusType::DISGUISED);
@@ -399,7 +399,7 @@ bool CGameInfoCallback::isVisible(int3 pos) const
 		return gameState().getMap().isInTheMap(pos);
 	}
 
-	return gameState().isVisibleFor(pos, *getPlayerID());
+	return gameState().isVisibleFor(pos, getPlayerID().value());
 }
 
 bool CGameInfoCallback::isVisibleFor(const CGObjectInstance * obj, PlayerColor player) const
@@ -421,7 +421,7 @@ bool CGameInfoCallback::isVisible(const CGObjectInstance * obj) const
 		);
 	}
 
-	return gameState().isVisibleFor(obj, *getPlayerID());
+	return gameState().isVisibleFor(obj, getPlayerID().value());
 }
 
 std::vector <const CGObjectInstance *> CGameInfoCallback::getBlockingObjs( int3 pos ) const
@@ -490,7 +490,7 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 	const CGTownInstance * town = getTown(townOrTavern->id);
 
 	if(townOrTavern->ID == Obj::TAVERN || (town && town->hasBuilt(BuildingID::TAVERN)))
-		return gameState().heroesPool->getHeroesFor(*getPlayerID());
+		return gameState().heroesPool->getHeroesFor(getPlayerID().value());
 
 	return ret;
 }
@@ -600,7 +600,7 @@ const CMap * CGameInfoCallback::getMapConstPtr() const
 
 bool CGameInfoCallback::hasAccess(std::optional<PlayerColor> playerId) const
 {
-	return !getPlayerID() || getPlayerID()->isSpectator() || getPlayerRelations(*playerId, *getPlayerID()) != PlayerRelations::ENEMIES;
+	return !getPlayerID() || getPlayerID().value().isSpectator() || getPlayerRelations(*playerId, getPlayerID().value()) != PlayerRelations::ENEMIES;
 }
 
 EPlayerStatus CGameInfoCallback::getPlayerStatus(PlayerColor player, bool verbose) const
@@ -678,7 +678,7 @@ std::vector<const CGHeroInstance*> CGameInfoCallback::getHeroes(PlayerColor play
 
 	for(const auto & hero : p->getHeroes())
 	{
-		if(!getPlayerID().has_value() || isVisibleFor(hero, *getPlayerID()) || hero->getOwner() == getPlayerID())
+		if(!getPlayerID().has_value() || isVisibleFor(hero, getPlayerID().value()) || hero->getOwner() == getPlayerID())
 			ret.push_back(hero);
 	}
 	return ret;
@@ -701,7 +701,7 @@ const TeamState * CGameInfoCallback::getTeam( TeamID teamID ) const
 			return ret;
 		else
 		{
-			if (vstd::contains(ret->players, *getPlayerID())) //specific player
+			if (vstd::contains(ret->players, getPlayerID().value())) //specific player
 				return ret;
 			else
 			{
@@ -732,7 +732,7 @@ const TeamState * CGameInfoCallback::getPlayerTeam( PlayerColor color ) const
 
 void CGameInfoCallback::getVisibleTilesInRange(FowTilesType &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula) const
 {
-	gameState().getTilesInRange(tiles, pos, radious, ETileVisibility::REVEALED, *getPlayerID(),  distanceFormula);
+	gameState().getTilesInRange(tiles, pos, radious, ETileVisibility::REVEALED, getPlayerID().value(),  distanceFormula);
 }
 
 void CGameInfoCallback::calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const

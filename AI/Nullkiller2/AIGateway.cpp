@@ -583,7 +583,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	cbc = callback;
 	cc = callback;
 	this->env = env;
-	playerID = *cc->getPlayerID();
+	playerID = cc->getPlayerID().value();
 	cc->waitTillRealize = true;
 
 	nullkiller->init(callback, this);

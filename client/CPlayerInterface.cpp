@@ -337,7 +337,7 @@ void CPlayerInterface::acceptTurn(QuestionID questionID, bool hotseatWait)
 	// warn player if he has no town
 	if (cb->howManyTowns() == 0)
 	{
-		auto playerColor = *cb->getPlayerID();
+		auto playerColor = cb->getPlayerID().value();
 
 		std::vector<Component> components;
 		components.emplace_back(ComponentType::FLAG, playerColor);
