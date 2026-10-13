@@ -1,27 +1,83 @@
 {
-	"allowedAbilities" : {},
-	"allowedArtifacts" : {},
-	"allowedHeroes" : {},
-	"allowedSpells" : {},
+	"author" : {
+		"exactStrings" : null,
+		"localStrings" : null,
+		"message" : null,
+		"numbers" : null,
+		"stringsTextID" : null
+	},
+	"authorContact" : {
+		"exactStrings" : null,
+		"localStrings" : null,
+		"message" : null,
+		"numbers" : null,
+		"stringsTextID" : null
+	},
+	"battleOnly" : false,
 	"defeatIconIndex" : 0,
+	"defeatMessage" : {
+		"exactStrings" : null,
+		"localStrings" : null,
+		"message" : null,
+		"numbers" : null,
+		"stringsTextID" : null
+	},
+	"description" : {
+		"exactStrings" : null,
+		"localStrings" : null,
+		"message" : null,
+		"numbers" : null,
+		"stringsTextID" : null
+	},
 	"difficulty" : "NORMAL",
+	"events" : [
+	],
 	"mapLevels" : {
 		"surface" : {
 			"height" : 32,
 			"index" : 0,
+			"layer" : "core:surface",
 			"width" : 32
 		},
 		"underground" : {
 			"height" : 32,
 			"index" : 1,
+			"layer" : "core:underground",
 			"width" : 32
 		}
 	},
+	"mapVersion" : {
+		"exactStrings" : null,
+		"localStrings" : null,
+		"message" : null,
+		"numbers" : null,
+		"stringsTextID" : null
+	},
 	"mods" : null,
-	"name" : "Untitled",
-	"players" : {},
-	"triggeredEvents" : {},
+	"name" : {
+		"exactStrings" : [
+			"Untitled"
+		],
+		"localStrings" : null,
+		"message" : [
+			0
+		],
+		"numbers" : null,
+		"stringsTextID" : null
+	},
+	"players" : {
+	},
+	"rumors" : [
+	],
+	"triggeredEvents" : null,
+	"versionMajor" : 3,
+	"versionMinor" : 0,
 	"victoryIconIndex" : 0,
-	"versionMajor" : 1,
-	"versionMinor" : 1
+	"victoryMessage" : {
+		"exactStrings" : null,
+		"localStrings" : null,
+		"message" : null,
+		"numbers" : null,
+		"stringsTextID" : null
+	}
 }

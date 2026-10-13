@@ -12,6 +12,7 @@
 #include "../../lib/filesystem/CMemoryBuffer.h"
 #include "../../lib/filesystem/Filesystem.h"
 
+#include "../../lib/callback/EditorCallback.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/MapFormatJson.h"
 
@@ -72,7 +73,11 @@ static std::unique_ptr<CMap> loadOriginal(const JsonNode & header, const JsonNod
 
 	CMapLoaderJson initialLoader(&initialBuffer);
 
-	return initialLoader.loadMap(nullptr);
+	// object handlers assert on a non-null callback in their factory
+	static EditorCallback cb(nullptr);
+	auto map = initialLoader.loadMap(&cb);
+	cb.setMap(map.get());
+	return map;
 }
 
 static void loadActual(CMemoryBuffer * serializeBuffer, const std::unique_ptr<CMap> & originalMap, JsonNode & header, JsonNode & objects, JsonNode & surface, JsonNode & underground)
@@ -91,20 +96,17 @@ static void loadActual(CMemoryBuffer * serializeBuffer, const std::unique_ptr<CM
 	underground = getFromArchive(actualDataLoader, "underground_terrain.json");
 }
 
-TEST(MapFormat, DISABLED_Objects)
+TEST(MapFormat, Objects)
 {
 	static const std::string MAP_DATA_PATH = "test/ObjectPropertyTest/";
 
-	const JsonNode initialHeader(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));
-	const JsonNode expectedHeader(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));//same as initial for now
-
-	const JsonNode initialObjects(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::OBJECTS_FILE_NAME));
-	const JsonNode expectedObjects(JsonPath::builtin(MAP_DATA_PATH + "objects.ex.json"));
+	const JsonNode expectedHeader(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));
+	const JsonNode expectedObjects(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::OBJECTS_FILE_NAME));
 
 	const JsonNode expectedSurface(JsonPath::builtin(MAP_DATA_PATH + "surface_terrain.json"));
 	const JsonNode expectedUnderground(JsonPath::builtin(MAP_DATA_PATH + "underground_terrain.json"));
 
-	std::unique_ptr<CMap> originalMap = loadOriginal(initialHeader, initialObjects, expectedSurface, expectedUnderground);
+	std::unique_ptr<CMap> originalMap = loadOriginal(expectedHeader, expectedObjects, expectedSurface, expectedUnderground);
 
 	CMemoryBuffer serializeBuffer;
 
@@ -130,7 +132,7 @@ TEST(MapFormat, DISABLED_Objects)
 	}
 }
 
-TEST(MapFormat, DISABLED_Terrain)
+TEST(MapFormat, Terrain)
 {
 	static const std::string MAP_DATA_PATH = "test/TerrainTest/";
 
