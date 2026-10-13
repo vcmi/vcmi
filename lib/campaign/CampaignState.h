@@ -80,6 +80,7 @@ public:
 	CampaignVersion getFormat() const;
 
 	std::string getDescriptionTranslated(const ITranslator * translator) const;
+	const MetaString & getName() const;
 	std::string getNameTranslated(const ITranslator * translator) const;
 	std::string getAuthor(const ITranslator * translator) const;
 	std::string getAuthorContact(const ITranslator * translator) const;
