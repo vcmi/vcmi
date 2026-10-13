@@ -17,8 +17,6 @@ public:
 	enum Actions {
 		INVALID = -1,
 		WALK_AND_SPELLCAST,
-
-		RANDOM_GENIE_SPELL,   // random spell on a friendly creature
 	};
 
 private:

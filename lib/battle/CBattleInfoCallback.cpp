@@ -300,8 +300,6 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 	// the only option of the tactics phase is the move of WalkAction
 	if(!data.tacticsMode)
 	{
-		if(stack->canCast() && stack->hasBonusOfType(BonusType::RANDOM_SPELLCASTER))
-			allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
 		if(stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER))
 		{
 			SpellID spellID = stack->getBonus(Selector::type()(BonusType::ADJACENT_SPELLCASTER))->subtype.as<SpellID>();
@@ -2239,7 +2237,7 @@ battle::Units CBattleInfoCallback::battleAdjacentUnits(const battle::Unit * unit
 	return units;
 }
 
-SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const battle::Unit * caster, const battle::Unit * subject) const
+std::vector<SpellID> CBattleInfoCallback::getBeneficialSpells(const battle::Unit * caster, const battle::Unit * subject) const
 {
 	THROW_IF_NOT_BATTLE();
 	//This is complete list. No spells from mods.
@@ -2371,14 +2369,7 @@ SpellID CBattleInfoCallback::getRandomBeneficialSpell(vstd::RNG & rand, const ba
 		beneficialSpells.push_back(spellID);
 	}
 
-	if(!beneficialSpells.empty())
-	{
-		return *RandomGeneratorUtil::nextItem(beneficialSpells, rand);
-	}
-	else
-	{
-		return SpellID::NONE;
-	}
+	return beneficialSpells;
 }
 
 SpellID CBattleInfoCallback::getRandomCastedSpell(vstd::RNG & rand, const CStack * caster) const

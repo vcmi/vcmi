@@ -278,8 +278,7 @@ bool BattleAction::isUnitAction() const
 	if(const auto * type = BattleActionType::find(*this))
 		return type->isUnitAction();
 
-	static const std::array<EActionType, 2> actions = {
-		EActionType::MONSTER_SPELL,
+	static const std::array<EActionType, 1> actions = {
 		EActionType::WALK_AND_CAST
 	};
 	return vstd::contains(actions, actionType);

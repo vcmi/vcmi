@@ -413,6 +413,7 @@ void State::_onActionStarted(const BattleAction & ba)
 		}
 		break;
 		case EActionType::MONSTER_SPELL:
+		case EActionType::RANDOM_SPELL:
 			logAi->warn("Got MONSTER_SPELL action (use cursed ground to prevent this)");
 			return;
 			break;

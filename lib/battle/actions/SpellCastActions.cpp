@@ -22,6 +22,8 @@
 #include "../../spells/ISpellMechanics.h"
 #include "../../spells/Problem.h"
 
+#include <vstd/RNG.h>
+
 static bool needsNoTarget(const std::vector<spells::AimType> & types)
 {
 	return types.empty() || types.front() == spells::AimType::NOTHING;
@@ -48,6 +50,25 @@ static std::optional<battle::Destination> getStepDestination(const CBattleInfoCa
 		return battle::Destination(unit);
 
 	return battle::Destination(context.hoveredHex);
+}
+
+/// StartAction has set castSpellThisTurn of the unit already, so Unit::canCast is false in validate for every cast
+static bool checkCastsLeft(const battle::Unit & unit, spells::Problem & problem)
+{
+	if(unit.acquireState()->casts.canUse(1))
+		return true;
+
+	problem.add(MetaString::createFromRawString("This stack has no spell casts left: " + unit.getDescription()));
+	return false;
+}
+
+/// Level of a spell that the unit casts through the ability, which Magic Plains raise
+static int getAbilitySpellLevel(const battle::Unit & unit, const Bonus & ability, const CSpell * spell)
+{
+	int level = std::max(0, ability.val);
+	if(spell->getLevel() > 0)
+		vstd::amax(level, unit.valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(SpellSchool::ANY)));
+	return level;
 }
 
 static BattleSide getSide(const ActionContext & context)
@@ -283,14 +304,7 @@ bool UnitSpellAction::validateCaster(const CBattleInfoCallback & battle, const B
 		return false;
 	}
 
-	// StartAction has set castSpellThisTurn of the unit already, so Unit::canCast is false here for every cast
-	if(!unit->acquireState()->casts.canUse(1))
-	{
-		problem.add(MetaString::createFromRawString("This stack has no spell casts left: " + unit->getDescription()));
-		return false;
-	}
-
-	return true;
+	return checkCastsLeft(*unit, problem);
 }
 
 BattleAction UnitSpellAction::makeAction(const ActionOption & option, const ActionContext & context, const battle::Target & target) const
@@ -315,5 +329,103 @@ void UnitSpellAction::apply(IBattleActionEnvironment & env, const CBattleInfoCal
 	const CSpell * spell = action.spell.toSpell();
 
 	env.castSpell(unit, spell, spells::Mode::CREATURE_ACTIVE, unit.getSpellSchoolLevel(spell), action.getTarget(&battle));
+	env.fireCombatEvent(CombatEventType::UNIT_SPELLCAST, &unit, nullptr, spell);
+}
+
+/// Unit aimed at by the only destination of the action, or nullptr
+static const battle::Unit * getSubject(const CBattleInfoCallback & battle, const battle::Target & target)
+{
+	if(target.size() != 1)
+		return nullptr;
+	if(target.front().unitValue)
+		return target.front().unitValue;
+	return battle.battleGetUnitByPos(target.front().hexValue, true);
+}
+
+bool RandomSpellAction::isUnitAction() const
+{
+	return true;
+}
+
+void RandomSpellAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+{
+	if(!battle.battleTacticDist() && actor.canCast() && actor.hasBonusOfType(BonusType::RANDOM_SPELLCASTER))
+		out.push_back({this, UnitActionButton{4, SpellID::NONE, ImagePath::builtin("battle/actionGenie"), "vcmi.battle.action.genie"}});
+}
+
+int RandomSpellAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
+{
+	return 2;
+}
+
+ActionPreview RandomSpellAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+{
+	if(!isLegal(game, battle, option, context))
+		return {"combatBlocked", MetaString::createFromTextID("core.genrltxt.23"), {}, {}};
+
+	const battle::Unit * subject = battle.battleGetUnitByPos(context.hoveredHex, true);
+
+	MetaString text = MetaString::createFromTextID("core.genrltxt.301"); // Cast a spell on %s
+	text.replaceName(subject->creatureId(), subject->getCount());
+	return {"castSpell", text, {}, {}};
+}
+
+std::optional<BattleAction> RandomSpellAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+{
+	BattleAction action;
+	action.actionType = EActionType::RANDOM_SPELL;
+	action.side = context.actor->unitSide();
+	action.stackNumber = context.actor->unitId();
+	action.aimToHex(context.hoveredHex);
+	return action;
+}
+
+bool RandomSpellAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
+{
+	const battle::Unit * unit = battle.battleGetUnitByID(action.stackNumber);
+	if(!checkUnitCanAct(battle, unit, problem))
+		return false;
+
+	if(!unit->hasBonusOfType(BonusType::RANDOM_SPELLCASTER))
+	{
+		problem.add(MetaString::createFromRawString("That stack can't cast spells!"));
+		return false;
+	}
+
+	if(!checkCastsLeft(*unit, problem))
+		return false;
+
+	const battle::Unit * subject = getSubject(battle, action.getTarget(&battle));
+	if(!subject || subject == unit || !subject->alive() || subject->unitOwner() != unit->unitOwner())
+	{
+		problem.add(MetaString::createFromRawString("Invalid target for random spellcaster!"));
+		return false;
+	}
+
+	if(battle.getBeneficialSpells(unit, subject).empty())
+	{
+		problem.add(MetaString::createFromRawString("Random spellcaster has no spell of use to the target: " + subject->getDescription()));
+		return false;
+	}
+
+	return true;
+}
+
+void RandomSpellAction::applyStartState(battle::CUnitState & actor, const BattleAction & action) const
+{
+	BattleActionType::applyStartState(actor, action);
+	actor.castSpellThisTurn = true;
+}
+
+void RandomSpellAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
+{
+	const battle::Unit & unit = getActor(battle, action);
+	const battle::Target target = action.getTarget(&battle);
+
+	const std::vector<SpellID> spells = battle.getBeneficialSpells(&unit, getSubject(battle, target));
+	const CSpell * spell = RandomGeneratorUtil::nextItem(spells, env.getRandom())->toSpell();
+	const auto ability = unit.getBonus(Selector::type()(BonusType::RANDOM_SPELLCASTER));
+
+	env.castSpell(unit, spell, spells::Mode::CREATURE_ACTIVE, getAbilitySpellLevel(unit, *ability, spell), target);
 	env.fireCombatEvent(CombatEventType::UNIT_SPELLCAST, &unit, nullptr, spell);
 }

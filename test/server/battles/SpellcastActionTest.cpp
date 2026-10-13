@@ -51,6 +51,16 @@ public:
 		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
 	}
 
+	static BattleAction randomSpell(const CStack * genie, const BattleHex & targetHex)
+	{
+		BattleAction action;
+		action.side = genie->unitSide();
+		action.stackNumber = genie->unitId();
+		action.actionType = EActionType::RANDOM_SPELL;
+		action.aimToHex(targetHex);
+		return action;
+	}
+
 	/// The action the client sends when the attacking hero casts `spell`.
 	static BattleAction heroSpell(SpellID spell, const battle::Target & target)
 	{
@@ -153,13 +163,7 @@ TEST_F(SpellcastActionTest, genieCastsRandomBeneficialSpell)
 	const auto castsBefore = genie->casts.available();
 
 	// the action carries only the target, the server rolls the spell
-	BattleAction action;
-	action.side = BattleSide::ATTACKER;
-	action.stackNumber = genie->unitId();
-	action.actionType = EActionType::MONSTER_SPELL;
-	action.aimToHex(ally->getPosition());
-
-	ASSERT_TRUE(act(action));
+	ASSERT_TRUE(act(randomSpell(genie, ally->getPosition())));
 	ASSERT_EQ(server.casts.size(), 1u);
 
 	const auto & cast = server.casts.front().announcement;
@@ -168,6 +172,36 @@ TEST_F(SpellcastActionTest, genieCastsRandomBeneficialSpell)
 	EXPECT_TRUE(cast.spellID.toSpell()->isPositive());
 	EXPECT_TRUE(isAffectedBy(ally, cast.spellID));
 	EXPECT_EQ(genie->casts.available(), castsBefore - 1);
+}
+
+TEST_F(SpellcastActionTest, genieCastsOnlyOnOtherLivingUnitsOfItsSide)
+{
+	startGame();
+	startBattle();
+
+	CStack * genie = addStack(BattleSide::ATTACKER, CreatureID(masterGenie), casterHex, stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	const auto castsBefore = genie->casts.available();
+
+	EXPECT_FALSE(act(randomSpell(genie, enemy->getPosition())));
+	EXPECT_FALSE(act(randomSpell(genie, genie->getPosition())));
+	EXPECT_FALSE(act(randomSpell(genie, allyHex)));
+
+	EXPECT_TRUE(server.casts.empty());
+	EXPECT_EQ(genie->casts.available(), castsBefore);
+}
+
+TEST_F(SpellcastActionTest, genieWithoutCastsLeftIsRefused)
+{
+	startGame();
+	startBattle();
+
+	CStack * genie = addStack(BattleSide::ATTACKER, CreatureID(masterGenie), casterHex, stackCount);
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	genie->casts.use(genie->casts.available());
+
+	EXPECT_FALSE(act(randomSpell(genie, ally->getPosition())));
+	EXPECT_TRUE(server.casts.empty());
 }
 
 TEST_F(SpellcastActionTest, adjacentCasterWalksUpToTargetAndCasts)
@@ -679,4 +713,40 @@ TEST_F(SpellOptionTest, unitThatCastThisTurnHasNoSpellOptions)
 
 	for(const auto & option : options)
 		EXPECT_FALSE(option.spell.hasValue());
+}
+
+TEST_F(SpellOptionTest, genieOffersRandomSpellForOtherUnitsOfItsSide)
+{
+	startGame();
+	startBattle();
+
+	CStack * genie = addStack(BattleSide::ATTACKER, CreatureID(masterGenie), casterHex, stackCount);
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	battle()->activeStack = genie->unitId();
+
+	std::vector<ActionOption> options;
+	BattleActionType::collectAllOptions(*battle(), *genie, options);
+
+	const auto found = std::find_if(options.begin(), options.end(), [](const ActionOption & option)
+	{
+		return option.type == BattleActionType::find(EActionType::RANDOM_SPELL);
+	});
+	ASSERT_NE(found, options.end());
+	const ActionOption option = *found;
+	EXPECT_TRUE(option.button.has_value());
+
+	const auto shown = preview(option, {genie, allyHex});
+	EXPECT_EQ(shown.cursor, "castSpell");
+	EXPECT_EQ(toString(shown.statusText), "Cast a spell on Pikemen");
+
+	EXPECT_FALSE(isLegal(option, {genie, enemy->getPosition()}));
+	EXPECT_FALSE(isLegal(option, {genie, genie->getPosition()}));
+	const auto blocked = preview(option, {genie, enemy->getPosition()});
+	EXPECT_EQ(blocked.cursor, "combatBlocked");
+	EXPECT_FALSE(blocked.statusText.empty());
+
+	ASSERT_TRUE(act(option.type->build(*battle(), option, {genie, allyHex}).value()));
+	ASSERT_EQ(server.casts.size(), 1u);
+	EXPECT_EQ(server.casts.front().announcement.affectedCres, std::vector<ui32>{ally->unitId()});
 }

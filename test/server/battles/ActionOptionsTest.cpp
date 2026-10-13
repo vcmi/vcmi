@@ -120,7 +120,7 @@ INSTANTIATE_TEST_SUITE_P(Units, UnitOptionsTest, ::testing::Values(
 	UnitOptionsCase{"spellcaster", stormElemental, nullptr,
 		{}, {EActionType::WALK, EActionType::SHOOT, EActionType::WALK_AND_ATTACK, EActionType::MONSTER_SPELL}},
 	UnitOptionsCase{"randomSpellcaster", masterGenie, nullptr,
-		{Option::RANDOM_GENIE_SPELL}, {EActionType::WALK, EActionType::WALK_AND_ATTACK}},
+		{}, {EActionType::WALK, EActionType::WALK_AND_ATTACK, EActionType::RANDOM_SPELL}},
 	UnitOptionsCase{"adjacentSpellcaster", pikeman, [](CStack * unit)
 		{
 			BattleTestFixture::grantSpell(unit, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);

@@ -164,7 +164,8 @@ public:
 	int32_t battleGetSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	ESpellCastProblem battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const; //returns true if there are no general issues preventing from casting a spell
 
-	SpellID getRandomBeneficialSpell(vstd::RNG & rand, const battle::Unit * caster, const battle::Unit * target) const;
+	/// Spells that a RANDOM_SPELLCASTER unit may roll for the target: castable on it, not already on it and of use in this battle
+	std::vector<SpellID> getBeneficialSpells(const battle::Unit * caster, const battle::Unit * target) const;
 	SpellID getRandomCastedSpell(vstd::RNG & rand, const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
 	std::vector<PossiblePlayerBattleAction> getClientActionsForStack(const CStack * stack, const BattleClientInterfaceData & data);

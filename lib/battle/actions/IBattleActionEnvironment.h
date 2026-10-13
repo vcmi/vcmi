@@ -25,6 +25,11 @@ namespace battle
 class Unit;
 }
 
+namespace vstd
+{
+class RNG;
+}
+
 namespace spells
 {
 enum class Mode;
@@ -60,6 +65,8 @@ public:
 	virtual void castSpell(const battle::Unit & caster, const CSpell * spell, spells::Mode mode, int level, const battle::Target & target) = 0;
 	/// Casts the spell of the hero of the side at the target, and spends the charge of a spell cast from an artifact
 	virtual void castHeroSpell(BattleSide side, const CSpell * spell, const battle::Target & target) = 0;
+	/// Random generator of the server
+	virtual vstd::RNG & getRandom() = 0;
 	virtual void endBattle(EBattleResult result, BattleSide winner) = 0;
 	virtual void giveResource(PlayerColor player, GameResID resource, int amount) = 0;
 };

@@ -39,6 +39,7 @@ static constexpr WalkAndAttackNoReturnAction walkAndAttackNoReturnAction;
 static constexpr LongWeaponAttackAction longWeaponAttackAction;
 static constexpr HeroSpellAction heroSpellAction;
 static constexpr UnitSpellAction unitSpellAction;
+static constexpr RandomSpellAction randomSpellAction;
 
 namespace
 {
@@ -49,7 +50,7 @@ struct RegisteredActionType
 };
 }
 
-static constexpr std::array<RegisteredActionType, 16> registeredTypes = {{
+static constexpr std::array<RegisteredActionType, 17> registeredTypes = {{
 	{EActionType::NO_ACTION, &skipTurnAction},
 	{EActionType::BAD_MORALE, &badMoraleAction},
 	{EActionType::WAIT, &waitAction},
@@ -66,14 +67,11 @@ static constexpr std::array<RegisteredActionType, 16> registeredTypes = {{
 	{EActionType::LONG_WEAPON_ATTACK, &longWeaponAttackAction},
 	{EActionType::HERO_SPELL, &heroSpellAction},
 	{EActionType::MONSTER_SPELL, &unitSpellAction},
+	{EActionType::RANDOM_SPELL, &randomSpellAction},
 }};
 
 const BattleActionType * BattleActionType::find(const BattleAction & action)
 {
-	// a unit spell without a spell is the random spell of a RANDOM_SPELLCASTER, which the legacy code handles
-	if(action.actionType == EActionType::MONSTER_SPELL && !action.spell.hasValue())
-		return nullptr;
-
 	return find(action.actionType);
 }
 
