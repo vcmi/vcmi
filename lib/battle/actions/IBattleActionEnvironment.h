@@ -46,8 +46,8 @@ public:
 	/// Adds the bonuses to the unit, as IBattleState::updateUnitBonus does
 	virtual void updateUnitBonuses(const battle::Unit & unit, const std::vector<Bonus> & bonuses) = 0;
 	virtual void addBattleLogLine(const MetaString & line) = 0;
-	/// Runs combat event handlers of the unit and of every other unit reacting to the event
-	virtual void fireCombatEvent(CombatEventType event, const battle::Unit * unit, const battle::Unit * other) = 0;
+	/// Runs combat event handlers of the unit and of every other unit reacting to the event. Spell is the one the event is about, or nullptr
+	virtual void fireCombatEvent(CombatEventType event, const battle::Unit * unit, const battle::Unit * other, const CSpell * spell) = 0;
 	/// Triggers obstacles on the hexes the unit occupies
 	virtual void triggerObstaclesUnder(const battle::Unit & unit) = 0;
 	/// Moves the unit to the hex, stopping early at obstacles on the way. Fires BEFORE_MOVE and AFTER_MOVE
@@ -58,6 +58,8 @@ public:
 	virtual void rangedAttack(const battle::Unit & attacker, const BattleHex & destination) = 0;
 	/// Casts the spell of the unit at the target with the given mode and spell level
 	virtual void castSpell(const battle::Unit & caster, const CSpell * spell, spells::Mode mode, int level, const battle::Target & target) = 0;
+	/// Casts the spell of the hero of the side at the target, and spends the charge of a spell cast from an artifact
+	virtual void castHeroSpell(BattleSide side, const CSpell * spell, const battle::Target & target) = 0;
 	virtual void endBattle(EBattleResult result, BattleSide winner) = 0;
 	virtual void giveResource(PlayerColor player, GameResID resource, int amount) = 0;
 };

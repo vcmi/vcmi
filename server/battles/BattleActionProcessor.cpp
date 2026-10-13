@@ -55,44 +55,6 @@ BattleActionProcessor::BattleActionProcessor(BattleProcessor * owner, CGameHandl
 {
 }
 
-bool BattleActionProcessor::doHeroSpellAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	const CGHeroInstance *h = battle.battleGetFightingHero(ba.side);
-	if (!h)
-	{
-		logGlobal->error("Wrong caster!");
-		return false;
-	}
-
-	if (!ba.spell.hasValue())
-	{
-		logGlobal->error("Wrong spell id (%d)!", ba.spell.getNum());
-		return false;
-	}
-
-	const CSpell * s = ba.spell.toSpell();
-	spells::BattleCast parameters(&battle, h, spells::Mode::HERO, s);
-
-	spells::detail::ProblemImpl problem;
-
-	auto m = s->battleMechanics(&parameters);
-
-	if(!m->canBeCast(problem))//todo: should we check aimed cast?
-	{
-		logGlobal->warn("Spell %s cannot be cast by %s (mana %d)!", s->getJsonKey(), h->getNameTextID(), h->mana);
-		std::vector<std::string> texts;
-		problem.getAll(texts);
-		for(const auto & text : texts)
-			logGlobal->warn(text);
-		return false;
-	}
-
-	parameters.cast(gameHandler->spellcastEnvironment(), ba.getTarget(&battle));
-	gameHandler->useChargeBasedSpell(h->id, ba.spell);
-
-	return true;
-}
-
 void BattleActionProcessor::performAttackSequence(const CBattleInfoCallback & battle, const CStack * attacker, const CStack * defender, const BattleHex & targetHex, int distance, bool longWeaponAttack)
 {
 	int totalAttacks = attacker->getTotalAttacks(false);
@@ -408,9 +370,11 @@ public:
 		processor.gameHandler->sendAndApply(message);
 	}
 
-	void fireCombatEvent(CombatEventType event, const battle::Unit * unit, const battle::Unit * other) override
+	void fireCombatEvent(CombatEventType event, const battle::Unit * unit, const battle::Unit * other, const CSpell * spell) override
 	{
-		processor.processBattleEventTriggers(battle, event, unit, other);
+		CombatEventPayload payload;
+		payload.spell = spell;
+		processor.processBattleEventTriggers(battle, event, unit, other, payload);
 	}
 
 	void triggerObstaclesUnder(const battle::Unit & unit) override
@@ -443,6 +407,14 @@ public:
 		parameters.cast(processor.gameHandler->spellcastEnvironment(), target);
 	}
 
+	void castHeroSpell(BattleSide side, const CSpell * spell, const battle::Target & target) override
+	{
+		const CGHeroInstance * hero = battle.battleGetFightingHero(side);
+		spells::BattleCast parameters(&battle, hero, spells::Mode::HERO, spell);
+		parameters.cast(processor.gameHandler->spellcastEnvironment(), target);
+		processor.gameHandler->useChargeBasedSpell(hero->id, spell->getId());
+	}
+
 	void endBattle(EBattleResult result, BattleSide winner) override
 	{
 		processor.owner->setBattleResult(battle, result, winner);
@@ -472,8 +444,6 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 
 	switch(ba.actionType)
 	{
-		case EActionType::HERO_SPELL:
-			return doHeroSpellAction(battle, ba);
 		case EActionType::WALK_AND_CAST:
 			return doWalkAndSpellcastAction(battle, ba);
 		case EActionType::MONSTER_SPELL:
