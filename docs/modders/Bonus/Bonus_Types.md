@@ -444,11 +444,33 @@ Changes 'val' parameter of spell effects that give bonuses to a specified value.
 
 ### SPECIAL_UPGRADE
 
-Allows creature being upgraded to another creature (Gelu, Dracon)
+Allows a creature to be upgraded to another creature (Gelu, Dracon).
 
-- subtype: identifier of creature that can being upgraded
-- addInfo: identifier of creature to which perform an upgrade
-- val: modifies the upgrade cost relative to the default 100% cost. If omitted or set to `0`, the cost is unchanged; negative values provide a discount, while positive values increase the upgrade cost.
+- subtype: **deprecated** identifier of the exact creature that can be upgraded. Still supported for backward compatibility, but limiters are recommended for new configurations
+- addInfo: identifier of the creature to upgrade into
+- val: modifies the upgrade cost relative to the default 100% cost. If omitted or set to `0`, the cost is unchanged; negative values provide a discount, while positive values increase the upgrade cost
+- if subtype is omitted, the bonus must have a limiter; normal bonus limiter rules determine which creature stacks receive the configured upgrade
+- `CREATURE_TYPE_LIMITER` with `includeUpgrades: true` can be used to apply one `SPECIAL_UPGRADE` to a base creature and its upgrades
+- a subtype-less `SPECIAL_UPGRADE` without a limiter does not create an upgrade offer
+- limiter-based applicability does not create native creature upgrade-chain offers; it only controls which stacks receive the configured `addInfo` target
+
+Example bonus entry for Gelu's Archer family:
+
+```json
+"archer2sharpshooter": {
+    "type": "SPECIAL_UPGRADE",
+    "addInfo": "sharpshooter",
+    "limiters": [
+        {
+            "type": "CREATURE_TYPE_LIMITER",
+            "creature": "archer",
+            "includeUpgrades": true
+        }
+    ]
+}
+```
+
+This allows both Archers and Marksmen to upgrade directly to Sharpshooters. It does not create an additional Archer-to-Marksman upgrade offer.
 
 ## Artifact bonuses
 

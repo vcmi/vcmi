@@ -1930,15 +1930,17 @@ bool CGHeroInstance::isMissionCritical() const
 
 void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & stack) const
 {
-	TConstBonusListPtr lista = stack.getBonusesOfType(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId()));
-	for(const auto & it : *lista)
+	TConstBonusListPtr upgrades = stack.getBonusesOfType(BonusType::SPECIAL_UPGRADE);
+	for (const auto & bonus : *upgrades)
 	{
-		if (it->parameters)
+		if (bonus->parameters &&
+			(bonus->subtype == BonusSubtypeID(stack.getId()) ||
+			(bonus->subtype == BonusSubtypeID() && bonus->limiter)))
 		{
-			auto nid = it->parameters->toCreature();
-			if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
+			auto upgradeID = bonus->parameters->toCreature();
+			if(upgradeID != stack.getId()) //in very specific case the upgrade is available by default (?)
 				// SPECIAL_UPGRADE value adjusts the default 100% cost; clamp the final modifier to 0%.
-				info.addUpgrade(nid, stack.getType(), std::max(0, 100 + it->val));
+				info.addUpgrade(upgradeID, stack.getType(), std::max(0, 100 + bonus->val));
 		}
 	}
 }
