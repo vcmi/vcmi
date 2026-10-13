@@ -538,7 +538,10 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCal
 	{
 		if(bestTarget.isReachable)
 		{
-			BattleAction meleeAttack = BattleAction::makeMeleeAttack(actingStack, bestTarget.stack, bestTarget.attackableFromHex);
+			const bool longWeapon = battle.isLongWeaponAttack(actingStack, bestTarget.stack, bestTarget.attackableFromHex);
+			BattleAction meleeAttack = longWeapon
+				? BattleAction::makeLongWeaponAttack(actingStack, bestTarget.stack->getPosition(), bestTarget.attackableFromHex)
+				: BattleAction::makeMeleeAttack(actingStack, bestTarget.stack, bestTarget.attackableFromHex);
 			makeAutomaticAction(battle, actingStack, meleeAttack);
 		}
 		else if(actingStack->getMovementRange() > 0)

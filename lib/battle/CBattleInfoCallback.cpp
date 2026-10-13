@@ -850,6 +850,35 @@ bool CBattleInfoCallback::battleCanAttackHex(const battle::Unit * attacker, cons
 	return battleCanAttackHex(battleGetAvailableHexes(attacker, false), attacker, position, direction);
 }
 
+bool CBattleInfoCallback::battleCanAttackFromHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position, const BattleHex & fromHex) const
+{
+	THROW_IF_NOT_BATTLE();
+
+	//check if the attack is performed from an available hex
+	if (!fromHex.isValid() || !availableHexes.contains(fromHex))
+		return false;
+
+	//if the movement ends in an obstacle, check if the obstacle allows attacking from that position
+	if (attacker->getPosition() != fromHex)
+	{
+		if (!attacker->hasBonusOfType(BonusType::FLYING))
+		{
+			for (const auto & obstacle : battleGetAllObstacles())
+			{
+				if (obstacle->getStoppingTile().contains(fromHex))
+					return false;
+				if (attacker->doubleWide() && obstacle->getStoppingTile().contains(attacker->occupiedHex(fromHex)))
+					return false;
+			}
+		}
+		const battle::Unit * defender = battleGetUnitByPos(position, false); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
+		if (defender && defender->isDead() && defender->coversPos(fromHex))
+			return false;
+	}
+
+	return true;
+}
+
 bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position, const BattleHex::EDir & direction) const
 {
 	THROW_IF_NOT_BATTLE();
@@ -860,31 +889,9 @@ bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHex
 	if (!position.isValid() || direction == BattleHex::NONE)
 		return false;
 
-	const auto canAttackFrom = [&](BattleHex fromHex)
+	const auto canAttackFrom = [&](const BattleHex & fromHex)
 	{
-		//check if the attack is performed from an available hex
-		if (!fromHex.isValid() || !availableHexes.contains(fromHex))
-			return false;
-
-		//if the movement ends in an obstacle, check if the obstacle allows attacking from that position
-		if (attacker->getPosition() != fromHex)
-		{
-			if (!attacker->hasBonusOfType(BonusType::FLYING))
-			{
-				for (const auto & obstacle : battleGetAllObstacles())
-				{
-					if (obstacle->getStoppingTile().contains(fromHex))
-						return false;
-					if (attacker->doubleWide() && obstacle->getStoppingTile().contains(attacker->occupiedHex(fromHex)))
-						return false;
-				}
-			}
-			const battle::Unit * defender = battleGetUnitByPos(position, false); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
-			if (defender && defender->isDead() && defender->coversPos(fromHex))
-				return false;
-		}
-
-		return true;
+		return battleCanAttackFromHex(availableHexes, attacker, position, fromHex);
 	};
 
 	BattleHex fromHex = fromWhichHexAttack(attacker, position, direction);
@@ -1007,7 +1014,7 @@ bool CBattleInfoCallback::isMeleeAttackPossible(const battle::Unit * attacker, c
 	return !meleeAttackHexes(attacker, defender, attackerPos, defenderPos).empty();
 }
 
-bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender) const
+bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos) const
 {
 	THROW_IF_NOT_BATTLE();
 
@@ -1019,8 +1026,10 @@ bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, cons
 	if(!attacker->hasBonusOfType(BonusType::LONG_WEAPON))
 		return false;
 
-	if(isMeleeAttackPossible(attacker, defender))
+	if(isMeleeAttackPossible(attacker, defender, attackerPos))
 		return false;
+
+	const BattleHexArray attackerHexes = attacker->getHexes(attackerPos.isValid() ? attackerPos : attacker->getPosition());
 
 	for(const BattleHex & defenderHex : defender->getHexes())
 	{
@@ -1031,7 +1040,7 @@ bool CBattleInfoCallback::isLongWeaponAttack(const battle::Unit * attacker, cons
 				continue;
 
 			const auto [middleHex, attackerHex] = *longLine;
-			if(attacker->coversPos(attackerHex) && isLongWeaponMiddleHexClear(*this, middleHex))
+			if(attackerHexes.contains(attackerHex) && isLongWeaponMiddleHexClear(*this, middleHex))
 				return true;
 		}
 	}

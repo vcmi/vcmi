@@ -75,6 +75,7 @@ set(lib_MAIN_SRCS
 	battle/actions/BattleActionType.cpp
 	battle/actions/CatapultAction.cpp
 	battle/actions/HealAction.cpp
+	battle/actions/MeleeAttackActions.cpp
 	battle/actions/NoTargetActions.cpp
 	battle/actions/ShootAction.cpp
 	battle/actions/WalkAction.cpp
@@ -499,6 +500,7 @@ set(lib_MAIN_HEADERS
 	battle/actions/CatapultAction.h
 	battle/actions/HealAction.h
 	battle/actions/IBattleActionEnvironment.h
+	battle/actions/MeleeAttackActions.h
 	battle/actions/NoTargetActions.h
 	battle/actions/ShootAction.h
 	battle/actions/WalkAction.h

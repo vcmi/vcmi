@@ -35,8 +35,11 @@ public:
 	static BattleAction makeBadMorale(const battle::Unit * stack);
 	static BattleAction makeDefend(const battle::Unit * stack);
 	static BattleAction makeWait(const battle::Unit * stack);
+	/// Melee attack from a hex next to the target. A unit with RETURN_AFTER_STRIKE returns to its position unless returnAfterAttack is false
 	static BattleAction makeMeleeAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom, bool returnAfterAttack = true);
 	static BattleAction makeMeleeAttack(const battle::Unit* stack, const battle::Unit* target, const BattleHex& attackFrom, bool returnAfterAttack = true);
+	/// Attack of a LONG_WEAPON unit over one free hex
+	static BattleAction makeLongWeaponAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom);
 	static BattleAction makeShotAttack(const battle::Unit * shooter, const battle::Unit * target);
 	static BattleAction makeShotAttack(const battle::Unit * shooter, const BattleHex & destination);
 	static BattleAction makeHeal(const battle::Unit * healer, const BattleHex & destination);

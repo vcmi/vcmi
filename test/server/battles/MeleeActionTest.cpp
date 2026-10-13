@@ -108,10 +108,25 @@ TEST_F(MeleeActionTest, longWeaponStrikesOverFreeHexWithoutRetaliation)
 	const auto attackerHealth = attacker->getAvailableHealth();
 	const auto targetHealth = target->getAvailableHealth();
 
-	ASSERT_TRUE(attack(attacker, targetHex));
+	ASSERT_TRUE(act(BattleAction::makeLongWeaponAttack(attacker, targetHex, twoHexesAway)));
 	EXPECT_LT(target->getAvailableHealth(), targetHealth);
 	EXPECT_EQ(attacker->getAvailableHealth(), attackerHealth);
 	EXPECT_EQ(attacker->getPosition(), twoHexesAway);
+}
+
+TEST_F(MeleeActionTest, longWeaponAttackOfAdjacentTargetIsRefused)
+{
+	startGame();
+	startBattle();
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackFrom, stackCount);
+	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
+
+	const auto targetHealth = target->getAvailableHealth();
+
+	EXPECT_FALSE(act(BattleAction::makeLongWeaponAttack(attacker, targetHex, attackFrom)));
+	EXPECT_EQ(target->getAvailableHealth(), targetHealth);
 }
 
 TEST_F(MeleeActionTest, targetTwoHexesAwayIsRefusedWithoutLongWeapon)
@@ -128,6 +143,49 @@ TEST_F(MeleeActionTest, targetTwoHexesAwayIsRefusedWithoutLongWeapon)
 	EXPECT_FALSE(attack(attacker, targetHex));
 	EXPECT_EQ(target->getAvailableHealth(), targetHealth);
 	EXPECT_EQ(attacker->getPosition(), twoHexesAway);
+}
+
+TEST_F(MeleeActionTest, attackFromHexAwayFromTargetIsRefusedWithoutMoving)
+{
+	startGame();
+	startBattle();
+
+	const BattleHex twoHexesAway = attackFrom.cloneInDirection(BattleHex::LEFT);
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackerStart, stackCount);
+	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	const auto targetHealth = target->getAvailableHealth();
+
+	EXPECT_FALSE(act(BattleAction::makeMeleeAttack(attacker, targetHex, twoHexesAway)));
+	EXPECT_EQ(target->getAvailableHealth(), targetHealth);
+	EXPECT_EQ(attacker->getPosition(), attackerStart);
+}
+
+TEST_F(MeleeActionTest, unitOfOwnSideIsRefusedAsTarget)
+{
+	startGame();
+	startBattle();
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackFrom, stackCount);
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), targetHex, stackCount);
+	const auto allyHealth = ally->getAvailableHealth();
+
+	EXPECT_FALSE(attack(attacker, targetHex));
+	EXPECT_EQ(ally->getAvailableHealth(), allyHealth);
+}
+
+TEST_F(MeleeActionTest, berserkUnitAttacksUnitOfOwnSide)
+{
+	startGame();
+	startBattle();
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackFrom, stackCount);
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), targetHex, stackCount);
+	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ATTACKS_NEAREST_CREATURE, BonusSource::OTHER, 0, BonusSourceID()));
+	const auto allyHealth = ally->getAvailableHealth();
+
+	ASSERT_TRUE(attack(attacker, targetHex));
+	EXPECT_LT(ally->getAvailableHealth(), allyHealth);
 }
 
 TEST_F(MeleeActionTest, quicksandOnTheWayCancelsAttack)

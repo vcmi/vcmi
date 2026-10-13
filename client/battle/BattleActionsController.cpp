@@ -743,7 +743,9 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 			assert(attackFromHex.isValid());
 			if(!attackFromHex.isValid())
 				return;
-			BattleAction command = BattleAction::makeMeleeAttack(attacker, targetHex, attackFromHex, returnAfterAttack);
+			BattleAction command = owner.getBattle()->isLongWeaponAttack(attacker, targetStack, attackFromHex)
+				? BattleAction::makeLongWeaponAttack(attacker, targetHex, attackFromHex)
+				: BattleAction::makeMeleeAttack(attacker, targetHex, attackFromHex, returnAfterAttack);
 			owner.sendCommand(command, attacker);
 			return;
 		}
