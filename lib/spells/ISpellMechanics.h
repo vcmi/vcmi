@@ -17,6 +17,7 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../bonuses/Bonus.h"
+#include "../texts/MetaString.h"
 
 struct Question;
 struct MapObjectSelectDialog;
@@ -175,6 +176,14 @@ protected:
 	ISpellMechanicsFactory(const CSpell * s);
 };
 
+/// What the client shows while the player chooses one destination of a spell target
+struct TargetStepDescription
+{
+	std::string cursor; ///< cursor id from config/cursors.json
+	MetaString text; ///< status bar text for a hex the spell can be cast at
+	MetaString blockedText; ///< status bar text for a hex the spell can't be cast at, may be empty
+};
+
 class Mechanics : public scripting::ApiRawPointer<Mechanics>
 {
 public:
@@ -219,6 +228,8 @@ public:
 	virtual bool wouldResist(const battle::Unit * target) const = 0;
 
 	virtual std::vector<AimType> getTargetTypes() const = 0;
+	/// Describes the choice of the destination that follows the chosen ones, for the hovered hex
+	virtual TargetStepDescription describeTargetStep(const Target & partialTarget, const BattleHex & hoveredHex) const = 0;
 
 	virtual const Spell * getSpell() const = 0;
 
