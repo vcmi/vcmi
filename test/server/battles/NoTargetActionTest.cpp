@@ -80,7 +80,7 @@ INSTANTIATE_TEST_SUITE_P(Actions, ActionStartStateTest, ::testing::Values(
 	StartStateCase{"defend",          EActionType::DEFEND,          nullptr,                         false, true,  false, false},
 	StartStateCase{"creatureSpell",   EActionType::MONSTER_SPELL,   "core:bless",                    false, false, true,  true},
 	// a genie action carries no spell, the server rolls it while applying the action
-	StartStateCase{"randomSpell",     EActionType::MONSTER_SPELL,   nullptr,                         false, false, true,  true},
+	StartStateCase{"randomSpell",     EActionType::RANDOM_SPELL,    nullptr,                         false, false, true,  true},
 	StartStateCase{"castWithoutSkip", EActionType::MONSTER_SPELL,   "vcmi-test:testCastWithoutSkip", true,  false, false, true},
 	StartStateCase{"walk",            EActionType::WALK,            nullptr,                         false, false, true,  false},
 	StartStateCase{"attack",          EActionType::WALK_AND_ATTACK, nullptr,                         false, false, true,  false},

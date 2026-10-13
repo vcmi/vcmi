@@ -147,6 +147,7 @@ enum class EActionType : int8_t
 	WALK_AND_CAST,
 	WALK_AND_ATTACK_NO_RETURN, ///< WALK_AND_ATTACK of a unit that stays at the target instead of returning
 	LONG_WEAPON_ATTACK,
+	RANDOM_SPELL, ///< spell of a RANDOM_SPELLCASTER unit, rolled by the server
 };
 
 enum class EDiggingStatus : int8_t

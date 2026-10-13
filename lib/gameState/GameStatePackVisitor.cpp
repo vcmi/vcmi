@@ -1452,11 +1452,6 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 
 		switch(pack.ba.actionType)
 		{
-			case EActionType::MONSTER_SPELL: // without a spell: the random spell of a RANDOM_SPELLCASTER
-				st->waiting = false;
-				st->movedThisRound = true;
-				st->castSpellThisTurn = true;
-				break;
 			default: //any active stack action - attack, catapult, heal, spell...
 				st->waiting = false;
 				st->movedThisRound = true;

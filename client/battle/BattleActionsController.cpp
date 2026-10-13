@@ -44,13 +44,6 @@
 #include "../../lib/spells/CSpell.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-static std::string formatWithStackName(const std::string & textID, const CStack * stack)
-{
-	MetaString result = MetaString::createFromTextID(textID);
-	result.replaceName(stack->unitType()->getId(), stack->getCount());
-	return result.toString(&GAME->translator());
-}
-
 static std::string formatPlural(int amount, const std::string & baseTextID)
 {
 	return DamageEstimationTexts::plural({amount, amount}, baseTextID).toString(&GAME->translator());
@@ -135,16 +128,7 @@ public:
 
 	std::optional<UnitActionButton> getPanelButton() const override
 	{
-		if(action.spellcast())
-			return UnitActionButton{6, action.spell(), {}, {}};
-
-		switch(action.get())
-		{
-			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-				return UnitActionButton{4, SpellID::NONE, ImagePath::builtin("battle/actionGenie"), "vcmi.battle.action.genie"};
-			default:
-				return std::nullopt;
-		}
+		return UnitActionButton{6, action.spell(), {}, {}};
 	}
 };
 
@@ -333,8 +317,6 @@ int BattleActionsController::actionGetPriority(PossiblePlayerBattleAction item, 
 {
 	switch(item.get())
 	{
-		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-			return 2;
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 			return 9;
 		default:
@@ -406,7 +388,6 @@ std::string BattleActionsController::actionGetCursor(PossiblePlayerBattleAction 
 	switch (action.get())
 	{
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
-		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			return "castSpell";
 	}
 	assert(0);
@@ -430,9 +411,6 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			// "Cast %s on %s" plus dmg and kills info
 			return prepareSpellEffectText(27, *spellEffectValue, spell->getNameTranslated(), targetStack->getName());
 		}
-
-		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-			return formatWithStackName("core.genrltxt.301", targetStack); //Cast a spell on %s
 	}
 	assert(0);
 	return "";
@@ -442,8 +420,6 @@ std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlaye
 {
 	switch (action.get())
 	{
-		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-			return LIBRARY->generaltexth->allTexts[23];
 		default:
 			return "";
 	}
@@ -452,7 +428,6 @@ std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlaye
 bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, const BattleHex & targetHex)
 {
 	const CStack * targetStack = getStackForHex(targetHex);
-	bool targetStackOwned = targetStack && targetStack->unitOwner() == owner.curInt->playerID;
 
 	switch (action.get())
 	{
@@ -467,14 +442,6 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 
 				return owner.getBattle()->battleCanAttackHex(currentStack, targetHex) && isCastingPossibleHere(action.spell().toSpell(), targetHex);
 			}
-
-		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-			if(targetStack && targetStackOwned && targetStack != owner.stacksController->getActiveStack() && targetStack->alive()) //only positive spells for other allied creatures
-			{
-				SpellID spellID = owner.getBattle()->getRandomBeneficialSpell(CRandomGenerator::getDefault(), owner.stacksController->getActiveStack(), targetStack);
-				return spellID != SpellID::NONE;
-			}
-			return false;
 	}
 
 	assert(0);
@@ -498,11 +465,6 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 			}
 			return;
 		}
-
-		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-			// the server rolls the spell
-			owner.giveCommand(EActionType::MONSTER_SPELL, targetHex);
-			return;
 	}
 	assert(0);
 	return;
