@@ -155,97 +155,6 @@ void BattleActionProcessor::performAttackSequence(const CBattleInfoCallback & ba
 	removeBonuses(battle, defender, defenderBonusesToRemove);
 }
 
-bool BattleActionProcessor::doAttackAction(const CBattleInfoCallback & battle, const BattleAction & ba)
-{
-	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
-	battle::Target target = ba.getTarget(&battle);
-
-	if (!canStackAct(battle, stack))
-		return false;
-
-	if(target.size() < 2)
-	{
-		gameHandler->complain("Two destinations required for attack action.");
-		return false;
-	}
-
-	BattleHex attackPos = target.at(0).hexValue;
-	BattleHex destinationTile = target.at(1).hexValue;
-	const CStack * destinationStack = battle.battleGetStackByPos(destinationTile, true);
-
-	if(!destinationStack)
-	{
-		gameHandler->complain("Invalid target to attack");
-		return false;
-	}
-
-	BattleHex startingPos = stack->getPosition();
-	int beforeAttackSpeed = stack->getMovementRange(0);
-
-	const auto movementResult = moveStack(battle, ba.stackNumber, attackPos);
-
-	logGlobal->trace("%s will attack %s", stack->nodeName(), destinationStack->nodeName());
-
-	if (movementResult.invalidRequest)
-	{
-		gameHandler->complain("Stack failed attack - unable to reach target!");
-		return false;
-	}
-
-	if(movementResult.obstacleHit)
-	{
-		// we were not able to reach destination tile, nor occupy specified hex
-		// abort attack attempt, but treat this case as legal - we have stepped onto a quicksands/mine
-		return true;
-	}
-
-	if(destinationStack && stack->unitId() == destinationStack->unitId()) //we should just move, it will be handled by following check
-	{
-		destinationStack = nullptr;
-	}
-
-	if(!destinationStack)
-	{
-		gameHandler->complain("Unit can not attack itself");
-		return false;
-	}
-
-	const bool regularMeleeAttack = battle.isMeleeAttackPossible(stack, destinationStack);
-	const bool longWeaponAttack = battle.isLongWeaponAttack(stack, destinationStack);
-
-	if(!regularMeleeAttack && !longWeaponAttack)
-	{
-		gameHandler->complain("Attack cannot be performed!");
-		return false;
-	}
-
-	performAttackSequence(battle, stack, destinationStack, destinationTile, movementResult.distance, longWeaponAttack);
-
-	//return
-	if(stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE)
-		&& !stack->hasBonusOfType(BonusType::NOT_ACTIVE)
-		&& !stack->hasBonusOfType(BonusType::BIND_EFFECT)
-		&& target.size() == 3
-		&& startingPos != stack->getPosition()
-		&& startingPos == target.at(2).hexValue
-		&& stack->alive())
-	{
-		assert(stack->unitId() == ba.stackNumber);
-		int afterAttackSpeed = stack->getMovementRange(0);
-		std::pair<BattleHexArray, int> path = battle.getPath(stack->getPosition(), startingPos, stack);
-		size_t maxReachbleIndex = std::max(0, beforeAttackSpeed - afterAttackSpeed);
-		if(maxReachbleIndex < path.first.size())
-			moveStack(battle, ba.stackNumber, path.first[maxReachbleIndex]);
-	}
-
-	// attacking without moving still triggers the obstacle the unit stands on (e.g. moat damage);
-	// units that moved into the obstacle were already charged during the movement above
-	if(movementResult.distance == 0)
-		battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *stack);
-
-	return true;
-}
-
 void BattleActionProcessor::removeBonuses(const CBattleInfoCallback & battle, const battle::Unit * stack, const BonusList & bonuses)
 {
 	if (!stack)
@@ -509,11 +418,17 @@ public:
 		battle.handleObstacleTriggersForUnit(*processor.gameHandler->spellEnv, unit);
 	}
 
-	void moveUnit(const battle::Unit & unit, const BattleHex & destination) override
+	UnitMoveResult moveUnit(const battle::Unit & unit, const BattleHex & destination) override
 	{
 		// the action was validated, so moveStack refuses the move only if a BEFORE_MOVE handler changed the battle;
 		// it complains then, and the action still counts as made
-		processor.moveStack(battle, unit.unitId(), destination);
+		const auto result = processor.moveStack(battle, unit.unitId(), destination);
+		return {result.distance, !result.obstacleHit && !result.invalidRequest};
+	}
+
+	void meleeAttack(const battle::Unit & attacker, const battle::Unit & defender, const BattleHex & targetHex, int distance, bool longWeapon) override
+	{
+		processor.performAttackSequence(battle, battle.battleGetStackByID(attacker.unitId()), battle.battleGetStackByID(defender.unitId()), targetHex, distance, longWeapon);
 	}
 
 	void rangedAttack(const battle::Unit & attacker, const BattleHex & destination) override
@@ -559,8 +474,6 @@ bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & bat
 	{
 		case EActionType::HERO_SPELL:
 			return doHeroSpellAction(battle, ba);
-		case EActionType::WALK_AND_ATTACK:
-			return doAttackAction(battle, ba);
 		case EActionType::WALK_AND_CAST:
 			return doWalkAndSpellcastAction(battle, ba);
 		case EActionType::MONSTER_SPELL:

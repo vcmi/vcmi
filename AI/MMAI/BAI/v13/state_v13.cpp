@@ -367,6 +367,7 @@ void State::_onActionStarted(const BattleAction & ba)
 		}
 		break;
 		case EActionType::WALK_AND_ATTACK:
+		case EActionType::WALK_AND_ATTACK_NO_RETURN:
 		{
 			auto bhMove = ba.target.at(0).hexValue;
 			auto bhTarget = ba.target.at(1).hexValue;

@@ -83,12 +83,10 @@ BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const Bat
 {
 	BattleAction ba;
 	ba.side = stack->unitSide(); //FIXME: will it fail if stack mind controlled?
-	ba.actionType = EActionType::WALK_AND_ATTACK;
+	ba.actionType = returnAfterAttack ? EActionType::WALK_AND_ATTACK : EActionType::WALK_AND_ATTACK_NO_RETURN;
 	ba.stackNumber = stack->unitId();
 	ba.aimToHex(attackFrom);
 	ba.aimToHex(destination);
-	if(returnAfterAttack && stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
-		ba.aimToHex(stack->getPosition());
 	return ba;
 }
 
@@ -97,12 +95,21 @@ BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const bat
 {
 	BattleAction ba;
 	ba.side = stack->unitSide(); //FIXME: will it fail if stack mind controlled?
-	ba.actionType = EActionType::WALK_AND_ATTACK;
+	ba.actionType = returnAfterAttack ? EActionType::WALK_AND_ATTACK : EActionType::WALK_AND_ATTACK_NO_RETURN;
 	ba.stackNumber = stack->unitId();
 	ba.aimToHex(attackFrom);
 	ba.aimToUnit(target);
-	if(returnAfterAttack && stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
-		ba.aimToHex(stack->getPosition());
+	return ba;
+}
+
+BattleAction BattleAction::makeLongWeaponAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom)
+{
+	BattleAction ba;
+	ba.side = stack->unitSide();
+	ba.actionType = EActionType::LONG_WEAPON_ATTACK;
+	ba.stackNumber = stack->unitId();
+	ba.aimToHex(attackFrom);
+	ba.aimToHex(destination);
 	return ba;
 }
 
@@ -241,9 +248,14 @@ battle::Target BattleAction::getTarget(const CBattleInfoCallback * cb) const
 	for(const auto & destination : target)
 	{
 		if(destination.unitValue == INVALID_UNIT_ID)
+		{
 			ret.emplace_back(destination.hexValue);
-		else
-			ret.emplace_back(cb->battleGetUnitByID(destination.unitValue));
+			continue;
+		}
+
+		// an action may name a unit that is not in the battle; its destination has no unit and no hex
+		const battle::Unit * unit = cb->battleGetUnitByID(destination.unitValue);
+		ret.push_back(unit ? battle::Destination(unit) : battle::Destination());
 	}
 
 	return ret;
@@ -266,8 +278,7 @@ bool BattleAction::isUnitAction() const
 	if(const auto * type = BattleActionType::find(*this))
 		return type->isUnitAction();
 
-	static const std::array<EActionType, 3> actions = {
-		EActionType::WALK_AND_ATTACK,
+	static const std::array<EActionType, 2> actions = {
 		EActionType::MONSTER_SPELL,
 		EActionType::WALK_AND_CAST
 	};

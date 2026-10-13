@@ -153,7 +153,6 @@ class BattleActionProcessor : boost::noncopyable
 	void complain(const spells::Problem & problem, const std::string & fallback);
 
 	bool doHeroSpellAction(const CBattleInfoCallback & battle, const BattleAction & ba);
-	bool doAttackAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doWalkAndSpellcastAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool doUnitSpellAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 

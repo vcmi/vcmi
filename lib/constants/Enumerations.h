@@ -145,6 +145,8 @@ enum class EActionType : int8_t
 	BAD_MORALE,
 	STACK_HEAL,
 	WALK_AND_CAST,
+	WALK_AND_ATTACK_NO_RETURN, ///< WALK_AND_ATTACK of a unit that stays at the target instead of returning
+	LONG_WEAPON_ATTACK,
 };
 
 enum class EDiggingStatus : int8_t

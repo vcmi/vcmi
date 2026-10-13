@@ -12,6 +12,7 @@
 
 #include "CatapultAction.h"
 #include "HealAction.h"
+#include "MeleeAttackActions.h"
 #include "NoTargetActions.h"
 #include "ShootAction.h"
 #include "WalkAction.h"
@@ -32,6 +33,9 @@ static constexpr WalkAction walkAction;
 static constexpr ShootAction shootAction;
 static constexpr HealAction healAction;
 static constexpr CatapultAction catapultAction;
+static constexpr WalkAndAttackAction walkAndAttackAction;
+static constexpr WalkAndAttackNoReturnAction walkAndAttackNoReturnAction;
+static constexpr LongWeaponAttackAction longWeaponAttackAction;
 
 namespace
 {
@@ -42,7 +46,7 @@ struct RegisteredActionType
 };
 }
 
-static constexpr std::array<RegisteredActionType, 11> registeredTypes = {{
+static constexpr std::array<RegisteredActionType, 14> registeredTypes = {{
 	{EActionType::NO_ACTION, &skipTurnAction},
 	{EActionType::BAD_MORALE, &badMoraleAction},
 	{EActionType::WAIT, &waitAction},
@@ -54,6 +58,9 @@ static constexpr std::array<RegisteredActionType, 11> registeredTypes = {{
 	{EActionType::SHOOT, &shootAction},
 	{EActionType::STACK_HEAL, &healAction},
 	{EActionType::CATAPULT, &catapultAction},
+	{EActionType::WALK_AND_ATTACK, &walkAndAttackAction},
+	{EActionType::WALK_AND_ATTACK_NO_RETURN, &walkAndAttackNoReturnAction},
+	{EActionType::LONG_WEAPON_ATTACK, &longWeaponAttackAction},
 }};
 
 const BattleActionType * BattleActionType::find(const BattleAction & action)

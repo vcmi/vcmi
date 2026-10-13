@@ -102,6 +102,8 @@ public:
 	BattleHex toWhichHexMove(const BattleHexArray & availableHexes, const battle::Unit * unit, const BattleHex & position) const;
 
 	//return true iff attacker move towards and attack position from direction (spatial reasoning only)
+	/// Checks that the attacker can stop at the hex to act on the target position: the hex is available and no obstacle stops the attacker there
+	bool battleCanAttackFromHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position, const BattleHex & fromHex) const;
 	bool battleCanAttackHex(const battle::Unit * attacker, const BattleHex & position, const BattleHex::EDir & direction) const;
 	bool battleCanAttackHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position, const BattleHex::EDir & direction) const; //reuse availableHexes on multiple calls
 	bool battleCanAttackHex(const battle::Unit * attacker, const BattleHex & position) const; //check all directions
@@ -119,7 +121,7 @@ public:
 	bool battleCanAttackUnit(const battle::Unit * attacker, const battle::Unit * target) const; //determines if attacker can attack target (no spatial reasoning)
 	bool battleCanShoot(const battle::Unit * attacker, const BattleHex & dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker) const; //determines if stack with given ID shoot in principle
-	bool isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender) const;
+	bool isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos = BattleHex::INVALID) const;
 	//hexes of the defender that the attacker can reach in melee; empty if no melee attack is possible
 	BattleHexArray meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos = BattleHex::INVALID, const BattleHex & defenderPos = BattleHex::INVALID) const;
 	bool isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos = BattleHex::INVALID, const BattleHex & defenderPos = BattleHex::INVALID) const;
