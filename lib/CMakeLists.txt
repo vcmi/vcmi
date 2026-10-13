@@ -491,7 +491,6 @@ set(lib_MAIN_HEADERS
 	battle/IBattleInfoCallback.h
 	battle/IBattleState.h
 	battle/IUnitInfo.h
-	battle/PossiblePlayerBattleAction.h
 	battle/ReachabilityInfo.h
 	battle/SideInBattle.h
 	battle/SiegeInfo.h

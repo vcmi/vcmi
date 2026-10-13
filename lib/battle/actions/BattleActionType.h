@@ -36,7 +36,7 @@ class DLL_LINKAGE BattleActionType
 public:
 	virtual ~BattleActionType() = default;
 
-	/// Returns the type of the action, or nullptr if the action type is still handled by the legacy code
+	/// Returns the type of the action, or nullptr for a value outside of EActionType
 	static const BattleActionType * find(const BattleAction & action);
 	static const BattleActionType * find(EActionType actionType);
 

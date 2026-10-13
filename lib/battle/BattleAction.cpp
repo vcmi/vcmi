@@ -275,23 +275,8 @@ void BattleAction::setTarget(const battle::Target & target_)
 
 bool BattleAction::isUnitAction() const
 {
-	if(const auto * type = BattleActionType::find(*this))
-		return type->isUnitAction();
-
-	static const std::array<EActionType, 1> actions = {
-		EActionType::WALK_AND_CAST
-	};
-	return vstd::contains(actions, actionType);
-}
-
-bool BattleAction::isSpellAction() const
-{
-	static const std::array<EActionType, 3> actions = {
-		EActionType::HERO_SPELL,
-		EActionType::MONSTER_SPELL,
-		EActionType::WALK_AND_CAST
-	};
-	return vstd::contains(actions, actionType);
+	const auto * type = BattleActionType::find(*this);
+	return type && type->isUnitAction();
 }
 
 bool BattleAction::isBattleEndAction() const

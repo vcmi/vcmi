@@ -17,7 +17,6 @@
 #include "BattleInfo.h"
 #include "CObstacleInstance.h"
 #include "IGameSettings.h"
-#include "PossiblePlayerBattleAction.h"
 #include "../bonuses/BonusParameters.h"
 #include "../callback/CallbackDefines.h"
 #include "../entities/building/TownFortifications.h"
@@ -291,24 +290,6 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, con
 	const auto shooterOutsideWalls = shooterPosition < lineToWallHex(shooterPosition.getY());
 
 	return shooterOutsideWalls && battleHasPenaltyOnLine(shooterPosition, destHex, true, false);
-}
-
-std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsForStack(const CStack * stack, const BattleClientInterfaceData & data)
-{
-	THROW_IF_NOT_BATTLE();
-	std::vector<PossiblePlayerBattleAction> allowedActionList;
-	// the only option of the tactics phase is the move of WalkAction
-	if(!data.tacticsMode)
-	{
-		if(stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER))
-		{
-			SpellID spellID = stack->getBonus(Selector::type()(BonusType::ADJACENT_SPELLCASTER))->subtype.as<SpellID>();
-			if(stack->canCast()) //TODO: check for battlefield effects that prevent casting?
-				allowedActionList.push_back(PossiblePlayerBattleAction(PossiblePlayerBattleAction::WALK_AND_SPELLCAST, spellID));
-		}
-	}
-
-	return allowedActionList;
 }
 
 BattleHexArray CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * attacker, const BattleHex & destinationTile, const BattleHex & attackerPos) const
@@ -770,11 +751,6 @@ BattleHex CBattleInfoCallback::toWhichHexMove(const BattleHexArray & availableHe
 	return BattleHex::INVALID;
 }
 
-bool CBattleInfoCallback::battleCanAttackHex(const battle::Unit * attacker, const BattleHex & position) const
-{
-	return battleCanAttackHex(battleGetAvailableHexes(attacker, false), attacker, position);
-}
-
 bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position) const
 {
 	for (auto direction = 0; direction < 8; direction++)
@@ -783,11 +759,6 @@ bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHex
 			return true;
 	}
 	return false;
-}
-
-bool CBattleInfoCallback::battleCanAttackHex(const battle::Unit * attacker, const BattleHex & position, const BattleHex::EDir & direction) const
-{
-	return battleCanAttackHex(battleGetAvailableHexes(attacker, false), attacker, position, direction);
 }
 
 bool CBattleInfoCallback::battleCanAttackFromHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position, const BattleHex & fromHex) const
@@ -1098,24 +1069,6 @@ int64_t CBattleInfoCallback::getFirstAidHealValue(const CGHeroInstance * owner, 
 	auto state = target->acquireState();
 
 	return state->heal(base, EHealLevel::HEAL, EHealPower::PERMANENT).healedHealthPoints;
-}
-
-SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(
-	const CSpell * spell,
-	const spells::Caster * caster,
-	const spells::Mode spellMode,
-	const BattleHex & targetHex) const
-{
-	if(!targetHex.isValid())
-		return std::make_unique<spells::effects::SpellEffectValue>();
-
-	spells::Target aim;
-	aim.emplace_back(targetHex);
-	const battle::Unit * hoveredUnit = battleGetUnitByPos(targetHex, false);
-	if(hoveredUnit)
-		aim.emplace_back(spells::Destination(hoveredUnit));
-
-	return getSpellEffectValue(spell, caster, spellMode, aim);
 }
 
 SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(
