@@ -46,9 +46,12 @@ set(test_SRCS
 		game/HeroMovementTest.cpp
 		game/HeroSecondarySkillsTest.cpp
 		game/MovementCostTest.cpp
+		game/SaveGameTest.cpp
 		game/VictoryLossTest.cpp
 
 		json/JsonTests.cpp
+
+		serializer/SaveFileTest.cpp
 
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
