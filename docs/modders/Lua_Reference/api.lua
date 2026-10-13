@@ -1633,6 +1633,14 @@ function StackInstance:getType() end
 ---@return integer
 function StackInstance:getCount() end
 
+---Cursor and status bar texts that the game shows while the player chooses one destination of a spell target. Returned by the `describeTargetStep` function of a spell effect script.
+---@class TargetStepDescriptor
+---@field cursor string # Identifier of the cursor from `config/cursors.json` shown over a hex that is valid for the destination.
+---@field text MetaString # Status bar text for a hex that is valid for the destination.
+---@field blockedText MetaString # Status bar text for a hex that is not valid for the destination. No text if not set.
+---@field healthGainTextID string # If set, the health change of the spell at the hovered hex is appended to `text` in brackets. A health gain uses the plural forms of this text ID.
+local TargetStepDescriptor = {}
+
 ---A town on the adventure map. Provides its owner and what has been built in it.
 ---@class TownInstance
 local TownInstance = {}

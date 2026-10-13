@@ -87,6 +87,28 @@ TEST_F(TeleportTest, AdjustTargetTypes_WrongSecond_Clears)
 	EXPECT_TRUE(types.empty());
 }
 
+// --- describeTargetStep ---
+
+TEST_F(TeleportTest, DescribeTargetStep_UnitChoice_LeftToEngine)
+{
+	EXPECT_FALSE(subject->describeTargetStep(&mechanicsMock, {}, BattleHex(5, 5)).has_value());
+}
+
+TEST_F(TeleportTest, DescribeTargetStep_HexChoice_ShowsTeleportCursorAndTexts)
+{
+	auto & unit = unitsFake.add(BattleSide::ATTACKER);
+
+	Target chosen;
+	chosen.emplace_back(&unit, BattleHex(5, 5));
+
+	const auto step = subject->describeTargetStep(&mechanicsMock, chosen, BattleHex(8, 5));
+	ASSERT_TRUE(step.has_value());
+	EXPECT_EQ(step->cursor, "combatTeleport");
+	EXPECT_FALSE(step->text.empty());
+	EXPECT_FALSE(step->blockedText.empty());
+	EXPECT_TRUE(step->healthGainTextID.empty());
+}
+
 // --- applicableTarget ---
 
 TEST_F(TeleportTest, ApplicableTarget_InvalidDestHex_Rejected)

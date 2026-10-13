@@ -139,6 +139,9 @@ TEST_F(SpellTargetStepTest, secondDestinationHasItsOwnTexts)
 	CStack * unit = addStack(BattleSide::ATTACKER, CreatureID(pikeman), unitHex, 10);
 	CStack * victim = addStack(BattleSide::ATTACKER, CreatureID(pikeman), freeHex, 1);
 
+	// so that the sacrifice has health to restore
+	injure(unit, 3);
+
 	battle::Target chosen;
 	chosen.emplace_back(unit);
 
@@ -148,6 +151,6 @@ TEST_F(SpellTargetStepTest, secondDestinationHasItsOwnTexts)
 	EXPECT_NE(toString(teleport.text), toString(teleport.blockedText));
 
 	const auto sacrifice = describe(SpellID::SACRIFICE, chosen, victim->getPosition());
-	EXPECT_THAT(toString(sacrifice.text), ::testing::HasSubstr("Pikeman"));
+	EXPECT_THAT(toString(sacrifice.text), ::testing::MatchesRegex("Sacrifice the Pikeman \\(acquire [0-9]+ health\\)"));
 	EXPECT_FALSE(sacrifice.blockedText.empty());
 }
