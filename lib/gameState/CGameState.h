@@ -27,8 +27,8 @@ class Services;
 class IGameRandomizer;
 class IMapService;
 class CMap;
-class CSaveFile;
-class CLoadFile;
+class BinarySerializer;
+class BinaryDeserializer;
 struct CPackForClient;
 class CHeroClass;
 struct EventCondition;
@@ -206,8 +206,10 @@ public:
 	/// Null when the map has no event script - callers must check.
 	scripting::MapEventDispatcher * getMapEventDispatcher() const { return mapEventDispatcher.get(); }
 
-	void saveGame(CSaveFile & file) const;
-	void loadGame(CLoadFile & file);
+	/// Writes map header and start info, in form used by lobby when saved game is selected
+	void saveHeader(BinarySerializer & h) const;
+	void saveGame(BinarySerializer & h) const;
+	void loadGame(BinaryDeserializer & h);
 
 	/// Serializes the whole gamestate into a memory buffer. The replay log is deliberately left
 	/// out - a snapshot lives inside that very log, and including it would nest snapshots.

@@ -9,26 +9,40 @@
  */
 #pragma once
 
-#include "BinaryDeserializer.h"
+#include "SaveFileFormat.h"
 
-class DLL_LINKAGE CLoadFile : public IBinaryReader
+class CMemorySerializer;
+class IGameInfoCallback;
+
+/// Reads chunks of a saved game
+class DLL_LINKAGE CLoadFile final
 {
-	BinaryDeserializer serializer;
-	std::fstream sfile;
+	struct ChunkLocation
+	{
+		uint64_t dataOffset = 0;
+		uint32_t compressedSize = 0;
+		uint32_t uncompressedSize = 0;
+	};
 
-	int read(std::byte * data, unsigned size) override; //throws!
+	boost::filesystem::path fileName;
+	std::ifstream file;
+	ESerializationVersion version;
+	std::array<ChunkLocation, SaveFileFormat::CHUNK_ORDER.size()> chunks;
+
+	void readBytes(std::byte * target, size_t size);
+	[[noreturn]] void throwInvalidFile(const std::string & reason) const;
 
 public:
-	CLoadFile(const boost::filesystem::path & fname, IGameInfoCallback * cb); //throws!
+	/// Returns serialization version of a saved game.
+	/// Throws SaveTooOldException if version is no longer supported, std::runtime_error if file is not a supported saved game
+	static ESerializationVersion readVersion(const boost::filesystem::path & fname);
 
-	template<class T>
-	void load(T & data)
-	{
-		serializer & data;
-	}
+	/// Opens saved game and validates location of all chunks; saves older than SAVE_CHUNKS are loaded by CLegacyLoadFile
+	explicit CLoadFile(const boost::filesystem::path & fname);
 
-	bool hasFeature(BinaryDeserializer::Version v) const
-	{
-		return serializer.version >= v;
-	}
+	/// Returns uncompressed content of a chunk
+	std::vector<std::byte> readChunk(const SaveFileFormat::ChunkID & id);
+
+	/// Returns deserializer for content of a chunk
+	std::unique_ptr<CMemorySerializer> openChunk(const SaveFileFormat::ChunkID & id, IGameInfoCallback * cb);
 };

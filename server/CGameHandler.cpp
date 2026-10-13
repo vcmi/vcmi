@@ -57,6 +57,7 @@
 
 #include <vcmi/scripting/MapEventDispatcher.h>
 #include "../lib/gameState/QuestInfo.h"
+#include "../lib/gameState/SaveMetadata.h"
 #include "../lib/gameState/UpgradeInfo.h"
 
 #include "../lib/mapping/CMap.h"
@@ -84,8 +85,10 @@
 
 #include "../lib/rmg/CMapGenOptions.h"
 
-#include "../lib/serializer/CSaveFile.h"
+#include "../lib/serializer/CLegacyLoadFile.h"
 #include "../lib/serializer/CLoadFile.h"
+#include "../lib/serializer/CMemorySerializer.h"
+#include "../lib/serializer/CSaveFile.h"
 
 #include "../lib/spells/CSpell.h"
 
@@ -1771,10 +1774,18 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 
 	try
 	{
-		CSaveFile save;
-		gameState().saveGame(save);
+		CMemorySerializer header;
+		gameState().saveHeader(header.oser);
+
+		CMemorySerializer game;
+		gameState().saveGame(game.oser);
 		logGlobal->info("Saving server state");
-		save.save(*this);
+		game.oser & *this;
+
+		CSaveFile save;
+		save.addChunk(SaveFileFormat::CHUNK_METADATA, SaveMetadata::create(gameState()).toBytes());
+		save.addChunk(SaveFileFormat::CHUNK_HEADER, header.extractBuffer());
+		save.addChunk(SaveFileFormat::CHUNK_GAMESTATE, game.extractBuffer());
 		const auto saveFile = *CResourceHandler::get("local")->getResourceName(savePath);
 		save.write(saveFile);
 
@@ -1804,12 +1815,34 @@ void CGameHandler::load(const StartInfo &info)
 {
 	logGlobal->info("Loading from %s", info.mapname);
 
-	CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(info.mapname, EResType::SAVEGAME)), gs.get());
+	const auto saveFileName = CResourceHandler::get()->getResourceName(ResourcePath(info.mapname, EResType::SAVEGAME));
+	if(!saveFileName)
+		throw std::runtime_error("Error: saved game '" + info.mapname + "' not found!");
+
+	const auto & saveFile = *saveFileName;
 	gs = std::make_shared<CGameState>();
 	randomizer = std::make_unique<GameRandomizer>(*gs);
-	gs->loadGame(lf);
-	logGlobal->info("Loading server state");
-	lf.load(*this);
+
+	if(CLoadFile::readVersion(saveFile) < ESerializationVersion::SAVE_CHUNKS)
+	{
+		CLegacyLoadFile lf(saveFile, gs.get());
+		BinaryDeserializer & game = lf.skipToGameState();
+		gs->loadGame(game);
+		logGlobal->info("Loading server state");
+		game & *this;
+	}
+	else
+	{
+		CLoadFile lf(saveFile);
+		SaveMetadata::verifyMods(SaveMetadata::parse(lf.readChunk(SaveFileFormat::CHUNK_METADATA), info.mapname));
+
+		auto game = lf.openChunk(SaveFileFormat::CHUNK_GAMESTATE, gs.get());
+		gs->loadGame(game->iser);
+		logGlobal->info("Loading server state");
+		game->iser & *this;
+		if(!game->isFullyRead())
+			throw std::runtime_error("Error: saved game '" + info.mapname + "' contains unexpected data after game state!");
+	}
 	logGlobal->info("Game has been successfully loaded!");
 
 	gs->preInit(LIBRARY);
