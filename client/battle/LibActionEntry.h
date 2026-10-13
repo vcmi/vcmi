@@ -17,13 +17,14 @@ class BattleInterface;
 class LibActionEntry final : public IBattleActionEntry
 {
 	BattleInterface & owner;
-	const CStack & actor;
+	/// nullptr for an option of the hero of the player
+	const CStack * actor;
 	ActionOption option;
 
 	ActionContext getContext(const BattleHex & hex) const;
 
 public:
-	LibActionEntry(BattleInterface & owner, const CStack & actor, const ActionOption & option);
+	LibActionEntry(BattleInterface & owner, const CStack * actor, const ActionOption & option);
 
 	int getPriority(const CStack * actor, const CStack * target) const override;
 	bool isLegal(const BattleHex & hex) const override;
@@ -33,4 +34,6 @@ public:
 	std::optional<UnitActionButton> getPanelButton() const override;
 
 	const BattleActionType * getType() const;
+	/// True for a spell that is cast as soon as it is selected, by realize with an invalid hex
+	bool needsNoTarget() const;
 };

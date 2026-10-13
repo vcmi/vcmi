@@ -80,8 +80,7 @@ static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects:
 	std::string outputString;
 	if(value.hpDelta > 0)
 	{
-		const std::string baseTextID = gnrlTextID == 549 ? "vcmi.battleWindow.sacrificeAcquiredHealth" : "vcmi.battleWindow.healValuePreview"; //sacrifice spell
-		outputString = DamageEstimationTexts::healthGain(value.hpDelta, baseTextID).toString(&GAME->translator());
+		outputString = DamageEstimationTexts::healthGain(value.hpDelta, "vcmi.battleWindow.healValuePreview").toString(&GAME->translator());
 	}
 	else
 	{
@@ -162,26 +161,24 @@ bool BattleActionsController::isLibAction(const IBattleActionEntry & entry, EAct
 }
 
 BattleActionsController::BattleActionsController(BattleInterface & owner):
-	owner(owner),
-	selectedStack(nullptr),
-	heroSpellToCast(nullptr)
+	owner(owner)
 {
 }
 
 void BattleActionsController::endCastingSpell()
 {
-	if(heroSpellToCast)
+	if(heroSpellcasting)
 	{
-		heroSpellToCast.reset();
+		heroSpellcasting = false;
 		owner.windowObject->blockUI(false);
 	}
 
-	if(monsterCaster)
+	if(suspendedStack)
 	{
-		monsterCaster = nullptr;
+		suspendedStack = nullptr;
 		owner.stacksController->activateStack();
 	}
-	monsterSpellTargets.clear();
+	partialTarget.clear();
 
 	if(owner.stacksController->getActiveStack())
 	{
@@ -189,9 +186,54 @@ void BattleActionsController::endCastingSpell()
 		owner.windowObject->setPossibleActions(possibleActions);
 	}
 
-	selectedStack = nullptr;
 	cachedSelection.reset();
 	ENGINE->fakeMouseMove();
+}
+
+const battle::Target & BattleActionsController::getPartialTarget() const
+{
+	return partialTarget;
+}
+
+void BattleActionsController::addTargetStep(const IBattleActionEntry & entry, const battle::Destination & destination)
+{
+	if(partialTarget.empty())
+	{
+		const auto chosen = std::find_if(possibleActions.begin(), possibleActions.end(), [&entry](const auto & candidate){ return candidate.get() == &entry; });
+		if(chosen == possibleActions.end())
+			throw std::runtime_error("Target step added by a battle action entry that is not offered");
+
+		// the remaining destinations are chosen for this entry alone
+		const auto kept = *chosen;
+		setEntries({kept});
+
+		suspendedStack = owner.stacksController->getActiveStack();
+		owner.windowObject->blockUI(true);
+		owner.stacksController->deactivateStack();
+	}
+
+	partialTarget.push_back(destination);
+	cachedSelection.reset();
+}
+
+void BattleActionsController::sendAction(const BattleAction & action, const CStack * actor)
+{
+	const bool choosingSpellTarget = heroSpellcasting || !partialTarget.empty();
+
+	if(actor)
+	{
+		// so that BattleStacksController does not activate the suspended unit again after its action is sent
+		if(suspendedStack)
+			owner.stacksController->activateStack();
+		owner.sendCommand(action, actor);
+	}
+	else
+	{
+		owner.curInt->cb->battleMakeSpellAction(owner.getBattleID(), action);
+	}
+
+	if(choosingSpellTarget)
+		endCastingSpell();
 }
 
 bool BattleActionsController::isActiveStackSpellcaster() const
@@ -211,7 +253,7 @@ void BattleActionsController::enterCreatureCastingMode()
 		return;
 
 	//hero is casting a spell
-	if (heroSpellToCast)
+	if (heroSpellcasting)
 		return;
 
 	if (!owner.stacksController->getActiveStack())
@@ -234,27 +276,16 @@ void BattleActionsController::enterCreatureCastingMode()
 	if (!isActiveStackSpellcaster())
 		return;
 
-	for(const auto & action : possibleActions)
+	// a spell without a target is cast at once
+	for(const auto & entry : possibleActions)
 	{
-		if (!isLegacyAction(*action, PossiblePlayerBattleAction::NO_LOCATION))
+		const auto * spellEntry = dynamic_cast<const LibActionEntry *>(entry.get());
+		if(!spellEntry || !spellEntry->needsNoTarget())
 			continue;
 
-		const spells::Caster * caster = owner.stacksController->getActiveStack();
-		const CSpell * spell = action->getSpell().toSpell();
-
-		spells::Target target;
-		target.emplace_back();
-
-		spells::BattleCast cast(owner.getBattle().get(), caster, spells::Mode::CREATURE_ACTIVE, spell);
-
-		auto m = spell->battleMechanics(&cast);
-		const bool isCastingPossible = m->canBeCastAt(target);
-
-		if (isCastingPossible)
+		if(spellEntry->isLegal(BattleHex::INVALID))
 		{
-			owner.giveCommand(EActionType::MONSTER_SPELL, BattleHex::INVALID, spell->getId());
-			selectedStack = nullptr;
-
+			spellEntry->realize(BattleHex::INVALID);
 			ENGINE->cursor().set(Cursor::Combat::POINTER);
 		}
 		return;
@@ -275,10 +306,6 @@ void BattleActionsController::enterCreatureCastingMode()
 BattleActionEntries BattleActionsController::getPossibleActionsForStack(const CStack *stack)
 {
 	BattleClientInterfaceData data; //hard to get rid of these things so for now they're required data to pass
-
-	for(const auto & spell : creatureSpells)
-		data.creatureSpellsToCast.push_back(spell->id);
-
 	data.tacticsMode = owner.isInTacticsMode();
 
 	BattleActionEntries entries;
@@ -288,7 +315,10 @@ BattleActionEntries BattleActionsController::getPossibleActionsForStack(const CS
 	std::vector<ActionOption> options;
 	BattleActionType::collectAllOptions(*owner.getBattle(), *stack, options);
 	for(const auto & option : options)
-		entries.push_back(std::make_shared<LibActionEntry>(owner, *stack, option));
+		entries.push_back(std::make_shared<LibActionEntry>(owner, stack, option));
+
+	if(rolledCreatureSpell.hasValue() && !data.tacticsMode && stack->canCast())
+		entries.push_back(std::make_shared<LibActionEntry>(owner, stack, BattleActionType::makeSpellOption(EActionType::MONSTER_SPELL, rolledCreatureSpell)));
 
 	if(data.tacticsMode)
 		entries.push_back(std::make_shared<TacticsUnitSelectionEntry>(owner));
@@ -303,78 +333,38 @@ int BattleActionsController::actionGetPriority(PossiblePlayerBattleAction item, 
 {
 	switch(item.get())
 	{
-		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-		case PossiblePlayerBattleAction::ANY_LOCATION:
-		case PossiblePlayerBattleAction::NO_LOCATION:
-		case PossiblePlayerBattleAction::FREE_LOCATION:
-		case PossiblePlayerBattleAction::OBSTACLE:
-		case PossiblePlayerBattleAction::SACRIFICE:
-			if(!stack->hasBonusOfType(BonusType::NO_SPELLCAST_BY_DEFAULT) && targetStack != nullptr)
-			{
-				PlayerColor stackOwner = owner.getBattle()->battleGetOwner(targetStack);
-				bool enemyTargetingPositiveSpellcast = item.spell().toSpell()->isPositive() && stackOwner != owner.curInt->playerID;
-				bool friendTargetingNegativeSpellcast = item.spell().toSpell()->isNegative() && stackOwner == owner.curInt->playerID;
-
-				if(!enemyTargetingPositiveSpellcast && !friendTargetingNegativeSpellcast)
-					return 1;
-			}
-			return 100; //bottom priority
-
-			break;
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			return 2;
-			break;
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 			return 9;
-			break;
-		case PossiblePlayerBattleAction::TELEPORT:
-			return 15;
-			break;
 		default:
 			assert(0);
 			return 200;
-			break;
 	}
 }
 
 void BattleActionsController::castThisSpell(SpellID spellID)
 {
-	heroSpellToCast = std::make_shared<BattleAction>();
-	heroSpellToCast->actionType = EActionType::HERO_SPELL;
-	heroSpellToCast->spell = spellID;
-	heroSpellToCast->stackNumber = -1;
-	heroSpellToCast->side = owner.curInt->cb->getBattle(owner.getBattleID())->battleGetMySide();
+	heroSpellcasting = true;
 
-	//choosing possible targets
-	const CGHeroInstance *castingHero = (owner.attackingHeroInstance->tempOwner == owner.curInt->playerID) ? owner.attackingHeroInstance : owner.defendingHeroInstance;
-	assert(castingHero); // code below assumes non-null hero
-	PossiblePlayerBattleAction spellSelMode = owner.getBattle()->getCasterAction(spellID.toSpell(), castingHero, spells::Mode::HERO);
+	const auto entry = std::make_shared<LibActionEntry>(owner, nullptr, BattleActionType::makeSpellOption(EActionType::HERO_SPELL, spellID));
 
-	if (spellSelMode.get() == PossiblePlayerBattleAction::NO_LOCATION) //user does not have to select location
+	if(entry->needsNoTarget())
 	{
-		heroSpellToCast->aimToHex(BattleHex::INVALID);
-		owner.curInt->cb->battleMakeSpellAction(owner.getBattleID(), *heroSpellToCast);
-		endCastingSpell();
+		entry->realize(BattleHex::INVALID);
 	}
 	else
 	{
-		setEntries({std::make_shared<LegacyEntry>(*this, spellSelMode)}); //only this one action can be performed at the moment
+		setEntries({entry}); //only this one action can be performed at the moment
 		ENGINE->fakeMouseMove();//update cursor
 	}
 
 	owner.windowObject->blockUI(true);
 }
 
-const CSpell * BattleActionsController::getHeroSpellToCast( ) const
-{
-	if (heroSpellToCast)
-		return heroSpellToCast->spell.toSpell();
-	return nullptr;
-}
-
 const CSpell * BattleActionsController::getStackSpellToCast(const BattleHex & hoveredHex)
 {
-	if (heroSpellToCast)
+	if (heroSpellcasting)
 		return nullptr;
 
 	if (!owner.stacksController->getActiveStack())
@@ -391,7 +381,8 @@ const CSpell * BattleActionsController::getStackSpellToCast(const BattleHex & ho
 
 	const auto & entry = getSelection(hoveredHex).entry;
 
-	if (!entry || entry->getSpell() == SpellID::NONE)
+	// the spell of a lib entry is shown by the preview of the entry
+	if (!entry || !isLegacyAction(*entry, PossiblePlayerBattleAction::WALK_AND_SPELLCAST))
 		return nullptr;
 
 	return entry->getSpell().toSpell();
@@ -399,8 +390,6 @@ const CSpell * BattleActionsController::getStackSpellToCast(const BattleHex & ho
 
 const CSpell * BattleActionsController::getCurrentSpell(const BattleHex & hoveredHex)
 {
-	if (getHeroSpellToCast())
-		return getHeroSpellToCast();
 	return getStackSpellToCast(hoveredHex);
 }
 
@@ -416,25 +405,9 @@ std::string BattleActionsController::actionGetCursor(PossiblePlayerBattleAction 
 {
 	switch (action.get())
 	{
-		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-		case PossiblePlayerBattleAction::ANY_LOCATION:
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
-		case PossiblePlayerBattleAction::FREE_LOCATION:
-		case PossiblePlayerBattleAction::OBSTACLE:
 			return "castSpell";
-
-		case PossiblePlayerBattleAction::TELEPORT:
-			if(!selectedStack)
-				return "castSpell";
-			else
-				return "combatTeleport";
-
-		case PossiblePlayerBattleAction::SACRIFICE:
-			if(!selectedStack)
-				return "castSpell";
-			else
-				return "combatSacrifice";
 	}
 	assert(0);
 	return "combatBlocked";
@@ -446,30 +419,6 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 
 	switch (action.get()) //display console message, realize selected action
 	{
-		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-		{
-			const CSpell * spell = action.spell().toSpell();
-
-			auto spellEffectValue =
-					owner.getBattle()->getSpellEffectValue(spell, getCurrentSpellcaster(), getCurrentCastMode(), targetHex);
-
-			// "Cast %s on %s" plus dmg and kills info or how many units are risen/summoned
-			return prepareSpellEffectText(27, *spellEffectValue, spell->getNameTranslated(), targetStack->getName());
-		}
-
-		case PossiblePlayerBattleAction::ANY_LOCATION:
-		{
-			const CSpell * spell = action.spell().toSpell();
-			if(!spell)
-				return {};
-
-			auto spellEffectValue =
-					owner.getBattle()->getSpellEffectValue(spell, getCurrentSpellcaster(), getCurrentCastMode(), targetHex);
-
-			// "Cast %s" plus dmg and kills info
-			return prepareSpellEffectText(26, *spellEffectValue, spell->getNameTranslated(), "");
-		}
-
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 		{
 			const CSpell * spell = getStackSpellToCast(targetHex);
@@ -482,51 +431,8 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 			return prepareSpellEffectText(27, *spellEffectValue, spell->getNameTranslated(), targetStack->getName());
 		}
 
-		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
+		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			return formatWithStackName("core.genrltxt.301", targetStack); //Cast a spell on %s
-
-		case PossiblePlayerBattleAction::TELEPORT:
-		{
-			if(!selectedStack) // Phase 1: hovering over unit to teleport
-			{
-				const CSpell * spell = action.spell().toSpell();
-				if(!spell || !targetStack)
-					return {};
-				auto spellEffectValue = owner.getBattle()->getSpellEffectValue(spell, getCurrentSpellcaster(), getCurrentCastMode(), targetHex);
-				return prepareSpellEffectText(27, *spellEffectValue, spell->getNameTranslated(), targetStack->getName());
-			}
-			return LIBRARY->generaltexth->allTexts[25]; //Teleport Here
-		}
-
-		case PossiblePlayerBattleAction::OBSTACLE:
-			return LIBRARY->generaltexth->allTexts[550];
-
-		case PossiblePlayerBattleAction::SACRIFICE:
-		{
-			const CSpell * spell = action.spell().toSpell();
-			if(!spell)
-				return {};
-
-			spells::Target aim;
-			if(selectedStack)
-				aim.emplace_back(selectedStack);
-			aim.emplace_back(targetHex);
-			auto spellEffectValue =
-					owner.getBattle()->getSpellEffectValue(spell, getCurrentSpellcaster(), getCurrentCastMode(), aim);
-
-			if(!selectedStack) // Phase 1: hovering over unit to heal or resurrect
-				return prepareSpellEffectText(27, *spellEffectValue, spell->getNameTranslated(), targetStack ? targetStack->getName() : "");
-
-			//sacrifice the %s
-			return prepareSpellEffectText(549, *spellEffectValue, "", targetStack->getName());
-		}
-
-		case PossiblePlayerBattleAction::FREE_LOCATION:
-		{
-			MetaString text = MetaString::createFromTextID("core.genrltxt.26"); //Cast %s
-			text.replaceName(action.spell());
-			return text.toString(&GAME->translator());
-		}
 	}
 	assert(0);
 	return "";
@@ -536,26 +442,8 @@ std::string BattleActionsController::actionGetStatusMessageBlocked(PossiblePlaye
 {
 	switch (action.get())
 	{
-		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			return LIBRARY->generaltexth->allTexts[23];
-			break;
-		case PossiblePlayerBattleAction::TELEPORT:
-			if(!selectedStack)
-				return LIBRARY->generaltexth->allTexts[23];
-			return LIBRARY->generaltexth->allTexts[24]; //Invalid Teleport Destination
-			break;
-		case PossiblePlayerBattleAction::SACRIFICE:
-			if(!selectedStack)
-				return LIBRARY->generaltexth->allTexts[23];
-			return LIBRARY->generaltexth->allTexts[543]; //choose army to sacrifice
-			break;
-		case PossiblePlayerBattleAction::FREE_LOCATION:
-		{
-			MetaString text = MetaString::createFromTextID("core.genrltxt.181"); //No room to place %s here
-			text.replaceName(action.spell());
-			return text.toString(&GAME->translator());
-		}
 		default:
 			return "";
 	}
@@ -577,16 +465,8 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 				if (targetStack == currentStack)
 					return false;
 
-				return owner.getBattle()->battleCanAttackHex(currentStack, targetHex) && isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
+				return owner.getBattle()->battleCanAttackHex(currentStack, targetHex) && isCastingPossibleHere(action.spell().toSpell(), targetHex);
 			}
-		case PossiblePlayerBattleAction::NO_LOCATION:
-			return false;
-
-		case PossiblePlayerBattleAction::ANY_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
-
-		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-			return !selectedStack && targetStack && isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			if(targetStack && targetStackOwned && targetStack != owner.stacksController->getActiveStack() && targetStack->alive()) //only positive spells for other allied creatures
@@ -595,16 +475,6 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 				return spellID != SpellID::NONE;
 			}
 			return false;
-
-		case PossiblePlayerBattleAction::TELEPORT:
-		case PossiblePlayerBattleAction::SACRIFICE:
-			if(!selectedStack)
-				return targetStack && isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
-			return isCastingPossibleHere(action.spell().toSpell(), selectedStack, targetHex);
-
-		case PossiblePlayerBattleAction::OBSTACLE:
-		case PossiblePlayerBattleAction::FREE_LOCATION:
-			return isCastingPossibleHere(action.spell().toSpell(), nullptr, targetHex);
 	}
 
 	assert(0);
@@ -629,83 +499,10 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 			return;
 		}
 
-		case PossiblePlayerBattleAction::SACRIFICE:
-		{
-			if(!selectedStack)
-			{
-				// Phase 1: select dead unit to resurrect
-				monsterCaster = owner.stacksController->getActiveStack();
-				owner.windowObject->blockUI(true);
-				owner.stacksController->deactivateStack();
-				if(heroSpellToCast)
-					heroSpellToCast->aimToHex(targetHex);
-				else
-					monsterSpellTargets.push_back(targetHex);
-				selectedStack = targetStack;
-				return;
-			}
-			[[fallthrough]];
-		}
-		case PossiblePlayerBattleAction::TELEPORT:
-		{
-			if(!selectedStack)
-			{
-				// Phase 1: select unit to teleport
-				monsterCaster = owner.stacksController->getActiveStack();
-				owner.windowObject->blockUI(true);
-				owner.stacksController->deactivateStack();
-				if(heroSpellToCast)
-					heroSpellToCast->aimToUnit(targetStack);
-				else
-					monsterSpellTargets.push_back(targetHex);
-				selectedStack = targetStack;
-				return;
-			}
-			[[fallthrough]];
-		}
-		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
-		case PossiblePlayerBattleAction::ANY_LOCATION:
-		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be available as random spell
-		case PossiblePlayerBattleAction::OBSTACLE:
-		case PossiblePlayerBattleAction::FREE_LOCATION:
-		{
-			if(action.get() == PossiblePlayerBattleAction::AIMED_SPELL_CREATURE)
-			{
-				monsterCaster = owner.stacksController->getActiveStack();
-				owner.windowObject->blockUI(true);
-				owner.stacksController->deactivateStack();
-			}
-
-			if (!heroSpellcastingModeActive())
-			{
-				if(monsterCaster)
-					owner.stacksController->activateStack();
-
-				if (action.spell().hasValue())
-				{
-					monsterSpellTargets.push_back(targetHex);
-					owner.giveCommand(EActionType::MONSTER_SPELL, monsterSpellTargets, action.spell());
-				}
-				else //unknown random spell
-				{
-					monsterSpellTargets.push_back(targetHex);
-					owner.giveCommand(EActionType::MONSTER_SPELL, monsterSpellTargets);
-				}
-				endCastingSpell();
-			}
-			else
-			{
-				assert(getHeroSpellToCast());
-				if(action.get() == PossiblePlayerBattleAction::SACRIFICE)
-					heroSpellToCast->aimToUnit(targetStack); //victim
-				else
-					heroSpellToCast->aimToHex(targetHex);
-				owner.curInt->cb->battleMakeSpellAction(owner.getBattleID(), *heroSpellToCast);
-				endCastingSpell();
-			}
-			selectedStack = nullptr;
+		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
+			// the server rolls the spell
+			owner.giveCommand(EActionType::MONSTER_SPELL, targetHex);
 			return;
-		}
 	}
 	assert(0);
 	return;
@@ -713,7 +510,7 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 
 std::shared_ptr<const IBattleActionEntry> BattleActionsController::selectEntry(const BattleHex & targetHex)
 {
-	auto currentStack = monsterCaster ? monsterCaster : owner.stacksController->getActiveStack();
+	auto currentStack = suspendedStack ? suspendedStack : owner.stacksController->getActiveStack();
 	assert(currentStack != nullptr);
 	assert(targetHex.isValid());
 
@@ -763,7 +560,7 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 		return;
 	}
 
-	if (owner.stacksController->getActiveStack() == nullptr && monsterCaster == nullptr)
+	if (owner.stacksController->getActiveStack() == nullptr && suspendedStack == nullptr)
 		return;
 
 	if (hoveredHex == BattleHex::INVALID)
@@ -856,7 +653,7 @@ std::string BattleActionsController::secondaryActionText(const BattleHex & hex, 
 
 void BattleActionsController::onHexLeftClicked(const BattleHex & clickedHex, const std::function<void(const CStack *)> & showStackInfo)
 {
-	if (owner.stacksController->getActiveStack() == nullptr && monsterCaster == nullptr)
+	if (owner.stacksController->getActiveStack() == nullptr && suspendedStack == nullptr)
 		return;
 
 	const auto entry = selectEntry(clickedHex);
@@ -875,60 +672,34 @@ void BattleActionsController::onHexLeftClicked(const BattleHex & clickedHex, con
 
 void BattleActionsController::tryActivateStackSpellcasting(const CStack * casterStack)
 {
-	creatureSpells.clear();
-	TConstBonusListPtr bl = casterStack->getBonusesOfType(BonusType::SPELLCASTER);
+	rolledCreatureSpell = SpellID::NONE;
 
-	if(casterStack->canCast() && !bl->empty())
-	{
-		// faerie dragon can cast only one, randomly selected spell until their next move
-		//TODO: faerie dragon type spell should be selected by server
-		const auto spellToCast = owner.getBattle()->getRandomCastedSpell(CRandomGenerator::getDefault(), casterStack);
-
-		if(spellToCast.hasValue())
-			creatureSpells.push_back(spellToCast.toSpell());
-	}
-
-	for(const auto & bonus : *bl)
-	{
-		if(!bonus->parameters && bonus->subtype.as<SpellID>().hasValue())
-			creatureSpells.push_back(bonus->subtype.as<SpellID>().toSpell());
-	}
+	// faerie dragon can cast only one, randomly selected spell until their next move
+	//TODO: faerie dragon type spell should be selected by server
+	if(casterStack->canCast() && casterStack->hasBonusOfType(BonusType::SPELLCASTER))
+		rolledCreatureSpell = owner.getBattle()->getRandomCastedSpell(CRandomGenerator::getDefault(), casterStack);
 }
 
 const spells::Caster * BattleActionsController::getCurrentSpellcaster() const
 {
-	if (heroSpellToCast)
-		return owner.currentHero();
-	else if(monsterCaster)
-		return monsterCaster;
-	else
-		return owner.stacksController->getActiveStack();
+	return owner.stacksController->getActiveStack();
 }
 
 spells::Mode BattleActionsController::getCurrentCastMode() const
 {
-	if(heroSpellToCast)
-		return spells::Mode::HERO;
-	else
-		return spells::Mode::CREATURE_ACTIVE;
+	return spells::Mode::CREATURE_ACTIVE;
 }
 
-bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell, const CStack *targetStack, const BattleHex & targetHex)
+bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell, const BattleHex & targetHex)
 {
 	assert(currentSpell);
 	if (!currentSpell)
 		return false;
 
-	auto caster = getCurrentSpellcaster();
-
-	const spells::Mode mode = heroSpellToCast ? spells::Mode::HERO : spells::Mode::CREATURE_ACTIVE;
-
 	spells::Target target;
-	if(targetStack)
-		target.emplace_back(targetStack);
 	target.emplace_back(targetHex);
 
-	spells::BattleCast cast(owner.getBattle().get(), caster, mode, currentSpell);
+	spells::BattleCast cast(owner.getBattle().get(), getCurrentSpellcaster(), getCurrentCastMode(), currentSpell);
 
 	auto m = currentSpell->battleMechanics(&cast);
 	spells::detail::ProblemImpl problem; //todo: display problem in status bar
@@ -938,6 +709,10 @@ bool BattleActionsController::isCastingPossibleHere(const CSpell * currentSpell,
 
 void BattleActionsController::activateStack()
 {
+	// a target that was being chosen when the turn ended some other way, e.g. by the turn timer
+	partialTarget.clear();
+	suspendedStack = nullptr;
+
 	const CStack * s = owner.stacksController->getActiveStack();
 	if(s)
 	{
@@ -988,7 +763,7 @@ void BattleActionsController::onHexRightClicked(const BattleHex & clickedHex, co
 
 bool BattleActionsController::heroSpellcastingModeActive() const
 {
-	return heroSpellToCast != nullptr;
+	return heroSpellcasting;
 }
 
 bool BattleActionsController::creatureSpellcastingModeActive() const
@@ -1003,9 +778,6 @@ bool BattleActionsController::creatureSpellcastingModeActive() const
 
 bool BattleActionsController::currentActionSpellcasting(const BattleHex & hoveredHex)
 {
-	if (heroSpellToCast)
-		return true;
-
 	if (!owner.stacksController->getActiveStack())
 		return false;
 
@@ -1016,7 +788,7 @@ bool BattleActionsController::currentActionSpellcasting(const BattleHex & hovere
 
 bool BattleActionsController::currentActionWalkAndCast(const BattleHex & hoveredHex)
 {
-	if (heroSpellToCast)
+	if (heroSpellcasting)
 		return false;
 
 	if (!owner.stacksController->getActiveStack())
@@ -1038,11 +810,17 @@ bool BattleActionsController::currentActionHasAttackDirection(const BattleHex & 
 
 BattleHexArray BattleActionsController::getShadedHexes(const BattleHex & hoveredHex)
 {
+	if(!owner.stacksController->getActiveStack() && !suspendedStack)
+		return {};
+
 	return getSelection(hoveredHex).preview.shadedHexes;
 }
 
 std::vector<uint32_t> BattleActionsController::getAffectedUnits(const BattleHex & hoveredHex)
 {
+	if(!owner.stacksController->getActiveStack() && !suspendedStack)
+		return {};
+
 	return getSelection(hoveredHex).preview.affectedUnits;
 }
 

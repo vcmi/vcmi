@@ -62,6 +62,7 @@ public:
 
 	/// Option of the unit to cast the spell, with its panel button
 	ActionOption makeOption(SpellID spell) const;
+	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
 	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
 
 	void applyStartState(battle::CUnitState & actor, const BattleAction & action) const override;

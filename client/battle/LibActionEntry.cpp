@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "LibActionEntry.h"
+#include "BattleActionsController.h"
 
 #include "BattleFieldController.h"
 #include "BattleInterface.h"
@@ -22,7 +23,7 @@
 #include "../../lib/battle/actions/BattleActionType.h"
 #include "../../lib/callback/CCallback.h"
 
-LibActionEntry::LibActionEntry(BattleInterface & owner, const CStack & actor, const ActionOption & option)
+LibActionEntry::LibActionEntry(BattleInterface & owner, const CStack * actor, const ActionOption & option)
 	: owner(owner)
 	, actor(actor)
 	, option(option)
@@ -31,23 +32,32 @@ LibActionEntry::LibActionEntry(BattleInterface & owner, const CStack & actor, co
 
 ActionContext LibActionEntry::getContext(const BattleHex & hex) const
 {
-	ActionContext context{&actor, hex, std::nullopt};
+	ActionContext context{actor, hex, std::nullopt, owner.actionsController->getPartialTarget(), owner.getBattle()->battleGetMySide()};
 
-	const auto approaches = option.type->getApproaches(*owner.getBattle(), option, actor, hex);
-	if(!approaches.empty())
-		context.approach = owner.fieldController->selectApproach(hex, approaches);
+	if(actor)
+	{
+		const auto approaches = option.type->getApproaches(*owner.getBattle(), option, *actor, hex);
+		if(!approaches.empty())
+			context.approach = owner.fieldController->selectApproach(hex, approaches);
+	}
 
 	return context;
 }
 
 int LibActionEntry::getPriority(const CStack *, const CStack * target) const
 {
-	return option.type->getPriority(*owner.getBattle(), option, actor, target);
+	// an option of the hero is the only entry while it is offered
+	if(!actor)
+		return 0;
+
+	return option.type->getPriority(*owner.getBattle(), option, *actor, target);
 }
 
 bool LibActionEntry::isLegal(const BattleHex & hex) const
 {
-	return option.type->isLegal(*owner.curInt->cb, *owner.getBattle(), option, getContext(hex));
+	const ActionContext context = getContext(hex);
+	return option.type->buildTargetStep(*owner.getBattle(), option, context).has_value()
+		|| option.type->isLegal(*owner.curInt->cb, *owner.getBattle(), option, context);
 }
 
 BattleActionPreview LibActionEntry::preview(const BattleHex & hex) const
@@ -58,13 +68,25 @@ BattleActionPreview LibActionEntry::preview(const BattleHex & hex) const
 
 void LibActionEntry::realize(const BattleHex & hex) const
 {
-	owner.sendCommand(option.type->build(*owner.getBattle(), option, getContext(hex)).value(), &actor);
+	const ActionContext context = getContext(hex);
+
+	if(const auto step = option.type->buildTargetStep(*owner.getBattle(), option, context))
+	{
+		owner.actionsController->addTargetStep(*this, *step);
+		return;
+	}
+
+	owner.actionsController->sendAction(option.type->build(*owner.getBattle(), option, context).value(), actor);
 }
 
 SpellID LibActionEntry::getSpell() const
 {
-	// no lib action type casts spells yet
-	return SpellID::NONE;
+	return option.spell;
+}
+
+bool LibActionEntry::needsNoTarget() const
+{
+	return option.spell.hasValue() && option.type->build(*owner.getBattle(), option, getContext(BattleHex::INVALID)).has_value();
 }
 
 std::optional<UnitActionButton> LibActionEntry::getPanelButton() const

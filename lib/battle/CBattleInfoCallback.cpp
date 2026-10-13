@@ -300,20 +300,8 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 	// the only option of the tactics phase is the move of WalkAction
 	if(!data.tacticsMode)
 	{
-		if(stack->canCast()) //TODO: check for battlefield effects that prevent casting?
-		{
-			if(stack->hasBonusOfType(BonusType::SPELLCASTER))
-			{
-				for(const auto & spellID : data.creatureSpellsToCast)
-				{
-					const CSpell *spell = spellID.toSpell();
-					PossiblePlayerBattleAction act = getCasterAction(spell, stack, spells::Mode::CREATURE_ACTIVE);
-					allowedActionList.push_back(act);
-				}
-			}
-			if(stack->hasBonusOfType(BonusType::RANDOM_SPELLCASTER))
-				allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
-		}
+		if(stack->canCast() && stack->hasBonusOfType(BonusType::RANDOM_SPELLCASTER))
+			allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
 		if(stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER))
 		{
 			SpellID spellID = stack->getBonus(Selector::type()(BonusType::ADJACENT_SPELLCASTER))->subtype.as<SpellID>();
@@ -323,42 +311,6 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 	}
 
 	return allowedActionList;
-}
-
-PossiblePlayerBattleAction CBattleInfoCallback::getCasterAction(const CSpell * spell, const spells::Caster * caster, spells::Mode mode) const
-{
-	THROW_IF_NOT_BATTLE();
-
-	const spells::BattleCast cast(this, caster, mode, spell);
-	auto targetTypes = spell->battleMechanics(&cast)->getTargetTypes();
-
-	if(targetTypes.empty() || targetTypes.front() == spells::AimType::NOTHING)
-		return PossiblePlayerBattleAction(PossiblePlayerBattleAction::NO_LOCATION, spell->id);
-
-	if(targetTypes.size() >= 2)
-	{
-		if(targetTypes[1] == spells::AimType::CREATURE)
-			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::SACRIFICE, spell->id);
-		if(targetTypes[1] == spells::AimType::LOCATION)
-			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::TELEPORT, spell->id);
-	}
-
-	switch(targetTypes.front())
-	{
-		case spells::AimType::CREATURE:
-			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::AIMED_SPELL_CREATURE, spell->id);
-		case spells::AimType::OBSTACLE:
-			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::OBSTACLE, spell->id);
-		case spells::AimType::LOCATION:
-		{
-			const CSpell::TargetInfo ti(spell, caster->getSpellSchoolLevel(spell), mode);
-			if(ti.clearAffected)
-				return PossiblePlayerBattleAction(PossiblePlayerBattleAction::FREE_LOCATION, spell->id);
-			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::ANY_LOCATION, spell->id);
-		}
-		default:
-			return PossiblePlayerBattleAction(PossiblePlayerBattleAction::NO_LOCATION, spell->id);
-	}
 }
 
 BattleHexArray CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * attacker, const BattleHex & destinationTile, const BattleHex & attackerPos) const
