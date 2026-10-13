@@ -81,6 +81,7 @@ void TinyMapGameTest::startWithMap(TinyH3M::TinyH3MBuilder builder, EMapDifficul
 		settings.name = "Player";
 		settings.castle = playerInfo.defaultCastle();
 		settings.hero = playerInfo.defaultHero();
+		settings.bonus = PlayerStartingBonus::GOLD; // random bonus may be an artifact that changes hero stats
 		configurePlayer(settings);
 	}
 

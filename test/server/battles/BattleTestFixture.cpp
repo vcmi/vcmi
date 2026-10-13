@@ -118,11 +118,6 @@ Services * BattleTestFixture::gameServices()
 	return LIBRARY;
 }
 
-void BattleTestFixture::configurePlayer(PlayerSettings & settings) const
-{
-	settings.bonus = PlayerStartingBonus::GOLD; // no random starting artifact
-}
-
 void BattleTestFixture::startGame()
 {
 	const CreatureID token(0);
