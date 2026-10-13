@@ -283,13 +283,14 @@ const CArmedInstance * CBattleInfoEssentials::battleGetArmyObject(BattleSide sid
 
 InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo(BattleSide side) const
 {
+	THROW_IF_NOT_BATTLE();
 	const auto * hero = getBattle()->getSideHero(side);
 	if(!hero)
 	{
 		return InfoAboutHero();
 	}
-	InfoAboutHero::EInfoLevel infoLevel = battleDoWeKnowAbout(side) ? InfoAboutHero::EInfoLevel::DETAILED : InfoAboutHero::EInfoLevel::BASIC;
-	return InfoAboutHero(hero, infoLevel);
+	//stats of both heroes are visible to everyone in battle
+	return InfoAboutHero(hero, InfoAboutHero::EInfoLevel::INBATTLE);
 }
 
 int32_t CBattleInfoEssentials::battleCastSpells(BattleSide side) const
