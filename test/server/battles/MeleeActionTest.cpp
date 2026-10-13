@@ -11,7 +11,10 @@
 
 #include "BattleTestFixture.h"
 
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/battle/BattleInfo.h"
+#include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/bonuses/Bonus.h"
 
 namespace
@@ -19,6 +22,7 @@ namespace
 // creatures
 constexpr int pikeman = 0; // walks 4 hexes
 constexpr int harpy = 72; // flies 6 hexes, returns after striking
+constexpr int greenDragon = 26; // two hexes wide, its breath also strikes the unit behind the target
 }
 
 /// What a WALK_AND_ATTACK action does on the server: who strikes in which order, where the
@@ -205,4 +209,151 @@ TEST_F(MeleeActionTest, quicksandOnTheWayCancelsAttack)
 	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(attacker, targetHex, attackFrom)));
 	EXPECT_EQ(attacker->getPosition(), halfway);
 	EXPECT_EQ(target->getAvailableHealth(), targetHealth);
+}
+
+/// What the client shows and sends for the melee options of a unit on a hovered hex.
+class MeleeOptionTest : public MeleeActionTest
+{
+public:
+	ActionOption optionOf(const CStack * unit, EActionType actionType) const
+	{
+		battle()->activeStack = unit->unitId();
+		std::vector<ActionOption> options;
+		BattleActionType::collectAllOptions(*battle(), *unit, options);
+
+		for(const auto & option : options)
+			if(option.type == BattleActionType::find(actionType))
+				return option;
+
+		ADD_FAILURE() << "no such option";
+		return {};
+	}
+
+	/// Context of the hex approached from the direction, without an approach if the option does not offer the direction
+	ActionContext contextOf(const ActionOption & option, const CStack * unit, const BattleHex & hex, BattleHex::EDir direction) const
+	{
+		ActionContext context{unit, hex, std::nullopt};
+		for(const auto & approach : option.type->getApproaches(*battle(), option, *unit, hex))
+			if(approach.direction == direction)
+				context.approach = approach;
+		return context;
+	}
+};
+
+TEST_F(MeleeOptionTest, attackPreviewShowsDirectionDamageAndRetaliation)
+{
+	startGame();
+	startBattle();
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackerStart, stackCount);
+	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	const auto targetHealth = target->getAvailableHealth();
+
+	const auto option = optionOf(attacker, EActionType::WALK_AND_ATTACK);
+	const auto context = contextOf(option, attacker, targetHex, BattleHex::LEFT);
+	ASSERT_TRUE(context.approach.has_value());
+	EXPECT_EQ(context.approach->from, attackFrom);
+
+	const auto shown = option.type->preview(*gameState(), *battle(), option, context);
+	EXPECT_EQ(shown.cursor, "combatHitEast");
+	EXPECT_THAT(shown.statusText.toString(LIBRARY->staticTexts()), ::testing::MatchesRegex("Attack Pikemen \\([0-9]+ - [0-9]+ damage.*\\)\\.\nWill retaliate \\(.*damage.*\\)\\."));
+	EXPECT_THAT(shown.shadedHexes, ::testing::ElementsAre(attackFrom));
+	EXPECT_THAT(shown.affectedUnits, ::testing::IsEmpty());
+
+	ASSERT_TRUE(act(option.type->build(*battle(), option, context).value()));
+	EXPECT_LT(target->getAvailableHealth(), targetHealth);
+	EXPECT_EQ(attacker->getPosition(), attackFrom);
+}
+
+TEST_F(MeleeOptionTest, sideOutOfReachIsNotOffered)
+{
+	startGame();
+	startBattle();
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackerStart, stackCount);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+
+	// four hexes of movement reach the near side of the target, but not its far side
+	const auto option = optionOf(attacker, EActionType::WALK_AND_ATTACK);
+	const auto context = contextOf(option, attacker, targetHex, BattleHex::RIGHT);
+
+	EXPECT_FALSE(context.approach.has_value());
+	EXPECT_FALSE(option.type->isLegal(*gameState(), *battle(), option, context));
+	EXPECT_EQ(option.type->preview(*gameState(), *battle(), option, context).cursor, "combatBlocked");
+}
+
+TEST_F(MeleeOptionTest, returningUnitPrefersToReturn)
+{
+	startGame();
+	startBattle();
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(harpy), attackerStart, stackCount);
+	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+
+	const auto returning = optionOf(attacker, EActionType::WALK_AND_ATTACK);
+	const auto staying = optionOf(attacker, EActionType::WALK_AND_ATTACK_NO_RETURN);
+
+	EXPECT_LT(returning.type->getPriority(*battle(), returning, *attacker, target), staying.type->getPriority(*battle(), staying, *attacker, target));
+	EXPECT_NE(returning.button, staying.button);
+
+	ASSERT_TRUE(act(staying.type->build(*battle(), staying, contextOf(staying, attacker, targetHex, BattleHex::LEFT)).value()));
+	EXPECT_EQ(attacker->getPosition(), attackFrom);
+}
+
+TEST_F(MeleeOptionTest, longWeaponOptionStrikesFromTwoHexesAway)
+{
+	startGame();
+	startBattle();
+
+	const BattleHex twoHexesAway = attackFrom.cloneInDirection(BattleHex::LEFT);
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), twoHexesAway, stackCount);
+	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
+	const auto targetHealth = target->getAvailableHealth();
+
+	const auto option = optionOf(attacker, EActionType::LONG_WEAPON_ATTACK);
+	const auto context = contextOf(option, attacker, targetHex, BattleHex::LEFT);
+	ASSERT_TRUE(context.approach.has_value());
+	EXPECT_EQ(context.approach->from, twoHexesAway);
+
+	const auto shown = option.type->preview(*gameState(), *battle(), option, context);
+	EXPECT_THAT(shown.statusText.toString(LIBRARY->staticTexts()), ::testing::HasSubstr("Will not retaliate"));
+
+	ASSERT_TRUE(act(option.type->build(*battle(), option, context).value()));
+	EXPECT_LT(target->getAvailableHealth(), targetHealth);
+	EXPECT_EQ(attacker->getPosition(), twoHexesAway);
+}
+
+TEST_F(MeleeOptionTest, longWeaponOptionIsNotOfferedForAdjacentTarget)
+{
+	startGame();
+	startBattle();
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackFrom, stackCount);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
+
+	const auto longWeapon = optionOf(attacker, EActionType::LONG_WEAPON_ATTACK);
+	const auto adjacent = optionOf(attacker, EActionType::WALK_AND_ATTACK);
+
+	// the hex two hexes away is reachable, but the attacker already stands next to the target on that line
+	EXPECT_FALSE(contextOf(longWeapon, attacker, targetHex, BattleHex::LEFT).approach.has_value());
+	EXPECT_TRUE(contextOf(adjacent, attacker, targetHex, BattleHex::LEFT).approach.has_value());
+}
+
+TEST_F(MeleeOptionTest, breathPreviewNamesUnitBehindTarget)
+{
+	startGame();
+	startBattle();
+
+	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(greenDragon), attackFrom, 1);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	CStack * behind = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex.cloneInDirection(BattleHex::RIGHT), stackCount);
+
+	const auto option = optionOf(attacker, EActionType::WALK_AND_ATTACK);
+	const auto shown = option.type->preview(*gameState(), *battle(), option, contextOf(option, attacker, targetHex, BattleHex::LEFT));
+
+	EXPECT_THAT(shown.affectedUnits, ::testing::ElementsAre(behind->unitId()));
+	EXPECT_THAT(shown.shadedHexes, ::testing::UnorderedElementsAre(attackFrom, attackFrom.cloneInDirection(BattleHex::LEFT)));
 }

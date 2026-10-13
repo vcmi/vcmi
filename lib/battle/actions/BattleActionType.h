@@ -51,6 +51,8 @@ public:
 	virtual void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const;
 	/// Order in which the client tries options for a hovered hex, lower first. Target is the unit on the hex, or nullptr
 	virtual int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const;
+	/// Ways to reach the hovered hex that the player selects between with the cursor position. None if the option needs no approach
+	virtual std::vector<ActionApproach> getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const;
 	/// Checks that clicking the hovered hex makes a valid action: build returns an action that passes validate
 	bool isLegal(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
 	/// Cursor, text and shaded hexes for the hovered hex, the blocked ones where the option is not legal

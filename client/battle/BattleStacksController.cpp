@@ -965,18 +965,12 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 		return {};
 	stacks.push_back(target);
 
-	// affected units by multi-hex attacks
-	if(owner.getBattle()->battleCanAttackHex(activeStack, hoveredHex) && owner.getBattle()->battleCanAttackUnit(activeStack, target))
+	// the preview may be older than the last battle pack, so a unit it names may be dead or removed
+	for(const uint32_t unitID : owner.actionsController->getAffectedUnits(hoveredHex))
 	{
-		const bool allowLongWeapon = owner.actionsController->currentActionUsesLongWeapon(hoveredHex);
-		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(activeStack, hoveredHex, owner.fieldController->selectAttackDirection(hoveredHex), allowLongWeapon);
-		auto stackHexes = owner.getBattle()->battleGetAttackedHexes(activeStack, hoveredHex, fromHex);
-		for(auto & stackHex : stackHexes)
-		{
-			const CStack * const stack = owner.getBattle()->battleGetStackByPos(stackHex, true);
-			if(stack)
-				stacks.push_back(stack);
-		}
+		const CStack * stack = owner.getBattle()->battleGetStackByID(unitID, true);
+		if(stack)
+			stacks.push_back(stack);
 	}
 	return stacks;
 }

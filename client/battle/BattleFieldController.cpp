@@ -781,7 +781,6 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 	auto hoveredStack = owner.getBattle()->battleGetStackByPos(hoveredHex, false);
 
 	bool canReach = owner.getBattle()->battleCanAttackHex(availableHexes, stack, hoveredHex);
-	bool canAttack = canReach && (owner.getBattle()->battleCanAttackUnit(stack, hoveredStack));
 	bool adjacentSpellCaster = stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER) && stack->canCast();
 	bool canCastAdjacentSpell = false;
 	if (canReach && adjacentSpellCaster && hoveredStack)
@@ -800,10 +799,9 @@ BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 		}
 	}
 
-	if(canAttack || canCastAdjacentSpell)
+	if(canCastAdjacentSpell)
 	{
-		const bool allowLongWeapon = owner.actionsController->currentActionUsesLongWeapon(hoveredHex);
-		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex), allowLongWeapon);
+		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(stack, hoveredHex, selectAttackDirection(hoveredHex), false);
 		assert(fromHex.isValid());
 		if(stack->doubleWide())
 			return {fromHex, stack->occupiedHex(fromHex)};
@@ -1100,31 +1098,71 @@ BattleHex BattleFieldController::getHexAtPosition(Point hoverPos)
 	return BattleHex::INVALID;
 }
 
+std::array<bool, 8> BattleFieldController::allowedAttackDirections(const BattleHex & myNumber) const
+{
+	const auto * attacker = owner.stacksController->getActiveStack();
+	assert(attacker);
+
+	std::array<bool, 8> allowedDirections;
+	for(size_t i = 0; i < allowedDirections.size(); ++i)
+		allowedDirections[i] = owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(i));
+	return allowedDirections;
+}
+
 std::array<Point, 8> BattleFieldController::attackDirectionPoints(const BattleHex & myNumber) const
 {
-	auto attacker = owner.stacksController->getActiveStack();
+	return directionPoints(myNumber, allowedAttackDirections(myNumber));
+}
+
+BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & myNumber) const
+{
+	const BattleHex::EDir direction = selectNearestDirection(myNumber, allowedAttackDirections(myNumber));
+
+	if(direction == BattleHex::NONE)
+		// Zero available tiles to attack from
+		logGlobal->error("Error: cannot find a hex to attack hex %d from!", myNumber);
+	return direction;
+}
+
+ActionApproach BattleFieldController::selectApproach(const BattleHex & hex, const std::vector<ActionApproach> & approaches) const
+{
+	std::array<bool, 8> allowedDirections{};
+	for(const auto & approach : approaches)
+		allowedDirections.at(approach.direction) = true;
+
+	const BattleHex::EDir direction = selectNearestDirection(hex, allowedDirections);
+
+	for(const auto & approach : approaches)
+		if(approach.direction == direction)
+			return approach;
+
+	throw std::logic_error("No approach to select for a battle hex");
+}
+
+std::array<Point, 8> BattleFieldController::directionPoints(const BattleHex & myNumber, const std::array<bool, 8> & allowedDirections) const
+{
 	const BattleHexArray & neighbours = myNumber.getAllNeighbouringTiles();
 	// For each valid direction, select position to test against
 	std::array<Point, 8> testPoint;
 	testPoint.fill(Point::makeInvalid());
 
 	for (size_t i = 0; i < 6; ++i)
-		if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(i)))
+		if (allowedDirections[i])
 			testPoint[i] = hexPositionAbsolute(neighbours[i]).center();
 
 	// For bottom/top directions select central point, but move it a bit away from true center to reduce zones allocated to them
-	if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(6)))
+	if (allowedDirections[6])
 		testPoint[6] = (hexPositionAbsolute(neighbours[0]).center() + hexPositionAbsolute(neighbours[1]).center()) / 2 + Point(0, -5);
 
-	if (owner.getBattle()->battleCanAttackHex(availableHexes, attacker, myNumber, BattleHex::EDir(7)))
+	if (allowedDirections[7])
 		testPoint[7] = (hexPositionAbsolute(neighbours[3]).center() + hexPositionAbsolute(neighbours[4]).center()) / 2 + Point(0,  5);
 
 	return testPoint;
 }
 
-BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & myNumber) const
+BattleHex::EDir BattleFieldController::selectNearestDirection(const BattleHex & myNumber, const std::array<bool, 8> & allowedDirections) const
 {
-	auto attacker = owner.stacksController->getActiveStack();
+	const auto * attacker = owner.stacksController->getActiveStack();
 	assert(attacker);
 
 	// When the target is pointed at through the battle queue there is no meaningful mouse
@@ -1137,7 +1175,7 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & m
 	if(!pos.isInside(originPoint) && getQueueHoveredStack() != nullptr)
 		originPoint = hexPositionAbsolute(attacker->getPosition()).center();
 
-	const auto testPoint = attackDirectionPoints(myNumber);
+	const auto testPoint = directionPoints(myNumber, allowedDirections);
 
 	// Compute distance between tested position & cursor position and pick nearest
 	int nearestDistance = std::numeric_limits<int>::max();
@@ -1156,9 +1194,6 @@ BattleHex::EDir BattleFieldController::selectAttackDirection(const BattleHex & m
 		}
 	}
 
-	if (nearest == -1)
-		// Zero available tiles to attack from
-		logGlobal->error("Error: cannot find a hex to attack hex %d from!", myNumber);
 	return BattleHex::EDir(nearest);
 }
 

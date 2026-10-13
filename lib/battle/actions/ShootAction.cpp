@@ -50,7 +50,7 @@ int ShootAction::getPriority(const CBattleInfoCallback & battle, const ActionOpt
 ActionPreview ShootAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	if(!isLegal(game, battle, option, context))
-		return {"combatBlocked", {}, {}};
+		return {"combatBlocked", {}, {}, {}};
 
 	const battle::Unit & shooter = *context.actor;
 	const int shotsLeft = shooter.acquireState()->shots.available();
@@ -61,13 +61,13 @@ ActionPreview ShootAction::preview(const IGameInfoCallback & game, const CBattle
 	{
 		const CSpell * spell = getAreaShotSpell(shooter);
 		const DamageEstimation estimation = battle.estimateSpellLikeAttackDamage(&shooter, spell, context.hoveredHex);
-		return {cursor, DamageEstimationTexts::rangedAttack(estimation, spell->getNameTextID(), shotsLeft), {}};
+		return {cursor, DamageEstimationTexts::rangedAttack(estimation, spell->getNameTextID(), shotsLeft), {}, {}};
 	}
 
 	DamageEstimation estimation = battle.battleEstimateDamage(BattleAttackInfo(&shooter, target, 0, true));
 	vstd::amin(estimation.kills.max, target->getCount());
 	vstd::amin(estimation.kills.min, target->getCount());
-	return {cursor, DamageEstimationTexts::rangedAttack(estimation, *target, shotsLeft), {}};
+	return {cursor, DamageEstimationTexts::rangedAttack(estimation, *target, shotsLeft), {}, {}};
 }
 
 std::optional<BattleAction> ShootAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const

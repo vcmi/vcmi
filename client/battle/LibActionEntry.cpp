@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "LibActionEntry.h"
 
+#include "BattleFieldController.h"
 #include "BattleInterface.h"
 
 #include "../CPlayerInterface.h"
@@ -30,7 +31,13 @@ LibActionEntry::LibActionEntry(BattleInterface & owner, const CStack & actor, co
 
 ActionContext LibActionEntry::getContext(const BattleHex & hex) const
 {
-	return {&actor, hex};
+	ActionContext context{&actor, hex, std::nullopt};
+
+	const auto approaches = option.type->getApproaches(*owner.getBattle(), option, actor, hex);
+	if(!approaches.empty())
+		context.approach = owner.fieldController->selectApproach(hex, approaches);
+
+	return context;
 }
 
 int LibActionEntry::getPriority(const CStack *, const CStack * target) const
@@ -46,7 +53,7 @@ bool LibActionEntry::isLegal(const BattleHex & hex) const
 BattleActionPreview LibActionEntry::preview(const BattleHex & hex) const
 {
 	const ActionPreview preview = option.type->preview(*owner.curInt->cb, *owner.getBattle(), option, getContext(hex));
-	return {preview.cursor, preview.statusText.toString(&GAME->translator()), preview.shadedHexes};
+	return {preview.cursor, preview.statusText.toString(&GAME->translator()), preview.shadedHexes, preview.affectedUnits};
 }
 
 void LibActionEntry::realize(const BattleHex & hex) const

@@ -18,6 +18,10 @@ class MeleeAttackAction : public BattleActionType
 public:
 	bool isUnitAction() const override;
 
+	std::vector<ActionApproach> getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const override;
+	ActionPreview preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
+	std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
+
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 
@@ -34,6 +38,10 @@ private:
 /// WALK_AND_ATTACK: melee attack, after which a unit with RETURN_AFTER_STRIKE returns
 class WalkAndAttackAction : public MeleeAttackAction
 {
+public:
+	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
+	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
+
 protected:
 	bool returnsAfterStrike() const override;
 };
@@ -41,11 +49,18 @@ protected:
 /// WALK_AND_ATTACK_NO_RETURN: melee attack of a unit that stays at its target
 class WalkAndAttackNoReturnAction : public MeleeAttackAction
 {
+public:
+	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
+	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
 };
 
 /// LONG_WEAPON_ATTACK: attack of a LONG_WEAPON unit over one free hex
 class LongWeaponAttackAction : public MeleeAttackAction
 {
+public:
+	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
+	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
+
 protected:
 	bool usesLongWeapon() const override;
 };

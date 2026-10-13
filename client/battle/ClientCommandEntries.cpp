@@ -59,11 +59,11 @@ bool CreatureInfoEntry::isLegal(const BattleHex & hex) const
 BattleActionPreview CreatureInfoEntry::preview(const BattleHex & hex) const
 {
 	if(!isLegal(hex))
-		return {"combatBlocked", "", {}};
+		return {"combatBlocked", "", {}, {}};
 
 	MetaString text = MetaString::createFromTextID("core.genrltxt.297"); //View %s info.
 	getUnit(hex)->addNameReplacement(text);
-	return {"combatQuery", text.toString(&GAME->translator()), {}};
+	return {"combatQuery", text.toString(&GAME->translator()), {}, {}};
 }
 
 void CreatureInfoEntry::realize(const BattleHex & hex) const
@@ -95,9 +95,9 @@ bool HeroInfoEntry::isLegal(const BattleHex & hex) const
 BattleActionPreview HeroInfoEntry::preview(const BattleHex & hex) const
 {
 	if(!isLegal(hex))
-		return {"combatBlocked", "", {}};
+		return {"combatBlocked", "", {}, {}};
 
-	return {"combatHero", LIBRARY->generaltexth->translate("core.genrltxt.417"), {}}; // "View Hero Stats"
+	return {"combatHero", LIBRARY->generaltexth->translate("core.genrltxt.417"), {}, {}}; // "View Hero Stats"
 }
 
 void HeroInfoEntry::realize(const BattleHex & hex) const
@@ -128,11 +128,11 @@ bool TacticsUnitSelectionEntry::isLegal(const BattleHex & hex) const
 BattleActionPreview TacticsUnitSelectionEntry::preview(const BattleHex & hex) const
 {
 	if(!isLegal(hex))
-		return {"combatBlocked", "", {}};
+		return {"combatBlocked", "", {}, {}};
 
 	MetaString text = MetaString::createFromTextID("core.genrltxt.481"); //Select %s
 	getUnit(hex)->addNameReplacement(text);
-	return {"combatPointer", text.toString(&GAME->translator()), {}};
+	return {"combatPointer", text.toString(&GAME->translator()), {}, {}};
 }
 
 void TacticsUnitSelectionEntry::realize(const BattleHex & hex) const

@@ -40,11 +40,20 @@ struct ActionOption
 	std::optional<UnitActionButton> button;
 };
 
+/// One way for the actor to reach the hovered hex: the side the hex is approached from, and the hex the actor acts from
+struct ActionApproach
+{
+	BattleHex::EDir direction = BattleHex::NONE;
+	BattleHex from;
+};
+
 /// Acting unit and hovered hex of a query about an option
 struct ActionContext
 {
 	const battle::Unit * actor = nullptr;
 	BattleHex hoveredHex;
+	/// Picked by the client from BattleActionType::getApproaches, if the option offers any for the hex
+	std::optional<ActionApproach> approach = std::nullopt;
 };
 
 /// What the client shows for an option on the hovered hex
@@ -53,4 +62,5 @@ struct ActionPreview
 	std::string cursor; ///< cursor id from config/cursors.json
 	MetaString statusText;
 	BattleHexArray shadedHexes;
+	std::vector<uint32_t> affectedUnits; ///< units affected besides the one on the hovered hex
 };

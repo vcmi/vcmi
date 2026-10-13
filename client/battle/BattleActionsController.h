@@ -125,9 +125,6 @@ public:
 	/// returns true if current hex action is "walk and spellcast" with active stack
 	bool currentActionWalkAndCast(const BattleHex& hoveredHex);
 
-	/// returns true if currently selected action allows long weapon reach for melee attacks
-	bool currentActionUsesLongWeapon(const BattleHex & hoveredHex);
-
 	/// returns true when the selected legal action uses a melee approach direction
 	bool currentActionHasAttackDirection(const BattleHex & hoveredHex);
 
@@ -137,6 +134,9 @@ public:
 
 	/// Hexes highlighted as the result of clicking the hovered hex
 	BattleHexArray getShadedHexes(const BattleHex & hoveredHex);
+
+	/// Units affected by clicking the hovered hex, besides the unit on the hex
+	std::vector<uint32_t> getAffectedUnits(const BattleHex & hoveredHex);
 
 	/// enter targeted spellcasting mode for creature, e.g. via "F" hotkey
 	void enterCreatureCastingMode();
