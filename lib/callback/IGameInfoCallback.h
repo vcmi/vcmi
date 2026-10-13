@@ -141,7 +141,7 @@ public:
 	virtual const TerrainTile * tryGetTile(int3 tile) const = 0;
 	/// Returns pointer to specified tile without checking for permissions. Avoid its usage!
 	virtual const TerrainTile * getTileUnchecked(int3 tile) const = 0;
-	/// Returns pointer to top-most object on specified tile, or nullptr on error
+	/// Returns pointer to top-most object on specified tile, or nullptr if tile is not visible or has no visitable objects
 	virtual const CGObjectInstance * getTopObj(int3 pos) const = 0;
 	/// Returns whether it is possible to dig for Grail on specified tile
 	virtual EDiggingStatus getTileDigStatus(int3 tile) const = 0;

@@ -453,6 +453,9 @@ std::vector<const CGObjectInstance *> CGameInfoCallback::getAllVisitableObjs() c
 
 const CGObjectInstance * CGameInfoCallback::getTopObj(int3 pos) const
 {
+	if(!isVisible(pos))
+		return nullptr;
+
 	return vstd::backOrNull(getVisitableObjs(pos));
 }
 
