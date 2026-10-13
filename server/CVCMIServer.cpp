@@ -363,7 +363,7 @@ bool CVCMIServer::prepareToStartGame()
 	{
 		if (!info.isControlledByHuman())
 			continue;
-		const auto * ps = newGH->gameInfo().getPlayerState(color, false);
+		const auto * ps = newGH->gameInfo().tryGetPlayerState(color);
 		if (!ps || ps->checkVanquished())
 		{
 			logGlobal->error("Human player %s has no heroes and no towns! Aborting game start!", color.toString());

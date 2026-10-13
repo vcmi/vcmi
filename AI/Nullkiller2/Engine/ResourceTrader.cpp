@@ -30,7 +30,7 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 	if(!marketId.hasValue())
 		return false;
 
-	const CGObjectInstance * obj = cc.getObj(marketId, false);
+	const CGObjectInstance * obj = cc.tryGetObj(marketId);
 	assert(obj);
 	// if (!obj)
 	// return false;

@@ -170,7 +170,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 					node.fastestDanger = newThreat;
 				}
 
-				auto objects = cc->getVisitableObjs(pos, false);
+				auto objects = cc->getVisitableObjs(pos);
 
 				for(auto obj : objects)
 				{

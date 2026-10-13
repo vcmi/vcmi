@@ -35,11 +35,12 @@ public:
 
 	virtual std::optional<PlayerColor> getPlayerID() const;
 	const Player * getPlayer(PlayerColor color) const;
-	const PlayerState * getPlayerState(PlayerColor color, bool verbose = true) const override;
+	const PlayerState * getPlayerState(PlayerColor color) const override;
+	const PlayerState * tryGetPlayerState(PlayerColor color) const override;
 	int getResource(PlayerColor Player, GameResID which) const override;
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
 	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj);
-	EPlayerStatus getPlayerStatus(PlayerColor player, bool verbose = true) const override;
+	EPlayerStatus getPlayerStatus(PlayerColor player) const override;
 	bool isPlayerMakingTurn(PlayerColor player) const;
 	const PlayerSettings * getPlayerSettings(PlayerColor color) const override;
 	TurnTimerInfo getPlayerTurnTime(PlayerColor color) const;
@@ -66,9 +67,9 @@ public:
 
 	//objects
 
-	const CGObjectInstance * getObj(ObjectInstanceID objId, bool verbose = true) const override; // Get with some checks and visibility checks. Raw get is MapInfoCallback::getObjInstance
+	const CGObjectInstance * tryGetObj(ObjectInstanceID objId) const override; // Get with some checks and visibility checks. Raw get is MapInfoCallback::getObjInstance
 	std::vector<const CGObjectInstance *> getBlockingObjs(int3 pos) const;
-	std::vector<const CGObjectInstance *> getVisitableObjs(int3 pos, bool verbose = true) const;
+	std::vector<const CGObjectInstance *> getVisitableObjs(int3 pos) const;
 	std::vector<const CGObjectInstance *> getAllVisitableObjs() const;
 	std::vector<const CGObjectInstance *> getFlaggableObjects(int3 pos) const;
 	const CGObjectInstance * getTopObj(int3 pos) const override;
@@ -79,11 +80,12 @@ public:
 	int3 guardingCreaturePosition (int3 pos) const override;
 	std::vector<const CGObjectInstance*> getGuardingCreatures (int3 pos) const override;
 	bool isTileGuardedUnchecked(int3 tile) const override;
-	const TerrainTile * getTile(int3 tile, bool verbose = true) const override;
+	const TerrainTile * getTile(int3 tile) const override;
+	const TerrainTile * tryGetTile(int3 tile) const override;
 	const TerrainTile * getTileUnchecked(int3 tile) const override;
 	void getVisibleTilesInRange(FowTilesType &tiles, int3 pos, int radious, int3::EDistanceFormula distanceFormula = int3::DIST_2D) const;
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
-	EDiggingStatus getTileDigStatus(int3 tile, bool verbose = true) const override;
+	EDiggingStatus getTileDigStatus(int3 tile) const override;
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const override;
 
 	//town

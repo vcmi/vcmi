@@ -152,10 +152,10 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 	aiGw->nullkiller->setTargetObject(objid);
 	aiGw->nullkiller->objectClusterizer->reset();
 
-	auto targetObject = aiGw->cc->getObj(static_cast<ObjectInstanceID>(objid), false);
+	auto targetObject = aiGw->cc->tryGetObj(static_cast<ObjectInstanceID>(objid));
 	// entrances are terminal path nodes, so only the last tile can hold one
 	const auto * pathEntrance = findObjectOfType(
-		aiGw->cc->getVisitableObjs(chainPath.targetTile(), false),
+		aiGw->cc->getVisitableObjs(chainPath.targetTile()),
 		Obj::MONOLITH_ONE_WAY_ENTRANCE);
 	if(pathEntrance && (!targetObject || targetObject->id != pathEntrance->id))
 	{

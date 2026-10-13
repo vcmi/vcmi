@@ -146,7 +146,7 @@ void CArmedInstance::armyChanged()
 CBonusSystemNode & CArmedInstance::whereShouldBeAttached(CGameState & gs)
 {
 	if(tempOwner.isValidPlayer())
-		if(auto * where = gs.getPlayerState(tempOwner))
+		if(auto * where = gs.tryGetPlayerState(tempOwner))
 			return *where;
 
 	return gs.globalEffects;

@@ -298,12 +298,12 @@ bool isPortalLandingSafe(
 	bool hasFreeExit = false;
 	for(const ObjectInstanceID exitId : aiNk->cc->getTeleportChannelExits(teleport->channel))
 	{
-		const auto * exit = aiNk->cc->getObj(exitId, false);
+		const auto * exit = aiNk->cc->tryGetObj(exitId);
 		if(!exit || !aiNk->cc->isVisible(exit->visitablePos()))
 			return false;
 
 		// an own hero standing on the exit makes it impassable
-		const auto * occupant = findObjectOfType(aiNk->cc->getVisitableObjs(exit->visitablePos(), false), Obj::HERO);
+		const auto * occupant = findObjectOfType(aiNk->cc->getVisitableObjs(exit->visitablePos()), Obj::HERO);
 		if(occupant && occupant->getOwner() == aiNk->playerID)
 			continue;
 
@@ -414,7 +414,7 @@ std::vector<const CGObjectInstance *> getObjectsBehindPortal(
 	const auto heroes = aiNk->cc->getHeroesInfo();
 	for(const ObjectInstanceID objectId : aiNk->memory->visitableObjs)
 	{
-		const auto * object = aiNk->cc->getObj(objectId, false);
+		const auto * object = aiNk->cc->tryGetObj(objectId);
 		if(!object || !aiNk->cc->isVisible(object->visitablePos()))
 			continue;
 
@@ -472,7 +472,7 @@ std::optional<AIPath> findExitVacatingPath(
 		const int3 destination = hero->visitablePos() + direction;
 		if(!aiNk->cc->isInTheMap(destination)
 			|| aiNk->cc->getGuardingCreaturePosition(destination).isValid()
-			|| !aiNk->cc->getVisitableObjs(destination, false).empty())
+			|| !aiNk->cc->getVisitableObjs(destination).empty())
 		{
 			continue;
 		}
@@ -545,7 +545,7 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 		if(!journey)
 			continue;
 
-		const auto * exit = aiNk->cc->getObj(journey->second, false);
+		const auto * exit = aiNk->cc->tryGetObj(journey->second);
 		const auto * guard = AttackOneWayPortalGuard::findTrappingGuard(hero, aiNk);
 		if(!exit)
 			continue;
@@ -597,7 +597,7 @@ void addOneWayPortalTasks(Goals::TGoalVec & tasks, const Nullkiller * aiNk)
 
 	for(const ObjectInstanceID objId : aiNk->memory->visitableObjs)
 	{
-		const auto * entrance = aiNk->cc->getObj(objId, false);
+		const auto * entrance = aiNk->cc->tryGetObj(objId);
 		if(!entrance
 			|| entrance->ID != Obj::MONOLITH_ONE_WAY_ENTRANCE
 			|| !aiNk->cc->isVisible(entrance->visitablePos()))

@@ -15,7 +15,6 @@ Returns the hero by its object identifier, or nil if not found.
 Returns the map object by its identifier, or nil if not found.
 
 - param `objectID`: `integer` — Map object identifier of the object to fetch.
-- param `verbose`: `boolean` — Pass true to log a warning when the object isn't found.
 
 - returns [`MapObject`](MapObject.md)
 

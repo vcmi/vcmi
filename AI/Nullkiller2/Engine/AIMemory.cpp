@@ -109,7 +109,7 @@ void AIMemory::removeInvisibleOrDeletedObjects(const CCallback & cc)
 {
 	auto shouldBeErased = [&](const ObjectInstanceID objId) -> bool
 	{
-		return !cc.getObj(objId, false);
+		return !cc.tryGetObj(objId);
 	};
 
 	vstd::erase_if(visitableObjs, shouldBeErased);
@@ -211,7 +211,7 @@ void AIMemory::removeStaleOneWayPortalJourneys(const CCallback & cc)
 	vstd::erase_if(oneWayPortalJourneys, [&](const auto & journey)
 	{
 		const auto * hero = cc.getHero(journey.first);
-		const auto * exit = cc.getObj(journey.second.second, false);
+		const auto * exit = cc.tryGetObj(journey.second.second);
 		return !hero
 			|| hero->getOwner() != cc.getPlayerID()
 			|| (exit && hero->visitablePos() != exit->visitablePos());

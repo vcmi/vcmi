@@ -244,7 +244,7 @@ void ObjectClusterizer::validateObjects()
 	{
 		for(auto & pair : cluster.objects)
 		{
-			if(!aiNk->cc->getObj(pair.first, false))
+			if(!aiNk->cc->tryGetObj(pair.first))
 				toRemove.push_back(pair.first);
 		}
 	};
@@ -254,7 +254,7 @@ void ObjectClusterizer::validateObjects()
 
 	for(auto & pair : blockedObjects)
 	{
-		if(!aiNk->cc->getObj(pair.first, false) || pair.second->objects.empty())
+		if(!aiNk->cc->tryGetObj(pair.first) || pair.second->objects.empty())
 			toRemove.push_back(pair.first);
 		else
 			scanRemovedObjects(*pair.second);
@@ -369,7 +369,7 @@ void ObjectClusterizer::clusterize()
 	{
 		for(auto id : invalidated)
 		{
-			if(auto obj = aiNk->cc->getObj(id, false))
+			if(auto obj = aiNk->cc->tryGetObj(id))
 				objs.push_back(obj);
 		}
 

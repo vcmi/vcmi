@@ -947,7 +947,7 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 	if(!obj)
 	{
 		// Bare or undiscovered terrain
-		const TerrainTile * tile = GAME->interface()->cb->getTile(mapPos);
+		const TerrainTile * tile = GAME->interface()->cb->tryGetTile(mapPos);
 		if(tile)
 		{
 			std::string hlp = GAME->map().getTerrainDescr(mapPos, true);

@@ -50,8 +50,8 @@ BattleResultWindow::BattleResultWindow(const BattleResult & br, CPlayerInterface
 	exit->setBorderColor(Colors::METALLIC_GOLD);
 
 	auto battle = owner.cb->getBattle(br.battleID);
-	const auto * attackerPlayer = GAME->server().client->gameInfo().getPlayerState(battle->sideToPlayer(BattleSide::ATTACKER));
-	const auto * defenderPlayer = GAME->server().client->gameInfo().getPlayerState(battle->sideToPlayer(BattleSide::DEFENDER));
+	const auto * attackerPlayer = GAME->server().client->gameInfo().tryGetPlayerState(battle->sideToPlayer(BattleSide::ATTACKER));
+	const auto * defenderPlayer = GAME->server().client->gameInfo().tryGetPlayerState(battle->sideToPlayer(BattleSide::DEFENDER));
 	bool isAttackerHuman = attackerPlayer && attackerPlayer->isHuman();
 	bool isDefenderHuman = defenderPlayer && defenderPlayer->isHuman();
 	bool onlyOnePlayerHuman = isAttackerHuman != isDefenderHuman;

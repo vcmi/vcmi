@@ -22,7 +22,7 @@ namespace NK2AI
 ui64 FuzzyHelper::evaluateDanger(const int3 & tile, const CGHeroInstance * visitor, bool checkGuards)
 {
 	auto cb = aiNk->cc.get();
-	const TerrainTile * t = cb->getTile(tile, false);
+	const TerrainTile * t = cb->tryGetTile(tile);
 	if(!t) //we can know about guard but can't check its tile (the edge of fow)
 		return 190000000; //MUCH
 

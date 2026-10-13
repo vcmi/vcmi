@@ -241,7 +241,7 @@ TeleporterTilesVector CPathfinderHelper::getAllowedTeleportChannelExits(const Te
 
 	for(const auto & objId : gameInfo.getTeleportChannelExits(channelID, hero->tempOwner))
 	{
-		const auto * obj = gameInfo.getObj(objId);
+		const auto * obj = gameInfo.tryGetObj(objId);
 		if(dynamic_cast<const CGWhirlpool *>(obj))
 		{
 			for(const auto & exit : CGWhirlpool::getPassableExitTiles(gameInfo, {objId}))

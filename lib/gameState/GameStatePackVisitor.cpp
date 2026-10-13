@@ -47,7 +47,7 @@ void GameStatePackVisitor::updateMoraleOnTroopMixingBonusChange(CBonusSystemNode
 
 void GameStatePackVisitor::updateMoraleForPlayer(const PlayerColor & player)
 {
-	auto * playerState = gs.getPlayerState(player, false);
+	auto * playerState = gs.tryGetPlayerState(player);
 	if(!playerState)
 		return;
 

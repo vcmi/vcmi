@@ -433,7 +433,7 @@ TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, MapObj
 	// teleportChannels only ever contains already-paired monoliths, same as before this searched
 	auto matches = [&](const ObjectInstanceID & objId) -> bool
 	{
-		const auto * obj = cb->getObj(objId);
+		const auto * obj = cb->tryGetObj(objId);
 		return obj && vstd::contains(IDs, obj->ID) && obj->subID == SubID;
 	};
 
@@ -712,7 +712,7 @@ TTeleportExitsList CGWhirlpool::getPassableExitTiles(const IGameInfoCallback & g
 					continue;
 
 				// a hero standing on the tile is the top visitable object there
-				const TerrainTile * terrainTile = gameInfo.getTile(tile, false);
+				const TerrainTile * terrainTile = gameInfo.tryGetTile(tile);
 				if(terrainTile && terrainTile->topVisitableObj() == exitID)
 					result.emplace_back(exitID, tile);
 			}

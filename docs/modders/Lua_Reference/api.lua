@@ -1098,9 +1098,8 @@ function Game:getHero(objectID) end
 
 ---Returns the map object by its identifier, or nil if not found.
 ---@param objectID integer # Map object identifier of the object to fetch.
----@param verbose boolean # Pass true to log a warning when the object isn't found.
 ---@return MapObject
-function Game:getObj(objectID, verbose) end
+function Game:getObj(objectID) end
 
 ---Returns the amount of the given resource owned by the player.
 ---@param player integer # Player whose treasury is queried.

@@ -148,8 +148,8 @@ void HeroPoolProcessor::onNewWeek(const PlayerColor & color)
 
 bool HeroPoolProcessor::hireHero(const ObjectInstanceID & objectID, const HeroTypeID & heroToRecruit, const PlayerColor & player, const HeroTypeID & nextHero)
 {
-	const PlayerState * playerState = gameHandler->gameInfo().getPlayerState(player);
-	const CGObjectInstance * mapObject = gameHandler->gameInfo().getObj(objectID);
+	const PlayerState * playerState = gameHandler->gameInfo().tryGetPlayerState(player);
+	const CGObjectInstance * mapObject = gameHandler->gameInfo().tryGetObj(objectID);
 	const CGTownInstance * town = gameHandler->gameInfo().getTown(objectID);
 	const auto & heroesPool = gameHandler->gameState().heroesPool;
 

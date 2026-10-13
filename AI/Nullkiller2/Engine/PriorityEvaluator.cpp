@@ -893,7 +893,7 @@ public:
 				}
 			}
 
-			const TerrainTile * tile = evaluationContext.evaluator.aiNk->cc->getTile(task->tile, false);
+			const TerrainTile * tile = evaluationContext.evaluator.aiNk->cc->tryGetTile(task->tile);
 			if(tile && tile->roadType != RoadId::NO_ROAD)
 				evaluationContext.explorePriority = 1;
 		}
@@ -928,7 +928,7 @@ public:
 		const auto role = evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(probe.hero);
 		for(const ObjectInstanceID objectId : probe.rewardsBehind)
 		{
-			const auto * target = evaluator.aiNk->cc->getObj(objectId, false);
+			const auto * target = evaluator.aiNk->cc->tryGetObj(objectId);
 			if(!target)
 				continue;
 
@@ -1112,7 +1112,7 @@ public:
 		bool checkGold = evaluationContext.danger == 0;
 		auto army = path.heroArmy;
 
-		const CGObjectInstance * target = aiNk->cc->getObj((ObjectInstanceID)task->objid, false);
+		const CGObjectInstance * target = aiNk->cc->tryGetObj((ObjectInstanceID)task->objid);
 		auto heroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(hero);
 
 		if(heroRole == HeroRole::MAIN)

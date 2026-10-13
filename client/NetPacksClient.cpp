@@ -256,7 +256,7 @@ void ApplyClientNetPackVisitor::visitFoWChange(FoWChange & pack)
 
 static void dispatchGarrisonChange(CClient & cl, ObjectInstanceID army1, ObjectInstanceID army2)
 {
-	auto obj1 = cl.gameInfo().getObj(army1);
+	auto obj1 = cl.gameInfo().tryGetObj(army1);
 	if(!obj1)
 	{
 		logNetwork->error("Cannot find army with pack.id %d", army1.getNum());
@@ -269,7 +269,7 @@ static void dispatchGarrisonChange(CClient & cl, ObjectInstanceID army1, ObjectI
 
 	if(army2 != ObjectInstanceID() && army2 != army1)
 	{
-		auto obj2 = cl.gameInfo().getObj(army2);
+		auto obj2 = cl.gameInfo().tryGetObj(army2);
 		if(!obj2)
 		{
 			logNetwork->error("Cannot find army with pack.id %d", army2.getNum());
@@ -392,7 +392,7 @@ void ApplyClientNetPackVisitor::visitDisassembledArtifact(DisassembledArtifact &
 void ApplyClientNetPackVisitor::visitHeroVisit(HeroVisit & pack)
 {
 	auto hero = cl.gameInfo().getHero(pack.heroId);
-	auto obj = cl.gameInfo().getObj(pack.objId, false);
+	auto obj = cl.gameInfo().tryGetObj(pack.objId);
 	callInterfaceIfPresent(cl, pack.player, &IGameEventsReceiver::heroVisit, hero, obj, pack.starting);
 }
 
@@ -508,7 +508,7 @@ void ApplyClientNetPackVisitor::visitRemoveBonus(RemoveBonus & pack)
 
 void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 {
-	const CGObjectInstance *o = cl.gameInfo().getObj(pack.objectID);
+	const CGObjectInstance *o = cl.gameInfo().tryGetObj(pack.objectID);
 	if(!o)
 		return;
 	const auto * h = dynamic_cast<const CGHeroInstance*>(o);
@@ -525,7 +525,7 @@ void ApplyFirstClientNetPackVisitor::visitRemoveObject(RemoveObject & pack)
 	{
 		//below line contains little cheat for AI so it will be aware of deletion of enemy heroes that moved or got re-covered by FoW
 		//TODO: loose requirements as next AI related crashes appear, for example another pack.player collects object that got re-covered by FoW, unsure if AI code workarounds this
-		const auto * playerState = cl.gameInfo().getPlayerState(i->first);
+		const auto * playerState = cl.gameInfo().tryGetPlayerState(i->first);
 		if(gs.isVisibleFor(o, i->first) || (playerState && !playerState->human && o->ID == Obj::HERO && o->tempOwner != i->first))
 		{
 			i->second->objectRemoved(o, pack.initiator);

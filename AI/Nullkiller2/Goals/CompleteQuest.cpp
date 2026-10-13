@@ -248,7 +248,7 @@ TGoalVec CompleteQuest::missionDestroyObj(const Nullkiller * aiNk) const
 			continue;
 
 		// a target hidden by fog of war is not reported by getObj, so it is skipped until seen again
-		const auto * obj = aiNk->cc->getObj(targetId, false);
+		const auto * obj = aiNk->cc->tryGetObj(targetId);
 		if(obj && aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner) == PlayerRelations::ENEMIES)
 			vstd::concatenate(solutions, CaptureObjectsBehavior(obj).decompose(aiNk));
 	}

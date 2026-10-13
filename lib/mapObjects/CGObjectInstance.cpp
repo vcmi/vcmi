@@ -142,7 +142,7 @@ const std::set<int3> & CGObjectInstance::getBlockedOffsets() const
 void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 {
 	auto position = visitablePos();
-	const auto * tile = cb->getTile(position);
+	const auto * tile = cb->tryGetTile(position);
 
 	if(!tile)
 	{

@@ -85,7 +85,7 @@ int3 IBoatGenerator::bestLocation() const
 	for (auto & offset : offsets)
 	{
 		int3 targetTile = getObject()->visitablePos() + offset;
-		const TerrainTile *tile = getObject()->cb->getTile(targetTile, false);
+		const TerrainTile *tile = getObject()->cb->tryGetTile(targetTile);
 
 		if(!tile)
 			continue; // tile not visible / outside the map
@@ -121,7 +121,7 @@ IBoatGenerator::EGeneratorState IBoatGenerator::shipyardStatus() const
 	if(!tile.isValid())
 		return TILE_BLOCKED; //no available water
 
-	const TerrainTile *t = getObject()->cb->getTile(tile);
+	const TerrainTile *t = getObject()->cb->tryGetTile(tile);
 	if(!t)
 		return TILE_BLOCKED; //no available water
 
