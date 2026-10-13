@@ -195,16 +195,6 @@ void BattleActionProcessor::makeRangedAttack(const CBattleInfoCallback & battle,
 	removeBonuses(battle, destinationStack, defenderBonusesToRemove);
 }
 
-bool BattleActionProcessor::canStackAct(const CBattleInfoCallback & battle, const CStack * stack)
-{
-	spells::detail::ProblemImpl problem;
-	if(BattleActionType::checkUnitCanAct(battle, stack, problem))
-		return true;
-
-	complain(problem, "Stack can not act!");
-	return false;
-}
-
 void BattleActionProcessor::complain(const spells::Problem & problem, const std::string & fallback)
 {
 	std::vector<std::string> texts;

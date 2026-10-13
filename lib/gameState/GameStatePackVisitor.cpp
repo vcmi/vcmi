@@ -1444,19 +1444,8 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 		if(!st)
 			throw std::runtime_error("StartAction of a unit action without an existing unit: " + pack.ba.toString());
 
-		if(const auto * type = BattleActionType::find(pack.ba))
-		{
-			type->applyStartState(*st, pack.ba);
-			return;
-		}
-
-		switch(pack.ba.actionType)
-		{
-			default: //any active stack action - attack, catapult, heal, spell...
-				st->waiting = false;
-				st->movedThisRound = true;
-				break;
-		}
+		// an action is a unit action only by its type
+		BattleActionType::find(pack.ba)->applyStartState(*st, pack.ba);
 	}
 	else
 	{

@@ -54,7 +54,6 @@ public:
 
 	bool isTacticsAction() const;
 	bool isUnitAction() const;
-	bool isSpellAction() const;
 	bool isBattleEndAction() const;
 	std::string toString() const;
 

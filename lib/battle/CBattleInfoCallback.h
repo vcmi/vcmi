@@ -22,7 +22,6 @@ class SpellCastEnvironment;
 class CSpell;
 struct CObstacleInstance;
 class IBonusBearer;
-class PossiblePlayerBattleAction;
 
 namespace vstd
 {
@@ -48,11 +47,6 @@ struct DLL_LINKAGE AttackableTiles
 	BattleHexArray friendlyCreaturePositions;
 	/// for animation purposes, if any of targets are on specified positions, unit should play alternative animation
 	BattleHexArray overrideAnimationPositions;
-};
-
-struct DLL_LINKAGE BattleClientInterfaceData
-{
-	ui8 tacticsMode;
 };
 
 struct ForcedAction {
@@ -103,9 +97,7 @@ public:
 	//return true iff attacker move towards and attack position from direction (spatial reasoning only)
 	/// Checks that the attacker can stop at the hex to act on the target position: the hex is available and no obstacle stops the attacker there
 	bool battleCanAttackFromHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position, const BattleHex & fromHex) const;
-	bool battleCanAttackHex(const battle::Unit * attacker, const BattleHex & position, const BattleHex::EDir & direction) const;
 	bool battleCanAttackHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position, const BattleHex::EDir & direction) const; //reuse availableHexes on multiple calls
-	bool battleCanAttackHex(const battle::Unit * attacker, const BattleHex & position) const; //check all directions
 	bool battleCanAttackHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position) const; //reuse availableHexes on multiple calls
 
 	int battleGetSurrenderCost(const PlayerColor & Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
@@ -136,10 +128,7 @@ public:
 	DamageEstimation battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPosition, DamageEstimation * retaliationDmg = nullptr) const;
 	DamageEstimation battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int getMovementRange, DamageEstimation * retaliationDmg = nullptr) const;
 
-	/// preview of damage / restored HP and units killed or raised/summoned for given parameters
-	/// returns hpDelta and unitsDelta
-	SpellEffectValUptr getSpellEffectValue(const CSpell * spell, const spells::Caster * caster, const spells::Mode spellMode, const BattleHex & targetHex) const;
-	/// same preview for an explicit aim; if an effect resolves no targets, a unit in the last aim point is evaluated alone
+	/// preview of damage / restored HP and units killed or raised/summoned for the aim; if an effect resolves no targets, a unit in the last aim point is evaluated alone
 	SpellEffectValUptr getSpellEffectValue(const CSpell * spell, const spells::Caster * caster, const spells::Mode spellMode, const battle::Target & aim) const;
 
 	/// damage estimation for spell-like-attack case, eg. Death Cloud
@@ -168,7 +157,6 @@ public:
 	std::vector<SpellID> getBeneficialSpells(const battle::Unit * caster, const battle::Unit * target) const;
 	SpellID getRandomCastedSpell(vstd::RNG & rand, const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
-	std::vector<PossiblePlayerBattleAction> getClientActionsForStack(const CStack * stack, const BattleClientInterfaceData & data);
 
 	//convenience methods using the ones above
 	bool isInTacticRange(const BattleHex & dest) const;
