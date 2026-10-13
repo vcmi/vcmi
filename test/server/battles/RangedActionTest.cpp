@@ -215,7 +215,7 @@ TEST_F(ShootOptionTest, shotPreviewShowsShotsLeftAndDamage)
 	EXPECT_THAT(shown.statusText.toString(LIBRARY->staticTexts()), ::testing::MatchesRegex("Shoot Pikemen \\(12 shots left, [0-9]+ - [0-9]+ damage.*\\)\\."));
 
 	const auto option = shotOption(shooter);
-	EXPECT_TRUE(act(option.type->build(*battle(), option, {shooter, target->getPosition()})));
+	EXPECT_TRUE(act(option.type->build(*battle(), option, {shooter, target->getPosition()}).value()));
 }
 
 TEST_F(ShootOptionTest, distantTargetShowsPenaltyCursor)

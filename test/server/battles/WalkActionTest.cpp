@@ -169,7 +169,7 @@ TEST_F(WalkOptionTest, walkingUnitMovesToHexInReach)
 	EXPECT_EQ(shown.shadedHexes, BattleHexArray({destination}));
 
 	const auto option = moveOption(walker);
-	EXPECT_EQ(option.type->build(*battle(), option, {walker, destination}).getTarget(battle()).at(0).hexValue, destination);
+	EXPECT_EQ(option.type->build(*battle(), option, {walker, destination}).value().getTarget(battle()).at(0).hexValue, destination);
 }
 
 TEST_F(WalkOptionTest, flyingUnitShowsFlyCursor)

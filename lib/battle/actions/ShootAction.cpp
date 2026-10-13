@@ -70,7 +70,7 @@ ActionPreview ShootAction::preview(const IGameInfoCallback & game, const CBattle
 	return {cursor, DamageEstimationTexts::rangedAttack(estimation, *target, shotsLeft), {}};
 }
 
-BattleAction ShootAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<BattleAction> ShootAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	return BattleAction::makeShotAttack(context.actor, context.hoveredHex);
 }

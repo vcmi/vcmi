@@ -115,8 +115,12 @@ int BattleActionType::getPriority(const CBattleInfoCallback & battle, const Acti
 
 bool BattleActionType::isLegal(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
+	const std::optional<BattleAction> action = build(battle, option, context);
+	if(!action)
+		return false;
+
 	spells::detail::ProblemImpl problem;
-	return validate(game, battle, build(battle, option, context), problem);
+	return validate(game, battle, *action, problem);
 }
 
 ActionPreview BattleActionType::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
@@ -124,7 +128,7 @@ ActionPreview BattleActionType::preview(const IGameInfoCallback & game, const CB
 	throw std::runtime_error("Preview requested from a battle action type that offers no options");
 }
 
-BattleAction BattleActionType::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<BattleAction> BattleActionType::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	throw std::runtime_error("Action built from a battle action type that offers no options");
 }
