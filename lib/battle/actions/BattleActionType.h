@@ -57,6 +57,8 @@ public:
 	bool isLegal(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
 	/// Cursor, text and shaded hexes for the hovered hex, the blocked ones where the option is not legal
 	virtual ActionPreview preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
+	/// Destination that clicking the hovered hex adds to the partial target, if the hex is valid for it and more destinations follow. None by default
+	virtual std::optional<battle::Destination> buildTargetStep(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
 	/// Action made by clicking the hovered hex, or nothing if the option has no action for the hex
 	virtual std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
 
@@ -69,6 +71,8 @@ public:
 	/// Battle log line that clients show when the action starts, empty if none
 	virtual MetaString getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const;
 
+	/// Option to cast the spell with a spell casting action type, HERO_SPELL or MONSTER_SPELL
+	static ActionOption makeSpellOption(EActionType actionType, SpellID spell);
 	/// Adds the options of every action type for the unit
 	static void collectAllOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out);
 

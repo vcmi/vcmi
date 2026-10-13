@@ -311,3 +311,141 @@ TEST_F(SpellcastActionTest, heroSacrificesUnitToRaiseDeadOne)
 	const auto * victimAfter = battle()->battleGetStackByID(victimId, false);
 	EXPECT_TRUE(victimAfter == nullptr || !victimAfter->alive());
 }
+
+TEST_F(SpellcastActionTest, heroCastsSpellAtHexOfUnit)
+{
+	startGame();
+	startBattle();
+
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	teachSpell(attackerSideHero, SpellID::BLESS);
+	battle()->activeStack = ally->unitId();
+
+	// the form BattleAI sends
+	ASSERT_TRUE(act(heroSpell(SpellID::BLESS, {battle::Destination(ally->getPosition())})));
+	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
+}
+
+TEST_F(SpellcastActionTest, heroCastsAreaSpellAtHex)
+{
+	startGame();
+	startBattle();
+
+	CStack * active = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	teachSpell(attackerSideHero, SpellID::FIREBALL);
+	battle()->activeStack = active->unitId();
+	const auto healthBefore = enemy->getAvailableHealth();
+
+	// next to the enemy, which is in the area of the spell
+	ASSERT_TRUE(act(heroSpell(SpellID::FIREBALL, {battle::Destination(enemyHex.cloneInDirection(BattleHex::LEFT))})));
+	EXPECT_LT(enemy->getAvailableHealth(), healthBefore);
+}
+
+TEST_F(SpellcastActionTest, heroCastsMassSpellWithoutTarget)
+{
+	startGame();
+	for(auto school : {SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC})
+		attackerSideHero->setSecSkillLevel(school, 3, ChangeValueMode::ABSOLUTE);
+	startBattle();
+
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	teachSpell(attackerSideHero, SpellID::BLESS);
+	battle()->activeStack = ally->unitId();
+
+	ASSERT_TRUE(act(heroSpell(SpellID::BLESS, {battle::Destination()})));
+	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
+	EXPECT_FALSE(isAffectedBy(enemy, SpellID::BLESS));
+}
+
+namespace
+{
+/// A hero spell sent with a target that the spell can't be cast at.
+struct RefusedTargetCase
+{
+	const char * name;
+	SpellID spell;
+	battle::Target (*makeTarget)(const CStack * ally, const CStack * enemy);
+};
+}
+
+class RefusedHeroSpellTest : public SpellcastActionTest, public ::testing::WithParamInterface<RefusedTargetCase>
+{
+public:
+	static inline const BattleHex freeHex = BattleHex(7, 8);
+};
+
+TEST_P(RefusedHeroSpellTest, spellAtInvalidTargetIsRefused)
+{
+	const auto & scenario = GetParam();
+
+	startGame();
+	startBattle();
+
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	teachSpell(attackerSideHero, scenario.spell);
+	battle()->activeStack = ally->unitId();
+	const auto manaBefore = attackerSideHero->mana;
+
+	EXPECT_FALSE(act(heroSpell(scenario.spell, scenario.makeTarget(ally, enemy)))) << scenario.name;
+	EXPECT_EQ(attackerSideHero->mana, manaBefore) << scenario.name;
+	EXPECT_TRUE(server.casts.empty()) << scenario.name;
+	EXPECT_EQ(ally->getPosition(), allyHex) << scenario.name;
+}
+
+INSTANTIATE_TEST_SUITE_P(Targets, RefusedHeroSpellTest, ::testing::Values(
+	RefusedTargetCase{"unitSpellAtFreeHex", SpellID::BLESS, [](const CStack *, const CStack *)
+	{
+		return battle::Target{battle::Destination(RefusedHeroSpellTest::freeHex)};
+	}},
+	RefusedTargetCase{"unitSpellWithoutDestination", SpellID::BLESS, [](const CStack *, const CStack *)
+	{
+		return battle::Target{battle::Destination()};
+	}},
+	RefusedTargetCase{"areaSpellWithoutDestination", SpellID::FIREBALL, [](const CStack *, const CStack *)
+	{
+		return battle::Target{battle::Destination()};
+	}},
+	RefusedTargetCase{"freeHexSpellAtUnit", SpellID::FORCE_FIELD, [](const CStack *, const CStack * enemy)
+	{
+		return battle::Target{battle::Destination(enemy->getPosition())};
+	}},
+	RefusedTargetCase{"teleportWithoutDestinationHex", SpellID::TELEPORT, [](const CStack * ally, const CStack *)
+	{
+		return battle::Target{battle::Destination(ally)};
+	}},
+	RefusedTargetCase{"teleportToOccupiedHex", SpellID::TELEPORT, [](const CStack * ally, const CStack * enemy)
+	{
+		return battle::Target{battle::Destination(ally), battle::Destination(enemy->getPosition())};
+	}}
+),
+	[](const ::testing::TestParamInfo<RefusedTargetCase> & info) { return info.param.name; });
+
+TEST_F(SpellcastActionTest, creatureSpellAtInvalidTargetIsRefused)
+{
+	startGame();
+	startBattle();
+
+	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(stormElemental), casterHex, stackCount);
+	const auto castsBefore = caster->casts.available();
+
+	// the spell needs a unit
+	EXPECT_FALSE(castAsUnit(caster, SpellID::PROTECTION_FROM_AIR, allyHex));
+	EXPECT_EQ(caster->casts.available(), castsBefore);
+	EXPECT_TRUE(server.casts.empty());
+}
+
+TEST_F(SpellcastActionTest, creatureWithoutCastsLeftIsRefused)
+{
+	startGame();
+	startBattle();
+
+	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(stormElemental), casterHex, stackCount);
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	caster->casts.use(caster->casts.available());
+
+	EXPECT_FALSE(castAsUnit(caster, SpellID::PROTECTION_FROM_AIR, ally->getPosition()));
+	EXPECT_FALSE(isAffectedBy(ally, SpellID::PROTECTION_FROM_AIR));
+}

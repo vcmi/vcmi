@@ -312,8 +312,8 @@ TEST_F(BindTest, teleportingTargetAwayReleasesIt)
 	ASSERT_TRUE(strike(dendroidStack, target));
 	ASSERT_TRUE(isBound(target));
 
-	ASSERT_TRUE(teleport(attackerSideHero, target, 1));
-	ASSERT_EQ(target->getPosition(), BattleHex(1, row));
+	ASSERT_TRUE(teleport(attackerSideHero, target, 3));
+	ASSERT_EQ(target->getPosition(), BattleHex(3, row));
 
 	EXPECT_FALSE(isBound(target));
 }

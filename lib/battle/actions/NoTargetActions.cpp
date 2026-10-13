@@ -60,7 +60,7 @@ void WaitAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback
 {
 	const battle::Unit & unit = getActor(battle, action);
 
-	env.fireCombatEvent(CombatEventType::WAIT, &unit, nullptr);
+	env.fireCombatEvent(CombatEventType::WAIT, &unit, nullptr, nullptr);
 	env.triggerObstaclesUnder(unit);
 }
 
@@ -123,7 +123,7 @@ void DefendAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallba
 
 	env.addBattleLogLine(text);
 
-	env.fireCombatEvent(CombatEventType::DEFEND, &unit, nullptr);
+	env.fireCombatEvent(CombatEventType::DEFEND, &unit, nullptr, nullptr);
 	env.triggerObstaclesUnder(unit);
 }
 

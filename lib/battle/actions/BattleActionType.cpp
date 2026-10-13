@@ -15,6 +15,7 @@
 #include "MeleeAttackActions.h"
 #include "NoTargetActions.h"
 #include "ShootAction.h"
+#include "SpellCastActions.h"
 #include "WalkAction.h"
 
 #include "../BattleAction.h"
@@ -36,6 +37,8 @@ static constexpr CatapultAction catapultAction;
 static constexpr WalkAndAttackAction walkAndAttackAction;
 static constexpr WalkAndAttackNoReturnAction walkAndAttackNoReturnAction;
 static constexpr LongWeaponAttackAction longWeaponAttackAction;
+static constexpr HeroSpellAction heroSpellAction;
+static constexpr UnitSpellAction unitSpellAction;
 
 namespace
 {
@@ -46,7 +49,7 @@ struct RegisteredActionType
 };
 }
 
-static constexpr std::array<RegisteredActionType, 14> registeredTypes = {{
+static constexpr std::array<RegisteredActionType, 16> registeredTypes = {{
 	{EActionType::NO_ACTION, &skipTurnAction},
 	{EActionType::BAD_MORALE, &badMoraleAction},
 	{EActionType::WAIT, &waitAction},
@@ -61,10 +64,16 @@ static constexpr std::array<RegisteredActionType, 14> registeredTypes = {{
 	{EActionType::WALK_AND_ATTACK, &walkAndAttackAction},
 	{EActionType::WALK_AND_ATTACK_NO_RETURN, &walkAndAttackNoReturnAction},
 	{EActionType::LONG_WEAPON_ATTACK, &longWeaponAttackAction},
+	{EActionType::HERO_SPELL, &heroSpellAction},
+	{EActionType::MONSTER_SPELL, &unitSpellAction},
 }};
 
 const BattleActionType * BattleActionType::find(const BattleAction & action)
 {
+	// a unit spell without a spell is the random spell of a RANDOM_SPELLCASTER, which the legacy code handles
+	if(action.actionType == EActionType::MONSTER_SPELL && !action.spell.hasValue())
+		return nullptr;
+
 	return find(action.actionType);
 }
 
@@ -75,6 +84,16 @@ const BattleActionType * BattleActionType::find(EActionType actionType)
 			return registered.type;
 
 	return nullptr;
+}
+
+ActionOption BattleActionType::makeSpellOption(EActionType actionType, SpellID spell)
+{
+	if(actionType == EActionType::HERO_SPELL)
+		return {&heroSpellAction, std::nullopt, spell};
+	if(actionType == EActionType::MONSTER_SPELL)
+		return unitSpellAction.makeOption(spell);
+
+	throw std::runtime_error("Spell option requested from a battle action type that casts no spells");
 }
 
 void BattleActionType::collectAllOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out)
@@ -131,6 +150,11 @@ bool BattleActionType::isLegal(const IGameInfoCallback & game, const CBattleInfo
 ActionPreview BattleActionType::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	throw std::runtime_error("Preview requested from a battle action type that offers no options");
+}
+
+std::optional<battle::Destination> BattleActionType::buildTargetStep(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+{
+	return std::nullopt;
 }
 
 std::optional<BattleAction> BattleActionType::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
