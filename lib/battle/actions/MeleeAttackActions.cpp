@@ -14,7 +14,9 @@
 
 #include "../BattleAction.h"
 #include "../CBattleInfoCallback.h"
+#include "../DamageEstimationTexts.h"
 #include "../Unit.h"
+#include "../../CStack.h"
 #include "../../spells/Problem.h"
 
 static const battle::Unit * getDefender(const CBattleInfoCallback & battle, const battle::Destination & destination)
@@ -46,6 +48,96 @@ bool MeleeAttackAction::canStrikeFrom(const CBattleInfoCallback & battle, const 
 		return battle.isLongWeaponAttack(&attacker, &defender, attackerPos);
 
 	return battle.isMeleeAttackPossible(&attacker, &defender, attackerPos);
+}
+
+std::vector<ActionApproach> MeleeAttackAction::getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const
+{
+	const battle::Unit * defender = battle.battleGetUnitByPos(hoveredHex, true);
+	if(!defender)
+		return {};
+
+	const BattleHexArray availableHexes = battle.battleGetAvailableHexes(&actor, false);
+	std::vector<ActionApproach> result;
+
+	for(const auto direction : {BattleHex::TOP_LEFT, BattleHex::TOP_RIGHT, BattleHex::RIGHT, BattleHex::BOTTOM_RIGHT, BattleHex::BOTTOM_LEFT, BattleHex::LEFT, BattleHex::TOP, BattleHex::BOTTOM})
+	{
+		const BattleHex from = battle.fromWhichHexAttack(&actor, hoveredHex, direction, usesLongWeapon());
+
+		if(battle.battleCanAttackFromHex(availableHexes, &actor, hoveredHex, from) && canStrikeFrom(battle, actor, *defender, from))
+			result.push_back({direction, from});
+	}
+
+	return result;
+}
+
+ActionPreview MeleeAttackAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+{
+	if(!isLegal(game, battle, option, context))
+		return {"combatBlocked", {}, {}, {}};
+
+	static const std::map<BattleHex::EDir, std::string> directionCursors = {
+		{BattleHex::TOP_LEFT,     "combatHitSouthEast"},
+		{BattleHex::TOP_RIGHT,    "combatHitSouthWest"},
+		{BattleHex::RIGHT,        "combatHitWest"     },
+		{BattleHex::BOTTOM_RIGHT, "combatHitNorthWest"},
+		{BattleHex::BOTTOM_LEFT,  "combatHitNorthEast"},
+		{BattleHex::LEFT,         "combatHitEast"     },
+		{BattleHex::TOP,          "combatHitSouth"    },
+		{BattleHex::BOTTOM,       "combatHitNorth"    }
+	};
+
+	const battle::Unit & attacker = *context.actor;
+	const battle::Unit & target = *battle.battleGetUnitByPos(context.hoveredHex, true);
+	const ActionApproach & approach = context.approach.value();
+
+	const auto estimate = [&](const battle::Unit & defender, DamageEstimation * retaliation)
+	{
+		BattleAttackInfo attackInfo(&attacker, &defender, battle.battleGetDistances(&attacker, attacker.getPosition())[approach.from.toInt()], false);
+		attackInfo.attackerPos = approach.from;
+
+		DamageEstimation estimation = battle.battleEstimateDamage(attackInfo, retaliation);
+		vstd::amin(estimation.kills.min, defender.getCount());
+		vstd::amin(estimation.kills.max, defender.getCount());
+		return estimation;
+	};
+
+	// an attack with a long weapon is not retaliated
+	DamageEstimation retaliation{};
+	DamageEstimation estimation = estimate(target, usesLongWeapon() ? nullptr : &retaliation);
+	const bool targetMayBeKilled = estimation.kills.max == target.getCount();
+
+	std::vector<uint32_t> affectedUnits;
+
+	// breath and other multi-hex attacks also strike other units: their kills are added to the estimate
+	for(const BattleHex & hex : battle.battleGetAttackedHexes(&attacker, context.hoveredHex, approach.from))
+	{
+		const battle::Unit * splashTarget = battle.battleGetUnitByPos(hex, true);
+		if(!splashTarget || splashTarget == &target || splashTarget == &attacker || vstd::contains(affectedUnits, splashTarget->unitId()))
+			continue;
+
+		affectedUnits.push_back(splashTarget->unitId());
+
+		const DamageEstimation splash = estimate(*splashTarget, nullptr);
+		estimation.kills.min += splash.kills.min;
+		estimation.kills.max += splash.kills.max;
+	}
+
+	MetaString text = DamageEstimationTexts::meleeAttack(estimation, target);
+	text.appendEOL();
+	text.append(DamageEstimationTexts::retaliation(retaliation, targetMayBeKilled));
+
+	return {directionCursors.at(approach.direction), text, attacker.getHexes(approach.from), affectedUnits};
+}
+
+std::optional<BattleAction> MeleeAttackAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+{
+	if(!context.approach)
+		return std::nullopt;
+
+	if(usesLongWeapon())
+		return BattleAction::makeLongWeaponAttack(context.actor, context.hoveredHex, context.approach->from);
+
+	return BattleAction::makeMeleeAttack(context.actor, context.hoveredHex, context.approach->from, returnsAfterStrike());
 }
 
 bool MeleeAttackAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
@@ -148,4 +240,47 @@ bool WalkAndAttackAction::returnsAfterStrike() const
 bool LongWeaponAttackAction::usesLongWeapon() const
 {
 	return true;
+}
+
+static const UnitActionButton attackButton{2, SpellID::NONE, ImagePath::builtin("battle/actionAttack"), "vcmi.battle.action.attack"};
+static const UnitActionButton returnButton{1, SpellID::NONE, ImagePath::builtin("battle/actionReturn"), "vcmi.battle.action.return"};
+static const UnitActionButton longWeaponButton{5, SpellID::NONE, ImagePath::builtin("battle/actionLongWeapon"), "vcmi.battle.action.attackLongWeapon"};
+
+static bool offersMeleeAttack(const CBattleInfoCallback & battle, const battle::Unit & actor)
+{
+	return battle.battleTacticDist() == 0 && actor.isMeleeAttacker();
+}
+
+void WalkAndAttackAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+{
+	if(offersMeleeAttack(battle, actor))
+		out.push_back({this, actor.hasBonusOfType(BonusType::RETURN_AFTER_STRIKE) ? returnButton : attackButton});
+}
+
+int WalkAndAttackAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
+{
+	// a returning unit prefers to return, a unit with a long weapon to use it
+	return actor.hasBonusOfType(BonusType::RETURN_AFTER_STRIKE) ? 5 : 7;
+}
+
+void WalkAndAttackNoReturnAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+{
+	if(offersMeleeAttack(battle, actor) && actor.hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
+		out.push_back({this, attackButton});
+}
+
+int WalkAndAttackNoReturnAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
+{
+	return 7;
+}
+
+void LongWeaponAttackAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+{
+	if(offersMeleeAttack(battle, actor) && actor.hasBonusOfType(BonusType::LONG_WEAPON))
+		out.push_back({this, longWeaponButton});
+}
+
+int LongWeaponAttackAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
+{
+	return 6;
 }

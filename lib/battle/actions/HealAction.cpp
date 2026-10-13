@@ -52,7 +52,7 @@ int HealAction::getPriority(const CBattleInfoCallback & battle, const ActionOpti
 ActionPreview HealAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	if(!isLegal(game, battle, option, context))
-		return {"combatBlocked", {}, {}};
+		return {"combatBlocked", {}, {}, {}};
 
 	const battle::Unit * target = battle.battleGetUnitByPos(context.hoveredHex);
 	const int64_t healed = battle.getFirstAidHealValue(battle.battleGetOwnerHero(context.actor), target);
@@ -66,7 +66,7 @@ ActionPreview HealAction::preview(const IGameInfoCallback & game, const CBattleI
 		text.appendRawString(")");
 	}
 
-	return {"combatHeal", text, {}};
+	return {"combatHeal", text, {}, {}};
 }
 
 std::optional<BattleAction> HealAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const

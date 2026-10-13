@@ -16,10 +16,6 @@ class PossiblePlayerBattleAction // actions performed at l-click
 public:
 	enum Actions {
 		INVALID = -1,
-		ATTACK,
-		LONG_WEAPON_ATTACK,
-		WALK_AND_ATTACK,
-		ATTACK_AND_RETURN,
 		WALK_AND_SPELLCAST,
 
 		RANDOM_GENIE_SPELL,   // random spell on a friendly creature

@@ -19,6 +19,7 @@ struct BattleActionPreview
 	std::string cursor; ///< cursor id from config/cursors.json
 	std::string statusText;
 	BattleHexArray shadedHexes; ///< hexes highlighted as the result of clicking the hex
+	std::vector<uint32_t> affectedUnits; ///< units affected by clicking the hex, besides the unit on the hex
 };
 
 /// One way to act on a battlefield hex, such as moving, attacking or viewing unit info. BattleActionsController selects one entry for the hovered hex

@@ -43,14 +43,14 @@ int WalkAction::getPriority(const CBattleInfoCallback & battle, const ActionOpti
 ActionPreview WalkAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	if(!isLegal(game, battle, option, context))
-		return {"combatBlocked", {}, {}};
+		return {"combatBlocked", {}, {}, {}};
 
 	const bool flying = context.actor->hasBonusOfType(BonusType::FLYING);
 
 	MetaString text = MetaString::createFromTextID(flying ? "core.genrltxt.295" : "core.genrltxt.294"); // Fly %s here / Move %s here
 	context.actor->addNameReplacement(text);
 
-	return {flying ? "combatFly" : "combatMove", text, context.actor->getHexes(battle.toWhichHexMove(context.actor, context.hoveredHex))};
+	return {flying ? "combatFly" : "combatMove", text, context.actor->getHexes(battle.toWhichHexMove(context.actor, context.hoveredHex)), {}};
 }
 
 std::optional<BattleAction> WalkAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const

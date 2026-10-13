@@ -113,6 +113,11 @@ int BattleActionType::getPriority(const CBattleInfoCallback & battle, const Acti
 	throw std::runtime_error("Priority requested from a battle action type that offers no options");
 }
 
+std::vector<ActionApproach> BattleActionType::getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const
+{
+	return {};
+}
+
 bool BattleActionType::isLegal(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	const std::optional<BattleAction> action = build(battle, option, context);

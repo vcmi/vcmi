@@ -93,27 +93,6 @@ static std::string prepareSpellEffectText(int gnrlTextID, const spells::effects:
 	return baseText +" ("+ outputString +")";
 }
 
-static BattleHex findAttackFromHex(const BattleInterface & owner, const CStack * attacker, const BattleHex & targetHex, bool allowLongWeapon)
-{
-	if(!attacker || !targetHex.isValid())
-		return BattleHex::INVALID;
-
-	const auto preferredDirection = owner.fieldController->selectAttackDirection(targetHex);
-	BattleHex attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, preferredDirection, allowLongWeapon);
-
-	if(attackFromHex.isValid())
-		return attackFromHex;
-
-	for(int direction = 0; direction < 8; ++direction)
-	{
-		attackFromHex = owner.getBattle()->fromWhichHexAttack(attacker, targetHex, static_cast<BattleHex::EDir>(direction), allowLongWeapon);
-		if(attackFromHex.isValid())
-			return attackFromHex;
-	}
-
-	return BattleHex::INVALID;
-}
-
 /// Entry of an action kind that the PossiblePlayerBattleAction switches of the controller handle
 class BattleActionsController::LegacyEntry final : public IBattleActionEntry
 {
@@ -141,8 +120,8 @@ public:
 	BattleActionPreview preview(const BattleHex & hex) const override
 	{
 		if(controller.actionIsLegal(action, hex))
-			return {controller.actionGetCursor(action, hex), controller.actionGetStatusMessage(action, hex), {}};
-		return {"combatBlocked", controller.actionGetStatusMessageBlocked(action, hex), {}};
+			return {controller.actionGetCursor(action, hex), controller.actionGetStatusMessage(action, hex), {}, {}};
+		return {"combatBlocked", controller.actionGetStatusMessageBlocked(action, hex), {}, {}};
 	}
 
 	void realize(const BattleHex & hex) const override
@@ -162,15 +141,8 @@ public:
 
 		switch(action.get())
 		{
-			case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-				return UnitActionButton{1, SpellID::NONE, ImagePath::builtin("battle/actionReturn"), "vcmi.battle.action.return"};
-			case PossiblePlayerBattleAction::ATTACK:
-			case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-				return UnitActionButton{2, SpellID::NONE, ImagePath::builtin("battle/actionAttack"), "vcmi.battle.action.attack"};
 			case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 				return UnitActionButton{4, SpellID::NONE, ImagePath::builtin("battle/actionGenie"), "vcmi.battle.action.genie"};
-			case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
-				return UnitActionButton{5, SpellID::NONE, ImagePath::builtin("battle/actionLongWeapon"), "vcmi.battle.action.attackLongWeapon"};
 			default:
 				return std::nullopt;
 		}
@@ -352,18 +324,6 @@ int BattleActionsController::actionGetPriority(PossiblePlayerBattleAction item, 
 		case PossiblePlayerBattleAction::RANDOM_GENIE_SPELL:
 			return 2;
 			break;
-		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-			return 5;
-			break;
-		case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
-			return 6;
-			break;
-		case PossiblePlayerBattleAction::ATTACK:
-			return 7;
-			break;
-		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-			return 8;
-			break;
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 			return 9;
 			break;
@@ -456,32 +416,6 @@ std::string BattleActionsController::actionGetCursor(PossiblePlayerBattleAction 
 {
 	switch (action.get())
 	{
-		case PossiblePlayerBattleAction::ATTACK:
-		case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
-		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-		{
-			static const std::map<BattleHex::EDir, std::string> sectorCursor = {
-				{BattleHex::TOP_LEFT,     "combatHitSouthEast"},
-				{BattleHex::TOP_RIGHT,    "combatHitSouthWest"},
-				{BattleHex::RIGHT,        "combatHitWest"     },
-				{BattleHex::BOTTOM_RIGHT, "combatHitNorthWest"},
-				{BattleHex::BOTTOM_LEFT,  "combatHitNorthEast"},
-				{BattleHex::LEFT,         "combatHitEast"     },
-				{BattleHex::TOP,          "combatHitSouth"    },
-				{BattleHex::BOTTOM,       "combatHitNorth"    }
-			};
-
-			auto direction = owner.fieldController->selectAttackDirection(targetHex);
-
-			// selectAttackDirection logs an error and returns NONE if the hex can't be attacked from any direction
-			assert(sectorCursor.count(direction) > 0);
-			if (!sectorCursor.count(direction))
-				return "combatBlocked";
-
-			return sectorCursor.at(direction);
-		}
-
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 		case PossiblePlayerBattleAction::ANY_LOCATION:
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
@@ -512,42 +446,6 @@ std::string BattleActionsController::actionGetStatusMessage(PossiblePlayerBattle
 
 	switch (action.get()) //display console message, realize selected action
 	{
-		case PossiblePlayerBattleAction::ATTACK:
-		case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
-		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
-			{
-				const auto * attacker = owner.stacksController->getActiveStack();
-				bool allowLongWeapon = action.get() == PossiblePlayerBattleAction::LONG_WEAPON_ATTACK;
-				BattleHex attackFromHex = findAttackFromHex(owner, attacker, targetHex, allowLongWeapon);
-				assert(attackFromHex.isValid());
-				if(!attackFromHex.isValid())
-					return "";
-				int distance = attacker->position.isValid() ? owner.getBattle()->battleGetDistances(attacker, attacker->getPosition())[attackFromHex.toInt()] : 0;
-				DamageEstimation retaliation;
-				BattleAttackInfo attackInfo(attacker, targetStack, distance, false);
-				attackInfo.attackerPos = attackFromHex;
-				DamageEstimation estimation = owner.getBattle()->battleEstimateDamage(attackInfo, &retaliation);
-				estimation.kills.max = std::min<int64_t>(estimation.kills.max, targetStack->getCount());
-				estimation.kills.min = std::min<int64_t>(estimation.kills.min, targetStack->getCount());
-				bool enemyMayBeKilled = estimation.kills.max == targetStack->getCount();
-
-				// breath and other multi-hex attacks also strike extra units - add their kills to the prediction
-				// (getAttackedBattleUnits excludes the directly-attacked hex, so the main target is handled above)
-				for(const auto * splashTarget : owner.getBattle()->getAttackedCreatures(attacker, targetHex, false, attackFromHex).first)
-				{
-					if(splashTarget == targetStack || splashTarget == attacker)
-						continue;
-					BattleAttackInfo splashInfo(attacker, splashTarget, distance, false);
-					splashInfo.attackerPos = attackFromHex;
-					DamageEstimation splash = owner.getBattle()->battleEstimateDamage(splashInfo, nullptr);
-					estimation.kills.min += std::min<int64_t>(splash.kills.min, splashTarget->getCount());
-					estimation.kills.max += std::min<int64_t>(splash.kills.max, splashTarget->getCount());
-				}
-
-				return DamageEstimationTexts::meleeAttack(estimation, *targetStack).toString(&GAME->translator()) + "\n" + DamageEstimationTexts::retaliation(retaliation, enemyMayBeKilled).toString(&GAME->translator());
-			}
-
 		case PossiblePlayerBattleAction::AIMED_SPELL_CREATURE:
 		{
 			const CSpell * spell = action.spell().toSpell();
@@ -670,18 +568,6 @@ bool BattleActionsController::actionIsLegal(PossiblePlayerBattleAction action, c
 
 	switch (action.get())
 	{
-		case PossiblePlayerBattleAction::ATTACK:
-		case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
-		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-		case PossiblePlayerBattleAction::ATTACK_AND_RETURN:
-			{
-				const CStack * currentStack = owner.stacksController->getActiveStack();
-				bool allowLongWeapon = action.get() == PossiblePlayerBattleAction::LONG_WEAPON_ATTACK;
-				return currentStack &&
-					owner.getBattle()->battleCanAttackUnit(currentStack, targetStack) &&
-					owner.getBattle()->battleCanAttackHex(currentStack, targetHex) &&
-					findAttackFromHex(owner, currentStack, targetHex, allowLongWeapon).isValid();
-			}
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 			{
 				const CStack * currentStack = owner.stacksController->getActiveStack();
@@ -731,25 +617,6 @@ void BattleActionsController::actionRealize(PossiblePlayerBattleAction action, c
 
 	switch (action.get()) //display console message, realize selected action
 	{
-		case PossiblePlayerBattleAction::ATTACK:
-		case PossiblePlayerBattleAction::LONG_WEAPON_ATTACK:
-		case PossiblePlayerBattleAction::WALK_AND_ATTACK:
-		case PossiblePlayerBattleAction::ATTACK_AND_RETURN: //TODO: allow to disable return
-		{
-			bool returnAfterAttack = action.get() == PossiblePlayerBattleAction::ATTACK_AND_RETURN;
-			bool allowLongWeapon = action.get() == PossiblePlayerBattleAction::LONG_WEAPON_ATTACK;
-			auto attacker = owner.stacksController->getActiveStack();
-			BattleHex attackFromHex = findAttackFromHex(owner, attacker, targetHex, allowLongWeapon);
-			assert(attackFromHex.isValid());
-			if(!attackFromHex.isValid())
-				return;
-			BattleAction command = owner.getBattle()->isLongWeaponAttack(attacker, targetStack, attackFromHex)
-				? BattleAction::makeLongWeaponAttack(attacker, targetHex, attackFromHex)
-				: BattleAction::makeMeleeAttack(attacker, targetHex, attackFromHex, returnAfterAttack);
-			owner.sendCommand(command, attacker);
-			return;
-		}
-
 		case PossiblePlayerBattleAction::WALK_AND_SPELLCAST:
 		{
 			auto stack = owner.stacksController->getActiveStack();
@@ -875,7 +742,7 @@ const BattleActionsController::HexSelection & BattleActionsController::getSelect
 	if(!cachedSelection || cachedSelection->hex != hex)
 	{
 		auto entry = selectEntry(hex);
-		BattleActionPreview preview = entry ? entry->preview(hex) : BattleActionPreview{"combatBlocked", "", {}};
+		BattleActionPreview preview = entry ? entry->preview(hex) : BattleActionPreview{"combatBlocked", "", {}, {}};
 		cachedSelection = HexSelection{hex, std::move(entry), std::move(preview)};
 	}
 	return *cachedSelection;
@@ -1160,19 +1027,6 @@ bool BattleActionsController::currentActionWalkAndCast(const BattleHex & hovered
 	return entry && isLegacyAction(*entry, PossiblePlayerBattleAction::WALK_AND_SPELLCAST);
 }
 
-bool BattleActionsController::currentActionUsesLongWeapon(const BattleHex & hoveredHex)
-{
-	if (heroSpellToCast)
-		return false;
-
-	if (!owner.stacksController->getActiveStack())
-		return true;
-
-	const auto & entry = getSelection(hoveredHex).entry;
-
-	return entry && isLegacyAction(*entry, PossiblePlayerBattleAction::LONG_WEAPON_ATTACK);
-}
-
 bool BattleActionsController::currentActionHasAttackDirection(const BattleHex & hoveredHex)
 {
 	if(heroSpellToCast || !owner.stacksController->getActiveStack())
@@ -1185,6 +1039,11 @@ bool BattleActionsController::currentActionHasAttackDirection(const BattleHex & 
 BattleHexArray BattleActionsController::getShadedHexes(const BattleHex & hoveredHex)
 {
 	return getSelection(hoveredHex).preview.shadedHexes;
+}
+
+std::vector<uint32_t> BattleActionsController::getAffectedUnits(const BattleHex & hoveredHex)
+{
+	return getSelection(hoveredHex).preview.affectedUnits;
 }
 
 void BattleActionsController::setPriorityActions(const BattleActionEntries & actions)

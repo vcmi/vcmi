@@ -314,16 +314,6 @@ std::vector<PossiblePlayerBattleAction> CBattleInfoCallback::getClientActionsFor
 			if(stack->hasBonusOfType(BonusType::RANDOM_SPELLCASTER))
 				allowedActionList.push_back(PossiblePlayerBattleAction::RANDOM_GENIE_SPELL);
 		}
-		if(stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
-			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK_AND_RETURN);
-		if(stack->hasBonusOfType(BonusType::LONG_WEAPON))
-			allowedActionList.push_back(PossiblePlayerBattleAction::LONG_WEAPON_ATTACK);
-
-		if (stack->isMeleeAttacker()) //not all stacks can actually attack or walk and attack, check this elsewhere
-		{
-			allowedActionList.push_back(PossiblePlayerBattleAction::ATTACK);
-			allowedActionList.push_back(PossiblePlayerBattleAction::WALK_AND_ATTACK);
-		}
 		if(stack->hasBonusOfType(BonusType::ADJACENT_SPELLCASTER))
 		{
 			SpellID spellID = stack->getBonus(Selector::type()(BonusType::ADJACENT_SPELLCASTER))->subtype.as<SpellID>();

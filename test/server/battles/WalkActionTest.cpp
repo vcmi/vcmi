@@ -140,8 +140,13 @@ public:
 
 		std::vector<ActionOption> options;
 		BattleActionType::collectAllOptions(*battle(), *unit, options);
-		EXPECT_EQ(options.size(), 1);
-		return options.at(0);
+
+		for(const auto & option : options)
+			if(option.type == BattleActionType::find(EActionType::WALK))
+				return option;
+
+		ADD_FAILURE() << "no move option";
+		return {};
 	}
 
 	bool isLegal(const CStack * unit, const BattleHex & hex)

@@ -123,25 +123,25 @@ TEST_P(UnitOptionsTest, offersOptionsOfUnitAbilities)
 
 INSTANTIATE_TEST_SUITE_P(Units, UnitOptionsTest, ::testing::Values(
 	UnitOptionsCase{"melee", pikeman, nullptr, {},
-		{Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK}},
+		{}, {EActionType::WALK, EActionType::WALK_AND_ATTACK}},
 	UnitOptionsCase{"shooter", archer, nullptr, {},
-		{Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK, EActionType::SHOOT}},
+		{}, {EActionType::WALK, EActionType::SHOOT, EActionType::WALK_AND_ATTACK}},
 	UnitOptionsCase{"returning", harpy, nullptr, {},
-		{Option::ATTACK_AND_RETURN, Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK}},
+		{}, {EActionType::WALK, EActionType::WALK_AND_ATTACK, EActionType::WALK_AND_ATTACK_NO_RETURN}},
 	UnitOptionsCase{"longWeapon", pikeman, [](CStack * unit)
 		{
 			unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
 		}, {},
-		{Option::LONG_WEAPON_ATTACK, Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK}},
+		{}, {EActionType::WALK, EActionType::WALK_AND_ATTACK, EActionType::LONG_WEAPON_ATTACK}},
 	UnitOptionsCase{"spellcaster", stormElemental, nullptr, {SpellID::PROTECTION_FROM_AIR},
-		{Option(Option::AIMED_SPELL_CREATURE, SpellID::PROTECTION_FROM_AIR), Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK, EActionType::SHOOT}},
+		{Option(Option::AIMED_SPELL_CREATURE, SpellID::PROTECTION_FROM_AIR)}, {EActionType::WALK, EActionType::SHOOT, EActionType::WALK_AND_ATTACK}},
 	UnitOptionsCase{"randomSpellcaster", masterGenie, nullptr, {},
-		{Option::RANDOM_GENIE_SPELL, Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK}},
+		{Option::RANDOM_GENIE_SPELL}, {EActionType::WALK, EActionType::WALK_AND_ATTACK}},
 	UnitOptionsCase{"adjacentSpellcaster", pikeman, [](CStack * unit)
 		{
 			BattleTestFixture::grantSpell(unit, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
 		}, {},
-		{Option(Option::WALK_AND_SPELLCAST, SpellID::BLESS), Option::ATTACK, Option::WALK_AND_ATTACK}, {EActionType::WALK}},
+		{Option(Option::WALK_AND_SPELLCAST, SpellID::BLESS)}, {EActionType::WALK, EActionType::WALK_AND_ATTACK}},
 	UnitOptionsCase{"firstAidTent", CreatureID::FIRST_AID_TENT, nullptr, {},
 		{}, {EActionType::STACK_HEAL}},
 	// the catapult has nothing to shoot at outside of a siege
@@ -158,8 +158,8 @@ TEST_F(ActionOptionsTest, shooterNextToEnemyCannotShoot)
 	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), unitHex, 10);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), unitHex.cloneInDirection(BattleHex::RIGHT), 10);
 
-	EXPECT_THAT(optionsOf(shooter), ::testing::UnorderedElementsAre(Option::ATTACK, Option::WALK_AND_ATTACK));
-	EXPECT_THAT(typesOffered(shooter), ::testing::ElementsAre(walkType()));
+	EXPECT_THAT(optionsOf(shooter), ::testing::IsEmpty());
+	EXPECT_THAT(typesOffered(shooter), ::testing::UnorderedElementsAreArray(typesOf({EActionType::WALK, EActionType::WALK_AND_ATTACK})));
 }
 
 TEST_F(ActionOptionsTest, catapultShootsAtStandingWalls)

@@ -45,9 +45,9 @@ int CatapultAction::getPriority(const CBattleInfoCallback & battle, const Action
 ActionPreview CatapultAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	if(!isLegal(game, battle, option, context))
-		return {"combatBlocked", {}, {}};
+		return {"combatBlocked", {}, {}, {}};
 
-	return {"combatShootCatapult", {}, {}};
+	return {"combatShootCatapult", {}, {}, {}};
 }
 
 std::optional<BattleAction> CatapultAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
