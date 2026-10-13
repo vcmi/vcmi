@@ -229,13 +229,6 @@ typedef int8_t si8; //signed int 8 bits (1 byte)
 #endif
 #endif // VCMI_IOS
 
-// Transition no-op macros: VCMI_LIB_NAMESPACE_* were removed from the codebase,
-// these stubs keep code from not-yet-merged branches compiling. Remove once stale.
-#define VCMI_LIB_NAMESPACE_BEGIN
-#define VCMI_LIB_NAMESPACE_END
-#define VCMI_LIB_USING_NAMESPACE
-#define VCMI_LIB_WRAP_NAMESPACE(x) ::x
-
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */
 /* ---------------------------------------------------------------------------- */
