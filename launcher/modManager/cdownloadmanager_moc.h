@@ -9,7 +9,6 @@
  */
 #pragma once
 
-#include <QSet>
 #include <QSharedPointer>
 #include <QtNetwork/QNetworkReply>
 #include "../../lib/network/HttpDownloader.h"
@@ -49,6 +48,7 @@ QStringList encounteredErrors;
 bool certificateErrorEncountered = false;
 QSet<QNetworkReply *> ignoredReplies;
 
+
 HttpDownloader downloader;
 QTimer pollTimer;
 
@@ -57,7 +57,6 @@ QTimer pollTimer;
 	QTimer pollTimer;
 
 	QList<FileEntry> currentDownloads;
-	bool downloadsPaused = false;
 
 QList<FileEntry> currentDownloads;
 bool downloadsPaused = false;
@@ -83,8 +82,6 @@ public:
 	// returns true if download with such URL is in progress/queued
 	// FIXME: not sure what's right place for "mod download in progress" check
 	bool downloadInProgress(const QUrl & url) const;
-	void pauseDownloads();
-	void resumeDownloads();
 
 	void downloadFile(const QUrl & url, const QString & file, qint64 bytesTotal = 0);
 
