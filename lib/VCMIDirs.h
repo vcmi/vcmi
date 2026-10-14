@@ -69,11 +69,8 @@ public:
 	/// Whether the launcher can expose controls backed by setUserPath().
 	virtual bool supportsUserPathChange() const;
 
-	/// Returns true when the path is stored inside a OneDrive-synchronized directory.
-	virtual bool isOneDrivePath(const boost::filesystem::path & path) const;
-
-	/// Removes a platform-specific legacy user-data parent if it became empty.
-	virtual void removeObsoleteUserDataParent(const boost::filesystem::path & path) const;
+	/// Returns true when the path name is reserved for a directory inside the VCMI user-data root.
+	bool isReservedUserDataSubdirectory(const boost::filesystem::path & path) const;
 };
 
 namespace VCMIDirs

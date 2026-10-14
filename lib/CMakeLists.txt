@@ -345,6 +345,10 @@ if (NOT ENABLE_MINIMAL_LIB)
 	list(APPEND lib_SRCS ${lib_MAIN_SRCS})
 endif()
 
+if(WIN32)
+	list(APPEND lib_SRCS platform/windows/Registry.cpp)
+endif()
+
 # Version.cpp is a generated file
 list(APPEND lib_SRCS ${CMAKE_BINARY_DIR}/Version.cpp)
 set_source_files_properties(${CMAKE_BINARY_DIR}/Version.cpp

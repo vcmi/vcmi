@@ -9,8 +9,6 @@
  */
 
 #include "StdInc.h"
-#include "GameConstants.h"
-#include "ScopeGuard.h"
 #include "VCMIDirs.h"
 #include "json/JsonNode.h"
 #include "logging/CLogger.h"
@@ -89,16 +87,35 @@ bool IVCMIDirs::supportsUserPathChange() const
 	return false;
 }
 
-bool IVCMIDirs::isOneDrivePath(const bfs::path &) const
+bool IVCMIDirs::isReservedUserDataSubdirectory(const bfs::path & path) const
 {
-	return false;
-}
+	static constexpr std::array names = {
+		"cache",
+		"config",
+		"Data",
+		"Generated",
+		"logs",
+		"Maps",
+		"Mods",
+		"Mp3",
+		"saves",
+		"scripts",
+		"Sounds",
+		"Sprites",
+		"Video"
+	};
 
-void IVCMIDirs::removeObsoleteUserDataParent(const bfs::path &) const
-{
+	const std::string directoryName = path.filename().string();
+	return std::any_of(names.begin(), names.end(), [&directoryName](const auto * reservedName)
+	{
+		return boost::iequals(directoryName, reservedName);
+	});
 }
 
 #ifdef VCMI_WINDOWS
+
+#include "platform/windows/CloudStorageDetection.h"
+#include "platform/windows/Registry.h"
 
 #include <windows.h>
 #include <shlobj.h>
@@ -123,9 +140,6 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 		bfs::path portableUserDataPath() const override;
 		bool setUserPath(EUserDirectory directory, const bfs::path & path) override;
 		bool supportsUserPathChange() const override;
-		bool isOneDrivePath(const bfs::path & path) const override;
-		void removeObsoleteUserDataParent(const bfs::path & path) const override;
-
 	private:
 		static constexpr auto userDataParentDirectoryName = L"My Games";
 
@@ -137,7 +151,6 @@ class VCMIDirsWIN32 final : public IVCMIDirs
 
 		bool setPathInConfig(const std::string & key, const bfs::path & path);
 		std::optional<bfs::path> getPathFromRegistry(const std::string & key) const;
-		std::optional<bfs::path> readPathFromRegistry(const std::wstring & valueName, REGSAM registryView) const;
 		bool setPathInRegistry(const std::string & key, const bfs::path & path) const;
 		void removePathFromRegistry(const std::string & key) const;
 		bfs::path getDefaultUserDataPath() const;
@@ -223,52 +236,9 @@ bool VCMIDirsWIN32::setPathInConfig(const std::string & key, const bfs::path & p
 std::optional<bfs::path> VCMIDirsWIN32::getPathFromRegistry(const std::string & key) const
 {
 	const std::wstring valueName = utf8ToWstring(key);
-	if(const auto path = readPathFromRegistry(valueName, KEY_WOW64_64KEY))
-		return path;
-
-	return readPathFromRegistry(valueName, KEY_WOW64_32KEY);
-}
-
-std::optional<bfs::path> VCMIDirsWIN32::readPathFromRegistry(const std::wstring & valueName, REGSAM registryView) const
-{
-	HKEY registryKey = nullptr;
-	if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, KEY_QUERY_VALUE | registryView, &registryKey) != ERROR_SUCCESS)
-		return std::nullopt;
-	auto closeRegistryKey = vstd::makeScopeGuard([registryKey]() { RegCloseKey(registryKey); });
-
-	DWORD type = 0;
-	DWORD size = 0;
-	constexpr DWORD acceptedTypes = RRF_RT_REG_SZ | RRF_RT_REG_EXPAND_SZ | RRF_NOEXPAND;
-	const LSTATUS sizeResult = RegGetValueW(registryKey, nullptr, valueName.c_str(), acceptedTypes, &type, nullptr, &size);
-	if(sizeResult != ERROR_SUCCESS || (type != REG_SZ && type != REG_EXPAND_SZ) || size < sizeof(wchar_t))
-		return std::nullopt;
-
-	std::wstring value(size / sizeof(wchar_t), L'\0');
-	const LSTATUS valueResult = RegGetValueW(registryKey, nullptr, valueName.c_str(), acceptedTypes, &type, value.data(), &size);
-	if(valueResult != ERROR_SUCCESS || (type != REG_SZ && type != REG_EXPAND_SZ) || size % sizeof(wchar_t) != 0)
-		return std::nullopt;
-
-	while(!value.empty() && value.back() == L'\0')
-		value.pop_back();
-
-	if(value.empty())
-		return std::nullopt;
-
-	if(type == REG_EXPAND_SZ)
-	{
-		const DWORD expandedSize = ExpandEnvironmentStringsW(value.c_str(), nullptr, 0);
-		if(expandedSize > 0)
-		{
-			std::wstring expanded(expandedSize, L'\0');
-			if(ExpandEnvironmentStringsW(value.c_str(), expanded.data(), expandedSize) == expandedSize)
-			{
-				expanded.resize(expandedSize - 1);
-				return bfs::path(expanded);
-			}
-		}
-	}
-
-	return bfs::path(value);
+	if(const auto path = readCurrentUserRegistryString(L"Software\\VCMI", valueName))
+		return bfs::path(*path);
+	return std::nullopt;
 }
 
 bool VCMIDirsWIN32::setPathInRegistry(const std::string & key, const bfs::path & path) const
@@ -277,16 +247,7 @@ bool VCMIDirsWIN32::setPathInRegistry(const std::string & key, const bfs::path &
 	preferredPath.make_preferred();
 	const std::wstring valueName = utf8ToWstring(key);
 	const std::wstring value = preferredPath.wstring();
-	const auto valueSize = static_cast<DWORD>((value.size() + 1) * sizeof(wchar_t));
-
-	HKEY registryKey = nullptr;
-	if(RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE | KEY_WOW64_64KEY, nullptr, &registryKey, nullptr) != ERROR_SUCCESS
-		&& RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &registryKey, nullptr) != ERROR_SUCCESS)
-		return false;
-	auto closeRegistryKey = vstd::makeScopeGuard([registryKey]() { RegCloseKey(registryKey); });
-
-	const LSTATUS result = RegSetKeyValueW(registryKey, nullptr, valueName.c_str(), REG_SZ, value.c_str(), valueSize);
-	if(result != ERROR_SUCCESS)
+	if(!writeCurrentUserRegistryString(L"Software\\VCMI", valueName, value))
 		return false;
 
 	const auto savedPath = getPathFromRegistry(key);
@@ -295,16 +256,7 @@ bool VCMIDirsWIN32::setPathInRegistry(const std::string & key, const bfs::path &
 
 void VCMIDirsWIN32::removePathFromRegistry(const std::string & key) const
 {
-	const std::wstring valueName = utf8ToWstring(key);
-	for(const REGSAM registryView : { KEY_WOW64_64KEY, KEY_WOW64_32KEY })
-	{
-		HKEY registryKey = nullptr;
-		if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\VCMI", 0, KEY_SET_VALUE | registryView, &registryKey) == ERROR_SUCCESS)
-		{
-			RegDeleteValueW(registryKey, valueName.c_str());
-			RegCloseKey(registryKey);
-		}
-	}
+	removeCurrentUserRegistryValue(L"Software\\VCMI", utf8ToWstring(key));
 }
 
 bool VCMIDirsWIN32::setUserPath(EUserDirectory directory, const bfs::path & path)
@@ -383,12 +335,12 @@ bfs::path VCMIDirsWIN32::getPathFromConfigOrDefault(
 
 bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
 {
-	const bfs::path applicationName(GameConstants::VCMI_PROJECT_NAME);
+	const bfs::path applicationName("VCMI");
 	wchar_t profileDir[MAX_PATH];
 	if(SHGetSpecialFolderPathW(nullptr, profileDir, CSIDL_MYDOCUMENTS, FALSE) != FALSE)
 	{
 		const bfs::path documentsPath(profileDir);
-		if(!isOneDrivePath(documentsPath))
+		if(!VCMI::Windows::isCloudStoragePath(documentsPath.c_str()))
 			return documentsPath / userDataParentDirectoryName / applicationName;
 	}
 
@@ -400,38 +352,7 @@ bfs::path VCMIDirsWIN32::getDefaultUserDataPath() const
 
 bfs::path VCMIDirsWIN32::portableUserDataPath() const
 {
-	return binaryPath() / (std::string(GameConstants::VCMI_PROJECT_NAME) + "-data");
-}
-
-bool VCMIDirsWIN32::isOneDrivePath(const bfs::path & path) const
-{
-	wchar_t oneDrivePath[MAX_PATH];
-	const DWORD pathSize = ExpandEnvironmentStringsW(L"%OneDrive%", oneDrivePath, MAX_PATH);
-	if(pathSize == 0 || pathSize > MAX_PATH || std::wstring(oneDrivePath) == L"%OneDrive%")
-		return false;
-
-	bfs::path normalizedCandidate = path.lexically_normal();
-	normalizedCandidate.make_preferred();
-	bfs::path normalizedOneDrive = bfs::path(oneDrivePath).lexically_normal();
-	normalizedOneDrive.make_preferred();
-
-	const std::wstring candidate = normalizedCandidate.wstring();
-	std::wstring oneDrive = normalizedOneDrive.wstring();
-	if(boost::iequals(candidate, oneDrive))
-		return true;
-	oneDrive += bfs::path::preferred_separator;
-
-	return boost::istarts_with(candidate, oneDrive);
-}
-
-void VCMIDirsWIN32::removeObsoleteUserDataParent(const bfs::path & path) const
-{
-	const bfs::path parentPath = path.parent_path();
-	if(boost::iequals(parentPath.filename().wstring(), userDataParentDirectoryName))
-	{
-		boost::system::error_code error;
-		bfs::remove(parentPath, error);
-	}
+	return binaryPath() / "VCMI-data";
 }
 
 bfs::path VCMIDirsWIN32::userDataPath() const

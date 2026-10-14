@@ -11,12 +11,15 @@
 #include "datamanager.h"
 
 #include <QCheckBox>
+#include <QStandardPaths>
 #include <QStorageInfo>
 #include <QTemporaryFile>
 #include <QUuid>
 
 #if defined(VCMI_WINDOWS)
 #include <shellapi.h>
+
+#include "../lib/platform/windows/CloudStorageDetection.h"
 #endif
 
 #include "progressoverlay.h"
@@ -53,6 +56,31 @@ Qt::CaseSensitivity datamanager::pathCaseSensitivity() const
 bool datamanager::pathsOverlap(const QString & first, const QString & second) const
 {
 	return isSameOrChildPath(first, second) || isSameOrChildPath(second, first);
+}
+
+bool datamanager::isProtectedTargetRoot(const QString & path) const
+{
+	const QString normalizedTarget = normalizedPath(path);
+	if(QFileInfo(normalizedTarget).isRoot())
+		return true;
+
+	QStringList protectedPaths = {
+		QDir::homePath(),
+		QStandardPaths::writableLocation(QStandardPaths::DesktopLocation),
+		QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+		QStandardPaths::writableLocation(QStandardPaths::DownloadLocation),
+		QStandardPaths::writableLocation(QStandardPaths::MusicLocation),
+		QStandardPaths::writableLocation(QStandardPaths::MoviesLocation),
+		QStandardPaths::writableLocation(QStandardPaths::PicturesLocation)
+	};
+
+	for(const auto & protectedPath : protectedPaths)
+	{
+		if(!protectedPath.isEmpty() && normalizedTarget.compare(normalizedPath(protectedPath), pathCaseSensitivity()) == 0)
+			return true;
+	}
+
+	return false;
 }
 
 bool datamanager::isDirectoryWritable(const QString & path) const
@@ -141,22 +169,54 @@ bool datamanager::reportPermissionError(const QString & message) const
 	return false;
 }
 
-bool datamanager::confirmOneDriveTarget(const IVCMIDirs & dirs, const QString & target) const
+datamanager::ETargetConfirmation datamanager::confirmSynchronizedTarget(EUserDirectory directory, const QString & target) const
 {
-	if(!dirs.isOneDrivePath(qstringToPath(target)))
-		return true;
+#if defined(VCMI_WINDOWS)
+	const std::wstring nativeTarget = QDir::toNativeSeparators(target).toStdWString();
+	const bool isOneDrive = VCMI::Windows::isOneDrivePath(nativeTarget.c_str());
+	const bool isCloudStorage = isOneDrive || VCMI::Windows::isCloudStoragePath(nativeTarget.c_str());
+	logGlobal->debug("User directory synchronization check for '%s': OneDrive=%d, cloud=%d", target.toStdString(), isOneDrive, isCloudStorage);
+	if(!isCloudStorage)
+		return ETargetConfirmation::ACCEPT;
 
-	QMessageBox warning(QMessageBox::Warning, tr("OneDrive directory selected"), tr("The selected directory is synchronized by OneDrive:\n%1\n\nOneDrive may lock files while synchronizing them. This can prevent VCMI from writing data and may cause mod installation, game startup, saving, or other operations to fail.").arg(QDir::toNativeSeparators(target)), QMessageBox::NoButton, parent);
+	const QString synchronizationDescription = isOneDrive
+		? tr("The selected directory is synchronized by OneDrive:")
+		: tr("The selected directory is probably managed by a cloud synchronization service:");
+
+	if(directory == EUserDirectory::SAVES)
+	{
+		QMessageBox information(QMessageBox::Information, tr("Synchronized save directory selected"), tr("%1\n%2\n\nSynchronizing saved games can be useful across multiple devices. Avoid running VCMI on multiple devices at the same time because synchronization conflicts may duplicate or overwrite saves.").arg(synchronizationDescription, QDir::toNativeSeparators(target)), QMessageBox::NoButton, parent);
+		auto * continueButton = information.addButton(tr("Use synchronized directory"), QMessageBox::AcceptRole);
+		auto * selectButton = information.addButton(tr("Select another location"), QMessageBox::ActionRole);
+		information.addButton(QMessageBox::Cancel);
+		information.setDefaultButton(continueButton);
+		information.exec();
+		if(information.clickedButton() == continueButton)
+			return ETargetConfirmation::ACCEPT;
+		if(information.clickedButton() == selectButton)
+			return ETargetConfirmation::SELECT_ANOTHER;
+		return ETargetConfirmation::CANCEL;
+	}
+
+	QMessageBox warning(QMessageBox::Warning, tr("Synchronized directory selected"), tr("%1\n%2\n\nThe synchronization service may lock files while processing them. This can prevent VCMI from writing data and may cause mod installation, game startup, saving, or other operations to fail.").arg(synchronizationDescription, QDir::toNativeSeparators(target)), QMessageBox::NoButton, parent);
 	auto * continueButton = warning.addButton(tr("Continue anyway"), QMessageBox::DestructiveRole);
-	auto * selectButton = warning.addButton(tr("Select another location"), QMessageBox::RejectRole);
+	auto * selectButton = warning.addButton(tr("Select another location"), QMessageBox::ActionRole);
+	warning.addButton(QMessageBox::Cancel);
 	warning.setDefaultButton(selectButton);
 	warning.exec();
 
+	if(warning.clickedButton() == selectButton)
+		return ETargetConfirmation::SELECT_ANOTHER;
 	if(warning.clickedButton() != continueButton)
-		return false;
+		return ETargetConfirmation::CANCEL;
 
-	const auto confirmation = QMessageBox::warning(parent, tr("Confirm OneDrive directory"), tr("Using a OneDrive-synchronized directory can make VCMI unreliable and may cause data-writing operations to fail.\n\nDo you really want to use this directory?"), QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
-	return confirmation == QMessageBox::Yes;
+	const auto confirmation = QMessageBox::warning(parent, tr("Confirm synchronized directory"), tr("Using a synchronized directory can make VCMI unreliable and may cause data-writing operations to fail.\n\nDo you really want to use this directory?"), QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+	return confirmation == QMessageBox::Yes ? ETargetConfirmation::ACCEPT : ETargetConfirmation::CANCEL;
+#else
+	Q_UNUSED(directory);
+	Q_UNUSED(target);
+	return ETargetConfirmation::ACCEPT;
+#endif
 }
 
 bool datamanager::validateTarget(const IVCMIDirs & dirs, EUserDirectory changedDirectory, const QString & source, const QString & target, bool & selectAnother) const
@@ -168,13 +228,27 @@ bool datamanager::validateTarget(const IVCMIDirs & dirs, EUserDirectory changedD
 		return false;
 	}
 
+	if(isProtectedTargetRoot(target))
+	{
+		const QString suggestedPath = QDir(target).filePath(QStringLiteral("VCMI"));
+		QMessageBox::warning(parent, tr("Invalid directory"), tr("A drive root or personal folder such as Documents, Desktop, or Downloads cannot be used directly because replacing or cleaning it could affect unrelated files.\n\nCreate or select a dedicated VCMI subdirectory, for example:\n%1").arg(QDir::toNativeSeparators(suggestedPath)));
+		selectAnother = true;
+		return false;
+	}
+
 	const QString binaryPath = QCoreApplication::applicationDirPath();
 	const QString compatibleInstallationPath = installationDataPath();
 	const bool usesCompatibleInstallationPath = !compatibleInstallationPath.isEmpty() && normalizedPath(target).compare(normalizedPath(compatibleInstallationPath), pathCaseSensitivity()) == 0;
 
-	if(pathsOverlap(target, binaryPath) && !usesCompatibleInstallationPath)
+	if(isSameOrChildPath(target, binaryPath) && !usesCompatibleInstallationPath)
 	{
-		QMessageBox::warning(parent, tr("Invalid directory"), tr("A user directory cannot be the VCMI installation directory, contain it, or be located inside it."));
+		QMessageBox::warning(parent, tr("Invalid directory"), tr("A user directory cannot be the VCMI installation directory or be located inside it."));
+		return false;
+	}
+
+	if(changedDirectory == EUserDirectory::DATA && dirs.isReservedUserDataSubdirectory(qstringToPath(target)))
+	{
+		QMessageBox::warning(parent, tr("Invalid directory"), tr("The selected directory is reserved for data inside the VCMI user directory. Select its parent or another directory instead."));
 		return false;
 	}
 
@@ -190,6 +264,10 @@ bool datamanager::validateTarget(const IVCMIDirs & dirs, EUserDirectory changedD
 		const QString activePath = pathToQString(dirs.userPath(directory));
 		if(pathsOverlap(target, activePath))
 		{
+			const bool activeDirectoryMovesWithSource = pathsOverlap(source, target) && isSameOrChildPath(activePath, source);
+			if(activeDirectoryMovesWithSource)
+				continue;
+
 			QMessageBox::warning(parent, tr("Invalid directory"), tr("The selected directory conflicts with another active VCMI user directory:\n%1\n\nUser directories cannot be the same or contain each other.").arg(QDir::toNativeSeparators(activePath)));
 			return false;
 		}
@@ -201,9 +279,10 @@ bool datamanager::validateTarget(const IVCMIDirs & dirs, EUserDirectory changedD
 		return false;
 	}
 
-	if(!confirmOneDriveTarget(dirs, target))
+	const auto synchronizationConfirmation = confirmSynchronizedTarget(changedDirectory, target);
+	if(synchronizationConfirmation != ETargetConfirmation::ACCEPT)
 	{
-		selectAnother = true;
+		selectAnother = synchronizationConfirmation == ETargetConfirmation::SELECT_ANOTHER;
 		return false;
 	}
 
@@ -348,48 +427,98 @@ bool datamanager::copyDirectoryContents(const QString & source, const QString & 
 	return true;
 }
 
-std::optional<datamanager::EExistingTargetAction> datamanager::askExistingTargetAction(const QString & target, bool mergeOnly) const
+std::optional<datamanager::EExistingTargetAction> datamanager::askExistingTargetAction(const QString & source, const QString & target, bool mergeOnly, QString & backupPath) const
 {
-	QMessageBox dialog(QMessageBox::Question, tr("Directory is not empty"), tr("The target directory already contains files:\n%1\n\nHow should they be handled?").arg(QDir::toNativeSeparators(target)), QMessageBox::NoButton, parent);
-	dialog.setInformativeText(mergeOnly
-		? tr("The source and target are in the same directory tree. Only merge is available for this move. Merge keeps files that exist only in the target and overwrites conflicts.")
-		: tr("Merge keeps files that exist only in the target and overwrites conflicts.\nBack up and replace moves the current target to a _backup directory.\nClean replacement removes the current target after the new copy is ready."));
-
-	auto * const mergeButton = dialog.addButton(tr("Merge and overwrite"), QMessageBox::AcceptRole);
-	QPushButton * backupButton = nullptr;
-	QPushButton * replaceButton = nullptr;
-	if(!mergeOnly)
+	if(mergeOnly)
 	{
-		backupButton = dialog.addButton(tr("Back up and replace"), QMessageBox::ActionRole);
-		replaceButton = dialog.addButton(tr("Clean replacement"), QMessageBox::DestructiveRole);
+		QMessageBox dialog(QMessageBox::Question, tr("Directory is not empty"), tr("The target directory already contains files:\n%1").arg(QDir::toNativeSeparators(target)), QMessageBox::NoButton, parent);
+		dialog.setInformativeText(tr("The source and target are in the same directory tree. Only merge is available. Files that exist only in the target will be kept and conflicts will be overwritten."));
+		auto * const mergeButton = dialog.addButton(tr("Merge and overwrite"), QMessageBox::AcceptRole);
+		dialog.addButton(QMessageBox::Cancel);
+		dialog.setDefaultButton(mergeButton);
+		dialog.exec();
+		if(dialog.clickedButton() == mergeButton)
+			return EExistingTargetAction::MERGE;
+		return std::nullopt;
 	}
 
-	dialog.addButton(QMessageBox::Cancel);
-	dialog.setDefaultButton(mergeOnly ? mergeButton : backupButton);
-
-	dialog.exec();
-
-	if(dialog.clickedButton() == mergeButton)
-		return EExistingTargetAction::MERGE;
-
-	if(!mergeOnly && dialog.clickedButton() == backupButton)
-		return EExistingTargetAction::BACK_UP;
-
-	if(!mergeOnly && dialog.clickedButton() == replaceButton)
+	while(true)
 	{
-		const auto answer = QMessageBox::warning(parent, tr("Confirm clean replacement"), tr("Clean replacement will permanently remove all files currently in the target directory after the new data has been copied successfully.\n\nDo you really want to continue?"), QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
-		if(answer != QMessageBox::Yes)
+		QMessageBox dialog(QMessageBox::Question, tr("Directory is not empty"), tr("The target directory already contains files:\n%1\n\nHow should they be handled?").arg(QDir::toNativeSeparators(target)), QMessageBox::NoButton, parent);
+		dialog.setInformativeText(tr("Back up and replace is recommended. Merge keeps target-only files and overwrites conflicts."));
+		auto * const backupButton = dialog.addButton(tr("Back up and replace"), QMessageBox::AcceptRole);
+		auto * const mergeButton = dialog.addButton(tr("Merge"), QMessageBox::ActionRole);
+		auto * const moreButton = dialog.addButton(tr("More options..."), QMessageBox::ActionRole);
+		dialog.addButton(QMessageBox::Cancel);
+		dialog.setDefaultButton(backupButton);
+		dialog.exec();
+
+		if(dialog.clickedButton() == backupButton)
+			return EExistingTargetAction::BACK_UP;
+		if(dialog.clickedButton() == mergeButton)
+			return EExistingTargetAction::MERGE;
+		if(dialog.clickedButton() != moreButton)
 			return std::nullopt;
 
-		return EExistingTargetAction::REPLACE;
-	}
+		QMessageBox advanced(QMessageBox::Warning, tr("More replacement options"), tr("Choose an advanced replacement option."), QMessageBox::NoButton, parent);
+		advanced.setInformativeText(tr("A custom backup saves the current target in a directory you choose. Clean replacement keeps no backup."));
+		auto * const customBackupButton = advanced.addButton(tr("Back up to..."), QMessageBox::ActionRole);
+		auto * const replaceButton = advanced.addButton(tr("Clean replacement"), QMessageBox::DestructiveRole);
+		auto * const backButton = advanced.addButton(tr("Back"), QMessageBox::RejectRole);
+		advanced.setDefaultButton(backButton);
+		advanced.exec();
 
-	return std::nullopt;
+		if(advanced.clickedButton() == customBackupButton)
+		{
+			const auto selectedBackupPath = chooseBackupPath(source, target);
+			if(!selectedBackupPath)
+				continue;
+
+			backupPath = *selectedBackupPath;
+			return EExistingTargetAction::BACK_UP;
+		}
+
+		if(advanced.clickedButton() == replaceButton)
+		{
+			const auto answer = QMessageBox::warning(parent, tr("Confirm clean replacement"), tr("Clean replacement will permanently remove all files currently in the target directory after the new data has been copied successfully.\n\nDo you really want to continue?"), QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+			if(answer == QMessageBox::Yes)
+				return EExistingTargetAction::REPLACE;
+		}
+	}
 }
 
-QString datamanager::availableBackupPath(const QString & target) const
+std::optional<QString> datamanager::chooseBackupPath(const QString & source, const QString & target) const
 {
-	const QString basePath = target + QStringLiteral("_backup");
+	const QString targetParent = QFileInfo(target).dir().absolutePath();
+	while(true)
+	{
+		const QString backupParent = QFileDialog::getExistingDirectory(parent, tr("Select directory where the backup will be created"), targetParent);
+		if(backupParent.isEmpty())
+			return std::nullopt;
+
+		const QString backupPath = availableBackupPath(target, backupParent);
+		if(pathsOverlap(backupPath, source) || pathsOverlap(backupPath, target))
+		{
+			QMessageBox::warning(parent, tr("Invalid backup directory"), tr("The backup cannot be created inside the source or target directory, and cannot contain either directory."));
+			continue;
+		}
+
+		if(!isDirectoryWritable(backupParent))
+		{
+			if(reportPermissionError(tr("The selected backup directory is not writable:\n%1\n\nSelect another location or adjust the directory permissions.").arg(QDir::toNativeSeparators(backupParent))))
+				continue;
+			return std::nullopt;
+		}
+
+		return backupPath;
+	}
+}
+
+QString datamanager::availableBackupPath(const QString & target, const QString & backupParent) const
+{
+	const QFileInfo targetInfo(target);
+	const QString parentPath = backupParent.isEmpty() ? targetInfo.dir().absolutePath() : backupParent;
+	const QString basePath = QDir(parentPath).filePath(targetInfo.fileName() + QStringLiteral("_backup"));
 	if(!QFileInfo::exists(basePath))
 		return basePath;
 
@@ -401,11 +530,13 @@ QString datamanager::availableBackupPath(const QString & target) const
 	}
 }
 
-bool datamanager::installStagedDirectory(const QString & staging, const QString & target, EExistingTargetAction action, QString & displacedPath, QString & error) const
+bool datamanager::installStagedDirectory(const QString & staging, const QString & target, EExistingTargetAction action, const QString & backupPath, QString & displacedPath, QString & error) const
 {
 	const QFileInfo targetInfo(target);
 	const QString temporaryPath = targetInfo.dir().filePath(QStringLiteral(".%1-vcmi-old-%2").arg(targetInfo.fileName(), QUuid::createUuid().toString(QUuid::Id128)));
-	displacedPath = action == EExistingTargetAction::BACK_UP ? availableBackupPath(target) : temporaryPath;
+	displacedPath = action == EExistingTargetAction::BACK_UP && backupPath.isEmpty()
+		? availableBackupPath(target)
+		: temporaryPath;
 
 	if(!QDir().rename(target, displacedPath))
 	{
@@ -492,7 +623,15 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 	bool downloadsPaused = false;
 	bool cancelPausedDownloadsOnExit = false;
 	QString displacedTargetPath;
+	QString selectedBackupPath;
+	bool customBackupCreated = false;
+	bool keepCustomBackup = false;
 	EExistingTargetAction completedTargetAction = EExistingTargetAction::MERGE;
+	auto removeRejectedCustomBackup = vstd::makeScopeGuard([this, &customBackupCreated, &keepCustomBackup, &selectedBackupPath]()
+	{
+		if(customBackupCreated && !keepCustomBackup && !removePath(selectedBackupPath))
+			logGlobal->warn("Failed to remove incomplete custom backup '%s'", selectedBackupPath.toStdString());
+	});
 
 	auto finishPausedDownloads = vstd::makeScopeGuard([&downloadsPaused, &cancelPausedDownloadsOnExit, mainWindow]()
 	{
@@ -551,7 +690,7 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 
 			if(!targetIsEmpty)
 			{
-				const auto selectedAction = askExistingTargetAction(selected, sameDirectoryTree);
+				const auto selectedAction = askExistingTargetAction(source, selected, sameDirectoryTree, selectedBackupPath);
 				if(!selectedAction)
 					return EChangeResult::DONE;
 
@@ -581,7 +720,12 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 			pauseDownloads();
 
 			const bool targetInsideSource = isSameOrChildPath(selected, source);
-			const QString stagingParent = installInPlace ? selected : targetParent;
+			const bool sourceInsideTarget = isSameOrChildPath(source, selected);
+			// When moving to a parent directory, do not put staging inside the new
+			// active root. Keeping it beside that root prevents an incomplete cleanup
+			// from exposing .vcmi-transfer-* as user data after the switch.
+			const bool stageBesideTarget = !installInPlace || (sourceInsideTarget && targetParentWritable);
+			const QString stagingParent = stageBesideTarget ? targetParent : selected;
 
 			QTemporaryDir stagingDirectory(QDir(stagingParent).filePath(QStringLiteral(".vcmi-transfer-XXXXXX")));
 
@@ -601,6 +745,36 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 			qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
 			QString error;
+			if(targetAction == EExistingTargetAction::BACK_UP && !selectedBackupPath.isEmpty())
+			{
+				const qint64 backupSize = directorySize(selected);
+				const QStorageInfo backupStorage(QFileInfo(selectedBackupPath).dir().absolutePath());
+				if(backupStorage.isValid() && backupStorage.isReady() && backupStorage.bytesAvailable() >= 0 && backupStorage.bytesAvailable() < backupSize)
+				{
+					progress.reset();
+					QMessageBox::critical(parent, tr("Not enough free space"), tr("The selected backup location requires %1, but only %2 is available.").arg(formattedDataSize(backupSize), formattedDataSize(backupStorage.bytesAvailable())));
+					return EChangeResult::DONE;
+				}
+
+				if(!QDir().mkpath(selectedBackupPath))
+				{
+					progress.reset();
+					QMessageBox::critical(parent, tr("Backup failed"), tr("Failed to create the backup directory: %1").arg(QDir::toNativeSeparators(selectedBackupPath)));
+					return EChangeResult::DONE;
+				}
+				customBackupCreated = true;
+
+				progress->setTitle(tr("Backing up directory..."));
+				if(!copyDirectoryContents(selected, selectedBackupPath, *progress, error))
+				{
+					logGlobal->error("Failed to back up target directory: %s", error.toStdString());
+					progress.reset();
+					QMessageBox::critical(parent, tr("Backup failed"), error);
+					return EChangeResult::DONE;
+				}
+				progress->setTitle(tr("Copying directory..."));
+			}
+
 			const QString excludedSourcePath = targetInsideSource ? selected : QString();
 			if(!copyDirectoryContents(source, stagingDirectory.path(), *progress, error, targetAction == EExistingTargetAction::MERGE, excludedSourcePath))
 			{
@@ -618,9 +792,16 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 					QMessageBox::critical(parent, tr("Copy failed"), error);
 					return EChangeResult::DONE;
 				}
+
+				// Do not defer normal cleanup until this function returns: selected is
+				// about to become an active VCMI directory and must not contain staging.
+				if(!stagingDirectory.remove())
+					logGlobal->warn("Failed to remove transfer directory '%s' immediately after installation", stagingDirectory.path().toStdString());
 			}
-			else if(!installStagedDirectory(stagingDirectory.path(), selected, targetAction, displacedTargetPath, error))
+			else if(!installStagedDirectory(stagingDirectory.path(), selected, targetAction, selectedBackupPath, displacedTargetPath, error))
 			{
+				// The custom backup may be the only complete copy if restoring the displaced target also failed.
+				keepCustomBackup = customBackupCreated;
 				logGlobal->error("Failed to install staged user directory: %s", error.toStdString());
 				QMessageBox::critical(parent, tr("Copy failed"), error);
 				return EChangeResult::DONE;
@@ -644,6 +825,7 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 		{
 			logGlobal->error("Failed to restore target directory '%s' after settings error", selected.toStdString());
 			cancelPausedDownloadsOnExit = true;
+			keepCustomBackup = customBackupCreated;
 		}
 
 		QMessageBox::critical(parent, tr("Error"), tr("Failed to save the directory setting."));
@@ -663,7 +845,10 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 
 		const bool targetRestored = restoreDisplacedDirectory(selected, displacedTargetPath);
 		if(!targetRestored)
+		{
 			logGlobal->error("Failed to restore target directory '%s' after reload error", selected.toStdString());
+			keepCustomBackup = customBackupCreated;
+		}
 
 		bool oldDirectoryReloaded = false;
 		if(settingRestored)
@@ -688,6 +873,7 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 		mainWindow->getModView()->resumeDownloads();
 		downloadsPaused = false;
 	}
+	keepCustomBackup = true;
 
 	if(moveExistingData)
 	{
@@ -725,18 +911,34 @@ datamanager::EChangeResult datamanager::changeDirectoryOnce(EUserDirectory direc
 			QMessageBox::warning(parent, tr("Original files kept"), tr("The original directory still contains another active VCMI directory and cannot be removed safely."));
 		else if(QFileInfo::exists(source) && !removePath(source))
 			QMessageBox::warning(parent, tr("Original files kept"), tr("The data was copied and reloaded, but the original directory could not be removed."));
+#if defined(VCMI_WINDOWS)
 		else
-			dirs.removeObsoleteUserDataParent(qstringToPath(source));
+		{
+			// Windows historically stored VCMI in Documents\My Games. Also clean up a parent merely
+			// named OneDrive, but preserve it when it is an actual cloud-synchronized directory.
+			// QDir::rmdir intentionally leaves every non-empty folder intact.
+			const QFileInfo parentInfo(QFileInfo(source).dir().absolutePath());
+			const bool isMyGames = parentInfo.fileName().compare(QStringLiteral("My Games"), Qt::CaseInsensitive) == 0;
+			const bool isNamedOneDrive = parentInfo.fileName().compare(QStringLiteral("OneDrive"), Qt::CaseInsensitive) == 0;
+			const std::wstring nativeParent = QDir::toNativeSeparators(parentInfo.absoluteFilePath()).toStdWString();
+			const bool isActualCloudDirectory = VCMI::Windows::isCloudStoragePath(nativeParent.c_str());
+			if(isMyGames || (isNamedOneDrive && !isActualCloudDirectory))
+				parentInfo.dir().rmdir(parentInfo.fileName());
+		}
+#endif
 	}
 
-	if(completedTargetAction == EExistingTargetAction::REPLACE && !displacedTargetPath.isEmpty() && !removePath(displacedTargetPath))
+	const bool displacedTargetCanBeRemoved = completedTargetAction == EExistingTargetAction::REPLACE
+		|| (completedTargetAction == EExistingTargetAction::BACK_UP && !selectedBackupPath.isEmpty());
+	if(displacedTargetCanBeRemoved && !displacedTargetPath.isEmpty() && !removePath(displacedTargetPath))
 	{
 		logGlobal->warn("Failed to purge replaced user directory '%s'", displacedTargetPath.toStdString());
 		QMessageBox::warning(parent, tr("Cleanup failed"), tr("The new data was installed, but the replaced directory could not be removed: %1").arg(displacedTargetPath));
 	}
 
+	const QString completedBackupPath = selectedBackupPath.isEmpty() ? displacedTargetPath : selectedBackupPath;
 	const QString message = completedTargetAction == EExistingTargetAction::BACK_UP
-		? tr("The launcher has reloaded files from the new directory.\n\nThe previous target was saved to:\n%1").arg(QDir::toNativeSeparators(displacedTargetPath))
+		? tr("The launcher has reloaded files from the new directory.\n\nThe previous target was saved to:\n%1").arg(QDir::toNativeSeparators(completedBackupPath))
 		: tr("The launcher has reloaded files from the new directory.");
 	QMessageBox::information(parent, tr("Directory changed"), message);
 	logGlobal->info("User directory change to '%s' completed successfully", selected.toStdString());
