@@ -27,6 +27,7 @@ class CUnitState;
 
 namespace spells
 {
+class Mechanics;
 class Problem;
 }
 
@@ -62,7 +63,7 @@ public:
 	/// Action made by clicking the hovered hex, or nothing if the option has no action for the hex
 	virtual std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
 
-	/// Checks that the side may make the action. Runs on the server after StartAction is applied, and in isLegal
+	/// Checks that the side may make the action. Runs on the server before StartAction is applied, and in isLegal
 	virtual bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const = 0;
 	/// Updates the turn state of the acting unit when StartAction is applied. Called only for unit actions outside of the tactics phase
 	virtual void applyStartState(battle::CUnitState & actor, const BattleAction & action) const;
@@ -82,4 +83,10 @@ public:
 protected:
 	/// Returns the unit making the action. Throws if the battle has no such unit
 	static const battle::Unit & getActor(const CBattleInfoCallback & battle, const BattleAction & action);
+	/// Unit named by the destination, or the living unit on its hex; nullptr if there is none
+	static const battle::Unit * getDestinationUnit(const CBattleInfoCallback & battle, const battle::Destination & destination);
+	/// Approaches from every direction to a hex that the actor can stop at to act on the hovered hex
+	static std::vector<ActionApproach> getReachableApproaches(const CBattleInfoCallback & battle, const battle::Unit & actor, const BattleHex & hoveredHex, bool longWeapon);
+	/// Adds the area of the spell aimed at the hovered hex to the shaded hexes, and the units it affects to the affected units
+	static void addSpellArea(ActionPreview & preview, const spells::Mechanics & mechanics, const BattleHex & hoveredHex);
 };

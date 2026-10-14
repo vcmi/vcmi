@@ -15,14 +15,11 @@
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
-#include "../GameInstance.h"
 #include "../gui/WindowHandler.h"
 #include "../windows/CCreatureWindow.h"
 
 #include "../../lib/CStack.h"
-#include "../../lib/GameLibrary.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
 
 // Shared by the unit and hero info entries. Not really a unit action, so placed at the end of the panel
@@ -46,7 +43,7 @@ SpellID ClientCommandEntry::getSpell() const
 	return SpellID::NONE;
 }
 
-int CreatureInfoEntry::getPriority(const CStack * actor, const CStack * target) const
+int CreatureInfoEntry::getPriority(const battle::Unit * target) const
 {
 	return 13;
 }
@@ -56,14 +53,14 @@ bool CreatureInfoEntry::isLegal(const BattleHex & hex) const
 	return getUnit(hex) != nullptr;
 }
 
-BattleActionPreview CreatureInfoEntry::preview(const BattleHex & hex) const
+ActionPreview CreatureInfoEntry::preview(const BattleHex & hex) const
 {
 	if(!isLegal(hex))
-		return {"combatBlocked", "", {}, {}};
+		return {"combatBlocked", {}, {}, {}};
 
 	MetaString text = MetaString::createFromTextID("core.genrltxt.297"); //View %s info.
 	getUnit(hex)->addNameReplacement(text);
-	return {"combatQuery", text.toString(&GAME->translator()), {}, {}};
+	return {"combatQuery", text, {}, {}};
 }
 
 void CreatureInfoEntry::realize(const BattleHex & hex) const
@@ -76,7 +73,7 @@ std::optional<UnitActionButton> CreatureInfoEntry::getPanelButton() const
 	return infoButton();
 }
 
-int HeroInfoEntry::getPriority(const CStack * actor, const CStack * target) const
+int HeroInfoEntry::getPriority(const battle::Unit * target) const
 {
 	return 14;
 }
@@ -92,12 +89,12 @@ bool HeroInfoEntry::isLegal(const BattleHex & hex) const
 	return false;
 }
 
-BattleActionPreview HeroInfoEntry::preview(const BattleHex & hex) const
+ActionPreview HeroInfoEntry::preview(const BattleHex & hex) const
 {
 	if(!isLegal(hex))
-		return {"combatBlocked", "", {}, {}};
+		return {"combatBlocked", {}, {}, {}};
 
-	return {"combatHero", LIBRARY->generaltexth->translate("core.genrltxt.417"), {}, {}}; // "View Hero Stats"
+	return {"combatHero", MetaString::createFromTextID("core.genrltxt.417"), {}, {}}; // "View Hero Stats"
 }
 
 void HeroInfoEntry::realize(const BattleHex & hex) const
@@ -114,7 +111,7 @@ std::optional<UnitActionButton> HeroInfoEntry::getPanelButton() const
 	return infoButton();
 }
 
-int TacticsUnitSelectionEntry::getPriority(const CStack * actor, const CStack * target) const
+int TacticsUnitSelectionEntry::getPriority(const battle::Unit * target) const
 {
 	return 12;
 }
@@ -125,14 +122,14 @@ bool TacticsUnitSelectionEntry::isLegal(const BattleHex & hex) const
 	return unit && unit->unitOwner() == owner.curInt->playerID && unit->getMovementRange() > 0;
 }
 
-BattleActionPreview TacticsUnitSelectionEntry::preview(const BattleHex & hex) const
+ActionPreview TacticsUnitSelectionEntry::preview(const BattleHex & hex) const
 {
 	if(!isLegal(hex))
-		return {"combatBlocked", "", {}, {}};
+		return {"combatBlocked", {}, {}, {}};
 
 	MetaString text = MetaString::createFromTextID("core.genrltxt.481"); //Select %s
 	getUnit(hex)->addNameReplacement(text);
-	return {"combatPointer", text.toString(&GAME->translator()), {}, {}};
+	return {"combatPointer", text, {}, {}};
 }
 
 void TacticsUnitSelectionEntry::realize(const BattleHex & hex) const

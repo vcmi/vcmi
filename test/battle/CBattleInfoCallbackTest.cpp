@@ -370,11 +370,11 @@ TEST_F(AttackableHexesTest, LongWeaponCanAttackWithOneEmptyHexGap)
 	BattleHexArray availableHexes;
 	availableHexes.insert(attacker.getPosition());
 
-	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), attacker.getPosition());
+	EXPECT_EQ(subject.findAttackPosition(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT, true), attacker.getPosition());
 	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
 }
 
-TEST_F(AttackableHexesTest, LongWeaponCanBeDisabledForManualAttack)
+TEST_F(AttackableHexesTest, AdjacentAttackPositionIgnoresLongWeapon)
 {
 	UnitFake & attacker = addLongWeaponUnit(60, BattleSide::ATTACKER);
 	UnitFake & defender = addRegularMelee(attacker.getPosition().cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
@@ -383,7 +383,7 @@ TEST_F(AttackableHexesTest, LongWeaponCanBeDisabledForManualAttack)
 	redirectUnitsToFake();
 
 	const BattleHex adjacentAttackHex = defender.getPosition().cloneInDirection(BattleHex::LEFT);
-	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT, false), adjacentAttackHex);
+	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), adjacentAttackHex);
 }
 
 TEST_F(AttackableHexesTest, LongWeaponRequiresEmptyMiddleHex)
@@ -434,7 +434,7 @@ TEST_F(AttackableHexesTest, LongWeaponDoubleWideCanAttackWithOneEmptyHexGap)
 	BattleHexArray availableHexes;
 	availableHexes.insert(attacker.getPosition());
 
-	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), attacker.getPosition());
+	EXPECT_EQ(subject.findAttackPosition(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT, true), attacker.getPosition());
 	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
 }
 
@@ -448,7 +448,12 @@ TEST_F(AttackableHexesTest, LongWeaponDoubleWideFallsBackToAdjacentReachableHexW
 	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList()));
 
 	const BattleHex expectedAttackHex = defender.getPosition().cloneInDirection(BattleHex::LEFT);
-	EXPECT_EQ(subject.fromWhichHexAttack(&attacker, defender.getPosition(), BattleHex::LEFT), expectedAttackHex);
+	BattleHexArray availableHexes;
+	availableHexes.insert(expectedAttackHex);
+
+	EXPECT_EQ(subject.findAttackPosition(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT, true), BattleHex::INVALID);
+	EXPECT_EQ(subject.findAttackPosition(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT, false), expectedAttackHex);
+	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
 }
 
 TEST_F(AttackableHexesTest, LongWeaponSingleWideInvalidDirectionReturnsInvalidHex)

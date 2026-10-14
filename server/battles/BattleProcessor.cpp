@@ -350,7 +350,7 @@ bool BattleProcessor::makePlayerBattleAction(const BattleID & battleID, PlayerCo
 
 	bool result = actionsProcessor->makePlayerBattleAction(*battle, player, ba);
 	if (gameHandler->gameState().getBattle(battleID) != nullptr && !resultProcessor->battleIsEnding(*battle))
-		flowProcessor->onActionMade(*battle, ba);
+		flowProcessor->onActionMade(*battle, ba, result);
 	return result;
 }
 

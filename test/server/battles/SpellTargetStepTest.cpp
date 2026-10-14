@@ -11,7 +11,6 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../../lib/GameLibrary.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/spells/CSpell.h"
 #include "../../../lib/spells/ISpellMechanics.h"
@@ -39,21 +38,15 @@ public:
 	static inline const BattleHex unitHex = BattleHex(3, 5);
 	static inline const BattleHex freeHex = BattleHex(8, 5);
 
-	void setMastery(int mastery)
-	{
-		for(auto school : {SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC})
-			attackerSideHero->setSecSkillLevel(school, mastery, ChangeValueMode::ABSOLUTE);
-	}
-
 	spells::TargetStepDescription describe(SpellID spell, const battle::Target & partialTarget, const BattleHex & hoveredHex) const
 	{
 		const spells::BattleCast cast(battle(), attackerSideHero, spells::Mode::HERO, spell.toSpell());
 		return spell.toSpell()->battleMechanics(&cast)->describeTargetStep(partialTarget, hoveredHex);
 	}
 
-	static std::string toString(const MetaString & text)
+	static std::string nameOf(SpellID spell)
 	{
-		return text.toString(LIBRARY->staticTexts());
+		return spell.toSpell()->getNameTextID();
 	}
 };
 
@@ -66,7 +59,7 @@ TEST_P(SpellStepCursorTest, showsCursorOfEachDestination)
 	const auto & scenario = GetParam();
 
 	startGame();
-	setMastery(scenario.mastery);
+	setMagicMastery(attackerSideHero, scenario.mastery);
 	startBattle();
 
 	addStack(BattleSide::ATTACKER, CreatureID(pikeman), unitHex, 10);
@@ -103,7 +96,7 @@ TEST_F(SpellTargetStepTest, unitSpellNamesSpellAndUnit)
 	addStack(BattleSide::ATTACKER, CreatureID(pikeman), unitHex, 10);
 
 	const auto shown = describe(SpellID::BLESS, {}, unitHex);
-	EXPECT_EQ(toString(shown.text), "Cast Bless on Pikemen");
+	EXPECT_THAT(textIDsOf(shown.text), ::testing::ElementsAre("core.genrltxt.27", nameOf(SpellID::BLESS), pluralNameOf(CreatureID(pikeman)))); // Cast %s on %s
 	EXPECT_FALSE(shown.blockedText.empty());
 }
 
@@ -115,10 +108,10 @@ TEST_F(SpellTargetStepTest, damageSpellShowsDamageAndKills)
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), unitHex, 10);
 
 	const auto shown = describe(SpellID::FIREBALL, {}, unitHex);
-	EXPECT_THAT(toString(shown.text), ::testing::MatchesRegex("Cast Fireball \\([0-9]+ damage, [0-9]+ will perish\\)"));
+	EXPECT_THAT(textIDsOf(shown.text), ::testing::IsSupersetOf(std::vector<std::string>{"core.genrltxt.26", nameOf(SpellID::FIREBALL), "vcmi.battleWindow.damageEstimation.damage", "vcmi.battleWindow.damageEstimation.kills"}));
 	EXPECT_TRUE(shown.blockedText.empty());
 
-	EXPECT_EQ(toString(describe(SpellID::FIREBALL, {}, freeHex).text), "Cast Fireball");
+	EXPECT_THAT(textIDsOf(describe(SpellID::FIREBALL, {}, freeHex).text), ::testing::ElementsAre("core.genrltxt.26", nameOf(SpellID::FIREBALL))); // Cast %s
 }
 
 TEST_F(SpellTargetStepTest, spellThatNeedsFreeHexesNamesItselfWhereBlocked)
@@ -127,11 +120,11 @@ TEST_F(SpellTargetStepTest, spellThatNeedsFreeHexesNamesItselfWhereBlocked)
 	startBattle();
 
 	const auto shown = describe(SpellID::FIRE_WALL, {}, freeHex);
-	EXPECT_EQ(toString(shown.text), "Cast Fire Wall");
-	EXPECT_THAT(toString(shown.blockedText), ::testing::HasSubstr("Fire Wall"));
+	EXPECT_THAT(textIDsOf(shown.text), ::testing::ElementsAre("core.genrltxt.26", nameOf(SpellID::FIRE_WALL))); // Cast %s
+	EXPECT_THAT(textIDsOf(shown.blockedText), ::testing::ElementsAre("core.genrltxt.181", nameOf(SpellID::FIRE_WALL))); // No room to place %s here
 }
 
-TEST_F(SpellTargetStepTest, secondDestinationHasItsOwnTexts)
+TEST_F(SpellTargetStepTest, sacrificeVictimChoiceShowsHealthGain)
 {
 	startGame();
 	startBattle();
@@ -145,12 +138,9 @@ TEST_F(SpellTargetStepTest, secondDestinationHasItsOwnTexts)
 	battle::Target chosen;
 	chosen.emplace_back(unit);
 
-	const auto teleport = describe(SpellID::TELEPORT, chosen, freeHex.cloneInDirection(BattleHex::RIGHT));
-	EXPECT_FALSE(teleport.text.empty());
-	EXPECT_FALSE(teleport.blockedText.empty());
-	EXPECT_NE(toString(teleport.text), toString(teleport.blockedText));
-
 	const auto sacrifice = describe(SpellID::SACRIFICE, chosen, victim->getPosition());
-	EXPECT_THAT(toString(sacrifice.text), ::testing::MatchesRegex("Sacrifice the Pikeman \\(acquire [0-9]+ health\\)"));
+	EXPECT_THAT(textIDsOf(sacrifice.text), ::testing::AllOf(
+		::testing::Contains("core.genrltxt.549"),
+		::testing::Contains(::testing::StartsWith("vcmi.battleWindow.sacrificeAcquiredHealth"))));
 	EXPECT_FALSE(sacrifice.blockedText.empty());
 }

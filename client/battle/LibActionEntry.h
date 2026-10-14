@@ -26,9 +26,9 @@ class LibActionEntry final : public IBattleActionEntry
 public:
 	LibActionEntry(BattleInterface & owner, const CStack * actor, const ActionOption & option);
 
-	int getPriority(const CStack * actor, const CStack * target) const override;
+	int getPriority(const battle::Unit * target) const override;
 	bool isLegal(const BattleHex & hex) const override;
-	BattleActionPreview preview(const BattleHex & hex) const override;
+	ActionPreview preview(const BattleHex & hex) const override;
 	void realize(const BattleHex & hex) const override;
 	SpellID getSpell() const override;
 	std::optional<UnitActionButton> getPanelButton() const override;

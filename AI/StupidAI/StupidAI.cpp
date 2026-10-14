@@ -120,13 +120,11 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 
 	if(stack->isCatapult())
 	{
-		// Action has no target - catapult will pick one on its own, according to its targeting rules
-		BattleAction attack;
-		attack.actionType = EActionType::CATAPULT;
-		attack.side = side;
-		attack.stackNumber = stack->unitId();
-
-		cb->battleMakeUnitAction(battleID, attack);
+		// catapult will pick a target on its own, according to its targeting rules
+		if(cb->getBattle(battleID)->getAttackableWallParts().empty())
+			cb->battleMakeUnitAction(battleID, BattleAction::makeDefend(stack));
+		else
+			cb->battleMakeUnitAction(battleID, BattleAction::makeCatapultShot(stack));
 		return;
 	}
 	else if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON))

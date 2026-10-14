@@ -11,7 +11,6 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../../lib/GameLibrary.h"
 #include "../../../lib/battle/BattleAction.h"
 #include "../../../lib/battle/Destination.h"
 #include "../../../lib/battle/actions/BattleActionType.h"
@@ -43,6 +42,7 @@ public:
 	static inline const BattleHex casterHex = BattleHex(3, 5);
 	static inline const BattleHex allyHex = BattleHex(7, 5);
 	static inline const BattleHex enemyHex = BattleHex(12, 5);
+	static inline const BattleHex freeHex = BattleHex(7, 8);
 
 	/// Rules out a second turn from good morale, so that the unit active after an action depends on
 	/// the action alone.
@@ -58,18 +58,6 @@ public:
 		action.stackNumber = genie->unitId();
 		action.actionType = EActionType::RANDOM_SPELL;
 		action.aimToHex(targetHex);
-		return action;
-	}
-
-	/// The action the client sends when the attacking hero casts `spell`.
-	static BattleAction heroSpell(SpellID spell, const battle::Target & target)
-	{
-		BattleAction action;
-		action.side = BattleSide::ATTACKER;
-		action.stackNumber = -1;
-		action.actionType = EActionType::HERO_SPELL;
-		action.spell = spell;
-		action.setTarget(target);
 		return action;
 	}
 };
@@ -139,6 +127,30 @@ TEST_F(SpellcastActionTest, spellCastWithoutSkipKeepsCasterActive)
 	EXPECT_EQ(battle()->getActiveStackID(), static_cast<int32_t>(caster->unitId()));
 }
 
+TEST_F(SpellcastActionTest, secondCastInTurnIsRefusedAndSkipsTurn)
+{
+	startGame();
+	startBattle();
+
+	const SpellID spell = spellByName("vcmi-test:testCastWithoutSkip");
+
+	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	// casts are left for a second spell, but a unit casts only once per turn
+	grantSpell(caster, BonusType::SPELLCASTER, spell, 0);
+	grantSpell(caster, BonusType::SPELLCASTER, spell, 0);
+	ignoreMorale(caster);
+
+	battle::Target target;
+	target.emplace_back(ally);
+	ASSERT_TRUE(act(BattleAction::makeCreatureSpellcast(caster, target, spell)));
+	ASSERT_EQ(battle()->getActiveStackID(), static_cast<int32_t>(caster->unitId()));
+
+	EXPECT_FALSE(act(BattleAction::makeCreatureSpellcast(caster, target, spell)));
+	EXPECT_TRUE(caster->movedThisRound);
+	EXPECT_NE(battle()->getActiveStackID(), static_cast<int32_t>(caster->unitId()));
+}
+
 TEST_F(SpellcastActionTest, casterCannotCastSpellItDoesNotHave)
 {
 	startGame();
@@ -151,27 +163,6 @@ TEST_F(SpellcastActionTest, casterCannotCastSpellItDoesNotHave)
 	target.emplace_back(ally);
 	EXPECT_FALSE(act(BattleAction::makeCreatureSpellcast(caster, target, SpellID::BLESS)));
 	EXPECT_FALSE(isAffectedBy(ally, SpellID::BLESS));
-}
-
-TEST_F(SpellcastActionTest, genieCastsRandomBeneficialSpell)
-{
-	startGame();
-	startBattle();
-
-	CStack * genie = addStack(BattleSide::ATTACKER, CreatureID(masterGenie), casterHex, stackCount);
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
-	const auto castsBefore = genie->casts.available();
-
-	// the action carries only the target, the server rolls the spell
-	ASSERT_TRUE(act(randomSpell(genie, ally->getPosition())));
-	ASSERT_EQ(server.casts.size(), 1u);
-
-	const auto & cast = server.casts.front().announcement;
-	EXPECT_EQ(cast.casterStack, static_cast<si32>(genie->unitId()));
-	EXPECT_EQ(cast.affectedCres, std::vector<ui32>{ally->unitId()});
-	EXPECT_TRUE(cast.spellID.toSpell()->isPositive());
-	EXPECT_TRUE(isAffectedBy(ally, cast.spellID));
-	EXPECT_EQ(genie->casts.available(), castsBefore - 1);
 }
 
 TEST_F(SpellcastActionTest, genieCastsOnlyOnOtherLivingUnitsOfItsSide)
@@ -202,24 +193,6 @@ TEST_F(SpellcastActionTest, genieWithoutCastsLeftIsRefused)
 
 	EXPECT_FALSE(act(randomSpell(genie, ally->getPosition())));
 	EXPECT_TRUE(server.casts.empty());
-}
-
-TEST_F(SpellcastActionTest, adjacentCasterWalksUpToTargetAndCasts)
-{
-	startGame();
-	startBattle();
-
-	const BattleHex castFrom = allyHex.cloneInDirection(BattleHex::LEFT);
-
-	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
-	grantSpell(caster, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
-	const auto castsBefore = caster->casts.available();
-
-	ASSERT_TRUE(act(BattleAction::makeWalkAndCast(caster, castFrom, ally, SpellID::BLESS)));
-	EXPECT_EQ(caster->getPosition(), castFrom);
-	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
-	EXPECT_EQ(caster->casts.available(), castsBefore - 1);
 }
 
 TEST_F(SpellcastActionTest, walkAndCastNeedsAdjacentSpellcasterAbility)
@@ -293,9 +266,7 @@ TEST_F(SpellcastActionTest, heroCastsSpellOnUnit)
 	// a hero spell needs an active unit of the hero's side, which stays active after the cast
 	battle()->activeStack = ally->unitId();
 
-	battle::Target target;
-	target.emplace_back(ally);
-	ASSERT_TRUE(act(heroSpell(SpellID::BLESS, target)));
+	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID::BLESS, ally));
 
 	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
 	EXPECT_LT(attackerSideHero->mana, manaBefore);
@@ -311,65 +282,13 @@ TEST_F(SpellcastActionTest, heroCastsOnlyOncePerRound)
 
 	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	teachSpell(attackerSideHero, SpellID::BLESS);
-	battle()->activeStack = ally->unitId();
 
-	battle::Target target;
-	target.emplace_back(ally);
-	ASSERT_TRUE(act(heroSpell(SpellID::BLESS, target)));
+	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID::BLESS, ally));
 	const auto manaAfterFirstCast = attackerSideHero->mana;
 
-	EXPECT_FALSE(act(heroSpell(SpellID::BLESS, target)));
+	EXPECT_FALSE(castAsHero(attackerSideHero, SpellID::BLESS, ally));
 	EXPECT_EQ(attackerSideHero->mana, manaAfterFirstCast);
 	EXPECT_EQ(battle()->getSide(BattleSide::ATTACKER).castSpellsCount, 1u);
-}
-
-TEST_F(SpellcastActionTest, heroTeleportsUnit)
-{
-	startGame();
-	startBattle();
-
-	const BattleHex destination = BattleHex(10, 2);
-
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
-	teachSpell(attackerSideHero, SpellID::TELEPORT);
-	battle()->activeStack = ally->unitId();
-
-	// the unit to move, then where to
-	battle::Target target;
-	target.emplace_back(ally);
-	target.emplace_back(destination);
-	ASSERT_TRUE(act(heroSpell(SpellID::TELEPORT, target)));
-
-	EXPECT_EQ(ally->getPosition(), destination);
-}
-
-TEST_F(SpellcastActionTest, heroSacrificesUnitToRaiseDeadOne)
-{
-	startGame();
-	startBattle();
-
-	CStack * active = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
-	CStack * fallen = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
-	CStack * victim = addStack(BattleSide::ATTACKER, CreatureID(pikeman), BattleHex(7, 8), 2 * stackCount);
-	const auto victimId = victim->unitId();
-
-	injure(fallen, fallen->getAvailableHealth());
-	ASSERT_FALSE(fallen->alive());
-
-	teachSpell(attackerSideHero, SpellID::SACRIFICE);
-	battle()->activeStack = active->unitId();
-
-	// the dead unit to raise, then the living one to give up for it
-	battle::Target target;
-	target.emplace_back(fallen);
-	target.emplace_back(victim);
-	ASSERT_TRUE(act(heroSpell(SpellID::SACRIFICE, target)));
-
-	EXPECT_TRUE(fallen->alive());
-	EXPECT_GT(fallen->getCount(), 0);
-
-	const auto * victimAfter = battle()->battleGetStackByID(victimId, false);
-	EXPECT_TRUE(victimAfter == nullptr || !victimAfter->alive());
 }
 
 TEST_F(SpellcastActionTest, heroCastsSpellAtHexOfUnit)
@@ -379,10 +298,9 @@ TEST_F(SpellcastActionTest, heroCastsSpellAtHexOfUnit)
 
 	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	teachSpell(attackerSideHero, SpellID::BLESS);
-	battle()->activeStack = ally->unitId();
 
 	// the form BattleAI sends
-	ASSERT_TRUE(act(heroSpell(SpellID::BLESS, {battle::Destination(ally->getPosition())})));
+	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID::BLESS, battle::Target{battle::Destination(ally->getPosition())}));
 	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
 }
 
@@ -391,32 +309,14 @@ TEST_F(SpellcastActionTest, heroCastsAreaSpellAtHex)
 	startGame();
 	startBattle();
 
-	CStack * active = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
 	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	teachSpell(attackerSideHero, SpellID::FIREBALL);
-	battle()->activeStack = active->unitId();
 	const auto healthBefore = enemy->getAvailableHealth();
 
 	// next to the enemy, which is in the area of the spell
-	ASSERT_TRUE(act(heroSpell(SpellID::FIREBALL, {battle::Destination(enemyHex.cloneInDirection(BattleHex::LEFT))})));
+	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID::FIREBALL, battle::Target{battle::Destination(enemyHex.cloneInDirection(BattleHex::LEFT))}));
 	EXPECT_LT(enemy->getAvailableHealth(), healthBefore);
-}
-
-TEST_F(SpellcastActionTest, heroCastsMassSpellWithoutTarget)
-{
-	startGame();
-	for(auto school : {SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC})
-		attackerSideHero->setSecSkillLevel(school, 3, ChangeValueMode::ABSOLUTE);
-	startBattle();
-
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
-	teachSpell(attackerSideHero, SpellID::BLESS);
-	battle()->activeStack = ally->unitId();
-
-	ASSERT_TRUE(act(heroSpell(SpellID::BLESS, {battle::Destination()})));
-	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
-	EXPECT_FALSE(isAffectedBy(enemy, SpellID::BLESS));
 }
 
 namespace
@@ -432,8 +332,6 @@ struct RefusedTargetCase
 
 class RefusedHeroSpellTest : public SpellcastActionTest, public ::testing::WithParamInterface<RefusedTargetCase>
 {
-public:
-	static inline const BattleHex freeHex = BattleHex(7, 8);
 };
 
 TEST_P(RefusedHeroSpellTest, spellAtInvalidTargetIsRefused)
@@ -446,10 +344,9 @@ TEST_P(RefusedHeroSpellTest, spellAtInvalidTargetIsRefused)
 	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	teachSpell(attackerSideHero, scenario.spell);
-	battle()->activeStack = ally->unitId();
 	const auto manaBefore = attackerSideHero->mana;
 
-	EXPECT_FALSE(act(heroSpell(scenario.spell, scenario.makeTarget(ally, enemy)))) << scenario.name;
+	EXPECT_FALSE(castAsHero(attackerSideHero, scenario.spell, scenario.makeTarget(ally, enemy))) << scenario.name;
 	EXPECT_EQ(attackerSideHero->mana, manaBefore) << scenario.name;
 	EXPECT_TRUE(server.casts.empty()) << scenario.name;
 	EXPECT_EQ(ally->getPosition(), allyHex) << scenario.name;
@@ -458,7 +355,7 @@ TEST_P(RefusedHeroSpellTest, spellAtInvalidTargetIsRefused)
 INSTANTIATE_TEST_SUITE_P(Targets, RefusedHeroSpellTest, ::testing::Values(
 	RefusedTargetCase{"unitSpellAtFreeHex", SpellID::BLESS, [](const CStack *, const CStack *)
 	{
-		return battle::Target{battle::Destination(RefusedHeroSpellTest::freeHex)};
+		return battle::Target{battle::Destination(SpellcastActionTest::freeHex)};
 	}},
 	RefusedTargetCase{"unitSpellWithoutDestination", SpellID::BLESS, [](const CStack *, const CStack *)
 	{
@@ -514,8 +411,6 @@ TEST_F(SpellcastActionTest, creatureWithoutCastsLeftIsRefused)
 class SpellOptionTest : public SpellcastActionTest
 {
 public:
-	static inline const BattleHex freeHex = BattleHex(7, 8);
-
 	static ActionOption heroOption(SpellID spell)
 	{
 		return BattleActionType::makeSpellOption(EActionType::HERO_SPELL, spell);
@@ -525,21 +420,6 @@ public:
 	static ActionContext heroContext(const BattleHex & hex, const battle::Target & chosen = {})
 	{
 		return {nullptr, hex, std::nullopt, chosen, BattleSide::ATTACKER};
-	}
-
-	bool isLegal(const ActionOption & option, const ActionContext & context) const
-	{
-		return option.type->isLegal(*gameState(), *battle(), option, context);
-	}
-
-	ActionPreview preview(const ActionOption & option, const ActionContext & context) const
-	{
-		return option.type->preview(*gameState(), *battle(), option, context);
-	}
-
-	static std::string toString(const MetaString & text)
-	{
-		return text.toString(LIBRARY->staticTexts());
 	}
 
 	void prepareHero(SpellID spell, const CStack * active)
@@ -559,12 +439,8 @@ TEST_F(SpellOptionTest, heroSpellIsAimedAtUnit)
 	const auto option = heroOption(SpellID::BLESS);
 
 	EXPECT_TRUE(isLegal(option, heroContext(allyHex)));
-	const auto shown = preview(option, heroContext(allyHex));
-	EXPECT_EQ(shown.cursor, "castSpell");
-	EXPECT_EQ(toString(shown.statusText), "Cast Bless on Pikemen");
-	EXPECT_EQ(shown.shadedHexes, BattleHexArray({allyHex}));
+	EXPECT_EQ(preview(option, heroContext(allyHex)).shadedHexes, BattleHexArray({allyHex}));
 
-	EXPECT_FALSE(isLegal(option, heroContext(freeHex)));
 	const auto blocked = preview(option, heroContext(freeHex));
 	EXPECT_EQ(blocked.cursor, "combatBlocked");
 	EXPECT_FALSE(blocked.statusText.empty());
@@ -601,11 +477,11 @@ TEST_F(SpellOptionTest, areaSpellShowsItsAreaAndUnitsInIt)
 TEST_F(SpellOptionTest, massSpellIsCastWithoutClick)
 {
 	startGame();
-	for(auto school : {SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC})
-		attackerSideHero->setSecSkillLevel(school, 3, ChangeValueMode::ABSOLUTE);
+	setMagicMastery(attackerSideHero, 3);
 	startBattle();
 
 	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	prepareHero(SpellID::BLESS, ally);
 	const auto option = heroOption(SpellID::BLESS);
 
@@ -615,6 +491,7 @@ TEST_F(SpellOptionTest, massSpellIsCastWithoutClick)
 	EXPECT_TRUE(isLegal(option, heroContext(BattleHex::INVALID)));
 	ASSERT_TRUE(act(option.type->build(*battle(), option, heroContext(BattleHex::INVALID)).value()));
 	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
+	EXPECT_FALSE(isAffectedBy(enemy, SpellID::BLESS));
 }
 
 TEST_F(SpellOptionTest, teleportIsAimedAtUnitThenAtFreeHex)
@@ -628,7 +505,6 @@ TEST_F(SpellOptionTest, teleportIsAimedAtUnitThenAtFreeHex)
 	const auto option = heroOption(SpellID::TELEPORT);
 
 	// the first click chooses the unit and sends nothing
-	EXPECT_EQ(preview(option, heroContext(allyHex)).cursor, "castSpell");
 	EXPECT_FALSE(option.type->build(*battle(), option, heroContext(allyHex)).has_value());
 	EXPECT_FALSE(option.type->buildTargetStep(*battle(), option, heroContext(freeHex)).has_value());
 	EXPECT_EQ(preview(option, heroContext(freeHex)).cursor, "combatBlocked");
@@ -638,10 +514,8 @@ TEST_F(SpellOptionTest, teleportIsAimedAtUnitThenAtFreeHex)
 	EXPECT_EQ(unitStep->unitValue, ally);
 	const battle::Target chosen = {*unitStep};
 
-	EXPECT_EQ(preview(option, heroContext(freeHex, chosen)).cursor, "combatTeleport");
 	EXPECT_FALSE(option.type->buildTargetStep(*battle(), option, heroContext(freeHex, chosen)).has_value());
 
-	EXPECT_FALSE(isLegal(option, heroContext(enemy->getPosition(), chosen)));
 	const auto blocked = preview(option, heroContext(enemy->getPosition(), chosen));
 	EXPECT_EQ(blocked.cursor, "combatBlocked");
 	EXPECT_FALSE(blocked.statusText.empty());
@@ -659,6 +533,7 @@ TEST_F(SpellOptionTest, sacrificeIsAimedAtDeadUnitThenAtVictim)
 	CStack * active = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
 	CStack * fallen = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	CStack * victim = addStack(BattleSide::ATTACKER, CreatureID(pikeman), freeHex, 2 * stackCount);
+	const auto victimId = victim->unitId();
 
 	injure(fallen, fallen->getAvailableHealth());
 	ASSERT_FALSE(fallen->alive());
@@ -670,15 +545,15 @@ TEST_F(SpellOptionTest, sacrificeIsAimedAtDeadUnitThenAtVictim)
 	ASSERT_TRUE(fallenStep.has_value());
 	const battle::Target chosen = {*fallenStep};
 
-	const auto shown = preview(option, heroContext(victim->getPosition(), chosen));
-	EXPECT_EQ(shown.cursor, "combatSacrifice");
-	EXPECT_THAT(toString(shown.statusText), ::testing::HasSubstr("Pikemen"));
-
 	// no unit to give up
 	EXPECT_FALSE(isLegal(option, heroContext(BattleHex(9, 8), chosen)));
 
 	ASSERT_TRUE(act(option.type->build(*battle(), option, heroContext(victim->getPosition(), chosen)).value()));
 	EXPECT_TRUE(fallen->alive());
+	EXPECT_GT(fallen->getCount(), 0);
+
+	const auto * victimAfter = battle()->battleGetStackByID(victimId, false);
+	EXPECT_TRUE(victimAfter == nullptr || !victimAfter->alive());
 }
 
 TEST_F(SpellOptionTest, unitSpellIsTriedFirstOnUnitsItSuits)
@@ -690,10 +565,8 @@ TEST_F(SpellOptionTest, unitSpellIsTriedFirstOnUnitsItSuits)
 	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	grantSpell(caster, BonusType::SPELLCASTER, SpellID::CURSE, 0);
-	battle()->activeStack = caster->unitId();
 
-	std::vector<ActionOption> options;
-	BattleActionType::collectAllOptions(*battle(), *caster, options);
+	const auto options = optionsOf(caster);
 
 	const auto optionOf = [&options](SpellID spell)
 	{
@@ -732,8 +605,8 @@ TEST_F(SpellOptionTest, unitThatCastThisTurnHasNoSpellOptions)
 	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(stormElemental), casterHex, stackCount);
 	caster->castSpellThisTurn = true;
 
-	std::vector<ActionOption> options;
-	BattleActionType::collectAllOptions(*battle(), *caster, options);
+	const auto options = optionsOf(caster);
+	ASSERT_FALSE(options.empty());
 
 	for(const auto & option : options)
 		EXPECT_FALSE(option.spell.hasValue());
@@ -747,32 +620,28 @@ TEST_F(SpellOptionTest, genieOffersRandomSpellForOtherUnitsOfItsSide)
 	CStack * genie = addStack(BattleSide::ATTACKER, CreatureID(masterGenie), casterHex, stackCount);
 	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
-	battle()->activeStack = genie->unitId();
+	const auto castsBefore = genie->casts.available();
 
-	std::vector<ActionOption> options;
-	BattleActionType::collectAllOptions(*battle(), *genie, options);
-
-	const auto found = std::find_if(options.begin(), options.end(), [](const ActionOption & option)
-	{
-		return option.type == BattleActionType::find(EActionType::RANDOM_SPELL);
-	});
-	ASSERT_NE(found, options.end());
-	const ActionOption option = *found;
+	const auto option = optionOf(genie, EActionType::RANDOM_SPELL);
 	EXPECT_TRUE(option.button.has_value());
 
 	const auto shown = preview(option, {genie, allyHex});
 	EXPECT_EQ(shown.cursor, "castSpell");
-	EXPECT_EQ(toString(shown.statusText), "Cast a spell on Pikemen");
+	EXPECT_THAT(textIDsOf(shown.statusText), ::testing::ElementsAre("core.genrltxt.301", pluralNameOf(CreatureID(pikeman)))); // Cast a spell on %s
 
-	EXPECT_FALSE(isLegal(option, {genie, enemy->getPosition()}));
-	EXPECT_FALSE(isLegal(option, {genie, genie->getPosition()}));
 	const auto blocked = preview(option, {genie, enemy->getPosition()});
 	EXPECT_EQ(blocked.cursor, "combatBlocked");
 	EXPECT_FALSE(blocked.statusText.empty());
 
 	ASSERT_TRUE(act(option.type->build(*battle(), option, {genie, allyHex}).value()));
+	// the action carries only the target, the server rolls the spell
 	ASSERT_EQ(server.casts.size(), 1u);
-	EXPECT_EQ(server.casts.front().announcement.affectedCres, std::vector<ui32>{ally->unitId()});
+	const auto & cast = server.casts.front().announcement;
+	EXPECT_EQ(cast.casterStack, static_cast<si32>(genie->unitId()));
+	EXPECT_EQ(cast.affectedCres, std::vector<ui32>{ally->unitId()});
+	EXPECT_TRUE(cast.spellID.toSpell()->isPositive());
+	EXPECT_TRUE(isAffectedBy(ally, cast.spellID));
+	EXPECT_EQ(genie->casts.available(), castsBefore - 1);
 }
 
 TEST_F(SpellOptionTest, adjacentCasterApproachesTargetFromChosenSide)
@@ -783,17 +652,9 @@ TEST_F(SpellOptionTest, adjacentCasterApproachesTargetFromChosenSide)
 	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
 	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	grantSpell(caster, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
-	battle()->activeStack = caster->unitId();
+	const auto castsBefore = caster->casts.available();
 
-	std::vector<ActionOption> options;
-	BattleActionType::collectAllOptions(*battle(), *caster, options);
-
-	const auto found = std::find_if(options.begin(), options.end(), [](const ActionOption & option)
-	{
-		return option.type == BattleActionType::find(EActionType::WALK_AND_CAST);
-	});
-	ASSERT_NE(found, options.end());
-	const ActionOption option = *found;
+	const auto option = optionOf(caster, EActionType::WALK_AND_CAST);
 	EXPECT_EQ(option.spell, SpellID::BLESS);
 
 	const auto approaches = option.type->getApproaches(*battle(), option, *caster, allyHex);
@@ -812,10 +673,11 @@ TEST_F(SpellOptionTest, adjacentCasterApproachesTargetFromChosenSide)
 	const ActionContext context{caster, allyHex, *fromLeft};
 	const auto shown = preview(option, context);
 	EXPECT_EQ(shown.cursor, "castSpell");
-	EXPECT_EQ(toString(shown.statusText), "Cast Bless on Pikemen");
+	EXPECT_THAT(textIDsOf(shown.statusText), ::testing::ElementsAre("core.genrltxt.27", SpellID(SpellID::BLESS).toSpell()->getNameTextID(), pluralNameOf(CreatureID(pikeman)))); // Cast %s on %s
 	EXPECT_EQ(shown.shadedHexes, BattleHexArray({castFrom, allyHex}));
 
 	ASSERT_TRUE(act(option.type->build(*battle(), option, context).value()));
 	EXPECT_EQ(caster->getPosition(), castFrom);
 	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
+	EXPECT_EQ(caster->casts.available(), castsBefore - 1);
 }

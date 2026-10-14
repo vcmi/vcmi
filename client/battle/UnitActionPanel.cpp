@@ -54,10 +54,10 @@ void UnitActionPanel::setActions(int buttonIndex, const BattleActionEntries & fi
 		if (button != buttons.at(buttonIndex))
 			button->setSelectedSilent(false);
 
-	owner.actionsController->setPriorityActions(filteredActions);
+	owner.actionsController->setEntries(filteredActions);
 	if (filteredActions.front()->getSpell() != SpellID::NONE)
 		owner.actionsController->enterCreatureCastingMode();
-	owner.actionsController->setPriorityActions(filteredActions);
+	owner.actionsController->setEntries(filteredActions);
 }
 
 void UnitActionPanel::addButton(const UnitActionButton & button, const BattleActionEntries & entries)

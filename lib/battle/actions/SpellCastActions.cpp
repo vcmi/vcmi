@@ -15,7 +15,6 @@
 #include "../BattleAction.h"
 #include "../CBattleInfoCallback.h"
 #include "../CUnitState.h"
-#include "../../CStack.h"
 #include "../../bonuses/BonusSelector.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../spells/CSpell.h"
@@ -39,9 +38,7 @@ static std::optional<battle::Destination> getStepDestination(const CBattleInfoCa
 	if(types.at(step) != spells::AimType::CREATURE)
 		return battle::Destination(context.hoveredHex);
 
-	const battle::Unit * unit = battle.battleGetUnitByPos(context.hoveredHex, true);
-	if(!unit)
-		unit = battle.battleGetUnitByPos(context.hoveredHex, false);
+	const battle::Unit * unit = battle.battleGetUnitOrCorpseByPos(context.hoveredHex);
 	if(!unit)
 		return std::nullopt;
 
@@ -52,23 +49,13 @@ static std::optional<battle::Destination> getStepDestination(const CBattleInfoCa
 	return battle::Destination(context.hoveredHex);
 }
 
-/// StartAction has set castSpellThisTurn of the unit already, so Unit::canCast is false in validate for every cast
-static bool checkCastsLeft(const battle::Unit & unit, spells::Problem & problem)
+static bool checkCanCast(const battle::Unit & unit, spells::Problem & problem)
 {
-	if(unit.acquireState()->casts.canUse(1))
+	if(unit.canCast())
 		return true;
 
-	problem.add(MetaString::createFromRawString("This stack has no spell casts left: " + unit.getDescription()));
+	problem.add(MetaString::createFromRawString("This stack can't cast a spell now: " + unit.getDescription()));
 	return false;
-}
-
-/// Level of a spell that the unit casts through the ability, which Magic Plains raise
-static int getAbilitySpellLevel(const battle::Unit & unit, const Bonus & ability, const CSpell * spell)
-{
-	int level = std::max(0, ability.val);
-	if(spell->getLevel() > 0)
-		vstd::amax(level, unit.valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(SpellSchool::ANY)));
-	return level;
 }
 
 static BattleSide getSide(const ActionContext & context)
@@ -149,13 +136,7 @@ ActionPreview SpellCastAction::preview(const IGameInfoCallback & game, const CBa
 
 	ActionPreview result{step.cursor, step.text, {}, {}};
 
-	for(const BattleHex & hex : mechanics->rangeInHexes(context.hoveredHex))
-		if(hex.getX() != 0 && hex.getX() != GameConstants::BFIELD_WIDTH - 1)
-			result.shadedHexes.insert(hex);
-
-	for(const CStack * unit : mechanics->getAffectedStacks({battle::Destination(context.hoveredHex)}))
-		if(!unit->coversPos(context.hoveredHex))
-			result.affectedUnits.push_back(unit->unitId());
+	addSpellArea(result, *mechanics, context.hoveredHex);
 
 	return result;
 }
@@ -304,7 +285,7 @@ bool UnitSpellAction::validateCaster(const CBattleInfoCallback & battle, const B
 		return false;
 	}
 
-	return checkCastsLeft(*unit, problem);
+	return checkCanCast(*unit, problem);
 }
 
 BattleAction UnitSpellAction::makeAction(const ActionOption & option, const ActionContext & context, const battle::Target & target) const
@@ -330,17 +311,9 @@ void UnitSpellAction::apply(IBattleActionEnvironment & env, const CBattleInfoCal
 
 	env.castSpell(unit, spell, spells::Mode::CREATURE_ACTIVE, unit.getSpellSchoolLevel(spell), action.getTarget(&battle));
 	env.fireCombatEvent(CombatEventType::UNIT_SPELLCAST, &unit, nullptr, spell);
+	env.triggerObstaclesUnder(unit);
 }
 
-/// Unit aimed at by the only destination of the action, or nullptr
-static const battle::Unit * getSubject(const CBattleInfoCallback & battle, const battle::Target & target)
-{
-	if(target.size() != 1)
-		return nullptr;
-	if(target.front().unitValue)
-		return target.front().unitValue;
-	return battle.battleGetUnitByPos(target.front().hexValue, true);
-}
 
 bool RandomSpellAction::isUnitAction() const
 {
@@ -392,10 +365,11 @@ bool RandomSpellAction::validate(const IGameInfoCallback & game, const CBattleIn
 		return false;
 	}
 
-	if(!checkCastsLeft(*unit, problem))
+	if(!checkCanCast(*unit, problem))
 		return false;
 
-	const battle::Unit * subject = getSubject(battle, action.getTarget(&battle));
+	const battle::Target target = action.getTarget(&battle);
+	const battle::Unit * subject = target.size() == 1 ? getDestinationUnit(battle, target.front()) : nullptr;
 	if(!subject || subject == unit || !subject->alive() || subject->unitOwner() != unit->unitOwner())
 	{
 		problem.add(MetaString::createFromRawString("Invalid target for random spellcaster!"));
@@ -422,20 +396,19 @@ void RandomSpellAction::apply(IBattleActionEnvironment & env, const CBattleInfoC
 	const battle::Unit & unit = getActor(battle, action);
 	const battle::Target target = action.getTarget(&battle);
 
-	const std::vector<SpellID> spells = battle.getBeneficialSpells(&unit, getSubject(battle, target));
+	const std::vector<SpellID> spells = battle.getBeneficialSpells(&unit, getDestinationUnit(battle, target.front()));
 	const CSpell * spell = RandomGeneratorUtil::nextItem(spells, env.getRandom())->toSpell();
 	const auto ability = unit.getBonus(Selector::type()(BonusType::RANDOM_SPELLCASTER));
 
-	env.castSpell(unit, spell, spells::Mode::CREATURE_ACTIVE, getAbilitySpellLevel(unit, *ability, spell), target);
+	env.castSpell(unit, spell, spells::Mode::CREATURE_ACTIVE, unit.getAbilitySpellLevel(std::max(0, ability->val), spell), target);
 	env.fireCombatEvent(CombatEventType::UNIT_SPELLCAST, &unit, nullptr, spell);
+	env.triggerObstaclesUnder(unit);
 }
 
-/// Unit on the hex, a living one if there is one
-static const battle::Unit * getUnitOnHex(const CBattleInfoCallback & battle, const BattleHex & hex)
+/// Unit that a walk and cast action is aimed at, which may be dead
+static const battle::Unit * getWalkAndCastSubject(const CBattleInfoCallback & battle, const battle::Target & target)
 {
-	if(const battle::Unit * unit = battle.battleGetUnitByPos(hex, true))
-		return unit;
-	return battle.battleGetUnitByPos(hex, false);
+	return target.at(1).unitValue ? target.at(1).unitValue : battle.battleGetUnitOrCorpseByPos(target.at(1).hexValue);
 }
 
 static std::shared_ptr<const Bonus> getAdjacentCastAbility(const battle::Unit & unit, SpellID spell)
@@ -472,22 +445,11 @@ int WalkAndCastAction::getPriority(const CBattleInfoCallback & battle, const Act
 
 std::vector<ActionApproach> WalkAndCastAction::getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const
 {
-	const battle::Unit * target = getUnitOnHex(battle, hoveredHex);
+	const battle::Unit * target = battle.battleGetUnitOrCorpseByPos(hoveredHex);
 	if(!target || target == &actor)
 		return {};
 
-	const BattleHexArray availableHexes = battle.battleGetAvailableHexes(&actor, false);
-	std::vector<ActionApproach> result;
-
-	for(const auto direction : {BattleHex::TOP_LEFT, BattleHex::TOP_RIGHT, BattleHex::RIGHT, BattleHex::BOTTOM_RIGHT, BattleHex::BOTTOM_LEFT, BattleHex::LEFT, BattleHex::TOP, BattleHex::BOTTOM})
-	{
-		const BattleHex from = battle.fromWhichHexAttack(&actor, hoveredHex, direction, false);
-
-		if(battle.battleCanAttackFromHex(availableHexes, &actor, hoveredHex, from))
-			result.push_back({direction, from});
-	}
-
-	return result;
+	return getReachableApproaches(battle, actor, hoveredHex, false);
 }
 
 ActionPreview WalkAndCastAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
@@ -503,13 +465,7 @@ ActionPreview WalkAndCastAction::preview(const IGameInfoCallback & game, const C
 	for(const BattleHex & hex : caster.getHexes(context.approach.value().from))
 		result.shadedHexes.insert(hex);
 
-	for(const BattleHex & hex : mechanics->rangeInHexes(context.hoveredHex))
-		if(hex.getX() != 0 && hex.getX() != GameConstants::BFIELD_WIDTH - 1)
-			result.shadedHexes.insert(hex);
-
-	for(const CStack * unit : mechanics->getAffectedStacks({battle::Destination(context.hoveredHex)}))
-		if(!unit->coversPos(context.hoveredHex))
-			result.affectedUnits.push_back(unit->unitId());
+	addSpellArea(result, *mechanics, context.hoveredHex);
 
 	return result;
 }
@@ -519,7 +475,7 @@ std::optional<BattleAction> WalkAndCastAction::build(const CBattleInfoCallback &
 	if(!context.approach)
 		return std::nullopt;
 
-	return BattleAction::makeWalkAndCast(context.actor, context.approach->from, getUnitOnHex(battle, context.hoveredHex), option.spell);
+	return BattleAction::makeWalkAndCast(context.actor, context.approach->from, battle.battleGetUnitOrCorpseByPos(context.hoveredHex), option.spell);
 }
 
 bool WalkAndCastAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
@@ -534,12 +490,8 @@ bool WalkAndCastAction::validate(const IGameInfoCallback & game, const CBattleIn
 		return false;
 	}
 
-	// StartAction of this action type leaves castSpellThisTurn as it was
-	if(!unit->canCast())
-	{
-		problem.add(MetaString::createFromRawString("This stack can't cast a spell now: " + unit->getDescription()));
+	if(!checkCanCast(*unit, problem))
 		return false;
-	}
 
 	const battle::Target target = action.getTarget(&battle);
 	if(target.size() < 2)
@@ -549,7 +501,7 @@ bool WalkAndCastAction::validate(const IGameInfoCallback & game, const CBattleIn
 	}
 
 	const BattleHex castFrom = target.at(0).hexValue;
-	const battle::Unit * subject = target.at(1).unitValue ? target.at(1).unitValue : getUnitOnHex(battle, target.at(1).hexValue);
+	const battle::Unit * subject = getWalkAndCastSubject(battle, target);
 	if(!subject || subject == unit)
 	{
 		problem.add(MetaString::createFromRawString("Invalid target for walk and spellcast"));
@@ -586,11 +538,11 @@ void WalkAndCastAction::apply(IBattleActionEnvironment & env, const CBattleInfoC
 {
 	const battle::Unit & unit = getActor(battle, action);
 	const battle::Target target = action.getTarget(&battle);
-	const battle::Unit * chosen = target.at(1).unitValue ? target.at(1).unitValue : getUnitOnHex(battle, target.at(1).hexValue);
-	const uint32_t subjectID = chosen->unitId();
+	const uint32_t subjectID = getWalkAndCastSubject(battle, target)->unitId();
 
 	// the unit stepped on quicksand or a mine: the cast is cancelled, and the action counts as made
-	if(!env.moveUnit(unit, target.at(0).hexValue).completed)
+	const UnitMoveResult movement = env.moveUnit(unit, target.at(0).hexValue);
+	if(!movement.completed)
 		return;
 
 	// handlers of the movement events may have killed or removed either unit
@@ -601,6 +553,10 @@ void WalkAndCastAction::apply(IBattleActionEnvironment & env, const CBattleInfoC
 	const CSpell * spell = action.spell.toSpell();
 	const auto ability = getAdjacentCastAbility(unit, action.spell);
 
-	env.castSpell(unit, spell, spells::Mode::CREATURE_ACTIVE, getAbilitySpellLevel(unit, *ability, spell), {battle::Destination(subject)});
+	env.castSpell(unit, spell, spells::Mode::CREATURE_ACTIVE, unit.getAbilitySpellLevel(std::max(0, ability->val), spell), {battle::Destination(subject)});
 	env.fireCombatEvent(CombatEventType::UNIT_SPELLCAST, &unit, nullptr, spell);
+
+	// a unit that moved was charged by the obstacles during the movement
+	if(movement.distance == 0)
+		env.triggerObstaclesUnder(unit);
 }

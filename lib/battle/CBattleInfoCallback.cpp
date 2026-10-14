@@ -353,6 +353,13 @@ const battle::Unit * CBattleInfoCallback::battleGetUnitByPos(const BattleHex & p
 		return nullptr;
 }
 
+const battle::Unit * CBattleInfoCallback::battleGetUnitOrCorpseByPos(const BattleHex & pos) const
+{
+	if(const battle::Unit * unit = battleGetUnitByPos(pos, true))
+		return unit;
+	return battleGetUnitByPos(pos, false);
+}
+
 battle::Units CBattleInfoCallback::battleAliveUnits() const
 {
 	return battleGetUnitsIf([](const battle::Unit * unit)
@@ -617,7 +624,7 @@ BattleHexArray CBattleInfoCallback::battleGetOccupiableHexes(const BattleHexArra
 	return availableHexes;
 }
 
-BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction, bool allowLongWeapon) const
+BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction) const
 {
 	THROW_IF_NOT_BATTLE();
 	if (!attacker)
@@ -626,35 +633,9 @@ BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker,
 	if (!target.isValid() || direction == BattleHex::NONE)
 		return BattleHex::INVALID;
 
-	if(allowLongWeapon && attacker->hasBonusOfType(BonusType::LONG_WEAPON) && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
-	{
-		const auto longLine = getLongWeaponLineHexes(target, direction);
-		if(longLine)
-		{
-			const auto [middleHex, longAttackFrom] = *longLine;
-			if(attacker->coversPos(longAttackFrom) && isLongWeaponMiddleHexClear(*this, middleHex))
-				return attacker->getPosition();
-		}
-	}
-
 	bool isAttacker = attacker->unitSide() == BattleSide::ATTACKER;
 	if (attacker->doubleWide())
 	{
-		if(allowLongWeapon && attacker->hasBonusOfType(BonusType::LONG_WEAPON) && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
-		{
-			const auto longLine = getLongWeaponLineHexes(target, direction);
-			if(longLine)
-			{
-				const auto [middleHex, longAttackFrom] = *longLine;
-				if(isLongWeaponMiddleHexClear(*this, middleHex))
-				{
-					const auto availableHexes = battleGetAvailableHexes(attacker, false);
-					if(availableHexes.contains(longAttackFrom))
-						return longAttackFrom;
-				}
-			}
-		}
-
 		// We need to find position of right hex of double-hex creature (or left for defending side)
 		// | TOP_LEFT | TOP_RIGHT |  RIGHT  |BOTTOM_RIGHT|BOTTOM_LEFT|  LEFT   |  TOP   | BOTTOM
 		// |  o o -   |    - o o  |  - -    |   - -      |    - -    |    - -  |  o o   |   - -
@@ -695,35 +676,49 @@ BattleHex CBattleInfoCallback::fromWhichHexAttack(const battle::Unit * attacker,
 	if (direction == BattleHex::TOP || direction == BattleHex::BOTTOM)
 		return BattleHex::INVALID;
 
-	BattleHex adjacentAttackFrom = BattleHex::INVALID;
 	try
 	{
-		adjacentAttackFrom = target.cloneInDirection(direction, false);
+		return target.cloneInDirection(direction, false);
 	}
 	catch(const std::out_of_range &)
 	{
 		return BattleHex::INVALID;
 	}
+}
 
-	if(allowLongWeapon && attacker->hasBonusOfType(BonusType::LONG_WEAPON))
+BattleHex CBattleInfoCallback::findAttackPosition(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction, bool longWeapon) const
+{
+	THROW_IF_NOT_BATTLE();
+
+	if(!longWeapon)
 	{
-		const auto longLine = getLongWeaponLineHexes(target, direction);
-		if(!longLine)
-			return adjacentAttackFrom;
-
-		const auto [middleHex, longAttackFrom] = *longLine;
-
-		if(isLongWeaponMiddleHexClear(*this, middleHex))
-		{
-			const auto availableHexes = battleGetAvailableHexes(attacker, false);
-			const bool longReachable = availableHexes.contains(longAttackFrom);
-
-			if(longReachable)
-				return longAttackFrom;
-		}
+		const BattleHex fromHex = fromWhichHexAttack(attacker, target, direction);
+		return battleCanAttackFromHex(availableHexes, attacker, target, fromHex) ? fromHex : BattleHex::INVALID;
 	}
 
-	return adjacentAttackFrom;
+	if(!target.isValid() || direction == BattleHex::NONE || direction == BattleHex::TOP || direction == BattleHex::BOTTOM || !attacker->hasBonusOfType(BonusType::LONG_WEAPON))
+		return BattleHex::INVALID;
+
+	const battle::Unit * defender = battleGetUnitByPos(target, true);
+	const auto longLine = getLongWeaponLineHexes(target, direction);
+	if(!defender || !longLine)
+		return BattleHex::INVALID;
+
+	// the attacker strikes with its front or, if two hexes wide, its back hex on the line; staying in place is preferred
+	const BattleHex lineHex = longLine->second;
+	std::vector<BattleHex> candidates = {attacker->getPosition(), lineHex};
+	if(attacker->doubleWide())
+		candidates.emplace_back(lineHex.toInt() + (attacker->unitSide() == BattleSide::ATTACKER ? 1 : -1));
+
+	for(const BattleHex & fromHex : candidates)
+	{
+		if(battleCanAttackFromHex(availableHexes, attacker, target, fromHex)
+			&& attacker->getHexes(fromHex).contains(lineHex)
+			&& isLongWeaponAttack(attacker, defender, fromHex))
+			return fromHex;
+	}
+
+	return BattleHex::INVALID;
 }
 
 BattleHex CBattleInfoCallback::toWhichHexMove(const battle::Unit * unit, const BattleHex & position) const
@@ -797,31 +792,8 @@ bool CBattleInfoCallback::battleCanAttackHex(const BattleHexArray & availableHex
 	if (!attacker)
 		throw std::runtime_error("Undefined attacker in battleCanAttackHex!");
 
-	if (!position.isValid() || direction == BattleHex::NONE)
-		return false;
-
-	const auto canAttackFrom = [&](const BattleHex & fromHex)
-	{
-		return battleCanAttackFromHex(availableHexes, attacker, position, fromHex);
-	};
-
-	BattleHex fromHex = fromWhichHexAttack(attacker, position, direction);
-	if (canAttackFrom(fromHex))
-		return true;
-
-	if(attacker->hasBonusOfType(BonusType::LONG_WEAPON) && direction != BattleHex::TOP && direction != BattleHex::BOTTOM)
-	{
-		const auto longLine = getLongWeaponLineHexes(position, direction);
-		if(!longLine)
-			return false;
-
-		const auto [middleHex, longAttackFrom] = *longLine;
-
-		if (isLongWeaponMiddleHexClear(*this, middleHex) && canAttackFrom(longAttackFrom))
-			return true;
-	}
-
-	return false;
+	return findAttackPosition(availableHexes, attacker, position, direction, false).isValid()
+		|| findAttackPosition(availableHexes, attacker, position, direction, true).isValid();
 }
 
 bool CBattleInfoCallback::battleCanAttackUnit(const battle::Unit * attacker, const battle::Unit * target) const
@@ -1162,7 +1134,7 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 	if (!bai.defender->ableToRetaliate())	//FIXME: handle situation when NO_RETALIATION bonus is removed during attack
 		return ret;
 
-	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) || bai.attacker->isInvincible() || isLongWeaponAttack(bai.attacker, bai.defender))
+	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) || bai.attacker->isInvincible() || isLongWeaponAttack(bai.attacker, bai.defender, bai.attackerPos))
 		return ret;
 
 	//TODO: rewire once more using interval-based fuzzy arithmetic

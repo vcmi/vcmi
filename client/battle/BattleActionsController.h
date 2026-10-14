@@ -14,10 +14,6 @@
 #include "../../lib/battle/CBattleInfoCallback.h"
 
 class BattleAction;
-namespace spells {
-class Caster;
-enum class Mode;
-}
 
 class BattleInterface;
 
@@ -30,12 +26,11 @@ class BattleActionsController
 	/// all entries possible to select at the moment by player
 	BattleActionEntries possibleActions;
 
-	/// Entry selected for a hex and its preview
+	/// Preview of the entry selected for a hex
 	struct HexSelection
 	{
 		BattleHex hex;
-		std::shared_ptr<const IBattleActionEntry> entry;
-		BattleActionPreview preview;
+		ActionPreview preview;
 	};
 
 	/// Selection of the last queried hex, reused by the per-frame queries until the next hover or change of the controller state
@@ -67,11 +62,6 @@ class BattleActionsController
 	/// Selection for the hex, taken from the cache when it holds the same hex
 	const HexSelection & getSelection(const BattleHex & hex);
 
-	/// Replaces the entries and drops the cached selection
-	void setEntries(BattleActionEntries entries);
-
-	const CStack * getStackForHex(const BattleHex & myNumber) ;
-
 	/// Rolls the spell of the turn for a unit with weighted SPELLCASTER bonuses
 	void tryActivateStackSpellcasting(const CStack *casterStack);
 
@@ -88,9 +78,6 @@ public:
 	bool heroSpellcastingModeActive() const;
 	/// returns true if UI is currently in "F" hotkey creature spell target selection mode
 	bool creatureSpellcastingModeActive() const;
-
-	/// returns true if the entry selected for the hex casts a spell
-	bool currentActionSpellcasting(const BattleHex & hoveredHex);
 
 	/// Approaches of the legal entry selected for the hex, empty if it needs none
 	std::vector<ActionApproach> getApproaches(const BattleHex & hoveredHex);
@@ -133,13 +120,8 @@ public:
 	/// performs action according to selected hex
 	void onHexRightClicked(const BattleHex & clickedHex, const std::function<void(const CStack *)> & showStackInfo = {}, const std::function<void(const std::string &)> & showTextInfo = {});
 
-	/// Caster, spell and mode of the SPELL_LIKE_ATTACK of the active unit, whose area BattleFieldController and BattleStacksController show in spellcasting mode
-	const spells::Caster * getCurrentSpellcaster() const;
-	const CSpell * getCurrentSpell(const BattleHex & hoveredHex);
-	spells::Mode getCurrentCastMode() const;
-
-	/// sets list of high-priority actions that should be selected before any other actions
-	void setPriorityActions(const BattleActionEntries &);
+	/// Replaces the entries and drops the cached selection
+	void setEntries(BattleActionEntries entries);
 
 	/// resets possible actions to original state
 	void resetCurrentStackPossibleActions();

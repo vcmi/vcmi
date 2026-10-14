@@ -87,7 +87,7 @@ INSTANTIATE_TEST_SUITE_P(Actions, ActionStartStateTest, ::testing::Values(
 	StartStateCase{"shoot",           EActionType::SHOOT,           nullptr,                         false, false, true,  false},
 	StartStateCase{"catapult",        EActionType::CATAPULT,        nullptr,                         false, false, true,  false},
 	StartStateCase{"heal",            EActionType::STACK_HEAL,      nullptr,                         false, false, true,  false},
-	// WALK_AND_CAST leaves castSpellThisTurn unset
+	// the walk ends the turn, so the flag that refuses a second cast in the same turn is not needed
 	StartStateCase{"walkAndCast",     EActionType::WALK_AND_CAST,   "core:bless",                    false, false, true,  false},
 	StartStateCase{"badMorale",       EActionType::BAD_MORALE,      nullptr,                         false, false, true,  false},
 	StartStateCase{"noAction",        EActionType::NO_ACTION,       nullptr,                         false, false, true,  false}

@@ -18,7 +18,7 @@ namespace scripting::api
 
 ::spells::effects::EffectTargetStep TargetStepDescriptor::toTargetStep() const
 {
-	return {cursor, text.toMetaString(), blockedText.toMetaString(), healthGainTextID};
+	return {{cursor, text.toMetaString(), blockedText.toMetaString()}, healthGainTextID};
 }
 
 }

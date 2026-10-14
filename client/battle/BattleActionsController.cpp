@@ -28,20 +28,13 @@
 #include "../windows/CCreatureWindow.h"
 #include "../windows/InfoWindows.h"
 
-#include "../../lib/CConfigHandler.h"
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
-#include "../../lib/battle/CUnitState.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/actions/BattleActionType.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
-#include "../../lib/battle/DamageEstimationTexts.h"
 #include "../../lib/callback/CCallback.h"
-#include "../../lib/spells/ISpellMechanics.h"
-#include "../../lib/spells/effects/Effect.h"
-#include "../../lib/spells/Problem.h"
-#include "../../lib/spells/CSpell.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 bool BattleActionsController::isLibAction(const IBattleActionEntry & entry, EActionType actionType)
@@ -234,25 +227,6 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 	owner.windowObject->blockUI(true);
 }
 
-const CSpell * BattleActionsController::getCurrentSpell(const BattleHex & hoveredHex)
-{
-	const CStack * activeStack = owner.stacksController->getActiveStack();
-
-	if(heroSpellcasting || !activeStack || !hoveredHex.isValid())
-		return nullptr;
-
-	const auto bonus = activeStack->getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
-	return bonus ? bonus->subtype.as<SpellID>().toSpell() : nullptr;
-}
-
-const CStack * BattleActionsController::getStackForHex(const BattleHex & hoveredHex)
-{
-	const CStack * shere = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
-	if(shere)
-		return shere;
-	return owner.getBattle()->battleGetStackByPos(hoveredHex, false);
-}
-
 std::shared_ptr<const IBattleActionEntry> BattleActionsController::selectEntry(const BattleHex & targetHex)
 {
 	auto currentStack = suspendedStack ? suspendedStack : owner.stacksController->getActiveStack();
@@ -263,11 +237,11 @@ std::shared_ptr<const IBattleActionEntry> BattleActionsController::selectEntry(c
 	if(currentStack == nullptr || possibleActions.empty())
 		return nullptr;
 
-	const CStack * targetStack = getStackForHex(targetHex);
+	const battle::Unit * targetStack = owner.getBattle()->battleGetUnitOrCorpseByPos(targetHex);
 
 	std::vector<std::pair<int, std::shared_ptr<const IBattleActionEntry>>> ordered;
 	for(const auto & entry : possibleActions)
-		ordered.emplace_back(entry->getPriority(currentStack, targetStack), entry);
+		ordered.emplace_back(entry->getPriority(targetStack), entry);
 
 	std::stable_sort(ordered.begin(), ordered.end(), [](const auto & lhs, const auto & rhs){ return lhs.first < rhs.first; });
 
@@ -283,9 +257,8 @@ const BattleActionsController::HexSelection & BattleActionsController::getSelect
 {
 	if(!cachedSelection || cachedSelection->hex != hex)
 	{
-		auto entry = selectEntry(hex);
-		BattleActionPreview preview = entry ? entry->preview(hex) : BattleActionPreview{"combatBlocked", "", {}, {}};
-		cachedSelection = HexSelection{hex, std::move(entry), std::move(preview)};
+		const auto entry = selectEntry(hex);
+		cachedSelection = HexSelection{hex, entry ? entry->preview(hex) : ActionPreview{"combatBlocked", {}, {}, {}}};
 	}
 	return *cachedSelection;
 }
@@ -320,16 +293,16 @@ void BattleActionsController::onHexHovered(const BattleHex & hoveredHex)
 
 	// the battle may have changed since the last hover, e.g. on a fake mouse move after an action
 	cachedSelection.reset();
-	BattleActionPreview preview = getSelection(hoveredHex).preview;
+	ActionPreview preview = getSelection(hoveredHex).preview;
 
 	if (owner.siegeController && owner.siegeController->isTowerHex(hoveredHex))
 	{
 		preview.cursor = "combatQuery"; // question cursor over a siege tower
-		preview.statusText = LIBRARY->generaltexth->translate("core.genrltxt.156"); // "View arrow tower info."
+		preview.statusText = MetaString::createFromTextID("core.genrltxt.156"); // "View arrow tower info."
 	}
 
 	ENGINE->cursor().set(preview.cursor);
-	const std::string & newConsoleMsg = preview.statusText;
+	const std::string newConsoleMsg = preview.statusText.toString(&GAME->translator());
 
 	if (!currentConsoleMsg.empty())
 		ENGINE->statusbar()->clearIfMatching(currentConsoleMsg);
@@ -365,8 +338,8 @@ std::string BattleActionsController::primaryActionText(const BattleHex & hex)
 {
 	if(!hex.isAvailable() || (!owner.stacksController->getActiveStack() && !suspendedStack))
 		return {};
-	const auto & [selectedHex, entry, preview] = getSelection(hex);
-	if(!entry || !entry->isLegal(hex))
+	const ActionPreview & preview = getSelection(hex).preview;
+	if(preview.cursor == "combatBlocked")
 		return {};
 
 	std::string key;
@@ -376,10 +349,10 @@ std::string BattleActionsController::primaryActionText(const BattleHex & hex)
 		key = "attack";
 	else if(preview.cursor == "combatShoot" || preview.cursor == "combatShootPenalty")
 		key = "shoot";
-	else if(dynamic_cast<const CreatureInfoEntry *>(entry.get()))
+	else if(preview.cursor == "combatQuery")
 		key = "inspect";
 	else
-		return preview.statusText;
+		return preview.statusText.toString(&GAME->translator());
 	return LIBRARY->generaltexth->translate("vcmi.controllerPrompt." + key);
 }
 
@@ -408,7 +381,7 @@ void BattleActionsController::onHexLeftClicked(const BattleHex & clickedHex, con
 
 	const auto * infoEntry = dynamic_cast<const CreatureInfoEntry *>(entry.get());
 	if(infoEntry && showStackInfo)
-		showStackInfo(getStackForHex(clickedHex));
+		showStackInfo(owner.getBattle()->battleGetStackByPos(clickedHex, true));
 	else
 		entry->realize(clickedHex);
 	cachedSelection.reset();
@@ -423,16 +396,6 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack * caster
 	//TODO: faerie dragon type spell should be selected by server
 	if(casterStack->canCast() && casterStack->hasBonusOfType(BonusType::SPELLCASTER))
 		rolledCreatureSpell = owner.getBattle()->getRandomCastedSpell(CRandomGenerator::getDefault(), casterStack);
-}
-
-const spells::Caster * BattleActionsController::getCurrentSpellcaster() const
-{
-	return owner.stacksController->getActiveStack();
-}
-
-spells::Mode BattleActionsController::getCurrentCastMode() const
-{
-	return spells::Mode::CREATURE_ACTIVE;
 }
 
 void BattleActionsController::activateStack()
@@ -504,19 +467,9 @@ bool BattleActionsController::creatureSpellcastingModeActive() const
 	return !possibleActions.empty() && std::all_of(possibleActions.begin(), possibleActions.end(), spellcastModePredicate);
 }
 
-bool BattleActionsController::currentActionSpellcasting(const BattleHex & hoveredHex)
-{
-	if (!owner.stacksController->getActiveStack())
-		return false;
-
-	const auto & entry = getSelection(hoveredHex).entry;
-
-	return entry && entry->getSpell() != SpellID::NONE;
-}
-
 std::vector<ActionApproach> BattleActionsController::getApproaches(const BattleHex & hoveredHex)
 {
-	const auto & entry = getSelection(hoveredHex).entry;
+	const auto entry = selectEntry(hoveredHex);
 	const auto * libEntry = dynamic_cast<const LibActionEntry *>(entry.get());
 	if(!libEntry || !libEntry->isLegal(hoveredHex))
 		return {};
@@ -537,11 +490,6 @@ std::vector<uint32_t> BattleActionsController::getAffectedUnits(const BattleHex 
 		return {};
 
 	return getSelection(hoveredHex).preview.affectedUnits;
-}
-
-void BattleActionsController::setPriorityActions(const BattleActionEntries & actions)
-{
-	setEntries(actions);
 }
 
 void BattleActionsController::resetCurrentStackPossibleActions()

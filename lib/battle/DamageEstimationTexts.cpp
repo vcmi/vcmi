@@ -16,10 +16,8 @@
 
 #include <vcmi/Creature.h>
 
-namespace
-{
 // the text of the token is complete before the next token is replaced, so its "%d" is the first one in the text
-void replacePlural(MetaString & text, const std::string & token, DamageRange amount, const std::string & baseTextID)
+static void replacePlural(MetaString & text, const std::string & token, DamageRange amount, const std::string & baseTextID)
 {
 	text.replaceTokenTextID(token, amount.max == 1 ? baseTextID + ".1" : baseTextID);
 
@@ -29,13 +27,13 @@ void replacePlural(MetaString & text, const std::string & token, DamageRange amo
 		text.replaceTokenRawString("%d", std::to_string(amount.min) + " - " + std::to_string(amount.max));
 }
 
-std::string unitNameTextID(const battle::Unit & unit)
+static std::string unitNameTextID(const battle::Unit & unit)
 {
 	const auto * creature = unit.creatureId().toEntity(LIBRARY);
 	return unit.getCount() == 1 ? creature->getNameSingularTextID() : creature->getNamePluralTextID();
 }
 
-MetaString attack(const DamageEstimation & estimation, const std::string & baseTextID, const std::string & targetNameTextID, int shotsLeft)
+static MetaString attack(const DamageEstimation & estimation, const std::string & baseTextID, const std::string & targetNameTextID, int shotsLeft)
 {
 	MetaString text = MetaString::createFromTextID(baseTextID);
 	text.replaceTokenTextID("%CREATURE", targetNameTextID);
@@ -43,7 +41,6 @@ MetaString attack(const DamageEstimation & estimation, const std::string & baseT
 	replacePlural(text, "%SHOTS", {shotsLeft, shotsLeft}, "vcmi.battleWindow.damageEstimation.shots");
 	replacePlural(text, "%KILLS", estimation.kills, "vcmi.battleWindow.damageEstimation.kills");
 	return text;
-}
 }
 
 MetaString DamageEstimationTexts::plural(DamageRange amount, const std::string & baseTextID)

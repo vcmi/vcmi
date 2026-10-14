@@ -294,32 +294,11 @@ bool BattleFlowProcessor::tryActivateBerserkPenalty(const CBattleInfoCallback & 
 	{
 		ForcedAction forcedAction = battle.getBerserkForcedAction(next);
 		if (forcedAction.type == EActionType::SHOOT)
-		{
-			BattleAction rangeAttack;
-			rangeAttack.actionType = EActionType::SHOOT;
-			rangeAttack.side = next->unitSide();
-			rangeAttack.stackNumber = next->unitId();
-			rangeAttack.aimToUnit(forcedAction.target);
-			makeAutomaticAction(battle, next, rangeAttack);
-		}
+			makeAutomaticAction(battle, next, BattleAction::makeShotAttack(next, forcedAction.target));
 		else if (forcedAction.type == EActionType::WALK_AND_ATTACK)
-		{
-			BattleAction meleeAttack;
-			meleeAttack.actionType = EActionType::WALK_AND_ATTACK;
-			meleeAttack.side = next->unitSide();
-			meleeAttack.stackNumber = next->unitId();
-			meleeAttack.aimToHex(forcedAction.position);
-			meleeAttack.aimToUnit(forcedAction.target);
-			makeAutomaticAction(battle, next, meleeAttack);
-		} else if (forcedAction.type == EActionType::WALK)
-		{
-			BattleAction movement;
-			movement.actionType = EActionType::WALK;
-			movement.stackNumber = next->unitId();
-			movement.side = next->unitSide();
-			movement.aimToHex(forcedAction.position);
-			makeAutomaticAction(battle, next, movement);
-		}
+			makeAutomaticAction(battle, next, BattleAction::makeMeleeAttack(next, forcedAction.target, forcedAction.position));
+		else if (forcedAction.type == EActionType::WALK)
+			makeAutomaticAction(battle, next, BattleAction::makeMove(next, forcedAction.position));
 		else
 		{
 			makeStackDoNothing(battle, next);
@@ -497,13 +476,12 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCal
 		{
 			for(int direction = 0; direction < 8; ++direction)
 			{
-				auto directionEnum = static_cast<BattleHex::EDir>(direction);
-				if(!battle.battleCanAttackHex(availableHexes, actingStack, targetHex, directionEnum))
-					continue;
-
-				BattleHex attackFromHex = battle.fromWhichHexAttack(actingStack, targetHex, directionEnum);
-				if(availableHexes.contains(attackFromHex))
-					attackableHexes.insert(attackFromHex);
+				for(const bool longWeapon : {false, true})
+				{
+					const BattleHex attackFromHex = battle.findAttackPosition(availableHexes, actingStack, targetHex, static_cast<BattleHex::EDir>(direction), longWeapon);
+					if(attackFromHex.isValid())
+						attackableHexes.insert(attackFromHex);
+				}
 			}
 		}
 
@@ -642,7 +620,7 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 	return false;
 }
 
-void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const BattleAction &ba)
+void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const BattleAction &ba, bool valid)
 {
 	const auto * actedStack = battle.battleGetStackByID(ba.stackNumber, false);
 	const auto * activeStack = battle.battleActiveUnit();
@@ -666,13 +644,12 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		return;
 
 	// creature will not skip the turn after casting a spell if spell uses canCastWithoutSkip
-	if(ba.actionType == EActionType::MONSTER_SPELL)
+	if(valid && ba.actionType == EActionType::MONSTER_SPELL)
 	{
 		assert(activeStack != nullptr);
 		assert(actedStack != nullptr);
 
-		// NOTE: in case of random spellcaster, (e.g. Master Genie) spell has been selected by server and was not present in action received from player
-		if(actedStack->castSpellThisTurn && ba.spell.hasValue() && ba.spell.toSpell()->canCastWithoutSkip())
+		if(ba.spell.toSpell()->canCastWithoutSkip())
 		{
 			setActiveStack(battle, actedStack, BattleUnitTurnReason::UNIT_SPELLCAST);
 			return;

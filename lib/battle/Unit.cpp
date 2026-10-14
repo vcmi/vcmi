@@ -20,6 +20,7 @@
 
 #include <vcmi/Faction.h>
 #include <vcmi/FactionService.h>
+#include <vcmi/spells/Spell.h>
 
 namespace battle
 {
@@ -65,6 +66,14 @@ bool Unit::isAmmoCart() const
 bool Unit::canBeHealed() const
 {
 	return getFirstHPleft() < static_cast<int32_t>(getMaxHealth()) && isValidTarget() && !hasBonusOfType(BonusType::SIEGE_WEAPON);
+}
+
+int32_t Unit::getAbilitySpellLevel(int32_t abilityLevel, const spells::Spell * spell) const
+{
+	//Magic Plains raise level of spells cast by creatures, unlike battlefields of a specific magic school
+	if(spell->getLevel() > 0)
+		vstd::amax(abilityLevel, valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(SpellSchool::ANY)));
+	return abilityLevel;
 }
 
 bool Unit::isSummoned() const

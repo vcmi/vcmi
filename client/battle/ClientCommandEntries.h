@@ -34,9 +34,9 @@ class CreatureInfoEntry final : public ClientCommandEntry
 public:
 	using ClientCommandEntry::ClientCommandEntry;
 
-	int getPriority(const CStack * actor, const CStack * target) const override;
+	int getPriority(const battle::Unit * target) const override;
 	bool isLegal(const BattleHex & hex) const override;
-	BattleActionPreview preview(const BattleHex & hex) const override;
+	ActionPreview preview(const BattleHex & hex) const override;
 	void realize(const BattleHex & hex) const override;
 	std::optional<UnitActionButton> getPanelButton() const override;
 };
@@ -47,9 +47,9 @@ class HeroInfoEntry final : public ClientCommandEntry
 public:
 	using ClientCommandEntry::ClientCommandEntry;
 
-	int getPriority(const CStack * actor, const CStack * target) const override;
+	int getPriority(const battle::Unit * target) const override;
 	bool isLegal(const BattleHex & hex) const override;
-	BattleActionPreview preview(const BattleHex & hex) const override;
+	ActionPreview preview(const BattleHex & hex) const override;
 	void realize(const BattleHex & hex) const override;
 	std::optional<UnitActionButton> getPanelButton() const override;
 };
@@ -60,9 +60,9 @@ class TacticsUnitSelectionEntry final : public ClientCommandEntry
 public:
 	using ClientCommandEntry::ClientCommandEntry;
 
-	int getPriority(const CStack * actor, const CStack * target) const override;
+	int getPriority(const battle::Unit * target) const override;
 	bool isLegal(const BattleHex & hex) const override;
-	BattleActionPreview preview(const BattleHex & hex) const override;
+	ActionPreview preview(const BattleHex & hex) const override;
 	void realize(const BattleHex & hex) const override;
 	std::optional<UnitActionButton> getPanelButton() const override;
 };
