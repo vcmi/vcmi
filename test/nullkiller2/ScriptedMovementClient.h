@@ -53,7 +53,7 @@ public:
 		reply.start = hero->pos;
 		reply.end = destination;
 		reply.result = failing ? TryMoveHero::FAILED : TryMoveHero::SUCCESS;
-		reply.movePoints = exhausting ? 0 : hero->movementPointsRemaining();
+		reply.movePoints = movementLeft.value_or(hero->movementPointsRemaining());
 
 		gameState->apply(reply);
 		if(gateway)
@@ -68,10 +68,10 @@ public:
 		gateway = &receiver;
 	}
 
-	/// Every movement takes the last movement points of the hero, e.g. as if a map event drained them
-	void exhaustMovement()
+	/// Every movement leaves the hero with given movement points, e.g. as if a map event drained them
+	void drainMovement(int pointsLeft)
 	{
-		exhausting = true;
+		movementLeft = pointsLeft;
 	}
 
 	/// Every movement is rejected
@@ -91,7 +91,7 @@ private:
 	std::shared_ptr<CGameState> gameState;
 	NK2AI::AIGateway * gateway = nullptr;
 	std::vector<int3> requestedTiles;
-	bool exhausting = false;
+	std::optional<int> movementLeft;
 	bool failing = false;
 	int requestID = 0;
 };

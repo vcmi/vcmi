@@ -1342,12 +1342,15 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 					: HeroMovementResult::PROGRESSED;
 			}
 
-			if(heroPtr->movementPointsRemaining() <= 0)
+			// e.g. map event may take movement points away, leaving less than the path was planned with
+			if(heroPtr->movementPointsRemaining() <= 0 || heroPtr->movementPointsRemaining() < path.nodes[i].moveRemains)
 			{
 				logAi->debug(
-					"Stopping movement path for hero %s before moving to %s: no movement points left.",
+					"Stopping movement path for hero %s before moving to %s: has %d movement points, path expects %d.",
 					heroPtr->getNameTextID(),
-					nextCoord.toString());
+					nextCoord.toString(),
+					heroPtr->movementPointsRemaining(),
+					path.nodes[i].moveRemains);
 				return startHpos == heroPtr->visitablePos()
 					? HeroMovementResult::BLOCKED
 					: HeroMovementResult::PROGRESSED;

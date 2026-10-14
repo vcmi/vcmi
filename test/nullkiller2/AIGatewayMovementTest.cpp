@@ -65,7 +65,7 @@ protected:
 TEST_F(Nullkiller2_AIGateway, stopsRouteWhenMoveConsumesLastMovementPoint)
 {
 	startGame();
-	client->exhaustMovement();
+	client->drainMovement(0);
 
 	const auto destination = distantDestination();
 
@@ -73,6 +73,16 @@ TEST_F(Nullkiller2_AIGateway, stopsRouteWhenMoveConsumesLastMovementPoint)
 	EXPECT_EQ(client->movementRequests, 1) << "a hero without movement points must not request further steps";
 	EXPECT_EQ(hero->movementPointsRemaining(), 0);
 	EXPECT_NE(hero->visitablePos(), destination);
+}
+
+TEST_F(Nullkiller2_AIGateway, stopsRouteWhenMoveLeavesFewerMovementPointsThanPlanned)
+{
+	startGame();
+	client->drainMovement(1);
+
+	EXPECT_EQ(moveHeroTo(distantDestination()), NK2AI::HeroMovementResult::PROGRESSED);
+	EXPECT_EQ(client->movementRequests, 1) << "the server would reject a step the hero can no longer afford";
+	EXPECT_EQ(hero->movementPointsRemaining(), 1);
 }
 
 TEST_F(Nullkiller2_AIGateway, throwsAndStopsRouteAfterFailedMovePacket)

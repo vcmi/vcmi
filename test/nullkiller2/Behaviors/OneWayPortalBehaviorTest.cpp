@@ -371,7 +371,7 @@ TEST_F(Nullkiller2_Behaviors_OneWayPortal, exhaustedPortalRouteRetainsReservatio
 	const auto probes = portalTasks(decomposePortalBehavior());
 	ASSERT_EQ(probes.size(), 1);
 
-	client->exhaustMovement();
+	client->drainMovement(0);
 	EXPECT_NO_THROW(probes.front()->asTask()->accept(gateway.get()));
 	EXPECT_NE(hero->visitablePos(), entrance->visitablePos());
 	EXPECT_EQ(
