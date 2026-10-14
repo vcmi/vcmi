@@ -206,10 +206,7 @@ std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, c
 			// out of ammo
 			return std::make_shared<BattleAction>(BattleAction::makeDefend(astack)); // out of ammo (arrow towers have 99 shots)
 
-		auto ba = std::make_shared<BattleAction>();
-		ba->side = astack->unitSide();
-		ba->stackNumber = astack->unitId();
-		ba->actionType = EActionType::CATAPULT;
+		auto ba = std::make_shared<BattleAction>(BattleAction::makeCatapultShot(astack));
 
 		if(battle->battleGetGateState() == EGateState::CLOSED)
 		{

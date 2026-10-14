@@ -72,6 +72,8 @@ public:
 	const CStack * battleGetStackByPos(const BattleHex & pos, bool onlyAlive = true) const;
 
 	const battle::Unit * battleGetUnitByPos(const BattleHex & pos, bool onlyAlive = true) const override;
+	/// Living unit on the hex, or a dead one if there is no living unit
+	const battle::Unit * battleGetUnitOrCorpseByPos(const BattleHex & pos) const;
 
 	///returns all alive units excluding turrets
 	battle::Units battleAliveUnits() const;
@@ -87,8 +89,11 @@ public:
 	//returns hexes the unit can occupy, obtainMovementRange ignores tactics mode (for double-wide units includes both head and tail)
 	BattleHexArray battleGetOccupiableHexes(const battle::Unit * unit, bool obtainMovementRange) const;
 	BattleHexArray battleGetOccupiableHexes(const BattleHexArray & availableHexes, const battle::Unit * unit) const;
-	//returns from which hex the attacker would attack the target from given direction; INVALID if not possible; the hex may be inccessible
-	BattleHex fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction, bool allowLongWeapon = true) const;
+	//returns from which hex the attacker would attack the adjacent target from given direction; INVALID if not possible; the hex may be inccessible
+	BattleHex fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction) const;
+	/// Hex that the attacker can stop at to strike the target hex approached from the direction, or INVALID.
+	/// A long weapon strikes over one free hex with any hex of the attacker on the line, otherwise the attacker stands next to the target
+	BattleHex findAttackPosition(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction, bool longWeapon) const;
 
 	//returns to which hex the (head of) unit would move to occupy position (possibly by tail)
 	BattleHex toWhichHexMove(const battle::Unit * unit, const BattleHex & position) const;

@@ -15,7 +15,6 @@
 #include "BattleInterface.h"
 
 #include "../CPlayerInterface.h"
-#include "../GameInstance.h"
 
 #include "../../lib/CStack.h"
 #include "../../lib/battle/BattleAction.h"
@@ -48,7 +47,7 @@ std::vector<ActionApproach> LibActionEntry::getApproaches(const BattleHex & hex)
 	return option.type->getApproaches(*owner.getBattle(), option, *actor, hex);
 }
 
-int LibActionEntry::getPriority(const CStack *, const CStack * target) const
+int LibActionEntry::getPriority(const battle::Unit * target) const
 {
 	// an option of the hero is the only entry while it is offered
 	if(!actor)
@@ -64,10 +63,9 @@ bool LibActionEntry::isLegal(const BattleHex & hex) const
 		|| option.type->isLegal(*owner.curInt->cb, *owner.getBattle(), option, context);
 }
 
-BattleActionPreview LibActionEntry::preview(const BattleHex & hex) const
+ActionPreview LibActionEntry::preview(const BattleHex & hex) const
 {
-	const ActionPreview preview = option.type->preview(*owner.curInt->cb, *owner.getBattle(), option, getContext(hex));
-	return {preview.cursor, preview.statusText.toString(&GAME->translator()), preview.shadedHexes, preview.affectedUnits};
+	return option.type->preview(*owner.curInt->cb, *owner.getBattle(), option, getContext(hex));
 }
 
 void LibActionEntry::realize(const BattleHex & hex) const

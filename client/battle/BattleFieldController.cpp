@@ -743,33 +743,6 @@ BattleHexArray BattleFieldController::getMovementRangeForHoveredStack()
 	return hoveredStack ? owner.getBattle()->battleGetOccupiableHexes(hoveredStack, true) : BattleHexArray();
 }
 
-BattleHexArray BattleFieldController::getHighlightedHexesForSpellRange()
-{
-	BattleHexArray result;
-	auto hoveredHex = getHoveredHex();
-
-	const spells::Caster *caster = nullptr;
-	const CSpell *spell = nullptr;
-
-	spells::Mode mode = owner.actionsController->getCurrentCastMode();
-	spell = owner.actionsController->getCurrentSpell(hoveredHex);
-	caster = owner.actionsController->getCurrentSpellcaster();
-
-	if(caster && spell) //when casting spell
-	{
-		// printing shaded hex(es)
-		spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
-		auto shadedHexes = spell->battleMechanics(&event)->rangeInHexes(hoveredHex);
-
-		for(const BattleHex & shadedHex : shadedHexes)
-		{
-			if((shadedHex.getX() != 0) && (shadedHex.getX() != GameConstants::BFIELD_WIDTH - 1))
-				result.insert(shadedHex);
-		}
-	}
-	return result;
-}
-
 BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 {
 	const BattleHex hoveredHex = getHoveredHex();
@@ -899,7 +872,6 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 	std::vector<std::shared_ptr<IImage>> shootingRangeLimitHexesHighlights;
 
 	BattleHexArray hoveredStackMovementRangeHexes = getMovementRangeForHoveredStack();
-	BattleHexArray hoveredSpellHexes = getHighlightedHexesForSpellRange();
 	BattleHexArray hoveredMoveHexes  = getHighlightedHexesForMovementTarget();
 
 	BattleHex hoveredHex = getHoveredHex();
@@ -921,17 +893,9 @@ void BattleFieldController::showHighlightedHexes(Canvas & canvas)
 		calculateRangeLimitAndHighlightImages(shootingRangeDistance, shootingRangeLimitImages, shootingRangeLimitHexes, shootingRangeLimitHexesHighlights);
 	}
 
-	// only the SPELL_LIKE_ATTACK of the active unit: the range of a spell entry is in its preview, which is shown as the movement target
-	bool useSpellRangeForMouse = hoveredHex != BattleHex::INVALID
-		&& owner.actionsController->getCurrentSpell(hoveredHex) != nullptr
-		&& (owner.actionsController->currentActionSpellcasting(getHoveredHex())
-			|| owner.actionsController->creatureSpellcastingModeActive()); //at least shooting with SPELL_LIKE_ATTACK can operate in spellcasting mode without being actual spellcast
 	bool useMoveRangeForMouse = !hoveredMoveHexes.empty() || !settings["battle"]["mouseShadow"].Bool();
 
-
-	const BattleHexArray hoveredMouseHexes = useSpellRangeForMouse
-		? hoveredSpellHexes
-		: ( useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex);
+	const BattleHexArray & hoveredMouseHexes = useMoveRangeForMouse ? hoveredMoveHexes : hoveredMouseHex;
 
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; ++hex)
 	{

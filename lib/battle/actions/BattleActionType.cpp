@@ -21,6 +21,8 @@
 #include "../BattleAction.h"
 #include "../CBattleInfoCallback.h"
 #include "../CUnitState.h"
+#include "../../CStack.h"
+#include "../../spells/ISpellMechanics.h"
 #include "../../spells/Problem.h"
 
 static constexpr SkipTurnAction skipTurnAction;
@@ -42,14 +44,11 @@ static constexpr UnitSpellAction unitSpellAction;
 static constexpr RandomSpellAction randomSpellAction;
 static constexpr WalkAndCastAction walkAndCastAction;
 
-namespace
-{
 struct RegisteredActionType
 {
 	EActionType actionType;
 	const BattleActionType * type;
 };
-}
 
 static constexpr std::array<RegisteredActionType, 18> registeredTypes = {{
 	{EActionType::NO_ACTION, &skipTurnAction},
@@ -196,6 +195,40 @@ bool BattleActionType::checkUnitCanAct(const CBattleInfoCallback & battle, const
 	}
 
 	return true;
+}
+
+const battle::Unit * BattleActionType::getDestinationUnit(const CBattleInfoCallback & battle, const battle::Destination & destination)
+{
+	if(destination.unitValue)
+		return destination.unitValue;
+	return battle.battleGetUnitByPos(destination.hexValue, true);
+}
+
+std::vector<ActionApproach> BattleActionType::getReachableApproaches(const CBattleInfoCallback & battle, const battle::Unit & actor, const BattleHex & hoveredHex, bool longWeapon)
+{
+	const BattleHexArray availableHexes = battle.battleGetAvailableHexes(&actor, false);
+	std::vector<ActionApproach> result;
+
+	for(const auto direction : {BattleHex::TOP_LEFT, BattleHex::TOP_RIGHT, BattleHex::RIGHT, BattleHex::BOTTOM_RIGHT, BattleHex::BOTTOM_LEFT, BattleHex::LEFT, BattleHex::TOP, BattleHex::BOTTOM})
+	{
+		const BattleHex from = battle.findAttackPosition(availableHexes, &actor, hoveredHex, direction, longWeapon);
+		if(from.isValid())
+			result.push_back({direction, from});
+	}
+
+	return result;
+}
+
+void BattleActionType::addSpellArea(ActionPreview & preview, const spells::Mechanics & mechanics, const BattleHex & hoveredHex)
+{
+	// the edge columns are not part of the battlefield shown to the player
+	for(const BattleHex & hex : mechanics.rangeInHexes(hoveredHex))
+		if(hex.getX() != 0 && hex.getX() != GameConstants::BFIELD_WIDTH - 1)
+			preview.shadedHexes.insert(hex);
+
+	for(const CStack * unit : mechanics.getAffectedStacks({battle::Destination(hoveredHex)}))
+		if(!unit->coversPos(hoveredHex))
+			preview.affectedUnits.push_back(unit->unitId());
 }
 
 const battle::Unit & BattleActionType::getActor(const CBattleInfoCallback & battle, const BattleAction & action)

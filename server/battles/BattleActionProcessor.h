@@ -151,8 +151,7 @@ class BattleActionProcessor : boost::noncopyable
 	/// Reports every text of the problem, or `fallback` if it has none
 	void complain(const spells::Problem & problem, const std::string & fallback);
 
-
-	bool dispatchBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
+	/// Applies a valid action, or a turn skip of the unit of an invalid unit action. Returns false for an invalid action
 	bool makeBattleActionImpl(const CBattleInfoCallback & battle, const BattleAction & ba);
 	void removeBonuses(const CBattleInfoCallback & battle, const battle::Unit * stack, const BonusList & bonuses);
 

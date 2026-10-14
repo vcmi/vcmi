@@ -23,6 +23,7 @@ constexpr int archer = 2;
 constexpr int masterGenie = 37;
 constexpr int harpy = 72;
 constexpr int stormElemental = 127; // casts Protection from Air
+constexpr int cyclop = 94; // shoots at walls
 
 /// Options of one kind of unit outside of the tactics phase, with nothing next to it.
 struct UnitOptionsCase
@@ -46,11 +47,8 @@ public:
 	/// Types of the options that the action types offer
 	std::vector<const BattleActionType *> typesOffered(const CStack * unit) const
 	{
-		std::vector<ActionOption> options;
-		BattleActionType::collectAllOptions(*battle(), *unit, options);
-
 		std::vector<const BattleActionType *> result;
-		for(const auto & option : options)
+		for(const auto & option : optionsOf(unit))
 			result.push_back(option.type);
 		return result;
 	}
@@ -61,11 +59,6 @@ public:
 		for(const auto action : actions)
 			result.push_back(BattleActionType::find(action));
 		return result;
-	}
-
-	static const BattleActionType * walkType()
-	{
-		return BattleActionType::find(EActionType::WALK);
 	}
 };
 
@@ -110,9 +103,9 @@ INSTANTIATE_TEST_SUITE_P(Units, UnitOptionsTest, ::testing::Values(
 		{EActionType::WALK, EActionType::WALK_AND_ATTACK, EActionType::WALK_AND_CAST}},
 	UnitOptionsCase{"firstAidTent", CreatureID::FIRST_AID_TENT, nullptr,
 		{EActionType::STACK_HEAL}},
-	// the catapult has nothing to shoot at outside of a siege
-	UnitOptionsCase{"catapultInField", CreatureID::CATAPULT, nullptr,
-		{}}
+	// walls to shoot at exist only in a siege
+	UnitOptionsCase{"wallShooterInField", cyclop, nullptr,
+		{EActionType::WALK, EActionType::SHOOT, EActionType::WALK_AND_ATTACK}}
 ),
 	[](const ::testing::TestParamInfo<UnitOptionsCase> & info) { return info.param.name; });
 
@@ -127,16 +120,6 @@ TEST_F(ActionOptionsTest, shooterNextToEnemyCannotShoot)
 	EXPECT_THAT(typesOffered(shooter), ::testing::UnorderedElementsAreArray(typesOf({EActionType::WALK, EActionType::WALK_AND_ATTACK})));
 }
 
-TEST_F(ActionOptionsTest, catapultShootsAtStandingWalls)
-{
-	startGame();
-	startSiege();
-
-	CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), unitHex, 1);
-
-	EXPECT_THAT(typesOffered(catapult), ::testing::ElementsAre(BattleActionType::find(EActionType::CATAPULT)));
-}
-
 TEST_F(ActionOptionsTest, tacticsPhaseOffersOnlyMoveWithoutPanelButton)
 {
 	startGame();
@@ -146,9 +129,8 @@ TEST_F(ActionOptionsTest, tacticsPhaseOffersOnlyMoveWithoutPanelButton)
 	battle()->tacticDistance = 4;
 	battle()->tacticsSide = BattleSide::ATTACKER;
 
-	std::vector<ActionOption> options;
-	BattleActionType::collectAllOptions(*battle(), *unit, options);
+	const auto options = optionsOf(unit);
 	ASSERT_EQ(options.size(), 1);
-	EXPECT_EQ(options.front().type, walkType());
+	EXPECT_EQ(options.front().type, BattleActionType::find(EActionType::WALK));
 	EXPECT_FALSE(options.front().button.has_value());
 }

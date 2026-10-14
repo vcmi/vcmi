@@ -294,30 +294,30 @@ public:
 	}
 };
 
-bool BattleActionProcessor::dispatchBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba)
+bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & battle, const BattleAction & requested)
 {
-	if(const auto * type = BattleActionType::find(ba))
-	{
-		spells::detail::ProblemImpl problem;
-		if(!type->validate(gameHandler->gameInfo(), battle, ba, problem))
-		{
-			complain(problem, "Battle action refused without a reason: " + ba.toString());
-			return false;
-		}
+	logGlobal->trace("Making action: %s", requested.toString());
+	const CStack * stack = battle.battleGetStackByID(requested.stackNumber);
 
-		ActionEnvironment env(*this, battle);
-		type->apply(env, battle, ba);
-		return true;
+	const auto * requestedType = BattleActionType::find(requested);
+	if(!requestedType)
+	{
+		gameHandler->complain("Unrecognized action type received!!");
+		return false;
 	}
 
-	gameHandler->complain("Unrecognized action type received!!");
-	return false;
-}
+	spells::detail::ProblemImpl problem;
+	const bool valid = requestedType->validate(gameHandler->gameInfo(), battle, requested, problem);
+	if(!valid)
+	{
+		complain(problem, "Battle action refused without a reason: " + requested.toString());
 
-bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & battle, const BattleAction &ba)
-{
-	logGlobal->trace("Making action: %s", ba.toString());
-	const CStack * stack = battle.battleGetStackByID(ba.stackNumber);
+		if(!requested.isUnitAction() || !stack)
+			return false;
+	}
+
+	// an invalid unit action skips the turn of the unit, so that an AI that repeats the action can't stall the battle
+	const BattleAction ba = valid ? requested : BattleAction::makeNoAction(stack);
 
 	// Events outside an action, such as round start or battle setup, add no action participants.
 	actionParticipants.clear();
@@ -334,12 +334,11 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 		gameHandler->sendAndApply(startAction);
 	}
 
-	bool result = dispatchBattleAction(battle, ba);
-	if(ba.isBattleEndAction())
-		return result;
+	ActionEnvironment env(*this, battle);
+	BattleActionType::find(ba)->apply(env, battle, ba);
 
-	if(ba.actionType == EActionType::SHOOT || ba.actionType == EActionType::MONSTER_SPELL || ba.actionType == EActionType::RANDOM_SPELL)
-		battle.handleObstacleTriggersForUnit(*gameHandler->spellEnv, *stack);
+	if(ba.isBattleEndAction())
+		return valid;
 
 	// Resolve deaths first so ACTION_FINISHED observes final alive states.
 	flushPendingDeaths(battle);
@@ -352,7 +351,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	endAction.battleID = battle.getBattle()->getBattleID();
 	gameHandler->sendAndApply(endAction);
 
-	return result;
+	return valid;
 }
 
 BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBattleInfoCallback & battle, int stack, BattleHex dest)

@@ -19,14 +19,6 @@
 #include "../../CStack.h"
 #include "../../spells/Problem.h"
 
-static const battle::Unit * getDefender(const CBattleInfoCallback & battle, const battle::Destination & destination)
-{
-	if(destination.unitValue)
-		return destination.unitValue;
-
-	return battle.battleGetUnitByPos(destination.hexValue, true);
-}
-
 bool MeleeAttackAction::isUnitAction() const
 {
 	return true;
@@ -56,17 +48,8 @@ std::vector<ActionApproach> MeleeAttackAction::getApproaches(const CBattleInfoCa
 	if(!defender)
 		return {};
 
-	const BattleHexArray availableHexes = battle.battleGetAvailableHexes(&actor, false);
-	std::vector<ActionApproach> result;
-
-	for(const auto direction : {BattleHex::TOP_LEFT, BattleHex::TOP_RIGHT, BattleHex::RIGHT, BattleHex::BOTTOM_RIGHT, BattleHex::BOTTOM_LEFT, BattleHex::LEFT, BattleHex::TOP, BattleHex::BOTTOM})
-	{
-		const BattleHex from = battle.fromWhichHexAttack(&actor, hoveredHex, direction, usesLongWeapon());
-
-		if(battle.battleCanAttackFromHex(availableHexes, &actor, hoveredHex, from) && canStrikeFrom(battle, actor, *defender, from))
-			result.push_back({direction, from});
-	}
-
+	std::vector<ActionApproach> result = getReachableApproaches(battle, actor, hoveredHex, usesLongWeapon());
+	std::erase_if(result, [&](const ActionApproach & approach){ return !canStrikeFrom(battle, actor, *defender, approach.from); });
 	return result;
 }
 
@@ -154,7 +137,7 @@ bool MeleeAttackAction::validate(const IGameInfoCallback & game, const CBattleIn
 	}
 
 	const BattleHex attackFrom = target.at(0).hexValue;
-	const battle::Unit * defender = getDefender(battle, target.at(1));
+	const battle::Unit * defender = getDestinationUnit(battle, target.at(1));
 	if(!defender)
 	{
 		problem.add(MetaString::createFromRawString("Invalid target to attack"));
@@ -193,7 +176,7 @@ void MeleeAttackAction::apply(IBattleActionEnvironment & env, const CBattleInfoC
 	const battle::Unit & attacker = getActor(battle, action);
 	const battle::Target target = action.getTarget(&battle);
 	const BattleHex targetHex = target.at(1).hexValue;
-	const uint32_t defenderID = getDefender(battle, target.at(1))->unitId();
+	const uint32_t defenderID = getDestinationUnit(battle, target.at(1))->unitId();
 
 	const BattleHex startPosition = attacker.getPosition();
 	const int speedBeforeAttack = attacker.getMovementRange(0);

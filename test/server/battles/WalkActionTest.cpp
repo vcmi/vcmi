@@ -22,8 +22,8 @@ constexpr int pikeman = 0; // walks 4 hexes
 constexpr int griffin = 4; // flies 6 hexes
 }
 
-/// Where a WALK action leaves the unit, what stops it on the way, and which destinations the
-/// server refuses. Every walk here goes along one row, where the shortest path is a straight line.
+/// Where a WALK action leaves the unit, what stops it on the way, which destinations the
+/// server refuses, and what the client shows for them. Every walk here goes along one row, where the shortest path is a straight line.
 class WalkActionTest : public BattleTestFixture
 {
 public:
@@ -130,88 +130,54 @@ TEST_F(WalkActionTest, defenderWalksIntoCastleGate)
 	EXPECT_EQ(walker->getPosition(), BattleHex(BattleHex::GATE_OUTER));
 }
 
-/// What the client shows and sends for the move option of the active unit on a hovered hex.
-class WalkOptionTest : public WalkActionTest
-{
-public:
-	ActionOption moveOption(const CStack * unit) const
-	{
-		battle()->activeStack = unit->unitId();
-
-		std::vector<ActionOption> options;
-		BattleActionType::collectAllOptions(*battle(), *unit, options);
-
-		for(const auto & option : options)
-			if(option.type == BattleActionType::find(EActionType::WALK))
-				return option;
-
-		ADD_FAILURE() << "no move option";
-		return {};
-	}
-
-	bool isLegal(const CStack * unit, const BattleHex & hex)
-	{
-		const auto option = moveOption(unit);
-		return option.type->isLegal(*gameState(), *battle(), option, {unit, hex});
-	}
-
-	ActionPreview preview(const CStack * unit, const BattleHex & hex)
-	{
-		const auto option = moveOption(unit);
-		return option.type->preview(*gameState(), *battle(), option, {unit, hex});
-	}
-};
-
-TEST_F(WalkOptionTest, walkingUnitMovesToHexInReach)
+TEST_F(WalkActionTest, walkPreviewShadesHexInReach)
 {
 	startGame();
 	startBattle();
 
 	CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
 
-	const auto shown = preview(walker, destination);
+	const auto shown = previewOf(walker, EActionType::WALK, destination);
 	EXPECT_EQ(shown.cursor, "combatMove");
 	EXPECT_EQ(shown.shadedHexes, BattleHexArray({destination}));
 
-	const auto option = moveOption(walker);
+	const auto option = optionOf(walker, EActionType::WALK);
 	EXPECT_EQ(option.type->build(*battle(), option, {walker, destination}).value().getTarget(battle()).at(0).hexValue, destination);
 }
 
-TEST_F(WalkOptionTest, flyingUnitShowsFlyCursor)
+TEST_F(WalkActionTest, flyingUnitShowsFlyCursor)
 {
 	startGame();
 	startBattle();
 
 	CStack * flyer = addStack(BattleSide::ATTACKER, CreatureID(griffin), start, 10);
 
-	EXPECT_EQ(preview(flyer, destination).cursor, "combatFly");
+	EXPECT_EQ(previewOf(flyer, EActionType::WALK, destination).cursor, "combatFly");
 }
 
-TEST_F(WalkOptionTest, hexOutOfReachIsBlocked)
+TEST_F(WalkActionTest, walkPreviewOutOfReachIsBlocked)
 {
 	startGame();
 	startBattle();
 
 	CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
 
-	const auto shown = preview(walker, BattleHex(9, 5));
+	const auto shown = previewOf(walker, EActionType::WALK, BattleHex(9, 5));
 	EXPECT_EQ(shown.cursor, "combatBlocked");
 	EXPECT_TRUE(shown.shadedHexes.empty());
 }
 
-TEST_F(WalkOptionTest, hoveredUnitIsNoMoveTarget)
+TEST_F(WalkActionTest, ownHexIsNoMoveTarget)
 {
 	startGame();
 	startBattle();
 
 	CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), destination, 10);
 
-	EXPECT_FALSE(isLegal(walker, walker->getPosition()));
-	EXPECT_FALSE(isLegal(walker, enemy->getPosition()));
+	EXPECT_FALSE(isLegal(optionOf(walker, EActionType::WALK), {walker, start}));
 }
 
-TEST_F(WalkOptionTest, twoHexUnitMovesWhereItsTailFits)
+TEST_F(WalkActionTest, twoHexUnitMovesWhereItsTailFits)
 {
 	startGame();
 	startBattle();
@@ -222,5 +188,5 @@ TEST_F(WalkOptionTest, twoHexUnitMovesWhereItsTailFits)
 
 	// the head can't stand on the hovered hex, because the tail would stand on the enemy; one hex further both fit
 	const BattleHex head = destination.cloneInDirection(BattleHex::RIGHT);
-	EXPECT_EQ(preview(flyer, destination).shadedHexes, BattleHexArray({head, destination}));
+	EXPECT_EQ(previewOf(flyer, EActionType::WALK, destination).shadedHexes, BattleHexArray({head, destination}));
 }

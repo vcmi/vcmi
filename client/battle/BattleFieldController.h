@@ -104,8 +104,14 @@ class BattleFieldController : public CIntObject
 
 	BattleHexArray getHighlightedHexesForActiveStack();
 	BattleHexArray getMovementRangeForHoveredStack();
-	BattleHexArray getHighlightedHexesForSpellRange();
 	BattleHexArray getHighlightedHexesForMovementTarget();
+
+	/// Mask of the directions that the approaches use
+	static std::array<bool, 8> approachDirections(const std::vector<ActionApproach> & approaches);
+	/// Cursor test point of each allowed direction around the hex, invalid for the others
+	std::array<Point, 8> directionPoints(const BattleHex & myNumber, const std::array<bool, 8> & allowedDirections) const;
+	/// Returns the allowed direction of attack on the hex nearest to the cursor, or NONE if no direction is allowed
+	BattleHex::EDir selectNearestDirection(const BattleHex & myNumber, const std::array<bool, 8> & allowedDirections) const;
 
 	// Range limit highlight helpers
 
@@ -182,12 +188,6 @@ public:
 	/// returns true if stack should render its stack count image in default position - outside own hex
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
-	/// Mask of the directions that the approaches use
-	static std::array<bool, 8> approachDirections(const std::vector<ActionApproach> & approaches);
-	/// Cursor test point of each allowed direction around the hex, invalid for the others
-	std::array<Point, 8> directionPoints(const BattleHex & myNumber, const std::array<bool, 8> & allowedDirections) const;
-	/// Returns the allowed direction of attack on the hex nearest to the cursor, or NONE if no direction is allowed
-	BattleHex::EDir selectNearestDirection(const BattleHex & myNumber, const std::array<bool, 8> & allowedDirections) const;
 	/// Returns the approach of the non-empty list with the direction nearest to the cursor
 	ActionApproach selectApproach(const BattleHex & hex, const std::vector<ActionApproach> & approaches) const;
 

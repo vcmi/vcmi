@@ -13,15 +13,6 @@
 
 class CStack;
 
-/// Cursor, status bar text and highlighted hexes for the hovered hex
-struct BattleActionPreview
-{
-	std::string cursor; ///< cursor id from config/cursors.json
-	std::string statusText;
-	BattleHexArray shadedHexes; ///< hexes highlighted as the result of clicking the hex
-	std::vector<uint32_t> affectedUnits; ///< units affected by clicking the hex, besides the unit on the hex
-};
-
 /// One way to act on a battlefield hex, such as moving, attacking or viewing unit info. BattleActionsController selects one entry for the hovered hex
 class IBattleActionEntry
 {
@@ -29,10 +20,10 @@ public:
 	virtual ~IBattleActionEntry() = default;
 
 	/// Order in which entries are tried for a hex, lower first. Target is the unit on the hex, or nullptr
-	virtual int getPriority(const CStack * actor, const CStack * target) const = 0;
+	virtual int getPriority(const battle::Unit * target) const = 0;
 	virtual bool isLegal(const BattleHex & hex) const = 0;
 	/// Preview of the hex; the blocked cursor and no shaded hexes where the entry is not legal
-	virtual BattleActionPreview preview(const BattleHex & hex) const = 0;
+	virtual ActionPreview preview(const BattleHex & hex) const = 0;
 	/// Performs the entry on a hex where it is legal
 	virtual void realize(const BattleHex & hex) const = 0;
 	/// Spell cast by the entry, or SpellID::NONE

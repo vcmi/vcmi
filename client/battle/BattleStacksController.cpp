@@ -941,24 +941,6 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	if (!hoveredHex.isValid())
 		return {};
 
-	const spells::Caster *caster = nullptr;
-	const CSpell *spell = nullptr;
-
-	spells::Mode mode = owner.actionsController->getCurrentCastMode();
-	spell = owner.actionsController->getCurrentSpell(hoveredHex);
-	caster = owner.actionsController->getCurrentSpellcaster();
-
-	//casting spell or in explicit spellcasting mode that also handles SPELL_LIKE_ATTACK
-	if(caster && spell && (owner.actionsController->currentActionSpellcasting(hoveredHex) || owner.actionsController->creatureSpellcastingModeActive()))
-	{
-		spells::Target target;
-		target.emplace_back(hoveredHex);
-
-		spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
-		auto mechanics = spell->battleMechanics(&event);
-		return mechanics->getAffectedStacks(target);
-	}
-
 	std::vector<const CStack *> stacks;
 	auto target = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
 	if(target)

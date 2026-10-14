@@ -795,9 +795,7 @@ TargetStepDescription BattleSpellMechanics::describeTargetStep(const Target & pa
 	if(step >= types.size() || types.at(step) == AimType::NOTHING || !hoveredHex.isValid())
 		return {};
 
-	const battle::Unit * hoveredUnit = battle()->battleGetUnitByPos(hoveredHex, true);
-	if(!hoveredUnit)
-		hoveredUnit = battle()->battleGetUnitByPos(hoveredHex, false);
+	const battle::Unit * hoveredUnit = battle()->battleGetUnitOrCorpseByPos(hoveredHex);
 
 	Target aim = partialTarget;
 	aim.emplace_back(hoveredHex);
@@ -817,7 +815,7 @@ TargetStepDescription BattleSpellMechanics::describeTargetStep(const Target & pa
 	{
 		if(!described->healthGainTextID.empty())
 			described->text = describeEffectValue(described->text, aim, described->healthGainTextID);
-		return {described->cursor, described->text, described->blockedText};
+		return *described;
 	}
 
 	if(types.at(step) == AimType::CREATURE)

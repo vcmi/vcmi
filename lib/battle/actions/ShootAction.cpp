@@ -22,9 +22,14 @@
 #include "../../spells/ISpellMechanics.h"
 #include "../../spells/Problem.h"
 
+static std::shared_ptr<const Bonus> getAreaShotAbility(const battle::Unit & shooter)
+{
+	return shooter.getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK));
+}
+
 static const CSpell * getAreaShotSpell(const battle::Unit & shooter)
 {
-	return shooter.getBonus(Selector::type()(BonusType::SPELL_LIKE_ATTACK))->subtype.as<SpellID>().toSpell();
+	return getAreaShotAbility(shooter)->subtype.as<SpellID>().toSpell();
 }
 
 bool ShootAction::isUnitAction() const
@@ -57,17 +62,31 @@ ActionPreview ShootAction::preview(const IGameInfoCallback & game, const CBattle
 	const std::string cursor = battle.battleHasShootingPenalty(&shooter, context.hoveredHex) ? "combatShootPenalty" : "combatShoot";
 	const battle::Unit * target = battle.battleGetUnitByPos(context.hoveredHex, true);
 
+	ActionPreview result{cursor, {}, {}, {}};
+
 	if(!target)
 	{
 		const CSpell * spell = getAreaShotSpell(shooter);
 		const DamageEstimation estimation = battle.estimateSpellLikeAttackDamage(&shooter, spell, context.hoveredHex);
-		return {cursor, DamageEstimationTexts::rangedAttack(estimation, spell->getNameTextID(), shotsLeft), {}, {}};
+		result.statusText = DamageEstimationTexts::rangedAttack(estimation, spell->getNameTextID(), shotsLeft);
+	}
+	else
+	{
+		DamageEstimation estimation = battle.battleEstimateDamage(BattleAttackInfo(&shooter, target, 0, true));
+		vstd::amin(estimation.kills.max, target->getCount());
+		vstd::amin(estimation.kills.min, target->getCount());
+		result.statusText = DamageEstimationTexts::rangedAttack(estimation, *target, shotsLeft);
 	}
 
-	DamageEstimation estimation = battle.battleEstimateDamage(BattleAttackInfo(&shooter, target, 0, true));
-	vstd::amin(estimation.kills.max, target->getCount());
-	vstd::amin(estimation.kills.min, target->getCount());
-	return {cursor, DamageEstimationTexts::rangedAttack(estimation, *target, shotsLeft), {}, {}};
+	if(const auto ability = getAreaShotAbility(shooter); ability && ability->subtype.hasValue())
+	{
+		const CSpell * spell = ability->subtype.as<SpellID>().toSpell();
+		spells::BattleCast cast(&battle, &shooter, spells::Mode::SPELL_LIKE_ATTACK, spell);
+		cast.setSpellLevel(ability->val);
+		addSpellArea(result, *spell->battleMechanics(&cast), context.hoveredHex);
+	}
+
+	return result;
 }
 
 std::optional<BattleAction> ShootAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
@@ -113,5 +132,8 @@ bool ShootAction::validate(const IGameInfoCallback & game, const CBattleInfoCall
 
 void ShootAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
-	env.rangedAttack(getActor(battle, action), action.getTarget(&battle).at(0).hexValue);
+	const battle::Unit & unit = getActor(battle, action);
+
+	env.rangedAttack(unit, action.getTarget(&battle).at(0).hexValue);
+	env.triggerObstaclesUnder(unit);
 }

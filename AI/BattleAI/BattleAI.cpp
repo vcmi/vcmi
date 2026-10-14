@@ -191,15 +191,10 @@ BattleAction CBattleAI::useCatapult(const BattleID & battleID, const CStack * st
 	if(cb->getBattle(battleID)->getAttackableWallParts().empty())
 		return BattleAction::makeDefend(stack);
 
-	// Action has no target - catapult will pick one on its own, according to its targeting rules
-	BattleAction attack;
-	attack.actionType = EActionType::CATAPULT;
-	attack.side = side;
-	attack.stackNumber = stack->unitId();
-
 	movesSkippedByDefense = 0;
 
-	return attack;
+	// catapult will pick a target on its own, according to its targeting rules
+	return BattleAction::makeCatapultShot(stack);
 }
 
 void CBattleAI::battleStart(const BattleID & battleID, const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, BattleSide Side, bool replayAllowed)

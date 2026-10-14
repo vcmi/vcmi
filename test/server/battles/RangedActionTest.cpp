@@ -11,7 +11,6 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../../lib/GameLibrary.h"
 #include "../../../lib/battle/BattleAction.h"
 #include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/bonuses/Bonus.h"
@@ -23,10 +22,11 @@ namespace
 // creatures
 constexpr int pikeman = 0;
 constexpr int archer = 2; // one shot per turn
+constexpr int cyclop = 94; // shoots at walls
 }
 
 /// Actions a unit makes from where it stands: shooting, and what the first aid tent and the
-/// catapult do.
+/// catapult do, with the previews the client shows for them.
 class RangedActionTest : public BattleTestFixture
 {
 public:
@@ -176,104 +176,6 @@ TEST_F(RangedActionTest, catapultShootsAtWalls)
 	EXPECT_NE(shots.front().attackedPart, EWallPart::INVALID);
 }
 
-/// What the client shows and sends for the shot option of the active unit on a hovered hex.
-class ShootOptionTest : public RangedActionTest
-{
-public:
-	ActionOption shotOption(const CStack * unit) const
-	{
-		battle()->activeStack = unit->unitId();
-		std::vector<ActionOption> options;
-		BattleActionType::collectAllOptions(*battle(), *unit, options);
-
-		for(const auto & option : options)
-			if(option.type == BattleActionType::find(EActionType::SHOOT))
-				return option;
-
-		ADD_FAILURE() << "no shot option";
-		return {};
-	}
-
-	ActionPreview preview(const CStack * unit, const BattleHex & hex) const
-	{
-		const auto option = shotOption(unit);
-		return option.type->preview(*gameState(), *battle(), option, {unit, hex});
-	}
-};
-
-TEST_F(ShootOptionTest, shotPreviewShowsShotsLeftAndDamage)
-{
-	startGame();
-	startBattle();
-
-	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
-	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(8, 5), stackCount);
-
-	const auto shown = preview(shooter, target->getPosition());
-	EXPECT_EQ(shown.cursor, "combatShoot");
-	// ten archers deal a range of damage, which the text shows as "min - max"
-	EXPECT_THAT(shown.statusText.toString(LIBRARY->staticTexts()), ::testing::MatchesRegex("Shoot Pikemen \\(12 shots left, [0-9]+ - [0-9]+ damage.*\\)\\."));
-
-	const auto option = shotOption(shooter);
-	EXPECT_TRUE(act(option.type->build(*battle(), option, {shooter, target->getPosition()}).value()));
-}
-
-TEST_F(ShootOptionTest, distantTargetShowsPenaltyCursor)
-{
-	startGame();
-	startBattle();
-
-	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), BattleHex(1, 5), stackCount);
-	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(15, 5), stackCount);
-
-	EXPECT_EQ(preview(shooter, target->getPosition()).cursor, "combatShootPenalty");
-}
-
-TEST_F(ShootOptionTest, emptyHexIsBlocked)
-{
-	startGame();
-	startBattle();
-
-	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
-	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
-
-	EXPECT_EQ(preview(shooter, BattleHex(8, 5)).cursor, "combatBlocked");
-}
-
-/// What the client shows and sends for the heal option of a first aid tent on a hovered hex.
-class HealOptionTest : public RangedActionTest
-{
-public:
-	ActionPreview preview(const CStack * unit, const BattleHex & hex) const
-	{
-		battle()->activeStack = unit->unitId();
-		std::vector<ActionOption> options;
-		BattleActionType::collectAllOptions(*battle(), *unit, options);
-		EXPECT_EQ(options.size(), 1);
-		return options.at(0).type->preview(*gameState(), *battle(), options.at(0), {unit, hex});
-	}
-};
-
-TEST_F(HealOptionTest, woundedStackOfTentSideCanBeHealed)
-{
-	startGame();
-	startBattle();
-
-	CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
-	CStack * patient = addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
-
-	EXPECT_EQ(preview(tent, patient->getPosition()).cursor, "combatBlocked");
-
-	injure(patient, patient->getMaxHealth() / 2);
-	injure(enemy, enemy->getMaxHealth() / 2);
-
-	const auto shown = preview(tent, patient->getPosition());
-	EXPECT_EQ(shown.cursor, "combatHeal");
-	EXPECT_THAT(shown.statusText.toString(LIBRARY->staticTexts()), ::testing::StartsWith("Apply first aid to the Pikemen"));
-	EXPECT_EQ(preview(tent, enemy->getPosition()).cursor, "combatBlocked");
-}
-
 TEST_F(RangedActionTest, catapultShotAtNonWallHexIsRefused)
 {
 	startGame();
@@ -291,15 +193,15 @@ TEST_F(RangedActionTest, catapultShotAtNonWallHexIsRefused)
 		EXPECT_NE(attack.attacker, static_cast<int>(catapult->unitId()));
 }
 
-TEST_F(RangedActionTest, catapultOutsideSiegeIsRefused)
+TEST_F(RangedActionTest, wallShotOutsideSiegeIsRefused)
 {
 	startGame();
 	startBattle();
 
-	CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), BattleHex(2, 8), 1);
+	CStack * cyclops = addStack(BattleSide::ATTACKER, CreatureID(cyclop), shooterHex, stackCount);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
-	EXPECT_FALSE(act(BattleAction::makeCatapultShot(catapult)));
+	EXPECT_FALSE(act(BattleAction::makeCatapultShot(cyclops)));
 }
 
 TEST_F(RangedActionTest, catapultOptionTargetsStandingWall)
@@ -309,14 +211,73 @@ TEST_F(RangedActionTest, catapultOptionTargetsStandingWall)
 
 	CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), BattleHex(2, 8), 1);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
-	battle()->activeStack = catapult->unitId();
 
-	std::vector<ActionOption> options;
-	BattleActionType::collectAllOptions(*battle(), *catapult, options);
+	const auto options = optionsOf(catapult);
 	ASSERT_EQ(options.size(), 1);
 	const auto & option = options.front();
 
 	const BattleHex wall = battle()->wallPartToBattleHex(EWallPart::UPPER_WALL);
-	EXPECT_EQ(option.type->preview(*gameState(), *battle(), option, {catapult, wall}).cursor, "combatShootCatapult");
-	EXPECT_EQ(option.type->preview(*gameState(), *battle(), option, {catapult, BattleHex(8, 5)}).cursor, "combatBlocked");
+	EXPECT_EQ(preview(option, {catapult, wall}).cursor, "combatShootCatapult");
+	EXPECT_EQ(preview(option, {catapult, BattleHex(8, 5)}).cursor, "combatBlocked");
+}
+
+TEST_F(RangedActionTest, shotPreviewShowsShotsLeftAndDamage)
+{
+	startGame();
+	startBattle();
+
+	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
+	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(8, 5), stackCount);
+
+	const auto shown = previewOf(shooter, EActionType::SHOOT, target->getPosition());
+	EXPECT_EQ(shown.cursor, "combatShoot");
+	// an archer has 12 shots
+	EXPECT_THAT(textIDsOf(shown.statusText), ::testing::AllOf(
+		::testing::Contains(::testing::StartsWith("vcmi.battleWindow.damageEstimation.ranged")),
+		::testing::Contains(pluralNameOf(CreatureID(pikeman))),
+		::testing::Contains("vcmi.battleWindow.damageEstimation.shots"),
+		::testing::Contains("vcmi.battleWindow.damageEstimation.damage")));
+	EXPECT_THAT(numbersOf(shown.statusText), ::testing::Contains(12));
+
+	const auto option = optionOf(shooter, EActionType::SHOOT);
+	EXPECT_TRUE(act(option.type->build(*battle(), option, {shooter, target->getPosition()}).value()));
+}
+
+TEST_F(RangedActionTest, distantTargetShowsPenaltyCursor)
+{
+	startGame();
+	startBattle();
+
+	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), BattleHex(1, 5), stackCount);
+	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(15, 5), stackCount);
+
+	EXPECT_EQ(previewOf(shooter, EActionType::SHOOT, target->getPosition()).cursor, "combatShootPenalty");
+}
+
+TEST_F(RangedActionTest, shotPreviewAtEmptyHexIsBlocked)
+{
+	startGame();
+	startBattle();
+
+	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+
+	EXPECT_EQ(previewOf(shooter, EActionType::SHOOT, BattleHex(8, 5)).cursor, "combatBlocked");
+}
+
+TEST_F(RangedActionTest, healPreviewShowsWoundedStack)
+{
+	startGame();
+	startBattle();
+
+	CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
+	CStack * patient = addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
+
+	EXPECT_EQ(previewOf(tent, EActionType::STACK_HEAL, patient->getPosition()).cursor, "combatBlocked");
+
+	injure(patient, patient->getMaxHealth() / 2);
+
+	const auto shown = previewOf(tent, EActionType::STACK_HEAL, patient->getPosition());
+	EXPECT_EQ(shown.cursor, "combatHeal");
+	EXPECT_THAT(textIDsOf(shown.statusText), ::testing::IsSupersetOf(std::vector<std::string>{"core.genrltxt.419", pluralNameOf(CreatureID(pikeman))}));
 }

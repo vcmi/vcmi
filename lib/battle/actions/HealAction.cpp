@@ -25,14 +25,6 @@ static std::shared_ptr<const Bonus> getHealerAbility(const battle::Unit & unit)
 	return unit.getBonus(Selector::type()(BonusType::HEALER));
 }
 
-/// Unit aimed at by the action, or nullptr
-static const battle::Unit * getHealed(const CBattleInfoCallback & battle, const battle::Target & target)
-{
-	if(target.at(0).unitValue)
-		return target.at(0).unitValue;
-	return battle.battleGetUnitByPos(target.at(0).hexValue);
-}
-
 bool HealAction::isUnitAction() const
 {
 	return true;
@@ -94,7 +86,7 @@ bool HealAction::validate(const IGameInfoCallback & game, const CBattleInfoCallb
 		return false;
 	}
 
-	const battle::Unit * healed = getHealed(battle, target);
+	const battle::Unit * healed = getDestinationUnit(battle, target.at(0));
 	if(!healed || healed->unitSide() != unit->unitSide() || !healed->canBeHealed())
 	{
 		problem.add(MetaString::createFromRawString("Heal target is not a wounded unit of the healer's side."));
@@ -110,5 +102,5 @@ void HealAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback
 	const battle::Target target = action.getTarget(&battle);
 	const CSpell * spell = getHealerAbility(unit)->subtype.as<SpellID>().toSpell();
 
-	env.castSpell(unit, spell, spells::Mode::SPELL_LIKE_ATTACK, 0, {battle::Destination(getHealed(battle, target), target.at(0).hexValue)});
+	env.castSpell(unit, spell, spells::Mode::SPELL_LIKE_ATTACK, 0, {battle::Destination(getDestinationUnit(battle, target.at(0)), target.at(0).hexValue)});
 }
