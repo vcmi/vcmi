@@ -18,7 +18,6 @@ public:
 	~RewardWidget();
 
 	void loadReward(Rewardable::Reward * reward);
-	void showData(Rewardable::Reward * reward);
 	void commit();
 	void clearData();
 	void disableRemoveObjectOption();
@@ -26,9 +25,9 @@ public:
 
 private slots:
 
-	void on_rCreatureAdd_clicked();
+	void on_creatureAdd_clicked();
 
-	void on_rCreatureRemove_clicked();
+	void on_creatureRemove_clicked();
 
 	void on_castSpellCheck_toggled(bool checked);
 	void on_bonusAdd_clicked();
@@ -37,6 +36,7 @@ private slots:
 private:
 
 	void onCreatureAdd(QTableWidget * listWidget, QComboBox * comboWidget, QSpinBox * spinWidget);
+	void showData(Rewardable::Reward * reward);
 	void printRewardInformation();
 
 	Ui::RewardWidget *ui;

@@ -886,7 +886,6 @@ void SeerHut::readOrWriteReward18(JsonSerializeFormat & handler)
 			quest.serializeJson(handler);
 		}
 	}
-	logGlobal->error("debug!");
 }
 
 void SeerHut::readReward17(JsonSerializeFormat & handler)
