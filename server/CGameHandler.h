@@ -32,8 +32,6 @@ struct StartInfo;
 struct TerrainTile;
 struct CPackForServer;
 struct NewTurn;
-struct HeroLevelUp;
-struct CommanderLevelUp;
 struct CArtifactOperationPack;
 struct CGarrisonOperationPack;
 struct SetResources;
@@ -46,10 +44,11 @@ class PlayerMessageProcessor;
 class BattleProcessor;
 class TurnOrderProcessor;
 class TurnTimerHandler;
-class ActivityProcessor;
-class MapObjectVisitActivity;
+class QueriesProcessor;
+class CObjectVisitQuery;
 class NewTurnProcessor;
 class IGameServer;
+class TurnStartVisitScheduler;
 
 namespace scripting
 {
@@ -63,7 +62,8 @@ class CGameHandler : public Environment, public IGameEventCallback
 public:
 	std::unique_ptr<HeroPoolProcessor> heroPool;
 	std::unique_ptr<BattleProcessor> battles;
-	std::unique_ptr<ActivityProcessor> activities;
+	std::unique_ptr<QueriesProcessor> queries;
+	std::unique_ptr<TurnStartVisitScheduler> turnStartVisitScheduler;
 	std::unique_ptr<TurnOrderProcessor> turnOrder;
 	std::unique_ptr<TurnTimerHandler> turnTimerHandler;
 	std::unique_ptr<NewTurnProcessor> newTurnProcessor;
@@ -79,10 +79,10 @@ public:
 
 	std::unique_ptr<PlayerMessageProcessor> playerMessages;
 
-	//activities stuff
-	QuestionID questionCounter; ///< id of the last question asked
-	uint32_t activityTraceCounter = 0; ///< numbers activities in logs, not serialized
+	//queries stuff
+	QueryID QID;
 
+	std::set<PlayerColor> uiReadyForDialogs;
 
 	const Services * services() const override;
 	const BattleCb * battle(const BattleID & battleID) const override;
@@ -90,8 +90,8 @@ public:
 	IGameServer & gameServer() const;
 	ServerCallback * spellcastEnvironment() const;
 
-	bool isBlockedByActivities(const CPackForServer *pack, PlayerColor player);
-	bool isAllowedExchange(PlayerColor player, ObjectInstanceID id1, ObjectInstanceID id2);
+	bool isBlockedByQueries(const CPackForServer *pack, PlayerColor player);
+	bool isAllowedExchange(ObjectInstanceID id1, ObjectInstanceID id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
 	IGameInfoCallback & gameInfo();
@@ -125,16 +125,15 @@ public:
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill which, si64 val, ChangeValueMode mode) override;
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, ChangeValueMode mode) override;
 
-	void showBlockingDialog(BlockingDialog *iw) override;
-	void setVisitState(const CGHeroInstance * hero, const JsonNode & state) override;
+	void showBlockingDialog(const IObjectInterface * caller, BlockingDialog *iw) override;
 	void showScriptDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;
-	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addActivity) override;
+	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addQuery) override;
 
-	/// Runs a converted map event handler under a LuaScriptActivity, so that blocking script
-	/// actions can pause and later resume it. `dispatch` calls the dispatcher entry point and
-	/// returns its coroutine handle, empty if the handler finished without pausing.
+	/// Runs a converted map-event handler under a LuaScriptQuery so blocking script actions can pause and
+	/// later resume it. `dispatch` invokes the specific dispatcher entry point and returns its coroutine
+	/// handle (empty when the handler finished without pausing).
 	void runScriptedEvent(scripting::MapEventDispatcher & dispatcher, PlayerColor player, ObjectInstanceID visitingHero,
 		const std::function<std::optional<int>(scripting::MapEventDispatcher &)> & dispatch);
 	void setScriptVariable(const std::string & scope, const std::string & name, const JsonNode & value) override;
@@ -189,6 +188,8 @@ public:
 
 	/// Returns hero that is currently visiting this object, or nullptr if no visit is active
 	const CGHeroInstance * getVisitingHero(const CGObjectInstance *obj);
+	const CGObjectInstance * getVisitingObject(const CGHeroInstance *hero);
+	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) override;
 	void setObjPropertyValue(ObjectInstanceID objid, ObjProperty prop, int32_t value) override;
 	void setObjPropertyID(ObjectInstanceID objid, ObjProperty prop, ObjPropertyID identifier) override;
 	void setRewardableObjectConfiguration(ObjectInstanceID objid, const Rewardable::Configuration & configuration) override;
@@ -202,17 +203,10 @@ public:
 	bool teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui8 source, PlayerColor asker = PlayerColor::NEUTRAL);
 	void visitCastleObjects(const CGTownInstance * obj, const CGHeroInstance * hero) override;
 	void visitCastleObjects(const CGTownInstance * obj, const std::vector<const CGHeroInstance * > & visitors);
-	/// Grants every pending level without asking. For heroes that have no player to ask.
-	void levelUpHeroAutomatically(const CGHeroInstance * hero);
-	void levelUpCommanderAutomatically(const CCommanderInstance * c);
-
-	/// Rolls the skills offered by one level and applies the level itself, without asking.
-	HeroLevelUp rollHeroLevelUp(const CGHeroInstance * hero);
-	CommanderLevelUp rollCommanderLevelUp(const CCommanderInstance * c);
-
-	/// Grants the skill chosen for one level, without continuing to the next level.
-	void applyHeroLevelUp(const CGHeroInstance * hero, SecondarySkill skill);
-	void applyCommanderLevelUp (const CCommanderInstance * c, int skill); //secondary skill 1 to 6, special skill : skill - 100
+	void levelUpHero(const CGHeroInstance * hero, SecondarySkill skill);//handle client respond and send one more request if needed
+	void levelUpHero(const CGHeroInstance * hero);//initial call - check if hero have remaining levelups & handle them
+	void levelUpCommander (const CCommanderInstance * c, int skill); //secondary skill 1 to 6, special skill : skill - 100
+	void levelUpCommander (const CCommanderInstance * c);
 
 	void expGiven(const CGHeroInstance *hero); //triggers needed level-ups, handles also commander of this hero
 	//////////////////////////////////////////////////////////////////////////
@@ -223,7 +217,7 @@ public:
 	bool hasPlayerAt(PlayerColor player, GameConnectionID connectionId) const;
 	bool hasBothPlayersAtSameConnection(PlayerColor left, PlayerColor right) const;
 
-	bool answerQuestion( QuestionID questionID, std::optional<int32_t> reply, PlayerColor player );
+	bool queryReply( QueryID qid, std::optional<int32_t> reply, PlayerColor player );
 	bool buildBoat( ObjectInstanceID objid, PlayerColor player );
 	bool setFormation( ObjectInstanceID hid, EArmyFormation formation );
 	bool setTactics( ObjectInstanceID hid, bool enabled );
@@ -257,10 +251,12 @@ public:
 	void save(const std::string &fname, PlayerColor playerToNotifyOnSuccess, int autosaveCountLimit = 0);
 	void load(const StartInfo &info);
 
+	void onPlayerTurnStarted(PlayerColor which);
 	void onPlayerTurnEnded(PlayerColor which);
+	void onAdvInterfaceReady(PlayerColor player);
 	void onNewTurn();
 	void addStatistics(StatisticDataSet &stat) const;
-	void sendQuestionResolved(QuestionID questionID);
+	void sendQueryResolved(QueryID queryID);
 
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
@@ -270,7 +266,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & questionCounter;
+		h & QID;
 		h & *randomizer;
 		h & *battles;
 		h & *heroPool;
@@ -295,8 +291,6 @@ public:
 	[[noreturn]] void throwNotAllowedAction(GameConnectionID connectionID);
 	/// Throws if player stated in pack is not making turn right now
 	void throwIfPlayerNotActive(GameConnectionID connectionID, const CPackForServer * pack);
-	/// Throws unless the player may move creatures or artifacts between these armies, or within one if both are the same
-	void throwIfCanNotTrade(GameConnectionID connectionID, const CPackForServer * pack, ObjectInstanceID id1, ObjectInstanceID id2);
 	/// Throws if object is not owned by pack sender
 	void throwIfWrongOwner(GameConnectionID connectionID, const CPackForServer * pack, ObjectInstanceID id);
 	/// Throws if player is not present on connection of this pack

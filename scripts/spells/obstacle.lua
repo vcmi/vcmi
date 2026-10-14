@@ -162,11 +162,10 @@ local function buildDescriptor(self, mechanics, side, hex, customSize)
 	}
 end
 
--- Hexes for randomly placed patches (land mine, quicksand): H3 does not place them on hexes with dead units
 local function collectAvailable(battle, hexes)
 	local out = {}
 	for _, hex in ipairs(hexes) do
-		if isHexAvailable(battle, hex, true) and battle:getUnitByPos(hex, false) == nil then
+		if isHexAvailable(battle, hex, true) then
 			out[#out+1] = hex
 		end
 	end

@@ -86,12 +86,6 @@ Source type the bonus is restricted to act upon (used by hero specialty bonuses)
 
 - type: `any`
 
-### targetSourceID
-
-Optional identifier of the specific source object within `targetSourceType` this bonus is restricted to.
-
-- type: `any`
-
 ### addInfo
 
 Optional auxiliary payload — meaning depends on the bonus type.

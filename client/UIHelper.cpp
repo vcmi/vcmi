@@ -63,13 +63,10 @@ std::string UIHelper::getNecromancyInfoWindowText(const CStackBasicDescriptor & 
 	return text.toString(&GAME->translator());
 }
 
-std::string UIHelper::getArtifactsInfoWindowText(size_t artifactsCount)
+std::string UIHelper::getArtifactsInfoWindowText()
 {
 	MetaString text;
-	if(artifactsCount > 1)
-		text.appendTextID("vcmi.battleResultsWindow.capturedArtifacts"); // You have captured enemy artifacts!
-	else
-		text.appendTextID("core.genrltxt.30"); // You have captured an enemy artifact!
+	text.appendTextID("core.genrltxt.30");
 	return text.toString(&GAME->translator());
 }
 

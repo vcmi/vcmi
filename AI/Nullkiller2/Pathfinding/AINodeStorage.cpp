@@ -10,8 +10,6 @@
 #include "StdInc.h"
 #include "AINodeStorage.h"
 
-#include "../../../lib/battle/CombatValue.h"
-#include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/CPlayerState.h"
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/callback/IGameInfoCallback.h"
@@ -346,7 +344,7 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 
 				const auto & weakest = vstd::minElementByFun(dstNode->actor->creatureSet->Slots(), [](const auto & pair) -> int
 					{
-						return pair.second->getCount() * LIBRARY->creh->getCombatValue().getAIValue(pair.second->getCreatureID().toCreature());
+						return pair.second->getCount() * pair.second->getCreatureID().toCreature()->getAIValue();
 					});
 
 				if(weakest == dstNode->actor->creatureSet->Slots().end())
@@ -358,9 +356,9 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 				}
 
 				if(dstNode->actor->creatureSet->getFreeSlots().size())
-					dstNode->armyLoss += LIBRARY->creh->getCombatValue().getAIValue(weakest->second->getCreatureID().toCreature());
+					dstNode->armyLoss += weakest->second->getCreatureID().toCreature()->getAIValue();
 				else
-					dstNode->armyLoss += (weakest->second->getCount() + 1) / 2 * LIBRARY->creh->getCombatValue().getAIValue(weakest->second->getCreatureID().toCreature());
+					dstNode->armyLoss += (weakest->second->getCount() + 1) / 2 * weakest->second->getCreatureID().toCreature()->getAIValue();
 
 				dstNode->specialAction = AIPathfinding::WhirlpoolAction::instance;
 			}
@@ -823,11 +821,9 @@ void HeroChainCalculationTask::calculateHeroChain(
 		if(other->actor->isMovable)
 		{
 			bool hasLessMp = carrier->turns > other->turns || (carrier->turns == other->turns && carrier->moveRemains < other->moveRemains);
-			const auto * carrierHero = carrier->actor->hero;
-			const auto * otherHero = other->actor->hero;
-			bool hasLowerLevel = std::tie(carrierHero->level, carrierHero->exp) < std::tie(otherHero->level, otherHero->exp);
+			bool hasLessExperience = carrier->actor->hero->exp < other->actor->hero->exp;
 
-			if(hasLessMp && hasLowerLevel)
+			if(hasLessMp && hasLessExperience)
 			{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 				logAi->trace("Exchange at %s is inefficient. Blocked.", carrier->coord.toString());
@@ -1078,7 +1074,7 @@ void AINodeStorage::setTownsAndDwellings(
 			uint64_t mask = 1 << actors.size();
 			auto dwellingActor = std::make_shared<DwellingActor>(dwelling, mask, false, dayOfWeek);
 
-			if(dwellingActor->creatureSet->estimateCombatValue())
+			if(dwellingActor->creatureSet->getArmyStrength())
 			{
 				actors.push_back(dwellingActor);
 			}
@@ -1088,7 +1084,7 @@ void AINodeStorage::setTownsAndDwellings(
 				mask = 1 << actors.size();
 				dwellingActor = std::make_shared<DwellingActor>(dwelling, mask, waitForGrowth, dayOfWeek);
 
-				if(dwellingActor->creatureSet->estimateCombatValue())
+				if(dwellingActor->creatureSet->getArmyStrength())
 				{
 					actors.push_back(dwellingActor);
 				}

@@ -736,32 +736,35 @@ void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDe
 
 	if(!changedStack->alive() && healthDelta > 0)
 	{
-		// Accessibility is not used here, since double-wide war machines stand partially on side columns,
-		// which are never accessible to units
-		for(const auto & hex : changedStack->getHexes())
+		//checking if we resurrect a stack that is under a living stack
+		auto accessibility = getAccessibility();
+
+		if(!accessibility.accessible(changedStack->getPosition(), changedStack))
 		{
-			if(battleGetUnitByPos(hex, true) != nullptr || !battleGetAllObstaclesOnPos(hex, true).empty())
-			{
-				logNetwork->error("Cannot resurrect %s because hex %d is occupied!", changedStack->nodeName(), hex.toInt());
-				return; //position is already occupied
-			}
+			logNetwork->error("Cannot resurrect %s because hex %d is occupied!", changedStack->nodeName(), changedStack->getPosition());
+			return; //position is already occupied
 		}
 	}
 
-	const bool wasAlive = changedStack->alive();
+	bool killed = (-healthDelta) >= changedStack->getAvailableHealth();//todo: check using alive state once rebirth will be handled separately
+
+	bool resurrected = !changedStack->alive() && healthDelta > 0;
 
 	//applying changes
 	changedStack->load(data);
 
-	// Use the alive-state transition because a zero-health-change pack may update an existing corpse.
-	const bool killed = wasAlive && !changedStack->alive();
-	const bool resurrected = !wasAlive && changedStack->alive();
 
 	if(healthDelta < 0)
 	{
 		changedStack->removeBonusesRecursive(Bonus::UntilBeingAttacked);
+	}
+
+	if(healthDelta < 0)
+	{
 		changedStack->nodeHasChanged();	//bonuses with TIMES_STACK_SIZE updater may change
 	}
+
+	resurrected = resurrected || (killed && changedStack->alive());
 
 	if(killed)
 	{

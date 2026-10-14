@@ -378,11 +378,11 @@ const CGHeroInstance * Statistic::findBestHero(const CGameState * gs, const Play
 	const auto &h = gs->players.at(color).getHeroes();
 	if(h.empty())
 		return nullptr;
-	//best hero will be that with highest level
+	//best hero will be that with highest exp
 	int best = 0;
 	for(int b=1; b<h.size(); ++b)
 	{
-		if(std::tie(h[b]->level, h[b]->exp) > std::tie(h[best]->level, h[best]->exp))
+		if(h[b]->exp > h[best]->exp)
 		{
 			best = b;
 		}

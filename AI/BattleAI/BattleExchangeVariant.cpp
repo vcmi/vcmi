@@ -133,17 +133,17 @@ float BattleExchangeVariant::trackAttack(
 	bool isOurAttack,
 	DamageCache & damageCache,
 	std::shared_ptr<HypotheticBattle> hb,
-	AttackMode mode)
+	bool evaluateOnly)
 {
 	const std::string cachingStringBlocksRetaliation = "type_BLOCKS_RETALIATION";
 	static const auto selectorBlocksRetaliation = Selector::type()(BonusType::BLOCKS_RETALIATION);
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
 	int64_t attackDamage = damageCache.getDamage(attacker.get(), defender.get(), hb);
-	float defenderDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attackDamage, damageCache);
+	float defenderDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), defender.get(), attackDamage, damageCache, hb);
 	float attackerDamageReduce = 0;
 
-	if(mode != AttackMode::ESTIMATE)
+	if(!evaluateOnly)
 	{
 #if BATTLE_TRACE_LEVEL>=1
 		logAi->trace(
@@ -167,10 +167,10 @@ float BattleExchangeVariant::trackAttack(
 		attacker->afterAttack(shooting, false);
 	}
 
-	if(mode == AttackMode::FIRST_STRIKE && defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
+	if(!evaluateOnly && defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
 	{
 		auto retaliationDamage = damageCache.getDamage(defender.get(), attacker.get(), hb);
-		attackerDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), retaliationDamage, damageCache);
+		attackerDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attacker.get(), retaliationDamage, damageCache, hb);
 
 #if BATTLE_TRACE_LEVEL>=1
 		logAi->trace(
@@ -311,13 +311,9 @@ ReachabilityInfo getReachabilityWithEnemyBypass(
 
 			vstd::amin(turnsToKill, 100);
 
-			// clamp - the product of turns and movement range does not fit into the array element type
-			constexpr auto maxCost = std::numeric_limits<TBattlefieldTurnsArray::value_type>::max();
-			auto bypassCost = static_cast<int>(std::min<int64_t>(turnsToKill * unit->getMovementRange(), maxCost));
-
 			for(auto & hex : unit->getHexes())
 				if(hex.isAvailable()) //towers can have <0 pos; we don't also want to overwrite side columns
-					params.destructibleEnemyTurns[hex.toInt()] = bypassCost;
+					params.destructibleEnemyTurns[hex.toInt()] = turnsToKill * unit->getMovementRange();
 		}
 
 		params.bypassEnemyStacks = true;
@@ -764,7 +760,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 						isOur,
 						damageCache,
 						hb,
-						BattleExchangeVariant::AttackMode::ESTIMATE);
+						true);
 
 #if BATTLE_TRACE_LEVEL>=2
 					logAi->trace("Best target selector %s->%s score = %2f", attacker->getDescription(), stackWithBonuses->getDescription(), score);
@@ -843,8 +839,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 			{
 				for(int i = 0; i < totalAttacks; i++)
 				{
-					v.trackAttack(attacker, defender, shooting, isOur, damageCache, exchangeBattle,
-						i == 0 ? BattleExchangeVariant::AttackMode::FIRST_STRIKE : BattleExchangeVariant::AttackMode::FOLLOWUP_STRIKE);
+					v.trackAttack(attacker, defender, shooting, isOur, damageCache, exchangeBattle);
 
 					if(!attacker->alive() || !defender->alive())
 						break;

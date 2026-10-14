@@ -95,10 +95,9 @@ int CStackWindow::StackExperienceDetailsWindow::calculateDynamicTableRowCount(co
 	{
 		BonusType type;
 		int subtype;
-		std::string stacking;
 		bool operator<(const BonusKey & other) const
 		{
-			return std::tie(type, subtype, stacking) < std::tie(other.type, other.subtype, other.stacking);
+			return std::tie(type, subtype) < std::tie(other.type, other.subtype);
 		}
 	};
 
@@ -116,7 +115,7 @@ int CStackWindow::StackExperienceDetailsWindow::calculateDynamicTableRowCount(co
 
 		auto bonuses = preview.getBonuses(Selector::sourceTypeSel(BonusSource::STACK_EXPERIENCE));
 		for(const auto & bonus : *bonuses)
-			uniqueBonuses.insert({bonus->type, bonus->subtype.getNum(), bonus->stacking});
+			uniqueBonuses.insert({bonus->type, bonus->subtype.getNum()});
 	}
 
 	const int maxRowsWithoutHeader = 7; // keep dialog within 800x600
@@ -241,29 +240,27 @@ CStackWindow::StackExperienceDetailsWindow::StackExperienceDetailsWindow(const C
 		ImagePath::builtin("stackExperienceIconExperience"), true, -1, experienceTooltip, experiencePopup, false, false, false, false, true},
 	};
 
-	// bonuses that differ only in stacking are separate abilities, e.g. versions of the same ability for different situations
 	struct BonusKey
 	{
 		BonusType type;
 		BonusSubtypeID subtype;
-		std::string stacking;
 
 		bool operator<(const BonusKey & other) const
 		{
-			return std::make_tuple(type, subtype.getNum(), stacking) < std::make_tuple(other.type, other.subtype.getNum(), other.stacking);
+			if(type != other.type)
+				return type < other.type;
+			return subtype.getNum() < other.subtype.getNum();
 		}
 	};
 
 	auto getBonusKey = [](const std::shared_ptr<const Bonus> & bonus)
 	{
-		return BonusKey{bonus->type, bonus->subtype, bonus->stacking};
+		return BonusKey{bonus->type, bonus->subtype};
 	};
 
 	auto makeStackExpSelector = [](const BonusKey & key)
 	{
-		return Selector::sourceTypeSel(BonusSource::STACK_EXPERIENCE)
-			.And(Selector::typeSubtype(key.type, key.subtype))
-			.And([stacking = key.stacking](const Bonus * bonus){ return bonus->stacking == stacking; });
+		return Selector::sourceTypeSel(BonusSource::STACK_EXPERIENCE).And(Selector::typeSubtype(key.type, key.subtype));
 	};
 
 	std::map<BonusKey, std::shared_ptr<const Bonus>> dynamicBonuses;

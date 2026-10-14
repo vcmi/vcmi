@@ -43,10 +43,9 @@ static bool isQuickExchangeLayoutAvailable()
 	return CResourceHandler::get()->existsResource(ImagePath::builtin("SPRITES/" + QUICK_EXCHANGE_BG));
 }
 
-CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QuestionID questionID)
+CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID)
 	: CWindowObject(PLAYER_COLORED | BORDERED, ImagePath::builtin(isQuickExchangeLayoutAvailable() ? QUICK_EXCHANGE_BG : (ENGINE->isRoeData() ? "TRADE" : "TRADE2"))),
-	controller(hero1, hero2),
-	questionID(questionID)
+	controller(hero1, hero2)
 {
 	const bool qeLayout = isQuickExchangeLayoutAvailable();
 
@@ -148,7 +147,11 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		experienceAreas[b] = std::make_shared<LRClickableAreaWText>();
 		experienceAreas[b]->pos = Rect(Point(pos.x + 105 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
 		experienceAreas[b]->hoverText = LIBRARY->generaltexth->translate("core.heroscrn.9");
-		experienceAreas[b]->text = hero->getExperienceDescription().toString(&GAME->translator());
+		MetaString experienceText = MetaString::createFromTextID("core.genrltxt.2");
+		experienceText.replaceNumber(hero->level);
+		experienceText.replaceNumber(LIBRARY->heroh->reqExp(hero->level+1));
+		experienceText.replaceNumber(hero->exp);
+		experienceAreas[b]->text = experienceText.toString(&GAME->translator());
 
 		spellPointsAreas[b] = std::make_shared<LRClickableAreaWText>();
 		spellPointsAreas[b]->pos = Rect(Point(pos.x + 141 + 490 * b, pos.y + (qeLayout ? 41 : 45)), Point(32, 32));
@@ -164,12 +167,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	}
 
 	quit = std::make_shared<CButton>(Point(732, 567), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[600], std::bind(&CExchangeWindow::close, this), EShortcut::GLOBAL_ACCEPT);
-	if(questionID.getNum() > 0)
-		quit->addCallback([=](){ GAME->interface()->cb->selectionMade(0, questionID); });
-
-	// An ally who started the exchange with us decides when it ends, the server then closes this window
-	if(questionID.getNum() > 0 && heroInst[0]->tempOwner != GAME->interface()->playerID)
-		quit->block(true);
+	if(queryID.getNum() > 0)
+		quit->addCallback([=](){ GAME->interface()->cb->selectionMade(0, queryID); });
 
 	questlogButton[0] = std::make_shared<CButton>(Point( qeLayout ? 8 : 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), std::bind(&CExchangeWindow::questLogShortcut, this));
 	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), std::bind(&CExchangeWindow::questLogShortcut, this));
@@ -259,7 +258,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 					AnimationPath::builtin("quick-exchange/unitLeft.DEF"),
 					CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.quickExchange.moveUnit")),
 					[this, i]() { creatureArrowButtonCallback(false, SlotID(i)); }));
-			moveUnitFromRightToLeftButtons.back()->block(rightHeroBlock);
+			moveUnitFromRightToLeftButtons.back()->block(leftHeroBlock);
 
 			moveUnitFromLeftToRightButtons.push_back(
 				std::make_shared<CButton>(
@@ -267,7 +266,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 					AnimationPath::builtin("quick-exchange/unitRight.DEF"),
 					CButton::tooltip(LIBRARY->generaltexth->translate("vcmi.quickExchange.moveUnit")),
 					[this, i]() { creatureArrowButtonCallback(true, SlotID(i)); }));
-			moveUnitFromLeftToRightButtons.back()->block(leftHeroBlock);
+			moveUnitFromLeftToRightButtons.back()->block(rightHeroBlock);
 		}
 	}
 

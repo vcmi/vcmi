@@ -18,7 +18,7 @@ public:
 
 	//commander class is determined by its base creature
 	ui8 alive; //maybe change to bool when breaking save compatibility?
-	ui32 level = 1;
+	ui8 level; //required only to count callbacks
 	std::string name; // each Commander has different name
 	std::vector<ui8> secondarySkills; //ID -> level
 	std::set<ui8> specialSkills;
@@ -27,21 +27,10 @@ public:
 	CCommanderInstance(IGameInfoCallback * cb, const CreatureID & id);
 	void setAlive(bool alive);
 	void levelUp();
-	/// Gains one level and learns a random skill from available choices
-	void levelUpAutomatically(vstd::RNG & rand);
-	/// Skills that can be offered on level-up: indices of secondary skills, or 100 + index of special skill
-	std::vector<int> getLevelUpSkillChoices() const;
-	/// Bonuses granted by learning next level of given skill
-	std::vector<Bonus> getSkillBonuses(int skill) const;
 
 	bool canGainExperience() const override;
 	bool gainsLevel() const; //true if commander has lower level than should upon his experience
 	ui64 getPower() const override
-	{
-		return 0;
-	};
-	/// Commander can not be traded away as part of an army, so it has no value here
-	ui64 estimateCombatValue() const override
 	{
 		return 0;
 	};
@@ -54,14 +43,7 @@ public:
 	{
 		h & static_cast<CStackInstance &>(*this);
 		h & alive;
-		if(h.hasFeature(Handler::Version::HOTA_HERO_LEVEL_OPTIONS))
-			h & level;
-		else
-		{
-			ui8 legacyLevel = level;
-			h & legacyLevel;
-			level = legacyLevel;
-		}
+		h & level;
 		h & name;
 		h & secondarySkills;
 		h & specialSkills;

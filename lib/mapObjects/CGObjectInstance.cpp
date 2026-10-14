@@ -100,11 +100,6 @@ bool CGObjectInstance::coveringAt(const int3 & testPos) const
 	return anchorPos().z == testPos.z && appearance->isVisibleAt(anchorPos().x - testPos.x, anchorPos().y - testPos.y);
 }
 
-ui8 CGObjectInstance::drawLayerAt(const int3 & testPos) const
-{
-	return appearance->getDrawLayerAt(anchorPos().x - testPos.x, anchorPos().y - testPos.y);
-}
-
 bool CGObjectInstance::isVisibleFor(PlayerColor player) const
 {
 	// otherwise visible when at least one covered tile is revealed
@@ -265,7 +260,7 @@ int CGObjectInstance::getSightRadius() const
 int3 CGObjectInstance::getVisitableOffset() const
 {
 	if (!isVisitable())
-		logGlobal->debug("Attempt to access visitable offset on non-visitable object %s (id %d) at %s!", getObjectNameTextID(), id.getNum(), pos.toString());
+		logGlobal->debug("Attempt to access visitable offset on a non-visitable object!");
 	return appearance->getVisitableOffset();
 }
 
@@ -376,7 +371,9 @@ void CGObjectInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHero
 
 int3 CGObjectInstance::visitablePos() const
 {
-	// getVisitableOffset reports a non-visitable object
+	if (!isVisitable())
+		logGlobal->debug("Attempt to access visitable position on a non-visitable object!");
+
 	return pos - getVisitableOffset();
 }
 

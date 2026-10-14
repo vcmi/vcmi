@@ -33,10 +33,6 @@ private:
 
 	std::optional<Rect> scrollBounds;
 
-	/// If true, touch-panning (GESTURE) is only accepted within this slider's own bounds,
-	/// ignoring scrollBounds (which still applies to WHEEL events).
-	bool restrictGestureToOwnBounds = false;
-
 	/// how many elements are visible simultaneously
 	int capacity;
 	/// number of highest position, or 0 if there is only one
@@ -73,8 +69,6 @@ public:
 	/// If set, mouse scroll will only scroll slider when inside of this area
 	void setScrollBounds(const Rect & bounds );
 	void clearScrollBounds();
-
-	void setRestrictGestureToOwnBounds(bool on);
 
 	/// Value modifiers
 	void scrollTo(int value, bool callCallbacks = true);

@@ -694,7 +694,7 @@ void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent & event, JsonNode 
 	dest["effect"]["type"].String() = typeNames.at(static_cast<size_t>(event.effect.type));
 
 	if(!event.effect.toOtherMessage.empty())
-		event.effect.toOtherMessage.jsonSerialize(dest["effect"]["messageToSend"]);
+		event.description.jsonSerialize(dest["effect"]["messageToSend"]);
 
 	dest["condition"] = event.trigger.toJson(ConditionToJson);
 }
@@ -1498,14 +1498,16 @@ void CMapSaverJson::writeObjects()
 {
 	logGlobal->trace("Saving objects");
 	JsonNode data;
-	auto objects = map->getObjects();
+	int standardObjectCount = map->getObjects().size();
 	bool grailExists = map->grailPos.isValid();
-	data.Vector().resize(objects.size() + grailExists);
+	data.Vector().resize(standardObjectCount + grailExists);
 
-	for (int i = 0; i < objects.size(); i++)
+	for (int i = 0; i < standardObjectCount; i++)
 	{
 		JsonNode & objNode = data.Vector()[i];
-		CGObjectInstance * obj = objects[i];
+		CGObjectInstance * obj = map->getObject(ObjectInstanceID(i));
+		if(!obj)
+			continue;
 		JsonSerializer handler(mapObjectResolver.get(), objNode);
 		obj->serializeJson(handler);
 

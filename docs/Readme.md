@@ -77,8 +77,6 @@ See also installation guide for [Heroes Chronicles](players/Heroes_Chronicles.md
 
 ## Documentation and guidelines for developers
 
-- [Contribution Guidelines](../CONTRIBUTING.md)
-
 Development environment setup instructions:
 
 - [Building VCMI for Android](developers/Building_Android.md)

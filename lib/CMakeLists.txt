@@ -7,7 +7,6 @@ set(lib_SRCS
 	filesystem/CCompressedStream.cpp
 	filesystem/CFileInputStream.cpp
 	filesystem/CFilesystemLoader.cpp
-	filesystem/CInputStream.cpp
 	filesystem/CMemoryBuffer.cpp
 	filesystem/CMemoryStream.cpp
 	filesystem/CZipLoader.cpp
@@ -15,7 +14,6 @@ set(lib_SRCS
 	filesystem/FileInfo.cpp
 	filesystem/Filesystem.cpp
 	filesystem/MinizipExtensions.cpp
-	filesystem/PngStripWriter.cpp
 	filesystem/ResourcePath.cpp
 
 	json/JsonFormatException.cpp
@@ -29,7 +27,6 @@ set(lib_SRCS
 	logging/CLogger.cpp
 	logging/VisualLogger.cpp
 
-	network/HttpDownloader.cpp
 	network/NetworkConnection.cpp
 	network/NetworkDiscovery.cpp
 	network/NetworkHandler.cpp
@@ -173,7 +170,6 @@ set(lib_MAIN_SRCS
 	mapObjects/FlaggableMapObject.cpp
 	mapObjects/IMarket.cpp
 	mapObjects/IObjectInterface.cpp
-	mapObjects/MapObjectDrawOrder.cpp
 	mapObjects/MiscObjects.cpp
 	mapObjects/ObjectTemplate.cpp
 	mapObjects/ObstacleSetHandler.cpp
@@ -381,7 +377,6 @@ set(lib_HEADERS
 	filesystem/Filesystem.h
 	filesystem/ISimpleResourceLoader.h
 	filesystem/MinizipExtensions.h
-	filesystem/PngStripWriter.h
 	filesystem/ResourcePath.h
 
 	json/JsonFormatException.h
@@ -395,7 +390,6 @@ set(lib_HEADERS
 	logging/CLogger.h
 	logging/VisualLogger.h
 
-	network/HttpDownloader.h
 	network/NetworkConnection.h
 	network/NetworkDefines.h
 	network/NetworkDiscovery.h
@@ -610,7 +604,6 @@ set(lib_MAIN_HEADERS
 	mapObjects/CGHeroInstance.h
 	mapObjects/CGMarket.h
 	mapObjects/CGObjectInstance.h
-	mapObjects/MapObjectDrawOrder.h
 	mapObjects/CGPandoraBox.h
 	mapObjects/TownBuildingInstance.h
 	mapObjects/CGResource.h
@@ -873,10 +866,6 @@ endif()
 
 if(IOS)
 	target_link_libraries(vcmiMain PUBLIC iOS_utils)
-endif()
-
-if(ENABLE_LIBCURL)
-	target_link_libraries(vcmiMain PUBLIC CURL::libcurl)
 endif()
 
 target_include_directories(vcmiMain

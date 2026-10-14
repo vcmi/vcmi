@@ -82,7 +82,7 @@ public:
 	void resumeDownloads();
 	void cancelDownloads();
 
-	void reload(const QString & modToSelect = QString(), const QStringList & newMods = {});
+	void reload(const QString& modToSelect = QString());
 
 	void disableModInfo();
 
@@ -135,9 +135,6 @@ public:
 	bool isModInstalled(const QString & modName);
 
 	static bool isDemoDataPresent();
-
-	/// offers player to enable "ignoreSslErrors" setting, returns true if it was enabled
-	bool askToIgnoreSslErrors();
 
 protected:
 	void showEvent(QShowEvent * event) override;

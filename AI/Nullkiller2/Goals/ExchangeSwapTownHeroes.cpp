@@ -19,95 +19,78 @@ namespace NK2AI
 using namespace Goals;
 
 ExchangeSwapTownHeroes::ExchangeSwapTownHeroes(
-	const CGTownInstance * targetTown,
+	const CGTownInstance * town,
 	const CGHeroInstance * garrisonHero,
 	HeroLockedReason lockingReason)
-	:ElementarGoal(Goals::EXCHANGE_SWAP_TOWN_HEROES), targetTown(targetTown), garrisonHero(garrisonHero), lockingReason(lockingReason)
+	:ElementarGoal(Goals::EXCHANGE_SWAP_TOWN_HEROES), town(town), garrisonHero(garrisonHero), lockingReason(lockingReason)
 {
 }
 
 std::vector<ObjectInstanceID> ExchangeSwapTownHeroes::getAffectedObjects() const
 {
-	std::vector<ObjectInstanceID> affectedObjects = { targetTown->id };
+	std::vector<ObjectInstanceID> affectedObjects = { town->id };
 
-	if(targetTown->getGarrisonHero())
-		affectedObjects.push_back(targetTown->getGarrisonHero()->id);
+	if(town->getGarrisonHero())
+		affectedObjects.push_back(town->getGarrisonHero()->id);
 
-	if(targetTown->getVisitingHero())
-		affectedObjects.push_back(targetTown->getVisitingHero()->id);
+	if(town->getVisitingHero())
+		affectedObjects.push_back(town->getVisitingHero()->id);
 
 	return affectedObjects;
 }
 
 bool ExchangeSwapTownHeroes::isObjectAffected(ObjectInstanceID id) const
 {
-	return targetTown->id == id
-		|| (targetTown->getVisitingHero() && targetTown->getVisitingHero()->id == id)
-		|| (targetTown->getGarrisonHero() && targetTown->getGarrisonHero()->id == id);
+	return town->id == id
+		|| (town->getVisitingHero() && town->getVisitingHero()->id == id)
+		|| (town->getGarrisonHero() && town->getGarrisonHero()->id == id);
 }
 
 std::string ExchangeSwapTownHeroes::toString() const
 {
-	return "Exchange and swap heroes of " + targetTown->getNameTextID();
+	return "Exchange and swap heroes of " + town->getNameTextID();
 }
 
 bool ExchangeSwapTownHeroes::operator==(const ExchangeSwapTownHeroes & other) const
 {
-	return targetTown == other.targetTown;
+	return town == other.town;
 }
 
 void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 {
-	const auto ensureOwnedHero = [aiGw](const CGHeroInstance * candidateHero)
-	{
-		if(candidateHero && candidateHero->getOwner() != aiGw->playerID)
-			throw cannotFulfillGoalException("Can not exchange a hero owned by another player.");
-	};
-
-	ensureOwnedHero(getGarrisonHero());
-	ensureOwnedHero(targetTown->getGarrisonHero());
-	ensureOwnedHero(targetTown->getVisitingHero());
-
 	if(!getGarrisonHero())
 	{
-		auto currentGarrisonHero = targetTown->getGarrisonHero();
+		auto currentGarrisonHero = town->getGarrisonHero();
 		
 		if(!currentGarrisonHero)
 			throw cannotFulfillGoalException("Invalid configuration. There is no hero in town garrison.");
 		
-		if(!aiGw->canSwapGarrisonHero(targetTown))
-			throw cannotFulfillGoalException("Hero can not leave garrison, wandering heroes limit is reached!");
+		aiGw->cc->swapGarrisonHero(town);
 
-		aiGw->cc->swapGarrisonHero(targetTown);
-
-		if(currentGarrisonHero != targetTown->getVisitingHero())
+		if(currentGarrisonHero != town->getVisitingHero())
 		{
 			logAi->error("VisitingHero is empty, expected %s", currentGarrisonHero->getNameTextID());
 			return;
 		}
 
-		aiGw->buildArmyIn(targetTown);
+		aiGw->buildArmyIn(town);
 		aiGw->nullkiller->unlockHero(currentGarrisonHero);
-		logAi->debug("Extracted hero %s from garrison of %s", currentGarrisonHero->getNameTextID(), targetTown->getNameTextID());
+		logAi->debug("Extracted hero %s from garrison of %s", currentGarrisonHero->getNameTextID(), town->getNameTextID());
 
 		return;
 	}
 
-	if(targetTown->getVisitingHero() && targetTown->getVisitingHero() != getGarrisonHero())
-		aiGw->cc->swapGarrisonHero(targetTown);
+	if(town->getVisitingHero() && town->getVisitingHero() != getGarrisonHero())
+		aiGw->cc->swapGarrisonHero(town);
 
-	aiGw->makePossibleUpgrades(targetTown);
-	aiGw->moveHeroToTile(targetTown->visitablePos(), HeroPtr(getGarrisonHero(), aiGw->cc.get()));
+	aiGw->makePossibleUpgrades(town);
+	aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(getGarrisonHero(), aiGw->cc.get()));
 
-	// movement may stop on the way, e.g. when the rest of the path is planned for a later turn
-	if(getGarrisonHero()->getVisitedTown() != targetTown)
-		throw cannotFulfillGoalException("Hero " + getGarrisonHero()->getNameTextID() + " did not reach " + targetTown->getNameTextID());
-
-	auto upperArmy = targetTown->getUpperArmy();
+	auto upperArmy = town->getUpperArmy();
 	
-	if(!targetTown->getGarrisonHero())
+	if(!town->getGarrisonHero())
 	{
-		if (!getGarrisonHero()->canBeMergedWith(*targetTown))
+		if (!getGarrisonHero()->canBeMergedWith(*town))
 		{
 			while (upperArmy->stacksCount() != 0)
 			{
@@ -116,20 +99,20 @@ void ExchangeSwapTownHeroes::accept(AIGateway * aiGw)
 		}
 	}
 	
-	aiGw->cc->swapGarrisonHero(targetTown);
+	aiGw->cc->swapGarrisonHero(town);
 
 	if(lockingReason != HeroLockedReason::NOT_LOCKED)
 	{
 		aiGw->nullkiller->lockHero(getGarrisonHero(), lockingReason);
 	}
 
-	if(targetTown->getVisitingHero() && targetTown->getVisitingHero() != getGarrisonHero())
+	if(town->getVisitingHero() && town->getVisitingHero() != getGarrisonHero())
 	{
-		aiGw->nullkiller->unlockHero(targetTown->getVisitingHero());
-		aiGw->makePossibleUpgrades(targetTown->getVisitingHero());
+		aiGw->nullkiller->unlockHero(town->getVisitingHero());
+		aiGw->makePossibleUpgrades(town->getVisitingHero());
 	}
 
-	logAi->debug("Put hero %s to garrison of %s", getGarrisonHero()->getNameTextID(), targetTown->getNameTextID());
+	logAi->debug("Put hero %s to garrison of %s", getGarrisonHero()->getNameTextID(), town->getNameTextID());
 }
 
 }

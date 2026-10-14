@@ -413,7 +413,7 @@
     <name>EditorMainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="538"/>
+        <location filename="../mainwindow.cpp" line="530"/>
         <source>VCMI Map Editor</source>
         <translation>VCMI-kartredigeringsprogram</translation>
     </message>
@@ -719,22 +719,22 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1257"/>
-        <location filename="../mainwindow.cpp" line="1601"/>
+        <location filename="../mainwindow.cpp" line="1592"/>
         <source>Select map layer type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1268"/>
-        <location filename="../mainwindow.cpp" line="1541"/>
-        <location filename="../mainwindow.cpp" line="1556"/>
+        <location filename="../mainwindow.cpp" line="1532"/>
+        <location filename="../mainwindow.cpp" line="1547"/>
         <source>Add level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
-        <location filename="../mainwindow.cpp" line="1450"/>
-        <location filename="../mainwindow.cpp" line="1454"/>
-        <location filename="../mainwindow.cpp" line="1512"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
+        <location filename="../mainwindow.cpp" line="1445"/>
+        <location filename="../mainwindow.cpp" line="1503"/>
         <source>Update appearance</source>
         <translation type="unfinished">Oppdater utseende</translation>
     </message>
@@ -949,308 +949,308 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="504"/>
+        <location filename="../mainwindow.cpp" line="496"/>
         <source>Confirmation</source>
         <translation type="unfinished">Bekreftelse</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="504"/>
+        <location filename="../mainwindow.cpp" line="496"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation type="unfinished">Ulagrede endringer vil gå tapt, er du sikker?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1529"/>
-        <location filename="../mainwindow.cpp" line="1618"/>
+        <location filename="../mainwindow.cpp" line="1520"/>
+        <location filename="../mainwindow.cpp" line="1609"/>
         <source>Level %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="597"/>
+        <location filename="../mainwindow.cpp" line="589"/>
         <source>Mods are required</source>
         <translation type="unfinished">Modifikasjoner kreves</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="605"/>
-        <location filename="../mainwindow.cpp" line="611"/>
+        <location filename="../mainwindow.cpp" line="597"/>
+        <location filename="../mainwindow.cpp" line="603"/>
         <source>Failed to open map</source>
         <translation type="unfinished">Kunne ikke åpne kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="642"/>
+        <location filename="../mainwindow.cpp" line="634"/>
         <source>Open map</source>
         <translation type="unfinished">Åpne kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="644"/>
+        <location filename="../mainwindow.cpp" line="636"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">Alle støttede kart (*.vmap *.h3m);;VCMI-kart(*.vmap);;HoMM3-kart(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="699"/>
+        <location filename="../mainwindow.cpp" line="691"/>
         <source>Recently Opened Files</source>
         <translation type="unfinished">Nylig åpnete filer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="752"/>
+        <location filename="../mainwindow.cpp" line="744"/>
         <source>Map validation</source>
         <translation type="unfinished">Kartvalidering</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="754"/>
+        <location filename="../mainwindow.cpp" line="746"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">Kartet har kritiske problemer og vil sannsynligvis ikke være spillbart. Åpne Validator fra Kart-menyen for å se funnene</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="756"/>
+        <location filename="../mainwindow.cpp" line="748"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">Kartet har noen feil. Åpne Validator fra Kart-menyen for å se funnene</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="783"/>
+        <location filename="../mainwindow.cpp" line="775"/>
         <source>Failed to save map</source>
         <translation type="unfinished">Kunne ikke lagre kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="796"/>
+        <location filename="../mainwindow.cpp" line="788"/>
         <source>Save map</source>
         <translation type="unfinished">Lagre kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="797"/>
+        <location filename="../mainwindow.cpp" line="789"/>
         <source>VCMI maps (*.vmap)</source>
         <translation type="unfinished">VCMI-kart (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1013"/>
+        <location filename="../mainwindow.cpp" line="1004"/>
         <source>Type</source>
         <translation type="unfinished">Type</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1026"/>
+        <location filename="../mainwindow.cpp" line="1017"/>
         <source>Towns</source>
         <translation type="unfinished">Byer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1027"/>
+        <location filename="../mainwindow.cpp" line="1018"/>
         <source>Objects</source>
         <translation type="unfinished">Objekter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1028"/>
+        <location filename="../mainwindow.cpp" line="1019"/>
         <source>Heroes</source>
         <translation type="unfinished">Helter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1029"/>
+        <location filename="../mainwindow.cpp" line="1020"/>
         <source>Artifacts</source>
         <translation type="unfinished">Gjenstander</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1030"/>
+        <location filename="../mainwindow.cpp" line="1021"/>
         <source>Resources</source>
         <translation type="unfinished">Ressurser</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1031"/>
+        <location filename="../mainwindow.cpp" line="1022"/>
         <source>Banks</source>
         <translation type="unfinished">Banker</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1032"/>
+        <location filename="../mainwindow.cpp" line="1023"/>
         <source>Dwellings</source>
         <translation type="unfinished">Boliger</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1033"/>
+        <location filename="../mainwindow.cpp" line="1024"/>
         <source>Grounds</source>
         <translation type="unfinished">Bakker</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1034"/>
+        <location filename="../mainwindow.cpp" line="1025"/>
         <source>Teleports</source>
         <translation type="unfinished">Teleportere</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1035"/>
+        <location filename="../mainwindow.cpp" line="1026"/>
         <source>Mines</source>
         <translation type="unfinished">Gruver</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1036"/>
+        <location filename="../mainwindow.cpp" line="1027"/>
         <source>Triggers</source>
         <translation type="unfinished">Utløsere</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1037"/>
+        <location filename="../mainwindow.cpp" line="1028"/>
         <source>Monsters</source>
         <translation type="unfinished">Monstre</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1038"/>
+        <location filename="../mainwindow.cpp" line="1029"/>
         <source>Quests</source>
         <translation type="unfinished">Oppdrag</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1039"/>
+        <location filename="../mainwindow.cpp" line="1030"/>
         <source>Wog Objects</source>
         <translation type="unfinished">Wog-objekter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1031"/>
         <source>Obstacles</source>
         <translation type="unfinished">Hindringer</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1041"/>
+        <location filename="../mainwindow.cpp" line="1032"/>
         <source>Other</source>
         <translation type="unfinished">Annet</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1178"/>
+        <location filename="../mainwindow.cpp" line="1169"/>
         <source>Mods loading problem</source>
         <translation type="unfinished">Problem med lasting av modifikasjoner</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1178"/>
+        <location filename="../mainwindow.cpp" line="1169"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation type="unfinished">Kritisk feil under lasting av modifikasjoner. Deaktiver ugyldige mods og start på nytt.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1184"/>
+        <location filename="../mainwindow.cpp" line="1175"/>
         <source>Undo clicked</source>
         <translation type="unfinished">Angre klikket</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1195"/>
+        <location filename="../mainwindow.cpp" line="1186"/>
         <source>Redo clicked</source>
         <translation type="unfinished">Gjør om klikket</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1206"/>
+        <location filename="../mainwindow.cpp" line="1197"/>
         <source>Passability clicked</source>
         <translation type="unfinished">Fremkommelighet klikket</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1219"/>
+        <location filename="../mainwindow.cpp" line="1210"/>
         <source>Grid clicked</source>
         <translation type="unfinished">Rutenett klikket</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1300"/>
+        <location filename="../mainwindow.cpp" line="1291"/>
         <source>Fill clicked</source>
         <translation type="unfinished">Fyll klikket</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1450"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
         <source>No objects selected</source>
         <translation type="unfinished">Ingen objekter valgt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1454"/>
+        <location filename="../mainwindow.cpp" line="1445"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation type="unfinished">Denne handlingen kan ikke angres. Vil du fortsette?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1512"/>
+        <location filename="../mainwindow.cpp" line="1503"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation type="unfinished">Det oppsto feil. %1 objekter ble ikke oppdatert</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1541"/>
+        <location filename="../mainwindow.cpp" line="1532"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1557"/>
+        <location filename="../mainwindow.cpp" line="1548"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1602"/>
+        <location filename="../mainwindow.cpp" line="1593"/>
         <source>Type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1663"/>
+        <location filename="../mainwindow.cpp" line="1654"/>
         <source>Image format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1664"/>
+        <location filename="../mainwindow.cpp" line="1655"/>
         <source>Select image format:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1678"/>
-        <location filename="../mainwindow.cpp" line="1682"/>
+        <location filename="../mainwindow.cpp" line="1669"/>
+        <location filename="../mainwindow.cpp" line="1673"/>
         <source>Save to image</source>
         <translation type="unfinished">Lagre som bilde</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1724"/>
+        <location filename="../mainwindow.cpp" line="1715"/>
         <source>Failed to save image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1724"/>
+        <location filename="../mainwindow.cpp" line="1715"/>
         <source>Cannot save image to %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1744"/>
+        <location filename="../mainwindow.cpp" line="1735"/>
         <source>Select maps to convert</source>
         <translation type="unfinished">Velg kart å konvertere</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1746"/>
+        <location filename="../mainwindow.cpp" line="1737"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">HoMM3-kart (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1752"/>
-        <location filename="../mainwindow.cpp" line="1759"/>
+        <location filename="../mainwindow.cpp" line="1743"/>
+        <location filename="../mainwindow.cpp" line="1750"/>
         <source>Choose directory to save converted maps</source>
         <translation type="unfinished">Velg mappe for å lagre konverterte kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1754"/>
+        <location filename="../mainwindow.cpp" line="1745"/>
         <source>Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1775"/>
+        <location filename="../mainwindow.cpp" line="1766"/>
         <source>Operation completed</source>
         <translation type="unfinished">Operasjon fullført</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1775"/>
+        <location filename="../mainwindow.cpp" line="1766"/>
         <source>Successfully converted %1 maps</source>
         <translation type="unfinished">Vellykket konvertering av %1 kart</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1779"/>
+        <location filename="../mainwindow.cpp" line="1770"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation type="unfinished">Kunne ikke konvertere kartet. Avbryter operasjonen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1787"/>
+        <location filename="../mainwindow.cpp" line="1778"/>
         <source>Select campaign to convert</source>
         <translation type="unfinished">Velg kampanje å konvertere</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1788"/>
+        <location filename="../mainwindow.cpp" line="1779"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation type="unfinished">HoMM3-kampanjer (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1794"/>
+        <location filename="../mainwindow.cpp" line="1785"/>
         <source>Select destination file</source>
         <translation type="unfinished">Velg måldokument</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1795"/>
+        <location filename="../mainwindow.cpp" line="1786"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation type="unfinished">VCMI-kampanjer (*.vcmp)</translation>
     </message>
@@ -1525,27 +1525,27 @@ Warning: levels cannot be removed once added.</source>
         <translation type="unfinished">Parametere</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="39"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="38"/>
         <source>No special loss</source>
         <translation type="unfinished">Ingen spesialtap</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="40"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="39"/>
         <source>Lose castle</source>
         <translation type="unfinished">Mist slott</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="41"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="40"/>
         <source>Lose hero</source>
         <translation type="unfinished">Mist helt</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="42"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="41"/>
         <source>Time expired</source>
         <translation type="unfinished">Tiden er utløpt</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="43"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="42"/>
         <source>Days without town</source>
         <translation type="unfinished">Dager uten by</translation>
     </message>
@@ -1553,17 +1553,17 @@ Warning: levels cannot be removed once added.</source>
 <context>
     <name>MapController</name>
     <message>
-        <location filename="../mapcontroller.cpp" line="650"/>
+        <location filename="../mapcontroller.cpp" line="640"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
         <translation type="unfinished">Helt %1 kan ikke opprettes som NØYTRAL.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="664"/>
+        <location filename="../mapcontroller.cpp" line="654"/>
         <source>Missing Required Mod</source>
         <translation type="unfinished">Manglende påkrevd modifikasjon</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="664"/>
+        <location filename="../mapcontroller.cpp" line="654"/>
         <source>
 
 Do you want to do that now ?</source>
@@ -1573,7 +1573,7 @@ Do you want to do that now ?</source>
 Vil du gjøre det nå?</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="674"/>
+        <location filename="../mapcontroller.cpp" line="664"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
         <translation type="unfinished">Denne gjenstandens modifikasjon er obligatorisk for at kartet skal være gyldig.</translation>
     </message>
@@ -2089,27 +2089,27 @@ Vil du gjøre det nå?</translation>
         <translation type="unfinished">Sekundære ferdigheter:</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1027"/>
+        <location filename="../inspector/inspector.cpp" line="1009"/>
         <source>Compliant</source>
         <translation type="unfinished">Medgjørlig</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1028"/>
+        <location filename="../inspector/inspector.cpp" line="1010"/>
         <source>Friendly</source>
         <translation type="unfinished">Vennlig</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1029"/>
+        <location filename="../inspector/inspector.cpp" line="1011"/>
         <source>Aggressive</source>
         <translation type="unfinished">Aggressiv</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1030"/>
+        <location filename="../inspector/inspector.cpp" line="1012"/>
         <source>Hostile</source>
         <translation type="unfinished">Fiendtlig</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1031"/>
+        <location filename="../inspector/inspector.cpp" line="1013"/>
         <source>Savage</source>
         <translation type="unfinished">Voldsom</translation>
     </message>
@@ -2174,89 +2174,49 @@ Vil du gjøre det nå?</translation>
         <translation type="unfinished">Ressurs</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="452"/>
-        <location filename="../inspector/inspector.cpp" line="839"/>
-        <source>Aggression</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="453"/>
-        <location filename="../inspector/inspector.cpp" line="841"/>
-        <source>Join only for money</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="454"/>
-        <location filename="../inspector/inspector.cpp" line="843"/>
-        <source>Joining percentage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="458"/>
-        <location filename="../inspector/inspector.cpp" line="845"/>
-        <source>Upgraded stack</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="460"/>
-        <location filename="../inspector/inspector.cpp" line="847"/>
-        <source>Stacks count</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="461"/>
+        <location filename="../inspector/inspector.cpp" line="450"/>
         <source>Artifact reward</source>
         <translation type="unfinished">Gjenstandsbelønning</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="522"/>
+        <location filename="../inspector/inspector.cpp" line="518"/>
         <source>Quest</source>
         <translation type="unfinished">Oppdrag</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="540"/>
+        <location filename="../inspector/inspector.cpp" line="536"/>
         <source>Identifier</source>
         <translation type="unfinished">Identifikator</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="541"/>
+        <location filename="../inspector/inspector.cpp" line="537"/>
         <source>ID</source>
         <translation type="unfinished">ID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="542"/>
+        <location filename="../inspector/inspector.cpp" line="538"/>
         <source>SubID</source>
         <translation type="unfinished">SubID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="543"/>
+        <location filename="../inspector/inspector.cpp" line="539"/>
         <source>InstanceName</source>
         <translation type="unfinished">InstansNavn</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="548"/>
+        <location filename="../inspector/inspector.cpp" line="544"/>
         <source>IsStatic</source>
         <translation type="unfinished">ErStatisk</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="935"/>
-        <location filename="../inspector/inspector.cpp" line="1089"/>
+        <location filename="../inspector/inspector.cpp" line="1063"/>
         <source>neutral</source>
         <translation type="unfinished">nøytral</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1038"/>
-        <source>Never</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="1039"/>
-        <source>Always</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../inspector/inspector.cpp" line="253"/>
-        <location filename="../inspector/inspector.cpp" line="462"/>
+        <location filename="../inspector/inspector.cpp" line="451"/>
         <source>Army</source>
         <translation type="unfinished">Hær</translation>
     </message>
@@ -2268,46 +2228,46 @@ Vil du gjøre det nå?</translation>
         <location filename="../inspector/inspector.cpp" line="295"/>
         <location filename="../inspector/inspector.cpp" line="326"/>
         <location filename="../inspector/inspector.cpp" line="417"/>
-        <location filename="../inspector/inspector.cpp" line="551"/>
-        <location filename="../inspector/inspector.cpp" line="598"/>
+        <location filename="../inspector/inspector.cpp" line="547"/>
+        <location filename="../inspector/inspector.cpp" line="594"/>
         <source>Owner</source>
         <translation type="unfinished">Eier</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="265"/>
-        <location filename="../inspector/inspector.cpp" line="723"/>
+        <location filename="../inspector/inspector.cpp" line="719"/>
         <source>Same as town</source>
         <translation type="unfinished">Samme som by</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="281"/>
-        <location filename="../inspector/inspector.cpp" line="738"/>
+        <location filename="../inspector/inspector.cpp" line="734"/>
         <source>Removable units</source>
         <translation type="unfinished">Fjernbare enheter</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="306"/>
-        <location filename="../inspector/inspector.cpp" line="746"/>
+        <location filename="../inspector/inspector.cpp" line="742"/>
         <source>Placeholder type</source>
         <translation type="unfinished">Plassholdertype</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="309"/>
-        <location filename="../inspector/inspector.cpp" line="764"/>
+        <location filename="../inspector/inspector.cpp" line="760"/>
         <source>Power rank</source>
         <translation type="unfinished">Maktnivå</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="317"/>
         <location filename="../inspector/inspector.cpp" line="357"/>
-        <location filename="../inspector/inspector.cpp" line="767"/>
-        <location filename="../inspector/inspector.cpp" line="791"/>
+        <location filename="../inspector/inspector.cpp" line="763"/>
+        <location filename="../inspector/inspector.cpp" line="787"/>
         <source>Hero type</source>
         <translation type="unfinished">Helte-type</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="327"/>
-        <location filename="../inspector/inspector.cpp" line="788"/>
+        <location filename="../inspector/inspector.cpp" line="784"/>
         <source>Experience</source>
         <translation type="unfinished">Erfaring</translation>
     </message>
@@ -2325,19 +2285,19 @@ Vil du gjøre det nå?</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="333"/>
-        <location filename="../inspector/inspector.cpp" line="777"/>
+        <location filename="../inspector/inspector.cpp" line="773"/>
         <source>Gender</source>
         <translation type="unfinished">Kjønn</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="335"/>
-        <location filename="../inspector/inspector.cpp" line="780"/>
+        <location filename="../inspector/inspector.cpp" line="776"/>
         <source>Name</source>
         <translation type="unfinished">Navn</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="336"/>
-        <location filename="../inspector/inspector.cpp" line="784"/>
+        <location filename="../inspector/inspector.cpp" line="780"/>
         <source>Biography</source>
         <translation type="unfinished">Biografi</translation>
     </message>
@@ -2349,19 +2309,19 @@ Vil du gjøre det nå?</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="366"/>
-        <location filename="../inspector/inspector.cpp" line="803"/>
+        <location filename="../inspector/inspector.cpp" line="799"/>
         <source>Patrol radius</source>
         <translation type="unfinished">Patruljeradius</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="374"/>
-        <location filename="../inspector/inspector.cpp" line="680"/>
+        <location filename="../inspector/inspector.cpp" line="676"/>
         <source>Town name</source>
         <translation type="unfinished">Bynavn</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="381"/>
-        <location filename="../inspector/inspector.cpp" line="684"/>
+        <location filename="../inspector/inspector.cpp" line="680"/>
         <source>Same as player</source>
         <translation type="unfinished">Samme som spiller</translation>
     </message>
@@ -2370,37 +2330,37 @@ Vil du gjøre det nå?</translation>
         <location filename="../inspector/inspector.cpp" line="428"/>
         <location filename="../inspector/inspector.cpp" line="435"/>
         <location filename="../inspector/inspector.cpp" line="442"/>
-        <location filename="../inspector/inspector.cpp" line="503"/>
-        <location filename="../inspector/inspector.cpp" line="640"/>
-        <location filename="../inspector/inspector.cpp" line="692"/>
-        <location filename="../inspector/inspector.cpp" line="709"/>
-        <location filename="../inspector/inspector.cpp" line="828"/>
+        <location filename="../inspector/inspector.cpp" line="492"/>
+        <location filename="../inspector/inspector.cpp" line="636"/>
+        <location filename="../inspector/inspector.cpp" line="688"/>
+        <location filename="../inspector/inspector.cpp" line="705"/>
+        <location filename="../inspector/inspector.cpp" line="824"/>
         <source>Message</source>
         <translation type="unfinished">Melding</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="408"/>
-        <location filename="../inspector/inspector.cpp" line="713"/>
+        <location filename="../inspector/inspector.cpp" line="709"/>
         <source>Spell</source>
         <translation type="unfinished">Trylleformular</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="420"/>
-        <location filename="../inspector/inspector.cpp" line="701"/>
+        <location filename="../inspector/inspector.cpp" line="697"/>
         <source>Productivity</source>
         <translation type="unfinished">Produktivitet</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="427"/>
-        <location filename="../inspector/inspector.cpp" line="463"/>
-        <location filename="../inspector/inspector.cpp" line="820"/>
-        <location filename="../inspector/inspector.cpp" line="837"/>
+        <location filename="../inspector/inspector.cpp" line="452"/>
+        <location filename="../inspector/inspector.cpp" line="816"/>
+        <location filename="../inspector/inspector.cpp" line="833"/>
         <source>Amount</source>
         <translation type="unfinished">Mengde</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="446"/>
-        <location filename="../inspector/inspector.cpp" line="831"/>
+        <location filename="../inspector/inspector.cpp" line="827"/>
         <source>Character</source>
         <translation type="unfinished">Karakter</translation>
     </message>
@@ -2409,18 +2369,18 @@ Vil du gjøre det nå?</translation>
         <translation type="obsolete">Ferdigheter</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="514"/>
-        <location filename="../inspector/inspector.cpp" line="658"/>
+        <location filename="../inspector/inspector.cpp" line="503"/>
+        <location filename="../inspector/inspector.cpp" line="654"/>
         <source>Available for</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="996"/>
+        <location filename="../inspector/inspector.cpp" line="978"/>
         <source>Select town</source>
         <translation type="unfinished">Velg by</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1007"/>
+        <location filename="../inspector/inspector.cpp" line="989"/>
         <location filename="../inspector/playerselectionwidget.cpp" line="104"/>
         <source>Available for:
 </source>
@@ -2428,60 +2388,70 @@ Vil du gjøre det nå?</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="448"/>
-        <location filename="../inspector/inspector.cpp" line="833"/>
+        <location filename="../inspector/inspector.cpp" line="829"/>
         <source>Never flees</source>
         <translation type="unfinished">Flykter aldri</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="449"/>
-        <location filename="../inspector/inspector.cpp" line="835"/>
+        <location filename="../inspector/inspector.cpp" line="831"/>
         <source>Not growing</source>
         <translation type="unfinished">Vokser ikke</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="496"/>
-        <location filename="../inspector/inspector.cpp" line="530"/>
+        <location filename="../inspector/inspector.cpp" line="485"/>
+        <location filename="../inspector/inspector.cpp" line="526"/>
         <source>Reward</source>
         <translation type="unfinished">Belønning</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="510"/>
-        <location filename="../inspector/inspector.cpp" line="649"/>
+        <location filename="../inspector/inspector.cpp" line="499"/>
+        <location filename="../inspector/inspector.cpp" line="645"/>
         <source>Remove after</source>
         <translation type="unfinished">Fjern etter</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="511"/>
-        <location filename="../inspector/inspector.cpp" line="652"/>
+        <location filename="../inspector/inspector.cpp" line="500"/>
+        <location filename="../inspector/inspector.cpp" line="648"/>
         <source>Human trigger</source>
         <translation type="unfinished">Menneskelig utløsning</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="512"/>
-        <location filename="../inspector/inspector.cpp" line="655"/>
+        <location filename="../inspector/inspector.cpp" line="501"/>
+        <location filename="../inspector/inspector.cpp" line="651"/>
         <source>Cpu trigger</source>
         <translation type="unfinished">CPU-utløsning</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="510"/>
+        <location filename="../inspector/inspector.cpp" line="841"/>
         <source>First visit text</source>
-        <translation type="obsolete">Tekst ved første besøk</translation>
+        <translation type="unfinished">Tekst ved første besøk</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="511"/>
+        <location filename="../inspector/inspector.cpp" line="844"/>
         <source>Next visit text</source>
-        <translation type="obsolete">Tekst ved neste besøk</translation>
+        <translation type="unfinished">Tekst ved neste besøk</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="512"/>
+        <location filename="../inspector/inspector.cpp" line="847"/>
         <source>Completed text</source>
-        <translation type="obsolete">Fullført tekst</translation>
+        <translation type="unfinished">Fullført tekst</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="531"/>
+        <location filename="../inspector/inspector.cpp" line="513"/>
+        <location filename="../inspector/inspector.cpp" line="527"/>
+        <location filename="../inspector/inspector.cpp" line="850"/>
         <source>Repeat quest</source>
         <translation type="unfinished">Gjenta oppdrag</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="514"/>
+        <location filename="../inspector/inspector.cpp" line="852"/>
         <source>Time limit</source>
-        <translation type="obsolete">Tidsbegrensning</translation>
+        <translation type="unfinished">Tidsbegrensning</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="933"/>
@@ -2489,22 +2459,22 @@ Vil du gjøre det nå?</translation>
         <translation type="unfinished">KAN IKKE FLAGGES</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="446"/>
+        <location filename="../mapcontroller.cpp" line="445"/>
         <source>Can&apos;t place object</source>
         <translation type="unfinished">Kan ikke plassere objekt</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="632"/>
+        <location filename="../mapcontroller.cpp" line="622"/>
         <source>There can only be one grail object on the map.</source>
         <translation type="unfinished">Det kan kun være én gral på kartet.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="687"/>
+        <location filename="../mapcontroller.cpp" line="677"/>
         <source> (submod of %1)</source>
         <translation type="unfinished"> (under-modifikasjon av %1)</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="689"/>
+        <location filename="../mapcontroller.cpp" line="679"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
@@ -2532,83 +2502,97 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="218"/>
-        <location filename="../inspector/inspector.cpp" line="1033"/>
         <source>Custom</source>
         <translation type="unfinished">Egendefinert</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="675"/>
+        <location filename="../inspector/questwidget.cpp" line="452"/>
         <source>Quest:</source>
         <translation type="unfinished">Oppdrag:</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="453"/>
         <source>Day of Week: %1</source>
-        <translation type="obsolete">Ukedag: %1</translation>
+        <translation type="unfinished">Ukedag: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="454"/>
         <source>Days Passed: %1</source>
-        <translation type="obsolete">Dager gått: %1</translation>
+        <translation type="unfinished">Dager gått: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="455"/>
         <location filename="../inspector/rewardswidget.cpp" line="795"/>
         <source>Hero Level: %1</source>
         <translation type="unfinished">Heltenivå: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="456"/>
         <location filename="../inspector/rewardswidget.cpp" line="796"/>
         <source>Hero Experience: %1</source>
         <translation type="unfinished">Helteerfaring: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="457"/>
         <source>Mana Points: %1</source>
-        <translation type="obsolete">Mana-poeng: %1</translation>
+        <translation type="unfinished">Mana-poeng: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="458"/>
         <location filename="../inspector/rewardswidget.cpp" line="798"/>
         <source>Mana Percentage: %1</source>
         <translation type="unfinished">Mana-prosent: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="459"/>
         <location filename="../inspector/rewardswidget.cpp" line="801"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
         <translation type="unfinished">Primære ferdigheter: %1/%2/%3/%4</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="470"/>
         <location filename="../inspector/rewardswidget.cpp" line="811"/>
         <source>Resources: %1</source>
         <translation type="unfinished">Ressurser: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="477"/>
         <location filename="../inspector/rewardswidget.cpp" line="817"/>
         <source>Artifacts: %1</source>
         <translation type="unfinished">Gjenstander: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="484"/>
         <location filename="../inspector/rewardswidget.cpp" line="823"/>
         <source>Spells: %1</source>
         <translation type="unfinished">Trylleformularer: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="491"/>
         <location filename="../inspector/rewardswidget.cpp" line="829"/>
         <source>Secondary Skills: %1</source>
         <translation type="unfinished">Sekundære ferdigheter: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="498"/>
         <location filename="../inspector/rewardswidget.cpp" line="835"/>
         <source>Creatures: %1</source>
         <translation type="unfinished">Enheter: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="505"/>
         <source>Heroes: %1</source>
-        <translation type="obsolete">Helter: %1</translation>
+        <translation type="unfinished">Helter: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="512"/>
         <source>Hero Classes: %1</source>
-        <translation type="obsolete">Heltklasser: %1</translation>
+        <translation type="unfinished">Heltklasser: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="521"/>
         <source>Players: %1</source>
-        <translation type="obsolete">Spillere: %1</translation>
+        <translation type="unfinished">Spillere: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="791"/>
@@ -2708,30 +2692,14 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mapsettings/abstractsettings.cpp" line="77"/>
+        <location filename="../mapsettings/abstractsettings.cpp" line="116"/>
         <source>Hero placeholder (power rank %1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1037"/>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
         <translation type="unfinished">Tilfeldig</translation>
-    </message>
-    <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="293"/>
-        <source>Day</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="298"/>
-        <source>Week</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="303"/>
-        <source>Month</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2742,148 +2710,117 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
         <translation type="unfinished">Oppdragsmål</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="37"/>
-        <source>Delete</source>
-        <translation type="unfinished">Slett</translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="66"/>
-        <source>First Visit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="94"/>
-        <source>Next Visit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="116"/>
-        <source>Completed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="148"/>
-        <source>Repeatable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="158"/>
-        <source>Set Deadline</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="179"/>
+        <location filename="../inspector/questwidget.ui" line="28"/>
         <source>Day of week</source>
         <translation type="unfinished">Ukedag</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="196"/>
+        <location filename="../inspector/questwidget.ui" line="45"/>
         <source>Days passed</source>
         <translation type="unfinished">Dager gått</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="230"/>
+        <location filename="../inspector/questwidget.ui" line="79"/>
         <source>Hero level</source>
         <translation type="unfinished">Heltenivå</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="247"/>
+        <location filename="../inspector/questwidget.ui" line="96"/>
         <source>Hero experience</source>
         <translation type="unfinished">Helteerfaring</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="287"/>
+        <location filename="../inspector/questwidget.ui" line="136"/>
         <source>Spell points</source>
         <translation type="unfinished">Tryllepunkter</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="307"/>
+        <location filename="../inspector/questwidget.ui" line="156"/>
         <source>%</source>
         <translation type="unfinished">%</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="334"/>
+        <location filename="../inspector/questwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
         <translation type="unfinished">Drep helt/monster</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="348"/>
+        <location filename="../inspector/questwidget.ui" line="197"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="357"/>
+        <location filename="../inspector/questwidget.ui" line="206"/>
         <source>Primary skills</source>
         <translation type="unfinished">Primære ferdigheter</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="372"/>
+        <location filename="../inspector/questwidget.ui" line="221"/>
         <source>Attack</source>
         <translation type="unfinished">Angrep</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="382"/>
+        <location filename="../inspector/questwidget.ui" line="231"/>
         <source>Defence</source>
         <translation type="unfinished">Forsvar</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="392"/>
+        <location filename="../inspector/questwidget.ui" line="241"/>
         <source>Spell power</source>
         <translation type="unfinished">Tryllekraft</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="402"/>
+        <location filename="../inspector/questwidget.ui" line="251"/>
         <source>Knowledge</source>
         <translation type="unfinished">Kunnskap</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="440"/>
+        <location filename="../inspector/questwidget.ui" line="289"/>
         <source>Resources</source>
         <translation type="unfinished">Ressurser</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="489"/>
+        <location filename="../inspector/questwidget.ui" line="338"/>
         <source>Artifacts</source>
         <translation type="unfinished">Gjenstander</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="521"/>
+        <location filename="../inspector/questwidget.ui" line="370"/>
         <source>Spells</source>
         <translation type="unfinished">Trylleformularer</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="553"/>
+        <location filename="../inspector/questwidget.ui" line="402"/>
         <source>Skills</source>
         <translation type="unfinished">Ferdigheter</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="593"/>
+        <location filename="../inspector/questwidget.ui" line="442"/>
         <source>Creatures</source>
         <translation type="unfinished">Enheter</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="30"/>
-        <location filename="../inspector/questwidget.ui" line="642"/>
+        <location filename="../inspector/questwidget.ui" line="491"/>
         <source>Add</source>
         <translation type="unfinished">Legg til</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="649"/>
+        <location filename="../inspector/questwidget.ui" line="498"/>
         <source>Remove</source>
         <translation type="unfinished">Fjern</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="689"/>
+        <location filename="../inspector/questwidget.ui" line="538"/>
         <source>Heroes</source>
         <translation type="unfinished">Helter</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="721"/>
+        <location filename="../inspector/questwidget.ui" line="570"/>
         <source>Hero classes</source>
         <translation type="unfinished">Heltklasser</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="753"/>
+        <location filename="../inspector/questwidget.ui" line="602"/>
         <source>Players</source>
         <translation type="unfinished">Spillere</translation>
     </message>
@@ -2896,11 +2833,6 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
         <location filename="../inspector/questwidget.cpp" line="45"/>
         <source>Day %1</source>
         <translation type="unfinished">Dag %1</translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.cpp" line="303"/>
-        <source>%1 quest on position %2</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

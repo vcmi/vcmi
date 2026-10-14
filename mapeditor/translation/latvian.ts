@@ -413,7 +413,7 @@
     <name>EditorMainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="538"/>
+        <location filename="../mainwindow.cpp" line="530"/>
         <source>VCMI Map Editor</source>
         <translation type="unfinished">VCMI kartes redaktors</translation>
     </message>
@@ -719,22 +719,22 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1257"/>
-        <location filename="../mainwindow.cpp" line="1601"/>
+        <location filename="../mainwindow.cpp" line="1592"/>
         <source>Select map layer type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1268"/>
-        <location filename="../mainwindow.cpp" line="1541"/>
-        <location filename="../mainwindow.cpp" line="1556"/>
+        <location filename="../mainwindow.cpp" line="1532"/>
+        <location filename="../mainwindow.cpp" line="1547"/>
         <source>Add level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
-        <location filename="../mainwindow.cpp" line="1450"/>
-        <location filename="../mainwindow.cpp" line="1454"/>
-        <location filename="../mainwindow.cpp" line="1512"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
+        <location filename="../mainwindow.cpp" line="1445"/>
+        <location filename="../mainwindow.cpp" line="1503"/>
         <source>Update appearance</source>
         <translation type="unfinished">Atjaunināt izskatu</translation>
     </message>
@@ -949,308 +949,308 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="504"/>
+        <location filename="../mainwindow.cpp" line="496"/>
         <source>Confirmation</source>
         <translation type="unfinished">Apstiprinājums</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="504"/>
+        <location filename="../mainwindow.cpp" line="496"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation type="unfinished">Nesaglabātās izmaiņas tiks zaudētas, vai tiešām?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1529"/>
-        <location filename="../mainwindow.cpp" line="1618"/>
+        <location filename="../mainwindow.cpp" line="1520"/>
+        <location filename="../mainwindow.cpp" line="1609"/>
         <source>Level %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="597"/>
+        <location filename="../mainwindow.cpp" line="589"/>
         <source>Mods are required</source>
         <translation type="unfinished">Nepieciešami modifikācijas</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="605"/>
-        <location filename="../mainwindow.cpp" line="611"/>
+        <location filename="../mainwindow.cpp" line="597"/>
+        <location filename="../mainwindow.cpp" line="603"/>
         <source>Failed to open map</source>
         <translation type="unfinished">Neizdevās atvērt karti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="642"/>
+        <location filename="../mainwindow.cpp" line="634"/>
         <source>Open map</source>
         <translation type="unfinished">Atvērt karti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="644"/>
+        <location filename="../mainwindow.cpp" line="636"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">Visas atbalstītās kartes (*.vmap *.h3m);;VCMI kartes (*.vmap);;HoMM3 kartes (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="699"/>
+        <location filename="../mainwindow.cpp" line="691"/>
         <source>Recently Opened Files</source>
         <translation type="unfinished">Nesen atvērtie faili</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="752"/>
+        <location filename="../mainwindow.cpp" line="744"/>
         <source>Map validation</source>
         <translation type="unfinished">Kartes validācija</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="754"/>
+        <location filename="../mainwindow.cpp" line="746"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">Kartei ir kritiskas problēmas, un, visticamāk, to nevarēs spēlēt. Atveriet Validator no kartes izvēlnes, lai skatītu atrastās problēmas.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="756"/>
+        <location filename="../mainwindow.cpp" line="748"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">Kartē ir dažas kļūdas. Atveriet Validator no kartes izvēlnes, lai skatītu atrastās problēmas.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="783"/>
+        <location filename="../mainwindow.cpp" line="775"/>
         <source>Failed to save map</source>
         <translation type="unfinished">Neizdevās saglabāt karti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="796"/>
+        <location filename="../mainwindow.cpp" line="788"/>
         <source>Save map</source>
         <translation type="unfinished">Saglabāt karti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="797"/>
+        <location filename="../mainwindow.cpp" line="789"/>
         <source>VCMI maps (*.vmap)</source>
         <translation type="unfinished">VCMI kartes (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1013"/>
+        <location filename="../mainwindow.cpp" line="1004"/>
         <source>Type</source>
         <translation type="unfinished">Tips</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1026"/>
+        <location filename="../mainwindow.cpp" line="1017"/>
         <source>Towns</source>
         <translation type="unfinished">Pilsētas</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1027"/>
+        <location filename="../mainwindow.cpp" line="1018"/>
         <source>Objects</source>
         <translation type="unfinished">Objekti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1028"/>
+        <location filename="../mainwindow.cpp" line="1019"/>
         <source>Heroes</source>
         <translation type="unfinished">Varoņi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1029"/>
+        <location filename="../mainwindow.cpp" line="1020"/>
         <source>Artifacts</source>
         <translation type="unfinished">Artefakti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1030"/>
+        <location filename="../mainwindow.cpp" line="1021"/>
         <source>Resources</source>
         <translation type="unfinished">Resursi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1031"/>
+        <location filename="../mainwindow.cpp" line="1022"/>
         <source>Banks</source>
         <translation type="unfinished">Bankas</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1032"/>
+        <location filename="../mainwindow.cpp" line="1023"/>
         <source>Dwellings</source>
         <translation type="unfinished">Mājokļi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1033"/>
+        <location filename="../mainwindow.cpp" line="1024"/>
         <source>Grounds</source>
         <translation type="unfinished">Teritorija</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1034"/>
+        <location filename="../mainwindow.cpp" line="1025"/>
         <source>Teleports</source>
         <translation type="unfinished">Teleportācijas</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1035"/>
+        <location filename="../mainwindow.cpp" line="1026"/>
         <source>Mines</source>
         <translation type="unfinished">Raktuves</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1036"/>
+        <location filename="../mainwindow.cpp" line="1027"/>
         <source>Triggers</source>
         <translation type="unfinished">Aktivizētāji</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1037"/>
+        <location filename="../mainwindow.cpp" line="1028"/>
         <source>Monsters</source>
         <translation type="unfinished">Briesmoņi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1038"/>
+        <location filename="../mainwindow.cpp" line="1029"/>
         <source>Quests</source>
         <translation type="unfinished">Uzdevumi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1039"/>
+        <location filename="../mainwindow.cpp" line="1030"/>
         <source>Wog Objects</source>
         <translation type="unfinished">Wog objekti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1031"/>
         <source>Obstacles</source>
         <translation type="unfinished">Šķēršļi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1041"/>
+        <location filename="../mainwindow.cpp" line="1032"/>
         <source>Other</source>
         <translation type="unfinished">Citi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1178"/>
+        <location filename="../mainwindow.cpp" line="1169"/>
         <source>Mods loading problem</source>
         <translation type="unfinished">Modifikāciju ielādes problēma</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1178"/>
+        <location filename="../mainwindow.cpp" line="1169"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation type="unfinished">Kritiska kļūda modifikāciju ielādes laikā. Atspējojiet nederīgas modifikācijas un restartējiet datoru.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1184"/>
+        <location filename="../mainwindow.cpp" line="1175"/>
         <source>Undo clicked</source>
         <translation type="unfinished">Noklikšķināts uz pogas “Atsaukt”</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1195"/>
+        <location filename="../mainwindow.cpp" line="1186"/>
         <source>Redo clicked</source>
         <translation type="unfinished">Noklikšķināts uz “Atkārtot”</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1206"/>
+        <location filename="../mainwindow.cpp" line="1197"/>
         <source>Passability clicked</source>
         <translation type="unfinished">Caurlaidība noklikšķināja</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1219"/>
+        <location filename="../mainwindow.cpp" line="1210"/>
         <source>Grid clicked</source>
         <translation type="unfinished">Noklikšķināts uz režģa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1300"/>
+        <location filename="../mainwindow.cpp" line="1291"/>
         <source>Fill clicked</source>
         <translation type="unfinished">Noklikšķināts uz aizpildījuma</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1450"/>
+        <location filename="../mainwindow.cpp" line="1441"/>
         <source>No objects selected</source>
         <translation type="unfinished">Nav atlasītu objektu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1454"/>
+        <location filename="../mainwindow.cpp" line="1445"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation type="unfinished">Šī darbība ir neatgriezeniska. Vai vēlaties turpināt?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1512"/>
+        <location filename="../mainwindow.cpp" line="1503"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation type="unfinished">Radās kļūdas. %1 objekti netika atjaunināti.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1541"/>
+        <location filename="../mainwindow.cpp" line="1532"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1557"/>
+        <location filename="../mainwindow.cpp" line="1548"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1602"/>
+        <location filename="../mainwindow.cpp" line="1593"/>
         <source>Type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1663"/>
+        <location filename="../mainwindow.cpp" line="1654"/>
         <source>Image format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1664"/>
+        <location filename="../mainwindow.cpp" line="1655"/>
         <source>Select image format:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1678"/>
-        <location filename="../mainwindow.cpp" line="1682"/>
+        <location filename="../mainwindow.cpp" line="1669"/>
+        <location filename="../mainwindow.cpp" line="1673"/>
         <source>Save to image</source>
         <translation type="unfinished">Saglabāt attēlā</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1724"/>
+        <location filename="../mainwindow.cpp" line="1715"/>
         <source>Failed to save image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1724"/>
+        <location filename="../mainwindow.cpp" line="1715"/>
         <source>Cannot save image to %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1744"/>
+        <location filename="../mainwindow.cpp" line="1735"/>
         <source>Select maps to convert</source>
         <translation type="unfinished">Atlasiet kartes konvertēšanai</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1746"/>
+        <location filename="../mainwindow.cpp" line="1737"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">HoMM3 kartes (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1752"/>
-        <location filename="../mainwindow.cpp" line="1759"/>
+        <location filename="../mainwindow.cpp" line="1743"/>
+        <location filename="../mainwindow.cpp" line="1750"/>
         <source>Choose directory to save converted maps</source>
         <translation type="unfinished">Izvēlieties direktoriju, kurā saglabāt konvertētās kartes</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1754"/>
+        <location filename="../mainwindow.cpp" line="1745"/>
         <source>Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1775"/>
+        <location filename="../mainwindow.cpp" line="1766"/>
         <source>Operation completed</source>
         <translation type="unfinished">Darbība pabeigta</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1775"/>
+        <location filename="../mainwindow.cpp" line="1766"/>
         <source>Successfully converted %1 maps</source>
         <translation type="unfinished">Veiksmīgi konvertētas %1 kartes</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1779"/>
+        <location filename="../mainwindow.cpp" line="1770"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation type="unfinished">Neizdevās konvertēt karti. Pārtraukt darbību.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1787"/>
+        <location filename="../mainwindow.cpp" line="1778"/>
         <source>Select campaign to convert</source>
         <translation type="unfinished">Atlasiet kampaņu, lai konvertētu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1788"/>
+        <location filename="../mainwindow.cpp" line="1779"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation type="unfinished">HoMM3 kampaņas (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1794"/>
+        <location filename="../mainwindow.cpp" line="1785"/>
         <source>Select destination file</source>
         <translation type="unfinished">Atlasiet mērķa failu</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1795"/>
+        <location filename="../mainwindow.cpp" line="1786"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation type="unfinished">VCMI kampaņas (*.vcmp)</translation>
     </message>
@@ -1525,27 +1525,27 @@ Warning: levels cannot be removed once added.</source>
         <translation type="unfinished">Parametri</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="39"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="38"/>
         <source>No special loss</source>
         <translation type="unfinished">Nav īpašu zaudējumu</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="40"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="39"/>
         <source>Lose castle</source>
         <translation type="unfinished">Zaudēt pili</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="41"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="40"/>
         <source>Lose hero</source>
         <translation type="unfinished">Zaudēt varoni</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="42"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="41"/>
         <source>Time expired</source>
         <translation type="unfinished">Laiks beidzies</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="43"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="42"/>
         <source>Days without town</source>
         <translation type="unfinished">Dienas bez pilsētas</translation>
     </message>
@@ -1553,24 +1553,24 @@ Warning: levels cannot be removed once added.</source>
 <context>
     <name>MapController</name>
     <message>
-        <location filename="../mapcontroller.cpp" line="650"/>
+        <location filename="../mapcontroller.cpp" line="640"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
         <translation type="unfinished">Varoni %1 nevar izveidot kā NEITRĀLU.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="664"/>
+        <location filename="../mapcontroller.cpp" line="654"/>
         <source>Missing Required Mod</source>
         <translation type="unfinished">Trūkst nepieciešamā modifikācijas</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="664"/>
+        <location filename="../mapcontroller.cpp" line="654"/>
         <source>
 
 Do you want to do that now ?</source>
         <translation type="unfinished">Vai tu vēlies to darīt tagad?</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="674"/>
+        <location filename="../mapcontroller.cpp" line="664"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
         <translation type="unfinished">Šī objekta modifikācija ir obligāta, lai karte paliktu derīga.</translation>
     </message>
@@ -2086,27 +2086,27 @@ Do you want to do that now ?</source>
         <translation type="unfinished">Otrreizējās prasmes:</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1027"/>
+        <location filename="../inspector/inspector.cpp" line="1009"/>
         <source>Compliant</source>
         <translation type="unfinished">Atbilstošs</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1028"/>
+        <location filename="../inspector/inspector.cpp" line="1010"/>
         <source>Friendly</source>
         <translation type="unfinished">Draudzīgs</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1029"/>
+        <location filename="../inspector/inspector.cpp" line="1011"/>
         <source>Aggressive</source>
         <translation type="unfinished">Agresīvs</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1030"/>
+        <location filename="../inspector/inspector.cpp" line="1012"/>
         <source>Hostile</source>
         <translation type="unfinished">Naidīgs</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1031"/>
+        <location filename="../inspector/inspector.cpp" line="1013"/>
         <source>Savage</source>
         <translation type="unfinished">Mežonīgs</translation>
     </message>
@@ -2172,89 +2172,49 @@ Do you want to do that now ?</source>
         <translation type="unfinished">Resurss</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="452"/>
-        <location filename="../inspector/inspector.cpp" line="839"/>
-        <source>Aggression</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="453"/>
-        <location filename="../inspector/inspector.cpp" line="841"/>
-        <source>Join only for money</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="454"/>
-        <location filename="../inspector/inspector.cpp" line="843"/>
-        <source>Joining percentage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="458"/>
-        <location filename="../inspector/inspector.cpp" line="845"/>
-        <source>Upgraded stack</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="460"/>
-        <location filename="../inspector/inspector.cpp" line="847"/>
-        <source>Stacks count</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="461"/>
+        <location filename="../inspector/inspector.cpp" line="450"/>
         <source>Artifact reward</source>
         <translation type="unfinished">Artefakta atlīdzība</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="522"/>
+        <location filename="../inspector/inspector.cpp" line="518"/>
         <source>Quest</source>
         <translation type="unfinished">Kvests</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="540"/>
+        <location filename="../inspector/inspector.cpp" line="536"/>
         <source>Identifier</source>
         <translation type="unfinished">Identifikators</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="541"/>
+        <location filename="../inspector/inspector.cpp" line="537"/>
         <source>ID</source>
         <translation type="unfinished">ID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="542"/>
+        <location filename="../inspector/inspector.cpp" line="538"/>
         <source>SubID</source>
         <translation type="unfinished">ApakšID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="543"/>
+        <location filename="../inspector/inspector.cpp" line="539"/>
         <source>InstanceName</source>
         <translation type="unfinished">InstanceName</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="548"/>
+        <location filename="../inspector/inspector.cpp" line="544"/>
         <source>IsStatic</source>
         <translation type="unfinished">IrStatisks</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="935"/>
-        <location filename="../inspector/inspector.cpp" line="1089"/>
+        <location filename="../inspector/inspector.cpp" line="1063"/>
         <source>neutral</source>
         <translation type="unfinished">neitrāls</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1038"/>
-        <source>Never</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/inspector.cpp" line="1039"/>
-        <source>Always</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../inspector/inspector.cpp" line="253"/>
-        <location filename="../inspector/inspector.cpp" line="462"/>
+        <location filename="../inspector/inspector.cpp" line="451"/>
         <source>Army</source>
         <translation type="unfinished">Armija</translation>
     </message>
@@ -2266,46 +2226,46 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="295"/>
         <location filename="../inspector/inspector.cpp" line="326"/>
         <location filename="../inspector/inspector.cpp" line="417"/>
-        <location filename="../inspector/inspector.cpp" line="551"/>
-        <location filename="../inspector/inspector.cpp" line="598"/>
+        <location filename="../inspector/inspector.cpp" line="547"/>
+        <location filename="../inspector/inspector.cpp" line="594"/>
         <source>Owner</source>
         <translation type="unfinished">Īpašnieks</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="265"/>
-        <location filename="../inspector/inspector.cpp" line="723"/>
+        <location filename="../inspector/inspector.cpp" line="719"/>
         <source>Same as town</source>
         <translation type="unfinished">Tāpat kā pilsētā</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="281"/>
-        <location filename="../inspector/inspector.cpp" line="738"/>
+        <location filename="../inspector/inspector.cpp" line="734"/>
         <source>Removable units</source>
         <translation type="unfinished">Noņemamas vienības</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="306"/>
-        <location filename="../inspector/inspector.cpp" line="746"/>
+        <location filename="../inspector/inspector.cpp" line="742"/>
         <source>Placeholder type</source>
         <translation type="unfinished">Viettura veids</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="309"/>
-        <location filename="../inspector/inspector.cpp" line="764"/>
+        <location filename="../inspector/inspector.cpp" line="760"/>
         <source>Power rank</source>
         <translation type="unfinished">Jaudas rangs</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="317"/>
         <location filename="../inspector/inspector.cpp" line="357"/>
-        <location filename="../inspector/inspector.cpp" line="767"/>
-        <location filename="../inspector/inspector.cpp" line="791"/>
+        <location filename="../inspector/inspector.cpp" line="763"/>
+        <location filename="../inspector/inspector.cpp" line="787"/>
         <source>Hero type</source>
         <translation type="unfinished">Varoņa tips</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="327"/>
-        <location filename="../inspector/inspector.cpp" line="788"/>
+        <location filename="../inspector/inspector.cpp" line="784"/>
         <source>Experience</source>
         <translation type="unfinished">Pieredze</translation>
     </message>
@@ -2323,19 +2283,19 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="333"/>
-        <location filename="../inspector/inspector.cpp" line="777"/>
+        <location filename="../inspector/inspector.cpp" line="773"/>
         <source>Gender</source>
         <translation type="unfinished">Dzimums</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="335"/>
-        <location filename="../inspector/inspector.cpp" line="780"/>
+        <location filename="../inspector/inspector.cpp" line="776"/>
         <source>Name</source>
         <translation type="unfinished">Vārds</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="336"/>
-        <location filename="../inspector/inspector.cpp" line="784"/>
+        <location filename="../inspector/inspector.cpp" line="780"/>
         <source>Biography</source>
         <translation type="unfinished">Biogrāfija</translation>
     </message>
@@ -2347,19 +2307,19 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="366"/>
-        <location filename="../inspector/inspector.cpp" line="803"/>
+        <location filename="../inspector/inspector.cpp" line="799"/>
         <source>Patrol radius</source>
         <translation type="unfinished">Patruļas rādiuss</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="374"/>
-        <location filename="../inspector/inspector.cpp" line="680"/>
+        <location filename="../inspector/inspector.cpp" line="676"/>
         <source>Town name</source>
         <translation type="unfinished">Pilsētas nosaukums</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="381"/>
-        <location filename="../inspector/inspector.cpp" line="684"/>
+        <location filename="../inspector/inspector.cpp" line="680"/>
         <source>Same as player</source>
         <translation type="unfinished">Tāpat kā spēlētājam</translation>
     </message>
@@ -2368,37 +2328,37 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="428"/>
         <location filename="../inspector/inspector.cpp" line="435"/>
         <location filename="../inspector/inspector.cpp" line="442"/>
-        <location filename="../inspector/inspector.cpp" line="503"/>
-        <location filename="../inspector/inspector.cpp" line="640"/>
-        <location filename="../inspector/inspector.cpp" line="692"/>
-        <location filename="../inspector/inspector.cpp" line="709"/>
-        <location filename="../inspector/inspector.cpp" line="828"/>
+        <location filename="../inspector/inspector.cpp" line="492"/>
+        <location filename="../inspector/inspector.cpp" line="636"/>
+        <location filename="../inspector/inspector.cpp" line="688"/>
+        <location filename="../inspector/inspector.cpp" line="705"/>
+        <location filename="../inspector/inspector.cpp" line="824"/>
         <source>Message</source>
         <translation type="unfinished">Ziņojums</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="408"/>
-        <location filename="../inspector/inspector.cpp" line="713"/>
+        <location filename="../inspector/inspector.cpp" line="709"/>
         <source>Spell</source>
         <translation type="unfinished">Burvestība</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="420"/>
-        <location filename="../inspector/inspector.cpp" line="701"/>
+        <location filename="../inspector/inspector.cpp" line="697"/>
         <source>Productivity</source>
         <translation type="unfinished">Produktivitāte</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="427"/>
-        <location filename="../inspector/inspector.cpp" line="463"/>
-        <location filename="../inspector/inspector.cpp" line="820"/>
-        <location filename="../inspector/inspector.cpp" line="837"/>
+        <location filename="../inspector/inspector.cpp" line="452"/>
+        <location filename="../inspector/inspector.cpp" line="816"/>
+        <location filename="../inspector/inspector.cpp" line="833"/>
         <source>Amount</source>
         <translation type="unfinished">Summa</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="446"/>
-        <location filename="../inspector/inspector.cpp" line="831"/>
+        <location filename="../inspector/inspector.cpp" line="827"/>
         <source>Character</source>
         <translation type="unfinished">Raksturs</translation>
     </message>
@@ -2407,18 +2367,18 @@ Do you want to do that now ?</source>
         <translation type="obsolete">Spējas</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="514"/>
-        <location filename="../inspector/inspector.cpp" line="658"/>
+        <location filename="../inspector/inspector.cpp" line="503"/>
+        <location filename="../inspector/inspector.cpp" line="654"/>
         <source>Available for</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="996"/>
+        <location filename="../inspector/inspector.cpp" line="978"/>
         <source>Select town</source>
         <translation type="unfinished">Izvēlieties pilsētu</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1007"/>
+        <location filename="../inspector/inspector.cpp" line="989"/>
         <location filename="../inspector/playerselectionwidget.cpp" line="104"/>
         <source>Available for:
 </source>
@@ -2426,60 +2386,70 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="448"/>
-        <location filename="../inspector/inspector.cpp" line="833"/>
+        <location filename="../inspector/inspector.cpp" line="829"/>
         <source>Never flees</source>
         <translation type="unfinished">Nekad nebēg</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="449"/>
-        <location filename="../inspector/inspector.cpp" line="835"/>
+        <location filename="../inspector/inspector.cpp" line="831"/>
         <source>Not growing</source>
         <translation type="unfinished">Neaug</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="496"/>
-        <location filename="../inspector/inspector.cpp" line="530"/>
+        <location filename="../inspector/inspector.cpp" line="485"/>
+        <location filename="../inspector/inspector.cpp" line="526"/>
         <source>Reward</source>
         <translation type="unfinished">Atlīdzība</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="510"/>
-        <location filename="../inspector/inspector.cpp" line="649"/>
+        <location filename="../inspector/inspector.cpp" line="499"/>
+        <location filename="../inspector/inspector.cpp" line="645"/>
         <source>Remove after</source>
         <translation type="unfinished">Noņemt pēc</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="511"/>
-        <location filename="../inspector/inspector.cpp" line="652"/>
+        <location filename="../inspector/inspector.cpp" line="500"/>
+        <location filename="../inspector/inspector.cpp" line="648"/>
         <source>Human trigger</source>
         <translation type="unfinished">Cilvēka izraisītājs</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="512"/>
-        <location filename="../inspector/inspector.cpp" line="655"/>
+        <location filename="../inspector/inspector.cpp" line="501"/>
+        <location filename="../inspector/inspector.cpp" line="651"/>
         <source>Cpu trigger</source>
         <translation type="unfinished">CPU aktivizētājs</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="510"/>
+        <location filename="../inspector/inspector.cpp" line="841"/>
         <source>First visit text</source>
-        <translation type="obsolete">Pirmā apmeklējuma īsziņa</translation>
+        <translation type="unfinished">Pirmā apmeklējuma īsziņa</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="511"/>
+        <location filename="../inspector/inspector.cpp" line="844"/>
         <source>Next visit text</source>
-        <translation type="obsolete">Nākamā apmeklējuma teksts</translation>
+        <translation type="unfinished">Nākamā apmeklējuma teksts</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="512"/>
+        <location filename="../inspector/inspector.cpp" line="847"/>
         <source>Completed text</source>
-        <translation type="obsolete">Pabeigts teksts</translation>
+        <translation type="unfinished">Pabeigts teksts</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="531"/>
+        <location filename="../inspector/inspector.cpp" line="513"/>
+        <location filename="../inspector/inspector.cpp" line="527"/>
+        <location filename="../inspector/inspector.cpp" line="850"/>
         <source>Repeat quest</source>
         <translation type="unfinished">Atkārtot uzdevumu</translation>
     </message>
     <message>
+        <location filename="../inspector/inspector.cpp" line="514"/>
+        <location filename="../inspector/inspector.cpp" line="852"/>
         <source>Time limit</source>
-        <translation type="obsolete">Laika ierobežojums</translation>
+        <translation type="unfinished">Laika ierobežojums</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="933"/>
@@ -2487,27 +2457,26 @@ Do you want to do that now ?</source>
         <translation type="unfinished">NENOMIERINĀMS</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="446"/>
+        <location filename="../mapcontroller.cpp" line="445"/>
         <source>Can&apos;t place object</source>
         <translation type="unfinished">Nevar novietot objektu</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="632"/>
+        <location filename="../mapcontroller.cpp" line="622"/>
         <source>There can only be one grail object on the map.</source>
         <translation type="unfinished">Kartē var būt tikai viens Grāla objekts.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="687"/>
+        <location filename="../mapcontroller.cpp" line="677"/>
         <source> (submod of %1)</source>
         <translation type="unfinished">(%1 apakšmodifikācija)</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="689"/>
+        <location filename="../mapcontroller.cpp" line="679"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
-        <translation type="unfinished">Modifikācija &apos;%1&apos;%2 ir nepieciešama objektam kartē.
-Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vispārīgi iestatījumi.</translation>
+        <translation type="unfinished">Modifikācija &apos;%1&apos;%2 ir nepieciešama objektam kartē.\nPievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vispārīgi iestatījumi.</translation>
     </message>
     <message>
         <location filename="../inspector/herospellwidget.cpp" line="219"/>
@@ -2530,83 +2499,97 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="218"/>
-        <location filename="../inspector/inspector.cpp" line="1033"/>
         <source>Custom</source>
         <translation type="unfinished">Pielāgots</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="675"/>
+        <location filename="../inspector/questwidget.cpp" line="452"/>
         <source>Quest:</source>
         <translation type="unfinished">Uzdevums:</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="453"/>
         <source>Day of Week: %1</source>
-        <translation type="obsolete">Nedēļas diena: %1</translation>
+        <translation type="unfinished">Nedēļas diena: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="454"/>
         <source>Days Passed: %1</source>
-        <translation type="obsolete">Pagājušās dienas: %1</translation>
+        <translation type="unfinished">Pagājušās dienas: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="455"/>
         <location filename="../inspector/rewardswidget.cpp" line="795"/>
         <source>Hero Level: %1</source>
         <translation type="unfinished">Varoņa līmenis: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="456"/>
         <location filename="../inspector/rewardswidget.cpp" line="796"/>
         <source>Hero Experience: %1</source>
         <translation type="unfinished">Varoņa pieredze: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="457"/>
         <source>Mana Points: %1</source>
-        <translation type="obsolete">Manas punkti: %1</translation>
+        <translation type="unfinished">Manas punkti: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="458"/>
         <location filename="../inspector/rewardswidget.cpp" line="798"/>
         <source>Mana Percentage: %1</source>
         <translation type="unfinished">Manas procentuālā daļa: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="459"/>
         <location filename="../inspector/rewardswidget.cpp" line="801"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
         <translation type="unfinished">Primārās prasmes: %1/%2/%3/%4</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="470"/>
         <location filename="../inspector/rewardswidget.cpp" line="811"/>
         <source>Resources: %1</source>
         <translation type="unfinished">Resursi: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="477"/>
         <location filename="../inspector/rewardswidget.cpp" line="817"/>
         <source>Artifacts: %1</source>
         <translation type="unfinished">Artefakti: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="484"/>
         <location filename="../inspector/rewardswidget.cpp" line="823"/>
         <source>Spells: %1</source>
         <translation type="unfinished">Burvestības: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="491"/>
         <location filename="../inspector/rewardswidget.cpp" line="829"/>
         <source>Secondary Skills: %1</source>
         <translation type="unfinished">Papildu prasmes: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="498"/>
         <location filename="../inspector/rewardswidget.cpp" line="835"/>
         <source>Creatures: %1</source>
         <translation type="unfinished">Radības: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="505"/>
         <source>Heroes: %1</source>
-        <translation type="obsolete">Varoņi: %1</translation>
+        <translation type="unfinished">Varoņi: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="512"/>
         <source>Hero Classes: %1</source>
-        <translation type="obsolete">Varoņu klases: %1</translation>
+        <translation type="unfinished">Varoņu klases: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questwidget.cpp" line="521"/>
         <source>Players: %1</source>
-        <translation type="obsolete">Spēlētāji: %1</translation>
+        <translation type="unfinished">Spēlētāji: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="791"/>
@@ -2706,30 +2689,14 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mapsettings/abstractsettings.cpp" line="77"/>
+        <location filename="../mapsettings/abstractsettings.cpp" line="116"/>
         <source>Hero placeholder (power rank %1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1037"/>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
         <translation type="unfinished">Nejauši</translation>
-    </message>
-    <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="293"/>
-        <source>Day</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="298"/>
-        <source>Week</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="303"/>
-        <source>Month</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2740,148 +2707,117 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <translation type="unfinished">Misijas mērķis</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="37"/>
-        <source>Delete</source>
-        <translation type="unfinished">Dzēst</translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="66"/>
-        <source>First Visit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="94"/>
-        <source>Next Visit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="116"/>
-        <source>Completed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="148"/>
-        <source>Repeatable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="158"/>
-        <source>Set Deadline</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="179"/>
+        <location filename="../inspector/questwidget.ui" line="28"/>
         <source>Day of week</source>
         <translation type="unfinished">Nedēļas diena</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="196"/>
+        <location filename="../inspector/questwidget.ui" line="45"/>
         <source>Days passed</source>
         <translation type="unfinished">Dienas pagāja</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="230"/>
+        <location filename="../inspector/questwidget.ui" line="79"/>
         <source>Hero level</source>
         <translation type="unfinished">Varoņa līmenis</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="247"/>
+        <location filename="../inspector/questwidget.ui" line="96"/>
         <source>Hero experience</source>
         <translation type="unfinished">Varoņa pieredze</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="287"/>
+        <location filename="../inspector/questwidget.ui" line="136"/>
         <source>Spell points</source>
         <translation type="unfinished">Burvestības punkti</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="307"/>
+        <location filename="../inspector/questwidget.ui" line="156"/>
         <source>%</source>
         <translation type="unfinished">%</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="334"/>
+        <location filename="../inspector/questwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
         <translation type="unfinished">Nogalini varoni/briesmoni</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="348"/>
+        <location filename="../inspector/questwidget.ui" line="197"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="357"/>
+        <location filename="../inspector/questwidget.ui" line="206"/>
         <source>Primary skills</source>
         <translation type="unfinished">Primārās prasmes</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="372"/>
+        <location filename="../inspector/questwidget.ui" line="221"/>
         <source>Attack</source>
         <translation type="unfinished">Uzbrukums</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="382"/>
+        <location filename="../inspector/questwidget.ui" line="231"/>
         <source>Defence</source>
         <translation type="unfinished">Aizsardzība</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="392"/>
+        <location filename="../inspector/questwidget.ui" line="241"/>
         <source>Spell power</source>
         <translation type="unfinished">Burvestības spēks</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="402"/>
+        <location filename="../inspector/questwidget.ui" line="251"/>
         <source>Knowledge</source>
         <translation type="unfinished">Zināšanas</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="440"/>
+        <location filename="../inspector/questwidget.ui" line="289"/>
         <source>Resources</source>
         <translation type="unfinished">Resursi</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="489"/>
+        <location filename="../inspector/questwidget.ui" line="338"/>
         <source>Artifacts</source>
         <translation type="unfinished">Artefakti</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="521"/>
+        <location filename="../inspector/questwidget.ui" line="370"/>
         <source>Spells</source>
         <translation type="unfinished">Burvestības</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="553"/>
+        <location filename="../inspector/questwidget.ui" line="402"/>
         <source>Skills</source>
         <translation type="unfinished">Prasmes</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="593"/>
+        <location filename="../inspector/questwidget.ui" line="442"/>
         <source>Creatures</source>
         <translation type="unfinished">Radības</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="30"/>
-        <location filename="../inspector/questwidget.ui" line="642"/>
+        <location filename="../inspector/questwidget.ui" line="491"/>
         <source>Add</source>
         <translation type="unfinished">Pievienot</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="649"/>
+        <location filename="../inspector/questwidget.ui" line="498"/>
         <source>Remove</source>
         <translation type="unfinished">Noņemt</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="689"/>
+        <location filename="../inspector/questwidget.ui" line="538"/>
         <source>Heroes</source>
         <translation type="unfinished">Varoņi</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="721"/>
+        <location filename="../inspector/questwidget.ui" line="570"/>
         <source>Hero classes</source>
         <translation type="unfinished">Varoņu klases</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="753"/>
+        <location filename="../inspector/questwidget.ui" line="602"/>
         <source>Players</source>
         <translation type="unfinished">Spēlētāji</translation>
     </message>
@@ -2894,11 +2830,6 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <location filename="../inspector/questwidget.cpp" line="45"/>
         <source>Day %1</source>
         <translation type="unfinished">Diena %1</translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.cpp" line="303"/>
-        <source>%1 quest on position %2</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4368,9 +4299,7 @@ Pievienojiet to kartes nepieciešamajām modifikācijām sadaļā Karte -&gt; Vi
         <source>Zone A: %1
 Zone B: %2
 Guard: %3</source>
-        <translation type="unfinished">A zona: %1
-B zona: %2
-Aizsargs: %3</translation>
+        <translation type="unfinished">A zona: %1\nB zona: %2\nAizsargs: %3</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="651"/>

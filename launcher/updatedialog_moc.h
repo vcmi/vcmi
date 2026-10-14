@@ -9,8 +9,7 @@
  */
 #pragma once
 #include <QDialog>
-
-#include "modManager/cdownloadmanager_moc.h"
+#include <QNetworkAccessManager>
 
 class JsonNode;
 
@@ -37,10 +36,9 @@ private:
 	std::string currentVersion;
 	std::string platformParameter = "other";
 	
-	CDownloadManager downloadManager;
+	QNetworkAccessManager networkManager;
 	
 	bool calledManually;
 	
 	void loadFromJson(const JsonNode & node);
-	void onDownloadFinished(const QStringList & savedFiles, const QStringList & errors);
 };

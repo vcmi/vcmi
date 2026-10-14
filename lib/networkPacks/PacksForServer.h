@@ -681,15 +681,15 @@ struct DLL_LINKAGE BuildBoat : public CPackForServer
 	}
 };
 
-struct DLL_LINKAGE QuestionAnswer : public CPackForServer
+struct DLL_LINKAGE QueryReply : public CPackForServer
 {
-	QuestionAnswer() = default;
-	QuestionAnswer(const QuestionID & QID, std::optional<int32_t> Reply)
-		: questionID(QID)
+	QueryReply() = default;
+	QueryReply(const QueryID & QID, std::optional<int32_t> Reply)
+		: qid(QID)
 		, reply(Reply)
 	{
 	}
-	QuestionID questionID;
+	QueryID qid;
 	std::optional<int32_t> reply;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -697,7 +697,7 @@ struct DLL_LINKAGE QuestionAnswer : public CPackForServer
 	template <typename Handler> void serialize(Handler & h)
 	{
 		h & static_cast<CPackForServer &>(*this);
-		h & questionID;
+		h & qid;
 		h & reply;
 	}
 };
@@ -803,4 +803,11 @@ struct DLL_LINKAGE PlayerMessage : public CPackForServer
 		h & text;
 		h & currObj;
 	}
+};
+
+struct DLL_LINKAGE AdvInterfaceReady : public CPackForServer
+{
+	AdvInterfaceReady() = default;
+
+	void visitTyped(ICPackVisitor & cpackVisitor) override;
 };

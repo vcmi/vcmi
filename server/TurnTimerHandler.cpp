@@ -11,7 +11,7 @@
 #include "TurnTimerHandler.h"
 #include "CGameHandler.h"
 #include "battles/BattleProcessor.h"
-#include "activities/ActivityProcessor.h"
+#include "queries/QueriesProcessor.h"
 #include "processors/TurnOrderProcessor.h"
 #include "../lib/battle/BattleInfo.h"
 #include "../lib/gameState/CGameState.h"
@@ -48,12 +48,6 @@ void TurnTimerHandler::setTimerEnabled(PlayerColor player, bool enabled)
 	assert(player.isValidPlayer());
 	timers[player].isActive = enabled;
 	sendTimerUpdate(player);
-}
-
-bool TurnTimerHandler::isTimerEnabled(PlayerColor player) const
-{
-	auto it = timers.find(player);
-	return it != timers.end() && it->second.isActive;
 }
 
 void TurnTimerHandler::setEndTurnAllowed(PlayerColor player, bool enabled)
@@ -174,7 +168,7 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 		if(timerCountDown(timer.baseTimer, si->turnTimerInfo.baseTimer, player, waitTime))
 			return;
 
-		if(endTurnAllowed[state->color] && !gameHandler.activities->topActivity(state->color)) //wait for replies to avoid pending activities
+		if(endTurnAllowed[state->color] && !gameHandler.queries->topQuery(state->color)) //wait for replies to avoid pending queries
 			gameHandler.turnOrder->onPlayerEndsTurn(state->color);
 	}
 }

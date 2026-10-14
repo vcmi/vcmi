@@ -400,14 +400,6 @@ const std::map<PlayerColor, CMapGenOptions::CPlayerSettings> & CMapGenOptions::g
 	return players;
 }
 
-int CMapGenOptions::getComputerPlayerCount() const
-{
-	return static_cast<int>(std::ranges::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
-	{
-		return pair.second.getPlayerType() != EPlayerType::HUMAN;
-	}));
-}
-
 void CMapGenOptions::setStartingTownForPlayer(const PlayerColor & color, FactionID town)
 {
 	auto it = players.find(color);
@@ -559,9 +551,6 @@ void CMapGenOptions::finalize(vstd::RNG & rand)
 	}
 	if(compOnlyPlayerCount == RANDOM_SIZE)
 	{
-		// A fixed standard-player count may still have placeholder AI slots up to the template limit.
-		updatePlayers();
-
 		// Use remaining range
 		auto presentPlayers = getHumanOrCpuPlayerCount();
 		auto possiblePlayers = mapTemplate->getPlayers().getNumbers();
@@ -654,15 +643,12 @@ void CMapGenOptions::updatePlayers()
 
 void CMapGenOptions::updateCompOnlyPlayers()
 {
-	const int requestedPlayerCount = getHumanOrCpuPlayerCount() + getCompOnlyPlayerCount();
-
 	// Remove comp only players only from the end of the players map if necessary
 	for(auto itrev = players.end(); itrev != players.begin();)
 	{
 		auto it = itrev;
 		--it;
-		if(static_cast<int>(players.size()) <= requestedPlayerCount)
-			break;
+		if (players.size() <= getHumanOrCpuPlayerCount()) break;
 		if(it->second.getPlayerType() == EPlayerType::COMP_ONLY)
 		{
 			players.erase(it);
@@ -674,9 +660,13 @@ void CMapGenOptions::updateCompOnlyPlayers()
 	}
 
 	// Add some comp only players if necessary
-	int compOnlyPlayersToAdd = requestedPlayerCount - static_cast<int>(players.size());
-	assert(compOnlyPlayersToAdd >= 0);
+	int compOnlyPlayersToAdd = static_cast<int>(getHumanOrCpuPlayerCount() - players.size());
 
+	if (compOnlyPlayersToAdd < 0)
+	{
+		logGlobal->error("Incorrect number of players to add. Requested players %d, current players %d", humanOrCpuPlayerCount, players.size());
+		assert (compOnlyPlayersToAdd < 0);
+	}
 	for(int i = 0; i < compOnlyPlayersToAdd; ++i)
 	{
 		CPlayerSettings pSettings;

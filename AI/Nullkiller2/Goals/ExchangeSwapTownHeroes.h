@@ -19,7 +19,7 @@ namespace Goals
 	class DLL_EXPORT ExchangeSwapTownHeroes : public ElementarGoal<ExchangeSwapTownHeroes>
 	{
 	private:
-		const CGTownInstance * targetTown;
+		const CGTownInstance * town;
 		const CGHeroInstance * garrisonHero;
 		HeroLockedReason lockingReason;
 

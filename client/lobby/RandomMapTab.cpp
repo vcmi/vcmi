@@ -211,7 +211,7 @@ RandomMapTab::RandomMapTab():
 					templateIndex = 0;
 
 				texts.push_back(templates[i]->getName());
-				popupTexts.push_back("{" + templates[i]->getName() + "}" + (templates[i]->getDescription().empty() ? "" : "\n\n") + templates[i]->getDescriptionTranslated());
+				popupTexts.push_back("{" + templates[i]->getName() + "}" + (templates[i]->getDescription().empty() ? "" : "\n\n") + templates[i]->getDescription());
 			}
 
 			ENGINE->windows().popWindows(1);
@@ -306,7 +306,7 @@ void RandomMapTab::updateMapInfoByHost()
 	const auto * temp = mapGenOptions->getMapTemplate();
 	if (temp)
 	{
-		auto randomTemplateDescription = temp->getDescriptionTranslated();
+		auto randomTemplateDescription = temp->getDescription();
 		if (!randomTemplateDescription.empty())
 		{
 			auto description = std::string("\n\n") + randomTemplateDescription;
@@ -809,8 +809,8 @@ SetSizeWindow::SetSizeWindow(RandomMapTab & randomMapTab, int3 initSize, const C
 	updateShadow();
 	center();
 
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	backgroundTexture->setPlayerColor(PlayerColor(1));
+	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	background->setPlayerColor(PlayerColor(1));
 	buttonCancel = std::make_shared<CButton>(Point(160, 160), AnimationPath::builtin("MuBcanc"), CButton::tooltip(), [this](){ close();}, EShortcut::GLOBAL_CANCEL);
 	buttonOk = std::make_shared<CButton>(Point(70, 160), AnimationPath::builtin("MuBchck"), CButton::tooltip(), [this, cb](){
 		close();
@@ -918,8 +918,8 @@ MapLayerSelection::MapLayerSelection(RandomMapTab & randomMapTab, int initialLev
 	updateShadow();
 	center();
 
-	backgroundTexture = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
-	backgroundTexture->setPlayerColor(PlayerColor(1));
+	background = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
+	background->setPlayerColor(PlayerColor(1));
 
 	titles.push_back(std::make_shared<CLabel>(centerX, 15, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW,
 		LIBRARY->generaltexth->translate("vcmi.lobby.customRmgSize.2")));

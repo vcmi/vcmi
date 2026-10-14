@@ -16,7 +16,6 @@
 #include "../battle/BattleLayout.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../callback/IGameEventCallback.h"
-#include "../json/JsonNode.h"
 #include "../gameState/CGameState.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CRewardableConstructor.h"
@@ -71,13 +70,13 @@ void CRewardableObject::onHeroVisit(IGameEventCallback & gameEvents, const CGHer
 		bd.text = guardedReward.message;
 		bd.components = getPopupComponents(hero->getOwner());
 
-		gameEvents.showBlockingDialog(&bd);
+		gameEvents.showBlockingDialog(this, &bd);
 	}
 }
 
-void CRewardableObject::experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const
+void CRewardableObject::heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {
-	resumeAfterExperience(gameEvents, hero, visitState);
+	grantRewardAfterLevelup(gameEvents, configuration.info.at(selectedReward), this, hero);
 }
 
 void CRewardableObject::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const
@@ -94,19 +93,12 @@ void CRewardableObject::battleFinished(IGameEventCallback & gameEvents, const CG
 	}
 }
 
-void CRewardableObject::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const
-{
-	closeGarrisonDialog(gameEvents, hero, visitState);
-}
-
-bool CRewardableObject::closeGarrisonDialog(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const
+void CRewardableObject::garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const
 {
 	// if visitor received creatures as rewards, but does not have free slots, he will leave some units
 	// inside rewardable object, which might get treated as guards later
 	while(!stacks.empty())
 		gameEvents.eraseStack(StackLocation(id, stacks.begin()->first));
-
-	return resumeAfterGarrison(gameEvents, hero, visitState);
 }
 
 void CRewardableObject::doStartBattle(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
@@ -115,25 +107,17 @@ void CRewardableObject::doStartBattle(IGameEventCallback & gameEvents, const CGH
 	gameEvents.startBattle(hero, this, visitablePos(), hero, nullptr, layout, nullptr);
 }
 
-void CRewardableObject::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer, const JsonNode & visitState) const
+void CRewardableObject::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const
 {
-	answerBlockingDialog(gameEvents, hero, answer, visitState);
-}
-
-bool CRewardableObject::answerBlockingDialog(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer, const JsonNode & visitState) const
-{
-	// A reward choice carries what it offered, the question whether to attack the guards nothing
-	if(!visitState.isNull())
-		return onBlockingDialogAnswered(gameEvents, hero, answer, visitState);
-
-	if(!isGuarded())
-		throw std::runtime_error("Object at " + visitablePos().toString() + " got an answer to a question it did not ask");
-
-	if(!answer)
-		return false;
-
-	doStartBattle(gameEvents, hero);
-	return true;
+	if(isGuarded())
+	{
+		if (answer)
+			doStartBattle(gameEvents, hero);
+	}
+	else
+	{
+		onBlockingDialogAnswered(gameEvents, hero, answer);
+	}
 }
 
 void CRewardableObject::markAsVisited(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const
@@ -142,6 +126,18 @@ void CRewardableObject::markAsVisited(IGameEventCallback & gameEvents, const CGH
 
 	ChangeObjectVisitors cov(ChangeObjectVisitors::VISITOR_ADD_HERO, id, hero->id);
 	gameEvents.sendAndApply(cov);
+}
+
+void CRewardableObject::grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const
+{
+	gameEvents.setObjPropertyValue(id, ObjProperty::REWARD_SELECT, rewardID);
+	grantRewardBeforeLevelup(gameEvents, configuration.info.at(rewardID), hero);
+	
+	// hero is not blocked by levelup dialog - grant remainder immediately
+	if(!gameEvents.isVisitCoveredByAnotherQuery(this, hero))
+	{
+		grantRewardAfterLevelup(gameEvents, configuration.info.at(rewardID), this, hero);
+	}
 }
 
 bool CRewardableObject::wasVisitedBefore(const CGHeroInstance * contextHero) const
@@ -352,6 +348,9 @@ void CRewardableObject::setPropertyDer(ObjProperty what, ObjPropertyID identifie
 {
 	switch (what)
 	{
+		case ObjProperty::REWARD_SELECT:
+			selectedReward = identifier.getNum();
+			break;
 		case ObjProperty::REWARD_CLEARED:
 			onceVisitableObjectCleared = identifier.getNum();
 			break;

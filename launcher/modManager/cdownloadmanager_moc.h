@@ -15,12 +15,9 @@
 #include <QTimer>
 #include <QUrl>
 
-#include "../../lib/network/HttpDownloader.h"
+class QFile;
 
-#include <QTimer>
-#include <QUrl>
-
-class CDownloadManager : public QObject, public IHttpDownloaderListener
+class CDownloadManager : public QObject
 {
 	Q_OBJECT
 
@@ -35,10 +32,10 @@ class CDownloadManager : public QObject, public IHttpDownloaderListener
 		};
 
 		QUrl url;
+		QNetworkReply * reply;
+		QSharedPointer<QFile> file;
 		QString filename;
-		QString filePath;
 		Status status;
-		HttpDownloadID downloadID;
 		qint64 bytesReceived;
 		qint64 totalSize;
 	};
@@ -51,8 +48,9 @@ QSet<QNetworkReply *> ignoredReplies;
 HttpDownloader downloader;
 QTimer pollTimer;
 
-	HttpDownloader downloader;
-	QTimer pollTimer;
+QNetworkAccessManager manager;
+
+	QNetworkAccessManager manager;
 
 	QList<FileEntry> currentDownloads;
 
@@ -72,7 +70,6 @@ int countDownloadsInProgress() const;
 void onDownloadProgress(HttpDownloadID download, uint64_t received, uint64_t total) override;
 void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage, bool certificateError) override;
 
-
 public:
 	CDownloadManager();
 
@@ -80,10 +77,12 @@ public:
 	// FIXME: not sure what's right place for "mod download in progress" check
 	bool downloadInProgress(const QUrl & url) const;
 
+	// returns network reply so caller can connect to required signals
 	void downloadFile(const QUrl & url, const QString & file, qint64 bytesTotal = 0);
 
-	/// returns true if any download failed because certificate of the server could not be verified
-	bool hasCertificateErrors() const;
+public slots:
+	void downloadFinished(QNetworkReply * reply);
+	void downloadProgressChanged(qint64 bytesReceived, qint64 bytesTotal);
 
 signals:
 	// for status bar updates. Merges all queued downloads into one

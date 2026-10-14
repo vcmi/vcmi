@@ -6,13 +6,12 @@ set(vcmiservercommon_SRCS
 		battles/BattleProcessor.cpp
 		battles/BattleResultProcessor.cpp
 
-		activities/BattleActivities.cpp
-		activities/Activity.cpp
-		activities/LuaScriptActivity.cpp
-		activities/MapActivities.cpp
-		activities/SpellActivities.cpp
-		activities/VisitActivities.cpp
-		activities/ActivityProcessor.cpp
+		queries/BattleQueries.cpp
+		queries/CQuery.cpp
+		queries/LuaScriptQuery.cpp
+		queries/MapQueries.cpp
+		queries/VisitQueries.cpp
+		queries/QueriesProcessor.cpp
 
 		processors/HeroPoolProcessor.cpp
 		processors/NewTurnProcessor.cpp
@@ -27,6 +26,7 @@ set(vcmiservercommon_SRCS
 		NetPacksServer.cpp
 		NetPacksLobbyServer.cpp
 		TurnTimerHandler.cpp
+		TurnStartVisitScheduler.cpp
 )
 
 set(vcmiservercommon_HEADERS
@@ -37,13 +37,13 @@ set(vcmiservercommon_HEADERS
 		battles/BattleProcessor.h
 		battles/BattleResultProcessor.h
 
-		activities/BattleActivities.h
-		activities/Activity.h
-		activities/LuaScriptActivity.h
-		activities/MapActivities.h
-		activities/SpellActivities.h
-		activities/VisitActivities.h
-		activities/ActivityProcessor.h
+		queries/BattleQueries.h
+		queries/CQuery.h
+		queries/LuaScriptQuery.h
+		queries/MapQueries.h
+		queries/VisitQueries.h
+		queries/QueriesProcessor.h
+		queries/IQueryStackListener.h
 
 		processors/HeroPoolProcessor.h
 		processors/NewTurnProcessor.h
@@ -59,6 +59,7 @@ set(vcmiservercommon_HEADERS
 		LobbyNetPackVisitors.h
 		ServerNetPackVisitors.h
 		TurnTimerHandler.h
+		TurnStartVisitScheduler.h
 )
 
 assign_source_group(${vcmiservercommon_SRCS} ${vcmiservercommon_HEADERS})

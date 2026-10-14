@@ -402,9 +402,6 @@ void GameStatePackVisitor::visitRemoveBonus(RemoveBonus & pack)
 		case GiveBonus::ETarget::OBJECT:
 			node = dynamic_cast<CBonusSystemNode*>(gs.getObjInstance(pack.whoID.as<ObjectInstanceID>()));
 			break;
-		case GiveBonus::ETarget::HERO_COMMANDER:
-			node = gs.getHero(pack.whoID.as<ObjectInstanceID>())->getCommander();
-			break;
 		case GiveBonus::ETarget::PLAYER:
 			node = gs.getPlayerState(pack.whoID.as<PlayerColor>());
 			break;
@@ -413,9 +410,6 @@ void GameStatePackVisitor::visitRemoveBonus(RemoveBonus & pack)
 			node = dynamic_cast<CBonusSystemNode*>(gs.getBattle(pack.whoID.as<BattleID>()));
 			break;
 	}
-
-	if(!node)
-		throw std::runtime_error("RemoveBonus: bonus holder not found!");
 
 	BonusList &bonuses = node->getExportedBonusList();
 	std::shared_ptr<Bonus> removedBonus;
@@ -1164,11 +1158,6 @@ void GameStatePackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts & pa
 	}
 }
 
-void GameStatePackVisitor::visitSimturnsContactStatus(SimturnsContactStatus & pack)
-{
-	gs.blockedContacts = pack.blockedContacts;
-}
-
 void GameStatePackVisitor::visitNewTurn(NewTurn & pack)
 {
 	gs.day = pack.day;
@@ -1546,21 +1535,6 @@ void GameStatePackVisitor::visitBattleCancelled(BattleCancelled & pack)
 		{
 			CGHeroInstance * hero = gs.getHero(currentBattle.getSideHero(i)->id);
 			hero->mana = currentBattle.getSide(i).initialMana;
-
-			for(const auto & initial : currentBattle.getSide(i).initialArtifactCharges)
-			{
-				auto * artifact = gs.getArtInstance(initial.artifactID);
-
-				// artifact may have been removed on depletion
-				if(!hero->getArtByInstanceId(initial.artifactID))
-					gs.getMap().putArtifactInstance(*hero, initial.artifactID, initial.position);
-
-				if(artifact->getCharges() < initial.charges)
-					artifact->addCharges(initial.charges - artifact->getCharges());
-				else
-					artifact->discharge(artifact->getCharges() - initial.charges);
-			}
-			hero->nodeHasChanged();
 		}
 	}
 

@@ -470,11 +470,6 @@ CModListView * MainWindow::getModView()
 	return ui->modlistView;
 }
 
-CSettingsView * MainWindow::getSettingsView()
-{
-	return ui->settingsView;
-}
-
 void MainWindow::on_modslistButton_clicked()
 {
 	switchToModsTab();

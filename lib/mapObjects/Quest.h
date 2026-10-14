@@ -15,7 +15,6 @@
 #include "../texts/MetaString.h"
 
 class CGCreature;
-class CMap;
 struct QuestInfo;
 
 enum class EQuestMission {
@@ -65,17 +64,13 @@ public:
 
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info
-	// needed for messages / hover text. Hero name and portrait also keep the map
-	// customization of the hero that a "be a specific hero" mission asks for
+	// needed for messages / hover text
 	ui8 textOption = 0;
 	ui8 completedOption = 0;
 	CreatureID stackToKill;
 	ui8 stackDirection = 0;
 	std::string heroNameTextID; //backup of hero name identifier, the hero itself is gone by then
 	HeroTypeID heroPortrait;
-
-	/// Map-defined message for the quest running out of time
-	std::string timeoutTextID;
 
 	MetaString firstVisitText;
 	MetaString nextVisitText;
@@ -91,8 +86,6 @@ public:
 	/// True once the player has been shown this quest (i.e. is aware of its requirements).
 	bool isKnownTo(PlayerColor player) const { return activeForPlayers.count(player) != 0; }
 	void getVisitText(const IGameInfoCallback * cb, MetaString &text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
-	/// Components of the mission, with the map-customized portrait of the required hero
-	void loadComponents(std::vector<Component> & components, const CGHeroInstance * h) const;
 	void getCompletionText(const IGameInfoCallback * cb, MetaString &text) const;
 	void getHoverText(const IGameInfoCallback * cb, MetaString &text, bool onHover) const;
 	void getQuestlogText(const IGameInfoCallback * cb, MetaString &text, bool onHover) const;
@@ -133,8 +126,6 @@ public:
 			h & scriptHandler;
 			h & scriptHintText;
 		}
-		if(h.hasFeature(Handler::Version::SEER_HUT_NAME_TEXT_ID))
-			h & timeoutTextID; // older saves hold a quest giver name here instead
 		// legacy "text was customized" flags; now derived on the fly from text
 		// emptiness in initObj. Kept on the wire for save compatibility.
 		bool isCustomFirst = !firstVisitText.empty();
@@ -166,7 +157,7 @@ public:
 			defineQuestName();
 	}
 
-	void serializeJson(JsonSerializeFormat & handler);
+	void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
 };
 
 /// Narrow, read-only view of a quest-carrying object for outside consumers (AI,
@@ -184,14 +175,11 @@ public:
 	/// quest is satisfied). False for seer huts, which are optional visits.
 	virtual bool requiresQuestToPass() const = 0;
 
-	/// True when a hero of this player must stop on this object before passing through it.
-	virtual bool requiresVisitBeforePassing(PlayerColor player) const { return false; }
-
 	/// Quest-log identity: a shared type-quest (keymaster colour) for border guards/gates,
 	/// otherwise this object's own instance id.
 	virtual QuestInfo getQuestIdentity() const = 0;
 
-	/// Text identifier of the quest giver's display name, empty if the object has none (only seer huts do).
+	/// Quest giver's display name, empty if the object has none (only seer huts do).
 	virtual std::string getQuestGiverName() const { return {}; }
 };
 
@@ -213,7 +201,6 @@ public:
 
 	/// All quests this source owns (loader / setup use).
 	const std::vector<std::shared_ptr<Quest>> & allQuests() const { return quests; }
-	std::vector<std::shared_ptr<Quest>> & allQuestsEditor() { return quests; }
 	/// Appends a fresh quest and returns it (loader use).
 	Quest & addQuest();
 
@@ -234,17 +221,6 @@ public:
 	bool isVisibleFor(PlayerColor player) const override;
 
 	void getVisitText(MetaString & text, std::vector<Component> & components, bool FirstVisit, const CGHeroInstance * h = nullptr) const;
-
-	MetaString getHoverText(PlayerColor player) const override;
-	MetaString getHoverText(const CGHeroInstance * hero) const override;
-	MetaString getPopupText(PlayerColor player) const override;
-	MetaString getPopupText(const CGHeroInstance * hero) const override;
-	std::vector<Component> getPopupComponents(PlayerColor player) const override;
-	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
-	std::vector<Component> getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const;
-
-	/// Remembers the name and portrait of the hero a "be a specific hero" mission asks for, as placed on the map
-	void resolveRequiredHero(const CMap & map);
 
 	template <typename Handler> void serialize(Handler & h)
 	{
@@ -275,23 +251,10 @@ protected:
 	bool isQuestAvailable(const Quest & q) const;
 	/// Move the active quest to the next offerable one (loops within repeatables).
 	void advanceToNextQuest();
-	/// True when some quest other than the active one can be offered - advancing would
-	/// actually move on, rather than land back on a lone repeatable quest.
-	bool hasAnotherOfferableQuest() const;
 	/// Pick the first offerable quest as active.
 	void selectInitialQuest();
 	/// Mirror the active quest's reward into configuration.info.
 	void syncActiveReward();
-	/// Records that a player has been shown the active quest (SEERHUT_VISITED).
-	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
-	/// Object name / seer header followed by the active quest's rollover; onHover
-	/// picks the short hover variant, otherwise the longer description variant.
-	MetaString buildText(PlayerColor player, bool onHover) const;
-	/// Fills the visit and completion texts the map left empty with the defaults of the quest's mission kind.
-	static void defineDefaultTexts(Quest & quest);
-	/// H3M-shaped JSON layout: a single "quest" struct and no separate reward. Used by
-	/// quest guards and quest gates; seer huts store a "quests" array instead.
-	void serializeJsonSingleQuest(JsonSerializeFormat & handler);
 	/// True once `player` already holds this source's quest-log entry (border guards/gates
 	/// of a colour share one entry, so the first visited instance is enough).
 	bool hasQuestInLog(PlayerColor player) const;
@@ -302,23 +265,21 @@ class DLL_LINKAGE SeerHut : public QuestSource
 public:
 	using QuestSource::QuestSource;
 
-	/// Randomly rolled on map start; the active quest may override it with a name of its own.
-	std::string seerNameTextID;
+	std::string seerName;
 
-	/// Only set when loading a pre-SEER_HUT_NAME_TEXT_ID save, consumed by CGameState::updateOnLoad
-	std::string legacySeerName;
-
-	std::string getQuestGiverName() const override;
-
-	/// Registers a name kept as free-form text in the map text container and points this hut at it
-	void setSeerName(CMap & map, const std::string & newName);
+	std::string getQuestGiverName() const override { return seerName; }
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
+	MetaString getHoverText(PlayerColor player) const override;
+	MetaString getHoverText(const CGHeroInstance * hero) const override;
+	MetaString getPopupText(PlayerColor player) const override;
+	MetaString getPopupText(const CGHeroInstance * hero) const override;
+	std::vector<Component> getPopupComponents(PlayerColor player) const override;
+	std::vector<Component> getPopupComponents(const CGHeroInstance * hero) const override;
+	std::vector<Component> getPopupComponents(PlayerColor player, const CGHeroInstance * hero) const;
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const override;
-	void experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const override;
-	void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 
 	virtual void init(vstd::RNG & rand);
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
@@ -328,20 +289,15 @@ public:
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<QuestSource&>(*this);
-		if(h.hasFeature(Handler::Version::SEER_HUT_NAME_TEXT_ID))
-			h & seerNameTextID;
-		else
-			h & legacySeerName;
+		h & seerName;
 	}
 protected:
-	/// Once the reward of a finished quest is fully handed over, move on to the next
-	/// quest and state it right away - still as part of the visit that finished it.
-	void offerNextQuest(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const;
+	/// Object name / seer header followed by the active quest's rollover; onHover
+	/// picks the short hover variant, otherwise the longer description variant.
+	MetaString buildText(PlayerColor player, bool onHover) const;
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;
 
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-	/// Loads reward from old VCMI maps that used single "reward" entry
-	void readLegacyReward(JsonSerializeFormat & handler);
 };
 
 class DLL_LINKAGE QuestGuard : public SeerHut
@@ -377,8 +333,7 @@ void loadLegacyBorderGuard(Handler & h, QuestSource & object)
 }
 
 /// Key/toll gate: stays in place, passable for a player once its limiter is met
-/// (border gates require the matching keymaster key). A gate without any quest always stands open,
-/// one whose quest expired or is not offered on this difficulty never opens.
+/// (border gates require the matching keymaster key).
 class QuestGate : public QuestSource
 {
 public:
@@ -386,15 +341,9 @@ public:
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	bool requiresQuestToPass() const override { return true; }
-	bool requiresVisitBeforePassing(PlayerColor player) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	bool passableFor(PlayerColor color) const override;
 	bool passableFor(const CGHeroInstance * hero) const override;
-
-protected:
-	void serializeJsonOptions(JsonSerializeFormat & handler) override;
-
-public:
 
 	template <typename Handler> void serialize(Handler & h)
 	{

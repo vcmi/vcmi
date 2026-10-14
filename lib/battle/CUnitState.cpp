@@ -13,10 +13,7 @@
 
 #include <vcmi/spells/Spell.h>
 
-#include "CombatValue.h"
-
 #include "../CCreatureHandler.h"
-#include "../GameLibrary.h"
 
 #include "../bonuses/BonusParameters.h"
 #include "../serializer/JsonDeserializer.h"
@@ -337,7 +334,6 @@ CUnitState::CUnitState():
 	stackSpeedPerTurn(this, Selector::type()(BonusType::STACKS_SPEED), BonusCacheMode::VALUE),
 	immobilizedPerTurn(this, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::BIND_EFFECT)), BonusCacheMode::PRESENCE),
 	bonusCache(this),
-	combatValue(this),
 	cloneID(-1)
 {
 
@@ -583,23 +579,6 @@ int64_t CUnitState::getTotalHealth() const
 	return health.total();
 }
 
-uint64_t CUnitState::estimateCombatValue() const
-{
-	return estimateCombatValue(LIBRARY->creh->getCombatValue().averageBattle());
-}
-
-uint64_t CUnitState::estimateCombatValue(const CombatValueContext & context) const
-{
-	const auto perCreature = combatValue.getValue(
-		[this, &context] { return static_cast<int>(LIBRARY->creh->getCombatValue().getAIValue(*this, unitType(), context)); },
-		context.id());
-
-	if(perCreature <= 0)
-		return 0;
-
-	return std::llround(perCreature * CombatValue::stackScale(*this));
-}
-
 uint32_t CUnitState::getMaxHealth() const
 {
 	return std::max(1, bonusCache.getBonusValue(UnitBonusValuesProxy::STACK_HEALTH));
@@ -784,7 +763,7 @@ int CUnitState::getDefense(bool ranged) const
 
 std::shared_ptr<Unit> CUnitState::acquire() const
 {
-	auto ret = std::make_shared<CUnitStateDetached>(this, this, true);
+	auto ret = std::make_shared<CUnitStateDetached>(this, this);
 	ret->localInit(env);
 	*ret = *this;
 	return ret;
@@ -792,7 +771,7 @@ std::shared_ptr<Unit> CUnitState::acquire() const
 
 std::shared_ptr<CUnitState> CUnitState::acquireState() const
 {
-	auto ret = std::make_shared<CUnitStateDetached>(this, this, true);
+	auto ret = std::make_shared<CUnitStateDetached>(this, this);
 	ret->localInit(env);
 	*ret = *this;
 	return ret;
@@ -957,33 +936,20 @@ void CUnitState::onRemoved()
 	ghost = true;
 }
 
-CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_, bool snapshotBonuses):
+CUnitStateDetached::CUnitStateDetached(const IUnitInfo * unit_, const IBonusBearer * bonus_):
 	unit(unit_),
-	bonus(bonus_),
-	bonusTreeVersion(0)
+	bonus(bonus_)
 {
-	if(snapshotBonuses)
-	{
-		bonusTreeVersion = bonus->getTreeVersion();
-		bonusSnapshot = bonus->getAllBonuses(Selector::all);
-	}
 }
 
 TConstBonusListPtr CUnitStateDetached::getAllBonuses(const CSelector & selector, const std::string & cachingStr) const
 {
-	if(bonusSnapshot)
-	{
-		auto result = std::make_shared<BonusList>();
-		bonusSnapshot->getBonuses(*result, selector);
-		return result;
-	}
-
 	return bonus->getAllBonuses(selector, cachingStr);
 }
 
 int32_t CUnitStateDetached::getTreeVersion() const
 {
-	return bonusSnapshot ? bonusTreeVersion : bonus->getTreeVersion();
+	return bonus->getTreeVersion();
 }
 
 CUnitStateDetached & CUnitStateDetached::operator=(const CUnitState & other)

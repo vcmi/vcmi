@@ -59,12 +59,12 @@ public:
 	DLL_LINKAGE static std::string encode(const si32 index);
 };
 
-class QuestionID : public StaticIdentifier<QuestionID>
+class QueryID : public StaticIdentifier<QueryID>
 {
 public:
-	using StaticIdentifier<QuestionID>::StaticIdentifier;
-	DLL_LINKAGE static const QuestionID NONE;
-	DLL_LINKAGE static const QuestionID CLIENT;
+	using StaticIdentifier<QueryID>::StaticIdentifier;
+	DLL_LINKAGE static const QueryID NONE;
+	DLL_LINKAGE static const QueryID CLIENT;
 };
 
 class BattleID : public StaticIdentifier<BattleID>

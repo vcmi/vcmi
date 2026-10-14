@@ -48,7 +48,6 @@ public:
 
 private:
 	friend class CTownInstanceConstructor;
-	friend class CGameState;
 	std::string nameTextId; // identifier of town name, registered in the map text container
 
 	std::map<BuildingID, TownRewardableBuildingInstance*> convertOldBuildings(std::vector<TownRewardableBuildingInstance*> oldVector);
@@ -214,7 +213,7 @@ public:
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void onHeroLeave(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer, const JsonNode & visitState) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer) const override;
 	void initObj(IGameRandomizer & gameRandomizer) override;
 	void pickRandomObject(IGameRandomizer & gameRandomizer) override;
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const BattleResult & result) const override;
@@ -234,7 +233,6 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
-	void setTownHero(ObjectInstanceID & slot, CGHeroInstance * hero, bool garrisoned);
 	FactionID randomizeFaction(vstd::RNG & rand);
 	void setOwner(IGameEventCallback & gameEvents, const PlayerColor & owner) const;
 	void onTownCaptured(IGameEventCallback & gameEvents, const PlayerColor & winner) const;

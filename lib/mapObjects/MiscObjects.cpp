@@ -35,8 +35,6 @@
 #include "../networkPacks/PacksForClientBattle.h"
 #include "../networkPacks/StackLocation.h"
 #include "../gameState/UpgradeInfo.h"
-#include "../modding/CModHandler.h"
-#include "ObjectTemplate.h"
 
 #include <vstd/RNG.h>
 
@@ -107,7 +105,7 @@ void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 		else
 			ynd.text.appendTextID("core.advevent.187");
 
-		gameEvents.showBlockingDialog(&ynd);
+		gameEvents.showBlockingDialog(this, &ynd);
 		return;
 	}
 
@@ -271,7 +269,7 @@ void CGMine::battleFinished(IGameEventCallback & gameEvents, const CGHeroInstanc
 	}
 }
 
-void CGMine::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const
+void CGMine::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		gameEvents.startBattle(hero, this);
@@ -351,10 +349,6 @@ bool CGTeleport::isConnected(const CGObjectInstance * src, const CGObjectInstanc
 
 bool CGTeleport::isExitPassable(const IGameInfoCallback & gameInfo, const CGHeroInstance * h, const CGObjectInstance * obj)
 {
-	// a template with no visitable tile, used by maps as decoration, has no tile to leave it from
-	if(!obj->isVisitable())
-		return false;
-
 	ObjectInstanceID topObjectID = gameInfo.getTile(obj->visitablePos())->topVisitableObj();
 	const CGObjectInstance * topObject = gameInfo.getObjInstance(topObjectID);
 
@@ -383,29 +377,8 @@ std::vector<ObjectInstanceID> CGTeleport::getPassableExits(const IGameInfoCallba
 	return exits;
 }
 
-void CGTeleport::warnIfNotVisitable() const
-{
-	if(!appearance || isVisitable())
-		return;
-
-	std::string modName = "unknown";
-	try
-	{
-		modName = LIBRARY->modh->findResourceOrigin(appearance->animationFile.addPrefix("SPRITES/"));
-	}
-	catch(const std::runtime_error &)
-	{
-		// the sprite may be missing entirely, which is reported when the map is loaded
-	}
-
-	logGlobal->warn("%s at %s uses template '%s' from mod '%s' that has no visitable tile, heroes can neither enter nor leave it!",
-		getObjectNameTextID(), anchorPos().toString(), appearance->animationFile.getOriginalName(), modName);
-}
-
 void CGTeleport::addToChannel(std::map<TeleportChannelID, std::shared_ptr<TeleportChannel> > &channelsList, const CGTeleport * obj)
 {
-	obj->warnIfNotVisitable();
-
 	std::shared_ptr<TeleportChannel> tc;
 	if(channelsList.find(obj->channel) == channelsList.end())
 	{
@@ -437,9 +410,9 @@ TeleportChannelID CGMonolith::findMeChannel(const std::vector<Obj> & IDs, MapObj
 		return obj && vstd::contains(IDs, obj->ID) && obj->subID == SubID;
 	};
 
-	for(const auto & [channelID, teleportChannel] : cb->gameState().getMap().teleportChannels)
+	for(const auto & [channelID, channel] : cb->gameState().getMap().teleportChannels)
 	{
-		if(vstd::contains_if(teleportChannel->entrances, matches) || vstd::contains_if(teleportChannel->exits, matches))
+		if(vstd::contains_if(channel->entrances, matches) || vstd::contains_if(channel->exits, matches))
 			return channelID;
 	}
 	return TeleportChannelID();
@@ -562,12 +535,6 @@ void CGSubterraneanGate::postInit(IGameInfoCallback * cb) //matches subterranean
 	// collect all gates
 	auto allGates = cb->gameState().getMap().getObjects<CGSubterraneanGate>();
 
-	// a gate that heroes can not enter, used by maps as decoration, gets a channel of its own instead of taking the pair of a real gate
-	auto isDecorative = [](const CGSubterraneanGate * gate){ return !gate->isVisitable(); };
-	std::vector<CGSubterraneanGate *> decorativeGates;
-	std::ranges::copy_if(allGates, std::back_inserter(decorativeGates), isDecorative);
-	vstd::erase_if(allGates, isDecorative);
-
 	// sort by position for deterministic behavior
 	std::sort(allGates.begin(), allGates.end(), [](const CGObjectInstance * a, const CGObjectInstance * b)
 	{
@@ -628,8 +595,6 @@ void CGSubterraneanGate::postInit(IGameInfoCallback * cb) //matches subterranean
 	// assign empty channels to any remaining unpaired gates
 	for(auto & i : allGates)
 		assignToChannel(i);
-	for(auto & i : decorativeGates)
-		assignToChannel(i);
 }
 
 void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -640,7 +605,7 @@ void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInsta
 		logGlobal->debug("Cannot find exit whirlpool for %d at %s", id.getNum(), anchorPos().toString());
 		td.impassable = true;
 	}
-	else if(getPassableExitTiles(*cb, getAllExits(true)).empty())
+	else if(getRandomExit(gameEvents, h) == ObjectInstanceID())
 		logGlobal->debug("All exits are blocked for whirlpool  %d at %s", id.getNum(), anchorPos().toString());
 
 	if(!isProtected(h))
@@ -670,7 +635,13 @@ void CGWhirlpool::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInsta
 	}
 	else
 	{
-		td.exits = getPassableExitTiles(*cb, getAllExits(true));
+		auto exits = getAllExits();
+		for(const auto & exit : exits)
+		{
+			auto blockedPosList = cb->getObj(exit)->getBlockedPos();
+			for(const auto & bPos : blockedPosList)
+				td.exits.push_back(std::make_pair(exit, bPos));
+		}
 	}
 
 	gameEvents.showTeleportDialog(&td);
@@ -686,39 +657,17 @@ void CGWhirlpool::teleportDialogAnswered(IGameEventCallback & gameEvents, const 
 		dPos = exits[answer].second;
 	else
 	{
-		auto passableTiles = getPassableExitTiles(*cb, getAllExits(true));
+		auto exit = getRandomExit(gameEvents, hero);
 
-		if(passableTiles.empty())
+		if(exit == ObjectInstanceID())
 			return;
 
-		dPos = RandomGeneratorUtil::nextItem(passableTiles, gameEvents.getRandomGenerator())->second;
+		const auto * obj = cb->getObj(exit);
+		std::set<int3> tiles = obj->getBlockedPos();
+		dPos = *RandomGeneratorUtil::nextItem(tiles, gameEvents.getRandomGenerator());
 	}
 
 	gameEvents.moveHero(hero->id, hero->convertFromVisitablePos(dPos), EMovementMode::MONOLITH);
-}
-
-TTeleportExitsList CGWhirlpool::getPassableExitTiles(const IGameInfoCallback & gameInfo, const std::vector<ObjectInstanceID> & exits)
-{
-	TTeleportExitsList result;
-	for(const auto & exitID : exits)
-	{
-		const auto * exit = gameInfo.getObj(exitID);
-		for(int w = 0; w < exit->getWidth(); ++w)
-		{
-			for(int h = 0; h < exit->getHeight(); ++h)
-			{
-				int3 tile = exit->anchorPos() - int3(w, h, 0);
-				if(!exit->visitableAt(tile))
-					continue;
-
-				// a hero standing on the tile is the top visitable object there
-				const TerrainTile * terrainTile = gameInfo.getTile(tile, false);
-				if(terrainTile && terrainTile->topVisitableObj() == exitID)
-					result.emplace_back(exitID, tile);
-			}
-		}
-	}
-	return result;
 }
 
 bool CGWhirlpool::isProtected(const CGHeroInstance * h)
@@ -898,7 +847,7 @@ void CGArtifact::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 					ynd.text.replaceRawString(getArmyDescription().toString(LIBRARY->staticTexts()));
 					ynd.text.replaceTextID("core.genrltxt.43"); // creatures
 				}
-				gameEvents.showBlockingDialog(&ynd);
+				gameEvents.showBlockingDialog(this, &ynd);
 			}
 			break;
 		case Obj::SPELL_SCROLL:
@@ -908,10 +857,10 @@ void CGArtifact::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 					BlockingDialog ynd(true,false);
 					ynd.player = h->getOwner();
 					ynd.text = message;
-					gameEvents.showBlockingDialog(&ynd);
+					gameEvents.showBlockingDialog(this, &ynd);
 				}
 				else
-					gameEvents.startBattle(h, this);
+					blockingDialogAnswered(gameEvents, h, true);
 			}
 			break;
 		}
@@ -935,7 +884,7 @@ void CGArtifact::battleFinished(IGameEventCallback & gameEvents, const CGHeroIns
 		pick(gameEvents, hero);
 }
 
-void CGArtifact::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const
+void CGArtifact::blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const
 {
 	if(answer)
 		gameEvents.startBattle(hero, this);
@@ -1134,10 +1083,7 @@ bool CGBoat::isCoastVisitable() const
 void CGBoat::setBoardedHero(const CGHeroInstance * hero)
 {
 	if (hero)
-	{
 		boardedHeroID = hero->id;
-		lastHeroID = hero->id;
-	}
 	else
 		boardedHeroID = ObjectInstanceID();
 }

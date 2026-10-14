@@ -111,9 +111,6 @@ void considerEscapePath(
 	if(threatenedHero == threatenedHeroes.end())
 		return;
 
-	if(aiNk->arePathHeroesLocked(path))
-		return;
-
 	const auto destination = path.targetTile();
 	const auto & currentThreat = threatenedHero->second;
 	const auto & destinationThreat = aiNk->dangerHitMap->getTileThreat(destination).fastestDanger;

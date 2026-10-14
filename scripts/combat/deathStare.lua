@@ -2,18 +2,20 @@ local Base = require("combat/combatScript")
 local Script = setmetatable({}, {__index = Base})
 Script.__index = Script
 
---- Applies chance-based kills after matching attacks. Scripted equivalent of the DEATH_STARE bonus.
+--- Kills creatures of the attacked stack outright, as the Mighty Gorgon's gaze and the sea dog's
+--- accurate shot do. Scripted equivalent of the DEATH_STARE bonus.
 ---
 --- Parameters:
 ---  val       - chance for each creature of the bearer's stack to kill one, in percent
 ---  situation - when the ability applies: "melee", "ranged", "rangedDistancePenalty",
 ---              "rangedWallPenalty" or "rangedDistanceAndWallPenalty". A situation this script
 ---              does not know is left to whatever patches are stacked over it
----  spell     - spell used for immunity, animation and combat log; defaults to death stare
+---  spell     - spell cast to kill them. Defaults to death stare, and is what decides the
+---              animation, the immunities and the wording of the combat log
 
 local SPELL = "core:deathStare"
 
---- Returns the ranged-penalty category of the attack.
+--- Which of the situations the attack that just happened is.
 local function situationOf(battle, unit, other, payload)
 	if not payload.ranged then return "melee" end
 
@@ -27,7 +29,8 @@ local function situationOf(battle, unit, other, payload)
 	return "ranged"
 end
 
---- Returns binomial kills capped by the expected eligible share of the bearer stack.
+--- Creatures killed by rolling the chance once for every creature of the bearer's stack. At most
+--- the share of the stack that could have rolled it dies, so a lucky roll cannot run away.
 function Script:rolledKills(server, unit)
 	local chance = self.val or 0
 
@@ -40,7 +43,8 @@ function Script:rolledKills(server, unit)
 	return math.min(killed, cap)
 end
 
---- Returns kills for a matching attack category, or nil. Override to add categories.
+--- Creatures the gaze kills in the attack that just happened, or nil when it does not apply to
+--- that attack at all. This is the seam a patch overrides to add a situation of its own.
 function Script:killsIn(server, battle, unit, other, payload)
 	if (self.situation or "melee") ~= situationOf(battle, unit, other, payload) then return nil end
 
@@ -48,7 +52,7 @@ function Script:killsIn(server, battle, unit, other, payload)
 end
 
 function Script:onAfterAttack(server, battle, unit, other, payload)
-	-- A dead bearer cannot apply the effect after retaliation or reflected damage.
+	-- the gaze dies with its bearer, which a retaliation or a reflected hit may have just killed
 	if not unit:isAlive() then return end
 	if not other or not other:isAlive() then return end
 
@@ -56,7 +60,7 @@ function Script:onAfterAttack(server, battle, unit, other, payload)
 
 	if not killed or killed <= 0 then return end
 
-	-- Spell mechanics apply immunity and client animation.
+	-- the spell is what filters out targets immune to the gaze, and what the client animates
 	local spell = LIBRARY:getSpellByName(self.spell or SPELL)
 
 	server:castSpell(battle, unit, spell, { other }, killed)

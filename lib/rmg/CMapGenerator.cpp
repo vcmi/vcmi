@@ -187,7 +187,7 @@ MetaString CMapGenerator::getMapDescription() const
 	result.replaceNumber(map->height());
 	result.replaceNumber(map->levels());
 	result.replaceNumber(mapGenOptions.getHumanOrCpuPlayerCount());
-	result.replaceNumber(mapGenOptions.getComputerPlayerCount());
+	result.replaceNumber(mapGenOptions.getCompOnlyPlayerCount());
 	result.replaceTextID(waterContent.at(mapGenOptions.getWaterContent()).get());
 	result.replaceTextID(monsterStrength.at(monsterStrengthIndex).get());
 
@@ -269,8 +269,12 @@ void CMapGenerator::addPlayerInfo()
 			{
 				continue;
 			}
-			int teamCountNorm = teamCount == 0 ? playerCount : teamCount;
-			int playersPerTeam = playerCount / teamCountNorm;
+			int playersPerTeam = playerCount / (teamCount == 0 ? playerCount : teamCount);
+			int teamCountNorm = teamCount;
+			if(teamCountNorm == 0)
+			{
+				teamCountNorm = playerCount;
+			}
 			for(int j = 0; j < teamCountNorm; ++j)
 			{
 				for(int k = 0; k < playersPerTeam; ++k)

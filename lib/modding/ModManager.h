@@ -25,11 +25,15 @@ class ModsState : boost::noncopyable
 {
 	TModList modList;
 
+	TModList scanModsDirectory(const std::string & modDir) const;
+
 public:
 	ModsState();
 
 	TModList getInstalledMods() const;
 	double getInstalledModSizeMegabytes(const TModID & modName) const;
+
+	uint32_t computeChecksum(const TModID & modName) const;
 };
 
 /// Provides interface to access or change current mod preset
@@ -135,8 +139,7 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 	void tryEnableMod(const TModID & modList);
 
 public:
-	/// newMods - installed mods to activate together with mods from active preset
-	ModManager(const JsonNode & repositoryList, bool useTestPreset = false, const TModList & newMods = {});
+	ModManager(const JsonNode & repositoryList, bool useTestPreset = false);
 	ModManager();
 	~ModManager();
 
@@ -147,6 +150,7 @@ public:
 	bool isModSettingActive(const TModID & rootModID, const TModID & modSettingID) const;
 	std::map<TModID, bool> getModSettings(const TModID & rootModID) const;
 	bool isModActive(const TModID & modID) const;
+	uint32_t computeChecksum(const TModID & modName) const;
 	std::optional<uint32_t> getValidatedChecksum(const TModID & modName) const;
 	void setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value);
 	void saveConfigurationState() const;

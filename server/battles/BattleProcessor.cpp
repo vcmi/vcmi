@@ -15,8 +15,8 @@
 #include "BattleResultProcessor.h"
 
 #include "../CGameHandler.h"
-#include "../activities/ActivityProcessor.h"
-#include "../activities/BattleActivities.h"
+#include "../queries/QueriesProcessor.h"
+#include "../queries/BattleQueries.h"
 
 #include "../../lib/CStack.h"
 #include "../../lib/CPlayerState.h"
@@ -57,49 +57,47 @@ void BattleProcessor::engageIntoBattle(PlayerColor player)
 	gameHandler->sendAndApply(pb);
 }
 
-BattleActivity * BattleProcessor::findBattleActivity(const CBattleInfoCallback & battle) const
-{
-	// Only the defender can be neutral, so the attacker always has the activity
-	return gameHandler->activities->findSoleActivity<BattleActivity>(battle.sideToPlayer(BattleSide::ATTACKER));
-}
-
-BattleActivity & BattleProcessor::getBattleActivity(const CBattleInfoCallback & battle) const
-{
-	auto * activity = findBattleActivity(battle);
-	if(!activity)
-		throw std::runtime_error("Battle has no activity!\nActivities:\n" + gameHandler->activities->describeStacks());
-
-	return *activity;
-}
-
 void BattleProcessor::restartBattle(const BattleID & battleID, const CArmedInstance *army1, const CArmedInstance *army2, int3 tile,
 								const CGHeroInstance *hero1, const CGHeroInstance *hero2, const BattleLayout & layout, const CGTownInstance *town)
 {
 	auto battle = gameHandler->gameState().getBattle(battleID);
 
-	// The battle activity stays on the stack and is reused by the restarted battle
-	auto & lastBattleActivity = getBattleActivity(*battle);
-
-	BattleSideArray<const CGHeroInstance*> heroes{hero1, hero2};
-
-	for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+	auto attackerQuery = gameHandler->queries->topQuery(battle->getSide(BattleSide::ATTACKER).color);
+	auto * lastBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(attackerQuery);
+	if(!lastBattleQuery)
 	{
-		if(heroes[i])
+		auto defenderPlayer = battle->getSide(BattleSide::DEFENDER).color;
+		if(defenderPlayer.isValidPlayer())
 		{
-			SetMana restoreInitialMana;
-			restoreInitialMana.val = battle->getSide(i).initialMana;
-			restoreInitialMana.hid = heroes[i]->id;
-			restoreInitialMana.mode = ChangeValueMode::ABSOLUTE;
-			gameHandler->sendAndApply(restoreInitialMana);
+			auto defenderQuery = gameHandler->queries->topQuery(defenderPlayer);
+			lastBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(defenderQuery);
 		}
 	}
 
-	lastBattleActivity.result = std::nullopt;
+	assert(lastBattleQuery);
 
-	assert(lastBattleActivity.belligerents[BattleSide::ATTACKER] == battle->getSideArmy(BattleSide::ATTACKER));
-	assert(lastBattleActivity.belligerents[BattleSide::DEFENDER] == battle->getSideArmy(BattleSide::DEFENDER));
+	//existing battle query for retying auto-combat
+	if(lastBattleQuery)
+	{
+		BattleSideArray<const CGHeroInstance*> heroes{hero1, hero2};
 
-	resultProcessor->battleCancelled(battleID);
+		for(auto i : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+		{
+			if(heroes[i])
+			{
+				SetMana restoreInitialMana;
+				restoreInitialMana.val = battle->getSide(i).initialMana;
+				restoreInitialMana.hid = heroes[i]->id;
+				restoreInitialMana.mode = ChangeValueMode::ABSOLUTE;
+				gameHandler->sendAndApply(restoreInitialMana);
+			}
+		}
+
+		lastBattleQuery->result = std::nullopt;
+
+		assert(lastBattleQuery->belligerents[BattleSide::ATTACKER] == battle->getSideArmy(BattleSide::ATTACKER));
+		assert(lastBattleQuery->belligerents[BattleSide::DEFENDER] == battle->getSideArmy(BattleSide::DEFENDER));
+	}
 
 	BattleCancelled bc;
 	bc.battleID = battleID;
@@ -135,15 +133,21 @@ void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInsta
 		}
 	}
 
-	auto * topBattleActivity = findBattleActivity(*battle);
-	if (topBattleActivity)
+	auto attackerQuery = gameHandler->queries->topQuery(battle->getSide(BattleSide::ATTACKER).color);
+	auto * topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(attackerQuery);
+	if(!topBattleQuery && battle->getSide(BattleSide::DEFENDER).color.isValidPlayer())
 	{
-		topBattleActivity->battleID = battleID;
+		auto defenderQuery = gameHandler->queries->topQuery(battle->getSide(BattleSide::DEFENDER).color);
+		topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(defenderQuery);
+	}
+	if (topBattleQuery)
+	{
+		topBattleQuery->battleID = battleID;
 	}
 	else
 	{
-		auto newBattleActivity = std::make_shared<BattleActivity>(gameHandler, battle);
-		gameHandler->activities->addActivity(newBattleActivity);
+		auto newBattleQuery = std::make_shared<CBattleQuery>(gameHandler, battle);
+		gameHandler->queries->addQuery(newBattleQuery);
 	}
 
 	if (!restarted)
@@ -252,13 +256,19 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 	engageIntoBattle(bs.info->getSide(BattleSide::ATTACKER).color);
 	engageIntoBattle(bs.info->getSide(BattleSide::DEFENDER).color);
 
-	auto * topBattleActivity = findBattleActivity(*bs.info);
+	auto attackerQuery = gameHandler->queries->topQuery(bs.info->getSide(BattleSide::ATTACKER).color);
+	auto * topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(attackerQuery);
 	bool isDefenderHuman = bs.info->getSide(BattleSide::DEFENDER).color.isValidPlayer() && gameHandler->gameInfo().getPlayerState(bs.info->getSide(BattleSide::DEFENDER).color)->isHuman();
+	if(!topBattleQuery && isDefenderHuman)
+	{
+		auto defenderQuery = gameHandler->queries->topQuery(bs.info->getSide(BattleSide::DEFENDER).color);
+		topBattleQuery = gameHandler->queries->queryAs<CBattleQuery>(defenderQuery);
+	}
 
 	bool isAttackerHuman = gameHandler->gameInfo().getPlayerState(bs.info->getSide(BattleSide::ATTACKER).color)->isHuman();
 
 	bool onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
-	bs.info->replayAllowed = topBattleActivity == nullptr && onlyOnePlayerHuman;
+	bs.info->replayAllowed = topBattleQuery == nullptr && onlyOnePlayerHuman;
 
 	gameHandler->sendAndApply(bs);
 
@@ -390,13 +400,8 @@ void BattleProcessor::cheatBattleVictory(PlayerColor player)
 
 void BattleProcessor::setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide)
 {
-	const BattleID battleID = battle.getBattle()->getBattleID();
-
 	resultProcessor->setBattleResult(battle, resultType, victoriusSide);
 	resultProcessor->endBattle(battle);
-
-	// No event dispatch is valid after battle removal.
-	actionsProcessor->forgetPendingDeaths(battleID);
 }
 
 bool BattleProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction &ba)
@@ -407,31 +412,20 @@ bool BattleProcessor::makeAutomaticBattleAction(const CBattleInfoCallback & batt
 void BattleProcessor::processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary)
 {
 	actionsProcessor->processBattleEventTriggers(battle, event, target, secondary);
-
-	// This entry point has no action boundary that could flush deaths later.
-	actionsProcessor->flushPendingDeaths(battle);
-}
-
-void BattleProcessor::spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
-{
-	actionsProcessor->processSpellHitTriggers(battle, spell, casterUnit, unitsBefore);
-}
-
-void BattleProcessor::noteDeaths(const CBattleInfoCallback & battle, const std::vector<BattleStackAttacked> & casualties)
-{
-	actionsProcessor->noteDeaths(battle, casualties);
-}
-
-void BattleProcessor::flushPendingDeaths(const CBattleInfoCallback & battle)
-{
-	actionsProcessor->flushPendingDeaths(battle);
 }
 
 void BattleProcessor::endBattleConfirm(const BattleID & battleID)
 {
 	auto battle = gameHandler->gameState().getBattle(battleID);
+	assert(battle);
+
 	if (!battle)
-		throw std::runtime_error("Confirming the end of a battle that does not exist");
+		return;
 
 	resultProcessor->endBattleConfirm(*battle);
+}
+
+void BattleProcessor::battleFinalize(const BattleID & battleID, const BattleResult &result)
+{
+	resultProcessor->battleFinalize(battleID, result);
 }

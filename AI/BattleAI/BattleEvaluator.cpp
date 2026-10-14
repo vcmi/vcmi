@@ -130,33 +130,6 @@ bool BattleEvaluator::hasWorkingTowers() const
 	return keepIntact || upperIntact || bottomIntact;
 }
 
-float BattleEvaluator::scoreBonusEffects(const battle::Units & units, const DamageCache & cache) const
-{
-	float result = 0;
-
-	for(const auto * unit : units)
-	{
-		const auto * before = cb->getBattle(battleID)->battleGetUnitByID(unit->unitId());
-
-		// a unit the spell summoned or destroyed is worth what its health is worth, counted elsewhere
-		if(!before || !before->alive() || !unit->alive())
-			continue;
-
-		const auto & context = cache.facing.at(unit->unitSide());
-		const auto gainedPerCreature = LIBRARY->creh->getCombatValue().getAIValue(unit, context) - cache.getOriginalValue(unit);
-
-		// stack size is taken from before the cast, so that health the spell changed is not counted twice
-		const float gained = gainedPerCreature * CombatValue::stackScale(*before);
-		const float forUs = unit->unitSide() == side ? gained : -gained;
-
-		result += forUs * (forUs > 0
-			? scoreEvaluator.getPositiveEffectMultiplier()
-			: scoreEvaluator.getNegativeEffectMultiplier());
-	}
-
-	return result;
-}
-
 std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack * stack)
 {
 	if(!stack->canCast())
@@ -361,24 +334,12 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 
 		if(brokenWallMoat.size())
 		{
-			if(stack->doubleWide() && vstd::contains(brokenWallMoat, stack->getPosition()))
-			{
-				// step out of the moat - but only if the engine actually allows standing there,
-				// otherwise the server rejects our action and the stack stays active forever
-				const auto sideStep = stack->getPosition().cloneInDirection(BattleHex::RIGHT);
-				const auto availableHexes = cb->getBattle(battleID)->battleGetAvailableHexes(stack, false);
+			activeActionMade = true;
 
-				if(availableHexes.contains(sideStep))
-				{
-					activeActionMade = true;
-					return BattleAction::makeMove(stack, sideStep);
-				}
-			}
+			if(stack->doubleWide() && vstd::contains(brokenWallMoat, stack->getPosition()))
+				return BattleAction::makeMove(stack, stack->getPosition().cloneInDirection(BattleHex::RIGHT));
 			else
-			{
-				activeActionMade = true;
 				return goTowardsNearest(stack, brokenWallMoat, *targets, brokenWallMoat);
-			}
 		}
 	}
 
@@ -395,13 +356,13 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::steady_clock> start)
 BattleAction BattleEvaluator::moveOrAttack(
 	const CStack * stack,
 	const BattleHex & movementTarget,
-	const PotentialTargets & potentialTargets,
+	const PotentialTargets & targets,
 	const BattleHexArray & allowedAttackOrigins)
 {
 	float bestAttackValue = 0.0f;
 	std::optional<AttackPossibility> attackOnTheWay;
 
-	for(const auto & target : potentialTargets.possibleAttacks)
+	for(const auto & target : targets.possibleAttacks)
 	{
 		if(!target.attack.shooting
 			&& (target.from == movementTarget || allowedAttackOrigins.contains(target.from))
@@ -429,7 +390,7 @@ BattleAction BattleEvaluator::moveOrAttack(
 BattleAction BattleEvaluator::goTowardsNearest(
 	const CStack * stack,
 	const BattleHexArray & movementTargets,
-	const PotentialTargets & potentialTargets,
+	const PotentialTargets & targets,
 	const BattleHexArray & finalDestinationHexes)
 {
 	auto reachability = cb->getBattle(battleID)->getReachability(stack);
@@ -478,7 +439,7 @@ BattleAction BattleEvaluator::goTowardsNearest(
 		const auto movementRange = stack->getMovementRange(0);
 
 		if(movementRange == 0)
-			return moveOrAttack(stack, movementDestination, potentialTargets);
+			return moveOrAttack(stack, movementDestination, targets);
 
 		ReachabilityInfo::TDistances remainingDistances;
 		remainingDistances.fill(ReachabilityInfo::INFINITE_DIST);
@@ -506,7 +467,7 @@ BattleAction BattleEvaluator::goTowardsNearest(
 		const auto movementDistance = remainingDistances[movementDestination.toInt()];
 		const auto turnsAfterMovement = (movementDistance + movementRange - 1) / movementRange;
 
-		for(const auto & target : potentialTargets.possibleAttacks)
+		for(const auto & target : targets.possibleAttacks)
 		{
 			if(target.attack.shooting
 				|| !avHexes.contains(target.from)
@@ -524,7 +485,7 @@ BattleAction BattleEvaluator::goTowardsNearest(
 			}
 		}
 
-		return moveOrAttack(stack, movementDestination, potentialTargets, allowedAttackOrigins);
+		return moveOrAttack(stack, movementDestination, targets, allowedAttackOrigins);
 	};
 
 	// this turn
@@ -846,7 +807,6 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				float stackActionScore = 0;
 				float damageToHostilesScore = 0;
 				float damageToFriendliesScore = 0;
-				float bonusEffectsScore = scoreBonusEffects(allUnits, innerCache);
 
 				if(needFullEval || !cachedAttack.ap)
 				{
@@ -900,14 +860,13 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 					{
 						auto damage = std::abs(oldHealth - newHealth);
 						auto originalDefender = cb->getBattle(battleID)->battleGetUnitByID(unit->unitId());
-						const battle::Unit * valuationUnit = newHealth > oldHealth || !originalDefender || !originalDefender->alive()
-							? unit
-							: originalDefender;
 
 						auto dpsReduce = AttackPossibility::calculateDamageReduce(
-							valuationUnit,
+							nullptr,
+							originalDefender && originalDefender->alive() ? originalDefender : unit,
 							damage,
-							innerCache);
+							innerCache,
+							state);
 
 						auto ourUnit = unit->unitSide() == side ? 1 : -1;
 						auto goodEffect = newHealth > oldHealth ? 1 : -1;
@@ -918,8 +877,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 								|| unit->isClone()
 								|| unit->isGhost();
 
-							// healing a conjured unit of ours buys nothing, it leaves when the battle ends
-							if(ourUnit == 1 && isMagical)
+							if(ourUnit && goodEffect && isMagical)
 								continue;
 
 							damageToHostilesScore += dpsReduce * scoreEvaluator.getPositiveEffectMultiplier();
@@ -960,15 +918,15 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 				if (vstd::isAlmostEqual(stackActionScore, static_cast<float>(EvaluationResult::INEFFECTIVE_SCORE)))
 				{
-					ps.value = damageToFriendliesScore + damageToHostilesScore + bonusEffectsScore;
+					ps.value = damageToFriendliesScore + damageToHostilesScore;
 				}
 				else
 				{
-					ps.value = stackActionScore + damageToFriendliesScore + damageToHostilesScore + bonusEffectsScore;
+					ps.value = stackActionScore + damageToFriendliesScore + damageToHostilesScore;
 				}
 
 #if BATTLE_TRACE_LEVEL >= 1
-				logAi->trace("Total score for %s: %2f (action: %2f, friedly damage: %2f, hostile damage: %2f, bonuses: %2f)", ps.spell->getJsonKey(), ps.value, stackActionScore, damageToFriendliesScore, damageToHostilesScore, bonusEffectsScore);
+				logAi->trace("Total score for %s: %2f (action: %2f, friedly damage: %2f, hostile damage: %2f)", ps.spell->getJsonKey(), ps.value, stackActionScore, damageToFriendliesScore, damageToHostilesScore);
 #endif
 			}
 #if BATTLE_TRACE_LEVEL == 0
@@ -977,23 +935,14 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 	LOGFL("Evaluation took %d ms", timer.getDiff());
 
-	auto castToPerform = *std::ranges::max_element(possibleCasts,
-		[&](const PossibleSpellcast & left, const PossibleSpellcast & right) -> bool
+	auto castToPerform = *vstd::maxElementByFun(possibleCasts, [](const PossibleSpellcast & ps) -> float
 		{
-			if(left.value < right.value)
-				return true;
-			if(right.value < left.value)
-				return false;
-			return cb->getBattle(battleID)->battleGetSpellCost(left.spell, hero)
-				> cb->getBattle(battleID)->battleGetSpellCost(right.spell, hero);
+			return ps.value;
 		});
 
-	const float baselineScore = vstd::isAlmostEqual(cachedAttack.score, EvaluationResult::INEFFECTIVE_SCORE)
-		? 0.0f : cachedAttack.score;
-	if(castToPerform.value > baselineScore && !vstd::isAlmostEqual(castToPerform.value, baselineScore))
+	if(castToPerform.value > cachedAttack.score && !vstd::isAlmostEqual(castToPerform.value, cachedAttack.score))
 	{
-		// debug rather than trace, so that a cast the server refuses can be matched to the spell in reported logs
-		logAi->debug("%s will cast %s (value %f)", hero->getNameTextID(), castToPerform.spell->getJsonKey(), castToPerform.value);
+		LOGFL("Best spell is %s (value %d). Will cast.", castToPerform.spell->getNameTranslated() % castToPerform.value);
 		BattleAction spellcast;
 		spellcast.actionType = EActionType::HERO_SPELL;
 		spellcast.spell = castToPerform.spell->id;
@@ -1011,32 +960,64 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	return false;
 }
 
+//Below method works only for offensive spells
 void BattleEvaluator::evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps)
 {
+	using ValueMap = PossibleSpellcast::ValueMap;
+
+	RNGStub rngStub;
 	HypotheticBattle state(env.get(), cb->getBattle(battleID));
+	TStacks all = cb->getBattle(battleID)->battleGetAllStacks(false);
+
+	ValueMap healthOfStack;
+	ValueMap newHealthOfStack;
+
+	for(auto unit : all)
+	{
+		healthOfStack[unit->unitId()] = unit->getAvailableHealth();
+	}
+
 
 	spells::BattleCast cast(&state, stack, spells::Mode::CREATURE_ACTIVE, ps.spell);
 	cast.castEval(state.getServerCallback(), ps.dest);
 
-	float totalGain = 0;
-
-	for(const auto * after : state.battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->isValidTarget(true); }))
+	for(auto unit : all)
 	{
-		const auto & context = damageCache.facing.at(after->unitSide());
-		const auto * before = cb->getBattle(battleID)->battleGetUnitByID(after->unitId());
+		auto unitId = unit->unitId();
+		auto localUnit = state.battleGetUnitByID(unitId);
+		newHealthOfStack[unitId] = localUnit->getAvailableHealth();
+	}
 
-		// a unit that the spell summoned had no value before it, and is worth everything it brings
-		const auto valueBefore = before ? before->estimateCombatValue(context) : 0;
-		const float gained = static_cast<float>(after->estimateCombatValue(context)) - valueBefore;
-		const float forUs = after->unitSide() == side ? gained : -gained;
+	int64_t totalGain = 0;
 
-		if(forUs < 0)
+	for(auto unit : all)
+	{
+		auto unitId = unit->unitId();
+		auto localUnit = state.battleGetUnitByID(unitId);
+
+		auto healthDiff = newHealthOfStack[unitId] - healthOfStack[unitId];
+
+		if(localUnit->unitOwner() != cb->getBattle(battleID)->getPlayerID())
+			healthDiff = -healthDiff;
+
+		if(healthDiff < 0)
 		{
 			ps.value = -1;
-			return; //do not harm own units at all
+			return; //do not damage own units at all
 		}
 
-		totalGain += forUs;
+		totalGain += healthDiff;
+	}
+
+	// consider the case in which spell summons units
+	auto newUnits = state.getUnitsIf([&](const battle::Unit * u) -> bool
+		{
+			return !u->isGhost() && !u->isTurret() && !vstd::contains(healthOfStack, u->unitId());
+		});
+
+	for(auto unit : newUnits)
+	{
+		totalGain += unit->getAvailableHealth();
 	}
 
 	ps.value = totalGain;

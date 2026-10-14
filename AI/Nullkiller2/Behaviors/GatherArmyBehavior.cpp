@@ -76,7 +76,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, c
 	{
 #if NK2AI_TRACE_LEVEL >= 2
 		logAi->trace(
-			"GatherArmyBehavior::deliverArmyToHero Path found %s, %s, %lld", path.toString(), path.targetHero->getNameTextID(), path.heroArmy->estimateCombatValue()
+			"GatherArmyBehavior::deliverArmyToHero Path found %s, %s, %lld", path.toString(), path.targetHero->getNameTextID(), path.heroArmy->getArmyStrength()
 		);
 #endif
 
@@ -102,7 +102,7 @@ Goals::TGoalVec GatherArmyBehavior::deliverArmyToHero(const Nullkiller * aiNk, c
 		HeroExchange heroExchange(receiverHero, path);
 		// TODO: Mircea: Artifacts (inventory things) aren't considered in this calculation, though they are properly changed in an army exchange, to revisit
 		const uint64_t additionalArmyStrength = heroExchange.getReinforcementArmyStrength(aiNk);
-		const float additionalArmyRatio = static_cast<float>(additionalArmyStrength) / receiverHero->estimateCombatValue();
+		const float additionalArmyRatio = static_cast<float>(additionalArmyStrength) / receiverHero->getArmyStrength();
 
 		// avoid transferring very small amount of army
 		if((additionalArmyRatio < 0.1f && additionalArmyStrength < 20000) || additionalArmyStrength < 500)
@@ -220,7 +220,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 #endif
 
 	auto paths = aiNk->pathfinder->getPathInfo(pos, aiNk->isObjectGraphAllowed());
-	auto goals = CaptureObjectsBehavior::getVisitGoals(paths, aiNk, upgrader, true);
+	auto goals = CaptureObjectsBehavior::getVisitGoals(paths, aiNk);
 
 	std::vector<std::shared_ptr<ExecuteHeroChain>> waysToVisitObj;
 
@@ -245,7 +245,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 		auto visitGoal = goals[i];
 
 #if NK2AI_TRACE_LEVEL >= 2
-		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getNameTextID(), path.heroArmy->estimateCombatValue());
+		logAi->trace("Path found %s, %s, %lld", path.toString(), path.targetHero->getNameTextID(), path.heroArmy->getArmyStrength());
 #endif
 
 		if(visitGoal->invalid())
@@ -286,7 +286,7 @@ Goals::TGoalVec GatherArmyBehavior::upgradeArmy(const Nullkiller * aiNk, const C
 		{
 			ArmyUpgradeInfo armyToGetOrBuy;
 			armyToGetOrBuy.addArmyToGet(aiNk->armyManager->getBestArmy(path.targetHero, path.heroArmy, upgrader->getUpperArmy(), TerrainId::NONE));
-			armyToGetOrBuy.upgradeValue -= path.heroArmy->estimateCombatValue();
+			armyToGetOrBuy.upgradeValue -= path.heroArmy->getArmyStrength();
 
 			upgrade.upgradeValue += armyToGetOrBuy.upgradeValue;
 			upgrade.upgradeCost += armyToGetOrBuy.upgradeCost;

@@ -25,7 +25,6 @@ namespace Goals
 		std::vector<int> objectSubTypes;
 		std::vector<const CGObjectInstance *> objectsToCapture;
 		bool specificObjects;
-		bool forceVisit = false;
 
 	public:
 		CaptureObjectsBehavior()
@@ -40,7 +39,6 @@ namespace Goals
 		{
 			this->objectsToCapture = objectsToCapture;
 			specificObjects = true;
-			forceVisit = true;
 		}
 
 		CaptureObjectsBehavior(const CGObjectInstance * objectToCapture)
@@ -49,7 +47,6 @@ namespace Goals
 			objectsToCapture = std::vector<const CGObjectInstance *>();
 			objectsToCapture.push_back(objectToCapture);
 			specificObjects = true;
-			forceVisit = true;
 		}
 
 		Goals::TGoalVec decompose(const Nullkiller * aiNk) const override;
@@ -65,14 +62,6 @@ namespace Goals
 		{
 			objectTypes.push_back(type);
 			objectSubTypes.push_back(subType);
-
-			return *this;
-		}
-
-		/// Lets only heroes that shouldVisit accepts visit the specific objects
-		CaptureObjectsBehavior & withoutForcedVisit()
-		{
-			forceVisit = false;
 
 			return *this;
 		}

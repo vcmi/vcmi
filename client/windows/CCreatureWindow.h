@@ -19,7 +19,6 @@ class CStackInstance;
 class CStack;
 class UpgradeInfo;
 
-class CPlayerInterface;
 class UnitView;
 class CTabbedInt;
 class CButton;
@@ -69,7 +68,7 @@ class CStackWindow : public CWindowObject
 	private:
 		std::shared_ptr<CPicture> background;
 	protected:
-		CStackWindow * stackWindow;
+		CStackWindow * parent;
 	public:
 		CWindowSection(CStackWindow * parent, const ImagePath & backgroundPath, int yOffset);
 	};
@@ -167,7 +166,7 @@ class CStackWindow : public CWindowObject
 	class StackExperienceDetailsWindow;
 
 
-	std::shared_ptr<CFilledTexture> backgroundTexture;
+	std::shared_ptr<CFilledTexture> background;
 
 	std::shared_ptr<CArtPlace> stackArtifact;
 	std::shared_ptr<CButton> stackArtifactButton;
@@ -201,8 +200,7 @@ class CStackWindow : public CWindowObject
 	void submitSelection();
 
 	void init();
-	void initCommanderLevelUpData(CPlayerInterface * askedInterface, const CCommanderInstance * commander, const std::vector<ui32> & skills, bool moreLevels, QuestionID question);
-	void answer(ui32 selection);
+	void initCommanderLevelUpData(const CCommanderInstance * commander, const std::vector<ui32> & skills, const std::function<void(ui32)> & callback);
 	void showStackExperienceDetailsWindow();
 
 	std::string getCommanderSkillDescription(int skillIndex, int skillLevel);
@@ -220,7 +218,9 @@ public:
 
 	// for commanders & commander level-up dialog
 	CStackWindow(const CCommanderInstance * commander, bool popup);
-	CStackWindow(CPlayerInterface * askedInterface, const CCommanderInstance * commander, const std::vector<ui32> & skills, bool moreLevels, QuestionID question);
+	CStackWindow(const CCommanderInstance * commander, std::vector<ui32> &skills, std::function<void(ui32)> callback);
+	void updateCommanderLevelUpData(const CCommanderInstance * commander, std::vector<ui32> & skills, const std::function<void(ui32)> & callback);
+	void setCloseOnSelection(bool value);
 	bool isCommanderLevelUpDialog() const;
 	void close() override;
 
@@ -228,8 +228,6 @@ public:
 	~CStackWindow();
 
 private:
-	QuestionID questionID;
-	CPlayerInterface * owner = nullptr; ///< interface that was asked; in hotseat it may not be the current one
-	bool moreLevelsFollow = false; ///< level-up window stays open for the next level instead of closing on selection
+	bool closeOnSelection = true;
 	bool selectionSubmitted = false;
 };

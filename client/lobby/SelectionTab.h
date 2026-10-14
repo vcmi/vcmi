@@ -125,7 +125,7 @@ public:
 	void selectNewestFile(bool skipAutosaves = false);
 	std::shared_ptr<ElementInfo> getSelectedMapInfo() const;
 	void setRequiredHumanPlayers(size_t players);
-	static void rememberSave(const std::string & savePath);
+	void rememberSave(const std::string & savePath) const;
 	void rememberCurrentSelection();
 	void restoreLastSelection();
 	bool checkNameFilter(const std::string & fullstring) const;
@@ -157,7 +157,7 @@ private:
 	bool isMapCompatibleWithLobbyPlayerCount(const ElementInfo & info) const;
 	bool isSaveCompatible(const CMapInfo & info, ELoadMode loadMode) const;
 	std::optional<bool> isFolderCompatible(const std::string & folderName, const std::vector<ResourcePath> & files);
-	static std::string getLastSaveSettingName();
+	std::string getLastSaveSettingName() const;
 	bool openSaveDirectory(std::string folder);
 	void restoreLastSave();
 

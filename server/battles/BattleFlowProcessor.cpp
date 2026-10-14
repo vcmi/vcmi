@@ -30,13 +30,6 @@
 
 #include <vstd/RNG.h>
 
-static BonusParametersEnchanter enchanterParameters(const Bonus & bonus)
-{
-	if(!bonus.parameters)
-		return {};
-	return bonus.parameters->toCustom<BonusParametersEnchanter>();
-}
-
 BattleFlowProcessor::BattleFlowProcessor(BattleProcessor * owner, CGameHandler * newGameHandler)
 	: owner(owner)
 	, gameHandler(newGameHandler)
@@ -122,7 +115,6 @@ void BattleFlowProcessor::onTacticsEnded(const CBattleInfoCallback & battle)
 	}
 
 	castOpeningSpells(battle);
-	owner->flushPendingDeaths(battle);
 
 	// it is possible that due to opening spells one side was eliminated -> check for end of battle
 	if (owner->checkBattleStateChanges(battle))
@@ -671,8 +663,6 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 	if(owner->checkBattleStateChanges(battle))
 		return;
 
-	removeBrokenBindings(battle);
-
 	// tactics - next stack will be selected by player
 	if(battle.battleGetTacticDist() != 0)
 		return;
@@ -753,45 +743,6 @@ void BattleFlowProcessor::removeObstacle(const CBattleInfoCallback & battle, con
 	gameHandler->sendAndApply(obsRem);
 }
 
-void BattleFlowProcessor::tryUnbindStack(const CBattleInfoCallback & battle, const CStack * st)
-{
-	if (!st->alive() || !st->hasBonusOfType(BonusType::BIND_EFFECT))
-		return;
-
-	bool unbind = true;
-	BonusList bl = *(st->getBonusesOfType(BonusType::BIND_EFFECT));
-	auto adjacent = battle.battleAdjacentUnits(st);
-
-	for (const auto & b : bl)
-	{
-		if(b->parameters)
-		{
-			const CStack * stack = battle.battleGetStackByID(b->parameters->toNumber()); //binding stack must be alive and adjacent
-			if(stack && vstd::contains(adjacent, stack)) //binding stack is still present
-				unbind = false;
-		}
-		else
-		{
-			unbind = false;
-		}
-	}
-	if (unbind)
-	{
-		BattleSetStackProperty ssp;
-		ssp.battleID = battle.getBattle()->getBattleID();
-		ssp.which = BattleSetStackProperty::UNBIND;
-		ssp.stackID = st->unitId();
-		gameHandler->sendAndApply(ssp);
-	}
-}
-
-void BattleFlowProcessor::removeBrokenBindings(const CBattleInfoCallback & battle)
-{
-	// binding unit could have been killed or moved away during last action
-	for (const CStack * stack : battle.battleGetAllStacks())
-		tryUnbindStack(battle, stack);
-}
-
 void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, const CStack *st)
 {
 	BattleTriggerEffect bte;
@@ -802,7 +753,35 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 	bte.additionalInfo = 0;
 	if (st->alive())
 	{
-		tryUnbindStack(battle, st);
+		//unbind
+		if (st->hasBonusOfType(BonusType::BIND_EFFECT))
+		{
+			bool unbind = true;
+			BonusList bl = *(st->getBonusesOfType(BonusType::BIND_EFFECT));
+			auto adjacent = battle.battleAdjacentUnits(st);
+
+			for (const auto & b : bl)
+			{
+				if(b->parameters)
+				{
+					const CStack * stack = battle.battleGetStackByID(b->parameters->toNumber()); //binding stack must be alive and adjacent
+					if(stack && vstd::contains(adjacent, stack)) //binding stack is still present
+						unbind = false;
+				}
+				else
+				{
+					unbind = false;
+				}
+			}
+			if (unbind)
+			{
+				BattleSetStackProperty ssp;
+				ssp.battleID = battle.getBattle()->getBattleID();
+				ssp.which = BattleSetStackProperty::UNBIND;
+				ssp.stackID = st->unitId();
+				gameHandler->sendAndApply(ssp);
+			}
+		}
 
 		if (st->hasBonusOfType(BonusType::POISON) && !st->waiting)
 		{
@@ -856,16 +835,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			bool cast = false;
 			while(!bl.empty() && !cast)
 			{
-				// H3: spell is selected randomly using weights, among spells that can be cast
-				std::vector<int> weights;
-				for(const auto & candidate : bl)
-					weights.push_back(enchanterParameters(*candidate).weight);
-
-				int64_t selectedIndex = RandomGeneratorUtil::nextItemWeighted(weights, gameHandler->getRandomGenerator());
-				if(selectedIndex < 0)
-					break;
-
-				auto bonus = bl[selectedIndex];
+				auto bonus = *RandomGeneratorUtil::nextItem(bl, gameHandler->getRandomGenerator());
 				auto spellID = bonus->subtype.as<SpellID>();
 				const CSpell * spell = SpellID(spellID).toSpell();
 				bl.remove_if([&bonus](const Bonus * b)
@@ -873,7 +843,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 					return b == bonus.get();
 				});
 
-				if (battle.battleGetEnchanterCounter(side) != 0 && enchanterParameters(*bonus).cooldown != 0)
+				if (battle.battleGetEnchanterCounter(side) != 0 && bonus->parameters && bonus->parameters->toNumber() != 0)
 					continue; // cooldown
 
 				spells::BattleCast parameters(&battle, st, spells::Mode::ENCHANTER, spell);
@@ -884,7 +854,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 				{
 					cast = true;
 
-					int cooldown = enchanterParameters(*bonus).cooldown;
+					int cooldown = bonus->parameters ? bonus->parameters->toNumber() : 0;
 					if (cooldown != 0)
 					{
 						BattleSetStackProperty ssp;

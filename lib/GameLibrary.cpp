@@ -249,8 +249,6 @@ void GameLibrary::initializeLibrary()
 	modh->afterLoad();
 
 	createHandler(mapFormat);
-
-	creh->buildCombatValues();
 }
 
 GameLibrary::GameLibrary() = default;

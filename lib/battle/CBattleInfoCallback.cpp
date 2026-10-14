@@ -152,7 +152,7 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 
 		if(!hero)
 			return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
-		if(!hero->canCastSpells())
+		if(!hero->hasSpellbook())
 			return ESpellCastProblem::NO_SPELLBOOK;
 		if(battleCastSpells(side) >= hero->valOfBonuses(BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN))
 			return ESpellCastProblem::CASTS_PER_TURN_LIMIT;
@@ -1115,7 +1115,7 @@ DamageEstimation CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &
 
 	const auto * script = LIBRARY->scriptTypes()->getDamageCalculator();
 
-	// core declares one, and there is no rule for how much damage an attack deals without it
+	// core declares one, and there is no rule for what an attack is worth without it
 	if(!script)
 		throw std::runtime_error("No damage calculator script is loaded!");
 
@@ -1123,7 +1123,7 @@ DamageEstimation CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &
 
 	payload.attacker = info.attacker;
 	payload.defender = info.defender;
-	// the script is told where the attack happens rather than left to work it out, so that an
+	// the script is told where the blow happens rather than left to work it out, so that an
 	// attack being weighed reads the same as one being dealt
 	payload.attackerHex = info.attackerPos.isValid() ? info.attackerPos : info.attacker->getPosition();
 	payload.defenderHex = info.defenderPos.isValid() ? info.defenderPos : info.defender->getPosition();
@@ -1179,27 +1179,9 @@ SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(
 	const spells::Mode spellMode,
 	const BattleHex & targetHex) const
 {
-	if(!targetHex.isValid())
-		return std::make_unique<spells::effects::SpellEffectValue>();
-
-	spells::Target aim;
-	aim.emplace_back(targetHex);
-	const battle::Unit * hoveredUnit = battleGetUnitByPos(targetHex, false);
-	if(hoveredUnit)
-		aim.emplace_back(spells::Destination(hoveredUnit));
-
-	return getSpellEffectValue(spell, caster, spellMode, aim);
-}
-
-SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(
-	const CSpell * spell,
-	const spells::Caster * caster,
-	const spells::Mode spellMode,
-	const battle::Target & aim) const
-{
 	auto result = std::make_unique<spells::effects::SpellEffectValue>();
 	RETURN_IF_NOT_BATTLE(result);
-	if(!spell || !caster || aim.empty())
+	if(!spell || !caster || !targetHex.isValid())
 		return result;
 
 	spells::BattleCast params(this, caster, spellMode, spell);
@@ -1207,8 +1189,13 @@ SpellEffectValUptr CBattleInfoCallback::getSpellEffectValue(
 	if(!mech)
 		return result;
 
+	spells::Target aim;
+	aim.emplace_back(targetHex);
+	const battle::Unit * hoveredUnit = battleGetUnitByPos(targetHex, false);
+	if(hoveredUnit)
+		aim.emplace_back(spells::Destination(hoveredUnit));
+
 	const spells::Target spellTarget = mech->canonicalizeTarget(aim);
-	const battle::Unit * hoveredUnit = aim.back().unitValue;
 
 	mech->forEachEffect([&](const spells::effects::Effect &e){
 		auto effTarget = e.transformTarget(mech.get(), aim, spellTarget);
@@ -1665,20 +1652,8 @@ ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * be
 	logGlobal->trace("Handle Berserk effect");
 	auto targets = battleGetUnitsIf([&berserker](const battle::Unit * u)
 	{
-		return u->isValidTarget(false) && !u->isInvincible() && u->unitId() != berserker->unitId();
+		return u->isValidTarget(false) && u->unitId() != berserker->unitId();
 	});
-
-	if (targets.empty())
-	{
-		logGlobal->trace("No attackable target found for berserk unit");
-		ForcedAction result = {
-			EActionType::NO_ACTION,
-			berserker->getPosition(),
-			nullptr
-		};
-		return result;
-	}
-
 	auto cache = getReachability(berserker);
 
 	if (battleCanShoot(berserker))
@@ -2007,15 +1982,14 @@ battle::Units CBattleInfoCallback::getAttackedBattleUnits(
 	else
 		at = getPotentiallyAttackableHexes(attacker, defender, destinationTile, attackerPos, defenderPos);
 
-	units = battleGetUnitsIf([this, at, attacker](const battle::Unit * unit)
+	units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
 		if (unit->isGhost() || !unit->alive() || unit->isInvincible())
 			return false;
 
 		for (const BattleHex & hex : unit->getHexes())
 		{
-			if(at.hostileCreaturePositions.contains(hex)
-				&& battleGetOwner(unit) != battleGetOwner(attacker))
+			if (at.hostileCreaturePositions.contains(hex))
 				return true;
 			if (at.friendlyCreaturePositions.contains(hex))
 				return true;
@@ -2549,9 +2523,6 @@ si8 CBattleInfoCallback::battleMaxSpellLevel(BattleSide side) const
 
 std::optional<BattleSide> CBattleInfoCallback::battleIsFinished() const
 {
-	if(!duringBattle())
-		throw std::logic_error("battleIsFinished called when no battle!");
-
 	auto units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
 		return unit->alive() && !unit->isTurret() && !unit->hasBonusOfType(BonusType::SIEGE_WEAPON);

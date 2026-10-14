@@ -177,9 +177,9 @@ void CModListView::showEvent(QShowEvent * event)
 	filterModel->reloadFilter();
 }
 
-void CModListView::reload(const QString & modToSelect, const QStringList & newMods)
+void CModListView::reload(const QString & modToSelect)
 {
-	modStateModel->reloadLocalState(newMods);
+	modStateModel->reloadLocalState();
 	modModel->reloadViewModel();
 
 	filterModel->reloadFilter();
@@ -521,8 +521,8 @@ auto CModListView::buttonEnabledState(QString modName, ModState & mod)
 	res.disableEnabled = true;
 	res.enableEnabled = notInstalledDependencies.empty() && !translationMismatch;
 	res.installEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded;
-	res.uninstallEnabled = manager->isModManageable(mod.getID());
-	res.updateEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded && manager->isModManageable(mod.getID());
+	res.uninstallEnabled = true;
+	res.updateEnabled = unavailableDependencies.empty() && !modIsBeingDownloaded;
 	res.directoryEnabled = true;
 	res.repositoryEnabled = true;
 
@@ -798,7 +798,7 @@ void CModListView::doUpdateMod(const QString & modName)
 	{
 		auto mod = modStateModel->getMod(name);
 		// update required mod, install missing (can be new dependency)
-		if((mod.isUpdateAvailable() && manager->isModManageable(name)) || !mod.isInstalled())
+		if(mod.isUpdateAvailable() || !mod.isInstalled())
 			downloadMod(mod);
 	}
 }
@@ -899,31 +899,14 @@ void CModListView::downloadProgress(QString currentFile, qint64 current, qint64 
 {
 	Q_UNUSED(currentFile);
 
-	const auto toMegabytes = [](qint64 bytes){ return QString::number(bytes / (1024.0 * 1024.0), 'f', 1); };
-
-	// progress is summed over all downloads in the batch, which run concurrently
-	const auto batchFiles = enqueuedDownloadDescriptions.keys();
-	const bool batchHasOnlyMods = std::all_of(batchFiles.begin(), batchFiles.end(), [this](const QString & file)
-	{
-		return file.endsWith(".zip") && enqueuedModDownloads.contains(file.chopped(4));
-	});
-
-	QString progressBarFormat;
-	if(batchHasOnlyMods && enqueuedModDownloads.size() > 1)
-		progressBarFormat = tr("Downloading %n mods. %p% (%v MB out of %m MB) finished", "", static_cast<int>(enqueuedModDownloads.size()));
-	else
-		progressBarFormat = tr("Downloading %1. %p% (%v MB out of %m MB) finished").arg(enqueuedDownloadDescriptions.value(activeDownloadFile, activeDownloadFile));
-
-	// text shows megabytes, but %v and %m of progress bar would show its range, which is in kilobytes
-	progressBarFormat
-		.replace("%v", toMegabytes(current))
-		.replace("%m", toMegabytes(max));
+	// display progress, in megabytes
+	const auto currentDescription = enqueuedDownloadDescriptions.value(activeDownloadFile, activeDownloadFile);
+	const auto progressBarFormat = tr("Downloading %1. %p% (%v MB out of %m MB) finished").arg(currentDescription);
 	ui->progressBar->setFormat(progressBarFormat);
 
-	// maximum of 0 switches progress bar to busy indicator that hides text
 	ui->progressBar->setVisible(true);
-	ui->progressBar->setMaximum(std::max<qint64>(1, max / 1024));
-	ui->progressBar->setValue(current / 1024);
+	ui->progressBar->setMaximum(max / (1024 * 1024));
+	ui->progressBar->setValue(current / (1024 * 1024));
 }
 
 void CModListView::onDownloadFileFinished(QString fileName)
@@ -962,23 +945,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	// if all files were d/loaded there should be no errors. And on failure there must be an error
 	assert(failedFiles.empty() == errors.empty());
 
-	bool retryRepositories = false;
-	QStringList modsToRetry;
-
-	if(dlManager->hasCertificateErrors() && !settings["launcher"]["ignoreSslErrors"].Bool() && askToIgnoreSslErrors())
-	{
-		for(const auto & file : failedFiles)
-		{
-			const QString modName = QFileInfo(file).completeBaseName();
-			if(file.endsWith(".zip", Qt::CaseInsensitive) && enqueuedModDownloads.contains(modName))
-				modsToRetry.push_back(modName);
-			else
-				retryRepositories = true;
-		}
-		// repository refresh downloads all repository files again, so files that it would download must not be installed now
-		doInstallFiles = !retryRepositories;
-	}
-	else if(savedFiles.empty())
+	if(savedFiles.empty())
 	{
 		// no successfully downloaded mods
 		QMessageBox::warning(this, title, firstLine + errors.join("\n"), QMessageBox::Ok, QMessageBox::Ok);
@@ -1013,32 +980,6 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 
 	Helper::keepScreenOn(false);
 	hideProgressBar();
-
-	if(retryRepositories)
-		loadRepositories();
-
-	for(const auto & modName : modsToRetry)
-		if(modStateModel->isModExists(modName))
-			downloadMod(modStateModel->getMod(modName));
-}
-
-bool CModListView::askToIgnoreSslErrors()
-{
-	const QString message = tr(
-		"VCMI could not confirm that it is connected to the real download server.\n\n"
-		"This usually happens on older systems, such as Windows 7, that are missing recent security updates.\n\n"
-		"However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. "
-		"In that case, downloaded files could be replaced with harmful ones.\n\n"
-		"Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the \"Ignore SSL errors\" option.");
-
-	auto answer = QMessageBox::warning(this, tr("Unable to verify download server"), message, QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-	if(answer != QMessageBox::Yes)
-		return false;
-
-	Settings node = settings.write["launcher"]["ignoreSslErrors"];
-	node->Bool() = true;
-	Helper::getMainWindow()->getSettingsView()->loadSettings();
-	return true;
 }
 
 void CModListView::showExternalProgress(const QString & format, int current, int max)
@@ -1490,6 +1431,7 @@ void CModListView::installMods(QStringList archives)
 {
 	QStringList modNames;
 	QStringList modsToEnable;
+	QMap<QString, QMap<QString, bool>> submodStateBeforeUpdate;
 
 	for(QString archive : archives)
 	{
@@ -1506,15 +1448,31 @@ void CModListView::installMods(QStringList archives)
 		activatingPreset.clear();
 	}
 
-	// Updated mods are replaced on disk without changes to the preset, so they keep their state and state of their submods
-	for(const auto & mod : modNames)
-		if(!modStateModel->isModInstalled(mod))
-			modsToEnable.push_back(mod);
+	// uninstall old version of mod, if installed
+	for(QString mod : modNames)
+	{
+		if(modStateModel->isModExists(mod) && modStateModel->getMod(mod).isInstalled())
+		{
+			// Update flow is uninstall + install. Save submod states now so we can restore
+			// user configuration after reinstall (including nested "main.sub.another" ids).
+			const auto modSettings = modStateModel->getModSettings(mod);
+			for(const auto & settingID : modSettings.keys())
+				submodStateBeforeUpdate[mod][mod + '.' + settingID] = modSettings.value(settingID);
 
-	QStringList enabledRootModsBefore;
-	for(const auto & mod : modStateModel->getAllMods())
-		if(!modStateModel->isSubmod(mod) && modStateModel->isModEnabled(mod))
-			enabledRootModsBefore.push_back(mod);
+			logGlobal->info("Uninstalling old version of mod '%s'", mod.toStdString());
+			if(modStateModel->isModEnabled(mod))
+				modsToEnable.push_back(mod);
+
+			doUninstallMod(mod, true);
+		}
+		else
+		{
+			// installation of previously not present mod -> enable it
+			modsToEnable.push_back(mod);
+		}
+	}
+
+	QString lastInstalled;
 
 	for(int i = 0; i < modNames.size(); i++)
 	{
@@ -1526,12 +1484,13 @@ void CModListView::installMods(QStringList archives)
 		ui->progressBar->setFormat(tr("Installing mod %1").arg(modDisplayName));
 
 		manager->installMod(modNames[i], archives[i]);
+
+		if(i == modNames.size() - 1 && modStateModel->isModExists(modNames[i]))
+			lastInstalled = modStateModel->getMod(modNames[i]).getID();
 	}
 
-	reload(modNames.back(), modsToEnable);
 
-	// mods that were not activated on reload, e.g. due to dependencies that are installed but disabled
-	vstd::erase_if(modsToEnable, [this](const QString & mod){ return !modStateModel->isModExists(mod) || modStateModel->isModEnabled(mod); });
+	reload(lastInstalled);
 
 	if(!modsToEnable.empty())
 	{
@@ -1562,18 +1521,25 @@ void CModListView::installMods(QStringList archives)
 		}
 	}
 
-	QStringList disabledRootMods;
-	for(const auto & mod : enabledRootModsBefore)
+	for(const auto & mod : modNames)
 	{
-		if(!modStateModel->isModExists(mod))
-			disabledRootMods.push_back(mod);
-		else if(!modStateModel->isModEnabled(mod))
-			disabledRootMods.push_back(modStateModel->getMod(mod).getName());
-	}
+		if(!modStateModel->isModExists(mod) || !modStateModel->isModEnabled(mod))
+			continue;
 
-	if(!disabledRootMods.isEmpty())
-		QMessageBox::warning(this, tr("Mods disabled"),
-			tr("Following mods were disabled due to changes in installed mods:\n\n%1").arg(disabledRootMods.join("\n")));
+		const auto submodsForMod = submodStateBeforeUpdate.value(mod);
+		for(const auto & submod : submodsForMod.keys())
+		{
+			const bool wasEnabled = submodsForMod.value(submod);
+
+			if(!modStateModel->isModExists(submod))
+				continue;
+
+			if(wasEnabled && !modStateModel->isModEnabled(submod))
+				manager->enableMods({submod});
+			else if(!wasEnabled && modStateModel->isModEnabled(submod))
+				manager->disableMod(submod);
+		}
+	}
 
 	checkManagerErrors();
 
@@ -1886,7 +1852,7 @@ QStringList CModListView::getUpdateableMods()
 	for(const auto & modName : modStateModel->getAllMods())
 	{
 		auto mod = modStateModel->getMod(modName);
-		if (!mod.isUpdateAvailable() || !manager->isModManageable(modName))
+		if (!mod.isUpdateAvailable())
 			continue;
 
 		QStringList notInstalledDependencies = getModsToInstall(mod.getID());
@@ -1934,7 +1900,7 @@ void CModListView::on_allModsView_doubleClicked(const QModelIndex &index)
 		return;
 	}
 
-	if(unavailableDependencies.empty() && mod.isUpdateAvailable() && manager->isModManageable(modName) && index.column() == ModFields::STATUS_UPDATE)
+	if(unavailableDependencies.empty() && mod.isUpdateAvailable() && index.column() == ModFields::STATUS_UPDATE)
 	{
 		on_updateButton_clicked();
 		return;
@@ -2006,7 +1972,7 @@ void CModListView::importPreset(const JsonNode & data)
 	if (modList.empty())
 	{
 		modStateModel->activatePreset(presetName);
-		modStateModel->reloadLocalState({});
+		modStateModel->reloadLocalState();
 	}
 	else
 	{

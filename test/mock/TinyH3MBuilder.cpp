@@ -187,18 +187,6 @@ TinyH3MBuilder & TinyH3MBuilder::difficulty(EMapDifficulty d)
 	return *this;
 }
 
-TinyH3MBuilder & TinyH3MBuilder::heroLevelLimit(uint8_t level)
-{
-	mapHeroLevelLimit = level;
-	return *this;
-}
-
-TinyH3MBuilder & TinyH3MBuilder::terrain(const int3 & pos, TerrainId type)
-{
-	terrainOverrides[pos] = type;
-	return *this;
-}
-
 TinyH3MBuilder & TinyH3MBuilder::hotaVersion(uint32_t version)
 {
 	hotaFormatVersion = version;
@@ -227,18 +215,6 @@ TinyH3MBuilder & TinyH3MBuilder::randomTown(const int3 & pos, PlayerColor owner)
 {
 	ObjectSpec spec;
 	spec.id            = Obj::RANDOM_TOWN;
-	spec.subid         = MapObjectSubID(0);
-	spec.position      = pos;
-	spec.owner         = owner;
-	spec.templateIndex = registerTemplate(spec.id, spec.subid);
-	registerObject(std::move(spec));
-	return *this;
-}
-
-TinyH3MBuilder & TinyH3MBuilder::shipyard(const int3 & pos, PlayerColor owner)
-{
-	ObjectSpec spec;
-	spec.id            = Obj::SHIPYARD;
 	spec.subid         = MapObjectSubID(0);
 	spec.position      = pos;
 	spec.owner         = owner;
@@ -289,31 +265,6 @@ TinyH3MBuilder & TinyH3MBuilder::heroExperience(uint32_t totalXp)
 	auto & spec = lastObject();
 	assert(spec.id == Obj::HERO || spec.id == Obj::RANDOM_HERO);
 	spec.heroExperienceXp = totalXp;
-	return *this;
-}
-
-TinyH3MBuilder & TinyH3MBuilder::heroHotaLevel(uint32_t level)
-{
-	auto & spec = lastObject();
-	assert(spec.id == Obj::HERO || spec.id == Obj::RANDOM_HERO);
-	assert(level > 0);
-	spec.heroExplicitHotaLevel = level;
-	return *this;
-}
-
-TinyH3MBuilder & TinyH3MBuilder::heroHotaAlwaysAddSkills(bool value)
-{
-	auto & spec = lastObject();
-	assert(spec.id == Obj::HERO || spec.id == Obj::RANDOM_HERO);
-	spec.heroHotaAlwaysAddSkills = value;
-	return *this;
-}
-
-TinyH3MBuilder & TinyH3MBuilder::heroHotaCannotGainXP(bool value)
-{
-	auto & spec = lastObject();
-	assert(spec.id == Obj::HERO || spec.id == Obj::RANDOM_HERO);
-	spec.heroHotaCannotGainXP = value;
 	return *this;
 }
 
@@ -423,28 +374,6 @@ TinyH3MBuilder & TinyH3MBuilder::dwelling(const int3 & pos, MapObjectSubID type,
 	spec.subid         = type;
 	spec.position      = pos;
 	spec.owner         = owner;
-	spec.templateIndex = registerTemplate(spec.id, spec.subid);
-	registerObject(std::move(spec));
-	return *this;
-}
-
-TinyH3MBuilder & TinyH3MBuilder::oneWayPortalEntrance(const int3 & pos, int channel)
-{
-	ObjectSpec spec;
-	spec.id            = Obj::MONOLITH_ONE_WAY_ENTRANCE;
-	spec.subid         = MapObjectSubID(channel);
-	spec.position      = pos;
-	spec.templateIndex = registerTemplate(spec.id, spec.subid);
-	registerObject(std::move(spec));
-	return *this;
-}
-
-TinyH3MBuilder & TinyH3MBuilder::oneWayPortalExit(const int3 & pos, int channel)
-{
-	ObjectSpec spec;
-	spec.id            = Obj::MONOLITH_ONE_WAY_EXIT;
-	spec.subid         = MapObjectSubID(channel);
-	spec.position      = pos;
 	spec.templateIndex = registerTemplate(spec.id, spec.subid);
 	registerObject(std::move(spec));
 	return *this;
@@ -703,8 +632,8 @@ uint32_t TinyH3MBuilder::registerTemplate(MapObjectID id, MapObjectSubID subid)
 
 std::vector<uint8_t> TinyH3MBuilder::build()
 {
-	if(format == EMapFormat::HOTA && hotaFormatVersion > 5)
-		throw std::runtime_error("TinyH3MBuilder: only HotA sub-format versions 0..5 are implemented");
+	if(format == EMapFormat::HOTA && hotaFormatVersion > 3)
+		throw std::runtime_error("TinyH3MBuilder: only HotA sub-format versions 0..3 are implemented");
 
 	TinyH3MWriter w;
 	auto features = featuresFor(format, hotaFormatVersion);
@@ -766,11 +695,8 @@ void TinyH3MBuilder::writeHeader(TinyH3MWriter & w) const
 		}
 		if(features.levelHOTA2)
 			w.writeUInt32(static_cast<uint32_t>(features.terrainsCount));
-		if(features.levelHOTA5)
-		{
-			w.writeUInt32(static_cast<uint32_t>(features.factionsCount));
-			w.writeUInt8(31); // all difficulty levels allowed
-		}
+		// levelHOTA5+ header blocks (town-types/difficulty mask, hire-defeated, ...)
+		// are not emitted: only HotA versions 0..3 are supported by the builder.
 	}
 
 	// areAnyPlayers must be false when no human/computer can play any color, otherwise
@@ -785,7 +711,7 @@ void TinyH3MBuilder::writeHeader(TinyH3MWriter & w) const
 	w.writeUInt8(static_cast<uint8_t>(mapDifficulty));
 
 	if(features.levelAB)
-		w.writeUInt8(mapHeroLevelLimit);
+		w.writeUInt8(/*levelLimit*/ 0);
 
 	writePlayerInfo(w);
 	writeStandardVictoryLoss(w);
@@ -908,11 +834,7 @@ void TinyH3MBuilder::writeMapOptions(TinyH3MWriter & w) const
 		w.writeInt32(0);    // combinedArtifactsCount = none banned (no bitmask bytes follow)
 	if(features.levelHOTA3)
 		w.writeInt32(-1);   // roundLimit = no limit
-	if(features.levelHOTA5)
-	{
-		for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
-			w.writeBool(false); // hero recruitment allowed
-	}
+	// levelHOTA5+ per-player hero-recruitment block not emitted (versions 0..3 only).
 }
 
 void TinyH3MBuilder::writeAllowedArtifacts(TinyH3MWriter & w) const
@@ -958,7 +880,7 @@ void TinyH3MBuilder::writePredefinedHeroes(TinyH3MWriter & w) const
 	//   non-SOD: nothing to emit.
 	//   SOD: one `customised` bool per hero (all false = no overrides).
 	//   HOTA0+: prefix with uint32 heroesCount.
-	//   HOTA5+: trailing per-hero block has zero entries when heroesCount is zero.
+	//   HOTA5+: trailing per-hero block (not emitted; versions 0..3 only).
 	if(!features.levelSOD)
 		return;
 
@@ -984,23 +906,16 @@ void TinyH3MBuilder::writeTerrain(TinyH3MWriter & w) const
 	// wrong though it loads fine. Use view 0x31 (49) — a known plain-grass tile
 	// from H3's tileset. Real maps put pseudo-random view bytes here.
 	const int levels = twoLevel ? 2 : 1;
-	for(int z = 0; z < levels; ++z)
+	const size_t tiles = static_cast<size_t>(sideLength) * sideLength * levels;
+	for(size_t i = 0; i < tiles; ++i)
 	{
-		for(int y = 0; y < sideLength; ++y)
-		{
-			for(int x = 0; x < sideLength; ++x)
-			{
-				const auto override = terrainOverrides.find(int3(x, y, z));
-				const TerrainId type = override == terrainOverrides.end() ? TerrainId::GRASS : override->second;
-				w.writeUInt8(static_cast<uint8_t>(type.getNum()));
-				w.writeUInt8(type == TerrainId::GRASS ? 0x31 : 0);
-				w.writeUInt8(0); // river type
-				w.writeUInt8(0); // river dir
-				w.writeUInt8(0); // road type
-				w.writeUInt8(0); // road dir
-				w.writeUInt8(0); // extTileFlags
-			}
-		}
+		w.writeUInt8(2);    // terrain type = GRASS in H3M ordering
+		w.writeUInt8(0x31); // terView — plain-grass tile
+		w.writeUInt8(0);    // river type
+		w.writeUInt8(0);    // river dir
+		w.writeUInt8(0);    // road type
+		w.writeUInt8(0);    // road dir
+		w.writeUInt8(0);    // extTileFlags
 	}
 }
 
@@ -1139,15 +1054,12 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 				break;
 
 			case Obj::CREATURE_GENERATOR1:
-			case Obj::SHIPYARD:
 				w.writePlayer32(obj.owner);
 				break;
 
 			case Obj::KEYMASTER:
 			case Obj::BORDERGUARD:
-			case Obj::MONOLITH_ONE_WAY_ENTRANCE:
-			case Obj::MONOLITH_ONE_WAY_EXIT:
-				// readGeneric — no body bytes. Object-specific data lives in the template.
+				// readGeneric — no body bytes. Subid (keymaster colour) lives in the template.
 				break;
 
 			case Obj::BORDER_GATE:
@@ -1270,13 +1182,6 @@ void TinyH3MBuilder::writeHeroBody(TinyH3MWriter & w, const ObjectSpec & obj) co
 		}
 	}
 	w.skipZero(16);
-
-	if(features.levelHOTA5)
-	{
-		w.writeBool(obj.heroHotaAlwaysAddSkills);
-		w.writeBool(obj.heroHotaCannotGainXP);
-		w.writeInt32(static_cast<int32_t>(obj.heroExplicitHotaLevel));
-	}
 }
 
 void TinyH3MBuilder::writeScrollBody(TinyH3MWriter & w, const ObjectSpec & obj) const

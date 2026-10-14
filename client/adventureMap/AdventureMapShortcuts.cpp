@@ -86,12 +86,11 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_TOGGLE_GRID,      optionInMapView(),      [this]() { this->toggleGrid(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_VISITABLE, optionInMapView(),      [this]() { this->toggleVisitable(); } },
 		{ EShortcut::ADVENTURE_TOGGLE_BLOCKED,   optionInMapView(),      [this]() { this->toggleBlocked(); } },
-		{ EShortcut::ADVENTURE_SCREENSHOT_WHOLE_MAP, optionInMapView(),   [this]() { this->screenshotWholeMap(); } },
 		{ EShortcut::ADVENTURE_TRACK_HERO,       optionInMapView(),      [this]() { this->toggleTrackHero(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_ASLEEP,  optionHeroAwake(),      [this]() { this->setHeroSleeping(); } },
 		{ EShortcut::ADVENTURE_SET_HERO_AWAKE,   optionHeroSleeping(),   [this]() { this->setHeroAwake(); } },
 		{ EShortcut::ADVENTURE_MOVE_HERO,        optionHeroCanMove(),    [this]() { this->moveHeroAlongPath(); } },
-		{ EShortcut::ADVENTURE_CAST_SPELL,       optionHeroCanCastSpells(), [this]() { this->showSpellbook(); } },
+		{ EShortcut::ADVENTURE_CAST_SPELL,       optionHeroSelected(),   [this]() { this->showSpellbook(); } },
 		{ EShortcut::ADVENTURE_GAME_OPTIONS,     optionInMapView(),      [this]() { this->adventureOptions(); } },
 		{ EShortcut::GLOBAL_OPTIONS,             optionInMapView(),      [this]() { this->systemOptions(); } },
 		{ EShortcut::ADVENTURE_FIRST_HERO,       optionInMapView(),      [this]() { this->firstHero(); } },
@@ -208,11 +207,6 @@ void AdventureMapShortcuts::toggleBlocked()
 {
 	Settings s = settings.write["session"];
 	s["showBlocked"].Bool() = !settings["session"]["showBlocked"].Bool();
-}
-
-void AdventureMapShortcuts::screenshotWholeMap()
-{
-	owner.hotkeyScreenshotWholeMap();
 }
 
 void AdventureMapShortcuts::toggleSleepWake()
@@ -700,11 +694,6 @@ bool AdventureMapShortcuts::optionCanVisitObject()
 bool AdventureMapShortcuts::optionHeroSelected()
 {
 	return optionInMapView() && GAME->interface()->localState->getCurrentHero() != nullptr;
-}
-
-bool AdventureMapShortcuts::optionHeroCanCastSpells()
-{
-	return optionHeroSelected() && GAME->interface()->localState->getCurrentHero()->canCastSpells();
 }
 
 bool AdventureMapShortcuts::optionHeroCanMove()

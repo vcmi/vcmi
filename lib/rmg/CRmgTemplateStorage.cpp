@@ -13,9 +13,7 @@
 #include "CRmgTemplateStorage.h"
 #include "CRmgTemplate.h"
 
-#include "../GameLibrary.h"
 #include "../serializer/JsonDeserializer.h"
-#include "../texts/CGeneralTextHandler.h"
 
 using namespace rmg;
 
@@ -43,10 +41,6 @@ void CRmgTemplateStorage::loadObject(const std::string & scope, const std::strin
 		templates[fullKey]->setId(fullKey);
 		templates[fullKey]->serializeJson(handler);
 		templates[fullKey]->setName(name);
-
-		if (!templates[fullKey]->getDescription().empty())
-			LIBRARY->generaltexth->registerString(scope, templates[fullKey]->getDescriptionTextID(), data["description"]);
-
 		templates[fullKey]->validate();
 	}
 	catch(const std::exception & e)

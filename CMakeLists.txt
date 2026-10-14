@@ -308,11 +308,6 @@ if(MSVC)
 	add_compile_options($<$<COMPILE_LANGUAGE:CXX>:/Gy> $<$<COMPILE_LANGUAGE:CXX>:/Gw>)
 	# not in Debug - /OPT:REF disables incremental linking
 	add_link_options($<$<NOT:$<CONFIG:Debug>>:/OPT:REF> $<$<NOT:$<CONFIG:Debug>>:/OPT:ICF>)
-	# RelWithDebInfo defaults to /Ob1 that only inlines functions explicitly marked as inline
-	# Use same inlining as in Release, debug information is not affected by this
-	foreach(lang C CXX)
-		string(REPLACE "/Ob1" "/Ob2" CMAKE_${lang}_FLAGS_RELWITHDEBINFO "${CMAKE_${lang}_FLAGS_RELWITHDEBINFO}")
-	endforeach()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	add_compile_options(-ffunction-sections -fdata-sections)
 	if(APPLE)
@@ -385,12 +380,6 @@ endif()
 
 if(ENABLE_LAUNCHER)
 	add_definitions(-DENABLE_LAUNCHER)
-endif()
-
-# libcurl is used only for downloads in launcher
-set(ENABLE_LIBCURL ${ENABLE_LAUNCHER})
-if(ENABLE_LIBCURL)
-	add_definitions(-DENABLE_LIBCURL)
 endif()
 
 if(ENABLE_EDITOR)
@@ -592,10 +581,6 @@ if(NOT minizip_FOUND)
 	add_library(minizip::minizip ALIAS MINIZIP::minizip-ng)
 endif()
 
-if(ENABLE_LIBCURL)
-	find_package(CURL REQUIRED)
-endif()
-
 if (ENABLE_CLIENT)
 	if (ENABLE_VIDEO)
 		find_package(ffmpeg REQUIRED COMPONENTS avutil swscale avformat avcodec swresample)
@@ -677,8 +662,8 @@ endif()
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
-	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
+	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 
 	if(ENABLE_TEMPLATE_EDITOR)
 		find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Svg Xml)

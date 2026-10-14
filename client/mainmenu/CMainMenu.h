@@ -43,11 +43,11 @@ class CMenuScreen : public CWindowObject
 
 	std::shared_ptr<CTabbedInt> tabs;
 
+	std::shared_ptr<CPicture> background;
 	std::shared_ptr<VideoWidget> videoPlayer;
 	std::vector<std::shared_ptr<CPicture>> images;
 
 	std::shared_ptr<CIntObject> createTab(size_t index);
-	void buildMenu();
 
 public:
 	std::vector<std::string> menuNameToEntry;
@@ -55,7 +55,6 @@ public:
 	CMenuScreen(const JsonNode & configNode);
 
 	void activate() override;
-	void onScreenResize() override;
 	void show(Canvas & to) override;
 	void keyPressed(EShortcut key) override;
 

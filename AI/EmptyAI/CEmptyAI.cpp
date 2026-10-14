@@ -24,9 +24,9 @@ void CEmptyAI::initGameInterface(std::shared_ptr<Environment> ENV, std::shared_p
 	playerID = *cb->getPlayerID();
 }
 
-void CEmptyAI::yourTurn(QuestionID questionID)
+void CEmptyAI::yourTurn(QueryID queryID)
 {
-	cb->selectionMade(0, questionID);
+	cb->selectionMade(0, queryID);
 	cb->endTurn();
 }
 
@@ -40,34 +40,34 @@ void CEmptyAI::yourTacticPhase(const BattleID & battleID, int distance)
 	cb->battleMakeTacticAction(battleID, BattleAction::makeEndOFTacticPhase(cb->getBattle(battleID)->battleGetTacticsSide()));
 }
 
-void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, const std::vector<SecondarySkill> &skills, bool moreLevelsFollow, QuestionID questionID)
+void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)
 {
-	cb->selectionMade(CRandomGenerator::getDefault().nextInt((int)skills.size() - 1), questionID);
+	cb->selectionMade(CRandomGenerator::getDefault().nextInt((int)skills.size() - 1), queryID);
 }
 
-void CEmptyAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, bool moreLevelsFollow, QuestionID questionID)
+void CEmptyAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
 {
-	cb->selectionMade(CRandomGenerator::getDefault().nextInt((int)skills.size() - 1), questionID);
+	cb->selectionMade(CRandomGenerator::getDefault().nextInt((int)skills.size() - 1), queryID);
 }
 
-void CEmptyAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
+void CEmptyAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
 {
-	cb->selectionMade(0, questionID);
+	cb->selectionMade(0, askID);
 }
 
-void CEmptyAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QuestionID questionID)
+void CEmptyAI::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QueryID askID)
 {
-	cb->selectionMade(0, questionID);
+	cb->selectionMade(0, askID);
 }
 
-void CEmptyAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QuestionID questionID, const MetaString & customTitle)
+void CEmptyAI::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QueryID queryID, const MetaString & customTitle)
 {
-	cb->selectionMade(0, questionID);
+	cb->selectionMade(0, queryID);
 }
 
-void CEmptyAI::showMapObjectSelectDialog(QuestionID questionID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
+void CEmptyAI::showMapObjectSelectDialog(QueryID askID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects)
 {
-	cb->sendQuestionAnswer(std::nullopt, questionID);
+	cb->selectionMade(0, askID);
 }
 
 std::optional<BattleAction> CEmptyAI::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)

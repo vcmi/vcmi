@@ -350,8 +350,6 @@ public:
 	const std::string & getId() const;
 	const std::string & getName() const;
 	const std::string & getDescription() const;
-	std::string getDescriptionTextID() const;
-	std::string getDescriptionTranslated() const;
 
 	const CPlayerCountRange & getPlayers() const;
 	const CPlayerCountRange & getHumanPlayers() const;

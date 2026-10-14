@@ -43,7 +43,6 @@ public:
 	void onBattleEnd(const BattleID & battleID);
 	void update(int waitTimeMs);
 	void setTimerEnabled(PlayerColor player, bool enabled);
-	bool isTimerEnabled(PlayerColor player) const;
 	void setEndTurnAllowed(PlayerColor player, bool enabled);
 	void onEndTurn(PlayerColor player);
 

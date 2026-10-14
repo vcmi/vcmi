@@ -40,7 +40,7 @@ public:
 
 	/// local version of methods in ContentHandler
 	/// returns true if loading was successful
-	void preloadModData(const std::string & modName, JsonNode & data);
+	bool preloadModData(const std::string & modName, const JsonNode & fileList, bool validate);
 	bool loadMod(const std::string & modName, bool validate);
 	void loadCustom();
 	void afterLoadFinalization();
@@ -54,11 +54,8 @@ class DLL_LINKAGE CContentHandler
 public:
 	void init();
 
-	/// Returns names of all types of content, e.g. 'creatures' or 'artifacts'
-	std::vector<std::string> getContentTypeNames() const;
-
-	/// preloads all data of a mod, taking ownership of contents of provided node
-	bool preloadData(const ModDescription & mod, JsonNode & modContent, bool validateMod);
+	/// preloads all data from fileList as data from modName.
+	bool preloadData(const ModDescription & mod, bool validateMod);
 
 	/// actually loads data in mod
 	bool load(const ModDescription & mod, bool validateMod);

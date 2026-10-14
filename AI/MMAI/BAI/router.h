@@ -46,7 +46,7 @@ public:
 	void activeStack(const BattleID & bid, const CStack * stack) override; //called when it's turn of that stack
 	void battleAttack(const BattleID & bid, const BattleAttack * ba) override;
 	void battleCatapultAttacked(const BattleID & bid, const CatapultAttack & ca) override;
-	void battleEnd(const BattleID & bid, const BattleResult * br, QuestionID questionID) override;
+	void battleEnd(const BattleID & bid, const BattleResult * br, QueryID queryID) override;
 	void battleGateStateChanged(const BattleID & bid, EGateState state) override;
 	void battleLogMessage(const BattleID & bid, const std::vector<MetaString> & lines) override;
 	void battleNewRound(const BattleID & bid) override;
@@ -75,6 +75,7 @@ private:
 	std::shared_ptr<CBattleCallback> cb;
 	std::shared_ptr<CBattleGameInterface> bai; // calls will be delegated to this object
 
+	bool wasWaitingForRealize = false;
 	AutocombatPreferences autocombatPreferences;
 	std::string addrstr = "?";
 	std::string colorname = "?";

@@ -82,17 +82,9 @@ void BAI::battleStart(
 // XXX: battleEnd() is NOT called by CPlayerInterface (i.e. GUI)
 //      However, it's called by AAI (i.e. headless) and that's all we want
 //      since the terminal result is needed only during training.
-void BAI::battleEnd(const BattleID & bid, const BattleResult * br, QuestionID questionID)
+void BAI::battleEnd(const BattleID & bid, const BattleResult * br, QueryID queryID)
 {
-	try
-	{
-		state->onBattleEnd(br);
-	}
-	catch(const std::exception & e)
-	{
-		logger.error("MMAI error on battle end: " + std::string(e.what()));
-		return;
-	}
+	state->onBattleEnd(br);
 
 	logger.debug("MMAI %s this battle.", (br->winner == battle->battleGetMySide() ? "won" : "lost"));
 

@@ -3,26 +3,6 @@
 // abilities beyond the tested one - so that what a scenario measures is the script and not a
 // damage roll. Graphics and sounds are borrowed from the pikeman; nothing here is ever rendered.
 {
-	"testStackExperience" :
-	{
-		"faction" : "neutral",
-		"level" : 1,
-		"special" : true,
-		"name" : { "singular" : "Test Veteran", "plural" : "Test Veterans" },
-		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
-		"damage" : { "min" : 10, "max" : 10 },
-		"cost" : { "gold" : 100 },
-		"fightValue" : 100, "aiValue" : 100,
-		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
-		"sound" : {},
-		"stackExperience" : [
-			{
-				"bonus" : { "type" : "PRIMARY_SKILL", "subtype" : "attack" },
-				"values" : [ 0, 1, 1, 2, 2, 2, 3, 3, 1, 5 ]
-			}
-		]
-	},
-
 	"testTransmuterCount" :
 	{
 		"faction" : "neutral",
@@ -354,63 +334,5 @@
 		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
 		"sound" : {},
 		"abilities" : { "damageCap" : { "type" : "DAMAGE_RECEIVED_CAP", "val" : 10 } }
-	},
-
-	// Test fixture for HotA detonation; skips the mod's arming spell.
-	"testAutomaton" :
-	{
-		"faction" : "neutral",
-		"level" : 1,
-		"special" : true,
-		"name" : { "singular" : "Test Automaton", "plural" : "Test Automatons" },
-		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
-		"damage" : { "min" : 10, "max" : 10 },
-		"cost" : { "gold" : 100 },
-		"fightValue" : 100, "aiValue" : 100,
-		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
-		"sound" : {},
-		"abilities" :
-		{
-			"detonates" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "automatonDetonation" },
-			// Removing the corpse prevents repeated detonation in a chain.
-			"removeCorpse" : { "type" : "DISINTEGRATE" }
-		}
-	},
-
-	// Grants one additional attack per consumed corpse.
-	"testDevourer" :
-	{
-		"faction" : "neutral",
-		"level" : 1,
-		"special" : true,
-		"name" : { "singular" : "Test Devourer", "plural" : "Test Devourers" },
-		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
-		"damage" : { "min" : 10, "max" : 10 },
-		"cost" : { "gold" : 100 },
-		"fightValue" : 100, "aiValue" : 100,
-		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
-		"sound" : {},
-		"abilities" : { "devours" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "devourCorpses" } }
-	},
-
-	// Double-wide footprint is required for cone-origin tests.
-	"testJuggernaut" :
-	{
-		"faction" : "neutral",
-		"level" : 1,
-		"special" : true,
-		"doubleWide" : true,
-		"name" : { "singular" : "Test Juggernaut", "plural" : "Test Juggernauts" },
-		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
-		"damage" : { "min" : 10, "max" : 10 },
-		"cost" : { "gold" : 100 },
-		"fightValue" : 100, "aiValue" : 100,
-		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
-		"sound" : {},
-		"abilities" :
-		{
-			"heatStroke" : { "type" : "SPELLCASTER", "subtype" : "heatStroke", "val" : 0 },
-			"castsCount" : { "type" : "CASTS", "val" : 99 }
-		}
 	}
 }

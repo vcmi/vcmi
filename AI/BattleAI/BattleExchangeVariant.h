@@ -62,8 +62,7 @@ struct MoveTarget
 
 struct EvaluationResult
 {
-	// scores are combat value, which a large army of expensive creatures can push past a billion
-	static constexpr float INEFFECTIVE_SCORE = -1e12f;
+	static const int64_t INEFFECTIVE_SCORE = -100000000;
 
 	AttackPossibility bestAttack;
 	MoveTarget bestMove;
@@ -89,13 +88,6 @@ public:
 	BattleExchangeVariant()
 		: dpsScore() {}
 
-	enum class AttackMode
-	{
-		ESTIMATE,
-		FIRST_STRIKE,
-		FOLLOWUP_STRIKE
-	};
-
 	float trackAttack(
 		const AttackPossibility & ap,
 		std::shared_ptr<HypotheticBattle> hb,
@@ -108,7 +100,7 @@ public:
 		bool isOurAttack,
 		DamageCache & damageCache,
 		std::shared_ptr<HypotheticBattle> hb,
-		AttackMode mode);
+		bool evaluateOnly = false);
 
 	const BattleScore & getScore() const { return dpsScore; }
 

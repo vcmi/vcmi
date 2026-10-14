@@ -180,13 +180,10 @@ std::optional<const CGObjectInstance *> ObjectClusterizer::getBlocker(const AIPa
 	if(isObjectPassable(aiNk, blocker))
 		return std::optional< const CGObjectInstance *>();
 
-	if(!canInteractWithObject(aiNk, blocker))
-		return std::optional< const CGObjectInstance * >();
-
 	if(blocker->ID == Obj::GARRISON
 		|| blocker->ID == Obj::GARRISON2)
 	{
-		if(dynamic_cast<const CArmedInstance *>(blocker)->estimateCombatValue() == 0)
+		if(dynamic_cast<const CArmedInstance *>(blocker)->getArmyStrength() == 0)
 			return std::optional< const CGObjectInstance *>();
 		else
 			return blocker;
@@ -305,11 +302,6 @@ bool ObjectClusterizer::shouldVisitObject(const CGObjectInstance * obj) const
 	auto playerRelations = aiNk->cc->getPlayerRelations(aiNk->playerID, obj->tempOwner);
 
 	if(playerRelations != PlayerRelations::ENEMIES && !isWeeklyRevisitable(aiNk->playerID, obj))
-	{
-		return false;
-	}
-
-	if(!canInteractWithObject(aiNk, obj))
 	{
 		return false;
 	}

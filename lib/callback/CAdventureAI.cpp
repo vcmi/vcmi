@@ -11,33 +11,10 @@
 #include "CAdventureAI.h"
 
 #include "AIFactory.h"
-#include "CBattleCallback.h"
 
 CGlobalAI::CGlobalAI()
 {
 	human = false;
-}
-
-CAdventureAI::~CAdventureAI()
-{
-	battleAI.reset();
-	restoreWaitTillRealize();
-}
-
-void CAdventureAI::suspendWaitTillRealize()
-{
-	assert(!waitTillRealizeBeforeBattle.has_value());
-	waitTillRealizeBeforeBattle = cbc->waitTillRealize;
-	cbc->waitTillRealize = false;
-}
-
-void CAdventureAI::restoreWaitTillRealize()
-{
-	if(waitTillRealizeBeforeBattle.has_value())
-	{
-		cbc->waitTillRealize = *waitTillRealizeBeforeBattle;
-		waitTillRealizeBeforeBattle.reset();
-	}
 }
 
 void CAdventureAI::battleNewRound(const BattleID & battleID)
@@ -55,7 +32,6 @@ void CAdventureAI::battleStart(const BattleID & battleID, const CCreatureSet * a
 {
 	assert(!battleAI);
 	assert(cbc);
-	suspendWaitTillRealize();
 	battleAI = AIFactory::createBattleAI(getBattleAIName());
 	battleAI->initBattleInterface(env, cbc);
 	battleAI->battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
@@ -111,11 +87,10 @@ void CAdventureAI::battleSpellCast(const BattleID & battleID, const BattleSpellC
 	battleAI->battleSpellCast(battleID, sc);
 }
 
-void CAdventureAI::battleEnd(const BattleID & battleID, const BattleResult * br, QuestionID questionID)
+void CAdventureAI::battleEnd(const BattleID & battleID, const BattleResult * br, QueryID queryID)
 {
-	battleAI->battleEnd(battleID, br, questionID);
+	battleAI->battleEnd(battleID, br, queryID);
 	battleAI.reset();
-	restoreWaitTillRealize();
 }
 
 void CAdventureAI::battleUnitsChanged(const BattleID & battleID, const std::vector<UnitChanges> & units)

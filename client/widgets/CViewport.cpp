@@ -78,6 +78,10 @@ void CViewport::remakeVSlider(int length)
 	}
 	vSlider->setScrollStep(20);
 	vSlider->setPanningStep(1);
+	// This slider's GESTURE events are handled exclusively by CViewport::gesturePanning.
+	// Without this, both the slider (via Scrollable::gesturePanning) and the viewport
+	// would scroll on every touch-panning event, causing double (over-)scroll speed.
+	vSlider->removeUsedEvents(GESTURE);
 }
 
 void CViewport::remakeHSlider(int length)
@@ -98,6 +102,8 @@ void CViewport::remakeHSlider(int length)
 	}
 	hSlider->setScrollStep(20);
 	hSlider->setPanningStep(1);
+	// Same reason as vSlider: gesture events are handled by CViewport, not the slider.
+	hSlider->removeUsedEvents(GESTURE);
 }
 
 void CViewport::updateSliders()
@@ -150,24 +156,24 @@ void CViewport::updateSliders()
 		if(hSlider) hSlider->disable();
 	}
 
-	// scrollBounds: wheel area (wide, content clip rect). Touch-panning gestures are always
-	// restricted to the slider's own bounds so CViewport::gesturePanning doesn't double-scroll with it.
+	// Allow wheel-scroll over the whole viewport body – but only for the
+	// vertical slider.  When both are active the horizontal slider gets only
+	// its own strip as scrollBounds so the mouse wheel exclusively scrolls
+	// vertically when the cursor is over the content area.
 	if(vSlider && !vSlider->isDisabled())
 	{
 		// Exclude the hSlider strip: use content clip area, not full pos.
 		const Rect vScrollArea(pos.x, pos.y, clipW, clipH);
 		vSlider->setScrollBounds(vScrollArea - vSlider->pos.topLeft());
-		vSlider->setRestrictGestureToOwnBounds(true);
 	}
 	if(hSlider && !hSlider->isDisabled())
 	{
 		if(needV)
-			// Restrict hSlider wheel to its own strip only.
+			// Restrict hSlider wheel/gesture to its own strip only.
 			hSlider->setScrollBounds(Rect(0, 0, hSlider->pos.w, hSlider->pos.h));
 		else
 			// Alone: respond everywhere over the viewport.
 			hSlider->setScrollBounds(pos - hSlider->pos.topLeft());
-		hSlider->setRestrictGestureToOwnBounds(true);
 	}
 
 	// Strip render bits (enable() resets recActions to ALL_ACTIONS).

@@ -9,8 +9,6 @@
 */
 #include "../StdInc.h"
 #include "BuyArmy.h"
-#include "../../../lib/battle/CombatValue.h"
-#include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
@@ -90,7 +88,7 @@ void BuyArmy::accept(AIGateway * aiGw)
 			{
 				aiGw->cc->recruitCreatures(town, town->getUpperArmy(), ci.creID, ci.count, ci.level);
 			}
-			valueBought += ci.count * LIBRARY->creh->getCombatValue().getAIValue(ci.creID.toCreature());
+			valueBought += ci.count * ci.creID.toCreature()->getAIValue();
 		}
 	}
 
@@ -99,14 +97,9 @@ void BuyArmy::accept(AIGateway * aiGw)
 		throw cannotFulfillGoalException("No creatures to buy.");
 	}
 
-	// a visiting hero may belong to an ally
-	if(town->getVisitingHero() && town->getVisitingHero()->tempOwner == aiGw->playerID && !town->getGarrisonHero())
+	if(town->getVisitingHero() && !town->getGarrisonHero())
 	{
-		if(aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(town->getVisitingHero(), aiGw->cc.get()))
-			!= HeroMovementResult::COMPLETE)
-		{
-			throw cannotFulfillGoalException("Unable to revisit town after buying army.");
-		}
+		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(town->getVisitingHero(), aiGw->cc.get()));
 	}
 }
 
