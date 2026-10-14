@@ -19,7 +19,7 @@ In order to make functional creature you also need:
 
 ### Sounds
 
-- Set of sounds (up to 8 sounds)
+- Set of sounds (up to 9 sounds)
 
 ## Format
 
@@ -210,7 +210,9 @@ In order to make functional creature you also need:
 		"move": "",
 		// Shooters only, creature shoots
 		"shoot" : "",
-		// Creature not in "defend mode" is under attack 
+		// Creature spellcasting; falls back to "shoot" if not specified
+		"cast" : "",
+		// Creature not in "defend mode" is under attack
 		"wince": "",
 		
 		// Creature start/end movement or teleports

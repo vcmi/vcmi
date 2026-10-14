@@ -952,6 +952,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	creature->sounds.killed = AudioPath::fromJson(sounds["killed"]);
 	creature->sounds.move = AudioPath::fromJson(sounds["move"]);
 	creature->sounds.shoot = AudioPath::fromJson(sounds["shoot"]);
+	creature->sounds.cast = AudioPath::fromJson(sounds["cast"]);
 	creature->sounds.wince = AudioPath::fromJson(sounds["wince"]);
 	creature->sounds.startMoving = AudioPath::fromJson(sounds["startMoving"]);
 	creature->sounds.endMoving = AudioPath::fromJson(sounds["endMoving"]);

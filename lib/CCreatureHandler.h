@@ -111,6 +111,7 @@ public:
 		AudioPath killed; // was killed or died
 		AudioPath move;
 		AudioPath shoot; // range attack
+		AudioPath cast; // creature spellcast
 		AudioPath wince; // attacked but did not die
 		AudioPath startMoving;
 		AudioPath endMoving;
