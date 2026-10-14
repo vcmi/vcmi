@@ -31,8 +31,6 @@ private:
 	/// Returns true if creatures of this alignment can be mixed with others without morale penalty
 	bool canMixAlignment(EAlignment alignment) const;
 
-	void attachUnitsToArmy();
-
 protected:
 	virtual CBonusSystemNode & whereShouldBeAttached(CGameState & gs);
 	virtual CBonusSystemNode & whatShouldBeAttached();
@@ -60,6 +58,9 @@ public:
 	void attachToBonusSystem(CGameState & gs) override;
 	void detachFromBonusSystem(CGameState & gs) override;
 	void restoreBonusSystem(CGameState & gs) override;
+
+	/// Links units to this army, for armies that were deserialized outside of game state loading
+	void attachUnitsToArmy();
 	//////////////////////////////////////////////////////////////////////////
 
 	CArmedInstance(IGameInfoCallback * cb);
