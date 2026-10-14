@@ -108,6 +108,7 @@ public:
 	virtual bool isShooter() const = 0;
 	bool isMeleeAttacker() const;
 	bool isSummoned() const;
+	bool isCommander() const;
 	bool hasImmunity(SpellID spell) const;
 	bool hasAbsoluteImmunity(SpellID spell) const;
 

@@ -128,6 +128,12 @@ True if the stack was summoned during battle (e.g. by Summon Elementals).
 
 - returns `boolean`
 
+### isCommander
+
+True if the stack is a hero's commander.
+
+- returns `boolean`
+
 ### isLiving
 
 True if the stack is a living creature - not undead, not a golem-like non-living unit.

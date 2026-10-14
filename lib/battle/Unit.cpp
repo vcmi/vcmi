@@ -67,6 +67,11 @@ bool Unit::isSummoned() const
 	return unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER;
 }
 
+bool Unit::isCommander() const
+{
+	return unitSlot() == SlotID::COMMANDER_SLOT_PLACEHOLDER;
+}
+
 
 bool Unit::hasImmunity(SpellID spell) const
 {
