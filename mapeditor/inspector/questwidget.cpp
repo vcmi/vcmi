@@ -707,6 +707,7 @@ void QuestWidget::on_deleteQuestButton_clicked()
 	if (questSource.allQuests().empty())
 		return;
 	questSource.allQuestsEditor().erase(questSource.allQuests().begin() + ui->questsList->currentRow());
+	selectedQuest = nullptr;
 	prepareQuestsList();
 	selectQuest(0);
 }

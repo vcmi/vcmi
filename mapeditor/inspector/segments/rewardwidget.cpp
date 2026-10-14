@@ -362,13 +362,13 @@ void RewardWidget::onCreatureAdd(QTableWidget * listWidget, QComboBox * comboWid
 	widget->setValue(spinWidget->value());
 }
 
-void RewardWidget::on_rCreatureAdd_clicked()
+void RewardWidget::on_creatureAdd_clicked()
 {
 	onCreatureAdd(ui->creatures, ui->creatureId, ui->creatureAmount);
 }
 
 
-void RewardWidget::on_rCreatureRemove_clicked()
+void RewardWidget::on_creatureRemove_clicked()
 {
 	std::set<int, std::greater<int>> rowsToRemove;
 	for(auto * i : ui->creatures->selectedItems())
