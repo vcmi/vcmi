@@ -31,62 +31,40 @@ void CDownloadManager::downloadFile(const QUrl & url, const QString & file, qint
 	entry.url = url;
 	entry.filename = file;
 	entry.filePath = QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), file);
-	entry.file.reset(new QFile(QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), file)));
-	entry.downloadID = 0;
+entry.file.reset(new QFile(QString{QLatin1String{"%1/%2"}}.arg(CLauncherDirs::downloadsPath(), file)));
+entry.downloadID = 0;
 
 	entry.bytesReceived = 0;
 	entry.totalSize = bytesTotal;
 	entry.status = FileEntry::QUEUED;
 
-	if(entry.file->open(QIODevice::WriteOnly | QIODevice::Truncate))
-	{
-		// file prepared, download will start when this entry reaches queue head
-	}
-	else
-	{
-		entry.status = FileEntry::FAILED;
-		encounteredErrors += entry.file->errorString();
-	}
-
-	// even if failed - add it into list to report it in finished() call
 	currentDownloads.push_back(entry);
 	startNextDownloads();
+currentDownloads.push_back(entry);
+startNextDownloads();
 
-	currentDownloads.push_back(entry);
-	startNextDownloads();
-}
-
-CDownloadManager::FileEntry & CDownloadManager::getEntry(QNetworkReply * reply)
-{
-	for(auto & entry : currentDownloads)
-	{
-		if(entry.reply == reply)
-			return entry;
-	}
-
-	throw std::runtime_error("No matching download entry found");
 }
 
 CDownloadManager::FileEntry & CDownloadManager::getEntry(HttpDownloadID download)
-
 {
 	for(auto & entry : currentDownloads)
 	{
 		if(entry.status == FileEntry::IN_PROGRESS && !entry.url.isLocalFile() && entry.downloadID == download)
 			return entry;
 	}
-	throw std::runtime_error("Failed to find download entry " + std::to_string(download));
-}
+throw std::runtime_error("Failed to find download entry " + std::to_string(download));
 
 void CDownloadManager::onDownloadFinished(HttpDownloadID download, const std::string & errorMessage, bool certificateError)
 {
-	FileEntry & file = getEntry(reply);
-
 	if(certificateError)
 		certificateErrorEncountered = true;
+	finishEntry(getEntry(download), errorMessage);
+}
 
-	finishEntry(file, errorMessage);
+if(certificateError)
+	certificateErrorEncountered = true;
 
+finishEntry(getEntry(download), errorMessage);
 
 void CDownloadManager::finishEntry(FileEntry & file, const std::string & errorMessage)
 {
@@ -164,28 +142,12 @@ bool CDownloadManager::downloadInProgress(const QUrl & url) const
 	return false;
 }
 
-void CDownloadManager::startDownload(FileEntry & entry)
-
+void CDownloadManager::startNextDownloads()
 {
 	int downloadsInProgress = countDownloadsInProgress();
 
-	connect(entry.reply, SIGNAL(downloadProgress(qint64,qint64)),
-		SLOT(downloadProgressChanged(qint64,qint64)));
-}
-
-void CDownloadManager::startNextDownload()
-{
-	if(hasDownloadInProgress())
-		return;
-
-	for(auto & entry : currentDownloads)
+	for(qsizetype index = 0; index < currentDownloads.size() && downloadsInProgress < MAX_PARALLEL_DOWNLOADS; ++index)
 	{
-		if(entry.status != FileEntry::QUEUED)
-			continue;
-	}
-}
-
-void CDownloadManager::startNextDownloads()
 {
 	int downloadsInProgress = countDownloadsInProgress();
 
@@ -194,9 +156,12 @@ void CDownloadManager::startNextDownloads()
 		FileEntry & entry = currentDownloads[index];
 		if(entry.status != FileEntry::QUEUED)
 			continue;
-	}
 
-	{
+		startDownload(entry);
+		++downloadsInProgress;
+	}
+}
+
 		FileEntry & entry = currentDownloads[index];
 		if(entry.status != FileEntry::QUEUED)
 			continue;

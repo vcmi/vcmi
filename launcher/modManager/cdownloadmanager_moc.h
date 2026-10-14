@@ -12,10 +12,10 @@
 #include <QSharedPointer>
 #include <QtNetwork/QNetworkReply>
 #include "../../lib/network/HttpDownloader.h"
-
 #include <QTimer>
 #include <QUrl>
 
+#include "../../lib/network/HttpDownloader.h"
 
 #include <QTimer>
 #include <QUrl>
@@ -48,10 +48,8 @@ QStringList encounteredErrors;
 bool certificateErrorEncountered = false;
 QSet<QNetworkReply *> ignoredReplies;
 
-
 HttpDownloader downloader;
 QTimer pollTimer;
-
 
 	HttpDownloader downloader;
 	QTimer pollTimer;
@@ -67,7 +65,6 @@ bool openDownloadFile(FileEntry & entry);
 void copyLocalFile(FileEntry & entry);
 void finishEntry(FileEntry & entry, const std::string & errorMessage);
 void startDownload(FileEntry & entry);
-void startNextDownload();
 void startNextDownloads();
 bool hasDownloadInProgress() const;
 int countDownloadsInProgress() const;
