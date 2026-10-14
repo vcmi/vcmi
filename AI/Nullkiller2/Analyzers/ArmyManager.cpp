@@ -277,8 +277,12 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 		auto weakest = getBestUnitForScout(resultingArmy, armyTerrain);
 		if(weakest->count == 1)
 		{
-			if (resultingArmy.size() == 1)
-				logAi->warn("ArmyManager::getBestArmy Unexpected resulting army size!");
+			// the only wanted unit must stay in source, so target keeps what it has
+			if(resultingArmy.size() == 1)
+			{
+				newArmyInstance.clearSlots();
+				return getSortedSlots(target, &newArmyInstance);
+			}
 
 			resultingArmy.erase(weakest);
 		}
