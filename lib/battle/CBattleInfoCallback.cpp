@@ -2549,6 +2549,9 @@ si8 CBattleInfoCallback::battleMaxSpellLevel(BattleSide side) const
 
 std::optional<BattleSide> CBattleInfoCallback::battleIsFinished() const
 {
+	if(!duringBattle())
+		throw std::logic_error("battleIsFinished called when no battle!");
+
 	auto units = battleGetUnitsIf([=](const battle::Unit * unit)
 	{
 		return unit->alive() && !unit->isTurret() && !unit->hasBonusOfType(BonusType::SIEGE_WEAPON);

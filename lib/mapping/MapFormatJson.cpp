@@ -694,7 +694,7 @@ void CMapFormatJson::writeTriggeredEvent(const TriggeredEvent & event, JsonNode 
 	dest["effect"]["type"].String() = typeNames.at(static_cast<size_t>(event.effect.type));
 
 	if(!event.effect.toOtherMessage.empty())
-		event.description.jsonSerialize(dest["effect"]["messageToSend"]);
+		event.effect.toOtherMessage.jsonSerialize(dest["effect"]["messageToSend"]);
 
 	dest["condition"] = event.trigger.toJson(ConditionToJson);
 }

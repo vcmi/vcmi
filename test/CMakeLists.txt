@@ -53,7 +53,6 @@ set(test_SRCS
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
 		map/CGArtifactRegressionTest.cpp
-		map/MapComparer.cpp
 		map/MapScriptTest.cpp
 		map/MapObjectDrawOrderTest.cpp
 		map/TinyH3MBuilderTest.cpp
@@ -155,7 +154,6 @@ set(test_HEADERS
  		CVcmiTestConfig.h
 		JsonComparer.h
 
-		map/MapComparer.h
 
  		netpacks/NetPackFixture.h
 

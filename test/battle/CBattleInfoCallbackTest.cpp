@@ -159,7 +159,7 @@ public:
 	{
 	public:
 
-		const IBattleInfo * battle;
+		const IBattleInfo * battle = nullptr;
 		scripting::Pool * pool;
 
 		TestSubject(scripting::Pool * p)
@@ -760,9 +760,9 @@ public:
 	}
 };
 
-TEST_F(BattleFinishedTest, DISABLED_NoBattleIsDraw)
+TEST_F(BattleFinishedTest, NoBattleThrows)
 {
-	expectBattleDraw();
+	EXPECT_THROW(subject.battleIsFinished(), std::logic_error);
 }
 
 TEST_F(BattleFinishedTest, EmptyBattleIsDraw)

@@ -388,6 +388,7 @@ void Quest::serializeJson(JsonSerializeFormat & handler)
 		if(missionType == "PrimaryStat")
 		{
 			auto primarySkills = handler.enterStruct("primarySkills");
+			mission.primary.resize(GameConstants::PRIMARY_SKILLS); // limiter without "primary" key leaves it empty
 			for(int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
 				handler.serializeInt(NPrimarySkill::names[i], mission.primary[i], 0);
 		}
