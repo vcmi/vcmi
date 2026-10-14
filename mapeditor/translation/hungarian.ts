@@ -2724,17 +2724,17 @@ Adja hozzá a térkép szükséges modjai közé a Térkép-&gt;Általános beá
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="293"/>
         <source>Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Nap</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="298"/>
         <source>Week</source>
-        <translation type="unfinished"></translation>
+        <translation>Hét</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="303"/>
         <source>Month</source>
-        <translation type="unfinished"></translation>
+        <translation>Hónap</translation>
     </message>
 </context>
 <context>
