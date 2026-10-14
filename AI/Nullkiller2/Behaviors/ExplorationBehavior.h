@@ -15,6 +15,20 @@
 
 namespace NK2AI
 {
+struct BoatExplorationCandidate
+{
+	bool available = false;
+	int hiddenTilesDiscovered = 0;
+};
+
+struct BoatExplorationEvaluation
+{
+	bool accepted = false;
+	int explorationValue = 0;
+};
+
+BoatExplorationEvaluation evaluateBoatExplorationCandidate(const BoatExplorationCandidate & candidate);
+
 namespace Goals
 {
 	class ExplorationBehavior : public CGoal<ExplorationBehavior>

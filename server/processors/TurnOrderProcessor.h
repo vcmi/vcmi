@@ -67,10 +67,6 @@ class TurnOrderProcessor : boost::noncopyable
 
 	void updateAndNotifyContactStatus();
 
-	/// Sends current blocked contacts to all clients, so that AI can avoid attempting
-	/// to interact with objects of players that it has not met yet
-	void sendContactStatus();
-
 	std::vector<PlayerPair> computeContactStatus() const;
 
 	void doStartNewDay();
@@ -85,9 +81,6 @@ public:
 
 	bool isContactAllowed(PlayerColor left, PlayerColor right) const;
 	bool isPlayerMakingTurn(PlayerColor which) const;
-
-	/// Returns true if simultaneous turns may still be played on the current day
-	bool isSimturnsActive() const;
 
 	/// Add new player to handle (e.g. on game start)
 	void addPlayer(PlayerColor which);

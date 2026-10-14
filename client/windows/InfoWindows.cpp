@@ -39,25 +39,25 @@
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/ConditionalWait.h"
 
-CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()>>> & Buttons, QuestionID questionID)
+CSelWindow::CSelWindow( const std::string & Text, PlayerColor player, int charperline, const std::vector<std::shared_ptr<CSelectableComponent>> & comps, const std::vector<std::pair<AnimationPath, CFunctionList<void()>>> & Buttons, QueryID askID)
 {
 	OBJECT_CONSTRUCTION;
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos);
 
-	ID = questionID;
+	ID = askID;
 	for(int i = 0; i < Buttons.size(); i++)
 	{
 		buttons.push_back(std::make_shared<CButton>(Point(0, 0), Buttons[i].first, CButton::tooltip(), Buttons[i].second));
-		if(!i && questionID.getNum() >= 0)
+		if(!i && askID.getNum() >= 0)
 			buttons.back()->addCallback(std::bind(&CSelWindow::madeChoice, this));
 		buttons[i]->addCallback(std::bind(&CInfoWindow::close, this)); //each button will close the window apart from call-defined actions
 	}
 
 	text = std::make_shared<CTextBox>(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE);
 
-	if(buttons.size() > 1 && questionID.getNum() >= 0) //cancel button functionality
-		buttons.back()->addCallback([questionID](){GAME->interface()->cb->selectionMade(0, questionID);});
+	if(buttons.size() > 1 && askID.getNum() >= 0) //cancel button functionality
+		buttons.back()->addCallback([askID](){GAME->interface()->cb->selectionMade(0, askID);});
 
 	if(buttons.size() == 1)
 		buttons.front()->assignedKey = EShortcut::GLOBAL_RETURN;
@@ -101,7 +101,7 @@ CInfoWindow::CInfoWindow(const std::string & Text, PlayerColor player, const TCo
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DiBoxBck"), pos);
 
-	ID = QuestionID(-1);
+	ID = QueryID(-1);
 	for(const auto & Button : Buttons)
 	{
 		auto button = std::make_shared<CButton>(Point(0, 0), Button.first, CButton::tooltip(), std::bind(&CInfoWindow::close, this));
@@ -135,7 +135,7 @@ CInfoWindow::CInfoWindow(const std::string & Text, PlayerColor player, const TCo
 
 CInfoWindow::CInfoWindow()
 {
-	ID = QuestionID(-1);
+	ID = QueryID(-1);
 }
 
 void CInfoWindow::close()
@@ -144,22 +144,6 @@ void CInfoWindow::close()
 
 	if(GAME->interface())
 		GAME->interface()->showingDialog->setFree();
-}
-
-void CInfoWindow::closeAfter(uint32_t ms)
-{
-	closeTimeLeft = ms;
-	addUsedEvents(TIME);
-}
-
-void CInfoWindow::tick(uint32_t msPassed)
-{
-	if(closeTimeLeft == 0)
-		return;
-
-	closeTimeLeft -= std::min(closeTimeLeft, msPassed);
-	if(closeTimeLeft == 0)
-		close();
 }
 
 void CInfoWindow::showAll(Canvas & to)
@@ -175,7 +159,7 @@ void CInfoWindow::showInfoDialog(const std::string & text, const TCompsInfo & co
 	ENGINE->windows().pushWindow(CInfoWindow::create(text, player, components));
 }
 
-void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & components, const CFunctionList<void()> & onYes, const CFunctionList<void()> & onNo, PlayerColor player, uint32_t timeoutMs, QuestionID questionID)
+void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & components, const CFunctionList<void()> & onYes, const CFunctionList<void()> & onNo, PlayerColor player)
 {
 	assert(!GAME->interface() || GAME->interface()->showingDialog->isBusy());
 	std::vector<std::pair<AnimationPath, CFunctionList<void()>>> pom;
@@ -185,9 +169,6 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const TCompsInfo & c
 
 	temp->buttons[0]->addCallback(onYes);
 	temp->buttons[1]->addCallback(onNo);
-	temp->ID = questionID;
-	if(timeoutMs > 0)
-		temp->closeAfter(timeoutMs);
 
 	ENGINE->windows().pushWindow(temp);
 }

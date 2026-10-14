@@ -37,6 +37,7 @@
 #include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/pathfinder/TurnInfo.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../TurnStartVisitScheduler.h"
 
 #include <vstd/RNG.h>
 
@@ -160,13 +161,28 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 	}
 }
 
-void NewTurnProcessor::handleTurnStartEvents(PlayerColor which)
+void NewTurnProcessor::onPlayerTurnStarted(PlayerColor which)
 {
 	const auto * playerState = gameHandler->gameState().getPlayerState(which);
 
 	handleTimeEvents(which);
 	for (const auto * t : playerState->getTowns())
 		handleTownEvents(t);
+
+	std::deque<PendingTurnStartVisit> visits;
+
+	for (const auto * t : playerState->getTowns())
+	{
+		//garrison hero first - consistent with original H3 Mana Vortex and Battle Scholar Academy levelup windows order
+		if(t->getGarrisonHero() != nullptr)
+			visits.push_back({which, t->id, t->getGarrisonHero()->id});
+
+		if(t->getVisitingHero() != nullptr)
+			visits.push_back({which, t->id, t->getVisitingHero()->id});
+	}
+
+	gameHandler->turnStartVisitScheduler->enqueue(which, std::move(visits));
+	gameHandler->turnStartVisitScheduler->processNext(which);
 }
 
 void NewTurnProcessor::onPlayerTurnEnded(PlayerColor which)
@@ -326,7 +342,7 @@ SetAvailableCreatures NewTurnProcessor::generateTownGrowth(const CGTownInstance 
 		}
 
 		// Neutral towns have halved creature growth
-		if (!player.isValidPlayer() && !firstDay)
+		if (!player.isValidPlayer())
 			creatureGrowth /= 2;
 
 		uint32_t resultingCreatures = 0;
@@ -349,98 +365,103 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 	assert(t);
 	assert(!t->getOwner().isValidPlayer());
 
-	constexpr int randomRollsCount = 3; // sum of 3 random rolls gives simple bell curve distribution
-	constexpr int maxRollValue = 9; // roll range grows each week, but stops growing after 8 weeks
-	constexpr int upgradeChance = 5; // Chance for garrison to get an upgrade after growth
+	constexpr int randomRollsCounts = 3; // H3 makes around 3 random rolls to make simple bell curve distribution
+	constexpr int upgradeChance = 5; // Chance for a unit to get an upgrade
 	constexpr int growthChanceFort = 80; // Chance for growth to occur in towns with fort built
 	constexpr int growthChanceVillage = 40; // Chance for growth to occur in towns without fort
-	constexpr std::array<int, 7> maxRollSumForLevel = {2, 5, 9, 14, 18, 21, 27};
 
-	auto & rng = gameHandler->getRandomGenerator();
-
-	int growthChance = t->hasFort() ? growthChanceFort : growthChanceVillage;
-	if (rng.nextInt(0, 99) >= growthChance)
-		return;
-
-	int rollsSum = 0;
-	for(int i = 0; i < randomRollsCount; ++i)
-		rollsSum += rng.nextInt(0, std::min(currentWeek, maxRollValue));
-
-	size_t levelToGrow = 0;
-	while (rollsSum > maxRollSumForLevel.at(levelToGrow))
-		levelToGrow++;
-
-	const auto & townCreatures = t->getTown()->creatures;
-	if (levelToGrow >= townCreatures.size() || townCreatures[levelToGrow].empty())
-		return;
-
-	const auto & levelCreatures = townCreatures[levelToGrow];
-	const CCreature * baseCreature = levelCreatures.front().toCreature();
-	const int growthAmount = baseCreature->getGrowth();
-
-	const auto & takeFromAvailable = [this, t, levelToGrow, growthAmount]()
+	const auto & takeFromAvailable = [this, t](CreatureID creatureID)
 	{
-		int creaturesAvailable = t->creatures.at(levelToGrow).first;
-		int creaturesLeft = std::max(0, creaturesAvailable - growthAmount);
+		int tierToSubstract = -1;
+		for (int i = 0; i < t->getTown()->creatures.size(); ++i)
+			if (vstd::contains(t->getTown()->creatures[i], creatureID))
+				tierToSubstract = i;
+
+		if (tierToSubstract == -1)
+			return; // impossible?
+
+		int creaturesAvailable = t->creatures[tierToSubstract].first;
+		int creaturesRecruited = creatureID.toCreature()->getGrowth();
+		int creaturesLeft = std::max(0, creaturesAvailable - creaturesRecruited);
 
 		if (creaturesLeft != creaturesAvailable)
 		{
 			SetAvailableCreatures sac;
 			sac.tid = t->id;
 			sac.creatures = t->creatures;
-			sac.creatures.at(levelToGrow).first = creaturesLeft;
+			sac.creatures[tierToSubstract].first = creaturesLeft;
 			gameHandler->sendAndApply(sac);
 		}
 	};
 
-	// If garrison already has upgraded creature of this level, new creatures join it
-	for(const auto & [slotID, stack] : t->Slots())
+	int growthChance = t->hasFort()	? growthChanceFort : growthChanceVillage;
+	int growthRoll = gameHandler->getRandomGenerator().nextInt(0, 99);
+
+	if (growthRoll >= growthChance)
+		return;
+
+	int tierRoll = 0;
+	for(int i = 0; i < randomRollsCounts; ++i)
+		tierRoll += gameHandler->getRandomGenerator().nextInt(0, currentWeek);
+
+	// NOTE: determined by observing H3 games, might not match H3 100%
+	int tierToGrow = std::clamp(tierRoll / randomRollsCounts, 0, 6) + 1;
+
+	bool upgradeUnit = gameHandler->getRandomGenerator().nextInt(0, 99) < upgradeChance;
+
+	// Check if town garrison already has unit of specified tier
+	for(const auto & slot : t->Slots())
 	{
-		CreatureID creatureID = stack->getCreatureID();
-		if (creatureID == baseCreature->getId() || !vstd::contains(levelCreatures, creatureID))
+		const auto * creature = slot.second->getCreature();
+
+		if (creature->getFactionID() != t->getFactionID())
 			continue;
 
-		gameHandler->changeStackCount(StackLocation(t->id, slotID), growthAmount, ChangeValueMode::RELATIVE);
-		takeFromAvailable();
+		if (creature->getLevel() != tierToGrow)
+			continue;
+
+		StackLocation stackLocation(t->id, slot.first);
+		gameHandler->changeStackCount(stackLocation, creature->getGrowth(), ChangeValueMode::RELATIVE);
+		takeFromAvailable(creature->getGrowth());
+
+		if (upgradeUnit && !creature->upgrades.empty())
+		{
+			CreatureID upgraded = *RandomGeneratorUtil::nextItem(creature->upgrades, gameHandler->getRandomGenerator());
+			gameHandler->changeStackType(stackLocation, upgraded.toCreature());
+		}
+		else
+			gameHandler->changeStackType(stackLocation, creature);
 		return;
 	}
 
-	SlotID targetSlot = t->getSlotFor(baseCreature);
-	if (!targetSlot.validSlot())
+	// No existing creatures in garrison, but we have a free slot we can use
+	SlotID freeSlotID = t->getFreeSlot();
+	if (freeSlotID.validSlot())
 	{
-		// All slots are taken - replace weakest stack, but only if it is weaker than new creatures
-		SlotID weakestSlot;
-		for(const auto & slot : t->Slots())
-			if (!weakestSlot.validSlot() || t->getPower(slot.first) < t->getPower(weakestSlot))
-				weakestSlot = slot.first;
+		for (auto const & tierVector : t->getTown()->creatures)
+		{
+			CreatureID baseCreature	= tierVector.at(0);
 
-		uint64_t growthPower = static_cast<uint64_t>(baseCreature->getAIValue()) * growthAmount;
-		if (!weakestSlot.validSlot() || t->getPower(weakestSlot) >= growthPower)
+			if (baseCreature.toEntity(LIBRARY)->getLevel() != tierToGrow)
+				continue;
+
+			StackLocation stackLocation(t->id, freeSlotID);
+
+			if (upgradeUnit && !baseCreature.toCreature()->upgrades.empty())
+			{
+				CreatureID upgraded = *RandomGeneratorUtil::nextItem(baseCreature.toCreature()->upgrades, gameHandler->getRandomGenerator());
+				gameHandler->insertNewStack(stackLocation, upgraded.toCreature(), upgraded.toCreature()->getGrowth());
+				takeFromAvailable(upgraded.toCreature()->getGrowth());
+			}
+			else
+			{
+				gameHandler->insertNewStack(stackLocation, baseCreature.toCreature(), baseCreature.toCreature()->getGrowth());
+				takeFromAvailable(baseCreature.toCreature()->getGrowth());
+			}
+
 			return;
-
-		gameHandler->eraseStack(StackLocation(t->id, weakestSlot), true);
-		targetSlot = weakestSlot;
+		}
 	}
-
-	StackLocation targetLocation(t->id, targetSlot);
-	if (t->hasStackAtSlot(targetSlot))
-		gameHandler->changeStackCount(targetLocation, growthAmount, ChangeValueMode::RELATIVE);
-	else
-		gameHandler->insertNewStack(targetLocation, baseCreature, growthAmount);
-	takeFromAvailable();
-
-	if (levelCreatures.size() < 2 || rng.nextInt(0, 99) >= upgradeChance)
-		return;
-
-	// Upgrade all stacks of newly added creature
-	const CCreature * upgradedCreature = levelCreatures.at(rng.nextInt(1, levelCreatures.size() - 1)).toCreature();
-	std::vector<SlotID> slotsToUpgrade;
-	for(const auto & [slotID, stack] : t->Slots())
-		if (stack->getCreatureID() == baseCreature->getId())
-			slotsToUpgrade.push_back(slotID);
-
-	for(const auto & slotID : slotsToUpgrade)
-		gameHandler->changeStackType(StackLocation(t->id, slotID), upgradedCreature);
 }
 
 RumorState NewTurnProcessor::pickNewRumor()
@@ -450,13 +471,8 @@ RumorState NewTurnProcessor::pickNewRumor()
 	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
 	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
 															  RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
-	const int3 & grailPos = gameHandler->gameState().getMap().grailPos;
-	if(grailPos.isValid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
-	{
-		// terrains from mods may have no text for this rumor
-		if (!gameHandler->gameState().getTile(grailPos)->getTerrain()->grailRumorTextID.empty())
-			sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
-	}
+	if(gameHandler->gameState().getMap().grailPos.isValid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
+		sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
 
 	int rumorId = -1;
 	int rumorExtra = -1;

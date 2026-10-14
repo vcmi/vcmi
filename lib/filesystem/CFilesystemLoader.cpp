@@ -59,16 +59,13 @@ std::optional<boost::filesystem::path> CFilesystemLoader::getResourceName(const 
 	return baseDirectory / fileList.at(resourceName);
 }
 
-bool CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string &)> filter)
+void CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string &)> filter)
 {
-	if (!filter(mountPoint))
-		return false;
-
-	std::lock_guard lock(fileListGuard);
-	auto newFileList = listFiles(mountPoint, recursiveDepth, false);
-	bool changed = newFileList != fileList;
-	fileList = std::move(newFileList);
-	return changed;
+	if (filter(mountPoint))
+	{
+		std::lock_guard lock(fileListGuard);
+		fileList = listFiles(mountPoint, recursiveDepth, false);
+	}
 }
 
 std::unordered_set<ResourcePath> CFilesystemLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const

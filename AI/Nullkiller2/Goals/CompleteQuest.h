@@ -42,8 +42,6 @@ namespace Goals
 		TGoalVec missionIncreasePrimaryStat(const Nullkiller * aiNk) const;
 		TGoalVec missionLevel(const Nullkiller * aiNk) const;
 		TGoalVec missionKeymaster(const Nullkiller * aiNk) const;
-		/// Visits known objects with a reward accepted by the predicate, for missions a hero can grow into
-		TGoalVec visitObjectsGranting(const Nullkiller * aiNk, const std::function<bool(const Rewardable::Reward &)> & grantsProgress) const;
 		std::string questToString() const;
 	};
 }

@@ -9,12 +9,15 @@
  */
 #pragma once
 
+#include <QSharedPointer>
+#include <QtNetwork/QNetworkReply>
 #include "../../lib/network/HttpDownloader.h"
-
 #include <QTimer>
 #include <QUrl>
 
-class CDownloadManager : public QObject, public IHttpDownloaderListener
+class QFile;
+
+class CDownloadManager : public QObject
 {
 	Q_OBJECT
 
@@ -29,30 +32,43 @@ class CDownloadManager : public QObject, public IHttpDownloaderListener
 		};
 
 		QUrl url;
+		QNetworkReply * reply;
+		QSharedPointer<QFile> file;
 		QString filename;
-		QString filePath;
 		Status status;
-		HttpDownloadID downloadID;
 		qint64 bytesReceived;
 		qint64 totalSize;
 	};
 
 	QStringList encounteredErrors;
-	bool certificateErrorEncountered = false;
+QStringList encounteredErrors;
+bool certificateErrorEncountered = false;
+QSet<QNetworkReply *> ignoredReplies;
 
-	HttpDownloader downloader;
-	QTimer pollTimer;
+HttpDownloader downloader;
+QTimer pollTimer;
+
+QNetworkAccessManager manager;
+
+	QNetworkAccessManager manager;
 
 	QList<FileEntry> currentDownloads;
 
-	FileEntry & getEntry(HttpDownloadID download);
-	void copyLocalFile(FileEntry & entry);
-	void finishEntry(FileEntry & entry, const std::string & errorMessage);
-	void startNextDownloads();
-	int countDownloadsInProgress() const;
+QList<FileEntry> currentDownloads;
+bool downloadsPaused = false;
 
-	void onDownloadProgress(HttpDownloadID download, uint64_t received, uint64_t total) override;
-	void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage, bool certificateError) override;
+FileEntry & getEntry(HttpDownloadID download);
+FileEntry & getEntry(QNetworkReply * reply);
+bool openDownloadFile(FileEntry & entry);
+void copyLocalFile(FileEntry & entry);
+void finishEntry(FileEntry & entry, const std::string & errorMessage);
+void startDownload(FileEntry & entry);
+void startNextDownloads();
+bool hasDownloadInProgress() const;
+int countDownloadsInProgress() const;
+
+void onDownloadProgress(HttpDownloadID download, uint64_t received, uint64_t total) override;
+void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage, bool certificateError) override;
 
 public:
 	CDownloadManager();
@@ -61,10 +77,12 @@ public:
 	// FIXME: not sure what's right place for "mod download in progress" check
 	bool downloadInProgress(const QUrl & url) const;
 
+	// returns network reply so caller can connect to required signals
 	void downloadFile(const QUrl & url, const QString & file, qint64 bytesTotal = 0);
 
-	/// returns true if any download failed because certificate of the server could not be verified
-	bool hasCertificateErrors() const;
+public slots:
+	void downloadFinished(QNetworkReply * reply);
+	void downloadProgressChanged(qint64 bytesReceived, qint64 bytesTotal);
 
 signals:
 	// for status bar updates. Merges all queued downloads into one

@@ -34,7 +34,7 @@ public:
 	AdventureSpellMechanics(const CSpell * s);
 	~AdventureSpellMechanics();
 
-	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;
+	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
 	int getCastsLimit(const spells::Caster * caster, const int3 & mapSize) const final;
 	int getCastsAlreadyPerformed(const spells::Caster * caster) const final;
 

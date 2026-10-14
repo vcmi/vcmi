@@ -49,9 +49,12 @@ private:
 
 class TownRewardableBuildingInstance : public TownBuildingInstance, public Rewardable::Interface
 {
+	/// reward selected by player, no serialize
+	ui16 selectedReward = 0;
 	std::set<ObjectInstanceID> visitors;
 
 	bool wasVisitedBefore(const CGHeroInstance * contextHero) const override;
+	void grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const override;
 	Rewardable::Configuration generateConfiguration(IGameRandomizer & gameRandomizer) const;
 	void assignBonuses(std::vector<std::shared_ptr<Bonus>> & bonuses) const;
 
@@ -67,10 +70,10 @@ public:
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 	
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
-	void experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const override;
+	void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const override;
 	
 	/// applies player selection of reward
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 	
 	TownRewardableBuildingInstance(CGTownInstance * town, const BuildingID & index, IGameRandomizer & gameRandomizer);
 	TownRewardableBuildingInstance(IGameInfoCallback *cb);

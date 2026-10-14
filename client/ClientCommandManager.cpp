@@ -77,6 +77,51 @@ void ClientCommandManager::handleLoadCommand(std::istringstream& singleWordBuffe
 	//GAME->server().client->loadGame(fname);
 }
 
+void ClientCommandManager::handleGoSoloCommand()
+{
+	Settings session = settings.write["session"];
+
+	std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+
+	if(!GAME->server().client)
+	{
+		printCommandMessage("Game is not in playing state");
+		return;
+	}
+
+	if(session["aiSolo"].Bool())
+	{
+		// unlikely it will work but just in case to be consistent
+		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
+		{
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.count(color) && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			{
+				GAME->server().client->installNewPlayerInterface(std::make_shared<CPlayerInterface>(color), color);
+			}
+		}
+	}
+	else
+	{
+		PlayerColor currentColor = GAME->interface()->playerID;
+		GAME->server().client->removeGUI();
+
+		for(auto & color : GAME->server().getAllClientPlayers(GAME->server().logicConnection->connectionID))
+		{
+			if(color.isValidPlayer() && GAME->server().client->gameInfo().getStartInfo()->playerInfos.at(color).isControlledByHuman())
+			{
+				auto AiToGive = GAME->server().client->aiNameForPlayer(*GAME->server().client->gameInfo().getPlayerSettings(color), false, false);
+				printCommandMessage("Player " + color.toString() + " will be lead by " + AiToGive, ELogLevel::INFO);
+				GAME->server().client->installNewPlayerInterface(AIFactory::createAdventureAI(AiToGive), color);
+			}
+		}
+
+		ENGINE->windows().totalRedraw();
+		giveTurn(currentColor);
+	}
+
+	session["aiSolo"].Bool() = !session["aiSolo"].Bool();
+}
+
 void ClientCommandManager::handleAutoskipCommand()
 {
 		Settings session = settings.write["session"];
@@ -234,19 +279,8 @@ void ClientCommandManager::handleTranslateMapsCommand()
 		}
 	}
 
-	// map and campaign texts are owned by maps and campaigns themselves, not by the library
 	std::map<std::string, ExportedStrings> textsByMod;
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
-
-	for (auto const & map : loadedMaps)
-		map->texts->exportAllTexts(textsByMod, false);
-
-	for (auto const & campaign : loadedCampaigns)
-	{
-		campaign->getTexts()->exportAllTexts(textsByMod, false);
-		for (auto const & scenarioTexts : campaign->getScenarioTexts())
-			scenarioTexts.second->exportAllTexts(textsByMod, false);
-	}
 
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "translation";
 	boost::filesystem::create_directories(outPath);
@@ -592,19 +626,22 @@ void ClientCommandManager::printCommandMessage(const std::string &commandMessage
 
 	if(currentCallFromIngameConsole)
 	{
-		// commands run with ENGINE->interfaceMutex already locked, so the message is handed
-		// over to the main thread instead of locking the non-recursive mutex a second time
-		ENGINE->dispatchMainThread([commandMessage]()
+		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
+		if(GAME->interface() && GAME->interface()->cingconsole)
 		{
-			if(GAME->interface() && GAME->interface()->cingconsole)
-				GAME->interface()->cingconsole->addMessage("", "System", commandMessage);
-		});
+			GAME->interface()->cingconsole->addMessage("", "System", commandMessage);
+		}
 	}
 }
 
 void ClientCommandManager::giveTurn(const PlayerColor &colorIdentifier)
 {
-	GAME->server().client->giveTurnLocally(colorIdentifier);
+	PlayerStartsTurn yt;
+	yt.player = colorIdentifier;
+	yt.queryID = QueryID::NONE;
+
+	ApplyClientNetPackVisitor visitor(*GAME->server().client, GAME->server().client->gameState());
+	yt.visit(visitor);
 }
 
 void ClientCommandManager::processCommand(const std::string & message, bool calledFromIngameConsole)
@@ -627,6 +664,9 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(commandName=="load")
 		handleLoadCommand(singleWordBuffer); // not implemented
+
+	else if(commandName == "gosolo")
+		handleGoSoloCommand();
 
 	else if(commandName == "autoskip")
 		handleAutoskipCommand();

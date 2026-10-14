@@ -170,8 +170,9 @@ void DestinationActionRule::process(
 			else if(const auto * source = destination.nodeObject->asQuestSource();
 				source && source->requiresQuestToPass() && !destination.nodeObject->isBlockedVisitable())
 			{
+				const auto * quest = source->getActiveQuest();
 				// first encounter: stop so the player learns of the gate before passing through
-				if(source->requiresVisitBeforePassing(hero->getOwner()))
+				if(quest && !quest->isKnownTo(hero->getOwner()))
 					action = EPathNodeAction::BLOCKING_VISIT;
 				else if(destination.nodeObject->passableFor(hero))
 				{

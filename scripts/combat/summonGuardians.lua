@@ -20,7 +20,10 @@ local function checkAndPush(hexes, hex)
 	table.insert(hexes, hex)
 end
 
---- Returns H3 guardian positions for double-wide guardians, excluding unavailable hexes.
+--- Hexes for guarding a unit with double-wide guardians. Covers all hexes surrounding the guarded
+--- unit with as few stacks as possible: front, back and one per side for a single-hex target; a
+--- wider target needs two per side plus an extra hex in front. Guardians that would land outside
+--- the battlefield are dropped, which is what the position checks are for.
 function Script:guardianHexes(battle, position, side, targetIsTwoHex)
 	local hexes = {}
 	local x = position:getX()
@@ -28,7 +31,7 @@ function Script:guardianHexes(battle, position, side, targetIsTwoHex)
 	local fieldWidth = battle:getFieldWidth()
 	local targetIsAttacker = side == ENUM.BattleSide.attacker
 
-	-- H3 placements cannot start units near the opposite battlefield edge.
+	-- front guardians. Units starting near the opposite side of the battlefield cannot happen in H3
 	if targetIsAttacker then
 		checkAndPush(hexes, position:copyToEast():copyToEast())
 	else
@@ -40,7 +43,7 @@ function Script:guardianHexes(battle, position, side, targetIsTwoHex)
 			checkAndPush(hexes, position:copyToNorthEast())
 			checkAndPush(hexes, position:copyToSouthEast())
 		else
-				-- Two-hex targets use rear positions; one-hex targets use side positions.
+			-- back-side guardians for a two-hex target, side guardians for a one-hex one
 			checkAndPush(hexes, targetIsTwoHex and position:copyToNorthWest() or position:copyToNorthEast())
 			checkAndPush(hexes, targetIsTwoHex and position:copyToSouthWest() or position:copyToSouthEast())
 
@@ -72,7 +75,8 @@ function Script:guardianHexes(battle, position, side, targetIsTwoHex)
 				end
 			end
 		end
-	-- At the allied edge, use front positions because rear hexes are unavailable.
+	-- a unit starting against its own edge of the battlefield has no room behind it, so its
+	-- guardians go in front instead
 	elseif not targetIsAttacker and (y % 2 == 0) then
 		checkAndPush(hexes, position:copyToWest():copyToNorthWest())
 		checkAndPush(hexes, position:copyToWest():copyToSouthWest())

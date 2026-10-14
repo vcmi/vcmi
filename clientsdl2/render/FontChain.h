@@ -18,11 +18,10 @@ class FontChain final : public IFont
 	struct TextChunk
 	{
 		const IFont * font;
-		std::string_view text;
+		std::string text;
 	};
 
-	/// Chunks are views into `data`, which must outlive them
-	std::vector<TextChunk> splitTextToChunks(std::string_view data) const;
+	std::vector<TextChunk> splitTextToChunks(const std::string & data) const;
 
 	std::vector<std::unique_ptr<IFont>> chain;
 
@@ -37,6 +36,6 @@ public:
 
 	size_t getLineHeightScaled() const override;
 	size_t getGlyphWidthScaled(const char * data) const override;
-	size_t getStringWidthScaled(std::string_view data) const override;
+	size_t getStringWidthScaled(const std::string & data) const override;
 	bool canRepresentCharacter(const char * data) const override;
 };

@@ -16,7 +16,6 @@
 class MetaString;
 class IGameInfoCallback;
 class IGameRandomizer;
-class TextIdentifier;
 
 namespace Rewardable
 {
@@ -43,7 +42,7 @@ class DLL_LINKAGE Info : public IObjectInfo
 	void configureLimiter(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, Rewardable::Limiter & limiter, const JsonNode & source) const;
 	Rewardable::LimitersList configureSublimiters(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, const JsonNode & source) const;
 
-	void configureReward(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, Rewardable::Reward & info, const JsonNode & source, const TextIdentifier & textIdentifier) const;
+	void configureReward(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, Rewardable::Reward & info, const JsonNode & source) const;
 	void configureResetInfo(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, Rewardable::ResetInfo & info, const JsonNode & source) const;
 public:
 	const JsonNode & getParameters() const;

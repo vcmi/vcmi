@@ -11,7 +11,6 @@
 
 #include <vcmi/spells/Magic.h>
 
-#include "Destination.h"
 #include "ReachabilityInfo.h"
 #include "BattleAttackInfo.h"
 
@@ -138,8 +137,6 @@ public:
 	/// preview of damage / restored HP and units killed or raised/summoned for given parameters
 	/// returns hpDelta and unitsDelta
 	SpellEffectValUptr getSpellEffectValue(const CSpell * spell, const spells::Caster * caster, const spells::Mode spellMode, const BattleHex & targetHex) const;
-	/// same preview for an explicit aim; if an effect resolves no targets, a unit in the last aim point is evaluated alone
-	SpellEffectValUptr getSpellEffectValue(const CSpell * spell, const spells::Caster * caster, const spells::Mode spellMode, const battle::Target & aim) const;
 
 	/// damage estimation for spell-like-attack case, eg. Death Cloud
 	DamageEstimation estimateSpellLikeAttackDamage(const battle::Unit * shooter, const CSpell * spell,const BattleHex & aimHex) const;

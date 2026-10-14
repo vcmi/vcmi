@@ -47,8 +47,10 @@ int IImage::height() const
 }
 
 SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group)
-	: margins(0, 0),
-	fullSize(0, 0)
+	: surf(nullptr),
+	margins(0, 0),
+	fullSize(0, 0),
+	originalPalette(nullptr)
 {
 	SDLImageLoader loader(this);
 	data->loadFrame(frame, group, loader);
@@ -57,8 +59,10 @@ SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group
 }
 
 SDLImageShared::SDLImageShared(SDL_Surface * from, bool premultipliedAlpha)
-	: margins(0, 0),
+	: surf(nullptr),
+	margins(0, 0),
 	fullSize(0, 0),
+	originalPalette(nullptr),
 	premultipliedAlpha(premultipliedAlpha)
 {
 	surf = from;
@@ -73,8 +77,10 @@ SDLImageShared::SDLImageShared(SDL_Surface * from, bool premultipliedAlpha)
 }
 
 SDLImageShared::SDLImageShared(const ImagePath & filename, bool optimizeImage)
-	: margins(0, 0),
-	fullSize(0, 0)
+	: surf(nullptr),
+	margins(0, 0),
+	fullSize(0, 0),
+	originalPalette(nullptr)
 {
 	surf = BitmapHandler::loadBitmap(filename);
 
@@ -273,8 +279,8 @@ bool SDLImageShared::scaledDrawTexture(SDL_Renderer * renderer, SDL_Palette * pa
 
 	if(flip.any())
 	{
-		const auto flipMode = static_cast<SDL_FlipMode>((flip.x ? SDL_FLIP_HORIZONTAL : 0) | (flip.y ? SDL_FLIP_VERTICAL : 0));
-		SDL_RenderTextureRotated(renderer, source, &sdlSource, &sdlTarget, 0.0, nullptr, flipMode);
+		const auto mode = static_cast<SDL_FlipMode>((flip.x ? SDL_FLIP_HORIZONTAL : 0) | (flip.y ? SDL_FLIP_VERTICAL : 0));
+		SDL_RenderTextureRotated(renderer, source, &sdlSource, &sdlTarget, 0.0, nullptr, mode);
 	}
 	else
 		SDL_RenderTexture(renderer, source, &sdlSource, &sdlTarget);

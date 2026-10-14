@@ -27,9 +27,9 @@ protected:
 	{
 		std::shared_ptr<CIntObject> selection;
 	public:
-		CList * owner;
+		CList * parent;
 
-		CListItem(CList * owner);
+		CListItem(CList * parent);
 		~CListItem();
 
 		void showPopupWindow(const Point & cursorPosition) override;

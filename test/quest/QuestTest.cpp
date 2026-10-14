@@ -14,9 +14,6 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
-#include "../../lib/pathfinder/CGPathNode.h"
-#include "../../lib/pathfinder/CPathfinder.h"
-#include "../../lib/pathfinder/PathfinderOptions.h"
 
 void QuestTest::onMapStarted()
 {
@@ -34,9 +31,7 @@ void QuestTest::visit(CGHeroInstance * hero, CGObjectInstance * obj)
 {
 	ASSERT_NE(hero, nullptr);
 	ASSERT_NE(obj, nullptr);
-	visitedObject = obj;
 	obj->onHeroVisit(gameEvents(), hero);
-	finishExperienceGrants(hero);
 }
 
 void QuestTest::answerDialog(CGHeroInstance * hero, int32_t answer)
@@ -46,17 +41,12 @@ void QuestTest::answerDialog(CGHeroInstance * hero, int32_t answer)
 	auto & queue = gameEvents().blockingDialogs;
 	ASSERT_FALSE(queue.empty())
 		<< "answerDialog called with no pending BlockingDialog — visit must enqueue one first";
+	auto captured = queue.back();
 	queue.pop_back();
 
-	ASSERT_NE(visitedObject, nullptr) << "answerDialog called before any visit";
-	visitedObject->blockingDialogAnswered(gameEvents(), hero, answer, std::exchange(gameEvents().visitState, {}));
-	finishExperienceGrants(hero);
-}
-
-void QuestTest::finishExperienceGrants(CGHeroInstance * hero)
-{
-	while(std::exchange(gameEvents().experienceGranted, false))
-		visitedObject->experienceApplied(gameEvents(), hero, std::exchange(gameEvents().visitState, {}));
+	ASSERT_NE(captured.caller, nullptr)
+		<< "captured BlockingDialog has no caller; blockingDialogAnswered would have nothing to dispatch on";
+	captured.caller->blockingDialogAnswered(gameEvents(), hero, answer);
 }
 
 void QuestTest::advanceDays(int days)
@@ -71,15 +61,4 @@ void QuestTest::advanceDays(int days)
 	for(const auto & obj : map()->objects)
 		if(obj)
 			obj->newTurn(gameEvents(), randomizer);
-}
-
-EPathNodeAction QuestTest::pathActionAt(const CGHeroInstance * hero, const int3 & tile)
-{
-	revealMap(hero->getOwner());
-
-	CPathsInfo paths(gameState()->getMapSize(), hero);
-	auto config = std::make_shared<SingleHeroPathfinderConfig>(paths, *gameState(), hero);
-	CPathfinder pathfinder(*gameState(), config);
-	pathfinder.calculatePaths();
-	return paths.getNode(tile, EPathfindingLayer::LAND)->action;
 }

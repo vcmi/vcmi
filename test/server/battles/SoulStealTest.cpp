@@ -33,6 +33,8 @@ public:
 
 		victim = addStack(BattleSide::ATTACKER, creatureByName(victimCreature), BattleHex(leftHex), victimCount);
 		stealer = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), stealerCount);
+		ASSERT_NE(victim, nullptr);
+		ASSERT_NE(stealer, nullptr);
 
 		blockRetaliation(stealer);
 	}
@@ -67,7 +69,7 @@ TEST_F(SoulStealTest, TakesNoSoulsFromTheUndead)
 
 TEST_F(SoulStealTest, KillingNobodyGainsNothing)
 {
-	// one black dragon has more health than the whole attacking stack can deal in one hit
+	// one black dragon has more health than the whole attacking stack can deal in one blow
 	setUpBattle("core:blackDragon");
 
 	ASSERT_TRUE(attack(stealer, BattleHex(leftHex)));

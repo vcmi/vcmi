@@ -89,36 +89,19 @@ ESpellCastResult SummonBoatEffect::applyAdventureEffects(SpellCastEnvironment * 
 
 	if (useExistingBoat)
 	{
-		// H3: only boats that are owned by caster or not owned by anyone can be summoned
-		// the boat last used by the caster is preferred, then the nearest one in Manhattan metric (levels are ignored), the last one wins ties
-		const auto * caster = parameters.caster->getHeroCaster();
-		const int3 heroPos = caster->visitablePos();
-
-		auto isCandidate = [&](const CGBoat * b)
+		double dist = 0;
+		for(const auto & b : env->getMap()->getObjects<CGBoat>())
 		{
 			if(b->getBoardedHero() || b->layer != EPathfindingLayer::SAIL)
-				return false;
-			return !b->tempOwner.isValidPlayer() || b->tempOwner == parameters.caster->getCasterOwner();
-		};
+				continue; //we're looking for unoccupied boat
 
-		auto rank = [&](const CGBoat * b)
-		{
-			const int3 boatPos = b->visitablePos();
-			const int dist = std::abs(boatPos.x - heroPos.x) + std::abs(boatPos.y - heroPos.y);
-			return std::make_pair(b->getLastHeroID() != caster->id, dist);
-		};
-
-		const auto boats = env->getMap()->getObjects<CGBoat>();
-		std::vector<const CGBoat *> candidates;
-		std::copy_if(boats.begin(), boats.end(), std::back_inserter(candidates), isCandidate);
-
-		// reversed iteration makes the last of equally ranked boats win
-		auto best = std::ranges::min_element(candidates.rbegin(), candidates.rend(), [&](const CGBoat * l, const CGBoat * r)
-		{
-			return rank(l) < rank(r);
-		});
-		if(best != candidates.rend())
-			nearest = *best;
+			double nDist = b->visitablePos().dist2d(parameters.caster->getHeroCaster()->visitablePos());
+			if(!nearest || nDist < dist) //it's first boat or closer than previous
+			{
+				nearest = b;
+				dist = nDist;
+			}
+		}
 	}
 
 	int3 summonPos = parameters.caster->getHeroCaster()->bestLocation();

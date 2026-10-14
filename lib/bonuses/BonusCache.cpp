@@ -56,11 +56,6 @@ bool BonusValueCache::hasBonus() const
 	return getBonusValueImpl(value, selector, BonusCacheMode::PRESENCE);
 }
 
-int BonusDerivedValueCache::getTreeVersion() const
-{
-    return target->getTreeVersion();
-}
-
 MagicSchoolMasteryCache::MagicSchoolMasteryCache(const IBonusBearer * target)
 	:target(target)
 	,schools(LIBRARY->spellSchoolHandler->getAllObjects().size() + 1)

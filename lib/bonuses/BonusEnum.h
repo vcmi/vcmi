@@ -127,7 +127,7 @@ class JsonNode;
 	BONUS_NAME(CREATURE_SPELL_POWER) /* value per unit, divided by 100 (so faerie Dragons have 800)*/ \
 	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells cast by creature */ \
 	BONUS_NAME(UNUSED_ENCHANTED) /*DEPRECATED, kept so that old configs and saves still convert*/\
-	BONUS_NAME(UNUSED_REBIRTH) /*DEPRECATED, kept so that old configs and saves still convert*/\
+	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */\
 	BONUS_NAME(DISGUISED) /* subtype - spell level */\
 	BONUS_NAME(VISIONS) /* subtype - spell level */\
 	BONUS_NAME(NO_TERRAIN_PENALTY) /* subtype - terrain type */\
@@ -213,7 +213,6 @@ class JsonNode;
 	BONUS_NAME(ALIGNMENT_MIX) /*creatures of alignment in subtype can be mixed with other mixable alignments without morale penalty*/\
 	BONUS_NAME(BLOCK_CREATURE_MAGIC) /*blocks casting of magical spells and abilities by creatures, eg. Cursed Ground*/ \
 	BONUS_NAME(BLOCK_NATIVE_TERRAIN_BONUS) /*blocks bonuses of native terrain for creatures, eg. Cursed Ground*/ \
-	BONUS_NAME(GRANTS_SPELLBOOK) /*equipped artifact grants a Spell Book if hero does not already have one*/\
 
 	/* end of list */
 

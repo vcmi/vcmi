@@ -16,7 +16,6 @@ class CGObjectInstance;
 class CGHeroInstance;
 class SeerHut;
 class QuestGuard;
-enum class EPathNodeAction : ui8;
 
 /// Test fixture for scenarios involving quest objects. Loads a TinyH3MBuilder
 /// scenario into a live CGameState and exposes helpers for the everyday
@@ -40,26 +39,16 @@ public:
 	/// Walk `hero` onto `obj` and trigger its visit handler.
 	void visit(CGHeroInstance * hero, CGObjectInstance * obj);
 
-	/// Answer the most recent BlockingDialog, delivered to the last visited object as the
-	/// server does. Fails if none is pending.
+	/// Answer the most recent BlockingDialog. Fails if none is pending.
 	void answerDialog(CGHeroInstance * hero, int32_t answer);
 
 	/// Advance the in-game calendar by `days`.
 	void advanceDays(int days);
-
-	/// Action the pathfinder assigns to `hero` stepping onto `tile`. Reveals the
-	/// map first, so the answer is not "unreachable" merely due to fog of war.
-	EPathNodeAction pathActionAt(const CGHeroInstance * hero, const int3 & tile);
 
 protected:
 	void onMapStarted() override;
 	GameEventCallbackMock & gameEvents() const { return *gameEventCallback; }
 
 private:
-	/// Delivers experienceApplied() owed by experience granted in the last call, like the
-	/// server does once the level-up chain ends.
-	void finishExperienceGrants(CGHeroInstance * hero);
-
 	std::shared_ptr<GameEventCallbackMock> gameEventCallback;
-	const CGObjectInstance * visitedObject = nullptr;
 };

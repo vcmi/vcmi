@@ -328,6 +328,7 @@
 							"SPELLCASTER", 
 							"FEROCITY", 
 							"PRIMARY_SKILL", 
+							"ENCHANTER",
 							"SLAYER",
 							"SPELL_IMMUNITY",
 							"DARKNESS", 
@@ -345,45 +346,6 @@
 							{ "type" : "number" },
 							{ "type" : "array", "minItems" : 1, "maxItems" : 1, "items" : { "type" : "number" } }
 						],
-					}
-				}
-			}
-		},
-		{
-			"if" : {
-				"properties" : {
-					"type" : { "enum" : [ "SPELL" ] }
-				}
-			},
-			"then" : {
-				"properties" : {
-					"addInfo" : {
-						"type" : "boolean",
-						"description" : "If true, spell can be cast without spellbook"
-					}
-				}
-			}
-		},
-		{
-			"if" : {
-				"properties" : {
-					"type" : { "enum" : [ "ENCHANTER" ] }
-				}
-			},
-			"then" : {
-				"properties" : {
-					"addInfo" : {
-						"anyOf" : [
-							{ "type" : "number" },
-							{
-								"type" : "object",
-								"additionalProperties" : false,
-								"properties" : {
-									"cooldown" : { "type" : "number", "description" : "Number of turns before next cast" },
-									"weight" : { "type" : "number", "description" : "Relative chance to select this spell among spells that can be cast" }
-								}
-							}
-						]
 					}
 				}
 			}
@@ -557,10 +519,6 @@
 			"type" : "string",
 			"enum" : [ "ARTIFACT", "ARTIFACT_INSTANCE", "OBJECT_TYPE", "OBJECT_INSTANCE", "CREATURE_ABILITY", "TERRAIN_NATIVE", "TERRAIN_OVERLAY", "SPELL_EFFECT", "TOWN_STRUCTURE", "HERO_BASE_SKILL", "SECONDARY_SKILL", "HERO_SPECIAL", "ARMY", "CAMPAIGN_BONUS", "STACK_EXPERIENCE", "COMMANDER", "GLOBAL", "OTHER" ],
 			"description" : "targetSourceType"
-		},
-		"targetSourceID" : {
-			"type" : "string",
-			"description" : "Optional. Narrows targetSourceType to a single source object. If not set, targetSourceType is the only filter"
 		},
 		"propagator" : {
 			"description" : "propagator",

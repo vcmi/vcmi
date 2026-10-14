@@ -7,7 +7,6 @@ set(lib_SRCS
 	filesystem/CCompressedStream.cpp
 	filesystem/CFileInputStream.cpp
 	filesystem/CFilesystemLoader.cpp
-	filesystem/CInputStream.cpp
 	filesystem/CMemoryBuffer.cpp
 	filesystem/CMemoryStream.cpp
 	filesystem/CZipLoader.cpp
@@ -15,7 +14,6 @@ set(lib_SRCS
 	filesystem/FileInfo.cpp
 	filesystem/Filesystem.cpp
 	filesystem/MinizipExtensions.cpp
-	filesystem/PngStripWriter.cpp
 	filesystem/ResourcePath.cpp
 
 	json/JsonFormatException.cpp
@@ -29,7 +27,6 @@ set(lib_SRCS
 	logging/CLogger.cpp
 	logging/VisualLogger.cpp
 
-	network/HttpDownloader.cpp
 	network/NetworkConnection.cpp
 	network/NetworkDiscovery.cpp
 	network/NetworkHandler.cpp
@@ -173,7 +170,6 @@ set(lib_MAIN_SRCS
 	mapObjects/FlaggableMapObject.cpp
 	mapObjects/IMarket.cpp
 	mapObjects/IObjectInterface.cpp
-	mapObjects/MapObjectDrawOrder.cpp
 	mapObjects/MiscObjects.cpp
 	mapObjects/ObjectTemplate.cpp
 	mapObjects/ObstacleSetHandler.cpp
@@ -345,6 +341,10 @@ if (NOT ENABLE_MINIMAL_LIB)
 	list(APPEND lib_SRCS ${lib_MAIN_SRCS})
 endif()
 
+if(WIN32)
+	list(APPEND lib_SRCS platform/windows/Registry.cpp)
+endif()
+
 # Version.cpp is a generated file
 list(APPEND lib_SRCS ${CMAKE_BINARY_DIR}/Version.cpp)
 set_source_files_properties(${CMAKE_BINARY_DIR}/Version.cpp
@@ -377,7 +377,6 @@ set(lib_HEADERS
 	filesystem/Filesystem.h
 	filesystem/ISimpleResourceLoader.h
 	filesystem/MinizipExtensions.h
-	filesystem/PngStripWriter.h
 	filesystem/ResourcePath.h
 
 	json/JsonFormatException.h
@@ -391,7 +390,6 @@ set(lib_HEADERS
 	logging/CLogger.h
 	logging/VisualLogger.h
 
-	network/HttpDownloader.h
 	network/NetworkConnection.h
 	network/NetworkDefines.h
 	network/NetworkDiscovery.h
@@ -606,7 +604,6 @@ set(lib_MAIN_HEADERS
 	mapObjects/CGHeroInstance.h
 	mapObjects/CGMarket.h
 	mapObjects/CGObjectInstance.h
-	mapObjects/MapObjectDrawOrder.h
 	mapObjects/CGPandoraBox.h
 	mapObjects/TownBuildingInstance.h
 	mapObjects/CGResource.h
@@ -871,10 +868,6 @@ if(IOS)
 	target_link_libraries(vcmiMain PUBLIC iOS_utils)
 endif()
 
-if(ENABLE_LIBCURL)
-	target_link_libraries(vcmiMain PUBLIC CURL::libcurl)
-endif()
-
 target_include_directories(vcmiMain
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 	PUBLIC ${CMAKE_SOURCE_DIR}
@@ -884,6 +877,10 @@ target_include_directories(vcmiMain
 if(MINGW)
 	# Link Windows system libs: WinSock2 (ws2_32) + socket extensions (mswsock) + Debug Help API (dbghelp)
 	target_link_libraries(vcmiMain PRIVATE ws2_32 mswsock dbghelp)
+endif()
+
+if(WIN32)
+	target_link_libraries(vcmiMain INTERFACE advapi32)
 endif()
 
 # Use '-Wa,-mbig-obj' for files that generate very large object files

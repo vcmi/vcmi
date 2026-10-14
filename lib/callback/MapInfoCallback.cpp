@@ -9,8 +9,6 @@
  */
 #include "StdInc.h"
 #include "MapInfoCallback.h"
-
-#include "../CSkillHandler.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -18,8 +16,6 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../StartInfo.h"
 #include "../mapping/CMap.h"
-#include "../entities/hero/CHeroHandler.h"
-#include "../GameLibrary.h"
 
 #include <vcmi/spells/Spell.h>
 
@@ -95,8 +91,7 @@ bool MapInfoCallback::isAllowed(ArtifactID id) const
 
 bool MapInfoCallback::isAllowed(SecondarySkill id) const
 {
-	// Skills disabled by mods (marked as special) are never allowed, even if the map allows them
-	return !id.toSkill()->isSpecial() && getMapConstPtr()->allowedAbilities.count(id) != 0;
+	return getMapConstPtr()->allowedAbilities.count(id) != 0;
 }
 
 int3 MapInfoCallback::getMapSize() const
@@ -128,14 +123,4 @@ const IGameSettings & MapInfoCallback::getSettings() const
 const CMapHeader * MapInfoCallback::getMapHeader() const
 {
 	return getMapConstPtr();
-}
-
-ui32 MapInfoCallback::getHeroLevelLimit() const
-{
-	const ui32 maxSupportedLevel = LIBRARY->heroh->maxSupportedLevel();
-	const ui32 mapLevelLimit = getMapConstPtr()->levelLimit;
-
-	if(mapLevelLimit == 0)
-		return maxSupportedLevel;
-	return std::min(mapLevelLimit, maxSupportedLevel);
 }

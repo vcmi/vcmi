@@ -204,7 +204,7 @@ CSpellResearchDialog::CSpellResearchDialog(const std::string & textToShow, const
 
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town, const CStructure * Str)
 	: CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE, BUILDING_FRAME_TIME),
-	  owner(Par),
+	  parent(Par),
 	  town(Town),
 	  str(Str),
 	  border(nullptr),
@@ -271,18 +271,18 @@ void CBuildingRect::hover(bool on)
 
 	if(on)
 	{
-		if(! owner->selectedBuilding //no building hovered
-		  || (*owner->selectedBuilding)<(*this)) //or we are on top
+		if(! parent->selectedBuilding //no building hovered
+		  || (*parent->selectedBuilding)<(*this)) //or we are on top
 		{
-			owner->selectedBuilding = this;
+			parent->selectedBuilding = this;
 			ENGINE->statusbar()->write(getSubtitle());
 		}
 	}
 	else
 	{
-		if(owner->selectedBuilding == this)
+		if(parent->selectedBuilding == this)
 		{
-			owner->selectedBuilding = nullptr;
+			parent->selectedBuilding = nullptr;
 			ENGINE->statusbar()->clear();
 		}
 	}
@@ -290,16 +290,16 @@ void CBuildingRect::hover(bool on)
 
 void CBuildingRect::clickPressed(const Point & cursorPosition)
 {
-	if(getBuilding() && area && (owner->selectedBuilding==this))
+	if(getBuilding() && area && (parent->selectedBuilding==this))
 	{
 		auto building = getBuilding();
-		owner->buildingClicked(building->bid);
+		parent->buildingClicked(building->bid);
 	}
 }
 
 void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 {
-	if((!area) || (this!=owner->selectedBuilding) || getBuilding() == nullptr)
+	if((!area) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
 		return;
 
 	BuildingID bid = getBuilding()->bid;
@@ -312,7 +312,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 	else
 	{
 		int level = BuildingID::getLevelIndexFromDwelling(bid);
-		ENGINE->windows().createAndPushWindow<CDwellingInfoBox>(owner->pos.x+owner->pos.w / 2, owner->pos.y+owner->pos.h  /2, town, level);
+		ENGINE->windows().createAndPushWindow<CDwellingInfoBox>(parent->pos.x+parent->pos.w / 2, parent->pos.y+parent->pos.h  /2, town, level);
 	}
 }
 
@@ -337,7 +337,7 @@ void CBuildingRect::show(Canvas & to)
 	{
 		if(stateTimeCounter >= BUILD_ANIMATION_FINISHED_TIMEPOINT)
 		{
-			if(owner->selectedBuilding == this || showTextOverlay)
+			if(parent->selectedBuilding == this || showTextOverlay)
 				to.draw(border, pos.topLeft());
 			return;
 		}
@@ -372,7 +372,7 @@ void CBuildingRect::showAll(Canvas & to)
 		return;
 
 	CShowableAnim::showAll(to);
-	if(!isActive() && owner->selectedBuilding == this && border)
+	if(!isActive() && parent->selectedBuilding == this && border)
 		to.draw(border, pos.topLeft());
 }
 
@@ -990,7 +990,7 @@ bool CCastleBuildings::buildingTryActivateCustomUI(BuildingID buildingToTest, Bu
 				return true;
 
 		case BuildingID::TAVERN:
-				GAME->interface()->showTavernWindow(town, nullptr, QuestionID::NONE);
+				GAME->interface()->showTavernWindow(town, nullptr, QueryID::NONE);
 				return true;
 
 		case BuildingID::SHIPYARD:
@@ -1837,7 +1837,7 @@ void CCastleInterface::keyPressed(EShortcut key)
 	}
 	case EShortcut::TOWN_OPEN_TAVERN:
 		if(town->hasBuilt(BuildingID::TAVERN))
-			GAME->interface()->showTavernWindow(town, nullptr, QuestionID::NONE);
+			GAME->interface()->showTavernWindow(town, nullptr, QueryID::NONE);
 		break;
 	case EShortcut::ADVENTURE_OPEN_WIKI:
 		ENGINE->windows().createAndPushWindow<WikiWindow>(

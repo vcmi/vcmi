@@ -17,7 +17,6 @@
 #include "Buttons.h"
 
 #include "../CPlayerInterface.h"
-#include "../CServerHandler.h"
 
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
@@ -33,10 +32,6 @@ CArtifactsOfHeroBase::CArtifactsOfHeroBase()
 
 void CArtifactsOfHeroBase::putBackPickedArtifact()
 {
-	// Windows are also destroyed when the game ends or restarts, when there is no game to return the artifact in
-	if(GAME->server().getState() != EClientState::GAMEPLAY)
-		return;
-
 	// Artifact located in artifactsTransitionPos should be returned
 	if(const auto art = getPickedArtifact())
 	{

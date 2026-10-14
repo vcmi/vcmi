@@ -99,7 +99,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	case Obj::TOWN:
 	{
 		const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
-		auto danger = town->getUpperArmy()->estimateCombatValue();
+		auto danger = town->getUpperArmy()->getArmyStrength();
 
 		if(danger || town->getVisitingHero())
 		{
@@ -131,7 +131,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	{
 		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
 		if (a)
-			return a->estimateCombatValue();
+			return a->getArmyStrength();
 		else
 			return 0;
 	}

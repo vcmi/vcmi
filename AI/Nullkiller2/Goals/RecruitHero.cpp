@@ -49,7 +49,7 @@ void RecruitHero::accept(AIGateway * aiGw)
 	{
 		for(auto hero : heroes)
 		{
-			if(!heroToHire || hero->estimateHeroCombatValue() > heroToHire->estimateHeroCombatValue())
+			if(!heroToHire || hero->getTotalStrength() > heroToHire->getTotalStrength())
 				heroToHire = hero;
 		}
 	}
@@ -66,7 +66,7 @@ void RecruitHero::accept(AIGateway * aiGw)
 		throw cannotFulfillGoalException("Town " + t->nodeName() + " is occupied. Cannot recruit hero!");
 
 	aiGw->cc->recruitHero(t, heroToHire);
-	aiGw->waitTillFree(); // Hiring in a town may trigger level-up dialogs from reward buildings.
+	aiGw->waitTillFree(); // Hiring in a town may trigger level-up queries from reward buildings.
 
 	{
 		// TODO: Mircea: Consider same behavior when a hero is lost? Relevant?

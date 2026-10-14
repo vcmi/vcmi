@@ -11,10 +11,8 @@
 #include "ServerSpellCastEnvironment.h"
 
 #include "CGameHandler.h"
-#include "battles/BattleProcessor.h"
-#include "activities/ActivityProcessor.h"
-#include "activities/SpellActivities.h"
-#include "activities/Activity.h"
+#include "queries/QueriesProcessor.h"
+#include "queries/CQuery.h"
 
 #include "../lib/battle/IBattleInfoCallback.h"
 #include "../lib/battle/IBattleState.h"
@@ -79,11 +77,6 @@ void ServerSpellCastEnvironment::apply(SetStackEffect & pack)
 
 void ServerSpellCastEnvironment::apply(StacksInjured & pack)
 {
-	// Spell, moat, obstacle and script damage use this non-attack pack.
-	const auto * battle = gh->gameState().getBattle(pack.battleID);
-	if(battle)
-		gh->battles->noteDeaths(*battle, pack.stacks);
-
 	gh->sendAndApply(pack);
 }
 
@@ -100,11 +93,6 @@ void ServerSpellCastEnvironment::apply(CatapultAttack & pack)
 const IGameInfoCallback * ServerSpellCastEnvironment::getCb() const
 {
 	return &gh->gameInfo();
-}
-
-void ServerSpellCastEnvironment::spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
-{
-	gh->battles->spellHasHit(battle, spell, casterUnit, unitsBefore);
 }
 
 const CMap * ServerSpellCastEnvironment::getMap() const
@@ -127,13 +115,10 @@ void ServerSpellCastEnvironment::showGarrisonDialog(ObjectInstanceID upobj, Obje
 	gh->showGarrisonDialog(upobj, hid, removableUnits, customTitle);
 }
 
-void ServerSpellCastEnvironment::askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster)
+void ServerSpellCastEnvironment::genericQuery(Query * request, PlayerColor color, std::function<void(std::optional<int32_t>)> callback)
 {
-	auto activity = std::make_shared<TownSelectionActivity>(gh, request.player, spell, caster, request.objects);
-
-	MapObjectSelectDialog pack = request;
-	pack.questionID = activity->askQuestion();
-
-	gh->activities->addActivity(activity);
-	gh->sendAndApply(pack);
+	auto query = std::make_shared<CGenericQuery>(gh, color, callback);
+	request->queryID = query->queryID;
+	gh->queries->addQuery(query);
+	gh->sendAndApply(*request);
 }

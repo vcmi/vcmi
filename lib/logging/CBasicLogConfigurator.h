@@ -20,7 +20,7 @@ enum class EConsoleTextColor : int8_t;
 class DLL_LINKAGE CBasicLogConfigurator
 {
 public:
-	CBasicLogConfigurator(boost::filesystem::path filePath, CConsoleHandler * const console);
+	CBasicLogConfigurator(boost::filesystem::path filePath, CConsoleHandler * const console, bool appendToLogFile = false);
 
 	/// Configures the logging system by parsing the logging settings. It adds the console target and the file target to the global logger.
 	/// Doesn't throw, but logs on success or fault.

@@ -357,26 +357,9 @@ std::vector<SecondarySkill> GameRandomizer::rollSecondarySkills(const CGHeroInst
 	int newSkillsAvailable = none.size();
 	int upgradedSkillsToSelect = std::max(maxUpgradedSkills, maxTotalSkills - newSkillsAvailable);
 
-	// skills on offer cooldown are offered only if nothing else can be upgraded
-	std::set<SecondarySkill> withheld;
-	for(const auto & skill : basicAndAdv)
-	{
-		auto gainedAt = hero->secSkillsGainedAtLevel.find(skill);
-		if(gainedAt != hero->secSkillsGainedAtLevel.end() && hero->level < gainedAt->second + static_cast<ui32>(skill.toSkill()->offerCooldown))
-			withheld.insert(skill);
-	}
-
 	while (skills.size() < upgradedSkillsToSelect && !basicAndAdv.empty())
 	{
-		std::set<SecondarySkill> candidates;
-		for(const auto & skill : basicAndAdv)
-			if(!withheld.count(skill))
-				candidates.insert(skill);
-
-		if(candidates.empty())
-			candidates = basicAndAdv;
-
-		skills.push_back(rollSecondarySkillForLevelup(hero, candidates));
+		skills.push_back(rollSecondarySkillForLevelup(hero, basicAndAdv));
 		basicAndAdv.erase(skills.back());
 	}
 

@@ -404,17 +404,16 @@ bool JsonParser::extractStruct(JsonNode & node)
 			}
 		}
 
-		auto [element, inserted] = node.Struct().try_emplace(std::move(key));
-		if(!inserted)
+		if(node.Struct().find(key) != node.Struct().end())
 			error("Duplicate element encountered!", true);
 
 		if(!extractSeparator())
 			return false;
 
-		if(!extractElement(element->second, '}'))
+		if(!extractElement(node.Struct()[key], '}'))
 			return false;
 
-		element->second.setOverrideFlag(overrideFlag);
+		node.Struct()[key].setOverrideFlag(overrideFlag);
 
 		if(input[pos] == '}')
 		{

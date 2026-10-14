@@ -21,23 +21,15 @@ class int3;
 class CBattleInfoCallback;
 struct BattleResult;
 struct BattleLayout;
-struct BattleStackAttacked;
 class BattleID;
 
 namespace battle
 {
 class Unit;
-class CUnitState;
 }
 
 class CGameHandler;
-class BattleActivity;
-
-namespace spells
-{
-class Spell;
-}
-
+class CBattleQuery;
 class BattleActionProcessor;
 class BattleFlowProcessor;
 class BattleResultProcessor;
@@ -62,17 +54,11 @@ class BattleProcessor : boost::noncopyable
 	BattleID setupBattle(int3 tile, BattleSideArray<const CArmedInstance *> armies, BattleSideArray<const CGHeroInstance *> heroes, const BattleLayout & layout, const CGTownInstance *town);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
+	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary);
 
 	void setBattleResult(const CBattleInfoCallback & battle, EBattleResult resultType, BattleSide victoriusSide);
 
 public:
-	/// The battle activity, wherever it is on either belligerent's stack. One activity is
-	/// shared by both sides and a player is in at most one battle, so the side that still
-	/// holds it refers to the same activity. It need not be on top, e.g. a player may have
-	/// paused the game mid-battle.
-	BattleActivity * findBattleActivity(const CBattleInfoCallback & battle) const;
-	BattleActivity & getBattleActivity(const CBattleInfoCallback & battle) const;
-
 	explicit BattleProcessor(CGameHandler * gameHandler);
 	~BattleProcessor();
 
@@ -86,22 +72,17 @@ public:
 
 	/// Processing of incoming battle action netpack
 	bool makePlayerBattleAction(const BattleID & battleID, PlayerColor player, const BattleAction & ba);
-	/// Dispatches one combat event to the given unit
-	void processBattleEventTriggers(const CBattleInfoCallback & battle, CombatEventType event, const battle::Unit * target, const battle::Unit * secondary);
-	/// Dispatches SPELL_HIT to all affected units after a deliberate cast
-	void spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore);
-	/// Queues UNIT_DEATH events from the given casualties
-	void noteDeaths(const CBattleInfoCallback & battle, const std::vector<BattleStackAttacked> & casualties);
-	/// Dispatches queued UNIT_DEATH events outside a battle action
-	void flushPendingDeaths(const CBattleInfoCallback & battle);
 	/// Kills the opposing army and resolves the current battle in player's favor
 	void cheatBattleVictory(PlayerColor player);
 
 	/// Applies results of a battle once player agrees to them
 	void endBattleConfirm(const BattleID & battleID);
+	/// Applies results of a battle after potential levelup
+	void battleFinalize(const BattleID & battleID, const BattleResult & result);
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 
 	}
 };
+

@@ -89,7 +89,8 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 				auto questInfo = QuestInfo(node.obj->id);
 				auto questAction = std::make_shared<AIPathfinding::QuestAction>(questInfo);
-				if(source->requiresVisitBeforePassing(targetHero->getOwner()) || !questAction->canAct(aiNk, targetHero))
+
+				if(!questAction->canAct(aiNk, targetHero))
 				{
 					transitionAction = questAction;
 				}
@@ -291,7 +292,7 @@ void GraphPaths::addChainInfo(std::vector<AIPath> & paths, int3 tile, const CGHe
 			const bool checkTargetTileGuards = !hasDangerousGraphTransition;
 			path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(tile, path.targetHero, checkTargetTileGuards);
 			// TODO: Mircea: This is similar same as 263, so what's happening here? Why strength is passed differently?
-			path.targetObjectArmyLoss = aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->estimateCombatValue(), path.targetObjectDanger);
+			path.targetObjectArmyLoss = aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
 
 			paths.push_back(path);
 		}
@@ -353,12 +354,12 @@ void GraphPaths::quickAddChainInfoWithBlocker(std::vector<AIPath> & paths, int3 
 			path.targetHero = entryPath.targetHero;
 			path.heroArmy = entryPath.heroArmy;
 			path.exchangeCount = entryPath.exchangeCount;
-			path.armyLoss = entryPath.armyLoss + aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->estimateCombatValue(), danger);
+			path.armyLoss = entryPath.armyLoss + aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), danger);
 			// TODO: Preserve endpoint visit semantics in graph paths so this can distinguish visit actions
 			// from true target-tile guard checks instead of relying on graph transition type.
 			const bool checkTargetTileGuards = !hasDangerousGraphTransition;
 			path.targetObjectDanger = aiNk->dangerEvaluator->evaluateDanger(tile, path.targetHero, checkTargetTileGuards);
-			path.targetObjectArmyLoss = aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->estimateCombatValue(), path.targetObjectDanger);
+			path.targetObjectArmyLoss = aiNk->pathfinder->getStorage()->evaluateArmyLoss(path.targetHero, path.heroArmy->getArmyStrength(), path.targetObjectDanger);
 
 			AIPathNodeInfo n;
 

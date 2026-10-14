@@ -50,12 +50,18 @@ static iconv_t getConversionDescriptor(const std::string & fromEncoding, const s
 	return it->second;
 }
 
-/// Returns std::nullopt if text contains a sequence that has no representation in the target encoding
 template<typename FromString, typename DestString>
-std::optional<FromString> tryConvertTextEncoding(const DestString & fromString, iconv_t cd)
+FromString convertTextEncoding(const DestString & fromString, const std::string & fromEncoding, const std::string & destEncoding)
 {
 	constexpr auto fromCharSize = sizeof(typename DestString::value_type);
 	constexpr auto destCharSize = sizeof(typename FromString::value_type);
+
+	iconv_t cd = getConversionDescriptor(fromEncoding, destEncoding);
+	if(cd == reinterpret_cast<iconv_t>(-1))
+	{
+		logGlobal->error("Encoding coversion failure. Invalid encoding %s -> %s", fromEncoding, destEncoding);
+		return {};
+	}
 
 	FromString destString;
 	// reserve large enough destination storage
@@ -75,33 +81,16 @@ std::optional<FromString> tryConvertTextEncoding(const DestString & fromString, 
 	iconv(cd, nullptr, nullptr, nullptr, nullptr);
 
 	if(ret == static_cast<size_t>(-1))
-		return std::nullopt;
-
-	destString.resize(destString.size() - destLeft / destCharSize);
-	return destString;
-}
-
-template<typename FromString, typename DestString>
-FromString convertTextEncoding(const DestString & fromString, const std::string & fromEncoding, const std::string & destEncoding)
-{
-	iconv_t cd = getConversionDescriptor(fromEncoding, destEncoding);
-	if(cd == reinterpret_cast<iconv_t>(-1))
 	{
-		logGlobal->error("Encoding coversion failure. Invalid encoding %s -> %s", fromEncoding, destEncoding);
-		return {};
-	}
-
-	auto destString = tryConvertTextEncoding<FromString>(fromString, cd);
-	if(!destString)
-	{
-		if constexpr (sizeof(typename DestString::value_type) == 1)
+		if constexpr (fromCharSize == 1)
 			logGlobal->error("Encoding coversion failure. Failed to convert text: %s", fromString);
 		else
 			logGlobal->error("Encoding coversion failure. Failed to convert text.");
 		return {};
 	}
 
-	return std::move(*destString);
+	destString.resize(destString.size() - destLeft / destCharSize);
+	return destString;
 }
 
 size_t TextOperations::getUnicodeCharacterSize(char firstByte)
@@ -232,22 +221,15 @@ uint32_t TextOperations::getUnicodeCodepoint(const char * data, size_t maxSize)
 	return 0;
 }
 
-std::optional<uint32_t> TextOperations::getUnicodeCodepoint(char data, const std::string & encoding)
+uint32_t TextOperations::getUnicodeCodepoint(char data, const std::string & encoding )
 {
-	iconv_t cd = getConversionDescriptor(encoding, "UTF-8");
-	if(cd == reinterpret_cast<iconv_t>(-1))
-	{
-		logGlobal->error("Encoding coversion failure. Invalid encoding %s -> UTF-8", encoding);
-		return std::nullopt;
-	}
+	std::string stringNative(1, data);
+	std::string stringUnicode = toUnicode(stringNative, encoding);
 
-	// Failure is expected here and is not logged: lead bytes of multi-byte encodings and
-	// unassigned bytes of single-byte encodings are not characters on their own
-	auto stringUnicode = tryConvertTextEncoding<std::string>(std::string(1, data), cd);
-	if(!stringUnicode || stringUnicode->empty())
-		return std::nullopt;
+	if (stringUnicode.empty())
+		return 0;
 
-	return getUnicodeCodepoint(stringUnicode->data(), stringUnicode->size());
+	return getUnicodeCodepoint(stringUnicode.data(), stringUnicode.size());
 }
 
 std::string TextOperations::toUnicode(const std::string &text, const std::string &encoding)

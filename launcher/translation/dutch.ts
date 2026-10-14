@@ -182,14 +182,6 @@
     </message>
 </context>
 <context>
-    <name>CDownloadManager</name>
-    <message>
-        <location filename="../modManager/cdownloadmanager_moc.cpp" line="171"/>
-        <source>Failed to copy file %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>CModListView</name>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
@@ -346,8 +338,8 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="217"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1183"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1188"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1124"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
         <source>mods repository index</source>
         <translation type="unfinished">index van de mods-repository</translation>
     </message>
@@ -426,39 +418,29 @@
         <source>Open repository</source>
         <translation type="unfinished">Open repository</translation>
     </message>
-    <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
-        <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="888"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="877"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation type="unfinished">Downloaden van %1. %p% (%v MB van %m MB) voltooid</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="923"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="906"/>
         <source>Extracting content.zip (%1/%2) for %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="913"/>
         <source>Download failed</source>
         <translation type="unfinished">Download mislukt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="914"/>
         <source>Unable to download all files.
 
 Encountered errors:
 
 </source>
-        <translation type="unfinished">Het downloaden van alle bestanden lukt niet.
-
-Er zijn de volgende fouten opgetreden:</translation>
+        <translation type="unfinished">Het downloaden van alle bestanden lukt niet.\n\nEr zijn de volgende fouten opgetreden:</translation>
     </message>
     <message>
         <source>
@@ -467,121 +449,109 @@ Install successfully downloaded?</source>
         <translation type="obsolete">Installatie succesvol gedownload?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1097"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1200"/>
         <source>Installing Heroes Chronicles</source>
         <translation type="unfinished">Heroes Chronicles installeren</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1291"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
         <source>Extracting error!</source>
         <translation type="unfinished">Fout bij het extraheren!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1234"/>
         <source>Invalid file selected</source>
         <translation type="unfinished">Ongeldig bestand geselecteerd</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1234"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
         <translation type="unfinished">Je moet een installatiebestand voor Heroes Chronicles selecteren!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1425"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
         <source>Save exists</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1426"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Success</source>
         <translation type="unfinished">Succes</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
         <source>Imported %1 save files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1499"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1457"/>
         <source>Installing mod %1</source>
         <translation type="unfinished">Mod %1 installeren</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1530"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1489"/>
         <source>%1 requires: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1533"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1492"/>
         <source>Failed to enable mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1534"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1493"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
-        <source>Mods disabled</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
-        <source>Following mods were disabled due to changes in installed mods:
-
-%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
         <source>Map exists</source>
         <translation type="unfinished">De kaart bestaat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation type="unfinished">De map &apos;%1&apos; bestaat al. Wilt u deze overschrijven?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1062"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1003"/>
         <source>Yes to All</source>
         <translation type="unfinished">Ja op alles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1063"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1004"/>
         <source>No to All</source>
         <translation type="unfinished">Nee tegen alles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
         <source>Import complete</source>
         <translation type="unfinished">Import voltooid</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
         <source>%n map(s) successfully imported.</source>
         <translation type="unfinished">
             <numerusform>%n kaarten succesvol geïmporteerd.</numerusform>
@@ -589,70 +559,53 @@ Reason: %2</source>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>Uninstall mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1097"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Import failed</source>
         <translation type="unfinished">Importeren mislukt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="932"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="915"/>
         <source>
 
 Process successfully downloaded files?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1000"/>
-        <source>VCMI could not confirm that it is connected to the real download server.
-
-This usually happens on older systems, such as Windows 7, that are missing recent security updates.
-
-However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. In that case, downloaded files could be replaced with harmful ones.
-
-Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the &quot;Ignore SSL errors&quot; option.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
-        <source>Unable to verify download server</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished">Het importeren van de volgende kaarten is mislukt:
-%1</translation>
+        <translation type="unfinished">Het importeren van de volgende kaarten is mislukt:\n%1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1696"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1662"/>
         <source>Operation failed</source>
         <translation type="unfinished">Operatie mislukt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1697"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
         <source>Encountered errors:
 </source>
         <translation type="unfinished">Er zijn fouten opgetreden:</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1749"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1715"/>
         <source>screenshots</source>
         <translation type="unfinished">screenshots</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1755"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1721"/>
         <source>Screenshot %1</source>
         <translation type="unfinished">Screenshot %1</translation>
     </message>
@@ -666,7 +619,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
     <name>CSettingsView</name>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="129"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="128"/>
         <source>Off</source>
         <translation type="unfinished">Uit</translation>
     </message>
@@ -681,17 +634,17 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">Kunstmatige intelligentie</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1362"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
         <source>Neutral AI in battles</source>
         <translation type="unfinished">Neutrale AI in gevechten</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="938"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="911"/>
         <source>Enemy AI in battles</source>
         <translation type="unfinished">Vijandelijke AI in gevechten</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="975"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="948"/>
         <source>Additional repository</source>
         <translation type="unfinished">Aanvullende opslagplaats</translation>
     </message>
@@ -706,7 +659,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">Online lobby-poort</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1227"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
         <source>Autocombat AI in battles</source>
         <translation type="unfinished">Automatische gevechts-AI in gevechten</translation>
     </message>
@@ -716,7 +669,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">Sticks Gevoeligheid</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1274"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1247"/>
         <source>Automatic (Linear)</source>
         <translation type="unfinished">Automatisch (lineair)</translation>
     </message>
@@ -726,14 +679,14 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">Haptische feedback</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="909"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="882"/>
         <source>Software Cursor</source>
         <translation type="unfinished">Softwarecursor</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="520"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="675"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="922"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="895"/>
         <source>Automatic</source>
         <translation type="unfinished">Automatisch</translation>
     </message>
@@ -743,7 +696,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">Validatie van mods</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1385"/>
         <source>Config editor</source>
         <translation type="unfinished">Configuratie-editor</translation>
     </message>
@@ -778,17 +731,17 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">Vol</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="945"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="918"/>
         <source>Allow portrait mode</source>
         <translation type="unfinished">Sta de portretmodus toe.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1066"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1039"/>
         <source>Use scalable fonts</source>
         <translation type="unfinished">Gebruik schaalbare lettertypen.</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1369"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
         <source>Online Lobby address</source>
         <translation type="unfinished">Online lobbyadres</translation>
     </message>
@@ -803,7 +756,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">Cursorschaling</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="988"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="961"/>
         <source>Scalable</source>
         <translation type="unfinished">Schaalbaar</translation>
     </message>
@@ -813,7 +766,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">Gemengd</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1470"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1443"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -821,13 +774,7 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished">Selecteer een weergavemodus voor het spel:
-
-Venstermodus - het spel wordt uitgevoerd in een venster dat een deel van je scherm bedekt.
-
-Venstermodus zonder randen - het spel wordt uitgevoerd in een venster op volledig scherm, met dezelfde resolutie als je scherm.
-
-Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt de geselecteerde resolutie.</translation>
+        <translation type="unfinished">Selecteer een weergavemodus voor het spel:\n\nVenstermodus - het spel wordt uitgevoerd in een venster dat een deel van je scherm bedekt.\n\nVenstermodus zonder randen - het spel wordt uitgevoerd in een venster op volledig scherm, met dezelfde resolutie als je scherm.\n\nExclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt de geselecteerde resolutie.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
@@ -835,7 +782,7 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="unfinished">Lettertypeschaling (experimenteel)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1047"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1020"/>
         <source>Original</source>
         <translation type="unfinished">Origineel</translation>
     </message>
@@ -890,47 +837,32 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="unfinished">Gebruik de relatieve aanwijzermodus</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="819"/>
-        <source>HTTP proxy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="826"/>
-        <source>Open help</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="833"/>
-        <source>Proxy server used for downloads, for example http://host:port or socks5h://host:port. If empty, proxy from environment variables is used</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1222"/>
         <source>Autosaves per game (0 = unlimited)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1264"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1237"/>
         <source>Nearest</source>
         <translation type="unfinished">Dichtstbijzijnde</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1269"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1242"/>
         <source>Linear</source>
         <translation type="unfinished">Lineair</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1309"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1282"/>
         <source>Input - Touchscreen</source>
         <translation type="unfinished">Invoer - Touchscreen</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1577"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1550"/>
         <source>Save Before Visit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="856"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="829"/>
         <source>Adventure Map Enemies</source>
         <translation type="unfinished">Vijanden op de avonturenkaart</translation>
     </message>
@@ -950,27 +882,27 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="unfinished">Netwerk</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1016"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="989"/>
         <source>Audio</source>
         <translation type="unfinished">Audio</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1463"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1436"/>
         <source>Relative Pointer Speed</source>
         <translation type="unfinished">Relatieve aanwijzersnelheid</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="968"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="941"/>
         <source>Music Volume</source>
         <translation type="unfinished">Muziekvolume</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1315"/>
         <source>Ignore SSL errors</source>
         <translation type="unfinished">Negeer SSL-fouten</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1294"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1267"/>
         <source>Input - Mouse</source>
         <translation type="unfinished">Invoer - Muis</translation>
     </message>
@@ -980,7 +912,7 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="unfinished">Langdurig aanraken</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1405"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1378"/>
         <source>Controller Click Tolerance</source>
         <translation type="unfinished">Tolerantie voor controllerklikken</translation>
     </message>
@@ -990,27 +922,27 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="unfinished">Tolerantie voor aanraken</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1239"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1212"/>
         <source>Input - Controller</source>
         <translation type="unfinished">Invoer - Controller</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1308"/>
         <source>Sound Volume</source>
         <translation type="unfinished">Geluidsvolume</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1483"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1456"/>
         <source>Windowed</source>
         <translation type="unfinished">Raam</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1488"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1461"/>
         <source>Borderless fullscreen</source>
         <translation type="unfinished">Randloos volledig scherm</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1493"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1466"/>
         <source>Exclusive fullscreen</source>
         <translation type="unfinished">Exclusief volledig scherm</translation>
     </message>
@@ -1038,7 +970,7 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="unfinished">Tolerantie voor muisklikken</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1163"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1136"/>
         <source>Sticks Acceleration</source>
         <translation type="unfinished">Sticks Acceleratie</translation>
     </message>
@@ -1057,17 +989,17 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="unfinished">Standaard opslagplaats</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1229"/>
         <source>Renderer</source>
         <translation type="unfinished">Renderer</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="126"/>
         <source>On</source>
         <translation type="unfinished">Op</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1282"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1255"/>
         <source>Reserved screen area</source>
         <translation type="unfinished">Gereserveerd schermgebied</translation>
     </message>
@@ -1082,7 +1014,7 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="unfinished">Controle bij opstarten</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1220"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1193"/>
         <source>Fullscreen</source>
         <translation type="unfinished">Volledig scherm</translation>
     </message>
@@ -1097,7 +1029,7 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="unfinished">VCMI-taal</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="879"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="852"/>
         <source>Resolution</source>
         <translation type="unfinished">Oplossing</translation>
     </message>
@@ -1112,7 +1044,7 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="unfinished">VSync</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="886"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
         <source>Display index</source>
         <translation type="unfinished">Weergave-index</translation>
     </message>
@@ -1122,27 +1054,27 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="unfinished">Netwerkpoort</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1031"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1004"/>
         <source>Video</source>
         <translation type="unfinished">Video</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1004"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="977"/>
         <source>Show intro</source>
         <translation type="unfinished">Toon introductie</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="138"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="137"/>
         <source>StupidAI (deprecated)</source>
         <translation type="unfinished">StupidAI (verouderd)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="141"/>
         <source>BattleAI (default, recommended)</source>
         <translation type="unfinished">BattleAI (standaard, aanbevolen)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="145"/>
         <source>MMAI (experimental)</source>
         <translation type="unfinished">MMAI (experimenteel)</translation>
     </message>
@@ -1151,37 +1083,37 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <translation type="obsolete">Nullkiller (vervangen door Nullkiller2)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="159"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="158"/>
         <source>Nullkiller2 (default, recommended)</source>
         <translation type="unfinished">Nullkiller2 (standaard, aanbevolen)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="169"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="168"/>
         <source>EmptyAI - No valid AI libraries found!</source>
         <translation type="unfinished">EmptyAI - Geen geldige AI-bibliotheken gevonden!</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="765"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="763"/>
         <source>Active</source>
         <translation type="unfinished">Actief</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="770"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="768"/>
         <source>Disabled</source>
         <translation type="unfinished">Gehandicapt</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="771"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="769"/>
         <source>Enable</source>
         <translation type="unfinished">Inschakelen</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="776"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="774"/>
         <source>Not Installed</source>
         <translation type="unfinished">Niet geïnstalleerd</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="777"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="775"/>
         <source>Install</source>
         <translation type="unfinished">Installeren</translation>
     </message>
@@ -1242,7 +1174,7 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
     <name>File size</name>
     <message>
         <location filename="../modManager/modstate.cpp" line="159"/>
-        <location filename="../modManager/modstatemodel.cpp" line="106"/>
+        <location filename="../modManager/modstatemodel.cpp" line="101"/>
         <source>%1 MiB</source>
         <translation type="unfinished">%1 MiB</translation>
     </message>
@@ -1308,12 +1240,6 @@ Exclusieve modus op volledig scherm - het spel bedekt je hele scherm en gebruikt
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
         <source>Your Heroes III data files have been successfully found.</source>
         <translation type="unfinished">Je Heroes III-gegevensbestanden zijn succesvol gevonden.</translation>
-    </message>
-    <message>
-        <location filename="../firstLaunch/firstlaunch_moc.ui" line="543"/>
-        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
-Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="739"/>
@@ -1441,11 +1367,10 @@ Heroes® of Might and Magic® III HD wordt momenteel niet ondersteund!</translat
         <translation type="unfinished">Bestaande gegevens kopiëren</translation>
     </message>
     <message>
-        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer.
+        <location filename="../firstLaunch/firstlaunch_moc.ui" line="543"/>
+        <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="obsolete">Als je Heroes III op gog.com hebt gekocht, kun je een offline installatieprogramma downloaden van gog.com. VCMI importeert vervolgens de Heroes III-gegevens met behulp van dit offline installatieprogramma.
-
-Het offline installatieprogramma bestaat uit twee bestanden: \&quot;.exe\&quot; en \&quot;.bin\&quot; - je moet ze allebei downloaden.</translation>
+        <translation type="unfinished">Als je Heroes III op gog.com hebt gekocht, kun je een offline installatieprogramma downloaden van gog.com. VCMI importeert vervolgens de Heroes III-gegevens met behulp van dit offline installatieprogramma.\n\nHet offline installatieprogramma bestaat uit twee bestanden: \&quot;.exe\&quot; en \&quot;.bin\&quot; - je moet ze allebei downloaden.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
@@ -1498,17 +1423,13 @@ Het offline installatieprogramma bestaat uit twee bestanden: \&quot;.exe\&quot; 
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="565"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">De bestanden van Heroes III: HD Edition worden niet ondersteund door VCMI.
-
-Selecteer de map met Heroes III: Complete Edition of Heroes III: Shadow of Death.</translation>
+        <translation type="unfinished">De bestanden van Heroes III: HD Edition worden niet ondersteund door VCMI.\n\nSelecteer de map met Heroes III: Complete Edition of Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="567"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">Er is een onbekende of niet-ondersteunde versie van Heroes III gevonden.
-
-Selecteer de map met Heroes III: Complete Edition of Heroes III: Shadow of Death.</translation>
+        <translation type="unfinished">Er is een onbekende of niet-ondersteunde versie van Heroes III gevonden.\n\nSelecteer de map met Heroes III: Complete Edition of Heroes III: Shadow of Death.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="488"/>
@@ -1638,9 +1559,7 @@ You need to select the offline GOG installer.</source>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="562"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished">Er zijn geen geldige Heroes III-gegevens gevonden in de geselecteerde map.
-
-Selecteer de map met de geïnstalleerde Heroes III-gegevens.</translation>
+        <translation type="unfinished">Er zijn geen geldige Heroes III-gegevens gevonden in de geselecteerde map.\n\nSelecteer de map met de geïnstalleerde Heroes III-gegevens.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="529"/>
@@ -1701,9 +1620,7 @@ Selecteer de map met de geïnstalleerde Heroes III-gegevens.</translation>
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">Er is een streamfout opgetreden tijdens het uitpakken van bestanden!
-
-Reden van de fout:</translation>
+        <translation type="unfinished">Er is een streamfout opgetreden tijdens het uitpakken van bestanden!\n\nReden van de fout:</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
@@ -1750,9 +1667,7 @@ Bin (%n byte):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation type="unfinished">Het interne kopieerproces is mislukt. Is er voldoende ruimte op het apparaat?
-
-%1</translation>
+        <translation type="unfinished">Het interne kopieerproces is mislukt. Is er voldoende ruimte op het apparaat?\n\n%1</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
@@ -1770,11 +1685,7 @@ Bin (%n byte):
 %1
 
 %2</source>
-        <translation type="unfinished">Taalverschil!
-
-%1
-
-%2</translation>
+        <translation type="unfinished">Taalverschil!\n\n%1\n\n%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="168"/>
@@ -1782,20 +1693,14 @@ Bin (%n byte):
 %1
 
 %2</source>
-        <translation type="unfinished">Slechts één bestand bekend! Zijn de bestanden mogelijk beschadigd? Download ze alstublieft opnieuw.
-
-%1
-
-%2</translation>
+        <translation type="unfinished">Slechts één bestand bekend! Zijn de bestanden mogelijk beschadigd? Download ze alstublieft opnieuw.\n\n%1\n\n%2</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="174"/>
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation type="unfinished">Onbekende bestanden! Zijn de bestanden mogelijk beschadigd? Download ze alstublieft opnieuw.
-
-%1</translation>
+        <translation type="unfinished">Onbekende bestanden! Zijn de bestanden mogelijk beschadigd? Download ze alstublieft opnieuw.\n\n%1</translation>
     </message>
 </context>
 <context>
@@ -1984,12 +1889,12 @@ Bin (%n byte):
         <translation type="unfinished">Fout bij het starten van het uitvoerbare bestand</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="465"/>
+        <location filename="../mainwindow_moc.cpp" line="460"/>
         <source>Replace config file?</source>
         <translation type="unfinished">Configuratiebestand vervangen?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="465"/>
+        <location filename="../mainwindow_moc.cpp" line="460"/>
         <source>Do you want to replace %1?</source>
         <translation type="unfinished">Wil je %1 vervangen?</translation>
     </message>
@@ -2010,101 +1915,79 @@ Bin (%n byte):
 <context>
     <name>ModStateController</name>
     <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="214"/>
         <source>Can not install submod</source>
-        <translation type="obsolete">Submod kan niet worden geïnstalleerd</translation>
+        <translation type="unfinished">Submod kan niet worden geïnstalleerd</translation>
     </message>
     <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="217"/>
         <source>Mod is already installed</source>
-        <translation type="obsolete">De mod is al geïnstalleerd.</translation>
+        <translation type="unfinished">De mod is al geïnstalleerd.</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="207"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="226"/>
         <source>Can not uninstall submod</source>
         <translation type="unfinished">Submod kan niet worden verwijderd</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="210"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="229"/>
         <source>Mod is not installed</source>
         <translation type="unfinished">De mod is niet geïnstalleerd.</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="223"/>
-        <source>Mod is not located in user data directory and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="227"/>
-        <source>Mod directory is a git repository and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="245"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="242"/>
         <source>Mod is already enabled</source>
         <translation type="unfinished">De mod is al ingeschakeld.</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="248"/>
-        <location filename="../modManager/modstatecontroller.cpp" line="274"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="245"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="271"/>
         <source>Mod must be installed first</source>
         <translation type="unfinished">De mod moet eerst geïnstalleerd worden.</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="252"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="249"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
         <translation type="unfinished">De mod is niet compatibel. Update VCMI en controleer de nieuwste mod-versies.</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="255"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="252"/>
         <source>Can not enable translation mod for a different language!</source>
         <translation type="unfinished">Het is niet mogelijk om de vertaalmodus voor een andere taal in te schakelen!</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="257"/>
         <source>Required mod %1 is missing</source>
         <translation type="unfinished">Vereiste mod %1 ontbreekt</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="271"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="268"/>
         <source>Mod is already disabled</source>
         <translation type="unfinished">De mod is al uitgeschakeld.</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="304"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="281"/>
         <source>Mod archive is missing</source>
         <translation type="unfinished">Het mod-archief ontbreekt.</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="309"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="286"/>
         <source>Mod archive is invalid or corrupted</source>
         <translation type="unfinished">Het mod-archief is ongeldig of beschadigd.</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="317"/>
-        <source>Failed to remove directory %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="320"/>
-        <source>Failed to create directory %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="352"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="312"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="332"/>
         <source>Failed to extract mod data</source>
         <translation type="unfinished">Het is niet gelukt om mod-gegevens te extraheren.</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="359"/>
-        <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="386"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="344"/>
         <source>Mod data was not found</source>
         <translation type="unfinished">Mod-gegevens niet gevonden</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="390"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="348"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
         <translation type="unfinished">De mod bevindt zich in een beveiligde map; verwijder deze handmatig.</translation>
@@ -2232,30 +2115,29 @@ Bin (%n byte):
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="148"/>
+        <location filename="../main.cpp" line="158"/>
         <source>Error starting executable</source>
         <translation type="unfinished">Fout bij het starten van het uitvoerbare bestand</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="149"/>
+        <location filename="../main.cpp" line="159"/>
         <source>Failed to start %1
 Reason: %2</source>
-        <translation type="unfinished">Starten mislukt %1
-Reden: %2</translation>
+        <translation type="unfinished">Starten mislukt %1\nReden: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Import failed</source>
         <translation type="unfinished">Importeren mislukt</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
         <source>Failed to import save %1 from %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
         <source>Failed to import save file %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2482,17 +2364,7 @@ Reden: %2</translation>
  - VCMI mods in zip format (.zip)
  - VCMI configuration files (.json)
 </source>
-        <translation type="obsolete">Met deze optie kunt u extra gegevensbestanden importeren in uw VCMI-installatie. Momenteel worden de volgende opties ondersteund:
-
-- Heroes III-kaarten (.h3m of .vmap).
-
-- Heroes III-campagnes (.h3c of .vcmp).
-
-- Heroes III Chronicles met behulp van de offline back-upinstallatie van GOG.com (.exe).
-
-- VCMI-mods in zip-formaat (.zip)
-
-- VCMI-configuratiebestanden (.json)</translation>
+        <translation type="obsolete">Met deze optie kunt u extra gegevensbestanden importeren in uw VCMI-installatie. Momenteel worden de volgende opties ondersteund:\n\n- Heroes III-kaarten (.h3m of .vmap).\n\n- Heroes III-campagnes (.h3c of .vcmp).\n\n- Heroes III Chronicles met behulp van de offline back-upinstallatie van GOG.com (.exe).\n\n- VCMI-mods in zip-formaat (.zip)\n\n- VCMI-configuratiebestanden (.json)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="333"/>
@@ -2544,9 +2416,7 @@ Reden: %2</translation>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished">Een nieuwe versie van enkele van de mods die je hebt geïnstalleerd, is nu beschikbaar in de mod-repository. Gebruik deze optie om al je mods automatisch bij te werken naar de nieuwste versie.
-
-WAARSCHUWING: In sommige gevallen zijn bijgewerkte versies van mods mogelijk niet compatibel met je bestaande savegames. Je kunt de mod-update beter uitstellen tot je een van je lopende games hebt uitgespeeld.</translation>
+        <translation type="unfinished">Een nieuwe versie van enkele van de mods die je hebt geïnstalleerd, is nu beschikbaar in de mod-repository. Gebruik deze optie om al je mods automatisch bij te werken naar de nieuwste versie.\n\nWAARSCHUWING: In sommige gevallen zijn bijgewerkte versies van mods mogelijk niet compatibel met je bestaande savegames. Je kunt de mod-update beter uitstellen tot je een van je lopende games hebt uitgespeeld.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="476"/>
@@ -2630,12 +2500,12 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
         <translation type="unfinished">Controleer op updates over de opstartfase.</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="71"/>
+        <location filename="../updatedialog_moc.cpp" line="64"/>
         <source>Network error</source>
         <translation type="unfinished">Netwerkfout</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="100"/>
+        <location filename="../updatedialog_moc.cpp" line="101"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
         <translation type="unfinished">Kan geen JSON lezen van de URL of de JSON-gegevens zijn onjuist.</translation>
     </message>

@@ -36,11 +36,6 @@ private slots:
 private:
 	Ui::LoseConditions *ui;
 
-	//non-interactive widgets to be removed when condition type change (labels, etc.);
-	std::vector<QWidget *> temporaryWidgets;
-	QSpinBox * daySpinBox = nullptr;
-	QSpinBox * weekSpinBox = nullptr;
-	QSpinBox * monthSpinBox = nullptr;
 	QComboBox * loseTypeWidget = nullptr;
 	QComboBox * loseSelectWidget = nullptr;
 	QLineEdit * loseValueWidget = nullptr;

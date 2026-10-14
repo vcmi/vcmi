@@ -31,7 +31,6 @@
 #include "../gameState/CGameState.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
-#include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/Quest.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../serializer/JsonSerializeFormat.h"
@@ -211,11 +210,6 @@ ObjectInstanceID TerrainTile::topVisitableObj(bool excludeTop) const
 	return visitableObjects.back();
 }
 
-ObjectInstanceID TerrainTile::objectVisitedBy(ObjectInstanceID heroID) const
-{
-	return topVisitableObj(topVisitableObj() == heroID);
-}
-
 EDiggingStatus TerrainTile::getDiggingStatus(const bool excludeTop) const
 {
 	if(isWater() || !getTerrain()->isPassable())
@@ -255,16 +249,8 @@ CMap::~CMap()
 				artifact->detachFromSource(*part.getArtifact());
 }
 
-bool CMap::isHoleAt(const int3 & pos) const
-{
-	return holePositions.contains(pos);
-}
-
 void CMap::hideObject(CGObjectInstance * obj)
 {
-	if(obj->ID == Obj::HOLE)
-		holePositions.erase(obj->anchorPos());
-
 	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
@@ -284,9 +270,6 @@ void CMap::hideObject(CGObjectInstance * obj)
 
 void CMap::showObject(CGObjectInstance * obj)
 {
-	if(obj->ID == Obj::HOLE)
-		holePositions.insert(obj->anchorPos());
-
 	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
@@ -527,17 +510,8 @@ void CMap::checkForObjectives()
 				case EventCondition::CONTROL_CURRENT:
 					if(isInTheMap(cond.position))
 					{
-						const auto & type = cond.objectType.as<MapObjectID>();
-						if(const auto * object = getObjectiveObjectFrom(cond.position, type))
-						{
+						if(const auto * object = getObjectiveObjectFrom(cond.position, cond.objectType.as<MapObjectID>()))
 							cond.objectID = object->id;
-						}
-						else if (type == MapObjectID::HERO)	//HotA maps can put event conditions on an imprisoned hero
-						{
-							const CGObjectInstance * prison = getObjectiveObjectFrom(cond.position, MapObjectID::PRISON);
-							if (prison)
-								cond.objectID = prison->id;
-						}
 					}
 
 					if(cond.objectID != ObjectInstanceID::NONE)
@@ -651,9 +625,6 @@ void CMap::addNewObject(std::shared_ptr<CGObjectInstance> obj)
 
 	if (vstd::contains(instanceNames, obj->instanceName))
 		throw std::runtime_error("Object instance name duplicated: "+obj->instanceName);
-
-	if(const auto * teleport = dynamic_cast<const CGTeleport *>(obj.get()))
-		teleport->warnIfNotVisitable();
 
 	if (obj->id == ObjectInstanceID(objects.size()))
 		objects.emplace_back(obj);
@@ -1164,6 +1135,68 @@ void CMap::parseUidCounter()
 
 	// Directly set uidCounter using simplified logic
 	uidCounter = max_index + 1;  // Automatically 0 when max_index = -1
+}
+
+bool CMap::compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b)
+{
+	//FIXME: Optimize
+	// this method is called A LOT on game start and some parts, e.g. for loops are too slow for that
+
+	assert(a && b);
+	if(!a)
+		return true;
+	if(!b)
+		return false;
+
+	// Background objects will always be placed below foreground objects
+	if(a->appearance->printPriority != 0 || b->appearance->printPriority != 0)
+	{
+		if(a->appearance->printPriority != b->appearance->printPriority)
+			return a->appearance->printPriority > b->appearance->printPriority;
+
+		//Two background objects will be placed based on their placement order on map
+		return a->id < b->id;
+	}
+
+	int aBlocksB = 0;
+	int bBlocksA = 0;
+
+	for(const auto & aOffset : a->getBlockedOffsets())
+	{
+		int3 testTarget = a->anchorPos() + aOffset + int3(0, 1, 0);
+		if(b->blockingAt(testTarget))
+			bBlocksA += 1;
+	}
+
+	for(const auto & bOffset : b->getBlockedOffsets())
+	{
+		int3 testTarget = b->anchorPos() + bOffset + int3(0, 1, 0);
+		if(a->blockingAt(testTarget))
+			aBlocksB += 1;
+	}
+
+	// Discovered by experimenting with H3 maps - object priority depends on how many tiles of object A are "blocked" by object B
+	// For example if blockmap of two objects looks like this:
+	//  ABB
+	//  AAB
+	// Here, in middle column object A has blocked tile that is immediately below tile blocked by object B
+	// Meaning, object A blocks 1 tile of object B and object B blocks 0 tiles of object A
+	// In this scenario in H3 object A will always appear above object B, irregardless of H3M order
+	if(aBlocksB != bBlocksA)
+		return aBlocksB < bBlocksA;
+
+	// object that don't have clear priority via tile blocking will appear based on their row
+	if(a->anchorPos().y != b->anchorPos().y)
+		return a->anchorPos().y < b->anchorPos().y;
+
+	// heroes should appear on top of objects on the same tile
+	if(b->ID==Obj::HERO && a->ID!=Obj::HERO)
+		return true;
+	if(b->ID!=Obj::HERO && a->ID==Obj::HERO)
+		return false;
+
+	// or, if all other tests fail to determine priority - simply based on H3M order
+	return a->id < b->id;
 }
 
 void CMap::deserializeHeroPool(const std::vector<std::shared_ptr<CGHeroInstance> > & poolFromSave)

@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "MapView.h"
 
-#include "IMapRendererContext.h"
 #include "MapViewActions.h"
 #include "MapViewCache.h"
 #include "MapViewController.h"
@@ -19,8 +18,6 @@
 #include "mapHandler.h"
 
 #include "../CPlayerInterface.h"
-#include "../CServerHandler.h"
-#include "../GameChatHandler.h"
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
@@ -33,14 +30,9 @@
 
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/VCMIDirs.h"
-#include "../../lib/texts/MetaString.h"
-#include "../../lib/texts/TextOperations.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 
 #include "MapOverlayLogVisualizer.h"
-
-#include <vstd/DateUtils.h>
 
 BasicMapView::~BasicMapView() = default;
 
@@ -58,7 +50,7 @@ std::shared_ptr<MapViewModel> BasicMapView::createModel(const Point & dimensions
 
 BasicMapView::BasicMapView(const Point & offset, const Point & dimensions, bool useGpuLayer)
 	: model(createModel(dimensions))
-	, tilesCache(std::make_shared<MapViewCache>(model, useGpuLayer))
+	, tilesCache(new MapViewCache(model, useGpuLayer))
 	, controller(new MapViewController(model, tilesCache))
 	, gpuLayerEligible(useGpuLayer)
 	, needFullUpdate(false)
@@ -278,28 +270,6 @@ void MapView::onViewMapActivated()
 		controller->setTileSize(Point(zoom, zoom));
 	else
 		controller->setTileSize(Point(32, 32));
-}
-
-void MapView::exportScreenshot()
-{
-	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "screenshots";
-	boost::filesystem::create_directories(outPath);
-	const std::string timestamp = vstd::getDateTimeISO8601Basic(std::time(nullptr));
-
-	const auto context = controller->getContext();
-
-	for(int level = 0; level < context->getMapSize().z; ++level)
-	{
-		const boost::filesystem::path filePath = outPath / ("screenshot-map-" + timestamp + "-level" + std::to_string(level) + ".png");
-
-		tilesCache->exportMapLevel(context, level, filePath);
-
-		MetaString txt;
-		txt.appendTextID("vcmi.client.screenShot");
-		txt.replaceRawString(TextOperations::filesystemPathToUtf8(filePath));
-		if(GAME->interface())
-			GAME->server().getGameChat().sendMessageGameplay(txt.toString(&GAME->translator()));
-	}
 }
 
 PuzzleMapView::PuzzleMapView(const Point & offset, const Point & dimensions, const int3 & tileToCenter)

@@ -423,9 +423,8 @@
 		"blockDescriptionPropagation": true
 	},
 	
-	"REBIRTH_SPENT":
+	"REBIRTH":
 	{
-		"hidden": true
 	},
 	
 	"RESOURCES_CONSTANT_BOOST":

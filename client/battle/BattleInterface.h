@@ -65,6 +65,7 @@ struct StackAttackedInfo
 
 	bool indirectAttack; //if true, stack was attacked indirectly - spell or ranged attack
 	bool killed; //if true, stack has been killed
+	bool rebirth; //if true, play rebirth animation after all
 	bool cloneKilled;
 };
 
@@ -208,7 +209,7 @@ public:
 	void newRoundFirst();
 	void newRound(); //called when round is ended;
 	void stackIsCatapulting(const CatapultAttack & ca); //called when a stack is attacking walls
-	void battleFinished(const BattleResult& br, QuestionID questionID); //called when battle is finished - battleresult window should be printed
+	void battleFinished(const BattleResult& br, QueryID queryID); //called when battle is finished - battleresult window should be printed
 	void spellCast(const BattleSpellCast *sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(SpellID spellID); //called when player has chosen a spell from spellbook

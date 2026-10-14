@@ -20,7 +20,6 @@
 #include "../entities/ResourceTypeHandler.h"
 #include "../modding/ModScope.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../texts/CGeneralTextHandler.h"
 
 
 
@@ -743,20 +742,6 @@ const std::string & CRmgTemplate::getName() const
 const std::string & CRmgTemplate::getDescription() const
 {
 	return description;
-}
-
-std::string CRmgTemplate::getDescriptionTextID() const
-{
-	// template ID has form of 'modScope:templateName'
-	return TextIdentifier("template", boost::algorithm::replace_first_copy(id, ":", "."), "description").get();
-}
-
-std::string CRmgTemplate::getDescriptionTranslated() const
-{
-	if (description.empty())
-		return description;
-
-	return LIBRARY->generaltexth->translate(getDescriptionTextID());
 }
 
 const std::string & CRmgTemplate::getId() const

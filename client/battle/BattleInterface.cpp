@@ -365,7 +365,7 @@ void BattleInterface::gateStateChanged(const EGateState state)
 		siegeController->gateStateChanged(state);
 }
 
-void BattleInterface::battleFinished(const BattleResult& br, QuestionID questionID)
+void BattleInterface::battleFinished(const BattleResult& br, QueryID queryID)
 {
 	checkForAnimations();
 	stacksController->setActiveStack(nullptr);
@@ -373,15 +373,10 @@ void BattleInterface::battleFinished(const BattleResult& br, QuestionID question
 	ENGINE->cursor().set(Cursor::Map::POINTER);
 	curInt->waitWhileDialog();
 
-	// a spectator watches a battle it has no side in, so the question belongs to whoever fights it
-	const bool ownsQuestion = attackerInt || defenderInt;
-
 	if(settings["session"]["spectate"].Bool() && settings["session"]["spectate-skip-battle-result"].Bool())
 	{
-		if(ownsQuestion)
-			curInt->cb->selectionMade(0, questionID);
+		curInt->cb->selectionMade(0, queryID);
 		windowObject->close();
-		CPlayerInterface::battleInt.reset(); // must stay last, it destroys this object
 		return;
 	}
 
@@ -394,13 +389,10 @@ void BattleInterface::battleFinished(const BattleResult& br, QuestionID question
 	}
 
 	auto wnd = std::make_shared<BattleResultWindow>(br, *(this->curInt));
-	if(ownsQuestion)
+	wnd->resultCallback = [this, queryID](ui32 selection)
 	{
-		wnd->resultCallback = [this, questionID](ui32 selection)
-		{
-			curInt->cb->selectionMade(selection, questionID);
-		};
-	}
+		curInt->cb->selectionMade(selection, queryID);
+	};
 	ENGINE->windows().pushWindow(wnd);
 
 	curInt->waitWhileDialog(); // Avoid freeze when AI end turn after battle. Check bug #1897

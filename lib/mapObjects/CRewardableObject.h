@@ -21,15 +21,12 @@ protected:
 
 	bool onceVisitableObjectCleared = false;
 	
+	/// reward selected by player, no serialize
+	ui16 selectedReward = 0;
+	
 	void doStartBattle(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const;
 
-	/// Handles the answer to either of the questions a rewardable object asks. Returns true if
-	/// the visit is suspended until an activity it started finishes.
-	bool answerBlockingDialog(IGameEventCallback & gameEvents, const CGHeroInstance * hero, int32_t answer, const JsonNode & visitState) const;
-
-	/// Clears creatures the hero left behind and grants the rewards still pending. Returns true if the visit is suspended again.
-	bool closeGarrisonDialog(IGameEventCallback & gameEvents, const CGHeroInstance * hero, const JsonNode & visitState) const;
-
+	void grantReward(IGameEventCallback & gameEvents, ui32 rewardID, const CGHeroInstance * hero) const override;
 	void markAsVisited(IGameEventCallback & gameEvents, const CGHeroInstance * hero) const override;
 
 	const IObjectInterface * getObject() const override;
@@ -62,16 +59,16 @@ public:
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *h) const override;
 
 	void battleFinished(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const BattleResult &result) const override;
-	void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const override;
+	void garrisonDialogClosed(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const override;
 
 	///possibly resets object state
 	void newTurn(IGameEventCallback & gameEvents, IGameRandomizer & gameRandomizer) const override;
 
 	/// gives second part of reward after hero level-ups for proper granting of spells/mana
-	void experienceApplied(IGameEventCallback & gameEvents, const CGHeroInstance *hero, const JsonNode & visitState) const override;
+	void heroLevelUpDone(IGameEventCallback & gameEvents, const CGHeroInstance *hero) const override;
 
 	/// applies player selection of reward
-	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer, const JsonNode & visitState) const override;
+	void blockingDialogAnswered(IGameEventCallback & gameEvents, const CGHeroInstance *hero, int32_t answer) const override;
 
 	void initObj(IGameRandomizer & gameRandomizer) override;
 

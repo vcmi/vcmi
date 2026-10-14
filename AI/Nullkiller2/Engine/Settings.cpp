@@ -38,6 +38,7 @@ namespace NK2AI
 		pathfinderBucketsCount(1),
 		pathfinderBucketSize(32),
 		allowObjectGraph(true),
+		useOneWayMonoliths(false),
 		useTroopsFromGarrisons(false),
 		updateHitmapOnTileReveal(false),
 		openMap(true)
@@ -63,5 +64,6 @@ namespace NK2AI
 		updateHitmapOnTileReveal = node["updateHitmapOnTileReveal"].Bool();
 		openMap = node["openMap"].Bool();
 		useTroopsFromGarrisons = node["useTroopsFromGarrisons"].Bool();
+		useOneWayMonoliths = node["useOneWayMonoliths"].Bool();
 	}
 }

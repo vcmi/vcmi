@@ -3,29 +3,23 @@ Script.__index = Script
 Script.type = "combatScript"
 
 --- Base class for scripts attached to units via the COMBAT_EVENT_TRIGGER bonus.
---- Define handlers only for supported events.
+--- A script defines a method only for the events it reacts to; an event whose method is absent is
+--- never handed to the script at all.
 ---
 --- The handlers, all of them `function Script:on<Event>(server, battle, unit, other, payload)`:
 --- onBeforeAttack, onAfterAttack, onBeforeAttacked, onAfterAttacked, onWait, onDefend,
---- onBeforeMove, onAfterMove, onUnitSpellcast, onSpellHit, onDeath, onActionFinished,
---- onBattleSetup, onBattleStart, onRoundStart.
+--- onBeforeMove, onAfterMove, onUnitSpellcast, onBattleSetup, onBattleStart, onRoundStart.
 --- See docs/modders/Lua/Combat_Event_Scripts.md for what each of them means.
 ---
---- `unit` is the bonus bearer. `other` is the other event participant and may be nil.
---- Bonus parameters are read-only fields of `self`; persistent state requires a separate bonus.
+--- In every handler `unit` is the bearer of the bonus and `other` is the unit on the opposite
+--- side of the event (the attacker, the victim, ...), which may be nil.
+--- Parameters stored in the bonus are available as fields on `self` and are read-only;
+--- a script that needs to remember something across events must store it itself,
+--- for example in a bonus of its own.
 ---
---- Attack handlers execute for counterattacks, every hit of a multiple attack and dead bearers.
---- Handlers that require a living bearer must check `unit:isAlive()`.
-
---- Returns the `payload.targets` entry for `unit`, or nil when no matching target exists.
-function Script:ownEntry(unit, payload)
-	for _, target in ipairs(payload.targets or {}) do
-		if target.unit and target.unit:unitID() == unit:unitID() then
-			return target
-		end
-	end
-
-	return nil
-end
+--- No event is withheld: the attack handlers fire for a counterattack, for every blow of a
+--- multiple attack, and even when the bearer died while the attack was resolving. Whether that is
+--- a reason to do nothing is the script's own call - a reflecting ability answers a lethal blow
+--- while dying, while an ability that strikes back must first check `unit:isAlive()`.
 
 return Script

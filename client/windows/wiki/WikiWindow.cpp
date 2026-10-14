@@ -40,10 +40,8 @@
 #include "../../../lib/entities/faction/CTownHandler.h"
 #include "../../../lib/entities/faction/CTown.h"
 #include "../../../lib/CCreatureHandler.h"
-#include "../../../lib/IGameSettings.h"
 #include "../../../lib/entities/hero/CHeroHandler.h"
 #include "../../../lib/entities/hero/CHeroClass.h"
-#include "../../../lib/entities/hero/CHeroClassHandler.h"
 #include "../../../lib/entities/artifact/CArtHandler.h"
 #include "../../../lib/spells/CSpellHandler.h"
 #include "../../../lib/spells/SpellSchoolHandler.h"
@@ -543,28 +541,20 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 		if(art && art->getWarMachine() != CreatureID::NONE)
 			warMachineCreatures.insert(art->getWarMachine());
 
-	// Build commander creature set - commanders are special creatures, but still deserve a wiki entry
-	std::set<CreatureID> commanderCreatures;
-	if(LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
-		for(const auto & heroClass : LIBRARY->heroclassesh->objects)
-			if(heroClass && heroClass->commander.hasValue())
-				commanderCreatures.insert(heroClass->commander);
-
 	// Build faction name lookup for creature subtitles
 	std::map<FactionID, std::string> factionNameById;
 	for(const auto & faction : LIBRARY->townh->objects)
 		if(faction)
 			factionNameById[faction->getId()] = faction->getNameTranslated();
 
-	// Creatures – normal creatures plus war machines and enabled commanders
+	// Creatures – normal creatures plus war machines (always show war machines)
 	{
 		const int iCreature = static_cast<int>(WikiCategory::CREATURE);
 		for(const auto & creature : LIBRARY->creh->objects)
 		{
 			if(!creature) continue;
 			const bool isWM = warMachineCreatures.count(CreatureID(creature->getIndex())) > 0;
-			const bool isCommander = commanderCreatures.count(CreatureID(creature->getIndex())) > 0;
-			if(!creature->special || isWM || isCommander)
+			if(!creature->special || isWM)
 			{
 				const auto it = factionNameById.find(creature->getFactionID());
 				const std::string factionName = (it != factionNameById.end()) ? it->second : "";

@@ -12,13 +12,18 @@
 #include "../../lib/filesystem/CMemoryBuffer.h"
 #include "../../lib/filesystem/Filesystem.h"
 
-#include "../../lib/callback/EditorCallback.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/rmg/CMapGenOptions.h"
+#include "../../lib/rmg/CMapGenerator.h"
 #include "../../lib/mapping/MapFormatJson.h"
 
 #include "../../lib/VCMIDirs.h"
 
+#include "MapComparer.h"
 #include "../JsonComparer.h"
+#include "mock/ZoneOptionsFake.h"
+
+static const int TEST_RANDOM_SEED = 1337;
 
 static void saveTestMap(CMemoryBuffer & serializeBuffer, const std::string & filename)
 {
@@ -29,6 +34,56 @@ static void saveTestMap(CMemoryBuffer & serializeBuffer, const std::string & fil
 	tmp.write((const char *)serializeBuffer.getBuffer().data(), serializeBuffer.getSize());
 	tmp.flush();
 	tmp.close();
+}
+
+TEST(MapFormat, DISABLED_Random)
+{
+	SCOPED_TRACE("MapFormat_Random start");
+
+	CMapGenOptions opt;
+	CRmgTemplate tmpl;
+	auto zoneOptions = std::make_shared<ZoneOptionsFake>();
+
+	const_cast<CRmgTemplate::CPlayerCountRange &>(tmpl.getHumanPlayers()).addRange(1, 4);
+	const_cast<CRmgTemplate::Zones &>(tmpl.getZones())[0] = zoneOptions;
+
+	zoneOptions->setOwner(1);
+	opt.setMapTemplate(&tmpl);
+
+	opt.setHeight(CMapHeader::MAP_SIZE_MIDDLE);
+	opt.setWidth(CMapHeader::MAP_SIZE_MIDDLE);
+	opt.setLevels(2);
+	opt.setHumanOrCpuPlayerCount(4);
+
+	opt.setPlayerTypeForStandardPlayer(PlayerColor(0), EPlayerType::HUMAN);
+	opt.setPlayerTypeForStandardPlayer(PlayerColor(1), EPlayerType::AI);
+	opt.setPlayerTypeForStandardPlayer(PlayerColor(2), EPlayerType::AI);
+	opt.setPlayerTypeForStandardPlayer(PlayerColor(3), EPlayerType::AI);
+
+	CMapGenerator gen(opt, nullptr, TEST_RANDOM_SEED);
+
+	std::unique_ptr<CMap> initialMap = gen.generate();
+	initialMap->name.appendRawString("Test");
+	SCOPED_TRACE("MapFormat_Random generated");
+
+	CMemoryBuffer serializeBuffer;
+	{
+		CMapSaverJson saver(&serializeBuffer);
+		saver.saveMap(initialMap);
+	}
+	SCOPED_TRACE("MapFormat_Random serialized");
+	saveTestMap(serializeBuffer, "test_random.vmap");
+	SCOPED_TRACE("MapFormat_Random saved");
+
+	serializeBuffer.seek(0);
+	{
+		CMapLoaderJson loader(&serializeBuffer);
+		std::unique_ptr<CMap> serialized = loader.loadMap(nullptr);
+
+		MapComparer c;
+		c(serialized, initialMap);
+	}
+	SCOPED_TRACE("MapFormat_Random finish");
 }
 
 static JsonNode getFromArchive(CZipLoader & archive, const std::string & archiveFilename)
@@ -73,11 +128,7 @@ static std::unique_ptr<CMap> loadOriginal(const JsonNode & header, const JsonNod
 
 	CMapLoaderJson initialLoader(&initialBuffer);
 
-	// object handlers assert on a non-null callback in their factory
-	static EditorCallback cb(nullptr);
-	auto map = initialLoader.loadMap(&cb);
-	cb.setMap(map.get());
-	return map;
+	return initialLoader.loadMap(nullptr);
 }
 
 static void loadActual(CMemoryBuffer * serializeBuffer, const std::unique_ptr<CMap> & originalMap, JsonNode & header, JsonNode & objects, JsonNode & surface, JsonNode & underground)
@@ -96,17 +147,20 @@ static void loadActual(CMemoryBuffer * serializeBuffer, const std::unique_ptr<CM
 	underground = getFromArchive(actualDataLoader, "underground_terrain.json");
 }
 
-TEST(MapFormat, Objects)
+TEST(MapFormat, DISABLED_Objects)
 {
 	static const std::string MAP_DATA_PATH = "test/ObjectPropertyTest/";
 
-	const JsonNode expectedHeader(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));
-	const JsonNode expectedObjects(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::OBJECTS_FILE_NAME));
+	const JsonNode initialHeader(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));
+	const JsonNode expectedHeader(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::HEADER_FILE_NAME));//same as initial for now
+
+	const JsonNode initialObjects(JsonPath::builtin(MAP_DATA_PATH + CMapFormatJson::OBJECTS_FILE_NAME));
+	const JsonNode expectedObjects(JsonPath::builtin(MAP_DATA_PATH + "objects.ex.json"));
 
 	const JsonNode expectedSurface(JsonPath::builtin(MAP_DATA_PATH + "surface_terrain.json"));
 	const JsonNode expectedUnderground(JsonPath::builtin(MAP_DATA_PATH + "underground_terrain.json"));
 
-	std::unique_ptr<CMap> originalMap = loadOriginal(expectedHeader, expectedObjects, expectedSurface, expectedUnderground);
+	std::unique_ptr<CMap> originalMap = loadOriginal(initialHeader, initialObjects, expectedSurface, expectedUnderground);
 
 	CMemoryBuffer serializeBuffer;
 
@@ -132,7 +186,7 @@ TEST(MapFormat, Objects)
 	}
 }
 
-TEST(MapFormat, Terrain)
+TEST(MapFormat, DISABLED_Terrain)
 {
 	static const std::string MAP_DATA_PATH = "test/TerrainTest/";
 

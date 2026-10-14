@@ -105,11 +105,4 @@ public:
 	void evaluateScore(const CGHeroInstance * hero, SecondarySkill skill, float & score) const override;
 };
 
-// Skills that grant a level-up when gained are worth an extra level
-class LevelUpGrantingSkillRule : public ISecondarySkillRule
-{
-public:
-	void evaluateScore(const CGHeroInstance * hero, SecondarySkill skill, float & score) const override;
-};
-
 }

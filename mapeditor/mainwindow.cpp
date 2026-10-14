@@ -478,17 +478,9 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	});
 #endif
 
-	//Load map or campaign from command line
+	//Load map from command line
 	if(!mapFilePath.isEmpty())
-	{
-		if(mapFilePath.endsWith(".h3c", Qt::CaseInsensitive) || mapFilePath.endsWith(".vcmp", Qt::CaseInsensitive))
-		{
-			hide();
-			openCampaign(mapFilePath);
-		}
-		else
-			openMap(mapFilePath);
-	}
+		openMap(mapFilePath);
 }
 
 EditorMainWindow::~EditorMainWindow()
@@ -930,8 +922,7 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 				qreal yscale = static_cast<qreal>(128) / static_cast<qreal>(picture->height());
 				qreal scale = std::min(xscale, yscale);
 				painter.scale(scale, scale);
-				// the divisor needs to be multiply by scale because scale is taken into consideration when positioning the first pixed of the image
-				painter.drawImage(QPoint((128 - picture->width() * scale) / (2 * scale), (128 - picture->height() * scale) / (2 * scale)), *picture);
+				painter.drawImage(QPoint(0, 0), *picture);
 			}
 
 			//create object to extract name

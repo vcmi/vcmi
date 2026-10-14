@@ -121,6 +121,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		case BonusType::SPELLCASTER:
 		case BonusType::FEROCITY:
 		case BonusType::PRIMARY_SKILL:
+		case BonusType::ENCHANTER:
 		case BonusType::SLAYER:
 		case BonusType::SPELL_IMMUNITY:
 		case BonusType::DARKNESS:
@@ -130,20 +131,6 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			// 1 number
 			var = static_cast<int32_t>(getFirstValue(value).Integer());
 			break;
-		case BonusType::ENCHANTER:
-		{
-			BonusParametersEnchanter loadedData;
-			if (value.isStruct())
-			{
-				loadedData.cooldown = static_cast<int32_t>(value["cooldown"].Integer());
-				if (!value["weight"].isNull())
-					loadedData.weight = std::max<int32_t>(0, static_cast<int32_t>(value["weight"].Integer()));
-			}
-			else
-				loadedData.cooldown = static_cast<int32_t>(getFirstValue(value).Integer());
-			var = loadedData;
-			break;
-		}
 		case BonusType::SPECIAL_UPGRADE:
 			// 1 creature ID
 			LIBRARY->identifiers()->requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = CreatureID(identifier); });
@@ -234,10 +221,6 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			}
 			break;
 		}
-		case BonusType::SPELL:
-			// spell can be cast without spellbook
-			var = BonusParameters(value.Bool());
-			break;
 		case BonusType::COMBAT_EVENT_TRIGGER:
 		{
 			// the whole addInfo is the script payload - which script runs is the bonus subtype
@@ -861,15 +844,6 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 	if (!value->isNull())
 		b->targetSourceType = static_cast<BonusSource>(parseByMapN(bonusSourceMap, value, "target type "));
 
-	value = &ability["targetSourceID"];
-	if (!value->isNull())
-	{
-		if (b->targetSourceType == BonusSource::OTHER)
-			logMod->warn("Bonus has 'targetSourceID' without 'targetSourceType' - target source ID will be ignored!");
-		else
-			loadBonusSourceInstance(b->targetSourceID, b->targetSourceType, *value);
-	}
-
 	value = &ability["limiters"];
 	if (!value->isNull())
 		b->limiter = parseLimiter(*value);
@@ -946,6 +920,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	}
 	value = &ability["sourceType"];
 	std::optional<BonusSource> src = std::nullopt; //Fixes for GCC false maybe-uninitialized
+	std::optional<BonusSourceID> id = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
@@ -956,46 +931,22 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	value = &ability["sourceID"];
 	if(!value->isNull() && src.has_value())
 	{
-		// source instance is resolved asynchronously, so it becomes known only after library loading is complete.
-		// Selector has to look it up on each use, rather than capture it right away
-		auto sourceId = std::make_shared<BonusSourceID>();
-		loadBonusSourceInstance(*sourceId, *src, *value);
-
-		ret = ret.And(CSelector([source = *src, sourceId](const Bonus * bonus)
-		{
-			return bonus->source == source && bonus->sid == *sourceId;
-		}));
+		loadBonusSourceInstance(*id, *src, ability);
 	}
+
+	if(src && id)
+		ret = ret.And(Selector::source(*src, *id));
 	else if(src)
 		ret = ret.And(Selector::sourceTypeSel(*src));
 
 
 	value = &ability["targetSourceType"];
-	std::optional<BonusSource> targetSrc = std::nullopt;
 	if(value->isString())
 	{
 		auto it = bonusSourceMap.find(value->String());
 		if(it != bonusSourceMap.end())
-			targetSrc = it->second;
+			ret = ret.And(Selector::targetSourceType()(it->second));
 	}
-
-	value = &ability["targetSourceID"];
-	if(!value->isNull() && targetSrc.has_value())
-	{
-		// source instance is resolved asynchronously, so it becomes known only after library loading is complete.
-		// Selector has to look it up on each use, rather than capture it right away
-		auto targetId = std::make_shared<BonusSourceID>();
-		loadBonusSourceInstance(*targetId, *targetSrc, *value);
-
-		ret = ret.And(CSelector([targetSource = *targetSrc, targetId](const Bonus * bonus)
-		{
-			return bonus->targetSourceType == targetSource
-				&& (*targetId == BonusSourceID() || bonus->targetSourceID == *targetId);
-		}));
-	}
-	else if(targetSrc)
-		ret = ret.And(Selector::targetSource(*targetSrc));
-
 	value = &ability["valueType"];
 	if(value->isString())
 	{

@@ -87,21 +87,6 @@ ExplorationHelper::ExplorationHelper(const CGHeroInstance * hero, const Nullkill
 	allowDeadEndCancellation = true;
 }
 
-ExplorationHelper::~ExplorationHelper()
-{
-	if(waterScan.unreachable + waterScan.nothingToReveal + waterScan.noUsableRoute + waterScan.unsafe + waterScan.accepted == 0)
-		return;
-
-	logAi->debug(
-		"Water exploration scan for %s: %d tiles unreachable, %d reveal nothing, %d without usable route, %d unsafe, %d accepted",
-		hero->getNameTextID(),
-		waterScan.unreachable,
-		waterScan.nothingToReveal,
-		waterScan.noUsableRoute,
-		waterScan.unsafe,
-		waterScan.accepted);
-}
-
 TSubgoal ExplorationHelper::makeComposition() const
 {
 	Composition c;
@@ -115,8 +100,7 @@ TSubgoal ExplorationHelper::makeComposition() const
 
 bool shouldExploreNeighbourAfterExplorationGoal(Goals::EGoals goalType)
 {
-	// A spell cast or an unmet route prerequisite has to return to the planner first
-	return goalType == Goals::EXECUTE_HERO_CHAIN;
+	return goalType != Goals::ADVENTURE_SPELL_CAST;
 }
 
 DimensionDoorExplorationEvaluation evaluateDimensionDoorExplorationCandidate(
@@ -298,33 +282,19 @@ bool ExplorationHelper::considerDimensionDoorExplorationTargets()
 
 void ExplorationHelper::scanTile(const int3 & tile)
 {
-	const auto * terrainTile = aiNk->cc->getTile(tile, false);
-	if(tile == ourPos || !terrainTile)
+	if(tile == ourPos
+		|| !aiNk->cc->getTile(tile, false)
+		|| !aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), tile)) //shouldn't happen, but it does
 		return;
-
-	WaterScanStats ignoredStats;
-	WaterScanStats & stats = terrainTile->isWater() ? waterScan : ignoredStats;
-
-	if(!aiNk->pathfinder->isTileAccessible(HeroPtr(hero, aiNk->cc.get()), tile)) //shouldn't happen, but it does
-	{
-		++stats.unreachable;
-		return;
-	}
 
 	std::vector<AIPathSummary> summaries;
 	aiNk->pathfinder->calculatePathSummaries(summaries, tile);
 	if(summaries.empty())
-	{
-		++stats.unreachable;
 		return;
-	}
 
 	const int tilesDiscovered = howManyTilesWillBeDiscovered(tile);
 	if(!tilesDiscovered)
-	{
-		++stats.nothingToReveal;
 		return;
-	}
 
 	const CGObjectInstance * object = cc->getTopObj(tile);
 	if(object && object->isBlockedVisitable())
@@ -347,13 +317,8 @@ void ExplorationHelper::scanTile(const int3 & tile)
 	}
 
 	if(candidateIndices.empty())
-	{
-		++stats.noUsableRoute;
 		return;
-	}
 
-	bool foundUnsafeRoute = false;
-	bool accepted = false;
 	std::vector<std::optional<AIPath>> reconstructedPaths(summaries.size());
 	std::vector<bool> reconstructionAttempted(summaries.size(), false);
 	auto reconstruct = [&](const size_t index) -> const AIPath *
@@ -417,20 +382,8 @@ void ExplorationHelper::scanTile(const int3 & tile)
 			bestValue = ourValue;
 			bestTile = tile;
 			bestTilesDiscovered = tilesDiscovered;
-			accepted = true;
-		}
-		else
-		{
-			foundUnsafeRoute = true;
 		}
 	}
-
-	if(accepted)
-		++stats.accepted;
-	else if(foundUnsafeRoute)
-		++stats.unsafe;
-	else
-		++stats.noUsableRoute;
 }
 
 void ExplorationHelper::scanDimensionDoorTile(const CSpell * spell, const DimensionDoorEffect * effect, const int3 & tile)

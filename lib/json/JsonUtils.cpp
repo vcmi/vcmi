@@ -150,8 +150,6 @@ const JsonNode & getSchemaByName(const std::string & name)
 {
 	// cached schemas to avoid loading json data multiple times
 	static std::map<std::string, JsonNode> loadedSchemas;
-	static std::mutex loadedSchemasMutex;
-	std::lock_guard lock(loadedSchemasMutex);
 
 	if (vstd::contains(loadedSchemas, name))
 		return loadedSchemas[name];
@@ -296,6 +294,66 @@ void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 	JsonNode inheritedNode(base);
 	merge(inheritedNode, descendant, true, true);
 	std::swap(descendant, inheritedNode);
+}
+
+JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, const JsonParsingSettings & settings)
+{
+	bool isValid = false;
+	return assembleFromFiles(files, settings, isValid);
+}
+
+JsonNode JsonUtils::assembleFromFiles(const JsonNode & files, const JsonParsingSettings & settings, bool & isValid)
+{
+	if (files.isVector())
+	{
+		assert(!files.getModScope().empty());
+		auto configList = files.convertTo<std::vector<std::string> >();
+		JsonNode result = JsonUtils::assembleFromFiles(configList, files.getModScope(), {}, isValid);
+
+		return result;
+	}
+	else
+	{
+		isValid = true;
+		return files;
+	}
+}
+
+JsonNode JsonUtils::assembleFromFiles(const JsonNode & files)
+{
+	bool isValid = false;
+	return assembleFromFiles(files, {}, isValid);
+}
+
+JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files)
+{
+	bool isValid = false;
+	return assembleFromFiles(files, "", {}, isValid);
+}
+
+JsonNode JsonUtils::assembleFromFiles(const std::vector<std::string> & files, std::string modName, const JsonParsingSettings & settings, bool & isValid)
+{
+	isValid = true;
+	JsonNode result;
+
+	for(const auto & file : files)
+	{
+		JsonPath path = JsonPath::builtinTODO(file);
+
+		if (CResourceHandler::get(modName)->existsResource(path))
+		{
+			bool isValidFile = false;
+			JsonNode section(JsonPath::builtinTODO(file), settings, modName, isValidFile);
+			merge(result, section);
+			isValid |= isValidFile;
+		}
+		else
+		{
+			logMod->error("Failed to find file %s", file);
+			isValid = false;
+		}
+	}
+	return result;
 }
 
 JsonNode JsonUtils::assembleFromFiles(const std::string & filename)

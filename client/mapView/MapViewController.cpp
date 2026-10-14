@@ -228,8 +228,7 @@ void MapViewController::updateState()
 {
 	if(adventureContext)
 	{
-		// gosolo borrows the spectator interface without granting vision the player did not have
-		adventureContext->settingsSessionSpectate = settings["session"]["spectate"].Bool() && !settings["session"]["spectate-own-vision"].Bool();
+		adventureContext->settingsSessionSpectate = settings["session"]["spectate"].Bool();
 		adventureContext->settingsAdventureObjectAnimation = settings["adventure"]["objectAnimation"].Bool();
 		adventureContext->settingsAdventureTerrainAnimation = settings["adventure"]["terrainAnimation"].Bool();
 		adventureContext->settingShowGrid = settings["gameTweaks"]["showGrid"].Bool();

@@ -69,27 +69,25 @@ void GameEventCallbackMock::addQuest(const PlayerColor & player, const QuestInfo
 
 void GameEventCallbackMock::giveExperience(const CGHeroInstance * hero, TExpType val)
 {
-	// Simplified version of CGameHandler::giveExperience: tests don't care about the level-up
-	// dialog flow or the cap-warning info window. The object is still told that the grant is
-	// over, which QuestTest does once the call that granted it returns.
+	// Simplified version of CGameHandler::giveExperience: tests don't care
+	// about the level-up dialog flow or the cap-warning info window.
 	SetHeroExperience she;
 	she.id   = hero->id;
 	she.mode = ChangeValueMode::RELATIVE;
 	she.val  = val;
 	sendAndApply(she);
-	experienceGranted = true;
 }
 
-void GameEventCallbackMock::showBlockingDialog(BlockingDialog * iw)
+void GameEventCallbackMock::showBlockingDialog(const IObjectInterface * caller, BlockingDialog * iw)
 {
 	assert(iw);
-	blockingDialogs.push_back(*iw);
+	blockingDialogs.push_back({*iw, caller});
 }
 
 void GameEventCallbackMock::showScriptDialog(BlockingDialog * iw)
 {
 	assert(iw);
-	blockingDialogs.push_back(*iw);
+	blockingDialogs.push_back({*iw, nullptr});
 }
 
 void GameEventCallbackMock::giveResource(PlayerColor player, GameResID which, int val)

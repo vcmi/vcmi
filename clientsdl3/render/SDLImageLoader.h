@@ -22,12 +22,12 @@ class SDLImageLoader : public IImageLoader
 	ui8 * position;
 public:
 	//load size raw pixels from data
-	void load(size_t size, const ui8 * data) override;
+	void load(size_t size, const ui8 * data);
 	//set size pixels to color
-	void load(size_t size, ui8 color=0) override;
-	void endLine() override;
+	void load(size_t size, ui8 color=0);
+	void endLine();
 	//init image with these sizes and palette
-	void init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal) override;
+	void init(Point SpriteSize, Point Margins, Point FullSize, SDL_Color *pal);
 
 	SDLImageLoader(SDLImageShared * Img);
 	~SDLImageLoader();

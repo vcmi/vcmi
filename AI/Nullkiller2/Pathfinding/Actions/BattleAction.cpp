@@ -20,8 +20,7 @@ namespace AIPathfinding
 {
 	void BattleAction::execute(AIGateway * aiGw, const CGHeroInstance * hero) const
 	{
-		if(aiGw->moveHeroToTile(targetTile, HeroPtr(hero, aiGw->cc.get())) == HeroMovementResult::BLOCKED)
-			throw cannotFulfillGoalException("Unable to reach battle target.");
+		aiGw->moveHeroToTile(targetTile, HeroPtr(hero, aiGw->cc.get()));
 	}
 
 	std::string BattleAction::toString() const

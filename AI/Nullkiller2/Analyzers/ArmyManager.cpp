@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "ArmyManager.h"
 #include "../Engine/Nullkiller.h"
-#include "../../../lib/battle/CombatValue.h"
-#include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/mapObjects/MapObjects.h"
 #include "../../../lib/mapping/TerrainTile.h"
 #include "../../../lib/IGameSettings.h"
@@ -28,14 +26,13 @@ public:
 	CreatureID upgradedCreature;
 	TResources cost;
 	int count;
-	/// signed: a computed combat value does not guarantee that an upgrade is worth more than its base
-	int64_t upgradeValue;
+	uint64_t upgradeValue;
 
 	StackUpgradeInfo(CreatureID initial, CreatureID upgraded, int count)
 		:initialCreature(initial), upgradedCreature(upgraded), count(count)
 	{
 		cost = (upgradedCreature.toCreature()->getFullRecruitCost() - initialCreature.toCreature()->getFullRecruitCost()) * count;
-		upgradeValue = (LIBRARY->creh->getCombatValue().getAIValue(upgradedCreature.toCreature()) - LIBRARY->creh->getCombatValue().getAIValue(initialCreature.toCreature())) * count;
+		upgradeValue = (upgradedCreature.toCreature()->getAIValue() - initialCreature.toCreature()->getAIValue()) * count;
 	}
 };
 
@@ -99,7 +96,7 @@ std::vector<SlotInfo> ArmyManager::getSortedSlots(const CCreatureSet * target, c
 			auto & slotInfp = creToPower[cre];
 
 			slotInfp.creature = cre;
-			slotInfp.power += i.second->estimateCombatValue();
+			slotInfp.power += i.second->getPower();
 			slotInfp.count += i.second->getCount();
 		}
 	}
@@ -182,14 +179,6 @@ public:
 	}
 };
 
-bool ArmyManager::takesWholeSource(const CCreatureSet * source, const std::vector<SlotInfo> & army)
-{
-	return std::ranges::all_of(source->Slots(), [&army](const auto & slot)
-	{
-		return std::ranges::any_of(army, [&slot](const SlotInfo & info) { return info.creature == slot.second->getCreature(); });
-	});
-}
-
 std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier, const CCreatureSet * target, const CCreatureSet * source, const TerrainId & armyTerrain) const
 {
 	auto sortedSlots = getSortedSlots(target, source);
@@ -257,7 +246,7 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 				multiplier += 1.0 / moraleDiceSize * highMoraleChance.at(chanceIndex);
 			}
 
-			newValue += multiplier * slot.second->estimateCombatValue();
+			newValue += multiplier * slot.second->getPower();
 		}
 
 		if(armyValue >= newValue)
@@ -269,10 +258,9 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 		armyValue = newValue;
 	}
 
-	// not a count of allowed factions: the loop above may stop after allowing a faction it then left out
 	if(resultingArmy.size() <= GameConstants::ARMY_SIZE
-		&& source->needsLastStack()
-		&& takesWholeSource(source, resultingArmy))
+		&& allowedFactions.size() == alignmentMap.size()
+		&& source->needsLastStack())
 	{
 		auto weakest = getBestUnitForScout(resultingArmy, armyTerrain);
 		if(weakest->count == 1)
@@ -339,7 +327,7 @@ ui64 ArmyManager::howManyReinforcementsCanBuy(
 
 	for(const creInfo & ci : army)
 	{
-		aivalue += ci.count * LIBRARY->creh->getCombatValue().getAIValue(ci.creID.toCreature());
+		aivalue += ci.count * ci.creID.toCreature()->getAIValue();
 	}
 
 	return aivalue;
@@ -463,7 +451,7 @@ ui64 ArmyManager::howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, 
 
 	auto bestArmy = getBestArmy(armyCarrier, target, source, armyTerrain);
 	uint64_t newArmy = 0;
-	uint64_t oldArmy = target->estimateCombatValue();
+	uint64_t oldArmy = target->getArmyStrength();
 
 	for(auto & slot : bestArmy)
 	{
@@ -475,7 +463,7 @@ ui64 ArmyManager::howManyReinforcementsCanGet(const IBonusBearer * armyCarrier, 
 
 uint64_t ArmyManager::evaluateStackPower(const Creature * creature, int count) const
 {
-	return LIBRARY->creh->getCombatValue().getAIValue(creature) * count;
+	return creature->getAIValue() * count;
 }
 
 SlotInfo ArmyManager::getTotalCreaturesAvailable(CreatureID creatureID) const
@@ -545,7 +533,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getHillFortUpgrades(const CCreatureSe
 
 		CreatureID strongestUpgrade = *vstd::maxElementByFun(possibleUpgrades, [](CreatureID cre) -> uint64_t
 		{
-			return LIBRARY->creh->getCombatValue().getAIValue(cre.toCreature());
+			return cre.toCreature()->getAIValue();
 		});
 
 		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->getCount());
@@ -584,7 +572,7 @@ std::vector<StackUpgradeInfo> ArmyManager::getDwellingUpgrades(const CCreatureSe
 
 		CreatureID strongestUpgrade = *vstd::maxElementByFun(possibleUpgrades, [](CreatureID cre) -> uint64_t
 		{
-			return LIBRARY->creh->getCombatValue().getAIValue(cre.toCreature());
+			return cre.toCreature()->getAIValue();
 		});
 
 		StackUpgradeInfo upgrade = StackUpgradeInfo(initial, strongestUpgrade, creature.second->getCount());

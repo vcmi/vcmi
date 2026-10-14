@@ -9,8 +9,6 @@
 */
 #include "StdInc.h"
 #include "ArmyFormation.h"
-#include "../../../lib/battle/CombatValue.h"
-#include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
 
 namespace NK2AI
@@ -31,7 +29,7 @@ void ArmyFormation::addSingleCreatureStacks(const CGHeroInstance * hero)
 			{
 				return slot.second->getCount() == 1
 					? std::numeric_limits<int>::max()
-					: LIBRARY->creh->getCombatValue().getAIValue(slot.second->getCreatureID().toCreature());
+					: slot.second->getCreatureID().toCreature()->getAIValue();
 			});
 
 		if(weakestCreature == hero->Slots().end() || weakestCreature->second->getCount() == 1)
@@ -64,7 +62,7 @@ void ArmyFormation::rearrangeArmyForSiege(const CGTownInstance * town, const CGH
 				auto flying = cre1->hasBonusOfType(BonusType::FLYING) - cre2->hasBonusOfType(BonusType::FLYING);
 			
 				if(flying != 0) return flying < 0;
-				else return LIBRARY->creh->getCombatValue().getAIValue(cre1) < LIBRARY->creh->getCombatValue().getAIValue(cre2);
+				else return cre1->getAIValue() < cre2->getAIValue();
 			});
 
 		for(int i = 0; i < stacks.size(); i++)

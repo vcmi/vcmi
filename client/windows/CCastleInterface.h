@@ -54,7 +54,7 @@ public:
 	/// returns building associated with this structure
 	const CBuilding * getBuilding();
 
-	CCastleBuildings * owner;
+	CCastleBuildings * parent;
 	const CGTownInstance * town;
 	const CStructure* str;
 	std::shared_ptr<IImage> border;

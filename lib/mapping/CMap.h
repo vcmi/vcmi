@@ -162,9 +162,6 @@ public:
 	/// Shows previously hiiden object on map
 	void showObject(CGObjectInstance * obj);
 
-	/// Tells whether a hole left by digging is located on the tile
-	bool isHoleAt(const int3 & pos) const;
-
 	/// Remove objects and shifts object indicies.
 	/// Only for use in map editor / RMG
 	std::shared_ptr<CGObjectInstance> removeObject(ObjectInstanceID oldObject);
@@ -302,6 +299,7 @@ public:
 	const IGameSettings & getSettings() const;
 
 	void parseUidCounter();
+	static bool compareObjectBlitOrder(const CGObjectInstance * a, const CGObjectInstance * b);
 
 private:
 
@@ -309,9 +307,6 @@ private:
 	MapTilesStorage<TerrainTile> terrain;
 
 	si32 uidCounter; 
-
-	/// holes are neither visitable nor blocking, so tiles do not know about them
-	std::unordered_set<int3> holePositions;
 
 public:
 	template <typename Handler>
@@ -342,16 +337,6 @@ public:
 
 		h & objects;
 		h & heroesOnMap;
-
-		if(!h.saving)
-		{
-			holePositions.clear();
-			for(const auto & object : objects)
-			{
-				if(object && object->ID == Obj::HOLE)
-					holePositions.insert(object->anchorPos());
-			}
-		}
 
 		h & teleportChannels;
 		h & towns;

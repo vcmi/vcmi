@@ -647,11 +647,11 @@ void MoraleLuckBox::set(const AFactionMember * node)
 		for(auto & bonus : * modifierList)
 		{
 			if(GAME->interface() && bonus->val) {
-				const std::string& bonusDescription = bonus->Description(GAME->interface()->cb.get());
+				const std::string& description = bonus->Description(GAME->interface()->cb.get());
 				//arraytxt already contains \n
-				if (bonusDescription.size() && bonusDescription[0] != '\n')
+				if (description.size() && description[0] != '\n')
 					addInfo += '\n';
-				addInfo += bonusDescription;
+				addInfo += description;
 			}
 		}
 		text = addInfo.empty() 

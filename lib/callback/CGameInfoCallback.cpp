@@ -24,7 +24,6 @@
 #include "../IGameSettings.h"
 #include "../mapping/CMap.h"
 #include "../CPlayerState.h"
-#include "../TerrainHandler.h"
 
 #define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
@@ -522,9 +521,11 @@ EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile, bool verbose) cons
 	if(!isVisible(tile))
 		return EDiggingStatus::UNKNOWN;
 
-	if(gameState().getMap().isHoleAt(tile))
-		return EDiggingStatus::TILE_OCCUPIED;
-
+	for(const auto & object : gameState().getMap().getObjects())
+	{
+		if(object->ID == Obj::HOLE && object->anchorPos() == tile)
+			return EDiggingStatus::TILE_OCCUPIED;
+	}
 	return getTile(tile)->getDiggingStatus();
 }
 
@@ -630,7 +631,7 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 	case RumorState::TYPE_SPECIAL:
 		text.replaceLocalString(EMetaText::GENERAL_TXT, rumor.first);
 		if(rumor.first == RumorState::RUMOR_GRAIL)
-			text.replaceTextID(TerrainId(rumor.second).toEntity(LIBRARY)->grailRumorTextID);
+			text.replaceTextID("core.arraytxt", 158 + rumor.second);
 		else
 			text.replaceTextID("core.plcolors", rumor.second);
 

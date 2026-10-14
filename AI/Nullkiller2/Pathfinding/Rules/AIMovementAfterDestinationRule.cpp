@@ -14,7 +14,6 @@
 #include "../Actions/WhirlpoolAction.h"
 #include "../../Goals/Invalid.h"
 #include "AIPreviousNodeRule.h"
-#include "../../AIUtility.h"
 #include "../../../../lib/mapObjects/Quest.h"
 #include "../../../../lib/pathfinder/PathfinderOptions.h"
 #include "../../../../lib/pathfinder/CPathfinder.h"
@@ -37,35 +36,11 @@ namespace AIPathfinding
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const
 	{
-		// objects of players that AI has not met yet can not be interacted with while simultaneous turns are active,
-		// server rejects such moves, so do not attempt to enter such tiles at all - even to pass through them
-		const CGObjectInstance * interactionTarget = destination.nodeHero ? destination.nodeHero : destination.nodeObject;
-
-		if(interactionTarget && !canInteractWithObject(aiNk, interactionTarget))
-		{
-			destination.blocked = true;
-			destination.node->locked = true;
-
-			return;
-		}
-
 		if(nodeStorage->isMovementInefficient(source, destination))
 		{
 			destination.node->locked = true;
 			destination.blocked = true;
 
-			return;
-		}
-
-		// A hero may deliberately finish a path on a one-way entrance, but can never
-		// continue walking through it: visiting the tile immediately teleports him to
-		// a server-selected exit. Keep the entrance as a reachable terminal node so
-		// portal-probe goals can still target it.
-		if(destination.nodeObject
-			&& destination.nodeObject->ID == Obj::MONOLITH_ONE_WAY_ENTRANCE)
-		{
-			destination.node->locked = true;
-			destination.blocked = true;
 			return;
 		}
 		
@@ -188,6 +163,7 @@ namespace AIPathfinding
 		const PathfinderConfig * pathfinderConfig,
 		CPathfinderHelper * pathfinderHelper) const
 	{
+		const AIPathNode * destinationNode = nodeStorage->getAINode(destination.node);
 		auto questInfo = QuestInfo(destination.nodeObject->id);
 		QuestAction questAction(questInfo);
 
@@ -205,39 +181,36 @@ namespace AIPathfinding
 			return false;
 		}
 
-		const AIPathNode * destinationNode = nodeStorage->getAINode(destination.node);
-		const bool canAct = questAction.canAct(aiNk, destinationNode);
-		if(!canAct && !destinationNode->actor->allowUseResources)
+		if(!questAction.canAct(aiNk, destinationNode))
 		{
-			const std::optional<AIPathNode *> questNode = nodeStorage->getOrCreateNode(
-				destination.coord,
-				destination.node->layer,
-				destinationNode->actor->resourceActor);
-			if (!questNode)
+			if(!destinationNode->actor->allowUseResources)
 			{
+				const std::optional<AIPathNode *> questNode = nodeStorage->getOrCreateNode(
+					destination.coord,
+					destination.node->layer,
+					destinationNode->actor->resourceActor);
+				if (!questNode)
+				{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 1
-				logAi->warn(
-					"P:Step2B AIMovementAfterDestinationRule::bypassQuest Failed to allocate node at %s[%d]. ",
-					destination.coord.toString(),
-					static_cast<int32_t>(destination.node->layer)
-				);
+					logAi->warn(
+						"P:Step2B AIMovementAfterDestinationRule::bypassQuest Failed to allocate node at %s[%d]. ",
+						destination.coord.toString(),
+						static_cast<int32_t>(destination.node->layer)
+					);
 #endif
-				return false;
+					return false;
+				}
+
+				if(questNode.value()->getCost() < destination.cost)
+				{
+					return false;
+				}
+
+				destination.node = questNode.value();
+				nodeStorage->commit(destination, source);
+				AIPreviousNodeRule(nodeStorage).process(source, destination, pathfinderConfig, pathfinderHelper);
 			}
 
-			if(questNode.value()->getCost() < destination.cost)
-			{
-				return false;
-			}
-
-			destination.node = questNode.value();
-			nodeStorage->commit(destination, source);
-			AIPreviousNodeRule(nodeStorage).process(source, destination, pathfinderConfig, pathfinderHelper);
-			destinationNode = nodeStorage->getAINode(destination.node);
-		}
-
-		if(!canAct || questSource->requiresVisitBeforePassing(destinationNode->actor->hero->getOwner()))
-		{
 			nodeStorage->updateAINode(destination.node, [&](AIPathNode * node)
 			{
 				node->addSpecialAction(std::make_shared<QuestAction>(questAction));

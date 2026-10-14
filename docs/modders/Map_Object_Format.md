@@ -74,7 +74,6 @@ These are types that don't have configurable properties, however it is possible 
 - `keymaster`
 - `pandora`
 - `prison`
-- `questGate`
 - `questGuard`
 - `seerHut`
 - `sign`

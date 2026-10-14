@@ -106,11 +106,6 @@ public:
 	TinyH3MBuilder & name(std::string s);
 	TinyH3MBuilder & description(std::string s);
 	TinyH3MBuilder & difficulty(EMapDifficulty d);
-	/// Maximum hero level, 0 for no limit. Written only for AB+ formats.
-	TinyH3MBuilder & heroLevelLimit(uint8_t level);
-
-	/// Override terrain for one tile. Tiles not specified here remain grass.
-	TinyH3MBuilder & terrain(const int3 & pos, TerrainId type);
 
 	/// Plain-text Lua script for the built map. Not part of the H3M bytes (H3M cannot embed Lua) -
 	/// retrieve via script() and hand it to the loader/service to set as CMap::scriptSource.
@@ -118,7 +113,7 @@ public:
 	const std::string & script() const { return mapScript; }
 
 	/// HotA sub-format version. Ignored unless the format is EMapFormat::HOTA.
-	/// Versions 0..5 are emittable; higher values throw at build() time.
+	/// Only versions 0..3 are emittable; higher values throw at build() time.
 	TinyH3MBuilder & hotaVersion(uint32_t version);
 
 	/// Mark a player as both human- and computer-playable. Required for any
@@ -131,9 +126,6 @@ public:
 	/// Append a Random Town object owned by `owner`. Builder auto-registers the
 	/// RANDOM_TOWN template on first call. No garrison, standard fort, no events.
 	TinyH3MBuilder & randomTown(const int3 & pos, PlayerColor owner);
-
-	/// Append a standalone shipyard owned by `owner`.
-	TinyH3MBuilder & shipyard(const int3 & pos, PlayerColor owner);
 
 	// ---- heroes --------------------------------------------------------
 
@@ -155,15 +147,6 @@ public:
 
 	/// Total experience points (the engine derives hero level from this).
 	TinyH3MBuilder & heroExperience(uint32_t totalXp);
-
-	/// HotA 1.7.0+ explicit hero level stored in the HotA5 hero extension.
-	TinyH3MBuilder & heroHotaLevel(uint32_t level);
-
-	/// Whether HotA should roll primary/secondary skills while applying the explicit start level.
-	TinyH3MBuilder & heroHotaAlwaysAddSkills(bool value);
-
-	/// HotA per-hero flag that prevents all future positive experience gain.
-	TinyH3MBuilder & heroHotaCannotGainXP(bool value);
 
 	/// Per-skill primary stat overrides (attack, defense, spell power, knowledge).
 	TinyH3MBuilder & heroPrimary(uint8_t attack, uint8_t defense, uint8_t spellPower, uint8_t knowledge);
@@ -201,14 +184,6 @@ public:
 
 	/// Fixed creature dwelling owned by `owner`.
 	TinyH3MBuilder & dwelling(const int3 & pos, MapObjectSubID type, PlayerColor owner);
-
-	// ---- teleports ------------------------------------------------------
-
-	/// One-way monolith entrance. Matching entrance/exit subids form a channel.
-	TinyH3MBuilder & oneWayPortalEntrance(const int3 & pos, int channel);
-
-	/// One-way monolith exit. Matching entrance/exit subids form a channel.
-	TinyH3MBuilder & oneWayPortalExit(const int3 & pos, int channel);
 
 	// ---- quest objects -------------------------------------------------
 
@@ -313,9 +288,6 @@ private:
 		// Hero customisation. Only consumed for HERO / RANDOM_HERO objects.
 		std::vector<std::pair<CreatureID, uint16_t>>           heroGarrisonStacks;
 		std::optional<uint32_t>                                heroExperienceXp;
-		uint32_t                                               heroExplicitHotaLevel = 1;
-		bool                                                   heroHotaAlwaysAddSkills = true;
-		bool                                                   heroHotaCannotGainXP = false;
 		std::optional<std::array<uint8_t, 4>>                  heroPrimarySkills;
 		std::vector<std::pair<SecondarySkill, uint8_t>>        heroSecondarySkills;
 		std::optional<std::vector<SpellID>>                    heroSpells;
@@ -379,10 +351,8 @@ private:
 	std::string    mapDescription;
 	std::string    mapScript;
 	EMapDifficulty mapDifficulty = EMapDifficulty::NORMAL;
-	uint8_t        mapHeroLevelLimit = 0;
 
 	std::array<bool, 8> playerEnabled{};
-	std::map<int3, TerrainId> terrainOverrides;
 	std::vector<std::pair<MapObjectID, MapObjectSubID>> templates;
 	std::vector<ObjectSpec>                              objects;
 	uint32_t                                             nextWireIdentifier = 1;

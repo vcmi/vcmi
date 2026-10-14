@@ -30,7 +30,7 @@ void FontChain::renderText(SDL_Surface * surface, const std::string & data, cons
 		Point chunkPos = currentPos;
 		int currAscent = chunk.font->getFontAscentScaled();
 		chunkPos.y += maxAscent - currAscent;
-		chunk.font->renderText(surface, std::string(chunk.text), color, chunkPos);
+		chunk.font->renderText(surface, chunk.text, color, chunkPos);
 		currentPos.x += chunk.font->getStringWidthScaled(chunk.text);
 	}
 }
@@ -113,7 +113,7 @@ size_t FontChain::getGlyphWidthScaled(const char * data) const
 	return 0;
 }
 
-std::vector<FontChain::TextChunk> FontChain::splitTextToChunks(std::string_view data) const
+std::vector<FontChain::TextChunk> FontChain::splitTextToChunks(const std::string & data) const
 {
 	// U+FFFD - replacement character (question mark in rhombus, '�')
 	static const std::string replacementCharacter = reinterpret_cast<const char *>(u8"\ufffd");
@@ -130,7 +130,7 @@ std::vector<FontChain::TextChunk> FontChain::splitTextToChunks(std::string_view 
 
 	for (size_t i = 0; i < data.size(); i += TextOperations::getUnicodeCharacterSize(data[i]))
 	{
-		std::string_view symbol = data.substr(i, TextOperations::getUnicodeCharacterSize(data[i]));
+		std::string symbol = data.substr(i, TextOperations::getUnicodeCharacterSize(data[i]));
 		const IFont * currentFont = selectFont(symbol.data());
 
 		if (currentFont == nullptr)
@@ -142,19 +142,16 @@ std::vector<FontChain::TextChunk> FontChain::splitTextToChunks(std::string_view 
 		if (currentFont == nullptr)
 			continue; // Still nothing - neither desired character nor fallback can be rendered
 
-		// a chunk can only grow over adjacent symbols of `data`, replacement character is not one of them
-		bool extendsLastChunk = !chunks.empty() && chunks.back().font == currentFont && chunks.back().text.data() + chunks.back().text.size() == symbol.data();
-
-		if (extendsLastChunk)
-			chunks.back().text = std::string_view(chunks.back().text.data(), chunks.back().text.size() + symbol.size());
-		else
+		if (chunks.empty() || chunks.back().font != currentFont)
 			chunks.push_back({currentFont, symbol});
+		else
+			chunks.back().text += symbol;
 	}
 
 	return chunks;
 }
 
-size_t FontChain::getStringWidthScaled(std::string_view data) const
+size_t FontChain::getStringWidthScaled(const std::string & data) const
 {
 	size_t result = 0;
 	auto chunks = splitTextToChunks(data);

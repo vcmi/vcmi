@@ -35,7 +35,7 @@ class CToggleButton;
 class BattleOnlyModeHeroSelector : public CIntObject
 {
 private:
-	BattleOnlyModeTab& owner;
+	BattleOnlyModeTab& parent;
 
 	std::shared_ptr<CPicture> backgroundImage;
 	std::shared_ptr<CPicture> heroImage;
@@ -68,7 +68,7 @@ public:
 	void setSecSkillIcons();
 	void setArtifactIcons();
 	void manageSpells();
-	BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab& owner, Point position);
+	BattleOnlyModeHeroSelector(int id, BattleOnlyModeTab& parent, Point position);
 };
 
 class BattleOnlyModeTab : public CIntObject

@@ -18,4 +18,3 @@
 #include "RecruitHero.h"
 #include "DigAtTile.h"
 #include "AdventureSpellCast.h"
-#include "AttackOneWayPortalGuard.h"

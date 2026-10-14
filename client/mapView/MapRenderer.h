@@ -38,7 +38,9 @@ class MapTileStorage
 
 public:
 	explicit MapTileStorage(size_t capacity);
-	void load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode);
+	/// preloadAllFrames materialises every frame right away. Used for palette-animated terrain,
+	/// whose frames are generated on demand and stall the frame that scrolls a tile into view.
+	void load(size_t index, const AnimationPath & filename, EImageBlitMode blitMode, bool preloadAllFrames = false);
 	std::shared_ptr<IImage> find(size_t fileIndex, size_t rotationIndex, size_t imageIndex, size_t groupIndex = 0);
 	int groupCount(size_t fileIndex, size_t rotationIndex, size_t imageIndex);
 };
@@ -78,7 +80,7 @@ public:
 
 class MapRendererObjects
 {
-	std::map<std::pair<AnimationPath, EImageBlitMode>, std::shared_ptr<CAnimation>> animations;
+	std::map<AnimationPath, std::shared_ptr<CAnimation>> animations;
 	mutable std::map<ImagePath, std::shared_ptr<IImage>> images;
 
 	/// Everything the checksum needs to know about one object in one animation group:
@@ -97,47 +99,30 @@ class MapRendererObjects
 	/// Keyed by object and animation group, packed into one integer.
 	std::unordered_map<uint64_t, ObjectChecksumInfo> checksumInfoCache;
 
-	/// The images an object contributes this pass, in draw order. Resolving them costs a lookup
-	/// each and is asked once per tile it covers. Cleared by prepareFrame().
-	/// Like in H3 the shadow is drawn on its own, before the bodies of everything on the tile, so
-	/// it never darkens another object. Heroes and boats keep the shadow in their body image.
-	enum ObjectImageLayer
-	{
-		LAYER_SHADOW,
-		LAYER_BODY,
-		LAYER_COLOR_OVERLAY, // player color of flaggable objects
-		LAYER_FLAG,
-		LAYER_OVERLAY,
-		LAYER_COUNT
-	};
-	using ObjectImages = std::array<std::shared_ptr<IImage>, LAYER_COUNT>;
+	/// The base, flag and overlay images an object contributes this pass, in draw order. Resolving
+	/// them costs four lookups and is asked once per tile it covers. Cleared by prepareFrame().
+	using ObjectImages = std::array<std::shared_ptr<IImage>, 3>;
 	std::unordered_map<int32_t, ObjectImages> renderImageCache;
 
 	const ObjectImages & getObjectImages(IMapRendererContext & context, const CGObjectInstance * object);
 
 	const ObjectChecksumInfo & getChecksumInfo(IMapRendererContext & context, const CGObjectInstance * object, size_t groupIndex);
 
-	std::shared_ptr<CAnimation> getBodyAnimation(const CGObjectInstance * obj);
-	std::shared_ptr<CAnimation> getShadowAnimation(const CGObjectInstance * obj);
-	std::shared_ptr<CAnimation> getColorOverlayAnimation(const CGObjectInstance * obj);
+	std::shared_ptr<CAnimation> getBaseAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getFlagAnimation(const CGObjectInstance * obj);
 	std::shared_ptr<CAnimation> getOverlayAnimation(const CGObjectInstance * obj);
 
-	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & filename, bool generateMovementGroups, EImageBlitMode mode);
+	std::shared_ptr<CAnimation> getAnimation(const AnimationPath & filename, bool generateMovementGroups, bool enableOverlay);
 	std::shared_ptr<IImage> getImage(const ImagePath & filename) const;
 
 	std::shared_ptr<IImage> getImageToRender(const IMapRendererContext & context, const CGObjectInstance * obj, const std::shared_ptr<CAnimation> & animation) const;
 
-	void renderImage(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage> & image, double transparencyFactor = 1.0, bool applyOwnerColor = true);
-	void renderShadow(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object);
+	void renderImage(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * object, const std::shared_ptr<IImage> & image, double transparencyFactor = 1.0);
 	void renderObject(IMapRendererContext & context, Canvas & target, const int3 & coordinates, const CGObjectInstance * obj, double transparencyFactor = 1.0);
 
 	/// transparency of the second, always-on-top copy of the active hero
 	static constexpr double activeHeroTransparency = 0.5;
 public:
-	/// Special ground objects, which are drawn before the rivers and roads
-	void renderGround(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
-
 	/// Must be called once per update pass before any checksum() call
 	void prepareFrame();
 
@@ -235,5 +220,5 @@ public:
 
 	TileChecksum getTileChecksum(IMapRendererContext & context, const int3 & coordinates);
 
-	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates, bool withOverlays);
+	void renderTile(IMapRendererContext & context, Canvas & target, const int3 & coordinates);
 };
