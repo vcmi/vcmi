@@ -35,6 +35,10 @@ class RenderHandler final : public IRenderHandler
 	/// most recently used ones alive so they are not decoded again on the next frame.
 	MemoryBudgetedCache retainedAssets;
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
+	/// Mode the locators of animationLayouts were created with. Missing for generated layouts
+	std::map<AnimationPath, EImageBlitMode> animationLayoutModes;
+	/// Copies of animationLayouts with locators of the original mode switched to the requested one
+	std::map<AnimationPath, std::map<EImageBlitMode, AnimationLayoutMap>> animationLayoutVariants;
 	std::map<SharedImageLocator, std::weak_ptr<ScalableImageShared>> imageFiles;
 	std::map<EFonts, std::shared_ptr<const IFont>> fonts;
 	std::shared_ptr<AssetGenerator> assetGenerator;
