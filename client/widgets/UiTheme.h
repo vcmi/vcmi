@@ -34,7 +34,7 @@ namespace UiTheme
 
 	constexpr ColorRGBA BORDER = ColorRGBA(32, 96, 192, 255);
 	constexpr ColorRGBA BORDER_HIGHLIGHT = ColorRGBA(100, 180, 255, 255);
-	constexpr ColorRGBA FIELD_FILL = ColorRGBA(0, 16, 48, 160);
+	constexpr ColorRGBA FIELD_FILL = ColorRGBA(0, 16, 48, 245);
 	constexpr ColorRGBA BUTTON_FILL = ColorRGBA(0, 40, 120, 150);
 	constexpr ColorRGBA BUTTON_FILL_PRESSED = ColorRGBA(0, 60, 160, 190);
 	constexpr ColorRGBA BUTTON_FILL_BLOCKED = ColorRGBA(0, 20, 60, 120);

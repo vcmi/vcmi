@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CCheckBox.h"
 
+#include "UiText.h"
 #include "UiTheme.h"
 
 #include "../GameEngine.h"
@@ -84,7 +85,7 @@ void CCheckBox::showAll(Canvas & to)
 	if(!text.empty())
 	{
 		CanvasClipRectGuard guard(to, pos);
-		to.drawText(Point(box.right() + UiTheme::SPACING, pos.y + pos.h / 2), UiTheme::FONT, textColor, ETextAlignment::CENTERLEFT, text);
+		UiText::draw(to, Point(box.right() + UiTheme::SPACING, pos.y + pos.h / 2), UiTheme::FONT, textColor, ETextAlignment::CENTERLEFT, text);
 	}
 
 	CIntObject::showAll(to);

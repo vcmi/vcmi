@@ -11,6 +11,7 @@
 #include "CSelectList.h"
 
 #include "Slider.h"
+#include "UiText.h"
 #include "UiTheme.h"
 
 #include "../GameEngine.h"
@@ -411,9 +412,9 @@ void CSelectList::showAll(Canvas & to)
 			}
 
 			if(!row.detail.empty())
-				to.drawText(Point(rowRect.right() - MARGIN - rightChecks * COLUMN_WIDTH, centerY), UiTheme::FONT, UiTheme::TEXT_HINT, ETextAlignment::CENTERRIGHT, row.detail);
+				UiText::draw(to, Point(rowRect.right() - MARGIN - rightChecks * COLUMN_WIDTH, centerY), UiTheme::FONT, UiTheme::TEXT_HINT, ETextAlignment::CENTERRIGHT, row.detail);
 
-			to.drawText(Point(x, centerY), UiTheme::FONT, color, ETextAlignment::CENTERLEFT, row.text);
+			UiText::draw(to, Point(x, centerY), UiTheme::FONT, color, ETextAlignment::CENTERLEFT, row.text);
 		}
 	}
 

@@ -189,6 +189,7 @@ set(vcmiclientcommon_SRCS
 	widgets/CTabBar.cpp
 	widgets/CTextButton.cpp
 	widgets/CTextField.cpp
+	widgets/UiText.cpp
 	widgets/markets/CAltarArtifacts.cpp
 	widgets/markets/CAltarCreatures.cpp
 	widgets/markets/CArtifactsBuying.cpp
@@ -478,6 +479,7 @@ set(vcmiclientcommon_HEADERS
 	widgets/CTabBar.h
 	widgets/CTextButton.h
 	widgets/CTextField.h
+	widgets/UiText.h
 	widgets/UiTheme.h
 	widgets/markets/CAltarArtifacts.h
 	widgets/markets/CAltarCreatures.h

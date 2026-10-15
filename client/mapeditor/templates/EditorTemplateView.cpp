@@ -14,6 +14,7 @@
 
 #include "../../GameEngine.h"
 #include "../../gui/TextAlignment.h"
+#include "../../widgets/UiText.h"
 #include "../../widgets/UiTheme.h"
 #include "render/CAnimation.h"
 #include "render/Canvas.h"
@@ -477,12 +478,12 @@ void EditorTemplateView::drawCard(Canvas & to, const CardLayout & layout) const
 
 		if(resourceIcons.at(frame))
 			to.draw(resourceIcons.at(frame), rowPosition);
-		to.drawText(rowPosition + Point(22, 8), EFonts::FONT_SMALL, text, ETextAlignment::CENTERLEFT, std::to_string(found->second));
+		UiText::draw(to, rowPosition + Point(22, 8), EFonts::FONT_SMALL, text, ETextAlignment::CENTERLEFT, std::to_string(found->second));
 		++row;
 	}
 
 	if(zone->getMaxTreasureValue())
-		to.drawText(Point(area.x + area.w - 5, area.y + area.h - 18), EFonts::FONT_SMALL, text, ETextAlignment::BOTTOMRIGHT, std::to_string(zone->getMaxTreasureValue()));
+		UiText::draw(to, Point(area.x + area.w - 5, area.y + area.h - 18), EFonts::FONT_SMALL, text, ETextAlignment::BOTTOMRIGHT, std::to_string(zone->getMaxTreasureValue()));
 
 	for(int sword = 0; sword < swordCount(zone->monsterStrength); ++sword)
 		to.drawColor(Rect(area.x + 5 + sword * 12, area.y + area.h - 12, 9, 7), ColorRGBA(0x9E, 0x87, 0x45));

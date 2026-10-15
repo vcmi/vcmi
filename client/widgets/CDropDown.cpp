@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "CDropDown.h"
 
+#include "UiText.h"
 #include "UiTheme.h"
 
 #include "../GameEngine.h"
@@ -115,7 +116,7 @@ void CDropDown::showAll(Canvas & to)
 
 	{
 		CanvasClipRectGuard guard(to, Rect(pos.x + 1, pos.y, pos.w - pos.h, pos.h));
-		to.drawText(Point(pos.x + 6, pos.y + pos.h / 2), UiTheme::FONT, textColor, ETextAlignment::CENTERLEFT, getSelectedText());
+		UiText::draw(to, Point(pos.x + 6, pos.y + pos.h / 2), UiTheme::FONT, textColor, ETextAlignment::CENTERLEFT, getSelectedText());
 	}
 
 	const Point arrow(pos.right() - pos.h / 2, pos.y + pos.h / 2);
