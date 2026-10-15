@@ -146,7 +146,7 @@ void CStackInstance::setCount(TQuantity newCount)
 {
 	assert(newCount >= 0);
 
-	if(newCount < getCount())
+	if(newCount < getCount() && getCount() > 0)
 	{
 		TExpType averageExperience = totalExperience / getCount();
 		totalExperience = averageExperience * newCount;
