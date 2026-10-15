@@ -36,11 +36,13 @@
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
 #include "../widgets/MiscWidgets.h"
+#include "../widgets/CTextButton.h"
 #include "../widgets/ObjectLists.h"
 #include "../widgets/TextControls.h"
 #include "../widgets/VideoWidget.h"
 #include "../windows/InfoWindows.h"
 #include "../windows/wiki/WikiWindow.h"
+#include "../mapeditor/EditorWindow.h"
 #include "../CServerHandler.h"
 
 #include "../CPlayerInterface.h"
@@ -174,7 +176,7 @@ void CMenuScreen::keyPressed(EShortcut key)
 //function for std::string -> std::function conversion for main menu
 static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::string> menuType, const std::string & string)
 {
-	static const std::vector<std::string> commandType = {"to", "campaigns", "start", "load", "exit", "highscores", "wiki"};
+	static const std::vector<std::string> commandType = {"to", "campaigns", "start", "load", "exit", "highscores", "wiki", "editor"};
 
 	static const std::vector<std::string> gameType = {"single", "multi", "campaign", "tutorial", "battle"};
 
@@ -247,11 +249,34 @@ static std::function<void()> genCommand(CMenuScreen * menu, std::vector<std::str
 			{
 				return []() { ENGINE->windows().createAndPushWindow<WikiWindow>(WikiWindow::Style::BLUE); };
 			}
+			case 7: //map editor
+			{
+				return []() { ENGINE->windows().createAndPushWindow<EditorWindow>(); };
+			}
 			}
 		}
 	}
 	logGlobal->error("Failed to parse command: %s", string);
 	return std::function<void()>();
+}
+
+std::shared_ptr<CTextButton> CMenuEntry::createTextButton(CMenuScreen * parent, const JsonNode & button)
+{
+	std::function<void()> command = genCommand(parent, parent->menuNameToEntry, button["command"].String());
+	EShortcut shortcut = ENGINE->shortcuts().findShortcut(button["shortcut"].String());
+
+	if (shortcut == EShortcut::NONE && !button["shortcut"].String().empty())
+		logGlobal->warn("Unknown shortcut '%s' found when loading main menu config!", button["shortcut"].String());
+
+	Point point = adjustNegativeCoordinate(button["x"].Integer(), button["y"].Integer());
+	Point size(button["width"].Integer(), button["height"].Integer());
+
+	auto result = std::make_shared<CTextButton>(Rect(point, size), LIBRARY->generaltexth->translate(button["text"].String()), command, shortcut);
+
+	if (button["center"].Bool())
+		result->moveBy(Point(-size.x/2, -size.y/2));
+
+	return result;
 }
 
 std::shared_ptr<CButton> CMenuEntry::createButton(CMenuScreen * parent, const JsonNode & button)
@@ -325,6 +350,13 @@ CMenuEntry::CMenuEntry(CMenuScreen * parent, const JsonNode & config)
 				logGlobal->warn("No valid files found for campaign set %s", commandParts.second);
 				continue;
 			}
+		}
+
+		if (node["text"].isString())
+		{
+			textButtons.push_back(createTextButton(parent, node));
+			textButtons.back()->setRedrawParent(true);
+			continue;
 		}
 
 		buttons.push_back(createButton(parent, node));

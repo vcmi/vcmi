@@ -101,6 +101,12 @@ public:
 	virtual bool showBlocked() const = 0;
 	virtual bool showInvisible() const = 0;
 
+	/// if true, the visitable, blocked and invisible object overlays can be shown
+	virtual bool debugOverlaysAllowed() const = 0;
+
+	/// returns position of the grail shown by the invisible object overlay
+	virtual int3 grailPosition() const = 0;
+
 	/// if true, spell range for teleport / scuttle boat will be visible
 	virtual bool showSpellRange(const int3 & position) const = 0;
 

@@ -207,7 +207,6 @@ class MapRendererOverlay
 	std::shared_ptr<IImage> imageEvent;
 	std::shared_ptr<IImage> imageGrail;
 
-	int3 grailPos;
 public:
 	MapRendererOverlay();
 

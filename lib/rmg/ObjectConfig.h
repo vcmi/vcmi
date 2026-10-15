@@ -15,12 +15,14 @@
 #ifdef ENABLE_TEMPLATE_EDITOR
 class ObjectSelector;
 #endif
+class EditorTemplateObjectDialog;
 
 class DLL_LINKAGE ObjectConfig
 {
 #ifdef ENABLE_TEMPLATE_EDITOR
 	friend class ::ObjectSelector;
 #endif
+	friend class ::EditorTemplateObjectDialog;
 
 public:
 

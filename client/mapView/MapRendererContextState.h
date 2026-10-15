@@ -17,6 +17,7 @@
 
 struct ObjectPosInfo;
 class CGObjectInstance;
+class CMap;
 
 class IMapRendererContext;
 
@@ -50,7 +51,10 @@ enum class EWorldViewIcon
 struct MapRendererContextState
 {
 public:
+	/// Objects of the map of the running game
 	MapRendererContextState();
+	/// Objects of an arbitrary map, e.g. the one opened in the map editor
+	explicit MapRendererContextState(const CMap & map);
 
 	using MapObject = ObjectInstanceID;
 	using MapObjectsList = std::vector<MapObject>;
@@ -69,6 +73,8 @@ public:
 	void removeObject(const CGObjectInstance * object);
 
 private:
+	const CMap & map;
+
 	void updateVisibleObjects(const int3 & tile);
 
 	/// Puts object on every tile of its footprint. Without `orderTiles` tiles are left in order of stamping, for orderTile()

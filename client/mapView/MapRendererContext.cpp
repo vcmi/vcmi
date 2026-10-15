@@ -24,6 +24,7 @@
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/battle/IBattleState.h"
 #include "../../lib/callback/CCallback.h"
+#include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/MiscObjects.h"
 #include "../../lib/mapping/CMap.h"
@@ -294,6 +295,16 @@ bool MapRendererBaseContext::showBlocked() const
 bool MapRendererBaseContext::showInvisible() const
 {
 	return false;
+}
+
+bool MapRendererBaseContext::debugOverlaysAllowed() const
+{
+	return GAME->interface()->cb->getStartInfo()->extraOptionsInfo.cheatsAllowed;
+}
+
+int3 MapRendererBaseContext::grailPosition() const
+{
+	return GAME->server().client->gameState().getMap().grailPos;
 }
 
 bool MapRendererBaseContext::showSpellRange(const int3 & position) const

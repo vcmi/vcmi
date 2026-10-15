@@ -22,6 +22,7 @@ class CTextBox;
 class CTabbedInt;
 class CAnimImage;
 class CButton;
+class CTextButton;
 class CFilledTexture;
 class CLabel;
 class VideoWidget;
@@ -68,8 +69,10 @@ class CMenuEntry : public CIntObject
 {
 	std::vector<std::shared_ptr<CPicture>> images;
 	std::vector<std::shared_ptr<CButton>> buttons;
+	std::vector<std::shared_ptr<CTextButton>> textButtons;
 
 	std::shared_ptr<CButton> createButton(CMenuScreen * parent, const JsonNode & button);
+	std::shared_ptr<CTextButton> createTextButton(CMenuScreen * parent, const JsonNode & button);
 
 public:
 	CMenuEntry(CMenuScreen * parent, const JsonNode & config);

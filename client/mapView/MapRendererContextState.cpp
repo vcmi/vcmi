@@ -26,22 +26,22 @@
 
 #include <tbb/parallel_for.h>
 
-static const CGObjectInstance * getMapObject(ObjectInstanceID id)
+MapRendererContextState::MapRendererContextState()
+	: MapRendererContextState(*GAME->map().getMap())
 {
-	//FIXME: remove mh access
-	return GAME->map().getMap()->getObject(id);
 }
 
-MapRendererContextState::MapRendererContextState()
-	: objects(GAME->interface()->cb->getMapSize())
-	, orderedObjects(GAME->interface()->cb->getMapSize())
+MapRendererContextState::MapRendererContextState(const CMap & map)
+	: objects(int3(map.width, map.height, map.levels()))
+	, orderedObjects(int3(map.width, map.height, map.levels()))
+	, map(map)
 {
 	logGlobal->debug("Loading map objects");
 
-	for(const auto & obj : GAME->map().getMap()->getObjects())
+	for(const auto & obj : map.getObjects())
 		stampObject(obj, false);
 
-	const int3 mapSize = GAME->interface()->cb->getMapSize();
+	const int3 mapSize(map.width, map.height, map.levels());
 
 	// order of objects on a tile depends only on objects of that tile, so every tile can be ordered on its own
 	tbb::parallel_for(0, mapSize.z * mapSize.x, [&](int column)
@@ -55,8 +55,6 @@ MapRendererContextState::MapRendererContextState()
 
 void MapRendererContextState::orderTile(const int3 & tile)
 {
-	const CMap & map = *GAME->map().getMap();
-
 	MapObjectsList loadOrder;
 	std::swap(loadOrder, orderedObjects[tile]);
 
@@ -75,7 +73,7 @@ void MapRendererContextState::updateVisibleObjects(const int3 & tile)
 
 	for(const auto & objectID : orderedObjects[tile])
 	{
-		const auto * object = getMapObject(objectID);
+		const auto * object = map.getObject(objectID);
 
 		if(object && object->coveringAt(tile))
 			visible.push_back(objectID);
@@ -83,7 +81,7 @@ void MapRendererContextState::updateVisibleObjects(const int3 & tile)
 
 	for(const auto & objectID : objects[tile])
 	{
-		const auto * object = getMapObject(objectID);
+		const auto * object = map.getObject(objectID);
 
 		if(object && MapObjectDrawOrder::usesFixedDrawSlot(object))
 			visible.push_back(objectID);
@@ -108,7 +106,7 @@ void MapRendererContextState::stampObject(const CGObjectInstance * obj, bool ord
 		{
 			int3 currTile(obj->anchorPos().x - fx, obj->anchorPos().y - fy, obj->anchorPos().z);
 
-			if(!GAME->interface()->cb->isInTheMap(currTile))
+			if(!map.isInTheMap(currTile))
 				continue;
 
 			if(MapObjectDrawOrder::usesFixedDrawSlot(obj))
@@ -122,7 +120,6 @@ void MapRendererContextState::stampObject(const CGObjectInstance * obj, bool ord
 			}
 
 			// like in H3 every cell of the object takes part in ordering, even if nothing is drawn there
-			const CMap & map = *GAME->map().getMap();
 			auto & ordered = orderedObjects[currTile];
 			usedTiles[obj->id].push_back(currTile);
 
@@ -153,7 +150,7 @@ void MapRendererContextState::addMovingObject(const CGObjectInstance * object, c
 		{
 			int3 currTile(x, y, object->anchorPos().z);
 
-			if(GAME->interface()->cb->isInTheMap(currTile))
+			if(map.isInTheMap(currTile))
 			{
 				// only heroes and boats move, and those are not ordered
 				objects[currTile].push_back(object->id);

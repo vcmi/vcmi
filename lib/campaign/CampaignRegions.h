@@ -18,6 +18,8 @@ class CampaignEditor;
 class CampaignProperties;
 class ScenarioProperties;
 #endif
+class EditorCampaignPropertiesDialog;
+class EditorScenarioDialog;
 
 class DLL_LINKAGE CampaignRegions
 {
@@ -26,6 +28,8 @@ class DLL_LINKAGE CampaignRegions
 	friend class ::CampaignProperties;
 	friend class ::ScenarioProperties;
 #endif
+	friend class ::EditorCampaignPropertiesDialog;
+	friend class ::EditorScenarioDialog;
 
 	/// Shared prefix for all campaign images
 	std::string campPrefix;

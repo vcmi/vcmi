@@ -59,6 +59,8 @@ public:
 	bool showVisitable() const override;
 	bool showBlocked() const override;
 	bool showInvisible() const override;
+	bool debugOverlaysAllowed() const override;
+	int3 grailPosition() const override;
 	bool showSpellRange(const int3 & position) const override;
 };
 

@@ -467,6 +467,11 @@ bool CFocusable::hasFocus() const
 	return inputWithFocus == this;
 }
 
+bool CFocusable::isAnyFocused()
+{
+	return inputWithFocus != nullptr;
+}
+
 void CFocusable::giveFocus()
 {
 	auto previousInput = inputWithFocus;

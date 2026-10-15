@@ -24,6 +24,9 @@ class CampaignEditor;
 class CampaignProperties;
 class ScenarioProperties;
 #endif
+class EditorCampaignWindow;
+class EditorCampaignPropertiesDialog;
+class EditorScenarioDialog;
 
 struct StartInfo;
 class CGHeroInstance;
@@ -46,6 +49,9 @@ class DLL_LINKAGE CampaignHeader : public boost::noncopyable
 	friend class ::CampaignProperties;
 	friend class ::ScenarioProperties;
 #endif
+	friend class ::EditorCampaignWindow;
+	friend class ::EditorCampaignPropertiesDialog;
+	friend class ::EditorScenarioDialog;
 
 	CampaignVersion version = CampaignVersion::NONE;
 	CampaignRegions campaignRegions;
@@ -214,6 +220,9 @@ class DLL_LINKAGE Campaign : public CampaignHeader, public Serializeable
 	friend class ::CampaignProperties;
 	friend class ::ScenarioProperties;
 #endif
+	friend class ::EditorCampaignWindow;
+	friend class ::EditorCampaignPropertiesDialog;
+	friend class ::EditorScenarioDialog;
 
 	std::map<CampaignScenarioID, CampaignScenario> scenarios;
 
@@ -243,6 +252,9 @@ class DLL_LINKAGE CampaignState : public Campaign
 	friend class ::CampaignProperties;
 	friend class ::ScenarioProperties;
 #endif
+	friend class ::EditorCampaignWindow;
+	friend class ::EditorCampaignPropertiesDialog;
+	friend class ::EditorScenarioDialog;
 
 	using ScenarioPoolType = std::vector<JsonNode>;
 	using CampaignPoolType = std::map<CampaignScenarioID, ScenarioPoolType>;

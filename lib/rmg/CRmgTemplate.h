@@ -21,6 +21,7 @@
 #ifdef ENABLE_TEMPLATE_EDITOR
 class TemplateEditor;
 #endif
+class EditorTemplateWindow;
 
 class JsonSerializeFormat;
 struct CompoundMapObjectID;
@@ -106,6 +107,7 @@ class DLL_LINKAGE ZoneConnection
 #ifdef ENABLE_TEMPLATE_EDITOR
 	friend class ::TemplateEditor;
 #endif
+	friend class ::EditorTemplateWindow;
 
 public:
 
@@ -141,6 +143,7 @@ class DLL_LINKAGE ZoneOptions
 #ifdef ENABLE_TEMPLATE_EDITOR
 	friend class ::TemplateEditor;
 #endif
+	friend class ::EditorTemplateWindow;
 
 public:
 	static const TRmgTemplateZoneId NO_ZONE;
@@ -150,6 +153,7 @@ public:
 #ifdef ENABLE_TEMPLATE_EDITOR
 		friend class ::TemplateEditor;
 #endif
+		friend class ::EditorTemplateWindow;
 	public:
 		CTownInfo();
 
@@ -313,6 +317,7 @@ class DLL_LINKAGE CRmgTemplate : boost::noncopyable
 #ifdef ENABLE_TEMPLATE_EDITOR
 	friend class ::TemplateEditor;
 #endif
+	friend class ::EditorTemplateWindow;
 
 public:
 	using Zones = std::map<TRmgTemplateZoneId, std::shared_ptr<rmg::ZoneOptions>>;
@@ -322,6 +327,7 @@ public:
 #ifdef ENABLE_TEMPLATE_EDITOR
 		friend class ::TemplateEditor;
 #endif
+		friend class ::EditorTemplateWindow;
 	public:
 		void addRange(int lower, int upper);
 		void addNumber(int value);

@@ -43,6 +43,9 @@ public:
 	void removeFocus(); //remove focus
 	bool hasFocus() const;
 
+	/// Returns true if any input accepts the text right now, so keys must not trigger other actions
+	static bool isAnyFocused();
+
 	CFocusable();
 	~CFocusable();
 };

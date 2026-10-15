@@ -758,7 +758,6 @@ MapRendererOverlay::MapRendererOverlay()
 	, imageSpellRange(ENGINE->renderHandler().loadImage(ImagePath::builtin("debug/spellRange"), EImageBlitMode::COLORKEY))
 	, imageEvent(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("AVZevnt0"), EImageBlitMode::COLORKEY)->getImage(0))
 	, imageGrail(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("AVZgrail"), EImageBlitMode::COLORKEY)->getImage(0))
-	, grailPos(GAME->server().client->gameState().getMap().grailPos)
 {
 }
 
@@ -767,7 +766,7 @@ void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & targ
 	if(context.showGrid())
 		target.draw(imageGrid, Point(0,0));
 
-	if(GAME->interface()->cb->getStartInfo()->extraOptionsInfo.cheatsAllowed && (context.showVisitable() || context.showBlocked() || context.showInvisible()))
+	if(context.debugOverlaysAllowed() && (context.showVisitable() || context.showBlocked() || context.showInvisible()))
 	{
 		bool blocking = false;
 		bool visitable = false;
@@ -779,7 +778,7 @@ void MapRendererOverlay::renderTile(IMapRendererContext & context, Canvas & targ
 			if(object->ID == Obj::EVENT && context.showInvisible())
 				target.draw(imageEvent, Point(0,0));
 			
-			if(grailPos == coordinates && context.showInvisible())
+			if(context.grailPosition() == coordinates && context.showInvisible())
 				target.draw(imageGrail, Point(0,0));
 
 			if(context.objectTransparency(objectID, coordinates) > 0 && !context.isActiveHero(object))

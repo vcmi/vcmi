@@ -65,6 +65,49 @@ set(vcmiclientcommon_SRCS
 	mainmenu/CHighScoreScreen.cpp
 	mainmenu/CStatisticScreen.cpp
 
+	mapeditor/EditorCampaignWindow.cpp
+	mapeditor/EditorConverters.cpp
+	mapeditor/EditorFiles.cpp
+	mapeditor/EditorInspector.cpp
+	mapeditor/EditorMap.cpp
+	mapeditor/EditorMapHelpers.cpp
+	mapeditor/EditorMapRendererContext.cpp
+	mapeditor/EditorMapSettingsWindow.cpp
+	mapeditor/EditorMapView.cpp
+	mapeditor/EditorMinimap.cpp
+	mapeditor/EditorNewMapWindow.cpp
+	mapeditor/EditorObjectCatalog.cpp
+	mapeditor/EditorPlayerSettingsWindow.cpp
+	mapeditor/EditorProgressWindow.cpp
+	mapeditor/EditorResourceConverter.cpp
+	mapeditor/EditorSettings.cpp
+	mapeditor/EditorTemplateWindow.cpp
+	mapeditor/EditorTexts.cpp
+	mapeditor/EditorTranslationsWindow.cpp
+	mapeditor/EditorValidator.cpp
+	mapeditor/EditorWindow.cpp
+	mapeditor/campaign/EditorCampaignPropertiesDialog.cpp
+	mapeditor/campaign/EditorScenarioDialog.cpp
+	mapeditor/campaign/EditorStartingBonusDialog.cpp
+	mapeditor/inspector/EditorLimiterEditor.cpp
+	mapeditor/inspector/EditorObjectDialogs.cpp
+	mapeditor/inspector/EditorQuestDialog.cpp
+	mapeditor/inspector/EditorRewardableDialogs.cpp
+	mapeditor/inspector/EditorRewardsDialog.cpp
+	mapeditor/inspector/EditorTownDialogs.cpp
+	mapeditor/mapsettings/EditorAllowedPage.cpp
+	mapeditor/mapsettings/EditorEventsPage.cpp
+	mapeditor/mapsettings/EditorGeneralPage.cpp
+	mapeditor/mapsettings/EditorHeroesPage.cpp
+	mapeditor/mapsettings/EditorLossPage.cpp
+	mapeditor/mapsettings/EditorModsPage.cpp
+	mapeditor/mapsettings/EditorRumorsPage.cpp
+	mapeditor/mapsettings/EditorSettingsPage.cpp
+	mapeditor/mapsettings/EditorVictoryPage.cpp
+	mapeditor/templates/EditorTemplateDialogs.cpp
+	mapeditor/templates/EditorTemplateView.cpp
+	mapeditor/templates/GeometryAlgorithm.cpp
+
 	mapView/MapRenderer.cpp
 	mapView/MapRendererContext.cpp
 	mapView/MapRendererContextState.cpp
@@ -129,6 +172,23 @@ set(vcmiclientcommon_SRCS
 	widgets/CArtifactsOfHeroBackpack.cpp
 	widgets/RadialMenu.cpp
 	widgets/VideoWidget.cpp
+	widgets/CCheckBox.cpp
+	widgets/CDropDown.cpp
+	widgets/CFormView.cpp
+	widgets/CItemValuePicker.cpp
+	widgets/CListEditor.cpp
+	widgets/CMenuBar.cpp
+	widgets/CMultiLineEdit.cpp
+	widgets/CNumberInput.cpp
+	widgets/CPanel.cpp
+	widgets/CPlayerSetEditor.cpp
+	widgets/CResourceEditor.cpp
+	widgets/CScrollPanel.cpp
+	widgets/CSelectList.cpp
+	widgets/CSetPicker.cpp
+	widgets/CTabBar.cpp
+	widgets/CTextButton.cpp
+	widgets/CTextField.cpp
 	widgets/markets/CAltarArtifacts.cpp
 	widgets/markets/CAltarCreatures.cpp
 	widgets/markets/CArtifactsBuying.cpp
@@ -179,6 +239,11 @@ set(vcmiclientcommon_SRCS
 	windows/settings/BattleOptionsTab.cpp
 	windows/settings/AdventureOptionsTab.cpp
 	windows/settings/KeyBindingsWindow.cpp
+	windows/CChoiceDialog.cpp
+	windows/CDialogWindow.cpp
+	windows/CFileDialog.cpp
+	windows/CPopupMenu.cpp
+	windows/CPromptWindows.cpp
 
 	filters/xBRZ/xbrz.cpp
 
@@ -274,6 +339,49 @@ set(vcmiclientcommon_HEADERS
 	mainmenu/CHighScoreScreen.h
 	mainmenu/CStatisticScreen.h
 
+	mapeditor/EditorCampaignWindow.h
+	mapeditor/EditorConverters.h
+	mapeditor/EditorFiles.h
+	mapeditor/EditorInspector.h
+	mapeditor/EditorMap.h
+	mapeditor/EditorMapHelpers.h
+	mapeditor/EditorMapRendererContext.h
+	mapeditor/EditorMapSettingsWindow.h
+	mapeditor/EditorMapView.h
+	mapeditor/EditorMinimap.h
+	mapeditor/EditorNewMapWindow.h
+	mapeditor/EditorObjectCatalog.h
+	mapeditor/EditorPlayerSettingsWindow.h
+	mapeditor/EditorProgressWindow.h
+	mapeditor/EditorResourceConverter.h
+	mapeditor/EditorSettings.h
+	mapeditor/EditorTemplateWindow.h
+	mapeditor/EditorTexts.h
+	mapeditor/EditorTranslationsWindow.h
+	mapeditor/EditorValidator.h
+	mapeditor/EditorWindow.h
+	mapeditor/campaign/EditorCampaignPropertiesDialog.h
+	mapeditor/campaign/EditorScenarioDialog.h
+	mapeditor/campaign/EditorStartingBonusDialog.h
+	mapeditor/inspector/EditorLimiterEditor.h
+	mapeditor/inspector/EditorObjectDialogs.h
+	mapeditor/inspector/EditorQuestDialog.h
+	mapeditor/inspector/EditorRewardableDialogs.h
+	mapeditor/inspector/EditorRewardsDialog.h
+	mapeditor/inspector/EditorTownDialogs.h
+	mapeditor/mapsettings/EditorAllowedPage.h
+	mapeditor/mapsettings/EditorEventsPage.h
+	mapeditor/mapsettings/EditorGeneralPage.h
+	mapeditor/mapsettings/EditorHeroesPage.h
+	mapeditor/mapsettings/EditorLossPage.h
+	mapeditor/mapsettings/EditorModsPage.h
+	mapeditor/mapsettings/EditorRumorsPage.h
+	mapeditor/mapsettings/EditorSettingsPage.h
+	mapeditor/mapsettings/EditorVictoryPage.h
+	mapeditor/templates/EditorTemplateDialogs.h
+	mapeditor/templates/EditorTemplateView.h
+	mapeditor/templates/GeometryAlgorithm.h
+
 	mapView/IMapRendererContext.h
 	mapView/IMapRendererObserver.h
 	mapView/MapRenderer.h
@@ -353,6 +461,24 @@ set(vcmiclientcommon_HEADERS
 	widgets/IVideoHolder.h
 	widgets/RadialMenu.h
 	widgets/VideoWidget.h
+	widgets/CCheckBox.h
+	widgets/CDropDown.h
+	widgets/CFormView.h
+	widgets/CItemValuePicker.h
+	widgets/CListEditor.h
+	widgets/CMenuBar.h
+	widgets/CMultiLineEdit.h
+	widgets/CNumberInput.h
+	widgets/CPanel.h
+	widgets/CPlayerSetEditor.h
+	widgets/CResourceEditor.h
+	widgets/CScrollPanel.h
+	widgets/CSelectList.h
+	widgets/CSetPicker.h
+	widgets/CTabBar.h
+	widgets/CTextButton.h
+	widgets/CTextField.h
+	widgets/UiTheme.h
 	widgets/markets/CAltarArtifacts.h
 	widgets/markets/CAltarCreatures.h
 	widgets/markets/CArtifactsBuying.h
@@ -403,6 +529,11 @@ set(vcmiclientcommon_HEADERS
 	windows/settings/BattleOptionsTab.h
 	windows/settings/AdventureOptionsTab.h
 	windows/settings/KeyBindingsWindow.h
+	windows/CChoiceDialog.h
+	windows/CDialogWindow.h
+	windows/CFileDialog.h
+	windows/CPopupMenu.h
+	windows/CPromptWindows.h
 
 	filters/xBRZ/xbrz.h
 	filters/xBRZ/xbrz_tools.h
