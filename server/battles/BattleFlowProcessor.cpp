@@ -212,6 +212,13 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 		{
 			// No stacks to move - start next round
 			startNextRound(battle, false);
+
+			// round start triggers (e.g. damage-over-time combat scripts) may have killed the last
+			// units of a side - end the battle now instead of giving a turn to a surviving stack
+			// (or throwing below, if both sides were wiped out)
+			if (owner->checkBattleStateChanges(battle))
+				return;
+
 			next = getNextStack(battle);
 			if (!next)
 				throw std::runtime_error("Failed to find valid stack to act!");
