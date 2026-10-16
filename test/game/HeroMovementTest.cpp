@@ -16,6 +16,9 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/TerrainTile.h"
+#include "../../lib/bonuses/Bonus.h"
+#include "../../lib/pathfinder/CPathfinder.h"
+#include "../../lib/pathfinder/PathfinderOptions.h"
 #include "../../server/CGameHandler.h"
 
 class HeroMovementTest : public TinyMapGameTest
@@ -97,4 +100,48 @@ TEST_F(HeroMovementTest, heroStartingOnSharedEntranceVisitsOnlyTopTown)
 	EXPECT_EQ(hero->getVisitedTown(), topTown);
 	for(const auto * town : findAll<CGTownInstance>())
 		EXPECT_EQ(town->getVisitingHero(), town == topTown ? hero : nullptr);
+}
+
+/// A hero stays where he stood when visiting another hero. Water Walk lasts only one day, so a visit
+/// made from water would leave the hero stranded there.
+TEST_F(HeroMovementTest, noVisitFromWaterToHeroStandingOnObject)
+{
+	const PlayerColor player(0);
+
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.playerActive(player)
+		.hero(int3(10, 10, 0), HeroTypeID(0), player)
+		.hero(int3(14, 10, 0), HeroTypeID(1), player)
+		.keymaster(int3(13, 10, 0), 0);
+	startWithMap(std::move(builder));
+	revealMap(player);
+
+	CGHeroInstance * walker = nullptr;
+	CGHeroInstance * islander = nullptr;
+	for(auto * hero : findAll<CGHeroInstance>())
+		(hero->getHeroTypeID() == HeroTypeID(0) ? walker : islander) = hero;
+	ASSERT_NE(walker, nullptr);
+	ASSERT_NE(islander, nullptr);
+	// a hero standing on a passable object, as on a Garden of Revelation, leaves two visitable objects on the tile
+	ASSERT_EQ(map()->getTile(islander->visitablePos()).visitableObjects.size(), 2);
+
+	// islander stands on a single land tile surrounded by water
+	const int3 island = islander->visitablePos();
+	for(int x = walker->visitablePos().x + 1; x <= island.x + 1; ++x)
+		for(int y = island.y - 1; y <= island.y + 1; ++y)
+			if(int3(x, y, 0) != island)
+				map()->getTile(int3(x, y, 0)).terrainType = ETerrainId::WATER;
+
+	walker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::WATER_WALKING, BonusSource::OTHER, 0, BonusSourceID()));
+	walker->setMovementPoints(2000);
+
+	CPathsInfo paths(gameState()->getMapSize(), walker);
+	auto config = std::make_shared<SingleHeroPathfinderConfig>(paths, *gameState(), walker);
+	CPathfinder pathfinder(*gameState(), config);
+	pathfinder.calculatePaths();
+
+	ASSERT_TRUE(paths.getNode(island + int3(0, 1, 0), EPathfindingLayer::WATER)->reachable());
+	EXPECT_FALSE(paths.getNode(island, EPathfindingLayer::LAND)->reachable());
 }
