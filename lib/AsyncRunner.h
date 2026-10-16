@@ -39,11 +39,12 @@ public:
 		,control(tbb::global_control::max_allowed_parallelism, selectArenaSize())
 	{}
 
-	/// Runs the provided functor asynchronously on a thread from the TBB worker pool.
+	/// Runs the provided functor asynchronously on a thread from the TBB worker pool. Uncaught exception terminates the app.
 	template<typename Functor>
 	void run(Functor && f)
 	{
-		arena.enqueue(taskGroup.defer(std::forward<Functor>(f)));
+		// task_group would store the exception until wait() and silently cancel all tasks queued after it
+		arena.enqueue(taskGroup.defer([f = std::forward<Functor>(f)]() noexcept { f(); }));
 	}
 
 	/// Waits for all previously enqueued task.
