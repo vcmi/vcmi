@@ -219,6 +219,38 @@ TEST_F(BattleEvaluatorTest, ExchangeTargetSelectionUsesTheAttackersShootingAcces
 	EXPECT_EQ(action.target[1].hexValue, swordsman->getPosition());
 }
 
+TEST_F(BattleEvaluatorTest, MovedDoubleWideTargetKeepsFullDamageAtTheRangeBoundary)
+{
+	const auto * marksmen = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(15, 5), 30);
+	const auto * peasants = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(3, 5), 40);
+	auto * griffins = addStack(BattleSide::DEFENDER, creatureByName("core:royalGriffin"), BattleHex(7, 5), 20);
+	addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(6, 7), 100);
+	int64_t injury = 10;
+	griffins->damage(injury);
+	battle()->activeStack = griffins->unitId();
+	ASSERT_TRUE(griffins->doubleWide());
+	const BattleHex attackFrom(4, 5);
+	ASSERT_EQ(BattleHex::getDistance(marksmen->getPosition(), attackFrom), 11);
+	ASSERT_EQ(BattleHex::getDistance(marksmen->getPosition(), BattleHex(5, 5)), 10);
+
+	auto callback = std::make_shared<CBattleCallback>(defenderSideHero->getOwner(), nullptr);
+	callback->onBattleStarted(battle());
+	const auto exchangeScore = [&](BattleHex shooterPosition)
+	{
+		auto state = std::make_shared<HypotheticBattle>(gameHandler.get(), callback->getBattle(BattleID(0)));
+		state->getForUpdate(marksmen->unitId())->setPosition(shooterPosition);
+		DamageCache cache;
+		cache.buildDamageCache(state, BattleSide::DEFENDER);
+		PotentialTargets targets(griffins, cache, state);
+		auto attack = AttackPossibility::evaluate(BattleAttackInfo(griffins, peasants, 0, false), attackFrom, cache, state);
+		BattleExchangeEvaluator evaluator(state, gameHandler, 1.0f, 1);
+		evaluator.updateReachabilityMap(state);
+		return evaluator.evaluateExchange(attack, 0, targets, cache, state);
+	};
+
+	EXPECT_NEAR(exchangeScore(BattleHex(15, 5)), exchangeScore(BattleHex(14, 5)), 0.01f);
+}
+
 TEST_F(BattleEvaluatorTest, ShooterMeleeDamageDoesNotDependOnCandidateCasualties)
 {
 	const auto * marksmen = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(8, 5), 20);
@@ -317,6 +349,75 @@ TEST_F(BattleEvaluatorTest, RepeatedAreaAttackValuesEachCollateralKillOnce)
 		+ AttackPossibility::calculateDamageReduce(peasant, peasant->getAvailableHealth(), cache);
 	EXPECT_NEAR(attack.defenderDamageReduce, expected, 0.01f);
 	EXPECT_EQ(AttackPossibility::calculateDamageReduce(deadPeasant->get(), 0, cache), 0);
+}
+
+TEST_F(BattleEvaluatorTest, PreservingAnExistingShooterBlockEarnsValue)
+{
+	addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(7, 5), 50);
+	const auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(8, 4), 100);
+	const auto * swordsman = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(8, 5), 10);
+
+	auto preserving = evaluateMelee(swordsman, enemy, swordsman->getPosition());
+	auto releasing = evaluateMelee(swordsman, enemy, BattleHex(9, 4));
+	ASSERT_TRUE(preserving.attackerState->alive());
+	EXPECT_GT(preserving.shootersBlockedDmg, releasing.shootersBlockedDmg);
+}
+
+TEST_F(BattleEvaluatorTest, ExchangeMovesTheAttackerAndReleasesItsOldShooterBlock)
+{
+	const auto * shooter = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(7, 5), 50);
+	const auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(8, 4), 100);
+	const auto * swordsman = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(8, 5), 10);
+	ASSERT_FALSE(battle()->battleCanShoot(shooter));
+
+	auto callback = std::make_shared<CBattleCallback>(defenderSideHero->getOwner(), nullptr);
+	callback->onBattleStarted(battle());
+	auto state = std::make_shared<HypotheticBattle>(gameHandler.get(), callback->getBattle(BattleID(0)));
+	DamageCache cache;
+	cache.buildDamageCache(state, BattleSide::DEFENDER);
+	auto attack = AttackPossibility::evaluate(BattleAttackInfo(swordsman, enemy, 0, false), BattleHex(9, 4), cache, state);
+	BattleExchangeVariant variant;
+	variant.trackAttack(attack, state, cache);
+
+	EXPECT_EQ(state->battleGetUnitByID(swordsman->unitId())->getPosition(), BattleHex(9, 4));
+	EXPECT_TRUE(state->battleCanShoot(state->battleGetUnitByID(shooter->unitId())));
+}
+
+TEST_F(BattleEvaluatorTest, ReturningHarpyDoesNotKeepTheAttackHexBlocked)
+{
+	const auto * marksmen = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(7, 5), 50);
+	const auto * peasant = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(8, 4), 1);
+	const auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpy"), BattleHex(12, 5), 10);
+	auto attack = evaluateMelee(harpies, peasant, BattleHex(8, 5));
+	ASSERT_TRUE(attack.attackerState->alive());
+	EXPECT_EQ(attack.attackerState->getPosition(), harpies->getPosition());
+	EXPECT_EQ(attack.shootersBlockedDmg, 0);
+
+	auto callback = std::make_shared<CBattleCallback>(defenderSideHero->getOwner(), nullptr);
+	callback->onBattleStarted(battle());
+	auto state = std::make_shared<HypotheticBattle>(gameHandler.get(), callback->getBattle(BattleID(0)));
+	DamageCache cache;
+	cache.buildDamageCache(state, BattleSide::DEFENDER);
+	BattleExchangeVariant variant;
+	variant.trackAttack(attack, state, cache);
+
+	EXPECT_EQ(state->battleGetUnitByID(harpies->unitId())->getPosition(), harpies->getPosition());
+	EXPECT_TRUE(state->battleCanShoot(state->battleGetUnitByID(marksmen->unitId())));
+}
+
+TEST_F(BattleEvaluatorTest, AnotherSurvivingBlockerMakesTheAttackersBlockRedundant)
+{
+	addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(7, 5), 50);
+	const auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(8, 4), 100);
+	const auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(8, 5), 10);
+	addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(6, 5), 10);
+
+	auto preserving = evaluateMelee(swordsmen, enemy, swordsmen->getPosition());
+	auto releasing = evaluateMelee(swordsmen, enemy, BattleHex(9, 4));
+	ASSERT_TRUE(preserving.attackerState->alive());
+	ASSERT_TRUE(releasing.attackerState->alive());
+	EXPECT_EQ(preserving.shootersBlockedDmg, 0);
+	EXPECT_EQ(releasing.shootersBlockedDmg, 0);
 }
 
 /// Drives the whole hero-spell decision of BattleAI and reports what it chose to cast. Spells are

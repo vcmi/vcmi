@@ -303,7 +303,14 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 	std::set<uint32_t> checkedUnits;
 
 	const auto * attacker = attack.attackerState.get();
-	const auto & hexes = attacker->getSurroundingHexes(attack.from);
+	const auto survivingUnit = [&](const battle::Unit * unit) -> const battle::Unit *
+	{
+		for(const auto & affected : attack.affectedUnits)
+			if(affected->unitId() == unit->unitId())
+				return affected.get();
+		return unit;
+	};
+	const auto & hexes = attacker->getSurroundingHexes();
 	for(const BattleHex & tile : hexes)
 	{
 		auto st = state->battleGetUnitByPos(tile, true);
@@ -311,31 +318,32 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 			continue;
 		if(vstd::contains(checkedUnits, st->unitId()))
 			continue;
-		if(!state->battleCanShoot(st))
+		if(!st->canShoot())
 			continue;
 		if(st->canShootBlocked())
 			continue;
 
-		const battle::Unit * shooter = st;
-		for(const auto & affected : attack.affectedUnits)
-		{
-			if(affected->unitId() == st->unitId())
-			{
-				shooter = affected.get();
-				break;
-			}
-		}
+		const auto * shooter = survivingUnit(st);
 		if(!shooter->alive())
+			continue;
+
+		const bool berserk = shooter->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE);
+		if(vstd::contains_if(state->battleAdjacentUnits(st), [&](const battle::Unit * adjacent)
+			{
+				return adjacent->unitId() != attacker->unitId()
+					&& (adjacent->unitOwner() != shooter->unitOwner() || berserk)
+					&& survivingUnit(adjacent)->alive();
+			}))
 			continue;
 
 		checkedUnits.insert(st->unitId());
 
 		// FIXME: provide distance info for Jousting bonus
 		BattleAttackInfo rangeAttackInfo(shooter, attacker, 0, true);
-		rangeAttackInfo.defenderPos = attack.from;
+		rangeAttackInfo.defenderPos = attacker->getPosition();
 
 		BattleAttackInfo meleeAttackInfo(shooter, attacker, 0, false);
-		meleeAttackInfo.defenderPos = attack.from;
+		meleeAttackInfo.defenderPos = attacker->getPosition();
 
 		auto rangeDmg = state->battleEstimateDamage(rangeAttackInfo);
 		auto meleeDmg = state->battleEstimateDamage(meleeAttackInfo);
@@ -537,6 +545,12 @@ AttackPossibility AttackPossibility::evaluate(
 				}
 			}
 		}
+
+		if(!attackInfo.shooting && ap.attackerState->alive()
+			&& ap.attackerState->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE)
+			&& !ap.attackerState->hasBonusOfType(BonusType::NOT_ACTIVE)
+			&& !ap.attackerState->hasBonusOfType(BonusType::BIND_EFFECT))
+			ap.attackerState->setPosition(attacker->getPosition());
 
 		ap.shootersBlockedDmg = evaluateBlockedShootersDmg(ap, damageCache, state);
 

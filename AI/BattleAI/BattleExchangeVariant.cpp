@@ -39,6 +39,8 @@ float BattleExchangeVariant::trackAttack(
 	}
 
 	auto attacker = hb->getForUpdate(ap.attack.attacker->unitId());
+	if(!ap.attack.shooting)
+		attacker->setPosition(ap.attackerState->getPosition());
 
 	float attackValue = ap.attackValue();
 	auto affectedUnits = ap.affectedUnits;
@@ -767,7 +769,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 						canShootTarget(stackWithBonuses.get()),
 						isOur,
 						damageCache,
-						hb,
+						exchangeBattle,
 						BattleExchangeVariant::AttackMode::ESTIMATE);
 
 #if BATTLE_TRACE_LEVEL>=2
@@ -855,10 +857,10 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 					if(!attacker->alive() || !defender->alive())
 						break;
 				}
-			}
 
-			if(!attackIsShooting)
-				blockedShooters.insert(defender->unitId());
+				if(!attackIsShooting)
+					blockedShooters.insert(defender->unitId());
+			}
 
 			canUseAp = false;
 
