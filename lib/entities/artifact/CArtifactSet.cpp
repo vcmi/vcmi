@@ -342,20 +342,23 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 		serializeJsonSlot(handler, slot, map);
 	}
 
-	std::vector<ArtifactID> backpackTemp;
+	JsonNode backpack;
 
 	if(handler.saving)
 	{
-		backpackTemp.reserve(artifactsInBackpack.size());
 		for(const ArtSlotInfo & info : artifactsInBackpack)
-			backpackTemp.push_back(info.getArt()->getTypeId());
+			backpack.Vector().push_back(serializeJsonArtifact(*info.getArt()));
+		if(!backpack.isNull())
+			handler.serializeRaw(NArtifactPosition::backpack, backpack, std::nullopt);
 	}
-	handler.serializeIdArray(NArtifactPosition::backpack, backpackTemp);
-	if(!handler.saving)
+	else
 	{
-		for(const ArtifactID & artifactID : backpackTemp)
+		handler.serializeRaw(NArtifactPosition::backpack, backpack, std::nullopt);
+		for(const JsonNode & entry : backpack.Vector())
 		{
-			auto * artifact = map->createArtifact(artifactID);
+			auto * artifact = deserializeJsonArtifact(entry, map);
+			if(artifact == nullptr)
+				continue;
 			auto slot = ArtifactPosition::BACKPACK_START + artifactsInBackpack.size();
 			if(artifact->getType()->canBePutAt(this, slot))
 			{
@@ -364,6 +367,44 @@ void CArtifactSet::serializeJsonHero(JsonSerializeFormat & handler, CMap * map)
 			}
 		}
 	}
+}
+
+JsonNode CArtifactSet::serializeJsonArtifact(const CArtifactInstance & artifact)
+{
+	JsonNode type(ArtifactID::encode(artifact.getTypeId().getNum()));
+
+	// artifacts without state of their own stay plain ids, as in existing maps and campaigns
+	if(!artifact.isScroll())
+		return type;
+
+	JsonNode json;
+	json["type"] = type;
+	json["spell"] = JsonNode(SpellID::encode(artifact.getScrollSpellID().getNum()));
+	return json;
+}
+
+CArtifactInstance * CArtifactSet::deserializeJsonArtifact(const JsonNode & json, CMap * map)
+{
+	const JsonNode & type = json.isStruct() ? json["type"] : json;
+	ArtifactID artifactID = ArtifactID::NONE;
+	SpellID spellID = SpellID::NONE;
+
+	if(!type.String().empty())
+	{
+		LIBRARY->identifiers()->requestIdentifier(ArtifactID::entityType(), type, [&artifactID](int32_t index){
+			artifactID = ArtifactID(index);
+		});
+	}
+	if(json.isStruct() && !json["spell"].String().empty())
+	{
+		LIBRARY->identifiers()->requestIdentifier(SpellID::entityType(), json["spell"], [&spellID](int32_t index){
+			spellID = SpellID(index);
+		});
+	}
+
+	if(artifactID == ArtifactID::NONE)
+		return nullptr;
+	return map->createArtifact(artifactID, spellID);
 }
 
 void CArtifactSet::serializeJsonCreature(JsonSerializeFormat & handler)
@@ -378,7 +419,7 @@ void CArtifactSet::serializeJsonCommander(JsonSerializeFormat & handler)
 
 void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map)
 {
-	ArtifactID artifactID;
+	JsonNode json;
 
 	if(handler.saving)
 	{
@@ -386,18 +427,16 @@ void CArtifactSet::serializeJsonSlot(JsonSerializeFormat & handler, const Artifa
 
 		if(info != nullptr && !info->locked)
 		{
-			artifactID = info->getArt()->getTypeId();
-			handler.serializeId(NArtifactPosition::namesHero.at(slot.num), artifactID, ArtifactID::NONE);
+			json = serializeJsonArtifact(*info->getArt());
+			handler.serializeRaw(NArtifactPosition::namesHero.at(slot.num), json, std::nullopt);
 		}
 	}
 	else
 	{
-		handler.serializeId(NArtifactPosition::namesHero.at(slot.num), artifactID, ArtifactID::NONE);
+		handler.serializeRaw(NArtifactPosition::namesHero.at(slot.num), json, std::nullopt);
 
-		if(artifactID != ArtifactID::NONE)
+		if(auto * artifact = deserializeJsonArtifact(json, map))
 		{
-			auto * artifact = map->createArtifact(artifactID.toEnum());
-
 			if(artifact->getType()->canBePutAt(this, slot))
 			{
 				auto artsMap = putArtifact(slot, artifact);
