@@ -2205,7 +2205,12 @@ bool CGameHandler::arrangeStacks(ObjectInstanceID id1, ObjectInstanceID id2, ui8
 					return false;
 			}
 
-			moveStack(sl1, sl2, countToMove);
+			// negative countToMove means creatures flow from dest to source - swap direction
+			// so RebalanceStacks always carries a positive count (and never the magic value -1)
+			if (countToMove > 0)
+				moveStack(sl1, sl2, countToMove);
+			else if (countToMove < 0)
+				moveStack(sl2, sl1, -countToMove);
 			//S2.slots[p2]->count = val;
 			//S1.slots[p1]->count = total - val;
 		}
