@@ -49,6 +49,7 @@
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/serializer/SaveFileFormat.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/UnlockGuard.h"
@@ -1241,13 +1242,13 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 
 				allItems[offset + i] = mapInfo;
 			}
-			catch(const IdentifierResolutionException & e)
+			catch(const SaveTooOldException & e)
 			{
+				isUnsupported[i] = 1;
 				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
 			}
 			catch(const std::exception & e)
 			{
-				isUnsupported[i] = 1; // IdentifierResolutionException is not relevant -> not ask to delete, when mods are disabled
 				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
 			}
 		}

@@ -280,6 +280,8 @@ public:
 	template <typename Handler>
 	void serialize(Handler & h)
 	{
+		// NOTE: this is the entire text container of the map, including texts of events and map objects.
+		// Header of a saved game is stored with all of them, and lobby sends them to every client
 		h & *texts;
 		h & version;
 		h & mods;

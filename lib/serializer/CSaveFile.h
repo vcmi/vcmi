@@ -9,30 +9,19 @@
  */
 #pragma once
 
-#include "BinarySerializer.h"
-#include "CSerializer.h"
+#include "SaveFileFormat.h"
 
-class DLL_LINKAGE CSaveFile final : public IBinaryWriter
+/// Builds a saved game in memory and writes it to a file
+class DLL_LINKAGE CSaveFile final
 {
-	BinarySerializer serializer;
 	std::vector<std::byte> saveData;
-
-	int write(const std::byte * data, unsigned size) final;
+	size_t chunksWritten = 0;
 
 public:
 	CSaveFile();
 
-	template<class T>
-	void save(const T & data)
-	{
-		static_assert(is_serializeable<BinarySerializer, T>::value, "This class can't be serialized (possible pointer?)");
-		serializer & data;
-	}
+	/// Compresses data and appends it as the next chunk. Chunks must be added in SaveFileFormat::CHUNK_ORDER
+	void addChunk(const SaveFileFormat::ChunkID & id, const std::vector<std::byte> & data);
 
 	void write(const boost::filesystem::path & fname);
-
-	const std::vector<std::byte> & currentContent() const
-	{
-		return saveData;
-	}
 };

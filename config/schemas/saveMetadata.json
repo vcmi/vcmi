@@ -1,0 +1,120 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI saved game metadata",
+	"description" : "Information on a saved game that can be read without loading mods used by the save",
+	"required" : [ "vcmiVersion", "saveTime", "map", "game", "mods" ],
+
+	"definitions" : {
+		"text" : {
+			"type" : "object",
+			"description" : "Text that can be displayed without texts of the map or campaign",
+			"required" : [ "text", "translations" ],
+			"properties" : {
+				"text" : {
+					"type" : "object",
+					"description" : "Text in form of MetaString"
+				},
+				"translations" : {
+					"type" : "object",
+					"description" : "Text in every language provided by the map or campaign, language -> text",
+					"additionalProperties" : { "type" : "string" }
+				}
+			}
+		}
+	},
+
+	"properties" : {
+		"vcmiVersion" : {
+			"type" : "string",
+			"description" : "Version of VCMI that created the save, only for display to the player"
+		},
+		"saveTime" : {
+			"type" : "number",
+			"description" : "Time when the save was created, in seconds since Unix epoch"
+		},
+		"map" : {
+			"type" : "object",
+			"required" : [ "name", "description", "author", "authorContact", "mapVersion", "format", "width", "height", "levels", "difficulty", "victoryIcon", "defeatIcon", "players", "humanPlayers" ],
+			"properties" : {
+				"name" : { "$ref" : "#/definitions/text" },
+				"description" : { "$ref" : "#/definitions/text" },
+				"author" : { "$ref" : "#/definitions/text" },
+				"authorContact" : { "$ref" : "#/definitions/text" },
+				"mapVersion" : { "$ref" : "#/definitions/text" },
+				"format" : {
+					"type" : "number",
+					"description" : "Format of the original map, value of EMapFormat"
+				},
+				"width" : { "type" : "number" },
+				"height" : { "type" : "number" },
+				"levels" : { "type" : "number" },
+				"difficulty" : {
+					"type" : "number",
+					"description" : "Difficulty of the map as defined by its author"
+				},
+				"victoryIcon" : { "type" : "number" },
+				"defeatIcon" : { "type" : "number" },
+				"players" : {
+					"type" : "number",
+					"description" : "Number of players on the map"
+				},
+				"humanPlayers" : {
+					"type" : "number",
+					"description" : "Number of players on the map that can be controlled by a human"
+				}
+			}
+		},
+		"game" : {
+			"type" : "object",
+			"required" : [ "mode", "mapFile", "difficulty", "humanPlayers", "saveDirectory", "day" ],
+			"properties" : {
+				"mode" : {
+					"type" : "string",
+					"enum" : [ "single", "campaign", "tutorial" ]
+				},
+				"campaignName" : { "$ref" : "#/definitions/text" },
+				"mapFile" : {
+					"type" : "string",
+					"description" : "Name of the map file, empty for random maps"
+				},
+				"difficulty" : {
+					"type" : "number",
+					"description" : "Difficulty selected by the player"
+				},
+				"humanPlayers" : {
+					"type" : "number",
+					"description" : "Number of players controlled by a human in this game"
+				},
+				"saveDirectory" : {
+					"type" : "string",
+					"description" : "Directory with autosaves of this game"
+				},
+				"day" : {
+					"type" : "number",
+					"description" : "Total number of days passed in the game"
+				}
+			}
+		},
+		"mods" : {
+			"type" : "object",
+			"description" : "Active mods that affect gameplay, root mod identifier -> mod",
+			"additionalProperties" : {
+				"type" : "object",
+				"required" : [ "name", "version", "submods" ],
+				"properties" : {
+					"name" : {
+						"type" : "string",
+						"description" : "Human-readable name of the mod"
+					},
+					"version" : { "type" : "string" },
+					"submods" : {
+						"type" : "array",
+						"description" : "Active submods that affect gameplay, as identifiers relative to the root mod",
+						"items" : { "type" : "string" }
+					}
+				}
+			}
+		}
+	}
+}

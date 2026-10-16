@@ -37,6 +37,11 @@ CMemorySerializer::CMemorySerializer(std::vector<std::byte> data): buffer(std::m
 	iser.version = ESerializationVersion::CURRENT;
 }
 
+bool CMemorySerializer::isFullyRead() const
+{
+	return readPos == buffer.size();
+}
+
 std::vector<std::byte> CMemorySerializer::extractBuffer()
 {
 	std::vector<std::byte> result = std::move(buffer);

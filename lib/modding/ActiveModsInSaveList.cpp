@@ -15,21 +15,6 @@
 #include "CModHandler.h"
 #include "ModIncompatibility.h"
 
-std::vector<TModID> ActiveModsInSaveList::getActiveGameplayAffectingMods()
-{
-	std::vector<TModID> result;
-	for (auto const & entry : LIBRARY->modh->getActiveMods())
-		if (LIBRARY->modh->getModInfo(entry).affectsGameplay())
-			result.push_back(entry);
-
-	return result;
-}
-
-ModVerificationInfo ActiveModsInSaveList::getVerificationInfo(TModID mod)
-{
-	return LIBRARY->modh->getModInfo(mod).getVerificationInfo();
-}
-
 void ActiveModsInSaveList::verifyActiveMods(const std::map<TModID, ModVerificationInfo> & modList)
 {
 	auto comparison = ModVerificationInfo::verifyListAgainstLocalMods(modList);
