@@ -186,6 +186,16 @@ void SaveMetadata::verifyMods(const JsonNode & metadata)
 	const auto installedMods = LIBRARY->modh->getAllMods();
 	const auto & activeMods = LIBRARY->modh->getActiveMods();
 
+	// local version of a mod may no longer affect gameplay, in which case it does not need to be enabled
+	const auto affectsGameplay = [&installedMods](const TModID & rootID)
+	{
+		return std::ranges::any_of(installedMods, [&rootID](const TModID & modID)
+		{
+			const auto & mod = LIBRARY->modh->getModInfo(modID);
+			return (modID == rootID || mod.getTopParentID() == rootID) && mod.affectsGameplay();
+		});
+	};
+
 	ModIncompatibility::ModList missingMods;
 	ModIncompatibility::ModList excessiveMods;
 
@@ -194,7 +204,7 @@ void SaveMetadata::verifyMods(const JsonNode & metadata)
 	{
 		if(!vstd::contains(installedMods, modID))
 			missingMods.push_back(savedMod["name"].String());
-		else if(!vstd::contains(activeMods, modID))
+		else if(!vstd::contains(activeMods, modID) && affectsGameplay(modID))
 			missingMods.push_back(LIBRARY->modh->getModInfo(modID).getName());
 	}
 

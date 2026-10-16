@@ -36,7 +36,7 @@ void CSaveFile::addChunk(const SaveFileFormat::ChunkID & id, const std::vector<s
 	uLongf compressedSize = compressBound(data.size());
 	std::vector<std::byte> compressed(compressedSize);
 
-	int result = compress2(reinterpret_cast<Bytef *>(compressed.data()), &compressedSize, reinterpret_cast<const Bytef *>(data.data()), data.size(), Z_BEST_COMPRESSION);
+	int result = compress2(reinterpret_cast<Bytef *>(compressed.data()), &compressedSize, reinterpret_cast<const Bytef *>(data.data()), data.size(), Z_DEFAULT_COMPRESSION);
 	if(result != Z_OK)
 		throw std::runtime_error("Failed to compress save chunk " + chunkName + ", zlib error " + std::to_string(result));
 

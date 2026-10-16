@@ -118,13 +118,13 @@ std::vector<std::byte> CLoadFile::readChunk(const SaveFileFormat::ChunkID & id)
 
 	std::vector<std::byte> result(chunk.uncompressedSize);
 	uLongf resultSize = result.size();
-	uLong sourceSize = compressed.size();
 
-	int status = uncompress2(reinterpret_cast<Bytef *>(result.data()), &resultSize, reinterpret_cast<const Bytef *>(compressed.data()), &sourceSize);
+	// not uncompress2 - it is missing in zlib shipped with older Android NDK
+	int status = uncompress(reinterpret_cast<Bytef *>(result.data()), &resultSize, reinterpret_cast<const Bytef *>(compressed.data()), compressed.size());
 	if(status != Z_OK)
 		throwInvalidFile("chunk " + chunkName + " is corrupted, zlib error " + std::to_string(status));
 
-	if(resultSize != result.size() || sourceSize != compressed.size())
+	if(resultSize != result.size())
 		throwInvalidFile("chunk " + chunkName + " has unexpected size");
 
 	return result;

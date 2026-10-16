@@ -35,7 +35,7 @@ constexpr ChunkID CHUNK_HEADER = {'H', 'E', 'A', 'D'};
 /// State of the game and of the server
 constexpr ChunkID CHUNK_GAMESTATE = {'G', 'A', 'M', 'E'};
 
-constexpr std::array CHUNK_ORDER = {CHUNK_METADATA, CHUNK_HEADER, CHUNK_GAMESTATE};
+inline constexpr std::array CHUNK_ORDER = {CHUNK_METADATA, CHUNK_HEADER, CHUNK_GAMESTATE};
 
 constexpr size_t FILE_HEADER_SIZE = 8;
 constexpr size_t CHUNK_HEADER_SIZE = 12;
