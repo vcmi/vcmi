@@ -765,7 +765,11 @@ void GameStatePackVisitor::visitNewObject(NewObject & pack)
 	// attach newly spawned wandering monster to global bonus system node
 	auto newArmy = std::dynamic_pointer_cast<CArmedInstance>(pack.newObject);
 	if (newArmy)
+	{
+		// object received over network has units that are not linked to it
+		newArmy->attachUnitsToArmy();
 		newArmy->attachToBonusSystem(gs);
+	}
 
 	logGlobal->debug("Added object id=%d; name=%s", pack.newObject->id, pack.newObject->getObjectNameTextID());
 }

@@ -1735,6 +1735,10 @@ function Unit:hasAbsoluteImmunity(spell) end
 ---@return boolean
 function Unit:isSummoned() end
 
+---True if the stack is a hero's commander.
+---@return boolean
+function Unit:isCommander() end
+
 ---True if the stack is a living creature - not undead, not a golem-like non-living unit.
 ---@return boolean
 function Unit:isLiving() end

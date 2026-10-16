@@ -3306,6 +3306,9 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, GameRe
 	if (gameInfo().getResource(h->tempOwner, rid) < b1)
 		COMPLAIN_RET("You can't afford to buy this artifact!");
 
+	if(!aid.toArtifact()->canBePutAt(h))
+		COMPLAIN_RET("Hero has no slot for this artifact!");
+
 	giveResource(h->tempOwner, rid, -b1);
 
 	SetAvailableArtifacts saa;
@@ -4337,8 +4340,12 @@ bool CGameHandler::giveHeroNewArtifact(
 	if(pos == ArtifactPosition::FIRST_AVAILABLE)
 	{
 		na.pos = ArtifactUtils::getArtAnyPosition(h, artType->getId());
+		// e.g. rewarded war machine that hero already has - lost, like grail in battle loot
 		if(!artType->canBePutAt(h, na.pos))
-			COMPLAIN_RET("Cannot put artifact in that slot!");
+		{
+			logGlobal->debug("Hero %s has no slot for artifact %s, artifact is lost", h->getNameTextID(), artType->getJsonKey());
+			return false;
+		}
 	}
 	else if(ArtifactUtils::isSlotBackpack(pos))
 	{

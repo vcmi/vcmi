@@ -48,6 +48,10 @@ std::string BuildThis::toString() const
 
 void BuildThis::accept(AIGateway * aiGw)
 {
+	// a building built earlier may give experience to a hero in town, and the server
+	// rejects building while that level-up is unanswered
+	aiGw->waitTillFree();
+
 	auto b = BuildingID(bid);
 
 	if(town)

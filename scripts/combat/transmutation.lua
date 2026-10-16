@@ -11,7 +11,8 @@ Script.__index = Script
 ---  transmuteBy - "health" keeps the total health of the victim, "count" keeps its creature count
 
 function Script:isImmune(unit)
-	return unit:hasBonuses({type = "TRANSMUTATION_IMMUNITY"})
+	-- commander replaced by a regular stack would be lost, and the stack would need a free army slot after battle
+	return unit:isCommander() or unit:hasBonuses({type = "TRANSMUTATION_IMMUNITY"})
 end
 
 function Script:resultingCount(victim, creature)
