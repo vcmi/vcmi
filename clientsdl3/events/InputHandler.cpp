@@ -184,10 +184,16 @@ InputMode InputHandler::inputModeForTouch(const SDL_TouchFingerEvent & tfinger)
 	return tfinger.touchID == SDL_PEN_TOUCHID ? InputMode::PEN : InputMode::TOUCH;
 }
 
+void InputHandler::cancelControllerInput(bool dismissPopup)
+{
+	gameControllerHandler->resetInput(dismissPopup);
+}
+
 void InputHandler::setCurrentInputMode(InputMode modi)
 {
 	if(currentInputMode != modi)
 	{
+		cancelControllerInput();
 		currentInputMode = modi;
 		ENGINE->events().dispatchInputModeChanged(modi);
 	}

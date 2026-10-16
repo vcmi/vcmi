@@ -23,6 +23,22 @@ public:
 	{
 	}
 
+	/// Current panels consist of direct image and text children, without nested containers.
+	std::optional<Rect> visibleContentBounds() const
+	{
+		if(isDisabled())
+			return {};
+		std::optional<Rect> bounds;
+		if(pos.w > 0 && pos.h > 0)
+			bounds = pos;
+		for(const auto child : children)
+		{
+			if(!child->isDisabled() && child->pos.w > 0 && child->pos.h > 0)
+				bounds = bounds ? bounds->include(child->pos) : child->pos;
+		}
+		return bounds;
+	}
+
 	void setAboveBattlefield(bool on)
 	{
 		aboveBattlefield = on;
