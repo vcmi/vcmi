@@ -124,6 +124,9 @@ struct DLL_LINKAGE Reward final
 	
 	Component getDisplayedComponent(const CGHeroInstance * h) const;
 
+	/// Removes granted creatures and guards with non-positive amounts, logging each one with given context
+	void removeInvalidCreatures(const std::string & context);
+
 	si32 calculateManaPoints(const CGHeroInstance * h) const;
 	si32 calculateMovePoints(const CGHeroInstance * h) const;
 

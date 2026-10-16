@@ -442,6 +442,9 @@ void PlayerMessageProcessor::cheatGiveArmy(PlayerColor player, const CGHeroInsta
 	{
 	}
 
+	if (amountPerSlot.has_value() && *amountPerSlot < 1)
+		return;
+
 	std::optional<int32_t> creatureId = LIBRARY->identifiers()->getIdentifierCaseInsensitive(ModScope::scopeGame(), "creature", creatureIdentifier, false);
 
 	if(creatureId.has_value())

@@ -122,9 +122,9 @@ void ServerSpellCastEnvironment::createBoat(const int3 & visitablePosition, Boat
 	return gh->createBoat(visitablePosition, type, initiator);
 }
 
-void ServerSpellCastEnvironment::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle)
+void ServerSpellCastEnvironment::showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, const MetaString & customTitle)
 {
-	gh->showGarrisonDialog(upobj, hid, removableUnits, customTitle);
+	gh->showGarrisonDialog(upobj, hid, customTitle);
 }
 
 void ServerSpellCastEnvironment::askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster)

@@ -452,7 +452,7 @@ class CGarrisonWindow : public CStatusbarWindow, public IGarrisonHolder
 public:
 	std::shared_ptr<CButton> quit;
 
-	CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, const MetaString & customTitle);
+	CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, const MetaString & customTitle);
 
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;

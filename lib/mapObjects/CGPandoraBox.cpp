@@ -43,6 +43,9 @@ void CGPandoraBox::init()
 
 void CGPandoraBox::initObj(IGameRandomizer & gameRandomizer)
 {
+	for(auto & visitInfo : configuration.info)
+		visitInfo.reward.removeInvalidCreatures(describeArmy());
+
 	init();
 	
 	CRewardableObject::initObj(gameRandomizer);

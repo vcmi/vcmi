@@ -79,7 +79,7 @@ public:
 	void setOwner(const CGObjectInstance *, PlayerColor) override {}
 	void changePrimSkill(const CGHeroInstance *, PrimarySkill, si64, ChangeValueMode) override {}
 	void changeSecSkill(const CGHeroInstance *, SecondarySkill, int, ChangeValueMode) override {}
-	void showGarrisonDialog(ObjectInstanceID, ObjectInstanceID, bool, const MetaString &) override {}
+	void showGarrisonDialog(ObjectInstanceID, ObjectInstanceID, const MetaString &) override {}
 	void showTeleportDialog(TeleportDialog *) override {}
 	void showObjectWindow(const CGObjectInstance *, EOpenWindowMode, const CGHeroInstance *, bool) override {}
 	void giveCreatures(const CGHeroInstance *, const CCreatureSet &) override {}

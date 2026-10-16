@@ -90,7 +90,7 @@ public:
 	/// its step from state that may have changed. Must be called while that hero's visit runs.
 	virtual void setVisitState(const CGHeroInstance * hero, const JsonNode & state) =0;
 	virtual void showScriptDialog(BlockingDialog *iw) =0; //dialog spawned by a map script; its reply resumes the paused script coroutine
-	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) =0; //cb will be called when player closes garrison window
+	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, const MetaString & customTitle) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addActivity) = 0;
 	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;
@@ -101,7 +101,7 @@ public:
 	virtual void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures, bool forceRemoval = false) =0;
 	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, ChangeValueMode mode) =0;
 	virtual bool changeStackType(const StackLocation &sl, const CCreature *c) =0;
-	virtual bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) =0; //count -1 => moves whole stack
+	virtual bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) =0;
 	virtual bool eraseStack(const StackLocation &sl, bool forceRemoval = false) =0;
 	virtual bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) =0;
 	virtual bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) =0; //makes new stack or increases count of already existing
