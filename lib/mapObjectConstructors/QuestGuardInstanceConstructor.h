@@ -15,8 +15,6 @@
 
 #include <vstd/RNG.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Randomizes a standalone quest guard's reward and rollover text. Keymaster border
 /// guards use KeyGuardInstanceConstructor instead and deliberately skip this setup.
 class QuestGuardInstanceConstructor final : public CDefaultObjectTypeHandler<QuestGuard>
@@ -38,5 +36,3 @@ protected:
 		object->configuration.canRefuse = true;
 	}
 };
-
-VCMI_LIB_NAMESPACE_END

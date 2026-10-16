@@ -11,8 +11,8 @@
 #include "CPlayerBattleCallback.h"
 #include "../CStack.h"
 #include "../gameState/InfoAboutArmy.h"
+#include "../callback/CallbackDefines.h"
 
-#define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
 
 CPlayerBattleCallback::CPlayerBattleCallback(const IBattleInfo * battle, PlayerColor player):
 	battle(battle),
@@ -33,17 +33,15 @@ std::optional<PlayerColor> CPlayerBattleCallback::getPlayerID() const
 
 bool CPlayerBattleCallback::battleCanFlee() const
 {
-	RETURN_IF_NOT_BATTLE(false);
-	ASSERT_IF_CALLED_WITH_PLAYER
-			return CBattleInfoEssentials::battleCanFlee(*getPlayerID());
+	THROW_IF_NOT_BATTLE();
+	THROW_IF_CALLED_WITH_PLAYER();
+	return CBattleInfoEssentials::battleCanFlee(getPlayerID().value());
 }
 
 TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose, bool onlyAlive) const
 {
 	if(whose != MINE_AND_ENEMY)
-	{
-		ASSERT_IF_CALLED_WITH_PLAYER
-	}
+		THROW_IF_CALLED_WITH_PLAYER();
 
 	return battleGetStacksIf([&](const CStack * s){
 		const bool ownerMatches = (whose == MINE_AND_ENEMY)
@@ -56,9 +54,9 @@ TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose, bool onlyA
 
 int CPlayerBattleCallback::battleGetSurrenderCost() const
 {
-	RETURN_IF_NOT_BATTLE(-3);
-			ASSERT_IF_CALLED_WITH_PLAYER
-			return CBattleInfoCallback::battleGetSurrenderCost(*getPlayerID());
+	THROW_IF_NOT_BATTLE();
+	THROW_IF_CALLED_WITH_PLAYER();
+	return CBattleInfoCallback::battleGetSurrenderCost(getPlayerID().value());
 }
 
 const CGHeroInstance * CPlayerBattleCallback::battleGetMyHero() const

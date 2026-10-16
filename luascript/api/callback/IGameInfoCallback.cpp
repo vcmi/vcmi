@@ -42,11 +42,8 @@ void IGameInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 	R.method<&GameCb::getHero>("getHero",
 		{{"objectID", "Map object identifier of the hero to fetch."}}, {},
 		"Returns the hero by its object identifier, or nil if not found.");
-	R.method<&GameCb::getObj>("getObj",
-		{
-			{"objectID", "Map object identifier of the object to fetch."},
-			{"verbose",  "Pass true to log a warning when the object isn't found."}
-		}, {},
+	R.method<&GameCb::tryGetObj>("getObj",
+		{{"objectID", "Map object identifier of the object to fetch."}}, {},
 		"Returns the map object by its identifier, or nil if not found.");
 	R.function<&IGameInfoCallbackProxy::getResource>("getResource",
 		{
@@ -133,13 +130,13 @@ EMapDifficulty IGameInfoCallbackProxy::getDifficulty(const GameCb & object)
 
 bool IGameInfoCallbackProxy::playerIsHuman(const GameCb & object, PlayerColor player)
 {
-	const auto * state = object.getPlayerState(player, false);
+	const auto * state = object.tryGetPlayerState(player);
 	return state && state->isHuman();
 }
 
 EPlayerStatus IGameInfoCallbackProxy::getPlayerStatus(const GameCb & object, PlayerColor player)
 {
-	return object.getPlayerStatus(player, false);
+	return object.getPlayerStatus(player);
 }
 
 int IGameInfoCallbackProxy::getResource(const GameCb & object, PlayerColor player, const ResourceType & resource)
@@ -177,7 +174,7 @@ const CGHeroInstance * IGameInfoCallbackProxy::getHeroByType(const GameCb & obje
 
 bool IGameInfoCallbackProxy::playerDestroyedObject(const GameCb & object, PlayerColor player, const CGObjectInstance & target)
 {
-	const auto * state = object.getPlayerState(player, false);
+	const auto * state = object.tryGetPlayerState(player);
 	return state && state->destroyedObjects.count(target.id) != 0;
 }
 

@@ -19,7 +19,7 @@
 #include "../IGameSettings.h"
 #include "../bonuses/Bonus.h"
 #include "../bonuses/BonusParameters.h"
-#include "../mapObjects/CGHeroInstance.h"
+#include "../gameState/InfoAboutArmy.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../spells/CSpellHandler.h"
@@ -59,19 +59,13 @@ static bool castsAtEnemies(const IBonusBearer * unit)
 }
 
 /// Magic that a hero brings to a battle, from the spell power of its casts and the mana paying for them
-static double magicOf(const CGHeroInstance * hero)
+static double magicOf(const InfoAboutHero & hero)
 {
-	if(!hero || !hero->hasSpellbook())
+	if(!hero.details)
 		return 0;
 
-	const bool knowsCombatSpell = std::ranges::any_of(hero->getSpellsInSpellbook(),
-		[](const SpellID & spell) { return spell.toSpell()->isCombat(); });
-
-	if(!knowsCombatSpell)
-		return 0;
-
-	const double spellPower = hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER);
-	const double mana = std::max(0, hero->mana);
+	const double spellPower = hero.details->primskills.at(PrimarySkill::SPELL_POWER.getNum());
+	const double mana = std::max(0, hero.details->mana);
 
 	// mana pays for the casts and spell power decides what each one does, so neither is worth anything alone
 	const double strength = spellPower * mana / (referenceSpellPower * referenceMana);
@@ -153,7 +147,7 @@ CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battl
 
 	CombatValueContext result;
 	result.meleeShare = melee / total;
-	result.magicPower = magicOf(battle.battleGetFightingHero(CBattleInfoEssentials::otherSide(side)))
+	result.magicPower = magicOf(battle.battleGetHeroInfo(CBattleInfoEssentials::otherSide(side)))
 		+ creatureMagicWeight * casters / total;
 
 	for(size_t mastery = 0; mastery < kings.size(); ++mastery)

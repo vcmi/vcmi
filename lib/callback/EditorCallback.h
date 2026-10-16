@@ -29,11 +29,12 @@ public:
 	const StartInfo * getStartInfo() const override;
 	Calendar getCalendar() const override;
 
-	const TerrainTile * getTile(int3 tile, bool verbose) const override;
+	const TerrainTile * getTile(int3 tile) const override;
+	const TerrainTile * tryGetTile(int3 tile) const override;
 	const TerrainTile * getTileUnchecked(int3 tile) const override;
 	bool isTileGuardedUnchecked(int3 tile) const override;
 	const CGObjectInstance * getTopObj(int3 pos) const override;
-	EDiggingStatus getTileDigStatus(int3 tile, bool verbose) const override;
+	EDiggingStatus getTileDigStatus(int3 tile) const override;
 	void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const override;
 	int3 guardingCreaturePosition(int3 pos) const override;
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const override;
@@ -56,11 +57,12 @@ public:
 	// Player-related (stub or throw)
 	const TeamState * getTeam(TeamID teamID) const override;
 	const TeamState * getPlayerTeam(PlayerColor color) const override;
-	const PlayerState * getPlayerState(PlayerColor color, bool verbose) const override;
+	const PlayerState * getPlayerState(PlayerColor color) const override;
+	const PlayerState * tryGetPlayerState(PlayerColor color) const override;
 	const PlayerSettings * getPlayerSettings(PlayerColor color) const override;
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
 	int getHeroCount(PlayerColor player, bool includeGarrisoned) const override;
-	EPlayerStatus getPlayerStatus(PlayerColor player, bool verbose) const override;
+	EPlayerStatus getPlayerStatus(PlayerColor player) const override;
 	int getResource(PlayerColor player, GameResID which) const override;
 
 	virtual ~EditorCallback() = default;

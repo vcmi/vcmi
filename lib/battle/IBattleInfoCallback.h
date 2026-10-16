@@ -18,8 +18,6 @@
 #include <vcmi/Entity.h>
 #include <vcmi/scripting/ApiTags.h>
 
-#define RETURN_IF_NOT_BATTLE(...) do { if(!duringBattle()) {logGlobal->error("%s called when no battle!", __FUNCTION__); return __VA_ARGS__; } } while (false)
-
 struct CObstacleInstance;
 class BattleField;
 class IBattleInfo;

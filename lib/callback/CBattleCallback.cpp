@@ -43,7 +43,7 @@ void CBattleCallback::battleMakeTacticAction(const BattleID & battleID, const Ba
 
 std::optional<BattleAction> CBattleCallback::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
-	return cl->makeSurrenderRetreatDecision(*getPlayerID(), battleID, battleState);
+	return cl->makeSurrenderRetreatDecision(getPlayerID().value(), battleID, battleState);
 }
 
 std::shared_ptr<CPlayerBattleCallback> CBattleCallback::getBattle(const BattleID & battleID)
@@ -73,7 +73,7 @@ void CBattleCallback::onBattleStarted(const IBattleInfo * info)
 			" is already engaged in battle " + std::to_string(info->getBattleID().getNum()));
 
 	logGlobal->debug("Battle %d started for player %s", info->getBattleID(), playerName);
-	activeBattles[info->getBattleID()] = std::make_shared<CPlayerBattleCallback>(info, *getPlayerID());
+	activeBattles[info->getBattleID()] = std::make_shared<CPlayerBattleCallback>(info, getPlayerID().value());
 }
 
 void CBattleCallback::onBattleEnded(const BattleID & battleID)
@@ -104,5 +104,5 @@ void CBattleCallback::battleMakeSpellAction(const BattleID & battleID, const Bat
 
 int CBattleCallback::sendRequest(const CPackForServer & request)
 {
-	return cl->sendRequest(request, *getPlayerID(), waitTillRealize);
+	return cl->sendRequest(request, getPlayerID().value(), waitTillRealize);
 }

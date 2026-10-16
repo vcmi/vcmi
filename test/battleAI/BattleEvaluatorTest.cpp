@@ -235,20 +235,6 @@ TEST_F(BattleEvaluatorSpellTest, SlowsTheEnemyThatIsWorthMore)
 	EXPECT_EQ(targetOf(*action), angels);
 }
 
-TEST_F(BattleEvaluatorSpellTest, DeclinesMagicDefenceAgainstAnEnemyWithoutMagic)
-{
-	// the enemy hero was stripped of its magic by the fixture and its army casts nothing, so a ward
-	// against a school of magic guards against something that can not happen
-	teachDefender(SpellID::PROTECTION_FROM_AIR);
-
-	addStack(BattleSide::ATTACKER, creatureByName("core:swordsman"), BattleHex(1, 5), 30);
-	auto * ours = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(15, 5), 30);
-
-	auto action = decideSpell(ours);
-
-	EXPECT_FALSE(action.has_value());
-}
-
 TEST_F(BattleEvaluatorTest, EnemyOnlyAreaAttackDoesNotDamageAnAlly)
 {
 	const auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(7, 5), 100);

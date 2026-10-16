@@ -105,7 +105,7 @@ std::optional<NeighbourExplorationTarget> ExploreNeighbourTile::findTarget(
 
 void ExploreNeighbourTile::accept(AIGateway * aiGw)
 {
-	for(int i = 0; i < tilesToExplore && aiGw->cc->getObj(hero->id, false) && hero->movementPointsRemaining() > 0; i++)
+	for(int i = 0; i < tilesToExplore && aiGw->cc->tryGetObj(hero->id) && hero->movementPointsRemaining() > 0; i++)
 	{
 		const auto target = findTarget(hero, aiGw->nullkiller.get());
 

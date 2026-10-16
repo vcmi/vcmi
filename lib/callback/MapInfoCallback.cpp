@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "MapInfoCallback.h"
 
+#include "CallbackDefines.h"
+
 #include "../CSkillHandler.h"
 #include "../constants/EntityIdentifiers.h"
 #include "../mapObjects/CGObjectInstance.h"
@@ -25,40 +27,36 @@
 
 MapInfoCallback::~MapInfoCallback() = default;
 
-const CGObjectInstance * MapInfoCallback::getObj(const ObjectInstanceID objId, const bool verbose) const
+const CGObjectInstance * MapInfoCallback::getObj(const ObjectInstanceID objId) const
+{
+	const CGObjectInstance * ret = tryGetObj(objId);
+	THROW_IF(!ret, "Cannot get object with id " + std::to_string(objId.getNum()));
+	return ret;
+}
+
+const CGObjectInstance * MapInfoCallback::tryGetObj(const ObjectInstanceID objId) const
 {
 	if(!objId.hasValue())
-	{
-		if(verbose)
-			logGlobal->error("Cannot get object with id %d. No such object", objId.getNum());
 		return nullptr;
-	}
 
-	const CGObjectInstance * ret = getMapConstPtr()->getObject(objId);
-	if(!ret && verbose)
-	{
-		logGlobal->error("Cannot get object with id %d. Object was removed", objId.getNum());
-		return nullptr;
-	}
-
-	return ret;
+	return getMapConstPtr()->getObject(objId);
 }
 
 const CGHeroInstance * MapInfoCallback::getHero(ObjectInstanceID objid) const
 {
-	const CGObjectInstance * obj = getObj(objid, false);
+	const CGObjectInstance * obj = tryGetObj(objid);
 	return dynamic_cast<const CGHeroInstance *>(obj);
 }
 
 const CGTownInstance * MapInfoCallback::getTown(ObjectInstanceID objid) const
 {
-	const CGObjectInstance * obj = getObj(objid, false);
+	const CGObjectInstance * obj = tryGetObj(objid);
 	return dynamic_cast<const CGTownInstance*>(obj);
 }
 
 PlayerColor MapInfoCallback::getOwner(ObjectInstanceID heroID) const
 {
-	const CGObjectInstance * obj = getObj(heroID);
+	const CGObjectInstance * obj = tryGetObj(heroID);
 	if(!obj)
 	{
 		logGlobal->error("MapInfoCallback::getOwner(heroID): No such object for heroID: %d", heroID.num);

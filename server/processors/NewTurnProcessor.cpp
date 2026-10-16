@@ -82,7 +82,7 @@ void NewTurnProcessor::handleTimeEvents(PlayerColor color)
 		//remove objects specified by event
 		for(const ObjectInstanceID objectIdToRemove : event.deletedObjectsInstances)
 		{
-			const auto * objectInstance = gameHandler->gameInfo().getObj(objectIdToRemove, false);
+			const auto * objectInstance = gameHandler->gameInfo().tryGetObj(objectIdToRemove);
 			if(objectInstance != nullptr)
 				gameHandler->removeObject(objectInstance, PlayerColor::NEUTRAL);
 		}

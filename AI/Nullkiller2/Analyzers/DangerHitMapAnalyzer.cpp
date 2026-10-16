@@ -27,7 +27,7 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data, const CCallbac
 		playerID.toString() + ".danger.max",
 		[&data, &cc](IVisualLogBuilder & b)
 		{
-			foreach_tile_pos(
+			foreach_visible_tile_pos(
 				cc,
 				[&b, &data](const int3 & pos)
 				{
@@ -48,7 +48,7 @@ void logHitmap(PlayerColor playerID, DangerHitMapAnalyzer & data, const CCallbac
 		playerID.toString() + ".danger.fast",
 		[&data, &cc](IVisualLogBuilder & b)
 		{
-			foreach_tile_pos(
+			foreach_visible_tile_pos(
 				cc,
 				[&b, &data](const int3 & pos)
 				{
@@ -116,7 +116,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 		townThreats[town->id]; // insert empty list
 	}
 
-	foreach_tile_pos(*aiNk->cc, [&](const int3 & pos){
+	foreach_visible_tile_pos(*aiNk->cc, [&](const int3 & pos){
 		hitMap[pos.x][pos.y][pos.z].reset();
 	});
 
@@ -170,7 +170,7 @@ void DangerHitMapAnalyzer::updateHitMap()
 					node.fastestDanger = newThreat;
 				}
 
-				auto objects = cc->getVisitableObjs(pos, false);
+				auto objects = cc->getVisitableObjs(pos);
 
 				for(auto obj : objects)
 				{

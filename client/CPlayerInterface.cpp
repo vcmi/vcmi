@@ -337,7 +337,7 @@ void CPlayerInterface::acceptTurn(QuestionID questionID, bool hotseatWait)
 	// warn player if he has no town
 	if (cb->howManyTowns() == 0)
 	{
-		auto playerColor = *cb->getPlayerID();
+		auto playerColor = cb->getPlayerID().value();
 
 		std::vector<Component> components;
 		components.emplace_back(ComponentType::FLAG, playerColor);
@@ -1184,7 +1184,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QuestionID questionID, const Co
 	{
 		if(!settings["general"]["enableUiEnhancements"].Bool())
 			break;
-		const CGTownInstance * t = dynamic_cast<const CGTownInstance *>(cb->getObj(obj));
+		const CGTownInstance * t = dynamic_cast<const CGTownInstance *>(cb->tryGetObj(obj));
 		if(t)
 		{
 			auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->getTown()->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
@@ -1384,7 +1384,7 @@ void CPlayerInterface::beforeObjectPropertyChanged(const SetObjectProperty * sop
 {
 	if (sop->what == ObjProperty::OWNER)
 	{
-		const CGObjectInstance * obj = cb->getObj(sop->id, false);
+		const CGObjectInstance * obj = cb->tryGetObj(sop->id);
 
 		if(!obj)
 			return;
@@ -1408,7 +1408,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 	if (sop->what == ObjProperty::OWNER)
 	{
-		const CGObjectInstance * obj = cb->getObj(sop->id, false);
+		const CGObjectInstance * obj = cb->tryGetObj(sop->id);
 
 		if(!obj)
 			return;
@@ -1452,7 +1452,7 @@ void CPlayerInterface::initializeHeroTownList()
 
 	const std::optional<PlayerColor> callbackPlayer = cb->getPlayerID();
 	const PlayerColor localStatePlayer = callbackPlayer.value_or(playerID);
-	const PlayerState * playerState = cb->getPlayerState(localStatePlayer);
+	const PlayerState * playerState = cb->tryGetPlayerState(localStatePlayer);
 	if(playerState)
 		localState->deserialize(*playerState->playerLocalSettings);
 

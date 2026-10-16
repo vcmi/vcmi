@@ -1563,13 +1563,13 @@ bool CGameState::checkForStandardLoss(const PlayerColor & player) const
 
 void CGameState::markObjectControlled(PlayerColor player, ObjectInstanceID id)
 {
-	if(auto * playerState = getPlayerState(player))
+	if(auto * playerState = tryGetPlayerState(player))
 		playerState->markObjectControlled(id);
 }
 
 bool CGameState::hasEverControlled(PlayerColor player, ObjectInstanceID id) const
 {
-	const auto * playerState = getPlayerState(player);
+	const auto * playerState = tryGetPlayerState(player);
 	return playerState && playerState->hasEverControlled(id);
 }
 

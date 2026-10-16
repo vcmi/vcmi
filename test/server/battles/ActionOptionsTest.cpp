@@ -18,15 +18,11 @@
 
 #include <vcmi/spells/Magic.h>
 
-VCMI_LIB_NAMESPACE_BEGIN
-
 /// Prints the value of PossiblePlayerBattleAction::Actions, which gtest would otherwise print as raw bytes.
 static void PrintTo(const PossiblePlayerBattleAction & option, std::ostream * os)
 {
 	*os << "{action " << static_cast<int>(option.get()) << ", spell " << option.spell().getNum() << "}";
 }
-
-VCMI_LIB_NAMESPACE_END
 
 namespace
 {

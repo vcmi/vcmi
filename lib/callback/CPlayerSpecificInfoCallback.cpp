@@ -10,6 +10,8 @@
 #include "StdInc.h"
 #include "CPlayerSpecificInfoCallback.h"
 
+#include "CallbackDefines.h"
+
 #include "../gameState/CGameState.h"
 #include "../gameState/QuestInfo.h"
 #include "../CPlayerState.h"
@@ -18,15 +20,11 @@
 #include "../mapObjects/CGTownInstance.h"
 
 //TODO make clean
-#define ASSERT_IF_CALLED_WITH_PLAYER if(!getPlayerID()) {logGlobal->error(BOOST_CURRENT_FUNCTION); assert(0);}
-#define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->error("%s: %s",BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
-#define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return;}} while(0)
-#define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->error("%s: %s", BOOST_CURRENT_FUNCTION, txt); return retVal;}} while(0)
 
 int CPlayerSpecificInfoCallback::howManyTowns() const
 {
-	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
-	return CGameInfoCallback::howManyTowns(*getPlayerID());
+	THROW_IF(!getPlayerID(), "Applicable only for player callbacks");
+	return CGameInfoCallback::howManyTowns(getPlayerID().value());
 }
 
 std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(bool onlyOur) const
@@ -36,7 +34,7 @@ std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(
 	{
 		for(const auto & town : i.second.getTowns())
 		{
-			if(i.first == getPlayerID() || (!onlyOur && isVisibleFor(town, *getPlayerID())))
+			if(i.first == getPlayerID() || (!onlyOur && isVisibleFor(town, getPlayerID().value())))
 			{
 				ret.push_back(town);
 			}
@@ -46,7 +44,7 @@ std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(
 }
 std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo() const
 {
-	const auto * playerState = gameState().getPlayerState(*getPlayerID());
+	const auto * playerState = gameState().getPlayerState(getPlayerID().value());
 	return playerState->getHeroes();
 }
 
@@ -56,7 +54,7 @@ int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool
 		return -1;
 
 	size_t index = 0;
-	const auto & heroes = gameState().players.at(*getPlayerID()).getHeroes();
+	const auto & heroes = gameState().players.at(getPlayerID().value()).getHeroes();
 
 	for (auto & possibleHero : heroes)
 	{
@@ -77,7 +75,7 @@ int3 CPlayerSpecificInfoCallback::getGrailPos( double *outKnownRatio )
 	}
 	else
 	{
-		TeamID t = gameState().getPlayerTeam(*getPlayerID())->id;
+		TeamID t = gameState().getPlayerTeam(getPlayerID().value())->id;
 		double visited = 0.0;
 		if(gameState().getMap().obelisksVisited.count(t))
 			visited = static_cast<double>(gameState().getMap().obelisksVisited[t]);
@@ -89,30 +87,30 @@ int3 CPlayerSpecificInfoCallback::getGrailPos( double *outKnownRatio )
 
 std::vector < const CGObjectInstance * > CPlayerSpecificInfoCallback::getMyObjects() const
 {
-	return gameState().getPlayerState(*getPlayerID())->getOwnedObjects();
+	return gameState().getPlayerState(getPlayerID().value())->getOwnedObjects();
 }
 
 std::vector <QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
 {
-	return gameState().getPlayerState(*getPlayerID())->quests;
+	return gameState().getPlayerState(getPlayerID().value())->quests;
 }
 
 std::vector<ScenarioEventJournalEntry> CPlayerSpecificInfoCallback::getMyScenarioEventJournal() const
 {
-	return gameState().getPlayerState(*getPlayerID())->scenarioEventJournal;
+	return gameState().getPlayerState(getPlayerID().value())->scenarioEventJournal;
 }
 
 int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const
 {
-	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
-	return getHeroCount(*getPlayerID(), includeGarrisoned);
+	THROW_IF(!getPlayerID(), "Applicable only for player callbacks");
+	return getHeroCount(getPlayerID().value(), includeGarrisoned);
 }
 
 const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId, bool includeGarrisoned) const
 {
-	ASSERT_IF_CALLED_WITH_PLAYER
-		const PlayerState *p = getPlayerState(*getPlayerID());
-	ERROR_RET_VAL_IF(!p, "No player info", nullptr);
+	THROW_IF_CALLED_WITH_PLAYER();
+	const PlayerState *p = getPlayerState(getPlayerID().value());
+	THROW_IF(!p, "No player info");
 
 	if (!includeGarrisoned)
 	{
@@ -120,27 +118,27 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 			if(p->getHeroes()[i]->isGarrisoned())
 				serialId++;
 	}
-	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->getHeroes().size(), "No player info", nullptr);
+	THROW_IF(serialId < 0 || serialId >= p->getHeroes().size(), "No player info");
 	return p->getHeroes()[serialId];
 }
 
 const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId) const
 {
-	ASSERT_IF_CALLED_WITH_PLAYER
-		const PlayerState *p = getPlayerState(*getPlayerID());
-	ERROR_RET_VAL_IF(!p, "No player info", nullptr);
-	ERROR_RET_VAL_IF(serialId < 0 || serialId >= p->getTowns().size(), "No player info", nullptr);
+	THROW_IF_CALLED_WITH_PLAYER();
+	const PlayerState *p = getPlayerState(getPlayerID().value());
+	THROW_IF(!p, "No player info");
+	THROW_IF(serialId < 0 || serialId >= p->getTowns().size(), "No player info");
 	return p->getTowns()[serialId];
 }
 
 int CPlayerSpecificInfoCallback::getResourceAmount(GameResID type) const
 {
-	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", -1);
-	return getResource(*getPlayerID(), type);
+	THROW_IF(!getPlayerID(), "Applicable only for player callbacks");
+	return getResource(getPlayerID().value(), type);
 }
 
 TResources CPlayerSpecificInfoCallback::getResourceAmount() const
 {
-	ERROR_RET_VAL_IF(!getPlayerID(), "Applicable only for player callbacks", TResources());
-	return gameState().players.at(*getPlayerID()).resources;
+	THROW_IF(!getPlayerID(), "Applicable only for player callbacks");
+	return gameState().players.at(getPlayerID().value()).resources;
 }

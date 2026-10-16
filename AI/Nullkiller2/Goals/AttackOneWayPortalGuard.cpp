@@ -42,7 +42,7 @@ const CGObjectInstance * AttackOneWayPortalGuard::findTrappingGuard(
 	if(!journey)
 		return nullptr;
 
-	const auto * exitObject = aiNk->cc->getObj(journey->second, false);
+	const auto * exitObject = aiNk->cc->tryGetObj(journey->second);
 	if(!exitObject
 		|| exitObject->ID != Obj::MONOLITH_ONE_WAY_EXIT
 		|| exitObject->visitablePos() != hero->visitablePos())
@@ -81,7 +81,7 @@ const CGObjectInstance * AttackOneWayPortalGuard::findTrappingGuard(
 	if(!aiNk->cc->isVisible(trappingGuardPosition))
 		return nullptr;
 
-	return findObjectOfType(aiNk->cc->getVisitableObjs(trappingGuardPosition, false), Obj::MONSTER);
+	return findObjectOfType(aiNk->cc->getVisitableObjs(trappingGuardPosition), Obj::MONSTER);
 }
 
 void AttackOneWayPortalGuard::accept(AIGateway * aiGw)

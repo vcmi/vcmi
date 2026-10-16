@@ -31,7 +31,7 @@ using ErrorCode = Schema::V13::ErrorCode;
 using PA = Schema::V13::PlayerAttribute;
 
 BAI::BAI(Schema::IModel * model, int version, const std::shared_ptr<Environment> & env, const std::shared_ptr<CBattleCallback> & cb, bool enableSpellsUsage)
-	: model(model), version(version), logger(cb->getPlayerID()->toString()), env(env), cb(cb), enableSpellsUsage(enableSpellsUsage)
+	: model(model), version(version), logger(cb->getPlayerID().value().toString()), env(env), cb(cb), enableSpellsUsage(enableSpellsUsage)
 {
 }
 
@@ -59,7 +59,7 @@ Schema::Action BAI::getNonRenderAction()
 
 std::unique_ptr<State> BAI::initState(const CPlayerBattleCallback * b)
 {
-	return std::make_unique<State>(version, cb->getPlayerID()->toString(), b);
+	return std::make_unique<State>(version, cb->getPlayerID().value().toString(), b);
 }
 
 void BAI::battleStart(
@@ -170,7 +170,7 @@ bool BAI::maybeCastSpell(const CStack * astack, const BattleID & bid)
 		vratio = 1 / vratio;
 
 	logger.debug("Attempting a BattleAI spellcast");
-	auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), vratio, 2);
+	auto evaluator = BattleEvaluator(env, cb, astack, cb->getPlayerID().value(), bid, battle->battleGetMySide(), vratio, 2);
 	return evaluator.attemptCastingSpell(astack);
 }
 
@@ -255,7 +255,7 @@ std::optional<BattleAction> BAI::maybeFleeOrSurrender(const BattleID & bid)
 	BattleStateInfoForRetreat bs;
 
 	bs.canFlee = battle->battleCanFlee();
-	bs.canSurrender = battle->battleCanSurrender(*cb->getPlayerID());
+	bs.canSurrender = battle->battleCanSurrender(cb->getPlayerID().value());
 	if(!bs.canFlee && !bs.canSurrender)
 	{
 		logger.debug("Can't flee or surrender.");
@@ -295,7 +295,7 @@ void BAI::activeStack(const BattleID & bid, const CStack * astack)
 	catch(const std::exception & e)
 	{
 		logger.error("Falling back to BattleAI due to MMAI error: " + std::string(e.what()));
-		auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), 1.0f, 2);
+		auto evaluator = BattleEvaluator(env, cb, astack, cb->getPlayerID().value(), bid, battle->battleGetMySide(), 1.0f, 2);
 		cb->battleMakeUnitAction(bid, evaluator.selectStackAction(astack));
 		return;
 	}
@@ -322,7 +322,7 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 
 	if(inFallback)
 	{
-		auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), 1.0f, 2);
+		auto evaluator = BattleEvaluator(env, cb, astack, cb->getPlayerID().value(), bid, battle->battleGetMySide(), 1.0f, 2);
 		cb->battleMakeUnitAction(bid, evaluator.selectStackAction(astack));
 		return;
 	}
@@ -372,7 +372,7 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 			resetting = true;
 		}
 
-		state->action = std::make_unique<Action>(a, state->battlefield.get(), cb->getPlayerID()->toString());
+		state->action = std::make_unique<Action>(a, state->battlefield.get(), cb->getPlayerID().value().toString());
 
 		ba = buildBattleAction();
 
@@ -391,7 +391,7 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 			if(errcounter > 10)
 			{
 				logger.warn("Got 10 consecutive errors, will fall back to BattleAI until this combat ends");
-				auto evaluator = BattleEvaluator(env, cb, astack, *cb->getPlayerID(), bid, battle->battleGetMySide(), 1.0f, 2);
+				auto evaluator = BattleEvaluator(env, cb, astack, cb->getPlayerID().value(), bid, battle->battleGetMySide(), 1.0f, 2);
 				cb->battleMakeUnitAction(bid, evaluator.selectStackAction(astack));
 				inFallback = true;
 				break;

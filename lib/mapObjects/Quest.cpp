@@ -524,7 +524,7 @@ QuestInfo QuestSource::getQuestIdentity() const
 bool QuestSource::hasQuestInLog(PlayerColor player) const
 {
 	const QuestInfo identity = getQuestIdentity();
-	if(const auto * ps = cb->getPlayerState(player, false))
+	if(const auto * ps = cb->tryGetPlayerState(player))
 		for(const auto & qi : ps->quests)
 			if(qi == identity)
 				return true;
@@ -533,7 +533,7 @@ bool QuestSource::hasQuestInLog(PlayerColor player) const
 
 bool QuestSource::isVisibleFor(PlayerColor player) const
 {
-	if(const auto * ps = cb->getPlayerState(player, false))
+	if(const auto * ps = cb->tryGetPlayerState(player))
 	{
 		const QuestInfo identity = getQuestIdentity();
 		for(const auto & qi : ps->quests)
@@ -565,7 +565,7 @@ void SeerHut::setObjToKill()
 		if(q.mission.destroyedObjects.empty())
 			continue;
 
-		const CGObjectInstance * target = cb->getObj(q.mission.destroyedObjects.front());
+		const CGObjectInstance * target = cb->tryGetObj(q.mission.destroyedObjects.front());
 		if(const auto * creature = dynamic_cast<const CGCreature *>(target))
 		{
 			q.stackToKill = creature->getCreatureID();

@@ -118,7 +118,7 @@ void GraphPaths::calculatePaths(const CGHeroInstance * targetHero, const Nullkil
 
 					if(targetGraphNode.objID.hasValue())
 					{
-						targetNode.obj = aiNk->cc->getObj(targetGraphNode.objID, false);
+						targetNode.obj = aiNk->cc->tryGetObj(targetGraphNode.objID);
 
 						if(targetNode.obj && targetNode.obj->ID == Obj::HERO)
 							return;

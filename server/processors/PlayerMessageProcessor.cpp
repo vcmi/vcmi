@@ -339,7 +339,7 @@ void PlayerMessageProcessor::startVoting(PlayerColor initiator, ECurrentChatVote
 
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 	{
-		auto state = gameHandler->gameInfo().getPlayerState(player, false);
+		auto state = gameHandler->gameInfo().tryGetPlayerState(player);
 		if(state && state->isHuman() && initiator != player)
 			awaitingPlayers.insert(player);
 	}

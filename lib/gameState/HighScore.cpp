@@ -39,7 +39,7 @@ HighScoreParameter HighScore::prepareHighScores(const CGameState * gs, PlayerCol
 	param.allEnemiesDefeated = true;
 	for (PlayerColor otherPlayer(0); otherPlayer < PlayerColor::PLAYER_LIMIT; ++otherPlayer)
 	{
-		auto ps = gs->getPlayerState(otherPlayer, false);
+		auto ps = gs->tryGetPlayerState(otherPlayer);
 		if(ps && otherPlayer != player && !ps->checkVanquished())
 			param.allEnemiesDefeated = false;
 	}

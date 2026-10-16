@@ -35,7 +35,7 @@
 
 ColorRGBA CMinimapInstance::getTileColor(const int3 & pos, bool minimapShowHeroes) const
 {
-	const TerrainTile * tile = GAME->interface()->cb->getTile(pos, false);
+	const TerrainTile * tile = GAME->interface()->cb->tryGetTile(pos);
 
 	// if tile is not visible it will be black on minimap
 	if(!tile)
@@ -44,7 +44,7 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos, bool minimapShowHeroe
 	// if object at tile is owned - it will be colored as its owner
 	for (const ObjectInstanceID objectID : tile->blockingObjects)
 	{
-		const auto * obj = GAME->interface()->cb->getObj(objectID);
+		const auto * obj = GAME->interface()->cb->tryGetObj(objectID);
 
 		if (obj)
 		{
@@ -282,7 +282,7 @@ std::vector<ObjectInstanceID> CMinimap::getVisibleHeroes()
 
 	for (const auto & player : PlayerColor::ALL_PLAYERS())
 	{
-		if (GAME->interface()->cb->getPlayerStatus(player, false) != EPlayerStatus::INGAME)
+		if (GAME->interface()->cb->getPlayerStatus(player) != EPlayerStatus::INGAME)
 			continue;
 
 		for (const auto & hero : GAME->interface()->cb->getHeroes(player))

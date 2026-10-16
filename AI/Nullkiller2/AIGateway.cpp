@@ -81,8 +81,9 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	const int3 from = hero ? hero->convertToVisitablePos(details.start) : (details.start - int3(0,1,0));
 	const int3 to   = hero ? hero->convertToVisitablePos(details.end)   : (details.end   - int3(0,1,0));
 
-	const auto fromObjects = cc->getVisitableObjs(from, verbose);
-	const auto toObjects = cc->getVisitableObjs(to, verbose);
+	//enemy hero may move from or to tile that we don't see
+	const auto fromObjects = cc->isVisible(from) ? cc->getVisitableObjs(from) : std::vector<const CGObjectInstance *>();
+	const auto toObjects = cc->isVisible(to) ? cc->getVisitableObjs(to) : std::vector<const CGObjectInstance *>();
 	const CGObjectInstance * o1 = vstd::frontOrNull(fromObjects);
 	const CGObjectInstance * o2 = vstd::frontOrNull(toObjects);
 
@@ -130,7 +131,7 @@ void AIGateway::heroMoved(const TryMoveHero & details, bool verbose)
 	{
 		if(const auto journey = nullkiller->memory->getOneWayPortalJourney(hero->id))
 		{
-			const auto * exit = cc->getObj(journey->second, false);
+			const auto * exit = cc->tryGetObj(journey->second);
 			if(exit && from == exit->visitablePos() && to != from)
 			{
 				nullkiller->memory->completeOneWayPortalJourney(hero->id);
@@ -483,7 +484,7 @@ void AIGateway::objectPropertyChanged(const SetObjectProperty * sop)
 	if(sop->what == ObjProperty::OWNER)
 	{
 		auto relations = cc->getPlayerRelations(playerID, sop->identifier.as<PlayerColor>());
-		auto obj = cc->getObj(sop->id, false);
+		auto obj = cc->tryGetObj(sop->id);
 
 		if(!nullkiller) // crash protection
 			return;
@@ -585,7 +586,7 @@ void AIGateway::initGameInterface(std::shared_ptr<Environment> env, std::shared_
 	cbc = callback;
 	cc = callback;
 	this->env = env;
-	playerID = *cc->getPlayerID();
+	playerID = cc->getPlayerID().value();
 	cc->waitTillRealize = true;
 
 	nullkiller->init(callback, this);
@@ -685,14 +686,14 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 					answer = false;
 				}
 
-				const auto * visitedObject = cc->getObj(visitedObjectID, false);
+				const auto * visitedObject = cc->tryGetObj(visitedObjectID);
 				logAi->trace("Question hook: visiting %s by %s; target %s danger ratio %f",
 					visitedObject ? visitedObject->getObjectNameTextID() : "unknown",
 					heroPtr.nameOrDefault(), target.toString(), ratio);
 
-				if(cc->getObj(goalObjectID, false))
+				if(cc->tryGetObj(goalObjectID))
 				{
-					logAi->trace("AI expected %s", cc->getObj(goalObjectID, false)->getObjectNameTextID());
+					logAi->trace("AI expected %s", cc->tryGetObj(goalObjectID)->getObjectNameTextID());
 				}
 
 				if(objType == Obj::BORDERGUARD || objType == Obj::QUEST_GUARD)
@@ -765,7 +766,7 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 		{
 			// TODO: Implement checking if visiting that teleport will uncovert any FoW
 			// So far this is the best option to handle decision about probing
-			auto obj = cc->getObj(exit.first, false);
+			auto obj = cc->tryGetObj(exit.first);
 			if(obj == nullptr && !vstd::contains(teleportChannelProbingList, exit.first))
 			{
 				if(exit.first != destinationTeleport)
@@ -1207,9 +1208,9 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 
 		auto getObj = [&](int3 coord, bool ignoreHero)
 		{
-			auto tile = cc->getTile(coord, false);
+			auto tile = cc->tryGetTile(coord);
 			assert(tile);
-			return cc->getObj(tile->topVisitableObj(ignoreHero), false);
+			return cc->tryGetObj(tile->topVisitableObj(ignoreHero));
 		};
 
 		auto isTeleportAction = [&](EPathNodeAction action) -> bool
@@ -1242,7 +1243,7 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 		{
 			// Mirror server-side check: interaction with objects of players that were not met yet
 			// is not allowed while simultaneous turns are active. Abort instead of sending doomed request
-			if(const TerrainTile * tile = cc->getTile(heroPtr->convertFromVisitablePos(dst), false))
+			if(const TerrainTile * tile = cc->tryGetTile(heroPtr->convertFromVisitablePos(dst)))
 			{
 				for(const auto & objectID : tile->visitableObjects)
 				{
@@ -1258,7 +1259,7 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 
 		auto doTeleportMovement = [&](ObjectInstanceID exitId, int3 exitPos)
 		{
-			if(cc->getObj(exitId) && cc->getObj(exitId)->ID == Obj::WHIRLPOOL)
+			if(cc->tryGetObj(exitId) && cc->tryGetObj(exitId)->ID == Obj::WHIRLPOOL)
 			{
 				nullkiller->armyFormation->rearrangeArmyForWhirlpool(*heroPtr);
 			}
@@ -1453,7 +1454,7 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 		throw goalFulfilledException(sptr(g));
 
 	int acquiredResources = 0;
-	if(const CGObjectInstance * obj = cc->getObj(ObjectInstanceID(g.objid), false))
+	if(const CGObjectInstance * obj = cc->tryGetObj(ObjectInstanceID(g.objid)))
 	{
 		if(const auto * m = dynamic_cast<const IMarket*>(obj))
 		{
@@ -1865,10 +1866,10 @@ void AIGateway::memorizeVisitableObjs(const std::unique_ptr<AIMemory> & memory,
                                       const PlayerColor & playerID,
                                       const std::shared_ptr<CCallback> & cc)
 {
-	foreach_tile_pos(*cc, [&](const int3 & pos)
+	foreach_visible_tile_pos(*cc, [&](const int3 & pos)
 	{
 		// TODO: Inspect what not visible means when using verbose true
-		for(const CGObjectInstance * obj : cc->getVisitableObjs(pos, false))
+		for(const CGObjectInstance * obj : cc->getVisitableObjs(pos))
 		{
 			memorizeVisitableObj(obj, memory, dangerHitMap, playerID, cc);
 		}

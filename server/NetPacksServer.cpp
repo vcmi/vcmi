@@ -55,7 +55,7 @@ void ApplyGhNetPackVisitor::visitDismissHero(DismissHero & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.hid);
 	gh.throwIfPlayerNotActive(connection, &pack);
-	result = gh.removeObject(gh.gameInfo().getObj(pack.hid), pack.player);
+	result = gh.removeObject(gh.gameInfo().tryGetObj(pack.hid), pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitMoveHero(MoveHero & pack)
@@ -252,7 +252,7 @@ void ApplyGhNetPackVisitor::visitBuyArtifact(BuyArtifact & pack)
 
 void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 {
-	const CGObjectInstance * object = gh.gameInfo().getObj(pack.marketId);
+	const CGObjectInstance * object = gh.gameInfo().tryGetObj(pack.marketId);
 	const CGHeroInstance * hero = gh.gameInfo().getHero(pack.heroId);
 	const auto * market = gh.gameState().getMarket(pack.marketId);
 

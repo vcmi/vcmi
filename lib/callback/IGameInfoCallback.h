@@ -107,16 +107,18 @@ public:
 	virtual const TeamState * getTeam(TeamID teamID) const = 0;
 	/// Returns pointer to specified team. Player must be valid. Players without belong to a team with single member
 	virtual const TeamState * getPlayerTeam(PlayerColor color) const = 0;
-	/// Returns current state of a specific player. Player must be valid
-	virtual const PlayerState * getPlayerState(PlayerColor color, bool verbose = true) const = 0;
+	/// Returns current state of a specific player. Throws if player does not exist or is not accessible
+	virtual const PlayerState * getPlayerState(PlayerColor color) const = 0;
+	/// Returns current state of a specific player, or nullptr if player does not exist or is not accessible
+	virtual const PlayerState * tryGetPlayerState(PlayerColor color) const = 0;
 	/// Returns starting settings of a specified player. Player must be valid
 	virtual const PlayerSettings * getPlayerSettings(PlayerColor color) const = 0;
 	/// Returns relations (allies, enemies, etc) of two specified, valid players
 	virtual PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const = 0;
 	/// Returns number of wandering heroes or wandering and garrisoned heroes for specified player
 	virtual int getHeroCount(PlayerColor player, bool includeGarrisoned) const = 0;
-	/// Returns in-game status if specified player. Player must be valid
-	virtual EPlayerStatus getPlayerStatus(PlayerColor player, bool verbose = true) const = 0;
+	/// Returns in-game status if specified player, or EPlayerStatus::WRONG if there is no such player
+	virtual EPlayerStatus getPlayerStatus(PlayerColor player) const = 0;
 	/// Returns amount of resource of a specific type owned by a specified player
 	virtual int getResource(PlayerColor Player, GameResID which) const = 0;
 
@@ -124,21 +126,25 @@ public:
 	virtual const CGHeroInstance * getHero(ObjectInstanceID objid) const = 0;
 	/// Returns pointer to town using provided object ID. Returns null on failure
 	virtual const CGTownInstance * getTown(ObjectInstanceID objid) const = 0;
-	/// Returns pointer to object using provided object ID. Returns null on failure
-	virtual const CGObjectInstance * getObj(ObjectInstanceID objid, bool verbose = true) const = 0;
+	/// Returns pointer to object using provided object ID. Throws if object does not exist or is not visible
+	virtual const CGObjectInstance * getObj(ObjectInstanceID objid) const = 0;
+	/// Returns pointer to object using provided object ID, or nullptr if object does not exist or is not visible
+	virtual const CGObjectInstance * tryGetObj(ObjectInstanceID objid) const = 0;
 	/// Returns pointer to object using provided object ID. Returns null on failure
 	virtual const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const = 0;
 	/// Returns pointer to artifact using provided object ID. Returns null on failure
 	virtual const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const = 0;
 
-	/// Returns pointer to specified tile or nullptr on error
-	virtual const TerrainTile * getTile(int3 tile, bool verbose = true) const = 0;
+	/// Returns pointer to specified tile. Throws if tile is not visible
+	virtual const TerrainTile * getTile(int3 tile) const = 0;
+	/// Returns pointer to specified tile, or nullptr if tile is not visible
+	virtual const TerrainTile * tryGetTile(int3 tile) const = 0;
 	/// Returns pointer to specified tile without checking for permissions. Avoid its usage!
 	virtual const TerrainTile * getTileUnchecked(int3 tile) const = 0;
-	/// Returns pointer to top-most object on specified tile, or nullptr on error
+	/// Returns pointer to top-most object on specified tile, or nullptr if tile is not visible or has no visitable objects
 	virtual const CGObjectInstance * getTopObj(int3 pos) const = 0;
 	/// Returns whether it is possible to dig for Grail on specified tile
-	virtual EDiggingStatus getTileDigStatus(int3 tile, bool verbose = true) const = 0;
+	virtual EDiggingStatus getTileDigStatus(int3 tile) const = 0;
 	/// Calculates pathfinding data into specified pathfinder config
 	virtual void calculatePaths(const std::shared_ptr<PathfinderConfig> & config) const = 0;
 
