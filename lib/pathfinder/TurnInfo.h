@@ -64,12 +64,15 @@ private:
 	bool waterWalkingTest;
 	bool flyingMovementTest;
 	bool freeShipBoardingTest;
+	bool freeShipBoardingUnrestricted = false;
+	std::vector<std::pair<int, int>> freeShipboardingLimits;
 
 public:
 	int hasWaterWalking() const;
 	int hasFlyingMovement() const;
 	int hasNoTerrainPenalty(const TerrainId & terrain) const;
 	int hasFreeShipBoarding() const;
+	int getFreeShipBoardingCost(int movementPoints) const;
 
 	int getFlyingMovementValue() const;
 	int getWaterWalkingValue() const;
