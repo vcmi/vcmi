@@ -56,6 +56,8 @@ public:
 		reply.movePoints = movementLeft.value_or(hero->movementPointsRemaining());
 
 		gameState->apply(reply);
+		if(afterMovement)
+			afterMovement();
 		if(gateway)
 			gateway->heroMoved(reply, false);
 
@@ -86,6 +88,9 @@ public:
 	}
 
 	int movementRequests = 0;
+
+	/// Runs after every applied movement, e.g. to emulate a map event visited on the way
+	std::function<void()> afterMovement;
 
 private:
 	std::shared_ptr<CGameState> gameState;

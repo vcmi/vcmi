@@ -197,6 +197,20 @@ TEST_F(HealthTest, resurrectOneBattle)
 	checkEmptyHealth(health, mock);
 }
 
+TEST_F(HealthTest, takeResurrectedKeepsLastUnit)
+{
+	setDefaultExpectations();
+	health.init();
+
+	checkNormalDamage(health, UNIT_HEALTH * UNIT_AMOUNT);
+	checkHeal(health, EHealLevel::RESURRECT, EHealPower::ONE_BATTLE, UNIT_HEALTH * UNIT_AMOUNT, UNIT_HEALTH * UNIT_AMOUNT);
+
+	health.takeResurrected(true);
+	EXPECT_EQ(health.getCount(), 1);
+	EXPECT_EQ(health.getFirstHPleft(), UNIT_HEALTH);
+	EXPECT_EQ(health.getResurrected(), 0);
+}
+
 TEST_F(HealthTest, resurrectPermanent)
 {
 	setDefaultExpectations();

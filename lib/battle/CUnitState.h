@@ -110,7 +110,8 @@ public:
 	/// returns total initial health
 	int64_t total() const;
 
-	void takeResurrected();
+	/// Removes units resurrected only for this battle, optionally leaving one of them alive
+	void takeResurrected(bool keepLastUnit = false);
 
 	void serializeJson(JsonSerializeFormat & handler);
 private:

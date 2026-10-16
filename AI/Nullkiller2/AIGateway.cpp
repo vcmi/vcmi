@@ -24,6 +24,8 @@
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/TerrainTile.h"
+#include "../../lib/pathfinder/CPathfinder.h"
+#include "../../lib/pathfinder/PathfinderOptions.h"
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/IGameSettings.h"
 #include "../../lib/gameState/CGameState.h"
@@ -1342,15 +1344,20 @@ HeroMovementResult AIGateway::moveHeroToTile(const int3 dst, const HeroPtr & her
 					: HeroMovementResult::PROGRESSED;
 			}
 
-			// e.g. map event may take movement points away, leaving less than the path was planned with
-			if(heroPtr->movementPointsRemaining() <= 0 || heroPtr->movementPointsRemaining() < path.nodes[i].moveRemains)
+			// a hidden map event on the way may take movement points or give non-native units,
+			// so the planned step may cost more than the hero has
+			const int movementPoints = heroPtr->movementPointsRemaining();
+			const int stepCost = CPathfinderHelper(*cc, heroPtr.get(), PathfinderOptions(*cc))
+				.getMovementCost(currentCoord, nextCoord, nextNode.layer, movementPoints);
+
+			if(movementPoints <= 0 || movementPoints < stepCost)
 			{
 				logAi->debug(
-					"Stopping movement path for hero %s before moving to %s: has %d movement points, path expects %d.",
+					"Stopping movement path for hero %s before moving to %s: has %d movement points, step costs %d.",
 					heroPtr->getNameTextID(),
 					nextCoord.toString(),
-					heroPtr->movementPointsRemaining(),
-					path.nodes[i].moveRemains);
+					movementPoints,
+					stepCost);
 				return startHpos == heroPtr->visitablePos()
 					? HeroMovementResult::BLOCKED
 					: HeroMovementResult::PROGRESSED;

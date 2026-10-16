@@ -59,6 +59,24 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 		return true;
 	});
 
+	// Hero whose army would consist only of units resurrected for this battle keeps one of them,
+	// otherwise a victorious hero would be removed from the map
+	const CStack * lastResurrectedStack = nullptr;
+	bool hasPermanentUnits = false;
+	for(const CStack * st : allStacks)
+	{
+		if(st->unitSlot() == SlotID::COMMANDER_SLOT_PLACEHOLDER && st->alive())
+			hasPermanentUnits = true;
+
+		if(!st->unitSlot().validSlot() || !st->alive())
+			continue;
+
+		if(st->health.available() > static_cast<int64_t>(st->health.getResurrected()) * st->getMaxHealth())
+			hasPermanentUnits = true;
+		else
+			lastResurrectedStack = st;
+	}
+
 	for(const CStack * stConst : allStacks)
 	{
 		// Use const cast - in order to call non-const "takeResurrected" for proper calculation of casualties
@@ -67,7 +85,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CBattleInfoCallback & battle,
 
 		logGlobal->debug("Calculating casualties for %s", st->nodeName());
 
-		st->health.takeResurrected();
+		st->health.takeResurrected(!hasPermanentUnits && stConst == lastResurrectedStack);
 
 		if(st->unitSlot() == SlotID::WAR_MACHINES_SLOT)
 		{

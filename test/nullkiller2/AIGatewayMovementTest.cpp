@@ -85,6 +85,38 @@ TEST_F(Nullkiller2_AIGateway, stopsRouteWhenMoveLeavesFewerMovementPointsThanPla
 	EXPECT_EQ(hero->movementPointsRemaining(), 1);
 }
 
+TEST_F(Nullkiller2_AIGateway, stopsRouteWhenStepBecomesMoreExpensiveThanPlanned)
+{
+	const HeroTypeID fortressHero(112);
+	const CreatureID gnoll(98);
+
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder.size(36, false)
+		.playerActive(PLAYER)
+		.hero({5, 5, 0}, fortressHero, PLAYER)
+		.heroGarrison({{gnoll, 1}});
+	for(int x = 4; x < 10; ++x)
+		builder.terrain({x, 5, 0}, TerrainId::SWAMP);
+
+	startWithMap(std::move(builder));
+	revealMap(PLAYER);
+	hero = findHeroByOwner(PLAYER);
+	ASSERT_NE(hero, nullptr);
+
+	// native swamp costs 100 per step, so the first step leaves the planned 160 points
+	hero->setMovementPoints(260);
+	client = std::make_unique<ScriptedMovementClient>(gameState());
+	client->drainMovement(160);
+	// non-native unit given by a map event makes swamp cost 175
+	client->afterMovement = [this]() { hero->addToSlot(SlotID(1), CreatureID::ARCHER, 1); };
+	callback = makeCallback(PLAYER, client.get());
+	gateway = makeGateway(callback);
+	client->notify(*gateway);
+
+	EXPECT_EQ(moveHeroTo(distantDestination()), NK2AI::HeroMovementResult::PROGRESSED);
+	EXPECT_EQ(client->movementRequests, 1) << "the server would reject a step that costs more than the hero has";
+}
+
 TEST_F(Nullkiller2_AIGateway, throwsAndStopsRouteAfterFailedMovePacket)
 {
 	startGame();

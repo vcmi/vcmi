@@ -295,14 +295,14 @@ int32_t CHealth::getResurrected() const
 	return resurrected;
 }
 
-void CHealth::takeResurrected()
+void CHealth::takeResurrected(bool keepLastUnit)
 {
 	if(resurrected != 0)
 	{
 		int64_t totalHealth = available();
 
 		totalHealth -= resurrected * owner->getMaxHealth();
-		vstd::amax(totalHealth, 0);
+		vstd::amax(totalHealth, keepLastUnit ? owner->getMaxHealth() : 0);
 		setFromTotal(totalHealth);
 		resurrected = 0;
 	}
