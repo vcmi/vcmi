@@ -149,9 +149,9 @@ TEST(CRewardableObject, onceVisitStateIsSharedOnlyWithClearingPlayersTeam)
 
 	EXPECT_CALL(callback, getPlayerTeam(player)).WillRepeatedly(::testing::Return(&visitorsTeam));
 	EXPECT_CALL(callback, getPlayerTeam(enemy)).WillRepeatedly(::testing::Return(&enemyTeam));
-	EXPECT_CALL(callback, getPlayerState(player, ::testing::_)).WillRepeatedly(::testing::Return(&playerState));
-	EXPECT_CALL(callback, getPlayerState(ally, ::testing::_)).WillRepeatedly(::testing::Return(&allyState));
-	EXPECT_CALL(callback, getPlayerState(enemy, ::testing::_)).WillRepeatedly(::testing::Return(&enemyState));
+	EXPECT_CALL(callback, getPlayerState(player)).WillRepeatedly(::testing::Return(&playerState));
+	EXPECT_CALL(callback, getPlayerState(ally)).WillRepeatedly(::testing::Return(&allyState));
+	EXPECT_CALL(callback, getPlayerState(enemy)).WillRepeatedly(::testing::Return(&enemyState));
 
 	EXPECT_TRUE(object.wasVisited(player));
 	EXPECT_FALSE(object.wasVisited(enemy));
@@ -188,7 +188,7 @@ TEST(CRewardableObject, checkingEnemyClearedOnceObjectMarksItVisited)
 	hero.tempOwner = visitor;
 
 	EXPECT_CALL(callback, getPlayerTeam(visitor)).WillRepeatedly(::testing::Return(&team));
-	EXPECT_CALL(callback, getPlayerState(visitor, ::testing::_)).WillRepeatedly(::testing::Return(&player));
+	EXPECT_CALL(callback, getPlayerState(visitor)).WillRepeatedly(::testing::Return(&player));
 
 	object.onHeroVisit(gameEvents, &hero);
 
@@ -213,7 +213,7 @@ TEST(CRewardableObject, globallyVisitedObjectInfoIsScoutedAndUnavailable)
 	hero.tempOwner = ally;
 	allyState.visitedObjectsGlobal.insert({object.ID, object.subID});
 
-	EXPECT_CALL(objectCallback, getPlayerState(ally, ::testing::_)).WillRepeatedly(::testing::Return(&allyState));
+	EXPECT_CALL(objectCallback, getPlayerState(ally)).WillRepeatedly(::testing::Return(&allyState));
 	EXPECT_CALL(objectCallback, getPlayerTeam(ally)).WillRepeatedly(::testing::Return(&team));
 
 	EXPECT_TRUE(object.wasVisited(ally));
@@ -304,7 +304,7 @@ TEST(CRewardableObject, failedRewardLimiterScoutsWithoutMarkingVisited)
 	hero.tempOwner = visitor;
 
 	EXPECT_CALL(callback, getPlayerTeam(visitor)).WillRepeatedly(::testing::Return(&team));
-	EXPECT_CALL(callback, getPlayerState(visitor, ::testing::_)).WillRepeatedly(::testing::Return(&player));
+	EXPECT_CALL(callback, getPlayerState(visitor)).WillRepeatedly(::testing::Return(&player));
 
 	object.onHeroVisit(gameEvents, &hero);
 

@@ -1070,10 +1070,13 @@ public:
 			if(!target)
 				continue;
 
-			evaluationContext.goldReward += evaluator.getGoldReward(target, probe.hero);
-			evaluationContext.armyReward += evaluator.getArmyReward(target, probe.hero, probe.hero, false);
-			evaluationContext.skillReward += evaluator.getSkillReward(target, probe.hero, role);
-			evaluationContext.addNonCriticalStrategicalValue(evaluator.getStrategicalValue(target, probe.hero));
+			RewardEvaluationRequest request = {.target=target, .hero=probe.hero, .army=probe.hero, .heroRole=role, .considerRecruitmentCost=false };
+			RewardEvaluationResult rewards = evaluator.evaluateRewards(request);
+
+			evaluationContext.goldReward += rewards.goldReward;
+			evaluationContext.armyReward += rewards.armyReward;
+			evaluationContext.skillReward += rewards.skillReward;
+			evaluationContext.addNonCriticalStrategicalValue(rewards.strategicalValue);
 		}
 	}
 };
