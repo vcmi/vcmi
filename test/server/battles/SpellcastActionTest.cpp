@@ -165,8 +165,8 @@ TEST_F(SpellcastActionTest, genieCastsOnlyOnOtherLivingUnitsOfItsSide)
 	startGame();
 	startBattle();
 
-	CStack * genie = addStack(BattleSide::ATTACKER, CreatureID(masterGenie), casterHex, stackCount);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	const CStack * genie = addStack(BattleSide::ATTACKER, CreatureID(masterGenie), casterHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	const auto castsBefore = genie->casts.available();
 
 	EXPECT_FALSE(act(randomSpell(genie, enemy->getPosition())));
@@ -254,7 +254,7 @@ TEST_F(SpellcastActionTest, heroCastsSpellOnUnit)
 	startGame();
 	startBattle();
 
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	teachSpell(attackerSideHero, SpellID::BLESS);
 	const auto manaBefore = attackerSideHero->mana;
 
@@ -275,7 +275,7 @@ TEST_F(SpellcastActionTest, heroCastsOnlyOncePerRound)
 	startGame();
 	startBattle();
 
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	teachSpell(attackerSideHero, SpellID::BLESS);
 
 	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID::BLESS, ally));
@@ -291,7 +291,7 @@ TEST_F(SpellcastActionTest, heroCastsSpellAtHexOfUnit)
 	startGame();
 	startBattle();
 
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	teachSpell(attackerSideHero, SpellID::BLESS);
 
 	// the form BattleAI sends
@@ -305,7 +305,7 @@ TEST_F(SpellcastActionTest, heroCastsAreaSpellAtHex)
 	startBattle();
 
 	addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	teachSpell(attackerSideHero, SpellID::FIREBALL);
 	const auto healthBefore = enemy->getAvailableHealth();
 
@@ -336,8 +336,8 @@ TEST_P(RefusedHeroSpellTest, spellAtInvalidTargetIsRefused)
 	startGame();
 	startBattle();
 
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	teachSpell(attackerSideHero, scenario.spell);
 	const auto manaBefore = attackerSideHero->mana;
 
@@ -380,7 +380,7 @@ TEST_F(SpellcastActionTest, creatureSpellAtInvalidTargetIsRefused)
 	startGame();
 	startBattle();
 
-	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(stormElemental), casterHex, stackCount);
+	const CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(stormElemental), casterHex, stackCount);
 	const auto castsBefore = caster->casts.available();
 
 	// the spell needs a unit
@@ -395,7 +395,7 @@ TEST_F(SpellcastActionTest, creatureWithoutCastsLeftIsRefused)
 	startBattle();
 
 	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(stormElemental), casterHex, stackCount);
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	caster->casts.use(caster->casts.available());
 
 	EXPECT_FALSE(castAsUnit(caster, SpellID::PROTECTION_FROM_AIR, ally->getPosition()));
@@ -429,7 +429,7 @@ TEST_F(SpellOptionTest, heroSpellIsAimedAtUnit)
 	startGame();
 	startBattle();
 
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	prepareHero(SpellID::BLESS, ally);
 	const auto option = heroOption(SpellID::BLESS);
 
@@ -453,8 +453,8 @@ TEST_F(SpellOptionTest, areaSpellShowsItsAreaAndUnitsInIt)
 	startGame();
 	startBattle();
 
-	CStack * active = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	const CStack * active = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	prepareHero(SpellID::FIREBALL, active);
 	const auto option = heroOption(SpellID::FIREBALL);
 
@@ -475,8 +475,8 @@ TEST_F(SpellOptionTest, massSpellIsCastWithoutClick)
 	setMagicMastery(attackerSideHero, 3);
 	startBattle();
 
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	prepareHero(SpellID::BLESS, ally);
 	const auto option = heroOption(SpellID::BLESS);
 
@@ -495,7 +495,7 @@ TEST_F(SpellOptionTest, teleportIsAimedAtUnitThenAtFreeHex)
 	startBattle();
 
 	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	prepareHero(SpellID::TELEPORT, ally);
 	const auto option = heroOption(SpellID::TELEPORT);
 
@@ -526,8 +526,8 @@ TEST_F(SpellOptionTest, sacrificeIsAimedAtDeadUnitThenAtVictim)
 	startBattle();
 
 	CStack * active = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
-	CStack * fallen = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
-	CStack * victim = addStack(BattleSide::ATTACKER, CreatureID(pikeman), freeHex, 2 * stackCount);
+	const CStack * fallen = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * victim = addStack(BattleSide::ATTACKER, CreatureID(pikeman), freeHex, 2 * stackCount);
 	const auto victimId = victim->unitId();
 
 	injure(fallen, fallen->getAvailableHealth());
@@ -557,8 +557,8 @@ TEST_F(SpellOptionTest, unitSpellIsTriedFirstOnUnitsItSuits)
 	startBattle();
 
 	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(stormElemental), casterHex, stackCount);
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	grantSpell(caster, BonusType::SPELLCASTER, SpellID::CURSE, 0);
 
 	const auto options = optionsOf(caster);
@@ -613,8 +613,8 @@ TEST_F(SpellOptionTest, genieOffersRandomSpellForOtherUnitsOfItsSide)
 	startBattle();
 
 	CStack * genie = addStack(BattleSide::ATTACKER, CreatureID(masterGenie), casterHex, stackCount);
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	const auto castsBefore = genie->casts.available();
 
 	const auto option = optionOf(genie, EActionType::RANDOM_SPELL);
@@ -645,7 +645,7 @@ TEST_F(SpellOptionTest, adjacentCasterApproachesTargetFromChosenSide)
 	startBattle();
 
 	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	grantSpell(caster, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
 	const auto castsBefore = caster->casts.available();
 

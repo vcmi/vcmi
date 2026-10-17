@@ -89,7 +89,7 @@ TEST_F(MeleeActionTest, longWeaponAttackOfAdjacentTargetIsRefused)
 	startBattle();
 
 	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackFrom, stackCount);
-	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
 
 	const auto targetHealth = target->getAvailableHealth();
@@ -106,7 +106,7 @@ TEST_F(MeleeActionTest, targetTwoHexesAwayIsRefusedWithoutLongWeapon)
 	const BattleHex twoHexesAway = attackFrom.cloneInDirection(BattleHex::LEFT);
 
 	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), twoHexesAway, stackCount);
-	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 	const auto targetHealth = target->getAvailableHealth();
 
 	EXPECT_FALSE(attack(attacker, targetHex));
@@ -121,7 +121,7 @@ TEST_F(MeleeActionTest, attackFromHexAwayFromTargetIsRefusedWithoutMoving)
 
 	const BattleHex twoHexesAway = attackFrom.cloneInDirection(BattleHex::LEFT);
 
-	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackerStart, stackCount);
+	const CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackerStart, stackCount);
 	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 	const auto targetHealth = target->getAvailableHealth();
 
@@ -135,8 +135,8 @@ TEST_F(MeleeActionTest, unitOfOwnSideIsRefusedAsTarget)
 	startGame();
 	startBattle();
 
-	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackFrom, stackCount);
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), targetHex, stackCount);
+	const CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackFrom, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), targetHex, stackCount);
 	const auto allyHealth = ally->getAvailableHealth();
 
 	EXPECT_FALSE(attack(attacker, targetHex));
@@ -149,7 +149,7 @@ TEST_F(MeleeActionTest, berserkUnitAttacksUnitOfOwnSide)
 	startBattle();
 
 	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackFrom, stackCount);
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), targetHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), targetHex, stackCount);
 	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ATTACKS_NEAREST_CREATURE, BonusSource::OTHER, 0, BonusSourceID()));
 	const auto allyHealth = ally->getAvailableHealth();
 
@@ -196,8 +196,8 @@ TEST_F(MeleeOptionTest, attackPreviewShowsDirectionDamageAndRetaliation)
 	startGame();
 	startBattle();
 
-	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackerStart, stackCount);
-	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	const CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackerStart, stackCount);
+	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 	const auto targetHealth = target->getAvailableHealth();
 
 	const auto option = optionOf(attacker, EActionType::WALK_AND_ATTACK);
@@ -225,7 +225,7 @@ TEST_F(MeleeOptionTest, sideOutOfReachIsNotOffered)
 	startGame();
 	startBattle();
 
-	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackerStart, stackCount);
+	const CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackerStart, stackCount);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
 	// four hexes of movement reach the near side of the target, but not its far side
@@ -326,7 +326,7 @@ TEST_F(MeleeOptionTest, twoHexLongWeaponUnitStrikesWithItsBackHex)
 	startBattle();
 
 	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(greenDragon), attackerStart, 1);
-	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
 	const auto targetHealth = target->getAvailableHealth();
 
@@ -349,9 +349,9 @@ TEST_F(MeleeOptionTest, breathPreviewNamesUnitBehindTarget)
 	startGame();
 	startBattle();
 
-	CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(greenDragon), attackFrom, 1);
+	const CStack * attacker = addStack(BattleSide::ATTACKER, CreatureID(greenDragon), attackFrom, 1);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
-	CStack * behind = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex.cloneInDirection(BattleHex::RIGHT), stackCount);
+	const CStack * behind = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex.cloneInDirection(BattleHex::RIGHT), stackCount);
 
 	const auto option = optionOf(attacker, EActionType::WALK_AND_ATTACK);
 	const auto shown = option.type->preview(*gameState(), *battle(), option, contextOf(option, attacker, targetHex, BattleHex::LEFT));

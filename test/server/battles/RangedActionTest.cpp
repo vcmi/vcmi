@@ -76,7 +76,7 @@ TEST_F(RangedActionTest, shotAtEmptyHexIsRefused)
 	startGame();
 	startBattle();
 
-	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
+	const CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
 	const auto shotsBefore = shooter->shots.available();
@@ -90,8 +90,8 @@ TEST_F(RangedActionTest, shotAtFriendlyUnitIsRefused)
 	startGame();
 	startBattle();
 
-	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
-	CStack * friendly = addStack(BattleSide::ATTACKER, CreatureID(pikeman), BattleHex(8, 5), stackCount);
+	const CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
+	const CStack * friendly = addStack(BattleSide::ATTACKER, CreatureID(pikeman), BattleHex(8, 5), stackCount);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
 	const auto friendlyHealth = friendly->getAvailableHealth();
@@ -139,9 +139,9 @@ TEST_F(RangedActionTest, firstAidTentRefusesEnemyAndUnwoundedStacks)
 	startGame();
 	startBattle();
 
-	CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
-	CStack * unwounded = addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
-	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	const CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
+	const CStack * unwounded = addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
 	injure(enemy, enemy->getMaxHealth() / 2);
 	const auto enemyHealth = enemy->getAvailableHealth();
@@ -181,7 +181,7 @@ TEST_F(RangedActionTest, catapultShotAtNonWallHexIsRefused)
 	startGame();
 	startSiege();
 
-	CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), BattleHex(2, 8), 1);
+	const CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), BattleHex(2, 8), 1);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
 	BattleAction shot = BattleAction::makeCatapultShot(catapult);
@@ -198,7 +198,7 @@ TEST_F(RangedActionTest, wallShotOutsideSiegeIsRefused)
 	startGame();
 	startBattle();
 
-	CStack * cyclops = addStack(BattleSide::ATTACKER, CreatureID(cyclop), shooterHex, stackCount);
+	const CStack * cyclops = addStack(BattleSide::ATTACKER, CreatureID(cyclop), shooterHex, stackCount);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
 	EXPECT_FALSE(act(BattleAction::makeCatapultShot(cyclops)));
@@ -209,7 +209,7 @@ TEST_F(RangedActionTest, catapultOptionTargetsStandingWall)
 	startGame();
 	startSiege();
 
-	CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), BattleHex(2, 8), 1);
+	const CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), BattleHex(2, 8), 1);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
 	const auto options = optionsOf(catapult);
@@ -226,8 +226,8 @@ TEST_F(RangedActionTest, shotPreviewShowsShotsLeftAndDamage)
 	startGame();
 	startBattle();
 
-	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
-	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(8, 5), stackCount);
+	const CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
+	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(8, 5), stackCount);
 
 	const auto shown = previewOf(shooter, EActionType::SHOOT, target->getPosition());
 	EXPECT_EQ(shown.cursor, "combatShoot");
@@ -248,8 +248,8 @@ TEST_F(RangedActionTest, distantTargetShowsPenaltyCursor)
 	startGame();
 	startBattle();
 
-	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), BattleHex(1, 5), stackCount);
-	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(15, 5), stackCount);
+	const CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), BattleHex(1, 5), stackCount);
+	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(15, 5), stackCount);
 
 	EXPECT_EQ(previewOf(shooter, EActionType::SHOOT, target->getPosition()).cursor, "combatShootPenalty");
 }
@@ -259,7 +259,7 @@ TEST_F(RangedActionTest, shotPreviewAtEmptyHexIsBlocked)
 	startGame();
 	startBattle();
 
-	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
+	const CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
 	EXPECT_EQ(previewOf(shooter, EActionType::SHOOT, BattleHex(8, 5)).cursor, "combatBlocked");
@@ -270,8 +270,8 @@ TEST_F(RangedActionTest, healPreviewShowsWoundedStack)
 	startGame();
 	startBattle();
 
-	CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
-	CStack * patient = addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
+	const CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
+	const CStack * patient = addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
 
 	EXPECT_EQ(previewOf(tent, EActionType::STACK_HEAL, patient->getPosition()).cursor, "combatBlocked");
 

@@ -732,12 +732,12 @@ BattleHexArray BattleFieldController::getMovementRangeForHoveredStack()
 
 BattleHexArray BattleFieldController::getHighlightedHexesForMovementTarget()
 {
-	const BattleHex hoveredHex = getHoveredHex();
+	const BattleHex hex = getHoveredHex();
 
-	if(!hoveredHex.isValid())
+	if(!hex.isValid())
 		return {};
 
-	return owner.actionsController->getShadedHexes(hoveredHex);
+	return owner.actionsController->getShadedHexes(hex);
 }
 
 // Range limit highlight helpers

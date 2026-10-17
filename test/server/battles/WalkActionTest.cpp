@@ -110,7 +110,7 @@ TEST_F(WalkActionTest, tacticsPhaseWalkOutsideTacticsZoneIsRefused)
 	startGame();
 	startBattle();
 
-	CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), BattleHex(1, 3), 10);
+	const CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), BattleHex(1, 3), 10);
 	battle()->tacticDistance = 2;
 	battle()->tacticsSide = BattleSide::ATTACKER;
 
@@ -124,7 +124,7 @@ TEST_F(WalkActionTest, defenderWalksIntoCastleGate)
 	startGame();
 	startSiege();
 
-	CStack * walker = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(BattleHex::GATE_INNER).cloneInDirection(BattleHex::RIGHT), 10);
+	const CStack * walker = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(BattleHex::GATE_INNER).cloneInDirection(BattleHex::RIGHT), 10);
 
 	ASSERT_TRUE(act(BattleAction::makeMove(walker, BattleHex(BattleHex::GATE_OUTER))));
 	EXPECT_EQ(walker->getPosition(), BattleHex(BattleHex::GATE_OUTER));
@@ -135,7 +135,7 @@ TEST_F(WalkActionTest, walkPreviewShadesHexInReach)
 	startGame();
 	startBattle();
 
-	CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
+	const CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
 
 	const auto shown = previewOf(walker, EActionType::WALK, destination);
 	EXPECT_EQ(shown.cursor, "combatMove");
@@ -150,7 +150,7 @@ TEST_F(WalkActionTest, flyingUnitShowsFlyCursor)
 	startGame();
 	startBattle();
 
-	CStack * flyer = addStack(BattleSide::ATTACKER, CreatureID(griffin), start, 10);
+	const CStack * flyer = addStack(BattleSide::ATTACKER, CreatureID(griffin), start, 10);
 
 	EXPECT_EQ(previewOf(flyer, EActionType::WALK, destination).cursor, "combatFly");
 }
@@ -160,7 +160,7 @@ TEST_F(WalkActionTest, walkPreviewOutOfReachIsBlocked)
 	startGame();
 	startBattle();
 
-	CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
+	const CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
 
 	const auto shown = previewOf(walker, EActionType::WALK, BattleHex(9, 5));
 	EXPECT_EQ(shown.cursor, "combatBlocked");
@@ -172,7 +172,7 @@ TEST_F(WalkActionTest, ownHexIsNoMoveTarget)
 	startGame();
 	startBattle();
 
-	CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
+	const CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
 
 	EXPECT_FALSE(isLegal(optionOf(walker, EActionType::WALK), {walker, start}));
 }
@@ -182,7 +182,7 @@ TEST_F(WalkActionTest, twoHexUnitMovesWhereItsTailFits)
 	startGame();
 	startBattle();
 
-	CStack * flyer = addStack(BattleSide::ATTACKER, CreatureID(griffin), start, 10);
+	const CStack * flyer = addStack(BattleSide::ATTACKER, CreatureID(griffin), start, 10);
 	ASSERT_TRUE(flyer->doubleWide());
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), halfway, 10);
 

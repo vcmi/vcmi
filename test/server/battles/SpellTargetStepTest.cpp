@@ -130,7 +130,7 @@ TEST_F(SpellTargetStepTest, sacrificeVictimChoiceShowsHealthGain)
 	startBattle();
 
 	CStack * unit = addStack(BattleSide::ATTACKER, CreatureID(pikeman), unitHex, 10);
-	CStack * victim = addStack(BattleSide::ATTACKER, CreatureID(pikeman), freeHex, 1);
+	const CStack * victim = addStack(BattleSide::ATTACKER, CreatureID(pikeman), freeHex, 1);
 
 	// so that the sacrifice has health to restore
 	injure(unit, 3);
