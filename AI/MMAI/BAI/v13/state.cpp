@@ -197,7 +197,7 @@ void State::onActiveStack(const CStack * astack, CombatResult result, bool recor
 	const auto & [ldd, ldr, lvk, lvl, rdd, rdr, rvk, rvl] = ProcessAttackLogs(attackLogs, sstats);
 	auto ogstats = *gstats; // a copy of the "old" gstats
 
-	(result == CombatResult::NONE) ? gstats->update(astack->unitSide(), result, lv + rv, lh + rh, !astack->waitedThisTurn)
+	(result == CombatResult::NONE) ? gstats->update(astack->unitSide(), result, lv + rv, lh + rh, !astack->waitedThisRound())
 								   : gstats->update(BattleSide::NONE, result, lv + rv, lh + rh, false);
 	lpstats->update(&ogstats, lv, lh, ldd, ldr, lvk, lvl);
 	rpstats->update(&ogstats, rv, rh, rdd, rdr, rvk, rvl);
@@ -225,7 +225,7 @@ void State::onActiveStack(const CStack * astack, CombatResult result, bool recor
 					actmask.push_back(battle->battleCanFlee());
 					break;
 				case GlobalAction::WAIT:
-					actmask.push_back(battlefield->astack && !battlefield->astack->cstack->waitedThisTurn);
+					actmask.push_back(battlefield->astack && !battlefield->astack->cstack->waitedThisRound());
 					break;
 				default:
 					THROW_FORMAT("Unexpected GlobalAction: %d", i);

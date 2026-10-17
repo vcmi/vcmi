@@ -157,9 +157,8 @@ Stack::Stack(
 	if(cstack->willMove())
 	{
 		setflag(F1::WILL_ACT);
-		// XXX: do NOT use cstack->waited()
-		//      (it returns cstack->waiting, which becomes false after acting)
-		if(!cstack->waitedThisTurn)
+		// XXX: do NOT use cstack->waited(), it becomes false after acting
+		if(!cstack->waitedThisRound())
 			setflag(F1::CAN_WAIT);
 	}
 

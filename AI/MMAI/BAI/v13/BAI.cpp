@@ -336,7 +336,7 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 			"This should NOT happen. "
 			"Falling back to a wait/defend action."
 		);
-		auto fa = astack->waitedThisTurn ? BattleAction::makeDefend(astack) : BattleAction::makeWait(astack);
+		auto fa = astack->waitedThisRound() ? BattleAction::makeDefend(astack) : BattleAction::makeWait(astack);
 		cb->battleMakeUnitAction(bid, fa);
 		return;
 	}
@@ -416,7 +416,7 @@ std::shared_ptr<BattleAction> BAI::buildBattleAction()
 				res = std::make_shared<BattleAction>(BattleAction::makeRetreat(battle->battleGetMySide()));
 				break;
 			case GlobalAction::WAIT:
-				if(acstack->waitedThisTurn)
+				if(acstack->waitedThisRound())
 				{
 					ASSERT(!state->actmask.at(EI(GlobalAction::WAIT)), "mask allowed wait when stack has already waited");
 					state->supdata->errcode = ErrorCode::ALREADY_WAITED;

@@ -17,7 +17,6 @@
 #include "../CStack.h"
 #include "../IGameSettings.h"
 
-#include "../battle/actions/BattleActionType.h"
 #include "../campaign/CampaignState.h"
 #include "../entities/artifact/ArtifactUtils.h"
 #include "../entities/artifact/CArtifact.h"
@@ -1432,26 +1431,19 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 		return;
 	}
 
-	if(gs.getBattle(pack.battleID)->tacticDistance)
-	{
-		// moves in tactics phase do not affect creature status
-		// (tactics stack queue is managed by client)
-		return;
-	}
-
-	if (pack.ba.isUnitAction())
+	if(pack.turnStatus || pack.castSpellThisTurn)
 	{
 		if(!st)
-			throw std::runtime_error("StartAction of a unit action without an existing unit: " + pack.ba.toString());
+			throw std::runtime_error("StartAction changes the turn state of a unit that does not exist: " + pack.ba.toString());
 
-		// an action is a unit action only by its type
-		BattleActionType::find(pack.ba)->applyStartState(*st, pack.ba);
+		if(pack.turnStatus)
+			st->setTurnStatus(*pack.turnStatus);
+		if(pack.castSpellThisTurn)
+			st->setCastSpellThisTurn(true);
 	}
-	else
-	{
-		if(pack.ba.actionType == EActionType::HERO_SPELL)
-			gs.getBattle(pack.battleID)->getSide(pack.ba.side).usedSpellsHistory.push_back(pack.ba.spell);
-	}
+
+	if(pack.ba.actionType == EActionType::HERO_SPELL)
+		gs.getBattle(pack.battleID)->getSide(pack.ba.side).usedSpellsHistory.push_back(pack.ba.spell);
 }
 
 void GameStatePackVisitor::visitBattleSpellCast(BattleSpellCast & pack)

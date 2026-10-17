@@ -24,7 +24,7 @@ public:
 class BadMoraleAction : public SkipTurnAction
 {
 public:
-	MetaString getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const override;
+	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
 
 class WaitAction : public BattleActionType
@@ -32,9 +32,8 @@ class WaitAction : public BattleActionType
 public:
 	bool isUnitAction() const override;
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
-	void applyStartState(battle::CUnitState & actor, const BattleAction & action) const override;
+	std::optional<battle::UnitTurnStatus> getStartTurnStatus(const BattleAction & action) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
-	MetaString getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
 
 class DefendAction : public BattleActionType
@@ -42,7 +41,7 @@ class DefendAction : public BattleActionType
 public:
 	bool isUnitAction() const override;
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
-	void applyStartState(battle::CUnitState & actor, const BattleAction & action) const override;
+	std::optional<battle::UnitTurnStatus> getStartTurnStatus(const BattleAction & action) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
 

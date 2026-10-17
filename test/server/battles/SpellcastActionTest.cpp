@@ -77,7 +77,7 @@ TEST_F(SpellcastActionTest, creatureCastsSpellOnTarget)
 
 	EXPECT_TRUE(isAffectedBy(ally, SpellID::PROTECTION_FROM_AIR));
 	EXPECT_EQ(caster->casts.available(), castsBefore - 1);
-	EXPECT_TRUE(caster->castSpellThisTurn);
+	EXPECT_TRUE(caster->castSpellThisTurn());
 }
 
 TEST_F(SpellcastActionTest, creatureCastsMassSpellWithoutTarget)
@@ -147,7 +147,7 @@ TEST_F(SpellcastActionTest, secondCastInTurnIsRefusedAndSkipsTurn)
 	ASSERT_EQ(battle()->getActiveStackID(), static_cast<int32_t>(caster->unitId()));
 
 	EXPECT_FALSE(act(BattleAction::makeCreatureSpellcast(caster, target, spell)));
-	EXPECT_TRUE(caster->movedThisRound);
+	EXPECT_TRUE(caster->moved());
 	EXPECT_NE(battle()->getActiveStackID(), static_cast<int32_t>(caster->unitId()));
 }
 
@@ -603,7 +603,7 @@ TEST_F(SpellOptionTest, unitThatCastThisTurnHasNoSpellOptions)
 	startBattle();
 
 	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(stormElemental), casterHex, stackCount);
-	caster->castSpellThisTurn = true;
+	caster->setCastSpellThisTurn(true);
 
 	const auto options = optionsOf(caster);
 	ASSERT_FALSE(options.empty());

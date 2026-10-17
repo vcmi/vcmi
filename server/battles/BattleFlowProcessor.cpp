@@ -173,7 +173,7 @@ const CStack * BattleFlowProcessor::getNextStack(const CBattleInfoCallback & bat
 
 	// regeneration takes place before everything else but only during first turn attempt in each round
 	// also works under blind and similar effects
-	if(stack && stack->alive() && !stack->waiting)
+	if(stack && stack->alive() && !stack->waited())
 	{
 		BattleTriggerEffect bte;
 		bte.battleID = battle.getBattle()->getBattleID();
@@ -597,7 +597,7 @@ bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, con
 	//check for good morale
 	auto nextStackMorale = next->moraleVal();
 	if(    !next->hadMorale
-		&& !next->defending
+		&& !next->defended()
 		&& !next->waited()
 		&& !next->fear
 		&& next->alive()
@@ -764,7 +764,7 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 	{
 		tryUnbindStack(battle, st);
 
-		if (st->hasBonusOfType(BonusType::POISON) && !st->waiting)
+		if (st->hasBonusOfType(BonusType::POISON) && !st->waited())
 		{
 			std::shared_ptr<const Bonus> b = st->getFirstBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::POISON))).And(Selector::type()(BonusType::STACK_HEALTH)));
 			if (b) //TODO: what if not?...

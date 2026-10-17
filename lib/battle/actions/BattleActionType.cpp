@@ -22,6 +22,7 @@
 #include "../CBattleInfoCallback.h"
 #include "../CUnitState.h"
 #include "../../CStack.h"
+#include "../../networkPacks/PacksForClientBattle.h"
 #include "../../spells/ISpellMechanics.h"
 #include "../../spells/Problem.h"
 
@@ -116,10 +117,29 @@ bool BattleActionType::isBattleEndAction() const
 	return false;
 }
 
-void BattleActionType::applyStartState(battle::CUnitState & actor, const BattleAction & action) const
+std::optional<battle::UnitTurnStatus> BattleActionType::getStartTurnStatus(const BattleAction & action) const
 {
-	actor.waiting = false;
-	actor.movedThisRound = true;
+	return battle::UnitTurnStatus::ACTED;
+}
+
+bool BattleActionType::usesUnitSpellcast() const
+{
+	return false;
+}
+
+StartAction BattleActionType::makeStartAction(const CBattleInfoCallback & battle, const BattleAction & action)
+{
+	StartAction pack(action);
+	pack.battleID = battle.getBattle()->getBattleID();
+
+	// tactics phase moves leave the turn state alone, the client manages the tactics queue
+	const auto * type = find(action);
+	if(type && type->isUnitAction() && !battle.battleTacticDist())
+	{
+		pack.turnStatus = type->getStartTurnStatus(action);
+		pack.castSpellThisTurn = type->usesUnitSpellcast();
+	}
+	return pack;
 }
 
 void BattleActionType::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
@@ -159,11 +179,6 @@ std::optional<battle::Destination> BattleActionType::buildTargetStep(const CBatt
 std::optional<BattleAction> BattleActionType::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	throw std::runtime_error("Action built from a battle action type that offers no options");
-}
-
-MetaString BattleActionType::getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const
-{
-	return {};
 }
 
 bool BattleActionType::checkUnitCanAct(const CBattleInfoCallback & battle, const battle::Unit * unit, spells::Problem & problem)

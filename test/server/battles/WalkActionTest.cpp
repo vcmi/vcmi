@@ -102,7 +102,7 @@ TEST_F(WalkActionTest, tacticsPhaseWalkDoesNotEndTurn)
 
 	ASSERT_TRUE(act(BattleAction::makeMove(walker, BattleHex(4, 3))));
 	EXPECT_EQ(walker->getPosition(), BattleHex(4, 3));
-	EXPECT_FALSE(walker->movedThisRound);
+	EXPECT_EQ(walker->getTurnStatus(), battle::UnitTurnStatus::READY);
 }
 
 TEST_F(WalkActionTest, tacticsPhaseWalkOutsideTacticsZoneIsRefused)

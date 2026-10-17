@@ -17,12 +17,13 @@ class BattleAction;
 class CBattleInfoCallback;
 class IBattleActionEnvironment;
 class IGameInfoCallback;
+struct StartAction;
 enum class EActionType : int8_t;
 
 namespace battle
 {
 class Unit;
-class CUnitState;
+enum class UnitTurnStatus : int8_t;
 }
 
 namespace spells
@@ -65,15 +66,16 @@ public:
 
 	/// Checks that the side may make the action. Runs on the server before StartAction is applied, and in isLegal
 	virtual bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const = 0;
-	/// Updates the turn state of the acting unit when StartAction is applied. Called only for unit actions outside of the tactics phase
-	virtual void applyStartState(battle::CUnitState & actor, const BattleAction & action) const;
+	/// Turn status of the acting unit once the action starts, or nothing to keep it. Asked only for unit actions outside of the tactics phase
+	virtual std::optional<battle::UnitTurnStatus> getStartTurnStatus(const BattleAction & action) const;
+	/// Uses up the spellcasting of the acting unit for the turn
+	virtual bool usesUnitSpellcast() const;
 	virtual void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const = 0;
-
-	/// Battle log line that clients show when the action starts, empty if none
-	virtual MetaString getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const;
 
 	/// Option to cast the spell with a spell casting action type, HERO_SPELL or MONSTER_SPELL
 	static ActionOption makeSpellOption(EActionType actionType, SpellID spell);
+	/// StartAction pack of the action, with the changes it makes to the turn state of the acting unit
+	static StartAction makeStartAction(const CBattleInfoCallback & battle, const BattleAction & action);
 	/// Adds the options of every action type for the unit
 	static void collectAllOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out);
 
