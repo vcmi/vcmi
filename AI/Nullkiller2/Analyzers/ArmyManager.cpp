@@ -338,10 +338,7 @@ BestArmyInfo ArmyManager::getBestArmyInfo(
 		{
 			// the only wanted unit must stay in source, so target keeps what it has
 			if(resultingArmy.size() == 1)
-			{
-				newArmyInstance.clearSlots();
-				return getSortedSlots(target, &newArmyInstance);
-			}
+				return makeResult(getSortedSlots(target, &emptyArmy));
 
 			resultingArmy.erase(weakest);
 		}
