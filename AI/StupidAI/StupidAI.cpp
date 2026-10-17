@@ -127,6 +127,11 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 			cb->battleMakeUnitAction(battleID, BattleAction::makeCatapultShot(stack));
 		return;
 	}
+	else if(stack->isFirstAidTent())
+	{
+		cb->battleMakeUnitAction(battleID, BattleAction::makeHeal(stack));
+		return;
+	}
 	else if(stack->hasBonusOfType(BonusType::SIEGE_WEAPON))
 	{
 		cb->battleMakeUnitAction(battleID, BattleAction::makeDefend(stack));

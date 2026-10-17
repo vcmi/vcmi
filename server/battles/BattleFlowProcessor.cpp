@@ -566,41 +566,15 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfCatapult(const CBattleInfoCall
 
 bool BattleFlowProcessor::tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * next)
 {
+	if (!next->isFirstAidTent())
+		return false;
+
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
-	if (next->isFirstAidTent())
-	{
-		const auto healerAbility = next->getBonus(Selector::type()(BonusType::HEALER));
-		if(!healerAbility || !healerAbility->subtype.hasValue())
-		{
-			makeStackDoNothing(battle, next);
-			return true;
-		}
+	if (curOwner && gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::FIRST_AID_TENT)))))
+		return false;
 
-		const CSpell * spell = healerAbility->subtype.as<SpellID>().toSpell();
-		const spells::BattleCast cast(&battle, next, spells::Mode::SPELL_LIKE_ATTACK, spell);
-		const auto mechanics = spell->battleMechanics(&cast);
-
-		TStacks possibleStacks = battle.battleGetStacksIf([&next, &mechanics](const CStack * s)
-		{
-			return s->unitOwner() == next->unitOwner() && mechanics->canBeCastAt({battle::Destination(s)});
-		});
-
-		if (possibleStacks.empty())
-		{
-			makeStackDoNothing(battle, next);
-			return true;
-		}
-
-		if (!curOwner || !gameHandler->randomizer->rollCombatAbility(curOwner->id, curOwner->valOfBonuses(BonusType::MANUAL_CONTROL, BonusSubtypeID(CreatureID(CreatureID::FIRST_AID_TENT)))))
-		{
-			RandomGeneratorUtil::randomShuffle(possibleStacks, gameHandler->getRandomGenerator());
-			const CStack * toBeHealed = possibleStacks.front();
-
-			makeAutomaticAction(battle, next, BattleAction::makeHeal(next, toBeHealed));
-			return true;
-		}
-	}
-	return false;
+	makeAutomaticAction(battle, next, BattleAction::makeHeal(next));
+	return true;
 }
 
 bool BattleFlowProcessor::rollGoodMorale(const CBattleInfoCallback & battle, const CStack * next)

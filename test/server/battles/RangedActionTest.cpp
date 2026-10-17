@@ -151,6 +151,51 @@ TEST_F(RangedActionTest, firstAidTentRefusesEnemyAndUnwoundedStacks)
 	EXPECT_FALSE(act(BattleAction::makeHeal(tent, unwounded)));
 }
 
+TEST_F(RangedActionTest, firstAidTentWithoutTargetHealsMostWoundedCreature)
+{
+	startGame();
+	startBattle();
+
+	CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
+	CStack * ballista = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::BALLISTA), BattleHex(2, 2), 1);
+	CStack * lightlyWounded = addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
+	CStack * mostWounded = addStack(BattleSide::ATTACKER, CreatureID(pikeman), BattleHex(4, 2), stackCount);
+	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+
+	// war machines and enemies lost more, but first aid can't heal them
+	injure(tent, 50);
+	injure(ballista, 100);
+	injure(enemy, 5);
+	injure(lightlyWounded, 1);
+	injure(mostWounded, 3);
+
+	const auto healthOf = [](const std::vector<CStack *> & stacks)
+	{
+		std::vector<int64_t> result;
+		for(const auto * stack : stacks)
+			result.push_back(stack->getAvailableHealth());
+		return result;
+	};
+	const std::vector<CStack *> notHealed = {tent, ballista, enemy, lightlyWounded};
+	const auto notHealedHealth = healthOf(notHealed);
+	const auto woundedHealth = mostWounded->getAvailableHealth();
+
+	ASSERT_TRUE(act(BattleAction::makeHeal(tent)));
+	EXPECT_GT(mostWounded->getAvailableHealth(), woundedHealth);
+	EXPECT_EQ(healthOf(notHealed), notHealedHealth);
+}
+
+TEST_F(RangedActionTest, firstAidTentWithoutTargetSkipsTurnWhenNoneIsWounded)
+{
+	startGame();
+	startBattle();
+
+	const CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
+	addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
+
+	EXPECT_TRUE(act(BattleAction::makeHeal(tent)));
+}
+
 TEST_F(RangedActionTest, catapultShootsAtWalls)
 {
 	startGame();

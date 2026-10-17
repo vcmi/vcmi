@@ -11,9 +11,17 @@
 
 #include "BattleActionType.h"
 
-/// STACK_HEAL: a HEALER unit, the first aid tent, heals a wounded unit of its side with the spell of its ability
+class CSpell;
+
+/// STACK_HEAL: a HEALER unit, the first aid tent, heals a wounded unit of its side with the spell of its ability.
+/// Without a target the most wounded unit is healed, and the turn is skipped if there is none
 class HealAction : public BattleActionType
 {
+	/// Checks that the spell of the healer heals the unit
+	bool canHeal(const CBattleInfoCallback & battle, const battle::Unit & healer, const CSpell * spell, const battle::Unit & healed, spells::Problem & problem) const;
+	/// Unit with the most lost health of its top creature among the ones the healer can heal, or nullptr if there is none
+	const battle::Unit * findMostWounded(const CBattleInfoCallback & battle, const battle::Unit & healer, const CSpell * spell) const;
+
 public:
 	bool isUnitAction() const override;
 
