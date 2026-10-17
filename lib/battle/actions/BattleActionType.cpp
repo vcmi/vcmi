@@ -86,14 +86,14 @@ const BattleActionType * BattleActionType::find(EActionType actionType)
 	return nullptr;
 }
 
-ActionOption BattleActionType::makeSpellOption(EActionType actionType, SpellID spell)
+ActionOption BattleActionType::makeHeroSpellOption(SpellID spell)
 {
-	if(actionType == EActionType::HERO_SPELL)
-		return {&heroSpellAction, std::nullopt, spell};
-	if(actionType == EActionType::MONSTER_SPELL)
-		return unitSpellAction.makeOption(spell);
+	return {&heroSpellAction, std::nullopt, spell};
+}
 
-	throw std::runtime_error("Spell option requested from a battle action type that casts no spells");
+ActionOption BattleActionType::makeUnitSpellOption(SpellID spell)
+{
+	return unitSpellAction.makeOption(spell);
 }
 
 void BattleActionType::collectAllOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out)

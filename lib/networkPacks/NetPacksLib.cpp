@@ -536,6 +536,11 @@ void BattleUpdateGateState::visitTyped(ICPackVisitor & visitor)
 	visitor.visitBattleUpdateGateState(*this);
 }
 
+void BattleTacticsEnded::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleTacticsEnded(*this);
+}
+
 void AdvmapSpellCast::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitAdvmapSpellCast(*this);

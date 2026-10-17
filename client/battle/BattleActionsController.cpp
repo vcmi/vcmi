@@ -197,7 +197,7 @@ BattleActionEntries BattleActionsController::getPossibleActionsForStack(const CS
 		entries.push_back(std::make_shared<LibActionEntry>(owner, stack, option));
 
 	if(rolledCreatureSpell.hasValue() && !tacticsMode && stack->canCast())
-		entries.push_back(std::make_shared<LibActionEntry>(owner, stack, BattleActionType::makeSpellOption(EActionType::MONSTER_SPELL, rolledCreatureSpell)));
+		entries.push_back(std::make_shared<LibActionEntry>(owner, stack, BattleActionType::makeUnitSpellOption(rolledCreatureSpell)));
 
 	if(tacticsMode)
 		entries.push_back(std::make_shared<TacticsUnitSelectionEntry>(owner));
@@ -212,7 +212,7 @@ void BattleActionsController::castThisSpell(SpellID spellID)
 {
 	heroSpellcasting = true;
 
-	const auto entry = std::make_shared<LibActionEntry>(owner, nullptr, BattleActionType::makeSpellOption(EActionType::HERO_SPELL, spellID));
+	const auto entry = std::make_shared<LibActionEntry>(owner, nullptr, BattleActionType::makeHeroSpellOption(spellID));
 
 	if(entry->needsNoTarget())
 	{

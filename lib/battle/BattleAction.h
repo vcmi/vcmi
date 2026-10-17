@@ -47,6 +47,9 @@ public:
 	static BattleAction makeCatapultShot(const battle::Unit * catapult);
 	static BattleAction makeWalkAndCast(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID);
 	static BattleAction makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID);
+	static BattleAction makeHeroSpellcast(BattleSide side, const battle::Target & target, const SpellID & spellID);
+	/// Random spell of a RANDOM_SPELLCASTER unit at the unit on the hex. The server rolls the spell
+	static BattleAction makeRandomSpellcast(const battle::Unit * stack, const BattleHex & destination);
 	static BattleAction makeMove(const battle::Unit * stack, const BattleHex & dest);
 	static BattleAction makeEndOFTacticPhase(BattleSide side);
 	static BattleAction makeRetreat(BattleSide side);

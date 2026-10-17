@@ -72,8 +72,10 @@ public:
 	virtual bool usesUnitSpellcast() const;
 	virtual void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const = 0;
 
-	/// Option to cast the spell with a spell casting action type, HERO_SPELL or MONSTER_SPELL
-	static ActionOption makeSpellOption(EActionType actionType, SpellID spell);
+	/// Option of the hero to cast the spell
+	static ActionOption makeHeroSpellOption(SpellID spell);
+	/// Option of the acting unit to cast the spell, with its panel button
+	static ActionOption makeUnitSpellOption(SpellID spell);
 	/// StartAction pack of the action, with the changes it makes to the turn state of the acting unit
 	static StartAction makeStartAction(const CBattleInfoCallback & battle, const BattleAction & action);
 	/// Adds the options of every action type for the unit

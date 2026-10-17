@@ -1450,15 +1450,14 @@ void GameStatePackVisitor::visitBattleAttack(BattleAttack & pack)
 		attacker->removeBonusesRecursive(Bonus::UntilOwnAttack);
 }
 
+void GameStatePackVisitor::visitBattleTacticsEnded(BattleTacticsEnded & pack)
+{
+	gs.getBattle(pack.battleID)->tacticDistance = 0;
+}
+
 void GameStatePackVisitor::visitStartAction(StartAction & pack)
 {
 	CStack *st = gs.getBattle(pack.battleID)->getStack(pack.ba.stackNumber);
-
-	if(pack.ba.actionType == EActionType::END_TACTIC_PHASE)
-	{
-		gs.getBattle(pack.battleID)->tacticDistance = 0;
-		return;
-	}
 
 	if(pack.turnStatus || pack.castSpellThisTurn)
 	{
@@ -1470,15 +1469,16 @@ void GameStatePackVisitor::visitStartAction(StartAction & pack)
 		if(pack.castSpellThisTurn)
 			st->setCastSpellThisTurn(true);
 	}
-
-	if(pack.ba.actionType == EActionType::HERO_SPELL)
-		gs.getBattle(pack.battleID)->getSide(pack.ba.side).usedSpellsHistory.push_back(pack.ba.spell);
 }
 
 void GameStatePackVisitor::visitBattleSpellCast(BattleSpellCast & pack)
 {
 	if(pack.castByHero && pack.side != BattleSide::NONE)
-		gs.getBattle(pack.battleID)->getSide(pack.side).castSpellsCount++;
+	{
+		auto & side = gs.getBattle(pack.battleID)->getSide(pack.side);
+		side.castSpellsCount++;
+		side.usedSpellsHistory.push_back(pack.spellID);
+	}
 }
 
 void GameStatePackVisitor::visitSetStackEffect(SetStackEffect & pack)

@@ -69,4 +69,5 @@ public:
 	virtual vstd::RNG & getRandom() = 0;
 	virtual void endBattle(EBattleResult result, BattleSide winner) = 0;
 	virtual void giveResource(PlayerColor player, GameResID resource, int amount) = 0;
+	virtual void endTacticsPhase() = 0;
 };
