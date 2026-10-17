@@ -793,7 +793,7 @@ void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 			return;
 		}
 
-		SDL_SetTextureBlendMode(layerTextures[i], i == 0 ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+		SDL_SetTextureBlendMode(layerTextures[i], i == 0 ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND_PREMULTIPLIED);
 		clearLayer(i);
 	}
 
@@ -811,8 +811,8 @@ void ScreenHandler::initializeLayerTextures(const Point & logicalSize)
 		return;
 	}
 
-	// composited over the layers, so it must blend and start out fully transparent
-	SDL_SetTextureBlendMode(screenTarget, SDL_BLENDMODE_BLEND);
+	// GPU canvases accumulate premultiplied color over transparent render targets.
+	SDL_SetTextureBlendMode(screenTarget, SDL_BLENDMODE_BLEND_PREMULTIPLIED);
 	SDL_SetRenderTarget(renderer, screenTarget);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -928,7 +928,7 @@ Canvas ScreenHandler::createOffscreenCanvas(const Point & size) const
 		return Canvas(size, CanvasScalingPolicy::AUTO);
 	}
 
-	SDL_SetTextureBlendMode(target, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(target, SDL_BLENDMODE_BLEND_PREMULTIPLIED);
 
 	// a fresh render target holds undefined contents - start it transparent so that
 	// blending the first sprites onto it produces the same result as the surface path
@@ -1059,9 +1059,14 @@ void ScreenHandler::composeFrame() const
 		}
 
 		if(layerTextures[i] && layerActive[i])
+		{
+			SDL_SetTextureBlendMode(layerTextures[i], i == 0 ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND_PREMULTIPLIED);
 			SDL_RenderTexture(renderer, layerTextures[i], nullptr, nullptr);
+		}
 	}
 
+	if(isGpuRenderingEnabled())
+		SDL_SetTextureBlendMode(screenTarget, SDL_BLENDMODE_BLEND_PREMULTIPLIED);
 	SDL_RenderTexture(renderer, isGpuRenderingEnabled() ? screenTarget : screenTexture, nullptr, nullptr);
 }
 
