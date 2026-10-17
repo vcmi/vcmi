@@ -1,6 +1,5 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Kugel der Verwundbarkeit}\nNegiert die natürliche Magieresistenz aller Einheiten auf dem Schlachtfeld.",
-	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Zusätzliche Angriffe}\nKann ${val} Mal zusätzlich angreifen.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Zusätzliche Gegenschläge}\nKann ${val} Mal zusätzlich vergelten.",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Nahzauberer}\nBewegt sich zum Ziel, um dort '${subtype.spell}' zu zaubern.",
