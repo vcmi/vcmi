@@ -22,7 +22,10 @@ namespace NK2AI
 
 using namespace Goals;
 
-static std::optional<AIPath> findCreatureBankRewardPreparationPath(const Nullkiller * nullkiller, const AIPath & rewardPath)
+static std::optional<AIPath> findCreatureBankRewardPreparationPath(
+	const Nullkiller * nullkiller,
+	const AIPath & rewardPath,
+	const CGObjectInstance * creatureBank)
 {
 	const auto * rewardHero = rewardPath.targetHero;
 	auto paths = nullkiller->pathfinder->getPathInfo(rewardHero->visitablePos(), nullkiller->isObjectGraphAllowed());
@@ -51,6 +54,10 @@ static std::optional<AIPath> findCreatureBankRewardPreparationPath(const Nullkil
 			if(slot.first != transferSlot)
 				remainingArmy.addToSlot(slot.first, slot.second->getCreatureID(), slot.second->getCount());
 		}
+		const auto creatureReward = RewardEvaluator(nullkiller).getCreatureReward(
+			{creatureBank, rewardHero, &remainingArmy, HeroRole::SCOUT, false});
+		if(creatureReward.canMergeWithArmy && !*creatureReward.canMergeWithArmy)
+			continue;
 		if(!isSafeToVisit(rewardHero, &remainingArmy, rewardPath.getTotalDanger(), nullkiller->settings->getSafeAttackRatio()))
 			continue;
 
@@ -216,16 +223,21 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 
 			auto sharedPtr = sptr(ExecuteHeroChain(path, objToVisit));
 
-			const auto objectInfo = objToVisit && objToVisit->ID == Obj::CREATURE_BANK && path.exchangeCount == 1
+			const auto objectInfo = objToVisit && objToVisit->ID == Obj::CREATURE_BANK
 				? objToVisit->getObjectHandler()->getObjectInfo() : nullptr;
 			const auto creatureReward = objectInfo && objectInfo->givesCreatures()
 				? RewardEvaluator(nullkiller).getCreatureReward({objToVisit, path.targetHero, path.heroArmy, HeroRole::SCOUT, false})
 				: CreatureRewardValueInfo();
-			if(creatureReward.state == CreatureRewardValueInfo::State::UNUSABLE
-				|| creatureReward.state == CreatureRewardValueInfo::State::DEPENDS_ON_TIER)
+			const bool fullArmy = path.heroArmy->stacksCount() == GameConstants::ARMY_SIZE;
+			const bool needsFreeSlot = fullArmy && objectInfo && objectInfo->givesCreatures()
+				&& !creatureReward.canMergeWithArmy.value_or(false);
+
+			if(needsFreeSlot)
 			{
-				const auto preparationPath = findCreatureBankRewardPreparationPath(nullkiller, path);
-				if(!preparationPath && objectInfo->givesOnlyCreatures())
+				const auto preparationPath = path.exchangeCount == 1
+					? findCreatureBankRewardPreparationPath(nullkiller, path, objToVisit) : std::nullopt;
+				// Without helper hero which could free a slot, only pure creature reward that improves the army is processed
+				if(!preparationPath && objectInfo->givesOnlyCreatures() && creatureReward.state != CreatureRewardValueInfo::State::IMPROVES_ARMY)
 					continue;
 
 				if(preparationPath)

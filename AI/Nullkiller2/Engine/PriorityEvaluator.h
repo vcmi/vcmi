@@ -40,13 +40,18 @@ struct CreatureRewardValueInfo
 {
 	enum class State : uint8_t
 	{
-		UNKNOWN, //value cannot be determined; pair is ignored
-		UNUSABLE, //no possible reward improves the army; pair is {0, 0}
-		DEPENDS_ON_TIER, //usefulness depends on the hidden bank tier; pair is {0, N}
-		USABLE //every possible reward improves the army; {N, N} is exact, {N, M} is a range
+		UNKNOWN, // improvement cannot be determined
+		NO_ARMY_IMPROVEMENT, // no possible reward improves the current army
+		IMPROVEMENT_DEPENDS_ON_TIER, // only some hidden bank tiers improve the current army
+		IMPROVES_ARMY // every possible reward improves the current army
 	};
 	State state = State::UNKNOWN;
+
+	/// Priority value of the creature reward, including creatures that fit without immediately improving the army.
 	std::pair<uint64_t, uint64_t> minMaxValue = {0, 0};
+
+	// nullopt is for unknown rewards
+	std::optional<bool> canMergeWithArmy = std::nullopt;
 };
 
 struct RewardEvaluationResult
@@ -58,7 +63,7 @@ struct RewardEvaluationResult
 	float strategicalValue = 0;
 	float conquestValue = 0;
 	int32_t goldCost = 0;
-	CreatureRewardValueInfo creatureReward;
+	CreatureRewardValueInfo creatureRewardValue;
 };
 
 class RewardEvaluator
@@ -86,7 +91,7 @@ public:
 private:
 	uint64_t calculateRewardArmyValue(const RewardableObjectInfo *, const CreatureRewardValueInfo & creatureReward) const;
 	uint64_t getArmyReward(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo, const CreatureRewardValueInfo & creatureReward) const;
-	CreatureRewardValueInfo getCreatureReward(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo) const;
+	CreatureRewardValueInfo getCreatureRewardValue(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo) const;
 	float calculateStrategicalRewardValue(const CGObjectInstance * target, const RewardableObjectInfo * rewardableInfo) const;
 	float getStrategicalValue(const CGObjectInstance * target, const RewardableObjectInfo * rewardableInfo) const;
 	float evaluateWitchHutSkillScore(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo) const;
@@ -126,8 +131,6 @@ struct DLL_EXPORT EvaluationContext
 	bool isHero;
 	bool isEnemy;
 	bool isOneWayPortalProbe;
-	bool unusableCreatureBankReward;
-	bool preparesForCreatureBankReward;
 	int explorePriority; // 1 important, 2 medium, 3 lowest importance
 	float powerRatio; // Ratio of the committed army's strength to the total power of matching creatures available to the AI
 

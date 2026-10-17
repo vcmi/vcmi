@@ -9,6 +9,7 @@
 #include "StdInc.h"
 
 #include "AI/Nullkiller2/Analyzers/ArmyManager.h"
+#include "AI/Nullkiller2/Behaviors/CaptureObjectsBehavior.h"
 #include "AI/Nullkiller2/Engine/Nullkiller.h"
 #include "AI/Nullkiller2/Engine/PriorityEvaluator.h"
 #include "AI/Nullkiller2/Goals/Composition.h"
@@ -85,6 +86,140 @@ TEST_F(Nullkiller2_Engine_PriorityEvaluatorMap, lossBudgetScalesWithCommittedArm
 		task,
 		NK2AI::PriorityEvaluator::EXPLORE_AND_GATHER,
 		context), 0.0f);
+}
+
+TEST_F(Nullkiller2_Engine_PriorityEvaluatorMap, creatureBankWithoutArmyImprovementDoesNotPreventPreliminaryScoring)
+{
+	startWithMap(makePlannedArmyEvaluationMap());
+
+	const auto callback = makeCallback(PLAYER);
+	auto * hero = findHeroAt({5, 5, 0});
+	ASSERT_NE(hero, nullptr);
+	hero->clearSlots();
+	const std::array<CreatureID, 7> creatures = {
+		CreatureID(CreatureID::decode("skeleton")),
+		CreatureID(CreatureID::decode("walkingDead")),
+		CreatureID(CreatureID::decode("wight")),
+		CreatureID(CreatureID::decode("vampire")),
+		CreatureID(CreatureID::decode("lich")),
+		CreatureID(CreatureID::decode("blackKnight")),
+		CreatureID(CreatureID::decode("boneDragon"))
+	};
+	for(size_t i = 0; i < creatures.size(); ++i)
+		ASSERT_TRUE(hero->setCreature(SlotID(static_cast<int>(i)), creatures[i], 100));
+
+	auto bank = std::make_shared<CRewardableObject>(callback.get());
+	bank->ID = Obj::CREATURE_BANK;
+	bank->subID = MapObjectSubID(2); // Griffin Conservatory
+	bank->appearance = hero->appearance;
+	bank->setAnchorPos({8, 5, 0});
+	auto & visitInfo = bank->configuration.info.emplace_back();
+	visitInfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	visitInfo.reward.creatures.emplace_back(CreatureID(CreatureID::decode("angel")), 1);
+	map()->addNewObject(bank);
+	gameState()->teams.at(gameState()->players.at(PLAYER).team).scoutedObjects.insert(bank->id);
+
+	const auto gateway = makeGateway(callback);
+	gateway->nullkiller->heroManager->update();
+	gateway->nullkiller->armyManager->update();
+	gateway->nullkiller->dangerHitMap->updateHitMap();
+	const auto reward = NK2AI::RewardEvaluator(gateway->nullkiller.get()).getCreatureReward(
+		{bank.get(), hero, hero, NK2AI::HeroRole::SCOUT, false});
+	ASSERT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT);
+
+	NK2AI::AIPath path;
+	path.targetHero = hero;
+	path.heroArmy = hero;
+	path.exchangeCount = 1;
+	path.targetObjectDanger = 1;
+	path.armyLoss = 0;
+	path.targetObjectArmyLoss = 0;
+	path.chainMask = 1;
+	auto node = pathNode(*hero, bank->visitablePos());
+	node.cost = 0.5f;
+	path.nodes.push_back(node);
+
+	const auto task = sptr(NK2AI::Goals::ExecuteHeroChain(path, bank.get()));
+	const auto context = gateway->nullkiller->priorityEvaluator->buildEvaluationContext(task);
+	EXPECT_GT(gateway->nullkiller->priorityEvaluator->evaluate(
+		task,
+		NK2AI::PriorityEvaluator::EXPLORE_AND_GATHER,
+		context), 0.0f);
+}
+
+TEST_F(Nullkiller2_Engine_PriorityEvaluatorMap, fullArmyPreparesSlotOnlyWhenCreatureRewardCannotMerge)
+{
+	startWithMap(makePlannedArmyEvaluationMap());
+
+	const auto callback = makeCallback(PLAYER);
+	auto * rewardHero = findHeroAt({5, 5, 0});
+	ASSERT_NE(rewardHero, nullptr);
+	rewardHero->clearSlots();
+	const std::array<CreatureID, 7> creatures = {
+		CreatureID(CreatureID::decode("skeleton")),
+		CreatureID(CreatureID::decode("walkingDead")),
+		CreatureID(CreatureID::decode("wight")),
+		CreatureID(CreatureID::decode("vampire")),
+		CreatureID(CreatureID::decode("lich")),
+		CreatureID(CreatureID::decode("blackKnight")),
+		CreatureID(CreatureID::decode("boneDragon"))
+	};
+	for(size_t i = 0; i < creatures.size(); ++i)
+		ASSERT_TRUE(rewardHero->setCreature(SlotID(static_cast<int>(i)), creatures[i], 1));
+
+	for(const int3 helperPosition : {int3(6, 5, 0), int3(7, 5, 0)})
+	{
+		auto * helper = findHeroAt(helperPosition);
+		ASSERT_NE(helper, nullptr);
+		helper->clearSlots();
+		ASSERT_TRUE(helper->setCreature(SlotID(0), creatures.front(), 1));
+	}
+
+	auto bank = std::make_shared<CRewardableObject>(callback.get());
+	bank->ID = Obj::CREATURE_BANK;
+	bank->subID = MapObjectSubID(2); // Griffin Conservatory
+	bank->appearance = rewardHero->appearance;
+	bank->setAnchorPos({8, 5, 0});
+	auto & visitInfo = bank->configuration.info.emplace_back();
+	visitInfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	visitInfo.reward.creatures.emplace_back(CreatureID(CreatureID::decode("angel")), 1);
+	map()->addNewObject(bank);
+	revealMap(PLAYER);
+
+	const auto gateway = makeGateway(callback);
+	gateway->nullkiller->armyManager->update();
+	preparePlanning(*gateway);
+
+	const auto reward = NK2AI::RewardEvaluator(gateway->nullkiller.get()).getCreatureReward(
+		{bank.get(), rewardHero, rewardHero, NK2AI::HeroRole::MAIN, false});
+	ASSERT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::IMPROVES_ARMY);
+
+	const auto hasPreparation = [&](const auto & goals)
+	{
+		return std::ranges::any_of(goals, [&](const auto & goal)
+		{
+			if(goal->goalType != NK2AI::Goals::COMPOSITION)
+				return false;
+			const auto steps = goal->decompose(gateway->nullkiller.get());
+			return std::ranges::any_of(steps, [](const auto & step)
+			{
+				return step->goalType == NK2AI::Goals::PREPARE_FREE_SLOT_FOR_CREATURE_REWARD;
+			});
+		});
+	};
+
+	const auto paths = gateway->nullkiller->pathfinder->getPathInfo(bank->visitablePos(), gateway->nullkiller->isObjectGraphAllowed());
+	const auto goals = NK2AI::Goals::CaptureObjectsBehavior::getVisitGoals(paths, gateway->nullkiller.get(), bank.get());
+	EXPECT_TRUE(hasPreparation(goals));
+
+	ASSERT_TRUE(rewardHero->setCreature(SlotID(0), CreatureID(CreatureID::decode("angel")), 1));
+	gateway->nullkiller->armyManager->update();
+	preparePlanning(*gateway);
+	const auto mergeablePaths = gateway->nullkiller->pathfinder->getPathInfo(
+		bank->visitablePos(), gateway->nullkiller->isObjectGraphAllowed());
+	const auto mergeableGoals = NK2AI::Goals::CaptureObjectsBehavior::getVisitGoals(
+		mergeablePaths, gateway->nullkiller.get(), bank.get());
+	EXPECT_FALSE(hasPreparation(mergeableGoals));
 }
 
 namespace
@@ -209,15 +344,30 @@ TEST(Nullkiller2_Engine_PriorityEvaluator, armyLossLimitIsRelaxedWhenArmyShareIs
 	EXPECT_FLOAT_EQ(NK2AI::evaluateMaxArmyLossRatio(0.35f, 0.0f, false), 1.0f);
 }
 
-TEST_F(Nullkiller2_Engine_CreatureBankReward, fullNecropolisArmyCannotUseAngelReward)
+TEST_F(Nullkiller2_Engine_CreatureBankReward, angelRewardDoesNotImproveFullNecropolisArmy)
 {
 	ASSERT_EQ(hero->stacksCount(), GameConstants::ARMY_SIZE);
 	markBankScouted();
 
 	const auto reward = evaluateCreatureReward();
-	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::UNUSABLE);
+	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT);
 	EXPECT_EQ(reward.minMaxValue.first, 0);
 	EXPECT_EQ(reward.minMaxValue.second, 0);
+}
+
+TEST_F(Nullkiller2_Engine_CreatureBankReward, mixedRewardKeepsValueWhenCreaturesDoNotImproveArmy)
+{
+	ASSERT_EQ(hero->stacksCount(), GameConstants::ARMY_SIZE);
+	markBankScouted();
+	bank->configuration.info.front().reward.resources[GameResID::GOLD] = 1000;
+	bank->configuration.info.front().reward.grantedArtifacts.push_back(ArtifactID::BALLISTA);
+
+	NK2AI::RewardEvaluator evaluator(&nullkiller);
+	const auto reward = evaluator.evaluateRewards({bank.get(), hero, hero, NK2AI::HeroRole::SCOUT, false});
+
+	EXPECT_EQ(reward.creatureRewardValue.state, NK2AI::CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT);
+	EXPECT_EQ(reward.goldReward, 1000);
+	EXPECT_GT(reward.armyReward, 0);
 }
 
 TEST_F(Nullkiller2_Engine_CreatureBankReward, fullArmyCanUseOnlyLargerCreatureBankRewardTiers)
@@ -241,7 +391,7 @@ TEST_F(Nullkiller2_Engine_CreatureBankReward, fullArmyCanUseOnlyLargerCreatureBa
 	markBankScouted();
 
 	const auto reward = evaluateCreatureReward();
-	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::DEPENDS_ON_TIER);
+	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::IMPROVEMENT_DEPENDS_ON_TIER);
 	EXPECT_EQ(reward.minMaxValue.first, 0);
 	EXPECT_GT(reward.minMaxValue.second, 0);
 }
@@ -252,7 +402,7 @@ TEST_F(Nullkiller2_Engine_CreatureBankReward, armyWithFreeSlotCanUseAngelReward)
 	markBankScouted();
 
 	const auto reward = evaluateCreatureReward();
-	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::USABLE);
+	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::IMPROVES_ARMY);
 	EXPECT_GT(reward.minMaxValue.first, 0);
 	EXPECT_GT(reward.minMaxValue.second, reward.minMaxValue.first);
 }
@@ -290,7 +440,7 @@ TEST_F(Nullkiller2_Engine_CreatureBankReward, moraleImprovementMakesWeakerRawRew
 
 	markBankScouted();
 	const auto reward = evaluateCreatureReward();
-	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::USABLE);
+	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::IMPROVES_ARMY);
 	EXPECT_EQ(reward.minMaxValue.first, bestArmyInfo.strengthGain);
 	EXPECT_GT(reward.minMaxValue.second, bestArmyInfo.strengthGain);
 }
@@ -298,7 +448,7 @@ TEST_F(Nullkiller2_Engine_CreatureBankReward, moraleImprovementMakesWeakerRawRew
 TEST_F(Nullkiller2_Engine_CreatureBankReward, unscoutedCreatureRewardUsesPublicBankPossibilities)
 {
 	const auto reward = evaluateCreatureReward();
-	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::UNUSABLE);
+	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT);
 	EXPECT_EQ(reward.minMaxValue.first, 0);
 	EXPECT_EQ(reward.minMaxValue.second, 0);
 }
