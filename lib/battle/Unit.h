@@ -91,8 +91,6 @@ public:
 	bool isBallista() const;
 	bool isFirstAidTent() const;
 	bool isAmmoCart() const;
-	/// Can be healed by the first aid tent: a wounded unit that is not a war machine
-	bool canBeHealed() const;
 	/// Level of a spell that the unit casts through an ability of the given level, raised by Magic Plains
 	int32_t getAbilitySpellLevel(int32_t abilityLevel, const spells::Spell * spell) const;
 	virtual bool isValidTarget(bool allowDead = false) const = 0; //non-turret non-ghost stacks (can be attacked or be object of magic effect)

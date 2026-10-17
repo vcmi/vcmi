@@ -17,6 +17,7 @@
 #include "../DamageEstimationTexts.h"
 #include "../Unit.h"
 #include "../../bonuses/BonusSelector.h"
+#include "../../spells/CSpell.h"
 #include "../../spells/ISpellMechanics.h"
 #include "../../spells/Problem.h"
 
@@ -87,9 +88,17 @@ bool HealAction::validate(const IGameInfoCallback & game, const CBattleInfoCallb
 	}
 
 	const battle::Unit * healed = getDestinationUnit(battle, target.at(0));
-	if(!healed || healed->unitSide() != unit->unitSide() || !healed->canBeHealed())
+	if(!healed || healed->unitSide() != unit->unitSide())
 	{
-		problem.add(MetaString::createFromRawString("Heal target is not a wounded unit of the healer's side."));
+		problem.add(MetaString::createFromRawString("Heal target is not a unit of the healer's side."));
+		return false;
+	}
+
+	const CSpell * spell = healerAbility->subtype.as<SpellID>().toSpell();
+	const spells::BattleCast cast(&battle, unit, spells::Mode::SPELL_LIKE_ATTACK, spell);
+	if(!spell->battleMechanics(&cast)->canBeCastAt({battle::Destination(healed)}, problem))
+	{
+		problem.add(MetaString::createFromRawString("Heal target can't be healed: " + healed->getDescription()));
 		return false;
 	}
 

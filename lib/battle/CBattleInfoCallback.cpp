@@ -292,40 +292,6 @@ bool CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer * shooter, con
 	return shooterOutsideWalls && battleHasPenaltyOnLine(shooterPosition, destHex, true, false);
 }
 
-BattleHexArray CBattleInfoCallback::battleGetAttackedHexes(const battle::Unit * attacker, const BattleHex & destinationTile, const BattleHex & attackerPos) const
-{
-	BattleHexArray attackedHexes;
-	THROW_IF_NOT_BATTLE();
-
-	AttackableTiles at;
-	try
-	{
-		at = getPotentiallyAttackableHexes(attacker, destinationTile, attackerPos);
-	}
-	catch(const std::runtime_error &)
-	{
-		return attackedHexes;
-	}
-
-	for (const BattleHex & tile : at.hostileCreaturePositions)
-	{
-		const auto * st = battleGetUnitByPos(tile, true);
-		if(st && battleGetOwner(st) != battleGetOwner(attacker) && !st->isInvincible()) //only hostile stacks - does it work well with Berserk?
-		{
-			attackedHexes.insert(tile);
-		}
-	}
-	for (const BattleHex & tile : at.friendlyCreaturePositions)
-	{
-		const auto * st = battleGetUnitByPos(tile, true);
-		if(st && !st->isInvincible()) //friendly stacks can also be damaged by Dragon Breath
-		{
-			attackedHexes.insert(tile);
-		}
-	}
-	return attackedHexes;
-}
-
 const CStack* CBattleInfoCallback::battleGetStackByPos(const BattleHex & pos, bool onlyAlive) const
 {
 	THROW_IF_NOT_BATTLE();

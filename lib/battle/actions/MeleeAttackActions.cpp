@@ -42,6 +42,31 @@ bool MeleeAttackAction::canStrikeFrom(const CBattleInfoCallback & battle, const 
 	return battle.isMeleeAttackPossible(&attacker, &defender, attackerPos);
 }
 
+BattleHexArray MeleeAttackAction::getAttackedHexes(const CBattleInfoCallback & battle, const battle::Unit & attacker, const BattleHex & destinationTile, const BattleHex & attackerPos) const
+{
+	BattleHexArray attackedHexes;
+
+	// long weapon strikes from a non-adjacent hex, which has no attack direction, so the server applies no splash either
+	if(usesLongWeapon())
+		return attackedHexes;
+
+	const AttackableTiles at = battle.getPotentiallyAttackableHexes(&attacker, destinationTile, attackerPos);
+
+	for(const BattleHex & tile : at.hostileCreaturePositions)
+	{
+		const auto * st = battle.battleGetUnitByPos(tile, true);
+		if(st && battle.battleGetOwner(st) != battle.battleGetOwner(&attacker) && !st->isInvincible()) //only hostile stacks - does it work well with Berserk?
+			attackedHexes.insert(tile);
+	}
+	for(const BattleHex & tile : at.friendlyCreaturePositions)
+	{
+		const auto * st = battle.battleGetUnitByPos(tile, true);
+		if(st && !st->isInvincible()) //friendly stacks can also be damaged by Dragon Breath
+			attackedHexes.insert(tile);
+	}
+	return attackedHexes;
+}
+
 std::vector<ActionApproach> MeleeAttackAction::getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const
 {
 	const battle::Unit * defender = battle.battleGetUnitByPos(hoveredHex, true);
@@ -92,7 +117,7 @@ ActionPreview MeleeAttackAction::preview(const IGameInfoCallback & game, const C
 	std::vector<uint32_t> affectedUnits;
 
 	// breath and other multi-hex attacks also strike other units: their kills are added to the estimate
-	for(const BattleHex & hex : battle.battleGetAttackedHexes(&attacker, context.hoveredHex, approach.from))
+	for(const BattleHex & hex : getAttackedHexes(battle, attacker, context.hoveredHex, approach.from))
 	{
 		const battle::Unit * splashTarget = battle.battleGetUnitByPos(hex, true);
 		if(!splashTarget || splashTarget == &target || splashTarget == &attacker || vstd::contains(affectedUnits, splashTarget->unitId()))

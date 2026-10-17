@@ -63,11 +63,6 @@ bool Unit::isAmmoCart() const
 	return unitType()->warMachine == ArtifactID::AMMO_CART;
 }
 
-bool Unit::canBeHealed() const
-{
-	return getFirstHPleft() < static_cast<int32_t>(getMaxHealth()) && isValidTarget() && !hasBonusOfType(BonusType::SIEGE_WEAPON);
-}
-
 int32_t Unit::getAbilitySpellLevel(int32_t abilityLevel, const spells::Spell * spell) const
 {
 	//Magic Plains raise level of spells cast by creatures, unlike battlefields of a specific magic school
