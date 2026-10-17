@@ -813,7 +813,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
         <source>Sharpening strength for the xBRZ + Sharpen upscaling filters</source>
-        <translation>xBRZ + 銳化放大濾鏡的銳化強度</translation>
+        <translation>xBRZ + 銳化圖像放大演算法的銳化強度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="520"/>
@@ -963,7 +963,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="945"/>
         <source>Allow portrait mode</source>
-        <translation>允許直式模式</translation>
+        <translation>允許直向模式</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="968"/>
@@ -2590,9 +2590,9 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
-        <translation>要改善VCMI的畫質，你可以從Steam上安裝來自英雄無敵3高畫質版的檔案。選擇Steam上的英雄無敵3高畫質版資料夾。
+        <translation>要改善 VCMI 的畫質，你可以從 Steam 安裝來來自官方的英雄無敵 3 高清版檔案。選擇 Steam 上的英雄無敵 3 高清版資料夾。
 
-安裝完成後，你需要設定圖像放大演算法到x2或更高，高畫質圖像效果才可見。</translation>
+完成安裝後，你需要將圖像放大演算法設為 x2 或更上才能看到高清版圖像。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="572"/>
