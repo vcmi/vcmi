@@ -529,7 +529,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 	for(auto & attackedInfo : attackedInfos)
 	{
 		bool useDeathAnim   = attackedInfo.killed;
-		bool useDefenceAnim = attackedInfo.defender->defending && !attackedInfo.indirectAttack && !attackedInfo.killed;
+		bool useDefenceAnim = attackedInfo.defender->defended() && !attackedInfo.indirectAttack && !attackedInfo.killed;
 
 		EAnimationEvents usedEvent = useDefenceAnim ? EAnimationEvents::ATTACK : EAnimationEvents::HIT;
 
@@ -670,7 +670,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	if(info.lucky)
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, attacker, info]() {
-			owner.appendBattleLog(info.attacker->formatGeneralMessage(-45, &GAME->translator()));
+			owner.appendBattleLog(info.attacker->formatGeneralMessage(-45).toString(&GAME->translator()));
 			owner.effectsController->displayEffect(EBattleEffect::GOOD_LUCK, AudioPath::builtin("GOODLUCK"), attacker->getPosition());
 		});
 	}
@@ -678,7 +678,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 	if(info.unlucky)
 	{
 		owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, attacker, info]() {
-			owner.appendBattleLog(info.attacker->formatGeneralMessage(-44, &GAME->translator()));
+			owner.appendBattleLog(info.attacker->formatGeneralMessage(-44).toString(&GAME->translator()));
 			owner.effectsController->displayEffect(EBattleEffect::BAD_LUCK, AudioPath::builtin("BADLUCK"), attacker->getPosition());
 		});
 	}
@@ -688,7 +688,7 @@ void BattleStacksController::stackAttacking( const StackAttackInfo & info )
 		if (defender)
 		{
 			owner.addToAnimationStage(EAnimationEvents::BEFORE_HIT, [this, defender, info]() {
-				owner.appendBattleLog(info.attacker->formatGeneralMessage(365, &GAME->translator()));
+				owner.appendBattleLog(info.attacker->formatGeneralMessage(365).toString(&GAME->translator()));
 				owner.effectsController->displayEffect(EBattleEffect::DEATH_BLOW, AudioPath::builtin("DEATHBLO"), defender->getPosition());
 			});
 		}
@@ -941,42 +941,17 @@ std::vector<const CStack *> BattleStacksController::selectHoveredStacks()
 	if (!hoveredHex.isValid())
 		return {};
 
-	const spells::Caster *caster = nullptr;
-	const CSpell *spell = nullptr;
-
-	spells::Mode mode = owner.actionsController->getCurrentCastMode();
-	spell = owner.actionsController->getCurrentSpell(hoveredHex);
-	caster = owner.actionsController->getCurrentSpellcaster();
-
-	//casting spell or in explicit spellcasting mode that also handles SPELL_LIKE_ATTACK
-	if(caster && spell && (owner.actionsController->currentActionSpellcasting(hoveredHex) || owner.actionsController->creatureSpellcastingModeActive()))
-	{
-		spells::Target target;
-		target.emplace_back(hoveredHex);
-
-		spells::BattleCast event(owner.getBattle().get(), caster, mode, spell);
-		auto mechanics = spell->battleMechanics(&event);
-		return mechanics->getAffectedStacks(target);
-	}
-
 	std::vector<const CStack *> stacks;
 	auto target = owner.getBattle()->battleGetStackByPos(hoveredHex, true);
-	if(!target)
-		return {};
-	stacks.push_back(target);
+	if(target)
+		stacks.push_back(target);
 
-	// affected units by multi-hex attacks
-	if(owner.getBattle()->battleCanAttackHex(activeStack, hoveredHex) && owner.getBattle()->battleCanAttackUnit(activeStack, target))
+	// the preview may be older than the last battle pack, so a unit it names may be dead or removed
+	for(const uint32_t unitID : owner.actionsController->getAffectedUnits(hoveredHex))
 	{
-		const bool allowLongWeapon = owner.actionsController->currentActionUsesLongWeapon(hoveredHex);
-		BattleHex fromHex = owner.getBattle()->fromWhichHexAttack(activeStack, hoveredHex, owner.fieldController->selectAttackDirection(hoveredHex), allowLongWeapon);
-		auto stackHexes = owner.getBattle()->battleGetAttackedHexes(activeStack, hoveredHex, fromHex);
-		for(auto & stackHex : stackHexes)
-		{
-			const CStack * const stack = owner.getBattle()->battleGetStackByPos(stackHex, true);
-			if(stack)
-				stacks.push_back(stack);
-		}
+		const CStack * stack = owner.getBattle()->battleGetStackByID(unitID, true);
+		if(stack)
+			stacks.push_back(stack);
 	}
 	return stacks;
 }

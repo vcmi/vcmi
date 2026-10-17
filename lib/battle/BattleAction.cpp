@@ -12,6 +12,7 @@
 #include "BattleAction.h"
 #include "Unit.h"
 #include "CBattleInfoCallback.h"
+#include "actions/BattleActionType.h"
 
 static const int32_t INVALID_UNIT_ID = -1000;
 
@@ -32,6 +33,52 @@ BattleAction BattleAction::makeHeal(const battle::Unit * healer, const battle::U
 	return ba;
 }
 
+BattleAction BattleAction::makeHeal(const battle::Unit * healer)
+{
+	BattleAction ba;
+	ba.side = healer->unitSide();
+	ba.actionType = EActionType::STACK_HEAL;
+	ba.stackNumber = healer->unitId();
+	return ba;
+}
+
+BattleAction BattleAction::makeHeal(const battle::Unit * healer, const BattleHex & destination)
+{
+	BattleAction ba;
+	ba.side = healer->unitSide();
+	ba.actionType = EActionType::STACK_HEAL;
+	ba.stackNumber = healer->unitId();
+	ba.aimToHex(destination);
+	return ba;
+}
+
+BattleAction BattleAction::makeCatapultShot(const battle::Unit * catapult)
+{
+	BattleAction ba;
+	ba.side = catapult->unitSide();
+	ba.actionType = EActionType::CATAPULT;
+	ba.stackNumber = catapult->unitId();
+	return ba;
+}
+
+BattleAction BattleAction::makeNoAction(const battle::Unit * stack)
+{
+	BattleAction ba;
+	ba.side = stack->unitSide();
+	ba.actionType = EActionType::NO_ACTION;
+	ba.stackNumber = stack->unitId();
+	return ba;
+}
+
+BattleAction BattleAction::makeBadMorale(const battle::Unit * stack)
+{
+	BattleAction ba;
+	ba.side = stack->unitSide();
+	ba.actionType = EActionType::BAD_MORALE;
+	ba.stackNumber = stack->unitId();
+	return ba;
+}
+
 BattleAction BattleAction::makeDefend(const battle::Unit * stack)
 {
 	BattleAction ba;
@@ -45,12 +92,10 @@ BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const Bat
 {
 	BattleAction ba;
 	ba.side = stack->unitSide(); //FIXME: will it fail if stack mind controlled?
-	ba.actionType = EActionType::WALK_AND_ATTACK;
+	ba.actionType = returnAfterAttack ? EActionType::WALK_AND_ATTACK : EActionType::WALK_AND_ATTACK_NO_RETURN;
 	ba.stackNumber = stack->unitId();
 	ba.aimToHex(attackFrom);
 	ba.aimToHex(destination);
-	if(returnAfterAttack && stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
-		ba.aimToHex(stack->getPosition());
 	return ba;
 }
 
@@ -59,12 +104,21 @@ BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const bat
 {
 	BattleAction ba;
 	ba.side = stack->unitSide(); //FIXME: will it fail if stack mind controlled?
-	ba.actionType = EActionType::WALK_AND_ATTACK;
+	ba.actionType = returnAfterAttack ? EActionType::WALK_AND_ATTACK : EActionType::WALK_AND_ATTACK_NO_RETURN;
 	ba.stackNumber = stack->unitId();
 	ba.aimToHex(attackFrom);
 	ba.aimToUnit(target);
-	if(returnAfterAttack && stack->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
-		ba.aimToHex(stack->getPosition());
+	return ba;
+}
+
+BattleAction BattleAction::makeLongWeaponAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom)
+{
+	BattleAction ba;
+	ba.side = stack->unitSide();
+	ba.actionType = EActionType::LONG_WEAPON_ATTACK;
+	ba.stackNumber = stack->unitId();
+	ba.aimToHex(attackFrom);
+	ba.aimToHex(destination);
 	return ba;
 }
 
@@ -87,6 +141,16 @@ BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const ba
 	return ba;
 }
 
+BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const BattleHex & destination)
+{
+	BattleAction ba;
+	ba.side = shooter->unitSide();
+	ba.actionType = EActionType::SHOOT;
+	ba.stackNumber = shooter->unitId();
+	ba.aimToHex(destination);
+	return ba;
+}
+
 BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID)
 {
 	BattleAction ba;
@@ -95,6 +159,26 @@ BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, con
 	ba.setTarget(target);
 	ba.side = stack->unitSide();
 	ba.stackNumber = stack->unitId();
+	return ba;
+}
+
+BattleAction BattleAction::makeHeroSpellcast(BattleSide side, const battle::Target & target, const SpellID & spellID)
+{
+	BattleAction ba;
+	ba.actionType = EActionType::HERO_SPELL;
+	ba.spell = spellID;
+	ba.setTarget(target);
+	ba.side = side;
+	return ba;
+}
+
+BattleAction BattleAction::makeRandomSpellcast(const battle::Unit * stack, const BattleHex & destination)
+{
+	BattleAction ba;
+	ba.actionType = EActionType::RANDOM_SPELL;
+	ba.side = stack->unitSide();
+	ba.stackNumber = stack->unitId();
+	ba.aimToHex(destination);
 	return ba;
 }
 
@@ -193,9 +277,14 @@ battle::Target BattleAction::getTarget(const CBattleInfoCallback * cb) const
 	for(const auto & destination : target)
 	{
 		if(destination.unitValue == INVALID_UNIT_ID)
+		{
 			ret.emplace_back(destination.hexValue);
-		else
-			ret.emplace_back(cb->battleGetUnitByID(destination.unitValue));
+			continue;
+		}
+
+		// an action may name a unit that is not in the battle; its destination has no unit and no hex
+		const battle::Unit * unit = cb->battleGetUnitByID(destination.unitValue);
+		ret.push_back(unit ? battle::Destination(unit) : battle::Destination());
 	}
 
 	return ret;
@@ -215,50 +304,20 @@ void BattleAction::setTarget(const battle::Target & target_)
 
 bool BattleAction::isUnitAction() const
 {
-	static const std::array<EActionType, 109> actions = {
-		EActionType::NO_ACTION,
-		EActionType::WALK,
-		EActionType::WAIT,
-		EActionType::DEFEND,
-		EActionType::WALK_AND_ATTACK,
-		EActionType::SHOOT,
-		EActionType::CATAPULT,
-		EActionType::MONSTER_SPELL,
-		EActionType::BAD_MORALE,
-		EActionType::STACK_HEAL,
-		EActionType::WALK_AND_CAST
-	};
-	return vstd::contains(actions, actionType);
-}
-
-bool BattleAction::isSpellAction() const
-{
-	static const std::array<EActionType, 3> actions = {
-		EActionType::HERO_SPELL,
-		EActionType::MONSTER_SPELL,
-		EActionType::WALK_AND_CAST
-	};
-	return vstd::contains(actions, actionType);
+	const auto * type = BattleActionType::find(*this);
+	return type && type->isUnitAction();
 }
 
 bool BattleAction::isBattleEndAction() const
 {
-	static const std::array<EActionType, 2> actions = {
-		EActionType::RETREAT,
-		EActionType::SURRENDER
-	};
-	return vstd::contains(actions, actionType);
+	const auto * type = BattleActionType::find(*this);
+	return type && type->isBattleEndAction();
 }
 
 bool BattleAction::isTacticsAction() const
 {
-	static const std::array<EActionType, 9> actions = {
-		EActionType::WALK,
-		EActionType::END_TACTIC_PHASE,
-		EActionType::RETREAT,
-		EActionType::SURRENDER
-	};
-	return vstd::contains(actions, actionType);
+	const auto * type = BattleActionType::find(*this);
+	return type && type->isTacticsAction();
 }
 
 std::ostream & operator<<(std::ostream & os, const BattleAction & ba)

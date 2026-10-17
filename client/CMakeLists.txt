@@ -28,8 +28,10 @@ set(vcmiclientcommon_SRCS
 	battle/BattleSiegeController.cpp
 	battle/BattleStacksController.cpp
 	battle/BattleWindow.cpp
+	battle/ClientCommandEntries.cpp
 	battle/CreatureAnimation.cpp
 	battle/HeroInfoWindow.cpp
+	battle/LibActionEntry.cpp
 	battle/QuickSpellPanel.cpp
 	battle/StackInfoBasicPanel.cpp
 	battle/StackQueue.cpp
@@ -219,6 +221,7 @@ set(vcmiclientcommon_HEADERS
 	adventureMap/MapAudioPlayer.h
 	adventureMap/TurnTimerWidget.h
 
+	battle/BattleActionEntry.h
 	battle/BattleActionsController.h
 	battle/BattleAnimationClasses.h
 	battle/BattleConsole.h
@@ -235,8 +238,10 @@ set(vcmiclientcommon_HEADERS
 	battle/BattleSiegeController.h
 	battle/BattleStacksController.h
 	battle/BattleWindow.h
+	battle/ClientCommandEntries.h
 	battle/CreatureAnimation.h
 	battle/HeroInfoWindow.h
+	battle/LibActionEntry.h
 	battle/QuickSpellPanel.h
 	battle/StackInfoBasicPanel.h
 	battle/StackQueue.h

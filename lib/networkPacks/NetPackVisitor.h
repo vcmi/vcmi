@@ -123,6 +123,7 @@ public:
 	virtual void visitBattleTriggerEffect(BattleTriggerEffect & pack) {}
 	virtual void visitBattleAnimationPlayed(BattleAnimationPlayed & pack) {}
 	virtual void visitBattleUpdateGateState(BattleUpdateGateState & pack) {}
+	virtual void visitBattleTacticsEnded(BattleTacticsEnded & pack) {}
 	virtual void visitAdvmapSpellCast(AdvmapSpellCast & pack) {}
 	virtual void visitShowWorldViewEx(ShowWorldViewEx & pack) {}
 	virtual void visitEndTurn(EndTurn & pack) {}

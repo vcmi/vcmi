@@ -178,21 +178,7 @@ std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, c
 {
 	if(astack->isFirstAidTent())
 	{
-		const CStack * target = nullptr;
-		auto maxdmg = 0;
-		for(const auto * stack : battle->battleGetStacks(CBattleInfoEssentials::ONLY_MINE))
-		{
-			auto dmg = stack->getMaxHealth() - stack->getFirstHPleft();
-			if(dmg <= maxdmg)
-				continue;
-			maxdmg = dmg;
-			target = stack;
-		}
-
-		if(target)
-		{
-			return std::make_shared<BattleAction>(BattleAction::makeHeal(astack, target));
-		}
+		return std::make_shared<BattleAction>(BattleAction::makeHeal(astack));
 	}
 	else if(astack->isCatapult())
 	{
@@ -200,10 +186,7 @@ std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, c
 			// out of ammo
 			return std::make_shared<BattleAction>(BattleAction::makeDefend(astack)); // out of ammo (arrow towers have 99 shots)
 
-		auto ba = std::make_shared<BattleAction>();
-		ba->side = astack->unitSide();
-		ba->stackNumber = astack->unitId();
-		ba->actionType = EActionType::CATAPULT;
+		auto ba = std::make_shared<BattleAction>(BattleAction::makeCatapultShot(astack));
 
 		if(battle->battleGetGateState() == EGateState::CLOSED)
 		{
@@ -339,7 +322,7 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 			"This should NOT happen. "
 			"Falling back to a wait/defend action."
 		);
-		auto fa = astack->waitedThisTurn ? BattleAction::makeDefend(astack) : BattleAction::makeWait(astack);
+		auto fa = astack->waitedThisRound() ? BattleAction::makeDefend(astack) : BattleAction::makeWait(astack);
 		cb->battleMakeUnitAction(bid, fa);
 		return;
 	}
@@ -419,7 +402,7 @@ std::shared_ptr<BattleAction> BAI::buildBattleAction()
 				res = std::make_shared<BattleAction>(BattleAction::makeRetreat(battle->battleGetMySide()));
 				break;
 			case GlobalAction::WAIT:
-				if(acstack->waitedThisTurn)
+				if(acstack->waitedThisRound())
 				{
 					ASSERT(!state->actmask.at(EI(GlobalAction::WAIT)), "mask allowed wait when stack has already waited");
 					state->supdata->errcode = ErrorCode::ALREADY_WAITED;

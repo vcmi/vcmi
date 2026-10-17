@@ -738,6 +738,14 @@ void CPlayerInterface::battleCatapultAttacked(const BattleID & battleID, const C
 	battleInt->stackIsCatapulting(ca);
 }
 
+void CPlayerInterface::battleTacticsEnded(const BattleID & battleID)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	BATTLE_EVENT_POSSIBLE_RETURN;
+
+	battleInt->windowObject->tacticPhaseEnded();
+}
+
 void CPlayerInterface::battleNewRound(const BattleID & battleID) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;

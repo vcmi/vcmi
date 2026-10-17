@@ -27,7 +27,7 @@ struct MoatCase
 	const char * name;
 	int creature;
 	bool enemyAdjacent;
-	BattleAction (*makeAction)(const CStack * unit, const CStack * enemy);
+	BattleAction (*makeAction)(const CStack * unit, const CStack * enemy, const CStack * ally);
 };
 
 }
@@ -40,6 +40,7 @@ public:
 
 	static inline const BattleHex unitHex = BattleHex(7, 5);
 	static inline const BattleHex farHex = BattleHex(12, 5);
+	static inline const BattleHex allyHex = BattleHex(3, 8);
 };
 
 TEST_P(MoatActionTest, actingInsideMoatTriggersIt)
@@ -53,13 +54,14 @@ TEST_P(MoatActionTest, actingInsideMoatTriggersIt)
 
 	CStack * unit = addStack(BattleSide::ATTACKER, CreatureID(scenario.creature), unitHex, stackCount);
 	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	addMoat(unitHex);
 
 	// so that the only damage the unit takes is the moat's
 	blockRetaliation(unit);
 	const auto unitHealth = unit->getAvailableHealth();
 
-	ASSERT_TRUE(act(scenario.makeAction(unit, enemy))) << scenario.name;
+	ASSERT_TRUE(act(scenario.makeAction(unit, enemy, ally))) << scenario.name;
 
 	const auto moatHits = server.castsOf(spellByName("core:castleMoatTrigger"));
 	ASSERT_EQ(moatHits.size(), 1u) << scenario.name;
@@ -69,25 +71,25 @@ TEST_P(MoatActionTest, actingInsideMoatTriggersIt)
 }
 
 INSTANTIATE_TEST_SUITE_P(Actions, MoatActionTest, ::testing::Values(
-	MoatCase{"wait", pikeman, false, [](const CStack * unit, const CStack *)
+	MoatCase{"wait", pikeman, false, [](const CStack * unit, const CStack *, const CStack *)
 	{
 		return BattleAction::makeWait(unit);
 	}},
-	MoatCase{"defend", pikeman, false, [](const CStack * unit, const CStack *)
+	MoatCase{"defend", pikeman, false, [](const CStack * unit, const CStack *, const CStack *)
 	{
 		return BattleAction::makeDefend(unit);
 	}},
-	MoatCase{"shoot", archer, false, [](const CStack * unit, const CStack * enemy)
+	MoatCase{"shoot", archer, false, [](const CStack * unit, const CStack * enemy, const CStack *)
 	{
 		return BattleAction::makeShotAttack(unit, enemy);
 	}},
-	MoatCase{"creatureSpell", stormElemental, false, [](const CStack * unit, const CStack *)
+	MoatCase{"creatureSpell", stormElemental, false, [](const CStack * unit, const CStack *, const CStack * ally)
 	{
 		battle::Target target;
-		target.emplace_back(unit);
+		target.emplace_back(ally);
 		return BattleAction::makeCreatureSpellcast(unit, target, SpellID::PROTECTION_FROM_AIR);
 	}},
-	MoatCase{"attack", pikeman, true, [](const CStack * unit, const CStack * enemy)
+	MoatCase{"attack", pikeman, true, [](const CStack * unit, const CStack * enemy, const CStack *)
 	{
 		return BattleAction::makeMeleeAttack(unit, enemy->getPosition(), unit->getPosition());
 	}}

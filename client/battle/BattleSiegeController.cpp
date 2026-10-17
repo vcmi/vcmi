@@ -367,15 +367,6 @@ void BattleSiegeController::collectRenderableObjects(BattleRenderer & renderer)
 	}
 }
 
-bool BattleSiegeController::isAttackableByCatapult(const BattleHex & hex) const
-{
-	if (owner.isInTacticsMode())
-		return false;
-
-	auto wallPart = owner.getBattle()->battleHexToWallPart(hex);
-	return owner.getBattle()->isWallPartAttackable(wallPart);
-}
-
 bool BattleSiegeController::isTowerHex(const BattleHex & hex) const
 {
 	const auto fortifications = town->fortificationsLevel();

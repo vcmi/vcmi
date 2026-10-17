@@ -64,5 +64,6 @@ public:
 
 	void onBattleStarted(const CBattleInfoCallback & battle);
 	void onTacticsEnded(const CBattleInfoCallback & battle);
-	void onActionMade(const CBattleInfoCallback & battle, const BattleAction & ba);
+	/// Activates the next unit. Valid is false for an action that the server refused and replaced with a turn skip
+	void onActionMade(const CBattleInfoCallback & battle, const BattleAction & ba, bool valid);
 };

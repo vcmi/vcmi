@@ -37,22 +37,6 @@ protected:
 	}
 };
 
-class TeleportApplyTest : public Test, public EffectFixture
-{
-public:
-	TeleportApplyTest()
-		: EffectFixture("core:teleport")
-	{
-	}
-
-protected:
-	void SetUp() override
-	{
-		EffectFixture::setUp();
-		setupEffect(JsonNode());
-	}
-};
-
 // --- adjustTargetTypes ---
 
 TEST_F(TeleportTest, AdjustTargetTypes_Creature_AddsLocation)
@@ -213,7 +197,7 @@ TEST_F(TeleportTest, TransformTarget_ImmuneUnit_EmptyResult)
 
 // --- apply ---
 
-TEST_F(TeleportApplyTest, Apply_MovesUnit)
+TEST_F(TeleportTest, Apply_MovesUnit)
 {
 	battleFake->setupEmptyBattlefield();
 

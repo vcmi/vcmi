@@ -131,6 +131,7 @@ set(test_SRCS
 		server/battles/RebirthTest.cpp
 		server/battles/SoulStealTest.cpp
 		server/battles/SpellcastActionTest.cpp
+		server/battles/SpellTargetStepTest.cpp
 		server/battles/SummonGuardiansTest.cpp
 		server/battles/TurnOrderTest.cpp
 		server/battles/TransmutationTest.cpp

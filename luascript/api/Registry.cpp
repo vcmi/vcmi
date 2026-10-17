@@ -24,6 +24,7 @@
 #include "Enums.h"
 #include "LuaComponent.h"
 #include "LuaMetaString.h"
+#include "spells/TargetStepDescriptor.h"
 #include "battle/SpellObstacleDescriptor.h"
 #include "battle/Unit.h"
 #include "battle/UnitState.h"
@@ -102,6 +103,7 @@ Registry::Registry()
 	registerSerializable<BonusDescriptor>();
 	registerSerializable<BonusFilter>();
 	registerSerializable<SpellObstacleDescriptor>();
+	registerSerializable<TargetStepDescriptor>();
 
 	// Aliases for C++ types that have no dedicated proxy but appear in binding signatures.
 	registerLuaName<CBattleInfoCallback>("Battle");

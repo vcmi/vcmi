@@ -994,13 +994,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	{
 		// debug rather than trace, so that a cast the server refuses can be matched to the spell in reported logs
 		logAi->debug("%s will cast %s (value %f)", hero->getNameTextID(), castToPerform.spell->getJsonKey(), castToPerform.value);
-		BattleAction spellcast;
-		spellcast.actionType = EActionType::HERO_SPELL;
-		spellcast.spell = castToPerform.spell->id;
-		spellcast.setTarget(castToPerform.dest);
-		spellcast.side = side;
-		spellcast.stackNumber = -1;
-		cb->battleMakeSpellAction(battleID, spellcast);
+		cb->battleMakeSpellAction(battleID, BattleAction::makeHeroSpellcast(side, castToPerform.dest, castToPerform.spell->id));
 		activeActionMade = true;
 
 		return true;

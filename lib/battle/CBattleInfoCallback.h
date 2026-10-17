@@ -22,7 +22,6 @@ class SpellCastEnvironment;
 class CSpell;
 struct CObstacleInstance;
 class IBonusBearer;
-class PossiblePlayerBattleAction;
 
 namespace vstd
 {
@@ -50,12 +49,6 @@ struct DLL_LINKAGE AttackableTiles
 	BattleHexArray overrideAnimationPositions;
 };
 
-struct DLL_LINKAGE BattleClientInterfaceData
-{
-	std::vector<SpellID> creatureSpellsToCast;
-	ui8 tacticsMode;
-};
-
 struct ForcedAction {
 	EActionType type = EActionType::NO_ACTION;
 	BattleHex position;
@@ -79,6 +72,8 @@ public:
 	const CStack * battleGetStackByPos(const BattleHex & pos, bool onlyAlive = true) const;
 
 	const battle::Unit * battleGetUnitByPos(const BattleHex & pos, bool onlyAlive = true) const override;
+	/// Living unit on the hex, or a dead one if there is no living unit
+	const battle::Unit * battleGetUnitOrCorpseByPos(const BattleHex & pos) const;
 
 	///returns all alive units excluding turrets
 	battle::Units battleAliveUnits() const;
@@ -94,22 +89,24 @@ public:
 	//returns hexes the unit can occupy, obtainMovementRange ignores tactics mode (for double-wide units includes both head and tail)
 	BattleHexArray battleGetOccupiableHexes(const battle::Unit * unit, bool obtainMovementRange) const;
 	BattleHexArray battleGetOccupiableHexes(const BattleHexArray & availableHexes, const battle::Unit * unit) const;
-	//returns from which hex the attacker would attack the target from given direction; INVALID if not possible; the hex may be inccessible
-	BattleHex fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction, bool allowLongWeapon = true) const;
+	//returns from which hex the attacker would attack the adjacent target from given direction; INVALID if not possible; the hex may be inccessible
+	BattleHex fromWhichHexAttack(const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction) const;
+	/// Hex that the attacker can stop at to strike the target hex approached from the direction, or INVALID.
+	/// A long weapon strikes over one free hex with any hex of the attacker on the line, otherwise the attacker stands next to the target
+	BattleHex findAttackPosition(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & target, const BattleHex::EDir & direction, bool longWeapon) const;
 
 	//returns to which hex the (head of) unit would move to occupy position (possibly by tail)
 	BattleHex toWhichHexMove(const battle::Unit * unit, const BattleHex & position) const;
 	BattleHex toWhichHexMove(const BattleHexArray & availableHexes, const battle::Unit * unit, const BattleHex & position) const;
 
 	//return true iff attacker move towards and attack position from direction (spatial reasoning only)
-	bool battleCanAttackHex(const battle::Unit * attacker, const BattleHex & position, const BattleHex::EDir & direction) const;
+	/// Checks that the attacker can stop at the hex to act on the target position: the hex is available and no obstacle stops the attacker there
+	bool battleCanAttackFromHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position, const BattleHex & fromHex) const;
 	bool battleCanAttackHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position, const BattleHex::EDir & direction) const; //reuse availableHexes on multiple calls
-	bool battleCanAttackHex(const battle::Unit * attacker, const BattleHex & position) const; //check all directions
 	bool battleCanAttackHex(const BattleHexArray & availableHexes, const battle::Unit * attacker, const BattleHex & position) const; //reuse availableHexes on multiple calls
 
 	int battleGetSurrenderCost(const PlayerColor & Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
 	ReachabilityInfo::TDistances battleGetDistances(const battle::Unit * unit, const BattleHex & assumedPosition) const;
-	BattleHexArray battleGetAttackedHexes(const battle::Unit * attacker, const BattleHex & destinationTile, const BattleHex & attackerPos = BattleHex::INVALID) const;
 	bool isEnemyUnitWithinSpecifiedRange(const BattleHex & attackerPosition, const battle::Unit * defenderUnit, unsigned int range) const;
 	bool isHexWithinSpecifiedRange(const BattleHex & attackerPosition, const BattleHex & targetPosition, unsigned int range) const;
 
@@ -119,7 +116,7 @@ public:
 	bool battleCanAttackUnit(const battle::Unit * attacker, const battle::Unit * target) const; //determines if attacker can attack target (no spatial reasoning)
 	bool battleCanShoot(const battle::Unit * attacker, const BattleHex & dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleCanShoot(const battle::Unit * attacker) const; //determines if stack with given ID shoot in principle
-	bool isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender) const;
+	bool isLongWeaponAttack(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos = BattleHex::INVALID) const;
 	//hexes of the defender that the attacker can reach in melee; empty if no melee attack is possible
 	BattleHexArray meleeAttackHexes(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos = BattleHex::INVALID, const BattleHex & defenderPos = BattleHex::INVALID) const;
 	bool isMeleeAttackPossible(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPos = BattleHex::INVALID, const BattleHex & defenderPos = BattleHex::INVALID) const;
@@ -135,10 +132,7 @@ public:
 	DamageEstimation battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, const BattleHex & attackerPosition, DamageEstimation * retaliationDmg = nullptr) const;
 	DamageEstimation battleEstimateDamage(const battle::Unit * attacker, const battle::Unit * defender, int getMovementRange, DamageEstimation * retaliationDmg = nullptr) const;
 
-	/// preview of damage / restored HP and units killed or raised/summoned for given parameters
-	/// returns hpDelta and unitsDelta
-	SpellEffectValUptr getSpellEffectValue(const CSpell * spell, const spells::Caster * caster, const spells::Mode spellMode, const BattleHex & targetHex) const;
-	/// same preview for an explicit aim; if an effect resolves no targets, a unit in the last aim point is evaluated alone
+	/// preview of damage / restored HP and units killed or raised/summoned for the aim; if an effect resolves no targets, a unit in the last aim point is evaluated alone
 	SpellEffectValUptr getSpellEffectValue(const CSpell * spell, const spells::Caster * caster, const spells::Mode spellMode, const battle::Target & aim) const;
 
 	/// damage estimation for spell-like-attack case, eg. Death Cloud
@@ -163,11 +157,10 @@ public:
 	int32_t battleGetSpellCost(const spells::Spell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
 	ESpellCastProblem battleCanCastSpell(const spells::Caster * caster, spells::Mode mode) const; //returns true if there are no general issues preventing from casting a spell
 
-	SpellID getRandomBeneficialSpell(vstd::RNG & rand, const battle::Unit * caster, const battle::Unit * target) const;
+	/// Spells that a RANDOM_SPELLCASTER unit may roll for the target: castable on it, not already on it and of use in this battle
+	std::vector<SpellID> getBeneficialSpells(const battle::Unit * caster, const battle::Unit * target) const;
 	SpellID getRandomCastedSpell(vstd::RNG & rand, const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
-	std::vector<PossiblePlayerBattleAction> getClientActionsForStack(const CStack * stack, const BattleClientInterfaceData & data);
-	PossiblePlayerBattleAction getCasterAction(const CSpell * spell, const spells::Caster * caster, spells::Mode mode) const;
 
 	//convenience methods using the ones above
 	bool isInTacticRange(const BattleHex & dest) const;

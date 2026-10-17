@@ -75,6 +75,7 @@ public:
 	void visitMapObjectSelectDialog(MapObjectSelectDialog & pack) override;
 	void visitBattleStart(BattleStart & pack) override;
 	void visitBattleNextRound(BattleNextRound & pack) override;
+	void visitBattleTacticsEnded(BattleTacticsEnded & pack) override;
 	void visitBattleSetActiveStack(BattleSetActiveStack & pack) override;
 	void visitBattleLogMessage(BattleLogMessage & pack) override;
 	void visitBattleTriggerEffect(BattleTriggerEffect & pack) override;

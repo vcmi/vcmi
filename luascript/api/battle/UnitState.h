@@ -55,7 +55,6 @@ public:
 	int32_t getBaseAmount() const;
 
 	// Mutable API
-	void setDefending(bool v);
 	void setCloned(bool v);
 	void setDrainedMana(bool v);
 	void setFear(bool v);
@@ -63,10 +62,7 @@ public:
 	void setCastSpellThisTurn(bool v);
 	void setGhost(bool v);
 	void setGhostPending(bool v);
-	void setMoved(bool v);
 	void setSummoned(bool v);
-	void setWaiting(bool v);
-	void setWaitedThisTurn(bool v);
 
 	// Mutable — other public fields
 	void setPosition(BattleHex hex);
@@ -82,7 +78,7 @@ public:
 	static constexpr std::string_view luaName = "UnitState";
 	static constexpr std::string_view luaDescription =
 		"Editable copy of a battle Unit. Obtained via `Unit:copy()`; scripts edit fields "
-		"(position, defending, clone, summoned, …) and inflict damage locally, then hand the "
+		"(position, clone, summoned, …) and inflict damage locally, then hand the "
 		"result to ServerCallback `changeUnit` or `addUnit` to broadcast the update through a battle pack.";
 
 	static void registerMethods(MethodRegistrar & R);

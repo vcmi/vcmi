@@ -38,7 +38,13 @@ function Script:isValidTarget(mechanics, unit)
 	local allowDead = level ~= ENUM.HealLevel.heal
 	if not unit:isValidTarget(allowDead) then return false end
 
-	local injuries = unit:getTotalHealth() - unit:getAvailableHealth()
+	-- plain heal restores only the top creature, so lost creatures are not injuries for it
+	local injuries
+	if allowDead then
+		injuries = unit:getTotalHealth() - unit:getAvailableHealth()
+	else
+		injuries = unit:getMaxHealth() - unit:getFirstHPleft()
+	end
 	if injuries <= 0 then return false end
 
 	local mfu = self:getMinFullUnits()

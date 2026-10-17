@@ -97,6 +97,24 @@ function Script:transformTarget(mechanics, aimPoint, spellTarget)
 	return result
 end
 
+--- The second destination is the unit to sacrifice; the unit to heal is chosen with the texts of the engine.
+function Script:describeTargetStep(mechanics, partialTarget, hoveredHex)
+	if #partialTarget ~= 1 then return nil end
+
+	local text = { append = { "core.genrltxt.549" } } -- Sacrifice the %s
+	local victim = mechanics:getBattle():getUnitByPos(hoveredHex, true)
+	if victim then
+		text.replaceStrings = { victim:getCreature():getNameTextID(victim:getCount()) }
+	end
+
+	return {
+		cursor           = "combatSacrifice",
+		text             = text,
+		blockedText      = { append = { "core.genrltxt.543" } }, -- choose army to sacrifice
+		healthGainTextID = "vcmi.battleWindow.sacrificeAcquiredHealth"
+	}
+end
+
 function Script:calculateHealValue(mechanics, victim)
 	return (mechanics:getEffectPower() + victim:getMaxHealth()
 		+ mechanics:calculateRawEffectValue(0, 1)) * victim:getCount()
