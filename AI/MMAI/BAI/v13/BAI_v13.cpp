@@ -184,21 +184,7 @@ std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, c
 {
 	if(astack->isFirstAidTent())
 	{
-		const CStack * target = nullptr;
-		auto maxdmg = 0;
-		for(const auto * stack : battle->battleGetStacks(CBattleInfoEssentials::ONLY_MINE))
-		{
-			auto dmg = stack->getMaxHealth() - stack->getFirstHPleft();
-			if(dmg <= maxdmg)
-				continue;
-			maxdmg = dmg;
-			target = stack;
-		}
-
-		if(target)
-		{
-			return std::make_shared<BattleAction>(BattleAction::makeHeal(astack, target));
-		}
+		return std::make_shared<BattleAction>(BattleAction::makeHeal(astack));
 	}
 	else if(astack->isCatapult())
 	{

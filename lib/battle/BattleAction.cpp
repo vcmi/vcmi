@@ -33,6 +33,15 @@ BattleAction BattleAction::makeHeal(const battle::Unit * healer, const battle::U
 	return ba;
 }
 
+BattleAction BattleAction::makeHeal(const battle::Unit * healer)
+{
+	BattleAction ba;
+	ba.side = healer->unitSide();
+	ba.actionType = EActionType::STACK_HEAL;
+	ba.stackNumber = healer->unitId();
+	return ba;
+}
+
 BattleAction BattleAction::makeHeal(const battle::Unit * healer, const BattleHex & destination)
 {
 	BattleAction ba;

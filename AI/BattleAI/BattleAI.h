@@ -71,7 +71,6 @@ public:
 
 	void print(const std::string &text) const;
 	BattleAction useCatapult(const BattleID & battleID, const CStack *stack);
-	BattleAction useHealingTent(const BattleID & battleID, const CStack *stack);
 
 	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed) override;
 	void actionFinished(const BattleID & battleID, const BattleAction & action) override;

@@ -31,6 +31,8 @@ public:
 	BattleAction();
 
 	static BattleAction makeHeal(const battle::Unit * healer, const battle::Unit * healed);
+	/// Heal of the most wounded unit that the healer can heal, chosen when the action is applied
+	static BattleAction makeHeal(const battle::Unit * healer);
 	static BattleAction makeNoAction(const battle::Unit * stack);
 	static BattleAction makeBadMorale(const battle::Unit * stack);
 	static BattleAction makeDefend(const battle::Unit * stack);
