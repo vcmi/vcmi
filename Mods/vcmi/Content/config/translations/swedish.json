@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Sårbarhetens Klot}\nUnder strid upphäver detta klot den naturliga magiresistensen hos alla varelser på slagfältet.",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Ytterligare Attacker}\nDenna enhet kan attackera ${val} extra gång(er).",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Ytterligare Vedergällningar}\nDenna enhet kan vedergälla ${val} extra gång(er).",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Magiker På Nära Håll}\nKan kasta ${subtype.spell} medan den står bredvid målet.",
