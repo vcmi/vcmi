@@ -476,11 +476,15 @@ void CGameState::initDifficulty()
 
 	const JsonNode & difficultyAI(config["ai"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
 	const JsonNode & difficultyHuman(config["human"][GameConstants::DIFFICULTY_NAMES[scenarioOps->difficulty]]);
+	const bool isTutorialScenario = boost::iequals(scenarioOps->mapname, "Maps/Tutorial");
 
-	auto setDifficulty = [this](PlayerState & state, const JsonNode & json)
+	auto setDifficulty = [this, &config, isTutorialScenario](PlayerState & state, const JsonNode & json)
 	{
 		//set starting resources
-		state.resources.resolveFromJson(json["resources"]);
+		if (isTutorialScenario && state.human)
+			state.resources.resolveFromJson(config["tutorial"]["resources"]);
+		else
+			state.resources.resolveFromJson(json["resources"]);
 
 		//handicap
 		const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(state.color);

@@ -481,7 +481,7 @@ void CMainMenu::startTutorial()
 		
 	auto mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->mapInit(tutorialMap.getName());
-	CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::NONE, false);
+	CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::TUTORIAL, false);
 	GAME->server().startMapAfterConnection(mapInfo);
 }
 

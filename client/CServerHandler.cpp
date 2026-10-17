@@ -216,8 +216,10 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 
 	auto si = std::make_shared<StartInfo>();
 
-	auto lastDifficulty = settings["general"]["lastDifficulty"];
-	si->difficulty = lastDifficulty.Integer();
+	if (loadMode == ELoadMode::TUTORIAL)
+		si->difficulty = static_cast<ui8>(EMapDifficulty::EASY);
+	else
+		si->difficulty = settings["general"]["lastDifficulty"].Integer();
 
 	logNetwork->trace("\tStarting local server");
 	serverRunner->start(loadMode == ELoadMode::MULTI, connectToLobby, si);
