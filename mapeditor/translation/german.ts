@@ -2725,17 +2725,17 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="293"/>
         <source>Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Tag</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="298"/>
         <source>Week</source>
-        <translation type="unfinished"></translation>
+        <translation>Woche</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="303"/>
         <source>Month</source>
-        <translation type="unfinished"></translation>
+        <translation>Monat</translation>
     </message>
 </context>
 <context>
