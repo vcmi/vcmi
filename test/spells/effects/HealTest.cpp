@@ -47,8 +47,9 @@ TEST_F(HealTest, NotApplicableToHealthyUnit)
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 
 	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillOnce(Return(true));
-	EXPECT_CALL(unit, getTotalHealth()).WillOnce(Return(200));
-	EXPECT_CALL(unit, getAvailableHealth()).WillOnce(Return(200));
+	EXPECT_CALL(unit, getFirstHPleft()).WillOnce(Return(200));
+	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, BonusSourceID()));
+	unitsFake.setDefaultBonusExpectations();
 
 	EXPECT_CALL(mechanicsMock, isSmart()).Times(AtMost(1)).WillRepeatedly(Return(false));
 
@@ -64,8 +65,9 @@ TEST_F(HealTest, ApplicableToWoundedUnit)
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 	unit.makeAlive();
 	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillOnce(Return(true));
-	EXPECT_CALL(unit, getTotalHealth()).WillOnce(Return(200));
-	EXPECT_CALL(unit, getAvailableHealth()).WillOnce(Return(100));
+	EXPECT_CALL(unit, getFirstHPleft()).WillOnce(Return(100));
+	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, BonusSourceID()));
+	unitsFake.setDefaultBonusExpectations();
 
 	EXPECT_CALL(mechanicsMock, isSmart()).WillOnce(Return(false));
 
@@ -73,6 +75,26 @@ TEST_F(HealTest, ApplicableToWoundedUnit)
 	target.emplace_back(&unit, BattleHex());
 
 	EXPECT_TRUE(subject->applicableTarget(problemMock, &mechanicsMock, target));
+}
+
+TEST_F(HealTest, NotApplicableToUnitWithOnlyCasualties)
+{
+	EffectFixture::setupEffect(JsonNode());
+	auto & unit = unitsFake.add(BattleSide::ATTACKER);
+
+	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillOnce(Return(true));
+	EXPECT_CALL(unit, getTotalHealth()).WillRepeatedly(Return(2000));
+	EXPECT_CALL(unit, getAvailableHealth()).WillRepeatedly(Return(1000));
+	EXPECT_CALL(unit, getFirstHPleft()).WillOnce(Return(200));
+	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, BonusSourceID()));
+	unitsFake.setDefaultBonusExpectations();
+
+	EXPECT_CALL(mechanicsMock, isSmart()).Times(AtMost(1)).WillRepeatedly(Return(false));
+
+	Target target;
+	target.emplace_back(&unit, BattleHex());
+
+	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
 TEST_F(HealTest, ApplicableIfActuallyResurrects)
@@ -270,8 +292,7 @@ TEST_F(HealTest, NotApplicableIfEffectValueTooLow)
 	auto & unit = unitsFake.add(BattleSide::ATTACKER);
 
 	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillOnce(Return(true));
-	EXPECT_CALL(unit, getTotalHealth()).WillOnce(Return(200));
-	EXPECT_CALL(unit, getAvailableHealth()).WillOnce(Return(100));
+	EXPECT_CALL(unit, getFirstHPleft()).WillOnce(Return(100));
 
 	unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, 200, BonusSourceID()));
 

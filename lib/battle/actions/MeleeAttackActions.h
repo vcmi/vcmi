@@ -33,6 +33,8 @@ protected:
 
 private:
 	bool canStrikeFrom(const CBattleInfoCallback & battle, const battle::Unit & attacker, const battle::Unit & defender, const BattleHex & attackerPos) const;
+	/// Hexes of units struck by the attack besides the hovered one, such as by breath or ATTACKS_ALL_ADJACENT
+	BattleHexArray getAttackedHexes(const CBattleInfoCallback & battle, const battle::Unit & attacker, const BattleHex & destinationTile, const BattleHex & attackerPos) const;
 };
 
 /// WALK_AND_ATTACK: melee attack, after which a unit with RETURN_AFTER_STRIKE returns

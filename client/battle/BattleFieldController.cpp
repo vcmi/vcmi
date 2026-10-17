@@ -718,19 +718,6 @@ void BattleFieldController::showHighlightedHex(Canvas & canvas, std::shared_ptr<
 		canvas.draw(cellBorder, hexPos);
 }
 
-BattleHexArray BattleFieldController::getHighlightedHexesForActiveStack()
-{
-	if(!owner.stacksController->getActiveStack())
-		return BattleHexArray();
-
-	if(!settings["battle"]["stackRange"].Bool())
-		return BattleHexArray();
-
-	auto hoveredHex = getHoveredHex();
-
-	return owner.getBattle()->battleGetAttackedHexes(owner.stacksController->getActiveStack(), hoveredHex);
-}
-
 BattleHexArray BattleFieldController::getMovementRangeForHoveredStack()
 {
 	if (!owner.stacksController->getActiveStack())

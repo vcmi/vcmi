@@ -102,7 +102,6 @@ class BattleFieldController : public CIntObject
 
 	void showHighlightedHex(Canvas & to, std::shared_ptr<IImage> highlight, const BattleHex & hex, bool darkBorder);
 
-	BattleHexArray getHighlightedHexesForActiveStack();
 	BattleHexArray getMovementRangeForHoveredStack();
 	BattleHexArray getHighlightedHexesForMovementTarget();
 

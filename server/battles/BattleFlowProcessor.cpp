@@ -569,9 +569,20 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfFirstAidTent(const CBattleInfo
 	const CGHeroInstance * curOwner = battle.battleGetOwnerHero(next);
 	if (next->isFirstAidTent())
 	{
-		TStacks possibleStacks = battle.battleGetStacksIf([&next](const CStack * s)
+		const auto healerAbility = next->getBonus(Selector::type()(BonusType::HEALER));
+		if(!healerAbility || !healerAbility->subtype.hasValue())
 		{
-			return s->unitOwner() == next->unitOwner() && s->canBeHealed();
+			makeStackDoNothing(battle, next);
+			return true;
+		}
+
+		const CSpell * spell = healerAbility->subtype.as<SpellID>().toSpell();
+		const spells::BattleCast cast(&battle, next, spells::Mode::SPELL_LIKE_ATTACK, spell);
+		const auto mechanics = spell->battleMechanics(&cast);
+
+		TStacks possibleStacks = battle.battleGetStacksIf([&next, &mechanics](const CStack * s)
+		{
+			return s->unitOwner() == next->unitOwner() && mechanics->canBeCastAt({battle::Destination(s)});
 		});
 
 		if (possibleStacks.empty())
