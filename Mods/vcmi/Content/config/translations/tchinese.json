@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{毀滅之球}\n消除戰場上所有生物的魔法抗性。",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{雙擊}\n生物可以攻擊兩次。",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{額外反擊}\n每回合額外獲得${val}次反擊機會。",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{毗鄰施法}\n生物可在與目標相鄰時施放${subtype.spell}。",

@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Orb of Vulnerability}\nVô hiệu hóa khả năng kháng phép sẵn có của tất cả các quân trên chiến trường.",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Tấn công thêm}\nĐơn vị này có thể tấn công thêm ${val} lần.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Phản đòn thêm}\nCó thể phản đòn thêm ${val} lần.",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Dùng phép gần}\nĐơn vị này có thể dùng phép ${subtype.spell} khi đứng gần mục tiêu.",
@@ -276,6 +277,7 @@
 	"vcmi.adventureMap.confirmAiSoloContinue": "AI đã hoàn tất lượt chơi của bạn. Bạn có muốn AI tiếp tục chơi thay bạn không?",
 	"vcmi.adventureMap.confirmQuickLoadGame": "Bạn có chắc chắn muốn tải Quicksave không?",
 	"vcmi.adventureMap.confirmRestartGame": "Bạn có muốn chơi lại không?",
+	"vcmi.adventureMap.dateFormat": "",
 	"vcmi.adventureMap.disembark.help": "{Xuống khí cầu}\n\nTướng rời khỏi khí cầu đến ô tiếp theo.",
 	"vcmi.adventureMap.disembark.hover": "Xuống khí cầu",
 	"vcmi.adventureMap.dwelling2": "{%s}\n\nBạn có muốn chiêu mộ %s hoặc %s?",
@@ -957,6 +959,7 @@
 	"vcmi.logicalExpressions.anyOf": "Một trong các:",
 	"vcmi.logicalExpressions.noneOf": "Không được có:",
 	"vcmi.logicalExpressions.separator.and": " và ",
+	"vcmi.logicalExpressions.separator.list": "",
 	"vcmi.logicalExpressions.separator.or": ", hoặc ",
 	"vcmi.mainMenu.chooseAvailableServers": "Chọn máy chủ để tham gia",
 	"vcmi.mainMenu.hostTCP": "Chủ phòng TCP/IP",
