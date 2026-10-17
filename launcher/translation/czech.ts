@@ -642,7 +642,7 @@ K tomu obvykle dochází na starších systémech, například Windows 7, který
 
 Může to však také znamenat, že někdo zasahuje do vašeho internetového připojení, například ve veřejné síti Wi-Fi. V takovém případě by stahované soubory mohly být nahrazeny škodlivými.
 
-Chcete tuto kontrolu vypnout a zkusit to znovu? Kdykoli ji můžete znovu zapnout v nastavení spouštěče pomocí volby „Ignorovat chyby SSL“.</translation>
+Chcete tuto kontrolu vypnout a zkusit to znovu? Kdykoli ji můžete znovu zapnout v nastavení Launcheru pomocí volby &quot;Ignorovat chyby SSL&quot;.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
@@ -2055,12 +2055,12 @@ Bin (%n bajtů):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="223"/>
         <source>Mod is not located in user data directory and can not be managed by launcher</source>
-        <translation>Modifikace se nenachází ve složce uživatelských dat a nelze ji spravovat ve spouštěči</translation>
+        <translation>Modifikace se nenachází ve složce uživatelských dat a nelze ji spravovat v Launcheru</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="227"/>
         <source>Mod directory is a git repository and can not be managed by launcher</source>
-        <translation>Složka modifikace je repozitář Git a nelze ji spravovat ve spouštěči</translation>
+        <translation>Složka modifikace je repozitář Git a nelze ji spravovat v Launcheru</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="245"/>

@@ -397,7 +397,7 @@
 	"vcmi.battleOptions.stackInfoBasicPanel.help": "{Zobrazit informační panel jednotky pod kurzorem}\n\nTrvale zobrazuje informační panel jednotky pod kurzorem s jejími statistikami.",
 	"vcmi.battleOptions.stackInfoBasicPanel.hover": "Zobrazit informační panel jednotky pod kurzorem",
 	"vcmi.battleResultsWindow.applyResultsLabel": "Použít výsledek bitvy?",
-	"vcmi.battleResultsWindow.capturedArtifacts": "Ukořistili jste nepřátelské artefakty!",
+	"vcmi.battleResultsWindow.capturedArtifacts": "Získal jsi od nepřítele artefakty!",
 	"vcmi.battleResultsWindow.spellDurationRemaining.0": "Zbývající trvání: %d kol boje",
 	"vcmi.battleResultsWindow.spellDurationRemaining.1": "Zbývající trvání: %d kolo boje",
 	"vcmi.battleResultsWindow.spellDurationRemaining.2": "Zbývající trvání: %d kola boje",
