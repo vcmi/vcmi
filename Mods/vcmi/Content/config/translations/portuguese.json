@@ -1,6 +1,5 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Orbe da Vulnerabilidade}\nAnula a resistência mágica natural de todas as criaturas no campo de batalha",
-	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Ataques Adicionais}\nA unidade pode atacar ${val} vezes adicionais",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Contra-ataques Adicionais}\nA unidade pode contra-atacar ${val} vezes extras",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Conjurador Adjacente}\nEsta unidade pode lançar ${subtype.spell} quando está ao lado do alvo.",

@@ -2,17 +2,4 @@
 <resources>
     <string name="server_name">VCMI Servidor</string>
     <string name="shortcut_play">Jugar VCMI</string>
-    <string name="notification_running_text"></string>
-    <string name="notification_permission_denied"></string>
-    <string name="notification_running_title"></string>
-    <string name="notification_permission_settings"></string>
-    <string name="notification_channel_running"></string>
-    <string name="notification_quit"></string>
-    <string name="notification_channel_game"></string>
-    <string name="notification_game_title"></string>
-    <string name="data_folder_name"></string>
-    <string name="quit_title"></string>
-    <string name="quit_message"></string>
-    <string name="shortcut_editor"></string>
-    <string name="notification_permission_title"></string>
 </resources>

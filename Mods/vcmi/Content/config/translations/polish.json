@@ -1,6 +1,5 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Kula Wrażliwości}\nNeguje naturalną odporność na magię wszystkich stworzeń na polu bitwy.",
-	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Dodatkowe Uderzenia}\nJednostka ma zdolność dodatkowych uderzeń - ${val}.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Dodatkowy Odwet}\nJednostka ma zdolność dodatkowych kontrataków - ${val}.",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Zaklęcie w zwarciu}\nJednostka może rzucić zaklęcie ${subtype.spell}, będąc na sąsiednim polu względem celu.",
