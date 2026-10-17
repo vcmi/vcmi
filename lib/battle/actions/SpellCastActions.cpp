@@ -208,13 +208,7 @@ bool HeroSpellAction::validateCaster(const CBattleInfoCallback & battle, const B
 
 BattleAction HeroSpellAction::makeAction(const ActionOption & option, const ActionContext & context, const battle::Target & target) const
 {
-	BattleAction action;
-	action.actionType = EActionType::HERO_SPELL;
-	action.side = context.side;
-	action.stackNumber = -1;
-	action.spell = option.spell;
-	action.setTarget(target);
-	return action;
+	return BattleAction::makeHeroSpellcast(context.side, target, option.spell);
 }
 
 void HeroSpellAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
@@ -347,12 +341,7 @@ ActionPreview RandomSpellAction::preview(const IGameInfoCallback & game, const C
 
 std::optional<BattleAction> RandomSpellAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
-	BattleAction action;
-	action.actionType = EActionType::RANDOM_SPELL;
-	action.side = context.actor->unitSide();
-	action.stackNumber = context.actor->unitId();
-	action.aimToHex(context.hoveredHex);
-	return action;
+	return BattleAction::makeRandomSpellcast(context.actor, context.hoveredHex);
 }
 
 bool RandomSpellAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const

@@ -704,12 +704,6 @@ void BattleInterface::appendBattleLog(const std::string & newEntry)
 
 void BattleInterface::startAction(const BattleAction & action)
 {
-	if(action.actionType == EActionType::END_TACTIC_PHASE)
-	{
-		windowObject->tacticPhaseEnded();
-		return;
-	}
-
 	stacksController->startAction(action);
 
 	if (!action.isUnitAction())

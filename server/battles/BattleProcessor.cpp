@@ -348,8 +348,14 @@ bool BattleProcessor::makePlayerBattleAction(const BattleID & battleID, PlayerCo
 	if (!battle)
 		return false;
 
+	const bool tacticsPhase = battle->battleGetTacticDist() != 0;
 	bool result = actionsProcessor->makePlayerBattleAction(*battle, player, ba);
-	if (gameHandler->gameState().getBattle(battleID) != nullptr && !resultProcessor->battleIsEnding(*battle))
+	if (gameHandler->gameState().getBattle(battleID) == nullptr || resultProcessor->battleIsEnding(*battle))
+		return result;
+
+	if (tacticsPhase && battle->battleGetTacticDist() == 0)
+		flowProcessor->onTacticsEnded(*battle);
+	else
 		flowProcessor->onActionMade(*battle, ba, result);
 	return result;
 }

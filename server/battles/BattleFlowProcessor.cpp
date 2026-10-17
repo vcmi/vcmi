@@ -624,12 +624,6 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 {
 	const auto * actedStack = battle.battleGetStackByID(ba.stackNumber, false);
 	const auto * activeStack = battle.battleActiveUnit();
-	if (ba.actionType == EActionType::END_TACTIC_PHASE)
-	{
-		onTacticsEnded(battle);
-		return;
-	}
-
 
 	//we're after action, all results applied
 

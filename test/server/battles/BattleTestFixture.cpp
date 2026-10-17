@@ -293,13 +293,7 @@ bool BattleTestFixture::castAsHero(const CGHeroInstance * hero, const SpellID & 
 		}
 	}
 
-	BattleAction action;
-	action.actionType = EActionType::HERO_SPELL;
-	action.side = side;
-	action.spell = spellID;
-	action.setTarget(target);
-
-	return act(action);
+	return act(BattleAction::makeHeroSpellcast(side, target, spellID));
 }
 
 bool BattleTestFixture::castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const CStack * target)

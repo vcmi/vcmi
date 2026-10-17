@@ -153,6 +153,26 @@ BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, con
 	return ba;
 }
 
+BattleAction BattleAction::makeHeroSpellcast(BattleSide side, const battle::Target & target, const SpellID & spellID)
+{
+	BattleAction ba;
+	ba.actionType = EActionType::HERO_SPELL;
+	ba.spell = spellID;
+	ba.setTarget(target);
+	ba.side = side;
+	return ba;
+}
+
+BattleAction BattleAction::makeRandomSpellcast(const battle::Unit * stack, const BattleHex & destination)
+{
+	BattleAction ba;
+	ba.actionType = EActionType::RANDOM_SPELL;
+	ba.side = stack->unitSide();
+	ba.stackNumber = stack->unitId();
+	ba.aimToHex(destination);
+	return ba;
+}
+
 BattleAction BattleAction::makeWalkAndCast(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID)
 {
 	BattleAction ba;

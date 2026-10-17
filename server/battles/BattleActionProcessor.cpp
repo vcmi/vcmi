@@ -292,6 +292,13 @@ public:
 	{
 		processor.gameHandler->giveResource(player, resource, amount);
 	}
+
+	void endTacticsPhase() override
+	{
+		BattleTacticsEnded pack;
+		pack.battleID = battle.getBattle()->getBattleID();
+		processor.gameHandler->sendAndApply(pack);
+	}
 };
 
 bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & battle, const BattleAction & requested)

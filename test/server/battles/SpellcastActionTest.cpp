@@ -53,12 +53,7 @@ public:
 
 	static BattleAction randomSpell(const CStack * genie, const BattleHex & targetHex)
 	{
-		BattleAction action;
-		action.side = genie->unitSide();
-		action.stackNumber = genie->unitId();
-		action.actionType = EActionType::RANDOM_SPELL;
-		action.aimToHex(targetHex);
-		return action;
+		return BattleAction::makeRandomSpellcast(genie, targetHex);
 	}
 };
 
@@ -413,7 +408,7 @@ class SpellOptionTest : public SpellcastActionTest
 public:
 	static ActionOption heroOption(SpellID spell)
 	{
-		return BattleActionType::makeSpellOption(EActionType::HERO_SPELL, spell);
+		return BattleActionType::makeHeroSpellOption(spell);
 	}
 
 	/// Query of the attacking hero about the hex, after the destinations chosen earlier

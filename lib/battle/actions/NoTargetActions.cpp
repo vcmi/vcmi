@@ -133,6 +133,7 @@ bool EndTacticsAction::validate(const IGameInfoCallback & game, const CBattleInf
 
 void EndTacticsAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
+	env.endTacticsPhase();
 }
 
 bool RetreatAction::isTacticsAction() const

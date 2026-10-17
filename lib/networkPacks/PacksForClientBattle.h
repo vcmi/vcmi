@@ -56,6 +56,20 @@ struct DLL_LINKAGE BattleNextRound : public CPackForClient
 	}
 };
 
+/// Ends the tactics phase of the battle
+struct DLL_LINKAGE BattleTacticsEnded : public CPackForClient
+{
+	BattleID battleID = BattleID::NONE;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & battleID;
+		assert(battleID != BattleID::NONE);
+	}
+};
+
 struct DLL_LINKAGE BattleSetActiveStack : public CPackForClient
 {
 	BattleID battleID = BattleID::NONE;

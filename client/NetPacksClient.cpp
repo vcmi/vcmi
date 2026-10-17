@@ -827,6 +827,11 @@ void ApplyClientNetPackVisitor::visitBattleNextRound(BattleNextRound & pack)
 	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleNewRound, pack.battleID);
 }
 
+void ApplyClientNetPackVisitor::visitBattleTacticsEnded(BattleTacticsEnded & pack)
+{
+	callBattleInterfaceIfPresentForBothSides(cl, pack.battleID, &IBattleEventsReceiver::battleTacticsEnded, pack.battleID);
+}
+
 void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack & pack)
 {
 	if(pack.reason == BattleUnitTurnReason::AUTOMATIC_ACTION)

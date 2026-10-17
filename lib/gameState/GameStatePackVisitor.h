@@ -114,6 +114,7 @@ public:
 	void visitSetRewardableConfiguration(SetRewardableConfiguration & pack) override;
 	void visitBattleSetStackProperty(BattleSetStackProperty & pack) override;
 	void visitBattleNextRound(BattleNextRound & pack) override;
+	void visitBattleTacticsEnded(BattleTacticsEnded & pack) override;
 	void visitBattleCancelled(BattleCancelled & pack) override;
 	void visitBattleResultsApplied(BattleResultsApplied & pack) override;
 	void visitBattleEnded(BattleEnded & pack) override;
