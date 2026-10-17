@@ -1234,18 +1234,10 @@ public:
 				evaluationContext.involvesSailing = true;
 		}
 
-		float highestCostForSingleHero = 0;
 		for(auto pair : costsPerHero)
 		{
 			auto role = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(pair.first);
 			evaluationContext.movementCostByRole.at(static_cast<size_t>(role)) += pair.second;
-			if (pair.second > highestCostForSingleHero)
-				highestCostForSingleHero = pair.second;
-		}
-		if (highestCostForSingleHero > 1 && costsPerHero.size() > 1)
-		{
-			//Chains that involve more than 1 hero doing something for more than a turn are too expensive in my book. They often involved heroes doing nothing just standing there waiting to fulfill their part of the chain.
-			return;
 		}
 		evaluationContext.movementCost *= costsPerHero.size(); //further deincentivise chaining as it often involves bringing back the army afterwards
 
