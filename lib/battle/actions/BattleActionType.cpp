@@ -26,24 +26,24 @@
 #include "../../spells/ISpellMechanics.h"
 #include "../../spells/Problem.h"
 
-static constexpr SkipTurnAction skipTurnAction;
-static constexpr BadMoraleAction badMoraleAction;
-static constexpr WaitAction waitAction;
-static constexpr DefendAction defendAction;
-static constexpr EndTacticsAction endTacticsAction;
-static constexpr RetreatAction retreatAction;
-static constexpr SurrenderAction surrenderAction;
-static constexpr WalkAction walkAction;
-static constexpr ShootAction shootAction;
-static constexpr HealAction healAction;
-static constexpr CatapultAction catapultAction;
-static constexpr WalkAndAttackAction walkAndAttackAction;
-static constexpr WalkAndAttackNoReturnAction walkAndAttackNoReturnAction;
-static constexpr LongWeaponAttackAction longWeaponAttackAction;
-static constexpr HeroSpellAction heroSpellAction;
-static constexpr UnitSpellAction unitSpellAction;
-static constexpr RandomSpellAction randomSpellAction;
-static constexpr WalkAndCastAction walkAndCastAction;
+static const SkipTurnAction skipTurnAction;
+static const BadMoraleAction badMoraleAction;
+static const WaitAction waitAction;
+static const DefendAction defendAction;
+static const EndTacticsAction endTacticsAction;
+static const RetreatAction retreatAction;
+static const SurrenderAction surrenderAction;
+static const WalkAction walkAction;
+static const ShootAction shootAction;
+static const HealAction healAction;
+static const CatapultAction catapultAction;
+static const WalkAndAttackAction walkAndAttackAction;
+static const WalkAndAttackNoReturnAction walkAndAttackNoReturnAction;
+static const LongWeaponAttackAction longWeaponAttackAction;
+static const HeroSpellAction heroSpellAction;
+static const UnitSpellAction unitSpellAction;
+static const RandomSpellAction randomSpellAction;
+static const WalkAndCastAction walkAndCastAction;
 
 struct RegisteredActionType
 {

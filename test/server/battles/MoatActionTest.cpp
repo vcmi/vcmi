@@ -54,7 +54,7 @@ TEST_P(MoatActionTest, actingInsideMoatTriggersIt)
 
 	CStack * unit = addStack(BattleSide::ATTACKER, CreatureID(scenario.creature), unitHex, stackCount);
 	CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
-	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	addMoat(unitHex);
 
 	// so that the only damage the unit takes is the moat's
