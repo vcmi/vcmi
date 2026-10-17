@@ -124,8 +124,6 @@ EvaluationContext::EvaluationContext(const Nullkiller* aiNk)
 	isHero(false),
 	isEnemy(false),
 	isOneWayPortalProbe(false),
-	unusableCreatureBankReward(false),
-	preparesForCreatureBankReward(false),
 	explorePriority(0),
 	powerRatio(0)
 {
@@ -280,13 +278,16 @@ static uint64_t evaluateArtifactArmyValue(const CArtifact * art)
 	return getPotentialArtifactScore(art);
 }
 
-static CreatureRewardValueInfo makeCreatureRewardValueInfo(std::pair<uint64_t, uint64_t> minMaxValue)
+static CreatureRewardValueInfo makeCreatureRewardValueInfo(
+	std::pair<uint64_t, uint64_t> minMaxValue,
+	std::pair<uint64_t, uint64_t> minMaxImprovement,
+	bool canMergeWithArmy)
 {
-	if(minMaxValue.second == 0)
-		return {CreatureRewardValueInfo::State::UNUSABLE, minMaxValue};
-	if(minMaxValue.first == 0)
-		return {CreatureRewardValueInfo::State::DEPENDS_ON_TIER, minMaxValue};
-	return {CreatureRewardValueInfo::State::USABLE, minMaxValue};
+	if(minMaxImprovement.second == 0)
+		return {CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT, minMaxValue, canMergeWithArmy};
+	if(minMaxImprovement.first == 0)
+		return {CreatureRewardValueInfo::State::IMPROVEMENT_DEPENDS_ON_TIER, minMaxValue, canMergeWithArmy};
+	return {CreatureRewardValueInfo::State::IMPROVES_ARMY, minMaxValue, canMergeWithArmy};
 }
 
 RewardEvaluationResult RewardEvaluator::evaluateRewards(const RewardEvaluationRequest & request) const
@@ -295,9 +296,9 @@ RewardEvaluationResult RewardEvaluator::evaluateRewards(const RewardEvaluationRe
 	const auto rewardableInfo = aiNk->cc->getRewardableObjectInfo(request.target, request.hero);
 	const RewardableObjectInfo * cachedRewardableInfo = rewardableInfo ? &*rewardableInfo : nullptr;
 
-	result.creatureReward = getCreatureReward(request, cachedRewardableInfo);
+	result.creatureRewardValue = getCreatureRewardValue(request, cachedRewardableInfo);
 	result.goldReward = getGoldReward(request.target, request.hero, cachedRewardableInfo);
-	result.armyReward = getArmyReward(request, cachedRewardableInfo, result.creatureReward);
+	result.armyReward = getArmyReward(request, cachedRewardableInfo, result.creatureRewardValue);
 	result.armyGrowth = getArmyGrowth(request);
 	result.skillReward = getSkillReward(request, cachedRewardableInfo);
 	result.strategicalValue = getStrategicalValue(request.target, cachedRewardableInfo);
@@ -309,7 +310,7 @@ RewardEvaluationResult RewardEvaluator::evaluateRewards(const RewardEvaluationRe
 CreatureRewardValueInfo RewardEvaluator::getCreatureReward(const RewardEvaluationRequest & request) const
 {
 	const auto rewardableInfo = aiNk->cc->getRewardableObjectInfo(request.target, request.hero);
-	return getCreatureReward(request, rewardableInfo ? &*rewardableInfo : nullptr);
+	return getCreatureRewardValue(request, rewardableInfo ? &*rewardableInfo : nullptr);
 }
 
 uint64_t RewardEvaluator::calculateRewardArmyValue(const RewardableObjectInfo * rewardableInfo, const CreatureRewardValueInfo & creatureReward) const
@@ -320,14 +321,11 @@ uint64_t RewardEvaluator::calculateRewardArmyValue(const RewardableObjectInfo * 
 	{
 		for(const auto & reward : rewardableInfo->rewards)
 		{
-			uint64_t rewardValue = 0;
-
 			for(auto artID : reward.grantedArtifacts)
-				rewardValue += evaluateArtifactArmyValue(artID.toArtifact());
+				totalValue += evaluateArtifactArmyValue(artID.toArtifact());
 
 			for(auto scroll : reward.grantedScrolls)
-				rewardValue += evaluateSpellScrollArmyValue(scroll);
-			totalValue += rewardValue;
+				totalValue += evaluateSpellScrollArmyValue(scroll);
 		}
 
 		if(creatureReward.state != CreatureRewardValueInfo::State::UNKNOWN)
@@ -373,7 +371,7 @@ uint64_t RewardEvaluator::getArmyReward(const RewardEvaluationRequest & request,
 	return calculateRewardArmyValue(rewardableInfo, creatureReward);
 }
 
-CreatureRewardValueInfo RewardEvaluator::getCreatureReward(const RewardEvaluationRequest & request, const RewardableObjectInfo * rewardableInfo) const
+CreatureRewardValueInfo RewardEvaluator::getCreatureRewardValue(const RewardEvaluationRequest & request, const RewardableObjectInfo * rewardableInfo) const
 {
 	if(!request.hero || !request.army || !rewardableInfo)
 		return {};
@@ -381,27 +379,45 @@ CreatureRewardValueInfo RewardEvaluator::getCreatureReward(const RewardEvaluatio
 		return {};
 
 	const auto terrain = aiNk->cc->getTile(request.target->visitablePos())->getTerrainID();
-	const auto evaluateCreatures = [&](const std::vector<CStackBasicDescriptor> & creatures)
+	bool canMergeWithArmy = true;
+	const auto evaluateCreatures = [this, &request, terrain, &canMergeWithArmy](const std::vector<CStackBasicDescriptor> & creatures)
 	{
 		CCreatureSet rewardArmy;
 		for(const auto & creature : creatures)
-			rewardArmy.addToSlot(rewardArmy.getSlotFor(creature.getId()), creature.getId(), creature.getCount());
+		{
+			const auto slot = rewardArmy.getSlotFor(creature.getId());
+			if(!slot.validSlot())
+			{
+				canMergeWithArmy = false;
+				return std::pair<uint64_t, uint64_t>{0, 0};
+			}
+			rewardArmy.addToSlot(slot, creature.getId(), creature.getCount());
+		}
+
+		const bool rewardFits = request.army->canBeMergedWith(rewardArmy, true);
+		canMergeWithArmy &= rewardFits;
 
 		const auto bestArmyInfo = aiNk->armyManager->getBestArmyInfo(request.hero, request.army, &rewardArmy, terrain);
-		return bestArmyInfo.sourceStrength ? bestArmyInfo.strengthGain : 0;
+		const uint64_t improvement = bestArmyInfo.sourceStrength ? bestArmyInfo.strengthGain : 0;
+		const uint64_t value = rewardFits ? std::max(improvement, rewardArmy.getArmyStrength()) : improvement;
+		return std::pair<uint64_t, uint64_t>{value, improvement};
 	};
 
-	uint64_t result = 0;
+	uint64_t resultValue = 0;
+	uint64_t resultImprovement = 0;
 	bool hasCreatureReward = false;
 	for(const auto & reward : rewardableInfo->rewards)
 	{
 		if(reward.creatures.empty())
 			continue;
 		hasCreatureReward = true;
-		result += evaluateCreatures(reward.creatures);
+		const auto [value, improvement] = evaluateCreatures(reward.creatures);
+		resultValue += value;
+		resultImprovement += improvement;
 	}
 	if(hasCreatureReward || rewardableInfo->rewardValueKnown || request.target->ID != Obj::CREATURE_BANK)
-		return makeCreatureRewardValueInfo({result, result});
+		return makeCreatureRewardValueInfo(
+			{resultValue, resultValue}, {resultImprovement, resultImprovement}, canMergeWithArmy);
 
 	const auto objectInfo = request.target->getObjectHandler()->getObjectInfo();
 
@@ -412,19 +428,20 @@ CreatureRewardValueInfo RewardEvaluator::getCreatureReward(const RewardEvaluatio
 	const auto * rewardable = dynamic_cast<const Rewardable::Info *>(objectInfo.get());
 	if(!rewardable)
 		return {};
-
 	const auto possibleRewards = rewardable->getPossibleCreatureRewards();
 	if(possibleRewards.empty())
 		return {};
-
 	std::pair<uint64_t, uint64_t> minMaxValue = {std::numeric_limits<uint64_t>::max(), 0};
+	std::pair<uint64_t, uint64_t> minMaxImprovement = {std::numeric_limits<uint64_t>::max(), 0};
 	for(const auto & reward : possibleRewards)
 	{
-		const auto value = evaluateCreatures(reward);
+		const auto [value, improvement] = evaluateCreatures(reward);
 		minMaxValue.first = std::min(minMaxValue.first, value);
 		minMaxValue.second = std::max(minMaxValue.second, value);
+		minMaxImprovement.first = std::min(minMaxImprovement.first, improvement);
+		minMaxImprovement.second = std::max(minMaxImprovement.second, improvement);
 	}
-	return makeCreatureRewardValueInfo(minMaxValue);
+	return makeCreatureRewardValueInfo(minMaxValue, minMaxImprovement, canMergeWithArmy);
 }
 
 uint64_t RewardEvaluator::getArmyGrowth(const RewardEvaluationRequest & request) const
@@ -959,7 +976,6 @@ public:
 		evaluationContext.movementCost += path.movementCost();
 		evaluationContext.movementCostByRole.at(static_cast<size_t>(heroRole)) += path.movementCost();
 		vstd::amax(evaluationContext.turn, path.turn());
-		evaluationContext.preparesForCreatureBankReward = true;
 	}
 };
 
@@ -1246,13 +1262,6 @@ public:
 		{
 			RewardEvaluationRequest rewardEvalRequest { .target=target, .hero=hero, .army=army, .heroRole=heroRole, .considerRecruitmentCost=checkGold };
 			const auto rewards = evaluationContext.evaluator.evaluateRewards(rewardEvalRequest);
-			if(target->ID == Obj::CREATURE_BANK)
-			{
-				const auto objectInfo = target->getObjectHandler()->getObjectInfo();
-				evaluationContext.unusableCreatureBankReward |= objectInfo
-					&& rewards.creatureReward.state == CreatureRewardValueInfo::State::UNUSABLE
-					&& objectInfo->givesCreatures();
-			}
 
 			evaluationContext.goldReward += rewards.goldReward;
 			evaluationContext.armyReward += rewards.armyReward;
@@ -1603,10 +1612,6 @@ float PriorityEvaluator::evaluate(
 {
 	if(task->goalType == Goals::ATTACK_ONE_WAY_PORTAL_GUARD)
 		return priorityTier == PriorityTier::ESCAPE ? 1.0f : 0.0f;
-
-	// hero will not improve army (7 strong stacks already) and no nearby hero that could take a stack to free a slot
-	if(evaluationContext.unusableCreatureBankReward && !evaluationContext.preparesForCreatureBankReward)
-		return 0;
 
 	const bool amIWithoutCastle = aiNk->cc->getPlayerState(aiNk->playerID)->daysWithoutCastle.has_value();
 	double result = 0;

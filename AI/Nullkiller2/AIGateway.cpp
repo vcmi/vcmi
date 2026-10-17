@@ -756,11 +756,13 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				if(answer && objType == Obj::CREATURE_BANK)
 				{
 					const auto objectInfo = topObj->getObjectHandler()->getObjectInfo();
-					if(objectInfo && objectInfo->givesCreatures())
+					if(objectInfo && objectInfo->givesOnlyCreatures())
 					{
 						const auto creatureReward = RewardEvaluator(nullkiller.get()).getCreatureReward({topObj, heroPtr.get(), heroPtr.get(), HeroRole::SCOUT, false});
-						if(creatureReward.state == CreatureRewardValueInfo::State::UNUSABLE
-							|| creatureReward.state == CreatureRewardValueInfo::State::DEPENDS_ON_TIER)
+						const bool cannotMerge = creatureReward.canMergeWithArmy && !*creatureReward.canMergeWithArmy;
+						if(cannotMerge
+							&& (creatureReward.state == CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT
+								|| creatureReward.state == CreatureRewardValueInfo::State::IMPROVEMENT_DEPENDS_ON_TIER))
 							answer = false;
 					}
 				}
