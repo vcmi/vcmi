@@ -16,6 +16,7 @@
 #include "../battle/BattleInfo.h"
 #include "../battle/BattleHexArray.h"
 #include "../battle/BattleUnitTurnReason.h"
+#include "../battle/UnitTurnStatus.h"
 #include "../filesystem/ResourcePath.h"
 #include "../mapObjects/army/CStackBasicDescriptor.h"
 #include "../texts/MetaString.h"
@@ -305,6 +306,10 @@ struct DLL_LINKAGE StartAction : public CPackForClient
 
 	BattleID battleID = BattleID::NONE;
 	BattleAction ba;
+	/// New turn status of the acting unit, if the action changes it
+	std::optional<battle::UnitTurnStatus> turnStatus;
+	/// The acting unit uses up its spellcasting for this turn
+	bool castSpellThisTurn = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -312,6 +317,8 @@ struct DLL_LINKAGE StartAction : public CPackForClient
 	{
 		h & battleID;
 		h & ba;
+		h & turnStatus;
+		h & castSpellThisTurn;
 		assert(battleID != BattleID::NONE);
 	}
 };

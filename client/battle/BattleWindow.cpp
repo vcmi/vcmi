@@ -929,7 +929,7 @@ void BattleWindow::blockUI(bool on)
 		canCastSpells = spellcastingProblem == ESpellCastProblem::OK || spellcastingProblem == ESpellCastProblem::MAGIC_IS_BLOCKED;
 	}
 
-	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisTurn : false;
+	bool canWait = owner.stacksController->getActiveStack() ? !owner.stacksController->getActiveStack()->waitedThisRound() : false;
 	bool tacticsMode = owner.isInTacticsMode();
 
 	setShortcutBlocked(EShortcut::GLOBAL_OPTIONS, on);

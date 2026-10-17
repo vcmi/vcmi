@@ -329,8 +329,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	// for these events client does not expects StartAction/EndAction wrapper
 	if (!ba.isBattleEndAction())
 	{
-		StartAction startAction(ba);
-		startAction.battleID = battle.getBattle()->getBattleID();
+		StartAction startAction = BattleActionType::makeStartAction(battle, ba);
 		gameHandler->sendAndApply(startAction);
 	}
 

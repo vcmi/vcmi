@@ -293,15 +293,17 @@ BattleAction UnitSpellAction::makeAction(const ActionOption & option, const Acti
 	return BattleAction::makeCreatureSpellcast(context.actor, target, option.spell);
 }
 
-void UnitSpellAction::applyStartState(battle::CUnitState & actor, const BattleAction & action) const
+std::optional<battle::UnitTurnStatus> UnitSpellAction::getStartTurnStatus(const BattleAction & action) const
 {
 	// a spell cast without skipping the turn leaves the unit able to act
-	if(!action.spell.toSpell()->canCastWithoutSkip())
-	{
-		actor.waiting = false;
-		actor.movedThisRound = true;
-	}
-	actor.castSpellThisTurn = true;
+	if(action.spell.toSpell()->canCastWithoutSkip())
+		return std::nullopt;
+	return battle::UnitTurnStatus::ACTED;
+}
+
+bool UnitSpellAction::usesUnitSpellcast() const
+{
+	return true;
 }
 
 void UnitSpellAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
@@ -385,10 +387,9 @@ bool RandomSpellAction::validate(const IGameInfoCallback & game, const CBattleIn
 	return true;
 }
 
-void RandomSpellAction::applyStartState(battle::CUnitState & actor, const BattleAction & action) const
+bool RandomSpellAction::usesUnitSpellcast() const
 {
-	BattleActionType::applyStartState(actor, action);
-	actor.castSpellThisTurn = true;
+	return true;
 }
 
 void RandomSpellAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const

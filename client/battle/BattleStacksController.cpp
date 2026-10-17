@@ -529,7 +529,7 @@ void BattleStacksController::stacksAreAttacked(std::vector<StackAttackedInfo> at
 	for(auto & attackedInfo : attackedInfos)
 	{
 		bool useDeathAnim   = attackedInfo.killed;
-		bool useDefenceAnim = attackedInfo.defender->defending && !attackedInfo.indirectAttack && !attackedInfo.killed;
+		bool useDefenceAnim = attackedInfo.defender->defended() && !attackedInfo.indirectAttack && !attackedInfo.killed;
 
 		EAnimationEvents usedEvent = useDefenceAnim ? EAnimationEvents::ATTACK : EAnimationEvents::HIT;
 

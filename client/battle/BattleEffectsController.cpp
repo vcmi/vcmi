@@ -28,7 +28,6 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
-#include "../../lib/battle/actions/BattleActionType.h"
 #include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -139,13 +138,6 @@ void BattleEffectsController::startAction(const BattleAction & action)
 	owner.checkForAnimations();
 
 	const CStack *stack = owner.getBattle()->battleGetStackByID(action.stackNumber);
-
-	if(const auto * type = BattleActionType::find(action))
-	{
-		MetaString logLine = type->getStartLogLine(*owner.getBattle(), action);
-		if(!logLine.empty())
-			owner.appendBattleLog(logLine.toString(&GAME->translator()));
-	}
 
 	if(action.actionType == EActionType::BAD_MORALE)
 	{

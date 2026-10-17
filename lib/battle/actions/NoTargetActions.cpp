@@ -35,9 +35,9 @@ void SkipTurnAction::apply(IBattleActionEnvironment & env, const CBattleInfoCall
 {
 }
 
-MetaString BadMoraleAction::getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const
+void BadMoraleAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
-	return getActor(battle, action).formatGeneralMessage(-34);
+	env.addBattleLogLine(getActor(battle, action).formatGeneralMessage(-34));
 }
 
 bool WaitAction::isUnitAction() const
@@ -50,23 +50,18 @@ bool WaitAction::validate(const IGameInfoCallback & game, const CBattleInfoCallb
 	return checkUnitCanAct(battle, battle.battleGetUnitByID(action.stackNumber), problem);
 }
 
-void WaitAction::applyStartState(battle::CUnitState & actor, const BattleAction & action) const
+std::optional<battle::UnitTurnStatus> WaitAction::getStartTurnStatus(const BattleAction & action) const
 {
-	actor.waiting = true;
-	actor.waitedThisTurn = true;
+	return battle::UnitTurnStatus::WAITING;
 }
 
 void WaitAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
 	const battle::Unit & unit = getActor(battle, action);
 
+	env.addBattleLogLine(unit.formatGeneralMessage(136));
 	env.fireCombatEvent(CombatEventType::WAIT, &unit, nullptr, nullptr);
 	env.triggerObstaclesUnder(unit);
-}
-
-MetaString WaitAction::getStartLogLine(const CBattleInfoCallback & battle, const BattleAction & action) const
-{
-	return getActor(battle, action).formatGeneralMessage(136);
 }
 
 bool DefendAction::isUnitAction() const
@@ -79,10 +74,9 @@ bool DefendAction::validate(const IGameInfoCallback & game, const CBattleInfoCal
 	return checkUnitCanAct(battle, battle.battleGetUnitByID(action.stackNumber), problem);
 }
 
-void DefendAction::applyStartState(battle::CUnitState & actor, const BattleAction & action) const
+std::optional<battle::UnitTurnStatus> DefendAction::getStartTurnStatus(const BattleAction & action) const
 {
-	actor.defending = true;
-	actor.waiting = false;
+	return battle::UnitTurnStatus::DEFENDED;
 }
 
 void DefendAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const

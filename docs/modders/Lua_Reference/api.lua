@@ -1839,7 +1839,7 @@ function Unit:getLevel() end
 ---@return integer
 function Unit:unitID() end
 
----Editable copy of a battle Unit. Obtained via `Unit:copy()`; scripts edit fields (position, defending, clone, summoned, …) and inflict damage locally, then hand the result to ServerCallback `changeUnit` or `addUnit` to broadcast the update through a battle pack.
+---Editable copy of a battle Unit. Obtained via `Unit:copy()`; scripts edit fields (position, clone, summoned, …) and inflict damage locally, then hand the result to ServerCallback `changeUnit` or `addUnit` to broadcast the update through a battle pack.
 ---@class UnitState
 local UnitState = {}
 
@@ -1942,10 +1942,6 @@ function UnitState:getCreature() end
 ---@return BattleHexArray
 function UnitState:getHexes() end
 
----Sets whether unit has defended in this round.
----@param value boolean # New defending flag.
-function UnitState:setDefending(value) end
-
 ---Marks the stack as a clone.
 ---@param value boolean # New cloned flag.
 function UnitState:setCloned(value) end
@@ -1974,21 +1970,9 @@ function UnitState:setGhost(value) end
 ---@param value boolean # New ghost-pending flag.
 function UnitState:setGhostPending(value) end
 
----Marks that the unit has moved this round.
----@param value boolean # New moved-this-round flag.
-function UnitState:setMoved(value) end
-
 ---Marks the unit as summoned during combat.
 ---@param value boolean # New summoned flag.
 function UnitState:setSummoned(value) end
-
----Marks that the unit is currently waiting.
----@param value boolean # New waiting flag.
-function UnitState:setWaiting(value) end
-
----Marks that the unit has already used its wait this turn.
----@param value boolean # New waited-this-turn flag.
-function UnitState:setWaitedThisTurn(value) end
 
 ---Moves the unit to the given hex.
 ---@param hex BattleHex # Destination hex for the unit.
