@@ -5,7 +5,7 @@
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{額外反擊}\n每回合額外獲得${val}次反擊機會。",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{毗鄰施法}\n生物可在與目標相鄰時施放${subtype.spell}。",
 	"core.bonus.ALWAYS_MAXIMUM_DAMAGE.description": "{最大傷害}\n單位始終造成最大傷害。",
-	"core.bonus.ATTACKS_ALL_ADJACENT.description": "{環擊}\n攻擊所有相鄰敵人。",
+	"core.bonus.ATTACKS_ALL_ADJACENT.description": "{全方位攻擊}\n此單位攻擊所有靠近的敵人。",
 	"core.bonus.BLOCKS_RANGED_RETALIATION.description": "{遠程無反擊}\n敵人無法對射擊進行反擊。",
 	"core.bonus.BLOCKS_RETALIATION.description": "{無反擊}\n敵人無法反擊。",
 	"core.bonus.CATAPULT.description": "{攻城}\n可以攻擊城牆。",
