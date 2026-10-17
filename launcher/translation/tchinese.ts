@@ -6,7 +6,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="22"/>
         <source>VCMI on Discord</source>
-        <translation>訪問VCMI的Discord</translation>
+        <translation>VCMI 的 Discord</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
@@ -16,12 +16,12 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
-        <translation>訪問VCMI的Github</translation>
+        <translation>VCMI 的 Github</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="54"/>
         <source>Our Community</source>
-        <translation>聯繫社群</translation>
+        <translation>我們的社群</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="88"/>
@@ -34,7 +34,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="107"/>
         <source>Data Directories</source>
-        <translation>資料目錄</translation>
+        <translation>資料夾目錄</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="114"/>
@@ -49,7 +49,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="168"/>
         <source>Game data directory</source>
-        <translation>遊戲資料目錄</translation>
+        <translation>遊戲資料夾目錄</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="175"/>
@@ -59,7 +59,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="182"/>
         <source>User data directory</source>
-        <translation>用戶資料目錄</translation>
+        <translation>用戶資料夾目錄</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="189"/>
@@ -69,7 +69,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="220"/>
         <source>Build Information</source>
-        <translation>編譯資訊</translation>
+        <translation>建構資訊</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="227"/>
@@ -121,23 +121,23 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
         <source>Failed to save archive to selected destination</source>
-        <translation>無法將歸檔儲存到所選目標位置</translation>
+        <translation>無法將存檔封存至所選的目的地</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Select destination file</source>
-        <translation>選擇目標檔案</translation>
+        <translation>選擇目的地檔案</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation>請選擇目標檔案，並將歸檔文件儲存為 vcmi-saves.zip。</translation>
+        <translation>請選擇目的地檔案，並將存檔封存為 vcmi-saves.zip。</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
-        <translation>Zip 壓縮包 (*.zip);;所有檔案 (*.*)</translation>
+        <translation>Zip 封存檔 (*.zip);;所有檔案 (*.*)</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
@@ -158,7 +158,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
         <source>Failed to create archive: %1</source>
-        <translation>建立壓縮檔失敗：%1</translation>
+        <translation>無法建立封存檔：%1</translation>
     </message>
     <message>
         <source>Send logs</source>
@@ -186,7 +186,7 @@
     <message>
         <location filename="../modManager/cdownloadmanager_moc.cpp" line="171"/>
         <source>Failed to copy file %1</source>
-        <translation>無法複製文件 %1</translation>
+        <translation>無法複製檔案 %1</translation>
     </message>
 </context>
 <context>
@@ -219,7 +219,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="89"/>
         <source>Active</source>
-        <translation>啟用</translation>
+        <translation>已啟用</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="94"/>
@@ -234,12 +234,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
         <source>Description</source>
-        <translation>詳細介紹</translation>
+        <translation>描述</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="214"/>
         <source>Changelog</source>
-        <translation>修改日誌</translation>
+        <translation>更新日誌</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="236"/>
@@ -338,12 +338,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
         <source>Git-Repository</source>
-        <translation>Git來源</translation>
+        <translation>Git 來源</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>GitHub-Stars</source>
-        <translation>GitHub星標</translation>
+        <translation>GitHub 星標</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
@@ -354,12 +354,12 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
         <source>Required VCMI version</source>
-        <translation>需要VCMI版本</translation>
+        <translation>需要的 VCMI 版本</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>Supported VCMI version</source>
-        <translation>支援的VCMI版本</translation>
+        <translation>支援的 VCMI 版本</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
@@ -374,7 +374,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="406"/>
         <source>Supported VCMI versions</source>
-        <translation>支援的VCMI版本</translation>
+        <translation>支援的 VCMI 版本</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="422"/>
@@ -384,7 +384,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
         <source>Required mods</source>
-        <translation>前置模組</translation>
+        <translation>所需的模組</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
@@ -394,22 +394,22 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="437"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation>這個模組無法啟用，因為它被翻譯成其他語言。</translation>
+        <translation>這個模組無法啟用，因為它翻譯成不同的語言。</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="438"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation>這個模組無法啟用，因為下列依賴不滿足</translation>
+        <translation>這個模組無法啟用，因為缺少以下依賴項目</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="439"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation>這個模組無法安裝，因為下列依賴不滿足</translation>
+        <translation>這個模組無法啟用，因為缺少以下依賴項目</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="440"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
-        <translation>這是一個子模組，無法脫離所屬模組單獨安裝或解除安裝</translation>
+        <translation>這是一個子模組，無法與所屬的主模組分開安裝或解除安裝</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="459"/>
@@ -424,7 +424,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="584"/>
         <source>Open directory</source>
-        <translation>開啟目錄</translation>
+        <translation>開啟資料夾</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="589"/>
@@ -462,7 +462,7 @@ Encountered errors:
 </source>
         <translation>無法下載全部檔案。
 
-遇到問題：
+遇到錯誤：
 
 </translation>
     </message>
@@ -516,7 +516,7 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
         <source>Installing Heroes Chronicles</source>
-        <translation>安裝歷代記</translation>
+        <translation>正在安裝魔法門英雄誌</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1291"/>
@@ -531,7 +531,7 @@ Please report this issue to developers</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation>您必須選擇一個歷代記安裝檔案！</translation>
+        <translation>您必須選擇一個魔法門英雄誌安裝檔案！</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1425"/>
@@ -587,7 +587,7 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
         <source>Mods disabled</source>
-        <translation>模組已禁用</translation>
+        <translation>模組已停用</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
@@ -608,17 +608,17 @@ Reason: %2</source>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation>地圖 &apos;%1&apos; 已存在。要覆蓋嗎？</translation>
+        <translation>地圖 &apos;%1&apos; 已存在，你要覆蓋它嗎？</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1062"/>
         <source>Yes to All</source>
-        <translation>全部是</translation>
+        <translation>全部皆是</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1063"/>
         <source>No to All</source>
-        <translation>全部否</translation>
+        <translation>全部皆非</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
@@ -677,7 +677,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="68"/>
         <source>Full</source>
-        <translation>完備</translation>
+        <translation>完全</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="112"/>
@@ -708,7 +708,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="226"/>
         <source>VCMI Language</source>
-        <translation>VCMI語言</translation>
+        <translation>VCMI 語言</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="252"/>
@@ -773,7 +773,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="392"/>
         <source>Heroes III Translation</source>
-        <translation>英雄無敵3翻譯</translation>
+        <translation>英雄無敵 III 翻譯</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="420"/>
@@ -870,7 +870,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="630"/>
         <source>Show Status in Discord</source>
-        <translation>在Discord上顯示狀態</translation>
+        <translation>在 Discord 上顯示狀態</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="685"/>
@@ -885,7 +885,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="699"/>
         <source>Handle back as right mouse button</source>
-        <translation>將返回鍵視為右鍵</translation>
+        <translation>將返回鍵視為滑鼠右鍵</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="706"/>
@@ -948,7 +948,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="886"/>
         <source>Display index</source>
-        <translation>顯示器序號</translation>
+        <translation>顯示器索引</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="909"/>
@@ -958,7 +958,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="938"/>
         <source>Enemy AI in battles</source>
-        <translation>戰場敵方玩家AI</translation>
+        <translation>戰鬥敵方玩家 AI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="945"/>
@@ -978,12 +978,12 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="988"/>
         <source>Scalable</source>
-        <translation>可縮放字型</translation>
+        <translation>可縮放</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1004"/>
         <source>Show intro</source>
-        <translation>顯示開場動畫</translation>
+        <translation>播放開場動畫</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1016"/>
@@ -993,12 +993,12 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1031"/>
         <source>Video</source>
-        <translation>視訊設定</translation>
+        <translation>視訊</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1047"/>
         <source>Original</source>
-        <translation>原始字型</translation>
+        <translation>原始</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1066"/>
@@ -1018,7 +1018,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1227"/>
         <source>Autocombat AI in battles</source>
-        <translation>自動戰鬥AI</translation>
+        <translation>自動戰鬥 AI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1239"/>
@@ -1072,12 +1072,12 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
         <source>Ignore SSL errors</source>
-        <translation>忽略SSL錯誤</translation>
+        <translation>忽略 SSL 錯誤</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1362"/>
         <source>Neutral AI in battles</source>
-        <translation>戰場中立生物AI</translation>
+        <translation>戰鬥中立生物 AI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1369"/>
@@ -1092,7 +1092,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
         <source>Config editor</source>
-        <translation>設定編輯器</translation>
+        <translation>設定檔編輯器</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1463"/>
@@ -1108,18 +1108,18 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation>選擇遊戲的顯示模式：
+        <translation>選擇遊戲顯示模式
 
-視窗化 - 遊戲將在一個視窗中執行，佔用螢幕的一部分。
+視窗模式 — 遊戲將在一個覆蓋螢幕部分區域的視窗中運作。
 
-無邊框全螢幕模式 - 遊戲將在一個全螢幕視窗中執行，解析度與螢幕匹配。
+無邊框視窗模式 — 遊戲將在全螢幕視窗中運行，其解析度與你的螢幕解析度一致。
 
-獨佔全螢幕模式 - 遊戲將覆蓋整個螢幕，並使用選定的解析度。</translation>
+獨佔全螢幕模式 — 遊戲將覆蓋整個螢幕，並使用所選的解析度。</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1483"/>
         <source>Windowed</source>
-        <translation>視窗化</translation>
+        <translation>視窗模式</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1488"/>
@@ -1134,7 +1134,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1577"/>
         <source>Save Before Visit</source>
-        <translation>訪問前存檔</translation>
+        <translation>到訪前存檔</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
@@ -1164,17 +1164,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="169"/>
         <source>EmptyAI - No valid AI libraries found!</source>
-        <translation>EmptyAI - 未找到有效的 AI 函式庫！</translation>
+        <translation>EmptyAI - 找不到有效的 AI 程式庫！</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="765"/>
         <source>Active</source>
-        <translation>啟用</translation>
+        <translation>已啟用</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="770"/>
         <source>Disabled</source>
-        <translation>停用</translation>
+        <translation>已停用</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="771"/>
@@ -1198,12 +1198,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <location filename="../modManager/chroniclesextractor.cpp" line="100"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="101"/>
         <source>Heroes Chronicles</source>
-        <translation>英雄無敵歷代記</translation>
+        <translation>魔法門英雄誌</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="149"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation>英雄無敵歷代記 %1 - %2</translation>
+        <translation>魔法門英雄誌 %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1226,7 +1226,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="27"/>
         <source>Config editor</source>
-        <translation>設定編輯器</translation>
+        <translation>設定檔編輯器</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
@@ -1236,12 +1236,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
         <source>Do you want to discard changes?</source>
-        <translation>是否放棄變更？</translation>
+        <translation>你想捨棄變更？</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="123"/>
         <source>JSON file is not valid!</source>
-        <translation>JSON檔案格式錯誤！</translation>
+        <translation>JSON 檔案無效！</translation>
     </message>
 </context>
 <context>
@@ -1263,27 +1263,27 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="53"/>
         <source>Heroes III Data</source>
-        <translation>英雄無敵3資料</translation>
+        <translation>英雄無敵 III 資料</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation>預設模組</translation>
+        <translation>模組預設</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="127"/>
         <source>Select your language</source>
-        <translation>選擇您的語言</translation>
+        <translation>選擇你的語言</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="159"/>
         <source>VCMI on Github</source>
-        <translation>訪問VCMI的Github</translation>
+        <translation>VCMI 的 Github</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="166"/>
         <source>VCMI on Discord</source>
-        <translation>訪問VCMI的Discord</translation>
+        <translation>VCMI 的 Discord</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="173"/>
@@ -1299,13 +1299,13 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation>謝謝您安裝VCMI！
+        <translation>謝謝您安裝 VCMI！
 
-在您開始遊戲之前，還有幾個步驟需要完成。
+在你開始遊戲之前，還有幾個步驟需要完成。
 
-請記住，為了使用VCMI，您必須擁有《魔法門之英雄無敵3完整版》或《死亡陰影》的原始資料檔案。
+請記住，為了使用 VCMI，您必須擁有《魔法門之英雄無敵 III 完整版》或《毁滅之影》的原始資料檔案。
 
-目前不支援《英雄無敵3高畫質版》！</translation>
+目前不支援《魔法門之英雄無敵 III 高清版》！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="216"/>
@@ -1316,7 +1316,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="253"/>
         <source>Locate Heroes III data files</source>
-        <translation>定位英雄無敵3資料檔案</translation>
+        <translation>定位《英雄無敵 III》資料文件</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="287"/>
@@ -1326,17 +1326,17 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="305"/>
         <source>Use offline installer from gog.com</source>
-        <translation>使用gog.com的離線安裝程式</translation>
+        <translation>使用 gog.com 的離線安裝程式</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="318"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation>你可以手動從原版遊戲目錄中複製Maps，Data和Mp3資料夾到下方顯示的VCMI資料目錄</translation>
+        <translation>您可以手動將原始遊戲目錄中的 Maps、Data 及 Mp3 資料夾，複製到下方顯示的 VCMI 資料目錄</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="337"/>
         <source>Install gog.com files</source>
-        <translation>安裝gog.com檔案</translation>
+        <translation>安裝 gog.com 檔案</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="355"/>
@@ -1351,17 +1351,17 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="396"/>
         <source>Installing... %p%</source>
-        <translation>安裝中... %p%</translation>
+        <translation>安裝中⋯ %p%</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="425"/>
         <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
-        <translation>如果你已經在你的裝置裡準備好英雄無敵3檔案，你可以選擇這個目錄，VCMI會自動複製已存在的資料。</translation>
+        <translation>如果你的裝置上已有安裝好的 英雄無敵 III 檔案，你可以選擇該目錄，VCMI 將會自動複製現有的資料。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="450"/>
         <source>Heroes III data files</source>
-        <translation>英雄無敵3資料檔案</translation>
+        <translation>英雄無敵 III 資料檔案</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="469"/>
@@ -1371,7 +1371,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="482"/>
         <source>No Heroes III data? Download the free demo to try VCMI</source>
-        <translation>沒有英雄無敵3的資料？下載免費的試玩版資料以試用VCMI</translation>
+        <translation>沒有英雄無敵 III 的資料？下載免費試玩版體驗 VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="498"/>
@@ -1381,14 +1381,14 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
         <source>Your Heroes III data files have been successfully found.</source>
-        <translation>已成功找到英雄無敵3資料檔案。</translation>
+        <translation>已成功找到英雄無敵 III 資料檔案。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="543"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation>如果你已經在gog.com擁有了英雄無敵3，你可以從gog.com下載離線安裝程式。VCMI將會透過離線安裝程式匯入英雄無敵3資料
-離線安裝程式包含兩部分：exe檔案和bin檔案。請確保這兩部分都已下載。</translation>
+        <translation>如果你在 gog.com 擁有英雄無敵 III，可以從 gog.com 下載離線備份安裝檔。VCMI 會利用該離線安裝檔匯入英雄無敵 III 的資料。
+離線安裝檔包含兩個檔案：「.exe」 與 「.bin」— 你必須下載這兩個檔案。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
@@ -1399,17 +1399,17 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="634"/>
         <source>Install recommended VCMI Mods</source>
-        <translation>安裝推薦的VCMI模組</translation>
+        <translation>安裝推薦的 VCMI 模組</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="739"/>
         <source>Install a translation of Heroes III in your preferred language</source>
-        <translation>安裝您所選語言的英雄無敵3翻譯</translation>
+        <translation>安裝英雄無敵 III 翻譯語言</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="709"/>
         <source>Heroes III Translation</source>
-        <translation>英雄無敵3翻譯</translation>
+        <translation>英雄無敵 III 翻譯</translation>
     </message>
     <message>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
@@ -1428,7 +1428,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
         <source>VCMI Extras</source>
-        <translation>VCMI附加內容</translation>
+        <translation>VCMI 附加內容</translation>
     </message>
     <message>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
@@ -1437,12 +1437,12 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="819"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation>一款功能豐富的擴充包，為9個原版城鎮各自新增一種替代單位，同時加入新的中立生物、生物寶屋、技能與魔法，極大地拓展了遊戲玩法</translation>
+        <translation>一個拓闊遊玩內容，功能豐富的資料片。為 9 個原版城鎮的每個生物提供額外升級選擇，以及全新的中立生物、生物據點、技能和法術</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="824"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
-        <translation>深入地下世界，揭開炮塔族的面紗——這是一個新種族，位於蘑菇、岩石與符文魔法在黑暗中蓬勃生長之地，這個種族為VCMI而創作</translation>
+        <translation>深入地下王國，探索 Casemete — 一個全新的陣營，在這個黑暗之地，真菌、磐石與符文魔法蓬勃共生。為 VCMI 而製</translation>
     </message>
     <message>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
@@ -1456,7 +1456,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="814"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
-        <translation>透過引入指揮官、部隊經驗、部隊神器、大量全新的英雄及指揮官神器、額外的成長系統以及可互動的冒險地圖物件，深化了《英雄無敵3》的遊戲體驗</translation>
+        <translation>透過引入指揮官、部隊經驗、部隊神器、大量全新的英雄及指揮官神器、額外的成長系統以及可互動的冒險地圖物件，深化了《英雄無敵 III》的遊戲體驗</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="818"/>
@@ -2060,12 +2060,12 @@ Bin (%n位元組):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="304"/>
         <source>Mod archive is missing</source>
-        <translation>模組歸檔檔案未找到</translation>
+        <translation>找不到模組封存檔</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="309"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation>模組歸檔檔案無效或損毀</translation>
+        <translation>模組封存檔無效或已損毀</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="317"/>
@@ -2512,14 +2512,14 @@ Reason: %2</source>
  - VCMI save files (.vsgm1)
  - VCMI configuration files (.json)
 </source>
-        <translation>此選項可讓你將額外的資料檔案匯入 VCMI 安裝。目前支援以下選項：
+        <translation>此選項可讓你將額外的資料檔案匯入至 VCMI 安裝。目前支援以下選項：
 
-- 《英雄無敵3》地圖（.h3m 或 .vmap）。 
-- 《英雄無敵3》戰役（.h3c 或 .vcmp）。 
-- 使用 GOG.com 離線備份安裝程式（.exe）的《英雄無敵3：歷代記》（Heroes III Chronicles）。 
-- ZIP 格式的 VCMI 模組（.zip）。
-- ZIP 格式的 VCMI 檔案包（.zip）。
-- VCMI 檔案（.vsgm1）。
+- 《英雄無敵 3》地圖（.h3m 或 .vmap）。 
+- 《英雄無敵 3》戰役（.h3c 或 .vcmp）。 
+- 來自 GOG.com 離線備份安裝程式（.exe）的《英雄無敵3：歷代記》（Heroes III Chronicles）。 
+- Zip 格式的 VCMI 模組（.zip）。
+- Zip 格式的 VCMI 存檔封存（.zip）。
+- VCMI 存檔（.vsgm1）。
 - VCMI 設定檔（.json）。
 </translation>
     </message>
