@@ -607,6 +607,8 @@ void SeerHut::init(vstd::RNG & rand)
 	{
 		q->textOption = rand.nextInt(2);
 		q->completedOption = rand.nextInt(1, 3);
+		if(q->reward)
+			q->reward->reward.removeInvalidCreatures(describeArmy());
 		bool givesUnits = q->reward && !q->reward->reward.creatures.empty();
 		q->mission.hasExtraCreatures = !(givesUnits || h3BugTakesArmy);
 	}

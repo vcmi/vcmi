@@ -633,6 +633,14 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	loadJsonAnimation(cre.get(), node["graphics"]);
 	loadCreatureJson(cre.get(), node);
 
+	// towns and dwellings produce and guard units in amounts based on growth
+	if (cre->getGrowth() < 0 || (cre->getGrowth() == 0 && !cre->special))
+	{
+		const int fixedGrowth = cre->special ? 0 : 1;
+		logMod->error("Mod %s: creature %s has invalid growth %d, using %d instead", scope, identifier, cre->getGrowth(), fixedGrowth);
+		cre->growth = fixedGrowth;
+	}
+
 	if (!node["disabled"].Bool() &&
 		!CResourceHandler::get()->existsResource(cre->animDefName) &&
 		!CResourceHandler::get()->existsResource(cre->animDefName.toType<EResType::JSON>()) &&

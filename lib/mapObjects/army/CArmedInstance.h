@@ -73,6 +73,12 @@ public:
 
 	TerrainId getCurrentTerrain() const;
 
+	/// Units can be added to this army and rearranged within it, but not removed from it
+	virtual bool isLocked() const;
+
+	/// Object name, id and position, to identify this army in error messages
+	std::string describeArmy() const;
+
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 	template<typename Handler>

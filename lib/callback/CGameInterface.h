@@ -40,7 +40,7 @@ public:
 	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept) = 0;
 
 	// all stacks operations between these objects become allowed, interface has to call onEnd when done
-	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QuestionID questionID, const MetaString & customTitle) = 0;
+	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, QuestionID questionID, const MetaString & customTitle) = 0;
 	virtual void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QuestionID questionID) = 0;
 	virtual void showMapObjectSelectDialog(QuestionID questionID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) = 0;
 	virtual void finish(){}; //if for some reason we want to end

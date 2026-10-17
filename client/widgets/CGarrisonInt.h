@@ -90,7 +90,10 @@ class CGarrisonInt :public CIntObject
 
 	void createSlots();
 	bool checkSelected(const CGarrisonSlot * selected, TQuantity min = 0) const;
+	/// Whether units can not be taken from the slot: it belongs to another player or to a locked upper army
 	bool isStackTransferLocked(const CGarrisonSlot * selected) const;
+	/// Whether units can not be taken from upper army
+	bool isUpperArmyLocked() const;
 	bool showStackTransferError(const CGarrisonSlot * selected) const;
 
 	std::map<EGarrisonType, const CArmedInstance*> armedObjs;
@@ -108,7 +111,7 @@ public:
 	std::vector<std::shared_ptr<CButton>> splitButtons;  ///< May be empty if no buttons
 
 	bool smallIcons;      ///< true - 32x32 imgs, false - 58x64
-	bool removableUnits;  ///< player Can remove units from up
+	bool removableUnits;  ///< player can remove units from upper army unless it is locked, false when viewing army of another player
 	bool showMoveUnitsOnHover = false; ///< show move action instead of select action when no slot is selected
 
 	ESlotsLayout layout;

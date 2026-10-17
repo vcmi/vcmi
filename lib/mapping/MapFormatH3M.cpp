@@ -2264,6 +2264,12 @@ void CMapLoaderH3M::readCreatureSet(CArmedInstance * out, const ObjectInstanceID
 		if(creatureID == CreatureID::NONE)
 			continue;
 
+		if(count == 0)
+		{
+			logGlobal->warn("Map '%s': %s has stack without units in slot %d, removed", mapName, creatureContext, index);
+			continue;
+		}
+
 		auto result = std::make_unique<CStackInstance>(map->cb);
 		result->setCount(count);
 

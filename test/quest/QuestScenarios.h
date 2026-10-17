@@ -67,6 +67,7 @@ Scenario seerKillHero();                ///< heroPos: red visitor. secondHeroPos
 
 Scenario seerTimeout();                 ///< heroPos: visitor. questPos: seer hut with lastDay=7, trivial resources limiter.
 Scenario seerEmptyArmyToggle();         ///< heroPos: visitor with single 1-pikeman stack. questPos: seer hut (bring 1 pikeman, no reward creatures).
+Scenario seerZeroCreatureReward();      ///< heroPos: visitor with single 1-griffin stack. questPos: seer hut (bring 1 griffin, reward of 0 griffins).
 
 // ---- Quest Guard scenarios ------------------------------------------------
 

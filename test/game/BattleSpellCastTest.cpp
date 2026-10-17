@@ -158,7 +158,7 @@ public:
 		return false;
 	}
 
-	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override
+	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, const MetaString & customTitle) override
 	{
 	}
 

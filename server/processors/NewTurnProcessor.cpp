@@ -378,6 +378,10 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 	const CCreature * baseCreature = levelCreatures.front().toCreature();
 	const int growthAmount = baseCreature->getGrowth();
 
+	// special creatures may have no growth
+	if (growthAmount <= 0)
+		return;
+
 	const auto & takeFromAvailable = [this, t, levelToGrow, growthAmount]()
 	{
 		int creaturesAvailable = t->creatures.at(levelToGrow).first;
