@@ -186,7 +186,7 @@
     <message>
         <location filename="../modManager/cdownloadmanager_moc.cpp" line="171"/>
         <source>Failed to copy file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Misslyckades att kopiera filen %1</translation>
     </message>
 </context>
 <context>
@@ -284,7 +284,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="348"/>
         <source>Abort</source>
-        <translation>Avbryt nu</translation>
+        <translation>Avbryt åtgärd</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
@@ -429,9 +429,9 @@
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
         <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Hämtar %n modd. %p% (%v MB av %m MB) slutfört</numerusform>
+            <numerusform>Hämtar %n moddar. %p% (%v MB av %m MB) slutfört</numerusform>
         </translation>
     </message>
     <message>
@@ -553,14 +553,16 @@ Orsak: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
         <source>Mods disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Moddar inaktiverade</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Följande moddar inaktiverades på grund av ändringar i installerade moddar:
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
@@ -632,12 +634,18 @@ This usually happens on older systems, such as Windows 7, that are missing recen
 However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. In that case, downloaded files could be replaced with harmful ones.
 
 Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the &quot;Ignore SSL errors&quot; option.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI kunde inte bekräfta att det är anslutet till den riktiga nedladdningsservern.
+
+Detta händer vanligtvis på äldre system, såsom Windows 7, som saknar aktuella säkerhetsuppdateringar.
+
+Det kan dock också innebära att någon manipulerar din internetanslutning, till exempel på ett offentligt Wi-Fi-nätverk. I så fall kan nedladdade filer ersättas med skadliga filer.
+
+Vill du stänga av denna kontroll och försöka igen? Du kan när som helst aktivera den igen i startprogrammets inställningar med alternativet &quot;Ignorera SSL-fel&quot;.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
         <source>Unable to verify download server</source>
-        <translation type="unfinished"></translation>
+        <translation>Det går inte att verifiera nedladdningsservern</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
@@ -904,17 +912,17 @@ Exklusivt helskärmsläge - spelet täcker hela skärmen och använder den valda
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="819"/>
         <source>HTTP proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP-proxy</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="826"/>
         <source>Open help</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna hjälpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="833"/>
         <source>Proxy server used for downloads, for example http://host:port or socks5h://host:port. If empty, proxy from environment variables is used</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxyserver som används för nedladdningar, till exempel http://host:porthttp://host:port eller socks5h://host:port. Om fältet lämnas tomt används proxyinställningarna från miljövariablerna</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
@@ -1768,12 +1776,12 @@ Bin-filer (%n byte):
     <message>
         <location filename="../innoextract.cpp" line="157"/>
         <source>Exe</source>
-        <translation>EXE</translation>
+        <translation>Exe-fil</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
         <source>Bin</source>
-        <translation>BIN</translation>
+        <translation>Bin-fil</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="166"/>
@@ -2039,12 +2047,12 @@ Bin-filer (%n byte):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="223"/>
         <source>Mod is not located in user data directory and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Modd finns inte i katalogen för användardata och kan inte hanteras av startprogrammet</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="227"/>
         <source>Mod directory is a git repository and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Modd-mappen är ett Git-arkiv och kan inte hanteras av startprogrammet</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="245"/>
@@ -2090,12 +2098,12 @@ Bin-filer (%n byte):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="317"/>
         <source>Failed to remove directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Misslyckades att ta bort mappen %1</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="320"/>
         <source>Failed to create directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Misslyckades att skapa mappen %1</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="352"/>
@@ -2105,12 +2113,12 @@ Bin-filer (%n byte):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="359"/>
         <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att byta ut mappen %1. Stäng alla program som kan använda den, till exempel filutforskaren, och försök igen.</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="386"/>
         <source>Mod data was not found</source>
-        <translation>Moddata hittades inte</translation>
+        <translation>Modd-data hittades inte</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="390"/>
@@ -2428,7 +2436,7 @@ Orsak: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation>Välj filer (konfigurationsfiler, moddar, sparade spel, kartor, kampanjer, GOG-filer) som ska installeras...</translation>
+        <translation>Välj filer (konfigurationsfiler, moddar, sparade spel, kartor, kampanjer, gog-filer) som ska installeras...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="298"/>

@@ -1885,7 +1885,7 @@ Vill du göra det nu ?</translation>
         <location filename="../templateeditor/objectselector.cpp" line="264"/>
         <location filename="../templateeditor/objectselector.cpp" line="348"/>
         <source>Delete</source>
-        <translation>Ta bort</translation>
+        <translation>Radera</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="142"/>
@@ -2180,31 +2180,31 @@ Vill du göra det nu ?</translation>
         <location filename="../inspector/inspector.cpp" line="452"/>
         <location filename="../inspector/inspector.cpp" line="839"/>
         <source>Aggression</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggression</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="453"/>
         <location filename="../inspector/inspector.cpp" line="841"/>
         <source>Join only for money</source>
-        <translation type="unfinished"></translation>
+        <translation>Går med endast mot betalning</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="454"/>
         <location filename="../inspector/inspector.cpp" line="843"/>
         <source>Joining percentage</source>
-        <translation type="unfinished"></translation>
+        <translation>Andel som går med</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="458"/>
         <location filename="../inspector/inspector.cpp" line="845"/>
         <source>Upgraded stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Uppgraderad stapel</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="460"/>
         <location filename="../inspector/inspector.cpp" line="847"/>
         <source>Stacks count</source>
-        <translation type="unfinished"></translation>
+        <translation>Antal i stapeln</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="461"/>
@@ -2250,12 +2250,12 @@ Vill du göra det nu ?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="1038"/>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>Aldrig</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1039"/>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>Alltid</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="253"/>
@@ -2725,17 +2725,17 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="293"/>
         <source>Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Dag</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="298"/>
         <source>Week</source>
-        <translation type="unfinished"></translation>
+        <translation>Vecka</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="303"/>
         <source>Month</source>
-        <translation type="unfinished"></translation>
+        <translation>Månad</translation>
     </message>
 </context>
 <context>
@@ -2748,32 +2748,32 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/questwidget.ui" line="37"/>
         <source>Delete</source>
-        <translation type="unfinished">Ta bort</translation>
+        <translation>Radera</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
         <source>First Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Första besöket</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="94"/>
         <source>Next Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Nästa besök</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="116"/>
         <source>Completed</source>
-        <translation type="unfinished"></translation>
+        <translation>Slutfört</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="148"/>
         <source>Repeatable</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan upprepas</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="158"/>
         <source>Set Deadline</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange tidsfrist</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="179"/>
@@ -2904,7 +2904,7 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/questwidget.cpp" line="303"/>
         <source>%1 quest on position %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 uppdrag på position %2</translation>
     </message>
 </context>
 <context>
@@ -4246,7 +4246,7 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
         <location filename="../templateeditor/templateeditor.cpp" line="272"/>
         <location filename="../templateeditor/templateeditor.cpp" line="487"/>
         <source>Delete</source>
-        <translation>Ta bort</translation>
+        <translation>Radera</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="311"/>
@@ -4776,7 +4776,7 @@ Vakt: %3</translation>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="61"/>
         <source>Delete</source>
-        <translation>Ta bort</translation>
+        <translation>Radera</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="100"/>
@@ -4920,7 +4920,7 @@ Vakt: %3</translation>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="51"/>
         <source>Delete</source>
-        <translation>Ta bort</translation>
+        <translation>Radera</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="66"/>
