@@ -668,9 +668,10 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 		{
 			//yes&no -> always answer yes, we are a brave AI :)
 			bool answer = true;
-			auto objects = cc->getVisitableObjs(target);
+			// dialogs that are not caused by visit, e.g. commander resurrection, have no target tile
+			auto objects = target.isValid() && cc->isVisible(target) ? cc->getVisitableObjs(target) : std::vector<const CGObjectInstance *>();
 
-			if(heroPtr.isVerified() && target.isValid() && !objects.empty())
+			if(heroPtr.isVerified() && !objects.empty())
 			{
 				auto topObj = objects.front()->id == heroPtr->id ? objects.back() : objects.front();
 				auto objType = topObj->ID; // top object should be our hero
