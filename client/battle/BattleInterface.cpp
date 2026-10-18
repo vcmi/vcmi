@@ -926,6 +926,18 @@ void BattleInterface::waitForAnimations()
 		ongoingAnimationsState.waitWhileBusy();
 	}
 
+	while(!awaitingEvents.empty())
+	{
+		executeStagedAnimations();
+
+		if(hasAnimations())
+		{
+			auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+			ongoingAnimationsState.waitWhileBusy();
+			assert(!hasAnimations());
+		}
+	}
+
 	assert(!hasAnimations());
 	assert(awaitingEvents.empty());
 
