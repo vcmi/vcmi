@@ -697,17 +697,17 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				break;
 			}
 			case Obj::RANDOM_DWELLING:
-   			case Obj::RANDOM_DWELLING_LVL:
-   			{
-   				auto * dwelling = dynamic_cast<CGDwelling *>(&instance->object());
-   				if (dwelling && !dwelling->randomizationInfo)
-   				{
-   					dwelling->randomizationInfo = CGDwellingRandomizationInfo();
-   					if (zone.getTownType() != ETownType::NEUTRAL)
-   						dwelling->randomizationInfo->allowedFactions.insert(zone.getTownType());
-   				}
-   				break;
-   			}
+			case Obj::RANDOM_DWELLING_LVL:
+			{
+				auto * dwelling = dynamic_cast<CGDwelling *>(&instance->object());
+				if (dwelling && !dwelling->randomizationInfo)
+				{
+					dwelling->randomizationInfo = CGDwellingRandomizationInfo();
+					if (zone.getTownType() != ETownType::NEUTRAL)
+						dwelling->randomizationInfo->allowedFactions.insert(zone.getTownType());
+				}
+				break;
+			}
 			default:
 				break;
 		}
