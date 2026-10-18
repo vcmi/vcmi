@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "StdInc.h"
+#include "AI/MMAI/common.h" // IWYU pragma: keep
 
+#include "AI/MMAI/schema/base.h"
 #include "battle/AutocombatPreferences.h"
 #include "battle/CPlayerBattleCallback.h"
 #include "callback/CBattleGameInterface.h"

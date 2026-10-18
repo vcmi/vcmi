@@ -41,6 +41,7 @@ struct ReachabilityInfo
 			destructibleEnemyTurns.fill(-1);
 		}
 		Parameters(const battle::Unit * Stack, const BattleHex & StartPosition);
+		Parameters(BattleSide perspective, const battle::Unit * Stack, const BattleHex & StartPosition, const BattleHexArray & accessibleHexes);
 	};
 
 	Parameters params;
