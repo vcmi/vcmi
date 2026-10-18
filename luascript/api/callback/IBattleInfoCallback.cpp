@@ -118,13 +118,13 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 		}, {},
 		"Returns the unit covering the given hex, or nil.");
 	R.function<&IBattleInfoCallbackProxy::getAllObstacles>("getAllObstacles", {},
-		"Returns all obstacles on the battlefield.");
+		"Returns all obstacles on the battlefield, including ones hidden from the caller.");
 	R.function<&IBattleInfoCallbackProxy::getObstaclesOnPos>("getObstaclesOnPos",
 		{
 			{"hex",          "Hex whose obstacles are queried."},
 			{"onlyBlocking", "Pass true to limit results to obstacles that block movement."}
 		}, {},
-		"Returns the obstacles on the given hex.");
+		"Returns the obstacles on the given hex, including ones hidden from the caller.");
 	R.function<&IBattleInfoCallbackProxy::hasFortifications>("hasFortifications", {},
 		"True if the battle is a siege with fortifications present.");
 	R.function<&IBattleInfoCallbackProxy::hasMoat>("hasMoat", {},
@@ -236,12 +236,13 @@ const battle::Unit * IBattleInfoCallbackProxy::getUnitByPos(const IBattleInfoCal
 
 std::vector<std::shared_ptr<const CObstacleInstance>> IBattleInfoCallbackProxy::getAllObstacles(const IBattleInfoCallback & object)
 {
+	// spells may affect obstacles hidden from caster, such as enemy quicksand
 	return object.battleGetAllObstacles(BattleSide::ALL_KNOWING);
 }
 
 std::vector<std::shared_ptr<const CObstacleInstance>> IBattleInfoCallbackProxy::getObstaclesOnPos(const IBattleInfoCallback & object, BattleHex hex, bool onlyBlocking)
 {
-	return object.battleGetAllObstaclesOnPos(hex, onlyBlocking);
+	return object.battleGetAllObstaclesOnPos(hex, onlyBlocking, BattleSide::ALL_KNOWING);
 }
 
 bool IBattleInfoCallbackProxy::hasFortifications(const IBattleInfoCallback & object)

@@ -12,11 +12,14 @@
 #include "BattleTestFixture.h"
 
 #include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/battle/CPlayerBattleCallback.h"
 #include "../../../lib/battle/Destination.h"
 #include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/spells/CSpell.h"
+#include "../../../lib/spells/ISpellMechanics.h"
+#include "../../../lib/spells/Problem.h"
 
 namespace
 {
@@ -675,4 +678,25 @@ TEST_F(SpellOptionTest, adjacentCasterApproachesTargetFromChosenSide)
 	EXPECT_EQ(caster->getPosition(), castFrom);
 	EXPECT_TRUE(isAffectedBy(ally, SpellID::BLESS));
 	EXPECT_EQ(caster->casts.available(), castsBefore - 1);
+}
+
+/// Remove Obstacle is also checked on player side, where enemy quicksand stays hidden from the caster
+TEST_F(SpellcastActionTest, removeObstacleSeesQuicksandHiddenFromCaster)
+{
+	startGame();
+	startBattle();
+	addQuicksand(enemyHex);
+
+	CPlayerBattleCallback playerBattle(battle(), attackerSideHero->getOwner());
+	ASSERT_TRUE(playerBattle.battleGetAllObstacles().empty());
+
+	const auto * spell = SpellID(SpellID::REMOVE_OBSTACLE).toSpell();
+	// passive mode skips spellbook and mana checks, so the check reaches spell effects
+	spells::BattleCast cast(&playerBattle, attackerSideHero, spells::Mode::PASSIVE, spell);
+	cast.setSpellLevel(3);
+	auto mechanics = spell->battleMechanics(&cast);
+
+	spells::detail::ProblemImpl problem;
+	EXPECT_TRUE(mechanics->canBeCast(problem));
+	EXPECT_TRUE(mechanics->canBeCastAt(spells::Target{spells::Destination(enemyHex)}, problem));
 }

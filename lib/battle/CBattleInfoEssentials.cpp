@@ -68,7 +68,8 @@ std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoEssentials::bat
 	}
 	else
 	{
-		if(!!getPlayerID() && *perspective != battleGetMySide())
+		// all-knowing view is allowed, since spells such as Remove Obstacle can target obstacles hidden from caster
+		if(!!getPlayerID() && *perspective != battleGetMySide() && *perspective != BattleSide::ALL_KNOWING)
 			THROW_INVALID_CALL();
 	}
 

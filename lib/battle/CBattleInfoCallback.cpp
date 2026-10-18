@@ -1129,11 +1129,11 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 	return ret;
 }
 
-std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battleGetAllObstaclesOnPos(const BattleHex & tile, bool onlyBlocking) const
+std::vector<std::shared_ptr<const CObstacleInstance>> CBattleInfoCallback::battleGetAllObstaclesOnPos(const BattleHex & tile, bool onlyBlocking, std::optional<BattleSide> perspective) const
 {
 	auto obstacles = std::vector<std::shared_ptr<const CObstacleInstance>>();
 	THROW_IF_NOT_BATTLE();
-	for(auto & obs : battleGetAllObstacles())
+	for(auto & obs : battleGetAllObstacles(perspective))
 	{
 		if(obs->getBlockedTiles().contains(tile)
 				|| (!onlyBlocking && obs->getAffectedTiles().contains(tile)))
