@@ -83,6 +83,8 @@ private:
 	/// object name in the loader-populated `questObjects` table.
 	std::string questObjectRef(uint32_t identifier);
 
+	/// Action that ends the event currently being emitted
+	std::string disableCurrentEvent(const std::string & pad) const;
 	/// Hero-targeting action, skipped in handlers where hero may be absent
 	std::string heroStatement(const std::string & pad, const std::string & call) const;
 	/// Hero-based condition, false in handlers where hero is absent

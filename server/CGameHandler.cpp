@@ -60,6 +60,7 @@
 #include "../lib/gameState/SaveMetadata.h"
 #include "../lib/gameState/UpgradeInfo.h"
 
+#include "../lib/mapping/CCastleEvent.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/HotaScriptConverter.h"
@@ -1187,6 +1188,26 @@ void CGameHandler::setScriptVariable(const std::string & scope, const std::strin
 	pack.scope = scope;
 	pack.name = name;
 	pack.value = value;
+	sendAndApply(pack);
+}
+
+void CGameHandler::disableMapEvent(ObjectInstanceID town, const std::string & scriptHandler)
+{
+	auto hasEvent = [&](const auto & events)
+	{
+		return std::ranges::any_of(events, [&](const CMapEvent & event){ return event.scriptHandler == scriptHandler; });
+	};
+	const auto * townObject = town.hasValue() ? gameInfo().getTown(town) : nullptr;
+
+	if(town.hasValue() ? !townObject || !hasEvent(townObject->events) : !hasEvent(gameState().getMap().events))
+	{
+		logGlobal->error("Attempt to disable unknown map event %s!", scriptHandler);
+		return;
+	}
+
+	DisableMapEvent pack;
+	pack.town = town;
+	pack.scriptHandler = scriptHandler;
 	sendAndApply(pack);
 }
 

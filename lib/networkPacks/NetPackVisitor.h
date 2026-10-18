@@ -94,6 +94,7 @@ public:
 	virtual void visitSetObjectProperty(SetObjectProperty & pack) {}
 	virtual void visitSetScriptVariable(SetScriptVariable & pack) {}
 	virtual void visitSetQuestHint(SetQuestHint & pack) {}
+	virtual void visitDisableMapEvent(DisableMapEvent & pack) {}
 	virtual void visitChangeObjectVisitors(ChangeObjectVisitors & pack) {}
 	virtual void visitChangeArtifactsCostume(ChangeArtifactsCostume & pack) {}
 	virtual void visitHeroLevelUp(HeroLevelUp & pack) {}

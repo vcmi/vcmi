@@ -75,6 +75,8 @@ public:
 	virtual void addQuest(const PlayerColor & player, const QuestInfo & quest) = 0;
 	/// Sets the quest-log / hover hint text of an active quest.
 	virtual void setQuestHintText(ObjectInstanceID obj, const MetaString & hint) = 0;
+	/// Turns off scripted timed event of specified town, or player event of the map if town is NONE
+	virtual void disableMapEvent(ObjectInstanceID town, const std::string & scriptHandler) = 0;
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
 	/// Always ends in experienceApplied() on the object whose visit is running, whether or

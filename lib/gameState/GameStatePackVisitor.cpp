@@ -28,6 +28,7 @@
 #include "../mapObjects/FlaggableMapObject.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/TownBuildingInstance.h"
+#include "../mapping/CCastleEvent.h"
 #include "../mapping/CMap.h"
 #include "../networkPacks/StackLocation.h"
 #include "../spells/CSpell.h"
@@ -1266,6 +1267,30 @@ void GameStatePackVisitor::visitSetQuestHint(SetQuestHint & pack)
 		throw std::runtime_error("SetQuestHint: object is not a quest source!");
 
 	questSource->getQuest().scriptHintText = pack.hint;
+}
+
+void GameStatePackVisitor::visitDisableMapEvent(DisableMapEvent & pack)
+{
+	bool found = false;
+	auto disable = [&](auto & events)
+	{
+		for(auto & event : events)
+		{
+			if(event.scriptHandler == pack.scriptHandler)
+			{
+				event.disabled = true;
+				found = true;
+			}
+		}
+	};
+
+	if(pack.town.hasValue())
+		disable(gs.getTown(pack.town)->events);
+	else
+		disable(gs.getMap().events);
+
+	if(!found)
+		throw std::runtime_error("DisableMapEvent: no event with handler " + pack.scriptHandler);
 }
 
 void GameStatePackVisitor::visitSetObjectProperty(SetObjectProperty & pack)

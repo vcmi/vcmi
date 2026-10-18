@@ -386,6 +386,11 @@ void SetScriptVariable::visitTyped(ICPackVisitor & visitor)
 	visitor.visitSetScriptVariable(*this);
 }
 
+void DisableMapEvent::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitDisableMapEvent(*this);
+}
+
 void SetQuestHint::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetQuestHint(*this);

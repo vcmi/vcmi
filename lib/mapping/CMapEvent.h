@@ -44,6 +44,9 @@ public:
 	/// Name of the map-script handler to run on the owning player's turn, replacing the default event. Empty if none.
 	std::string scriptHandler;
 
+	/// Disabled event no longer occurs, e.g. after map script turned it off
+	bool disabled = false;
+
 	template<typename Handler>
 	void serialize(Handler & h)
 	{
@@ -60,6 +63,8 @@ public:
 		h & deletedObjectsInstances;
 		if(h.version >= Handler::Version::SCRIPT_VARIABLES)
 			h & scriptHandler;
+		if(h.version >= Handler::Version::MAP_EVENT_DISABLED)
+			h & disabled;
 	}
 
 	virtual void serializeJson(JsonSerializeFormat & handler);

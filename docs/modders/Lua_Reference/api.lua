@@ -34,6 +34,15 @@ function AdventureServer:addToQuestLog(target, player) end
 ---@param text MetaString # New hover / quest-log text for the object's active quest.
 function AdventureServer:setQuestHintText(target, text) end
 
+---Turns off a timed player event of the map, so it no longer occurs.
+---@param handler string # Name of the map script handler that the timed player event runs.
+function AdventureServer:disablePlayerEvent(handler) end
+
+---Turns off a timed event of a town, so it no longer occurs.
+---@param town TownInstance # Town that owns the event.
+---@param handler string # Name of the map script handler that the timed town event runs.
+function AdventureServer:disableTownEvent(town, handler) end
+
 ---Returns a random whole number in the given range. Draws from the game's own random generator, so the result stays consistent with saved games and network play - do not use Lua's math.random for gameplay decisions.
 ---@param lower integer # Smallest value that may be returned.
 ---@param upper integer # Largest value that may be returned.

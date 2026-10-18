@@ -49,6 +49,8 @@ public:
 	static void markQuestProposed(IGameEventCallback & object, const CGObjectInstance & target, PlayerColor player);
 	static void addToQuestLog(IGameEventCallback & object, const CGObjectInstance & target, PlayerColor player);
 	static void setQuestHintText(IGameEventCallback & object, const CGObjectInstance & target, const LuaMetaString & text);
+	static void disablePlayerEvent(IGameEventCallback & object, const std::string & handler);
+	static void disableTownEvent(IGameEventCallback & object, const CGTownInstance & town, const std::string & handler);
 	static int random(IGameEventCallback & object, int lower, int upper);
 
 	static void giveExperience(IGameEventCallback & object, const CGHeroInstance & hero, int64_t amount);

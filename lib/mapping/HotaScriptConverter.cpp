@@ -310,6 +310,18 @@ end
 )lua";
 }
 
+std::string HotaScriptConverter::disableCurrentEvent(const std::string & pad) const
+{
+	const std::string handler = "\"" + eventHandlerName(currentBucket, currentEventID) + "\"";
+
+	// timed events are turned off, while other events live on their map object, so disabling them removes that object
+	if(currentBucket == "townEvents")
+		return pad + "server:disableTownEvent(town, " + handler + ")\n";
+	if(currentBucket == "playerEvents")
+		return pad + "server:disablePlayerEvent(" + handler + ")\n";
+	return pad + "server:removeObject(" + bucketTraits(currentBucket).subject + ")\n";
+}
+
 std::string HotaScriptConverter::heroStatement(const std::string & pad, const std::string & call) const
 {
 	if(bucketTraits(currentBucket).heroLocal.empty())
@@ -505,18 +517,17 @@ std::string HotaScriptConverter::loadActions(int indent)
 			}
 			case HotaScriptActions::REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST:
 			{
-				// only a quest bucket runs on a quest source; elsewhere the action just removes the object
+				// only a quest bucket runs on a quest source; elsewhere the action ends the event
 				if(currentBucket == "questEvents")
 					result += pad + "server:finishQuestOrRemoveObject(object)\n";
 				else
-					result += pad + "server:removeObject(" + bucketTraits(currentBucket).subject + ")\n";
+					result += disableCurrentEvent(pad);
 				break;
 			}
 			case HotaScriptActions::DISABLE_EVENT:
 			{
-				// In HotA an event lives on its map object, so disabling it means removing that object
 				// TODO: verify HotA behavior for quest events - possibly only Quest Guard should be removed, while Seer Hut and other quest objects are kept
-				result += pad + "server:removeObject(" + bucketTraits(currentBucket).subject + ")\n";
+				result += disableCurrentEvent(pad);
 				break;
 			}
 			case HotaScriptActions::QUEST_ACTION:

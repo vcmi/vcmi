@@ -122,6 +122,7 @@ public:
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
 	void setQuestHintText(ObjectInstanceID obj, const MetaString & hint) override;
+	void disableMapEvent(ObjectInstanceID town, const std::string & scriptHandler) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void giveExperienceWithoutLevelUp(const CGHeroInstance * hero, TExpType val);

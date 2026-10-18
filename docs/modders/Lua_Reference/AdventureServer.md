@@ -42,6 +42,19 @@ Internal plumbing for the setQuestHint helper. Scripts should call setQuestHint 
 - param `target`: [`MapObject`](MapObject.md) — The quest source (seer hut / quest guard) whose hint changes.
 - param `text`: [`MetaString`](MetaString.md) — New hover / quest-log text for the object's active quest.
 
+### disablePlayerEvent
+
+Turns off a timed player event of the map, so it no longer occurs.
+
+- param `handler`: `string` — Name of the map script handler that the timed player event runs.
+
+### disableTownEvent
+
+Turns off a timed event of a town, so it no longer occurs.
+
+- param `town`: [`TownInstance`](TownInstance.md) — Town that owns the event.
+- param `handler`: `string` — Name of the map script handler that the timed town event runs.
+
 ### random
 
 Returns a random whole number in the given range. Draws from the game's own random generator, so the result stays consistent with saved games and network play - do not use Lua's math.random for gameplay decisions.

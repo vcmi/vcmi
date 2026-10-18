@@ -53,6 +53,7 @@ public:
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
 	void setQuestHintText(ObjectInstanceID, const MetaString &) override {}
+	void disableMapEvent(ObjectInstanceID, const std::string &) override {}
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void showBlockingDialog(BlockingDialog * iw) override;
 	void setVisitState(const CGHeroInstance * hero, const JsonNode & state) override { visitState = state; }

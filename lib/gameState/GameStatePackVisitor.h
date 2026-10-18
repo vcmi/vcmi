@@ -79,6 +79,7 @@ public:
 	void visitSetObjectProperty(SetObjectProperty & pack) override;
 	void visitSetScriptVariable(SetScriptVariable & pack) override;
 	void visitSetQuestHint(SetQuestHint & pack) override;
+	void visitDisableMapEvent(DisableMapEvent & pack) override;
 	void visitHeroLevelUp(HeroLevelUp & pack) override;
 	void visitCommanderLevelUp(CommanderLevelUp & pack) override;
 	void visitBattleStart(BattleStart & pack) override;

@@ -82,6 +82,17 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 			{"text", "New hover / quest-log text for the object's active quest."}
 		}, {},
 		"Internal plumbing for the setQuestHint helper. Scripts should call setQuestHint instead.");
+	R.function<&AdventureServerProxy::disablePlayerEvent>("disablePlayerEvent",
+		{
+			{"handler", "Name of the map script handler that the timed player event runs."}
+		}, {},
+		"Turns off a timed player event of the map, so it no longer occurs.");
+	R.function<&AdventureServerProxy::disableTownEvent>("disableTownEvent",
+		{
+			{"town", "Town that owns the event."},
+			{"handler", "Name of the map script handler that the timed town event runs."}
+		}, {},
+		"Turns off a timed event of a town, so it no longer occurs.");
 	R.function<&AdventureServerProxy::random>("random",
 		{
 			{"lower", "Smallest value that may be returned."},
@@ -324,6 +335,16 @@ void AdventureServerProxy::addToQuestLog(IGameEventCallback & object, const CGOb
 void AdventureServerProxy::setQuestHintText(IGameEventCallback & object, const CGObjectInstance & target, const LuaMetaString & text)
 {
 	object.setQuestHintText(target.id, text.toMetaString());
+}
+
+void AdventureServerProxy::disablePlayerEvent(IGameEventCallback & object, const std::string & handler)
+{
+	object.disableMapEvent(ObjectInstanceID::NONE, handler);
+}
+
+void AdventureServerProxy::disableTownEvent(IGameEventCallback & object, const CGTownInstance & town, const std::string & handler)
+{
+	object.disableMapEvent(town.id, handler);
 }
 
 int AdventureServerProxy::random(IGameEventCallback & object, int lower, int upper)
