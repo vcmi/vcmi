@@ -968,6 +968,10 @@ void CVCMIServer::optionNextHero(PlayerColor player, int dir)
 	if(!s.castle.isValid() || s.hero == HeroTypeID::NONE)
 		return;
 
+	// map has predefined starting hero, or no starting hero at all
+	if(mi->mapHeader->players.at(player.getNum()).defaultHero() == HeroTypeID::NONE)
+		return;
+
 	if(s.hero == HeroTypeID::RANDOM) // first/last available
 	{
 		if (dir > 0)
@@ -985,6 +989,10 @@ void CVCMIServer::optionSetHero(PlayerColor player, HeroTypeID id)
 {
 	PlayerSettings & s = si->playerInfos[player];
 	if(!s.castle.isValid() || s.hero == HeroTypeID::NONE)
+		return;
+
+	// map has predefined starting hero, or no starting hero at all
+	if(mi->mapHeader->players.at(player.getNum()).defaultHero() == HeroTypeID::NONE)
 		return;
 
 	if(id == HeroTypeID::RANDOM)
