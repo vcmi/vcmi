@@ -33,20 +33,23 @@ public:
 		battle()->stacks.clear();
 	}
 
+	/// Snapshots the battle as BattleAI of the defending player sees it
+	void evaluateAsDefender()
+	{
+		callback = std::make_shared<CBattleCallback>(defenderSideHero->getOwner(), nullptr);
+		callback->onBattleStarted(battle());
+		hypotheticalBattle = std::make_shared<HypotheticBattle>(gameHandler.get(), callback->getBattle(BattleID(0)));
+		damageCache.buildDamageCache(hypotheticalBattle, BattleSide::DEFENDER);
+	}
+
 	BattleAction moveTowards(
 		const CStack * stack,
 		const BattleHexArray & movementTargets,
 		const BattleHexArray & finalDestinationHexes)
 	{
-		std::shared_ptr<Environment> environment = gameHandler;
-		auto callback = std::make_shared<CBattleCallback>(defenderSideHero->getOwner(), nullptr);
-		callback->onBattleStarted(battle());
-
-		auto hypotheticalBattle = std::make_shared<HypotheticBattle>(environment.get(), callback->getBattle(BattleID(0)));
-		DamageCache damageCache;
-		damageCache.buildDamageCache(hypotheticalBattle, BattleSide::DEFENDER);
+		evaluateAsDefender();
 		PotentialTargets targets(stack, damageCache, hypotheticalBattle);
-		BattleEvaluator evaluator(environment, callback, hypotheticalBattle, damageCache, stack,
+		BattleEvaluator evaluator(gameHandler, callback, hypotheticalBattle, damageCache, stack,
 			defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
 
 		return evaluator.goTowardsNearest(stack, movementTargets, targets, finalDestinationHexes);
@@ -60,12 +63,7 @@ public:
 
 	AttackPossibility evaluateMelee(const CStack * attacker, const CStack * defender, BattleHex from)
 	{
-		std::shared_ptr<Environment> environment = gameHandler;
-		auto callback = std::make_shared<CBattleCallback>(defenderSideHero->getOwner(), nullptr);
-		callback->onBattleStarted(battle());
-		auto hypotheticalBattle = std::make_shared<HypotheticBattle>(environment.get(), callback->getBattle(BattleID(0)));
-		DamageCache damageCache;
-		damageCache.buildDamageCache(hypotheticalBattle, BattleSide::DEFENDER);
+		evaluateAsDefender();
 		return AttackPossibility::evaluate(BattleAttackInfo(attacker, defender, 0, false), from, damageCache, hypotheticalBattle);
 	}
 
@@ -75,13 +73,17 @@ public:
 		ASSERT_NE(obstacleInfo, nullptr);
 
 		auto obstacle = std::make_shared<CObstacleInstance>();
-		obstacle->ID = obstacleInfo->obstacle.getNum(); // ObDtS03: the dead tree and rocks from the reported battle
+		obstacle->ID = obstacleInfo->obstacle.getNum(); // ObDtS03: dead tree and rocks
 		obstacle->pos = BattleHex(9, 6);
 		battle()->obstacles.push_back(obstacle);
 	}
+
+	std::shared_ptr<CBattleCallback> callback;
+	std::shared_ptr<HypotheticBattle> hypotheticalBattle;
+	DamageCache damageCache;
 };
 
-TEST_F(BattleEvaluatorTest, AttacksSuitableTargetOnWayToReportedMovementWaypoint)
+TEST_F(BattleEvaluatorTest, AttacksSuitableTargetOnWayToMovementWaypoint)
 {
 	auto * elf = addStack(BattleSide::ATTACKER, creatureByName("core:woodElf"), BattleHex(1, 8), 30);
 	auto * griffin = addStack(BattleSide::ATTACKER, creatureByName("core:griffin"), BattleHex(7, 4), 1);
@@ -125,10 +127,52 @@ TEST_F(BattleEvaluatorTest, SkipsUnprofitableTargetWithoutDelayingPrimaryTarget)
 	EXPECT_EQ(action.actionType, EActionType::WALK);
 }
 
+TEST_F(BattleEvaluatorTest, EnemyOnlyAreaAttackDoesNotDamageAnAlly)
+{
+	const auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(7, 5), 100);
+	const auto * hydra = addStack(BattleSide::DEFENDER, creatureByName("core:hydra"), BattleHex(8, 5), 10);
+	const auto * ally = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(8, 4), 100);
+
+	auto attack = evaluateMelee(hydra, enemy, hydra->getPosition());
+	EXPECT_GT(attack.defenderDamageReduce, 0);
+	EXPECT_EQ(attack.collateralDamageReduce, 0);
+	EXPECT_FALSE(vstd::contains_if(attack.affectedUnits, [ally](const auto & unit)
+	{
+		return unit->unitId() == ally->unitId();
+	}));
+}
+
+TEST_F(BattleEvaluatorTest, DragonBreathStillDamagesAnAllyBehindTheTarget)
+{
+	const auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(7, 5), 100);
+	addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(6, 5), 100);
+	const auto * dragon = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(8, 5), 3);
+
+	auto attack = evaluateMelee(dragon, enemy, dragon->getPosition());
+	EXPECT_GT(attack.collateralDamageReduce, 0);
+}
+
+TEST_F(BattleEvaluatorTest, DoubleAttackReceivesOnlyOneRetaliation)
+{
+	const auto * griffins = addStack(BattleSide::ATTACKER, creatureByName("core:royalGriffin"), BattleHex(8, 5), 50);
+	const auto * crusaders = addStack(BattleSide::DEFENDER, creatureByName("core:crusader"), BattleHex(9, 5), 20);
+	ASSERT_EQ(crusaders->getTotalAttacks(false), 2);
+	ASSERT_TRUE(griffins->hasBonusOfType(BonusType::UNLIMITED_RETALIATIONS));
+
+	DamageEstimation retaliation;
+	battle()->battleEstimateDamage(BattleAttackInfo(crusaders, griffins, 0, false), &retaliation);
+	const int64_t retaliationDamage = (retaliation.damage.min + retaliation.damage.max) / 2;
+	ASSERT_GT(retaliationDamage, 0);
+
+	auto attack = evaluateMelee(crusaders, griffins, crusaders->getPosition());
+
+	EXPECT_EQ(attack.attackerState->getAvailableHealth(), crusaders->getAvailableHealth() - retaliationDamage);
+}
+
 /// Drives the whole hero-spell decision of BattleAI and reports what it chose to cast. Spells are
 /// the one part of the AI that is blind to plain damage numbers, so a scenario grants exactly one
 /// spell and asks whether the AI found it worth casting at all.
-class BattleEvaluatorSpellTest : public BattleTestFixture
+class BattleEvaluatorSpellTest : public BattleEvaluatorTest
 {
 public:
 	/// Captures the decision instead of sending it to a server, which tests do not run
@@ -145,14 +189,6 @@ public:
 		}
 	};
 
-	void SetUp() override
-	{
-		BattleTestFixture::SetUp();
-		startGame();
-		startBattle();
-		battle()->stacks.clear();
-	}
-
 	/// Lets our hero - the one defending - cast the given spell, and nothing else
 	void teachDefender(SpellID spell, int spellPower = 10)
 	{
@@ -167,17 +203,16 @@ public:
 	/// spell is only cast when it beats what the stack could do on its own, then offer the spell
 	std::optional<BattleAction> decideSpell(const CStack * activeStack)
 	{
-		std::shared_ptr<Environment> environment = gameHandler;
-		auto callback = std::make_shared<DecisionRecorder>(defenderSideHero->getOwner(), nullptr);
-		callback->onBattleStarted(battle());
+		auto recorder = std::make_shared<DecisionRecorder>(defenderSideHero->getOwner(), nullptr);
+		recorder->onBattleStarted(battle());
 
-		BattleEvaluator evaluator(environment, callback, activeStack, defenderSideHero->getOwner(),
+		BattleEvaluator evaluator(gameHandler, recorder, activeStack, defenderSideHero->getOwner(),
 			BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
 
 		evaluator.selectStackAction(activeStack);
 		evaluator.attemptCastingSpell(activeStack);
 
-		return callback->spellAction;
+		return recorder->spellAction;
 	}
 
 	/// The unit a recorded spell action was aimed at
@@ -235,31 +270,6 @@ TEST_F(BattleEvaluatorSpellTest, SlowsTheEnemyThatIsWorthMore)
 	EXPECT_EQ(targetOf(*action), angels);
 }
 
-TEST_F(BattleEvaluatorTest, EnemyOnlyAreaAttackDoesNotDamageAnAlly)
-{
-	const auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(7, 5), 100);
-	const auto * hydra = addStack(BattleSide::DEFENDER, creatureByName("core:hydra"), BattleHex(8, 5), 10);
-	const auto * ally = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(8, 4), 100);
-
-	auto attack = evaluateMelee(hydra, enemy, hydra->getPosition());
-	EXPECT_GT(attack.defenderDamageReduce, 0);
-	EXPECT_EQ(attack.collateralDamageReduce, 0);
-	EXPECT_FALSE(vstd::contains_if(attack.affectedUnits, [ally](const auto & unit)
-	{
-		return unit->unitId() == ally->unitId();
-	}));
-}
-
-TEST_F(BattleEvaluatorTest, DragonBreathStillDamagesAnAllyBehindTheTarget)
-{
-	const auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(7, 5), 100);
-	addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(6, 5), 100);
-	const auto * dragon = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(8, 5), 3);
-
-	auto attack = evaluateMelee(dragon, enemy, dragon->getPosition());
-	EXPECT_GT(attack.collateralDamageReduce, 0);
-}
-
 TEST_F(BattleEvaluatorSpellTest, PrefersRestoringManyCreaturesToDamageSpell)
 {
 	teachDefender(SpellID::RESURRECTION);
@@ -269,7 +279,7 @@ TEST_F(BattleEvaluatorSpellTest, PrefersRestoringManyCreaturesToDamageSpell)
 	addStack(BattleSide::ATTACKER, creatureByName("core:griffin"), BattleHex(7, 5), 15);
 	const auto * active = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(8, 5), 40);
 	auto * wounded = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(14, 5), 300);
-	// One survivor used to cap the value of restoring the rest, making Magic Arrow look better.
+	// a single survivor must not cap the value of restoring the rest, or Magic Arrow would look better
 	int64_t damage = wounded->getAvailableHealth() - wounded->getMaxHealth();
 	wounded->damage(damage);
 	ASSERT_EQ(wounded->getCount(), 1);
@@ -293,23 +303,6 @@ TEST_F(BattleEvaluatorSpellTest, DeclinesUselessSpellWhenStackCannotAct)
 	auto action = decideSpell(ours);
 
 	EXPECT_FALSE(action.has_value());
-}
-
-TEST_F(BattleEvaluatorTest, DoubleAttackReceivesOnlyOneRetaliation)
-{
-	const auto * griffins = addStack(BattleSide::ATTACKER, creatureByName("core:royalGriffin"), BattleHex(8, 5), 50);
-	const auto * crusaders = addStack(BattleSide::DEFENDER, creatureByName("core:crusader"), BattleHex(9, 5), 20);
-	ASSERT_EQ(crusaders->getTotalAttacks(false), 2);
-	ASSERT_TRUE(griffins->hasBonusOfType(BonusType::UNLIMITED_RETALIATIONS));
-
-	DamageEstimation retaliation;
-	battle()->battleEstimateDamage(BattleAttackInfo(crusaders, griffins, 0, false), &retaliation);
-	const int64_t retaliationDamage = (retaliation.damage.min + retaliation.damage.max) / 2;
-	ASSERT_GT(retaliationDamage, 0);
-
-	auto attack = evaluateMelee(crusaders, griffins, crusaders->getPosition());
-
-	EXPECT_EQ(attack.attackerState->getAvailableHealth(), crusaders->getAvailableHealth() - retaliationDamage);
 }
 
 TEST_F(BattleEvaluatorSpellTest, PrefersCheaperSpellForAnEquivalentFinishingKill)
