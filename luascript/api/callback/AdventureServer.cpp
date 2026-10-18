@@ -275,7 +275,11 @@ void AdventureServerProxy::setMapVariable(IGameEventCallback & object, const std
 
 void AdventureServerProxy::removeObject(IGameEventCallback & object, const CGObjectInstance & target)
 {
-	object.removeObject(&target, target.getOwner());
+	// visited object stays until its visit ends, so script may keep using it after removal, as HotA allows
+	if(object.isObjectBeingVisited(target.id))
+		object.removeAfterVisit(target.id);
+	else
+		object.removeObject(&target, target.getOwner());
 }
 
 void AdventureServerProxy::finishQuestOrRemoveObject(IGameEventCallback & object, const CGObjectInstance & target)
@@ -288,7 +292,7 @@ void AdventureServerProxy::finishQuestOrRemoveObject(IGameEventCallback & object
 	}
 	if(dynamic_cast<const QuestGuard *>(&target))
 	{
-		object.removeObject(&target, target.getOwner());
+		removeObject(object, target);
 		return;
 	}
 	if(dynamic_cast<const SeerHut *>(&target))

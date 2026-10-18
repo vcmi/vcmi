@@ -63,6 +63,7 @@ public:
 	bool changeStackCount(const StackLocation & sl, TQuantity count, ChangeValueMode mode) override;
 	bool eraseStack(const StackLocation & sl, bool forceRemoval) override;
 	void removeAfterVisit(const ObjectInstanceID & id) override;
+	bool isObjectBeingVisited(const ObjectInstanceID &) const override { return false; }
 	void removeArtifact(const ArtifactLocation & al) override;
 	void sendAndApply(CPackForClient & pack) override;
 	vstd::RNG & getRandomGenerator() override;

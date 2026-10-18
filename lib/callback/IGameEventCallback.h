@@ -109,6 +109,8 @@ public:
 	virtual bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count) = 0;
 
 	virtual void removeAfterVisit(const ObjectInstanceID & id) = 0; //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
+	/// Returns true if a hero is currently interacting with this object
+	virtual bool isObjectBeingVisited(const ObjectInstanceID & id) const = 0;
 
 	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) = 0;
 	virtual bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) = 0;

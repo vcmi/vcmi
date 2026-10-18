@@ -1192,6 +1192,14 @@ void CGameHandler::setScriptVariable(const std::string & scope, const std::strin
 
 void CGameHandler::setQuestHintText(ObjectInstanceID obj, const MetaString & hint)
 {
+	// applying hint to anything else would throw on every client, e.g. if script targets already removed object
+	const auto * questSource = dynamic_cast<const QuestSource *>(gameState().getObjInstance(obj));
+	if(!questSource || !questSource->getActiveQuest())
+	{
+		logGlobal->error("Attempt to set quest hint for object %d that is not an active quest source!", obj.getNum());
+		return;
+	}
+
 	SetQuestHint pack;
 	pack.object = obj;
 	pack.hint = hint;
@@ -4453,6 +4461,11 @@ void CGameHandler::removeAfterVisit(const ObjectInstanceID & id)
 		throw std::runtime_error("This function needs to be called during the object visit!");
 
 	visit->removeObjectAfterVisit = true;
+}
+
+bool CGameHandler::isObjectBeingVisited(const ObjectInstanceID & id) const
+{
+	return activities->findVisit(id) != nullptr;
 }
 
 void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode)

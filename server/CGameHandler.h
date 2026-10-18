@@ -158,6 +158,7 @@ public:
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) override;
 
 	void removeAfterVisit(const ObjectInstanceID & id) override;
+	bool isObjectBeingVisited(const ObjectInstanceID & id) const override;
 
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const CArtifact * artType, const SpellID & spellId, const ArtifactPosition & pos);
 	bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) override;
