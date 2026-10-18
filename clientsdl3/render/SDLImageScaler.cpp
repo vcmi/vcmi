@@ -25,7 +25,7 @@ SDLImageOptimizer::SDLImageOptimizer(SDL_Surface * surf, const Rect & virtualDim
 {
 }
 
-void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface)
+void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface, const SDLImageMargins & keep, int heightMultiple)
 {
 	if (!surf)
 		return;
@@ -88,12 +88,18 @@ void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface)
 	if (left == surf->w)
 		return;
 
-	if (left != 0 || top != 0 || right != surf->w - 1 || bottom != surf->h - 1)
+	left = std::max(0, left - keep.left);
+	top = std::max(0, top - keep.top) / heightMultiple * heightMultiple;
+	right = std::min(surf->w - 1, right + keep.right);
+	bottom = std::min(surf->h - 1, bottom + keep.bottom);
+	const int cutHeight = (bottom - top + heightMultiple) / heightMultiple * heightMultiple;
+
+	if (left != 0 || top != 0 || right != surf->w - 1 || cutHeight != surf->h)
 	{
 		// non-zero border found
 		Rect newDimensions(left, top, right - left + 1, bottom - top + 1);
 		SDL_Rect rectSDL = CSDL_Ext::toSDL(newDimensions);
-		auto newSurface = CSDL_Ext::newSurface(newDimensions.dimensions(), formatSourceSurface);
+		auto newSurface = CSDL_Ext::newSurface(Point(newDimensions.w, cutHeight), formatSourceSurface);
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
 		SDL_BlitSurface(surf, &rectSDL, newSurface, nullptr);
 
