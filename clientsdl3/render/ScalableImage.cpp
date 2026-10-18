@@ -624,7 +624,8 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	}
 
 	// alternatively, find largest pre-scaled image, load it and rescale to desired scaling
-	for (int8_t scaling = 4; scaling > 0; --scaling)
+	// the 1x image is only useful for optional images, other images are scaled from the base image below
+	for (int8_t scaling = 4; scaling > (optionalImage ? 0 : 1); --scaling)
 	{
 		loadingLocator.scalingFactor = scaling;
 		auto loadedImage = ENGINE->renderHandler().loadScaledImage(loadingLocator);
@@ -632,11 +633,8 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 		{
 			if (scaling == 1)
 			{
-				if (optionalImage)
-				{
-					ScalableImageParameters parameters(getPalette(), mode);
-					return loadedImage->scaleInteger(scalingFactor, parameters.palette, mode);
-				}
+				ScalableImageParameters parameters(getPalette(), mode);
+				return loadedImage->scaleInteger(scalingFactor, parameters.palette, mode);
 			}
 			else
 			{
