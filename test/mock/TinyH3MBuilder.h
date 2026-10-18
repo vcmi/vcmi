@@ -198,6 +198,9 @@ public:
 	/// Empty Pandora's Box - no message, guards or rewards.
 	TinyH3MBuilder & pandora(const int3 & pos, std::vector<std::pair<CreatureID, uint16_t>> creatures = {});
 
+	/// Place a terrain overlay without object data, such as Cursed Ground or Magic Plains
+	TinyH3MBuilder & terrainOverlay(const int3 & pos, MapObjectID id);
+
 	/// Specific artifact pickup.
 	TinyH3MBuilder & artifact(const int3 & pos, ArtifactID artifact);
 

@@ -1159,6 +1159,28 @@ BattleInfo * CGameState::getBattle(const BattleID & battle)
 	return nullptr;
 }
 
+BattleField CGameState::getSpecialTerrainAt(const int3 & tile) const
+{
+	//look only for magical terrain-like objects covering given tile
+	for(auto & obj : map->getObjects<CGTerrainPatch>())
+		if(obj->coveringAt(tile) && obj->getBattlefield() != BattleField::NONE)
+			return obj->getBattlefield();
+
+	return BattleField::NONE;
+}
+
+CBonusSystemNode & CGameState::getSpecialTerrainNode(BattleField terrain)
+{
+	auto & node = specialTerrainNodes[terrain];
+	if(!node)
+	{
+		node = std::make_unique<CBonusSystemNode>(BonusNodeType::UNKNOWN);
+		for(const auto & bonus : terrain.getInfo()->bonuses)
+			node->addNewBonus(bonus);
+	}
+	return *node;
+}
+
 BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator) const
 {
 	assert(tile.isValid());
@@ -1175,17 +1197,9 @@ BattleField CGameState::battleGetBattlefieldType(int3 tile, vstd::RNG & randomGe
 		return topObject->getBattlefield();
 	}
 
-	for(auto & obj : map->getObjects<CGTerrainPatch>())
-	{
-		//look only for magical terrain-like objects covering given tile
-		if(!obj->coveringAt(tile))
-			continue;
-
-		auto customBattlefield = obj->getBattlefield();
-
-		if(customBattlefield != BattleField::NONE)
-			return customBattlefield;
-	}
+	BattleField specialTerrain = getSpecialTerrainAt(tile);
+	if(specialTerrain != BattleField::NONE)
+		return specialTerrain;
 
 	if(map->isCoastalTile(tile)) //coastal tile is always ground
 		return BattleField(*LIBRARY->identifiers()->getIdentifier("core", "battlefield.sand_shore"));

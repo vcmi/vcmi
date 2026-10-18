@@ -408,6 +408,17 @@ TinyH3MBuilder & TinyH3MBuilder::pandora(const int3 & pos, std::vector<std::pair
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::terrainOverlay(const int3 & pos, MapObjectID id)
+{
+	ObjectSpec spec;
+	spec.id            = id;
+	spec.subid         = MapObjectSubID(0);
+	spec.position      = pos;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::artifact(const int3 & pos, ArtifactID artifact)
 {
 	ObjectSpec spec;
@@ -1221,6 +1232,10 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 				w.skipZero(2);
 				break;
 			}
+
+			case Obj::CURSED_GROUND1:
+			case Obj::MAGIC_PLAINS1:
+				break; // terrain overlays carry no object data
 
 			default:
 				throw std::runtime_error("TinyH3MBuilder: object body not implemented for id="

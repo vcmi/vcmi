@@ -80,6 +80,8 @@ private:
 	std::set<SpellID> spells; //known spells (spell IDs)
 	ObjectInstanceID visitedTown; //set if hero is visiting town or in the town garrison
 	ObjectInstanceID boardedBoat; //set to CGBoat when sailing
+	/// Special terrain, such as Cursed Ground, whose bonuses hero receives. Not serialized - restored from hero position
+	BattleField specialTerrain = BattleField::NONE;
 
 	ui32 movement; //remaining movement points
 	bool inTownGarrison; // if hero is in town garrison
@@ -343,6 +345,13 @@ public:
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;
 	void restoreBonusSystem(CGameState & gs) override;
+	void attachToBonusSystem(CGameState & gs) override;
+	void detachFromBonusSystem(CGameState & gs) override;
+
+	/// Attaches hero to bonuses of special terrain at its current position, if any
+	void updateSpecialTerrain(CGameState & gs);
+	/// Detaches hero from bonuses of its special terrain, for example for duration of a battle
+	void leaveSpecialTerrain(CGameState & gs);
 
 	void updateFrom(const JsonNode & data) override;
 

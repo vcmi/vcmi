@@ -298,6 +298,8 @@ public:
 
 	bool adaptProblem(ESpellCastProblem source, Problem & target) const override;
 	bool adaptGenericProblem(Problem & target) const override;
+	/// Explains to player why caster can not cast spells of this level, e.g. due to Recanter's Cloak or Cursed Ground
+	static void describeSpellLevelLimit(const Caster * caster, Problem & target);
 
 	int32_t getSpellIndex() const override;
 	SpellID getSpellId() const override;

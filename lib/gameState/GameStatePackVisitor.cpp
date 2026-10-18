@@ -318,6 +318,9 @@ void GameStatePackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 		return;
 	}
 	gs.getMap().moveObject(pack.objid, pack.nPos + obj->getVisitableOffset());
+
+	if(auto * hero = dynamic_cast<CGHeroInstance *>(obj))
+		hero->updateSpecialTerrain(gs);
 }
 
 void GameStatePackVisitor::visitChangeObjectVisitors(ChangeObjectVisitors & pack)
@@ -616,6 +619,7 @@ void GameStatePackVisitor::visitTryMoveHero(TryMoveHero & pack)
 		if(auto * b = h->getBoat())
 			b->setAnchorPos(pack.end);
 		gs.getMap().showObject(h);
+		h->updateSpecialTerrain(gs);
 	}
 
 	auto & fogOfWarMap = gs.getPlayerTeam(h->getOwner())->fogOfWarMap;
@@ -752,6 +756,7 @@ void GameStatePackVisitor::visitGiveHero(GiveHero & pack)
 
 	gs.getMap().showObject(h);
 	h->setVisitedTown(nullptr, false);
+	h->updateSpecialTerrain(gs);
 }
 
 void GameStatePackVisitor::visitNewObject(NewObject & pack)
@@ -1357,6 +1362,8 @@ void GameStatePackVisitor::visitBattleStart(BattleStart & pack)
 		{
 			CGHeroInstance * hero = gs.getHero(pack.info->getSideHero(i)->id);
 			hero->mana = pack.info->getSide(i).initialMana + pack.info->getSide(i).additionalMana;
+			// battle has its own battlefield, which may differ from terrain under the hero
+			hero->leaveSpecialTerrain(gs);
 		}
 	}
 
@@ -1512,6 +1519,11 @@ void GameStatePackVisitor::restorePreBattleState(BattleID battleID)
 	});
 
 	const auto & currentBattle = **battleIter;
+
+	for(auto side : {BattleSide::ATTACKER, BattleSide::DEFENDER})
+		if(currentBattle.getSide(side).heroID.hasValue())
+			if(CGHeroInstance * hero = gs.getHero(currentBattle.getSide(side).heroID))
+				hero->updateSpecialTerrain(gs);
 
 	if (currentBattle.getDefendedTown() && currentBattle.getSideHero(BattleSide::DEFENDER))
 	{
