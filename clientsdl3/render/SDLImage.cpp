@@ -598,6 +598,30 @@ std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 	return ret;
 }
 
+std::shared_ptr<SDLImageShared> SDLImageShared::generateCropped(const std::function<SDL_Surface *(SDL_Surface *)> & generate, int border, double shearX) const
+{
+	// Shadows are downscaled vertically by 4 with a nearest-neighbour sampling grid, which starts at the top of the processed surface.
+	// A cut at another position or height moves the grid and the shadow of the frame jumps, so top edge and height stay multiples of 4.
+	// The sheared shadow moves to the left by up to shearX * its height.
+	const SDLImageMargins keep{border + static_cast<int>(std::ceil(shearX * (surf->h - 1))), border, border, border};
+
+	SDLImageOptimizer optimizer(surf, Rect(margins, fullSize));
+	optimizer.optimizeSurface(surf, keep, 4);
+	SDL_Surface * cut = optimizer.acquireResultSurface();
+	SDL_Surface * generated = cut ? generate(cut) : nullptr;
+	SDL_DestroySurface(cut);
+
+	auto ret = std::make_shared<SDLImageShared>(generated);
+	ret->fullSize = fullSize;
+	ret->margins = optimizer.getResultDimensions().topLeft();
+	ret->optimizeSurface();
+
+	// erase our own reference
+	SDL_DestroySurface(generated);
+
+	return ret;
+}
+
 std::shared_ptr<SDLImageShared> SDLImageShared::drawShadow(bool doSheer) const
 {
 	if(upscalingInProgress)
@@ -606,17 +630,8 @@ std::shared_ptr<SDLImageShared> SDLImageShared::drawShadow(bool doSheer) const
 	if (!surf)
 		return nullptr;
 
-	SDL_Surface * shadow = CSDL_Ext::drawShadow(surf, doSheer);
-	auto ret = std::make_shared<SDLImageShared>(shadow);
-	ret->fullSize = fullSize;
-	ret->margins.x = margins.x;
-	ret->margins.y = margins.y;
-	ret->optimizeSurface();
-
-	// erase our own reference
-	SDL_DestroySurface(shadow);
-
-	return ret;
+	// border: the blur reaches 1 pixel
+	return generateCropped([doSheer](SDL_Surface * source) { return CSDL_Ext::drawShadow(source, doSheer); }, 4, doSheer ? CSDL_Ext::shadowShearX : 0.0);
 }
 
 std::shared_ptr<SDLImageShared> SDLImageShared::drawOutline(const ColorRGBA & color, int thickness) const
@@ -628,17 +643,7 @@ std::shared_ptr<SDLImageShared> SDLImageShared::drawOutline(const ColorRGBA & co
 		return nullptr;
 
 	SDL_Color sdlColor = { color.r, color.g, color.b, color.a };
-	SDL_Surface * outline = CSDL_Ext::drawOutline(surf, sdlColor, thickness);
-	auto ret = std::make_shared<SDLImageShared>(outline);
-	ret->fullSize = fullSize;
-	ret->margins.x = margins.x;
-	ret->margins.y = margins.y;
-	ret->optimizeSurface();
-
-	// erase our own reference
-	SDL_DestroySurface(outline);
-
-	return ret;
+	return generateCropped([sdlColor, thickness](SDL_Surface * source) { return CSDL_Ext::drawOutline(source, sdlColor, thickness); }, thickness + 3, 0.0);
 }
 
 void SDLImageShared::setMargins(const Point & newMargins)
