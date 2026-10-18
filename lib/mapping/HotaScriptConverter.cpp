@@ -515,6 +515,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 			case HotaScriptActions::DISABLE_EVENT:
 			{
 				// In HotA an event lives on its map object, so disabling it means removing that object
+				// TODO: verify HotA behavior for quest events - possibly only Quest Guard should be removed, while Seer Hut and other quest objects are kept
 				result += pad + "server:removeObject(" + bucketTraits(currentBucket).subject + ")\n";
 				break;
 			}
