@@ -251,15 +251,19 @@ void CMapLoaderH3M::readPlayerInfo()
 		reader->readBitmaskFactions(allowedFactions, false);
 
 		playerInfo.isFactionRandom = reader->readBool();
-		const bool allFactionsAllowed = playerInfo.isFactionRandom && allowedFactions.size() == features.factionsCount;
 
-		if(!allFactionsAllowed)
+		if (allowedFactions.empty())
+			logGlobal->warn("Map '%s': Player %d has no allowed factions to play! Ignoring.", mapName, i);
+		else if (allowedFactions.size() * 2 >= features.factionsCount)
 		{
-			if (!allowedFactions.empty())
-				playerInfo.allowedFactions = allowedFactions;
-			else
-				logGlobal->warn("Map '%s': Player %d has no allowed factions to play! Ignoring.", mapName, i);
+			// Map that allows most factions is assumed to ban the rest, so factions unknown to its format,
+			// such as ones from mods or from newer HotA versions, remain available
+			for (const auto & faction : reader->getFormatFactions())
+				if (!allowedFactions.count(faction))
+					playerInfo.allowedFactions.erase(faction);
 		}
+		else
+			playerInfo.allowedFactions = allowedFactions;
 
 		playerInfo.hasMainTown = reader->readBool();
 		if(playerInfo.hasMainTown)

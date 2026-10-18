@@ -58,6 +58,7 @@ set(test_SRCS
 		map/CGArtifactRegressionTest.cpp
 		map/MapScriptTest.cpp
 		map/MapObjectDrawOrderTest.cpp
+		map/PlayerFactionsTest.cpp
 		map/TinyH3MBuilderTest.cpp
 
 		quest/QuestTest.cpp

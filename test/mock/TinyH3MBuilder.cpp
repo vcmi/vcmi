@@ -211,6 +211,12 @@ TinyH3MBuilder & TinyH3MBuilder::playerActive(PlayerColor color)
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::playerFactions(PlayerColor color, uint32_t mask)
+{
+	playerFactionMask.at(color.getNum()) = mask;
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::town(const int3 & pos, FactionID faction, PlayerColor owner)
 {
 	ObjectSpec spec;
@@ -863,11 +869,9 @@ void TinyH3MBuilder::writePlayerInfo(TinyH3MWriter & w) const
 		w.writeUInt8(0);                                // aiTactic = AI_RANDOM
 		if(features.levelSOD)
 			w.writeUInt8(active ? 0xff : 0);            // SOD: faction-selectable flag
-		// allowedFactions bitmask: all-allowed for active, none for inactive
-		if(active)
-			w.writeAllOnes(features.factionsBytes);
-		else
-			w.skipZero(features.factionsBytes);
+		// allowedFactions bitmask: playerFactions() mask for active, none for inactive
+		for(int byte = 0; byte < features.factionsBytes; ++byte)
+			w.writeUInt8(active ? static_cast<uint8_t>(playerFactionMask[i] >> (byte * 8)) : 0);
 		w.writeBool(false);                             // isFactionRandom
 		w.writeBool(false);                             // hasMainTown
 		w.writeBool(false);                             // hasRandomHero
