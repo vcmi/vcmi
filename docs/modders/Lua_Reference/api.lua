@@ -1653,6 +1653,14 @@ function TownInstance:getOwner() end
 ---@return Building[] # Every building standing in this town.
 function TownInstance:getBuildings() end
 
+---Returns the hero that stands in the town entrance, or nil when there is none.
+---@return HeroInstance # Hero visiting the town, or nil.
+function TownInstance:getVisitingHero() end
+
+---Returns the hero that guards the town as part of its garrison, or nil when there is none.
+---@return HeroInstance # Hero in the town garrison, or nil.
+function TownInstance:getGarrisonHero() end
+
 ---Returns the faction (Castle, Rampart, Tower...) of this town.
 ---@return Faction # Faction of the town, comparable with the result of Services:getFactionByName.
 function TownInstance:getFaction() end

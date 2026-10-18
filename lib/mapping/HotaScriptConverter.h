@@ -82,4 +82,11 @@ private:
 	/// Records an H3M object identifier and returns the Lua expression that looks up its runtime
 	/// object name in the loader-populated `questObjects` table.
 	std::string questObjectRef(uint32_t identifier);
+
+	/// Hero-targeting action, skipped in handlers where hero may be absent
+	std::string heroStatement(const std::string & pad, const std::string & call) const;
+	/// Hero-based condition, false in handlers where hero is absent
+	std::string heroCondition(const std::string & expression) const;
+	/// Hero-based numeric expression, zero in handlers where hero is absent
+	std::string heroValue(const std::string & expression) const;
 };
