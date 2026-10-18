@@ -39,6 +39,8 @@ float BattleExchangeVariant::trackAttack(
 	}
 
 	auto attacker = hb->getForUpdate(ap.attack.attacker->unitId());
+	if(!ap.attack.shooting)
+		attacker->setPosition(ap.attackerState->getPosition());
 
 	float attackValue = ap.attackValue();
 	auto affectedUnits = ap.affectedUnits;
@@ -139,7 +141,7 @@ float BattleExchangeVariant::trackAttack(
 	static const auto selectorBlocksRetaliation = Selector::type()(BonusType::BLOCKS_RETALIATION);
 	const bool counterAttacksBlocked = attacker->hasBonus(selectorBlocksRetaliation, cachingStringBlocksRetaliation);
 
-	int64_t attackDamage = damageCache.getDamage(attacker.get(), defender.get(), hb);
+	int64_t attackDamage = damageCache.getDamage(attacker.get(), defender.get(), shooting, hb);
 	float defenderDamageReduce = AttackPossibility::calculateDamageReduce(defender.get(), attackDamage, damageCache);
 	float attackerDamageReduce = 0;
 
@@ -169,7 +171,7 @@ float BattleExchangeVariant::trackAttack(
 
 	if(mode == AttackMode::FIRST_STRIKE && defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
 	{
-		auto retaliationDamage = damageCache.getDamage(defender.get(), attacker.get(), hb);
+		auto retaliationDamage = damageCache.getDamage(defender.get(), attacker.get(), false, hb);
 		attackerDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), retaliationDamage, damageCache);
 
 #if BATTLE_TRACE_LEVEL>=1
@@ -727,6 +729,10 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 			auto attacker = exchangeBattle->getForUpdate(activeUnit->unitId());
 			auto shooting = exchangeBattle->battleCanShoot(attacker.get())
 				&& !vstd::contains(blockedShooters, attacker->unitId());
+			auto canShootTarget = [&](const battle::Unit * defender) -> bool
+				{
+				return shooting && exchangeBattle->battleCanShoot(attacker.get(), defender->getPosition());
+				};
 
 			if(!attacker->alive())
 			{
@@ -760,10 +766,10 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 					auto score = v.trackAttack(
 						attacker,
 						stackWithBonuses,
-						exchangeBattle->battleCanShoot(stackWithBonuses.get()),
+						canShootTarget(stackWithBonuses.get()),
 						isOur,
 						damageCache,
-						hb,
+						exchangeBattle,
 						BattleExchangeVariant::AttackMode::ESTIMATE);
 
 #if BATTLE_TRACE_LEVEL>=2
@@ -832,27 +838,29 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 			}
 
 			auto defender = exchangeBattle->getForUpdate(targetUnit->unitId());
-			const int totalAttacks = attacker->getTotalAttacks(shooting);
+			bool attackIsShooting = canShootTarget(defender.get());
+			const int totalAttacks = attacker->getTotalAttacks(attackIsShooting);
 
 			if(canUseAp && activeUnit->unitId() == ap.attack.attacker->unitId()
 				&& targetUnit->unitId() == ap.attack.defender->unitId())
 			{
+				attackIsShooting = ap.attack.shooting;
 				v.trackAttack(ap, exchangeBattle, damageCache);
 			}
 			else
 			{
 				for(int i = 0; i < totalAttacks; i++)
 				{
-					v.trackAttack(attacker, defender, shooting, isOur, damageCache, exchangeBattle,
+					v.trackAttack(attacker, defender, attackIsShooting, isOur, damageCache, exchangeBattle,
 						i == 0 ? BattleExchangeVariant::AttackMode::FIRST_STRIKE : BattleExchangeVariant::AttackMode::FOLLOWUP_STRIKE);
 
 					if(!attacker->alive() || !defender->alive())
 						break;
 				}
-			}
 
-			if(!shooting)
-				blockedShooters.insert(defender->unitId());
+				if(!attackIsShooting)
+					blockedShooters.insert(defender->unitId());
+			}
 
 			canUseAp = false;
 
