@@ -168,6 +168,8 @@ public:
 	/// Returns ID of existing war machine that will be replaced if hero were to purchase new war machine
 	/// If there is no replaced war machine (for example slot is empty), method will return empty ArtifactID
 	ArtifactID getReplacedWarMachine(ArtifactID newWarMachine) const;
+	/// Returns slot that new war machine will be placed into: first free possible slot, or first possible slot if all are taken
+	ArtifactPosition getWarMachineSlot(ArtifactID warMachine) const;
 	/// Hero has spellbook artifact
 	bool hasSpellbook() const;
 	/// Hero has spellbook or any spell that can be cast without spellbook
@@ -182,6 +184,8 @@ public:
 	const std::set<SpellID> & getSpellsInSpellbook() const;
 	EAlignment getAlignment() const;
 	bool needsLastStack()const override;
+	/// Whether the hero can get this war machine in a dwelling or blacksmith: only one of each type, and never a catapult. A different machine in the same slot is replaced
+	bool canRecruitWarMachine(const ArtifactID & warMachine) const;
 
 	ResourceSet dailyIncome() const override;
 	std::vector<CreatureID> providedCreatures() const override;

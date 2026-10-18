@@ -92,6 +92,10 @@ public:
 
 	bool isBlockedByActivities(const CPackForServer *pack, PlayerColor player);
 	bool isAllowedExchange(PlayerColor player, ObjectInstanceID id1, ObjectInstanceID id2);
+	/// Whether the army is one of the two armies of the garrison window the player has open
+	bool isInGarrisonDialog(PlayerColor player, ObjectInstanceID army);
+	/// Whether the player may remove units from the army: own armies, or armies without owner shown in the player's garrison window. Does not check CArmedInstance::isLocked
+	bool canTakeTroopsFrom(PlayerColor player, const CArmedInstance * army);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 
 	IGameInfoCallback & gameInfo();
@@ -129,7 +133,7 @@ public:
 	void setVisitState(const CGHeroInstance * hero, const JsonNode & state) override;
 	void showScriptDialog(BlockingDialog *iw) override;
 	void showTeleportDialog(TeleportDialog *iw) override;
-	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;
+	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, const MetaString & customTitle) override;
 	void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addActivity) override;
 
 	/// Runs a converted map event handler under a LuaScriptActivity, so that blocking script
@@ -299,6 +303,8 @@ public:
 	void throwIfCanNotTrade(GameConnectionID connectionID, const CPackForServer * pack, ObjectInstanceID id1, ObjectInstanceID id2);
 	/// Throws if object is not owned by pack sender
 	void throwIfWrongOwner(GameConnectionID connectionID, const CPackForServer * pack, ObjectInstanceID id);
+	/// Throws if pack sender may not remove units from this army
+	void throwIfCanNotTakeTroops(GameConnectionID connectionID, const CPackForServer * pack, ObjectInstanceID id);
 	/// Throws if player is not present on connection of this pack
 	void throwIfWrongPlayer(GameConnectionID connectionID, const CPackForServer * pack, PlayerColor player);
 	void throwIfWrongPlayer(GameConnectionID connectionID, const CPackForServer * pack);
@@ -321,10 +327,15 @@ public:
 	friend class CVCMIServer;
 private:
 	void getVictoryLossMessage(PlayerColor player, const EVictoryLossCheckResult & victoryLossCheckResult, InfoWindow & out) const;
+	/// Returns army of the object, throws if the object does not exist or has no army
+	const CArmedInstance * getArmyOrThrow(ObjectInstanceID id, const std::string & context);
+	/// Gives the war machine to the hero, replacing the artifact in CGHeroInstance::getWarMachineSlot if needed
+	bool giveHeroWarMachine(const CGHeroInstance * hero, const ArtifactID & warMachine);
 
 	const std::string complainNoCreatures;
 	const std::string complainNotEnoughCreatures;
 	const std::string complainInvalidSlot;
+	const std::string complainNotRemovable;
 };
 
 class ExceptionNotAllowedAction : public std::exception

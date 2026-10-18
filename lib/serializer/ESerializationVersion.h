@@ -66,12 +66,13 @@ enum class ESerializationVersion : int32_t
 	HOTA_HERO_LEVEL_OPTIONS, // persist HotA per-hero experience lock
 	BOAT_LAST_HERO, // boat remembers the last hero that used it, so Summon Boat can prefer boat of the caster
 	SAVE_CHUNKS, // saved game is stored as compressed chunks: metadata, map header, game state
+	GARRISON_DIALOG_REMOVABLE_UNITS_REMOVED, // GarrisonDialog pack no longer carries removableUnits, the client checks CArmedInstance::isLocked
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = SAVE_CHUNKS,
+	CURRENT = GARRISON_DIALOG_REMOVABLE_UNITS_REMOVED,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

@@ -62,7 +62,7 @@ public:
 
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
-	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) = 0;
+	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, const MetaString & customTitle) = 0;
 
 	/// Asks the player to pick one of several towns and completes the cast at the chosen
 	/// one. Takes ids instead of a callback, which can not be serialized and would hold

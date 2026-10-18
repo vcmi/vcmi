@@ -79,12 +79,14 @@ struct SeerReward
 		EXPERIENCE = 1,
 		MANA       = 2,
 		RESOURCES  = 5,
+		CREATURE   = 10,
 	};
 
 	Kind      kind           = Kind::NOTHING;
-	uint32_t  amount         = 0;             // EXPERIENCE, MANA
+	uint32_t  amount         = 0;             // EXPERIENCE, MANA, CREATURE
 	GameResID resourceType;                   // RESOURCES
 	uint32_t  resourceAmount = 0;             // RESOURCES
+	CreatureID creature;                      // CREATURE
 };
 
 /// Fluent API for building .h3m binary streams in test code.
@@ -134,6 +136,9 @@ public:
 
 	/// Append a standalone shipyard owned by `owner`.
 	TinyH3MBuilder & shipyard(const int3 & pos, PlayerColor owner);
+
+	/// Append a garrison owned by `owner` with up to 7 stacks; `removableUnits` needs AB or later.
+	TinyH3MBuilder & garrison(const int3 & pos, PlayerColor owner, std::vector<std::pair<CreatureID, uint16_t>> stacks, bool removableUnits);
 
 	// ---- heroes --------------------------------------------------------
 
@@ -191,7 +196,7 @@ public:
 	TinyH3MBuilder & resource(const int3 & pos, GameResID resource, uint32_t amount = 0);
 
 	/// Empty Pandora's Box - no message, guards or rewards.
-	TinyH3MBuilder & pandora(const int3 & pos);
+	TinyH3MBuilder & pandora(const int3 & pos, std::vector<std::pair<CreatureID, uint16_t>> creatures = {});
 
 	/// Specific artifact pickup.
 	TinyH3MBuilder & artifact(const int3 & pos, ArtifactID artifact);
@@ -267,6 +272,7 @@ public:
 	static SeerReward rewardExperience(uint32_t amount);
 	static SeerReward rewardMana(uint32_t amount);
 	static SeerReward rewardResource(GameResID resource, uint32_t amount);
+	static SeerReward rewardCreature(CreatureID creature, uint16_t amount);
 
 	// ---- output ---------------------------------------------------------
 
@@ -309,6 +315,13 @@ private:
 		// The single-quest seerHut() populates one one-shot entry.
 		std::vector<std::pair<Quest, SeerReward>> seerOneShots;
 		std::vector<std::pair<Quest, SeerReward>> seerRepeatables;
+
+		// PANDORAS_BOX
+		std::vector<std::pair<CreatureID, uint16_t>> pandoraCreatures;
+
+		// GARRISON
+		std::vector<std::pair<CreatureID, uint16_t>> garrisonStacks;
+		bool                                         garrisonRemovableUnits = true;
 
 		// Hero customisation. Only consumed for HERO / RANDOM_HERO objects.
 		std::vector<std::pair<CreatureID, uint16_t>>           heroGarrisonStacks;

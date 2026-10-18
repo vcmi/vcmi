@@ -399,6 +399,12 @@ void AdventureServerProxy::takeArtifact(IGameEventCallback & object, const CGHer
 
 void AdventureServerProxy::grantCreatures(IGameEventCallback & object, const CGHeroInstance & hero, const Creature & creature, int count)
 {
+	if(count <= 0)
+	{
+		logScript->error("grantCreatures: can not grant %d units of %s", count, creature.getJsonKey());
+		return;
+	}
+
 	CCreatureSet army;
 	army.addToSlot(army.getFreeSlot(), creature.getId(), count);
 	object.giveCreatures(&hero, army);
@@ -406,6 +412,12 @@ void AdventureServerProxy::grantCreatures(IGameEventCallback & object, const CGH
 
 void AdventureServerProxy::takeCreatures(IGameEventCallback & object, const CGHeroInstance & hero, const Creature & creature, int count)
 {
+	if(count <= 0)
+	{
+		logScript->error("takeCreatures: can not take %d units of %s", count, creature.getJsonKey());
+		return;
+	}
+
 	object.takeCreatures(hero.id, {CStackBasicDescriptor(creature.getId(), count)});
 }
 

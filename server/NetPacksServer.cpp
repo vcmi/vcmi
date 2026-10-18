@@ -102,7 +102,7 @@ void ApplyGhNetPackVisitor::visitArrangeStacks(ArrangeStacks & pack)
 
 void ApplyGhNetPackVisitor::visitBulkMoveArmy(BulkMoveArmy & pack)
 {
-	gh.throwIfWrongOwner(connection, &pack, pack.srcArmy);
+	gh.throwIfCanNotTakeTroops(connection, &pack, pack.srcArmy);
 	gh.throwIfCanNotTrade(connection, &pack, pack.srcArmy, pack.destArmy);
 
 	result = gh.bulkMoveArmy(pack.srcArmy, pack.destArmy, pack.srcSlot);
@@ -110,7 +110,7 @@ void ApplyGhNetPackVisitor::visitBulkMoveArmy(BulkMoveArmy & pack)
 
 void ApplyGhNetPackVisitor::visitBulkSplitStack(BulkSplitStack & pack)
 {
-	gh.throwIfWrongOwner(connection, &pack, pack.srcOwner);
+	gh.throwIfCanNotTakeTroops(connection, &pack, pack.srcOwner);
 	gh.throwIfCanNotTrade(connection, &pack, pack.srcOwner, pack.srcOwner);
 
 	result = gh.bulkSplitStack(pack.src, pack.srcOwner, pack.amount);
@@ -118,7 +118,7 @@ void ApplyGhNetPackVisitor::visitBulkSplitStack(BulkSplitStack & pack)
 
 void ApplyGhNetPackVisitor::visitBulkMergeStacks(BulkMergeStacks & pack)
 {
-	gh.throwIfWrongOwner(connection, &pack, pack.srcOwner);
+	gh.throwIfCanNotTakeTroops(connection, &pack, pack.srcOwner);
 	gh.throwIfCanNotTrade(connection, &pack, pack.srcOwner, pack.srcOwner);
 
 	result = gh.bulkMergeStacks(pack.src, pack.srcOwner);
@@ -126,7 +126,7 @@ void ApplyGhNetPackVisitor::visitBulkMergeStacks(BulkMergeStacks & pack)
 
 void ApplyGhNetPackVisitor::visitBulkSplitAndRebalanceStack(BulkSplitAndRebalanceStack & pack)
 {
-	gh.throwIfWrongOwner(connection, &pack, pack.srcOwner);
+	gh.throwIfCanNotTakeTroops(connection, &pack, pack.srcOwner);
 	gh.throwIfCanNotTrade(connection, &pack, pack.srcOwner, pack.srcOwner);
 
 	result = gh.bulkSplitAndRebalanceStack(pack.src, pack.srcOwner);
@@ -278,6 +278,9 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 	if(!market)
 		gh.throwAndComplain(connection, "market is not-a-market! :/");
 
+	if(!market->allowsTrade(pack.mode))
+		gh.throwAndComplain(connection, "Can not trade - market does not support this trade mode!");
+
 	bool heroCanBeInvalid = false;
 
 	if (pack.mode == EMarketMode::RESOURCE_RESOURCE || pack.mode == EMarketMode::RESOURCE_PLAYER)
@@ -315,16 +318,25 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 			gh.throwAndComplain(connection, "Can not trade - market not owned!");
 	}
 
+	// modes read their item lists pairwise by index
+	const auto requireSameSize = [&](std::initializer_list<size_t> sizes)
+	{
+		if(std::adjacent_find(sizes.begin(), sizes.end(), std::not_equal_to<>()) != sizes.end())
+			gh.throwAndComplain(connection, "Can not trade - malformed trade request!");
+	};
+
 	result = true;
 
 	switch(pack.mode)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
+		requireSameSize({pack.r1.size(), pack.r2.size(), pack.val.size()});
 		for(int i = 0; i < pack.r1.size(); ++i)
 			result &= gh.tradeResources(market, pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
 	{
+		requireSameSize({pack.r1.size(), pack.r2.size(), pack.val.size()});
 		ResourceSet resources;
 		for(int i = 0; i < pack.r1.size(); ++i)
 		{
@@ -337,14 +349,17 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 		break;
 	}
 	case EMarketMode::CREATURE_RESOURCE:
+		requireSameSize({pack.r1.size(), pack.r2.size(), pack.val.size()});
 		for(int i = 0; i < pack.r1.size(); ++i)
 			result &= gh.sellCreatures(pack.val[i], market, hero, pack.r1[i].as<SlotID>(), pack.r2[i].as<GameResID>());
 		break;
 	case EMarketMode::RESOURCE_ARTIFACT:
+		requireSameSize({pack.r1.size(), pack.r2.size()});
 		for(int i = 0; i < pack.r1.size(); ++i)
 			result &= gh.buyArtifact(market, hero, pack.r1[i].as<GameResID>(), pack.r2[i].as<ArtifactID>());
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
+		requireSameSize({pack.r1.size(), pack.r2.size()});
 		for(int i = 0; i < pack.r1.size(); ++i)
 			result &= gh.sellArtifact(market, hero, pack.r1[i].as<ArtifactInstanceID>(), pack.r2[i].as<GameResID>());
 		break;
@@ -358,6 +373,7 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 		break;
 	case EMarketMode::CREATURE_EXP:
 	{
+		requireSameSize({pack.r1.size(), pack.val.size()});
 		std::vector<SlotID> slotIDs;
 		std::vector<ui32> count(pack.val.begin(), pack.val.end());
 

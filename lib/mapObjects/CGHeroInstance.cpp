@@ -589,6 +589,11 @@ bool CGHeroInstance::needsLastStack() const
 	return true;
 }
 
+bool CGHeroInstance::canRecruitWarMachine(const ArtifactID & warMachine) const
+{
+	return warMachine != ArtifactID::CATAPULT && !hasArt(warMachine);
+}
+
 void CGHeroInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(h == this) return; //exclude potential self-visiting
@@ -1990,18 +1995,18 @@ int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
 
 ArtifactID CGHeroInstance::getReplacedWarMachine(ArtifactID artifactID) const
 {
-	ArtifactID replacedArtifact;
-	auto art = artifactID.toArtifact();
+	const auto * currentArtifact = getArt(getWarMachineSlot(artifactID));
+	return currentArtifact ? currentArtifact->getTypeId() : ArtifactID();
+}
 
-	for(auto slot : art->getPossibleSlots().at(ArtBearer::HERO))
-	{
-		const auto * currentArtifact = getArt(slot);
+ArtifactPosition CGHeroInstance::getWarMachineSlot(ArtifactID warMachine) const
+{
+	const auto & possibleSlots = warMachine.toArtifact()->getPossibleSlots().at(ArtBearer::HERO);
 
-		if(currentArtifact == nullptr)
-			return ArtifactID();
-		else
-			replacedArtifact = currentArtifact->getTypeId();
-	}
-	return replacedArtifact;
+	for(const auto & slot : possibleSlots)
+		if(getArt(slot) == nullptr)
+			return slot;
+
+	return possibleSlots.front();
 }
 

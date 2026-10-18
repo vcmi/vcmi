@@ -89,7 +89,7 @@ ESpellCastResult ReinforcementsEffect::applyAdventureEffects(SpellCastEnvironmen
 	const auto * sourceArmy = destination->getUpperArmy();
 	MetaString garrisonTitle;
 	garrisonTitle.appendTextID(garrisonTitleTextID);
-	env->showGarrisonDialog(sourceArmy->id, ObjectInstanceID(parameters.caster->getCasterUnitId()), true, garrisonTitle);
+	env->showGarrisonDialog(sourceArmy->id, ObjectInstanceID(parameters.caster->getCasterUnitId()), garrisonTitle);
 
 	return ESpellCastResult::OK;
 }

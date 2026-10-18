@@ -89,7 +89,7 @@ void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 
 	if(relations == PlayerRelations::SAME_PLAYER) //we're visiting our mine
 	{
-		gameEvents.showGarrisonDialog(id, h->id, true, MetaString());
+		gameEvents.showGarrisonDialog(id, h->id, MetaString());
 		return;
 	}
 	else if (relations == PlayerRelations::ALLIES)//ally
@@ -1021,7 +1021,12 @@ void CGGarrison::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 	if (relations == PlayerRelations::ENEMIES)
 		gameEvents.setOwner(this, h->tempOwner);
 
-	gameEvents.showGarrisonDialog(id, h->id, removableUnits, MetaString());
+	gameEvents.showGarrisonDialog(id, h->id, MetaString());
+}
+
+bool CGGarrison::isLocked() const
+{
+	return !removableUnits;
 }
 
 bool CGGarrison::passableFor(PlayerColor player) const

@@ -1452,7 +1452,6 @@ struct DLL_LINKAGE GarrisonDialog : public Question
 {
 	ObjectInstanceID objid;
 	ObjectInstanceID hid;
-	bool removableUnits = false;
 	MetaString customTitle;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -1462,7 +1461,11 @@ struct DLL_LINKAGE GarrisonDialog : public Question
 		h & questionID;
 		h & objid;
 		h & hid;
-		h & removableUnits;
+		if (!h.hasFeature(Handler::Version::GARRISON_DIALOG_REMOVABLE_UNITS_REMOVED))
+		{
+			bool removableUnits = false;
+			h & removableUnits;
+		}
 		if (h.hasFeature(Handler::Version::CUSTOM_GARRISON_TITLE))
 			h & customTitle;
 	}

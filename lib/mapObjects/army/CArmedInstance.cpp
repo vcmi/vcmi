@@ -193,6 +193,16 @@ void CArmedInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 	CCreatureSet::serializeJson(handler, "army", 7);
 }
 
+bool CArmedInstance::isLocked() const
+{
+	return false;
+}
+
+std::string CArmedInstance::describeArmy() const
+{
+	return getObjectNameTextID() + " (id " + std::to_string(id.getNum()) + ") at " + anchorPos().toString();
+}
+
 TerrainId CArmedInstance::getCurrentTerrain() const
 {
 	if(anchorPos().isValid())

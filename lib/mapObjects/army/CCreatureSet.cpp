@@ -594,24 +594,27 @@ bool CCreatureSet::canBeMergedWith(const CCreatureSet & cs, bool allowMergingSta
 
 bool CCreatureSet::hasUnits(const std::vector<CStackBasicDescriptor> & units, bool requireLastStack) const
 {
-	bool foundExtraCreatures = false;
-	int testedSlots = 0;
+	std::map<CreatureID, int64_t> requested;
 	for(const auto & reqStack : units)
+		requested[reqStack.getId()] += reqStack.getCount();
+
+	bool foundExtraCreatures = false;
+	size_t testedSlots = 0;
+	for(const auto & [creature, requestedCount] : requested)
 	{
-		size_t count = 0;
+		int64_t count = 0;
 		for(const auto & slot : Slots())
 		{
-			const auto & heroStack = slot.second;
-			if(heroStack->getType() == reqStack.getType())
+			if(slot.second->getId() == creature)
 			{
-				count += heroStack->getCount();
+				count += slot.second->getCount();
 				testedSlots += 1;
 			}
 		}
-		if(count > reqStack.getCount())
+		if(count > requestedCount)
 			foundExtraCreatures = true;
 
-		if(count < reqStack.getCount()) //not enough creatures of this kind
+		if(count < requestedCount) //not enough creatures of this kind
 			return false;
 	}
 

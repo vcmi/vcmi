@@ -247,6 +247,20 @@ TinyH3MBuilder & TinyH3MBuilder::shipyard(const int3 & pos, PlayerColor owner)
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::garrison(const int3 & pos, PlayerColor owner, std::vector<std::pair<CreatureID, uint16_t>> stacks, bool removableUnits)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::GARRISON;
+	spec.subid         = MapObjectSubID(0);
+	spec.position      = pos;
+	spec.owner         = owner;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	spec.garrisonStacks = std::move(stacks);
+	spec.garrisonRemovableUnits = removableUnits;
+	registerObject(std::move(spec));
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::hero(const int3 & pos, HeroTypeID type, PlayerColor owner)
 {
 	ObjectSpec spec;
@@ -382,13 +396,14 @@ TinyH3MBuilder & TinyH3MBuilder::resource(const int3 & pos, GameResID resource, 
 	return *this;
 }
 
-TinyH3MBuilder & TinyH3MBuilder::pandora(const int3 & pos)
+TinyH3MBuilder & TinyH3MBuilder::pandora(const int3 & pos, std::vector<std::pair<CreatureID, uint16_t>> creatures)
 {
 	ObjectSpec spec;
 	spec.id            = Obj::PANDORAS_BOX;
 	spec.subid         = MapObjectSubID(0);
 	spec.position      = pos;
 	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	spec.pandoraCreatures = std::move(creatures);
 	registerObject(std::move(spec));
 	return *this;
 }
@@ -686,6 +701,15 @@ SeerReward TinyH3MBuilder::rewardResource(GameResID resource, uint32_t amount)
 	r.kind = SeerReward::Kind::RESOURCES;
 	r.resourceType = resource;
 	r.resourceAmount = amount;
+	return r;
+}
+
+SeerReward TinyH3MBuilder::rewardCreature(CreatureID creature, uint16_t amount)
+{
+	SeerReward r;
+	r.kind = SeerReward::Kind::CREATURE;
+	r.creature = creature;
+	r.amount = amount;
 	return r;
 }
 
@@ -1105,7 +1129,12 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 				w.writeUInt8(0);                                       // gained abilities count
 				w.writeUInt8(0);                                       // gained artifacts count
 				w.writeUInt8(0);                                       // gained spells count
-				w.writeUInt8(0);                                       // gained creatures count
+				w.writeUInt8(static_cast<uint8_t>(obj.pandoraCreatures.size())); // gained creatures count
+				for(const auto & [creature, amount] : obj.pandoraCreatures)
+				{
+					w.writeCreature(creature);
+					w.writeUInt16(amount);
+				}
 				w.skipZero(8);                                         // reserved
 
 				if(features.levelHOTA5)
@@ -1141,6 +1170,14 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 			case Obj::CREATURE_GENERATOR1:
 			case Obj::SHIPYARD:
 				w.writePlayer32(obj.owner);
+				break;
+
+			case Obj::GARRISON:
+				w.writePlayer32(obj.owner);
+				writeCreatureSet(w, obj.garrisonStacks);
+				if(features.levelAB)
+					w.writeBool(obj.garrisonRemovableUnits);
+				w.skipZero(8);
 				break;
 
 			case Obj::KEYMASTER:
@@ -1466,6 +1503,10 @@ void TinyH3MBuilder::writeRewardBody(TinyH3MWriter & w, const SeerReward & rewar
 		case SeerReward::Kind::RESOURCES:
 			w.writeGameResID(reward.resourceType);
 			w.writeUInt32(reward.resourceAmount);
+			break;
+		case SeerReward::Kind::CREATURE:
+			w.writeCreature(reward.creature);
+			w.writeUInt16(static_cast<uint16_t>(reward.amount));
 			break;
 	}
 }

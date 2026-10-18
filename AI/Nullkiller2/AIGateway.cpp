@@ -781,18 +781,18 @@ void AIGateway::showTeleportDialog(const CGHeroInstance * hero, TeleportChannelI
 	});
 }
 
-void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QuestionID questionID, const MetaString & customTitle)
+void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, QuestionID questionID, const MetaString & customTitle)
 {
-	LOG_TRACE_PARAMS(logAi, "removableUnits '%i', questionID '%i'", removableUnits % questionID);
+	LOG_TRACE_PARAMS(logAi, "questionID '%i'", questionID);
 	std::string s1 = up->nodeName();
 	std::string s2 = down->nodeName();
 
 	status.addQuestion(questionID, boost::str(boost::format("Garrison dialog with %s and %s") % s1 % s2));
 
 	//you can't request action from action-response thread
-	executeActionAsync("showGarrisonDialog", [this, up, down, removableUnits, questionID]()
+	executeActionAsync("showGarrisonDialog", [this, up, down, questionID]()
 	{
-		if(removableUnits && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cc->getStartInfo()->restrictedGarrisonsForAI())
+		if(!up->isLocked() && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cc->getStartInfo()->restrictedGarrisonsForAI())
 		{
 			pickBestCreatures(down, up);
 		}
@@ -1048,8 +1048,17 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 
 		int count = d->creatures[i].first;
 		CreatureID creID = d->creatures[i].second.back();
+		ArtifactID warMachine = creID.toCreature()->warMachine;
 
-		if(!recruiter->getSlotFor(creID).validSlot())
+		if(warMachine.hasValue())
+		{
+			const auto * hero = dynamic_cast<const CGHeroInstance *>(recruiter);
+			if(!hero || !hero->canRecruitWarMachine(warMachine))
+				continue;
+
+			vstd::amin(count, 1);
+		}
+		else if(!recruiter->getSlotFor(creID).validSlot())
 		{
 			for(const auto & stack : recruiter->Slots())
 			{
