@@ -551,7 +551,27 @@ In battle, army affected by this bonus will cast spell at the very start of the 
 
 ### FREE_SHIP_BOARDING
 
-Heroes affected by this bonus will not lose all movement points when embarking or disembarking ship. Movement points are converted depending on max land and water movement range.
+Heroes affected by this bonus can retain movement points when embarking or disembarking a ship instead of losing all remaining movement. The normal movement cost still applies, and remaining movement points are converted proportionally between land and sea movement pools.
+
+- `addInfo`: Optional `[requiredMP, takenMP]` with two non-negative integers.
+  - `requiredMP`: Minimum remaining movement points required before paying the normal movement cost to benefit from Free Ship Boarding.
+  - `takenMP`: Additional movement points consumed on top of the normal movement cost, before land/sea conversion.
+
+If the hero does not meet the required MP threshold, normal embarking or disembarking is still allowed, but all remaining movement points are lost.
+
+Without `addInfo`, the bonus retains its original unrestricted behavior. The existing `val` does not define the MP requirement or additional cost.
+
+If multiple bonuses apply, unrestricted Free Ship Boarding takes precedence. Otherwise, the qualifying bonus with the lowest additional MP cost is used.
+
+**Movement conversion example:**
+
+A hero has 1700 land MP, with a maximum daily land pool of 1700 MP and a sea pool of 2000 MP. With `addInfo: [700, 100]` and a normal boarding cost of 100 MP:
+
+`(1700 - 100 - 100) * 2000 / 1700 = 1764 MP`
+
+The numeric amount of remaining MP can increase when converting to a larger movement pool, even though movement has been spent.
+
+Conversion uses daily reference movement limits to prevent equipment changes during the same day from altering the conversion ratio. Future turns use projected movement limits.
 
 ### WHIRLPOOL_PROTECTION
 

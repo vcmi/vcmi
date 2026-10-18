@@ -28,6 +28,7 @@
 #include "../mapObjects/FlaggableMapObject.h"
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/TownBuildingInstance.h"
+#include "../pathfinder/TurnInfo.h"
 #include "../mapping/CMap.h"
 #include "../networkPacks/StackLocation.h"
 #include "../spells/CSpell.h"
@@ -1226,6 +1227,15 @@ void GameStatePackVisitor::visitNewTurn(NewTurn & pack)
 
 	for(auto & movePack : pack.heroesMovement)
 		movePack.visit(*this);
+
+	for (const auto& player : gs.players)
+	{
+		for (const CGHeroInstance* hero : player.second.getHeroes())
+		{
+			auto ti = hero->getTurnInfo(0);
+			gs.getHero(hero->id)->setMovementConversionLimits(*ti);
+		}
+	}
 
 	gs.heroesPool->onNewDay();
 

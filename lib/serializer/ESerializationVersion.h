@@ -67,12 +67,13 @@ enum class ESerializationVersion : int32_t
 	BOAT_LAST_HERO, // boat remembers the last hero that used it, so Summon Boat can prefer boat of the caster
 	SAVE_CHUNKS, // saved game is stored as compressed chunks: metadata, map header, game state
 	GARRISON_DIALOG_REMOVABLE_UNITS_REMOVED, // GarrisonDialog pack no longer carries removableUnits, the client checks CArmedInstance::isLocked
+	HERO_MOVEMENT_CONVERSION_LIMITS, // persist daily land and sea movement conversion limits
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = GARRISON_DIALOG_REMOVABLE_UNITS_REMOVED,
+	CURRENT = HERO_MOVEMENT_CONVERSION_LIMITS,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
