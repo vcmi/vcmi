@@ -2378,6 +2378,8 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 			{
 				if(!t->getVisitingHero() || !t->getVisitingHero()->hasArt(ArtifactID::GRAIL))
 					COMPLAIN_RET("Cannot build this without grail!")
+				else if(!gameState().isGrailAllowed(t))
+					COMPLAIN_RET("Grail can not be built in this town!")
 				else
 					removeArtifact(ArtifactLocation(t->getVisitingHero()->id, t->getVisitingHero()->getArtPos(ArtifactID::GRAIL, false)));
 			}

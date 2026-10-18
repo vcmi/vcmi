@@ -94,6 +94,8 @@ public:
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const;
 	std::string getTavernRumor(const CGObjectInstance * townOrTavern, const ITranslator * translator) const;
 	EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID) const;
+	/// Returns false if grail structure can not be built in the town, e.g. if map wants it in another town
+	bool isGrailAllowed(const CGTownInstance * town) const;
 	bool getTownInfo(const CGObjectInstance * town, InfoAboutTown & dest, const CGObjectInstance * selectedObject = nullptr) const;
 
 	//from gs
