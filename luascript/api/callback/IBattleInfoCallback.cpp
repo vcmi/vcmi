@@ -236,7 +236,7 @@ const battle::Unit * IBattleInfoCallbackProxy::getUnitByPos(const IBattleInfoCal
 
 std::vector<std::shared_ptr<const CObstacleInstance>> IBattleInfoCallbackProxy::getAllObstacles(const IBattleInfoCallback & object)
 {
-	return object.battleGetAllObstacles(BattleSide::ALL_KNOWING);
+	return object.battleGetAllObstacles(); // default perspective: all obstacles on the server, only visible ones for a player
 }
 
 std::vector<std::shared_ptr<const CObstacleInstance>> IBattleInfoCallbackProxy::getObstaclesOnPos(const IBattleInfoCallback & object, BattleHex hex, bool onlyBlocking)
