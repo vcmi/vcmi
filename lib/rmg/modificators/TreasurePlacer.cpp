@@ -30,6 +30,8 @@
 #include "../../mapObjects/Quest.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../CCreatureHandler.h"
+#include "../../entities/faction/CFaction.h"
+#include "../../entities/faction/CTown.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
 #include "../../spells/CSpellHandler.h"
@@ -279,6 +281,35 @@ void TreasurePlacer::addDwellings()
 			}
 		}
 	}
+}
+
+void TreasurePlacer::setRandomDwellingValue(ObjectInfo & oi) const
+{
+	// The dwelling becomes one of the zone's faction when placed (see ObjectManager::placeObject).
+	// Without a value from the template, value it the same way as native dwellings in addDwellings()
+	if(oi.primaryID != Obj::RANDOM_DWELLING_LVL || oi.value != 0)
+		return;
+
+	const FactionID factionID = zone.getTownType();
+	if(factionID == FactionID::NEUTRAL)
+		return;
+
+	const auto * faction = factionID.toFaction();
+	if(!faction || !faction->town)
+		return;
+
+	const auto & tiers = faction->town->creatures;
+	const auto level = static_cast<size_t>(oi.secondaryID); // objectLvl1 has index 0
+	if(level >= tiers.size() || tiers[level].empty())
+		return;
+
+	const auto * cre = tiers[level].front().toCreature();
+	if(!cre)
+		return;
+
+	float nativeZonesCount = static_cast<float>(map.getZoneCount(factionID));
+	float valueModifier = 1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2);
+	oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * valueModifier);
 }
 
 void TreasurePlacer::addScrolls()
@@ -1204,6 +1235,7 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 	for (auto & object : configuredObjects)
 	{
 		tp->setBasicProperties(object, object.getCompoundID());
+		tp->setRandomDwellingValue(object);
 		addObject(object);
 		logGlobal->debug("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
 	}
