@@ -43,6 +43,7 @@ public:
 	bool isModEnabled(QString modName) const;
 	bool isModSettingEnabled(QString rootModName, QString modSettingName) const;
 	QMap<QString, bool> getModSettings(QString rootModName) const;
+	void restoreModSettings(QString rootModName, const QMap<QString, bool> & settings);
 	bool isModUpdateAvailable(QString modName) const;
 	bool isModVisible(QString modName) const;
 

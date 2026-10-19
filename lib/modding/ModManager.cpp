@@ -526,6 +526,32 @@ std::map<TModID, bool> ModManager::getModSettings(const TModID & rootModID) cons
 	return modsPreset->getModSettings(rootModID);
 }
 
+void ModManager::restoreModSettings(const TModID & rootModID, const std::map<TModID, bool> & settings)
+{
+	const auto installedMods = getInstalledValidMods();
+	if(rootModID.find('.') != std::string::npos || !vstd::contains(installedMods, rootModID))
+		return;
+
+	const auto currentSettings = modsPreset->getModSettings(rootModID);
+	bool changed = false;
+	for(const auto & [settingID, enabled] : settings)
+	{
+		const auto fullID = rootModID + '.' + settingID;
+		if(!vstd::contains(installedMods, fullID) || modsStorage->getMod(fullID).getTopParentID() != rootModID)
+			continue;
+		const auto current = currentSettings.find(settingID);
+		if(current != currentSettings.end() && current->second == enabled)
+			continue;
+		modsPreset->setSettingActive(rootModID, settingID, enabled);
+		changed = true;
+	}
+	if(changed)
+	{
+		ModDependenciesResolver resolver(modsPreset->getActiveMods(), *modsStorage);
+		updatePreset(resolver);
+	}
+}
+
 bool ModManager::isModActive(const TModID & modID) const
 {
 	return vstd::contains(getActiveMods(), modID);

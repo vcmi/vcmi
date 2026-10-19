@@ -86,6 +86,14 @@ QMap<QString, bool> ModStateModel::getModSettings(QString rootModName) const
 	return result;
 }
 
+void ModStateModel::restoreModSettings(QString rootModName, const QMap<QString, bool> & settings)
+{
+	std::map<std::string, bool> savedSettings;
+	for(auto setting = settings.cbegin(); setting != settings.cend(); ++setting)
+		savedSettings.emplace(setting.key().toStdString(), setting.value());
+	modManager->restoreModSettings(rootModName.toStdString(), savedSettings);
+}
+
 bool ModStateModel::isModEnabled(QString modName) const
 {
 	return modManager->isModActive(modName.toStdString());
