@@ -13,7 +13,11 @@
 #include "CMemoryBuffer.h"
 #include "../texts/TextOperations.h"
 
-#include <mutex>
+#if defined(VCMI_ANDROID) && __ANDROID_API__ < 24
+#include <cerrno>
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 
 template<class Stream>
 inline uLong streamRead(voidpf opaque, voidpf stream, void * buf, uLong size)
@@ -86,6 +90,106 @@ inline int streamProxyClose(voidpf opaque, voidpf stream)
 }
 
 ///CDefaultIOApi
+#if defined(VCMI_ANDROID) && __ANDROID_API__ < 24
+// API 21 has lseek64 but no fseeko64/ftello64. Descriptor I/O avoids stdio buffering.
+struct AndroidZipFile
+{
+	int descriptor;
+	int error = 0;
+};
+
+static voidpf ZCALLBACK MinizipOpenFunc(voidpf opaque, const void * filename, int mode)
+{
+	if(filename == nullptr)
+		return nullptr;
+	int flags = O_LARGEFILE;
+	if((mode & ZLIB_FILEFUNC_MODE_READWRITEFILTER) == ZLIB_FILEFUNC_MODE_READ)
+		flags |= O_RDONLY;
+	else if(mode & ZLIB_FILEFUNC_MODE_EXISTING)
+		flags |= O_RDWR;
+	else if(mode & ZLIB_FILEFUNC_MODE_CREATE)
+		flags |= O_RDWR | O_CREAT | O_TRUNC;
+	else
+		return nullptr;
+	const int descriptor = open(static_cast<const char *>(filename), flags, 0666);
+	return descriptor == -1 ? nullptr : new AndroidZipFile{descriptor};
+}
+
+static uLong ZCALLBACK MinizipReadFunc(voidpf opaque, voidpf filePtr, void * buf, uLong size)
+{
+	auto & file = *static_cast<AndroidZipFile *>(filePtr);
+	uLong received = 0;
+	while(received < size)
+	{
+		const auto result = read(file.descriptor, static_cast<char *>(buf) + received, size - received);
+		if(result < 0 && errno == EINTR)
+			continue;
+		if(result <= 0)
+		{
+			if(result < 0)
+				file.error = errno;
+			break;
+		}
+		received += static_cast<uLong>(result);
+	}
+	return received;
+}
+
+static uLong ZCALLBACK MinizipWriteFunc(voidpf opaque, voidpf filePtr, const void * buf, uLong size)
+{
+	auto & file = *static_cast<AndroidZipFile *>(filePtr);
+	uLong written = 0;
+	while(written < size)
+	{
+		const auto result = write(file.descriptor, static_cast<const char *>(buf) + written, size - written);
+		if(result < 0 && errno == EINTR)
+			continue;
+		if(result <= 0)
+		{
+			file.error = result < 0 ? errno : EIO;
+			break;
+		}
+		written += static_cast<uLong>(result);
+	}
+	return written;
+}
+
+static ZPOS64_T ZCALLBACK MinizipTellFunc(voidpf opaque, voidpf filePtr)
+{
+	auto & file = *static_cast<AndroidZipFile *>(filePtr);
+	const auto result = lseek64(file.descriptor, 0, SEEK_CUR);
+	if(result == -1)
+		file.error = errno;
+	return static_cast<ZPOS64_T>(result);
+}
+
+static long ZCALLBACK MinizipSeekFunc(voidpf opaque, voidpf filePtr, ZPOS64_T offset, int origin)
+{
+	auto & file = *static_cast<AndroidZipFile *>(filePtr);
+	const int whence = origin == ZLIB_FILEFUNC_SEEK_CUR ? SEEK_CUR
+		: origin == ZLIB_FILEFUNC_SEEK_END ? SEEK_END
+		: origin == ZLIB_FILEFUNC_SEEK_SET ? SEEK_SET : -1;
+	if(whence == -1 || lseek64(file.descriptor, static_cast<off64_t>(offset), whence) == -1)
+	{
+		file.error = whence == -1 ? EINVAL : errno;
+		return -1;
+	}
+	return 0;
+}
+
+static int ZCALLBACK MinizipCloseFunc(voidpf opaque, voidpf filePtr)
+{
+	auto * file = static_cast<AndroidZipFile *>(filePtr);
+	const int result = close(file->descriptor);
+	delete file;
+	return result;
+}
+
+static int ZCALLBACK MinizipErrorFunc(voidpf opaque, voidpf filePtr)
+{
+	return static_cast<AndroidZipFile *>(filePtr)->error;
+}
+#else
 #define GETFILE static_cast<std::FILE*>(filePtr)
 
 #ifdef VCMI_WINDOWS
@@ -104,6 +208,8 @@ static inline FILE* do_open(const CharType* name, const CharType* mode)
 {
 	#ifdef VCMI_WINDOWS
 		return _wfopen(name, mode);
+	#elif defined(__linux__) || defined(VCMI_HURD)
+		return fopen64(name, mode);
 	#else
 		return std::fopen(name, mode);
 	#endif
@@ -142,8 +248,11 @@ static ZPOS64_T ZCALLBACK MinizipTellFunc(voidpf opaque, voidpf filePtr)
 {
 #ifdef VCMI_WINDOWS
 	return _ftelli64(GETFILE);
+#elif defined(__linux__) || defined(VCMI_HURD)
+	return ftello64(GETFILE);
 #else
-	return ftello(GETFILE); // 64-bit off_t: ioapi.h sets _FILE_OFFSET_BITS=64 on Linux, native on Apple
+	static_assert(sizeof(off_t) >= sizeof(int64_t), "Zip files require 64-bit file offsets");
+	return ftello(GETFILE);
 #endif
 }
 
@@ -156,6 +265,8 @@ static long ZCALLBACK MinizipSeekFunc(voidpf opaque, voidpf filePtr, ZPOS64_T of
 		return -1;
 #ifdef VCMI_WINDOWS
 	return _fseeki64(GETFILE, offset, whence);
+#elif defined(__linux__) || defined(VCMI_HURD)
+	return fseeko64(GETFILE, offset, whence);
 #else
 	return fseeko(GETFILE, offset, whence);
 #endif
@@ -170,6 +281,7 @@ static int ZCALLBACK MinizipErrorFunc(voidpf opaque, voidpf filePtr)
 {
 	return std::ferror(GETFILE);
 }
+#endif
 
 // Populate every callback ourselves instead of relying on fill_fopen64_filefunc:
 // despite advertising minizip compatibility, minizip-ng's compat layer stubs that
@@ -187,20 +299,6 @@ zlib_filefunc64_def CDefaultIOApi::getApiStructure()
 	api.zerror_file  = &MinizipErrorFunc;
 	return api;
 }
-
-#if MINIZIP_NEEDS_32BIT_FUNCS
-zlib_filefunc_def CDefaultIOApi::getApiStructure32()
-{
-	static zlib_filefunc_def MinizipFilefunc;
-	static std::once_flag flag;
-	std::call_once(flag, []
-	{
-		fill_fopen_filefunc(&MinizipFilefunc);
-		MinizipFilefunc.zopen_file = reinterpret_cast<void*(*)(void*, const char*, int)>(&MinizipOpenFunc);
-	});
-	return MinizipFilefunc;
-}
-#endif
 
 ///CProxyIOApi
 CProxyIOApi::CProxyIOApi(CInputOutputStream * buffer):
