@@ -1633,6 +1633,14 @@ function StackInstance:getType() end
 ---@return integer
 function StackInstance:getCount() end
 
+---Cursor and status bar texts that the game shows while the player chooses one destination of a spell target. Returned by the `describeTargetStep` function of a spell effect script.
+---@class TargetStepDescriptor
+---@field cursor string # Identifier of the cursor from `config/cursors.json` shown over a hex that is valid for the destination.
+---@field text MetaString # Status bar text for a hex that is valid for the destination.
+---@field blockedText MetaString # Status bar text for a hex that is not valid for the destination. No text if not set.
+---@field healthGainTextID string # If set, the health change of the spell at the hovered hex is appended to `text` in brackets. A health gain uses the plural forms of this text ID.
+local TargetStepDescriptor = {}
+
 ---A town on the adventure map. Provides its owner and what has been built in it.
 ---@class TownInstance
 local TownInstance = {}
@@ -1831,7 +1839,7 @@ function Unit:getLevel() end
 ---@return integer
 function Unit:unitID() end
 
----Editable copy of a battle Unit. Obtained via `Unit:copy()`; scripts edit fields (position, defending, clone, summoned, …) and inflict damage locally, then hand the result to ServerCallback `changeUnit` or `addUnit` to broadcast the update through a battle pack.
+---Editable copy of a battle Unit. Obtained via `Unit:copy()`; scripts edit fields (position, clone, summoned, …) and inflict damage locally, then hand the result to ServerCallback `changeUnit` or `addUnit` to broadcast the update through a battle pack.
 ---@class UnitState
 local UnitState = {}
 
@@ -1934,10 +1942,6 @@ function UnitState:getCreature() end
 ---@return BattleHexArray
 function UnitState:getHexes() end
 
----Sets whether unit has defended in this round.
----@param value boolean # New defending flag.
-function UnitState:setDefending(value) end
-
 ---Marks the stack as a clone.
 ---@param value boolean # New cloned flag.
 function UnitState:setCloned(value) end
@@ -1966,21 +1970,9 @@ function UnitState:setGhost(value) end
 ---@param value boolean # New ghost-pending flag.
 function UnitState:setGhostPending(value) end
 
----Marks that the unit has moved this round.
----@param value boolean # New moved-this-round flag.
-function UnitState:setMoved(value) end
-
 ---Marks the unit as summoned during combat.
 ---@param value boolean # New summoned flag.
 function UnitState:setSummoned(value) end
-
----Marks that the unit is currently waiting.
----@param value boolean # New waiting flag.
-function UnitState:setWaiting(value) end
-
----Marks that the unit has already used its wait this turn.
----@param value boolean # New waited-this-turn flag.
-function UnitState:setWaitedThisTurn(value) end
 
 ---Moves the unit to the given hex.
 ---@param hex BattleHex # Destination hex for the unit.

@@ -178,6 +178,7 @@ protected: // Call-ins from server, should not be called directly, but only via 
 	void battleAttack(const BattleID & battleID, const BattleAttack *ba) override; //stack performs attack
 	void battleEnd(const BattleID & battleID, const BattleResult *br, QuestionID questionID) override; //end of battle
 	void battleNewRoundFirst(const BattleID & battleID) override; //called at the beginning of each turn before changes are applied; used for HP regen handling
+	void battleTacticsEnded(const BattleID & battleID) override;
 	void battleNewRound(const BattleID & battleID) override; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleLogMessage(const BattleID & battleID, const std::vector<MetaString> & lines) override;
 	void battleStackMoved(const BattleID & battleID, const CStack * stack, const BattleHexArray & dest, int distance, bool teleport) override;

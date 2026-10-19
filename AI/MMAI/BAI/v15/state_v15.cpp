@@ -2086,7 +2086,7 @@ namespace
 
 	void AddWaitAction(Graph::Graph & G, const ActionPtr & defend)
 	{
-		if(defend->by->cstack.waitedThisTurn)
+		if(defend->by->cstack.waitedThisRound())
 			return;
 
 		const auto wait = N::Action::Create({.actionType = AT::WAIT, .by = defend->by, .target = nullptr, .endsAt = defend->endsAt, .flags = {}});

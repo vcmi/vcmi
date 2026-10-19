@@ -133,3 +133,29 @@ Parameters:
 - `types` - target types collected so far
 
 Return value: list of target types
+
+### describeTargetStep
+
+Signature: `function Script:describeTargetStep(mechanics, partialTarget, hoveredHex)`
+
+This function should return the cursor and the status bar texts shown while the player chooses the next destination of the spell target, or `nil` to use the ones of the game. A spell has one destination per target type returned by `adjustTargetTypes`. If a spell has several effects, the first one that returns a value is used.
+
+Parameters:
+
+- `mechanics` - contains settings at which spell is being cast, such as state of hero or creature that acts as caster of the spell. See [SpellMechanics](../Lua_Reference/SpellMechanics.md).
+- `partialTarget` - destinations that the player has already chosen. A `Destination[]`, empty while the first destination is chosen.
+- `hoveredHex` - hex under the cursor. See [BattleHex](../Lua_Reference/BattleHex.md).
+
+Return value: [TargetStepDescriptor](../Lua_Reference/TargetStepDescriptor.md) or `nil`
+
+```lua
+function Script:describeTargetStep(mechanics, partialTarget, hoveredHex)
+	if #partialTarget ~= 1 then return nil end
+
+	return {
+		cursor      = "combatTeleport",
+		text        = { append = { "core.genrltxt.25" } },
+		blockedText = { append = { "core.genrltxt.24" } }
+	}
+end
+```

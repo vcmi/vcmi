@@ -488,8 +488,7 @@ void HypotheticBattle::makeWait(const battle::Unit * activeStack)
 	auto unit = getForUpdate(activeStack->unitId());
 
 	resetActiveUnit();
-	unit->waiting = true;
-	unit->waitedThisTurn = true;
+	unit->setTurnStatus(battle::UnitTurnStatus::WAITING);
 }
 
 HypotheticBattle::HypotheticServerCallback::HypotheticServerCallback(HypotheticBattle * owner_)

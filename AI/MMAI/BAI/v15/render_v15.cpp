@@ -634,7 +634,7 @@ std::string Render(const State * state, const ActionPtr & action) // NOSONAR
 						value = std::to_string(unit->attr(UA::VALUE_REL));
 						break;
 					case Col::STATE:
-						value = cstack.waitedThisTurn ? "" : "W";
+						value = cstack.waitedThisRound() ? "" : "W";
 						value += cstack.willMove() ? "A" : "";
 						value += cstack.ableToRetaliate() ? "R" : "";
 						break;

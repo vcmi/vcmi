@@ -319,17 +319,12 @@ void CHealth::serializeJson(JsonSerializeFormat & handler)
 CUnitState::CUnitState():
 	env(nullptr),
 	cloned(false),
-	defending(false),
 	drainedMana(false),
 	fear(false),
 	hadMorale(false),
-	castSpellThisTurn(false),
 	ghost(false),
 	ghostPending(false),
-	movedThisRound(false),
 	summoned(false),
-	waiting(false),
-	waitedThisTurn(false),
 	casts(this),
 	counterAttacks(this),
 	health(this),
@@ -348,17 +343,15 @@ CUnitState & CUnitState::operator=(const CUnitState & other)
 	//do not change unit and bonus info
 
 	cloned = other.cloned;
-	defending = other.defending;
 	drainedMana = other.drainedMana;
 	fear = other.fear;
 	hadMorale = other.hadMorale;
-	castSpellThisTurn = other.castSpellThisTurn;
 	ghost = other.ghost;
 	ghostPending = other.ghostPending;
-	movedThisRound = other.movedThisRound;
 	summoned = other.summoned;
-	waiting = other.waiting;
-	waitedThisTurn = other.waitedThisTurn;
+	turnStatus = other.turnStatus;
+	hasWaitedThisRound = other.hasWaitedThisRound;
+	hasCastSpellThisTurn = other.hasCastSpellThisTurn;
 	casts = other.casts;
 	counterAttacks = other.counterAttacks;
 	shots = other.shots;
@@ -415,11 +408,7 @@ const CGHeroInstance * CUnitState::getHeroCaster() const
 
 int32_t CUnitState::getSpellSchoolLevel(const spells::Spell * spell, SpellSchool * outSelectedSchool) const
 {
-	int32_t skill = valOfBonuses(Selector::typeSubtype(BonusType::SPELLCASTER, BonusSubtypeID(spell->getId())));
-
-	//Magic Plains raise level of spells cast by creatures, unlike battlefields of a specific magic school
-	if(spell->getLevel() > 0)
-		vstd::amax(skill, valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(SpellSchool::ANY)));
+	int32_t skill = getAbilitySpellLevel(valOfBonuses(Selector::typeSubtype(BonusType::SPELLCASTER, BonusSubtypeID(spell->getId()))), spell);
 
 	vstd::abetween(skill, 0, 3);
 	return skill;
@@ -526,7 +515,7 @@ bool CUnitState::hasClone() const
 
 bool CUnitState::canCast() const
 {
-	return casts.canUse(1) && !castSpellThisTurn;//do not check specific cast abilities here
+	return casts.canUse(1) && !hasCastSpellThisTurn;//do not check specific cast abilities here
 }
 
 bool CUnitState::isCaster() const
@@ -685,30 +674,49 @@ bool CUnitState::canMove(int turn) const
 
 bool CUnitState::defended(int turn) const
 {
-	return !turn && defending;
+	return !turn && turnStatus == UnitTurnStatus::DEFENDED;
 }
 
 bool CUnitState::moved(int turn) const
 {
-	if(!turn && !waiting)
-		return movedThisRound;
-	else
-		return false;
+	return !turn && turnStatus == UnitTurnStatus::ACTED;
 }
 
 bool CUnitState::willMove(int turn) const
 {
-	return (turn ? true : !defending)
-		   && !moved(turn)
-		   && canMove(turn);
+	return !defended(turn) && !moved(turn) && canMove(turn);
 }
 
 bool CUnitState::waited(int turn) const
 {
-	if(!turn)
-		return waiting;
-	else
-		return false;
+	return !turn && turnStatus == UnitTurnStatus::WAITING;
+}
+
+UnitTurnStatus CUnitState::getTurnStatus() const
+{
+	return turnStatus;
+}
+
+void CUnitState::setTurnStatus(UnitTurnStatus status)
+{
+	turnStatus = status;
+	if(status == UnitTurnStatus::WAITING)
+		hasWaitedThisRound = true;
+}
+
+bool CUnitState::waitedThisRound() const
+{
+	return hasWaitedThisRound;
+}
+
+bool CUnitState::castSpellThisTurn() const
+{
+	return hasCastSpellThisTurn;
+}
+
+void CUnitState::setCastSpellThisTurn(bool value)
+{
+	hasCastSpellThisTurn = value;
 }
 
 BattlePhases::Type CUnitState::battleQueuePhase(int turn) const
@@ -801,17 +809,15 @@ std::shared_ptr<CUnitState> CUnitState::acquireState() const
 void CUnitState::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeBool("cloned", cloned);
-	handler.serializeBool("defending", defending);
 	handler.serializeBool("drainedMana", drainedMana);
 	handler.serializeBool("fear", fear);
 	handler.serializeBool("hadMorale", hadMorale);
-	handler.serializeBool("castSpellThisTurn", castSpellThisTurn);
+	handler.serializeBool("castSpellThisTurn", hasCastSpellThisTurn);
 	handler.serializeBool("ghost", ghost);
 	handler.serializeBool("ghostPending", ghostPending);
-	handler.serializeBool("moved", movedThisRound);
 	handler.serializeBool("summoned", summoned);
-	handler.serializeBool("waiting", waiting);
-	handler.serializeBool("waitedThisTurn", waitedThisTurn);
+	handler.serializeEnum("turnStatus", turnStatus, UnitTurnStatus::READY, std::vector<std::string>{"ready", "waiting", "acted", "defended"});
+	handler.serializeBool("waitedThisRound", hasWaitedThisRound);
 
 	handler.serializeStruct("casts", casts);
 	handler.serializeStruct("counterAttacks", counterAttacks);
@@ -837,17 +843,15 @@ void CUnitState::localInit(const IUnitEnvironment * env_)
 void CUnitState::reset()
 {
 	cloned = false;
-	defending = false;
 	drainedMana = false;
 	fear = false;
 	hadMorale = false;
-	castSpellThisTurn = false;
 	ghost = false;
 	ghostPending = false;
-	movedThisRound = false;
 	summoned = false;
-	waiting = false;
-	waitedThisTurn = false;
+	turnStatus = UnitTurnStatus::READY;
+	hasWaitedThisRound = false;
+	hasCastSpellThisTurn = false;
 
 	casts.reset();
 	counterAttacks.reset();
@@ -920,12 +924,10 @@ void CUnitState::afterAttack(bool ranged, bool counter)
 
 void CUnitState::afterNewRound()
 {
-	defending = false;
-	waiting = false;
-	waitedThisTurn = false;
-	movedThisRound = false;
+	turnStatus = UnitTurnStatus::READY;
+	hasWaitedThisRound = false;
 	hadMorale = false;
-	castSpellThisTurn = false;
+	hasCastSpellThisTurn = false;
 	fear = false;
 	drainedMana = false;
 	counterAttacks.reset();
@@ -939,8 +941,10 @@ void CUnitState::afterGetsTurn(BattleUnitTurnReason reason)
 	if(reason == BattleUnitTurnReason::MORALE)
 	{
 		hadMorale = true;
-		castSpellThisTurn = false;
-		movedThisRound = false;
+		hasCastSpellThisTurn = false;
+		// morale gives another turn to a unit that has already acted
+		if(turnStatus == UnitTurnStatus::ACTED)
+			turnStatus = UnitTurnStatus::READY;
 	}
 }
 

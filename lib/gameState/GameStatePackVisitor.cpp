@@ -1450,71 +1450,35 @@ void GameStatePackVisitor::visitBattleAttack(BattleAttack & pack)
 		attacker->removeBonusesRecursive(Bonus::UntilOwnAttack);
 }
 
+void GameStatePackVisitor::visitBattleTacticsEnded(BattleTacticsEnded & pack)
+{
+	gs.getBattle(pack.battleID)->tacticDistance = 0;
+}
+
 void GameStatePackVisitor::visitStartAction(StartAction & pack)
 {
 	CStack *st = gs.getBattle(pack.battleID)->getStack(pack.ba.stackNumber);
 
-	if(pack.ba.actionType == EActionType::END_TACTIC_PHASE)
+	if(pack.turnStatus || pack.castSpellThisTurn)
 	{
-		gs.getBattle(pack.battleID)->tacticDistance = 0;
-		return;
-	}
+		if(!st)
+			throw std::runtime_error("StartAction changes the turn state of a unit that does not exist: " + pack.ba.toString());
 
-	if(gs.getBattle(pack.battleID)->tacticDistance)
-	{
-		// moves in tactics phase do not affect creature status
-		// (tactics stack queue is managed by client)
-		return;
-	}
-
-	if (pack.ba.isUnitAction())
-	{
-		assert(st); // stack must exists for all non-hero actions
-
-		switch(pack.ba.actionType)
-		{
-			case EActionType::DEFEND:
-				st->defending = true;
-				st->waiting = false;
-				break;
-			case EActionType::WAIT:
-				st->waiting = true;
-				st->waitedThisTurn = true;
-				break;
-			case EActionType::MONSTER_SPELL:
-			{
-				SpellID spellID = pack.ba.spell;
-				if (spellID.hasValue() && spellID.toSpell()->canCastWithoutSkip())
-				{
-					//state does not change
-				}
-				else
-				{
-					st->waiting = false;
-					st->movedThisRound = true;
-				}
-				st->castSpellThisTurn = true;
-				break;
-			}
-			case EActionType::HERO_SPELL: //no change in current stack state
-				break;
-			default: //any active stack action - attack, catapult, heal, spell...
-				st->waiting = false;
-				st->movedThisRound = true;
-				break;
-		}
-	}
-	else
-	{
-		if(pack.ba.actionType == EActionType::HERO_SPELL)
-			gs.getBattle(pack.battleID)->getSide(pack.ba.side).usedSpellsHistory.push_back(pack.ba.spell);
+		if(pack.turnStatus)
+			st->setTurnStatus(*pack.turnStatus);
+		if(pack.castSpellThisTurn)
+			st->setCastSpellThisTurn(true);
 	}
 }
 
 void GameStatePackVisitor::visitBattleSpellCast(BattleSpellCast & pack)
 {
 	if(pack.castByHero && pack.side != BattleSide::NONE)
-		gs.getBattle(pack.battleID)->getSide(pack.side).castSpellsCount++;
+	{
+		auto & side = gs.getBattle(pack.battleID)->getSide(pack.side);
+		side.castSpellsCount++;
+		side.usedSpellsHistory.push_back(pack.spellID);
+	}
 }
 
 void GameStatePackVisitor::visitSetStackEffect(SetStackEffect & pack)

@@ -1,0 +1,72 @@
+/*
+ * NoTargetActions.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#pragma once
+
+#include "BattleActionType.h"
+
+/// NO_ACTION: the unit ends its turn without acting
+class SkipTurnAction : public BattleActionType
+{
+public:
+	bool isUnitAction() const override;
+	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
+	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
+};
+
+/// BAD_MORALE: the unit loses its turn to bad morale
+class BadMoraleAction : public SkipTurnAction
+{
+public:
+	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
+};
+
+class WaitAction : public BattleActionType
+{
+public:
+	bool isUnitAction() const override;
+	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
+	std::optional<battle::UnitTurnStatus> getStartTurnStatus(const BattleAction & action) const override;
+	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
+};
+
+class DefendAction : public BattleActionType
+{
+public:
+	bool isUnitAction() const override;
+	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
+	std::optional<battle::UnitTurnStatus> getStartTurnStatus(const BattleAction & action) const override;
+	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
+};
+
+class EndTacticsAction : public BattleActionType
+{
+public:
+	bool isTacticsAction() const override;
+	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
+	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
+};
+
+class RetreatAction : public BattleActionType
+{
+public:
+	bool isTacticsAction() const override;
+	bool isBattleEndAction() const override;
+	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
+	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
+};
+
+class SurrenderAction : public BattleActionType
+{
+public:
+	bool isTacticsAction() const override;
+	bool isBattleEndAction() const override;
+	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
+	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
+};

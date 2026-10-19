@@ -51,4 +51,9 @@ function Script:adjustTargetTypes(mechanics, types)
     return types
 end
 
+--- Cursor and status bar texts for the destination chosen after `partialTarget`, or nil to use the ones of the engine.
+function Script:describeTargetStep(mechanics, partialTarget, hoveredHex)
+	return nil
+end
+
 return Script

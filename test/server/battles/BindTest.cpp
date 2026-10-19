@@ -11,13 +11,6 @@
 
 #include "BattleTestFixture.h"
 
-#include "../../../server/CGameHandler.h"
-#include "../../../server/battles/BattleProcessor.h"
-
-#include "../../../lib/battle/BattleAction.h"
-#include "../../../lib/mapObjects/CGHeroInstance.h"
-#include "../../../lib/networkPacks/PacksForClient.h"
-
 namespace
 {
 // creatures
@@ -74,21 +67,11 @@ public:
 		return attack(attacker, target->getPosition());
 	}
 
-	/// Attack made after walking up to the target, which is what sends a harpy back home again
-	bool strikeFrom(const CStack * attacker, const CStack * target, int fromColumn)
-	{
-		battle()->activeStack = attacker->unitId();
-		BattleAction action = BattleAction::makeMeleeAttack(attacker, target->getPosition(), BattleHex(fromColumn, row));
-		return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(attacker->unitSide()), action);
-	}
-
 	/// Dendroids walk three hexes at most, and the rows next to the one of the tests are empty,
 	/// so `rowsAway` is how a unit boxed in by its own victims gets out of their reach
 	bool walk(const CStack * unit, int column, int rowsAway = 0)
 	{
-		battle()->activeStack = unit->unitId();
-		BattleAction action = BattleAction::makeMove(unit, BattleHex(column, row + rowsAway));
-		return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(unit->unitSide()), action);
+		return move(unit, BattleHex(column, row + rowsAway));
 	}
 
 	/// Kills the unit outright, by way of an attack, so that the death runs through the same code
@@ -101,44 +84,10 @@ public:
 		EXPECT_FALSE(unit->alive());
 	}
 
-	/// Hero spellcasting, which these tests only need in order to teleport units around
-	void allowSpellcasting(CGHeroInstance * hero, const SpellID & spell)
-	{
-		giveArtifact(hero, ArtifactID::SPELLBOOK, ArtifactPosition::SPELLBOOK);
-
-		ChangeSpells learn;
-		learn.hid = hero->id;
-		learn.learn = true;
-		learn.spells = {spell};
-		gameHandler->sendAndApply(learn);
-
-		SetMana mana;
-		mana.hid = hero->id;
-		mana.val = 999;
-		mana.mode = ChangeValueMode::ABSOLUTE;
-		gameHandler->sendAndApply(mana);
-	}
-
 	bool teleport(CGHeroInstance * hero, const CStack * unit, int toColumn)
 	{
-		allowSpellcasting(hero, SpellID::TELEPORT);
-
-		// a hero can only cast while a unit of its own side is the active one
-		for(const auto * stack : battle()->battleGetAllStacks())
-			if(stack->alive() && battle()->battleGetOwner(stack) == hero->getOwner())
-				battle()->activeStack = stack->unitId();
-
-		BattleAction action;
-		action.side = battle()->whatSide(hero->getOwner());
-		action.actionType = EActionType::HERO_SPELL;
-		action.spell = SpellID::TELEPORT;
-
-		battle::Target target;
-		target.emplace_back(unit);
-		target.emplace_back(BattleHex(toColumn, row));
-		action.setTarget(target);
-
-		return gameHandler->battles->makePlayerBattleAction(BattleID(0), hero->getOwner(), action);
+		teachSpell(hero, SpellID::TELEPORT);
+		return castAsHero(hero, SpellID::TELEPORT, battle::Target{battle::Destination(unit), battle::Destination(BattleHex(toColumn, row))});
 	}
 };
 
@@ -297,7 +246,7 @@ TEST_F(BindTest, retaliationBindsTheHarpyInPlace)
 	CStack * dendroidStack = binder(8);
 
 	const BattleHex home = flyer->getPosition();
-	ASSERT_TRUE(strikeFrom(flyer, dendroidStack, 7));
+	ASSERT_TRUE(attackFrom(flyer, dendroidStack->getPosition(), BattleHex(7, row)));
 
 	EXPECT_TRUE(isBound(flyer)) << "dendroid binds whoever it strikes, retaliation included";
 	EXPECT_NE(flyer->getPosition(), home) << "a bound harpy can not fly back to where it came from";
@@ -312,8 +261,8 @@ TEST_F(BindTest, teleportingTargetAwayReleasesIt)
 	ASSERT_TRUE(strike(dendroidStack, target));
 	ASSERT_TRUE(isBound(target));
 
-	ASSERT_TRUE(teleport(attackerSideHero, target, 1));
-	ASSERT_EQ(target->getPosition(), BattleHex(1, row));
+	ASSERT_TRUE(teleport(attackerSideHero, target, 3));
+	ASSERT_EQ(target->getPosition(), BattleHex(3, row));
 
 	EXPECT_FALSE(isBound(target));
 }

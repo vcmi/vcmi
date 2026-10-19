@@ -422,7 +422,7 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 		ASSERT(astack != nullptr, "not ended, but no astack either");
 		ensureValueMatch(gstats->getAttr(GA::BATTLE_WINNER), S13::NULL_VALUE_UNENCODED, "GA.BATTLE_WINNER (battle ongoing)");
 		ensureValueMatch(gstats->getAttr(GA::BATTLE_SIDE_ACTIVE_PLAYER), EI(astack->unitSide()), "GA.BATTLE_SIDE_ACTIVE_PLAYER");
-		ensureValueMatch(gmask.test(EI(GlobalAction::WAIT)), !astack->waitedThisTurn, "GA.ACTION_MASK[WAIT]");
+		ensureValueMatch(gmask.test(EI(GlobalAction::WAIT)), !astack->waitedThisRound(), "GA.ACTION_MASK[WAIT]");
 	}
 	auto alogs = state->supdata->getAttackLogs();
 
@@ -808,7 +808,7 @@ void Verify(const State * state) // NOSONAR - function used for debugging only
 								ensureValueMatch(vf, cstack->willMove(), "HEX.STACK_FLAGS1.WILL_ACT");
 								break;
 							case SF1::CAN_WAIT:
-								ensureValueMatch(vf, cstack->willMove() && !cstack->waitedThisTurn, "HEX.STACK_FLAGS1.CAN_WAIT");
+								ensureValueMatch(vf, cstack->willMove() && !cstack->waitedThisRound(), "HEX.STACK_FLAGS1.CAN_WAIT");
 								break;
 							case SF1::CAN_RETALIATE:
 								// XXX: ableToRetaliate() calls CAmmo's (i.e. CRetaliations's) canUse() method

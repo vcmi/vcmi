@@ -37,6 +37,7 @@ Auto-generated from C++ host bindings via `vcmiserver --export-lua-docs`. Do not
 - [SpellProblem](SpellProblem.md)
 - [SpellSchool](SpellSchool.md)
 - [StackInstance](StackInstance.md)
+- [TargetStepDescriptor](TargetStepDescriptor.md)
 - [TownInstance](TownInstance.md)
 - [Unit](Unit.md)
 - [UnitState](UnitState.md)

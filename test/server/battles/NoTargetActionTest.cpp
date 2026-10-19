@@ -13,6 +13,7 @@
 
 #include "../../../lib/CPlayerState.h"
 #include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/gameState/CGameState.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -25,22 +26,21 @@ namespace
 
 constexpr int pikeman = 0;
 
+using S = battle::UnitTurnStatus;
+
 /// How the start of one action changes the turn state of the unit making it.
 struct StartStateCase
 {
 	const char * name;
 	EActionType action;
 	const char * spell; ///< full identifier, or nullptr for an action without one
-	bool waiting;
-	bool defending;
-	bool movedThisRound;
+	battle::UnitTurnStatus status;
 	bool castSpellThisTurn;
 };
 
 }
 
-/// StartAction is applied before every action runs, and sets the waiting, defending and moved
-/// flags of the acting unit.
+/// StartAction is applied before every action runs, and sets the turn status of the acting unit.
 class ActionStartStateTest : public BattleTestFixture, public ::testing::WithParamInterface<StartStateCase>
 {
 };
@@ -56,7 +56,7 @@ TEST_P(ActionStartStateTest, setsTurnStateOfActingUnit)
 	ASSERT_NE(unit, nullptr);
 
 	// tells an action that ends waiting apart from one that leaves it alone
-	unit->waiting = true;
+	unit->setTurnStatus(battle::UnitTurnStatus::WAITING);
 
 	BattleAction action;
 	action.side = BattleSide::ATTACKER;
@@ -64,33 +64,29 @@ TEST_P(ActionStartStateTest, setsTurnStateOfActingUnit)
 	action.actionType = scenario.action;
 	action.spell = scenario.spell ? spellByName(scenario.spell) : SpellID::NONE;
 
-	StartAction pack(action);
-	pack.battleID = BattleID(0);
+	StartAction pack = BattleActionType::makeStartAction(*battle(), action);
 	gameHandler->sendAndApply(pack);
 
-	EXPECT_EQ(unit->waiting, scenario.waiting) << scenario.name;
-	EXPECT_EQ(unit->defending, scenario.defending) << scenario.name;
-	EXPECT_EQ(unit->movedThisRound, scenario.movedThisRound) << scenario.name;
-	EXPECT_EQ(unit->castSpellThisTurn, scenario.castSpellThisTurn) << scenario.name;
-	EXPECT_EQ(unit->waitedThisTurn, scenario.action == EActionType::WAIT) << scenario.name;
+	EXPECT_EQ(unit->getTurnStatus(), scenario.status) << scenario.name;
+	EXPECT_EQ(unit->castSpellThisTurn(), scenario.castSpellThisTurn) << scenario.name;
 }
 
 INSTANTIATE_TEST_SUITE_P(Actions, ActionStartStateTest, ::testing::Values(
-	StartStateCase{"wait",            EActionType::WAIT,            nullptr,                         true,  false, false, false},
-	StartStateCase{"defend",          EActionType::DEFEND,          nullptr,                         false, true,  false, false},
-	StartStateCase{"creatureSpell",   EActionType::MONSTER_SPELL,   "core:bless",                    false, false, true,  true},
+	StartStateCase{"wait",            EActionType::WAIT,            nullptr,                         S::WAITING, false},
+	StartStateCase{"defend",          EActionType::DEFEND,          nullptr,                         S::DEFENDED, false},
+	StartStateCase{"creatureSpell",   EActionType::MONSTER_SPELL,   "core:bless",                    S::ACTED, true},
 	// a genie action carries no spell, the server rolls it while applying the action
-	StartStateCase{"randomSpell",     EActionType::MONSTER_SPELL,   nullptr,                         false, false, true,  true},
-	StartStateCase{"castWithoutSkip", EActionType::MONSTER_SPELL,   "vcmi-test:testCastWithoutSkip", true,  false, false, true},
-	StartStateCase{"walk",            EActionType::WALK,            nullptr,                         false, false, true,  false},
-	StartStateCase{"attack",          EActionType::WALK_AND_ATTACK, nullptr,                         false, false, true,  false},
-	StartStateCase{"shoot",           EActionType::SHOOT,           nullptr,                         false, false, true,  false},
-	StartStateCase{"catapult",        EActionType::CATAPULT,        nullptr,                         false, false, true,  false},
-	StartStateCase{"heal",            EActionType::STACK_HEAL,      nullptr,                         false, false, true,  false},
-	// WALK_AND_CAST leaves castSpellThisTurn unset
-	StartStateCase{"walkAndCast",     EActionType::WALK_AND_CAST,   "core:bless",                    false, false, true,  false},
-	StartStateCase{"badMorale",       EActionType::BAD_MORALE,      nullptr,                         false, false, true,  false},
-	StartStateCase{"noAction",        EActionType::NO_ACTION,       nullptr,                         false, false, true,  false}
+	StartStateCase{"randomSpell",     EActionType::RANDOM_SPELL,    nullptr,                         S::ACTED, true},
+	StartStateCase{"castWithoutSkip", EActionType::MONSTER_SPELL,   "vcmi-test:testCastWithoutSkip", S::WAITING, true},
+	StartStateCase{"walk",            EActionType::WALK,            nullptr,                         S::ACTED, false},
+	StartStateCase{"attack",          EActionType::WALK_AND_ATTACK, nullptr,                         S::ACTED, false},
+	StartStateCase{"shoot",           EActionType::SHOOT,           nullptr,                         S::ACTED, false},
+	StartStateCase{"catapult",        EActionType::CATAPULT,        nullptr,                         S::ACTED, false},
+	StartStateCase{"heal",            EActionType::STACK_HEAL,      nullptr,                         S::ACTED, false},
+	// the walk ends the turn, so the flag that refuses a second cast in the same turn is not needed
+	StartStateCase{"walkAndCast",     EActionType::WALK_AND_CAST,   "core:bless",                    S::ACTED, false},
+	StartStateCase{"badMorale",       EActionType::BAD_MORALE,      nullptr,                         S::ACTED, false},
+	StartStateCase{"noAction",        EActionType::NO_ACTION,       nullptr,                         S::ACTED, false}
 ),
 	[](const ::testing::TestParamInfo<StartStateCase> & info) { return info.param.name; });
 
@@ -152,7 +148,7 @@ TEST_P(DefendActionTest, raisesDefenceForTheTurn)
 	ASSERT_TRUE(act(BattleAction::makeDefend(unit)));
 
 	EXPECT_EQ(unit->getDefense(false), defenceBefore + scenario.defenceGained) << scenario.name;
-	EXPECT_TRUE(unit->defending) << scenario.name;
+	EXPECT_TRUE(unit->defended()) << scenario.name;
 	EXPECT_TRUE(unit->hasBonusOfType(BonusType::UNIT_DEFENDING)) << scenario.name;
 }
 

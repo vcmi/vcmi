@@ -1,0 +1,35 @@
+/*
+ * BattleActionEntry.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+#pragma once
+
+#include "../../lib/battle/actions/ActionOption.h"
+
+class CStack;
+
+/// One way to act on a battlefield hex, such as moving, attacking or viewing unit info. BattleActionsController selects one entry for the hovered hex
+class IBattleActionEntry
+{
+public:
+	virtual ~IBattleActionEntry() = default;
+
+	/// Order in which entries are tried for a hex, lower first. Target is the unit on the hex, or nullptr
+	virtual int getPriority(const battle::Unit * target) const = 0;
+	virtual bool isLegal(const BattleHex & hex) const = 0;
+	/// Preview of the hex; the blocked cursor and no shaded hexes where the entry is not legal
+	virtual ActionPreview preview(const BattleHex & hex) const = 0;
+	/// Performs the entry on a hex where it is legal
+	virtual void realize(const BattleHex & hex) const = 0;
+	/// Spell cast by the entry, or SpellID::NONE
+	virtual SpellID getSpell() const = 0;
+	/// Unit action panel button that selects the entry, if it has one
+	virtual std::optional<UnitActionButton> getPanelButton() const = 0;
+};
+
+using BattleActionEntries = std::vector<std::shared_ptr<const IBattleActionEntry>>;
