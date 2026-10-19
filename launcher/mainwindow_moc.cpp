@@ -91,6 +91,18 @@ MainWindow::MainWindow(QWidget * parent)
 	updateTranslation(); // load translation
 
 	ui->setupUi(this);
+	connect(ui->modlistView, &CModListView::archiveImportStateChanged, this, [this](bool installing)
+	{
+		ui->tabListWidget->widget(TabRows::START)->setEnabled(!installing);
+		ui->tabListWidget->widget(TabRows::SETTINGS)->setEnabled(!installing);
+		setGamepadStartAllowed(gamepadStartAllowed);
+		if(!installing)
+			QTimer::singleShot(0, this, &MainWindow::processPendingManualImports);
+	});
+	connect(ui->modlistView, &CModListView::importsCanceled, this, [this]
+	{
+		pendingManualImports.clear();
+	});
 
 #ifndef VCMI_MOBILE
 	connect(qApp, &QGuiApplication::screenRemoved, this, [this](QScreen *)
@@ -152,13 +164,13 @@ MainWindow::MainWindow(QWidget * parent)
 void MainWindow::setGamepadStartAllowed(bool allowed)
 {
 	gamepadStartAllowed = allowed;
-	Helper::allowGamepadStart(allowed);
+	Helper::allowGamepadStart(allowed && pendingManualImports.empty() && !processingManualImport && !getModView()->isInstallingArchives());
 }
 
 void MainWindow::startGameFromGamepad()
 {
 	// setup and dialogs can't be operated with a gamepad, so don't take control away from the player
-	if(!gamepadStartAllowed || QApplication::activeModalWidget())
+	if(!gamepadStartAllowed || !pendingManualImports.empty() || processingManualImport || getModView()->isInstallingArchives() || QApplication::activeModalWidget())
 		return;
 
 	hide();
@@ -377,6 +389,9 @@ void MainWindow::changeEvent(QEvent * event)
 
 MainWindow::~MainWindow()
 {
+	shuttingDown = true;
+	disconnect(ui->modlistView, nullptr, this, nullptr);
+	pendingManualImports.clear();
 	saveWindowSettings();
 
 	delete ui;
@@ -440,12 +455,49 @@ void MainWindow::dropEvent(QDropEvent* event)
 
 void MainWindow::manualInstallFile(QString filePath)
 {
+	if(shuttingDown)
+		return;
+	pendingManualImports.enqueue(ImportSource::userFile(std::move(filePath)));
+	setGamepadStartAllowed(gamepadStartAllowed);
+	QTimer::singleShot(0, this, &MainWindow::processPendingManualImports);
+}
+
+void MainWindow::processPendingManualImports()
+{
+	if(shuttingDown || processingManualImport || getModView()->isInstallingArchives())
+		return;
+	processingManualImport = true;
+	QPointer<MainWindow> alive(this);
+	while(!pendingManualImports.empty() && !getModView()->isInstallingArchives())
+	{
+		const auto source = pendingManualImports.dequeue();
+		try
+		{
+			installManualSource(source);
+		}
+		catch(const std::exception & exception)
+		{
+			if(!alive)
+				return;
+			QMessageBox::warning(this, tr("Import failed"), tr("Failed to import %1: %2").arg(source.path, QString::fromUtf8(exception.what())));
+		}
+		if(!alive)
+			return;
+	}
+	processingManualImport = false;
+	setGamepadStartAllowed(gamepadStartAllowed);
+}
+
+void MainWindow::installManualSource(const ImportSource & source)
+{
+	QPointer<MainWindow> alive(this);
+	const auto & filePath = source.path;
 	QString realFilePath = Helper::getRealPath(filePath);
 
 	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive) || realFilePath.endsWith(".exe", Qt::CaseInsensitive))
 		switchToModsTab();
 
-	QString fileName = QFileInfo{filePath}.fileName();
+	QString fileName = QFileInfo{realFilePath}.fileName();
 	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive))
 	{
 		QString filenameClean = fileName.toLower()
@@ -454,7 +506,7 @@ void MainWindow::manualInstallFile(QString filePath)
 			.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
 			.replace("-main.zip", ".zip");
 
-		getModView()->downloadFile(filenameClean, QUrl::fromLocalFile(filePath), "mods");
+		getModView()->importArchive(source, filenameClean.section('.', 0, 0));
 	}
 	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{
@@ -463,6 +515,8 @@ void MainWindow::manualInstallFile(QString filePath)
 		if(!configFile.empty())
 		{
 			auto dialogResult = QMessageBox::warning(this, tr("Replace config file?"), tr("Do you want to replace %1?").arg(configFile[0]), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+			if(!alive)
+				return;
 			if(dialogResult == QMessageBox::Yes)
 			{
 				const auto configFilePath = configDir.filePath(configFile[0]);
@@ -474,7 +528,7 @@ void MainWindow::manualInstallFile(QString filePath)
 		}
 	}
 	else
-		getModView()->installFiles(QStringList{filePath});
+		getModView()->installFiles(QVector<ImportSource>{source});
 }
 
 ETranslationStatus MainWindow::getTranslationStatus()

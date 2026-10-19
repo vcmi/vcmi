@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../StdInc.h"
+#include "archiveimportjob_moc.h"
 #include "../../lib/CConfigHandler.h"
 
 namespace Ui
@@ -36,6 +37,14 @@ class CModListView : public QWidget
 	ModStateItemModel * modModel;
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
+	ArchiveImportJob * archiveImport = nullptr;
+	QVector<ArchiveImportSource> pendingArchives;
+	QVector<ImportSource> deferredInstallFiles;
+	bool processingInstallFiles = false;
+	bool deferredReload = false;
+	bool finishingArchiveImport = false;
+	QMap<QString, bool> modStatesBeforeImport;
+	QMap<QString, QMap<QString, bool>> submodStatesBeforeImport;
 	JsonNode accumulatedRepositoryData;
 	QString activatingPreset;
 
@@ -60,8 +69,11 @@ class CModListView : public QWidget
 
 	bool askOverwriteDialog(const QString & windowTitle, const QString & message, int conflictCount, bool & applyToAll, bool & overwriteAll);
 
-	void installMods(QStringList archives);
-	void installMaps(QStringList maps);
+	void installMods(QVector<ImportSource> archives);
+	void resumePendingImports();
+	void startArchiveImport();
+	void finishArchiveImport();
+	void installMaps(QVector<ImportSource> maps);
 	void installSaves(QStringList saves);
 
 	QString genChangelogText(const ModState & mod);
@@ -142,7 +154,9 @@ protected:
 public:
 	void downloadMod(const ModState & mod);
 	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
-	void installFiles(QStringList mods);
+	void installFiles(QVector<ImportSource> files);
+	void importArchive(ImportSource source, QString modIdHint);
+	bool isInstallingArchives() const;
 
 	void showExternalProgress(const QString & format, int current, int max);
 	void hideExternalProgress();
@@ -151,6 +165,10 @@ public slots:
 	void enableModByName(QString modName);
 	void disableModByName(QString modName);
 
+signals:
+	void archiveImportStateChanged(bool installing);
+	void importsCanceled();
+
 private slots:
 	void onCustomContextMenu(const QPoint &point);
 	void dataChanged(const QModelIndex & topleft, const QModelIndex & bottomRight);
@@ -158,7 +176,6 @@ private slots:
 	void downloadProgress(QString currentFile, qint64 current, qint64 max);
 	void onDownloadFileFinished(QString fileName);
 	void extractionProgress(qint64 current, qint64 max);
-	void contentExtractionProgress(QString modName, qint64 current, qint64 max);
 	void downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors);
 	void modelReset();
 	void hideProgressBar();

@@ -8,7 +8,9 @@
  *
  */
 #pragma once
+#include "importsource.h"
 #include <QMainWindow>
+#include <QQueue>
 #include <QStringList>
 #include <QTranslator>
 
@@ -42,6 +44,9 @@ class MainWindow : public QMainWindow
 	QTranslator translator;
 #endif
 	Ui::MainWindow * ui;
+	QQueue<ImportSource> pendingManualImports;
+	bool processingManualImport = false;
+	bool shuttingDown = false;
 
 #ifndef VCMI_MOBILE
 	std::unique_ptr<CConsoleHandler> console;
@@ -58,6 +63,8 @@ class MainWindow : public QMainWindow
 	void restoreWindowSettings();
 	void saveWindowSettings();
 	void updateDisplayIndex(QScreen * screen);
+	void processPendingManualImports();
+	void installManualSource(const ImportSource & source);
 
 	enum TabRows
 	{

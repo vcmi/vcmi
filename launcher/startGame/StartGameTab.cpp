@@ -243,6 +243,8 @@ void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
 
 void StartGameTab::on_buttonGameStart_clicked()
 {
+	if(Helper::getMainWindow()->getModView()->isInstallingArchives())
+		return;
 	Helper::getMainWindow()->hide();
 	startGame({});
 }
@@ -264,6 +266,8 @@ void StartGameTab::on_buttonUpdateCheck_clicked()
 
 void StartGameTab::on_buttonGameEditor_clicked()
 {
+	if(Helper::getMainWindow()->getModView()->isInstallingArchives())
+		return;
 	auto mainWindow = Helper::getMainWindow();
 	mainWindow->hide();
 	startEditor({}, mainWindow);
@@ -335,6 +339,11 @@ QStringList StartGameTab::stageUnreadableFiles(const QStringList & files)
 	for(int index = 0; index < files.size(); ++index)
 	{
 		const QString file = files[index];
+		if(Helper::getRealPath(file).endsWith(".zip", Qt::CaseInsensitive))
+		{
+			preparedFiles << file;
+			continue;
+		}
 		modView->showExternalProgress(tr("Preparing selected files for import... %1/%2").arg(index + 1).arg(files.size()), index, files.size());
 		qApp->processEvents();
 
