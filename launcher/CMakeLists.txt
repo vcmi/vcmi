@@ -10,6 +10,7 @@ set(launcher_SRCS
 		aboutProject/dataexporter.cpp
 		aboutProject/deviceinfo.cpp
 		modManager/cdownloadmanager_moc.cpp
+		modManager/modarchiveinstaller.cpp
 		modManager/modstateitemmodel_moc.cpp
 		modManager/cmodlistview_moc.cpp
 		modManager/modstatecontroller.cpp
@@ -54,6 +55,7 @@ set(launcher_HEADERS
 		aboutProject/aboutproject_moc.h
 		aboutProject/deviceinfo.h
 		modManager/cdownloadmanager_moc.h
+		modManager/modarchiveinstaller.h
 		modManager/modstateitemmodel_moc.h
 		modManager/cmodlistview_moc.h
 		modManager/modstatecontroller.h
