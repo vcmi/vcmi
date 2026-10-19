@@ -300,7 +300,7 @@ namespace
 		{
 			case AT::WAIT:
 				assert(a->by && &a->by->cstack == acstack);
-				assert(!acstack->waitedThisTurn);
+				assert(!acstack->waitedThisRound());
 				return BattleAction::makeWait(acstack);
 			case AT::DEFEND:
 				assert(a->by && &a->by->cstack == acstack);
