@@ -13,143 +13,11 @@
 #include "modstatemodel.h"
 
 #include "../../lib/VCMIDirs.h"
-#include "../../lib/CConfigHandler.h"
-#include "../../lib/ScopeGuard.h"
 #include "../../lib/filesystem/Filesystem.h"
-#include "../../lib/filesystem/CZipLoader.h"
-#include "../../lib/modding/CModHandler.h"
-#include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-#include "../../vcmiqt/jsonutils.h"
 #include "../../vcmiqt/launcherdirs.h"
-
-#include <future>
-
-namespace
-{
-void findContentArchives(const QDir & currentDir, QVector<QString> & archives)
-{
-	const QFileInfoList entries = currentDir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-	for(const QFileInfo & entry : entries)
-	{
-		if(entry.isDir())
-		{
-			findContentArchives(QDir(entry.absoluteFilePath()), archives);
-			continue;
-		}
-
-		if(entry.fileName().compare("content.zip", Qt::CaseInsensitive) == 0)
-			archives.push_back(entry.absoluteFilePath());
-	}
-}
-
-bool extractContentArchives(ModStateController * controller, const QString & modName, const QString & modPath)
-{
-	QVector<QString> archives;
-	findContentArchives(QDir(modPath), archives);
-
-	for(qint64 archiveIndex = 0; archiveIndex < archives.size(); ++archiveIndex)
-	{
-		controller->contentExtractionProgress(modName, archiveIndex + 1, archives.size());
-		qApp->processEvents();
-
-		const QString archivePath = archives[archiveIndex];
-		const QFileInfo archiveInfo(archivePath);
-		const QString contentDirPath = archiveInfo.dir().filePath("content");
-
-		QDir contentDir(contentDirPath);
-		if(!contentDir.exists() && !archiveInfo.dir().mkpath("content"))
-		{
-			logGlobal->error("Failed to create content directory for '%s'", archivePath.toStdString().c_str());
-			return false;
-		}
-
-		auto futureExtract = std::async(std::launch::async, [archivePath, contentDirPath]()
-		{
-			ZipArchive archive(qstringToPath(archivePath));
-			for(const auto & file : archive.listFiles())
-			{
-				if(!archive.extract(qstringToPath(contentDirPath), file))
-				{
-					logGlobal->error("Failed to extract '%s' from '%s'", file, archivePath.toStdString().c_str());
-					return false;
-				}
-			}
-			return true;
-		});
-
-		while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
-		{
-			qApp->processEvents();
-		}
-
-		if(!futureExtract.get())
-			return false;
-
-		if(!QFile::remove(archivePath))
-		{
-			logGlobal->error("Failed to remove extracted archive '%s'", archivePath.toStdString().c_str());
-			return false;
-		}
-	}
-
-	controller->contentExtractionProgress(modName, archives.size(), archives.size());
-	qApp->processEvents();
-	return true;
-}
-
-bool extractNestedModArchives(ModStateController * controller, const QString & modName, const QString & modPath)
-{
-	try
-	{
-		return extractContentArchives(controller, modName, modPath);
-	}
-	catch(const std::runtime_error & e)
-	{
-		logGlobal->error("Failed to extract nested mod archive. Reason: %s", e.what());
-		return false;
-	}
-}
-
-QString detectModArchive(QString path, QString modName, std::vector<std::string> & filesToExtract)
-{
-	try {
-		ZipArchive archive(qstringToPath(path));
-		filesToExtract = archive.listFiles();
-	}
-	catch (const std::runtime_error & e)
-	{
-		logGlobal->error("Failed to open zip archive. Reason: %s", e.what());
-		return "";
-	}
-
-	QString modDirName;
-
-	for(int folderLevel : {0, 1}) //search in subfolder if there is no mod.json in the root
-	{
-		for(const auto & file : filesToExtract)
-		{
-			QString filename = QString::fromUtf8(file.c_str());
-			modDirName = filename.section('/', 0, folderLevel);
-			
-			if(filename == modDirName + "/mod.json")
-			{
-				return modDirName;
-			}
-		}
-	}
-
-	logGlobal->error("Failed to detect mod path in archive!");
-	logGlobal->debug("List of file in archive:");
-	for(const auto & file : filesToExtract)
-		logGlobal->debug("%s", file.c_str());
-	
-	return "";
-}
-}
-
 
 ModStateController::ModStateController(std::shared_ptr<ModStateModel> modList)
 	: modList(modList)
@@ -276,16 +144,6 @@ bool ModStateController::canDisableMod(QString modname)
 	return true;
 }
 
-QString ModStateController::getStagingPath(const QString & modname)
-{
-	return CLauncherDirs::modsPath() + "/." + modname + ".staging";
-}
-
-QString ModStateController::getBackupPath(const QString & modname)
-{
-	return CLauncherDirs::modsPath() + "/." + modname + ".backup";
-}
-
 QString ModStateController::findModDirectory(const QString & modname)
 {
 	const QDir modsDir(CLauncherDirs::modsPath());
@@ -293,87 +151,6 @@ QString ModStateController::findModDirectory(const QString & modname)
 		if(entry.compare(modname, Qt::CaseInsensitive) == 0)
 			return modsDir.filePath(entry);
 	return {};
-}
-
-bool ModStateController::installMod(QString modname, QString archivePath)
-{
-	if(modList->isModInstalled(modname) && !isModManageable(modname))
-		return addError(modname, getUnmanageableReason(modname));
-
-	if(!QFile(archivePath).exists())
-		return addError(modname, tr("Mod archive is missing"));
-
-	std::vector<std::string> filesToExtract;
-	QString modDirName = ::detectModArchive(archivePath, modname, filesToExtract);
-	if(!modDirName.size())
-		return addError(modname, tr("Mod archive is invalid or corrupted"));
-
-	const QString stagingPath = getStagingPath(modname);
-	const QString backupPath = getBackupPath(modname);
-
-	// leftovers of an installation that was interrupted, e.g. by a crash
-	for(const auto & path : {stagingPath, backupPath})
-		if(QDir(path).exists() && !removeModDir(path))
-			return addError(modname, tr("Failed to remove directory %1").arg(path));
-
-	if(!QDir().mkpath(stagingPath))
-		return addError(modname, tr("Failed to create directory %1").arg(stagingPath));
-
-	auto removeStaging = vstd::makeScopeGuard([this, &stagingPath]()
-	{
-		if(!removeModDir(stagingPath))
-			logGlobal->error("Failed to remove directory '%s'", stagingPath.toStdString());
-	});
-
-	std::atomic<int> filesCounter = 0;
-
-	auto futureExtract = std::async(std::launch::async, [&archivePath, &stagingPath, &filesCounter, &filesToExtract]()
-	{
-		const auto destDirFsPath = qstringToPath(stagingPath);
-		ZipArchive archive(qstringToPath(archivePath));
-		for(const auto & file : filesToExtract)
-		{
-			if (!archive.extract(destDirFsPath, file))
-				return false;
-			++filesCounter;
-		}
-		return true;
-	});
-	
-	while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
-	{
-		extractionProgress(filesCounter, filesToExtract.size());
-		qApp->processEvents();
-	}
-	
-	const QDir extractedDir(stagingPath + '/' + modDirName);
-
-	if(!futureExtract.get() || (settings["launcher"]["fullModExtraction"].Bool() && !extractNestedModArchives(this, modname, extractedDir.path())))
-		return addError(modname, tr("Failed to extract mod data"));
-
-	QDir githubDir(extractedDir.filePath(".github"));
-	if (githubDir.exists())
-		githubDir.removeRecursively();
-
-	// Existing mod is renamed instead of deleted, so a locked directory fails without leaving a partially removed mod
-	const QString lockedDirectoryError = tr("Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.");
-	const QString existingDirectory = findModDirectory(modname);
-	const QString targetDirectory = CLauncherDirs::modsPath() + '/' + modname;
-
-	if(!existingDirectory.isEmpty() && !QDir().rename(existingDirectory, backupPath))
-		return addError(modname, lockedDirectoryError.arg(existingDirectory));
-
-	if(!QDir().rename(extractedDir.path(), targetDirectory))
-	{
-		if(!existingDirectory.isEmpty() && !QDir().rename(backupPath, existingDirectory))
-			logGlobal->error("Failed to restore previous version of mod '%s' from '%s'", modname.toStdString(), backupPath.toStdString());
-		return addError(modname, lockedDirectoryError.arg(targetDirectory));
-	}
-
-	if(!existingDirectory.isEmpty() && !removeModDir(backupPath))
-		logGlobal->error("Failed to remove previous version of mod '%s' from '%s'", modname.toStdString(), backupPath.toStdString());
-
-	return true;
 }
 
 bool ModStateController::doUninstallMod(QString modname)
