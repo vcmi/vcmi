@@ -14,6 +14,7 @@
 #include "CPathfinder.h"
 #include "INodeStorage.h"
 #include "PathfinderOptions.h"
+#include "TurnInfo.h"
 
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/MiscObjects.h"
@@ -60,8 +61,16 @@ void MovementCostRule::process(
 		const int movementPointsAfterEmbark = pathfinderHelper->movementPointsAfterEmbark(destMovePointsLeft, moveCostPoints, (destination.action == EPathNodeAction::DISEMBARK));
 
 		const int destinationLayerMaxMovePoints = pathfinderHelper->getMaxMovePoints(destination.node->layer);
-		const float costBeforeConversion = static_cast<float>(destMovePointsLeft) / sourceLayerMaxMovePoints;
-		const float costAfterConversion = static_cast<float>(movementPointsAfterEmbark) / destinationLayerMaxMovePoints;
+
+		const TurnInfo * ti = pathfinderHelper->getTurnInfo();
+		const int sourceConversionLimit = ti->getMovementConversionLimit(source.node->layer);
+		const int destinationConversionLimit = ti->getMovementConversionLimit(destination.node->layer);
+
+		const int sourceDivisor = sourceConversionLimit > 0 ? sourceConversionLimit : sourceLayerMaxMovePoints;
+		const int destinationDivisor = destinationConversionLimit > 0 ? destinationConversionLimit : destinationLayerMaxMovePoints;
+
+		const float costBeforeConversion = static_cast<float>(destMovePointsLeft) / sourceDivisor;
+		const float costAfterConversion = static_cast<float>(movementPointsAfterEmbark) / destinationDivisor;
 		const float costDelta = costBeforeConversion - costAfterConversion;
 
 		assert(costDelta >= 0);

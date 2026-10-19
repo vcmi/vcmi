@@ -192,6 +192,26 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			var = loadedData;
 			break;
 		}
+		case BonusType::FREE_SHIP_BOARDING:
+		{
+			if (!value.isVector() || value.Vector().size() != 2
+				|| value[0].getType() != JsonNode::JsonType::DATA_INTEGER
+				|| value[1].getType() != JsonNode::JsonType::DATA_INTEGER
+				|| value[0].Integer() < 0 || value[1].Integer() < 0
+				|| value[0].Integer() > std::numeric_limits<int32_t>::max()
+				|| value[1].Integer() > std::numeric_limits<int32_t>::max())
+			{
+				logMod->error("FREE_SHIP_BOARDING requires addInfo [requiredMP, takenMP] with two non-negative integers");
+				var = std::vector<int32_t>{};
+				break;
+			}
+
+			var = std::vector<int32_t>{
+				static_cast<int32_t>(value[0].Integer()),
+				static_cast<int32_t>(value[1].Integer())
+			};
+			break;
+		}
 		case BonusType::SPECIAL_PECULIAR_ENCHANT:
 		case BonusType::FORCE_NEUTRAL_ENCOUNTER_STACK_COUNT:
 		{

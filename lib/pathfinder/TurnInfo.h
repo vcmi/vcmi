@@ -60,16 +60,21 @@ private:
 	int movePointsLimitLand;
 	int movePointsLimitWater;
 	int movePointsLimitAir;
+	int movementConversionLandLimit = 0;
+	int movementConversionSeaLimit = 0;
 
 	bool waterWalkingTest;
 	bool flyingMovementTest;
 	bool freeShipBoardingTest;
+	bool freeShipBoardingUnrestricted = false;
+	std::vector<std::pair<int, int>> freeShipboardingLimits;
 
 public:
 	int hasWaterWalking() const;
 	int hasFlyingMovement() const;
 	int hasNoTerrainPenalty(const TerrainId & terrain) const;
 	int hasFreeShipBoarding() const;
+	int getFreeShipBoardingCost(int movementPoints) const;
 
 	int getFlyingMovementValue() const;
 	int getWaterWalkingValue() const;
@@ -82,4 +87,5 @@ public:
 	TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, int Turn);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
+	int getMovementConversionLimit(const EPathfindingLayer & layer) const;
 };

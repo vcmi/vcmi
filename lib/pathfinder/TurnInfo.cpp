@@ -14,6 +14,7 @@
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
 #include "../bonuses/BonusList.h"
+#include "../bonuses/BonusParameters.h"
 #include "../callback/IGameInfoCallback.h"
 #include "../json/JsonNode.h"
 #include "../mapObjects/CGHeroInstance.h"
@@ -50,6 +51,22 @@ int TurnInfo::hasNoTerrainPenalty(const TerrainId &terrain) const
 int TurnInfo::hasFreeShipBoarding() const
 {
 	return freeShipBoardingTest;
+}
+
+int TurnInfo::getFreeShipBoardingCost(int movementPoints) const
+{
+	if(freeShipBoardingUnrestricted)
+		return 0;
+
+	int result = -1;
+
+	for (const auto& [requiredMP, takenMP] : freeShipboardingLimits)
+	{
+		if(movementPoints >= requiredMP && (result == -1 || takenMP < result))
+			result = takenMP;
+	}
+
+	return result;
 }
 
 int TurnInfo::getFlyingMovementValue() const
@@ -122,7 +139,32 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 	{
 		static const CSelector selector = Selector::type()(BonusType::FREE_SHIP_BOARDING);
 		const auto & bonuses = sharedCache->freeShipBoarding.getBonusList(target, selector);
-		freeShipBoardingTest = bonuses->getFirst(daySelector) != nullptr;
+
+		freeShipBoardingTest = false;
+
+		for (const auto & bonus : *bonuses)
+		{
+			if(!daySelector(bonus.get()))
+				continue;
+
+			if (!bonus->parameters)
+			{
+				freeShipBoardingUnrestricted = true;
+				freeShipBoardingTest = true;
+				continue;
+			}
+
+			if(!bonus->parameters->isVector())
+				continue;
+
+			const auto & parameters = bonus->parameters->toVector();
+
+			if(parameters.size() != 2 || parameters[0] < 0 || parameters[1] < 0)
+				continue;
+
+			freeShipboardingLimits.emplace_back(parameters[0], parameters[1]);
+			freeShipBoardingTest = true;
+		}
 	}
 
 	{
@@ -167,6 +209,19 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 	{
 		// A hero in an airship has 2000 movements. No modificators increasing the speed of moving either by land or water influence this quantity.
 		movePointsLimitAir = 2000;
+	}
+
+	// Current-day conversion uses movement limits captured for this day.
+	// Future turns use projected limits, since their daily pools are not fixed yet.
+	if(Turn == 0)
+	{
+		movementConversionLandLimit = target->getMovementConversionLimit(EPathfindingLayer::LAND);
+		movementConversionSeaLimit = target->getMovementConversionLimit(EPathfindingLayer::SAIL);
+	}
+	else
+	{
+		movementConversionLandLimit = movePointsLimitLand;
+		movementConversionSeaLimit = movePointsLimitWater;
 	}
 
 	{
@@ -232,4 +287,15 @@ int TurnInfo::getMaxMovePoints(const EPathfindingLayer & layer) const
 		return getMovePointsLimitAir();
 	else
 		return getMovePointsLimitLand();
+}
+
+int TurnInfo::getMovementConversionLimit(const EPathfindingLayer& layer) const
+{
+	if(layer == EPathfindingLayer::LAND)
+		return movementConversionLandLimit;
+
+	if(layer == EPathfindingLayer::SAIL)
+		return movementConversionSeaLimit;
+
+	return 0;
 }
