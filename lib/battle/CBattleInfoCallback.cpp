@@ -1426,6 +1426,11 @@ BattleHexArray CBattleInfoCallback::getStoppers(BattleSide whichSidePerspective)
 	BattleHexArray ret;
 	THROW_IF_NOT_BATTLE();
 
+	// We may control a unit of the other side (hypnotize, dominate) and plan its movement,
+	// but we only know the obstacles visible to our own side
+	if(!battleDoWeKnowAbout(whichSidePerspective))
+		whichSidePerspective = battleGetMySide();
+
 	for(auto &oi : battleGetAllObstacles(whichSidePerspective))
 	{
 		if(!battleIsObstacleVisibleForSide(*oi, whichSidePerspective))
