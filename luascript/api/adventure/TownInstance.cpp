@@ -16,6 +16,7 @@
 #include "../../../lib/GameLibrary.h"
 #include "../../../lib/entities/building/CBuilding.h"
 #include "../../../lib/entities/faction/CTown.h"
+#include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGObjectInstance.h"
 
 namespace scripting::api
@@ -28,6 +29,10 @@ void TownInstanceProxy::registerMethods(MethodRegistrar & R)
 	R.function<&TownInstanceProxy::getBuildings>("getBuildings",
 		{"Every building standing in this town."},
 		"Returns the buildings that have been built in this town, upgrades of other buildings among them.");
+	R.method<&CGTownInstance::getVisitingHero>("getVisitingHero", {"Hero visiting the town, or nil."},
+		"Returns the hero that stands in the town entrance, or nil when there is none.");
+	R.method<&CGTownInstance::getGarrisonHero>("getGarrisonHero", {"Hero in the town garrison, or nil."},
+		"Returns the hero that guards the town as part of its garrison, or nil when there is none.");
 	R.function<&TownInstanceProxy::getFaction>("getFaction",
 		{"Faction of the town, comparable with the result of Services:getFactionByName."},
 		"Returns the faction (Castle, Rampart, Tower...) of this town.");

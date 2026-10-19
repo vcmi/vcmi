@@ -536,6 +536,9 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 	if(vstd::contains(t->forbiddenBuildings, ID))
 		return EBuildingState::FORBIDDEN; //forbidden
 
+	if(ID == BuildingID::GRAIL && !isGrailAllowed(t))
+		return EBuildingState::FORBIDDEN;
+
 	auto possiblyNotBuiltTest = [&](const BuildingID & id) -> bool
 	{
 		return ((id == BuildingID::CAPITOL) ? true : !t->hasBuilt(id));
@@ -587,6 +590,36 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 		return EBuildingState::NO_RESOURCES; //lack of res
 
 	return EBuildingState::ALLOWED;
+}
+
+bool CGameInfoCallback::isGrailAllowed(const CGTownInstance * town) const
+{
+	if(vstd::contains(town->forbiddenBuildings, BuildingID::GRAIL))
+		return false;
+
+	// victory condition may require grail in specific town, such as capital in "The Challenge"
+	bool anyTownAllowed = false;
+	std::set<ObjectInstanceID> requiredTowns;
+
+	for(const auto & event : gameState().getMap().triggeredEvents)
+	{
+		if(event.effect.type != EventEffect::VICTORY)
+			continue;
+
+		event.trigger.morph([&](const EventCondition & condition) -> EventExpression::Variant
+		{
+			if(condition.condition == EventCondition::HAVE_BUILDING && condition.objectType.as<BuildingID>() == BuildingID::GRAIL)
+			{
+				if(condition.objectID.hasValue())
+					requiredTowns.insert(condition.objectID);
+				else
+					anyTownAllowed = true;
+			}
+			return condition;
+		});
+	}
+
+	return anyTownAllowed || requiredTowns.empty() || requiredTowns.count(town->id);
 }
 
 const CMap * CGameInfoCallback::getMapConstPtr() const

@@ -411,6 +411,14 @@ void MapReaderH3M::readBitmaskFactions(std::set<FactionID> & dest, bool invert)
 	readBitmask(dest, features.factionsBytes, features.factionsCount, invert);
 }
 
+std::set<FactionID> MapReaderH3M::getFormatFactions()
+{
+	std::set<FactionID> result;
+	for(int i = 0; i < features.factionsCount; ++i)
+		result.insert(remapIdentifier(FactionID(i)));
+	return result;
+}
+
 void MapReaderH3M::readBitmaskPlayers(std::set<PlayerColor> & dest, bool invert)
 {
 	readBitmask(dest, 1, 8, invert);

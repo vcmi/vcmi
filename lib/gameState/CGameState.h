@@ -75,6 +75,9 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback, public Serializeabl
 	/// Runs the map's converted event script; null when the map has no event system. Server-only, rebuilt on load.
 	std::unique_ptr<scripting::MapEventDispatcher> mapEventDispatcher;
 
+	/// Bonus nodes of special terrains, created on first use. Not serialized - heroes reattach on load
+	std::map<BattleField, std::unique_ptr<CBonusSystemNode>> specialTerrainNodes;
+
 public:
 	/// List of currently ongoing battles
 	std::vector<std::unique_ptr<BattleInfo>> currentBattles;
@@ -122,6 +125,10 @@ public:
 
 	void apply(CPackForClient & pack);
 	BattleField battleGetBattlefieldType(int3 tile, vstd::RNG & randomGenerator) const;
+	/// Returns special terrain, such as Cursed Ground, that covers specified tile, or NONE
+	BattleField getSpecialTerrainAt(const int3 & tile) const;
+	/// Returns node that grants bonuses of specified special terrain to heroes that stand on it
+	CBonusSystemNode & getSpecialTerrainNode(BattleField terrain);
 
 	PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const override;
 	/// Returns false if both players are still playing simultaneous turns without contact,
@@ -265,6 +272,8 @@ private:
 	void adjustObjectsToMapBounds();
 	void initHeroes(IGameRandomizer & gameRandomizer);
 	void placeHeroesInTowns();
+	/// heroes placed on water start in boat, must be called after heroes on town tiles are moved to town entrance
+	void initHeroBoats(IGameRandomizer & gameRandomizer);
 	void initFogOfWar();
 	void initStartingBonus(IGameRandomizer & gameRandomizer);
 	void initTowns(vstd::RNG & randomGenerator);

@@ -58,6 +58,7 @@ set(test_SRCS
 		map/CGArtifactRegressionTest.cpp
 		map/MapScriptTest.cpp
 		map/MapObjectDrawOrderTest.cpp
+		map/PlayerFactionsTest.cpp
 		map/TinyH3MBuilderTest.cpp
 
 		quest/QuestTest.cpp
@@ -201,6 +202,7 @@ endif()
 
 if(ENABLE_NULLKILLER2_AI)
 	list(APPEND test_SRCS
+		nullkiller2/AIGatewayDialogTest.cpp
 		nullkiller2/AIGatewayMovementTest.cpp
 		nullkiller2/AIUtilityTest.cpp
 		nullkiller2/Analyzers/ArmyManagerTest.cpp

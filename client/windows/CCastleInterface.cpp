@@ -1246,7 +1246,7 @@ void CCastleBuildings::enterTownHall()
 	if(town->getVisitingHero() && town->getVisitingHero()->hasArt(ArtifactID::GRAIL) &&
 		!town->hasBuilt(BuildingID::GRAIL)) //hero has grail, but town does not have it
 	{
-		if(!vstd::contains(town->forbiddenBuildings, BuildingID::GRAIL))
+		if(GAME->interface()->cb->isGrailAllowed(town))
 		{
 			GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
 										[&](){ GAME->interface()->cb->buildBuilding(town, BuildingID::GRAIL); },

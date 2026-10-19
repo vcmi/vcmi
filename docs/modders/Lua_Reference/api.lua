@@ -34,6 +34,15 @@ function AdventureServer:addToQuestLog(target, player) end
 ---@param text MetaString # New hover / quest-log text for the object's active quest.
 function AdventureServer:setQuestHintText(target, text) end
 
+---Turns off a timed player event of the map, so it no longer occurs.
+---@param handler string # Name of the map script handler that the timed player event runs.
+function AdventureServer:disablePlayerEvent(handler) end
+
+---Turns off a timed event of a town, so it no longer occurs.
+---@param town TownInstance # Town that owns the event.
+---@param handler string # Name of the map script handler that the timed town event runs.
+function AdventureServer:disableTownEvent(town, handler) end
+
 ---Returns a random whole number in the given range. Draws from the game's own random generator, so the result stays consistent with saved games and network play - do not use Lua's math.random for gameplay decisions.
 ---@param lower integer # Smallest value that may be returned.
 ---@param upper integer # Largest value that may be returned.
@@ -282,11 +291,11 @@ function Battle:getDefendedTown() end
 ---@return Unit
 function Battle:getUnitByPos(hex, onlyAlive) end
 
----Returns all obstacles on the battlefield.
+---Returns all obstacles on the battlefield, including ones hidden from the caller.
 ---@return Obstacle[]
 function Battle:getAllObstacles() end
 
----Returns the obstacles on the given hex.
+---Returns the obstacles on the given hex, including ones hidden from the caller.
 ---@param hex BattleHex # Hex whose obstacles are queried.
 ---@param onlyBlocking boolean # Pass true to limit results to obstacles that block movement.
 ---@return Obstacle[]
@@ -1652,6 +1661,14 @@ function TownInstance:getOwner() end
 ---Returns the buildings that have been built in this town, upgrades of other buildings among them.
 ---@return Building[] # Every building standing in this town.
 function TownInstance:getBuildings() end
+
+---Returns the hero that stands in the town entrance, or nil when there is none.
+---@return HeroInstance # Hero visiting the town, or nil.
+function TownInstance:getVisitingHero() end
+
+---Returns the hero that guards the town as part of its garrison, or nil when there is none.
+---@return HeroInstance # Hero in the town garrison, or nil.
+function TownInstance:getGarrisonHero() end
 
 ---Returns the faction (Castle, Rampart, Tower...) of this town.
 ---@return Faction # Faction of the town, comparable with the result of Services:getFactionByName.

@@ -121,13 +121,13 @@ Returns the unit covering the given hex, or nil.
 
 ### getAllObstacles
 
-Returns all obstacles on the battlefield.
+Returns all obstacles on the battlefield, including ones hidden from the caller.
 
 - returns [`Obstacle[]`](Obstacle.md)
 
 ### getObstaclesOnPos
 
-Returns the obstacles on the given hex.
+Returns the obstacles on the given hex, including ones hidden from the caller.
 
 - param `hex`: [`BattleHex`](BattleHex.md) — Hex whose obstacles are queried.
 - param `onlyBlocking`: `boolean` — Pass true to limit results to obstacles that block movement.

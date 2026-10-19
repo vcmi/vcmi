@@ -66,6 +66,8 @@ public:
 
 	void readBitmaskBuildings(std::set<BuildingID> & dest, std::optional<FactionID> faction);
 	void readBitmaskFactions(std::set<FactionID> & dest, bool invert);
+	/// Returns all factions that this map format can refer to
+	std::set<FactionID> getFormatFactions();
 	void readBitmaskPlayers(std::set<PlayerColor> & dest, bool invert);
 	void readBitmaskResources(std::set<GameResID> & dest, bool invert);
 	void readBitmaskHeroClassesSized(std::set<HeroClassID> & dest, bool invert);

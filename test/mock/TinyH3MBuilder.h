@@ -126,6 +126,8 @@ public:
 	/// Mark a player as both human- and computer-playable. Required for any
 	/// object that ownership-validates against canAnyonePlay (towns, heroes).
 	TinyH3MBuilder & playerActive(PlayerColor color);
+	/// Bitmask of factions the player may pick, in map format order. Default allows all factions
+	TinyH3MBuilder & playerFactions(PlayerColor color, uint32_t mask);
 
 	/// Append a fixed-faction Town object owned by `owner`.
 	TinyH3MBuilder & town(const int3 & pos, FactionID faction, PlayerColor owner);
@@ -197,6 +199,9 @@ public:
 
 	/// Empty Pandora's Box - no message, guards or rewards.
 	TinyH3MBuilder & pandora(const int3 & pos, std::vector<std::pair<CreatureID, uint16_t>> creatures = {});
+
+	/// Place a terrain overlay without object data, such as Cursed Ground or Magic Plains
+	TinyH3MBuilder & terrainOverlay(const int3 & pos, MapObjectID id);
 
 	/// Specific artifact pickup.
 	TinyH3MBuilder & artifact(const int3 & pos, ArtifactID artifact);
@@ -395,6 +400,7 @@ private:
 	uint8_t        mapHeroLevelLimit = 0;
 
 	std::array<bool, 8> playerEnabled{};
+	std::array<uint32_t, 8> playerFactionMask = {~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u};
 	std::map<int3, TerrainId> terrainOverrides;
 	std::vector<std::pair<MapObjectID, MapObjectSubID>> templates;
 	std::vector<ObjectSpec>                              objects;

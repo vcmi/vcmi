@@ -102,6 +102,9 @@ CMapEvent::CMapEvent()
 
 bool CMapEvent::occursToday(int currentDay) const
 {
+	if (disabled)
+		return false;
+
 	if (currentDay == firstOccurrence + 1)
 		return true;
 

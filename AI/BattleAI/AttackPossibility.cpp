@@ -55,7 +55,8 @@ void DamageCache::buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb,
 		std::unique_ptr<spells::ObstacleCasterProxy> caster = nullptr;
 		if(spellObstacle->obstacleType == SpellCreatedObstacle::EObstacleType::SPELL_CREATED)
 		{
-			const auto * hero = hb->battleGetFightingHero(spellObstacle->casterSide);
+			// enemy hero is hidden from us, so enemy obstacles are estimated without caster bonuses
+			const auto * hero = spellObstacle->casterSide == side ? hb->battleGetFightingHero(side) : nullptr;
 			caster = std::make_unique<spells::ObstacleCasterProxy>(hb->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
 			cast = std::make_unique<spells::BattleCast>(spells::BattleCast(hb.get(), caster.get(), spells::Mode::PASSIVE, obst->getTrigger().toSpell()));
 		}

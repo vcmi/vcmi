@@ -44,12 +44,13 @@ void CGMarket::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance
 
 MetaString CGMarket::getPopupText(PlayerColor player) const
 {
-	if (!getMarketHandler()->hasDescription())
+	const auto handler = getMarketHandler();
+	if (!handler || !handler->hasDescription())
 		return getHoverText(player);
 
 	MetaString message = MetaString::createFromRawString("{%s}\r\n\r\n%s");
 	message.replaceTextID(getObjectNameTextID());
-	message.replaceTextID(getMarketHandler()->getDescriptionTextID());
+	message.replaceTextID(handler->getDescriptionTextID());
 	return message;
 }
 
@@ -60,7 +61,8 @@ MetaString CGMarket::getPopupText(const CGHeroInstance * hero) const
 
 int CGMarket::getMarketEfficiency() const
 {
-	return getMarketHandler()->getMarketEfficiency();
+	const auto handler = getMarketHandler();
+	return handler ? handler->getMarketEfficiency() : 0;
 }
 
 int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
@@ -70,7 +72,11 @@ int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
 
 std::vector<TradeItemBuy> CGMarket::availableItemsIds(EMarketMode mode) const
 {
-	const auto & tradeableResources = getMarketHandler()->getTradeableResources();
+	const auto handler = getMarketHandler();
+	if(!handler)
+		return {};
+
+	const auto & tradeableResources = handler->getTradeableResources();
 
 	// market that trades only some of the resources, e.g. Warlock's Lab
 	if(!tradeableResources.empty() && mode == EMarketMode::RESOURCE_RESOURCE)
@@ -82,7 +88,8 @@ std::vector<TradeItemBuy> CGMarket::availableItemsIds(EMarketMode mode) const
 double CGMarket::getMarketExchangeEffectiveness() const
 {
 	// market with exchange effectiveness set explicitly in its config, e.g. Warlock's Lab
-	if(double effectiveness = getMarketHandler()->getMarketExchangeEffectiveness(); effectiveness > 0)
+	const auto handler = getMarketHandler();
+	if(double effectiveness = handler ? handler->getMarketExchangeEffectiveness() : 0; effectiveness > 0)
 		return effectiveness;
 
 	return IMarket::getMarketExchangeEffectiveness();
@@ -90,6 +97,7 @@ double CGMarket::getMarketExchangeEffectiveness() const
 
 std::shared_ptr<MarketInstanceConstructor> CGMarket::getMarketHandler() const
 {
+	// null if object type was changed to non-market since the save was made, e.g. by mod update
 	const auto & baseHandler = getObjectHandler();
 	const auto & ourHandler = std::dynamic_pointer_cast<MarketInstanceConstructor>(baseHandler);
 	return ourHandler;
@@ -97,7 +105,8 @@ std::shared_ptr<MarketInstanceConstructor> CGMarket::getMarketHandler() const
 
 std::set<EMarketMode> CGMarket::availableModes() const
 {
-	return getMarketHandler()->availableModes();
+	const auto handler = getMarketHandler();
+	return handler ? handler->availableModes() : std::set<EMarketMode>();
 }
 
 CGMarket::CGMarket(IGameInfoCallback *cb)
@@ -152,7 +161,8 @@ std::vector<TradeItemBuy> CGUniversity::availableItemsIds(EMarketMode mode) cons
 
 std::string CGUniversity::getSpeechTranslated() const
 {
-	return getMarketHandler()->getSpeechTranslated();
+	const auto handler = getMarketHandler();
+	return handler ? handler->getSpeechTranslated() : std::string();
 }
 
 void CGUniversity::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const

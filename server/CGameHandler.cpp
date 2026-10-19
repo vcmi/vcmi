@@ -60,6 +60,7 @@
 #include "../lib/gameState/SaveMetadata.h"
 #include "../lib/gameState/UpgradeInfo.h"
 
+#include "../lib/mapping/CCastleEvent.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/HotaScriptConverter.h"
@@ -1190,8 +1191,36 @@ void CGameHandler::setScriptVariable(const std::string & scope, const std::strin
 	sendAndApply(pack);
 }
 
+void CGameHandler::disableMapEvent(ObjectInstanceID town, const std::string & scriptHandler)
+{
+	auto hasEvent = [&](const auto & events)
+	{
+		return std::ranges::any_of(events, [&](const CMapEvent & event){ return event.scriptHandler == scriptHandler; });
+	};
+	const auto * townObject = town.hasValue() ? gameInfo().getTown(town) : nullptr;
+
+	if(town.hasValue() ? !townObject || !hasEvent(townObject->events) : !hasEvent(gameState().getMap().events))
+	{
+		logGlobal->error("Attempt to disable unknown map event %s!", scriptHandler);
+		return;
+	}
+
+	DisableMapEvent pack;
+	pack.town = town;
+	pack.scriptHandler = scriptHandler;
+	sendAndApply(pack);
+}
+
 void CGameHandler::setQuestHintText(ObjectInstanceID obj, const MetaString & hint)
 {
+	// applying hint to anything else would throw on every client, e.g. if script targets already removed object
+	const auto * questSource = dynamic_cast<const QuestSource *>(gameState().getObjInstance(obj));
+	if(!questSource || !questSource->getActiveQuest())
+	{
+		logGlobal->error("Attempt to set quest hint for object %d that is not an active quest source!", obj.getNum());
+		return;
+	}
+
 	SetQuestHint pack;
 	pack.object = obj;
 	pack.hint = hint;
@@ -2349,6 +2378,8 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 			{
 				if(!t->getVisitingHero() || !t->getVisitingHero()->hasArt(ArtifactID::GRAIL))
 					COMPLAIN_RET("Cannot build this without grail!")
+				else if(!gameState().isGrailAllowed(t))
+					COMPLAIN_RET("Grail can not be built in this town!")
 				else
 					removeArtifact(ArtifactLocation(t->getVisitingHero()->id, t->getVisitingHero()->getArtPos(ArtifactID::GRAIL, false)));
 			}
@@ -4453,6 +4484,11 @@ void CGameHandler::removeAfterVisit(const ObjectInstanceID & id)
 		throw std::runtime_error("This function needs to be called during the object visit!");
 
 	visit->removeObjectAfterVisit = true;
+}
+
+bool CGameHandler::isObjectBeingVisited(const ObjectInstanceID & id) const
+{
+	return activities->findVisit(id) != nullptr;
 }
 
 void CGameHandler::changeFogOfWar(int3 center, ui32 radius, PlayerColor player, ETileVisibility mode)

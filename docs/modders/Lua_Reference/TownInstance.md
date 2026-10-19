@@ -14,6 +14,18 @@ Returns the buildings that have been built in this town, upgrades of other build
 
 - returns [`Building[]`](Building.md) — Every building standing in this town.
 
+### getVisitingHero
+
+Returns the hero that stands in the town entrance, or nil when there is none.
+
+- returns [`HeroInstance`](HeroInstance.md) — Hero visiting the town, or nil.
+
+### getGarrisonHero
+
+Returns the hero that guards the town as part of its garrison, or nil when there is none.
+
+- returns [`HeroInstance`](HeroInstance.md) — Hero in the town garrison, or nil.
+
 ### getFaction
 
 Returns the faction (Castle, Rampart, Tower...) of this town.

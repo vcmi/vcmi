@@ -189,14 +189,17 @@ struct BucketTraits
 	std::string playerLocal;
 	/// Name of the removable object in scope, used by the object-removing actions
 	std::string subject;
+	/// Statement establishing `hero` for handlers that receive no hero; such hero may be nil
+	std::string heroLocal;
 };
 
 static const BucketTraits & bucketTraits(const std::string & bucket)
 {
-	static const BucketTraits town{"game, server, town", "\tlocal player = town:getOwner()\n", "town"};
+	// TODO: HotA behavior is unverified; town events act on hero in the town, visiting one first
+	static const BucketTraits town{"game, server, town", "\tlocal player = town:getOwner()\n", "town", "\tlocal hero = town:getVisitingHero() or town:getGarrisonHero()\n"};
 	// player events carry no object, so `subject` has nothing to name for them
-	static const BucketTraits player{"game, server, player", "", "object"};
-	static const BucketTraits object{"game, server, object, hero", "\tlocal player = hero:getOwner()\n", "object"};
+	static const BucketTraits player{"game, server, player", "", "object", "\tlocal hero = nil\n"};
+	static const BucketTraits object{"game, server, object, hero", "\tlocal player = hero:getOwner()\n", "object", ""};
 
 	if(bucket == "townEvents")
 		return town;
@@ -307,6 +310,39 @@ end
 )lua";
 }
 
+std::string HotaScriptConverter::disableCurrentEvent(const std::string & pad) const
+{
+	const std::string handler = "\"" + eventHandlerName(currentBucket, currentEventID) + "\"";
+
+	// timed events are turned off, while other events live on their map object, so disabling them removes that object
+	if(currentBucket == "townEvents")
+		return pad + "server:disableTownEvent(town, " + handler + ")\n";
+	if(currentBucket == "playerEvents")
+		return pad + "server:disablePlayerEvent(" + handler + ")\n";
+	return pad + "server:removeObject(" + bucketTraits(currentBucket).subject + ")\n";
+}
+
+std::string HotaScriptConverter::heroStatement(const std::string & pad, const std::string & call) const
+{
+	if(bucketTraits(currentBucket).heroLocal.empty())
+		return pad + call + "\n";
+	return pad + "if hero then " + call + " end\n";
+}
+
+std::string HotaScriptConverter::heroCondition(const std::string & expression) const
+{
+	if(bucketTraits(currentBucket).heroLocal.empty())
+		return expression;
+	return "(hero ~= nil and " + expression + ")";
+}
+
+std::string HotaScriptConverter::heroValue(const std::string & expression) const
+{
+	if(bucketTraits(currentBucket).heroLocal.empty())
+		return expression;
+	return "(hero and " + expression + " or 0)";
+}
+
 std::string HotaScriptConverter::questObjectRef(uint32_t identifier)
 {
 	referencedObjects.insert(identifier);
@@ -379,6 +415,7 @@ std::string HotaScriptConverter::loadEventList(const std::string & bucket)
 		result += "-- \"" + eventName + "\" (" + bucket + " id " + std::to_string(eventID) + ")\n";
 		result += "function Map:" + eventHandlerName(bucket, eventID) + "(" + bucketTraits(bucket).args + ")\n";
 		result += bucketTraits(bucket).playerLocal;
+		result += bucketTraits(bucket).heroLocal;
 		result += body;
 		result += "end\n\n";
 	}
@@ -480,17 +517,17 @@ std::string HotaScriptConverter::loadActions(int indent)
 			}
 			case HotaScriptActions::REMOVE_CURRENT_OBJECT_OR_FINISH_QUEST:
 			{
-				// only a quest bucket runs on a quest source; elsewhere the action just removes the object
+				// only a quest bucket runs on a quest source; elsewhere the action ends the event
 				if(currentBucket == "questEvents")
 					result += pad + "server:finishQuestOrRemoveObject(object)\n";
 				else
-					result += pad + "server:removeObject(" + bucketTraits(currentBucket).subject + ")\n";
+					result += disableCurrentEvent(pad);
 				break;
 			}
 			case HotaScriptActions::DISABLE_EVENT:
 			{
-				// In HotA an event lives on its map object, so disabling it means removing that object
-				result += pad + "server:removeObject(" + bucketTraits(currentBucket).subject + ")\n";
+				// TODO: verify HotA behavior for quest events - possibly only Quest Guard should be removed, while Seer Hut and other quest objects are kept
+				result += disableCurrentEvent(pad);
 				break;
 			}
 			case HotaScriptActions::QUEST_ACTION:
@@ -607,11 +644,11 @@ std::string HotaScriptConverter::loadActions(int indent)
 				SpellID scrollSpell = reader.readSpell32();
 				reader.readBool(); // showMessage flag - always shown by the granting call
 				if(take)
-					result += pad + "server:takeArtifact(hero, " + entityRef("getArtifactByName", artifact) + ")\n";
+					result += heroStatement(pad, "server:takeArtifact(hero, " + entityRef("getArtifactByName", artifact) + ")");
 				else if(scrollSpell.getNum() >= 0)
-					result += pad + "server:grantScroll(hero, " + entityRef("getSpellByName", scrollSpell) + ")\n";
+					result += heroStatement(pad, "server:grantScroll(hero, " + entityRef("getSpellByName", scrollSpell) + ")");
 				else
-					result += pad + "server:grantArtifact(hero, " + entityRef("getArtifactByName", artifact) + ")\n";
+					result += heroStatement(pad, "server:grantArtifact(hero, " + entityRef("getArtifactByName", artifact) + ")");
 				break;
 			}
 			case HotaScriptActions::WAR_MACHINE:
@@ -620,14 +657,14 @@ std::string HotaScriptConverter::loadActions(int indent)
 				ArtifactID machine = reader.readArtifact32();
 				reader.skipUnused(4); // garbage padding
 				reader.readBool(); // showMessage flag
-				result += pad + "server:" + (take ? "takeWarMachine" : "grantWarMachine") + "(hero, " + entityRef("getArtifactByName", machine) + ")\n";
+				result += heroStatement(pad, std::string("server:") + (take ? "takeWarMachine" : "grantWarMachine") + "(hero, " + entityRef("getArtifactByName", machine) + ")");
 				break;
 			}
 			case HotaScriptActions::SPELL:
 			{
 				SpellID spell = reader.readSpell32();
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantSpell(hero, " + entityRef("getSpellByName", spell) + ")\n";
+				result += heroStatement(pad, "server:grantSpell(hero, " + entityRef("getSpellByName", spell) + ")");
 				break;
 			}
 			case HotaScriptActions::SPELLBOOK:
@@ -635,7 +672,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				bool take = reader.readBool();
 				reader.skipUnused(8); // garbage padding
 				reader.readBool(); // showMessage flag
-				result += pad + "server:" + (take ? "takeSpellbook" : "grantSpellbook") + "(hero)\n";
+				result += heroStatement(pad, "server:" + std::string(take ? "takeSpellbook" : "grantSpellbook") + "(hero)");
 				break;
 			}
 			case HotaScriptActions::CREATURES:
@@ -644,7 +681,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				CreatureID creature = reader.readCreature32();
 				std::string count = loadExpression();
 				reader.readBool(); // showMessage flag
-				result += pad + "server:" + (take ? "takeCreatures" : "grantCreatures") + "(hero, " + entityRef("getCreatureByName", creature) + ", " + count + ")\n";
+				result += heroStatement(pad, std::string("server:") + (take ? "takeCreatures" : "grantCreatures") + "(hero, " + entityRef("getCreatureByName", creature) + ", " + count + ")");
 				break;
 			}
 			case HotaScriptActions::START_COMBAT:
@@ -658,7 +695,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 						slots += ", ";
 					slots += "{" + count + ", " + entityKey(creature) + "}";
 				}
-				result += pad + "server:startCombat(hero, {" + slots + "})\n";
+				result += heroStatement(pad, "server:startCombat(hero, {" + slots + "})");
 				break;
 			}
 			case HotaScriptActions::SECONDARY_SKILL:
@@ -666,28 +703,28 @@ std::string HotaScriptConverter::loadActions(int indent)
 				int mastery = reader.readInt32();
 				SecondarySkill skill = reader.readSkill32();
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantSecondarySkill(hero, " + entityRef("getSecondarySkillByName", skill) + ", " + num(mastery) + ")\n";
+				result += heroStatement(pad, "server:grantSecondarySkill(hero, " + entityRef("getSecondarySkillByName", skill) + ", " + num(mastery) + ")");
 				break;
 			}
 			case HotaScriptActions::MORALE:
 			{
 				int amount = reader.readInt32();
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantMorale(hero, " + num(amount) + ")\n";
+				result += heroStatement(pad, "server:grantMorale(hero, " + num(amount) + ")");
 				break;
 			}
 			case HotaScriptActions::LUCK:
 			{
 				int amount = reader.readInt32();
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantLuck(hero, " + num(amount) + ")\n";
+				result += heroStatement(pad, "server:grantLuck(hero, " + num(amount) + ")");
 				break;
 			}
 			case HotaScriptActions::EXPERIENCE:
 			{
 				std::string amount = loadExpression();
 				reader.readBool(); // showMessage flag
-				result += pad + "server:giveExperience(hero, " + amount + ")\n";
+				result += heroStatement(pad, "server:giveExperience(hero, " + amount + ")");
 				break;
 			}
 			case HotaScriptActions::SPELL_POINTS:
@@ -695,7 +732,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string amount = loadExpression();
 				int mode = reader.readInt32();
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantSpellPoints(hero, " + amount + ", " + num(mode) + ")\n";
+				result += heroStatement(pad, "server:grantSpellPoints(hero, " + amount + ", " + num(mode) + ")");
 				break;
 			}
 			case HotaScriptActions::MOVEMENT_POINTS:
@@ -703,7 +740,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string amount = loadExpression();
 				int mode = reader.readInt32();
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantMovementPoints(hero, " + amount + ", " + num(mode) + ")\n";
+				result += heroStatement(pad, "server:grantMovementPoints(hero, " + amount + ", " + num(mode) + ")");
 				break;
 			}
 			case HotaScriptActions::CREATURES_TO_HIRE:
@@ -787,7 +824,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				std::string amount = loadExpression();
 				PrimarySkill skill(reader.readInt32());
 				reader.readBool(); // showMessage flag
-				result += pad + "server:grantPrimarySkill(hero, " + primarySkillRef(skill) + ", " + amount + ")\n";
+				result += heroStatement(pad, "server:grantPrimarySkill(hero, " + primarySkillRef(skill) + ", " + amount + ")");
 				break;
 			}
 			case HotaScriptActions::MODIFY_VARIABLE:
@@ -885,7 +922,7 @@ std::string HotaScriptConverter::loadConditionInternal()
 		{
 			ArtifactID artifact = reader.readArtifact32();
 			reader.readSpell32(); // scroll spell - carried in a separate slot, not needed for the check
-			return "hero:hasArtifact(" + entityRef("getArtifactByName", artifact) + ")";
+			return heroCondition("hero:hasArtifact(" + entityRef("getArtifactByName", artifact) + ")");
 		}
 		case HotaScriptCondition::CURRENT_PLAYER:
 		{
@@ -904,14 +941,14 @@ std::string HotaScriptConverter::loadConditionInternal()
 		{
 			SecondarySkill skill = reader.readSkill32();
 			int mastery = reader.readInt32();
-			return "(hero:getSecondarySkill(" + entityRef("getSecondarySkillByName", skill) + ") >= " + num(mastery) + ")";
+			return heroCondition("(hero:getSecondarySkill(" + entityRef("getSecondarySkillByName", skill) + ") >= " + num(mastery) + ")");
 		}
 		case HotaScriptCondition::TOWN_IS_NEUTRAL:
 			return "(town:getOwner() == ENUM.PlayerColor.neutral)";
 		case HotaScriptCondition::HERO_CLASS:
-			return "(hero:getHeroClass() == " + entityRef("getHeroClassByName", reader.readHeroClass32()) + ")";
+			return heroCondition("(hero:getHeroClass() == " + entityRef("getHeroClassByName", reader.readHeroClass32()) + ")");
 		case HotaScriptCondition::HERO_TYPE:
-			return "(hero:getHeroType() == " + entityRef("getHeroTypeByName", reader.readHero32()) + ")";
+			return heroCondition("(hero:getHeroType() == " + entityRef("getHeroTypeByName", reader.readHero32()) + ")");
 		case HotaScriptCondition::PLAYER_DEFEATED:
 		{
 			PlayerColor conditionPlayer = reader.readPlayer32();
@@ -999,7 +1036,7 @@ std::string HotaScriptConverter::loadExpressionInternal()
 		case HotaScriptExpression::CREATURE_COUNT_IN_ARMY:
 		{
 			CreatureID creature = reader.readCreature32();
-			return "hero:creatureCountInArmy(" + entityRef("getCreatureByName", creature) + ")";
+			return heroValue("hero:creatureCountInArmy(" + entityRef("getCreatureByName", creature) + ")");
 		}
 		case HotaScriptExpression::CURRENT_DIFFICULTY:
 			return "game:getDifficulty()";
@@ -1008,13 +1045,13 @@ std::string HotaScriptConverter::loadExpressionInternal()
 		case HotaScriptExpression::CURRENT_DATE:
 			return "game:getCalendar():getCurrentDay()";
 		case HotaScriptExpression::HERO_EXPERIENCE:
-			return "hero:getExperience()";
+			return heroValue("hero:getExperience()");
 		case HotaScriptExpression::HERO_LEVEL:
-			return "hero:getLevel()";
+			return heroValue("hero:getLevel()");
 		case HotaScriptExpression::HERO_PRIMARY_SKILL:
 		{
 			PrimarySkill skill(reader.readInt32());
-			return "hero:getPrimarySkill(" + primarySkillRef(skill) + ")";
+			return heroValue("hero:getPrimarySkill(" + primarySkillRef(skill) + ")");
 		}
 		case HotaScriptExpression::RANDOM_NUMBER:
 		{
@@ -1026,7 +1063,7 @@ std::string HotaScriptConverter::loadExpressionInternal()
 		{
 			ArtifactID artifact = reader.readArtifact32();
 			reader.readSpell32(); // scroll spell slot, unused for the count
-			return "hero:ownedArtifacts(" + entityRef("getArtifactByName", artifact) + ")";
+			return heroValue("hero:ownedArtifacts(" + entityRef("getArtifactByName", artifact) + ")");
 		}
 		default:
 			throw unsupported("Unknown event expression code " + std::to_string(static_cast<int>(expressionCode)));

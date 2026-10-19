@@ -1305,6 +1305,24 @@ struct DLL_LINKAGE SetQuestHint : public CPackForClient
 	}
 };
 
+/// Turns off a scripted timed event, so it no longer occurs
+struct DLL_LINKAGE DisableMapEvent : public CPackForClient
+{
+	/// Town that owns the event, or NONE for player events of the map
+	ObjectInstanceID town;
+	std::string scriptHandler;
+
+	DisableMapEvent() = default;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & town;
+		h & scriptHandler;
+	}
+};
+
 struct DLL_LINKAGE ChangeObjectVisitors : public CPackForClient
 {
 	enum VisitMode

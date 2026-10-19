@@ -58,8 +58,9 @@ void TinyMapGameTest::startWithMap(TinyH3M::TinyH3MBuilder builder, EMapDifficul
 	const auto * info = ::testing::UnitTest::GetInstance()->current_test_info();
 	std::string fixtureName = std::string(info->test_suite_name()) + "_" + info->name();
 	std::replace(fixtureName.begin(), fixtureName.end(), '/', '_');
+	std::string script = builder.script();
 	auto bytes = builder.buildAndDump(fixtureName);
-	mapService = std::make_unique<MapServiceTinyH3M>(std::move(bytes), this);
+	mapService = std::make_unique<MapServiceTinyH3M>(std::move(bytes), this, std::move(script));
 
 	StartInfo startInfo;
 	startInfo.mapname = "tiny";
