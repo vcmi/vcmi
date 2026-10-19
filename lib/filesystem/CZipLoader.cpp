@@ -13,6 +13,8 @@
 #include "../ScopeGuard.h"
 #include "../texts/TextOperations.h"
 
+#include <boost/filesystem/fstream.hpp>
+
 namespace
 {
 /// Performance optimization: every unzOpen scans up to 64 KB at the end of the archive for its central directory.
@@ -174,36 +176,6 @@ std::time_t CZipLoader::getLastWriteTime(const ResourcePath& resourceName) const
 	return  boost::filesystem::last_write_time(path);
 }
 
-/// extracts currently selected file from zip into stream "where"
-static bool extractCurrent(unzFile file, std::ostream & where)
-{
-	std::array<char, 8 * 1024> buffer{};
-
-	unzOpenCurrentFile(file);
-
-	while(true)
-	{
-		int readSize = unzReadCurrentFile(file, buffer.data(), static_cast<unsigned int>(buffer.size()));
-
-		if (readSize < 0) // error
-			break;
-
-		if (readSize == 0) // end-of-file. Also performs CRC check
-			return unzCloseCurrentFile(file) == UNZ_OK;
-
-		if (readSize > 0) // successful read
-		{
-			where.write(buffer.data(), readSize);
-			if (!where.good())
-				break;
-		}
-	}
-
-	// extraction failed. Close file and exit
-	unzCloseCurrentFile(file);
-	return false;
-}
-
 boost::filesystem::path zipFilenameToFilesystemPath(const std::string & filename, bool isUtf8)
 {
 #ifdef VCMI_WINDOWS
@@ -216,53 +188,201 @@ boost::filesystem::path zipFilenameToFilesystemPath(const std::string & filename
 #endif
 }
 
-std::vector<std::string> ZipArchive::listFiles()
+void ZipArchive::readIndex()
 {
-	std::vector<std::string> ret;
+	if(indexed)
+		return;
+
+	std::vector<Entry> newEntries;
+	std::vector<unz64_file_pos> newPositions;
+	std::unordered_map<std::string, size_t> newNames;
+	unz_global_info64 globalInfo{};
+	if(unzGetGlobalInfo64(archive, &globalInfo) != UNZ_OK)
+		throw std::runtime_error("Failed to read zip central directory");
 
 	int result = unzGoToFirstFile(archive);
-
-	if (result == UNZ_OK)
+	while(result == UNZ_OK)
 	{
-		do
-		{
-			unz_file_info64 info;
-			std::vector<char> zipFilename;
+		unz_file_info64 info{};
+		unz64_file_pos position{};
+		if(unzGetCurrentFileInfo64(archive, &info, nullptr, 0, nullptr, 0, nullptr, 0) != UNZ_OK)
+			throw std::runtime_error("Failed to read zip entry metadata");
 
-			unzGetCurrentFileInfo64 (archive, &info, nullptr, 0, nullptr, 0, nullptr, 0);
+		std::vector<char> filename(info.size_filename + 1, '\0');
+		if(unzGetCurrentFileInfo64(archive, &info, filename.data(), static_cast<uLong>(filename.size()),
+			nullptr, 0, nullptr, 0) != UNZ_OK || unzGetFilePos64(archive, &position) != UNZ_OK)
+			throw std::runtime_error("Failed to index zip entry");
 
-			zipFilename.resize(info.size_filename);
-			// Get name of current file. Contrary to docs "info" parameter can't be null
-			unzGetCurrentFileInfo64(archive, &info, zipFilename.data(), static_cast<uLong>(zipFilename.size()), nullptr, 0, nullptr, 0);
+		std::string name(filename.data(), info.size_filename);
+		if(name.empty() || name.find('\0') != std::string::npos)
+			throw std::runtime_error("Invalid zip entry name");
 
-			ret.emplace_back(zipFilename.data(), zipFilename.size());
-
-			result = unzGoToNextFile(archive);
-		}
-		while (result == UNZ_OK);
+		constexpr uLong ZIP_UTF8_FILENAME_FLAG = 1 << 11;
+		const auto unixType = (info.external_fa >> 16) & 0170000;
+		const bool directory = name.back() == '/' || unixType == 0040000 || (info.external_fa & 0x10) != 0;
+		newNames.emplace(name, newEntries.size());
+		newEntries.push_back({std::move(name), info.compressed_size, info.uncompressed_size,
+			static_cast<uint32_t>(info.crc), directory, (info.flag & 1) != 0, unixType == 0120000,
+			(info.flag & ZIP_UTF8_FILENAME_FLAG) != 0});
+		newPositions.push_back(position);
+		result = unzGoToNextFile(archive);
 	}
-	return ret;
+	if(result != UNZ_END_OF_LIST_OF_FILE || newEntries.size() != globalInfo.number_entry)
+		throw std::runtime_error("Invalid or truncated zip central directory");
+
+	indexedEntries = std::move(newEntries);
+	positions = std::move(newPositions);
+	names = std::move(newNames);
+	indexed = true;
+}
+
+const std::vector<ZipArchive::Entry> & ZipArchive::entries()
+{
+	readIndex();
+	return indexedEntries;
+}
+
+std::vector<std::string> ZipArchive::listFiles()
+{
+	std::vector<std::string> result;
+	for(const auto & entry : entries())
+		result.push_back(entry.name);
+	return result;
 }
 
 ZipArchive::ZipArchive(const boost::filesystem::path & from)
 {
 	CDefaultIOApi zipAPI;
-
-#if MINIZIP_NEEDS_32BIT_FUNCS
-	auto zipStructure = zipAPI.getApiStructure32();
-	archive = unzOpen2(from.c_str(), &zipStructure);
-#else
 	auto zipStructure = zipAPI.getApiStructure();
 	archive = unzOpen2_64(from.c_str(), &zipStructure);
-#endif
 
 	if (archive == nullptr)
-		throw std::runtime_error("Failed to open file '" + TextOperations::filesystemPathToUtf8(from));
+		throw std::runtime_error("Failed to open file '" + TextOperations::filesystemPathToUtf8(from) + "'");
 }
 
 ZipArchive::~ZipArchive()
 {
 	unzClose(archive);
+}
+
+namespace
+{
+bool prepareZipDestination(const boost::filesystem::path & root, const boost::filesystem::path & relative,
+	bool directory)
+{
+	if(root.empty() || relative.has_root_path() || (!directory && relative.empty()))
+		return false;
+
+	const auto name = TextOperations::filesystemPathToUtf8(relative);
+	if(name.find_first_of("\\:\0", 0, 3) != std::string::npos)
+		return false;
+
+	for(auto it = relative.begin(); it != relative.end(); ++it)
+	{
+		const bool trailingSeparator = directory && !name.empty() && name.back() == '/' && std::next(it) == relative.end();
+		if(*it == ".." || (*it == "." && !trailingSeparator))
+			return false;
+	}
+
+	boost::system::error_code error;
+	if(boost::filesystem::is_symlink(root, error))
+		return false;
+	error.clear();
+	boost::filesystem::create_directories(root, error);
+	if(error)
+		return false;
+
+	auto current = root;
+	for(auto it = relative.begin(); it != relative.end(); ++it)
+	{
+		current /= *it;
+		error.clear();
+		const auto status = boost::filesystem::symlink_status(current, error);
+		if(error && error != boost::system::errc::no_such_file_or_directory)
+			return false;
+		if(boost::filesystem::is_symlink(status))
+			return false;
+
+		const bool isDirectory = directory || std::next(it) != relative.end();
+		if(isDirectory)
+		{
+			error.clear();
+			boost::filesystem::create_directory(current, error);
+			if(error || !boost::filesystem::is_directory(current))
+				return false;
+		}
+		else if(boost::filesystem::exists(status) && !boost::filesystem::is_regular_file(status))
+			return false;
+	}
+	return true;
+}
+}
+
+bool ZipArchive::extractTo(const boost::filesystem::path & root, size_t entryIndex,
+	const boost::filesystem::path & relativePath, const Progress & progress)
+{
+	const auto & allEntries = entries();
+	if(entryIndex >= allEntries.size())
+		return false;
+	const auto & entry = allEntries.at(entryIndex);
+	if(entry.encrypted || entry.symlink || (progress && !progress(0)))
+		return false;
+	if(!prepareZipDestination(root, relativePath, entry.directory))
+		return false;
+	if(entry.directory)
+		return true;
+	if(unzGoToFilePos64(archive, &positions.at(entryIndex)) != UNZ_OK || unzOpenCurrentFile(archive) != UNZ_OK)
+		return false;
+
+	bool entryOpen = true;
+	bool success = false;
+	const auto destination = root / relativePath;
+	boost::filesystem::ofstream output(destination, std::ios::out | std::ios::binary | std::ios::trunc);
+	auto cleanup = vstd::makeScopeGuard([&]()
+	{
+		if(entryOpen)
+			unzCloseCurrentFile(archive);
+		if(output.is_open())
+			output.close();
+		if(!success)
+		{
+			boost::system::error_code error;
+			boost::filesystem::remove(destination, error);
+			if(error)
+				logGlobal->error("Failed to remove incomplete zip entry '%s': %s", TextOperations::filesystemPathToUtf8(destination), error.message());
+		}
+	});
+	if(!output.good())
+		return false;
+
+	std::array<char, 64 * 1024> buffer{};
+	uint64_t written = 0;
+	while(true)
+	{
+		const int count = unzReadCurrentFile(archive, buffer.data(), static_cast<unsigned int>(buffer.size()));
+		if(count < 0)
+			return false;
+		if(count == 0)
+			break;
+		if(static_cast<uint64_t>(count) > entry.uncompressedSize - written)
+			return false;
+		output.write(buffer.data(), count);
+		if(!output.good())
+			return false;
+		written += count;
+		if(progress && !progress(count))
+			return false;
+	}
+	const int closeResult = unzCloseCurrentFile(archive);
+	entryOpen = false;
+	output.flush();
+	if(closeResult != UNZ_OK || written != entry.uncompressedSize || !output.good())
+		return false;
+	output.close();
+	if(output.fail())
+		return false;
+	success = true;
+	return true;
 }
 
 bool ZipArchive::extract(const boost::filesystem::path & where, const std::vector<std::string> & what)
@@ -276,41 +396,10 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::vecto
 
 bool ZipArchive::extract(const boost::filesystem::path & where, const std::string & file)
 {
-	if (unzLocateFile(archive, file.c_str(), 1) != UNZ_OK)
+	readIndex();
+	const auto found = names.find(file);
+	if(found == names.end())
 		return false;
-
-	unz_file_info64 info;
-	unzGetCurrentFileInfo64(archive, &info, nullptr, 0, nullptr, 0, nullptr, 0);
-
-	constexpr uLong ZIP_UTF8_FILENAME_FLAG = 1 << 11;
-	const bool isUtf8Filename = (info.flag & ZIP_UTF8_FILENAME_FLAG) != 0;
-
-	const boost::filesystem::path relativeName = zipFilenameToFilesystemPath(file, isUtf8Filename);
-	const boost::filesystem::path fullName = where / relativeName;
-	const boost::filesystem::path fullPath = fullName.parent_path();
-
-	boost::filesystem::create_directories(fullPath);
-	// directory. No file to extract
-	// TODO: better way to detect directory? Probably check return value of unzOpenCurrentFile?
-	if (boost::algorithm::ends_with(file, "/"))
-		return true;
-
-	std::fstream destFile(fullName.c_str(), std::ios::out | std::ios::binary);
-	if (!destFile.good())
-	{
-#ifdef VCMI_WINDOWS
-		if (fullName.size() < 260)
-			logGlobal->error("Failed to open file '%s'", TextOperations::filesystemPathToUtf8(fullName));
-		else
-			logGlobal->error("Failed to open file with long path '%s' (%d characters)", TextOperations::filesystemPathToUtf8(fullName), fullName.size());
-#else
-		logGlobal->error("Failed to open file '%s'", fullName.c_str());
-#endif
-
-		return false;
-	}
-
-	if (!extractCurrent(archive, destFile))
-		return false;
-	return true;
+	return extractTo(where, found->second,
+		zipFilenameToFilesystemPath(file, indexedEntries.at(found->second).isUtf8Filename));
 }

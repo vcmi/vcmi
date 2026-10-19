@@ -16,6 +16,9 @@
 
 #include "MinizipExtensions.h"
 
+#include <cstdint>
+#include <functional>
+
 class CZipStream : public CBufferedStream
 {
 	unzFile file;
@@ -61,12 +64,38 @@ public:
 class DLL_LINKAGE ZipArchive : boost::noncopyable
 {
 	unzFile archive;
+	bool indexed = false;
+	std::vector<unz64_file_pos> positions;
+	std::unordered_map<std::string, size_t> names;
+	void readIndex();
 
 public:
+	struct Entry
+	{
+		std::string name;
+		uint64_t compressedSize;
+		uint64_t uncompressedSize;
+		uint32_t crc;
+		bool directory;
+		bool encrypted;
+		bool symlink;
+		bool isUtf8Filename;
+	};
+
+	using Progress = std::function<bool(uint64_t)>;
+
 	ZipArchive(const boost::filesystem::path & from);
 	~ZipArchive();
 
+	/// Returns the cached central directory in archive order, or throws if it is invalid.
+	const std::vector<Entry> & entries();
+	/// Extracts below root; progress receives byte increments and returns false to cancel.
+	bool extractTo(const boost::filesystem::path & root, size_t entryIndex,
+		const boost::filesystem::path & relativePath, const Progress & progress = {});
 	std::vector<std::string> listFiles();
 	bool extract(const boost::filesystem::path & where, const std::vector<std::string> & what);
 	bool extract(const boost::filesystem::path & where, const std::string & what);
+
+private:
+	std::vector<Entry> indexedEntries;
 };
