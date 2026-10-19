@@ -9,56 +9,54 @@
  */
 #pragma once
 
-#include "../../lib/network/HttpDownloader.h"
-
-#include <QTimer>
+#include <QElapsedTimer>
+#include <QObject>
+#include <QStringList>
+#include <QThread>
 #include <QUrl>
 
-class CDownloadManager : public QObject, public IHttpDownloaderListener
+#include <map>
+
+class DownloadWorker;
+
+class CDownloadManager : public QObject
 {
 	Q_OBJECT
 
+	friend class DownloadWorker;
+
 	struct FileEntry
 	{
-		enum Status
-		{
-			QUEUED,
-			IN_PROGRESS,
-			FINISHED,
-			FAILED
-		};
-
 		QUrl url;
 		QString filename;
 		QString filePath;
-		Status status;
-		HttpDownloadID downloadID;
-		qint64 bytesReceived;
-		qint64 totalSize;
+		qint64 bytesReceived = 0;
+		qint64 totalSize = 0;
+		bool active = true;
+		QString error;
 	};
 
+	QThread workerThread;
+	DownloadWorker * worker;
+	QString downloadsDirectory;
+	std::map<quint64, FileEntry> currentDownloads;
+	quint64 nextRequestID = 0;
 	QStringList encounteredErrors;
+	QString currentFile;
+	QElapsedTimer progressClock;
 	bool certificateErrorEncountered = false;
+	bool completionScheduled = false;
 
-	HttpDownloader downloader;
-	QTimer pollTimer;
-
-	QList<FileEntry> currentDownloads;
-
-	FileEntry & getEntry(HttpDownloadID download);
-	void copyLocalFile(FileEntry & entry);
-	void finishEntry(FileEntry & entry, const std::string & errorMessage);
-	void startNextDownloads();
-	int countDownloadsInProgress() const;
-
-	void onDownloadProgress(HttpDownloadID download, uint64_t received, uint64_t total) override;
-	void onDownloadFinished(HttpDownloadID download, const std::string & errorMessage, bool certificateError) override;
+	void updateProgress(quint64 requestID, qint64 received, qint64 total);
+	void emitProgress();
+	void downloadCompleted(quint64 requestID, qint64 received, qint64 total, const QString & error, bool certificateError);
+	void finishDownloads();
 
 public:
-	CDownloadManager();
+	explicit CDownloadManager(QObject * parent = nullptr);
+	~CDownloadManager() override;
 
 	// returns true if download with such URL is in progress/queued
-	// FIXME: not sure what's right place for "mod download in progress" check
 	bool downloadInProgress(const QUrl & url) const;
 
 	void downloadFile(const QUrl & url, const QString & file, qint64 bytesTotal = 0);
