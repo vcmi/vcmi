@@ -19,6 +19,11 @@ server {
         proxy_set_header Host $host;
     }
 
+    location = /altstore.json {
+        proxy_pass http://127.0.0.1:3040;
+        proxy_set_header Host $host;
+    }
+
     location / {
         return 404;
     }

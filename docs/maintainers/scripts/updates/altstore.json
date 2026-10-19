@@ -1,0 +1,250 @@
+{
+	"name": "VCMI",
+	"website": "https://vcmi.eu/",
+	"identifier": "com.vcmi.source",
+	"apps": [
+		{
+			"name": "VCMI - Open Heroes 3",
+			"bundleIdentifier": "eu.vcmi.vcmiclient",
+			"developerName": "VCMI Team",
+			"category": "games",
+			"subtitle": "Heroes of Might & Magic III engine",
+			"localizedDescription": "VCMI is a open source cross-platform HoMM3 engine written from scratch.\n\nYou need data copied from original game to play.\nFollow instructions from https://vcmi.eu/players/Installation_iOS/",
+			"iconURL": "https://github.com/vcmi/vcmi/raw/develop/clientapp/icons/vcmiclient.512x512.png",
+			"tintColor": "CD8526",
+			"versions": [
+				{
+					"version": "1.7.5",
+					"date": "2026-08-15",
+					"size": 28187923,
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.7.5/VCMI-iOS.ipa",
+					"minOSVersion": "12.0",
+					"localizedDescription": "### Stability\n\n* Fix possible crash on starting random map with random number of players\n* Fixed crash on updating a mod in which mod description file has been removed\n* Block special creatures from being selected for special weeks even if they are marked as allowed to prevent crash\n* Fixed crash on failure to load H3 bitmap font, in favor of using true type font provided by VCMI\n* Fixed possible crash on starting a save with eliminated human player\n* Fixed possible crash on Android on displaying message boxes when VCMI is inactive\n* Game will now stop video playback on stream corruption instead of crashing\n* Fixed failure to open .zip archive on systems that use minizip-ng library, such as Fedora\n* Fixed crash on attempt to create zero-sized slider\n* Fixed crash on right-clicking on configurable map object with empty config\n* Fixed several possible crashes on shutdown\n* Fix potential crash due to use-after-free in movement animation\n* Fix possible crash on hero with invalid starting army escaping a battle\n* Fix concurrency race in NKAI's\n* Fixed crash on manual import of mod with unsatisfied deppendency\n* Fix crash on having ADVANCED_NECROMANCY bonus when loading game started in 1.6 release\n* Fix possible crash on object fade-out\n\n### Other\n\n* Do not allow targeting unavailable hexes with area attacks\n* Fix saving of server port number"
+				},
+				{
+					"version": "1.7.4",
+					"date": "2026-05-20",
+					"size": 28163035,
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.7.4/VCMI-iOS.ipa",
+					"minOSVersion": "12.0",
+					"localizedDescription": "* Added in-game Wiki that can be opened via F1 or from adventure map options menu\n* Weblate integrated for translations. Czech, German, Polish, Spanish, Swedish, Turkish and Ukrainian are now fully translated\n* Tutorial map is now correctly imported from gog.com installer\n* Discord integration is now available on all desktop systems\n\n### Stability\n\n* Fixed crash when high-level hero is defeated by neutrals in combat\n* Fixed crash on attempt to load save game with dot in its file name\n* Fixed crash on attempt to start a campaign with game set to Japanese language\n* Fixed crash on loading campaign in VCMI format located in .zip archive\n* Fixed crash on accessing battle-only mode after disabling mod that provides skill used by preconfigured hero\n* Fixed crash on winning scenario by building specified structure when there is enemy player with owned town on a map\n* Fixed crash on macOS when scenario finishes during AI turn\n* Fixed crash on iOS on connecting external display\n* Fixed inability to load .vmap with corrupted spell list in towns\n* Fixed inabilily to load WoG maps with WoG artifacts or creatures placed on map\n* Fixed crash if there are two creatures with same string identifiers from two mods and one of them is used for high scores\n\n### Mechanics\n\n* Basic Dimension Door now correctly allows two spell casts\n* Invincible units like Couatls can no longer be targeted by area attacks by Magogs and Power Liches\n* Fixed Cornucopia not providing its bonuses if artifact was assembled mid-game\n* Removed transfer of troops from 2nd to 3rd mission of Dragon Slayer campaign\n\n### Interface - Adventure Map\n\n* Fixed move reminder dialog not displaying when player presses end turn while having heroes with set path\n* Split unit stack dialog now automatically selects 1 unit to split off when opened\n* Spellbook is now correctly recolored to color of current player\n* Clearing creature bank will now correctly show name of creatures received as a reward in reward message\n* Rally Flag and Oasis now use correct description messages on right-click\n* Added indication of artifact held by a unit on creature icon in army view\n* Fixed swapped messages in Altar of Sacrifice\n* Description and popup window of Spell Shrines now matches H3\n* Added buttons to access wiki, map search, and statistics from adventure options window\n\n### Interface - Main Menu\n\n* Swapped Chat and Battle Mode button positions\n* Removed Chat button in single player and hotseat games\n* Hotseat mode now requires at least 2 players to proceed to map selection\n* Multiplayer game now requires at least 2 players to start the game\n* Multiplayer host / join player name dialog now displays correct title and description\n* Chat window is now active by default in multiplayer over network\n* Maps with too small number of human players are now hidden in map selection in multiplayer games\n\n### Interface - Other\n\n* Turn options button no longer shows up on Scenario Information screen during gameplay\n* Hero invite window now uses list view instead of table view\n* Fixed buttons on statistics screen incorrectly using selected state\n* Shooting is no longer shown as valid action for blocked units\n* Creature window now correctly uses singular form for single-unit stacks\n* Buying War Machine in Blacksmith or War Machine Factory will now show warning if player has a different machine in a slot\n* Added dedicated spell research dialog\n* Added dedicated stack experience dialog\n\n### AI\n\n* Fixed MMAI walking into moat without attacking during sieges\n* Reworked Battle AI spellcasting logic to improve performance\n* Improved Batle AI targeting selection for spells like Inferno\n* Battle AI is now less likely to cast spells like Firewall and Force Field\n\n### Launcher\n\n* Fixed bug where it was not possible to enable installed mod if mod version available in repository is not compatible with local version of VCMI\n* Fixed display of mod descriptions containing HTML tags\n* Launcher will now correctly preserve state of submods when updating a mod\n* Heroes 3 installed using Ubisoft Launcher will now be correctly detected on first launch\n* Mod search filter now also looks up untranslated mod name\n* Added option to extract Content.zip from downloaded mods on install\n* Fixed local server port always resetting to 3030 on starting Launcher\n\n### Map Editor\n\n* Fixed crash on clicking on random artifacts\n* Added UI for configuring disposed heroes\n\n### Lobby\n\n* Added basic public API functionality available at <https://api.vcmi.eu>\n\n### Modding\n\n* `combatCastEvent` now correctly activates for units with move-and-cast ability\n* `canCastOnlyOnSelf` spell flag no longer also allows targeting corpses\n* It is now possible to configure number of days in a week and number of weeks in a month\n* Added new adventure spell type, `reinforcements` that implements spell with same name from newer HoMM games\n* Bonuses with `UNTIL_BEING_ATTACKED` duration are now removed after counter-attack\n* Game will now generate background for recruitment dialog for 4-6 creatures\n* Added `--translate-mod` switch to VCMI server that correctly exports all texts for all submods, taking into account any string overrides\n* Added `LONG_WEAPON` bonus that allows unit to perform a melee attack from two hexes away if there is exactly one empty hex between attacker and target\n* Added autogenerated UI for university-like buildings with up to 7 skills for select"
+				},
+				{
+					"version": "1.7.1",
+					"date": "2025-12-31T12:00:00+00:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.7.1/VCMI-iOS.ipa",
+					"size": 26841233
+				},
+				{
+					"version": "1.7.0",
+					"date": "2025-12-24T12:00:00+00:00",
+					"localizedDescription": "New major update with battle-only mode, configurable keybindings, initial support for HotA 1.7 maps and campaigns, and many more.",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.7.0/VCMI-iOS.ipa",
+					"size": 26811586
+				},
+				{
+					"version": "1.6.8",
+					"date": "2025-04-25T12:00:00+00:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.6.8/VCMI-iOS.ipa",
+					"size": 20825440
+				},
+				{
+					"version": "1.6.7",
+					"date": "2025-02-28T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.6.7/VCMI-iOS.ipa",
+					"size": 20863158
+				},
+				{
+					"version": "1.6.6",
+					"date": "2025-02-21T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.6.6/VCMI-iOS.ipa",
+					"size": 20850507
+				},
+				{
+					"version": "1.6.5",
+					"date": "2025-02-03T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.6.5/VCMI-iOS.ipa",
+					"size": 20770816
+				},
+				{
+					"version": "1.6.4",
+					"date": "2025-01-31T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.6.4/VCMI-iOS.ipa",
+					"size": 20767098
+				},
+				{
+					"version": "1.6.3",
+					"date": "2025-01-10T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.6.3/VCMI-iOS.ipa",
+					"size": 20716709
+				},
+				{
+					"version": "1.6.2",
+					"date": "2025-01-04T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.6.2/VCMI-iOS.ipa",
+					"size": 20690030
+				},
+				{
+					"version": "1.6.1",
+					"date": "2024-12-27T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.6.1/VCMI-iOS.ipa",
+					"size": 20685749
+				},
+				{
+					"version": "1.6.0",
+					"date": "2024-12-20T12:00:00+04:00",
+					"localizedDescription": "improved AI, better upscaler, Heroes Chronicles support, game statistics and much more",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.6.0/VCMI-iOS.ipa",
+					"size": 20639756
+				},
+				{
+					"version": "1.5.7",
+					"date": "2024-08-26T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.5.7/VCMI-iOS.ipa",
+					"size": 25094551
+				},
+				{
+					"version": "1.5.6",
+					"date": "2024-08-04T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.5.6/VCMI-iOS.ipa",
+					"size": 25096192
+				},
+				{
+					"version": "1.5.5",
+					"date": "2024-07-17T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.5.5/VCMI-iOS.ipa",
+					"size": 25088000
+				},
+				{
+					"version": "1.5.4",
+					"date": "2024-07-12T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.5.4/VCMI-iOS.ipa",
+					"size": 25083904
+				},
+				{
+					"version": "1.5.2",
+					"date": "2024-05-31T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.5.2/VCMI-iOS.ipa",
+					"size": 25079455
+				},
+				{
+					"version": "1.5.1",
+					"date": "2024-05-17T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.5.1/VCMI-iOS.ipa",
+					"size": 25055382
+				},
+				{
+					"version": "1.5.0",
+					"date": "2024-05-10T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.5.0/VCMI-iOS.ipa",
+					"size": 25051136
+				},
+				{
+					"version": "1.4.5",
+					"date": "2024-01-24T12:00:00+04:00",
+					"localizedDescription": "Fixes for stability issues with previous releases",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.4.5/VCMI-iOS.ipa",
+					"size": 27230208
+				},
+				{
+					"version": "1.4.3",
+					"date": "2024-01-19T12:00:00+04:00",
+					"localizedDescription": "Improvement to random maps, turn timers and multiple bugfixes!",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.4.3/VCMI-iOS.ipa",
+					"size": 26996736
+				},
+				{
+					"version": "1.4.2",
+					"date": "2023-12-25T12:00:00+04:00",
+					"localizedDescription": "Improvement to random maps, turn timers and multiple bugfixes!",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.4.2/VCMI-iOS.ipa",
+					"size": 27168719
+				},
+				{
+					"version": "1.4.1",
+					"date": "2023-12-12T12:00:00+04:00",
+					"localizedDescription": "Stability improvements and fixes for issues found in 1.4 release",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.4.1/VCMI-iOS.ipa",
+					"size": 27168719
+				},
+				{
+					"version": "1.4.0",
+					"date": "2023-12-08T12:00:00+04:00",
+					"localizedDescription": "Simultaneous turns support, turn timers, high scores sceen and many more!",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.4.0/VCMI-iOS.ipa",
+					"size": 27153560
+				},
+				{
+					"version": "1.3.2",
+					"date": "2023-09-15T12:00:00+04:00",
+					"localizedDescription": "Stability improvements and fixes for issues found in 1.3 release",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.3.2/VCMI-1.3.2-iOS.ipa",
+					"size": 27910340
+				},
+				{
+					"version": "1.3.1",
+					"date": "2023-08-18T12:00:00+04:00",
+					"localizedDescription": "Stability improvements and fixes for issues found in 1.3 release",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.3.1/VCMI-1.3.1-iOS.ipa",
+					"size": 27943336
+				},
+				{
+					"version": "1.3.0",
+					"date": "2023-08-04T12:00:00+04:00",
+					"localizedDescription": "Improved touchscreen support, better AI, fixes for campaigns, support for HotA maps and many more!",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.3.0/VCMI-1.3.0-iOS.ipa",
+					"size": 27919866
+				},
+				{
+					"version": "1.2.1",
+					"date": "2023-04-28T12:00:00+04:00",
+					"localizedDescription": "Fixes for issues found in 1.2 release",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.2.1/VCMI-1.2.1-iOS.ipa",
+					"size": 26347869
+				},
+				{
+					"version": "1.2.0",
+					"date": "2023-04-14T12:00:00+04:00",
+					"localizedDescription": "Rendering improvements, revamped UI, translations support, bugfixes and many more!",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.2.0/VCMI-1.2.0-iOS.ipa",
+					"size": 26346303
+				},
+				{
+					"version": "1.1.1",
+					"date": "2023-02-03T12:00:00+04:00",
+					"localizedDescription": "Fixes for issues found in 1.1 release",
+					"downloadURL": "https://github.com/vcmi/vcmi/releases/download/1.1.1/VCMI-1.1.1-iOS.ipa",
+					"size": 25570455
+				}
+			],
+			"screenshotURLs": [
+				"https://raw.githubusercontent.com/vcmi/vcmi-updates/master/altstore/screenshots/screenshot1.png",
+				"https://raw.githubusercontent.com/vcmi/vcmi-updates/master/altstore/screenshots/screenshot2.png",
+				"https://raw.githubusercontent.com/vcmi/vcmi-updates/master/altstore/screenshots/screenshot3.png",
+				"https://raw.githubusercontent.com/vcmi/vcmi-updates/master/altstore/screenshots/screenshot4.png",
+				"https://raw.githubusercontent.com/vcmi/vcmi-updates/master/altstore/screenshots/screenshot5.png",
+				"https://raw.githubusercontent.com/vcmi/vcmi-updates/master/altstore/screenshots/screenshot6.png",
+				"https://raw.githubusercontent.com/vcmi/vcmi-updates/master/altstore/screenshots/screenshot7.png",
+				"https://raw.githubusercontent.com/vcmi/vcmi-updates/master/altstore/screenshots/screenshot8.png",
+				"https://raw.githubusercontent.com/vcmi/vcmi-updates/master/altstore/screenshots/screenshot9.png"
+			]
+		}
+	],
+	"news": []
+}

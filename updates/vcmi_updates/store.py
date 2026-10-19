@@ -5,6 +5,7 @@ import os
 import pathlib
 from dataclasses import dataclass
 
+from .altstore import build_source, load_template
 from .channels import load_channels
 from .errors import DataError
 from .manifests import load_manifest, manifest_path
@@ -16,7 +17,7 @@ RELEASE_BRANCH = "master"
 @dataclass(frozen=True)
 class OfferedRelease:
     release: object  # records.Release
-    builds: dict  # platform key -> {kind: BuildFile}; only files that passed the checks and are not superseded
+    builds: dict  # platform key -> {kind: BuildFile}; only files that passed the checks
 
 
 @dataclass(frozen=True)
@@ -32,6 +33,7 @@ class Snapshot:
     branches: dict  # branch -> BranchIndex
     download_url: str
     changelog_url: str
+    altstore: dict | None  # AltStore source, None without a template
 
 
 def file_problem(download_root, branch, build_file, check_hash):
@@ -66,13 +68,15 @@ def load_release_manifest(download_root, version, commit):
 
 
 def checked_builds(manifest, download_root, check_hash, report, superseded=lambda key: False):
-    """Returns builds of the manifest whose files match it; problems with other files are passed to report()."""
+    """Returns builds of the manifest whose files match it; problems with other files are passed to report().
+
+    Hashes of files of superseded platforms are not checked.
+    """
     builds = {}
     for key, files in manifest.builds.items():
-        if superseded(key):
-            continue
+        check_key_hash = check_hash and not superseded(key)
         for kind, build_file in files.items():
-            problem = file_problem(download_root, manifest.branch, build_file, check_hash)
+            problem = file_problem(download_root, manifest.branch, build_file, check_key_hash)
             if problem:
                 report(problem)
             else:
@@ -123,8 +127,9 @@ def load_snapshot(config, report, full_check=False):
     releases = []
     published = []
 
-    # Clients only get files of the newest published release that applies to their platform; skipping older ones
-    # keeps full_check from hashing every release ever made
+    # Launchers only get files of the newest published release that applies to their platform; not hashing older
+    # ones keeps full_check from hashing every release ever made. Sizes are still checked, the AltStore source
+    # lists files of all releases
     def superseded(key):
         return any(newer.applies_to(key.partition("-")[0], key) for newer in published)
 
@@ -138,12 +143,17 @@ def load_snapshot(config, report, full_check=False):
     for channel in channels.values():
         if channel.source == "branch" and channel.branch not in branches:
             branches[channel.branch] = _branch_index(channel.branch, config, report, full_check)
-    return Snapshot(releases, channels, branches, config.download_url, config.changelog_url)
+
+    altstore = None
+    if config.altstore_template.exists():
+        altstore = build_source(load_template(config.altstore_template), releases,
+                                f"{config.download_url}/branch/{RELEASE_BRANCH}", config.altstore_min_os_version, report)
+    return Snapshot(releases, channels, branches, config.download_url, config.changelog_url, altstore)
 
 
 def data_signature(config):
     """Changes whenever any file that load_snapshot() reads from the data directory or metadata directories changes."""
-    paths = [*config.releases_dir.glob("*"), *config.channels_dir.glob("*"),
+    paths = [config.altstore_template, *config.releases_dir.glob("*"), *config.channels_dir.glob("*"),
              *config.download_root.glob("branch/*/metadata/*.json")]
     signature = []
     for path in sorted(paths):

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Backs up release records, channel configurations and configuration.
+# Backs up release records, channel configurations, AltStore template and configuration.
 set -euo pipefail
 
 OUT=/root/updates-backup.tar.gz

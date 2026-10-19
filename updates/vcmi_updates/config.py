@@ -16,6 +16,7 @@ class Config:
     download_url: str
     changelog_url: str  # full changelog shown to players, sent as 'changelogUrl'
     changelog_source: str  # ChangeLog.md that the release tool extracts sections from
+    altstore_min_os_version: str  # 'minOSVersion' of AltStore entries of releases
 
     @property
     def releases_dir(self):
@@ -24,6 +25,10 @@ class Config:
     @property
     def channels_dir(self):
         return self.data_dir / "channels"
+
+    @property
+    def altstore_template(self):
+        return self.data_dir / "altstore.json"
 
 
 def load_config(path=DEFAULT_PATH):
@@ -39,4 +44,5 @@ def load_config(path=DEFAULT_PATH):
         download_url=parser.get("downloads", "download_url").rstrip("/"),
         changelog_url=parser.get("changelog", "changelog_url"),
         changelog_source=parser.get("changelog", "changelog_source"),
+        altstore_min_os_version=parser.get("altstore", "min_os_version"),
     )

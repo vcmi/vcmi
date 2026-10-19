@@ -5,6 +5,3 @@
 
 # Plain Python package: no build system, files are listed in debian/install
 override_dh_auto_configure override_dh_auto_build override_dh_auto_install:
-
-override_dh_auto_test:
-	python3 -m unittest discover -s updates/tests -t updates

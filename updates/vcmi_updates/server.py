@@ -1,4 +1,4 @@
-"""HTTP service for GET /autoupdate.json."""
+"""HTTP service for GET /autoupdate.json and /altstore.json."""
 
 import argparse
 import json
@@ -39,8 +39,13 @@ class Service:
         except DataError as error:
             log.error("data not reloaded, keeping previous data: %s", error)
 
-    def respond(self, params):
-        return decide(parse_request(params), self.snapshot)
+    def respond(self, path, params):
+        """Returns the response for a request as a JSON-serializable dict, or None if there is nothing at path."""
+        if path == "/autoupdate.json":
+            return decide(parse_request(params), self.snapshot)
+        if path == "/altstore.json":
+            return self.snapshot.altstore
+        return None
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -48,15 +53,16 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         url = urllib.parse.urlsplit(self.path)
-        if url.path != "/autoupdate.json":
-            self.send_error(404)
-            return
         params = {name: values[0] for name, values in urllib.parse.parse_qs(url.query).items()}
         try:
-            body = json.dumps(self.service.respond(params)).encode("utf-8")
+            response = self.service.respond(url.path, params)
+            body = None if response is None else json.dumps(response).encode("utf-8")
         except Exception:
             log.exception("failed to handle request %s", self.path)
             self.send_error(500)
+            return
+        if body is None:
+            self.send_error(404)
             return
         self.send_response(200)
         self.send_header("Content-Type", "application/json")

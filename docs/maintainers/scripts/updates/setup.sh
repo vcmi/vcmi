@@ -1,6 +1,6 @@
 #!/bin/bash
 # First-time install. Provide path to the .deb produced by the "Build VCMI Update Service" CI job.
-# Existing release records and channel configurations are preserved.
+# Existing release records, channel configurations and AltStore template are preserved.
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
@@ -23,6 +23,9 @@ write_channel stable  '{ "source": "releases" }'
 write_channel beta    '{ "source": "branch", "branch": "beta" }'
 write_channel develop '{ "source": "branch", "branch": "develop" }'
 
+[[ -f "$DATA/altstore.json" ]] || install -m 644 "$(dirname "$0")/altstore.json" "$DATA/"
+
 vcmi-updates-release check
 curl -fsS 'http://127.0.0.1:3040/autoupdate.json?version=1.8.0&os=windows&arch=x64&dist=installer'
 echo
+curl -fsS -o /dev/null 'http://127.0.0.1:3040/altstore.json'

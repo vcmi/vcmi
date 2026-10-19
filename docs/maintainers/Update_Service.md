@@ -7,6 +7,7 @@
 Exposed to public as:
 
 - `updates.vcmi.eu/autoupdate.json` - update information for VCMI launchers (behind Cloudflare; nginx proxies HTTPS to the service's plain-HTTP listener on `127.0.0.1:3040`)
+- `updates.vcmi.eu/altstore.json` - [AltStore source](https://faq.altstore.io/developers/make-a-source) for side-loaded iOS builds, also used by SideStore and similar apps
 
 The code is in [`updates/`](../../updates/) and is packaged as a `.deb` by the "Build VCMI Update Service" CI job.
 
@@ -23,6 +24,7 @@ The service reloads its data within 10 seconds of any change. If changed data is
 - `/var/lib/vcmi-updates/releases/<version>.json` - release record, created by `vcmi-updates-release add`
 - `/var/lib/vcmi-updates/releases/<version>.md` - changelog section shown for that release
 - `/var/lib/vcmi-updates/channels/<channel>.json` - source of updates for the `stable`, `beta` and `develop` channels
+- `/var/lib/vcmi-updates/altstore.json` - template of the AltStore source
 - `/home/downloader/www/branch/<branch>/metadata/*.json` - build manifests uploaded by CI, one per CI run, listing all builds of that run
 
 ### Release record
@@ -64,6 +66,19 @@ Sections are applied in the order common, OS, platform. `notes` of all three are
 
 `stable` always uses `releases`. When a beta phase is over, copy `stable.json` over `beta.json`: beta builds are then offered the stable release. When a new beta phase starts, restore `{ "source": "branch", "branch": "beta" }`.
 
+### AltStore source
+
+`/altstore.json` is the template with an entry for every published release that applies to `ios-arm64` and whose `ios-arm64` package matches the build manifest. The entries of releases are placed before the entries of the template, highest version first:
+
+- `version`, `date` - from the release record
+- `size`, `downloadURL` - of the `ios-arm64` package in the build manifest of the release, on download.vcmi.eu
+- `minOSVersion` - `min_os_version` in the `[altstore]` section of the configuration
+- `localizedDescription` - `notes` of the release record for `ios-arm64`, followed by the changelog section without its heading
+
+The template holds everything else: the source and app metadata, screenshots, and entries of releases made before the update service, which download from GitHub releases. It must contain exactly one app. A version that has a release record must not be listed in the template. The service is the only source of `/altstore.json`, so screenshots and icons are referenced by URL from other servers.
+
+`setup.sh` creates the template from [`scripts/updates/altstore.json`](scripts/updates/altstore.json) if it does not exist yet. Later changes are made on the server.
+
 ## Making a release
 
 1. Merge `beta` into `master` and wait for the CI run to finish, including the job that uploads the build manifest
@@ -72,7 +87,7 @@ Sections are applied in the order common, OS, platform. `notes` of all three are
 4. Optionally, edit the draft by hand, then run `vcmi-updates-release check`
 5. Publish the GitHub release
 6. `vcmi-updates-release publish 1.X.Y`
-7. Verify: `curl 'https://updates.vcmi.eu/autoupdate.json?version=1.0.0&os=windows&arch=x64&dist=installer'`
+7. Verify: `curl 'https://updates.vcmi.eu/autoupdate.json?version=1.0.0&os=windows&arch=x64&dist=installer'` and `curl https://updates.vcmi.eu/altstore.json`
 
 Fix for some platforms only: the same, with a new version number and `--only <OS or platform>...`.
 
@@ -93,7 +108,7 @@ All operational scripts live in [`scripts/updates/`](scripts/updates/). Copy the
    ./setup.sh /root/vcmi-updates.deb
    ```
 
-`setup.sh` creates channel configurations if they do not exist yet.
+`setup.sh` creates channel configurations and the AltStore template if they do not exist yet.
 
 ## Upgrade
 

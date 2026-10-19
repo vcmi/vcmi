@@ -91,6 +91,10 @@ def command_check(config, args):
         print(f"{offered.release.version_text} {offered.release.status} ({offered.release.commit})")
     for channel in snapshot.channels.values():
         print(f"channel {channel.name}: {channel.source} {channel.branch or ''}".rstrip())
+    if snapshot.altstore is None:
+        problems.append(f"{config.altstore_template} does not exist; /altstore.json is not served")
+    else:
+        print(f"altstore: {len(snapshot.altstore['apps'][0]['versions'])} versions")
     if "stable" not in snapshot.channels:
         problems.append(f"{config.channels_dir / 'stable.json'} does not exist; no client is offered anything")
     for problem in problems:
