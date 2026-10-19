@@ -93,7 +93,7 @@
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="311"/>
         <source>Export saves</source>
         <translation>Kayıtları Dışa Aktar</translation>
     </message>
@@ -102,61 +102,61 @@
         <translation type="vanished">Günlükleri kaydet</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="311"/>
         <source>Zip archives (*.zip)</source>
         <translation>Zip arşivleri (*.zip)</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="284"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="401"/>
         <source>Error</source>
         <translation>Hata</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="280"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="317"/>
         <source>Saves exported to %1</source>
         <translation>Kayıtlar %1 konumuna dışa aktarıldı</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="284"/>
         <source>Failed to save archive to selected destination</source>
         <translation>Kayıt arşivi seçilen konuma kaydedilemedi</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="302"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="304"/>
         <source>Select destination file</source>
         <translation>Hedef dosyayı seçin</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="302"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
         <translation>Lütfen hedef dosyayı seçin ve arşivi vcmi-saves.zip olarak kaydedin.</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="304"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
         <translation>Zip arşivleri (*.zip);;Tüm dosyalar (*.*)</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="333"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="334"/>
         <source>Exporting logs...</source>
         <translation>Günlükler dışa aktarılıyor...</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="333"/>
         <source>Cancel</source>
         <translation>İptal</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="334"/>
         <source>Log export</source>
         <translation>Günlükleri Dışa Aktar</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="401"/>
         <source>Failed to create archive: %1</source>
         <translation>Arşiv oluşturulamadı: %1</translation>
     </message>
@@ -169,14 +169,14 @@
         <translation type="vanished">Arşiv başka bir uygulama üzerinden gönderilecek. Günlüklerinizi, örn. Discord üzerinden geliştiricilerle paylaşın.</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="541"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="280"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="317"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="410"/>
         <source>Success</source>
         <translation>Başarılı</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="541"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="410"/>
         <source>Logs saved to %1, please send them to the developers</source>
         <translation>Günlükler %1 konumuna kaydedildi, lütfen geliştiricilere gönderin</translation>
     </message>

@@ -93,7 +93,7 @@
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="311"/>
         <source>Export saves</source>
         <translation>Xuất dữ liệu</translation>
     </message>
@@ -102,61 +102,61 @@
         <translation type="obsolete">Lưu nhật ký</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="311"/>
         <source>Zip archives (*.zip)</source>
         <translation type="unfinished">Lưu trữ ZIP (*.zip)</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="284"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="401"/>
         <source>Error</source>
         <translation type="unfinished">Lỗi</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="280"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="317"/>
         <source>Saves exported to %1</source>
         <translation>Tệp tin được lưu vào %1</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="284"/>
         <source>Failed to save archive to selected destination</source>
         <translation>Không thể lưu tệp tin vào vị trí đã chọn</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="302"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="304"/>
         <source>Select destination file</source>
         <translation>Chọn nơi lưu tập tin</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="302"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
         <translation>Hãy chọn nơi lưu và đặt tên tập tin là vcmi-saves.zip.</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="304"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
         <translation>Tệp tin nén Zip (*.zip);;Tất cả tệp tin (*.*)</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="333"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="334"/>
         <source>Exporting logs...</source>
         <translation>Đang xuất nhật ký...</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="333"/>
         <source>Cancel</source>
         <translation>Hủy bỏ</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="334"/>
         <source>Log export</source>
         <translation>Xuất nhật ký</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="401"/>
         <source>Failed to create archive: %1</source>
         <translation type="unfinished">Không thể tạo gói lưu trữ: %1</translation>
     </message>
@@ -169,14 +169,14 @@
         <translation type="obsolete">Gói lưu trữ sẽ được gửi qua ứng dụng khác. Hãy chia sẻ nhật ký của bạn, ví dụ qua Discord, cho các nhà phát triển.</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="541"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="280"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="317"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="410"/>
         <source>Success</source>
         <translation type="unfinished">Thành công</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="541"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="410"/>
         <source>Logs saved to %1, please send them to the developers</source>
         <translation type="unfinished">Nhật ký đã được lưu vào %1, vui lòng gửi cho các nhà phát triển</translation>
     </message>

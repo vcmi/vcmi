@@ -93,7 +93,7 @@
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="311"/>
         <source>Export saves</source>
         <translation>Eksportuj zapisy</translation>
     </message>
@@ -102,61 +102,61 @@
         <translation type="vanished">Zapisz logi</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="311"/>
         <source>Zip archives (*.zip)</source>
         <translation>Archiwa ZIP (*.zip)</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="284"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="401"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="280"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="317"/>
         <source>Saves exported to %1</source>
         <translation>Zapisy Eksportowane do %1</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="284"/>
         <source>Failed to save archive to selected destination</source>
         <translation>Nie udało się zapisać archiwum do wybranej lokalizacji</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="302"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="304"/>
         <source>Select destination file</source>
         <translation>Wybierz plik docelowy</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="302"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
         <translation>Proszę wybrać plik docelowy i zapisać archiwum jako vcmi-saves.zip.</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="304"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
         <translation>Archiwa zip (*.zip);;Wszystkie pliki (*.*)</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="333"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="334"/>
         <source>Exporting logs...</source>
         <translation>Eksportowanie logów...</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="333"/>
         <source>Cancel</source>
         <translation>Anuluj</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="334"/>
         <source>Log export</source>
         <translation>Eksport logów</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="401"/>
         <source>Failed to create archive: %1</source>
         <translation>Nie udało się utworzyć archiwum: %1</translation>
     </message>
@@ -169,14 +169,14 @@
         <translation type="vanished">Archiwum zostanie wysłane przez inną aplikację. Udostępnij logi, np. przez Discord, deweloperom.</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="541"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="280"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="317"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="410"/>
         <source>Success</source>
         <translation>Sukces</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="541"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="410"/>
         <source>Logs saved to %1, please send them to the developers</source>
         <translation>Logi zapisano w %1, proszę wyślij je do deweloperów</translation>
     </message>
