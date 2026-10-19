@@ -323,6 +323,7 @@
 				"endMoving" :   { "type" : "string", "format" : "soundFile" },
 				"move" :        { "type" : "string", "format" : "soundFile" },
 				"shoot" :       { "type" : "string", "format" : "soundFile" },
+				"cast" :        { "type" : "string", "format" : "soundFile" },
 				"wince" :       { "type" : "string", "format" : "soundFile" }
 			}
 		},
