@@ -26,6 +26,7 @@ set(launcher_SRCS
 		demo.cpp
 		main.cpp
 		helper.cpp
+		importsource.cpp
 		innoextract.cpp
 		mainwindow_moc.cpp
 		languages.cpp
@@ -39,6 +40,7 @@ if(IOS)
 		ios/revealdirectoryinfiles.mm
 		ios/selectdirectory.h
 		ios/selectdirectory.mm
+		ios/importfileaccess.mm
 		prepare_ios.mm
 	)
 elseif(ANDROID)
@@ -71,6 +73,7 @@ set(launcher_HEADERS
 		demo.h
 		main.h
 		helper.h
+		importsource.h
 		innoextract.h
 		prepare.h
 		prepare_p.h

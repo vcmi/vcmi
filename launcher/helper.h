@@ -10,6 +10,7 @@
 #pragma once
 
 #include <QString>
+#include <memory>
 
 class QObject;
 class MainWindow;
@@ -20,6 +21,10 @@ namespace Helper
 	void reLoadSettings();
 	void enableScrollBySwiping(QObject * scrollTarget);
 	QString getRealPath(QString path);
+	/// Keep a provider URI intact when opening it through Qt's file engine.
+	QString importSourcePath(QString path);
+	/// Hold external file access for the complete asynchronous import.
+	std::shared_ptr<void> acquireImportAccess(const QString & path);
 	bool performNativeCopy(QString src, QString dst);
 	QString createFile(QString target, QString fileName, QString mime);
 	void revealDirectoryInFileBrowser(QString path);

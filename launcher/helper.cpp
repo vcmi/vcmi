@@ -103,6 +103,23 @@ QString getRealPath(QString path)
 #endif
 }
 
+QString importSourcePath(QString path)
+{
+#ifdef VCMI_ANDROID
+	return safeEncode(path);
+#else
+	return path;
+#endif
+}
+
+#ifndef VCMI_IOS
+std::shared_ptr<void> acquireImportAccess(const QString & path)
+{
+	Q_UNUSED(path);
+	return {};
+}
+#endif
+
 bool performNativeCopy(QString src, QString dst)
 {
 #ifdef VCMI_ANDROID
