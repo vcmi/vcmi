@@ -39,6 +39,7 @@
 
 #include "../../vcmiqt/launcherdirs.h"
 
+#include <atomic>
 #include <future>
 
 void CModListView::setupModModel()
@@ -1260,19 +1261,19 @@ void CModListView::installFiles(QStringList files)
 		ui->progressWidget->setVisible(true);
 		ui->abortButton->setEnabled(false);
 
-		float prog = 0.0;
+		std::atomic<float> prog{0.f};
 
 		Helper::keepScreenOn(true);
 
-		auto futureExtract = std::async(std::launch::async, [this, exe, &prog]()
+		auto futureExtract = std::async(std::launch::async, [exe, &prog]()
 		{
-			ChroniclesExtractor ce(this, [&prog](float progress) { prog = progress; });
+			ChroniclesExtractor ce(nullptr, [&prog](float progress) { prog.store(progress); });
 			return ce.installChronicles(exe);
 		});
 
 		while(futureExtract.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
 		{
-			extractionProgress(static_cast<int>(prog * 1000.f), 1000);
+			extractionProgress(static_cast<int>(prog.load() * 1000.f), 1000);
 			qApp->processEvents();
 		}
 		const auto extractResult = futureExtract.get();
