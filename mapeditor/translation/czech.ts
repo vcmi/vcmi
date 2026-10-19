@@ -2187,7 +2187,7 @@ Chcete to udělat nyní?</translation>
         <location filename="../inspector/inspector.cpp" line="453"/>
         <location filename="../inspector/inspector.cpp" line="841"/>
         <source>Join only for money</source>
-        <translation>Jen za peníze</translation>
+        <translation>Jen za zlato</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="454"/>
