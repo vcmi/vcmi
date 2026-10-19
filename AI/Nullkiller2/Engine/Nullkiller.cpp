@@ -993,6 +993,10 @@ bool Nullkiller::executeTask(const Goals::TTask & task)
 	std::string taskDescr = task->toString();
 	resetTaskExecutionContext();
 
+	// previous task may have opened a question, e.g. building that levels up visiting hero,
+	// and server rejects any action until it is answered
+	aiGw->waitTillFree();
+
 	makingTurnInterruption.interruptionPoint();
 	logAi->debug("Trying to realize %s (value %2.3f)", taskDescr, task->priority);
 

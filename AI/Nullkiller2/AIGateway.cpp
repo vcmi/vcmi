@@ -1091,7 +1091,8 @@ void AIGateway::battleStart(const BattleID & battleID, const CCreatureSet * army
 {
 	assert(!playerID.isValidPlayer() || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
-	const CGObjectInstance * presumedEnemy = vstd::backOrNull(cc->getVisitableObjs(tile)); //may be nullptr in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
+	// battle tile may be hidden, e.g. when teleporting via monolith into enemy hero on fog-covered exit
+	const CGObjectInstance * presumedEnemy = cc->isVisible(tile) ? vstd::backOrNull(cc->getVisitableObjs(tile)) : nullptr;
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->getNameTextID() : "a army") % (presumedEnemy ? presumedEnemy->getObjectNameTextID() : "unknown enemy") % tile.toString());
 	CAdventureAI::battleStart(battleID, army1, army2, tile, hero1, hero2, side, replayAllowed);
 }

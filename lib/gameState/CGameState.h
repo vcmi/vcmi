@@ -272,6 +272,8 @@ private:
 	void adjustObjectsToMapBounds();
 	void initHeroes(IGameRandomizer & gameRandomizer);
 	void placeHeroesInTowns();
+	/// heroes placed on water start in boat, must be called after heroes on town tiles are moved to town entrance
+	void initHeroBoats(IGameRandomizer & gameRandomizer);
 	void initFogOfWar();
 	void initStartingBonus(IGameRandomizer & gameRandomizer);
 	void initTowns(vstd::RNG & randomGenerator);

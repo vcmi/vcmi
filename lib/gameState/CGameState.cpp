@@ -234,6 +234,7 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	initTowns(randomGenerator);
 	initTownNames(randomGenerator);
 	placeHeroesInTowns();
+	initHeroBoats(gameRandomizer);
 	initMapObjects(gameRandomizer);
 	buildBonusSystemTree();
 	initVisitingAndGarrisonedHeroes();
@@ -735,40 +736,6 @@ void CGameState::initHeroes(IGameRandomizer & gameRandomizer)
 		hero->armyChanged();
 	}
 
-	// generate boats for all heroes on water
-	for (auto heroID : map->getHeroesOnMap())
-	{
-		auto hero = getHero(heroID);
-		const auto pos = hero->visitablePos();
-
-		if(!map->isInTheMap(pos))
-		{
-			logGlobal->warn(
-				"initHeroes: hero %s has invalid visitablePos %s (outside map) – skipping boat generation",
-				hero->getNameTextID(), pos.toString());
-			continue;
-		}
-
-		const auto & tile = map->getTile(hero->visitablePos());
-
-		if (hero->ID == Obj::PRISON)
-			continue;
-
-		if (tile.isWater())
-		{
-			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
-			auto boat = std::dynamic_pointer_cast<CGBoat>(handler->create(this, nullptr));
-			handler->configureObject(boat.get(), gameRandomizer);
-
-			boat->setAnchorPos(hero->anchorPos());
-			boat->appearance = handler->getTemplates().front();
-			map->generateUniqueInstanceName(boat.get());
-			map->addNewObject(boat);
-			map->hideObject(boat.get());
-			hero->setBoat(boat.get());
-		}
-	}
-
 	std::set<HeroTypeID> heroesToCreate = getUnusedAllowedHeroes(); //ids of heroes to be created and put into the pool
 
 	for(const HeroTypeID & htype : heroesToCreate) //all not used allowed heroes go with default state into the pool
@@ -1074,6 +1041,42 @@ void CGameState::initMapObjects(IGameRandomizer & gameRandomizer)
 	CGSubterraneanGate::postInit(this); //pairing subterranean gates
 
 	map->calculateGuardingGreaturePositions(); //calculate once again when all the guards are placed and initialized
+}
+
+void CGameState::initHeroBoats(IGameRandomizer & gameRandomizer)
+{
+	for (auto heroID : map->getHeroesOnMap())
+	{
+		auto hero = getHero(heroID);
+		const auto pos = hero->visitablePos();
+
+		if(!map->isInTheMap(pos))
+		{
+			logGlobal->warn(
+				"initHeroBoats: hero %s has invalid visitablePos %s (outside map) – skipping boat generation",
+				hero->getNameTextID(), pos.toString());
+			continue;
+		}
+
+		const auto & tile = map->getTile(hero->visitablePos());
+
+		if (hero->ID == Obj::PRISON)
+			continue;
+
+		if (tile.isWater())
+		{
+			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
+			auto boat = std::dynamic_pointer_cast<CGBoat>(handler->create(this, nullptr));
+			handler->configureObject(boat.get(), gameRandomizer);
+
+			boat->setAnchorPos(hero->anchorPos());
+			boat->appearance = handler->getTemplates().front();
+			map->generateUniqueInstanceName(boat.get());
+			map->addNewObject(boat);
+			map->hideObject(boat.get());
+			hero->setBoat(boat.get());
+		}
+	}
 }
 
 void CGameState::placeHeroesInTowns()
