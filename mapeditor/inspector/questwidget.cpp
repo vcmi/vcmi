@@ -453,6 +453,8 @@ bool QuestWidget::commitChanges()
 	selectedQuest->repeatedQuest = ui->repetableCheckbox->isChecked();
 	selectedQuest->lastDay = ui->deadlineCheckbox->isChecked() ? ui->deadlineSpinbox->value() : -1;
 	rewardWidget->commit();
+	if(selectedQuest->reward)
+		selectedQuest->reward->visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 	
 	//selectedQuest->mission.destroyedObjects is set directly in object picking
 	

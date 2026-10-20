@@ -371,14 +371,10 @@ void Quest::serializeJson(JsonSerializeFormat & handler)
 	{
 		handler.serializeStruct("reward", reward.value());
 	}
-	else if (!handler.saving)
+	else if (!handler.saving && handler.getCurrent()["reward"].isStruct())
 	{
 		reward = Rewardable::VisitInfo();
-		if (handler.getCurrent()["reward"].isStruct())
-		{
-			handler.serializeStruct("reward", reward.value());
-		}
-		reward.value().visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		handler.serializeStruct("reward", reward.value());
 	}
 
 	// kill quests have a single target; kept as a scalar "killTarget" key for map
@@ -513,10 +509,20 @@ bool QuestSource::hasAnotherOfferableQuest() const
 void QuestSource::syncActiveReward()
 {
 	configuration.info.clear();
-	if(isEmpty() || !getQuest().reward)
+	if(isEmpty())
 		return;
 
-	configuration.info.push_back(*getQuest().reward);
+	if(getQuest().reward)
+	{
+		configuration.info.push_back(*getQuest().reward);
+	}
+	else
+	{
+		//empty visit info gives no reward, but allows to move to the next quest
+		auto emptyReward = Rewardable::VisitInfo();
+		emptyReward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		configuration.info.push_back(emptyReward);
+	}
 	getQuest().getCompletionText(cb, configuration.info.back().message);
 }
 
