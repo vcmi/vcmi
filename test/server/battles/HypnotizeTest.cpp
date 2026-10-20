@@ -239,3 +239,24 @@ TEST_F(HypnotizeTest, MassSpellsOfEitherSideSkipHypnotizedUnits)
 	EXPECT_FALSE(hasSpell(hypnotized, SpellID::BLESS)) << "mass spell of the owner";
 	EXPECT_FALSE(hasSpell(hypnotized, SpellID::SLOW)) << "mass spell of the controller";
 }
+
+TEST_F(HypnotizeTest, OwnerCanNotSacrificeItsHypnotizedUnit)
+{
+	startGame();
+	startBattle();
+	CStack * fallen = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 2), 10);
+	CStack * hypnotized = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), 10);
+	CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 4), 10);
+	hypnotize(hypnotized);
+	teachSpell(defenderSideHero, SpellID::SACRIFICE);
+	beginCombat();
+	injure(fallen, fallen->getAvailableHealth());
+
+	const auto sacrifice = [&](const CStack * sacrificed)
+	{
+		return castAsHero(defenderSideHero, SpellID::SACRIFICE, battle::Target{battle::Destination(fallen), battle::Destination(sacrificed)});
+	};
+
+	EXPECT_FALSE(sacrifice(hypnotized));
+	EXPECT_TRUE(sacrifice(victim));
+}
