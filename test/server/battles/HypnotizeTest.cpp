@@ -275,3 +275,17 @@ TEST_F(HypnotizeTest, HypnotizedEnchanterIgnoresCooldownOfItsOwner)
 
 	EXPECT_GT(battle()->getSide(BattleSide::ATTACKER).enchanterCounter, 0) << "the enchanter cast for its controller, starting the controller's cooldown";
 }
+
+// TODO: in H3 a hypnotized unit fights with the skills, luck, morale and artifacts of the hero
+// controlling it, while the engine still takes them from the army of its owner
+TEST_F(HypnotizeTest, DISABLED_HypnotizedUnitUsesSkillsOfItsController)
+{
+	startGame();
+	startBattle();
+	CStack * hypnotized = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), 10);
+	const int baseAttack = hypnotized->getAttack(false);
+	attackerSideHero->setPrimarySkill(PrimarySkill::ATTACK, 10, ChangeValueMode::ABSOLUTE);
+	hypnotize(hypnotized);
+
+	EXPECT_EQ(hypnotized->getAttack(false), baseAttack + 10);
+}
