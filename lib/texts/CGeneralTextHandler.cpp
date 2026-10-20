@@ -163,6 +163,8 @@ CGeneralTextHandler::CGeneralTextHandler():
 
 	{
 		CLegacyConfigParser parser(TextPath::builtin("DATA/RANDTVRN.TXT"));
+		// first rumor was skipped as a header in older versions; it goes last so that translated rumor IDs stay valid
+		std::string firstLine = parser.readString();
 		parser.endLine();
 		size_t index = 0;
 		do
@@ -175,6 +177,8 @@ CGeneralTextHandler::CGeneralTextHandler():
 			}
 		}
 		while (parser.endLine());
+		if(!firstLine.empty())
+			registerString("core", {"core.randtvrn", index}, firstLine);
 	}
 	{
 		CLegacyConfigParser parser(TextPath::builtin("DATA/GENRLTXT.TXT"));
@@ -297,6 +301,14 @@ CGeneralTextHandler::CGeneralTextHandler():
 			while (parser.endLine() && !text.empty());
 		}
 	}
+
+	for(size_t i = 0; i < GameConstants::RANDOM_SIGNS; ++i)
+		if(!identifierExists({"core.randsign", i}))
+			logGlobal->error("Text 'core.randsign.%d' is missing in DATA/RANDSIGN.TXT", i);
+
+	for(size_t i = 0; i < GameConstants::RANDOM_RUMORS; ++i)
+		if(!identifierExists({"core.randtvrn", i}))
+			logGlobal->error("Text 'core.randtvrn.%d' is missing in DATA/RANDTVRN.TXT", i);
 }
 
 int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t count) const
@@ -327,19 +339,6 @@ std::string CGeneralTextHandler::getInstalledEncoding()
 {
 	assert(!settings["session"]["encoding"].String().empty());
 	return settings["session"]["encoding"].String();
-}
-
-std::vector<std::string> CGeneralTextHandler::findStringsWithPrefix(const std::string & prefix)
-{
-	std::vector<std::string> result;
-
-	for(const auto & entry : stringsLocalizations)
-	{
-		if(boost::algorithm::starts_with(entry.first, prefix))
-			result.push_back(entry.first);
-	}
-
-	return result;
 }
 
 LegacyTextContainer::LegacyTextContainer(CGeneralTextHandler & owner, std::string basePath):

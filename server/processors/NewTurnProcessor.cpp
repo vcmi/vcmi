@@ -517,8 +517,7 @@ RumorState NewTurnProcessor::pickNewRumor()
 				[[fallthrough]];
 
 			case RumorState::TYPE_RAND:
-				auto vector = LIBRARY->generaltexth->findStringsWithPrefix("core.randtvrn");
-				rumorId = rand.nextInt(static_cast<int>(vector.size()) - 1);
+				rumorId = rand.nextInt(GameConstants::RANDOM_RUMORS - 1);
 
 				break;
 		}

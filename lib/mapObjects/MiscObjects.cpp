@@ -962,9 +962,8 @@ void CGSignBottle::initObj(IGameRandomizer & gameRandomizer)
 	//if no text is set than we pick random from the predefined ones
 	if(message.empty())
 	{
-		auto vector = LIBRARY->generaltexth->findStringsWithPrefix("core.randsign");
-		std::string messageIdentifier = *RandomGeneratorUtil::nextItem(vector, gameRandomizer.getDefault());
-		message.appendTextID(messageIdentifier);
+		int signIndex = gameRandomizer.getDefault().nextInt(GameConstants::RANDOM_SIGNS - 1);
+		message.appendTextID(TextIdentifier("core.randsign", signIndex).get());
 	}
 
 	if(ID == Obj::OCEAN_BOTTLE)
