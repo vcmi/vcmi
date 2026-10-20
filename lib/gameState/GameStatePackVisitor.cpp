@@ -82,7 +82,7 @@ void GameStatePackVisitor::visitSetResources(SetResources & pack)
 	//just ensure that player resources are not negative
 	//server is responsible to check if player can afford deal
 	//but events on server side are allowed to take more than player have
-	gs.getPlayerState(pack.player)->resources.positive();
+	gs.getPlayerState(pack.player)->resources.removeNegative();
 }
 
 void GameStatePackVisitor::visitSetPrimarySkill(SetPrimarySkill & pack)

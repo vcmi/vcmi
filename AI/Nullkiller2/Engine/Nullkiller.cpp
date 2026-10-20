@@ -1024,7 +1024,7 @@ bool Nullkiller::executeTask(const Goals::TTask & task)
 TResources Nullkiller::getFreeResources() const
 {
 	auto freeRes = cc->getResourceAmount() - lockedResources;
-	freeRes.positive();
+	freeRes.removeNegative();
 	return freeRes;
 }
 

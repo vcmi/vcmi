@@ -24,7 +24,7 @@ TResources BuildAnalyzer::getMissingResourcesNow(const float armyGoldRatio) cons
 	result[GameResID::GOLD] *= armyGoldRatio;
 	result += requiredResources;
 	result -= aiNk->getFreeResources();
-	result.positive();
+	result.removeNegative();
 	return result;
 }
 
@@ -34,7 +34,7 @@ TResources BuildAnalyzer::getMissingResourcesInTotal(const float armyGoldRatio) 
 	result[GameResID::GOLD] *= armyGoldRatio;
 	result += totalDevelopmentCost;
 	result -= aiNk->getFreeResources();
-	result.positive();
+	result.removeNegative();
 	return result;
 }
 
@@ -44,7 +44,7 @@ TResources BuildAnalyzer::getFreeResourcesAfterMissingTotal(const float armyGold
 	result[GameResID::GOLD] *= armyGoldRatio;
 	result -= totalDevelopmentCost;
 	result += aiNk->getFreeResources();
-	result.positive();
+	result.removeNegative();
 	return result;
 }
 

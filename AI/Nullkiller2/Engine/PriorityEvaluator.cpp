@@ -465,11 +465,8 @@ float RewardEvaluator::getCombinedResourceRequirementStrength(const TResources &
 {
 	float sum = 0.0f;
 
-	for(const auto & [resource, amount] : res)
+	for(const auto & [resource, amount] : res.nonZeroEntries())
 	{
-		if(amount == 0)
-			continue;
-
 		auto calculation = 0.5f * getNowResourceRequirementStrength(resource)
 			+ 0.5f * getTotalResourceRequirementStrength(resource);
 
@@ -1793,8 +1790,8 @@ float PriorityEvaluator::evaluate(
 					if(!resourcesAvailable.canAfford(evaluationContext.buildingCost))
 					{
 						TResources needed = evaluationContext.buildingCost - resourcesAvailable;
-						needed.positive();
-						int turnsTo = needed.maxPurchasableCount(income);
+						needed.removeNegative();
+						int turnsTo = needed.turnsToAccumulate(income);
 						bool haveEverythingButGold = true;
 
 						for(const GameResID & i : LIBRARY->resourceTypeHandler->getAllObjects())

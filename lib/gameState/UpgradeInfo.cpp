@@ -16,7 +16,7 @@ void UpgradeInfo::addUpgrade(const CreatureID & upgradeID, const Creature * crea
 	const bool upgradeAvaiable = costPercentageModifier >= 0;
 
 	ResourceSet upgradeCost = (upgradeID.toCreature()->getFullRecruitCost() - creature->getFullRecruitCost()) * costPercentageModifier / 100;
-	upgradeCost.positive(); //upgrade cost can't be negative, ignore missing resources
+	upgradeCost.removeNegative(); //upgrade cost can't be negative, ignore missing resources
 
 	auto idIt = std::find(upgradesIDs.begin(), upgradesIDs.end(), upgradeID);
 	if(idIt != upgradesIDs.end())

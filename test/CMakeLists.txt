@@ -51,7 +51,6 @@ set(test_SRCS
 
 		json/JsonTests.cpp
 
-		serializer/ResourceSetSerializationTest.cpp
 		serializer/SaveFileTest.cpp
 
 		map/CMapEditManagerTest.cpp

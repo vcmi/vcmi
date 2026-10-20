@@ -34,8 +34,7 @@ void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string
 	if(handler.saving)
 	{
 		for(auto & [resource, amount] : container)
-			if(amount)
-				handler.serializeInt(resource.toResource()->getJsonKey(), amount, 0);
+			handler.serializeInt(resource.toResource()->getJsonKey(), amount, 0);
 	}
 	else
 	{
@@ -52,11 +51,7 @@ void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string
 
 bool ResourceSet::nonZero() const
 {
-	for(const auto & entry : container)
-		if(entry.second)
-			return true;
-
-	return false;
+	return !nonZeroEntries().empty();
 }
 
 void ResourceSet::amin(const TResourceCap &val)
@@ -66,7 +61,7 @@ void ResourceSet::amin(const TResourceCap &val)
 		vstd::amin(entry.second, val);
 }
 
-void ResourceSet::positive()
+void ResourceSet::removeNegative()
 {
 	for(auto & entry : container)
 		vstd::amax(entry.second, 0);
@@ -82,23 +77,13 @@ void ResourceSet::applyHandicap(int percentage)
 	}
 }
 
-static bool canAfford(const ResourceSet &res, const ResourceSet &price)
+bool ResourceSet::canAfford(const ResourceSet &price) const
 {
 	for(const auto & [resource, amount] : price)
-		if(amount > res[resource])
+		if(amount > (*this)[resource])
 			return false;
 
 	return true;
-}
-
-bool ResourceSet::canBeAfforded(const ResourceSet &res) const
-{
-	return ::canAfford(res, *this);
-}
-
-bool ResourceSet::canAfford(const ResourceSet &price) const
-{
-	return ::canAfford(*this, price);
 }
 
 TResourceCap ResourceSet::marketValue() const

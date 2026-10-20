@@ -307,9 +307,8 @@ bool CCreature::isEvil () const
 si32 CCreature::maxAmount(const TResources &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;
-	for(const auto & [resource, amount] : cost)
-		if(amount)
-			ret = std::min(ret, (res[resource] / amount));
+	for(const auto & [resource, amount] : cost.nonZeroEntries())
+		ret = std::min(ret, (res[resource] / amount));
 	return ret;
 }
 

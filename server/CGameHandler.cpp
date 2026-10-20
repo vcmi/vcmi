@@ -3519,6 +3519,8 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 
 bool CGameHandler::sendResources(ui32 val, PlayerColor player, GameResID r1, PlayerColor r2)
 {
+	COMPLAIN_RET_FALSE_IF(!vstd::contains(LIBRARY->resourceTypeHandler->getAllObjects(), r1), "No such resource!");
+
 	const PlayerState *p2 = gameInfo().tryGetPlayerState(r2);
 	if (!p2  ||  p2->status != EPlayerStatus::INGAME)
 	{

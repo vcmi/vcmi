@@ -588,7 +588,7 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 		return EBuildingState::CANT_BUILD_TODAY; //building limit
 
 	//checking resources
-	if(!building->resources.canBeAfforded(getPlayerState(t->tempOwner)->resources))
+	if(!getPlayerState(t->tempOwner)->resources.canAfford(building->resources))
 		return EBuildingState::NO_RESOURCES; //lack of res
 
 	return EBuildingState::ALLOWED;

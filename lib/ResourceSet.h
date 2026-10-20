@@ -92,38 +92,38 @@ public:
 		return container.cend();
 	}
 
-	//to be used for calculations of type "how many units of sth can I afford?"
-	int operator/(const ResourceSet &rhs) const
+	/// iterates over resources with amount other than 0
+	auto nonZeroEntries() const &
+	{
+		return container | std::views::filter([](const auto & entry){ return entry.second != 0; });
+	}
+
+	void nonZeroEntries() const && = delete;
+
+	/// returns how many times price can be paid from this set of funds; INT_MAX if price has no positive amounts
+	int affordableCount(const ResourceSet & price) const
 	{
 		int ret = INT_MAX;
-		for(const auto & [resource, amount] : rhs.container)
-			if(amount)
-				vstd::amin(ret, (*this)[resource] / amount);
+		for(const auto & [resource, amount] : price.container)
+			if(amount > 0)
+				vstd::amin(ret, std::max(0, (*this)[resource] / amount));
 
 		return ret;
 	}
 
-	//Returns how many items of "this" we can afford with provided funds
-	int maxPurchasableCount(const ResourceSet& availableFunds) const
+	/// returns how many periods of income are needed to accumulate positive amounts of this set; INT_MAX if some resource has no positive income
+	int turnsToAccumulate(const ResourceSet & income) const
 	{
-		int ret = 0; // Initialize to 0 because we want the maximum number of accumulations
-
+		int ret = 0;
 		for(const auto & [resource, amount] : container)
 		{
-			if(amount > 0) // We only care about fulfilling positive needs
-			{
-				if(availableFunds[resource] == 0)
-				{
-					// If income is 0 and we need a positive amount, it's impossible to fulfill
-					return INT_MAX;
-				}
-				else
-				{
-					// Calculate the number of times we need to accumulate income to fulfill the need
-					int ceiledResult = vstd::divideAndCeil(amount, availableFunds[resource]);
-					ret = std::max(ret, ceiledResult);
-				}
-			}
+			if(amount <= 0)
+				continue;
+
+			if(income[resource] <= 0)
+				return INT_MAX;
+
+			ret = std::max(ret, vstd::divideAndCeil(amount, income[resource]));
 		}
 		return ret;
 	}
@@ -177,11 +177,10 @@ public:
 	DLL_LINKAGE void serializeJson(JsonSerializeFormat & handler, const std::string & fieldName);
 
 	DLL_LINKAGE void amin(const TResourceCap &val); //performs vstd::amin on each element, val must not be negative
-	DLL_LINKAGE void positive(); //values below 0 are set to 0 - upgrade cost can't be negative, for example
+	DLL_LINKAGE void removeNegative(); //values below 0 are set to 0 - upgrade cost can't be negative, for example
 	DLL_LINKAGE void applyHandicap(int percentage);
 	DLL_LINKAGE bool nonZero() const; //returns true if at least one value is non-zero;
 	DLL_LINKAGE bool canAfford(const ResourceSet &price) const;
-	DLL_LINKAGE bool canBeAfforded(const ResourceSet &res) const;
 	DLL_LINKAGE TResourceCap marketValue() const;
 
 	DLL_LINKAGE std::string toString() const;

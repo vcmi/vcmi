@@ -39,7 +39,7 @@ Goals::TGoalVec BuildingBehavior::decompose(const Nullkiller * aiNk) const
 	logAi->trace("Free resources amount: %s", availableResources.toString());
 
 	resourcesRequired -= availableResources;
-	resourcesRequired.positive();
+	resourcesRequired.removeNegative();
 
 	logAi->trace("daily income: %s", dailyIncome.toString());
 	logAi->trace("resources required to develop towns now: %s, total: %s",

@@ -36,11 +36,8 @@ void CreatureCostBox::createItems(TResources res)
 
 	OBJECT_CONSTRUCTION;
 
-	for(const auto & [resource, amount] : res)
+	for(const auto & [resource, amount] : res.nonZeroEntries())
 	{
-		if(amount == 0)
-			continue;
-
 		auto image = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), resource.getNum());
 		auto text = std::make_shared<CLabel>(15, 43, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "0");
 

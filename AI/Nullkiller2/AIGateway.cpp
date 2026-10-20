@@ -1081,7 +1081,7 @@ void AIGateway::recruitCreatures(const CGDwelling * d, const CArmedInstance * re
 			}
 		}
 
-		vstd::amin(count, cc->getResourceAmount() / creID.toCreature()->getFullRecruitCost());
+		vstd::amin(count, cc->getResourceAmount().affordableCount(creID.toCreature()->getFullRecruitCost()));
 		if(count > 0)
 			cc->recruitCreatures(d, recruiter, creID, count, i);
 	}
@@ -1470,9 +1470,9 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 		if(const auto * m = dynamic_cast<const IMarket*>(obj))
 		{
 			auto freeRes = cc->getResourceAmount(); //trade only resources which are not reserved
-			for(const auto & [res, amount] : freeRes)
+			for(const auto & [res, amount] : freeRes.nonZeroEntries())
 			{
-				if(amount == 0 || res.getNum() == g.resID) //sell any other resource
+				if(res.getNum() == g.resID) //sell any other resource
 					continue;
 
 				int toGive;
