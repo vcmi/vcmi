@@ -14,10 +14,9 @@
 #include "../helper.h"
 
 #include <QElapsedTimer>
-#include <QThread>
 
 ArchiveImportJob::ArchiveImportJob(QVector<ArchiveImportSource> sources, ModArchiveInstaller::Request request, QString cachePath, QObject * parent)
-	: QObject(parent)
+	: QThread(parent)
 	, sources(std::move(sources))
 	, request(std::move(request))
 	, cachePath(std::move(cachePath))
@@ -27,17 +26,7 @@ ArchiveImportJob::ArchiveImportJob(QVector<ArchiveImportSource> sources, ModArch
 ArchiveImportJob::~ArchiveImportJob()
 {
 	cancel();
-	if(thread)
-		thread->wait();
-}
-
-void ArchiveImportJob::start()
-{
-	assert(!thread);
-	thread = QThread::create([this] { run(); });
-	thread->setParent(this);
-	connect(thread, &QThread::finished, this, &ArchiveImportJob::finished);
-	thread->start();
+	wait();
 }
 
 void ArchiveImportJob::cancel()

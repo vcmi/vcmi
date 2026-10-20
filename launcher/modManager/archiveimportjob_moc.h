@@ -12,14 +12,13 @@
 #include "../importsource.h"
 #include "modarchiveinstaller.h"
 
-#include <QObject>
 #include <QStringList>
+#include <QThread>
 #include <QVector>
 
 #include <atomic>
 #include <memory>
 
-class QThread;
 class QTemporaryDir;
 
 struct ArchiveImportSource
@@ -39,7 +38,7 @@ struct ArchiveImportResult
 };
 
 /// Owns all import I/O. UI and mod state are only accessed by the caller.
-class ArchiveImportJob final : public QObject
+class ArchiveImportJob final : public QThread
 {
 	Q_OBJECT
 
@@ -47,10 +46,9 @@ class ArchiveImportJob final : public QObject
 	ModArchiveInstaller::Request request;
 	QString cachePath;
 	std::atomic<bool> canceled{false};
-	QThread * thread = nullptr;
 	ArchiveImportResult outcome;
 
-	void run();
+	void run() override;
 	void reportProgress(const QString & description, quint64 current, quint64 total);
 	bool prepareSource(ArchiveImportSource & source);
 
@@ -58,11 +56,9 @@ public:
 	ArchiveImportJob(QVector<ArchiveImportSource> sources, ModArchiveInstaller::Request request, QString cachePath, QObject * parent);
 	~ArchiveImportJob() override;
 
-	void start();
 	void cancel();
 	const ArchiveImportResult & result() const;
 
 signals:
 	void progress(QString description, quint64 current, quint64 total);
-	void finished();
 };
