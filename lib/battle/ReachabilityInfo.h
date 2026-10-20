@@ -27,6 +27,8 @@ struct ReachabilityInfo
 	{
 		BattleSide side = BattleSide::NONE;
 		bool doubleWide = false;
+		/// Defending units pass through the gate, including attacking units hypnotized by the defender
+		bool canUseGate = false;
 		bool flying = false;
 		bool ignoreKnownAccessible = false; //Ignore obstacles if it is in accessible hexes
 		bool bypassEnemyStacks = false; // in case of true will count amount of turns needed to kill enemy and thus move forward

@@ -1354,7 +1354,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo & accessib
 
 	std::array<bool, GameConstants::BFIELD_SIZE> accessibleCache{};
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
-		accessibleCache[hex] = accessibility.accessible(hex, params.doubleWide, params.side);
+		accessibleCache[hex] = accessibility.accessible(hex, params.doubleWide, params.side, params.canUseGate);
 
 	while(!hexq.empty()) //bfs loop
 	{
@@ -1410,7 +1410,7 @@ bool CBattleInfoCallback::isInObstacle(
 		{
 			if(occupiedHex == BattleHex::GATE_BRIDGE)
 			{
-				if(battleGetGateState() != EGateState::DESTROYED && params.side == BattleSide::ATTACKER)
+				if(battleGetGateState() != EGateState::DESTROYED && !params.canUseGate)
 					return true;
 			}
 			else
@@ -1592,7 +1592,7 @@ BattleHex CBattleInfoCallback::getAvailableHex(const Creature * creature, Battle
 
 	BattleHexArray occupyable;
 	for(int i = 0; i < accessibility.size(); i++)
-		if(accessibility.accessible(i, twoHex, side))
+		if(accessibility.accessible(i, twoHex, side, side == BattleSide::DEFENDER))
 			occupyable.insert(i);
 
 	if(occupyable.empty())
@@ -1667,7 +1667,7 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 
 	for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
 	{
-		if(ret.accessibility.accessible(i, params.doubleWide, params.side))
+		if(ret.accessibility.accessible(i, params.doubleWide, params.side, params.canUseGate))
 		{
 			ret.predecessors[i] = params.startPosition;
 			ret.distances[i] = BattleHex::getDistance(params.startPosition, i);

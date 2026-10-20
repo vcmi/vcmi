@@ -17,6 +17,7 @@ ReachabilityInfo::Parameters::Parameters(BattleSide perspective, const battle::U
 	startPosition(StartPosition),
 	doubleWide(Stack->doubleWide()),
 	side(Stack->unitSide()),
+	canUseGate(Stack->controllingSide() == BattleSide::DEFENDER),
 	flying(Stack->hasBonusOfType(BonusType::FLYING)),
 	knownAccessible(&accessibleHexes)
 {

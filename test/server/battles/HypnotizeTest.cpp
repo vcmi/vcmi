@@ -184,3 +184,29 @@ TEST_F(HypnotizeTest, HypnotizedWraithDrainsManaOfItsOwner)
 	EXPECT_LT(defenderSideHero->mana, 20);
 	EXPECT_EQ(attackerSideHero->mana, 20);
 }
+
+TEST_F(HypnotizeTest, GateLetsThroughUnitsControlledByTheDefender)
+{
+	startGame();
+	startSiege();
+	const BattleHex insideGate = BattleHex(BattleHex::GATE_INNER).cloneInDirection(BattleHex::RIGHT);
+	CStack * hypnotizedAttacker = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), insideGate, 10);
+	// the town would lose the battle without a unit of its own
+	addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), 10);
+	hypnotize(hypnotizedAttacker);
+
+	ASSERT_TRUE(act(BattleAction::makeMove(hypnotizedAttacker, BattleHex(BattleHex::GATE_OUTER))));
+	EXPECT_EQ(hypnotizedAttacker->getPosition(), BattleHex(BattleHex::GATE_OUTER));
+}
+
+TEST_F(HypnotizeTest, GateStopsDefenderUnitsControlledByTheAttacker)
+{
+	startGame();
+	startSiege();
+	const BattleHex insideGate = BattleHex(BattleHex::GATE_INNER).cloneInDirection(BattleHex::RIGHT);
+	CStack * hypnotizedDefender = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), insideGate, 10);
+	hypnotize(hypnotizedDefender);
+
+	EXPECT_FALSE(act(BattleAction::makeMove(hypnotizedDefender, BattleHex(BattleHex::GATE_OUTER))));
+	EXPECT_EQ(hypnotizedDefender->getPosition(), insideGate);
+}

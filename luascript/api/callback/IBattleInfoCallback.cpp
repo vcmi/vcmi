@@ -172,7 +172,7 @@ bool IBattleInfoCallbackProxy::isAccessibleForUnit(const IBattleInfoCallback & o
 bool IBattleInfoCallbackProxy::isAccessibleForNewUnit(const IBattleInfoCallback & object, BattleHex hex, const Creature & creature, BattleSide side)
 {
 	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
-	return cb.getAccessibility().accessible(hex, creature.isDoubleWide(), side);
+	return cb.getAccessibility().accessible(hex, creature.isDoubleWide(), side, side == BattleSide::DEFENDER);
 }
 
 int IBattleInfoCallbackProxy::getFieldWidth(const IBattleInfoCallback &)
