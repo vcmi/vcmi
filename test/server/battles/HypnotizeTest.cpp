@@ -154,3 +154,17 @@ TEST_F(HypnotizeTest, HypnotizedFamiliarChannelsManaToItsController)
 
 	EXPECT_GT(attackerSideHero->mana, 0) << "the familiar now serves the attacker, who gains mana from the defender's spell";
 }
+
+TEST_F(HypnotizeTest, HypnotizedUnicornProtectsUnitsOfItsController)
+{
+	startGame();
+	startBattle();
+	CStack * unicorn = addStack(BattleSide::DEFENDER, creatureByName("core:unicorn"), BattleHex(rightHex), 10);
+	CStack * formerAlly = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 2), 10);
+	CStack * controllerUnit = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(rightHex - 1), 10);
+	hypnotize(unicorn);
+	beginCombat();
+
+	EXPECT_GT(controllerUnit->magicResistance(), 0);
+	EXPECT_EQ(formerAlly->magicResistance(), 0);
+}
