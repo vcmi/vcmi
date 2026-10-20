@@ -837,20 +837,10 @@ void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack &
 	if(pack.reason == BattleUnitTurnReason::AUTOMATIC_ACTION)
 		return;
 
-	const CStack *activated = gs.getBattle(pack.battleID)->battleGetStackByID(pack.stack);
-	PlayerColor playerToCall; //pack.player that will move activated stack
-	if(activated->isHypnotized())
-	{
-		playerToCall = gs.getBattle(pack.battleID)->getSide(BattleSide::ATTACKER).color == activated->unitOwner()
-			? gs.getBattle(pack.battleID)->getSide(BattleSide::DEFENDER).color
-			: gs.getBattle(pack.battleID)->getSide(BattleSide::ATTACKER).color;
-	}
-	else
-	{
-		playerToCall = activated->unitOwner();
-	}
+	const auto * battle = gs.getBattle(pack.battleID);
+	const CStack * activated = battle->battleGetStackByID(pack.stack);
 
-	cl.startPlayerBattleAction(pack.battleID, playerToCall);
+	cl.startPlayerBattleAction(pack.battleID, battle->battleGetOwner(activated));
 }
 
 void ApplyClientNetPackVisitor::visitBattleLogMessage(BattleLogMessage & pack)

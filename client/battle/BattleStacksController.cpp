@@ -795,7 +795,7 @@ void BattleStacksController::activateStack()
 	if ( !stackToActivate)
 		return;
 
-	owner.trySetActivePlayer(stackToActivate->unitOwner());
+	owner.trySetActivePlayer(owner.getBattle()->battleGetOwner(stackToActivate));
 
 	setActiveStack(stackToActivate);
 	stackToActivate = nullptr;
