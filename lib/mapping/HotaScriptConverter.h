@@ -74,7 +74,9 @@ private:
 	std::string luaString(const std::string & value) const;
 	std::string bucketName(int eventType) const;
 
-	std::string loadImageList(int count);
+	std::string loadImage(); ///< single Lua Component table, empty for images the engine cannot show
+	std::string loadImageList(int count); ///< Lua array of Component tables
+	void skipImageList(int count);
 	std::string localizedText(const std::string & role); ///< reads a text field, returns a Lua MetaString table holding its identifier
 
 	std::string loadQuestReferences(CMap * map, const std::map<si32, ObjectInstanceID> & questIdentifierToId);
