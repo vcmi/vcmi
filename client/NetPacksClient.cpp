@@ -158,7 +158,8 @@ static void showEagleEyeLearnedSpellsDialog(CClient & cl, ObjectInstanceID heroI
 
 	const auto * hero = cl.gameInfo().getHero(heroId);
 	assert(hero);
-	callInterfaceIfPresent(cl, player, &CGameInterface::showInfoDialog, EInfoWindowMode::AUTO, UIHelper::getEagleEyeInfoWindowText(*hero, spells), UIHelper::getSpellsComponents(spells), soundBase::soundID(0));
+	// spells learned at the start of a battle arrive with the battle window already open, which hides the info bar
+	callInterfaceIfPresent(cl, player, &CGameInterface::showInfoDialog, EInfoWindowMode::MODAL, UIHelper::getEagleEyeInfoWindowText(*hero, spells), UIHelper::getSpellsComponents(spells), soundBase::soundID(0));
 }
 
 void ApplyClientNetPackVisitor::visitSetResources(SetResources & pack)
