@@ -210,3 +210,32 @@ TEST_F(HypnotizeTest, GateStopsDefenderUnitsControlledByTheAttacker)
 	EXPECT_FALSE(act(BattleAction::makeMove(hypnotizedDefender, BattleHex(BattleHex::GATE_OUTER))));
 	EXPECT_EQ(hypnotizedDefender->getPosition(), insideGate);
 }
+
+TEST_F(HypnotizeTest, MassSpellsOfEitherSideSkipHypnotizedUnits)
+{
+	startGame();
+	startBattle();
+	CStack * hypnotized = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), 10);
+	CStack * formerAlly = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 2), 10);
+	CStack * controllerUnit = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex - 2), 10);
+	hypnotize(hypnotized);
+	teachSpell(defenderSideHero, SpellID::BLESS);
+	teachSpell(attackerSideHero, SpellID::SLOW);
+	setMagicMastery(defenderSideHero, 3);
+	setMagicMastery(attackerSideHero, 3);
+	beginCombat();
+
+	const auto hasSpell = [](const CStack * stack, SpellID spell)
+	{
+		return stack->hasBonusFrom(BonusSource::SPELL_EFFECT, BonusSourceID(spell));
+	};
+
+	ASSERT_TRUE(castOn(defenderSideHero, SpellID::BLESS, formerAlly));
+	ASSERT_TRUE(castOn(attackerSideHero, SpellID::SLOW, formerAlly));
+
+	EXPECT_TRUE(hasSpell(formerAlly, SpellID::BLESS));
+	EXPECT_TRUE(hasSpell(formerAlly, SpellID::SLOW));
+	EXPECT_FALSE(hasSpell(controllerUnit, SpellID::SLOW));
+	EXPECT_FALSE(hasSpell(hypnotized, SpellID::BLESS)) << "mass spell of the owner";
+	EXPECT_FALSE(hasSpell(hypnotized, SpellID::SLOW)) << "mass spell of the controller";
+}
