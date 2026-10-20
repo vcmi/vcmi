@@ -48,8 +48,30 @@
 #include <QUuid>
 
 #include <algorithm>
+#include <functional>
 #include <future>
 #include <utility>
+
+namespace
+{
+class ImportThread final : public QThread
+{
+public:
+	explicit ImportThread(std::function<void()> work)
+		: work(std::move(work))
+	{
+	}
+
+protected:
+	void run() override
+	{
+		work();
+	}
+
+private:
+	std::function<void()> work;
+};
+}
 
 void CModListView::setupModModel()
 {
@@ -1531,13 +1553,14 @@ void CModListView::installMods(QStringList archives, bool removeArchives)
 
 	const auto outcomes = importOutcomes;
 	const auto progress = importProgress;
-	importThread = QThread::create([sources, outcomes, progress, protectedMods, fullModExtraction]()
+	importThread = new ImportThread([sources, outcomes, progress, protectedMods, fullModExtraction]()
 	{
-		for(const auto & source : *sources)
+		for(int index = 0; index < sources->size(); ++index)
 		{
 			if(progress->canceled)
 				break;
 
+			const auto & source = sources->at(index);
 			outcomes->push_back(CModListView::importArchive(source.first, source.second, *progress, protectedMods, fullModExtraction));
 			if(progress->canceled)
 				break;
