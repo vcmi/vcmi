@@ -97,21 +97,11 @@ HttpDownloader::HttpDownloader(IHttpDownloaderListener & listener, const std::st
 	, proxy(proxy)
 	, ignoreSslErrors(ignoreSslErrors)
 {
-	CURLcode initResult = curl_global_init(CURL_GLOBAL_DEFAULT);
-	if(initResult != CURLE_OK)
-		throw std::runtime_error(std::string("Failed to initialize libcurl: ") + curl_easy_strerror(initResult));
-
-	multiHandle = curl_multi_init();
-	if(!multiHandle)
-	{
-		curl_global_cleanup();
-		throw std::runtime_error("Failed to initialize libcurl multi handle");
-	}
-
 #if defined(VCMI_ANDROID)
 	// OpenSSL can't read Android certificate store, so it is provided by Java code
 	CAndroidVMHelper envHelper;
-	caCertificates = envHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "getSystemCACertificates");
+	// Native download threads need the application's cached class loader.
+	caCertificates = envHelper.callStaticStringMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "getSystemCACertificates", true);
 #elif defined(VCMI_XDG)
 	// CA bundle path built into libcurl belongs to the build machine, which may differ from the system we run on (e.g. in AppImage)
 	static const std::array<const char *, 5> caBundleLocations = {
@@ -134,6 +124,17 @@ HttpDownloader::HttpDownloader(IHttpDownloaderListener & listener, const std::st
 	if(caCertificatesPath.empty())
 		logNetwork->warn("CA certificates bundle not found, using libcurl defaults");
 #endif
+
+	CURLcode initResult = curl_global_init(CURL_GLOBAL_DEFAULT);
+	if(initResult != CURLE_OK)
+		throw std::runtime_error(std::string("Failed to initialize libcurl: ") + curl_easy_strerror(initResult));
+
+	multiHandle = curl_multi_init();
+	if(!multiHandle)
+	{
+		curl_global_cleanup();
+		throw std::runtime_error("Failed to initialize libcurl multi handle");
+	}
 }
 
 HttpDownloader::~HttpDownloader()
