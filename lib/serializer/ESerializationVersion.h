@@ -70,12 +70,13 @@ enum class ESerializationVersion : int32_t
 	MAP_EVENT_DISABLED, // map events can be disabled by map scripts
 	RANK_LIMITER_INCLUSIVE_MIN, // RankRangeLimiter accepts stacks of its minimal rank
 	SPARSE_RESOURCE_SET, // ResourceSet stores only resources present in the set
+	QUEST_HINT_COMPONENTS, // HotA scripted quests store components shown with their hint
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = SPARSE_RESOURCE_SET,
+	CURRENT = QUEST_HINT_COMPONENTS,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

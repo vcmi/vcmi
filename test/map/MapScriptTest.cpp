@@ -130,6 +130,17 @@ end
 return Map
 )lua";
 
+/// questEvents handler that sets the hint of the quest together with an icon.
+constexpr auto SEER_HUT_HINT_SCRIPT = R"lua(
+local Map = {}
+
+function Map:questEvents_7(game, server, object, hero)
+	server:setQuestHint(object, {append = {"hint"}}, {{type = ENUM.ComponentType.artifact, subType = 7}})
+end
+
+return Map
+)lua";
+
 /// questEvents handler that immediately finishes the quest.
 constexpr auto SEER_HUT_FINISH_SCRIPT = R"lua(
 local Map = {}
@@ -482,4 +493,31 @@ TEST_F(MapScriptTest, showMessageBuildsComponentsAndRejectsInvalidOnes)
 
 	dispatcher->onObjectVisit(*gameEventCallback, "invalidComponent", hero, hero);
 	EXPECT_EQ(gameEventCallback->infoWindows.size(), 1u) << "a component no client can show must not be sent";
+}
+
+TEST_F(MapScriptTest, scriptedQuestHintCarriesComponentsToTheQuestLog)
+{
+	auto builder = baseMap(EMapFormat::HOTA, SEER_HUT_HINT_SCRIPT);
+	builder.seerHut({10, 10, 0}, TinyH3M::TinyH3MBuilder::missionScripted(7));
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	SeerHut * hut = findFirst<SeerHut>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(hut, nullptr);
+
+	dispatcher->onObjectVisit(*gameEventCallback, "questEvents_7", hut, hero);
+	ASSERT_EQ(gameEventCallback->questHintComponents.size(), 1u);
+	EXPECT_EQ(gameEventCallback->questHintComponents[0].type, ComponentType::ARTIFACT);
+	EXPECT_EQ(gameEventCallback->questHintComponents[0].subType.as<ArtifactID>(), ArtifactID(7));
+
+	// the quest log takes the icons of a scripted quest from its hint
+	hut->getQuest().scriptHintComponents = gameEventCallback->questHintComponents;
+	MetaString text;
+	std::vector<Component> components;
+	hut->getActiveQuest()->getVisitText(gameState().get(), text, components, true);
+	ASSERT_EQ(components.size(), 1u);
+	EXPECT_EQ(components[0].subType.as<ArtifactID>(), ArtifactID(7));
 }

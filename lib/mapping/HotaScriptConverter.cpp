@@ -284,7 +284,7 @@ local function registerQuest(game, server, player, object, opts)
 		server:showMessage(player, opts.progression, {})
 	else
 		server:markQuestProposed(object, player)
-		server:setQuestHintText(object, opts.hint)
+		server:setQuestHint(object, opts.hint)
 		server:addToQuestLog(object, player)
 		server:showMessage(player, opts.proposal, {})
 	end
@@ -293,7 +293,7 @@ end
 -- Updates a scripted quest's quest-log / hover hint text, optionally adding it to the player's
 -- quest log (HotA's SET_QUEST_HINT action).
 local function setQuestHint(server, player, object, text, showInLog)
-	server:setQuestHintText(object, text)
+	server:setQuestHint(object, text)
 	if showInLog then server:addToQuestLog(object, player) end
 end
 

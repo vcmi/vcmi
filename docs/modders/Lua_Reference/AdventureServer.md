@@ -35,12 +35,13 @@ Adds the object's active quest to a player's in-game quest log. Calling it again
 - param `target`: [`MapObject`](MapObject.md) — The quest source (seer hut / quest guard) to add.
 - param `player`: `integer` — Player whose quest log gains the entry.
 
-### setQuestHintText
+### setQuestHint
 
-Internal plumbing for the setQuestHint helper. Scripts should call setQuestHint instead.
+Sets the hover / quest-log hint of a scripted quest, and the icons shown with it in the quest log.
 
 - param `target`: [`MapObject`](MapObject.md) — The quest source (seer hut / quest guard) whose hint changes.
 - param `text`: [`MetaString`](MetaString.md) — New hover / quest-log text for the object's active quest.
+- param `components`: [`Component[]?`](Component.md) — Icons shown with the hint in the quest log; nil for none.
 
 ### disablePlayerEvent
 

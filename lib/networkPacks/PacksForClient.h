@@ -1293,6 +1293,7 @@ struct DLL_LINKAGE SetQuestHint : public CPackForClient
 {
 	ObjectInstanceID object;
 	MetaString hint;
+	std::vector<Component> components;
 
 	SetQuestHint() = default;
 
@@ -1302,6 +1303,7 @@ struct DLL_LINKAGE SetQuestHint : public CPackForClient
 	{
 		h & object;
 		h & hint;
+		h & components;
 	}
 };
 

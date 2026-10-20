@@ -13,6 +13,7 @@
 #include "../ResourceSet.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
+#include "../networkPacks/Component.h"
 
 class CGCreature;
 class CMap;
@@ -62,6 +63,8 @@ public:
 
 	/// HotA scripted quest: hint text last set by the script, shown in the quest log and on hover
 	MetaString scriptHintText;
+	/// HotA scripted quest: icons last set by the script, shown with the hint in the quest log
+	std::vector<Component> scriptHintComponents;
 
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info
@@ -133,6 +136,8 @@ public:
 			h & scriptHandler;
 			h & scriptHintText;
 		}
+		if(h.hasFeature(Handler::Version::QUEST_HINT_COMPONENTS))
+			h & scriptHintComponents;
 		if(h.hasFeature(Handler::Version::SEER_HUT_NAME_TEXT_ID))
 			h & timeoutTextID; // older saves hold a quest giver name here instead
 		// legacy "text was customized" flags; now derived on the fly from text

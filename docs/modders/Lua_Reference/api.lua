@@ -29,10 +29,11 @@ function AdventureServer:markQuestProposed(target, player) end
 ---@param player integer # Player whose quest log gains the entry.
 function AdventureServer:addToQuestLog(target, player) end
 
----Internal plumbing for the setQuestHint helper. Scripts should call setQuestHint instead.
+---Sets the hover / quest-log hint of a scripted quest, and the icons shown with it in the quest log.
 ---@param target MapObject # The quest source (seer hut / quest guard) whose hint changes.
 ---@param text MetaString # New hover / quest-log text for the object's active quest.
-function AdventureServer:setQuestHintText(target, text) end
+---@param components Component[]? # Icons shown with the hint in the quest log; nil for none.
+function AdventureServer:setQuestHint(target, text, components) end
 
 ---Turns off a timed player event of the map, so it no longer occurs.
 ---@param handler string # Name of the map script handler that the timed player event runs.

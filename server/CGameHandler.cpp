@@ -1211,7 +1211,7 @@ void CGameHandler::disableMapEvent(ObjectInstanceID town, const std::string & sc
 	sendAndApply(pack);
 }
 
-void CGameHandler::setQuestHintText(ObjectInstanceID obj, const MetaString & hint)
+void CGameHandler::setQuestHint(ObjectInstanceID obj, const MetaString & hint, const std::vector<Component> & components)
 {
 	// applying hint to anything else would throw on every client, e.g. if script targets already removed object
 	const auto * questSource = dynamic_cast<const QuestSource *>(gameState().getObjInstance(obj));
@@ -1224,6 +1224,7 @@ void CGameHandler::setQuestHintText(ObjectInstanceID obj, const MetaString & hin
 	SetQuestHint pack;
 	pack.object = obj;
 	pack.hint = hint;
+	pack.components = components;
 	sendAndApply(pack);
 }
 
