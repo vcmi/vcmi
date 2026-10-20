@@ -174,10 +174,7 @@ int32_t CCreature::getBaseShots() const
 
 int32_t CCreature::getRecruitCost(GameResID resIndex) const
 {
-	if(resIndex.getNum() >= 0 && resIndex.getNum() < cost.size())
-		return cost[resIndex];
-	else
-		return 0;
+	return cost[resIndex];
 }
 
 const TResources & CCreature::getFullRecruitCost() const
@@ -310,10 +307,9 @@ bool CCreature::isEvil () const
 si32 CCreature::maxAmount(const TResources &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;
-	int resAmnt = static_cast<int>(std::min(res.size(),cost.size()));
-	for(int i=0;i<resAmnt;i++)
-		if(cost[i])
-			ret = std::min(ret, (res[i] / cost[i]));
+	for(const auto & [resource, amount] : cost)
+		if(amount)
+			ret = std::min(ret, (res[resource] / amount));
 	return ret;
 }
 

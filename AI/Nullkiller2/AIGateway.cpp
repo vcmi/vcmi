@@ -1470,21 +1470,20 @@ void AIGateway::tryRealize(Goals::Trade & g) //trade
 		if(const auto * m = dynamic_cast<const IMarket*>(obj))
 		{
 			auto freeRes = cc->getResourceAmount(); //trade only resources which are not reserved
-			for(auto it = ResourceSet::nziterator(freeRes); it.valid(); it++)
+			for(const auto & [res, amount] : freeRes)
 			{
-				auto res = it->resType;
-				if(res.getNum() == g.resID) //sell any other resource
+				if(amount == 0 || res.getNum() == g.resID) //sell any other resource
 					continue;
 
 				int toGive;
 				int toGet;
 				m->getOffer(res.getNum(), g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
-				toGive = static_cast<int>(toGive * (it->resVal / toGive)); //round down
+				toGive = static_cast<int>(toGive * (amount / toGive)); //round down
 				//TODO trade only as much as needed
 				if (toGive) //don't try to sell 0 resources
 				{
 					cc->trade(m->getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, res, GameResID(g.resID), toGive);
-					acquiredResources = static_cast<int>(toGet * (it->resVal / toGive));
+					acquiredResources = static_cast<int>(toGet * (amount / toGive));
 					logAi->debug("Traded %d of %s for %d of %s at %s", toGive, res, acquiredResources, g.resID, obj->getObjectNameTextID());
 				}
 				if (cc->getResourceAmount(GameResID(g.resID)))

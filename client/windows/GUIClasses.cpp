@@ -1518,14 +1518,14 @@ void CHillFortWindow::updateGarrisons()
 			{
 				//reverse iterator is used to display gold as first element
 				int j = 0;
-				for(int res = (int)costs[i].size()-1; (res >= 0) && (j < 2); res--)
+				for(auto it = std::make_reverse_iterator(costs[i].end()); it != std::make_reverse_iterator(costs[i].begin()) && j < 2; ++it)
 				{
-					int val = costs[i][res];
+					const auto & [res, val] = *it;
 					if(!val)
 						continue;
 
 					slotIcons[i][j]->visible = true;
-					slotIcons[i][j]->setFrame(res);
+					slotIcons[i][j]->setFrame(res.getNum());
 
 					slotLabels[i][j]->setText(std::to_string(val));
 					j++;

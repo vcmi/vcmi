@@ -138,8 +138,9 @@ static void upgradeAllCreatures(const CArmedInstance *obj, const UpgradableSlots
 	}
 
 	std::vector<std::shared_ptr<CComponent>> resComps;
-	for(TResources::nziterator i(upgradableSlots.totalCosts); i.valid(); i++)
-		resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
+	for(const auto & [resource, amount] : upgradableSlots.totalCosts)
+		if(amount != 0)
+			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, resource, amount));
 	// Free upgrades have no resource components, so only add a separator when costs are present.
 	if(!resComps.empty())
 		resComps.back()->newLine = true;
@@ -2468,9 +2469,10 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, newSpell));
 		resComps.back()->newLine = true;
-		for(TResources::nziterator i(cost); i.valid(); i++)
+		for(const auto & [resource, amount] : cost)
 		{
-			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal, CComponent::ESize::medium));
+			if(amount != 0)
+				resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, resource, amount, CComponent::ESize::medium));
 		}
 
 		MetaString text;

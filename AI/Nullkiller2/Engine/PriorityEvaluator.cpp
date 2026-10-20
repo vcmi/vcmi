@@ -465,10 +465,13 @@ float RewardEvaluator::getCombinedResourceRequirementStrength(const TResources &
 {
 	float sum = 0.0f;
 
-	for(TResources::nziterator it(res); it.valid(); it++)
+	for(const auto & [resource, amount] : res)
 	{
-		auto calculation = 0.5f * getNowResourceRequirementStrength(it->resType)
-			+ 0.5f * getTotalResourceRequirementStrength(it->resType);
+		if(amount == 0)
+			continue;
+
+		auto calculation = 0.5f * getNowResourceRequirementStrength(resource)
+			+ 0.5f * getTotalResourceRequirementStrength(resource);
 
 		// Even not required resources should be valuable because they shouldn't be left for the enemies to collect
 		sum += std::min(MINIMUM_STRATEGICAL_VALUE_NON_TOWN, calculation);

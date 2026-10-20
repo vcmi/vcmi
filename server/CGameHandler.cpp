@@ -3542,10 +3542,10 @@ void CGameHandler::informPlayerAboutSentResources(PlayerColor player, PlayerColo
 	iw.player = playerReceiver;
 	iw.text = MetaString::createFromTextID("core.genrltxt.358");
 	iw.text.replaceName(player);
-	for(auto it = ResourceSet::nziterator(resources); it.valid(); it++)
+	for(const auto & [resource, amount] : resources)
 	{
-		if(it->resVal > 0)
-			iw.components.emplace_back(ComponentType::RESOURCE, it->resType, it->resVal);
+		if(amount > 0)
+			iw.components.emplace_back(ComponentType::RESOURCE, resource, amount);
 	}
 	sendAndApply(iw);
 }

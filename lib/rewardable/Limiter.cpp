@@ -307,10 +307,10 @@ void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
 	for(const auto & entry : heroes)
 		comps.emplace_back(ComponentType::HERO_PORTRAIT, entry);
 	
-	for (size_t i=0; i<resources.size(); i++)
+	for(const auto & [resource, amount] : resources)
 	{
-		if (resources[i] !=0)
-			comps.emplace_back(ComponentType::RESOURCE, GameResID(i), resources[i]);
+		if(amount != 0)
+			comps.emplace_back(ComponentType::RESOURCE, resource, amount);
 	}
 }
 
