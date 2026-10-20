@@ -14,6 +14,7 @@
 #include "../../../lib/battle/BattleAction.h"
 #include "../../../lib/battle/CPlayerBattleCallback.h"
 #include "../../../lib/battle/actions/BattleActionType.h"
+#include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/battle/ReachabilityInfo.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 
@@ -111,4 +112,29 @@ TEST_F(HypnotizeTest, HypnotizedShooterPrefersShootingItsFormerAllies)
 
 	EXPECT_LT(shoot.type->getPriority(*battle(), shoot, *shooter, formerAlly), emptyHexPriority);
 	EXPECT_EQ(shoot.type->getPriority(*battle(), shoot, *shooter, controllerUnit), emptyHexPriority);
+}
+
+TEST_F(HypnotizeTest, HypnotizedAutomaticUnitAttacksItsFormerAllies)
+{
+	startGame();
+	startBattle();
+	CStack * automatic = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex), 10);
+	CStack * formerAlly = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 1), 10);
+	CStack * controllerUnit = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(rightHex - 1), 10);
+	automatic->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CPU_CONTROLLED, BonusSource::OTHER, 0, BonusSourceID()));
+	hypnotize(automatic);
+	// nothing else on the field, so that the only units next to it are the two candidates
+	for(const auto & stack : battle()->stacks)
+		if(stack.get() != automatic && stack.get() != formerAlly && stack.get() != controllerUnit)
+			injure(stack.get(), stack->getAvailableHealth());
+	blockRetaliation(formerAlly);
+	blockRetaliation(controllerUnit);
+	beginCombat();
+
+	const int64_t formerAllyHealth = formerAlly->getAvailableHealth();
+	const int64_t controllerUnitHealth = controllerUnit->getAvailableHealth();
+	endRound();
+
+	EXPECT_LT(formerAlly->getAvailableHealth(), formerAllyHealth);
+	EXPECT_EQ(controllerUnit->getAvailableHealth(), controllerUnitHealth);
 }

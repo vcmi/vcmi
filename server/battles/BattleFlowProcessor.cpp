@@ -335,7 +335,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCa
 	{
 		const TStacks possibleTargets = battle.battleGetStacksIf([&next, &battle](const CStack * s)
 		{
-			return s->unitOwner() != next->unitOwner() && s->isValidTarget() && battle.battleCanShoot(next, s->getPosition());
+			return battle.battleMatchOwner(next, s) && s->isValidTarget() && battle.battleCanShoot(next, s->getPosition());
 		});
 
 		struct TargetInfo
@@ -457,7 +457,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCal
 
 	const TStacks possibleTargets = battle.battleGetStacksIf([&actingStack, &battle](const CStack * s)
 	{
-		return s->unitOwner() != actingStack->unitOwner() && s->isValidTarget()
+		return battle.battleMatchOwner(actingStack, s) && s->isValidTarget()
 		&& (!battle.isEnemyUnitWithinSpecifiedRange(actingStack->position, s, actingStack->getMovementRange())
 		|| (battle.isEnemyUnitWithinSpecifiedRange(actingStack->position, s, actingStack->getMovementRange()) && !s->getAttackableHexes(actingStack).empty()));
 	});
