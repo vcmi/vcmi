@@ -117,7 +117,7 @@ public:
 	void makeClone(CStack * stack);
 	/// Executes a creature spell action; an invalid hex creates an empty target
 	bool castAsUnit(const CStack * caster, const SpellID & spellID, const BattleHex & targetHex = BattleHex());
-	/// Submits the action as the player of its side, making the stack it names the active one.
+	/// Submits the action as the player controlling its stack, or of its side, making the stack it names the active one.
 	bool act(const BattleAction & action);
 
 	/// Options the client offers for the unit, which becomes the active one
