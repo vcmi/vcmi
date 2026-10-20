@@ -30,11 +30,11 @@
 
 #include <algorithm>
 #include <cctype>
-#include <cstring>
 #include <limits>
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace
@@ -109,13 +109,12 @@ bool extractContentArchives(const QString & modPath, ModStateController::Archive
 	return true;
 }
 
-bool asciiEqualsNoCase(const std::string & value, const char * expected)
+bool asciiEqualsNoCase(std::string_view value, std::string_view expected)
 {
-	const size_t size = std::strlen(expected);
-	if(value.size() != size)
+	if(value.size() != expected.size())
 		return false;
 
-	for(size_t index = 0; index < size; ++index)
+	for(size_t index = 0; index < value.size(); ++index)
 	{
 		if(std::tolower(static_cast<unsigned char>(value[index])) != std::tolower(static_cast<unsigned char>(expected[index])))
 			return false;
@@ -123,20 +122,18 @@ bool asciiEqualsNoCase(const std::string & value, const char * expected)
 	return true;
 }
 
-bool asciiEndsWithNoCase(const std::string & value, const char * suffix)
+bool asciiEndsWithNoCase(std::string_view value, std::string_view suffix)
 {
-	const size_t size = std::strlen(suffix);
-	if(value.size() < size)
+	if(value.size() < suffix.size())
 		return false;
-	return asciiEqualsNoCase(value.substr(value.size() - size), suffix);
+	return asciiEqualsNoCase(value.substr(value.size() - suffix.size()), suffix);
 }
 
-bool asciiStartsWithNoCase(const std::string & value, const char * prefix)
+bool asciiStartsWithNoCase(std::string_view value, std::string_view prefix)
 {
-	const size_t size = std::strlen(prefix);
-	if(value.size() < size)
+	if(value.size() < prefix.size())
 		return false;
-	return asciiEqualsNoCase(value.substr(0, size), prefix);
+	return asciiEqualsNoCase(value.substr(0, prefix.size()), prefix);
 }
 
 std::string normalizeZipName(const std::string & name)
