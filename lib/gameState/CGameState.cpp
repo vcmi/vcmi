@@ -466,7 +466,6 @@ void CGameState::initGlobalBonuses()
 		bonus->sid = BonusSourceID(); //there is one global object
 		globalEffects.addNewBonus(bonus);
 	}
-	LIBRARY->creh->loadCrExpBon(globalEffects);
 }
 
 void CGameState::initDifficulty()
