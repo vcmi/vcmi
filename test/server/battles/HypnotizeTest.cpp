@@ -260,3 +260,18 @@ TEST_F(HypnotizeTest, OwnerCanNotSacrificeItsHypnotizedUnit)
 	EXPECT_FALSE(sacrifice(hypnotized));
 	EXPECT_TRUE(sacrifice(victim));
 }
+
+TEST_F(HypnotizeTest, HypnotizedEnchanterIgnoresCooldownOfItsOwner)
+{
+	startGame();
+	startBattle();
+	CStack * enchanter = addStack(BattleSide::DEFENDER, creatureByName("core:enchanter"), BattleHex(rightHex), 10);
+	addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(leftHex), 10);
+	hypnotize(enchanter);
+	battle()->getSide(BattleSide::DEFENDER).enchanterCounter = 3;
+	beginCombat();
+
+	endRound();
+
+	EXPECT_GT(battle()->getSide(BattleSide::ATTACKER).enchanterCounter, 0) << "the enchanter cast for its controller, starting the controller's cooldown";
+}

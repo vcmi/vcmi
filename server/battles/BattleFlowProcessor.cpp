@@ -790,7 +790,8 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			return b->subtype.as<SpellID>() == SpellID::NONE;
 		});
 
-		BattleSide side = battle.playerToSide(st->unitOwner());
+		// a hypnotized enchanter does not wait for the cooldown of its owner
+		BattleSide side = st->controllingSide();
 		if(st->canCast())
 		{
 			bool cast = false;
