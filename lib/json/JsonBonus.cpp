@@ -661,6 +661,19 @@ static std::shared_ptr<const ILimiter> parseCreatureLevelLimiter(const JsonNode 
 	return levelLimiter;
 }
 
+static std::shared_ptr<const ILimiter> parseExperienceRankLimiter(const JsonNode & limiter)
+{
+	auto rankLimiter = std::make_shared<RankRangeLimiter>(0);
+
+	if (!limiter["minRank"].isNull())
+		rankLimiter->minRank = limiter["minRank"].Integer();
+
+	if (!limiter["maxRank"].isNull())
+		rankLimiter->maxRank = limiter["maxRank"].Integer();
+
+	return rankLimiter;
+}
+
 static std::shared_ptr<const ILimiter> parseTerrainLimiter(const JsonNode & limiter)
 {
 	const JsonNode & parameters = limiter["parameters"];
@@ -724,6 +737,7 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 		{"FACTION_LIMITER",            parseFactionLimiter          },
 		{"CREATURE_FACTION_LIMITER",   parseFactionLimiter          },
 		{"CREATURE_LEVEL_LIMITER",     parseCreatureLevelLimiter    },
+		{"EXPERIENCE_RANK_LIMITER",    parseExperienceRankLimiter   },
 		{"TERRAIN_LIMITER",            parseTerrainLimiter          },
 		{"CREATURE_TERRAIN_LIMITER",   parseTerrainLimiter          },
 		{"UNIT_ON_HEXES",              parseUnitOnHexLimiter        },

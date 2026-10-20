@@ -68,12 +68,13 @@ enum class ESerializationVersion : int32_t
 	SAVE_CHUNKS, // saved game is stored as compressed chunks: metadata, map header, game state
 	GARRISON_DIALOG_REMOVABLE_UNITS_REMOVED, // GarrisonDialog pack no longer carries removableUnits, the client checks CArmedInstance::isLocked
 	MAP_EVENT_DISABLED, // map events can be disabled by map scripts
+	RANK_LIMITER_INCLUSIVE_MIN, // RankRangeLimiter accepts stacks of its minimal rank
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = MAP_EVENT_DISABLED,
+	CURRENT = RANK_LIMITER_INCLUSIVE_MIN,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

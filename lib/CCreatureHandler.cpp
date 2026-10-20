@@ -897,10 +897,9 @@ struct StackExperienceRange
 
 	std::shared_ptr<RankRangeLimiter> limiter() const
 	{
-		// limiter excludes both of its bounds
 		if (openEnded)
-			return std::make_shared<RankRangeLimiter>(firstRank - 1);
-		return std::make_shared<RankRangeLimiter>(firstRank - 1, lastRank + 1);
+			return std::make_shared<RankRangeLimiter>(firstRank);
+		return std::make_shared<RankRangeLimiter>(firstRank, lastRank + 1);
 	}
 };
 
@@ -932,9 +931,8 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 		const JsonNode & exp = input.Vector()[entryIndex];
 		const std::string descriptionID = creature->getBonusTextID("stackExperience" + std::to_string(entryIndex));
 		const JsonVector &values = exp["values"].Vector();
-		// RankRangeLimiter uses strict bounds (rank > minRank), so level 1 bonus
-		// must start from 0 to map values[0] -> rank 1 and values[9] -> rank 10.
-		int lowerLimit = 0;//, upperLimit = 255;
+		// values[0] is the value for rank 1
+		int lowerLimit = 1;
 		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
 		{
 			for (const JsonNode &val : values)

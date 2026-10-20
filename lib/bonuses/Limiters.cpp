@@ -483,12 +483,24 @@ ILimiter::EDecision RankRangeLimiter::limit(const BonusLimitationContext &contex
 	{
 		if (csi->getNodeType() == BonusNodeType::COMMANDER) //no stack exp bonuses for commander creatures
 			return ILimiter::EDecision::DISCARD;
-		if (csi->getExpRank() > minRank && csi->getExpRank() < maxRank)
+		if (csi->getExpRank() >= minRank && csi->getExpRank() < maxRank)
 			return ILimiter::EDecision::ACCEPT;
 
 		return ILimiter::EDecision::DISCARD;
 	}
 	return ILimiter::EDecision::NOT_APPLICABLE;
+}
+
+JsonNode RankRangeLimiter::toJsonNode() const
+{
+	JsonNode root;
+
+	root["type"].String() = "EXPERIENCE_RANK_LIMITER";
+	root["minRank"].Integer() = minRank;
+	if(maxRank != std::numeric_limits<ui8>::max())
+		root["maxRank"].Integer() = maxRank;
+
+	return root;
 }
 
 OppositeSideLimiter::OppositeSideLimiter()
