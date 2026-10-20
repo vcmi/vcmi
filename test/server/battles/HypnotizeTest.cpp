@@ -13,6 +13,7 @@
 
 #include "../../../lib/battle/BattleAction.h"
 #include "../../../lib/battle/CPlayerBattleCallback.h"
+#include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/battle/ReachabilityInfo.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 
@@ -93,4 +94,21 @@ TEST_F(HypnotizeTest, HypnotizedShooterIsBlockedByItsFormerAllies)
 
 	addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex - 1), 10);
 	EXPECT_TRUE(battle()->battleIsUnitBlocked(shooter));
+}
+
+TEST_F(HypnotizeTest, HypnotizedShooterPrefersShootingItsFormerAllies)
+{
+	startGame();
+	startBattle();
+	CStack * shooter = addStack(BattleSide::DEFENDER, creatureByName("core:woodElf"), BattleHex(rightHex), 10);
+	CStack * formerAlly = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex + 3), 10);
+	CStack * controllerUnit = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(leftHex - 3), 10);
+	hypnotize(shooter);
+	beginCombat();
+
+	const ActionOption shoot = optionOf(shooter, EActionType::SHOOT);
+	const int emptyHexPriority = shoot.type->getPriority(*battle(), shoot, *shooter, nullptr);
+
+	EXPECT_LT(shoot.type->getPriority(*battle(), shoot, *shooter, formerAlly), emptyHexPriority);
+	EXPECT_EQ(shoot.type->getPriority(*battle(), shoot, *shooter, controllerUnit), emptyHexPriority);
 }
