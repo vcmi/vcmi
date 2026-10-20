@@ -303,7 +303,8 @@ ReachabilityInfo getReachabilityWithEnemyBypass(
 	{
 		for(const auto * unit : state->battleAliveUnits())
 		{
-			if(unit->unitSide() == activeStack->unitSide())
+			// a hypnotized active stack fights units of its own side
+			if(!state->battleMatchOwner(activeStack, unit))
 				continue;
 
 			auto dmg = damageCache.getOriginalDamage(activeStack, unit, state);
@@ -372,7 +373,7 @@ MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 		{
 			if (ally == activeStack) 
 				continue;
-			if (ally->unitSide() != activeStack->unitSide()) 
+			if (hb->battleMatchOwner(activeStack, ally))
 				continue;
 
 			float allyDistance = dists.distToNearestNeighbour(ally, enemy);
