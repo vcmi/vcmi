@@ -138,3 +138,19 @@ TEST_F(HypnotizeTest, HypnotizedAutomaticUnitAttacksItsFormerAllies)
 	EXPECT_LT(formerAlly->getAvailableHealth(), formerAllyHealth);
 	EXPECT_EQ(controllerUnit->getAvailableHealth(), controllerUnitHealth);
 }
+
+TEST_F(HypnotizeTest, HypnotizedFamiliarChannelsManaToItsController)
+{
+	startGame();
+	startBattle();
+	CStack * familiar = addStack(BattleSide::DEFENDER, creatureByName("core:familiar"), BattleHex(rightHex), 10);
+	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("core:pikeman"), BattleHex(rightHex + 2), 10);
+	hypnotize(familiar);
+	teachSpell(defenderSideHero, SpellID::BLESS);
+	attackerSideHero->mana = 0;
+	beginCombat();
+
+	ASSERT_TRUE(castAsHero(defenderSideHero, SpellID::BLESS, target));
+
+	EXPECT_GT(attackerSideHero->mana, 0) << "the familiar now serves the attacker, who gains mana from the defender's spell";
+}
