@@ -47,6 +47,8 @@ public:
 	static const CGTownInstance * getDefendedTown(const IBattleInfoCallback & object);
 	static bool isToReverse(const IBattleInfoCallback & object, const battle::Unit & attacker, const battle::Unit & defender, std::optional<BattleHex> attackerHex, std::optional<BattleHex> defenderHex);
 	static const battle::Unit * getUnitByPos(const IBattleInfoCallback & object, BattleHex hex, bool onlyAlive);
+	static PlayerColor getUnitController(const IBattleInfoCallback & object, const battle::Unit & unit);
+	static bool isHostile(const IBattleInfoCallback & object, const battle::Unit & actor, const battle::Unit & target);
 	static std::vector<std::shared_ptr<const CObstacleInstance>> getAllObstacles(const IBattleInfoCallback & object);
 	static std::vector<std::shared_ptr<const CObstacleInstance>> getObstaclesOnPos(const IBattleInfoCallback & object, BattleHex hex, bool onlyBlocking);
 	static bool hasFortifications(const IBattleInfoCallback & object);
