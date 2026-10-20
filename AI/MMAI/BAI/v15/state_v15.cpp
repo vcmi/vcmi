@@ -1373,6 +1373,9 @@ namespace
 				if(CheckMoatfixTrigger(G, unit, hex, battle, isWideMoat))
 					continue;
 
+				// NOTE: similarly to the moat, MMAI does not know the dmg of the arrow towers
+				// I can't think of any runtime fix, will have to address it in the next MMAI version.
+
 				auto stackhexes = std::vector<HexPtr>{};
 				for(const auto & stackbhex : stack.getHexes(hex->bhex))
 					if(stackbhex.isAvailable())
@@ -1705,36 +1708,52 @@ namespace
 				continue;
 
 			const auto & hex = action->endsAt.at(0);
+			const auto & adjacentHexes = unit->cstack.getSurroundingHexes(hex->bhex);
 
-			auto willBeBlocked = [&G, &unit, &hex]()
+			// unit ids of enemies that would be adjacent to the unit after the move
+			auto adjacentEnemies = std::unordered_set<const N::Unit *>{};
+
+			for(const auto & adjbhex : adjacentHexes)
 			{
-				for(const auto & adjbhex : unit->cstack.getSurroundingHexes(hex->bhex))
-				{
-					if(!adjbhex.isAvailable())
-						continue;
+				if(!adjbhex.isAvailable())
+					continue;
 
-					const auto & adjhex = G.getByExtraIndex<N::Hex>(adjbhex.toInt());
-					const auto & ounit = G.getOneEdgeSrcByDst<E::Unit_Occupies_Hex>(adjhex, false);
+				const auto & adjhex = G.getByExtraIndex<N::Hex>(adjbhex.toInt());
+				const auto & ounit = G.getOneEdgeSrcByDst<E::Unit_Occupies_Hex>(adjhex, false);
 
-					if(!ounit)
-						continue;
+				if(!ounit)
+					continue;
 
-					// Some units (e.g. war machines) have no melee dmg edges to enemies
-					// but can still block them from shooting
-					// => check the reverse melee dmg edge as well
-					if(G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(ounit, unit, false) || G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(unit, ounit, false))
-						return true;
-				}
+				// Some units (e.g. war machines) have no melee dmg edges to enemies
+				// but can still block them from shooting
+				// => check the reverse melee dmg edge as well
+				if(G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(ounit, unit, false) || G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(unit, ounit, false))
+					adjacentEnemies.emplace(ounit.get());
+			}
 
-				return false;
-			};
+			bool canShootBlocked = stack.canShootBlocked() || unit->attr(N::Unit::A::IS_WAR_MACHINE);
 
-			if(!stack.canShootBlocked() && willBeBlocked())
+			if(adjacentEnemies.size() && !canShootBlocked)
 				continue;
+
+			// Similar to CBattleInfoCallback::canShootAdjacentUnits, but includes war machines and uses bonus caching strings.
+			static const auto type = BonusType::FREE_SHOOTING;
+			static const auto subtype = BonusCustomSubtype::freeShootingExceptAdjacent;
+			static const auto restricted = Selector::typeSubtype(type, subtype);
+			static const auto unrestricted = Selector::type()(type).And(restricted.Not());
+			static const auto restrictedCache = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype.getNum());
+			static const auto unrestrictedCache = "type_" + std::to_string(static_cast<int>(type)) + "_not_" + std::to_string(subtype.getNum());
+			const auto canShootAdjacent =
+				unit->attr(N::Unit::A::IS_WAR_MACHINE) || !stack.hasBonus(restricted, restrictedCache) || stack.hasBonus(unrestricted, unrestrictedCache);
 
 			for(const auto & ounit : G.getAllEdgesDstBySrc<E::Unit_ShootDmg_Unit>(unit))
 			{
 				const auto & ostack = ounit->cstack;
+
+				// Some units (e.g. hota steel elf) can NOT shoot at adjacent enemies
+				if(adjacentEnemies.contains(ounit.get()) && !canShootAdjacent)
+					continue;
+
 				float mult = CalcShootDmgMult(battle, stack, hex->bhex, ostack.getHexes());
 				G.add(E::Unit_BecomesShootTargetAfter_Action::Create(ounit, action, mult));
 			}
@@ -1746,6 +1765,9 @@ namespace
 
 			for(const auto & ohex : G.getAll<N::Hex>())
 			{
+				if(adjacentHexes.contains(ohex->bhex) && !canShootAdjacent)
+					continue;
+
 				float mult = CalcShootDmgMult(battle, stack, hex->bhex, {ohex->bhex});
 				G.add(E::Hex_BecomesShootTargetAfter_Action::Create(ohex, action, mult));
 			}
