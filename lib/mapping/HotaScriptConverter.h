@@ -74,8 +74,19 @@ private:
 	std::string luaString(const std::string & value) const;
 	std::string bucketName(int eventType) const;
 
-	std::string loadImage(); ///< single Lua Component table, empty for images the engine cannot show
-	std::string loadImageList(int count); ///< Lua array of Component tables
+	/// Engine component an image converts to, as Lua table fields, and how its amount is shown
+	struct ImageInfo
+	{
+		std::string component; ///< empty for images the engine cannot show
+		int sign = 1; ///< HotA stores some amounts as two kinds (gain/loss), others carry the sign in the subtype
+		std::optional<int> valueOverride; ///< value taken from the subtype instead of the amount
+		bool hasValue = true;
+	};
+
+	ImageInfo loadMessageImage(int kind);
+	ImageInfo loadQuestHintImage(int kind);
+	std::string loadImage(bool questHint); ///< single Lua Component table, empty for images the engine cannot show
+	std::string loadImageList(int count, bool questHint); ///< Lua array of Component tables
 	void skipImageList(int count);
 	std::string localizedText(const std::string & role); ///< reads a text field, returns a Lua MetaString table holding its identifier
 

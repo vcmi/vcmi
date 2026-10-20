@@ -292,8 +292,8 @@ end
 
 -- Updates a scripted quest's quest-log / hover hint text, optionally adding it to the player's
 -- quest log (HotA's SET_QUEST_HINT action).
-local function setQuestHint(server, player, object, text, showInLog)
-	server:setQuestHint(object, text)
+local function setQuestHint(server, player, object, text, components, showInLog)
+	server:setQuestHint(object, text, components)
 	if showInLog then server:addToQuestLog(object, player) end
 end
 
@@ -458,82 +458,76 @@ std::string HotaScriptConverter::localizedText(const std::string & role)
 	return "{append = {\"" + localizeString(identifier) + "\"}}";
 }
 
-/// One image of a message or question. HotA kinds do not match engine component types,
-/// and the meaning of the subtype depends on the kind.
-std::string HotaScriptConverter::loadImage()
+/// Invalid identifiers were already reported by the reader, such image is dropped
+template<typename IdentifierType>
+static std::string componentFields(const std::string & type, const IdentifierType & subType)
 {
-	int kind = reader.readInt32();
+	if(subType.getNum() < 0)
+		return {};
+	return "type = ENUM.ComponentType." + type + ", subType = " + num(subType.getNum());
+}
 
-	std::string component;
-	// HotA stores some of these as two kinds (gain/loss), others carry the sign in the subtype
-	int sign = 1;
-	std::optional<int> valueOverride;
-	bool hasValue = true;
-
-	// invalid identifiers were already reported by the reader, such image is dropped
-	auto entry = [](const std::string & type, const auto & subType) -> std::string
-	{
-		if(subType.getNum() < 0)
-			return {};
-		return "type = ENUM.ComponentType." + type + ", subType = " + num(subType.getNum());
-	};
-
+/// Image of a message or question. HotA kinds do not match engine component types,
+/// and the meaning of the subtype depends on the kind.
+HotaScriptConverter::ImageInfo HotaScriptConverter::loadMessageImage(int kind)
+{
+	ImageInfo image;
 	switch(kind)
 	{
 		case 0: // resource gain
 		case 13: // resource loss
 		case 18: // resource, no amount shown
-			component = entry("resource", reader.readGameResID32());
-			sign = kind == 13 ? -1 : 1;
-			hasValue = kind != 18;
+			image.component = componentFields("resource", reader.readGameResID32());
+			image.sign = kind == 13 ? -1 : 1;
+			image.hasValue = kind != 18;
 			break;
 		case 14:
-			component = entry("resourcePerDay", reader.readGameResID32());
+			image.component = componentFields("resourcePerDay", reader.readGameResID32());
 			break;
 		case 1:
-			component = entry("artifact", reader.readArtifact32());
-			hasValue = false;
+			image.component = componentFields("artifact", reader.readArtifact32());
+			image.hasValue = false;
 			break;
 		case 2:
-			component = entry("spell", reader.readSpell32());
-			hasValue = false;
+			image.component = componentFields("spell", reader.readSpell32());
+			image.hasValue = false;
 			break;
 		case 3:
 		{
 			PlayerColor player = reader.readPlayer32();
 			if(player.isValidPlayer())
-				component = "type = ENUM.ComponentType.flag, subType = " + playerRef(player);
-			hasValue = false;
+				image.component = "type = ENUM.ComponentType.flag, subType = " + playerRef(player);
+			image.hasValue = false;
 			break;
 		}
 		case 4: // luck and morale keep their value in the subtype
 		case 5:
-			valueOverride = reader.readInt32();
-			component = std::string("type = ENUM.ComponentType.") + (kind == 4 ? "luck" : "morale");
+			image.valueOverride = reader.readInt32();
+			image.component = std::string("type = ENUM.ComponentType.") + (kind == 4 ? "luck" : "morale");
 			break;
 		case 6:
 			reader.readInt32();
-			component = "type = ENUM.ComponentType.experience";
+			image.component = "type = ENUM.ComponentType.experience";
 			break;
 		case 7: // amount is the mastery level
-			component = entry("secondarySkill", reader.readSkill32());
+			image.component = componentFields("secondarySkill", reader.readSkill32());
 			break;
 		case 8: // with count
 		case 17: // without count
-			component = entry("creature", reader.readCreature32());
-			hasValue = kind == 8;
+			image.component = componentFields("creature", reader.readCreature32());
+			image.hasValue = kind == 8;
 			break;
 		case 9:
 		case 19:
-			component = entry("primarySkill", reader.readPrimary32());
+			image.component = componentFields("primarySkill", reader.readPrimary32());
 			break;
 		case 10:
-			sign = reader.readInt32() < 0 ? -1 : 1;
-			component = "type = ENUM.ComponentType.mana";
+			image.sign = reader.readInt32() < 0 ? -1 : 1;
+			image.component = "type = ENUM.ComponentType.mana";
 			break;
 		case 15:
-			component = entry("spellScroll", reader.readSpell32());
-			hasValue = false;
+			image.component = componentFields("spellScroll", reader.readSpell32());
+			image.hasValue = false;
 			break;
 		default:
 			if(kind >= 1000) // town building, kind is offset faction
@@ -541,8 +535,8 @@ std::string HotaScriptConverter::loadImage()
 				FactionID faction = reader.toFaction(kind - 1000);
 				BuildingID building = reader.readBuilding32(faction);
 				if(faction.getNum() >= 0 && building.getNum() >= 0)
-					component = entry("building", building) + ", faction = " + num(faction.getNum());
-				hasValue = false;
+					image.component = componentFields("building", building) + ", faction = " + num(faction.getNum());
+				image.hasValue = false;
 			}
 			else
 			{
@@ -554,31 +548,90 @@ std::string HotaScriptConverter::loadImage()
 			break;
 	}
 
+	return image;
+}
+
+/// Image of a quest hint, which numbers its kinds after the quest missions rather than message images
+HotaScriptConverter::ImageInfo HotaScriptConverter::loadQuestHintImage(int kind)
+{
+	ImageInfo image;
+
+	switch(kind)
+	{
+		case 0:
+			image.component = componentFields("artifact", reader.readArtifact32());
+			image.hasValue = false;
+			break;
+		case 1:
+			image.component = componentFields("spell", reader.readSpell32());
+			image.hasValue = false;
+			break;
+		case 2: // amount is the creature count
+			image.component = componentFields("creature", reader.readCreature32());
+			break;
+		case 3:
+			image.component = componentFields("resource", reader.readGameResID32());
+			break;
+		case 5: // amount is the mastery level
+			image.component = componentFields("secondarySkill", reader.readSkill32());
+			break;
+		case 6: // amount is the hero level, shown the way level missions of seer huts are
+			reader.readInt32();
+			image.component = "type = ENUM.ComponentType.experience";
+			break;
+		case 7:
+		{
+			PlayerColor player = reader.readPlayer32();
+			if(player.isValidPlayer())
+				image.component = "type = ENUM.ComponentType.flag, subType = " + playerRef(player);
+			image.hasValue = false;
+			break;
+		}
+		case 8:
+			image.component = componentFields("heroPortrait", reader.readHero32());
+			image.hasValue = false;
+			break;
+		default:
+			// TODO: kinds 9 and 10 are a hero and a monster to defeat, named by map object identifier;
+			// kind 4 was not seen in any map so far
+			reader.readInt32();
+			if(kind != 9 && kind != 10)
+				logGlobal->warn("Map '%s', %s id %d: unknown quest hint image kind %d", mapName, currentBucket, currentEventID, kind);
+			break;
+	}
+	return image;
+}
+
+std::string HotaScriptConverter::loadImage(bool questHint)
+{
+	const int kind = reader.readInt32();
+	const ImageInfo image = questHint ? loadQuestHintImage(kind) : loadMessageImage(kind);
+
 	bool isVariable = reader.readBool();
 	int value = reader.readInt32();
 
-	if(component.empty())
+	if(image.component.empty())
 		return {};
 
-	if(valueOverride)
-		return "{" + component + ", value = " + num(*valueOverride) + "}";
+	if(image.valueOverride)
+		return "{" + image.component + ", value = " + num(*image.valueOverride) + "}";
 
-	if(!hasValue)
-		return "{" + component + "}";
+	if(!image.hasValue)
+		return "{" + image.component + "}";
 
 	if(!isVariable)
-		return "{" + component + ", value = " + num(sign * static_cast<int64_t>(value)) + "}";
+		return "{" + image.component + ", value = " + num(image.sign * static_cast<int64_t>(value)) + "}";
 
 	std::string variable = "game:getMapVariable(" + varRef(value) + ")";
-	return "{" + component + ", value = " + (sign < 0 ? "-" + variable : variable) + "}";
+	return "{" + image.component + ", value = " + (image.sign < 0 ? "-" + variable : variable) + "}";
 }
 
-std::string HotaScriptConverter::loadImageList(int count)
+std::string HotaScriptConverter::loadImageList(int count, bool questHint)
 {
 	std::string result;
 	for(int i = 0; i < count; ++i)
 	{
-		std::string image = loadImage();
+		std::string image = loadImage(questHint);
 		if(image.empty())
 			continue;
 		if(!result.empty())
@@ -614,7 +667,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 			{
 				std::string text = localizedText("message");
 				int numberOfImages = reader.readInt32();
-				result += pad + "server:showMessage(player, " + text + ", " + loadImageList(numberOfImages) + ")\n";
+				result += pad + "server:showMessage(player, " + text + ", " + loadImageList(numberOfImages, false) + ")\n";
 				break;
 			}
 			case HotaScriptActions::SHOW_REWARDS_MESSAGE:
@@ -702,10 +755,9 @@ std::string HotaScriptConverter::loadActions(int indent)
 			{
 				std::string text = localizedText("questHint");
 				int numberOfImages = reader.readInt32();
-				// TODO: quest-log hints have no engine-side images; their kinds also differ from message images
-				skipImageList(numberOfImages);
+				std::string components = loadImageList(numberOfImages, true);
 				bool showInLog = reader.readBool();
-				result += pad + "setQuestHint(server, player, " + bucketTraits(currentBucket).subject + ", " + text + ", " + boolStr(showInLog) + ")\n";
+				result += pad + "setQuestHint(server, player, " + bucketTraits(currentBucket).subject + ", " + text + ", " + components + ", " + boolStr(showInLog) + ")\n";
 				break;
 			}
 			case HotaScriptActions::SHOW_QUESTION:
@@ -723,7 +775,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 				int numberOfImages = 2;
 				if(mode == 0 || mode == 3)
 					numberOfImages = reader.readInt32();
-				std::string components = loadImageList(numberOfImages);
+				std::string components = loadImageList(numberOfImages, false);
 
 				if(mode == 1 || mode == 2)
 				{
