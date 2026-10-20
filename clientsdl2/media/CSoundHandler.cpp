@@ -328,7 +328,14 @@ void CSoundHandler::soundFinishedCallback(int channel)
 {
 	std::scoped_lock lockGuard(mutexCallbacks);
 
-	uncachedPlayingChunks.erase(channel);
+	// SDL_mixer still reads the chunk after this callback returns, so it is freed later on the main thread
+	auto chunk = uncachedPlayingChunks.find(channel);
+	if(chunk != uncachedPlayingChunks.end())
+	{
+		std::shared_ptr<Mix_Chunk> finishedChunk = std::move(chunk->second);
+		uncachedPlayingChunks.erase(chunk);
+		ENGINE->dispatchMainThread([finishedChunk](){});
+	}
 
 	if(callbacks.count(channel) == 0)
 		return;
