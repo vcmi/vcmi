@@ -11,6 +11,8 @@
 
 #include "BattleTestFixture.h"
 
+#include "../../../lib/battle/CPlayerBattleCallback.h"
+#include "../../../lib/battle/ReachabilityInfo.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 
 /// A hypnotized unit keeps its owner and side, but is controlled by the opposing player and fights
@@ -45,4 +47,20 @@ TEST_F(HypnotizeTest, SummonDoesNotReinforceOwnHypnotizedElementals)
 	ASSERT_TRUE(castAsHero(attackerSideHero, summon, battle::Target{}));
 
 	EXPECT_EQ(summoned(CreatureID::AIR_ELEMENTAL).size(), 2) << "elementals controlled by the enemy must not be reinforced";
+}
+
+TEST_F(HypnotizeTest, ControllerCanComputeReachabilityOfHypnotizedUnit)
+{
+	startGame();
+	startBattle();
+	CStack * hypnotized = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), 10);
+	addQuicksand(BattleHex(rightHex + 1));
+	hypnotize(hypnotized);
+	beginCombat();
+
+	// the player that controls the unit sees the battle from its own side, which knows nothing of the defender's quicksand
+	CPlayerBattleCallback controller(battle(), battle()->sideToPlayer(BattleSide::ATTACKER));
+	ReachabilityInfo reachability;
+	ASSERT_NO_THROW(reachability = controller.getReachability(ReachabilityInfo::Parameters(hypnotized, hypnotized->getPosition())));
+	EXPECT_TRUE(reachability.isReachable(BattleHex(rightHex + 2)));
 }

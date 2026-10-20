@@ -1631,20 +1631,20 @@ bool CBattleInfoCallback::isInTacticRange(const BattleHex & dest) const
 
 ReachabilityInfo CBattleInfoCallback::getReachability(const battle::Unit * unit) const
 {
-	ReachabilityInfo::Parameters params(unit, unit->getPosition());
-
-	if(!battleDoWeKnowAbout(unit->unitSide()))
-	{
-		//Stack is held by enemy, we can't use his perspective to check for reachability.
-		// Happens ie. when hovering enemy stack for its range. The arg could be set properly, but it's easier to fix it here.
-		params.perspective = battleGetMySide();
-	}
-
-	return getReachability(params);
+	return getReachability(ReachabilityInfo::Parameters(unit, unit->getPosition()));
 }
 
 ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Parameters & params) const
 {
+	if(params.perspective != BattleSide::ALL_KNOWING && !battleDoWeKnowAbout(params.perspective))
+	{
+		// we can't see what the unit's side knows, e.g. hidden obstacles, when it is an enemy unit
+		// or a unit that its side lost to Hypnotize, so our own knowledge is used instead
+		ReachabilityInfo::Parameters ownParams = params;
+		ownParams.perspective = battleGetMySide();
+		return getReachability(ownParams);
+	}
+
 	if(params.flying)
 		return getFlyingReachability(params);
 	else
