@@ -392,18 +392,38 @@ void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & 
 		const Point start = transformPos(from);
 		const Point end = transformPos(dest);
 
+		// same as the surface path: a line is getScalingFactor() pixels thick, offset across its major axis
+		const bool horizontal = std::abs(end.x - start.x) > std::abs(end.y - start.y);
+
+		// segments share their end points, which a translucent line would blend twice
+		if(colorFrom.r == colorDest.r && colorFrom.g == colorDest.g && colorFrom.b == colorDest.b && colorFrom.a == colorDest.a)
+		{
+			SDL_SetRenderDrawColor(renderer, colorFrom.r, colorFrom.g, colorFrom.b, colorFrom.a);
+			for(int thickness = 0; thickness < getScalingFactor(); ++thickness)
+			{
+				const Point offset = horizontal ? Point(0, thickness) : Point(thickness, 0);
+				SDL_RenderLine(renderer, start.x + offset.x, start.y + offset.y, end.x + offset.x, end.y + offset.y);
+			}
+			return;
+		}
+
 		// SDL draws a line in a single color, so approximate the gradient with segments -
 		// these are hairlines, so the banding is not visible
 		static constexpr int segments = 16;
-		for(int i = 0; i < segments; ++i)
+		for(int thickness = 0; thickness < getScalingFactor(); ++thickness)
 		{
-			const auto blend = [i](uint8_t a, uint8_t b){ return static_cast<uint8_t>(a + (b - a) * i / (segments - 1)); };
+			const Point offset = horizontal ? Point(0, thickness) : Point(thickness, 0);
 
-			Point segmentFrom = start + (end - start) * i / segments;
-			Point segmentTo = start + (end - start) * (i + 1) / segments;
+			for(int i = 0; i < segments; ++i)
+			{
+				const auto blend = [i](uint8_t a, uint8_t b){ return static_cast<uint8_t>(a + (b - a) * i / (segments - 1)); };
 
-			SDL_SetRenderDrawColor(renderer, blend(colorFrom.r, colorDest.r), blend(colorFrom.g, colorDest.g), blend(colorFrom.b, colorDest.b), blend(colorFrom.a, colorDest.a));
-			SDL_RenderLine(renderer, segmentFrom.x, segmentFrom.y, segmentTo.x, segmentTo.y);
+				Point segmentFrom = start + offset + (end - start) * i / segments;
+				Point segmentTo = start + offset + (end - start) * (i + 1) / segments;
+
+				SDL_SetRenderDrawColor(renderer, blend(colorFrom.r, colorDest.r), blend(colorFrom.g, colorDest.g), blend(colorFrom.b, colorDest.b), blend(colorFrom.a, colorDest.a));
+				SDL_RenderLine(renderer, segmentFrom.x, segmentFrom.y, segmentTo.x, segmentTo.y);
+			}
 		}
 		return;
 	}
