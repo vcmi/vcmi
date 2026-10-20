@@ -529,6 +529,11 @@ void BattleTestFixture::forceMaximumDamage(CStack * stack)
 	stack->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ALWAYS_MAXIMUM_DAMAGE, BonusSource::OTHER, 0, BonusSourceID()));
 }
 
+void BattleTestFixture::hypnotize(CStack * stack)
+{
+	stack->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::OTHER, 0, BonusSourceID()));
+}
+
 static std::optional<si32> identifierByName(const std::string & category, const std::string & name)
 {
 	auto identifier = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), category, name);
