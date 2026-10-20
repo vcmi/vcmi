@@ -1422,6 +1422,46 @@ void CModListView::installSaves(QStringList saves)
 		QMessageBox::information(this, tr("Success"), tr("Imported %1 save files").arg(importedCount));
 }
 
+CModListView::ArchiveImportOutcome CModListView::importArchive(const QString & archive, const QString & hint,
+	ModStateController::ArchiveImportProgress & progress, const QStringList & protectedMods, bool fullModExtraction)
+{
+	ArchiveImportOutcome outcome;
+	QString sourcePath = archive;
+	QFile sourceFile(sourcePath);
+	const bool needsCopy = archive.startsWith("content://", Qt::CaseInsensitive) || !sourceFile.open(QIODevice::ReadOnly);
+	sourceFile.close();
+
+	if(needsCopy)
+	{
+		const QString tempPath = CLauncherDirs::downloadsPath() + "/.vcmi-import-"
+			+ QUuid::createUuid().toString(QUuid::WithoutBraces) + ".zip";
+		if(Helper::performNativeCopy(archive, tempPath))
+		{
+			sourcePath = tempPath;
+			outcome.temporarySource = true;
+		}
+		else
+		{
+			outcome.result.errors.push_back(QCoreApplication::translate("CModListView", "Failed to prepare %1 for import").arg(archive));
+		}
+	}
+
+	outcome.sourcePath = sourcePath;
+	if(outcome.result.errors.isEmpty())
+	{
+		try
+		{
+			outcome.result = ModStateController::installArchive(sourcePath, hint, fullModExtraction, protectedMods, progress);
+		}
+		catch(const std::exception & exception)
+		{
+			outcome.result.errors.push_back(QCoreApplication::translate("CModListView", "Failed to import %1: %2")
+				.arg(archive, QString::fromUtf8(exception.what())));
+		}
+	}
+	return outcome;
+}
+
 void CModListView::installMods(QStringList archives, bool removeArchives)
 {
 	if(archives.empty() || importThread)
@@ -1493,47 +1533,12 @@ void CModListView::installMods(QStringList archives, bool removeArchives)
 	const auto progress = importProgress;
 	importThread = QThread::create([sources, outcomes, progress, protectedMods, fullModExtraction]()
 	{
-		for(const auto & [archive, hint] : *sources)
+		for(const auto & source : *sources)
 		{
 			if(progress->canceled)
 				break;
 
-			ArchiveImportOutcome outcome;
-			QString sourcePath = archive;
-			QFile sourceFile(sourcePath);
-			const bool needsCopy = archive.startsWith("content://", Qt::CaseInsensitive) || !sourceFile.open(QIODevice::ReadOnly);
-			sourceFile.close();
-
-			if(needsCopy)
-			{
-				const QString tempPath = CLauncherDirs::downloadsPath() + "/.vcmi-import-"
-					+ QUuid::createUuid().toString(QUuid::WithoutBraces) + ".zip";
-				if(Helper::performNativeCopy(archive, tempPath))
-				{
-					sourcePath = tempPath;
-					outcome.temporarySource = true;
-				}
-				else
-				{
-					outcome.result.errors.push_back(QCoreApplication::translate("CModListView", "Failed to prepare %1 for import").arg(archive));
-				}
-			}
-
-			outcome.sourcePath = sourcePath;
-			if(outcome.result.errors.isEmpty())
-			{
-				try
-				{
-					outcome.result = ModStateController::installArchive(sourcePath, hint, fullModExtraction, protectedMods, *progress);
-				}
-				catch(const std::exception & exception)
-				{
-					outcome.result.errors.push_back(QCoreApplication::translate("CModListView", "Failed to import %1: %2")
-						.arg(archive, QString::fromUtf8(exception.what())));
-				}
-			}
-
-			outcomes->push_back(std::move(outcome));
+			outcomes->push_back(CModListView::importArchive(source.first, source.second, *progress, protectedMods, fullModExtraction));
 			if(progress->canceled)
 				break;
 		}

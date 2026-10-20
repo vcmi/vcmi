@@ -83,6 +83,8 @@ class CModListView : public QWidget
 
 	void installMods(QStringList archives, bool removeArchives);
 	void finishModImport();
+	static ArchiveImportOutcome importArchive(const QString & archive, const QString & hint,
+		ModStateController::ArchiveImportProgress & progress, const QStringList & protectedMods, bool fullModExtraction);
 	void installMaps(QStringList maps);
 	void installSaves(QStringList saves);
 

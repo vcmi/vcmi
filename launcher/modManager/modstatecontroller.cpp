@@ -466,7 +466,11 @@ ModStateController::ArchiveImportResult ModStateController::installArchive(const
 			continue;
 		}
 		plannedIds.push_back(id);
-		plans.push_back({root, id});
+
+		ModPlan plan;
+		plan.root = root;
+		plan.id = id;
+		plans.push_back(std::move(plan));
 	}
 
 	for(size_t index = 0; index < archiveEntries.size(); ++index)
