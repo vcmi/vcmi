@@ -79,3 +79,18 @@ TEST_F(HypnotizeTest, HypnotizedRandomCasterBuffsUnitsOfItsController)
 	EXPECT_FALSE(act(BattleAction::makeRandomSpellcast(genie, formerAlly->getPosition())));
 	EXPECT_TRUE(act(BattleAction::makeRandomSpellcast(genie, controllerUnit->getPosition())));
 }
+
+TEST_F(HypnotizeTest, HypnotizedShooterIsBlockedByItsFormerAllies)
+{
+	startGame();
+	startBattle();
+	CStack * shooter = addStack(BattleSide::DEFENDER, creatureByName("core:woodElf"), BattleHex(rightHex), 10);
+	addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex + 1), 10);
+	hypnotize(shooter);
+	beginCombat();
+
+	EXPECT_FALSE(battle()->battleIsUnitBlocked(shooter)) << "a unit of the controller does not block";
+
+	addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex - 1), 10);
+	EXPECT_TRUE(battle()->battleIsUnitBlocked(shooter));
+}

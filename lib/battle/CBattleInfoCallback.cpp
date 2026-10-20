@@ -2102,7 +2102,7 @@ bool CBattleInfoCallback::battleIsUnitBlocked(const battle::Unit * unit) const
 	bool isBerserk = unit->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE);
 	for(const auto * adjacent : battleAdjacentUnits(unit))
 	{
-		if(adjacent->unitOwner() != unit->unitOwner() || isBerserk)
+		if(battleMatchOwner(unit, adjacent) || isBerserk)
 			return true;
 	}
 	return false;
