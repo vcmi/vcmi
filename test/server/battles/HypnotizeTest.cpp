@@ -168,3 +168,19 @@ TEST_F(HypnotizeTest, HypnotizedUnicornProtectsUnitsOfItsController)
 	EXPECT_GT(controllerUnit->magicResistance(), 0);
 	EXPECT_EQ(formerAlly->magicResistance(), 0);
 }
+
+TEST_F(HypnotizeTest, HypnotizedWraithDrainsManaOfItsOwner)
+{
+	startGame();
+	startBattle();
+	CStack * wraith = addStack(BattleSide::DEFENDER, creatureByName("core:wraith"), BattleHex(rightHex), 10);
+	hypnotize(wraith);
+	attackerSideHero->mana = 20;
+	defenderSideHero->mana = 20;
+	beginCombat();
+
+	endRound();
+
+	EXPECT_LT(defenderSideHero->mana, 20);
+	EXPECT_EQ(attackerSideHero->mana, 20);
+}

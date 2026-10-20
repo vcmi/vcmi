@@ -758,7 +758,8 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 		}
 		if(st->hasBonusOfType(BonusType::MANA_DRAIN) && !st->drainedMana)
 		{
-			const CGHeroInstance * opponentHero = battle.battleGetFightingHero(battle.otherSide(st->unitSide()));
+			// a hypnotized wraith drains the opponent of the player controlling it
+			const CGHeroInstance * opponentHero = battle.battleGetFightingHero(battle.otherSide(battle.playerToSide(battle.battleGetOwner(st))));
 			if(opponentHero)
 			{
 				ui32 manaDrained = st->valOfBonuses(BonusType::MANA_DRAIN);
