@@ -2162,7 +2162,7 @@ std::vector<SpellID> CBattleInfoCallback::getBeneficialSpells(const battle::Unit
 	{
 		auto stacks = battleGetStacksIf([&](const CStack * stack)
 		{
-			return pred(stack) && stack->unitOwner() != subject->unitOwner() && stack->isValidTarget(false);
+			return pred(stack) && battleMatchOwner(subject, stack) && stack->isValidTarget(false);
 		});
 
 		if(stacks.empty())

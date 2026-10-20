@@ -11,6 +11,7 @@
 
 #include "BattleTestFixture.h"
 
+#include "../../../lib/battle/BattleAction.h"
 #include "../../../lib/battle/CPlayerBattleCallback.h"
 #include "../../../lib/battle/ReachabilityInfo.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
@@ -63,4 +64,18 @@ TEST_F(HypnotizeTest, ControllerCanComputeReachabilityOfHypnotizedUnit)
 	ReachabilityInfo reachability;
 	ASSERT_NO_THROW(reachability = controller.getReachability(ReachabilityInfo::Parameters(hypnotized, hypnotized->getPosition())));
 	EXPECT_TRUE(reachability.isReachable(BattleHex(rightHex + 2)));
+}
+
+TEST_F(HypnotizeTest, HypnotizedRandomCasterBuffsUnitsOfItsController)
+{
+	startGame();
+	startBattle();
+	CStack * genie = addStack(BattleSide::DEFENDER, creatureByName("core:masterGenie"), BattleHex(rightHex), 10);
+	CStack * formerAlly = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex + 1), 10);
+	CStack * controllerUnit = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(leftHex), 10);
+	hypnotize(genie);
+	beginCombat();
+
+	EXPECT_FALSE(act(BattleAction::makeRandomSpellcast(genie, formerAlly->getPosition())));
+	EXPECT_TRUE(act(BattleAction::makeRandomSpellcast(genie, controllerUnit->getPosition())));
 }
