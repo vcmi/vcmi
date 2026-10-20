@@ -15,6 +15,7 @@
 
 #include <atomic>
 #include <memory>
+#include <mutex>
 
 class JsonNode;
 
@@ -41,6 +42,22 @@ public:
 		std::atomic<int> completedMods{0};
 		std::atomic<int> totalMods{0};
 		std::atomic<bool> canceled{false};
+
+		void setCurrentMod(const QString & name)
+		{
+			std::lock_guard<std::mutex> lock(currentModMutex);
+			currentModName = name;
+		}
+
+		QString getCurrentMod() const
+		{
+			std::lock_guard<std::mutex> lock(currentModMutex);
+			return currentModName;
+		}
+
+	private:
+		mutable std::mutex currentModMutex;
+		QString currentModName;
 	};
 
 private:

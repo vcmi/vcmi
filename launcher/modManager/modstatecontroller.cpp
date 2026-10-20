@@ -513,6 +513,7 @@ ModStateController::ArchiveImportResult ModStateController::installArchive(const
 		}
 
 		logGlobal->info("Installing mod '%s' from '%s'", plan.id.toStdString(), archivePath.toStdString());
+		progress.setCurrentMod(plan.id);
 
 		const QString stagingPath = getStagingPath(plan.id);
 		const QString backupPath = getBackupPath(plan.id);

@@ -1541,7 +1541,11 @@ void CModListView::installMods(QStringList archives, bool removeArchives)
 			const quint64 totalBytes = importProgress->totalBytes.load();
 			const quint64 completedBytes = std::min(importProgress->completedBytes.load(), totalBytes);
 			const int completedMods = importProgress->completedMods.load();
-			ui->progressBar->setFormat(tr("Importing mods %1/%2... %p%").arg(completedMods).arg(totalMods));
+			const QString currentMod = importProgress->getCurrentMod();
+			if(currentMod.isEmpty())
+				ui->progressBar->setFormat(tr("Installing mods %1/%2... %p%").arg(completedMods).arg(totalMods));
+			else
+				ui->progressBar->setFormat(tr("Installing mods %1 (%2/%3)... %p%").arg(currentMod).arg(completedMods).arg(totalMods));
 			ui->progressBar->setRange(0, 1000);
 			if(totalBytes > 0)
 				ui->progressBar->setValue(static_cast<int>(1000 * completedBytes / totalBytes));
