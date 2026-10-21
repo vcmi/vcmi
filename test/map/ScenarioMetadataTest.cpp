@@ -11,6 +11,9 @@
 
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/mapping/ScenarioMetadata.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/MetaString.h"
+#include "../../lib/texts/TextLocalizationContainer.h"
 
 static ModVerificationInfo makeMod(const std::string & name, bool impactsGameplay)
 {
@@ -44,4 +47,27 @@ TEST(ScenarioMetadataTest, modsAreGroupedByRootMod)
 	// mod list of a map may contain a submod without its root mod
 	EXPECT_EQ(result["orphan"]["name"].String(), "orphan");
 	EXPECT_EQ(result["orphan"]["submods"][0].String(), "submod");
+}
+
+TEST(ScenarioMetadataTest, textUsesPreferredLanguage)
+{
+	const std::string preferred = CGeneralTextHandler::getPreferredLanguage();
+	const std::string other = preferred == "polish" ? "czech" : "polish";
+
+	JsonNode text;
+	MetaString::createFromRawString("raw").jsonSerialize(text["text"]);
+	text["translations"][other].String() = "other";
+	EXPECT_EQ(ScenarioMetadata::textToString(text, nullptr), "other");
+
+	text["translations"][preferred].String() = "preferred";
+	EXPECT_EQ(ScenarioMetadata::textToString(text, nullptr), "preferred");
+}
+
+TEST(ScenarioMetadataTest, textWithoutTranslationsUsesMetaString)
+{
+	JsonNode text;
+	MetaString::createFromRawString("raw").jsonSerialize(text["text"]);
+	text["translations"].Struct();
+	TextLocalizationContainer translator;
+	EXPECT_EQ(ScenarioMetadata::textToString(text, &translator), "raw");
 }
