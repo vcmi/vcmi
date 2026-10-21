@@ -94,4 +94,8 @@ TEST_F(SaveGameTest, invalidMetadataIsRejected)
 	metadata = SaveMetadata::create(*gameState);
 	metadata.Struct().erase("map");
 	EXPECT_THROW(SaveMetadata::parse(metadata.toBytes(), "test"), std::runtime_error);
+
+	metadata = SaveMetadata::create(*gameState);
+	metadata.Struct().erase("game");
+	EXPECT_THROW(SaveMetadata::parse(metadata.toBytes(), "test"), std::runtime_error);
 }

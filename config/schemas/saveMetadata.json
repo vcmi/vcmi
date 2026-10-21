@@ -1,9 +1,9 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"title" : "VCMI saved game metadata",
-	"description" : "Information on a saved game that can be read without loading mods used by the save. Also read from saves of newer versions, which may add new fields",
-	"required" : [ "vcmiVersion", "saveTime", "map", "game", "mods" ],
+	"title" : "VCMI saved game or map metadata",
+	"description" : "Information on a saved game or a map that can be read without loading mods used by it. Also read from saves of newer versions, which may add new fields",
+	"required" : [ "map", "mods" ],
 
 	"definitions" : {
 		"text" : {
@@ -27,11 +27,11 @@
 	"properties" : {
 		"vcmiVersion" : {
 			"type" : "string",
-			"description" : "Version of VCMI that created the save, only for display to the player"
+			"description" : "Version of VCMI that created the save, only for display to the player. Present only for saved games"
 		},
 		"saveTime" : {
 			"type" : "number",
-			"description" : "Time when the save was created, in seconds since Unix epoch"
+			"description" : "Time when the save was created, in seconds since Unix epoch. Present only for saved games"
 		},
 		"map" : {
 			"type" : "object",
@@ -70,6 +70,7 @@
 		},
 		"game" : {
 			"type" : "object",
+			"description" : "State of the game, present only for saved games",
 			"required" : [ "mode", "mapFile", "difficulty", "humanPlayers", "saveDirectory", "day" ],
 			"properties" : {
 				"mode" : {
@@ -105,7 +106,7 @@
 		},
 		"mods" : {
 			"type" : "object",
-			"description" : "Active mods that affect gameplay, root mod identifier -> mod",
+			"description" : "Mods that affect gameplay: active mods for saved games, mods required by the map for maps. Root mod identifier -> mod",
 			"additionalProperties" : {
 				"type" : "object",
 				"required" : [ "name", "version", "submods" ],
