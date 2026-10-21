@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 #include "CHeroWindow.h"
+#include "CAdvancedClassWindow.h"
 #include "wiki/WikiWindow.h"
 
 #include "CCreatureWindow.h"
@@ -105,7 +106,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 
 	if(hero->tempOwner == GAME->interface()->playerID && !LIBRARY->advancedClassHandler->getAll().empty())
 	{
-		advancedClassButton = std::make_shared<CButton>(Point(204, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltipLocalized("advancedClasses.heroWindow.open"), [this](){ createAdvancedClassWindow(); });
+		advancedClassButton = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("hsbtns4.def"), CButton::tooltipLocalized("advancedClasses.heroWindow.open"), [this](){ createAdvancedClassWindow(); });
 		advancedClassButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/classButtonIcon")));
 	}
 
@@ -378,42 +379,7 @@ void CHeroWindow::createBackpackWindow()
 
 void CHeroWindow::createAdvancedClassWindow()
 {
-	std::vector<std::string> classIds;
-	std::vector<std::string> classNames;
-	for(const auto & definition : LIBRARY->advancedClassHandler->getAll())
-	{
-		if(LIBRARY->advancedClassHandler->canSelect(*curHero, definition->id))
-		{
-			classIds.push_back(definition->id);
-			classNames.push_back(GAME->translator().translate(definition->nameTextId));
-		}
-	}
-
-	if(classIds.empty())
-	{
-		GAME->interface()->showInfoDialog(GAME->translator().translate("advancedClasses.heroWindow.noneAvailable"));
-		return;
-	}
-
-	const int tier = curHero->advancedClass.nextTier();
-	const auto description = boost::str(boost::format(GAME->translator().translate("advancedClasses.heroWindow.selectDescription")) % tier);
-	ENGINE->windows().createAndPushWindow<CObjectListWindow>(
-		classNames,
-		nullptr,
-		GAME->translator().translate("advancedClasses.heroWindow.title"),
-		description,
-		[hero = curHero, classIds, classNames](int index)
-		{
-			if(index >= 0 && static_cast<size_t>(index) < classIds.size())
-			{
-				const auto question = boost::str(
-					boost::format(GAME->translator().translate("advancedClasses.heroWindow.confirm")) % classNames.at(index));
-				GAME->interface()->showYesNoDialog(question, [hero, classId = classIds.at(index)]()
-				{
-					GAME->interface()->cb->selectAdvancedClass(hero, classId);
-				}, nullptr);
-			}
-		});
+	ENGINE->windows().createAndPushWindow<CAdvancedClassWindow>(curHero);
 }
 
 void CHeroWindow::commanderWindow()

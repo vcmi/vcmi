@@ -5,5 +5,13 @@
 	"author": "Piotr Pisarczyk",
 	"version": "0.1.0",
 	"translations": [ "config/translations/english.json" ],
-	"advancedClasses": [ "config/advancedClasses.json" ]
+	"advancedClasses": [ "config/advancedClasses.json" ],
+	"czech": {
+		"skipValidation": true,
+		"translations": [ "config/translations/czech.json" ]
+	},
+	"polish": {
+		"skipValidation": true,
+		"translations": [ "config/translations/polish.json" ]
+	}
 }

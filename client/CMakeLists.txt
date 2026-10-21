@@ -143,6 +143,7 @@ set(vcmiclientcommon_SRCS
 	widgets/markets/TradePanels.cpp
 
 	windows/CCastleInterface.cpp
+	windows/CAdvancedClassWindow.cpp
 	windows/CCreatureWindow.cpp
 	windows/CStackExperienceDetailsWindow.cpp
 	windows/CExchangeWindow.cpp
@@ -372,6 +373,7 @@ set(vcmiclientcommon_HEADERS
 	widgets/markets/TradePanels.h
 
 	windows/CCastleInterface.h
+	windows/CAdvancedClassWindow.h
 	windows/CCreatureWindow.h
 	windows/CStackExperienceDetailsWindow.h
 	windows/CExchangeWindow.h

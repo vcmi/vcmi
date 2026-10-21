@@ -9,6 +9,10 @@
 			"type": "string",
 			"description": "Translatable class name"
 		},
+		"description": {
+			"type": "string",
+			"description": "Optional translatable class description shown in the progression UI"
+		},
 		"tier": {
 			"type": "integer",
 			"minimum": 1,

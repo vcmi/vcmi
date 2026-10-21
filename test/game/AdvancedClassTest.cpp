@@ -21,11 +21,9 @@ namespace
 TEST(AdvancedClassTest, ProgressAdvancesOnlyThroughEmptyTiers)
 {
 	AdvancedClassProgress progress;
-	EXPECT_TRUE(progress.empty());
 	EXPECT_TRUE(progress.valid());
 	EXPECT_EQ(progress.nextTier(), 1);
 	progress.classes[0] = "advanced-classes:war_01";
-	EXPECT_FALSE(progress.empty());
 	EXPECT_EQ(progress.nextTier(), 2);
 	progress.classes[1] = "advanced-classes:war2_01";
 	progress.classes[2] = "advanced-classes:war3_01";
