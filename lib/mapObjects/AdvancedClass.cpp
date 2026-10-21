@@ -145,6 +145,9 @@ void AdvancedClassHandler::loadObject(const std::string & scope, const std::stri
 	if(!data["ability"].isNull())
 	{
 		definition->abilityConfigured = true;
+		definition->abilitySlot = data["ability"]["slot"].isNull()
+			? definition->tier - 2
+			: static_cast<int>(data["ability"]["slot"].Integer());
 		definition->abilityCooldown = static_cast<int>(data["ability"]["cooldown"].Integer());
 		LIBRARY->identifiers()->requestIdentifier("spell", data["ability"]["spell"], [definition](si32 spellId)
 		{
@@ -192,9 +195,16 @@ const AdvancedClassDefinition * AdvancedClassHandler::getAbility(const CGHeroIns
 {
 	if(slot >= GameConstants::ADVANCED_CLASS_ABILITY_SLOTS)
 		return nullptr;
-	const auto * definition = find(hero.advancedClass.classes.at(slot + GameConstants::ADVANCED_CLASS_FIRST_ABILITY_TIER - 1));
-	return definition && definition->valid && definition->tier == static_cast<int>(slot) + GameConstants::ADVANCED_CLASS_FIRST_ABILITY_TIER
-		&& definition->abilityConfigured && definition->ability.hasValue() ? definition : nullptr;
+
+	// A later class may deliberately replace an earlier ability in the same slot.
+	for(auto classId = hero.advancedClass.classes.rbegin(); classId != hero.advancedClass.classes.rend(); ++classId)
+	{
+		const auto * definition = find(*classId);
+		if(definition && definition->valid && definition->abilityConfigured
+			&& definition->abilitySlot == static_cast<int>(slot) && definition->ability.hasValue())
+			return definition;
+	}
+	return nullptr;
 }
 
 std::vector<const AdvancedClassDefinition *> AdvancedClassHandler::getAvailable(const CGHeroInstance & hero) const
@@ -272,10 +282,10 @@ void AdvancedClassHandler::afterLoadFinalization()
 			logMod->error("Advanced class '%s' references an unknown ability spell", definition->id);
 			definition->valid = false;
 		}
-		if(definition->abilityConfigured && (definition->tier < GameConstants::ADVANCED_CLASS_FIRST_ABILITY_TIER
-			|| definition->tier >= GameConstants::ADVANCED_CLASS_FIRST_ABILITY_TIER + static_cast<int>(GameConstants::ADVANCED_CLASS_ABILITY_SLOTS)))
+		if(definition->abilityConfigured && (definition->abilitySlot < 0
+			|| definition->abilitySlot >= static_cast<int>(GameConstants::ADVANCED_CLASS_ABILITY_SLOTS)))
 		{
-			logMod->error("Advanced class '%s' defines a battle ability outside tiers 2 and 3", definition->id);
+			logMod->error("Advanced class '%s' defines invalid battle ability slot %d", definition->id, definition->abilitySlot);
 			definition->valid = false;
 		}
 		if(definition->abilityConfigured && definition->abilityCooldown <= 0)

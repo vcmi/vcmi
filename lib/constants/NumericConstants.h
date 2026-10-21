@@ -54,7 +54,6 @@ namespace GameConstants
 	constexpr int INFO_WINDOW_ARTIFACTS_MAX_ITEMS = 14;
 	constexpr int ADVANCED_CLASS_TIER_COUNT = 4;
 	constexpr size_t ADVANCED_CLASS_ABILITY_SLOTS = 2;
-	constexpr int ADVANCED_CLASS_FIRST_ABILITY_TIER = 2;
 
 	constexpr int FULL_MAP_RANGE = std::numeric_limits<int>::max();
 }

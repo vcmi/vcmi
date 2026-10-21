@@ -1,6 +1,7 @@
 {
 	"war_01": {
 		"name": "Squire",
+		"description": "A young servant of war learning discipline beside seasoned soldiers. The Squire is not yet a knight, but every battle forges loyalty and courage.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -72,6 +73,7 @@
 	},
 	"war2_01": {
 		"name": "Footman",
+		"description": "A disciplined infantryman shaped by real battles. The Footman stands firm where weaker troops would break.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -85,6 +87,7 @@
 	},
 	"war2_02": {
 		"name": "Page",
+		"description": "A noble apprentice carrying the first lessons of command. The Page learns that courage can inspire an entire army.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -98,6 +101,7 @@
 	},
 	"war3_01": {
 		"name": "Man-at-Arms",
+		"description": "A veteran soldier who understands discipline as instinct. The Man-at-Arms brings order to the front line.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -122,6 +126,7 @@
 	},
 	"war4_01": {
 		"name": "Champion",
+		"description": "A legendary warrior of noble charge and battlefield glory. The Champion breaks enemy lines through courage and perfect timing.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -137,6 +142,7 @@
 	},
 	"war4_02": {
 		"name": "Marshal",
+		"description": "A commander whose presence bends morale across the battlefield. The Marshal turns leadership into a weapon.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -161,6 +167,7 @@
 	},
 	"war_02": {
 		"name": "Fighter",
+		"description": "A hardened combatant trained for direct confrontation. The Fighter trusts steel, strength and battlefield instinct.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -232,6 +239,7 @@
 	},
 	"war2_03": {
 		"name": "Brawler",
+		"description": "A brutal close-combat fighter who turns pressure into victory. The Brawler fights dirty, but effectively.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -245,6 +253,7 @@
 	},
 	"war2_04": {
 		"name": "Raider",
+		"description": "A fast attacker trained for raids and sudden charges. The Raider favors momentum over caution.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -258,6 +267,7 @@
 	},
 	"war3_02": {
 		"name": "Berserker",
+		"description": "A warrior who embraces fury as a weapon. The Berserker gains terrifying power, but leaves defense behind.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -282,6 +292,7 @@
 	},
 	"war4_03": {
 		"name": "Warmaster",
+		"description": "A supreme master of battle tempo. The Warmaster pushes troops beyond normal limits.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -297,6 +308,7 @@
 	},
 	"war4_04": {
 		"name": "Ravager",
+		"description": "A merciless destroyer who denies enemies the chance to answer. The Ravager exists for brutal, decisive assaults.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -312,6 +324,7 @@
 	},
 	"war_03": {
 		"name": "Guardian",
+		"description": "A defensive warrior sworn to hold the line. The Guardian values survival, formation and patience over reckless attacks.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -383,6 +396,7 @@
 	},
 	"war2_05": {
 		"name": "Sentinel",
+		"description": "A watchful defender trained to protect allies. The Sentinel reacts before danger fully forms.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -396,6 +410,7 @@
 	},
 	"war2_06": {
 		"name": "Defender",
+		"description": "A shield-bearing warrior who endures punishment. The Defender believes victory begins with refusing to fall.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -409,6 +424,7 @@
 	},
 	"war3_03": {
 		"name": "Ironwarden",
+		"description": "An iron-willed protector who refuses to yield. The Ironwarden sacrifices offense to become a living wall.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -433,6 +449,7 @@
 	},
 	"war4_05": {
 		"name": "Protector",
+		"description": "A guardian of endless resolve. The Protector turns defense into punishment.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -448,6 +465,7 @@
 	},
 	"war4_06": {
 		"name": "Bastion",
+		"description": "A fortress in human form. The Bastion anchors the army against powerful hostile magic.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -463,6 +481,7 @@
 	},
 	"war_04": {
 		"name": "Archer",
+		"description": "A ranged warrior who studies distance and timing. The Archer survives through precision rather than brute force.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -534,6 +553,7 @@
 	},
 	"war2_07": {
 		"name": "Marksman",
+		"description": "A ranged specialist trained to focus fire on priority targets. The Marksman turns patience into lethal accuracy.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -547,6 +567,7 @@
 	},
 	"war2_08": {
 		"name": "Bowmaster",
+		"description": "A master of the bow who watches the field with calm eyes. The Bowmaster guides arrows where chaos blinds others.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -560,6 +581,7 @@
 	},
 	"war3_04": {
 		"name": "Sharpshooter",
+		"description": "An elite ranged killer able to punish enemies from afar. The Sharpshooter trades mobility for deadly accuracy.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -584,6 +606,7 @@
 	},
 	"war4_07": {
 		"name": "Deadeye",
+		"description": "A ranged executioner trained for close and distant fire alike. The Deadeye removes the weaknesses of ordinary shooters.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -602,6 +625,7 @@
 	},
 	"war4_08": {
 		"name": "Hawkeye",
+		"description": "A master of impossible shots. The Hawkeye ignores distance, walls and battlefield obstacles.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -627,6 +651,7 @@
 	},
 	"mag_01": {
 		"name": "Adept",
+		"description": "A beginning spellcaster touched by arcane force. The Adept has not mastered magic yet, but already feels its danger and protection.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -723,6 +748,7 @@
 	},
 	"mag2_01": {
 		"name": "Evoker",
+		"description": "A caster who shapes raw magical force into battle power. The Evoker prefers direct arcane impact over subtle tricks.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -736,6 +762,7 @@
 	},
 	"mag2_02": {
 		"name": "Arcanist",
+		"description": "A mage who bends small fragments of time and energy. The Arcanist changes momentum at the right moment.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -775,6 +802,7 @@
 	},
 	"mag3_01": {
 		"name": "Spellweaver",
+		"description": "A refined caster who understands the structure of magic. The Spellweaver resists hostile spells through deeper arcane mastery.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -801,6 +829,7 @@
 	},
 	"mag4_01": {
 		"name": "Archmage",
+		"description": "A master of all schools and forbidden pages. The Archmage stands above ordinary spell limits.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -842,6 +871,7 @@
 	},
 	"mag4_02": {
 		"name": "Magister",
+		"description": "A supreme specialist of elemental force. The Magister shapes destructive magic into battlefield dominance.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -877,6 +907,7 @@
 	},
 	"mag_02": {
 		"name": "Mystic",
+		"description": "A seeker of hidden signs and unseen patterns. The Mystic trusts intuition, omens and strange luck.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -973,6 +1004,7 @@
 	},
 	"mag2_03": {
 		"name": "Oracle",
+		"description": "A visionary who reads fortune before it becomes real. The Oracle guides armies through fate and prophecy.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -986,6 +1018,7 @@
 	},
 	"mag2_04": {
 		"name": "Channeler",
+		"description": "A supportive caster who channels sacred energy through allies. The Channeler strengthens the army through calm magical flow.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -999,6 +1032,7 @@
 	},
 	"mag3_02": {
 		"name": "Visionary",
+		"description": "A prophet of battle who sees openings others miss. The Visionary turns insight into fortune.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -1023,6 +1057,7 @@
 	},
 	"mag4_03": {
 		"name": "Seer",
+		"description": "A prophet protected by reflected destiny. The Seer turns hostile magic back through mirrors of fate.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1038,6 +1073,7 @@
 	},
 	"mag4_04": {
 		"name": "Fatebinder",
+		"description": "A binder of magical permanence. The Fatebinder protects enchantments from being erased.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1055,6 +1091,7 @@
 	},
 	"mag_03": {
 		"name": "Scholar",
+		"description": "A student of forgotten texts and old rituals. The Scholar gains power through knowledge and patience.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -1151,6 +1188,7 @@
 	},
 	"mag2_05": {
 		"name": "Sage",
+		"description": "A learned caster who weakens enemies with precise words of power. The Sage wins before the first strike lands.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -1164,6 +1202,7 @@
 	},
 	"mag2_06": {
 		"name": "Loremaster",
+		"description": "A keeper of old magical traditions. The Loremaster uses protective knowledge to preserve the army.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -1177,6 +1216,7 @@
 	},
 	"mag3_03": {
 		"name": "Archivist",
+		"description": "A keeper of ancient knowledge and sealed mysteries. The Archivist protects the army through wisdom gathered across ages.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -1201,6 +1241,7 @@
 	},
 	"mag4_05": {
 		"name": "Runesmith",
+		"description": "A craftsman of runes and sealed wards. The Runesmith blocks higher hostile magic with ancient symbols.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1218,6 +1259,7 @@
 	},
 	"mag4_06": {
 		"name": "Chronicler",
+		"description": "A keeper of timeless records. The Chronicler stretches enchantments beyond their normal duration.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1234,6 +1276,7 @@
 	},
 	"mag_04": {
 		"name": "Druid",
+		"description": "A keeper of natural magic bound to living forces. The Druid strengthens life, but moves with the slower rhythm of nature.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -1330,6 +1373,7 @@
 	},
 	"mag2_07": {
 		"name": "Grovekeeper",
+		"description": "A defender of groves, stones and roots. The Grovekeeper calls on earthbound magic to shield allied troops.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -1343,6 +1387,7 @@
 	},
 	"mag2_08": {
 		"name": "Spiritcaller",
+		"description": "A voice between the living and unseen spirits. The Spiritcaller chills enemies with otherworldly force.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -1356,6 +1401,7 @@
 	},
 	"mag3_04": {
 		"name": "Hierophant",
+		"description": "A sacred caster who channels life through divine authority. The Hierophant strengthens troops through ritual endurance.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -1380,6 +1426,7 @@
 	},
 	"mag4_07": {
 		"name": "Stormcaller",
+		"description": "A storm-touched caster who amplifies elemental violence. The Stormcaller turns air and water into weapons of ruin.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1397,6 +1444,7 @@
 	},
 	"mag4_08": {
 		"name": "Lifebinder",
+		"description": "A vessel of renewing power. The Lifebinder draws mana as if from an endless well.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1413,6 +1461,7 @@
 	},
 	"adv_01": {
 		"name": "Scout",
+		"description": "A careful explorer trained to read terrain and danger. The Scout moves quickly, but avoids relying on heavy protection.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -1504,6 +1553,7 @@
 	},
 	"adv2_01": {
 		"name": "Pathfinder",
+		"description": "A guide through dangerous terrain and sudden openings. The Pathfinder helps the army move when movement matters most.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -1517,6 +1567,7 @@
 	},
 	"adv2_02": {
 		"name": "Trailblazer",
+		"description": "A hardened roadmaker who turns hostile ground into advantage. The Trailblazer prepares the path before others arrive.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -1530,6 +1581,7 @@
 	},
 	"adv3_01": {
 		"name": "Wayfinder",
+		"description": "A master of roads, trails and hidden passages. The Wayfinder turns movement into strategic power.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -1554,6 +1606,7 @@
 	},
 	"adv4_01": {
 		"name": "Guide",
+		"description": "A supreme pathfinder who understands every road and shortcut. The Guide turns terrain into an ally.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1570,6 +1623,7 @@
 	},
 	"adv4_02": {
 		"name": "Horizon Walker",
+		"description": "A traveler beyond ordinary limits. The Horizon Walker moves as if the world itself opens before them.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1586,6 +1640,7 @@
 	},
 	"adv_02": {
 		"name": "Ranger",
+		"description": "A wilderness survivor who hunts by instinct. The Ranger strikes hard from harsh lands and open roads.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -1677,6 +1732,7 @@
 	},
 	"adv2_03": {
 		"name": "Hunter",
+		"description": "A patient tracker of prey and weak points. The Hunter waits, aims and strikes when the target is exposed.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -1690,6 +1746,7 @@
 	},
 	"adv2_04": {
 		"name": "Beastmaster",
+		"description": "A master of beasts, instincts and primal courage. The Beastmaster awakens savage force within allied creatures.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -1703,6 +1760,7 @@
 	},
 	"adv3_02": {
 		"name": "Wildstalker",
+		"description": "A predator of the wild who hunts weakness without hesitation. The Wildstalker gains power through instinct and patience.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -1727,6 +1785,7 @@
 	},
 	"adv4_03": {
 		"name": "Tracker",
+		"description": "A hunter who marks the enemy before battle fully begins. The Tracker exposes weak points with ruthless focus.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1742,6 +1801,7 @@
 	},
 	"adv4_04": {
 		"name": "Falconer",
+		"description": "A master of skyward signs and hunting birds. The Falconer turns distance into retaliation.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1760,6 +1820,7 @@
 	},
 	"adv_03": {
 		"name": "Merchant",
+		"description": "A trader of chances, routes and battlefield opportunity. The Merchant trusts luck and profit more than raw strength.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -1851,6 +1912,7 @@
 	},
 	"adv2_05": {
 		"name": "Trader",
+		"description": "A gambler of war and profit. The Trader knows when a lucky deal can shift the entire battle.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -1864,6 +1926,7 @@
 	},
 	"adv2_06": {
 		"name": "Quartermaster",
+		"description": "A supplier and organizer of armies on the march. The Quartermaster turns preparation into survival.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -1877,6 +1940,7 @@
 	},
 	"adv3_03": {
 		"name": "Guildmaster",
+		"description": "A leader of trade routes, contacts and hidden support. The Guildmaster wins through networks others cannot see.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -1901,6 +1965,7 @@
 	},
 	"adv4_05": {
 		"name": "Broker",
+		"description": "A negotiator whose contracts survive even the chaos of war. The Broker makes surrender cheaper and survival easier.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1917,6 +1982,7 @@
 	},
 	"adv4_06": {
 		"name": "Magnate",
+		"description": "A ruler of trade, supply and wealth. The Magnate turns resources into long-term power.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -1952,6 +2018,7 @@
 	},
 	"adv_04": {
 		"name": "Wanderer",
+		"description": "A restless traveler who refuses to stay bound to one road. The Wanderer moves freely, but lacks the morale of settled armies.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -2043,6 +2110,7 @@
 	},
 	"adv2_07": {
 		"name": "Nomad",
+		"description": "A swift wanderer of open roads and harsh lands. The Nomad keeps the army moving when others slow down.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -2056,6 +2124,7 @@
 	},
 	"adv2_08": {
 		"name": "Explorer",
+		"description": "An explorer with a sharp eye for opportunity. The Explorer finds the precise moment to strike.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -2069,6 +2138,7 @@
 	},
 	"adv3_04": {
 		"name": "Voyager",
+		"description": "A traveler who treats the world itself as a road. The Voyager endures distance better than ordinary heroes.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -2093,6 +2163,7 @@
 	},
 	"adv4_07": {
 		"name": "Pioneer",
+		"description": "A founder of new roads, ports and frontiers. The Pioneer crosses barriers that stop ordinary armies.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -2109,6 +2180,7 @@
 	},
 	"adv4_08": {
 		"name": "Cartographer",
+		"description": "A master of maps, borders and hidden lands. The Cartographer sees the world as no ordinary hero can.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -2126,6 +2198,7 @@
 	},
 	"hyb_01": {
 		"name": "Battlemage",
+		"description": "A disciplined warrior-scholar who trains steel and spell side by side. The Battlemage stands between the front line and the arcane circle, turning martial order into magical force.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -2278,6 +2351,7 @@
 	},
 	"hyb2_01a": {
 		"name": "Arcane Sergeant",
+		"description": "An officer of arcane warfare who drills troops through magic and command. The Arcane Sergeant inspires aggression while keeping battlefield rhythm under control.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -2291,6 +2365,7 @@
 	},
 	"hyb2_01b": {
 		"name": "War Mage",
+		"description": "A combat caster who favors practical destruction over pure study. The War Mage enters battle to solve problems with immediate arcane impact.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -2304,6 +2379,7 @@
 	},
 	"hyb3_01": {
 		"name": "Battle Magister",
+		"description": "A veteran of campaigns where spellcraft and discipline have become one art. The Battle Magister blends tactical force with refined magical control.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -2332,6 +2408,7 @@
 	},
 	"hyb4_01a": {
 		"name": "Eldritch Warlord",
+		"description": "A conqueror whose will drives both armies and enchanted violence. The Eldritch Warlord rules through relentless force backed by forbidden battlecraft.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -2347,6 +2424,7 @@
 	},
 	"hyb4_01b": {
 		"name": "Arcane Commander",
+		"description": "A supreme commander who strengthens allies through strategic sorcery. The Arcane Commander leads not by rage, but by precise magical authority.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -2371,6 +2449,7 @@
 	},
 	"hyb_02": {
 		"name": "Spellblade",
+		"description": "A knight of enchanted arms who trusts both blade discipline and warding signs. The Spellblade survives through balance, resolve and controlled mysticism.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -2523,6 +2602,7 @@
 	},
 	"hyb2_02a": {
 		"name": "Runeblade",
+		"description": "A warrior who carves ancient sigils into battle. The Runeblade treats every strike and every defense as part of a living rune.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -2536,6 +2616,7 @@
 	},
 	"hyb2_02b": {
 		"name": "Spell Duelist",
+		"description": "A swift duelist who fights between footwork and spell timing. The Spell Duelist wins through tempo, reaction and precise magical support.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -2549,6 +2630,7 @@
 	},
 	"hyb3_02": {
 		"name": "Spell Knight",
+		"description": "A hardened champion whose body, weapon and ward act as one. The Spell Knight turns battlefield pressure into disciplined magical endurance.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -2577,6 +2659,7 @@
 	},
 	"hyb4_02a": {
 		"name": "Arcane Champion",
+		"description": "A heroic swordsman crowned by elemental force. The Arcane Champion charges with the confidence of a knight and the fury of a storm.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -2600,6 +2683,7 @@
 	},
 	"hyb4_02b": {
 		"name": "Runic Champion",
+		"description": "A master of ancient battle marks and protective fire. The Runic Champion binds victory through symbols older than kingdoms.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -2617,6 +2701,7 @@
 	},
 	"hyb_03": {
 		"name": "Warden",
+		"description": "A frontier defender who stands where road, wall and wilderness meet. The Warden protects others through endurance, vigilance and mobility.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -2764,6 +2849,7 @@
 	},
 	"hyb2_03a": {
 		"name": "Wild Guardian",
+		"description": "A guardian of wild borders who knows the patience of beasts and the duty of shields. The Wild Guardian survives by turning nature into protection.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -2777,6 +2863,7 @@
 	},
 	"hyb2_03b": {
 		"name": "Trail Defender",
+		"description": "A defender of roads and passes who controls hostile ground. The Trail Defender keeps allies alive by mastering terrain before the enemy does.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -2790,6 +2877,7 @@
 	},
 	"hyb3_03": {
 		"name": "Frontier Warden",
+		"description": "A veteran keeper of marches, forests and remote strongholds. The Frontier Warden treats every path as a line worth defending.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -2818,6 +2906,7 @@
 	},
 	"hyb4_03a": {
 		"name": "Oathwarden",
+		"description": "A sworn protector whose vow outlasts pain and exhaustion. The Oathwarden answers danger with endless retaliation and unbroken resolve.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -2833,6 +2922,7 @@
 	},
 	"hyb4_03b": {
 		"name": "Wild Oathkeeper",
+		"description": "A sacred defender bound to the old wilds. The Wild Oathkeeper carries a protective covenant that shields allies from lesser sorcery.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -2848,6 +2938,7 @@
 	},
 	"hyb_04": {
 		"name": "Skirmisher",
+		"description": "A fast raider who lives by momentum rather than formation. The Skirmisher strikes, withdraws and returns before the enemy regains order.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -2995,6 +3086,7 @@
 	},
 	"hyb2_04a": {
 		"name": "Raider Scout",
+		"description": "A scout bred for rapid strikes across exposed flanks. The Raider Scout opens battles through movement, surprise and predatory timing.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -3008,6 +3100,7 @@
 	},
 	"hyb2_04b": {
 		"name": "Ambusher",
+		"description": "A hunter of weak positions and isolated prey. The Ambusher prefers patience, concealment and a single decisive opening.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -3021,6 +3114,7 @@
 	},
 	"hyb3_04": {
 		"name": "Shadow Skirmisher",
+		"description": "A battlefield predator who has perfected hit-and-run warfare. The Shadow Skirmisher turns speed into pressure and fear into opportunity.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -3049,6 +3143,7 @@
 	},
 	"hyb4_04a": {
 		"name": "Storm Raider",
+		"description": "A mounted storm of speed and impact. The Storm Raider smashes through lines with charging force and sudden elemental violence.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -3064,6 +3159,7 @@
 	},
 	"hyb4_04b": {
 		"name": "Shadow Raider",
+		"description": "A silent executioner who denies the enemy a fair response. The Shadow Raider appears at the fatal angle and leaves no room for retaliation.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -3079,6 +3175,7 @@
 	},
 	"hyb_05": {
 		"name": "Arcane Wanderer",
+		"description": "A traveler guided by hidden currents of magic. The Arcane Wanderer follows forgotten routes, ley traces and strange roads between places.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -3251,6 +3348,7 @@
 	},
 	"hyb2_05a": {
 		"name": "Mystic Rover",
+		"description": "A roaming mystic who survives by intuition and subtle blessings. The Mystic Rover treats every road as part of a larger magical pattern.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -3264,6 +3362,7 @@
 	},
 	"hyb2_05b": {
 		"name": "Ley Scout",
+		"description": "A scout who reads invisible veins of power beneath the world. The Ley Scout reaches key ground first because the land itself seems to guide them.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -3277,6 +3376,7 @@
 	},
 	"hyb3_05": {
 		"name": "Ley Wanderer",
+		"description": "A seasoned traveler of enchanted roads and silent borders. The Ley Wanderer moves as if distance and magic have entered a pact.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -3305,6 +3405,7 @@
 	},
 	"hyb4_05a": {
 		"name": "Worldshaper",
+		"description": "A shaper of terrain, route and magical impact. The Worldshaper does not merely cross the world \u2014 they impose will upon it.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -3321,6 +3422,7 @@
 	},
 	"hyb4_05b": {
 		"name": "Leymaster",
+		"description": "A keeper of the deepest arcane paths. The Leymaster commands echoes, doubles and long-lasting enchantments through mastery of hidden lines.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -3337,6 +3439,7 @@
 	},
 	"hyb_06": {
 		"name": "Seeker",
+		"description": "A hunter of secrets, relics and old power. The Seeker walks between scholarship and adventure, guided by curiosity stronger than fear.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -3509,6 +3612,7 @@
 	},
 	"hyb2_06a": {
 		"name": "Relic Seeker",
+		"description": "A wanderer drawn to forgotten treasures and sealed devices. The Relic Seeker believes the right artifact can change an entire war.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -3522,6 +3626,7 @@
 	},
 	"hyb2_06b": {
 		"name": "Rune Seeker",
+		"description": "A pathfinder of old inscriptions and magical signs. The Rune Seeker follows symbols that others cannot read.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -3535,6 +3640,7 @@
 	},
 	"hyb3_06": {
 		"name": "Arcane Seeker",
+		"description": "A veteran explorer of ruins, sanctums and star-marked roads. The Arcane Seeker sees patterns of power where ordinary eyes see only dust.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -3563,6 +3669,7 @@
 	},
 	"hyb4_06a": {
 		"name": "Astral Pathfinder",
+		"description": "A guide who crosses impossible routes between the known and the astral. The Astral Pathfinder opens ways that ordinary travelers never find.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -3579,6 +3686,7 @@
 	},
 	"hyb4_06b": {
 		"name": "Relic Pathfinder",
+		"description": "A master treasure-hunter whose knowledge extends across the whole world. The Relic Pathfinder can track both prey and power through land itself.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -3596,6 +3704,7 @@
 	},
 	"hyb_07": {
 		"name": "Deathbinder",
+		"description": "A dark adept who binds death and discipline into one doctrine. The Deathbinder studies decay not as chaos, but as a force to command.",
 		"tier": 1,
 		"requiredLevel": 10,
 		"requiredPoints": 10,
@@ -3626,6 +3735,7 @@
 	},
 	"hyb2_07a": {
 		"name": "Grave Adept",
+		"description": "A servant of tombs, ash and battlefield remains. The Grave Adept spreads weakness through the cold authority of the grave.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -3639,6 +3749,7 @@
 	},
 	"hyb2_07b": {
 		"name": "Soul Acolyte",
+		"description": "A novice of soul rites who listens to the suffering behind mortality. The Soul Acolyte undermines enemies by touching the spirit beneath the flesh.",
 		"tier": 2,
 		"requiredLevel": 15,
 		"requiredPoints": 15,
@@ -3652,6 +3763,7 @@
 	},
 	"hyb3_07": {
 		"name": "Soulbinder",
+		"description": "A sinister master of bound essence and disciplined necromantic force. The Soulbinder joins fear, damage and resistance in one grim pact.",
 		"tier": 3,
 		"requiredLevel": 20,
 		"requiredPoints": 20,
@@ -3680,6 +3792,7 @@
 	},
 	"hyb4_07a": {
 		"name": "Deathbinder Lord",
+		"description": "A tyrant of gravefire and battlefield despair. The Deathbinder Lord spreads ruin while breaking the enemy\u0027s will to resist.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,
@@ -3695,6 +3808,7 @@
 	},
 	"hyb4_07b": {
 		"name": "Soulreaper Lord",
+		"description": "A harvester of terror whose presence chills the living. The Soulreaper Lord rules through fear, frenzy and the certainty of death.",
 		"tier": 4,
 		"requiredLevel": 25,
 		"requiredPoints": 25,

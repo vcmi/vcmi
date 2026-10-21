@@ -31,6 +31,34 @@
 		"ability" :
 		{
 			"spell" : "magicArrow",
+			"slot" : 0,
+			"cooldown" : 2
+		}
+	},
+	"integrationAdvancedClassTier3" :
+	{
+		"name" : "Integration Test Class Tier 3",
+		"tier" : 3,
+		"requiredLevel" : 0,
+		"requiredPoints" : 0,
+		"parents" : [ "integrationAdvancedClassTier2" ],
+		"ability" :
+		{
+			"spell" : "haste",
+			"cooldown" : 2
+		}
+	},
+	"integrationAdvancedClassTier4" :
+	{
+		"name" : "Integration Test Class Tier 4",
+		"tier" : 4,
+		"requiredLevel" : 0,
+		"requiredPoints" : 0,
+		"parents" : [ "integrationAdvancedClassTier3" ],
+		"ability" :
+		{
+			"spell" : "slow",
+			"slot" : 1,
 			"cooldown" : 2
 		}
 	},

@@ -37,6 +37,7 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
@@ -104,7 +105,9 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 	}
 	questlogButton->block(!GAME->interface()->hasJournalEntries());
 
-	if(hero->tempOwner == GAME->interface()->playerID && !LIBRARY->advancedClassHandler->getAll().empty())
+	if(hero->tempOwner == GAME->interface()->playerID
+		&& GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_ADVANCED_CLASSES)
+		&& !LIBRARY->advancedClassHandler->getAll().empty())
 	{
 		advancedClassButton = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("hsbtns4.def"), CButton::tooltipLocalized("advancedClasses.heroWindow.open"), [this](){ createAdvancedClassWindow(); });
 		advancedClassButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/classButtonIcon")));

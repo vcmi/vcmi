@@ -61,6 +61,7 @@ class HeroClassAbilityAction : public SpellCastAction
 public:
 	explicit HeroClassAbilityAction(size_t slot);
 	ActionOption makeOption(SpellID spell) const;
+	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 
 protected:

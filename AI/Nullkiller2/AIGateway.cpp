@@ -627,6 +627,9 @@ void AIGateway::yourTurn(QuestionID questionID)
 
 void AIGateway::selectAdvancedClasses()
 {
+	if(!cc->getSettings().getBoolean(EGameSettings::MODULE_ADVANCED_CLASSES))
+		return;
+
 	for(const auto * hero : cc->getPlayerState(playerID)->getHeroes())
 	{
 		for(int tier = hero->advancedClass.nextTier(); tier <= GameConstants::ADVANCED_CLASS_TIER_COUNT; ++tier)

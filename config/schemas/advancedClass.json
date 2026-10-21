@@ -51,11 +51,17 @@
 		},
 		"ability": {
 			"type": "object",
-			"description": "Battle ability available to tier-two and tier-three classes.",
+			"description": "Battle ability granted by this class. A later class may replace an earlier ability assigned to the same slot.",
 			"additionalProperties": false,
 			"required": ["spell", "cooldown"],
 			"properties": {
 				"spell": { "type": "string" },
+				"slot": {
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 1,
+					"description": "Optional action slot. Defaults to zero for tier two and one for tier three; set explicitly for other tiers or replacements."
+				},
 				"cooldown": { "type": "integer", "minimum": 1 }
 			}
 		},

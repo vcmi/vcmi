@@ -60,6 +60,7 @@ struct DLL_LINKAGE AdvancedClassDefinition
 	std::vector<std::shared_ptr<Bonus>> bonuses;
 	SpellID ability = SpellID::NONE;
 	bool abilityConfigured = false;
+	int abilitySlot = -1;
 	int abilityCooldown = 0;
 	bool valid = true;
 
