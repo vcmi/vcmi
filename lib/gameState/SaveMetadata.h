@@ -13,7 +13,7 @@ class CGameState;
 class JsonNode;
 
 /// Information on a saved game that can be read without loading mods used by the save.
-/// Stored in saved game as json, format is described by config/schemas/saveMetadata.json, which is shared with metadata of maps
+/// Stored in saved game as json, format is described by config/schemas/scenarioMetadata.json, which is shared with metadata of maps
 namespace SaveMetadata
 {
 /// Creates metadata for a save of provided game
