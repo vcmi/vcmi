@@ -14,6 +14,8 @@
 
 #include "../json/JsonNode.h"
 #include "../modding/ModScope.h"
+#include "../texts/CGeneralTextHandler.h"
+#include "../texts/Languages.h"
 #include "../texts/MetaString.h"
 #include "../texts/TextLocalizationContainer.h"
 
@@ -38,6 +40,29 @@ JsonNode ScenarioMetadata::textToJson(const MetaString & text, const std::map<st
 			result["translations"][language].String() = text.toString(&translator);
 	}
 	return result;
+}
+
+std::string ScenarioMetadata::textToString(const JsonNode & text, const ITranslator * translator)
+{
+	const auto & translations = text["translations"].Struct();
+
+	// text without translations does not use texts of the map, for example, map name of a random map
+	if(translations.empty())
+	{
+		MetaString result;
+		result.jsonDeserialize(text["text"]);
+		return result.toString(translator);
+	}
+
+	const std::string preferred = CGeneralTextHandler::getPreferredLanguage();
+	if(translations.contains(preferred))
+		return translations.at(preferred).String();
+
+	const std::string english = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
+	if(translations.contains(english))
+		return translations.at(english).String();
+
+	return translations.begin()->second.String();
 }
 
 JsonNode ScenarioMetadata::mapToJson(const CMapHeader & header)
