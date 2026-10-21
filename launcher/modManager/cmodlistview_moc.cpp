@@ -1245,7 +1245,14 @@ void CModListView::installFiles(QStringList files)
 	if(!mods.empty())
 	{
 		logGlobal->info("Installing mods: started");
+		ui->progressWidget->setVisible(true);
+		ui->progressBar->setRange(0, 0);
+		ui->abortButton->setEnabled(false);
+		Helper::keepScreenOn(true);
 		installMods(mods);
+		Helper::keepScreenOn(dlManager != nullptr);
+		hideProgressBar();
+		ui->abortButton->setEnabled(true);
 		logGlobal->info("Installing mods: ended");
 	}
 
