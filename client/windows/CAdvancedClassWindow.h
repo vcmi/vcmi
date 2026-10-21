@@ -13,6 +13,7 @@ class CButton;
 class CLabel;
 class CListBox;
 class CTextBox;
+class CViewport;
 class CFilledTexture;
 class TransparentFilledRectangle;
 
@@ -31,6 +32,7 @@ class CAdvancedClassWindow final : public CWindowObject
 	std::shared_ptr<CLabel> candidateHeader;
 	std::shared_ptr<CLabel> treeHeader;
 	std::shared_ptr<CListBox> candidateList;
+	std::shared_ptr<CViewport> treeViewport;
 	std::shared_ptr<CTextBox> detailText;
 	std::shared_ptr<CButton> selectButton;
 	std::shared_ptr<CButton> closeButton;

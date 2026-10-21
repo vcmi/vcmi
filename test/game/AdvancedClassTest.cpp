@@ -148,4 +148,42 @@ TEST_F(AdvancedClassIntegrationTest, ServerSelectionAppliesBonusOnlyOnce)
 	EXPECT_FALSE(gameHandler.selectAdvancedClass(hero->id, classId));
 	EXPECT_EQ(hero->valOfBonuses(BonusType::MORALE), initialMorale + 1);
 }
+
+TEST_F(AdvancedClassIntegrationTest, ServerRejectsInvalidSelections)
+{
+	startTestGame();
+	const auto heroes = gameState->getPlayerState(PlayerColor(0))->getHeroes();
+	ASSERT_FALSE(heroes.empty());
+	auto * hero = gameState->getHero(heroes.front()->id);
+	ASSERT_NE(hero, nullptr);
+
+	GameHandlerTestServer server(gameState);
+	CGameHandler gameHandler(server, gameState);
+	const auto & handler = *LIBRARY->advancedClassHandler;
+	const auto available = handler.getAvailable(*hero);
+	const auto containsAvailable = [&available](std::string_view id)
+	{
+		return std::ranges::any_of(available, [id](const auto * definition){ return definition->id == id; });
+	};
+
+	EXPECT_EQ(handler.selectionProblem(*hero, "vcmi-test:missing"), AdvancedClassSelectionProblem::UNKNOWN_CLASS);
+	EXPECT_EQ(handler.selectionProblem(*hero, "vcmi-test:integrationLevelLocked"), AdvancedClassSelectionProblem::LEVEL_REQUIREMENT);
+	EXPECT_EQ(handler.selectionProblem(*hero, "vcmi-test:integrationPointsLocked"), AdvancedClassSelectionProblem::POINT_REQUIREMENT);
+	EXPECT_EQ(handler.selectionProblem(*hero, "vcmi-test:integrationAdvancedClassTier2"), AdvancedClassSelectionProblem::WRONG_TIER);
+	EXPECT_TRUE(containsAvailable("vcmi-test:integrationAdvancedClass"));
+	EXPECT_TRUE(containsAvailable("vcmi-test:integrationOtherRoot"));
+	EXPECT_FALSE(containsAvailable("vcmi-test:integrationLevelLocked"));
+	EXPECT_FALSE(containsAvailable("vcmi-test:integrationPointsLocked"));
+	EXPECT_FALSE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:missing"));
+	EXPECT_FALSE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationLevelLocked"));
+	EXPECT_FALSE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationPointsLocked"));
+
+	ASSERT_TRUE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationAdvancedClass"));
+	EXPECT_EQ(handler.selectionProblem(*hero, "vcmi-test:integrationOtherRootTier2"), AdvancedClassSelectionProblem::WRONG_PATH);
+	EXPECT_FALSE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationOtherRootTier2"));
+	EXPECT_TRUE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationAdvancedClassTier2"));
+
+	hero->advancedClass.classes = {"a", "b", "c", "d"};
+	EXPECT_EQ(handler.selectionProblem(*hero, "vcmi-test:integrationAdvancedClass"), AdvancedClassSelectionProblem::PROGRESSION_COMPLETE);
+}
 }

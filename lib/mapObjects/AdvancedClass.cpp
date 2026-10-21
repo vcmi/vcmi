@@ -197,6 +197,15 @@ const AdvancedClassDefinition * AdvancedClassHandler::getAbility(const CGHeroIns
 		&& definition->abilityConfigured && definition->ability.hasValue() ? definition : nullptr;
 }
 
+std::vector<const AdvancedClassDefinition *> AdvancedClassHandler::getAvailable(const CGHeroInstance & hero) const
+{
+	std::vector<const AdvancedClassDefinition *> result;
+	for(const auto & definition : objects)
+		if(canSelect(hero, definition->id))
+			result.push_back(definition.get());
+	return result;
+}
+
 int AdvancedClassHandler::pointsFor(const CGHeroInstance & hero, const AdvancedClassDefinition & definition) const
 {
 	const auto * root = definition.tier == 1 ? &definition : find(hero.advancedClass.classes.front());
