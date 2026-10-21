@@ -290,10 +290,110 @@ static CreatureRewardValueInfo makeCreatureRewardValueInfo(
 	return {CreatureRewardValueInfo::State::IMPROVES_ARMY, minMaxValue, canMergeWithArmy};
 }
 
+struct CreatureOptionValue
+{
+	uint64_t value;
+	uint64_t improvement;
+	bool canMergeWithArmy;
+};
+
+struct CreatureRewardEvaluation
+{
+	CreatureRewardValueInfo reward;
+	std::pair<uint64_t, uint64_t> minMaxImprovement;
+};
+
+static CreatureOptionValue evaluateCreatureOption(
+	const Nullkiller * aiNk,
+	const RewardEvaluationRequest & request,
+	TerrainId terrain,
+	const std::vector<CStackBasicDescriptor> & creatures)
+{
+	CCreatureSet rewardArmy;
+	for(const auto & creature : creatures)
+	{
+		const auto slot = rewardArmy.getSlotFor(creature.getId());
+		if(!slot.validSlot())
+			return {0, 0, false};
+		rewardArmy.addToSlot(slot, creature.getId(), creature.getCount());
+	}
+
+	const bool rewardFits = request.army->canBeMergedWith(rewardArmy, true);
+	const auto bestArmyInfo = aiNk->armyManager->getBestArmyInfo(request.hero, request.army, &rewardArmy, terrain);
+	const uint64_t improvement = bestArmyInfo.sourceStrength ? bestArmyInfo.strengthGain : 0;
+	const uint64_t value = rewardFits ? std::max(improvement, rewardArmy.getArmyStrength()) : improvement;
+	return {value, improvement, rewardFits};
+}
+
+static CreatureRewardEvaluation evaluateCreatureOptions(
+	const Nullkiller * aiNk,
+	const RewardEvaluationRequest & request,
+	TerrainId terrain,
+	const std::vector<const std::vector<CStackBasicDescriptor> *> & options)
+{
+	std::pair<uint64_t, uint64_t> minMaxValue = {std::numeric_limits<uint64_t>::max(), 0};
+	std::pair<uint64_t, uint64_t> minMaxImprovement = {std::numeric_limits<uint64_t>::max(), 0};
+	bool hasCreatureReward = false;
+	bool canMergeWithArmy = true;
+	for(const auto * creatures : options)
+	{
+		if(creatures->empty())
+		{
+			minMaxValue.first = 0;
+			minMaxImprovement.first = 0;
+			continue;
+		}
+		hasCreatureReward = true;
+		const auto option = evaluateCreatureOption(aiNk, request, terrain, *creatures);
+		minMaxValue.first = std::min(minMaxValue.first, option.value);
+		minMaxValue.second = std::max(minMaxValue.second, option.value);
+		minMaxImprovement.first = std::min(minMaxImprovement.first, option.improvement);
+		minMaxImprovement.second = std::max(minMaxImprovement.second, option.improvement);
+		canMergeWithArmy &= option.canMergeWithArmy;
+	}
+	if(!hasCreatureReward)
+		return {CreatureRewardValueInfo{.state=CreatureRewardValueInfo::State::GIVES_NO_CREATURE,
+			.minMaxValue={0, 0}, .canMergeWithArmy=true}, {0, 0}};
+	return {makeCreatureRewardValueInfo(minMaxValue, minMaxImprovement, canMergeWithArmy), minMaxImprovement};
+}
+
+static CreatureRewardEvaluation evaluateKnownCreatureOptions(
+	const Nullkiller * aiNk,
+	const RewardEvaluationRequest & request,
+	TerrainId terrain,
+	std::vector<const std::vector<CStackBasicDescriptor> *> options,
+	Rewardable::ESelectMode selectMode)
+{
+	std::vector<CStackBasicDescriptor> combinedCreatures;
+	if(selectMode == Rewardable::SELECT_ALL)
+	{
+		for(const auto * reward : options)
+			combinedCreatures.insert(combinedCreatures.end(), reward->begin(), reward->end());
+		options = {&combinedCreatures};
+	}
+	else if(selectMode == Rewardable::SELECT_FIRST && options.size() > 1)
+		options.resize(1);
+	return evaluateCreatureOptions(aiNk, request, terrain, options);
+}
+
 RewardEvaluationResult RewardEvaluator::evaluateRewards(const RewardEvaluationRequest & request) const
 {
 	RewardEvaluationResult result;
-	const auto rewardableInfo = aiNk->cc->getRewardableObjectInfo(request.target, request.hero);
+	auto rewardableInfo = aiNk->cc->getRewardableObjectInfo(request.target, request.hero);
+	// AI intentionally evaluates generated built-in bank rewards even when they are hidden from the player.
+	if(rewardableInfo && request.target->ID == Obj::CREATURE_BANK
+		&& !rewardableInfo->rewardValueKnown && rewardableInfo->rewardAvailable.value_or(true))
+	{
+		const auto objectInfo = request.target->getObjectHandler()->getObjectInfo();
+		const auto * bankInfo = dynamic_cast<const Rewardable::Info *>(objectInfo.get());
+		const auto * bank = dynamic_cast<const CRewardableObject *>(request.target);
+		if(bank && bankInfo && bankInfo->hasOnlyBuiltinRewards())
+		{
+			rewardableInfo->rewardValueKnown = true;
+			for(auto index : bank->getAvailableRewards(request.hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+				rewardableInfo->rewards.push_back(bank->configuration.info.at(index).reward);
+		}
+	}
 	const RewardableObjectInfo * cachedRewardableInfo = rewardableInfo ? &*rewardableInfo : nullptr;
 
 	result.creatureRewardValue = getCreatureRewardValue(request, cachedRewardableInfo);
@@ -328,8 +428,8 @@ uint64_t RewardEvaluator::calculateRewardArmyValue(const RewardableObjectInfo * 
 				totalValue += evaluateSpellScrollArmyValue(scroll);
 		}
 
-		if(creatureReward.state != CreatureRewardValueInfo::State::UNKNOWN)
-			totalValue += creatureReward.minMaxValue.second;
+		// no filtering for UNKNOWN -> assume the highest reward
+		totalValue += creatureReward.minMaxValue.second;
 	}
 
 	return totalValue;
@@ -373,75 +473,86 @@ uint64_t RewardEvaluator::getArmyReward(const RewardEvaluationRequest & request,
 
 CreatureRewardValueInfo RewardEvaluator::getCreatureRewardValue(const RewardEvaluationRequest & request, const RewardableObjectInfo * rewardableInfo) const
 {
-	if(!request.hero || !request.army || !rewardableInfo)
+	assert(request.hero && request.army);
+
+	// not a rewardable object
+	if(!rewardableInfo)
 		return {};
+
+	if(rewardableInfo->rewardAvailable == false)
+		return {.state=CreatureRewardValueInfo::State::GIVES_NO_CREATURE, .minMaxValue={0, 0}, .canMergeWithArmy=true};
+
 	if(!rewardableInfo->scouted && request.target->ID != Obj::CREATURE_BANK)
 		return {};
 
+	const auto * rewardableObject = dynamic_cast<const Rewardable::Interface *>(request.target);
+	assert(rewardableObject);
+	if(!rewardableObject)
+		return {};
+
 	const auto terrain = aiNk->cc->getTile(request.target->visitablePos())->getTerrainID();
-	bool canMergeWithArmy = true;
-	const auto evaluateCreatures = [this, &request, terrain, &canMergeWithArmy](const std::vector<CStackBasicDescriptor> & creatures)
+	if(rewardableInfo->rewardValueKnown)
 	{
-		CCreatureSet rewardArmy;
-		for(const auto & creature : creatures)
-		{
-			const auto slot = rewardArmy.getSlotFor(creature.getId());
-			if(!slot.validSlot())
-			{
-				canMergeWithArmy = false;
-				return std::pair<uint64_t, uint64_t>{0, 0};
-			}
-			rewardArmy.addToSlot(slot, creature.getId(), creature.getCount());
-		}
+		std::vector<const std::vector<CStackBasicDescriptor> *> rewards;
+		for(const auto & reward : rewardableInfo->rewards)
+			rewards.push_back(&reward.creatures);
 
-		const bool rewardFits = request.army->canBeMergedWith(rewardArmy, true);
-		canMergeWithArmy &= rewardFits;
-
-		const auto bestArmyInfo = aiNk->armyManager->getBestArmyInfo(request.hero, request.army, &rewardArmy, terrain);
-		const uint64_t improvement = bestArmyInfo.sourceStrength ? bestArmyInfo.strengthGain : 0;
-		const uint64_t value = rewardFits ? std::max(improvement, rewardArmy.getArmyStrength()) : improvement;
-		return std::pair<uint64_t, uint64_t>{value, improvement};
-	};
-
-	uint64_t resultValue = 0;
-	uint64_t resultImprovement = 0;
-	bool hasCreatureReward = false;
-	for(const auto & reward : rewardableInfo->rewards)
-	{
-		if(reward.creatures.empty())
-			continue;
-		hasCreatureReward = true;
-		const auto [value, improvement] = evaluateCreatures(reward.creatures);
-		resultValue += value;
-		resultImprovement += improvement;
+		const auto evaluation = evaluateKnownCreatureOptions(aiNk, request, terrain, std::move(rewards), rewardableObject->configuration.selectMode);
+		return evaluation.reward;
 	}
-	if(hasCreatureReward || rewardableInfo->rewardValueKnown || request.target->ID != Obj::CREATURE_BANK)
-		return makeCreatureRewardValueInfo(
-			{resultValue, resultValue}, {resultImprovement, resultImprovement}, canMergeWithArmy);
+
+	if(request.target->ID != Obj::CREATURE_BANK)
+	{
+		for(auto index : rewardableObject->getAvailableRewards(request.hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+			if(!rewardableObject->configuration.info.at(index).reward.creatures.empty())
+				return {};
+		return {.state=CreatureRewardValueInfo::State::GIVES_NO_CREATURE, .minMaxValue={0, 0}, .canMergeWithArmy=true};
+	}
 
 	const auto objectInfo = request.target->getObjectHandler()->getObjectInfo();
 
 	assert(objectInfo);
 	if(!objectInfo)
 		return {};
-
 	const auto * rewardable = dynamic_cast<const Rewardable::Info *>(objectInfo.get());
 	if(!rewardable)
 		return {};
-	const auto possibleRewards = rewardable->getPossibleCreatureRewards();
-	if(possibleRewards.empty())
-		return {};
-	std::pair<uint64_t, uint64_t> minMaxValue = {std::numeric_limits<uint64_t>::max(), 0};
-	std::pair<uint64_t, uint64_t> minMaxImprovement = {std::numeric_limits<uint64_t>::max(), 0};
-	for(const auto & reward : possibleRewards)
+
+	const bool builtinCreatureRewards = rewardable->hasOnlyBuiltinCreatureRewards();
+
+	// AI knows the creature reward types from built-in banks even when BANKS_SHOW_GUARDS_COMPOSITION is false
+	if(builtinCreatureRewards)
 	{
-		const auto [value, improvement] = evaluateCreatures(reward);
-		minMaxValue.first = std::min(minMaxValue.first, value);
-		minMaxValue.second = std::max(minMaxValue.second, value);
-		minMaxImprovement.first = std::min(minMaxImprovement.first, improvement);
-		minMaxImprovement.second = std::max(minMaxImprovement.second, improvement);
+		std::vector<const std::vector<CStackBasicDescriptor> *> rewards;
+		for(auto index : rewardableObject->getAvailableRewards(request.hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+			rewards.push_back(&rewardableObject->configuration.info.at(index).reward.creatures);
+		const auto evaluation = evaluateKnownCreatureOptions(aiNk, request, terrain, std::move(rewards), rewardableObject->configuration.selectMode);
+		return evaluation.reward;
 	}
-	return makeCreatureRewardValueInfo(minMaxValue, minMaxImprovement, canMergeWithArmy);
+
+	const bool hiddenModdedCreatureReward = !aiNk->cc->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION)
+		&& !builtinCreatureRewards;
+	const bool requiresFreeSlotForHiddenModdedReward = hiddenModdedCreatureReward && request.army->stacksCount() == GameConstants::ARMY_SIZE;
+	const auto possibleRewards = rewardable->getPossibleCreatureRewards();
+
+	if(possibleRewards.empty())
+	{
+		return requiresFreeSlotForHiddenModdedReward ? CreatureRewardValueInfo{
+			.state=CreatureRewardValueInfo::State::UNKNOWN, .minMaxValue={0, 0}, .canMergeWithArmy=false} : CreatureRewardValueInfo{};
+	}
+
+	std::vector<const std::vector<CStackBasicDescriptor> *> options;
+	for(const auto & reward : possibleRewards)
+		options.push_back(&reward);
+
+	auto evaluation = evaluateCreatureOptions(aiNk, request, terrain, options);
+	if(evaluation.reward.state == CreatureRewardValueInfo::State::GIVES_NO_CREATURE)
+		return evaluation.reward;
+
+	if(requiresFreeSlotForHiddenModdedReward)
+		evaluation.reward.canMergeWithArmy = false;
+
+	return evaluation.reward;
 }
 
 uint64_t RewardEvaluator::getArmyGrowth(const RewardEvaluationRequest & request) const
