@@ -2,7 +2,7 @@
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI saved game metadata",
-	"description" : "Information on a saved game that can be read without loading mods used by the save",
+	"description" : "Information on a saved game that can be read without loading mods used by the save. Also read from saves of newer versions, which may add new fields",
 	"required" : [ "vcmiVersion", "saveTime", "map", "game", "mods" ],
 
 	"definitions" : {
