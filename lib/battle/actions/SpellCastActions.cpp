@@ -247,8 +247,8 @@ bool HeroClassAbilityAction::validateCaster(const CBattleInfoCallback & battle, 
 		return false;
 	}
 
-	const auto * definition = LIBRARY->advancedClassHandler->find(hero->advancedClass.classes.at(slot + 1));
-	if(!definition || !definition->valid || definition->ability != action.spell)
+	const auto * definition = LIBRARY->advancedClassHandler->getAbility(*hero, slot);
+	if(!definition || definition->ability != action.spell)
 	{
 		problem.add(MetaString::createFromTextID("advancedClasses.battle.invalidAbility"));
 		return false;

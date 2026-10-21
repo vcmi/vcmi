@@ -15,9 +15,21 @@
 #include "../modding/IdentifierStorage.h"
 #include "../texts/CGeneralTextHandler.h"
 
-bool AdvancedClassProgress::empty() const
+std::string_view advancedClassSelectionProblemName(AdvancedClassSelectionProblem problem)
 {
-	return std::ranges::all_of(classes, [](const auto & value) { return value.empty(); });
+	switch(problem)
+	{
+	case AdvancedClassSelectionProblem::NONE: return "none";
+	case AdvancedClassSelectionProblem::INVALID_PROGRESS: return "invalidProgress";
+	case AdvancedClassSelectionProblem::UNKNOWN_CLASS: return "unknownClass";
+	case AdvancedClassSelectionProblem::INVALID_DEFINITION: return "invalidDefinition";
+	case AdvancedClassSelectionProblem::PROGRESSION_COMPLETE: return "progressionComplete";
+	case AdvancedClassSelectionProblem::WRONG_TIER: return "wrongTier";
+	case AdvancedClassSelectionProblem::LEVEL_REQUIREMENT: return "levelRequirement";
+	case AdvancedClassSelectionProblem::POINT_REQUIREMENT: return "pointRequirement";
+	case AdvancedClassSelectionProblem::WRONG_PATH: return "wrongPath";
+	}
+	return "unknown";
 }
 
 bool AdvancedClassProgress::valid() const
@@ -75,16 +87,6 @@ bool AdvancedClassDefinition::isAbilityReady(int currentRound, int lastUseRound)
 	return abilityConfigured && abilityCooldown >= 0 && currentRound - lastUseRound >= abilityCooldown;
 }
 
-namespace
-{
-bool fail(std::string * error, const std::string & message)
-{
-	if(error)
-		*error = message;
-	return false;
-}
-}
-
 std::string AdvancedClassHandler::qualify(const std::string & scope, const std::string & identifier)
 {
 	return identifier.find(':') == std::string::npos ? scope + ":" + identifier : identifier;
@@ -99,13 +101,17 @@ void AdvancedClassHandler::loadObject(const std::string & scope, const std::stri
 {
 	auto definition = std::make_shared<AdvancedClassDefinition>();
 	definition->id = qualify(scope, name);
-	definition->modScope = scope;
 	definition->nameTextId = "advancedClass." + scope + "." + name + ".name";
+	definition->descriptionTextId = "advancedClass." + scope + "." + name + ".description";
 	definition->tier = static_cast<int>(data["tier"].Integer());
 	definition->requiredLevel = static_cast<int>(data["requiredLevel"].Integer());
 	definition->requiredPoints = static_cast<int>(data["requiredPoints"].Integer());
 
 	LIBRARY->generaltexth->registerString(scope, definition->nameTextId, data["name"]);
+	if(!data["description"].isNull())
+		LIBRARY->generaltexth->registerString(scope, definition->descriptionTextId, data["description"]);
+	else
+		definition->descriptionTextId.clear();
 
 	for(const auto & parent : data["parents"].Vector())
 		definition->parents.push_back(qualify(scope, parent.String()));
@@ -168,7 +174,7 @@ const std::vector<std::shared_ptr<AdvancedClassDefinition>> & AdvancedClassHandl
 	return objects;
 }
 
-const AdvancedClassDefinition * AdvancedClassHandler::rootClass(const AdvancedClassDefinition & definition) const
+const AdvancedClassDefinition * AdvancedClassHandler::getRootClass(const AdvancedClassDefinition & definition) const
 {
 	const AdvancedClassDefinition * current = &definition;
 	while(current->tier > 1)
@@ -182,11 +188,20 @@ const AdvancedClassDefinition * AdvancedClassHandler::rootClass(const AdvancedCl
 	return current;
 }
 
+const AdvancedClassDefinition * AdvancedClassHandler::getAbility(const CGHeroInstance & hero, size_t slot) const
+{
+	if(slot >= ABILITY_SLOTS)
+		return nullptr;
+	const auto * definition = find(hero.advancedClass.classes.at(slot + 1));
+	return definition && definition->valid && definition->tier == static_cast<int>(slot) + 2
+		&& definition->abilityConfigured && definition->ability.hasValue() ? definition : nullptr;
+}
+
 int AdvancedClassHandler::pointsFor(const CGHeroInstance & hero, const AdvancedClassDefinition & definition) const
 {
 	const auto * root = definition.tier == 1 ? &definition : find(hero.advancedClass.classes.front());
 	if(!root)
-		root = rootClass(definition);
+		root = getRootClass(definition);
 	if(!root || root->skillGroups.empty())
 		return 0;
 
@@ -196,27 +211,32 @@ int AdvancedClassHandler::pointsFor(const CGHeroInstance & hero, const AdvancedC
 	});
 }
 
-bool AdvancedClassHandler::canSelect(const CGHeroInstance & hero, const std::string & id, std::string * error) const
+AdvancedClassSelectionProblem AdvancedClassHandler::selectionProblem(const CGHeroInstance & hero, const std::string & id) const
 {
 	if(!hero.advancedClass.valid())
-		return fail(error, "Advanced class progression is invalid");
+		return AdvancedClassSelectionProblem::INVALID_PROGRESS;
 	const auto * definition = find(id);
 	if(!definition)
-		return fail(error, "Unknown advanced class");
+		return AdvancedClassSelectionProblem::UNKNOWN_CLASS;
 	if(!definition->valid)
-		return fail(error, "Advanced class definition is invalid");
+		return AdvancedClassSelectionProblem::INVALID_DEFINITION;
 	const int nextTier = hero.advancedClass.nextTier();
 	if(nextTier > 4)
-		return fail(error, "Advanced class progression is complete");
+		return AdvancedClassSelectionProblem::PROGRESSION_COMPLETE;
 	if(definition->tier != nextTier)
-		return fail(error, "Advanced class tier is not available");
+		return AdvancedClassSelectionProblem::WRONG_TIER;
 	if(hero.level < definition->requiredLevel)
-		return fail(error, "Hero level requirement is not met");
+		return AdvancedClassSelectionProblem::LEVEL_REQUIREMENT;
 	if(pointsFor(hero, *definition) < definition->requiredPoints)
-		return fail(error, "Advanced class path point requirement is not met");
+		return AdvancedClassSelectionProblem::POINT_REQUIREMENT;
 	if(!definition->follows(hero.advancedClass))
-		return fail(error, "Advanced class does not continue the selected path");
-	return true;
+		return AdvancedClassSelectionProblem::WRONG_PATH;
+	return AdvancedClassSelectionProblem::NONE;
+}
+
+bool AdvancedClassHandler::canSelect(const CGHeroInstance & hero, const std::string & id) const
+{
+	return selectionProblem(hero, id) == AdvancedClassSelectionProblem::NONE;
 }
 
 void AdvancedClassHandler::afterLoadFinalization()
@@ -283,6 +303,23 @@ void AdvancedClassHandler::afterLoadFinalization()
 			{
 				logMod->error("Advanced class '%s' parent '%s' is not from the previous tier", definition->id, parentId);
 				definition->valid = false;
+			}
+		}
+		if(definition->parents.size() > 1)
+		{
+			const auto * firstParent = find(definition->parents.front());
+			const auto * expectedRoot = firstParent ? getRootClass(*firstParent) : nullptr;
+			if(!expectedRoot)
+				continue;
+			for(const auto & parentId : definition->parents)
+			{
+				const auto * parent = find(parentId);
+				if(parent && getRootClass(*parent) != expectedRoot)
+				{
+					logMod->error("Advanced class '%s' joins parents from different root paths", definition->id);
+					definition->valid = false;
+					break;
+				}
 			}
 		}
 	}

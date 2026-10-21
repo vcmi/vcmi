@@ -616,13 +616,13 @@ bool BattleEvaluator::canCastSpell()
 	if(battle->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK)
 		return true;
 
-	for(size_t slot = 0; slot < 2; ++slot)
+	for(size_t slot = 0; slot < AdvancedClassHandler::ABILITY_SLOTS; ++slot)
 	{
-		const auto * definition = LIBRARY->advancedClassHandler->find(hero->advancedClass.classes.at(slot + 1));
+		const auto * definition = LIBRARY->advancedClassHandler->getAbility(*hero, slot);
 		const auto mode = slot == 0 ? spells::Mode::HERO_ABILITY_1 : spells::Mode::HERO_ABILITY_2;
 		const bool cooldownReady = definition
 			&& definition->isAbilityReady(battle->battleGetRound(), battle->battleGetClassAbilityLastUse(side, slot));
-		if(definition && definition->valid && definition->ability.hasValue() && cooldownReady
+		if(definition && cooldownReady
 			&& definition->ability.toSpell()->canBeCast(battle.get(), mode, hero))
 			return true;
 	}
@@ -648,14 +648,14 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 		if (s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero))
 			possibleSpells.push_back({s.get(), spells::Mode::HERO, std::nullopt});
 
-	for(size_t slot = 0; slot < 2; ++slot)
+	for(size_t slot = 0; slot < AdvancedClassHandler::ABILITY_SLOTS; ++slot)
 	{
-		const auto * definition = LIBRARY->advancedClassHandler->find(hero->advancedClass.classes.at(slot + 1));
+		const auto * definition = LIBRARY->advancedClassHandler->getAbility(*hero, slot);
 		const auto mode = slot == 0 ? spells::Mode::HERO_ABILITY_1 : spells::Mode::HERO_ABILITY_2;
 		const auto battle = cb->getBattle(battleID);
 		const bool cooldownReady = definition
 			&& definition->isAbilityReady(battle->battleGetRound(), battle->battleGetClassAbilityLastUse(side, slot));
-		if(definition && definition->valid && definition->ability.hasValue() && cooldownReady
+		if(definition && cooldownReady
 			&& definition->ability.toSpell()->canBeCast(battle.get(), mode, hero))
 		{
 			possibleSpells.push_back({definition->ability.toSpell(), mode, slot});

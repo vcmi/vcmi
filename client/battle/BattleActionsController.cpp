@@ -201,12 +201,12 @@ BattleActionEntries BattleActionsController::getPossibleActionsForStack(const CS
 	if(hero)
 	{
 		const auto side = owner.getBattle()->battleGetMySide();
-		for(size_t slot = 0; slot < 2; ++slot)
+		for(size_t slot = 0; slot < AdvancedClassHandler::ABILITY_SLOTS; ++slot)
 		{
-			const auto * definition = LIBRARY->advancedClassHandler->find(hero->advancedClass.classes.at(slot + 1));
+			const auto * definition = LIBRARY->advancedClassHandler->getAbility(*hero, slot);
 			const bool cooldownReady = definition && definition->isAbilityReady(
 				owner.getBattle()->battleGetRound(), owner.getBattle()->battleGetClassAbilityLastUse(side, slot));
-			if(definition && definition->valid && definition->ability.hasValue() && cooldownReady)
+			if(definition && cooldownReady)
 			{
 				const auto option = BattleActionType::makeHeroAbilityOption(slot, definition->ability);
 				entries.push_back(std::make_shared<LibActionEntry>(owner, nullptr, option));

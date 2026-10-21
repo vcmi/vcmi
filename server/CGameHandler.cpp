@@ -2350,9 +2350,9 @@ bool CGameHandler::selectAdvancedClass(ObjectInstanceID heroId, const std::strin
 	if(!hero)
 		COMPLAIN_RET("Cannot select advanced class: hero does not exist");
 
-	std::string error;
-	if(!LIBRARY->advancedClassHandler->canSelect(*hero, classId, &error))
-		COMPLAIN_RET("Cannot select advanced class: " + error);
+	const auto problem = LIBRARY->advancedClassHandler->selectionProblem(*hero, classId);
+	if(problem != AdvancedClassSelectionProblem::NONE)
+		COMPLAIN_RET("Cannot select advanced class: " + std::string(advancedClassSelectionProblemName(problem)));
 
 	const auto * definition = LIBRARY->advancedClassHandler->find(classId);
 	assert(definition);
