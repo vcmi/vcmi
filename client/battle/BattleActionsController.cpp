@@ -31,6 +31,7 @@
 #include "../../lib/CRandomGenerator.h"
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/battle/BattleAction.h"
 #include "../../lib/battle/actions/BattleActionType.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
@@ -198,7 +199,7 @@ BattleActionEntries BattleActionsController::getPossibleActionsForStack(const CS
 		entries.push_back(std::make_shared<LibActionEntry>(owner, stack, option));
 
 	const auto * hero = owner.currentHero();
-	if(hero)
+	if(hero && GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_ADVANCED_CLASSES))
 	{
 		const auto side = owner.getBattle()->battleGetMySide();
 		for(size_t slot = 0; slot < GameConstants::ADVANCED_CLASS_ABILITY_SLOTS; ++slot)

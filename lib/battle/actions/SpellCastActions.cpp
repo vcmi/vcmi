@@ -16,7 +16,9 @@
 #include "../CBattleInfoCallback.h"
 #include "../CUnitState.h"
 #include "../../GameLibrary.h"
+#include "../../IGameSettings.h"
 #include "../../bonuses/BonusSelector.h"
+#include "../../callback/IGameInfoCallback.h"
 #include "../../mapObjects/AdvancedClass.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../spells/CSpell.h"
@@ -226,6 +228,16 @@ HeroClassAbilityAction::HeroClassAbilityAction(size_t slot_)
 ActionOption HeroClassAbilityAction::makeOption(SpellID spell) const
 {
 	return {this, UnitActionButton{7 + static_cast<int>(slot), spell, {}, {}}, spell};
+}
+
+bool HeroClassAbilityAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
+{
+	if(!game.getSettings().getBoolean(EGameSettings::MODULE_ADVANCED_CLASSES))
+	{
+		problem.add(MetaString::createFromTextID("advancedClasses.battle.invalidAbility"));
+		return false;
+	}
+	return SpellCastAction::validate(game, battle, action, problem);
 }
 
 spells::Mode HeroClassAbilityAction::getMode() const

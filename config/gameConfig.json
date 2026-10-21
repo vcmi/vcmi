@@ -765,6 +765,8 @@
 
 		"modules":
 		{
+			// if enabled, heroes may unlock mod-defined advanced class progression
+			"advancedClasses": false,
 			// if enabled, creatures may collect experience (WoG feature)
 			"stackExperience": false,
 			// if enabled, certain artifacts can be granted to creatures (WoG feature)

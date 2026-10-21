@@ -173,6 +173,7 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
+				"advancedClasses" : { "type" : "boolean" },
 				"stackExperience" : { "type" : "boolean" },
 				"stackArtifact" : { "type" : "boolean" },
 				"stackArtifactIndication" : { "type" : "boolean" },

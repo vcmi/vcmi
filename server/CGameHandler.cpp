@@ -2346,6 +2346,9 @@ void CGameHandler::buildStructureForced(ObjectInstanceID townID, BuildingID buil
 
 bool CGameHandler::selectAdvancedClass(ObjectInstanceID heroId, const std::string & classId)
 {
+	if(!gameInfo().getSettings().getBoolean(EGameSettings::MODULE_ADVANCED_CLASSES))
+		COMPLAIN_RET("Cannot select advanced class: module is disabled");
+
 	const auto * hero = gameInfo().getHero(heroId);
 	if(!hero)
 		COMPLAIN_RET("Cannot select advanced class: hero does not exist");

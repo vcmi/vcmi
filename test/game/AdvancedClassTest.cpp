@@ -9,6 +9,7 @@
 
 #include "../mock/GameHandlerTestServer.h"
 #include "../../lib/CPlayerState.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/mapObjects/AdvancedClass.h"
 #include "../../lib/battle/SideInBattle.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -183,9 +184,35 @@ TEST_F(AdvancedClassIntegrationTest, ServerRejectsInvalidSelections)
 	ASSERT_TRUE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationAdvancedClass"));
 	EXPECT_EQ(handler.selectionProblem(*hero, "vcmi-test:integrationOtherRootTier2"), AdvancedClassSelectionProblem::WRONG_PATH);
 	EXPECT_FALSE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationOtherRootTier2"));
-	EXPECT_TRUE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationAdvancedClassTier2"));
+	ASSERT_TRUE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationAdvancedClassTier2"));
+	ASSERT_NE(handler.getAbility(*hero, 0), nullptr);
+	EXPECT_EQ(handler.getAbility(*hero, 0)->id, "vcmi-test:integrationAdvancedClassTier2");
+	ASSERT_TRUE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationAdvancedClassTier3"));
+	ASSERT_NE(handler.getAbility(*hero, 1), nullptr);
+	EXPECT_EQ(handler.getAbility(*hero, 1)->id, "vcmi-test:integrationAdvancedClassTier3");
+	ASSERT_TRUE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationAdvancedClassTier4"));
+	ASSERT_NE(handler.getAbility(*hero, 1), nullptr);
+	EXPECT_EQ(handler.getAbility(*hero, 1)->id, "vcmi-test:integrationAdvancedClassTier4");
 
 	hero->advancedClass.classes = {"a", "b", "c", "d"};
 	EXPECT_EQ(handler.selectionProblem(*hero, "vcmi-test:integrationAdvancedClass"), AdvancedClassSelectionProblem::PROGRESSION_COMPLETE);
+}
+
+TEST_F(AdvancedClassIntegrationTest, ServerRejectsSelectionWhenModuleIsDisabled)
+{
+	startTestGame();
+	JsonNode disabled;
+	disabled.Bool() = false;
+	gameState->getMap().overrideGameSetting(EGameSettings::MODULE_ADVANCED_CLASSES, disabled);
+
+	const auto heroes = gameState->getPlayerState(PlayerColor(0))->getHeroes();
+	ASSERT_FALSE(heroes.empty());
+	auto * hero = gameState->getHero(heroes.front()->id);
+	ASSERT_NE(hero, nullptr);
+
+	GameHandlerTestServer server(gameState);
+	CGameHandler gameHandler(server, gameState);
+	EXPECT_FALSE(gameHandler.selectAdvancedClass(hero->id, "vcmi-test:integrationAdvancedClass"));
+	EXPECT_TRUE(hero->advancedClass.classes.front().empty());
 }
 }

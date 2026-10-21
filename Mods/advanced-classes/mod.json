@@ -4,6 +4,11 @@
 	"modType": "Expansion",
 	"author": "Piotr Pisarczyk",
 	"version": "0.1.0",
+	"settings": {
+		"modules": {
+			"advancedClasses": true
+		}
+	},
 	"translations": [ "config/translations/english.json" ],
 	"advancedClasses": [ "config/advancedClasses.json" ],
 	"czech": {
