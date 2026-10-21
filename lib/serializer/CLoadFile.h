@@ -29,13 +29,21 @@ class DLL_LINKAGE CLoadFile final
 	ESerializationVersion version;
 	std::array<ChunkLocation, SaveFileFormat::CHUNK_ORDER.size()> chunks;
 
+	static ESerializationVersion readVersion(const boost::filesystem::path & fname, bool allowNewer);
+
+	/// Opens saved game for reading of metadata only, which is also possible for saves of newer versions
+	CLoadFile(const boost::filesystem::path & fname, bool metadataOnly);
+
 	void readBytes(std::byte * target, size_t size);
 	[[noreturn]] void throwInvalidFile(const std::string & reason) const;
 
 public:
 	/// Returns serialization version of a saved game.
-	/// Throws SaveTooOldException if version is no longer supported, std::runtime_error if file is not a supported saved game
+	/// Throws SaveTooOldException or SaveTooNewException if version is not supported, std::runtime_error if file is not a saved game
 	static ESerializationVersion readVersion(const boost::filesystem::path & fname);
+
+	/// Returns uncompressed metadata chunk of a saved game, including saves of newer versions
+	static std::vector<std::byte> readMetadata(const boost::filesystem::path & fname);
 
 	/// Opens saved game and validates location of all chunks; saves older than SAVE_CHUNKS are loaded by CLegacyLoadFile
 	explicit CLoadFile(const boost::filesystem::path & fname);

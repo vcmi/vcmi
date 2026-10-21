@@ -18,6 +18,11 @@
 
 ESerializationVersion CLoadFile::readVersion(const boost::filesystem::path & fname)
 {
+	return readVersion(fname, false);
+}
+
+ESerializationVersion CLoadFile::readVersion(const boost::filesystem::path & fname, bool allowNewer)
+{
 	const std::string fileNameUtf8 = TextOperations::filesystemPathToUtf8(fname);
 
 	std::ifstream file(fname.c_str(), std::ios::in | std::ios::binary);
@@ -38,16 +43,27 @@ ESerializationVersion CLoadFile::readVersion(const boost::filesystem::path & fna
 	if(version < ESerializationVersion::MINIMAL)
 		throw SaveTooOldException("Error: too old file format detected in '" + fileNameUtf8 + "'!");
 
-	if(version > ESerializationVersion::CURRENT)
-		throw std::runtime_error("Error: too new file format detected in '" + fileNameUtf8 + "'!");
+	if(version > ESerializationVersion::CURRENT && !allowNewer)
+		throw SaveTooNewException("Error: too new file format detected in '" + fileNameUtf8 + "'!");
 
 	return version;
 }
 
+std::vector<std::byte> CLoadFile::readMetadata(const boost::filesystem::path & fname)
+{
+	CLoadFile loader(fname, true);
+	return loader.readChunk(SaveFileFormat::CHUNK_METADATA);
+}
+
 CLoadFile::CLoadFile(const boost::filesystem::path & fname)
+	: CLoadFile(fname, false)
+{
+}
+
+CLoadFile::CLoadFile(const boost::filesystem::path & fname, bool metadataOnly)
 	: fileName(fname)
 	, file(fname.c_str(), std::ios::in | std::ios::binary)
-	, version(readVersion(fname))
+	, version(readVersion(fname, metadataOnly))
 {
 	if(version < ESerializationVersion::SAVE_CHUNKS)
 		throwInvalidFile("file uses legacy save format");
@@ -58,7 +74,10 @@ CLoadFile::CLoadFile(const boost::filesystem::path & fname)
 	const uint64_t fileSize = boost::filesystem::file_size(fname);
 	uint64_t position = SaveFileFormat::FILE_HEADER_SIZE;
 
-	for(size_t i = 0; i < chunks.size(); ++i)
+	// only metadata chunk is guaranteed to have the same location in saves of newer versions
+	const size_t chunksToLocate = metadataOnly ? 1 : chunks.size();
+
+	for(size_t i = 0; i < chunksToLocate; ++i)
 	{
 		const std::string chunkName = SaveFileFormat::toString(SaveFileFormat::CHUNK_ORDER[i]);
 
@@ -87,7 +106,7 @@ CLoadFile::CLoadFile(const boost::filesystem::path & fname)
 		position += chunks[i].compressedSize;
 	}
 
-	if(position != fileSize)
+	if(!metadataOnly && position != fileSize)
 		throwInvalidFile("unexpected data after the last chunk");
 }
 
