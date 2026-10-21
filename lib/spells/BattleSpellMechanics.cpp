@@ -459,7 +459,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	for(auto & p : effectsToApply)
 		p.first->apply(server, this, p.second);
 
-	if(sc.activeCast && spellCost != 0)
+	if(sc.activeCast && mode != Mode::HERO_ABILITY_1 && mode != Mode::HERO_ABILITY_2)
 	{
 		caster->spendMana(server, spellCost);
 
