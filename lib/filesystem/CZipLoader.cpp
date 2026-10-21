@@ -216,32 +216,52 @@ boost::filesystem::path zipFilenameToFilesystemPath(const std::string & filename
 #endif
 }
 
-std::vector<std::string> ZipArchive::listFiles()
+void ZipArchive::readIndex()
 {
-	std::vector<std::string> ret;
+	if(indexed)
+		return;
+
+	std::vector<std::string> newEntries;
+	std::vector<unz64_file_pos> newPositions;
+	std::unordered_map<std::string, size_t> newNames;
 
 	int result = unzGoToFirstFile(archive);
-
-	if (result == UNZ_OK)
+	while(result == UNZ_OK)
 	{
-		do
+		unz_file_info64 info{};
+		unz64_file_pos position{};
+		if(unzGetCurrentFileInfo64(archive, &info, nullptr, 0, nullptr, 0, nullptr, 0) != UNZ_OK)
+			throw std::runtime_error("Failed to read zip entry metadata");
+
+		std::string name(info.size_filename + 1, '\0');
+		if(unzGetCurrentFileInfo64(archive, &info, name.data(), static_cast<uLong>(name.size()), nullptr, 0, nullptr, 0) != UNZ_OK)
+			throw std::runtime_error("Failed to read zip entry name");
+		if(unzGetFilePos64(archive, &position) != UNZ_OK)
+			throw std::runtime_error("Failed to read zip entry position");
+
+		name.resize(info.size_filename);
+		if(!name.empty() && name.find('\0') == std::string::npos)
 		{
-			unz_file_info64 info;
-			std::vector<char> zipFilename;
-
-			unzGetCurrentFileInfo64 (archive, &info, nullptr, 0, nullptr, 0, nullptr, 0);
-
-			zipFilename.resize(info.size_filename);
-			// Get name of current file. Contrary to docs "info" parameter can't be null
-			unzGetCurrentFileInfo64(archive, &info, zipFilename.data(), static_cast<uLong>(zipFilename.size()), nullptr, 0, nullptr, 0);
-
-			ret.emplace_back(zipFilename.data(), zipFilename.size());
-
-			result = unzGoToNextFile(archive);
+			newNames.emplace(name, newEntries.size());
+			newEntries.push_back(std::move(name));
+			newPositions.push_back(position);
 		}
-		while (result == UNZ_OK);
+		result = unzGoToNextFile(archive);
 	}
-	return ret;
+
+	if(result != UNZ_END_OF_LIST_OF_FILE)
+		throw std::runtime_error("Invalid or truncated zip central directory");
+
+	indexedEntries = std::move(newEntries);
+	positions = std::move(newPositions);
+	names = std::move(newNames);
+	indexed = true;
+}
+
+std::vector<std::string> ZipArchive::listFiles()
+{
+	readIndex();
+	return indexedEntries;
 }
 
 ZipArchive::ZipArchive(const boost::filesystem::path & from)
@@ -276,7 +296,9 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::vecto
 
 bool ZipArchive::extract(const boost::filesystem::path & where, const std::string & file)
 {
-	if (unzLocateFile(archive, file.c_str(), 1) != UNZ_OK)
+	readIndex();
+	const auto found = names.find(file);
+	if(found == names.end() || unzGoToFilePos64(archive, &positions.at(found->second)) != UNZ_OK)
 		return false;
 
 	unz_file_info64 info;
