@@ -41,7 +41,7 @@
 					"type": "array",
 					"minItems": 3,
 					"maxItems": 3,
-					"items": { "type": "integer" }
+					"items": { "type": "integer", "minimum": 0 }
 				}
 			}
 		},
@@ -56,7 +56,7 @@
 			"required": ["spell", "cooldown"],
 			"properties": {
 				"spell": { "type": "string" },
-				"cooldown": { "type": "integer", "minimum": 0 }
+				"cooldown": { "type": "integer", "minimum": 1 }
 			}
 		},
 		"compatibilityIdentifiers": {

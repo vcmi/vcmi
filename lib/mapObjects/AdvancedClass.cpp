@@ -84,7 +84,7 @@ bool AdvancedClassDefinition::follows(const AdvancedClassProgress & progress) co
 
 bool AdvancedClassDefinition::isAbilityReady(int currentRound, int lastUseRound) const
 {
-	return abilityConfigured && abilityCooldown >= 0 && currentRound - lastUseRound >= abilityCooldown;
+	return abilityConfigured && abilityCooldown > 0 && currentRound - lastUseRound >= abilityCooldown;
 }
 
 std::string AdvancedClassHandler::qualify(const std::string & scope, const std::string & identifier)
@@ -234,12 +234,12 @@ AdvancedClassSelectionProblem AdvancedClassHandler::selectionProblem(const CGHer
 		return AdvancedClassSelectionProblem::PROGRESSION_COMPLETE;
 	if(definition->tier != nextTier)
 		return AdvancedClassSelectionProblem::WRONG_TIER;
+	if(!definition->follows(hero.advancedClass))
+		return AdvancedClassSelectionProblem::WRONG_PATH;
 	if(hero.level < definition->requiredLevel)
 		return AdvancedClassSelectionProblem::LEVEL_REQUIREMENT;
 	if(pointsFor(hero, *definition) < definition->requiredPoints)
 		return AdvancedClassSelectionProblem::POINT_REQUIREMENT;
-	if(!definition->follows(hero.advancedClass))
-		return AdvancedClassSelectionProblem::WRONG_PATH;
 	return AdvancedClassSelectionProblem::NONE;
 }
 
@@ -278,9 +278,9 @@ void AdvancedClassHandler::afterLoadFinalization()
 			logMod->error("Advanced class '%s' defines a battle ability outside tiers 2 and 3", definition->id);
 			definition->valid = false;
 		}
-		if(definition->abilityConfigured && definition->abilityCooldown < 0)
+		if(definition->abilityConfigured && definition->abilityCooldown <= 0)
 		{
-			logMod->error("Advanced class '%s' defines a negative ability cooldown", definition->id);
+			logMod->error("Advanced class '%s' defines a non-positive ability cooldown", definition->id);
 			definition->valid = false;
 		}
 		if(std::ranges::any_of(definition->bonuses, [](const auto & bonus) { return !bonus || bonus->type == BonusType::NONE; }))
@@ -293,6 +293,14 @@ void AdvancedClassHandler::afterLoadFinalization()
 			if(group.empty() || std::ranges::any_of(group, [](const auto & weight) { return !weight.skill.hasValue(); }))
 			{
 				logMod->error("Advanced class '%s' contains an empty group or unknown skill", definition->id);
+				definition->valid = false;
+			}
+			else if(std::ranges::any_of(group, [](const auto & weight)
+			{
+				return std::ranges::any_of(weight.values, [](int value) { return value < 0; });
+			}))
+			{
+				logMod->error("Advanced class '%s' contains a negative skill weight", definition->id);
 				definition->valid = false;
 			}
 		}

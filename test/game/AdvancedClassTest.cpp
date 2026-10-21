@@ -91,6 +91,8 @@ TEST(AdvancedClassTest, MissingAbilityIsNeverReady)
 
 	EXPECT_FALSE(definition.isAbilityReady(100, -1000));
 	definition.abilityConfigured = true;
+	definition.abilityCooldown = 0;
+	EXPECT_FALSE(definition.isAbilityReady(100, -1000));
 	definition.abilityCooldown = -1;
 	EXPECT_FALSE(definition.isAbilityReady(100, -1000));
 }

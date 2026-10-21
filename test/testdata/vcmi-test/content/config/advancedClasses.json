@@ -27,7 +27,12 @@
 		"tier" : 2,
 		"requiredLevel" : 0,
 		"requiredPoints" : 0,
-		"parents" : [ "integrationAdvancedClass" ]
+		"parents" : [ "integrationAdvancedClass" ],
+		"ability" :
+		{
+			"spell" : "magicArrow",
+			"cooldown" : 2
+		}
 	},
 	"integrationOtherRoot" :
 	{
@@ -48,7 +53,7 @@
 		"name" : "Integration Test Other Root Tier 2",
 		"tier" : 2,
 		"requiredLevel" : 0,
-		"requiredPoints" : 0,
+		"requiredPoints" : 999,
 		"parents" : [ "integrationOtherRoot" ]
 	},
 	"integrationLevelLocked" :
