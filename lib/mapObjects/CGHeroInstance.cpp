@@ -1723,6 +1723,10 @@ void CGHeroInstance::updateFrom(const JsonNode & data)
 void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 {
 	handler.serializeString("biography", biographyCustomTextId);
+	handler.serializeString("advancedClassTier1", advancedClass.classes[0]);
+	handler.serializeString("advancedClassTier2", advancedClass.classes[1]);
+	handler.serializeString("advancedClassTier3", advancedClass.classes[2]);
+	handler.serializeString("advancedClassTier4", advancedClass.classes[3]);
 	handler.serializeInt("experience", exp, 0);
 
 	std::optional<si64> explicitLevel;

@@ -35,6 +35,7 @@
 #include "../../lib/battle/actions/BattleActionType.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/callback/CCallback.h"
+#include "../../lib/mapObjects/AdvancedClass.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
 bool BattleActionsController::isLibAction(const IBattleActionEntry & entry, EActionType actionType)
@@ -195,6 +196,23 @@ BattleActionEntries BattleActionsController::getPossibleActionsForStack(const CS
 	BattleActionType::collectAllOptions(*owner.getBattle(), *stack, options);
 	for(const auto & option : options)
 		entries.push_back(std::make_shared<LibActionEntry>(owner, stack, option));
+
+	const auto * hero = owner.currentHero();
+	if(hero)
+	{
+		const auto side = owner.getBattle()->battleGetMySide();
+		for(size_t slot = 0; slot < 2; ++slot)
+		{
+			const auto * definition = LIBRARY->advancedClassHandler->find(hero->advancedClass.classes.at(slot + 1));
+			const bool cooldownReady = definition && definition->isAbilityReady(
+				owner.getBattle()->battleGetRound(), owner.getBattle()->battleGetClassAbilityLastUse(side, slot));
+			if(definition && definition->valid && definition->ability.hasValue() && cooldownReady)
+			{
+				const auto option = BattleActionType::makeHeroAbilityOption(slot, definition->ability);
+				entries.push_back(std::make_shared<LibActionEntry>(owner, nullptr, option));
+			}
+		}
+	}
 
 	if(rolledCreatureSpell.hasValue() && !tacticsMode && stack->canCast())
 		entries.push_back(std::make_shared<LibActionEntry>(owner, stack, BattleActionType::makeUnitSpellOption(rolledCreatureSpell)));

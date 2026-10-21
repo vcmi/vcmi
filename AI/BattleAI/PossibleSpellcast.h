@@ -24,6 +24,7 @@ public:
 	const CSpell * spell;
 	spells::Target dest;
 	float value;
+	std::optional<size_t> classAbilitySlot;
 
 	PossibleSpellcast();
 	virtual ~PossibleSpellcast();

@@ -74,6 +74,7 @@ public:
 
 	/// Option of the hero to cast the spell
 	static ActionOption makeHeroSpellOption(SpellID spell);
+	static ActionOption makeHeroAbilityOption(size_t slot, SpellID spell);
 	/// Option of the acting unit to cast the spell, with its panel button
 	static ActionOption makeUnitSpellOption(SpellID spell);
 	/// StartAction pack of the action, with the changes it makes to the turn state of the acting unit

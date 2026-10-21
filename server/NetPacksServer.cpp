@@ -148,6 +148,13 @@ void ApplyGhNetPackVisitor::visitBuildStructure(BuildStructure & pack)
 	result = gh.buildStructure(pack.tid, pack.bid);
 }
 
+void ApplyGhNetPackVisitor::visitSelectAdvancedClass(SelectAdvancedClass & pack)
+{
+	gh.throwIfWrongOwner(connection, &pack, pack.hero);
+	gh.throwIfPlayerNotActive(connection, &pack);
+	result = gh.selectAdvancedClass(pack.hero, pack.classId);
+}
+
 void ApplyGhNetPackVisitor::visitSpellResearch(SpellResearch & pack)
 {
 	gh.throwIfWrongOwner(connection, &pack, pack.tid);

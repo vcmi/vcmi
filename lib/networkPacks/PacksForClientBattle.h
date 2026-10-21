@@ -362,6 +362,7 @@ struct DLL_LINKAGE BattleSpellCast : public CPackForClient
 	std::set<ui32> reflectedCres; // creatures that reflected the spell (e.g. Magic Mirror spell)
 	si32 casterStack = -1; // -1 if not cated by creature, >=0 caster stack ID
 	bool castByHero = true; //if true - spell has been cast by hero, otherwise by a creature
+	int8_t classAbilitySlot = -1;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -378,6 +379,7 @@ struct DLL_LINKAGE BattleSpellCast : public CPackForClient
 		h & casterStack;
 		h & castByHero;
 		h & activeCast;
+		h & classAbilitySlot;
 		assert(battleID != BattleID::NONE);
 	}
 };

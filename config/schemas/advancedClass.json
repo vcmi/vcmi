@@ -1,0 +1,63 @@
+{
+	"type": "object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title": "VCMI advanced hero class format",
+	"additionalProperties": false,
+	"required": ["name", "tier", "requiredLevel", "requiredPoints", "parents"],
+	"properties": {
+		"name": {
+			"type": "string",
+			"description": "Translatable class name"
+		},
+		"tier": {
+			"type": "integer",
+			"minimum": 1,
+			"maximum": 4
+		},
+		"requiredLevel": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"requiredPoints": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"parents": {
+			"type": "array",
+			"uniqueItems": true,
+			"items": { "type": "string" }
+		},
+		"skillGroups": {
+			"type": "array",
+			"description": "Each group is scored separately; the lowest group score is used. Values are points for basic, advanced and expert mastery.",
+			"items": {
+				"type": "object",
+				"minProperties": 1,
+				"additionalProperties": {
+					"type": "array",
+					"minItems": 3,
+					"maxItems": 3,
+					"items": { "type": "integer" }
+				}
+			}
+		},
+		"bonuses": {
+			"type": "object",
+			"additionalProperties": { "$ref": "bonusInstance.json" }
+		},
+		"ability": {
+			"type": "object",
+			"description": "Battle ability available to tier-two and tier-three classes.",
+			"additionalProperties": false,
+			"required": ["spell", "cooldown"],
+			"properties": {
+				"spell": { "type": "string" },
+				"cooldown": { "type": "integer", "minimum": 0 }
+			}
+		},
+		"compatibilityIdentifiers": {
+			"type": "array",
+			"items": { "type": "string" }
+		}
+	}
+}

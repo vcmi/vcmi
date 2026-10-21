@@ -26,6 +26,21 @@ struct DLL_LINKAGE EndTurn : public CPackForServer
 	void visitTyped(ICPackVisitor & visitor) override;
 };
 
+struct DLL_LINKAGE SelectAdvancedClass : public CPackForServer
+{
+	ObjectInstanceID hero;
+	std::string classId;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & static_cast<CPackForServer &>(*this);
+		h & hero;
+		h & classId;
+	}
+};
+
 struct DLL_LINKAGE DismissHero : public CPackForServer
 {
 	DismissHero() = default;

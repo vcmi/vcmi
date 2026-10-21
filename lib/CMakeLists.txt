@@ -169,6 +169,7 @@ set(lib_MAIN_SRCS
 	mapObjectConstructors/MarketInstanceConstructor.cpp
 	mapObjectConstructors/ShipyardInstanceConstructor.cpp
 
+	mapObjects/AdvancedClass.cpp
 	mapObjects/CGCreature.cpp
 	mapObjects/CGDwelling.cpp
 	mapObjects/CGHeroInstance.cpp
@@ -626,6 +627,7 @@ set(lib_MAIN_HEADERS
 	mapObjectConstructors/ShipyardInstanceConstructor.h
 	mapObjectConstructors/SObjectSounds.h
 
+	mapObjects/AdvancedClass.h
 	mapObjects/CGCreature.h
 	mapObjects/CGDwelling.h
 	mapObjects/CGHeroInstance.h

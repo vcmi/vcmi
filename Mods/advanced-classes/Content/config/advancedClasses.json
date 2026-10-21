@@ -1,0 +1,3692 @@
+{
+	"war_01": {
+		"name": "Squire",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"offence": [
+					3,
+					4,
+					5
+				],
+				"armorer": [
+					3,
+					4,
+					5
+				],
+				"tactics": [
+					3,
+					4,
+					5
+				],
+				"artillery": [
+					3,
+					4,
+					5
+				],
+				"ballistics": [
+					3,
+					4,
+					5
+				],
+				"archery": [
+					2,
+					3,
+					4
+				],
+				"leadership": [
+					2,
+					3,
+					4
+				],
+				"luck": [
+					1,
+					2,
+					3
+				],
+				"resistance": [
+					2,
+					3,
+					4
+				],
+				"earthMagic": [
+					1,
+					2,
+					3
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MORALE",
+				"val": 1
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": -5
+			}
+		}
+	},
+	"war2_01": {
+		"name": "Footman",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"war_01"
+		],
+		"ability": {
+			"spell": "stoneSkin",
+			"cooldown": 2
+		}
+	},
+	"war2_02": {
+		"name": "Page",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"war_01"
+		],
+		"ability": {
+			"spell": "bloodlust",
+			"cooldown": 2
+		}
+	},
+	"war3_01": {
+		"name": "Man-at-Arms",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"war2_01",
+			"war2_02"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MORALE",
+				"val": 2
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": -5
+			}
+		},
+		"ability": {
+			"spell": "prayer",
+			"cooldown": 3
+		}
+	},
+	"war4_01": {
+		"name": "Champion",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"war3_01"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "JOUSTING",
+				"val": 5
+			}
+		}
+	},
+	"war4_02": {
+		"name": "Marshal",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"war3_01"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "FEARFUL",
+				"val": 10,
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater": "BONUS_OWNER_UPDATER",
+				"limiters": [
+					"OPPOSITE_SIDE",
+					{
+						"type": "HAS_ANOTHER_BONUS_LIMITER",
+						"bonusType": "LIVING"
+					}
+				]
+			}
+		}
+	},
+	"war_02": {
+		"name": "Fighter",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"offence": [
+					3,
+					4,
+					5
+				],
+				"armorer": [
+					3,
+					4,
+					5
+				],
+				"tactics": [
+					3,
+					4,
+					5
+				],
+				"artillery": [
+					3,
+					4,
+					5
+				],
+				"ballistics": [
+					3,
+					4,
+					5
+				],
+				"archery": [
+					2,
+					3,
+					4
+				],
+				"leadership": [
+					2,
+					3,
+					4
+				],
+				"luck": [
+					1,
+					2,
+					3
+				],
+				"resistance": [
+					2,
+					3,
+					4
+				],
+				"earthMagic": [
+					1,
+					2,
+					3
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 5
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": -5
+			}
+		}
+	},
+	"war2_03": {
+		"name": "Brawler",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"war_02"
+		],
+		"ability": {
+			"spell": "bloodlust",
+			"cooldown": 2
+		}
+	},
+	"war2_04": {
+		"name": "Raider",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"war_02"
+		],
+		"ability": {
+			"spell": "haste",
+			"cooldown": 2
+		}
+	},
+	"war3_02": {
+		"name": "Berserker",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"war2_03",
+			"war2_04"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 10
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": -10
+			}
+		},
+		"ability": {
+			"spell": "frenzy",
+			"cooldown": 3
+		}
+	},
+	"war4_03": {
+		"name": "Warmaster",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"war3_02"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "ADDITIONAL_ATTACK",
+				"val": 1
+			}
+		}
+	},
+	"war4_04": {
+		"name": "Ravager",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"war3_02"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "BLOCKS_RETALIATION",
+				"val": 1
+			}
+		}
+	},
+	"war_03": {
+		"name": "Guardian",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"offence": [
+					3,
+					4,
+					5
+				],
+				"armorer": [
+					3,
+					4,
+					5
+				],
+				"tactics": [
+					3,
+					4,
+					5
+				],
+				"artillery": [
+					3,
+					4,
+					5
+				],
+				"ballistics": [
+					3,
+					4,
+					5
+				],
+				"archery": [
+					2,
+					3,
+					4
+				],
+				"leadership": [
+					2,
+					3,
+					4
+				],
+				"luck": [
+					1,
+					2,
+					3
+				],
+				"resistance": [
+					2,
+					3,
+					4
+				],
+				"earthMagic": [
+					1,
+					2,
+					3
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": 5
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": -5
+			}
+		}
+	},
+	"war2_05": {
+		"name": "Sentinel",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"war_03"
+		],
+		"ability": {
+			"spell": "shield",
+			"cooldown": 2
+		}
+	},
+	"war2_06": {
+		"name": "Defender",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"war_03"
+		],
+		"ability": {
+			"spell": "stoneSkin",
+			"cooldown": 2
+		}
+	},
+	"war3_03": {
+		"name": "Ironwarden",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"war2_05",
+			"war2_06"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": 10
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": -10
+			}
+		},
+		"ability": {
+			"spell": "fireShield",
+			"cooldown": 3
+		}
+	},
+	"war4_05": {
+		"name": "Protector",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"war3_03"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "UNLIMITED_RETALIATIONS",
+				"val": 1
+			}
+		}
+	},
+	"war4_06": {
+		"name": "Bastion",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"war3_03"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "LEVEL_SPELL_IMMUNITY",
+				"val": 4
+			}
+		}
+	},
+	"war_04": {
+		"name": "Archer",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"offence": [
+					3,
+					4,
+					5
+				],
+				"armorer": [
+					3,
+					4,
+					5
+				],
+				"tactics": [
+					3,
+					4,
+					5
+				],
+				"artillery": [
+					3,
+					4,
+					5
+				],
+				"ballistics": [
+					3,
+					4,
+					5
+				],
+				"archery": [
+					2,
+					3,
+					4
+				],
+				"leadership": [
+					2,
+					3,
+					4
+				],
+				"luck": [
+					1,
+					2,
+					3
+				],
+				"resistance": [
+					2,
+					3,
+					4
+				],
+				"earthMagic": [
+					1,
+					2,
+					3
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 5
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": -5
+			}
+		}
+	},
+	"war2_07": {
+		"name": "Marksman",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"war_04"
+		],
+		"ability": {
+			"spell": "precision",
+			"cooldown": 2
+		}
+	},
+	"war2_08": {
+		"name": "Bowmaster",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"war_04"
+		],
+		"ability": {
+			"spell": "bless",
+			"cooldown": 2
+		}
+	},
+	"war3_04": {
+		"name": "Sharpshooter",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"war2_07",
+			"war2_08"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 10
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": -1
+			}
+		},
+		"ability": {
+			"spell": "slayer",
+			"cooldown": 3
+		}
+	},
+	"war4_07": {
+		"name": "Deadeye",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"war3_04"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "FREE_SHOOTING",
+				"val": 1,
+				"limiters": [
+					"SHOOTER_ONLY"
+				]
+			}
+		}
+	},
+	"war4_08": {
+		"name": "Hawkeye",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"war3_04"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "NO_DISTANCE_PENALTY",
+				"val": 1,
+				"limiters": [
+					"SHOOTER_ONLY"
+				]
+			},
+			"effect1": {
+				"type": "NO_WALL_PENALTY",
+				"val": 1,
+				"limiters": [
+					"SHOOTER_ONLY"
+				]
+			}
+		}
+	},
+	"mag_01": {
+		"name": "Adept",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"resistance": [
+					1,
+					2,
+					3
+				],
+				"wisdom": [
+					3,
+					4,
+					5
+				],
+				"sorcery": [
+					3,
+					4,
+					5
+				],
+				"intelligence": [
+					3,
+					4,
+					5
+				],
+				"scholar": [
+					3,
+					4,
+					5
+				],
+				"fireMagic": [
+					3,
+					4,
+					5
+				],
+				"airMagic": [
+					3,
+					4,
+					5
+				],
+				"mysticism": [
+					2,
+					3,
+					4
+				],
+				"eagleEye": [
+					2,
+					3,
+					4
+				],
+				"waterMagic": [
+					3,
+					4,
+					5
+				],
+				"earthMagic": [
+					3,
+					4,
+					5
+				],
+				"necromancy": [
+					2,
+					3,
+					4
+				],
+				"diplomacy": [
+					1,
+					2,
+					3
+				],
+				"learning": [
+					1,
+					2,
+					3
+				],
+				"firstAid": [
+					1,
+					2,
+					3
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 5
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": -5
+			}
+		}
+	},
+	"mag2_01": {
+		"name": "Evoker",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"mag_01"
+		],
+		"ability": {
+			"spell": "magicArrow",
+			"cooldown": 2
+		}
+	},
+	"mag2_02": {
+		"name": "Arcanist",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"mag_01"
+		],
+		"ability": {
+			"spell": "haste",
+			"cooldown": 2
+		}
+	},
+	"mag3_01": {
+		"name": "Spellweaver",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"mag2_01",
+			"mag2_02"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 10
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": -10
+			}
+		},
+		"ability": {
+			"spell": "chainLightning",
+			"cooldown": 3
+		}
+	},
+	"mag4_01": {
+		"name": "Archmage",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"mag3_01"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "SPELLS_OF_LEVEL",
+				"val": 3,
+				"subtype": "spellLevel1",
+				"valueType": "BASE_NUMBER"
+			},
+			"effect1": {
+				"type": "SPELLS_OF_LEVEL",
+				"val": 3,
+				"subtype": "spellLevel2",
+				"valueType": "BASE_NUMBER"
+			},
+			"effect2": {
+				"type": "SPELLS_OF_LEVEL",
+				"val": 3,
+				"subtype": "spellLevel3",
+				"valueType": "BASE_NUMBER"
+			},
+			"effect3": {
+				"type": "SPELLS_OF_LEVEL",
+				"val": 3,
+				"subtype": "spellLevel4",
+				"valueType": "BASE_NUMBER"
+			},
+			"effect4": {
+				"type": "SPELLS_OF_LEVEL",
+				"val": 3,
+				"subtype": "spellLevel5",
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"mag4_02": {
+		"name": "Magister",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"mag3_01"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "SPELL_DAMAGE",
+				"val": 25,
+				"subtype": "air",
+				"valueType": "BASE_NUMBER"
+			},
+			"effect1": {
+				"type": "SPELL_DAMAGE",
+				"val": 25,
+				"subtype": "fire",
+				"valueType": "BASE_NUMBER"
+			},
+			"effect2": {
+				"type": "SPELL_DAMAGE",
+				"val": 25,
+				"subtype": "water",
+				"valueType": "BASE_NUMBER"
+			},
+			"effect3": {
+				"type": "SPELL_DAMAGE",
+				"val": 25,
+				"subtype": "earth",
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"mag_02": {
+		"name": "Mystic",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"resistance": [
+					1,
+					2,
+					3
+				],
+				"wisdom": [
+					3,
+					4,
+					5
+				],
+				"sorcery": [
+					3,
+					4,
+					5
+				],
+				"intelligence": [
+					3,
+					4,
+					5
+				],
+				"scholar": [
+					3,
+					4,
+					5
+				],
+				"fireMagic": [
+					3,
+					4,
+					5
+				],
+				"airMagic": [
+					3,
+					4,
+					5
+				],
+				"mysticism": [
+					2,
+					3,
+					4
+				],
+				"eagleEye": [
+					2,
+					3,
+					4
+				],
+				"waterMagic": [
+					3,
+					4,
+					5
+				],
+				"earthMagic": [
+					3,
+					4,
+					5
+				],
+				"necromancy": [
+					2,
+					3,
+					4
+				],
+				"diplomacy": [
+					1,
+					2,
+					3
+				],
+				"learning": [
+					1,
+					2,
+					3
+				],
+				"firstAid": [
+					1,
+					2,
+					3
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "LUCK",
+				"val": 1
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": -1
+			}
+		}
+	},
+	"mag2_03": {
+		"name": "Oracle",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"mag_02"
+		],
+		"ability": {
+			"spell": "fortune",
+			"cooldown": 2
+		}
+	},
+	"mag2_04": {
+		"name": "Channeler",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"mag_02"
+		],
+		"ability": {
+			"spell": "bless",
+			"cooldown": 2
+		}
+	},
+	"mag3_02": {
+		"name": "Visionary",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"mag2_03",
+			"mag2_04"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "LUCK",
+				"val": 2
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": -1
+			}
+		},
+		"ability": {
+			"spell": "sorrow",
+			"cooldown": 3
+		}
+	},
+	"mag4_03": {
+		"name": "Seer",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"mag3_02"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MAGIC_MIRROR",
+				"val": 40
+			}
+		}
+	},
+	"mag4_04": {
+		"name": "Fatebinder",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"mag3_02"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "SPELL_IMMUNITY",
+				"val": 0,
+				"subtype": "dispel",
+				"addInfo": 1
+			}
+		}
+	},
+	"mag_03": {
+		"name": "Scholar",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"resistance": [
+					1,
+					2,
+					3
+				],
+				"wisdom": [
+					3,
+					4,
+					5
+				],
+				"sorcery": [
+					3,
+					4,
+					5
+				],
+				"intelligence": [
+					3,
+					4,
+					5
+				],
+				"scholar": [
+					3,
+					4,
+					5
+				],
+				"fireMagic": [
+					3,
+					4,
+					5
+				],
+				"airMagic": [
+					3,
+					4,
+					5
+				],
+				"mysticism": [
+					2,
+					3,
+					4
+				],
+				"eagleEye": [
+					2,
+					3,
+					4
+				],
+				"waterMagic": [
+					3,
+					4,
+					5
+				],
+				"earthMagic": [
+					3,
+					4,
+					5
+				],
+				"necromancy": [
+					2,
+					3,
+					4
+				],
+				"diplomacy": [
+					1,
+					2,
+					3
+				],
+				"learning": [
+					1,
+					2,
+					3
+				],
+				"firstAid": [
+					1,
+					2,
+					3
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 5
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": -5
+			}
+		}
+	},
+	"mag2_05": {
+		"name": "Sage",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"mag_03"
+		],
+		"ability": {
+			"spell": "weakness",
+			"cooldown": 2
+		}
+	},
+	"mag2_06": {
+		"name": "Loremaster",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"mag_03"
+		],
+		"ability": {
+			"spell": "shield",
+			"cooldown": 2
+		}
+	},
+	"mag3_03": {
+		"name": "Archivist",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"mag2_05",
+			"mag2_06"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 10
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": -1
+			}
+		},
+		"ability": {
+			"spell": "clone",
+			"cooldown": 3
+		}
+	},
+	"mag4_05": {
+		"name": "Runesmith",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"mag3_03"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "BLOCK_MAGIC_ABOVE",
+				"val": 3,
+				"valueType": "INDEPENDENT_MIN",
+				"propagator": "BATTLE_WIDE"
+			}
+		}
+	},
+	"mag4_06": {
+		"name": "Chronicler",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"mag3_03"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "SPELL_DURATION",
+				"val": 50,
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"mag_04": {
+		"name": "Druid",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"resistance": [
+					1,
+					2,
+					3
+				],
+				"wisdom": [
+					3,
+					4,
+					5
+				],
+				"sorcery": [
+					3,
+					4,
+					5
+				],
+				"intelligence": [
+					3,
+					4,
+					5
+				],
+				"scholar": [
+					3,
+					4,
+					5
+				],
+				"fireMagic": [
+					3,
+					4,
+					5
+				],
+				"airMagic": [
+					3,
+					4,
+					5
+				],
+				"mysticism": [
+					2,
+					3,
+					4
+				],
+				"eagleEye": [
+					2,
+					3,
+					4
+				],
+				"waterMagic": [
+					3,
+					4,
+					5
+				],
+				"earthMagic": [
+					3,
+					4,
+					5
+				],
+				"necromancy": [
+					2,
+					3,
+					4
+				],
+				"diplomacy": [
+					1,
+					2,
+					3
+				],
+				"learning": [
+					1,
+					2,
+					3
+				],
+				"firstAid": [
+					1,
+					2,
+					3
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "STACK_HEALTH",
+				"val": 1
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": -1
+			}
+		}
+	},
+	"mag2_07": {
+		"name": "Grovekeeper",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"mag_04"
+		],
+		"ability": {
+			"spell": "stoneSkin",
+			"cooldown": 2
+		}
+	},
+	"mag2_08": {
+		"name": "Spiritcaller",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"mag_04"
+		],
+		"ability": {
+			"spell": "slow",
+			"cooldown": 2
+		}
+	},
+	"mag3_04": {
+		"name": "Hierophant",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"mag2_07",
+			"mag2_08"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "STACK_HEALTH",
+				"val": 2
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": -1
+			}
+		},
+		"ability": {
+			"spell": "meteorShower",
+			"cooldown": 3
+		}
+	},
+	"mag4_07": {
+		"name": "Stormcaller",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"mag3_04"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "SPELL_DAMAGE",
+				"val": 50,
+				"subtype": "air",
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"mag4_08": {
+		"name": "Lifebinder",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"mag3_04"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MANA_PERCENTAGE_REGENERATION",
+				"val": 100,
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"adv_01": {
+		"name": "Scout",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"archery": [
+					1,
+					2,
+					3
+				],
+				"leadership": [
+					1,
+					2,
+					3
+				],
+				"luck": [
+					2,
+					3,
+					4
+				],
+				"mysticism": [
+					1,
+					2,
+					3
+				],
+				"eagleEye": [
+					1,
+					2,
+					3
+				],
+				"waterMagic": [
+					1,
+					2,
+					3
+				],
+				"necromancy": [
+					1,
+					2,
+					3
+				],
+				"logistics": [
+					3,
+					4,
+					5
+				],
+				"pathfinding": [
+					3,
+					4,
+					5
+				],
+				"scouting": [
+					3,
+					4,
+					5
+				],
+				"estates": [
+					3,
+					4,
+					5
+				],
+				"diplomacy": [
+					2,
+					3,
+					4
+				],
+				"learning": [
+					2,
+					3,
+					4
+				],
+				"firstAid": [
+					2,
+					3,
+					4
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "STACKS_SPEED",
+				"val": 1
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": -5
+			}
+		}
+	},
+	"adv2_01": {
+		"name": "Pathfinder",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"adv_01"
+		],
+		"ability": {
+			"spell": "haste",
+			"cooldown": 2
+		}
+	},
+	"adv2_02": {
+		"name": "Trailblazer",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"adv_01"
+		],
+		"ability": {
+			"spell": "stoneSkin",
+			"cooldown": 2
+		}
+	},
+	"adv3_01": {
+		"name": "Wayfinder",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"adv2_01",
+			"adv2_02"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "STACKS_SPEED",
+				"val": 2
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": -10
+			}
+		},
+		"ability": {
+			"spell": "prayer",
+			"cooldown": 3
+		}
+	},
+	"adv4_01": {
+		"name": "Guide",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"adv3_01"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "BASE_TILE_MOVEMENT_COST",
+				"val": 100,
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"adv4_02": {
+		"name": "Horizon Walker",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"adv3_01"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "FLYING_MOVEMENT",
+				"val": 0,
+				"valueType": "INDEPENDENT_MIN"
+			}
+		}
+	},
+	"adv_02": {
+		"name": "Ranger",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"archery": [
+					1,
+					2,
+					3
+				],
+				"leadership": [
+					1,
+					2,
+					3
+				],
+				"luck": [
+					2,
+					3,
+					4
+				],
+				"mysticism": [
+					1,
+					2,
+					3
+				],
+				"eagleEye": [
+					1,
+					2,
+					3
+				],
+				"waterMagic": [
+					1,
+					2,
+					3
+				],
+				"necromancy": [
+					1,
+					2,
+					3
+				],
+				"logistics": [
+					3,
+					4,
+					5
+				],
+				"pathfinding": [
+					3,
+					4,
+					5
+				],
+				"scouting": [
+					3,
+					4,
+					5
+				],
+				"estates": [
+					3,
+					4,
+					5
+				],
+				"diplomacy": [
+					2,
+					3,
+					4
+				],
+				"learning": [
+					2,
+					3,
+					4
+				],
+				"firstAid": [
+					2,
+					3,
+					4
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 5
+			},
+			"effect1": {
+				"type": "MORALE",
+				"val": -1
+			}
+		}
+	},
+	"adv2_03": {
+		"name": "Hunter",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"adv_02"
+		],
+		"ability": {
+			"spell": "precision",
+			"cooldown": 2
+		}
+	},
+	"adv2_04": {
+		"name": "Beastmaster",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"adv_02"
+		],
+		"ability": {
+			"spell": "bloodlust",
+			"cooldown": 2
+		}
+	},
+	"adv3_02": {
+		"name": "Wildstalker",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"adv2_03",
+			"adv2_04"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 10
+			},
+			"effect1": {
+				"type": "MORALE",
+				"val": -1
+			}
+		},
+		"ability": {
+			"spell": "counterstrike",
+			"cooldown": 3
+		}
+	},
+	"adv4_03": {
+		"name": "Tracker",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"adv3_02"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "ENEMY_DEFENCE_REDUCTION",
+				"val": 50
+			}
+		}
+	},
+	"adv4_04": {
+		"name": "Falconer",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"adv3_02"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "RANGED_RETALIATION",
+				"val": 1,
+				"limiters": [
+					"SHOOTER_ONLY"
+				]
+			}
+		}
+	},
+	"adv_03": {
+		"name": "Merchant",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"archery": [
+					1,
+					2,
+					3
+				],
+				"leadership": [
+					1,
+					2,
+					3
+				],
+				"luck": [
+					2,
+					3,
+					4
+				],
+				"mysticism": [
+					1,
+					2,
+					3
+				],
+				"eagleEye": [
+					1,
+					2,
+					3
+				],
+				"waterMagic": [
+					1,
+					2,
+					3
+				],
+				"necromancy": [
+					1,
+					2,
+					3
+				],
+				"logistics": [
+					3,
+					4,
+					5
+				],
+				"pathfinding": [
+					3,
+					4,
+					5
+				],
+				"scouting": [
+					3,
+					4,
+					5
+				],
+				"estates": [
+					3,
+					4,
+					5
+				],
+				"diplomacy": [
+					2,
+					3,
+					4
+				],
+				"learning": [
+					2,
+					3,
+					4
+				],
+				"firstAid": [
+					2,
+					3,
+					4
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "LUCK",
+				"val": 1
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": -5
+			}
+		}
+	},
+	"adv2_05": {
+		"name": "Trader",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"adv_03"
+		],
+		"ability": {
+			"spell": "fortune",
+			"cooldown": 2
+		}
+	},
+	"adv2_06": {
+		"name": "Quartermaster",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"adv_03"
+		],
+		"ability": {
+			"spell": "bless",
+			"cooldown": 2
+		}
+	},
+	"adv3_03": {
+		"name": "Guildmaster",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"adv2_05",
+			"adv2_06"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "LUCK",
+				"val": 2
+			},
+			"effect1": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": -10
+			}
+		},
+		"ability": {
+			"spell": "clone",
+			"cooldown": 3
+		}
+	},
+	"adv4_05": {
+		"name": "Broker",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"adv3_03"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "SURRENDER_DISCOUNT",
+				"val": 30,
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"adv4_06": {
+		"name": "Magnate",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"adv3_03"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERATE_RESOURCE",
+				"val": 4,
+				"subtype": "mercury",
+				"valueType": "BASE_NUMBER"
+			},
+			"effect1": {
+				"type": "GENERATE_RESOURCE",
+				"val": 4,
+				"subtype": "sulfur",
+				"valueType": "BASE_NUMBER"
+			},
+			"effect2": {
+				"type": "GENERATE_RESOURCE",
+				"val": 4,
+				"subtype": "crystal",
+				"valueType": "BASE_NUMBER"
+			},
+			"effect3": {
+				"type": "GENERATE_RESOURCE",
+				"val": 4,
+				"subtype": "gems",
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"adv_04": {
+		"name": "Wanderer",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"archery": [
+					1,
+					2,
+					3
+				],
+				"leadership": [
+					1,
+					2,
+					3
+				],
+				"luck": [
+					2,
+					3,
+					4
+				],
+				"mysticism": [
+					1,
+					2,
+					3
+				],
+				"eagleEye": [
+					1,
+					2,
+					3
+				],
+				"waterMagic": [
+					1,
+					2,
+					3
+				],
+				"necromancy": [
+					1,
+					2,
+					3
+				],
+				"logistics": [
+					3,
+					4,
+					5
+				],
+				"pathfinding": [
+					3,
+					4,
+					5
+				],
+				"scouting": [
+					3,
+					4,
+					5
+				],
+				"estates": [
+					3,
+					4,
+					5
+				],
+				"diplomacy": [
+					2,
+					3,
+					4
+				],
+				"learning": [
+					2,
+					3,
+					4
+				],
+				"firstAid": [
+					2,
+					3,
+					4
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "STACKS_SPEED",
+				"val": 1
+			},
+			"effect1": {
+				"type": "MORALE",
+				"val": -1
+			}
+		}
+	},
+	"adv2_07": {
+		"name": "Nomad",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"adv_04"
+		],
+		"ability": {
+			"spell": "haste",
+			"cooldown": 2
+		}
+	},
+	"adv2_08": {
+		"name": "Explorer",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"adv_04"
+		],
+		"ability": {
+			"spell": "precision",
+			"cooldown": 2
+		}
+	},
+	"adv3_04": {
+		"name": "Voyager",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"adv2_07",
+			"adv2_08"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "STACKS_SPEED",
+				"val": 2
+			},
+			"effect1": {
+				"type": "MORALE",
+				"val": -1
+			}
+		},
+		"ability": {
+			"spell": "inferno",
+			"cooldown": 3
+		}
+	},
+	"adv4_07": {
+		"name": "Pioneer",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"adv3_04"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "FREE_SHIP_BOARDING",
+				"val": 0,
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"adv4_08": {
+		"name": "Cartographer",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"adv3_04"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "FULL_MAP_SCOUTING",
+				"val": 1,
+				"valueType": "BASE_NUMBER",
+				"addInfo": 1
+			}
+		}
+	},
+	"hyb_01": {
+		"name": "Battlemage",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"offence": [
+					3,
+					4,
+					5
+				],
+				"armorer": [
+					3,
+					4,
+					5
+				],
+				"tactics": [
+					3,
+					4,
+					5
+				],
+				"artillery": [
+					3,
+					4,
+					5
+				],
+				"ballistics": [
+					3,
+					4,
+					5
+				],
+				"archery": [
+					2,
+					3,
+					4
+				],
+				"leadership": [
+					2,
+					3,
+					4
+				],
+				"luck": [
+					1,
+					2,
+					3
+				],
+				"resistance": [
+					2,
+					3,
+					4
+				],
+				"earthMagic": [
+					1,
+					2,
+					3
+				]
+			},
+			{
+				"resistance": [
+					1,
+					2,
+					3
+				],
+				"wisdom": [
+					3,
+					4,
+					5
+				],
+				"sorcery": [
+					3,
+					4,
+					5
+				],
+				"intelligence": [
+					3,
+					4,
+					5
+				],
+				"scholar": [
+					3,
+					4,
+					5
+				],
+				"fireMagic": [
+					3,
+					4,
+					5
+				],
+				"airMagic": [
+					3,
+					4,
+					5
+				],
+				"mysticism": [
+					2,
+					3,
+					4
+				],
+				"eagleEye": [
+					2,
+					3,
+					4
+				],
+				"waterMagic": [
+					3,
+					4,
+					5
+				],
+				"earthMagic": [
+					3,
+					4,
+					5
+				],
+				"necromancy": [
+					2,
+					3,
+					4
+				],
+				"diplomacy": [
+					1,
+					2,
+					3
+				],
+				"learning": [
+					1,
+					2,
+					3
+				],
+				"firstAid": [
+					1,
+					2,
+					3
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 5
+			},
+			"effect1": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 5
+			},
+			"effect2": {
+				"type": "STACKS_SPEED",
+				"val": -1
+			}
+		}
+	},
+	"hyb2_01a": {
+		"name": "Arcane Sergeant",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_01"
+		],
+		"ability": {
+			"spell": "bloodlust",
+			"cooldown": 2
+		}
+	},
+	"hyb2_01b": {
+		"name": "War Mage",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_01"
+		],
+		"ability": {
+			"spell": "magicArrow",
+			"cooldown": 2
+		}
+	},
+	"hyb3_01": {
+		"name": "Battle Magister",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"hyb2_01a",
+			"hyb2_01b"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 10
+			},
+			"effect1": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 10
+			},
+			"effect2": {
+				"type": "STACKS_SPEED",
+				"val": -1
+			}
+		},
+		"ability": {
+			"spell": "frenzy",
+			"cooldown": 3
+		}
+	},
+	"hyb4_01a": {
+		"name": "Eldritch Warlord",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_01"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "ADDITIONAL_ATTACK",
+				"val": 1
+			}
+		}
+	},
+	"hyb4_01b": {
+		"name": "Arcane Commander",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_01"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "FEARFUL",
+				"val": 10,
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater": "BONUS_OWNER_UPDATER",
+				"limiters": [
+					"OPPOSITE_SIDE",
+					{
+						"type": "HAS_ANOTHER_BONUS_LIMITER",
+						"bonusType": "LIVING"
+					}
+				]
+			}
+		}
+	},
+	"hyb_02": {
+		"name": "Spellblade",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"offence": [
+					3,
+					4,
+					5
+				],
+				"armorer": [
+					3,
+					4,
+					5
+				],
+				"tactics": [
+					3,
+					4,
+					5
+				],
+				"artillery": [
+					3,
+					4,
+					5
+				],
+				"ballistics": [
+					3,
+					4,
+					5
+				],
+				"archery": [
+					2,
+					3,
+					4
+				],
+				"leadership": [
+					2,
+					3,
+					4
+				],
+				"luck": [
+					1,
+					2,
+					3
+				],
+				"resistance": [
+					2,
+					3,
+					4
+				],
+				"earthMagic": [
+					1,
+					2,
+					3
+				]
+			},
+			{
+				"resistance": [
+					1,
+					2,
+					3
+				],
+				"wisdom": [
+					3,
+					4,
+					5
+				],
+				"sorcery": [
+					3,
+					4,
+					5
+				],
+				"intelligence": [
+					3,
+					4,
+					5
+				],
+				"scholar": [
+					3,
+					4,
+					5
+				],
+				"fireMagic": [
+					3,
+					4,
+					5
+				],
+				"airMagic": [
+					3,
+					4,
+					5
+				],
+				"mysticism": [
+					2,
+					3,
+					4
+				],
+				"eagleEye": [
+					2,
+					3,
+					4
+				],
+				"waterMagic": [
+					3,
+					4,
+					5
+				],
+				"earthMagic": [
+					3,
+					4,
+					5
+				],
+				"necromancy": [
+					2,
+					3,
+					4
+				],
+				"diplomacy": [
+					1,
+					2,
+					3
+				],
+				"learning": [
+					1,
+					2,
+					3
+				],
+				"firstAid": [
+					1,
+					2,
+					3
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MORALE",
+				"val": 1
+			},
+			"effect1": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 5
+			},
+			"effect2": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": -5
+			}
+		}
+	},
+	"hyb2_02a": {
+		"name": "Runeblade",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_02"
+		],
+		"ability": {
+			"spell": "stoneSkin",
+			"cooldown": 2
+		}
+	},
+	"hyb2_02b": {
+		"name": "Spell Duelist",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_02"
+		],
+		"ability": {
+			"spell": "haste",
+			"cooldown": 2
+		}
+	},
+	"hyb3_02": {
+		"name": "Spell Knight",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"hyb2_02a",
+			"hyb2_02b"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MORALE",
+				"val": 2
+			},
+			"effect1": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 10
+			},
+			"effect2": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": -10
+			}
+		},
+		"ability": {
+			"spell": "fireShield",
+			"cooldown": 3
+		}
+	},
+	"hyb4_02a": {
+		"name": "Arcane Champion",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_02"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "SPELL_DAMAGE",
+				"val": 35,
+				"subtype": "air",
+				"valueType": "BASE_NUMBER"
+			},
+			"effect1": {
+				"type": "SPELL_DAMAGE",
+				"val": 35,
+				"subtype": "fire",
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"hyb4_02b": {
+		"name": "Runic Champion",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_02"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "BLOCK_MAGIC_ABOVE",
+				"val": 4,
+				"valueType": "INDEPENDENT_MIN",
+				"propagator": "BATTLE_WIDE"
+			}
+		}
+	},
+	"hyb_03": {
+		"name": "Warden",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"offence": [
+					3,
+					4,
+					5
+				],
+				"armorer": [
+					3,
+					4,
+					5
+				],
+				"tactics": [
+					3,
+					4,
+					5
+				],
+				"artillery": [
+					3,
+					4,
+					5
+				],
+				"ballistics": [
+					3,
+					4,
+					5
+				],
+				"archery": [
+					2,
+					3,
+					4
+				],
+				"leadership": [
+					2,
+					3,
+					4
+				],
+				"luck": [
+					1,
+					2,
+					3
+				],
+				"resistance": [
+					2,
+					3,
+					4
+				],
+				"earthMagic": [
+					1,
+					2,
+					3
+				]
+			},
+			{
+				"archery": [
+					1,
+					2,
+					3
+				],
+				"leadership": [
+					1,
+					2,
+					3
+				],
+				"luck": [
+					2,
+					3,
+					4
+				],
+				"mysticism": [
+					1,
+					2,
+					3
+				],
+				"eagleEye": [
+					1,
+					2,
+					3
+				],
+				"waterMagic": [
+					1,
+					2,
+					3
+				],
+				"necromancy": [
+					1,
+					2,
+					3
+				],
+				"logistics": [
+					3,
+					4,
+					5
+				],
+				"pathfinding": [
+					3,
+					4,
+					5
+				],
+				"scouting": [
+					3,
+					4,
+					5
+				],
+				"estates": [
+					3,
+					4,
+					5
+				],
+				"diplomacy": [
+					2,
+					3,
+					4
+				],
+				"learning": [
+					2,
+					3,
+					4
+				],
+				"firstAid": [
+					2,
+					3,
+					4
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": 5
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": 1
+			},
+			"effect2": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": -5
+			}
+		}
+	},
+	"hyb2_03a": {
+		"name": "Wild Guardian",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_03"
+		],
+		"ability": {
+			"spell": "shield",
+			"cooldown": 2
+		}
+	},
+	"hyb2_03b": {
+		"name": "Trail Defender",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_03"
+		],
+		"ability": {
+			"spell": "stoneSkin",
+			"cooldown": 2
+		}
+	},
+	"hyb3_03": {
+		"name": "Frontier Warden",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"hyb2_03a",
+			"hyb2_03b"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": 10
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": 2
+			},
+			"effect2": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": -10
+			}
+		},
+		"ability": {
+			"spell": "counterstrike",
+			"cooldown": 3
+		}
+	},
+	"hyb4_03a": {
+		"name": "Oathwarden",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_03"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "UNLIMITED_RETALIATIONS",
+				"val": 1
+			}
+		}
+	},
+	"hyb4_03b": {
+		"name": "Wild Oathkeeper",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_03"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "LEVEL_SPELL_IMMUNITY",
+				"val": 3
+			}
+		}
+	},
+	"hyb_04": {
+		"name": "Skirmisher",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"offence": [
+					3,
+					4,
+					5
+				],
+				"armorer": [
+					3,
+					4,
+					5
+				],
+				"tactics": [
+					3,
+					4,
+					5
+				],
+				"artillery": [
+					3,
+					4,
+					5
+				],
+				"ballistics": [
+					3,
+					4,
+					5
+				],
+				"archery": [
+					2,
+					3,
+					4
+				],
+				"leadership": [
+					2,
+					3,
+					4
+				],
+				"luck": [
+					1,
+					2,
+					3
+				],
+				"resistance": [
+					2,
+					3,
+					4
+				],
+				"earthMagic": [
+					1,
+					2,
+					3
+				]
+			},
+			{
+				"archery": [
+					1,
+					2,
+					3
+				],
+				"leadership": [
+					1,
+					2,
+					3
+				],
+				"luck": [
+					2,
+					3,
+					4
+				],
+				"mysticism": [
+					1,
+					2,
+					3
+				],
+				"eagleEye": [
+					1,
+					2,
+					3
+				],
+				"waterMagic": [
+					1,
+					2,
+					3
+				],
+				"necromancy": [
+					1,
+					2,
+					3
+				],
+				"logistics": [
+					3,
+					4,
+					5
+				],
+				"pathfinding": [
+					3,
+					4,
+					5
+				],
+				"scouting": [
+					3,
+					4,
+					5
+				],
+				"estates": [
+					3,
+					4,
+					5
+				],
+				"diplomacy": [
+					2,
+					3,
+					4
+				],
+				"learning": [
+					2,
+					3,
+					4
+				],
+				"firstAid": [
+					2,
+					3,
+					4
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 5
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": 1
+			},
+			"effect2": {
+				"type": "MORALE",
+				"val": -1
+			}
+		}
+	},
+	"hyb2_04a": {
+		"name": "Raider Scout",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_04"
+		],
+		"ability": {
+			"spell": "haste",
+			"cooldown": 2
+		}
+	},
+	"hyb2_04b": {
+		"name": "Ambusher",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_04"
+		],
+		"ability": {
+			"spell": "precision",
+			"cooldown": 2
+		}
+	},
+	"hyb3_04": {
+		"name": "Shadow Skirmisher",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"hyb2_04a",
+			"hyb2_04b"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 10
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": 2
+			},
+			"effect2": {
+				"type": "MORALE",
+				"val": -1
+			}
+		},
+		"ability": {
+			"spell": "slayer",
+			"cooldown": 3
+		}
+	},
+	"hyb4_04a": {
+		"name": "Storm Raider",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_04"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "JOUSTING",
+				"val": 5
+			}
+		}
+	},
+	"hyb4_04b": {
+		"name": "Shadow Raider",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_04"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "BLOCKS_RETALIATION",
+				"val": 1
+			}
+		}
+	},
+	"hyb_05": {
+		"name": "Arcane Wanderer",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"resistance": [
+					1,
+					2,
+					3
+				],
+				"wisdom": [
+					3,
+					4,
+					5
+				],
+				"sorcery": [
+					3,
+					4,
+					5
+				],
+				"intelligence": [
+					3,
+					4,
+					5
+				],
+				"scholar": [
+					3,
+					4,
+					5
+				],
+				"fireMagic": [
+					3,
+					4,
+					5
+				],
+				"airMagic": [
+					3,
+					4,
+					5
+				],
+				"mysticism": [
+					2,
+					3,
+					4
+				],
+				"eagleEye": [
+					2,
+					3,
+					4
+				],
+				"waterMagic": [
+					3,
+					4,
+					5
+				],
+				"earthMagic": [
+					3,
+					4,
+					5
+				],
+				"necromancy": [
+					2,
+					3,
+					4
+				],
+				"diplomacy": [
+					1,
+					2,
+					3
+				],
+				"learning": [
+					1,
+					2,
+					3
+				],
+				"firstAid": [
+					1,
+					2,
+					3
+				]
+			},
+			{
+				"archery": [
+					1,
+					2,
+					3
+				],
+				"leadership": [
+					1,
+					2,
+					3
+				],
+				"luck": [
+					2,
+					3,
+					4
+				],
+				"mysticism": [
+					1,
+					2,
+					3
+				],
+				"eagleEye": [
+					1,
+					2,
+					3
+				],
+				"waterMagic": [
+					1,
+					2,
+					3
+				],
+				"necromancy": [
+					1,
+					2,
+					3
+				],
+				"logistics": [
+					3,
+					4,
+					5
+				],
+				"pathfinding": [
+					3,
+					4,
+					5
+				],
+				"scouting": [
+					3,
+					4,
+					5
+				],
+				"estates": [
+					3,
+					4,
+					5
+				],
+				"diplomacy": [
+					2,
+					3,
+					4
+				],
+				"learning": [
+					2,
+					3,
+					4
+				],
+				"firstAid": [
+					2,
+					3,
+					4
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 5
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": 1
+			},
+			"effect2": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": -5
+			}
+		}
+	},
+	"hyb2_05a": {
+		"name": "Mystic Rover",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_05"
+		],
+		"ability": {
+			"spell": "fortune",
+			"cooldown": 2
+		}
+	},
+	"hyb2_05b": {
+		"name": "Ley Scout",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_05"
+		],
+		"ability": {
+			"spell": "haste",
+			"cooldown": 2
+		}
+	},
+	"hyb3_05": {
+		"name": "Ley Wanderer",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"hyb2_05a",
+			"hyb2_05b"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 10
+			},
+			"effect1": {
+				"type": "STACKS_SPEED",
+				"val": 2
+			},
+			"effect2": {
+				"type": "GENERAL_DAMAGE_REDUCTION",
+				"val": -10
+			}
+		},
+		"ability": {
+			"spell": "meteorShower",
+			"cooldown": 3
+		}
+	},
+	"hyb4_05a": {
+		"name": "Worldshaper",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_05"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "FLYING_MOVEMENT",
+				"val": 0,
+				"valueType": "INDEPENDENT_MIN"
+			}
+		}
+	},
+	"hyb4_05b": {
+		"name": "Leymaster",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_05"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "SPELL_DURATION",
+				"val": 50,
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"hyb_06": {
+		"name": "Seeker",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"resistance": [
+					1,
+					2,
+					3
+				],
+				"wisdom": [
+					3,
+					4,
+					5
+				],
+				"sorcery": [
+					3,
+					4,
+					5
+				],
+				"intelligence": [
+					3,
+					4,
+					5
+				],
+				"scholar": [
+					3,
+					4,
+					5
+				],
+				"fireMagic": [
+					3,
+					4,
+					5
+				],
+				"airMagic": [
+					3,
+					4,
+					5
+				],
+				"mysticism": [
+					2,
+					3,
+					4
+				],
+				"eagleEye": [
+					2,
+					3,
+					4
+				],
+				"waterMagic": [
+					3,
+					4,
+					5
+				],
+				"earthMagic": [
+					3,
+					4,
+					5
+				],
+				"necromancy": [
+					2,
+					3,
+					4
+				],
+				"diplomacy": [
+					1,
+					2,
+					3
+				],
+				"learning": [
+					1,
+					2,
+					3
+				],
+				"firstAid": [
+					1,
+					2,
+					3
+				]
+			},
+			{
+				"archery": [
+					1,
+					2,
+					3
+				],
+				"leadership": [
+					1,
+					2,
+					3
+				],
+				"luck": [
+					2,
+					3,
+					4
+				],
+				"mysticism": [
+					1,
+					2,
+					3
+				],
+				"eagleEye": [
+					1,
+					2,
+					3
+				],
+				"waterMagic": [
+					1,
+					2,
+					3
+				],
+				"necromancy": [
+					1,
+					2,
+					3
+				],
+				"logistics": [
+					3,
+					4,
+					5
+				],
+				"pathfinding": [
+					3,
+					4,
+					5
+				],
+				"scouting": [
+					3,
+					4,
+					5
+				],
+				"estates": [
+					3,
+					4,
+					5
+				],
+				"diplomacy": [
+					2,
+					3,
+					4
+				],
+				"learning": [
+					2,
+					3,
+					4
+				],
+				"firstAid": [
+					2,
+					3,
+					4
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "LUCK",
+				"val": 1
+			},
+			"effect1": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 5
+			},
+			"effect2": {
+				"type": "STACKS_SPEED",
+				"val": -1
+			}
+		}
+	},
+	"hyb2_06a": {
+		"name": "Relic Seeker",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_06"
+		],
+		"ability": {
+			"spell": "bless",
+			"cooldown": 2
+		}
+	},
+	"hyb2_06b": {
+		"name": "Rune Seeker",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_06"
+		],
+		"ability": {
+			"spell": "stoneSkin",
+			"cooldown": 2
+		}
+	},
+	"hyb3_06": {
+		"name": "Arcane Seeker",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"hyb2_06a",
+			"hyb2_06b"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "LUCK",
+				"val": 2
+			},
+			"effect1": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 10
+			},
+			"effect2": {
+				"type": "STACKS_SPEED",
+				"val": -1
+			}
+		},
+		"ability": {
+			"spell": "clone",
+			"cooldown": 3
+		}
+	},
+	"hyb4_06a": {
+		"name": "Astral Pathfinder",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_06"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "BASE_TILE_MOVEMENT_COST",
+				"val": 100,
+				"valueType": "BASE_NUMBER"
+			}
+		}
+	},
+	"hyb4_06b": {
+		"name": "Relic Pathfinder",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_06"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "FULL_MAP_SCOUTING",
+				"val": 1,
+				"valueType": "BASE_NUMBER",
+				"addInfo": 1
+			}
+		}
+	},
+	"hyb_07": {
+		"name": "Deathbinder",
+		"tier": 1,
+		"requiredLevel": 10,
+		"requiredPoints": 10,
+		"parents": [],
+		"skillGroups": [
+			{
+				"necromancy": [
+					25,
+					25,
+					25
+				]
+			}
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 5
+			},
+			"effect1": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 5
+			},
+			"effect2": {
+				"type": "MORALE",
+				"val": -1
+			}
+		}
+	},
+	"hyb2_07a": {
+		"name": "Grave Adept",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_07"
+		],
+		"ability": {
+			"spell": "weakness",
+			"cooldown": 2
+		}
+	},
+	"hyb2_07b": {
+		"name": "Soul Acolyte",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"hyb_07"
+		],
+		"ability": {
+			"spell": "sorrow",
+			"cooldown": 2
+		}
+	},
+	"hyb3_07": {
+		"name": "Soulbinder",
+		"tier": 3,
+		"requiredLevel": 20,
+		"requiredPoints": 20,
+		"parents": [
+			"hyb2_07a",
+			"hyb2_07b"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "GENERAL_DAMAGE_PREMY",
+				"val": 10
+			},
+			"effect1": {
+				"type": "MAGIC_RESISTANCE",
+				"val": 10
+			},
+			"effect2": {
+				"type": "MORALE",
+				"val": -1
+			}
+		},
+		"ability": {
+			"spell": "sorrow",
+			"cooldown": 3
+		}
+	},
+	"hyb4_07a": {
+		"name": "Deathbinder Lord",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_07"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "ENEMY_DEFENCE_REDUCTION",
+				"val": 50
+			}
+		}
+	},
+	"hyb4_07b": {
+		"name": "Soulreaper Lord",
+		"tier": 4,
+		"requiredLevel": 25,
+		"requiredPoints": 25,
+		"parents": [
+			"hyb3_07"
+		],
+		"bonuses": {
+			"effect0": {
+				"type": "FEARFUL",
+				"val": 10,
+				"propagator": "BATTLE_WIDE",
+				"propagationUpdater": "BONUS_OWNER_UPDATER",
+				"limiters": [
+					"OPPOSITE_SIDE",
+					{
+						"type": "HAS_ANOTHER_BONUS_LIMITER",
+						"bonusType": "LIVING"
+					}
+				]
+			}
+		}
+	}
+}

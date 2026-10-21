@@ -40,6 +40,7 @@
 #include "rmg/CRmgTemplateStorage.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 #include "mapObjects/ObstacleSetHandler.h"
+#include "mapObjects/AdvancedClass.h"
 #include "mapping/CMapEditManager.h"
 #include "spells/CSpellHandler.h"
 #include "scripting/ScriptHandler.h"
@@ -242,6 +243,7 @@ void GameLibrary::initializeLibrary()
 	createHandler(battlefieldsHandler);
 	createHandler(obstacleHandler);
 	createHandler(mapLayerHandler);
+	createHandler(advancedClassHandler);
 
 	scriptHandler = std::make_unique<scripting::LuaModule>();
 	scriptHandler->installScripting(*scriptTypeHandler);

@@ -95,6 +95,7 @@ Game Entities:
 - [Faction Requirement](Entities_Format/Faction_Format.md)
 - [Faction Help](Guides/Faction_Help.md)
 - [Hero Class](Entities_Format/Hero_Class_Format.md)
+- [Advanced Class](Entities_Format/Advanced_Class_Format.md)
 - [Hero Type](Entities_Format/Hero_Type_Format.md)
 - [Spell](Entities_Format/Spell_Format.md)
 - [Secondary Skill](Entities_Format/Secondary_Skill_Format.md)

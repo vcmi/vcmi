@@ -38,7 +38,9 @@ enum class Mode
 	CREATURE_ACTIVE, //deprecated
 	ENCHANTER,
 	SPELL_LIKE_ATTACK,
-	PASSIVE//f.e. opening battle spells
+	PASSIVE, //f.e. opening battle spells
+	HERO_ABILITY_1,
+	HERO_ABILITY_2
 };
 
 enum class AimType

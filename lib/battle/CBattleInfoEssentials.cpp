@@ -45,6 +45,12 @@ int32_t CBattleInfoEssentials::battleGetEnchanterCounter(BattleSide side) const
 	return getBattle()->getEnchanterCounter(side);
 }
 
+int32_t CBattleInfoEssentials::battleGetClassAbilityLastUse(BattleSide side, size_t slot) const
+{
+	THROW_IF_NOT_BATTLE();
+	return getBattle()->getClassAbilityLastUse(side, slot);
+}
+
 int32_t CBattleInfoEssentials::nextObstacleId() const
 {
 	int32_t maxId = -1;

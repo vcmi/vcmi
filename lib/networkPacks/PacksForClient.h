@@ -28,6 +28,7 @@
 #include "../gameState/GameStatistics.h"
 #include "../int3.h"
 #include "../mapObjects/army/CSimpleArmy.h"
+#include "../mapObjects/AdvancedClass.h"
 #include "../spells/ViewSpellInt.h"
 
 #include <vcmi/scripting/ApiTags.h>
@@ -52,6 +53,20 @@ using TTeleportExitsList = std::vector<std::pair<ObjectInstanceID, int3>>;
 using FowTilesType = std::set<int3>;
 
 /***********************************************************************************************************/
+struct DLL_LINKAGE SetAdvancedClass : public CPackForClient
+{
+	ObjectInstanceID hero;
+	AdvancedClassProgress progress;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & hero;
+		h & progress;
+	}
+};
+
 struct DLL_LINKAGE PackageApplied : public CPackForClient
 {
 	PackageApplied() = default;

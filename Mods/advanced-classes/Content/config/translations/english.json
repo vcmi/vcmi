@@ -1,0 +1,10 @@
+{
+	"advancedClasses.heroWindow.open": "Advanced classes",
+	"advancedClasses.heroWindow.title": "Advanced Classes",
+	"advancedClasses.heroWindow.selectDescription": "Select tier %d class. The choice is permanent.",
+	"advancedClasses.heroWindow.confirm": "Select %s? This choice is permanent.",
+	"advancedClasses.heroWindow.noneAvailable": "No advanced class is currently available. Each tier requires hero level and path points: 10 at level 10, 15 at level 15, 20 at level 20, and 25 at level 25.",
+	"advancedClasses.battle.noHero": "A class ability requires a hero.",
+	"advancedClasses.battle.invalidAbility": "This hero does not have that class ability.",
+	"advancedClasses.battle.cooldown": "This class ability is on cooldown."
+}

@@ -15,6 +15,7 @@
 #include "CHeroBackpackWindow.h"
 #include "CKingdomInterface.h"
 #include "CExchangeWindow.h"
+#include "GUIClasses.h"
 
 #include "../CPlayerInterface.h"
 
@@ -38,6 +39,7 @@
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/mapObjects/AdvancedClass.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -100,6 +102,12 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), [](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
 	}
 	questlogButton->block(!GAME->interface()->hasJournalEntries());
+
+	if(hero->tempOwner == GAME->interface()->playerID && !LIBRARY->advancedClassHandler->getAll().empty())
+	{
+		advancedClassButton = std::make_shared<CButton>(Point(204, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltipLocalized("advancedClasses.heroWindow.open"), [this](){ createAdvancedClassWindow(); });
+		advancedClassButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/classButtonIcon")));
+	}
 
 	formations = std::make_shared<CToggleGroup>(0);
 	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), AnimationPath::builtin("hsbtns6.def"), std::make_pair(LIBRARY->generaltexth->translate("core.heroscrn.23"), LIBRARY->generaltexth->translate("core.heroscrn.29")), 0, EShortcut::HERO_TIGHT_FORMATION));
@@ -366,6 +374,46 @@ void CHeroWindow::dismissCurrent()
 void CHeroWindow::createBackpackWindow()
 {
 	ENGINE->windows().createAndPushWindow<CHeroBackpackWindow>(curHero, artSets);
+}
+
+void CHeroWindow::createAdvancedClassWindow()
+{
+	std::vector<std::string> classIds;
+	std::vector<std::string> classNames;
+	for(const auto & definition : LIBRARY->advancedClassHandler->getAll())
+	{
+		if(LIBRARY->advancedClassHandler->canSelect(*curHero, definition->id))
+		{
+			classIds.push_back(definition->id);
+			classNames.push_back(GAME->translator().translate(definition->nameTextId));
+		}
+	}
+
+	if(classIds.empty())
+	{
+		GAME->interface()->showInfoDialog(GAME->translator().translate("advancedClasses.heroWindow.noneAvailable"));
+		return;
+	}
+
+	const int tier = curHero->advancedClass.nextTier();
+	const auto description = boost::str(boost::format(GAME->translator().translate("advancedClasses.heroWindow.selectDescription")) % tier);
+	ENGINE->windows().createAndPushWindow<CObjectListWindow>(
+		classNames,
+		nullptr,
+		GAME->translator().translate("advancedClasses.heroWindow.title"),
+		description,
+		[hero = curHero, classIds, classNames](int index)
+		{
+			if(index >= 0 && static_cast<size_t>(index) < classIds.size())
+			{
+				const auto question = boost::str(
+					boost::format(GAME->translator().translate("advancedClasses.heroWindow.confirm")) % classNames.at(index));
+				GAME->interface()->showYesNoDialog(question, [hero, classId = classIds.at(index)]()
+				{
+					GAME->interface()->cb->selectAdvancedClass(hero, classId);
+				}, nullptr);
+			}
+		});
 }
 
 void CHeroWindow::commanderWindow()
