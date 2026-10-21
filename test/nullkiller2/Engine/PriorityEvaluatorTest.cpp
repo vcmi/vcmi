@@ -21,6 +21,8 @@
 #include "lib/gameState/CGameState.h"
 #include "lib/mapObjects/CGHeroInstance.h"
 #include "lib/mapObjects/CRewardableObject.h"
+#include "lib/modding/ModScope.h"
+#include "lib/rewardable/Info.h"
 
 #include "mock/TinyH3MBuilder.h"
 #include "mock/TinyMapGameTest.h"
@@ -29,6 +31,26 @@
 namespace
 {
 const PlayerColor PLAYER(0);
+
+TEST(Nullkiller2_Engine_PriorityEvaluator, builtinCreatureRewardProvenance)
+{
+	JsonNode configuration;
+	auto & reward = configuration["rewards"].Vector().emplace_back();
+	reward["message"].String() = "test";
+	auto & creature = reward["creatures"].Vector().emplace_back();
+	creature["type"].String() = "archer";
+	creature["amount"].Integer() = 1;
+	configuration.setModScope(ModScope::scopeBuiltin());
+
+	reward["message"].setModScope("testMod");
+	Rewardable::Info info;
+	info.init(configuration, "testCreatureBank");
+	EXPECT_TRUE(info.hasOnlyBuiltinCreatureRewards());
+
+	creature["amount"].setModScope("testMod");
+	info.init(configuration, "testCreatureBank");
+	EXPECT_FALSE(info.hasOnlyBuiltinCreatureRewards());
+}
 
 TinyH3M::TinyH3MBuilder makePlannedArmyEvaluationMap()
 {
@@ -451,4 +473,16 @@ TEST_F(Nullkiller2_Engine_CreatureBankReward, unscoutedCreatureRewardUsesPublicB
 	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT);
 	EXPECT_EQ(reward.minMaxValue.first, 0);
 	EXPECT_EQ(reward.minMaxValue.second, 0);
+}
+
+TEST_F(Nullkiller2_Engine_CreatureBankReward, hiddenCoreBankUsesActualCreatureReward)
+{
+	JsonNode value;
+	value.Bool() = false;
+	map()->overrideGameSetting(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION, value);
+	bank->configuration.info.front().reward.creatures.clear();
+	bank->configuration.info.front().reward.creatures.emplace_back(CreatureID(CreatureID::decode("skeleton")), 1);
+
+	const auto reward = evaluateCreatureReward();
+	EXPECT_EQ(reward.canMergeWithArmy, true);
 }

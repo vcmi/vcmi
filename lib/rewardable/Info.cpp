@@ -23,6 +23,7 @@
 #include "../json/JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
+#include "../modding/ModScope.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../entities/ResourceTypeHandler.h"
 
@@ -90,6 +91,24 @@ namespace {
 				return true;
 		}
 		return false;
+	}
+
+	bool hasOnlyBuiltinData(const JsonNode & node)
+	{
+		if(node.getModScope() != ModScope::scopeBuiltin())
+			return false;
+
+		if(node.isStruct())
+			for(const auto & [_, child] : node.Struct())
+				if(!hasOnlyBuiltinData(child))
+					return false;
+
+		if(node.isVector())
+			for(const auto & child : node.Vector())
+				if(!hasOnlyBuiltinData(child))
+					return false;
+
+		return true;
 	}
 }
 
@@ -638,6 +657,18 @@ Rewardable::Info::CreatureRewardVariants Rewardable::Info::getPossibleCreatureRe
 		result.push_back(std::move(creatureReward));
 	}
 	return result;
+}
+
+bool Rewardable::Info::hasOnlyBuiltinCreatureRewards() const
+{
+	for(const auto & reward : parameters["rewards"].Vector())
+	{
+		const auto & creatures = reward["creatures"];
+		if(!creatures.isNull() && !hasOnlyBuiltinData(creatures))
+			return false;
+	}
+
+	return true;
 }
 
 bool Rewardable::Info::givesSpells() const

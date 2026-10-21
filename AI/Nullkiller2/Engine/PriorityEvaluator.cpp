@@ -428,9 +428,34 @@ CreatureRewardValueInfo RewardEvaluator::getCreatureRewardValue(const RewardEval
 	const auto * rewardable = dynamic_cast<const Rewardable::Info *>(objectInfo.get());
 	if(!rewardable)
 		return {};
+	const bool builtinCreatureRewards = rewardable->hasOnlyBuiltinCreatureRewards();
+	const bool hiddenModdedCreatureReward = !aiNk->cc->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION)
+		&& !builtinCreatureRewards;
+	const bool requiresFreeSlotForHiddenModdedReward = hiddenModdedCreatureReward
+		&& request.army->stacksCount() == GameConstants::ARMY_SIZE;
+
+	if(builtinCreatureRewards)
+	{
+		const auto * rewardableObject = dynamic_cast<const Rewardable::Interface *>(request.target);
+		assert(rewardableObject);
+		if(!rewardableObject)
+			return {};
+
+		for(auto index : rewardableObject->getAvailableRewards(request.hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+		{
+			const auto & creatures = rewardableObject->configuration.info.at(index).reward.creatures;
+			const auto [value, improvement] = evaluateCreatures(creatures);
+			resultValue += value;
+			resultImprovement += improvement;
+		}
+		return makeCreatureRewardValueInfo(
+			{resultValue, resultValue}, {resultImprovement, resultImprovement}, canMergeWithArmy);
+	}
+
 	const auto possibleRewards = rewardable->getPossibleCreatureRewards();
 	if(possibleRewards.empty())
-		return {};
+		return requiresFreeSlotForHiddenModdedReward ? CreatureRewardValueInfo{
+			CreatureRewardValueInfo::State::UNKNOWN, {0, 0}, false} : CreatureRewardValueInfo{};
 	std::pair<uint64_t, uint64_t> minMaxValue = {std::numeric_limits<uint64_t>::max(), 0};
 	std::pair<uint64_t, uint64_t> minMaxImprovement = {std::numeric_limits<uint64_t>::max(), 0};
 	for(const auto & reward : possibleRewards)
@@ -441,6 +466,7 @@ CreatureRewardValueInfo RewardEvaluator::getCreatureRewardValue(const RewardEval
 		minMaxImprovement.first = std::min(minMaxImprovement.first, improvement);
 		minMaxImprovement.second = std::max(minMaxImprovement.second, improvement);
 	}
+	canMergeWithArmy &= !requiresFreeSlotForHiddenModdedReward;
 	return makeCreatureRewardValueInfo(minMaxValue, minMaxImprovement, canMergeWithArmy);
 }
 
