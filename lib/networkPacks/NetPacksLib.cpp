@@ -821,6 +821,11 @@ void LobbyUpdateState::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyUpdateState(*this);
 }
 
+void LobbyUpdateMapInfo::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyUpdateMapInfo(*this);
+}
+
 void LobbySetMap::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbySetMap(*this);

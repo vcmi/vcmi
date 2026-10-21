@@ -53,6 +53,9 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 
 	std::shared_ptr<IServerDiscoveryListener> discoveryListener;
 
+	/// Map info last sent to clients in LobbyUpdateMapInfo
+	std::shared_ptr<CMapInfo> announcedMapInfo;
+
 	bool loadSavedGame(CGameHandler & handler, const StartInfo & info);
 public:
 	uint16_t getPort() const override

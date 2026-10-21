@@ -38,6 +38,7 @@ public:
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
 	void visitLobbyModsCheck(LobbyModsCheck & pack) override;
 	void visitLobbyUpdateState(LobbyUpdateState & pack) override;
+	void visitLobbyUpdateMapInfo(LobbyUpdateMapInfo & pack) override;
 };
 
 class ApplyOnLobbyScreenNetPackVisitor : public ::ICPackVisitor
