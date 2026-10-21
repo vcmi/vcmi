@@ -27,11 +27,11 @@
 	"properties" : {
 		"vcmiVersion" : {
 			"type" : "string",
-			"description" : "Version of VCMI that created the save, only for display to the player. Present only for saved games"
+			"description" : "Version of VCMI that created the save, only for display to the player. Present only for saved games, missing for saves in legacy format"
 		},
 		"saveTime" : {
 			"type" : "number",
-			"description" : "Time when the save was created, in seconds since Unix epoch. Present only for saved games"
+			"description" : "Time when the save was created, in seconds since Unix epoch. Present only for saved games, missing for saves in legacy format"
 		},
 		"map" : {
 			"type" : "object",
@@ -71,7 +71,7 @@
 		"game" : {
 			"type" : "object",
 			"description" : "State of the game, present only for saved games",
-			"required" : [ "mode", "mapFile", "difficulty", "humanPlayers", "saveDirectory", "day" ],
+			"required" : [ "mode", "mapFile", "difficulty", "humanPlayers", "saveDirectory" ],
 			"properties" : {
 				"mode" : {
 					"type" : "string",
@@ -100,7 +100,7 @@
 				},
 				"day" : {
 					"type" : "number",
-					"description" : "Total number of days passed in the game"
+					"description" : "Total number of days passed in the game, missing for saves in legacy format"
 				}
 			}
 		},

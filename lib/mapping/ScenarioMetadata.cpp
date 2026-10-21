@@ -82,7 +82,8 @@ JsonNode ScenarioMetadata::modsToJson(const ModCompatibilityInfo & mods)
 
 	for(const auto & [modID, mod] : mods)
 	{
-		if(!mod.impactsGameplay)
+		// mod lists of legacy saves contain built-in mod
+		if(!mod.impactsGameplay || modID == ModScope::scopeBuiltin())
 			continue;
 
 		const std::string rootID = modID.substr(0, modID.find('.'));
