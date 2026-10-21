@@ -1312,11 +1312,17 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readWitchHut(const int3 & posit
 		{
 			if(allowedAbilities.size() != 1)
 			{
-				auto defaultAllowed = LIBRARY->skillh->getDefaultAllowed();
+				// Skills added by mods are unknown to the map, so treat them the same way as witch huts on random maps
+				for(const auto & skill : LIBRARY->skillh->getDefaultAllowed())
+				{
+					if(skill.getNum() < features.skillsCount)
+						continue;
 
-				for(int skillID = features.skillsCount; skillID < defaultAllowed.size(); ++skillID)
-					if(defaultAllowed.count(skillID))
-						allowedAbilities.insert(SecondarySkill(skillID));
+					if(skill.toSkill()->hasTag("bannedForWitchHut"))
+						continue;
+
+					allowedAbilities.insert(skill);
+				}
 			}
 
 			JsonNode variable;
