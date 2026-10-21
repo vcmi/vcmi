@@ -70,6 +70,8 @@ public:
 	/// Empty inner vector means this particular reward tier gives no creatures.
 	/// Non-empty inner vector contains creature stacks granted by that tier.
 	CreatureRewardVariants getPossibleCreatureRewards() const;
+	bool hasOnlyBuiltinCreatureRewards() const;
+	bool hasOnlyBuiltinRewards() const;
 
 	bool givesSpells() const override;
 

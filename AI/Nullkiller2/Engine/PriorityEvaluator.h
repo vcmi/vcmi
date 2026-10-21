@@ -41,8 +41,9 @@ struct CreatureRewardValueInfo
 	enum class State : uint8_t
 	{
 		UNKNOWN, // improvement cannot be determined
-		NO_ARMY_IMPROVEMENT, // no possible reward improves the current army
-		IMPROVEMENT_DEPENDS_ON_TIER, // only some hidden bank tiers improve the current army
+		GIVES_NO_CREATURE, // available rewards contain no creatures
+		NO_ARMY_IMPROVEMENT, // no possible creature reward improves the current army
+		IMPROVEMENT_DEPENDS_ON_TIER, // only some possible rewards improve the current army
 		IMPROVES_ARMY // every possible reward improves the current army
 	};
 	State state = State::UNKNOWN;
