@@ -41,6 +41,10 @@
 				"author" : { "$ref" : "#/definitions/text" },
 				"authorContact" : { "$ref" : "#/definitions/text" },
 				"mapVersion" : { "$ref" : "#/definitions/text" },
+				"creationDateTime" : {
+					"type" : "number",
+					"description" : "Time when the map was created, in seconds since Unix epoch, 0 or missing if unknown"
+				},
 				"format" : {
 					"type" : "number",
 					"description" : "Format of the original map, value of EMapFormat"

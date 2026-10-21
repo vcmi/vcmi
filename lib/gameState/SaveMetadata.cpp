@@ -96,6 +96,7 @@ static JsonNode mapToJson(const CMapHeader & header)
 	result["author"] = textToJson(header.author, translators);
 	result["authorContact"] = textToJson(header.authorContact, translators);
 	result["mapVersion"] = textToJson(header.mapVersion, translators);
+	result["creationDateTime"].Integer() = header.creationDateTime;
 	result["format"].Integer() = static_cast<int>(header.version);
 	result["width"].Integer() = header.width;
 	result["height"].Integer() = header.height;
