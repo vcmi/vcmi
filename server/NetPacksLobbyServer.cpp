@@ -192,7 +192,9 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 
 	srv.updateStartInfoOnMapChange(pack.mapInfo, pack.mapGenOpts);
 
-	result = true;
+	// pack contains whole map header and clients receive it in LobbyUpdateMapInfo, so it is not announced
+	srv.updateAndPropagateLobbyState();
+	result = false;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
