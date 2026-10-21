@@ -35,10 +35,9 @@
 		},
 		"map" : {
 			"type" : "object",
-			"required" : [ "name", "description", "author", "authorContact", "mapVersion", "format", "width", "height", "levels", "difficulty", "victoryIcon", "defeatIcon", "players", "humanPlayers" ],
+			"required" : [ "name", "author", "authorContact", "mapVersion", "format", "width", "height", "levels", "difficulty", "victoryIcon", "defeatIcon", "players", "humanPlayers" ],
 			"properties" : {
 				"name" : { "$ref" : "#/definitions/text" },
-				"description" : { "$ref" : "#/definitions/text" },
 				"author" : { "$ref" : "#/definitions/text" },
 				"authorContact" : { "$ref" : "#/definitions/text" },
 				"mapVersion" : { "$ref" : "#/definitions/text" },
