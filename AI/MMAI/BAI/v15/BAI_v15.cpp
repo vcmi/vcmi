@@ -22,8 +22,11 @@
 #include "AI/MMAI/common.h"
 #include "BAI/v15/render_v15.h"
 #include "BAI/v15/verify_v15.h"
+#include "entities/building/TownFortifications.h"
+#include "mapObjects/CGTownInstance.h"
 #include "schema/base.h"
 #include "schema/v15/types.h"
+#include "spells/CSpell.h"
 
 namespace MMAI::BAI::V15
 {
@@ -90,6 +93,31 @@ void BAI::battleStart(
 	state = initState(battle.get());
 	getActionTotalMs = 0;
 	getActionTotalCalls = 0;
+
+	logger.trace([this]() {
+		std::ostringstream oss;
+		oss << "Battle start:";
+
+		oss << "\n  Town: ";
+		if(const auto * town = battle->battleGetDefendedTown())
+		{
+			const auto fort = town->fortificationsLevel();
+			oss << "\n    faction: " << town->getFaction()->getJsonKey();
+			oss << "\n    hasMoat: " << fort.hasMoat;
+			oss << "\n    wallsHealth: " << static_cast<int>(fort.wallsHealth);
+		}
+
+		oss << "\n  Obstacles: ";
+		for(const auto & obstacle : battle->battleGetAllObstacles())
+			for(const auto & bhex : obstacle->getBlockedTiles())
+				oss << bhex.toInt() << ",";
+
+		oss << "\n  Units:";
+		for(const auto & cstack : battle->battleGetStacks())
+			oss << "\n    " << cstack->getDescription() << ", pos=" << cstack->getPosition().toInt();
+
+		return oss.str();
+	});
 }
 
 // XXX: battleEnd() is NOT called by CPlayerInterface (i.e. GUI)
@@ -418,6 +446,8 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 
 void BAI::actionFinished(const BattleID & bid, const BattleAction & action)
 {
+	// The printed action target is a list of hexId or unitId@hexId: {141,7@138,}
+	logger.trace("Action finished: " + action.toString());
 	tacticsHandler->onActionFinished(action);
 }
 
