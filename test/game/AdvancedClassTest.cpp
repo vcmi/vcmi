@@ -11,7 +11,6 @@
 #include "../../lib/CPlayerState.h"
 #include "../../lib/mapObjects/AdvancedClass.h"
 #include "../../lib/battle/SideInBattle.h"
-#include "../../lib/json/JsonNode.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/serializer/CMemorySerializer.h"
 #include "../../server/CGameHandler.h"
@@ -136,20 +135,11 @@ TEST_F(AdvancedClassIntegrationTest, ServerSelectionAppliesBonusOnlyOnce)
 	auto * hero = gameState->getHero(heroes.front()->id);
 	ASSERT_NE(hero, nullptr);
 
-	JsonNode data;
-	data["name"].String() = "Integration Test Class";
-	data["tier"].Integer() = 1;
-	data["requiredLevel"].Integer() = 0;
-	data["requiredPoints"].Integer() = 0;
-	data["parents"].Vector();
-	data["bonuses"]["morale"]["type"].String() = "MORALE";
-	data["bonuses"]["morale"]["val"].Integer() = 1;
-	LIBRARY->advancedClassHandler->loadObject("advanced-class-test", "integration", data);
-
 	GameHandlerTestServer server(gameState);
 	CGameHandler gameHandler(server, gameState);
 	const int initialMorale = hero->valOfBonuses(BonusType::MORALE);
-	const std::string classId = "advanced-class-test:integration";
+	const std::string classId = "vcmi-test:integrationAdvancedClass";
+	ASSERT_NE(LIBRARY->advancedClassHandler->find(classId), nullptr);
 
 	ASSERT_TRUE(gameHandler.selectAdvancedClass(hero->id, classId));
 	EXPECT_EQ(hero->advancedClass.classes.front(), classId);

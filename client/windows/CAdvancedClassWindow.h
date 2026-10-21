@@ -21,6 +21,7 @@ class CAdvancedClassWindow final : public CWindowObject
 	const CGHeroInstance * hero;
 	std::vector<const AdvancedClassDefinition *> candidates;
 	const AdvancedClassDefinition * selected = nullptr;
+	bool selectionPending = false;
 
 	std::shared_ptr<CFilledTexture> backgroundTexture;
 	std::shared_ptr<TransparentFilledRectangle> candidateBackground;
@@ -35,6 +36,7 @@ class CAdvancedClassWindow final : public CWindowObject
 	std::shared_ptr<CButton> closeButton;
 	std::vector<std::shared_ptr<CIntObject>> treeWidgets;
 
+	void rebuildCandidates();
 	void selectDefinition(const AdvancedClassDefinition * definition);
 	void rebuildTree();
 	void updateDetails();
@@ -42,4 +44,5 @@ class CAdvancedClassWindow final : public CWindowObject
 
 public:
 	explicit CAdvancedClassWindow(const CGHeroInstance * hero);
+	void refresh();
 };
