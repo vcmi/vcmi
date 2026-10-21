@@ -616,7 +616,7 @@ bool BattleEvaluator::canCastSpell()
 	if(battle->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK)
 		return true;
 
-	for(size_t slot = 0; slot < AdvancedClassHandler::ABILITY_SLOTS; ++slot)
+	for(size_t slot = 0; slot < GameConstants::ADVANCED_CLASS_ABILITY_SLOTS; ++slot)
 	{
 		const auto * definition = LIBRARY->advancedClassHandler->getAbility(*hero, slot);
 		const auto mode = slot == 0 ? spells::Mode::HERO_ABILITY_1 : spells::Mode::HERO_ABILITY_2;
@@ -648,7 +648,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 		if (s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero))
 			possibleSpells.push_back({s.get(), spells::Mode::HERO, std::nullopt});
 
-	for(size_t slot = 0; slot < AdvancedClassHandler::ABILITY_SLOTS; ++slot)
+	for(size_t slot = 0; slot < GameConstants::ADVANCED_CLASS_ABILITY_SLOTS; ++slot)
 	{
 		const auto * definition = LIBRARY->advancedClassHandler->getAbility(*hero, slot);
 		const auto mode = slot == 0 ? spells::Mode::HERO_ABILITY_1 : spells::Mode::HERO_ABILITY_2;

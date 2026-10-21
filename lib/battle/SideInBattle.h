@@ -44,7 +44,7 @@ struct DLL_LINKAGE SideInBattle : public GameCallbackHolder
 	int32_t enchanterCounter = 0; //tends to pass through 0, so sign is needed
 	int32_t initialMana = 0;
 	int32_t additionalMana = 0;
-	std::array<int32_t, 2> classAbilityLastUse{-1000, -1000};
+	std::array<int32_t, GameConstants::ADVANCED_CLASS_ABILITY_SLOTS> classAbilityLastUse{-1000, -1000};
 	std::vector<InitialArtifactCharges> initialArtifactCharges;
 
 	void init(const CGHeroInstance * Hero, const CArmedInstance * Army, const CGTownInstance * town);

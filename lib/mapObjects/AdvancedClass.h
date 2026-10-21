@@ -7,6 +7,7 @@
 
 #include "../IHandlerBase.h"
 #include "../constants/EntityIdentifiers.h"
+#include "../constants/NumericConstants.h"
 
 struct Bonus;
 class CGHeroInstance;
@@ -29,7 +30,7 @@ DLL_LINKAGE std::string_view advancedClassSelectionProblemName(AdvancedClassSele
 
 struct DLL_LINKAGE AdvancedClassProgress
 {
-	std::array<std::string, 4> classes;
+	std::array<std::string, GameConstants::ADVANCED_CLASS_TIER_COUNT> classes{};
 
 	bool valid() const;
 	int nextTier() const;
@@ -43,7 +44,7 @@ struct DLL_LINKAGE AdvancedClassProgress
 struct DLL_LINKAGE AdvancedClassSkillWeight
 {
 	SecondarySkill skill;
-	std::array<int, 3> values;
+	std::array<int, 3> values{};
 };
 
 struct DLL_LINKAGE AdvancedClassDefinition
@@ -74,8 +75,6 @@ class DLL_LINKAGE AdvancedClassHandler final : public IHandlerBase
 
 	static std::string qualify(const std::string & scope, const std::string & identifier);
 public:
-	static constexpr size_t ABILITY_SLOTS = 2;
-
 	std::vector<JsonNode> loadLegacyData() override;
 	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
 	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
