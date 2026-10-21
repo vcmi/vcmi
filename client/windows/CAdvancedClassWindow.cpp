@@ -35,6 +35,7 @@ constexpr int WINDOW_WIDTH = 760;
 constexpr int WINDOW_HEIGHT = 560;
 constexpr int LIST_WIDTH = 202;
 constexpr int LIST_ROW_HEIGHT = 48;
+constexpr int LIST_VISIBLE_ROWS = 8;
 
 enum class CardState
 {
@@ -69,7 +70,7 @@ class AdvancedClassCard final : public CIntObject
 		if(state == CardState::ACQUIRED)
 			return ColorRGBA(90, 190, 100, 255);
 		if(state == CardState::AVAILABLE)
-			return ColorRGBA(100, 160, 240, 255);
+			return ColorRGBA(125, 190, 110, 255);
 		if(state == CardState::SELECTED)
 			return ColorRGBA(230, 185, 70, 255);
 		return ColorRGBA(100, 90, 80, 255);
@@ -85,7 +86,8 @@ public:
 		pos += position.topLeft();
 		pos.w = position.w;
 		pos.h = position.h;
-		name = std::make_shared<CLabel>(pos.w / 2, 8, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::move(nameText), pos.w - 8);
+		name = std::make_shared<CLabel>(pos.w / 2, 8, FONT_SMALL, ETextAlignment::CENTER,
+			state == CardState::LOCKED ? ColorRGBA(145, 140, 130, 255) : Colors::WHITE, std::move(nameText), pos.w - 8);
 		status = std::make_shared<CLabel>(pos.w / 2, pos.h - 13, FONT_SMALL, ETextAlignment::CENTER,
 			state == CardState::LOCKED ? ColorRGBA(150, 145, 135, 255) : borderColor(), std::move(statusText), pos.w - 8);
 	}
@@ -104,7 +106,8 @@ public:
 
 	void showAll(Canvas & to) override
 	{
-		const auto fill = hovered ? ColorRGBA(30, 30, 20, 150) : ColorRGBA(0, 0, 0, 100);
+		const auto fill = hovered ? ColorRGBA(30, 30, 20, 150)
+			: (state == CardState::LOCKED ? ColorRGBA(0, 0, 0, 145) : ColorRGBA(0, 0, 0, 100));
 		to.drawColorBlended(pos, fill);
 		to.drawBorder(pos, borderColor(), state == CardState::SELECTED ? 2 : 1);
 		CIntObject::showAll(to);
@@ -137,8 +140,12 @@ CAdvancedClassWindow::CAdvancedClassWindow(const CGHeroInstance * hero_)
 		if(definition->valid && definition->tier == nextTier && definition->follows(hero->advancedClass))
 			candidates.push_back(definition.get());
 	}
-	std::ranges::sort(candidates, [](const auto * lhs, const auto * rhs)
+	std::ranges::sort(candidates, [this](const auto * lhs, const auto * rhs)
 	{
+		const bool lhsAvailable = LIBRARY->advancedClassHandler->canSelect(*hero, lhs->id);
+		const bool rhsAvailable = LIBRARY->advancedClassHandler->canSelect(*hero, rhs->id);
+		if(lhsAvailable != rhsAvailable)
+			return lhsAvailable;
 		return translated(lhs->nameTextId) < translated(rhs->nameTextId);
 	});
 
@@ -149,6 +156,9 @@ CAdvancedClassWindow::CAdvancedClassWindow(const CGHeroInstance * hero_)
 
 	auto createCandidate = [this](size_t index) -> std::shared_ptr<CIntObject>
 	{
+		if(index >= candidates.size())
+			return nullptr;
+
 		const auto * definition = candidates.at(index);
 		const bool available = LIBRARY->advancedClassHandler->canSelect(*hero, definition->id);
 		const auto status = boost::str(boost::format(translated("advancedClasses.heroWindow.cardRequirements"))
@@ -157,7 +167,12 @@ CAdvancedClassWindow::CAdvancedClassWindow(const CGHeroInstance * hero_)
 			definition == selected ? CardState::SELECTED : (available ? CardState::AVAILABLE : CardState::LOCKED),
 			[this, definition](){ selectDefinition(definition); });
 	};
-	candidateList = std::make_shared<CListBox>(createCandidate, Point(15, 66), Point(0, LIST_ROW_HEIGHT), 8, candidates.size(), 0, 1 | 4, Rect(184, 0, 16, 384));
+	const int candidateSlider = candidates.size() > LIST_VISIBLE_ROWS ? 1 : 0;
+	candidateList = std::make_shared<CListBox>(createCandidate, Point(15, 66), Point(0, LIST_ROW_HEIGHT), LIST_VISIBLE_ROWS,
+		candidates.size(), 0, candidateSlider, Rect(184, 0, LIST_VISIBLE_ROWS * LIST_ROW_HEIGHT, 16));
+	candidateList->pos.w = LIST_WIDTH - 20;
+	candidateList->pos.h = LIST_VISIBLE_ROWS * LIST_ROW_HEIGHT;
+	candidateList->setRedrawParent(true);
 
 	detailText = std::make_shared<CTextBox>("", Rect(232, 322, 508, 156), CSlider::BROWN, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
 	selectButton = std::make_shared<CButton>(Point(584, 506), AnimationPath::builtin("settingsWindow/button80"), CButton::tooltipLocalized("advancedClasses.heroWindow.select"), [this](){ confirmSelection(); }, EShortcut::GLOBAL_ACCEPT);
@@ -174,7 +189,7 @@ void CAdvancedClassWindow::selectDefinition(const AdvancedClassDefinition * defi
 	candidateList->reset();
 	rebuildTree();
 	updateDetails();
-	redraw();
+	ENGINE->windows().totalRedraw();
 }
 
 void CAdvancedClassWindow::rebuildTree()
