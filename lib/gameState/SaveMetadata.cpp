@@ -93,7 +93,6 @@ static JsonNode mapToJson(const CMapHeader & header)
 
 	JsonNode result;
 	result["name"] = textToJson(header.name, translators);
-	result["description"] = textToJson(header.description, translators);
 	result["author"] = textToJson(header.author, translators);
 	result["authorContact"] = textToJson(header.authorContact, translators);
 	result["mapVersion"] = textToJson(header.mapVersion, translators);
