@@ -39,7 +39,7 @@ TEST(StackExperienceBonusesTest, OneBonusWithTotalValuePerRank)
 			const auto limiter = std::dynamic_pointer_cast<const RankRangeLimiter>(bonus->limiter);
 			ASSERT_NE(limiter, nullptr);
 
-			if(rank > limiter->minRank && rank < limiter->maxRank)
+			if(rank >= limiter->minRank && rank < limiter->maxRank)
 			{
 				++bonusCount;
 				value += bonus->val;

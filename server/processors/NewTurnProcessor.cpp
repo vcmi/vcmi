@@ -237,8 +237,8 @@ ResourceSet NewTurnProcessor::generatePlayerIncome(PlayerColor playerID, bool ne
 
 	for(auto & k : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		income += state.valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k));
-		income += state.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * state.getTowns().size();
+		income[k] += state.valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k));
+		income[k] += state.valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * state.getTowns().size();
 	}
 
 	if(newWeek) //weekly crystal generation if 1 or more crystal dragons in any hero army or town garrison
@@ -517,8 +517,7 @@ RumorState NewTurnProcessor::pickNewRumor()
 				[[fallthrough]];
 
 			case RumorState::TYPE_RAND:
-				auto vector = LIBRARY->generaltexth->findStringsWithPrefix("core.randtvrn");
-				rumorId = rand.nextInt(static_cast<int>(vector.size()) - 1);
+				rumorId = rand.nextInt(GameConstants::RANDOM_RUMORS - 1);
 
 				break;
 		}

@@ -18,7 +18,6 @@
 #include "GameLibrary.h"
 #include "IGameSettings.h"
 #include "constants/StringConstants.h"
-#include "bonuses/BonusMigration.h"
 #include "bonuses/Limiters.h"
 #include "bonuses/Updaters.h"
 #include "bonuses/BonusParameters.h"
@@ -175,10 +174,7 @@ int32_t CCreature::getBaseShots() const
 
 int32_t CCreature::getRecruitCost(GameResID resIndex) const
 {
-	if(resIndex.getNum() >= 0 && resIndex.getNum() < cost.size())
-		return cost[resIndex];
-	else
-		return 0;
+	return cost[resIndex];
 }
 
 const TResources & CCreature::getFullRecruitCost() const
@@ -311,10 +307,8 @@ bool CCreature::isEvil () const
 si32 CCreature::maxAmount(const TResources &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;
-	int resAmnt = static_cast<int>(std::min(res.size(),cost.size()));
-	for(int i=0;i<resAmnt;i++)
-		if(cost[i])
-			ret = std::min(ret, (res[i] / cost[i]));
+	for(const auto & [resource, amount] : cost.nonZeroEntries())
+		ret = std::min(ret, (res[resource] / amount));
 	return ret;
 }
 
@@ -739,79 +733,6 @@ void CCreatureHandler::loadCrExpMod()
 	}
 }
 
-void CCreatureHandler::loadCrExpBon(CBonusSystemNode & globalEffects)
-{
-	if (LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience bonuses
-	{
-		logGlobal->debug("\tLoading stack experience bonuses");
-		auto addBonusForAllCreatures = [&](std::shared_ptr<Bonus> b) {
-			auto limiter = std::make_shared<CreatureLevelLimiter>();
-			b->addLimiter(limiter);
-			globalEffects.addNewBonus(b);
-		};
-		auto addBonusForTier = [&](int tier, std::shared_ptr<Bonus> b) {
-			assert(vstd::iswithin(tier, 1, 7));
-			//bonuses from level 7 are given to high-level creatures too
-			auto max = tier == 7 ? std::numeric_limits<int>::max() : tier + 1;
-			auto limiter = std::make_shared<CreatureLevelLimiter>(tier, max);
-			b->addLimiter(limiter);
-			globalEffects.addNewBonus(b);
-		};
-
-		CLegacyConfigParser parser(TextPath::builtin("DATA/CREXPBON.TXT"));
-
-		Bonus b; //prototype with some default properties
-		b.source = BonusSource::STACK_EXPERIENCE;
-		b.duration = BonusDuration::PERMANENT;
-		b.valType = BonusValueType::ADDITIVE_VALUE;
-		b.effectRange = BonusLimitEffect::NO_LIMIT;
-		b.turnsRemain = 0;
-		BonusList bl;
-
-		parser.endLine();
-
-		parser.readString(); //ignore index
-		loadStackExp(b, bl, parser);
-		for(const auto & b : bl)
-			addBonusForAllCreatures(b); //health bonus is common for all
-		parser.endLine();
-
-		for (int i = 1; i < 7; ++i)
-		{
-			for (int j = 0; j < 4; ++j) //four modifiers common for tiers
-			{
-				parser.readString(); //ignore index
-				bl.clear();
-				loadStackExp(b, bl, parser);
-				for(const auto & b : bl)
-					addBonusForTier(i, b);
-				parser.endLine();
-			}
-		}
-		for (int j = 0; j < 4; ++j) //tier 7
-		{
-			parser.readString(); //ignore index
-			bl.clear();
-			loadStackExp(b, bl, parser);
-			for(const auto & b : bl)
-				addBonusForTier(7, b);
-			parser.endLine();
-		}
-		do //parse everything that's left
-		{
-			CreatureID sid = parser.readNumber(); //id = this particular creature ID
-
-			b.sid = BonusSourceID(sid);
-			bl.clear();
-			loadStackExp(b, bl, parser);
-			for(const auto & b : bl)
-				objects[sid.getNum()]->addNewBonus(b); //add directly to CCreature Node
-		}
-		while (parser.endLine());
-
-	}//end of Stack Experience
-}
-
 void CCreatureHandler::loadAnimationInfo(std::vector<JsonNode> &h3Data) const
 {
 	CLegacyConfigParser parser(TextPath::builtin("DATA/CRANIM.TXT"));
@@ -971,10 +892,9 @@ struct StackExperienceRange
 
 	std::shared_ptr<RankRangeLimiter> limiter() const
 	{
-		// limiter excludes both of its bounds
 		if (openEnded)
-			return std::make_shared<RankRangeLimiter>(firstRank - 1);
-		return std::make_shared<RankRangeLimiter>(firstRank - 1, lastRank + 1);
+			return std::make_shared<RankRangeLimiter>(firstRank);
+		return std::make_shared<RankRangeLimiter>(firstRank, lastRank + 1);
 	}
 };
 
@@ -1006,9 +926,8 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 		const JsonNode & exp = input.Vector()[entryIndex];
 		const std::string descriptionID = creature->getBonusTextID("stackExperience" + std::to_string(entryIndex));
 		const JsonVector &values = exp["values"].Vector();
-		// RankRangeLimiter uses strict bounds (rank > minRank), so level 1 bonus
-		// must start from 0 to map values[0] -> rank 1 and values[9] -> rank 10.
-		int lowerLimit = 0;//, upperLimit = 255;
+		// values[0] is the value for rank 1
+		int lowerLimit = 1;
 		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
 		{
 			for (const JsonNode &val : values)
@@ -1047,319 +966,6 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 			}
 		}
 	}
-}
-
-void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser & parser) const//help function for parsing CREXPBON.txt
-{
-	bool enable = false; //some bonuses are activated with values 2 or 1
-	std::string buf = parser.readString();
-	std::string mod = parser.readString();
-
-	switch (buf[0])
-	{
-	case 'H':
-		b.type = BonusType::STACK_HEALTH;
-		b.valType = BonusValueType::PERCENT_TO_BASE;
-		break;
-	case 'A':
-		b.type = BonusType::PRIMARY_SKILL;
-		b.subtype = BonusSubtypeID(PrimarySkill::ATTACK);
-		break;
-	case 'D':
-		b.type = BonusType::PRIMARY_SKILL;
-		b.subtype = BonusSubtypeID(PrimarySkill::DEFENSE);
-		break;
-	case 'M': //Max damage
-		b.type = BonusType::CREATURE_DAMAGE;
-		b.subtype = BonusCustomSubtype::creatureDamageMax;
-		break;
-	case 'm': //Min damage
-		b.type = BonusType::CREATURE_DAMAGE;
-		b.subtype = BonusCustomSubtype::creatureDamageMin;
-		break;
-	case 'S':
-		b.type = BonusType::STACKS_SPEED; break;
-	case 'O':
-		b.type = BonusType::SHOTS; break;
-	case 'b':
-		b.type = BonusType::ENEMY_DEFENCE_REDUCTION; break;
-	case 'C':
-		b.type = BonusType::CHANGES_SPELL_COST_FOR_ALLY; break;
-	case 'd':
-		b.type = BonusType::DEFENSIVE_STANCE; break;
-	case 'e':
-		b.type = BonusType::DOUBLE_DAMAGE_CHANCE;
-		break;
-	case 'E':
-		b.type = BonusType::UNUSED_DEATH_STARE;
-		b.subtype = BonusCustomSubtype(0); // was deathStareGorgon, converted below
-		break;
-	case 'F':
-		b.type = BonusType::FEARFUL; break;
-	case 'g':
-		b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-		b.subtype = BonusSubtypeID(SpellSchool::ANY);
-		break;
-	case 'P':
-		b.type = BonusType::CASTS; break;
-	case 'R':
-		b.type = BonusType::ADDITIONAL_RETALIATION; break;
-	case 'W':
-		b.type = BonusType::MAGIC_RESISTANCE;
-		break;
-	case 'f': //on-off skill
-		enable = true; //sometimes format is: 2 -> 0, 1 -> 1
-		switch (mod[0])
-		{
-			case 'A':
-				b.type = BonusType::ATTACKS_ALL_ADJACENT; break;
-			case 'b':
-				b.type = BonusType::RETURN_AFTER_STRIKE; break;
-			case 'B':
-				b.type = BonusType::TWO_HEX_ATTACK_BREATH; break;
-			case 'c':
-				b.type = BonusType::JOUSTING;
-				b.val = 5;
-				break;
-			case 'D':
-				b.type = BonusType::ADDITIONAL_ATTACK; break;
-			case 'f':
-				b.type = BonusType::FEARFUL; break;
-			case 'F':
-				b.type = BonusType::FLYING; break;
-			case 'm':
-				b.type = BonusType::MORALE;
-				b.val = 1;
-				b.valType = BonusValueType::INDEPENDENT_MAX;
-				break;
-			case 'M':
-				b.type = BonusType::NO_MORALE; break;
-			case 'p': //Mind spells
-			case 'P':
-				b.type = BonusType::MIND_IMMUNITY; break;
-			case 'r':
-				b.type = BonusType::UNUSED_REBIRTH;
-				b.val = 20; //arbitrary value
-				break;
-			case 'R':
-				b.type = BonusType::BLOCKS_RETALIATION; break;
-			case 's':
-				b.type = BonusType::FREE_SHOOTING; break;
-			case 'u':
-				b.type = BonusType::SPELL_RESISTANCE_AURA; break;
-			case 'U':
-				b.type = BonusType::UNDEAD; break;
-			default:
-				logGlobal->trace("Not parsed bonus %s %s", buf, mod);
-				return;
-				break;
-		}
-		break;
-	case 'w': //specific spell immunities, enabled/disabled
-		enable = true;
-		switch (mod[0])
-		{
-			case 'B': //Blind
-				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellID(SpellID::BLIND));
-				break;
-			case 'H': //Hypnotize
-				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellID(SpellID::HYPNOTIZE));
-				break;
-			case 'I': //Implosion
-				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellID(SpellID::IMPLOSION));
-				break;
-			case 'K': //Berserk
-				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellID(SpellID::BERSERK));
-				break;
-			case 'M': //Meteor Shower
-				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellID(SpellID::METEOR_SHOWER));
-				break;
-			case 'N': //dispel beneficial spells
-				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellID(SpellID::DISPEL_HELPFUL_SPELLS));
-				break;
-			case 'R': //Armageddon
-				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellID(SpellID::ARMAGEDDON));
-				break;
-			case 'S': //Slow
-				b.type = BonusType::SPELL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellID(SpellID::SLOW));
-				break;
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-				b.type = BonusType::LEVEL_SPELL_IMMUNITY;
-				b.val = std::atoi(mod.c_str()) - 5;
-				break;
-			case ':':
-				b.type = BonusType::LEVEL_SPELL_IMMUNITY;
-				b.val = GameConstants::SPELL_LEVELS; //in case someone adds higher level spells?
-				break;
-			case 'F':
-				b.type = BonusType::NEGATIVE_EFFECTS_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellSchool::FIRE);
-				break;
-			case 'O':
-				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = BonusSubtypeID(SpellSchool::FIRE);
-				b.val = 100; //Full damage immunity
-				break;
-			case 'f':
-				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellSchool::FIRE);
-				break;
-			case 'C':
-				b.type = BonusType::NEGATIVE_EFFECTS_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellSchool::WATER);
-				break;
-			case 'W':
-				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = BonusSubtypeID(SpellSchool::WATER);
-				b.val = 100; //Full damage immunity
-				break;
-			case 'w':
-				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellSchool::WATER);
-				break;
-			case 'E':
-				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = BonusSubtypeID(SpellSchool::EARTH);
-				b.val = 100; //Full damage immunity
-				break;
-			case 'e':
-				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellSchool::EARTH);
-				break;
-			case 'A':
-				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = BonusSubtypeID(SpellSchool::AIR);
-				b.val = 100; //Full damage immunity
-				break;
-			case 'a':
-				b.type = BonusType::SPELL_SCHOOL_IMMUNITY;
-				b.subtype = BonusSubtypeID(SpellSchool::AIR);
-				break;
-			case 'D':
-				b.type = BonusType::SPELL_DAMAGE_REDUCTION;
-				b.subtype = BonusSubtypeID(SpellSchool::ANY);
-				b.val = 100; //Full damage immunity
-				break;
-			case '0':
-				b.type = BonusType::RECEPTIVE;
-				break;
-			case 'm':
-				b.type = BonusType::MIND_IMMUNITY;
-				break;
-			default:
-				logGlobal->trace("Not parsed bonus %s %s", buf, mod);
-				return;
-		}
-		break;
-
-	case 'i':
-		enable = true;
-		b.type = BonusType::NO_DISTANCE_PENALTY;
-		break;
-	case 'o':
-		enable = true;
-		b.type = BonusType::NO_WALL_PENALTY;
-		break;
-
-	case 'a':
-	case 'c':
-	case 'K':
-	case 'k':
-		b.type = BonusType::SPELL_AFTER_ATTACK;
-		b.subtype = BonusSubtypeID(SpellID(stringToNumber(mod)));
-		break;
-	case 'h':
-		b.type = BonusType::HATE;
-		b.subtype = BonusSubtypeID(CreatureID(stringToNumber(mod)));
-		break;
-	case 'p':
-	case 'J':
-		b.type = BonusType::SPELL_BEFORE_ATTACK;
-		b.subtype = BonusSubtypeID(SpellID(stringToNumber(mod)));
-		b.parameters = std::make_shared<BonusParameters>(3); //always expert?
-		break;
-	case 'r':
-		b.type = BonusType::HP_REGENERATION;
-		b.val = stringToNumber(mod);
-		break;
-	case 's':
-		b.type = BonusType::UNUSED_ENCHANTED;
-		b.subtype = BonusSubtypeID(SpellID(stringToNumber(mod)));
-		b.valType = BonusValueType::INDEPENDENT_MAX;
-		break;
-	default:
-		logGlobal->trace("Not parsed bonus %s %s", buf, mod);
-		return;
-		break;
-	}
-	switch (mod[0])
-	{
-		case '+':
-		case '=': //should we allow percent values to stack or pick highest?
-			b.valType = BonusValueType::ADDITIVE_VALUE;
-			break;
-	}
-
-	//limiters, range
-	si32 curVal;
-
-	if (enable) //0 and 2 means non-active, 1 - active
-	{
-		if (b.type != BonusType::UNUSED_REBIRTH)
-			b.val = 0; //on-off ability, no value specified
-		parser.readNumber(); // 0 level is never active
-		for (int i = 1; i < 11; ++i)
-		{
-			curVal = static_cast<si32>(parser.readNumber());
-			if (curVal == 1)
-			{
-				b.limiter.reset (new RankRangeLimiter(i));
-				bl.push_back(std::make_shared<Bonus>(b));
-				break; //never turned off it seems
-			}
-		}
-	}
-	else
-	{
-		const int hateMultiplier = b.type == BonusType::HATE ? 10 : 1; //odd fix
-		//FIXME: value for zero level should be stored in our config files (independent of stack exp)
-		const si32 baseVal = static_cast<si32>(parser.readNumber()) * hateMultiplier;
-
-		// FIXME: recheck - value from column of rank N is given to stacks starting from rank N+1, so value of rank 10 is never used
-		// while json stack experience gives value of rank N to stacks of rank N
-		std::vector<int> rankValues = { 0 };
-		for (int i = 1; i < 11; ++i)
-			rankValues.push_back(static_cast<si32>(parser.readNumber()) * hateMultiplier - baseVal);
-
-		for (const auto & range : stackExperienceRanges(rankValues))
-		{
-			b.val = range.value;
-			b.limiter = range.limiter();
-			bl.push_back(std::make_shared<Bonus>(b));
-		}
-	}
-
-	// this table names abilities that are combat scripts now, and builds them without going
-	// through the json loader that would otherwise convert them
-	for(const auto & bonus : bl)
-		BonusMigration::migrateCombatAbility(*bonus);
-}
-
-int CCreatureHandler::stringToNumber(std::string & s) const
-{
-	boost::algorithm::replace_first(s,"#",""); //drop hash character
-	return std::atoi(s.c_str());
 }
 
 CCreatureHandler::~CCreatureHandler()

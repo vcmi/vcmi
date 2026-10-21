@@ -56,7 +56,7 @@ void BuyArmy::accept(AIGateway * aiGw)
 		if(objid != CreatureID::NONE && ci.creID.getNum() != objid)
 			continue;
 
-		vstd::amin(ci.count, res / ci.creID.toCreature()->getFullRecruitCost());
+		vstd::amin(ci.count, res.affordableCount(ci.creID.toCreature()->getFullRecruitCost()));
 
 		if(ci.count)
 		{

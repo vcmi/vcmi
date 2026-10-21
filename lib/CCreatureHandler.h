@@ -201,10 +201,6 @@ private:
 	void loadAnimationInfo(std::vector<JsonNode> & h3Data) const;
 	/// read one line from cranim.txt
 	void loadUnitAnimInfo(JsonNode & unit, CLegacyConfigParser & parser) const;
-	/// parse crexpbon.txt file from H3
-	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser & parser) const;
-	/// help function for parsing CREXPBON.txt
-	int stringToNumber(std::string & s) const;
 
 	std::unique_ptr<CombatValue> combatValues;
 
@@ -229,9 +225,6 @@ public:
 
 	CCreatureHandler();
 	~CCreatureHandler();
-
-	/// load all stack experience bonuses from H3 files
-	void loadCrExpBon(CBonusSystemNode & globalEffects);
 
 	/// load all stack modifier bonuses from H3 files. TODO: move this to json
 	void loadCrExpMod();

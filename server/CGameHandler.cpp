@@ -3519,6 +3519,8 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 
 bool CGameHandler::sendResources(ui32 val, PlayerColor player, GameResID r1, PlayerColor r2)
 {
+	COMPLAIN_RET_FALSE_IF(!vstd::contains(LIBRARY->resourceTypeHandler->getAllObjects(), r1), "No such resource!");
+
 	const PlayerState *p2 = gameInfo().tryGetPlayerState(r2);
 	if (!p2  ||  p2->status != EPlayerStatus::INGAME)
 	{
@@ -3542,10 +3544,10 @@ void CGameHandler::informPlayerAboutSentResources(PlayerColor player, PlayerColo
 	iw.player = playerReceiver;
 	iw.text = MetaString::createFromTextID("core.genrltxt.358");
 	iw.text.replaceName(player);
-	for(auto it = ResourceSet::nziterator(resources); it.valid(); it++)
+	for(const auto & [resource, amount] : resources)
 	{
-		if(it->resVal > 0)
-			iw.components.emplace_back(ComponentType::RESOURCE, it->resType, it->resVal);
+		if(amount > 0)
+			iw.components.emplace_back(ComponentType::RESOURCE, resource, amount);
 	}
 	sendAndApply(iw);
 }

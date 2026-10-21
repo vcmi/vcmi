@@ -53,8 +53,6 @@ public:
 	LegacyTextContainer allTexts;
 	LegacyHelpContainer zelp;
 
-	std::vector<std::string> findStringsWithPrefix(const std::string & prefix);
-
 	int32_t pluralText(int32_t textIndex, int32_t count) const;
 
 	CGeneralTextHandler();

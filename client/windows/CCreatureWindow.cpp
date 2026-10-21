@@ -394,10 +394,8 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			auto onClick = [totalCost, onUpgrade]()
 			{
 				std::vector<std::shared_ptr<CComponent>> resComps;
-				for(TResources::nziterator i(totalCost); i.valid(); i++)
-				{
-					resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
-				}
+				for(const auto & [resource, amount] : totalCost.nonZeroEntries())
+					resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, resource, amount));
 
 				if(GAME->interface()->cb->getResourceAmount().canAfford(totalCost))
 				{

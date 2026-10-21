@@ -13,6 +13,8 @@
 #include "CallbackDefines.h"
 
 #include "../entities/building/CBuilding.h"
+#include "../entities/ResourceTypeHandler.h"
+#include "../GameLibrary.h"
 #include "../gameState/CGameState.h"
 #include "../gameState/UpgradeInfo.h"
 #include "../gameState/InfoAboutArmy.h"
@@ -39,7 +41,7 @@ int CGameInfoCallback::getResource(PlayerColor Player, GameResID which) const
 {
 	const PlayerState *p = getPlayerState(Player);
 	THROW_IF(!p, "No player info!");
-	THROW_IF(p->resources.size() <= which.getNum() || which.getNum() < 0, "No such resource!");
+	THROW_IF(which.getNum() < 0 || which.getNum() >= LIBRARY->resourceTypeHandler->getAllObjects().size(), "No such resource!");
 	return p->resources[which];
 }
 
@@ -586,7 +588,7 @@ EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, Bu
 		return EBuildingState::CANT_BUILD_TODAY; //building limit
 
 	//checking resources
-	if(!building->resources.canBeAfforded(getPlayerState(t->tempOwner)->resources))
+	if(!getPlayerState(t->tempOwner)->resources.canAfford(building->resources))
 		return EBuildingState::NO_RESOURCES; //lack of res
 
 	return EBuildingState::ALLOWED;

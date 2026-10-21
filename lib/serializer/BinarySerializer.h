@@ -319,6 +319,16 @@ private:
 		}
 	}
 	template<typename T1, typename T2>
+	void save(const boost::container::flat_map<T1, T2> & data)
+	{
+		*this & static_cast<uint32_t>(data.size());
+		for(const auto & [key, value] : data)
+		{
+			save(key);
+			save(value);
+		}
+	}
+	template<typename T1, typename T2>
 	void save(const std::multimap<T1, T2> & data)
 	{
 		*this & static_cast<uint32_t>(data.size());

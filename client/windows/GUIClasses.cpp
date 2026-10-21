@@ -1494,7 +1494,7 @@ void CHillFortWindow::updateGarrisons()
 		if (allUpgraded)
 			newState = State::ALREADY_UPGRADED;
 
-		if(!totalSum.canBeAfforded(myRes))
+		if(!myRes.canAfford(totalSum))
 			newState = State::UNAFFORDABLE;
 	}
 
@@ -1518,14 +1518,10 @@ void CHillFortWindow::updateGarrisons()
 			{
 				//reverse iterator is used to display gold as first element
 				int j = 0;
-				for(int res = (int)costs[i].size()-1; (res >= 0) && (j < 2); res--)
+				for(const auto & [res, val] : costs[i].nonZeroEntries() | std::views::reverse | std::views::take(2))
 				{
-					int val = costs[i][res];
-					if(!val)
-						continue;
-
 					slotIcons[i][j]->visible = true;
-					slotIcons[i][j]->setFrame(res);
+					slotIcons[i][j]->setFrame(res.getNum());
 
 					slotLabels[i][j]->setText(std::to_string(val));
 					j++;
@@ -1616,7 +1612,7 @@ CHillFortWindow::State CHillFortWindow::getState(SlotID slot)
 	if(!info.hasUpgrades())
 		return State::ALREADY_UPGRADED;
 
-	if(!(info.getUpgradeCosts() * hero->getStackCount(slot)).canBeAfforded(myRes))
+	if(!myRes.canAfford(info.getUpgradeCosts() * hero->getStackCount(slot)))
 		return State::UNAFFORDABLE;
 
 	return State::MAKE_UPGRADE;

@@ -138,6 +138,26 @@ Parameters:
 ],
 ```
 
+### EXPERIENCE_RANK_LIMITER
+
+Accepts stacks by their stack experience rank, from 0 (no experience) to 10. Commanders never pass this limiter.
+
+Parameters:
+
+- `minRank`: rank starting from which stack will pass the limiter, 0 if not specified
+- `maxRank`: rank starting from which stack will no longer pass the limiter, no upper limit if not specified
+
+```json
+"limiters": [
+	{
+		// accepts stacks of ranks 3 and 4
+		"type" : "EXPERIENCE_RANK_LIMITER",
+		"minRank" : 3,
+		"maxRank" : 5
+	}
+],
+```
+
 ### FACTION_LIMITER
 
 Also available as `CREATURE_FACTION_LIMITER`
