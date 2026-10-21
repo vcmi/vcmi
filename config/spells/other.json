@@ -435,7 +435,7 @@
 					},
 					"removeObstacle":{
 						"optional":true,
-						"type":"core:removeObstacle",
+						"type":"removeObstacle",
 						"removeAllSpells" : true
 					}
 				},
@@ -597,7 +597,7 @@
 				"range" : "0",
 				"battleEffects":{
 					"sacrifice":{
-						"type":"core:sacrifice",
+						"type":"sacrifice",
 						"healLevel":"resurrect",
 						"healPower":"permanent",
 						"minFullUnits" : 0
@@ -632,7 +632,7 @@
 				"range" : "0",
 				"battleEffects":{
 					"teleport":{
-						"type":"core:teleport"
+						"type":"teleport"
 					}
 				},
 				"targetModifier":{"smart":true}
@@ -677,7 +677,7 @@
 				"battleEffects": {
 					"removeObstacle" : {
 						"optional":false,
-						"type":"core:removeObstacle",
+						"type":"removeObstacle",
 						"removeUsual" : true
 					}
 				}
@@ -715,7 +715,7 @@
 				"battleEffects":{
 					"clone":{
 						"maxTier":5,
-						"type":"core:clone"
+						"type":"clone"
 					}
 				},
 				"targetModifier":{"smart":true}
@@ -761,7 +761,7 @@
 						"exclusive":true,
 						"id":"fireElemental",
 						"permanent":false,
-						"type":"core:summon"
+						"type":"summon"
 					}
 				}
 			}
@@ -786,7 +786,7 @@
 						"exclusive":true,
 						"id":"earthElemental",
 						"permanent":false,
-						"type":"core:summon"
+						"type":"summon"
 					}
 				}
 			}
@@ -811,7 +811,7 @@
 						"exclusive":true,
 						"id":"waterElemental",
 						"permanent":false,
-						"type":"core:summon"
+						"type":"summon"
 					}
 				}
 			}
@@ -836,7 +836,7 @@
 						"exclusive":true,
 						"id":"airElemental",
 						"permanent":false,
-						"type":"core:summon"
+						"type":"summon"
 					}
 				}
 			}

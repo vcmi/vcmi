@@ -269,7 +269,7 @@
 		"implements" : "spellEffect",
 		"script" : "spells/timed",
 		"stringRegistrations" : ["battleLogSingular", "battleLogPlural"],
-		"patches" : ["spells/patches/timedShield", "spells/patches/timedBind"],
+		"patches" : ["spells/patches/timedBind"],
 		"schema" : {
 			"properties" : {
 				"type" : {},
