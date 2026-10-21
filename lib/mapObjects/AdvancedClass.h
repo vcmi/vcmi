@@ -8,7 +8,7 @@
 #include "../IHandlerBase.h"
 #include "../constants/EntityIdentifiers.h"
 
-class Bonus;
+struct Bonus;
 class CGHeroInstance;
 class JsonNode;
 
