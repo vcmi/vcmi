@@ -8,6 +8,7 @@
 	"keepDisabled" : true,
 	"heroes" : [ "config/heroes.json" ],
 	"creatures" : [ "config/creatures.json" ],
+	"advancedClasses" : [ "config/advancedClasses.json" ],
 	"scripts" : [ "config/hotaScripts.json" ],
 	"skills" : [ "config/hotaSkills.json" ],
 	"spells" : [ "config/hotaSpells.json", "config/spells.json" ],

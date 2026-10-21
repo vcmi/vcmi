@@ -35,6 +35,8 @@ namespace
 constexpr int WINDOW_WIDTH = 760;
 constexpr int WINDOW_HEIGHT = 560;
 constexpr int LIST_WIDTH = 202;
+constexpr int LIST_CARD_WIDTH = 170;
+constexpr int LIST_SLIDER_X = 174;
 constexpr int LIST_ROW_HEIGHT = 48;
 constexpr int LIST_VISIBLE_ROWS = 8;
 
@@ -135,6 +137,40 @@ CAdvancedClassWindow::CAdvancedClassWindow(const CGHeroInstance * hero_)
 	candidateHeader = std::make_shared<CLabel>(111, 42, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, translated("advancedClasses.heroWindow.choices"));
 	treeHeader = std::make_shared<CLabel>(486, 42, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, translated("advancedClasses.heroWindow.progression"));
 
+	rebuildCandidates();
+
+	auto createCandidate = [this](size_t index) -> std::shared_ptr<CIntObject>
+	{
+		if(index >= candidates.size())
+			return nullptr;
+
+		const auto * definition = candidates.at(index);
+		const bool available = LIBRARY->advancedClassHandler->canSelect(*hero, definition->id);
+		const auto status = boost::str(boost::format(translated("advancedClasses.heroWindow.cardRequirements"))
+			% definition->requiredLevel % definition->requiredPoints);
+		return std::make_shared<AdvancedClassCard>(Rect(0, 0, LIST_CARD_WIDTH, LIST_ROW_HEIGHT), translated(definition->nameTextId), status,
+			definition == selected ? CardState::SELECTED : (available ? CardState::AVAILABLE : CardState::LOCKED),
+			[this, definition](){ selectDefinition(definition); });
+	};
+	candidateList = std::make_shared<CListBox>(createCandidate, Point(15, 66), Point(0, LIST_ROW_HEIGHT), LIST_VISIBLE_ROWS,
+		candidates.size(), 0, 1, Rect(LIST_SLIDER_X, 0, LIST_VISIBLE_ROWS * LIST_ROW_HEIGHT, 16));
+	candidateList->pos.w = LIST_WIDTH - 10;
+	candidateList->pos.h = LIST_VISIBLE_ROWS * LIST_ROW_HEIGHT;
+	candidateList->setRedrawParent(true);
+	candidateList->getSlider()->setEnabled(candidates.size() > LIST_VISIBLE_ROWS);
+
+	detailText = std::make_shared<CTextBox>("", Rect(232, 322, 508, 156), CSlider::BROWN, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+	selectButton = std::make_shared<CButton>(Point(584, 506), AnimationPath::builtin("settingsWindow/button80"), CButton::tooltipLocalized("advancedClasses.heroWindow.select"), [this](){ confirmSelection(); }, EShortcut::GLOBAL_ACCEPT);
+	selectButton->setTextOverlay(translated("advancedClasses.heroWindow.select"), FONT_SMALL, Colors::YELLOW);
+	closeButton = std::make_shared<CButton>(Point(680, 506), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_CANCEL);
+
+	rebuildTree();
+	updateDetails();
+}
+
+void CAdvancedClassWindow::rebuildCandidates()
+{
+	candidates.clear();
 	const int nextTier = hero->advancedClass.nextTier();
 	for(const auto & definition : LIBRARY->advancedClassHandler->getAll())
 	{
@@ -150,38 +186,25 @@ CAdvancedClassWindow::CAdvancedClassWindow(const CGHeroInstance * hero_)
 		return translated(lhs->nameTextId) < translated(rhs->nameTextId);
 	});
 
+	selected = nullptr;
 	if(!candidates.empty())
 		selected = candidates.front();
 	else if(nextTier > 1 && nextTier <= 5)
 		selected = LIBRARY->advancedClassHandler->find(hero->advancedClass.classes.at(std::min(nextTier, 5) - 2));
+}
 
-	auto createCandidate = [this](size_t index) -> std::shared_ptr<CIntObject>
-	{
-		if(index >= candidates.size())
-			return nullptr;
-
-		const auto * definition = candidates.at(index);
-		const bool available = LIBRARY->advancedClassHandler->canSelect(*hero, definition->id);
-		const auto status = boost::str(boost::format(translated("advancedClasses.heroWindow.cardRequirements"))
-			% definition->requiredLevel % definition->requiredPoints);
-		return std::make_shared<AdvancedClassCard>(Rect(0, 0, 184, LIST_ROW_HEIGHT), translated(definition->nameTextId), status,
-			definition == selected ? CardState::SELECTED : (available ? CardState::AVAILABLE : CardState::LOCKED),
-			[this, definition](){ selectDefinition(definition); });
-	};
-	const int candidateSlider = candidates.size() > LIST_VISIBLE_ROWS ? 1 : 0;
-	candidateList = std::make_shared<CListBox>(createCandidate, Point(15, 66), Point(0, LIST_ROW_HEIGHT), LIST_VISIBLE_ROWS,
-		candidates.size(), 0, candidateSlider, Rect(184, 0, LIST_VISIBLE_ROWS * LIST_ROW_HEIGHT, 16));
-	candidateList->pos.w = LIST_WIDTH - 20;
-	candidateList->pos.h = LIST_VISIBLE_ROWS * LIST_ROW_HEIGHT;
-	candidateList->setRedrawParent(true);
-
-	detailText = std::make_shared<CTextBox>("", Rect(232, 322, 508, 156), CSlider::BROWN, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-	selectButton = std::make_shared<CButton>(Point(584, 506), AnimationPath::builtin("settingsWindow/button80"), CButton::tooltipLocalized("advancedClasses.heroWindow.select"), [this](){ confirmSelection(); }, EShortcut::GLOBAL_ACCEPT);
-	selectButton->setTextOverlay(translated("advancedClasses.heroWindow.select"), FONT_SMALL, Colors::YELLOW);
-	closeButton = std::make_shared<CButton>(Point(680, 506), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_CANCEL);
-
+void CAdvancedClassWindow::refresh()
+{
+	selectionPending = false;
+	rebuildCandidates();
+	if(candidateList->size() == candidates.size())
+		candidateList->reset();
+	else
+		candidateList->resize(candidates.size());
+	candidateList->getSlider()->setEnabled(candidates.size() > LIST_VISIBLE_ROWS);
 	rebuildTree();
 	updateDetails();
+	ENGINE->windows().totalRedraw();
 }
 
 void CAdvancedClassWindow::selectDefinition(const AdvancedClassDefinition * definition)
@@ -299,12 +322,15 @@ void CAdvancedClassWindow::updateDetails()
 
 void CAdvancedClassWindow::confirmSelection()
 {
-	if(!selected || !LIBRARY->advancedClassHandler->canSelect(*hero, selected->id))
+	if(selectionPending || !selected || !LIBRARY->advancedClassHandler->canSelect(*hero, selected->id))
 		return;
 	const auto question = boost::str(boost::format(translated("advancedClasses.heroWindow.confirm")) % translated(selected->nameTextId));
 	GAME->interface()->showYesNoDialog(question, [this, classId = selected->id]()
 	{
-		GAME->interface()->cb->selectAdvancedClass(hero, classId);
-		close();
+		if(GAME->interface()->cb->selectAdvancedClass(hero, classId))
+		{
+			selectionPending = true;
+			selectButton->block(true);
+		}
 	}, nullptr);
 }

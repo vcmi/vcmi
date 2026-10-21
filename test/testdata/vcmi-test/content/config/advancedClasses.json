@@ -1,0 +1,24 @@
+{
+	"integrationAdvancedClass" :
+	{
+		"name" : "Integration Test Class",
+		"tier" : 1,
+		"requiredLevel" : 0,
+		"requiredPoints" : 0,
+		"parents" : [],
+		"skillGroups" :
+		[
+			{
+				"offence" : [ 0, 0, 0 ]
+			}
+		],
+		"bonuses" :
+		{
+			"morale" :
+			{
+				"type" : "MORALE",
+				"val" : 1
+			}
+		}
+	}
+}
