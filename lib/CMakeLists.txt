@@ -201,6 +201,7 @@ set(lib_MAIN_SRCS
 	mapping/CMapInfo.cpp
 	mapping/CMapOperation.cpp
 	mapping/CMapService.cpp
+	mapping/ScenarioMetadata.cpp
 	mapping/HotaScriptConverter.cpp
 	mapping/MapEditUtils.cpp
 	mapping/MapIdentifiersH3M.cpp
@@ -664,6 +665,7 @@ set(lib_MAIN_HEADERS
 	mapping/CMapInfo.h
 	mapping/CMapOperation.h
 	mapping/CMapService.h
+	mapping/ScenarioMetadata.h
 	mapping/MapDifficulty.h
 	mapping/HotaScriptConverter.h
 	mapping/MapEditUtils.h
