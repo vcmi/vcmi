@@ -208,20 +208,21 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 
 		const CStack * next = getNextStack(battle);
 
-		if (!next)
+		// No stacks to move - start next round.
+		// Every unit can be unable to act for several rounds in a row, e.g. when both sides are paralyzed
+		// or frozen - keep starting new rounds, as H3 does, until an effect expires and some unit can act
+		while (!next)
 		{
-			// No stacks to move - start next round
 			startNextRound(battle, false);
 
 			// round start triggers (e.g. damage-over-time combat scripts) may have killed the last
 			// units of a side - end the battle now instead of giving a turn to a surviving stack
-			// (or throwing below, if both sides were wiped out)
 			if (owner->checkBattleStateChanges(battle))
 				return;
 
 			next = getNextStack(battle);
 			if (!next)
-				throw std::runtime_error("Failed to find valid stack to act!");
+				logGlobal->warn("No valid stack to act during round! Skipping to next round!");
 		}
 
 		BattleUnitsChanged removeGhosts;
