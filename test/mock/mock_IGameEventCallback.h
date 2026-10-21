@@ -37,6 +37,7 @@ public:
 	std::vector<BlockingDialog>         blockingDialogs;
 	std::vector<InfoWindow>             infoWindows;
 	std::vector<AddQuest>               addedQuests;
+	std::vector<Component>              questHintComponents; ///< components of the last setQuestHint()
 	JsonNode                            visitState; ///< last setVisitState(), handed back by QuestTest::answerDialog
 	bool                                experienceGranted = false; ///< giveExperience() owes the object experienceApplied()
 
@@ -52,7 +53,7 @@ public:
 	void showInfoDialog(InfoWindow * iw) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
-	void setQuestHintText(ObjectInstanceID, const MetaString &) override {}
+	void setQuestHint(ObjectInstanceID, const MetaString &, const std::vector<Component> & components) override { questHintComponents = components; }
 	void disableMapEvent(ObjectInstanceID, const std::string &) override {}
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void showBlockingDialog(BlockingDialog * iw) override;

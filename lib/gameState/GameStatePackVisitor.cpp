@@ -1267,6 +1267,7 @@ void GameStatePackVisitor::visitSetQuestHint(SetQuestHint & pack)
 		throw std::runtime_error("SetQuestHint: object is not a quest source!");
 
 	questSource->getQuest().scriptHintText = pack.hint;
+	questSource->getQuest().scriptHintComponents = pack.components;
 }
 
 void GameStatePackVisitor::visitDisableMapEvent(DisableMapEvent & pack)

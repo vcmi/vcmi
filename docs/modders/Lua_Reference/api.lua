@@ -29,10 +29,11 @@ function AdventureServer:markQuestProposed(target, player) end
 ---@param player integer # Player whose quest log gains the entry.
 function AdventureServer:addToQuestLog(target, player) end
 
----Internal plumbing for the setQuestHint helper. Scripts should call setQuestHint instead.
+---Sets the hover / quest-log hint of a scripted quest, and the icons shown with it in the quest log.
 ---@param target MapObject # The quest source (seer hut / quest guard) whose hint changes.
 ---@param text MetaString # New hover / quest-log text for the object's active quest.
-function AdventureServer:setQuestHintText(target, text) end
+---@param components Component[]? # Icons shown with the hint in the quest log; nil for none.
+function AdventureServer:setQuestHint(target, text, components) end
 
 ---Turns off a timed player event of the map, so it no longer occurs.
 ---@param handler string # Name of the map script handler that the timed player event runs.
@@ -732,9 +733,10 @@ function Calendar:getWeeksInMonth() end
 
 ---Descriptor for an icon shown in a message window (a creature, artifact, resource, skill, ... with an optional amount). `type` selects the kind and `subType` the specific entity.
 ---@class Component
----@field type integer # Component kind (ComponentType index).
+---@field type integer # Component kind, one of ENUM.ComponentType.
 ---@field subType integer # Identifier index of the entity, interpreted according to `type`.
 ---@field value integer? # Optional amount: positive means gained, negative means lost.
+---@field faction integer? # Faction index of the town building, required by building components.
 local Component = {}
 
 ---A creature type from the database (e.g. "pikeman"). Carries base stats, faction, recruitment cost, and the bonuses every instance starts with. Concrete battlefield or army-slot instances are Unit and StackInstance respectively.
@@ -808,6 +810,7 @@ function Creature:isDoubleWide() end
 ---@field PrimarySkill PrimarySkill # The four primary hero skills.
 ---@field PlayerColor PlayerColor # Player colours, plus the neutral owner used by unowned objects.
 ---@field PlayerStatus PlayerStatus # Whether a player is still playing, has won, or has lost.
+---@field ComponentType ComponentType # Kinds of icons shown in message windows, used by Component `type`.
 local Enums = {}
 
 ---Outcome categories for the heal action: plain heal / resurrect / overheal.
@@ -1093,6 +1096,43 @@ local PlayerStatus = {
     loser = 1,
     ---Player has won the game.
     winner = 2,
+}
+
+---Kinds of icons shown in message windows, used by Component `type`.
+---@enum ComponentType
+local ComponentType = {
+    ---Primary skill; `subType` is the skill, `value` the change.
+    primarySkill = 0,
+    ---Secondary skill; `subType` is the skill, `value` the mastery level (1-3).
+    secondarySkill = 1,
+    ---Resource; `subType` is the resource, `value` the amount.
+    resource = 2,
+    ---Daily resource income; `subType` is the resource, `value` the amount per day.
+    resourcePerDay = 3,
+    ---Creature; `subType` is the creature, `value` the optional count.
+    creature = 4,
+    ---Artifact; `subType` is the artifact.
+    artifact = 5,
+    ---Spell scroll; `subType` is the spell in the scroll.
+    spellScroll = 6,
+    ---Spell points; `value` is the change.
+    mana = 7,
+    ---Experience; `value` is the amount.
+    experience = 8,
+    ---Hero levels; `value` is the number of levels.
+    level = 9,
+    ---Spell; `subType` is the spell.
+    spell = 10,
+    ---Morale; `value` is the change.
+    morale = 11,
+    ---Luck; `value` is the change.
+    luck = 12,
+    ---Town building; `subType` is the building and `faction` its faction.
+    building = 13,
+    ---Hero portrait; `subType` is the hero.
+    heroPortrait = 14,
+    ---Player flag; `subType` is the player.
+    flag = 15,
 }
 
 ---A town/army faction definition (Castle, Rampart, Inferno, …). Identifies the kind, not a placed town; use Game lookups for the latter.

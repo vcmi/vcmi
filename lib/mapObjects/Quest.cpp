@@ -283,6 +283,12 @@ void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::
 
 void Quest::loadComponents(std::vector<Component> & components, const CGHeroInstance * h) const
 {
+	if(missionKind == EQuestMission::HOTA_SCRIPTED)
+	{
+		components.insert(components.end(), scriptHintComponents.begin(), scriptHintComponents.end());
+		return;
+	}
+
 	mission.loadComponents(components, h);
 
 	if(missionKind != EQuestMission::HERO || !heroPortrait.isValid())
