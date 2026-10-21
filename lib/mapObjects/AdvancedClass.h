@@ -84,6 +84,7 @@ public:
 	const std::vector<std::shared_ptr<AdvancedClassDefinition>> & getAll() const;
 	const AdvancedClassDefinition * getRootClass(const AdvancedClassDefinition & definition) const;
 	const AdvancedClassDefinition * getAbility(const CGHeroInstance & hero, size_t slot) const;
+	std::vector<const AdvancedClassDefinition *> getAvailable(const CGHeroInstance & hero) const;
 	int pointsFor(const CGHeroInstance & hero, const AdvancedClassDefinition & definition) const;
 	AdvancedClassSelectionProblem selectionProblem(const CGHeroInstance & hero, const std::string & id) const;
 	bool canSelect(const CGHeroInstance & hero, const std::string & id) const;

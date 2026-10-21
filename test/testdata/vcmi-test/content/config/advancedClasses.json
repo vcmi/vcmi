@@ -20,5 +20,63 @@
 				"val" : 1
 			}
 		}
+	},
+	"integrationAdvancedClassTier2" :
+	{
+		"name" : "Integration Test Class Tier 2",
+		"tier" : 2,
+		"requiredLevel" : 0,
+		"requiredPoints" : 0,
+		"parents" : [ "integrationAdvancedClass" ]
+	},
+	"integrationOtherRoot" :
+	{
+		"name" : "Integration Test Other Root",
+		"tier" : 1,
+		"requiredLevel" : 0,
+		"requiredPoints" : 0,
+		"parents" : [],
+		"skillGroups" :
+		[
+			{
+				"offence" : [ 0, 0, 0 ]
+			}
+		]
+	},
+	"integrationOtherRootTier2" :
+	{
+		"name" : "Integration Test Other Root Tier 2",
+		"tier" : 2,
+		"requiredLevel" : 0,
+		"requiredPoints" : 0,
+		"parents" : [ "integrationOtherRoot" ]
+	},
+	"integrationLevelLocked" :
+	{
+		"name" : "Integration Test Level Locked",
+		"tier" : 1,
+		"requiredLevel" : 999,
+		"requiredPoints" : 0,
+		"parents" : [],
+		"skillGroups" :
+		[
+			{
+				"offence" : [ 0, 0, 0 ]
+			}
+		]
+	},
+	"integrationPointsLocked" :
+	{
+		"name" : "Integration Test Points Locked",
+		"tier" : 1,
+		"requiredLevel" : 0,
+		"requiredPoints" : 999,
+		"parents" : [],
+		"skillGroups" :
+		[
+			{
+				"offence" : [ 0, 0, 0 ]
+			}
+		]
 	}
 }

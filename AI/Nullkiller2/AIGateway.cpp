@@ -18,6 +18,7 @@
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
+#include "../../lib/mapObjects/AdvancedClass.h"
 #include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
@@ -619,8 +620,31 @@ void AIGateway::yourTurn(QuestionID questionID)
 	{
 		ScopedThreadName guard("NK2AI::AIGateway::makingTurn");
 		status.waitTillFree();
+		selectAdvancedClasses();
 		makeTurn();
 	});
+}
+
+void AIGateway::selectAdvancedClasses()
+{
+	for(const auto * hero : cc->getPlayerState(playerID)->getHeroes())
+	{
+		for(int tier = hero->advancedClass.nextTier(); tier <= GameConstants::ADVANCED_CLASS_TIER_COUNT; ++tier)
+		{
+			auto available = LIBRARY->advancedClassHandler->getAvailable(*hero);
+			if(available.empty())
+				break;
+
+			const auto best = std::ranges::max_element(available, [hero](const auto * lhs, const auto * rhs)
+			{
+				const int lhsSurplus = LIBRARY->advancedClassHandler->pointsFor(*hero, *lhs) - lhs->requiredPoints;
+				const int rhsSurplus = LIBRARY->advancedClassHandler->pointsFor(*hero, *rhs) - rhs->requiredPoints;
+				return lhsSurplus != rhsSurplus ? lhsSurplus < rhsSurplus : lhs->id > rhs->id;
+			});
+			if(!cc->selectAdvancedClass(hero, (*best)->id))
+				break;
+		}
+	}
 }
 
 void AIGateway::heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, bool moreLevelsFollow, QuestionID questionID)

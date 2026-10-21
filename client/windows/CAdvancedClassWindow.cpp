@@ -19,6 +19,7 @@
 #include "../widgets/ObjectLists.h"
 #include "../widgets/Slider.h"
 #include "../widgets/TextControls.h"
+#include "../widgets/CViewport.h"
 #include "render/Canvas.h"
 
 #include "../../lib/CBonusTypeHandler.h"
@@ -136,6 +137,7 @@ CAdvancedClassWindow::CAdvancedClassWindow(const CGHeroInstance * hero_)
 	title = std::make_shared<CLabel>(pos.w / 2, 18, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, translated("advancedClasses.heroWindow.title"));
 	candidateHeader = std::make_shared<CLabel>(111, 42, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, translated("advancedClasses.heroWindow.choices"));
 	treeHeader = std::make_shared<CLabel>(486, 42, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, translated("advancedClasses.heroWindow.progression"));
+	treeViewport = std::make_shared<CViewport>(Rect(226, 66, 520, 232), Point(504, 228), CSlider::BROWN);
 
 	rebuildCandidates();
 
@@ -218,7 +220,6 @@ void CAdvancedClassWindow::selectDefinition(const AdvancedClassDefinition * defi
 
 void CAdvancedClassWindow::rebuildTree()
 {
-	OBJECT_CONSTRUCTION;
 	treeWidgets.clear();
 	if(!selected)
 		return;
@@ -235,35 +236,45 @@ void CAdvancedClassWindow::rebuildTree()
 	for(auto & tier : tiers)
 		std::ranges::sort(tier, [](const auto * lhs, const auto * rhs){ return lhs->id < rhs->id; });
 
+	size_t largestTier = 0;
+	for(const auto & tier : tiers)
+		largestTier = std::max(largestTier, tier.size());
+	constexpr int rowHeight = 62;
+	constexpr int cardHeight = 52;
+	constexpr int cardsTop = 26;
+	const int contentHeight = std::max(228, cardsTop + static_cast<int>(largestTier) * rowHeight);
+	treeViewport->setContentSize(Point(504, contentHeight));
+	OBJECT_CONSTRUCTION_TARGETED(treeViewport->content());
+
 	for(size_t tierIndex = 1; tierIndex < tiers.size(); ++tierIndex)
 	{
 		for(size_t row = 0; row < tiers[tierIndex].size(); ++row)
 		{
 			const auto * definition = tiers[tierIndex][row];
-			const int childY = tiers[tierIndex].size() == 1 ? 179 : 138 + static_cast<int>(row) * 82;
+			const int childY = cardsTop + static_cast<int>(row) * rowHeight + cardHeight / 2;
 			for(const auto & parentId : definition->parents)
 			{
 				auto parent = std::ranges::find(tiers[tierIndex - 1], parentId, &AdvancedClassDefinition::id);
 				if(parent == tiers[tierIndex - 1].end())
 					continue;
 				const int parentRow = static_cast<int>(std::distance(tiers[tierIndex - 1].begin(), parent));
-				const int parentY = tiers[tierIndex - 1].size() == 1 ? 179 : 138 + parentRow * 82;
-				treeWidgets.push_back(std::make_shared<SimpleLine>(Point(218 + static_cast<int>(tierIndex) * 129, parentY),
-					Point(231 + static_cast<int>(tierIndex) * 129, childY), ColorRGBA(128, 100, 75, 255)));
+				const int parentY = cardsTop + parentRow * rowHeight + cardHeight / 2;
+				treeWidgets.push_back(std::make_shared<SimpleLine>(Point(-8 + static_cast<int>(tierIndex) * 127, parentY),
+					Point(3 + static_cast<int>(tierIndex) * 127, childY), ColorRGBA(128, 100, 75, 255)));
 			}
 		}
 	}
 
 	for(size_t tierIndex = 0; tierIndex < tiers.size(); ++tierIndex)
 	{
-		const int x = 231 + static_cast<int>(tierIndex) * 129;
-		treeWidgets.push_back(std::make_shared<CLabel>(x + 57, 69, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
+		const int x = 3 + static_cast<int>(tierIndex) * 127;
+		treeWidgets.push_back(std::make_shared<CLabel>(x + 57, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
 			boost::str(boost::format(translated("advancedClasses.heroWindow.tier")) % (tierIndex + 1))));
 		const int count = static_cast<int>(tiers[tierIndex].size());
 		for(int row = 0; row < count; ++row)
 		{
 			const auto * definition = tiers[tierIndex][row];
-			const int y = count == 1 ? 153 : 112 + row * 82;
+			const int y = cardsTop + row * rowHeight;
 			const bool acquired = hero->advancedClass.classes.at(tierIndex) == definition->id;
 			const bool available = LIBRARY->advancedClassHandler->canSelect(*hero, definition->id);
 			const auto state = definition == selected ? CardState::SELECTED : (acquired ? CardState::ACQUIRED : (available ? CardState::AVAILABLE : CardState::LOCKED));
