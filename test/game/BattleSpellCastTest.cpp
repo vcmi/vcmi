@@ -479,6 +479,31 @@ public:
 };
 
 //Issue #2765, Ghost Dragons can cast Age on Catapults
+TEST_F(BattleSpellCastTest, classAbilityCastUpdatesCooldownWithoutUsingHeroSpellcast)
+{
+	startTestGame();
+	auto * attacker = getHeroByOwner(PlayerColor(0));
+	auto * defender = getHeroByOwner(PlayerColor(1));
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
+	startTestBattle(attacker, defender);
+
+	auto * battle = gameState->currentBattles.front().get();
+	BattleSpellCast pack;
+	pack.battleID = battle->getBattleID();
+	pack.side = BattleSide::ATTACKER;
+	pack.castByHero = true;
+	pack.classAbilitySlot = 1;
+	pack.spellID = SpellID::MAGIC_ARROW;
+	gameEventCallback->sendAndApply(pack);
+
+	const auto & side = battle->getSide(BattleSide::ATTACKER);
+	EXPECT_EQ(side.classAbilityLastUse.at(1), battle->getRound());
+	EXPECT_EQ(side.classAbilityLastUse.at(0), -1000);
+	EXPECT_EQ(side.castSpellsCount, 0);
+	EXPECT_TRUE(side.usedSpellsHistory.empty());
+}
+
 TEST_F(BattleSpellCastTest, issue2765)
 {
 	startTestGame();

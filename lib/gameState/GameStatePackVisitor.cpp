@@ -310,6 +310,14 @@ void GameStatePackVisitor::visitGiveBonus(GiveBonus & pack)
 	updateMoraleOnTroopMixingBonusChange(cbsn, *b);
 }
 
+void GameStatePackVisitor::visitSetAdvancedClass(SetAdvancedClass & pack)
+{
+	CGHeroInstance * hero = gs.getHero(pack.hero);
+	if(!hero)
+		throw std::runtime_error("SetAdvancedClass references an unknown hero");
+	hero->advancedClass = pack.progress;
+}
+
 void GameStatePackVisitor::visitChangeObjPos(ChangeObjPos & pack)
 {
 	CGObjectInstance *obj = gs.getObjInstance(pack.objid);
@@ -1508,9 +1516,15 @@ void GameStatePackVisitor::visitBattleSpellCast(BattleSpellCast & pack)
 {
 	if(pack.castByHero && pack.side != BattleSide::NONE)
 	{
-		auto & side = gs.getBattle(pack.battleID)->getSide(pack.side);
-		side.castSpellsCount++;
-		side.usedSpellsHistory.push_back(pack.spellID);
+		auto * battle = gs.getBattle(pack.battleID);
+		auto & side = battle->getSide(pack.side);
+		if(pack.classAbilitySlot >= 0 && static_cast<size_t>(pack.classAbilitySlot) < side.classAbilityLastUse.size())
+			side.classAbilityLastUse.at(static_cast<size_t>(pack.classAbilitySlot)) = battle->getRound();
+		else
+		{
+			side.castSpellsCount++;
+			side.usedSpellsHistory.push_back(pack.spellID);
+		}
 	}
 }
 

@@ -85,6 +85,7 @@ class CHeroWindow : public CStatusbarWindow, public IGarrisonHolder, public CWin
 	std::shared_ptr<CButton> questlogButton;
 	std::shared_ptr<CButton> commanderButton;
 	std::shared_ptr<CButton> backpackButton;
+	std::shared_ptr<CButton> advancedClassButton;
 
 	std::shared_ptr<CToggleButton> tacticsButton;
 	std::shared_ptr<CToggleGroup> formations;
@@ -108,6 +109,7 @@ public:
 	void updateGarrisons() override;
 	bool holdsGarrison(const CArmedInstance * army) override;
 	void createBackpackWindow();
+	void createAdvancedClassWindow();
 
 	//friends
 	friend class CPlayerInterface;

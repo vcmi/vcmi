@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include "AdvancedClass.h"
+
 #include <vcmi/spells/Caster.h>
 
 #include "IOwnableObject.h"
@@ -114,6 +116,7 @@ public:
 
 	std::string nameCustomTextId;
 	std::string biographyCustomTextId;
+	AdvancedClassProgress advancedClass;
 
 	static constexpr si32 UNINITIALIZED_MANA = -1;
 	static constexpr ui32 UNINITIALIZED_MOVEMENT = -1;
@@ -389,6 +392,8 @@ public:
 		h & level;
 		h & nameCustomTextId;
 		h & biographyCustomTextId;
+		if(h.hasFeature(Handler::Version::ADVANCED_CLASSES))
+			h & advancedClass;
 		h & customPortraitSource;
 		h & mana;
 		h & secSkills;

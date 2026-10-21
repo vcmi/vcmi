@@ -142,14 +142,16 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 	switch(mode)
 	{
 	case spells::Mode::HERO:
+	case spells::Mode::HERO_ABILITY_1:
+	case spells::Mode::HERO_ABILITY_2:
 	{
 		const auto * hero = caster->getHeroCaster();
 
 		if(!hero)
 			return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
-		if(!hero->canCastSpells())
+		if(mode == spells::Mode::HERO && !hero->canCastSpells())
 			return ESpellCastProblem::NO_SPELLBOOK;
-		if(battleCastSpells(side) >= hero->valOfBonuses(BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN))
+		if(mode == spells::Mode::HERO && battleCastSpells(side) >= hero->valOfBonuses(BonusType::HERO_SPELL_CASTS_PER_COMBAT_TURN))
 			return ESpellCastProblem::CASTS_PER_TURN_LIMIT;
 	}
 		break;
@@ -160,7 +162,7 @@ ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(const spells::Caster *
 	//Orb of Inhibition blocks active spellcasting (hero and creature active abilities),
 	//but not passive/triggered casts such as SPELL_BEFORE_ATTACK / SPELL_AFTER_ATTACK.
 	//Level-0 creature abilities are excluded from this block in BattleSpellMechanics::canBeCast (spell level known there)
-	if(mode == spells::Mode::HERO || mode == spells::Mode::CREATURE_ACTIVE)
+	if(mode == spells::Mode::HERO || mode == spells::Mode::HERO_ABILITY_1 || mode == spells::Mode::HERO_ABILITY_2 || mode == spells::Mode::CREATURE_ACTIVE)
 	{
 		const IBonusBearer * casterBonuses = caster->getHeroCaster();
 		if(!casterBonuses)

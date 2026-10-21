@@ -110,6 +110,7 @@ public:
 
 	int32_t getCastSpells(BattleSide side) const override;
 	int32_t getEnchanterCounter(BattleSide side) const override;
+	int32_t getClassAbilityLastUse(BattleSide side, size_t slot) const override;
 
 	const IBonusBearer * getBonusBearer() const override;
 

@@ -11,10 +11,12 @@
 
 #include "GameStateTest.h"
 
+#include "../../lib/CPlayerState.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/gameState/SaveMetadata.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/serializer/CMemorySerializer.h"
@@ -43,6 +45,11 @@ TEST_F(SaveGameTest, savedGameIsRestored)
 {
 	startTestGame();
 	const auto saveFile = directory / "test.vsgm1";
+	const auto heroes = gameState->getPlayerState(PlayerColor(0))->getHeroes();
+	ASSERT_FALSE(heroes.empty());
+	auto * hero = gameState->getHero(heroes.front()->id);
+	ASSERT_NE(hero, nullptr);
+	hero->advancedClass.classes = {"test:path1", "test:path2", "", ""};
 
 	{
 		CMemorySerializer header;
@@ -81,6 +88,9 @@ TEST_F(SaveGameTest, savedGameIsRestored)
 	EXPECT_EQ(loadedState->day, gameState->day);
 	EXPECT_EQ(loadedState->getMap().width, map->width);
 	EXPECT_EQ(loadedState->players.size(), gameState->players.size());
+	const auto * loadedHero = loadedState->getHero(hero->id);
+	ASSERT_NE(loadedHero, nullptr);
+	EXPECT_EQ(loadedHero->advancedClass.classes, hero->advancedClass.classes);
 }
 
 TEST_F(SaveGameTest, invalidMetadataIsRejected)

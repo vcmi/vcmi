@@ -1,0 +1,9 @@
+{
+	"name": "Advanced Classes",
+	"description": "Four-tier pure and hybrid hero class progression with passive bonuses and battle abilities.",
+	"modType": "Expansion",
+	"author": "Piotr Pisarczyk",
+	"version": "0.1.0",
+	"translations": [ "config/translations/english.json" ],
+	"advancedClasses": [ "config/advancedClasses.json" ]
+}

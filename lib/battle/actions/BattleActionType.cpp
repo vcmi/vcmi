@@ -41,6 +41,8 @@ static const WalkAndAttackAction walkAndAttackAction;
 static const WalkAndAttackNoReturnAction walkAndAttackNoReturnAction;
 static const LongWeaponAttackAction longWeaponAttackAction;
 static const HeroSpellAction heroSpellAction;
+static const HeroClassAbilityAction heroClassAbilityOne(0);
+static const HeroClassAbilityAction heroClassAbilityTwo(1);
 static const UnitSpellAction unitSpellAction;
 static const RandomSpellAction randomSpellAction;
 static const WalkAndCastAction walkAndCastAction;
@@ -51,7 +53,7 @@ struct RegisteredActionType
 	const BattleActionType * type;
 };
 
-static constexpr std::array<RegisteredActionType, 18> registeredTypes = {{
+static constexpr std::array<RegisteredActionType, 20> registeredTypes = {{
 	{EActionType::NO_ACTION, &skipTurnAction},
 	{EActionType::BAD_MORALE, &badMoraleAction},
 	{EActionType::WAIT, &waitAction},
@@ -70,6 +72,8 @@ static constexpr std::array<RegisteredActionType, 18> registeredTypes = {{
 	{EActionType::MONSTER_SPELL, &unitSpellAction},
 	{EActionType::RANDOM_SPELL, &randomSpellAction},
 	{EActionType::WALK_AND_CAST, &walkAndCastAction},
+	{EActionType::HERO_ABILITY_1, &heroClassAbilityOne},
+	{EActionType::HERO_ABILITY_2, &heroClassAbilityTwo},
 }};
 
 const BattleActionType * BattleActionType::find(const BattleAction & action)
@@ -89,6 +93,11 @@ const BattleActionType * BattleActionType::find(EActionType actionType)
 ActionOption BattleActionType::makeHeroSpellOption(SpellID spell)
 {
 	return {&heroSpellAction, std::nullopt, spell};
+}
+
+ActionOption BattleActionType::makeHeroAbilityOption(size_t slot, SpellID spell)
+{
+	return slot == 0 ? heroClassAbilityOne.makeOption(spell) : heroClassAbilityTwo.makeOption(spell);
 }
 
 ActionOption BattleActionType::makeUnitSpellOption(SpellID spell)

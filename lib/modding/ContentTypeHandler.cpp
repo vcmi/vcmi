@@ -32,6 +32,7 @@
 #include "../IHandlerBase.h"
 #include "../ObstacleHandler.h"
 #include "../mapObjects/ObstacleSetHandler.h"
+#include "../mapObjects/AdvancedClass.h"
 #include "../RiverHandler.h"
 #include "../RoadHandler.h"
 #include "../constants/StringConstants.h"
@@ -249,6 +250,7 @@ void ContentTypeHandler::afterLoadFinalization()
 
 void CContentHandler::init()
 {
+	handlers.insert(std::make_pair("advancedClasses", ContentTypeHandler(LIBRARY->advancedClassHandler.get(), "advancedClass")));
 	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(LIBRARY->heroclassesh.get(), "heroClass")));
 	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(LIBRARY->arth.get(), "artifact")));
 	handlers.insert(std::make_pair("bonuses", ContentTypeHandler(LIBRARY->bth.get(), "bonus")));

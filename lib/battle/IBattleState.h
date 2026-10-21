@@ -64,6 +64,7 @@ public:
 
 	virtual int32_t getCastSpells(BattleSide side) const = 0;
 	virtual int32_t getEnchanterCounter(BattleSide side) const = 0;
+	virtual int32_t getClassAbilityLastUse(BattleSide side, size_t slot) const = 0;
 
 	virtual ui8 getTacticDist() const = 0;
 	virtual BattleSide getTacticsSide() const = 0;
