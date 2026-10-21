@@ -747,6 +747,32 @@
 			"cooldown": 2
 		}
 	},
+	"mag2_09": {
+		"name": "Enchanter",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"mag_01"
+		],
+		"ability": {
+			"spell": "shield",
+			"cooldown": 2
+		}
+	},
+	"mag2_10": {
+		"name": "Elementalist",
+		"tier": 2,
+		"requiredLevel": 15,
+		"requiredPoints": 15,
+		"parents": [
+			"mag_01"
+		],
+		"ability": {
+			"spell": "slow",
+			"cooldown": 2
+		}
+	},
 	"mag3_01": {
 		"name": "Spellweaver",
 		"tier": 3,
@@ -754,7 +780,9 @@
 		"requiredPoints": 20,
 		"parents": [
 			"mag2_01",
-			"mag2_02"
+			"mag2_02",
+			"mag2_09",
+			"mag2_10"
 		],
 		"bonuses": {
 			"effect0": {
