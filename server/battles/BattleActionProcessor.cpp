@@ -440,10 +440,13 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	if (battle.battleGetTacticDist() > 0 && unitMovementRange > 0)
 		unitMovementRange = GameConstants::BFIELD_SIZE;
 
+	logGlobal->trace("%s moves from %d to %d, distance %d, movement range %d, path from destination: %s",
+		currentUnit->getDescription(), start.toInt(), dest.toInt(), pathDistance, unitMovementRange, unitPath.toString());
+
 	if (pathDistance > unitMovementRange)
 	{
-		gameHandler->complain(boost::str(boost::format("Given destination is not reachable! %s can not move from %d to %d: distance %d, movement range %d")
-			% currentUnit->getDescription() % start.toInt() % dest.toInt() % pathDistance % unitMovementRange));
+		gameHandler->complain(boost::str(boost::format("Given destination is not reachable! %s can not move from %d to %d: distance %d, movement range %d, path from destination: %s")
+			% currentUnit->getDescription() % start.toInt() % dest.toInt() % pathDistance % unitMovementRange % unitPath.toString()));
 		return moveEnded({ 0, false, true });
 	}
 

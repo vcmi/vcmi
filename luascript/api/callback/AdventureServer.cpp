@@ -521,7 +521,9 @@ void AdventureServerProxy::grantCreaturesToHire(IGameEventCallback & object, con
 
 void AdventureServerProxy::constructBuilding(IGameEventCallback & object, const CGTownInstance & town, BuildingID building)
 {
-	object.buildStructureForced(town.id, building);
+	// HotA scripts re-issue construction every turn and expect existing buildings to be skipped
+	if(town.getTown()->buildings.count(building) && !town.hasBuilt(building))
+		object.buildStructureForced(town.id, building);
 }
 
 void AdventureServerProxy::showMessage(IGameEventCallback & object, PlayerColor player, const LuaMetaString & text,

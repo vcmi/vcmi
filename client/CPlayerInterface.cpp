@@ -2008,9 +2008,11 @@ void CPlayerInterface::tryShowNextPendingDialog()
 			return;
 		}
 
+		// dialog is destroyed together with its list node
+		const auto blockingPolicy = dialog.blockingPolicy;
 		dialogs.pop_front();
 
-		if(dialog.blockingPolicy != PendingDialog::Type::NonBlocking || showingDialog->isBusy())
+		if(blockingPolicy != PendingDialog::Type::NonBlocking || showingDialog->isBusy())
 			return;
 	}
 }
