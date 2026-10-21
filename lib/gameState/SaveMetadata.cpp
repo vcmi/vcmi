@@ -22,7 +22,6 @@
 #include "../modding/CModHandler.h"
 #include "../modding/ModDescription.h"
 #include "../modding/ModIncompatibility.h"
-#include "../modding/ModScope.h"
 #include "../texts/MetaString.h"
 #include "../texts/TextLocalizationContainer.h"
 
@@ -31,15 +30,12 @@ static ModCompatibilityInfo getActiveMods()
 {
 	ModCompatibilityInfo result;
 	for(const auto & modID : LIBRARY->modh->getActiveMods())
-		if(modID != ModScope::scopeBuiltin())
-			result[modID] = LIBRARY->modh->getModInfo(modID).getVerificationInfo();
+		result[modID] = LIBRARY->modh->getModInfo(modID).getVerificationInfo();
 	return result;
 }
 
-static JsonNode gameToJson(const CGameState & gameState)
+static JsonNode gameToJson(const StartInfo & startInfo)
 {
-	const StartInfo & startInfo = *gameState.getStartInfo();
-
 	int humanPlayers = 0;
 	for(const auto & player : startInfo.playerInfos)
 		if(player.second.isControlledByHuman())
@@ -62,7 +58,6 @@ static JsonNode gameToJson(const CGameState & gameState)
 	result["difficulty"].Integer() = startInfo.difficulty;
 	result["humanPlayers"].Integer() = humanPlayers;
 	result["saveDirectory"].String() = startInfo.saveDirectory;
-	result["day"].Integer() = gameState.day;
 	return result;
 }
 
@@ -72,8 +67,18 @@ JsonNode SaveMetadata::create(const CGameState & gameState)
 	result["vcmiVersion"].String() = GameConstants::VCMI_VERSION;
 	result["saveTime"].Integer() = std::time(nullptr);
 	result["map"] = ScenarioMetadata::mapToJson(gameState.getMap());
-	result["game"] = gameToJson(gameState);
+	result["game"] = gameToJson(*gameState.getStartInfo());
+	result["game"]["day"].Integer() = gameState.day;
 	result["mods"] = ScenarioMetadata::modsToJson(getActiveMods());
+	return result;
+}
+
+JsonNode SaveMetadata::createLegacy(const CMapHeader & mapHeader, const StartInfo & startInfo, const ModCompatibilityInfo & mods)
+{
+	JsonNode result;
+	result["map"] = ScenarioMetadata::mapToJson(mapHeader);
+	result["game"] = gameToJson(startInfo);
+	result["mods"] = ScenarioMetadata::modsToJson(mods);
 	return result;
 }
 

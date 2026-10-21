@@ -29,6 +29,7 @@ TEST(ScenarioMetadataTest, modsAreGroupedByRootMod)
 	mods["root.gameplay.nested"] = makeMod("Nested", true);
 	mods["root.visual"] = makeMod("Visual", false);
 	mods["cosmetic"] = makeMod("Cosmetic", false);
+	mods["core"] = makeMod("Core", true);
 	mods["orphan.submod"] = makeMod("Submod", true);
 
 	const JsonNode result = ScenarioMetadata::modsToJson(mods);
