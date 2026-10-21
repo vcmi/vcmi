@@ -448,13 +448,7 @@ void MainWindow::manualInstallFile(QString filePath)
 	QString fileName = QFileInfo{filePath}.fileName();
 	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive))
 	{
-		QString filenameClean = fileName.toLower()
-			// mod name currently comes from zip file -> remove suffixes from github zip download
-			.replace(QRegularExpression("-[0-9a-f]{40}"), "")
-			.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
-			.replace("-main.zip", ".zip");
-
-		getModView()->downloadFile(filenameClean, QUrl::fromLocalFile(filePath), "mods");
+		getModView()->installFiles(QStringList{filePath});
 	}
 	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{

@@ -982,7 +982,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	ui->progressBar->setValue(0);
 
 	if(doInstallFiles)
-		installFiles(savedFiles);
+		installFiles(savedFiles, true);
 
 	Helper::keepScreenOn(false);
 	hideProgressBar();
@@ -1123,7 +1123,7 @@ EZipType classifyZipArchive(const std::vector<std::string> & fileList)
 }
 }
 
-void CModListView::installFiles(QStringList files)
+void CModListView::installFiles(QStringList files, bool removeArchives)
 {
 	QStringList mods;
 	QStringList maps;
@@ -1235,7 +1235,7 @@ void CModListView::installFiles(QStringList files)
 	if(!mods.empty())
 	{
 		logGlobal->info("Installing mods: started");
-		installMods(mods);
+		installMods(mods, removeArchives);
 		logGlobal->info("Installing mods: ended");
 	}
 
@@ -1459,16 +1459,16 @@ void CModListView::installSaves(QStringList saves)
 		QMessageBox::information(this, tr("Success"), tr("Imported %1 save files").arg(importedCount));
 }
 
-void CModListView::installMods(QStringList archives)
+void CModListView::installMods(QStringList archives, bool removeArchives)
 {
 	QStringList modNames;
 	QStringList modsToEnable;
 
 	for(QString archive : archives)
 	{
-		// get basename out of full file name
-		//                remove path                  remove extension
-		QString modName = archive.section('/', -1, -1).section('.', 0, 0);
+		const QString modName = removeArchives
+			? archive.section('/', -1, -1).section('.', 0, 0)
+			: ModStateController::modIdFromArchivePath(Helper::getRealPath(archive));
 
 		modNames.push_back(modName);
 	}
@@ -1550,10 +1550,13 @@ void CModListView::installMods(QStringList archives)
 
 	checkManagerErrors();
 
-	for(QString archive : archives)
+	if(removeArchives)
 	{
-		logGlobal->info("Erasing archive '%s'", archive.toStdString());
-		QFile::remove(archive);
+		for(QString archive : archives)
+		{
+			logGlobal->info("Erasing archive '%s'", archive.toStdString());
+			QFile::remove(archive);
+		}
 	}
 }
 
