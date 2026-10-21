@@ -45,6 +45,8 @@ struct DLL_LINKAGE AdvancedClassSkillWeight
 {
 	SecondarySkill skill;
 	std::array<int, 3> values{};
+
+	int pointsForMastery(int mastery) const;
 };
 
 struct DLL_LINKAGE AdvancedClassDefinition

@@ -42,6 +42,7 @@ class CAdvancedClassWindow final : public CWindowObject
 	void selectDefinition(const AdvancedClassDefinition * definition);
 	void rebuildTree();
 	void updateDetails();
+	void setSelectionEnabled(bool enabled);
 	void confirmSelection();
 
 public:

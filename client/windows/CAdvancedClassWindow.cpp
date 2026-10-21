@@ -23,6 +23,7 @@
 #include "render/Canvas.h"
 
 #include "../../lib/CBonusTypeHandler.h"
+#include "../../lib/CSkillHandler.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/bonuses/Bonus.h"
 #include "../../lib/callback/CCallback.h"
@@ -301,7 +302,7 @@ void CAdvancedClassWindow::updateDetails()
 	if(!selected)
 	{
 		detailText->setText(translated("advancedClasses.heroWindow.noChoices"));
-		selectButton->block(true);
+		setSelectionEnabled(false);
 		return;
 	}
 
@@ -311,6 +312,28 @@ void CAdvancedClassWindow::updateDetails()
 		text += translated(selected->descriptionTextId) + "\n\n";
 	text += boost::str(boost::format(translated("advancedClasses.heroWindow.requirementSummary"))
 		% hero->level % selected->requiredLevel % points % selected->requiredPoints);
+
+	const auto * root = LIBRARY->advancedClassHandler->getRootClass(*selected);
+	if(root && !root->skillGroups.empty())
+	{
+		text += "\n\n{" + translated("advancedClasses.heroWindow.classPointsTitle") + "}\n";
+		text += translated("advancedClasses.heroWindow.classPointsExplanation");
+		for(size_t groupIndex = 0; groupIndex < root->skillGroups.size(); ++groupIndex)
+		{
+			const auto & group = root->skillGroups[groupIndex];
+			int groupPoints = 0;
+			std::vector<std::string> contributions;
+			for(const auto & weight : group)
+			{
+				const int contribution = weight.pointsForMastery(hero->getSecSkillLevel(weight.skill));
+				groupPoints += contribution;
+				contributions.push_back(boost::str(boost::format(translated("advancedClasses.heroWindow.classPointsSkill"))
+					% weight.skill.toEntity(LIBRARY)->getNameTranslated() % contribution));
+			}
+			text += "\n" + boost::str(boost::format(translated("advancedClasses.heroWindow.classPointsGroup"))
+				% (groupIndex + 1) % groupPoints % boost::algorithm::join(contributions, ", "));
+		}
+	}
 
 	if(!selected->bonuses.empty())
 	{
@@ -338,7 +361,14 @@ void CAdvancedClassWindow::updateDetails()
 		text += "\n\n{" + translated("advancedClasses.heroWindow.status") + "} " + selectionProblemText(problem);
 
 	detailText->setText(text);
-	selectButton->block(!canSelect);
+	setSelectionEnabled(canSelect);
+}
+
+void CAdvancedClassWindow::setSelectionEnabled(bool enabled)
+{
+	selectButton->block(!enabled);
+	selectButton->setTextOverlay(translated("advancedClasses.heroWindow.select"), FONT_SMALL,
+		enabled ? Colors::YELLOW : ColorRGBA(145, 140, 130, 255));
 }
 
 void CAdvancedClassWindow::confirmSelection()
@@ -351,7 +381,7 @@ void CAdvancedClassWindow::confirmSelection()
 		if(GAME->interface()->cb->selectAdvancedClass(hero, classId))
 		{
 			selectionPending = true;
-			selectButton->block(true);
+			setSelectionEnabled(false);
 		}
 	}, nullptr);
 }

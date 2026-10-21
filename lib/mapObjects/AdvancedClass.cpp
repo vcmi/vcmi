@@ -53,6 +53,11 @@ int AdvancedClassProgress::nextTier() const
 	return GameConstants::ADVANCED_CLASS_TIER_COUNT + 1;
 }
 
+int AdvancedClassSkillWeight::pointsForMastery(int mastery) const
+{
+	return mastery >= 1 && mastery <= static_cast<int>(values.size()) ? values.at(mastery - 1) : 0;
+}
+
 int AdvancedClassDefinition::calculatePoints(const std::function<int(SecondarySkill)> & mastery) const
 {
 	if(skillGroups.empty())
@@ -63,11 +68,7 @@ int AdvancedClassDefinition::calculatePoints(const std::function<int(SecondarySk
 	{
 		int groupPoints = 0;
 		for(const auto & weight : group)
-		{
-			const int level = mastery(weight.skill);
-			if(level >= 1 && level <= 3)
-				groupPoints += weight.values.at(level - 1);
-		}
+			groupPoints += weight.pointsForMastery(mastery(weight.skill));
 		result = std::min(result, groupPoints);
 	}
 	return result;
