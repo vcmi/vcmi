@@ -25,7 +25,7 @@ SDLImageOptimizer::SDLImageOptimizer(SDL_Surface * surf, const Rect & virtualDim
 {
 }
 
-void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface)
+void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface, const SDLImageMargins & keep, int heightMultiple)
 {
 	if (!surf)
 		return;
@@ -35,57 +35,56 @@ void SDLImageOptimizer::optimizeSurface(SDL_Surface * formatSourceSurface)
 	int right = 0;
 	int bottom = 0;
 
+	const auto rowAt = [&](int y) { return static_cast<const uint8_t *>(surf->pixels) + y * surf->pitch; };
+
+	// extends the area to every pixel for which hasContent(x, y) is true
+	const auto locate = [&](const auto & hasContent)
+	{
+		for (int y = 0; y < surf->h; ++y)
+		{
+			for (int x = 0; x < surf->w; ++x)
+			{
+				if (hasContent(x, y))
+				{
+					top = std::min(top, y);
+					left = std::min(left, x);
+					right = std::max(right, x);
+					bottom = std::max(bottom, y);
+				}
+			}
+		}
+	};
+
 	// locate fully-transparent area around image
 	// H3 hadles this on format level, but mods or images scaled in runtime do not
 	if (surf->format->palette)
-	{
-		for (int y = 0; y < surf->h; ++y)
-		{
-			const uint8_t * row = static_cast<uint8_t *>(surf->pixels) + y * surf->pitch;
-			for (int x = 0; x < surf->w; ++x)
-			{
-				if (row[x] != 0)
-				{
-					// opaque or can be opaque (e.g. disabled shadow)
-					top = std::min(top, y);
-					left = std::min(left, x);
-					right = std::max(right, x);
-					bottom = std::max(bottom, y);
-				}
-			}
-		}
-	}
+		locate([&](int x, int y) { return rowAt(y)[x] != 0; }); // opaque or can be opaque (e.g. disabled shadow)
+	else if (surf->format->BytesPerPixel == 4 && surf->format->Amask != 0)
+		locate([&](int x, int y) { return (reinterpret_cast<const uint32_t *>(rowAt(y))[x] & surf->format->Amask) != 0; }); // any alpha bit set
 	else
-	{
-		for (int y = 0; y < surf->h; ++y)
+		locate([&](int x, int y)
 		{
-			for (int x = 0; x < surf->w; ++x)
-			{
-				ColorRGBA color;
-				SDL_GetRGBA(CSDL_Ext::getPixel(surf, x, y), surf->format, &color.r, &color.g, &color.b, &color.a);
-
-				if (color.a != SDL_ALPHA_TRANSPARENT)
-				{
-					// opaque
-					top = std::min(top, y);
-					left = std::min(left, x);
-					right = std::max(right, x);
-					bottom = std::max(bottom, y);
-				}
-			}
-		}
-	}
+			ColorRGBA color;
+			SDL_GetRGBA(CSDL_Ext::getPixel(surf, x, y), surf->format, &color.r, &color.g, &color.b, &color.a);
+			return color.a != SDL_ALPHA_TRANSPARENT;
+		});
 
 	// empty image
 	if (left == surf->w)
 		return;
 
-	if (left != 0 || top != 0 || right != surf->w - 1 || bottom != surf->h - 1)
+	left = std::max(0, left - keep.left);
+	top = std::max(0, top - keep.top) / heightMultiple * heightMultiple;
+	right = std::min(surf->w - 1, right + keep.right);
+	bottom = std::min(surf->h - 1, bottom + keep.bottom);
+	const int cutHeight = (bottom - top + heightMultiple) / heightMultiple * heightMultiple;
+
+	if (left != 0 || top != 0 || right != surf->w - 1 || cutHeight != surf->h)
 	{
 		// non-zero border found
 		Rect newDimensions(left, top, right - left + 1, bottom - top + 1);
 		SDL_Rect rectSDL = CSDL_Ext::toSDL(newDimensions);
-		auto newSurface = CSDL_Ext::newSurface(newDimensions.dimensions(), formatSourceSurface);
+		auto newSurface = CSDL_Ext::newSurface(Point(newDimensions.w, cutHeight), formatSourceSurface);
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_NONE);
 		SDL_BlitSurface(surf, &rectSDL, newSurface, nullptr);
 
