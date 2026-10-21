@@ -34,12 +34,12 @@
 namespace
 {
 constexpr int WINDOW_WIDTH = 760;
-constexpr int WINDOW_HEIGHT = 560;
+constexpr int WINDOW_HEIGHT = 600;
 constexpr int LIST_WIDTH = 202;
 constexpr int LIST_CARD_WIDTH = 170;
 constexpr int LIST_SLIDER_X = 174;
 constexpr int LIST_ROW_HEIGHT = 48;
-constexpr int LIST_VISIBLE_ROWS = 8;
+constexpr int LIST_VISIBLE_ROWS = 9;
 
 enum class CardState
 {
@@ -72,12 +72,21 @@ class AdvancedClassCard final : public CIntObject
 	ColorRGBA borderColor() const
 	{
 		if(state == CardState::ACQUIRED)
-			return ColorRGBA(90, 190, 100, 255);
+			return ColorRGBA(150, 125, 75, 255);
 		if(state == CardState::AVAILABLE)
-			return ColorRGBA(125, 190, 110, 255);
+			return ColorRGBA(128, 100, 75, 255);
 		if(state == CardState::SELECTED)
 			return ColorRGBA(230, 185, 70, 255);
-		return ColorRGBA(100, 90, 80, 255);
+		return ColorRGBA(75, 70, 65, 255);
+	}
+
+	ColorRGBA statusColor() const
+	{
+		if(state == CardState::LOCKED)
+			return ColorRGBA(150, 145, 135, 255);
+		if(state == CardState::AVAILABLE)
+			return Colors::YELLOW;
+		return borderColor();
 	}
 
 public:
@@ -93,7 +102,7 @@ public:
 		name = std::make_shared<CLabel>(pos.w / 2, 8, FONT_SMALL, ETextAlignment::CENTER,
 			state == CardState::LOCKED ? ColorRGBA(145, 140, 130, 255) : Colors::WHITE, std::move(nameText), pos.w - 8);
 		status = std::make_shared<CLabel>(pos.w / 2, pos.h - 13, FONT_SMALL, ETextAlignment::CENTER,
-			state == CardState::LOCKED ? ColorRGBA(150, 145, 135, 255) : borderColor(), std::move(statusText), pos.w - 8);
+			statusColor(), std::move(statusText), pos.w - 8);
 	}
 
 	void clickPressed(const Point &) override
@@ -130,14 +139,14 @@ CAdvancedClassWindow::CAdvancedClassWindow(const CGHeroInstance * hero_)
 	center();
 
 	backgroundTexture = std::make_shared<CFilledTexture>(ImagePath::builtin("DIBOXBCK"), Rect(0, 0, pos.w, pos.h));
-	candidateBackground = std::make_shared<TransparentFilledRectangle>(Rect(10, 58, LIST_WIDTH, 430), ColorRGBA(0, 0, 0, 55), ColorRGBA(128, 100, 75, 255));
-	treeBackground = std::make_shared<TransparentFilledRectangle>(Rect(222, 58, 528, 244), ColorRGBA(0, 0, 0, 55), ColorRGBA(128, 100, 75, 255));
-	detailBackground = std::make_shared<TransparentFilledRectangle>(Rect(222, 312, 528, 176), ColorRGBA(0, 0, 0, 75), ColorRGBA(128, 100, 75, 255));
+	candidateBackground = std::make_shared<TransparentFilledRectangle>(Rect(10, 58, LIST_WIDTH, 470), ColorRGBA(0, 0, 0, 55), ColorRGBA(128, 100, 75, 255));
+	treeBackground = std::make_shared<TransparentFilledRectangle>(Rect(222, 58, 528, 276), ColorRGBA(0, 0, 0, 55), ColorRGBA(128, 100, 75, 255));
+	detailBackground = std::make_shared<TransparentFilledRectangle>(Rect(222, 344, 528, 184), ColorRGBA(0, 0, 0, 75), ColorRGBA(128, 100, 75, 255));
 
 	title = std::make_shared<CLabel>(pos.w / 2, 18, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, translated("advancedClasses.heroWindow.title"));
 	candidateHeader = std::make_shared<CLabel>(111, 42, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, translated("advancedClasses.heroWindow.choices"));
 	treeHeader = std::make_shared<CLabel>(486, 42, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, translated("advancedClasses.heroWindow.progression"));
-	treeViewport = std::make_shared<CViewport>(Rect(226, 66, 520, 232), Point(504, 228), CSlider::BROWN);
+	treeViewport = std::make_shared<CViewport>(Rect(226, 66, 520, 264), Point(504, 260), CSlider::BROWN);
 
 	rebuildCandidates();
 
@@ -159,12 +168,13 @@ CAdvancedClassWindow::CAdvancedClassWindow(const CGHeroInstance * hero_)
 	candidateList->pos.w = LIST_WIDTH - 10;
 	candidateList->pos.h = LIST_VISIBLE_ROWS * LIST_ROW_HEIGHT;
 	candidateList->setRedrawParent(true);
+	candidateList->getSlider()->setScrollBounds(candidateList->pos - candidateList->getSlider()->pos.topLeft());
 	candidateList->getSlider()->setEnabled(candidates.size() > LIST_VISIBLE_ROWS);
 
-	detailText = std::make_shared<CTextBox>("", Rect(232, 322, 508, 156), CSlider::BROWN, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
-	selectButton = std::make_shared<CButton>(Point(584, 506), AnimationPath::builtin("settingsWindow/button80"), CButton::tooltipLocalized("advancedClasses.heroWindow.select"), [this](){ confirmSelection(); }, EShortcut::GLOBAL_ACCEPT);
+	detailText = std::make_shared<CTextBox>("", Rect(232, 354, 508, 164), CSlider::BROWN, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE);
+	selectButton = std::make_shared<CButton>(Point(584, 546), AnimationPath::builtin("settingsWindow/button80"), CButton::tooltipLocalized("advancedClasses.heroWindow.select"), [this](){ confirmSelection(); }, EShortcut::GLOBAL_ACCEPT);
 	selectButton->setTextOverlay(translated("advancedClasses.heroWindow.select"), FONT_SMALL, Colors::YELLOW);
-	closeButton = std::make_shared<CButton>(Point(680, 506), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_CANCEL);
+	closeButton = std::make_shared<CButton>(Point(680, 546), AnimationPath::builtin("IOKAY"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_CANCEL);
 
 	rebuildTree();
 	updateDetails();
@@ -241,8 +251,8 @@ void CAdvancedClassWindow::rebuildTree()
 		largestTier = std::max(largestTier, tier.size());
 	constexpr int rowHeight = 62;
 	constexpr int cardHeight = 52;
-	constexpr int cardsTop = 26;
-	const int contentHeight = std::max(228, cardsTop + static_cast<int>(largestTier) * rowHeight);
+	constexpr int cardsTop = 28;
+	const int contentHeight = std::max(260, cardsTop + static_cast<int>(largestTier) * rowHeight);
 	treeViewport->setContentSize(Point(504, contentHeight));
 	OBJECT_CONSTRUCTION_TARGETED(treeViewport->content());
 
@@ -268,7 +278,7 @@ void CAdvancedClassWindow::rebuildTree()
 	for(size_t tierIndex = 0; tierIndex < tiers.size(); ++tierIndex)
 	{
 		const int x = 3 + static_cast<int>(tierIndex) * 127;
-		treeWidgets.push_back(std::make_shared<CLabel>(x + 57, 0, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
+		treeWidgets.push_back(std::make_shared<CLabel>(x + 57, 10, FONT_SMALL, ETextAlignment::CENTER, Colors::YELLOW,
 			boost::str(boost::format(translated("advancedClasses.heroWindow.tier")) % (tierIndex + 1))));
 		const int count = static_cast<int>(tiers[tierIndex].size());
 		for(int row = 0; row < count; ++row)
