@@ -50,8 +50,8 @@ void HeroInstanceProxy::registerMethods(MethodRegistrar & R)
 		{{"skill", "Primary skill JSON key (`attack`, `defence`, `spellpower`, `knowledge`)."}},
 		{"Current value of the primary skill."},
 		"Returns the value of one of the hero's primary skills.");
-	R.method<&CGHeroInstance::getSecSkillLevel>("getSecondarySkill",
-		{{"skill", "Secondary skill JSON key."}},
+	R.function<&HeroInstanceProxy::getSecondarySkill>("getSecondarySkill",
+		{{"skill", "Secondary skill, as returned by Services:getSecondarySkillByName."}},
 		{"Mastery level (0 = none, 1 = basic, 2 = advanced, 3 = expert)."},
 		"Returns the hero's mastery of the given secondary skill.");
 	R.function<&HeroInstanceProxy::getHeroType>("getHeroType",
@@ -61,11 +61,11 @@ void HeroInstanceProxy::registerMethods(MethodRegistrar & R)
 		{"Class of the hero, comparable with the result of Services:getHeroClassByName."},
 		"Returns the hero class of this hero.");
 	R.function<&HeroInstanceProxy::hasArtifact>("hasArtifact",
-		{{"artifact", "Artifact JSON key."}},
+		{{"artifact", "Artifact, as returned by Services:getArtifactByName."}},
 		{"True if the hero owns the artifact."},
 		"Returns whether the hero owns the given artifact, either as equipped or in the backpack.");
 	R.function<&HeroInstanceProxy::ownedArtifacts>("ownedArtifacts",
-		{{"artifact", "Artifact JSON key."}},
+		{{"artifact", "Artifact, as returned by Services:getArtifactByName."}},
 		{"Number of copies of that artifact the hero carries."},
 		"Returns how many copies of the given artifact the hero owns, counting both equipped slots and the backpack.");
 	R.function<&HeroInstanceProxy::creatureCountInArmy>("creatureCountInArmy",
@@ -104,19 +104,24 @@ const HeroClass * HeroInstanceProxy::getHeroClass(const CGHeroInstance & hero)
 	return hero.getHeroClassID().toEntity(LIBRARY);
 }
 
-bool HeroInstanceProxy::hasArtifact(const CGHeroInstance & hero, ArtifactID artifact)
+int HeroInstanceProxy::getSecondarySkill(const CGHeroInstance & hero, const Skill & skill)
 {
-	return hero.hasArt(artifact);
+	return hero.getSecSkillLevel(skill.getId());
 }
 
-int HeroInstanceProxy::ownedArtifacts(const CGHeroInstance & hero, ArtifactID artifact)
+bool HeroInstanceProxy::hasArtifact(const CGHeroInstance & hero, const Artifact & artifact)
+{
+	return hero.hasArt(artifact.getId());
+}
+
+int HeroInstanceProxy::ownedArtifacts(const CGHeroInstance & hero, const Artifact & artifact)
 {
 	int total = 0;
 	for(const auto & [pos, slot] : hero.artifactsWorn)
-		if(slot.getArt() && slot.getArt()->getTypeId() == artifact)
+		if(slot.getArt() && slot.getArt()->getTypeId() == artifact.getId())
 			++total;
 	for(const auto & slot : hero.artifactsInBackpack)
-		if(slot.getArt() && slot.getArt()->getTypeId() == artifact)
+		if(slot.getArt() && slot.getArt()->getTypeId() == artifact.getId())
 			++total;
 	return total;
 }
