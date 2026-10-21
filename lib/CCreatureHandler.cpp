@@ -25,7 +25,6 @@
 #include "json/JsonBonus.h"
 #include "json/JsonUtils.h"
 #include "serializer/JsonDeserializer.h"
-#include "serializer/JsonUpdater.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
 #include "mapObjectConstructors/AObjectTypeHandler.h"
@@ -401,12 +400,6 @@ void CCreature::serializeJson(JsonSerializeFormat & handler)
 		auto advMapNode = handler.enterStruct("advMapAmount");
 		handler.serializeInt("min", ammMin);
 		handler.serializeInt("max", ammMax);
-	}
-
-	if(handler.updating)
-	{
-		cost.serializeJson(handler, "cost");
-		handler.serializeId("faction", faction);
 	}
 
 	handler.serializeInt("level", level);

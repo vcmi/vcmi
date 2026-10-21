@@ -286,7 +286,6 @@ set(lib_MAIN_SRCS
 	serializer/JsonDeserializer.cpp
 	serializer/JsonSerializeFormat.cpp
 	serializer/JsonSerializer.cpp
-	serializer/JsonUpdater.cpp
 	serializer/SerializerReflection.cpp
 
 	scripting/ScriptVariablesStorage.cpp
@@ -782,7 +781,6 @@ set(lib_MAIN_HEADERS
 	serializer/JsonDeserializer.h
 	serializer/JsonSerializeFormat.h
 	serializer/JsonSerializer.h
-	serializer/JsonUpdater.h
 	serializer/ESerializationVersion.h
 	serializer/PlayerConnectionID.h
 	serializer/RegisterTypes.h

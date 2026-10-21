@@ -149,7 +149,6 @@ public:
 	};
 
 	const bool saving;
-	const bool updating;
 
 	JsonSerializeFormat() = delete;
 	virtual ~JsonSerializeFormat() = default;
@@ -437,7 +436,7 @@ public:
 	virtual void serializeRaw(const std::string & fieldName, JsonNode & value, const std::optional<std::reference_wrapper<const JsonNode>> defaultValue) = 0;
 
 protected:
-	JsonSerializeFormat(const IInstanceResolver * instanceResolver_, const bool saving_, const bool updating_);
+	JsonSerializeFormat(const IInstanceResolver * instanceResolver_, const bool saving_);
 
 	///bool <-> Json bool, indeterminate is default
 	virtual void serializeInternal(const std::string & fieldName, std::optional<bool> & value) = 0;
