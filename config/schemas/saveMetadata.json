@@ -77,9 +77,13 @@
 					"enum" : [ "single", "campaign", "tutorial" ]
 				},
 				"campaignName" : { "$ref" : "#/definitions/text" },
+				"campaignScenario" : {
+					"type" : "number",
+					"description" : "Index of the current scenario in the campaign, only for campaigns"
+				},
 				"mapFile" : {
 					"type" : "string",
-					"description" : "Name of the map file, empty for random maps"
+					"description" : "Name of the map file, or of the campaign file for campaigns, empty for random maps"
 				},
 				"difficulty" : {
 					"type" : "number",
