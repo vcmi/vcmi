@@ -50,7 +50,7 @@ int AdvancedClassProgress::nextTier() const
 	for(size_t index = 0; index < classes.size(); ++index)
 		if(classes[index].empty())
 			return static_cast<int>(index) + 1;
-	return 5;
+	return GameConstants::ADVANCED_CLASS_TIER_COUNT + 1;
 }
 
 int AdvancedClassDefinition::calculatePoints(const std::function<int(SecondarySkill)> & mastery) const
@@ -77,7 +77,7 @@ bool AdvancedClassDefinition::follows(const AdvancedClassProgress & progress) co
 {
 	if(tier == 1)
 		return parents.empty();
-	if(tier < 1 || tier > 4)
+	if(tier < 1 || tier > GameConstants::ADVANCED_CLASS_TIER_COUNT)
 		return false;
 	return std::ranges::find(parents, progress.classes.at(tier - 2)) != parents.end();
 }
@@ -190,10 +190,10 @@ const AdvancedClassDefinition * AdvancedClassHandler::getRootClass(const Advance
 
 const AdvancedClassDefinition * AdvancedClassHandler::getAbility(const CGHeroInstance & hero, size_t slot) const
 {
-	if(slot >= ABILITY_SLOTS)
+	if(slot >= GameConstants::ADVANCED_CLASS_ABILITY_SLOTS)
 		return nullptr;
-	const auto * definition = find(hero.advancedClass.classes.at(slot + 1));
-	return definition && definition->valid && definition->tier == static_cast<int>(slot) + 2
+	const auto * definition = find(hero.advancedClass.classes.at(slot + GameConstants::ADVANCED_CLASS_FIRST_ABILITY_TIER - 1));
+	return definition && definition->valid && definition->tier == static_cast<int>(slot) + GameConstants::ADVANCED_CLASS_FIRST_ABILITY_TIER
 		&& definition->abilityConfigured && definition->ability.hasValue() ? definition : nullptr;
 }
 
@@ -221,7 +221,7 @@ AdvancedClassSelectionProblem AdvancedClassHandler::selectionProblem(const CGHer
 	if(!definition->valid)
 		return AdvancedClassSelectionProblem::INVALID_DEFINITION;
 	const int nextTier = hero.advancedClass.nextTier();
-	if(nextTier > 4)
+	if(nextTier > GameConstants::ADVANCED_CLASS_TIER_COUNT)
 		return AdvancedClassSelectionProblem::PROGRESSION_COMPLETE;
 	if(definition->tier != nextTier)
 		return AdvancedClassSelectionProblem::WRONG_TIER;
@@ -243,7 +243,7 @@ void AdvancedClassHandler::afterLoadFinalization()
 {
 	for(const auto & definition : objects)
 	{
-		if(definition->tier < 1 || definition->tier > 4)
+		if(definition->tier < 1 || definition->tier > GameConstants::ADVANCED_CLASS_TIER_COUNT)
 		{
 			logMod->error("Advanced class '%s' has invalid tier %d", definition->id, definition->tier);
 			definition->valid = false;
@@ -263,7 +263,8 @@ void AdvancedClassHandler::afterLoadFinalization()
 			logMod->error("Advanced class '%s' references an unknown ability spell", definition->id);
 			definition->valid = false;
 		}
-		if(definition->abilityConfigured && (definition->tier < 2 || definition->tier > 3))
+		if(definition->abilityConfigured && (definition->tier < GameConstants::ADVANCED_CLASS_FIRST_ABILITY_TIER
+			|| definition->tier >= GameConstants::ADVANCED_CLASS_FIRST_ABILITY_TIER + static_cast<int>(GameConstants::ADVANCED_CLASS_ABILITY_SLOTS)))
 		{
 			logMod->error("Advanced class '%s' defines a battle ability outside tiers 2 and 3", definition->id);
 			definition->valid = false;

@@ -189,8 +189,8 @@ void CAdvancedClassWindow::rebuildCandidates()
 	selected = nullptr;
 	if(!candidates.empty())
 		selected = candidates.front();
-	else if(nextTier > 1 && nextTier <= 5)
-		selected = LIBRARY->advancedClassHandler->find(hero->advancedClass.classes.at(std::min(nextTier, 5) - 2));
+	else if(nextTier > 1 && nextTier <= GameConstants::ADVANCED_CLASS_TIER_COUNT + 1)
+		selected = LIBRARY->advancedClassHandler->find(hero->advancedClass.classes.at(nextTier - 2));
 }
 
 void CAdvancedClassWindow::refresh()
@@ -227,7 +227,7 @@ void CAdvancedClassWindow::rebuildTree()
 	if(!root)
 		return;
 
-	std::array<std::vector<const AdvancedClassDefinition *>, 4> tiers;
+	std::array<std::vector<const AdvancedClassDefinition *>, GameConstants::ADVANCED_CLASS_TIER_COUNT> tiers;
 	for(const auto & definition : LIBRARY->advancedClassHandler->getAll())
 		if(definition->valid && LIBRARY->advancedClassHandler->getRootClass(*definition) == root)
 			tiers.at(definition->tier - 1).push_back(definition.get());

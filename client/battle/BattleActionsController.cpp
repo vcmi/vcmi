@@ -201,7 +201,7 @@ BattleActionEntries BattleActionsController::getPossibleActionsForStack(const CS
 	if(hero)
 	{
 		const auto side = owner.getBattle()->battleGetMySide();
-		for(size_t slot = 0; slot < AdvancedClassHandler::ABILITY_SLOTS; ++slot)
+		for(size_t slot = 0; slot < GameConstants::ADVANCED_CLASS_ABILITY_SLOTS; ++slot)
 		{
 			const auto * definition = LIBRARY->advancedClassHandler->getAbility(*hero, slot);
 			const bool cooldownReady = definition && definition->isAbilityReady(
