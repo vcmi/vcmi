@@ -177,6 +177,10 @@ JsonNode SaveMetadata::parse(const std::vector<std::byte> & data, const std::str
 	if(!errors.empty())
 		throw std::runtime_error("Error: metadata of saved game '" + fileName + "' is invalid: " + errors);
 
+	for(const auto & field : {"vcmiVersion", "saveTime", "game"})
+		if(!result.Struct().contains(field))
+			throw std::runtime_error("Error: metadata of saved game '" + fileName + "' has no field '" + field + "'!");
+
 	return result;
 }
 
