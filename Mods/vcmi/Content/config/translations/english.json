@@ -1123,6 +1123,7 @@
 	"vcmi.server.errors.campOrMapFile.unknownEntity": "Failed to load file! Unknown entity '%s' found! File may not be compatible with currently installed version of mods!",
 	"vcmi.server.errors.disconnected": "{Network Error}\n\nConnection to game server has been lost!",
 	"vcmi.server.errors.existingProcess": "Another VCMI server process is running. Please terminate it before starting a new game.",
+	"vcmi.server.errors.incompatibleVersion": "{Incompatible Version}\n\nGame server uses a version of VCMI that is not compatible with your version!",
 	"vcmi.server.errors.modsToDisable": "{Following mods must be disabled}",
 	"vcmi.server.errors.modsToEnable": "{Following mods are required}",
 	"vcmi.server.errors.notAllowed": "You are not allowed to perform this action!",

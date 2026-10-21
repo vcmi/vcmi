@@ -87,6 +87,16 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClie
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
+	if(pack.version < ESerializationVersion::LOBBY_MAP_INFO_PACK)
+	{
+		// client of an older version can not read packs of the current lobby protocol
+		logNetwork->error("Rejecting client with incompatible serialization version %d", static_cast<int>(pack.version));
+		connection->getConnection()->close();
+		vstd::erase(srv.activeConnections, connection);
+		result = false;
+		return;
+	}
+
 	auto compatibleVersion = std::min(pack.version, ESerializationVersion::CURRENT);
 	connection->setSerializationVersion(compatibleVersion);
 
