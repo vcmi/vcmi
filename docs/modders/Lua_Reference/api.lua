@@ -291,6 +291,17 @@ function Battle:getDefendedTown() end
 ---@return Unit
 function Battle:getUnitByPos(hex, onlyAlive) end
 
+---Returns the player currently controlling the unit. Unlike Unit:getOwner, this accounts for Hypnotize, which hands a unit over to the opposing player.
+---@param unit Unit # Unit whose controller is queried.
+---@return integer
+function Battle:getUnitController(unit) end
+
+---True if the actor treats the target as an enemy. Accounts for Hypnotize: a hypnotized unit fights its own army, which still counts it as one of their own.
+---@param actor Unit # Unit that acts, e.g. attacks or casts a spell.
+---@param target Unit # Unit the action is aimed at.
+---@return boolean
+function Battle:isHostile(actor, target) end
+
 ---Returns all obstacles on the battlefield, including ones hidden from the caller.
 ---@return Obstacle[]
 function Battle:getAllObstacles() end
@@ -1767,7 +1778,7 @@ function Unit:isCommander() end
 ---@return boolean
 function Unit:isLiving() end
 
----Returns the player color controlling this unit.
+---Returns the player owning this unit. A hypnotized unit keeps its owner; Battle:getUnitController returns who controls it.
 ---@return integer
 function Unit:getOwner() end
 
@@ -1775,7 +1786,7 @@ function Unit:getOwner() end
 ---@return integer
 function Unit:getSlot() end
 
----Returns the battle side (attacker or defender) this unit belongs to.
+---Returns the battle side (attacker or defender) this unit belongs to. A hypnotized unit keeps its side; use Battle:isHostile to tell friend from foe.
 ---@return BattleSide
 function Unit:getSide() end
 

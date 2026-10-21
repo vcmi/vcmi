@@ -336,7 +336,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCa
 	{
 		const TStacks possibleTargets = battle.battleGetStacksIf([&next, &battle](const CStack * s)
 		{
-			return s->unitOwner() != next->unitOwner() && s->isValidTarget() && battle.battleCanShoot(next, s->getPosition());
+			return battle.battleMatchOwner(next, s) && s->isValidTarget() && battle.battleCanShoot(next, s->getPosition());
 		});
 
 		struct TargetInfo
@@ -458,7 +458,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCal
 
 	const TStacks possibleTargets = battle.battleGetStacksIf([&actingStack, &battle](const CStack * s)
 	{
-		return s->unitOwner() != actingStack->unitOwner() && s->isValidTarget()
+		return battle.battleMatchOwner(actingStack, s) && s->isValidTarget()
 		&& (!battle.isEnemyUnitWithinSpecifiedRange(actingStack->position, s, actingStack->getMovementRange())
 		|| (battle.isEnemyUnitWithinSpecifiedRange(actingStack->position, s, actingStack->getMovementRange()) && !s->getAttackableHexes(actingStack).empty()));
 	});
@@ -759,7 +759,8 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 		}
 		if(st->hasBonusOfType(BonusType::MANA_DRAIN) && !st->drainedMana)
 		{
-			const CGHeroInstance * opponentHero = battle.battleGetFightingHero(battle.otherSide(st->unitSide()));
+			// a hypnotized wraith drains the opponent of the player controlling it
+			const CGHeroInstance * opponentHero = battle.battleGetFightingHero(battle.otherSide(battle.playerToSide(battle.battleGetOwner(st))));
 			if(opponentHero)
 			{
 				ui32 manaDrained = st->valOfBonuses(BonusType::MANA_DRAIN);
@@ -790,7 +791,8 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			return b->subtype.as<SpellID>() == SpellID::NONE;
 		});
 
-		BattleSide side = battle.playerToSide(st->unitOwner());
+		// a hypnotized enchanter does not wait for the cooldown of its owner
+		BattleSide side = st->controllingSide();
 		if(st->canCast())
 		{
 			bool cast = false;

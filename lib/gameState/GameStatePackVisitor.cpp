@@ -1678,7 +1678,7 @@ void GameStatePackVisitor::visitBattleSetStackProperty(BattleSetStackProperty & 
 		}
 		case BattleSetStackProperty::ENCHANTER_COUNTER:
 		{
-			auto & counter = gs.getBattle(pack.battleID)->getSide(gs.getBattle(pack.battleID)->whatSide(stack->unitOwner())).enchanterCounter;
+			auto & counter = gs.getBattle(pack.battleID)->getSide(stack->controllingSide()).enchanterCounter;
 			if(pack.absolute)
 				counter = pack.val;
 			else

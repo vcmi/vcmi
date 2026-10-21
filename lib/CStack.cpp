@@ -95,7 +95,8 @@ si32 CStack::magicResistance() const
 
 	for(const auto * one : battle->battleAdjacentUnits(this))
 	{
-		if(one->unitOwner() == owner)
+		// a hypnotized unicorn protects units of the player controlling it
+		if(battle->battleGetOwner(one) == battle->battleGetOwner(this))
 			vstd::amax(auraBonus, one->valOfBonuses(BonusType::SPELL_RESISTANCE_AURA)); //max value
 	}
 	vstd::abetween(auraBonus, 0, 100);

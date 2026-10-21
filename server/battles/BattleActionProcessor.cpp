@@ -425,7 +425,7 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 
 	bool canUseGate = false;
 	auto dbState = battle.battleGetGateState();
-	if(battle.battleGetFortifications().wallsHealth > 0 && currentUnit->unitSide() == BattleSide::DEFENDER &&
+	if(battle.battleGetFortifications().wallsHealth > 0 && currentUnit->controllingSide() == BattleSide::DEFENDER &&
 		dbState != EGateState::DESTROYED &&
 		dbState != EGateState::BLOCKED)
 	{

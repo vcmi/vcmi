@@ -75,3 +75,20 @@ TEST_F(EnchantedTest, MassiveEnchantmentReachesEveryAllyAndNoEnemy)
 	EXPECT_EQ(ally->getAttack(false), baseAttack + bloodlustAttack);
 	EXPECT_EQ(enemy->getAttack(false), baseAttack);
 }
+
+TEST_F(EnchantedTest, HypnotizedMassEnchanterEnchantsUnitsOfItsController)
+{
+	startGame();
+	startBattle();
+
+	CStack * enchanter = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testMassEnchanter"), BattleHex(rightHex), stackCount);
+	CStack * formerAlly = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex + 1), stackCount);
+	CStack * controllerUnit = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(leftHex), stackCount);
+	hypnotize(enchanter);
+
+	beginCombat();
+
+	EXPECT_EQ(enchanter->getAttack(false), baseAttack + bloodlustAttack);
+	EXPECT_EQ(controllerUnit->getAttack(false), baseAttack + bloodlustAttack);
+	EXPECT_EQ(formerAlly->getAttack(false), baseAttack);
+}

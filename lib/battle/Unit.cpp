@@ -71,6 +71,13 @@ int32_t Unit::getAbilitySpellLevel(int32_t abilityLevel, const spells::Spell * s
 	return abilityLevel;
 }
 
+BattleSide Unit::controllingSide() const
+{
+	if(!isHypnotized())
+		return unitSide();
+	return unitSide() == BattleSide::ATTACKER ? BattleSide::DEFENDER : BattleSide::ATTACKER;
+}
+
 bool Unit::isSummoned() const
 {
 	return unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER;

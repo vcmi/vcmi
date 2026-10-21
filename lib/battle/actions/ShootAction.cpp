@@ -46,7 +46,7 @@ void ShootAction::collectOptions(const CBattleInfoCallback & battle, const battl
 int ShootAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
 {
 	// an area shot at an empty hex is only chosen when no other option is legal there
-	if(target == nullptr || target->unitSide() == actor.unitSide() || !target->alive())
+	if(target == nullptr || !battle.battleMatchOwner(&actor, target) || !target->alive())
 		return 100;
 
 	return 4;

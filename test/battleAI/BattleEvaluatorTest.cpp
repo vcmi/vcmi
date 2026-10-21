@@ -83,6 +83,27 @@ public:
 	DamageCache damageCache;
 };
 
+TEST_F(BattleEvaluatorTest, HypnotizedUnitGoesForItsFormerAllies)
+{
+	auto * elf = addStack(BattleSide::DEFENDER, creatureByName("core:woodElf"), BattleHex(14, 8), 30);
+	addStack(BattleSide::ATTACKER, creatureByName("core:griffin"), BattleHex(9, 5), 5);
+	auto * behemoth = addStack(BattleSide::DEFENDER, creatureByName("core:behemoth"), BattleHex(10, 5), 3);
+	hypnotize(behemoth);
+
+	// BattleAI of the attacking player controls the hypnotized behemoth
+	callback = std::make_shared<CBattleCallback>(attackerSideHero->getOwner(), nullptr);
+	callback->onBattleStarted(battle());
+	hypotheticalBattle = std::make_shared<HypotheticBattle>(gameHandler.get(), callback->getBattle(BattleID(0)));
+	damageCache.buildDamageCache(hypotheticalBattle, BattleSide::ATTACKER);
+	BattleEvaluator evaluator(gameHandler, callback, hypotheticalBattle, damageCache, behemoth,
+		attackerSideHero->getOwner(), BattleID(0), BattleSide::ATTACKER, 1.0f, 2);
+
+	BattleAction action = evaluator.selectStackAction(behemoth);
+
+	ASSERT_EQ(action.actionType, EActionType::WALK_AND_ATTACK);
+	EXPECT_EQ(action.target[1].hexValue, elf->getPosition());
+}
+
 TEST_F(BattleEvaluatorTest, AttacksSuitableTargetOnWayToMovementWaypoint)
 {
 	auto * elf = addStack(BattleSide::ATTACKER, creatureByName("core:woodElf"), BattleHex(1, 8), 30);
