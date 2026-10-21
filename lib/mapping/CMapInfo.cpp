@@ -130,21 +130,6 @@ std::string CMapInfo::getNameTranslated(const ITranslator * translator) const
 		return LIBRARY->generaltexth->allTexts[508];
 }
 
-std::string CMapInfo::getNameForList(const ITranslator * translator) const
-{
-	if(scenarioOptionsOfSave)
-	{
-		// TODO: this could be handled differently
-		std::vector<std::string> path;
-		boost::split(path, originalFileURI, boost::is_any_of("\\/"));
-		return path[path.size()-1];
-	}
-	else
-	{
-		return getNameTranslated(translator);
-	}
-}
-
 std::string CMapInfo::getDescriptionTranslated(const ITranslator * translator) const
 {
 	if(campaign)
@@ -179,47 +164,3 @@ int CMapInfo::getMapSizeIconId() const
 	}
 }
 
-int CMapInfo::getMapSizeFormatIconId() const
-{
-	switch(mapHeader->version)
-	{
-		case EMapFormat::ROE:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["iconIndex"].Integer();
-		case EMapFormat::AB:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["iconIndex"].Integer();
-		case EMapFormat::SOD:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["iconIndex"].Integer();
-		case EMapFormat::CHR:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES)["iconIndex"].Integer();
-		case EMapFormat::WOG:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["iconIndex"].Integer();
-		case EMapFormat::HOTA:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["iconIndex"].Integer();
-		case EMapFormat::VCMI:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["iconIndex"].Integer();
-	}
-	return 0;
-}
-
-std::string CMapInfo::getMapSizeName() const
-{
-	switch(mapHeader->width)
-	{
-	case CMapHeader::MAP_SIZE_SMALL:
-		return "S";
-	case CMapHeader::MAP_SIZE_MIDDLE:
-		return "M";
-	case CMapHeader::MAP_SIZE_LARGE:
-		return "L";
-	case CMapHeader::MAP_SIZE_XLARGE:
-		return "XL";
-	case CMapHeader::MAP_SIZE_HUGE:
-		return "H";
-	case CMapHeader::MAP_SIZE_XHUGE:
-		return "XH";
-	case CMapHeader::MAP_SIZE_GIANT:
-		return "G";
-	default:
-		return "C";
-	}
-}
