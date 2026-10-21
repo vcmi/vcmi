@@ -224,13 +224,20 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState &
 {
 	pack.hostChanged = pack.state.hostClientId != handler.hostClientId;
 	static_cast<LobbyState &>(handler) = pack.state;
-	// the map info the previous texts came from is gone now
+	// the campaign state the previous texts came from is gone now
 	handler.installLobbyTexts();
 	if(handler.mapToStart && handler.mi)
 	{
 		handler.startMapAfterConnection(nullptr);
 		handler.sendStartGame();
 	}
+}
+
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateMapInfo(LobbyUpdateMapInfo & pack)
+{
+	handler.mi = pack.mapInfo;
+	// the map info the previous texts came from is gone now
+	handler.installLobbyTexts();
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)

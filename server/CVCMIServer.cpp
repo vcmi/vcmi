@@ -716,6 +716,14 @@ void CVCMIServer::updateAndPropagateLobbyState()
 		}
 	}
 
+	if(mi != announcedMapInfo)
+	{
+		LobbyUpdateMapInfo lumi;
+		lumi.mapInfo = mi;
+		announcePack(lumi);
+		announcedMapInfo = mi;
+	}
+
 	LobbyUpdateState lus;
 	lus.state = *static_cast<LobbyState*>(this);
 	announcePack(lus);

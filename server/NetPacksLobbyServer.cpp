@@ -113,6 +113,13 @@ void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
+	// other clients already have map info, only the new client needs it
+	LobbyUpdateMapInfo lumi;
+	lumi.mapInfo = srv.mi;
+	for(const auto & connection : srv.activeConnections)
+		if(connection->connectionID == pack.clientId)
+			connection->sendPack(lumi);
+
 	srv.updateAndPropagateLobbyState();
 }
 
