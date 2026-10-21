@@ -121,7 +121,7 @@
 		"globalFullscreen":         "F4",
 		"globalScreenshot":         "F3",
 		"globalMoveFocus":          "Tab",
-		"globalOptions":            "O",
+		"globalOptions":            [ "O", "Escape" ],
 		"globalReturn":             [ "Escape", "Return", "Keypad Enter"],
 		"heroArmySplit":            "S",
 		"heroBackpack":             "B",
