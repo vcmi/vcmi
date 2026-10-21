@@ -43,6 +43,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/SavegamePath.h"
+#include "../../lib/gameState/SaveMetadata.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
@@ -1282,6 +1283,7 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 				element->entry = ScenarioListEntry::fromSave(file);
 				element->fileURI = element->entry->fileURI;
 				element->lastWrite = element->entry->lastWrite;
+				SaveMetadata::verifyMods(element->entry->metadata);
 
 				if(isSaveCompatible(*element->entry, loadMode))
 					allItems[offset + i] = element;
@@ -1364,7 +1366,9 @@ std::optional<bool> SelectionTab::isFolderCompatible(
 	{
 		try
 		{
-			return folderCompatibility[cacheKey] = isSaveCompatible(ScenarioListEntry::fromSave(file), loadMode);
+			const auto entry = ScenarioListEntry::fromSave(file);
+			SaveMetadata::verifyMods(entry.metadata);
+			return folderCompatibility[cacheKey] = isSaveCompatible(entry, loadMode);
 		}
 		catch(const std::exception & e) // NOSONAR: malformed saves can throw several exception types
 		{
