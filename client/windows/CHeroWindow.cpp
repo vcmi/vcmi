@@ -109,7 +109,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		&& GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_ADVANCED_CLASSES)
 		&& !LIBRARY->advancedClassHandler->getAll().empty())
 	{
-		advancedClassButton = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("hsbtns4.def"), CButton::tooltipLocalized("advancedClasses.heroWindow.open"), [this](){ createAdvancedClassWindow(); });
+		advancedClassButton = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("heroCommander"), CButton::tooltipLocalized("advancedClasses.heroWindow.open"), [this](){ createAdvancedClassWindow(); });
 		advancedClassButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/classButtonIcon")));
 	}
 
