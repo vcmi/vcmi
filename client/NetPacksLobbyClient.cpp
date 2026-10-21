@@ -37,6 +37,7 @@
 #include "windows/GUIClasses.h"
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/serializer/GameConnection.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -59,6 +60,15 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	{
 		handler.logicConnection->setSerializationVersion(pack.version);
 		handler.logicConnection->connectionID = pack.clientId;
+
+		// server of an older version does not reject clients of newer versions
+		if(pack.version < ESerializationVersion::LOBBY_MAP_INFO_PACK)
+		{
+			handler.showServerError(LIBRARY->generaltexth->translate("vcmi.server.errors.incompatibleVersion"));
+			handler.sendClientDisconnecting();
+			return;
+		}
+
 		if(handler.mapToStart)
 		{
 			handler.setMapInfo(handler.mapToStart);
