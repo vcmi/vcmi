@@ -73,7 +73,11 @@ void CRoadRandomizer::dropRandomRoads(vstd::RNG * rand)
 	std::set<TRmgTemplateZoneId> zonesWithTowns;
 	for(const auto & zone : zones)
 	{
-		if(zone.second->getPlayerTowns().getTownCount() || 
+		// start zones always receive a main town, even without explicit playerTowns
+		bool isStartZone = zone.second->getOwner() && (zone.second->getType() == ETemplateZoneType::PLAYER_START || zone.second->getType() == ETemplateZoneType::CPU_START);
+
+		if(isStartZone ||
+		   zone.second->getPlayerTowns().getTownCount() || 
 		   zone.second->getPlayerTowns().getCastleCount() ||
 		   zone.second->getNeutralTowns().getTownCount() ||
 		   zone.second->getNeutralTowns().getCastleCount())
