@@ -87,7 +87,6 @@ public:
 	void exitSetup(bool goToMods);
 	void switchToModsTab();
 	void switchToStartTab();
-	/// also starts an update check, unless an update was already found
 	void switchToUpdateTab();
 	void moveToScreen(int screenIndex);
 

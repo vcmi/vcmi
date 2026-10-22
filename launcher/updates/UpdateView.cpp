@@ -42,41 +42,12 @@ void UpdateView::changeEvent(QEvent * event)
 
 void UpdateView::refresh()
 {
-	const EUpdateCheckState state = checker->getState();
+	if(checker->getState() != EUpdateCheckState::UPDATE_AVAILABLE)
+		return;
+
+	const UpdateInfo & update = checker->getUpdate();
 
 	ui->labelCurrentVersion->setText(tr("Installed version: %1").arg(GameConstants::VCMI_VERSION));
-	ui->buttonCheck->setVisible(state == EUpdateCheckState::NOT_CHECKED || state == EUpdateCheckState::FAILED || state == EUpdateCheckState::NO_UPDATE);
-	ui->labelNotes->hide();
-	ui->buttonAction->hide();
-	ui->buttonChangelog->hide();
-	ui->textBrowserChangelog->hide();
-
-	switch(state)
-	{
-		case EUpdateCheckState::DISABLED:
-			ui->labelStatus->setText(tr("This build of VCMI does not check for updates."));
-			break;
-		case EUpdateCheckState::NOT_CHECKED:
-			ui->labelStatus->clear();
-			break;
-		case EUpdateCheckState::CHECKING:
-			ui->labelStatus->setText(tr("Checking for updates..."));
-			break;
-		case EUpdateCheckState::FAILED:
-			ui->labelStatus->setText(tr("Could not check for updates:") + "\n" + checker->getErrorMessage());
-			break;
-		case EUpdateCheckState::NO_UPDATE:
-			ui->labelStatus->setText(tr("You are using the latest version."));
-			break;
-		case EUpdateCheckState::UPDATE_AVAILABLE:
-			showUpdate();
-			break;
-	}
-}
-
-void UpdateView::showUpdate()
-{
-	const UpdateInfo & update = checker->getUpdate();
 
 	QString status = tr("VCMI %1 has been released.").arg(update.version);
 	actionUrl = update.url;
@@ -127,12 +98,8 @@ void UpdateView::showUpdate()
 
 	ui->labelStatus->setText(status);
 	ui->buttonAction->setVisible(actionUrl.isValid());
-
-	if(!update.notes.isEmpty())
-	{
-		ui->labelNotes->setText("• " + update.notes.join("\n• "));
-		ui->labelNotes->show();
-	}
+	ui->labelNotes->setText("• " + update.notes.join("\n• "));
+	ui->labelNotes->setVisible(!update.notes.isEmpty());
 
 	ui->buttonChangelog->setVisible(update.changelogUrl.isValid());
 	ui->textBrowserChangelog->document()->setMarkdown(update.changelog, QTextDocument::MarkdownFeature::MarkdownNoHTML);
@@ -145,9 +112,9 @@ void UpdateView::on_buttonAction_clicked()
 		QDesktopServices::openUrl(actionFallbackUrl);
 }
 
-void UpdateView::on_buttonCheck_clicked()
+void UpdateView::on_buttonBack_clicked()
 {
-	checker->check();
+	Helper::getMainWindow()->switchToStartTab();
 }
 
 void UpdateView::on_buttonChangelog_clicked()

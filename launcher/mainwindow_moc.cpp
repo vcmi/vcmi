@@ -365,9 +365,6 @@ void MainWindow::switchToStartTab()
 
 void MainWindow::switchToUpdateTab()
 {
-	if(updateChecker->getState() != EUpdateCheckState::UPDATE_AVAILABLE)
-		updateChecker->check();
-
 	ui->startGameButton->setEnabled(true);
 	ui->tabListWidget->setCurrentIndex(TabRows::UPDATE);
 }

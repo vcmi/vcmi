@@ -234,6 +234,9 @@ void StartGameTab::refreshUpdateStatus()
 
 	ui->labelTitleEngine->setText(QString(GameConstants::VCMI_PROJECT_NAME_VERSIONED));
 	ui->buttonUpdateCheck->setVisible(checker->getState() != EUpdateCheckState::DISABLED);
+	ui->buttonUpdateCheck->setEnabled(checker->getState() != EUpdateCheckState::CHECKING);
+	ui->buttonUpdateAvailable->setVisible(checker->getState() == EUpdateCheckState::UPDATE_AVAILABLE);
+	ui->labelUpdateStatus->hide();
 
 	switch(checker->getState())
 	{
@@ -245,13 +248,20 @@ void StartGameTab::refreshUpdateStatus()
 			ui->buttonUpdateCheck->setText(tr("Checking for Updates..."));
 			break;
 		case EUpdateCheckState::FAILED:
-			ui->buttonUpdateCheck->setText(tr("Could Not Check for Updates"));
+			ui->buttonUpdateCheck->setText(tr("Check for Updates"));
+			ui->labelUpdateStatus->setText(tr("Could not check for updates"));
+			ui->labelUpdateStatus->setToolTip(checker->getErrorMessage());
+			ui->labelUpdateStatus->show();
 			break;
 		case EUpdateCheckState::NO_UPDATE:
-			ui->buttonUpdateCheck->setText(tr("You Are Using the Latest Version"));
+			ui->buttonUpdateCheck->setText(tr("Check for Updates"));
+			ui->labelUpdateStatus->setText(tr("You are using the latest version"));
+			ui->labelUpdateStatus->setToolTip({});
+			ui->labelUpdateStatus->show();
 			break;
 		case EUpdateCheckState::UPDATE_AVAILABLE:
-			ui->buttonUpdateCheck->setText(tr("Update to %1 Available").arg(checker->getUpdate().version));
+			ui->buttonUpdateCheck->setText(tr("Check for Updates"));
+			ui->buttonUpdateAvailable->setText(tr("Update to %1 Available").arg(checker->getUpdate().version));
 			break;
 	}
 }
@@ -263,6 +273,11 @@ void StartGameTab::on_buttonGameStart_clicked()
 }
 
 void StartGameTab::on_buttonUpdateCheck_clicked()
+{
+	Helper::getMainWindow()->getUpdateChecker()->check();
+}
+
+void StartGameTab::on_buttonUpdateAvailable_clicked()
 {
 	Helper::getMainWindow()->switchToUpdateTab();
 }

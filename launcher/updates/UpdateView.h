@@ -19,7 +19,7 @@ class UpdateView;
 
 class UpdateChecker;
 
-/// Tab with the result of an update check: notes, changelog and the way to update
+/// Tab with the update found by UpdateChecker: notes, changelog and the way to update
 class UpdateView : public QWidget
 {
 	Q_OBJECT
@@ -32,7 +32,6 @@ class UpdateView : public QWidget
 
 	void changeEvent(QEvent * event) override;
 	void refresh();
-	void showUpdate();
 
 public:
 	explicit UpdateView(QWidget * parent = nullptr);
@@ -40,6 +39,6 @@ public:
 
 private slots:
 	void on_buttonAction_clicked();
-	void on_buttonCheck_clicked();
+	void on_buttonBack_clicked();
 	void on_buttonChangelog_clicked();
 };
