@@ -396,9 +396,9 @@ namespace
 	};
 
 	// Executes a single attack (without retaliation logic)
-	// Applies damage to defender and to attacker (if fire shield)
+	// Applies damage to defender and to attacker (if fire shield) unless indirect is true.
 	// Mutates the given states.
-	void ApplyAttack(const UnitStates & states, const CPlayerBattleCallback & battle, bool ranged)
+	void ApplyAttack(const UnitStates & states, const CPlayerBattleCallback & battle, bool ranged, bool indirect)
 	{
 		const auto & A_state = states.a.cstate;
 		const auto & B_state = states.b.cstate;
@@ -415,6 +415,11 @@ namespace
 			int64_t dmg = A_dmg_mean;
 			B_state->damage(dmg);
 		}
+
+		// Skip effects like death stare, fire shield, etc. for indirect attacks (e.g. dragon breath 2nd hex)
+		if(indirect)
+			return;
+
 		auto A_kills_mean = B_qty_old - B_state->getCount();
 
 		// 1. Handle LIFE_DRAIN and SOUL_STEAL
@@ -591,7 +596,7 @@ namespace
 
 			// mutates states
 			int b_prevcount = states.b.cstate->getCount();
-			ApplyAttack(states, battle, isRangedAttack);
+			ApplyAttack(states, battle, isRangedAttack, false);
 
 			if(!states.a.cstate->alive() || !states.b.cstate->alive())
 				break;
@@ -1088,7 +1093,7 @@ namespace
 				if(stack.unitSide() == ostack.unitSide())
 				{
 					// Can attack (former) allies only when berserk/hypnotized
-					if(!(isBerserk || isHypnotized))
+					if(!isBerserk && !isHypnotized)
 						continue;
 				}
 				else
@@ -2014,7 +2019,7 @@ namespace
 		}
 	};
 
-	void AddAmoveAction(Graph::Graph & G, const ActionPtr & move, const CPlayerBattleCallback & battle)
+	void AddAmoveAction(Graph::Graph & G, const ActionPtr & move, const CPlayerBattleCallback & battle, const State::GlobalStats & stats)
 	{
 		const auto & unit = move->by;
 		const auto & stack = unit->cstack;
@@ -2097,6 +2102,43 @@ namespace
 
 				const auto & tunit = G.getByExtraIndex<N::Unit>(tstack->unitId());
 				G.add(E::Unit_IsMeleedBy_Action::Create(tunit, amove, false));
+
+				// MMAI is unaware how dangerous friendly fire is, as there are
+				// no Unit_MeleeDmg_Unit edges between allied units unless the
+				// attacker is berserk or hypnotized.
+				// If such an edge did not exist before, add it now.
+				if(G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(unit, tunit, false))
+					continue;
+
+				auto states = UnitStates{.a = CUnitStateWrapper(&stack, stack.acquireState()), .b = CUnitStateWrapper(&tunit->cstack, tunit->cstack.acquireState())};
+				ApplyAttack(states, battle, false, true);
+				const auto & tstate = states.b;
+				auto hpdiff_defender = tstate.calcAvailableHealth() - tstack->getAvailableHealth();
+				auto qtydiff_defender = tstate.cstate->getCount() - tstack->getCount();
+				auto vdiff_defender = tunit->valueOne * qtydiff_defender;
+
+				bool friendlyFire = stack.unitSide() == tstack->unitSide();
+				bool isHypnotized = stack.isHypnotized();
+
+				// Discourage units from killing their allies via AoE unless they are hypnotized
+				if (friendlyFire && !isHypnotized)
+					vdiff_defender *= -1;
+
+				// Adding a new Unit_MeleeDmg_Unit edge is dangerous as it might
+				// influence how other edges are built.
+				// However, the graph is mostly built by now so we should be safe.
+				G.add(
+					E::Unit_MeleeDmg_Unit::Create(
+						unit,
+						tunit,
+						{.vdiffAttacker = 0,
+						 .vdiffDefender = vdiff_defender,
+						 .hpdiffAttacker = 0,
+						 .hpdiffDefender = static_cast<int>(hpdiff_defender),
+						 .battlefieldValue = stats.totalValue,
+						 .battlefieldHp = stats.totalHp}
+					)
+				);
 			}
 
 			CloneActionEdges(G, move, amove);
@@ -2195,7 +2237,7 @@ namespace
 		CloneActionEdges(G, defend, wait);
 	}
 
-	void AddOtherActions(Graph::Graph & G, EnumFlags<AT> & atFlags, const CPlayerBattleCallback & battle)
+	void AddOtherActions(Graph::Graph & G, EnumFlags<AT> & atFlags, const CPlayerBattleCallback & battle, const State::GlobalStats & stats)
 	{
 		// All MOVE actions with all their edges must be available here
 		// except for IsMeleedBy and IsShotBy edges which are for AMOVE only
@@ -2225,7 +2267,7 @@ namespace
 		for(const auto & move : actions)
 		{
 			assert(move->actionType == AT::MOVE || move->actionType == AT::DEFEND);
-			AddAmoveAction(G, move, battle);
+			AddAmoveAction(G, move, battle, stats);
 			if(move->actionType == AT::DEFEND)
 			{
 				assert(move->by->cstack.getPosition() == move->endsAt.at(0)->bhex);
@@ -2342,7 +2384,7 @@ void State::onActiveStack(const CStack * acstack, int round, S15::CombatResult r
 	AddMoveActionEdges_UnitAndHex_BecomesMeleeTargetAfter_Action(*G, atFlags, battle);
 	AddMoveActionEdges_UnitAndHex_BecomesShootTargetAfter_Action(*G, atFlags, battle);
 
-	AddOtherActions(*G, atFlags, battle);
+	AddOtherActions(*G, atFlags, battle, stats);
 	// AddRetreatAction not needed (retreats intentionally disabled)
 
 	AddEdges_Global_To_Action(*G, atFlags, battle);
@@ -2366,7 +2408,7 @@ void State::onActiveStack(const CStack * acstack, int round, S15::CombatResult r
 	isMorale = false;
 	lastStats = stats;
 
-	if(isMMAIVerbose())
+	if(isMMAIGraphDebug("counters"))
 		ReportCounts(*G);
 }
 };
