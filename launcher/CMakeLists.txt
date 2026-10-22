@@ -30,6 +30,7 @@ set(launcher_SRCS
 		mainwindow_moc.cpp
 		languages.cpp
 		updatedialog_moc.cpp
+		updates/UpdateChecker.cpp
 		prepare.cpp
 )
 if(IOS)
@@ -68,6 +69,7 @@ set(launcher_HEADERS
 		mainwindow_moc.h
 		languages.h
 		updatedialog_moc.h
+		updates/UpdateChecker.h
 		demo.h
 		main.h
 		helper.h
@@ -276,6 +278,9 @@ target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_compile_definitions(vcmilauncher PRIVATE VCMI_UPDATE_CHANNEL="${VCMI_UPDATE_CHANNEL}")
+if(VCMI_FLATPAK)
+	target_compile_definitions(vcmilauncher PRIVATE VCMI_FLATPAK)
+endif()
 vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
 

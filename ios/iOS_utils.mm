@@ -66,6 +66,13 @@ bool isIPad()
 	return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
 }
 
+bool isTestFlightBuild()
+{
+	// side-loaded builds may report the same receipt path without the file
+	NSURL * receiptURL = NSBundle.mainBundle.appStoreReceiptURL;
+	return [receiptURL.lastPathComponent isEqualToString:@"sandboxReceipt"] && [NSFileManager.defaultManager fileExistsAtPath:receiptURL.path];
+}
+
 void shareFile(const std::string & filePath)
 {
 	NSString *nsPath = [NSString stringWithUTF8String:filePath.c_str()];
