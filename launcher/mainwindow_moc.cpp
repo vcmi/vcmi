@@ -21,7 +21,7 @@
 #include "../lib/texts/Languages.h"
 #include "../lib/ExceptionsCommon.h"
 
-#include "updatedialog_moc.h"
+#include "updates/UpdateChecker.h"
 #include "main.h"
 #include "helper.h"
 #include "modManager/modstatecontroller.h"
@@ -83,6 +83,9 @@ MainWindow::MainWindow(QWidget * parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	load(); // load FS before UI
+
+	// tabs access the checker while they are created
+	updateChecker = new UpdateChecker(this);
 
 	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
 
@@ -147,7 +150,7 @@ MainWindow::MainWindow(QWidget * parent)
 #endif
 
 	if(settings["launcher"]["updateOnStartup"].Bool())
-		UpdateDialog::showUpdateDialog(false);
+		updateChecker->check();
 }
 
 void MainWindow::setGamepadStartAllowed(bool allowed)
@@ -360,6 +363,15 @@ void MainWindow::switchToStartTab()
 		startGameTabWidget->refreshState();
 }
 
+void MainWindow::switchToUpdateTab()
+{
+	if(updateChecker->getState() != EUpdateCheckState::UPDATE_AVAILABLE)
+		updateChecker->check();
+
+	ui->startGameButton->setEnabled(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::UPDATE);
+}
+
 void MainWindow::switchToModsTab()
 {
 	ui->startGameButton->setEnabled(true);
@@ -396,6 +408,11 @@ CModListView * MainWindow::getModView()
 CSettingsView * MainWindow::getSettingsView()
 {
 	return ui->settingsView;
+}
+
+UpdateChecker * MainWindow::getUpdateChecker()
+{
+	return updateChecker;
 }
 
 void MainWindow::on_modslistButton_clicked()

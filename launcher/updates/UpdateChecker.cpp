@@ -140,10 +140,13 @@ QString requireString(const JsonNode & response, const std::string & field)
 
 UpdateChecker::UpdateChecker(QObject * parent)
 	: QObject(parent)
-	, state(EUpdateCheckState::NOT_CHECKED)
+	, state(isEnabled() ? EUpdateCheckState::NOT_CHECKED : EUpdateCheckState::DISABLED)
 {
-	if(QString(VCMI_UPDATE_CHANNEL) != "stable" || operatingSystemName().isEmpty() || architectureName().isEmpty())
-		state = EUpdateCheckState::DISABLED;
+}
+
+bool UpdateChecker::isEnabled()
+{
+	return QString(VCMI_UPDATE_CHANNEL) == "stable" && !operatingSystemName().isEmpty() && !architectureName().isEmpty();
 }
 
 UpdateChecker::~UpdateChecker() = default;

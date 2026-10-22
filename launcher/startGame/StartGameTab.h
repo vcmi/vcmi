@@ -16,13 +16,6 @@ namespace Ui
 class StartGameTab;
 }
 
-enum class EGameUpdateStatus : int8_t
-{
-	NOT_CHECKED,
-	NO_UPDATE,
-	UPDATE_AVAILABLE
-};
-
 enum class ETranslationStatus : int8_t;
 
 class MainWindow;
@@ -31,7 +24,7 @@ class StartGameTab : public QWidget
 {
 	Q_OBJECT
 
-	void refreshUpdateStatus(EGameUpdateStatus status);
+	void refreshUpdateStatus();
 	void refreshTranslation(ETranslationStatus status);
 	void refreshMods();
 	void refreshPresets();
@@ -46,8 +39,6 @@ public:
 
 private slots:
 	void on_buttonGameStart_clicked();
-	void on_buttonOpenChangelog_clicked();
-	void on_buttonOpenDownloads_clicked();
 	void on_buttonUpdateCheck_clicked();
 	void on_buttonGameEditor_clicked();
 	void on_buttonImportFiles_clicked();

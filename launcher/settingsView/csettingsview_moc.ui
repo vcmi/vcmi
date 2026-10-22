@@ -53,7 +53,7 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout" columnstretch="20,5,5,5,5,10">
-      <item row="66" column="5">
+      <item row="67" column="5">
         <widget class="QToolButton" name="buttonValidationFull">
          <property name="enabled">
           <bool>true</bool>
@@ -116,7 +116,7 @@
          </property>
         </widget>
        </item>
-       <item row="59" column="2" colspan="4">
+       <item row="60" column="2" colspan="4">
         <widget class="QLineEdit" name="lineEditRepositoryDefault">
          <property name="text">
           <string notr="true"/>
@@ -126,7 +126,7 @@
          </property>
         </widget>
        </item>
-      <item row="66" column="3" colspan="2">
+      <item row="67" column="3" colspan="2">
         <widget class="QToolButton" name="buttonValidationBasic">
          <property name="enabled">
           <bool>true</bool>
@@ -151,7 +151,7 @@
          </attribute>
         </widget>
        </item>
-      <item row="66" column="1" colspan="2">
+      <item row="67" column="1" colspan="2">
         <widget class="QToolButton" name="buttonValidationOff">
          <property name="enabled">
           <bool>true</bool>
@@ -198,7 +198,7 @@
          </property>
         </widget>
        </item>
-       <item row="59" column="1">
+       <item row="60" column="1">
         <widget class="QToolButton" name="buttonRepositoryDefault">
          <property name="enabled">
           <bool>true</bool>
@@ -246,7 +246,7 @@
          </property>
         </widget>
        </item>
-       <item row="63" column="0">
+       <item row="64" column="0">
         <widget class="QLabel" name="labelNetworkPortLobby">
          <property name="text">
           <string>Online Lobby port</string>
@@ -328,14 +328,14 @@
          </property>
         </widget>
        </item>
-      <item row="66" column="0">
+      <item row="67" column="0">
         <widget class="QLabel" name="labelModsValidation">
          <property name="text">
           <string>Mods Validation</string>
          </property>
         </widget>
        </item>
-       <item row="62" column="1" colspan="5">
+       <item row="63" column="1" colspan="5">
         <widget class="QLineEdit" name="lineEditGameLobbyHost">
          <property name="text">
           <string notr="true"/>
@@ -431,14 +431,14 @@
          </property>
         </widget>
        </item>
-       <item row="67" column="0">
+       <item row="68" column="0">
         <widget class="QLabel" name="labelFullModExtraction">
          <property name="text">
           <string>Full mod extraction</string>
          </property>
         </widget>
        </item>
-       <item row="67" column="1" colspan="5">
+       <item row="68" column="1" colspan="5">
         <widget class="QToolButton" name="buttonFullModExtraction">
          <property name="enabled">
           <bool>true</bool>
@@ -460,7 +460,7 @@
          </property>
         </widget>
        </item>
-       <item row="68" column="1" colspan="5">
+       <item row="69" column="1" colspan="5">
         <widget class="QPushButton" name="buttonConfigEditor">
          <property name="text">
           <string>Open editor</string>
@@ -477,7 +477,7 @@
          </property>
         </widget>
        </item>
-       <item row="59" column="0">
+       <item row="60" column="0">
         <widget class="QLabel" name="labelRepositoryDefault">
          <property name="text">
           <string>Default repository</string>
@@ -590,7 +590,7 @@
          </property>
         </widget>
        </item>
-       <item row="60" column="1">
+       <item row="61" column="1">
         <widget class="QToolButton" name="buttonRepositoryExtra">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -609,7 +609,7 @@
          </property>
         </widget>
        </item>
-       <item row="64" column="0">
+       <item row="65" column="0">
         <widget class="QLabel" name="labelMiscellaneous">
          <property name="font">
           <font>
@@ -624,14 +624,14 @@
          </property>
         </widget>
        </item>
-       <item row="65" column="0">
+       <item row="66" column="0">
         <widget class="QLabel" name="labelDiscordRichPresence">
          <property name="text">
           <string>Show Status in Discord</string>
          </property>
         </widget>
        </item>
-       <item row="65" column="1" colspan="5">
+       <item row="66" column="1" colspan="5">
         <widget class="QToolButton" name="buttonEnableDiscordRichPresence">
          <property name="enabled">
           <bool>true</bool>
@@ -806,28 +806,28 @@
          </property>
         </widget>
        </item>
-       <item row="60" column="2" colspan="4">
+       <item row="61" column="2" colspan="4">
         <widget class="QLineEdit" name="lineEditRepositoryExtra">
          <property name="text">
           <string notr="true"/>
          </property>
         </widget>
        </item>
-       <item row="61" column="0">
+       <item row="62" column="0">
         <widget class="QLabel" name="labelHttpProxy">
          <property name="text">
           <string>HTTP proxy</string>
          </property>
         </widget>
        </item>
-       <item row="61" column="1">
+       <item row="62" column="1">
         <widget class="QPushButton" name="buttonHttpProxyHelp">
          <property name="text">
           <string>Open help</string>
          </property>
         </widget>
        </item>
-       <item row="61" column="2" colspan="4">
+       <item row="62" column="2" colspan="4">
         <widget class="QLineEdit" name="lineEditHttpProxy">
          <property name="toolTip">
           <string>Proxy server used for downloads, for example http://host:port or socks5h://host:port. If empty, proxy from environment variables is used</string>
@@ -969,7 +969,7 @@
          </property>
         </widget>
        </item>
-       <item row="60" column="0">
+       <item row="61" column="0">
         <widget class="QLabel" name="labelRepositoryExtra">
          <property name="text">
           <string>Additional repository</string>
@@ -1192,6 +1192,35 @@
          </property>
         </widget>
        </item>
+       <item row="59" column="0">
+        <widget class="QLabel" name="labelUpdateOnStartup">
+         <property name="text">
+          <string>Check for VCMI updates on startup</string>
+         </property>
+        </widget>
+       </item>
+       <item row="59" column="1">
+        <widget class="QToolButton" name="buttonUpdateOnStartup">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
        <item row="58" column="1">
         <widget class="QToolButton" name="buttonAutoCheck">
          <property name="enabled">
@@ -1363,7 +1392,7 @@
          </property>
         </widget>
        </item>
-       <item row="62" column="0">
+       <item row="63" column="0">
         <widget class="QLabel" name="labelGameLobbyHost">
          <property name="text">
           <string>Online Lobby address</string>
@@ -1386,7 +1415,7 @@
          </property>
         </widget>
        </item>
-       <item row="63" column="1" colspan="5">
+       <item row="64" column="1" colspan="5">
         <widget class="QSpinBox" name="spinBoxNetworkPortLobby">
          <property name="minimum">
           <number>1024</number>
@@ -1406,7 +1435,7 @@
          </property>
         </widget>
        </item>
-       <item row="68" column="0">
+       <item row="69" column="0">
         <widget class="QLabel" name="labelConfigEditor">
          <property name="text">
           <string>Config editor</string>
