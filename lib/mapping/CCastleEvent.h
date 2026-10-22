@@ -20,6 +20,7 @@ public:
 
 	std::set<BuildingID> buildings;
 	std::vector<si32> creatures;
+	bool neutralAffected = false; ///< event also occurs while the town is neutral, without resources and message
 
 	template<typename Handler>
 	void serialize(Handler & h)
@@ -27,6 +28,8 @@ public:
 		h & static_cast<CMapEvent &>(*this);
 		h & buildings;
 		h & creatures;
+		if(h.hasFeature(Handler::Version::NEUTRAL_TOWN_EVENTS))
+			h & neutralAffected;
 	}
 
 	void serializeJson(JsonSerializeFormat & handler) override;

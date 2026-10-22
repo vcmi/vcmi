@@ -2961,10 +2961,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 		}
 
 		if(features.levelHOTA7)
-		{
-			// TODO: hota
-			[[maybe_unused]] bool neutralAffected = reader->readBool();
-		}
+			event.neutralAffected = reader->readBool();
 
 		// New buildings
 		reader->readBitmaskBuildings(event.buildings, faction);

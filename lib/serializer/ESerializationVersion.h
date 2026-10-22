@@ -72,12 +72,13 @@ enum class ESerializationVersion : int32_t
 	SPARSE_RESOURCE_SET, // ResourceSet stores only resources present in the set
 	QUEST_HINT_COMPONENTS, // HotA scripted quests store components shown with their hint
 	TOWN_ALIGNMENT_EXCLUSION, // random town can be set to not match faction of a player
+	NEUTRAL_TOWN_EVENTS, // town events can affect neutral towns
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = TOWN_ALIGNMENT_EXCLUSION,
+	CURRENT = NEUTRAL_TOWN_EVENTS,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
