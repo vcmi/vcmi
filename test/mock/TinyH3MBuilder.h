@@ -197,6 +197,9 @@ public:
 	/// Resource pile. amount=0 means "use default".
 	TinyH3MBuilder & resource(const int3 & pos, GameResID resource, uint32_t amount = 0);
 
+	/// Abandoned mine producing gold; custom guards need HOTA v5+, NONE keeps the default guards.
+	TinyH3MBuilder & abandonedMine(const int3 & pos, CreatureID guard = CreatureID::NONE, int32_t minAmount = 0, int32_t maxAmount = 0);
+
 	/// Empty Pandora's Box - no message, guards or rewards.
 	TinyH3MBuilder & pandora(const int3 & pos, std::vector<std::pair<CreatureID, uint16_t>> creatures = {});
 
@@ -320,6 +323,11 @@ private:
 		// The single-quest seerHut() populates one one-shot entry.
 		std::vector<std::pair<Quest, SeerReward>> seerOneShots;
 		std::vector<std::pair<Quest, SeerReward>> seerRepeatables;
+
+		// MINE subID 7 (abandoned mine)
+		CreatureID     mineGuard = CreatureID::NONE;
+		int32_t        mineGuardMin = 0;
+		int32_t        mineGuardMax = 0;
 
 		// PANDORAS_BOX
 		std::vector<std::pair<CreatureID, uint16_t>> pandoraCreatures;

@@ -1505,9 +1505,10 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readAbandonedMine(const int3 & 
 		bool hasCustomGuards = reader->readBool();
 		if (hasCustomGuards)
 		{
-			object->abandonedMineGuards.creature = reader->readCreature32("abandoned mine at " + mapPosition.toString());
-			object->abandonedMineGuards.minAmount = reader->readInt32();
-			object->abandonedMineGuards.maxAmount = reader->readInt32();
+			auto & guards = object->abandonedMineGuards;
+			guards.creature = reader->readCreature32("abandoned mine at " + mapPosition.toString());
+			guards.minAmount = reader->readInt32Checked(1, std::numeric_limits<int32_t>::max());
+			guards.maxAmount = std::max(guards.minAmount, reader->readInt32Checked(1, std::numeric_limits<int32_t>::max()));
 		}
 		else
 			reader->skipUnused(12);

@@ -436,6 +436,20 @@ TinyH3MBuilder & TinyH3MBuilder::artifact(const int3 & pos, ArtifactID artifact)
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::abandonedMine(const int3 & pos, CreatureID guard, int32_t minAmount, int32_t maxAmount)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::MINE;
+	spec.subid         = MapObjectSubID(7);
+	spec.position      = pos;
+	spec.mineGuard     = guard;
+	spec.mineGuardMin  = minAmount;
+	spec.mineGuardMax  = maxAmount;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::scroll(const int3 & pos, SpellID spell)
 {
 	ObjectSpec spec;
@@ -1128,6 +1142,19 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 				w.writeBool(false);                                    // hasMessage
 				w.writeUInt32(obj.resourceAmount);
 				w.skipZero(4);
+				break;
+
+			case Obj::MINE:
+				// Mirror of readAbandonedMine
+				assert(obj.subid.getNum() == 7 && "only abandoned mines are supported");
+				w.writeUInt32(1 << GameResID::GOLD);                   // allowed resources
+				if(features.levelHOTA5)
+				{
+					w.writeBool(obj.mineGuard.hasValue());
+					w.writeInt32(obj.mineGuard.getNum());
+					w.writeInt32(obj.mineGuardMin);
+					w.writeInt32(obj.mineGuardMax);
+				}
 				break;
 
 			case Obj::PANDORAS_BOX:
