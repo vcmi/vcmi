@@ -40,12 +40,15 @@ class Service:
             log.error("data not reloaded, keeping previous data: %s", error)
 
     def respond(self, path, params):
-        """Returns the response for a request as a JSON-serializable dict, or None if there is nothing at path."""
+        """Returns (HTTP status, JSON-serializable response or None for an error status)."""
         if path == "/autoupdate.json":
-            return decide(parse_request(params), self.snapshot)
+            request = parse_request(params)
+            if request is None:
+                return 400, None
+            return 200, decide(request, self.snapshot)
         if path == "/altstore.json":
-            return self.snapshot.altstore
-        return None
+            return 200, self.snapshot.altstore
+        return 404, None
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -55,14 +58,14 @@ class Handler(BaseHTTPRequestHandler):
         url = urllib.parse.urlsplit(self.path)
         params = {name: values[0] for name, values in urllib.parse.parse_qs(url.query).items()}
         try:
-            response = self.service.respond(url.path, params)
+            status, response = self.service.respond(url.path, params)
             body = None if response is None else json.dumps(response).encode("utf-8")
         except Exception:
             log.exception("failed to handle request %s", self.path)
             self.send_error(500)
             return
         if body is None:
-            self.send_error(404)
+            self.send_error(status)
             return
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
