@@ -2688,7 +2688,6 @@ void CMapLoaderH3M::readQuestTimeoutMessage(Quest & quest, const int3 & position
 	if(!features.levelHOTA10)
 		return;
 
-	// TODO: stored, but not shown in game when the quest runs out of time
 	quest.timeoutTextID = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex, "timeout"));
 }
 
