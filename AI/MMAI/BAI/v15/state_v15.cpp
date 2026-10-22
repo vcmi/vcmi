@@ -1067,13 +1067,11 @@ namespace
 		{
 			const auto & stack = unit->cstack;
 			bool isBerserk = checkBerserk(stack);
+			bool isHypnotized = stack.isHypnotized();
 
 			for(const auto & other : units)
 			{
 				const auto & ostack = other->cstack;
-
-				if(unit == other || ostack.isInvincible())
-					continue;
 
 				// XXX: removing MELEE_DMG edge may be problematic, as other edges rely on it
 				// (e.g. shooter next to enemy stack will not see it as an enemy without MELEE_DMG edge...)
@@ -1082,13 +1080,23 @@ namespace
 					continue;
 
 				const auto pair = std::pair<int, int>{stack.unitId(), ostack.unitId()};
-				auto [_, inserted] = pairs.emplace(pair);
+				auto [_, wasNew] = pairs.emplace(pair);
 
-				if(!inserted) // key already existed
+				if(!wasNew) // key already existed
 					continue;
 
-				if(ostack.unitSide() == stack.unitSide() && !isBerserk && !checkBerserk(ostack))
-					continue;
+				if(stack.unitSide() == ostack.unitSide())
+				{
+					// Can attack (former) allies only when berserk/hypnotized
+					if(!(isBerserk || isHypnotized))
+						continue;
+				}
+				else
+				{
+					// Can NOT attack (former) enemies when hypnotized
+					if(isHypnotized)
+						continue;
+				}
 
 				const auto states = SimulateAttackAction(battle, stack, ostack, false, false);
 				const auto & state = states.a;
@@ -1102,6 +1110,10 @@ namespace
 				auto qtydiff_defender = ostate.cstate->getCount() - ostack.getCount();
 				auto vdiff_attacker = unit->valueOne * qtydiff_attacker;
 				auto vdiff_defender = other->valueOne * qtydiff_defender;
+
+				// Encourage hypnotized units to suicide by making their loss a good thing
+				if(isHypnotized)
+					vdiff_attacker = -vdiff_attacker;
 
 				G.add(
 					E::Unit_MeleeDmg_Unit::Create(
@@ -1155,6 +1167,10 @@ namespace
 				auto vdiff_attacker = unit->valueOne * qtydiff_attacker;
 				auto vdiff_defender = other->valueOne * qtydiff_defender;
 
+				// Encourage hypnotized units to suicide by making their loss a good thing
+				if(stack.isHypnotized())
+					vdiff_attacker = -vdiff_attacker;
+
 				G.add(
 					E::Unit_ShootDmg_Unit::Create(
 						unit,
@@ -1169,6 +1185,20 @@ namespace
 				);
 			}
 		}
+	}
+
+
+	// Similar to CBattleInfoCallback::canShootAdjacentUnits, but includes war machines and uses bonus caching strings.
+	bool CanShootAdjacent(const UnitPtr & unit)
+	{
+		static const auto type = BonusType::FREE_SHOOTING;
+		static const auto subtype = BonusCustomSubtype::freeShootingExceptAdjacent;
+		static const auto restricted = Selector::typeSubtype(type, subtype);
+		static const auto unrestricted = Selector::type()(type).And(restricted.Not());
+		static const auto restrictedCache = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype.getNum());
+		static const auto unrestrictedCache = "type_" + std::to_string(static_cast<int>(type)) + "_not_" + std::to_string(subtype.getNum());
+		const auto & stack = unit->cstack;
+		return unit->attr(N::Unit::A::IS_WAR_MACHINE) || !stack.hasBonus(restricted, restrictedCache) || stack.hasBonus(unrestricted, unrestrictedCache);
 	}
 
 	void AddEdges_Unit_Blocks_Unit(Graph::Graph & G)
@@ -1190,15 +1220,52 @@ namespace
 			const auto & ostack = other->cstack;
 
 			// XXX: VCMI considers a shooter blocked by an ally only if the shooter (not the ally) is berserk
-			//      It makes sense to become blocked if the ally is berserk, but not sure what original H3 behaviour is.
-			// XXX: what about hypnotize?
-			if(cstack.unitSide() == ostack.unitSide() && !checkBerserk(cstack))
-				continue;
+			//      This does not match the original H3 behaviour where the shooter is blocked by any nearby berserk unit.
+			//      See https://github.com/vcmi/vcmi/pull/8068#issuecomment-6327912395
+			if(cstack.unitSide() == ostack.unitSide())
+			{
+				// Legend:
+				//     L=left (shooter or non-shooter)
+				//     R=right (shooter or non-shooter)
+				//     S=shooter
+				//     (H)=hypnotized
+				//     (B)=berserk
+				//                         BLOCK                         ATTACK  (L -> R)
+				// =====================   ===========================   =======================
+				// Hypnotize:
+				// -   LS    <> L        : LS not blocked              : no     *natural*
+				// -   LS(H) <> L        : LS blocked                  : yes
+				// -   LS    <> L(H)     : LS not blocked *            : no     * berserk exception for block
+				// -   LS(H) <> L(H)     : LS blocked                  : yes
+				// Berserk:
+				// -   LS    <> L(B)     : LS blocked !!!              : no     !!! block mismatch: in VCMI, LS not blocked
+				// -   LS(H) <> L(B)     : LS blocked                  : yes
+				if(!cstack.isHypnotized() && !checkBerserk(ostack))
+					continue;
+			}
+			else
+			{
+				//                         BLOCK                         ATTACK  (L -> R)
+				// =====================   ===========================   =======================
+				// Hypnotize:
+				// -   LS    <> R        : LS blocked                  : yes    *natural*
+				// -   LS(H) <> R        : LS not blocked              : no
+				// -   LS    <> R(H)     : LS blocked                  : yes
+				// -   LS(H) <> R(H)     : LS not blocked *            : no     * berserk exception for block
+				// Berserk:
+				// -   LS    <> R(B)     : LS blocked                  : yes
+				// -   LS(H) <> R(B)     : LS blocked !!!              : no     !!! block mismatch: in VCMI, LS not blocked
+				if(cstack.isHypnotized() && !checkBerserk(ostack))
+					continue;
+			}
 
 			for(const auto & bhex : cstack.getSurroundingHexes())
 			{
 				if(ostack.coversPos(bhex))
 				{
+					// XXX: This should be the other way around (other blocks unit)
+					// However, models are already trained on this => keep it
+					// (i.e. the edge now is de-facto "unit blocked by unit")
 					G.add(E::Unit_Blocks_Unit::Create(unit, other));
 					break;
 				}
@@ -1434,15 +1501,23 @@ namespace
 				if(!adjunit)
 					continue;
 
-				if(adjunits.contains(adjunit) || adjunit->cstack.canShootBlocked())
+				auto [_, wasNew] = adjunits.emplace(adjunit);
+				if(!wasNew) // key already existed
 					continue;
 
-				if(!G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(adjunit, unit, false))
-					continue;
+				if(G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(unit, adjunit, false))
+				{
+					// this action will block `unit`
+					G.add(E::Action_Blocks_Unit::Create(action, unit));
+					G.add(E::Unit_BlockedBy_Action::Create(unit, action));
+				}
 
-				adjunits.emplace(adjunit);
-				G.add(E::Action_Blocks_Unit::Create(action, adjunit));
-				G.add(E::Unit_BlockedBy_Action::Create(adjunit, action));
+				if(G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(adjunit, unit, false))
+				{
+					// this action will block `adjunit`
+					G.add(E::Action_Blocks_Unit::Create(action, adjunit));
+					G.add(E::Unit_BlockedBy_Action::Create(adjunit, action));
+				}
 			}
 		}
 	}
@@ -1710,7 +1785,7 @@ namespace
 			const auto & hex = action->endsAt.at(0);
 			const auto & adjacentHexes = unit->cstack.getSurroundingHexes(hex->bhex);
 
-			// unit ids of enemies that would be adjacent to the unit after the move
+			// enemy units that would be adjacent to this unit after the move
 			auto adjacentEnemies = std::unordered_set<const N::Unit *>{};
 
 			for(const auto & adjbhex : adjacentHexes)
@@ -1724,28 +1799,31 @@ namespace
 				if(!ounit)
 					continue;
 
-				// Some units (e.g. war machines) have no melee dmg edges to enemies
-				// but can still block them from shooting
-				// => check the reverse melee dmg edge as well
-				if(G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(ounit, unit, false) || G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(unit, ounit, false))
+				// In H3, shooters decide for themselves if they are blocked
+				// A shooter becomes blocked only if it "sees" a nearby enemy
+				// This is apparent with hypnotized units:
+				//
+				// Example A: Two shooter units A and B (part of same army) are adjacent to each other
+				//   A is hypnotized, B is sober
+				//   A sees B as an enemy => A is blocked (and can attack B)
+				//   B sees A as an ally => B is NOT blocked (and can NOT attack A)
+				//
+				// Example A: Two shooter units A and B (part of different armies) are adjacent to each other
+				//   A is hypnotized, B is sober
+				//   A sees B as an ally => A is NOT blocked (and can NOT attack B)
+				//   B sees A as an enemy => B is blocked (and can attack A)
+				//
+				// => check if shooter has melee dmg edge to the adjacent unit, not vice versa
+				if(G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(unit, ounit, false))
 					adjacentEnemies.emplace(ounit.get());
 			}
 
-			bool canShootBlocked = stack.canShootBlocked() || unit->attr(N::Unit::A::IS_WAR_MACHINE);
+			bool canShootBlocked = stack.canShootBlocked();
 
 			if(adjacentEnemies.size() && !canShootBlocked)
 				continue;
 
-			// Similar to CBattleInfoCallback::canShootAdjacentUnits, but includes war machines and uses bonus caching strings.
-			static const auto type = BonusType::FREE_SHOOTING;
-			static const auto subtype = BonusCustomSubtype::freeShootingExceptAdjacent;
-			static const auto restricted = Selector::typeSubtype(type, subtype);
-			static const auto unrestricted = Selector::type()(type).And(restricted.Not());
-			static const auto restrictedCache = "type_" + std::to_string(static_cast<int>(type)) + "_" + std::to_string(subtype.getNum());
-			static const auto unrestrictedCache = "type_" + std::to_string(static_cast<int>(type)) + "_not_" + std::to_string(subtype.getNum());
-			const auto canShootAdjacent =
-				unit->attr(N::Unit::A::IS_WAR_MACHINE) || !stack.hasBonus(restricted, restrictedCache) || stack.hasBonus(unrestricted, unrestrictedCache);
-
+			const auto canShootAdjacent = CanShootAdjacent(unit);
 			for(const auto & ounit : G.getAllEdgesDstBySrc<E::Unit_ShootDmg_Unit>(unit))
 			{
 				const auto & ostack = ounit->cstack;
@@ -2059,7 +2137,7 @@ namespace
 			G.add(shoot);
 			G.add(E::Unit_IsShotBy_Action::Create(ounit, shoot, true));
 
-			// AoE attacks - e.g. dragon breath
+			// Ranged AoE attacks - e.g. liches, magogs
 			const auto & stack = unit->cstack;
 			const auto & ostack = ounit->cstack;
 			const auto & ohex = G.getByExtraIndex<N::Hex>(ounit->cstack.getPosition().toInt());

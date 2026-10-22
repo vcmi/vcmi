@@ -63,21 +63,39 @@ enum class ElementType : uint8_t
 	// and should be uni-directional
 	// The direction should be towards the action => rename them
 
+	// "Which units will be able to melee me after I perform this action?"
+	// *--- src: unit which will be able to melee the actor (after the actor acts)
+	// ---> dst: action made by the actor
 	// EDGE_ACTION_EXPOSES_TO_MELEE_FROM_UNIT,
 	EDGE_UNIT_BECOMES_MELEE_THREAT_AFTER_ACTION,
 
+	// "Which units will be able to shoot me after I perform this action?"
+	// *--- src: unit which will be able to shoot the actor (after the actor acts)
+	// ---> dst: action made by the actor
 	// EDGE_ACTION_EXPOSES_TO_SHOOT_FROM_UNIT,    // v=ranged penalty
 	EDGE_UNIT_BECOMES_SHOOT_THREAT_AFTER_ACTION,
 
+	// "Which units will take melee dmg if I perform this AMOVE action?"
+	// *--- src: unit which will be meleed by the actor's action
+	// ---> dst: action made by the actor
 	// EDGE_ACTION_MELEES_UNIT, // v=primary target (e.g. for dragon breath, 3-headed attack, etc.)
 	EDGE_UNIT_IS_MELEED_BY_ACTION,
 
+	// "Which units will take shoot dmg if I perform this SHOOT action?"
+	// *--- src: unit which will be shot by the actor's action
+	// ---> dst: action made by the actor
 	// EDGE_ACTION_SHOOTS_UNIT, // v=primary target (e.g. for fireball)
 	EDGE_UNIT_IS_SHOT_BY_ACTION,
 
+	// "Which units will I be able to melee *after* I have performed this action?"
+	// *--- src: unit which will be meleeable by the actor (after the actor acts)
+	// ---> dst: action made by the actor
 	// EDGE_ACTION_ENABLES_MELEE_AT_UNIT,
 	EDGE_UNIT_BECOMES_MELEE_TARGET_AFTER_ACTION,
 
+	// "Which units will I be able to shoot *after* I have performed this action?"
+	// *--- src: unit which will be shootable by the actor (after the actor acts)
+	// ---> dst: action made by the actor
 	// EDGE_ACTION_ENABLES_SHOOT_AT_UNIT, // v=ranged penalty
 	EDGE_UNIT_BECOMES_SHOOT_TARGET_AFTER_ACTION,
 
