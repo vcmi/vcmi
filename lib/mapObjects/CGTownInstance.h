@@ -66,6 +66,9 @@ public:
 	PlayerColor alignmentToPlayer; // if set to non-neutral, random town will have same faction as specified player
 	bool alignmentExcludesPlayer = false; // random town will have any faction other than one of alignmentToPlayer
 	std::set<BuildingID> forbiddenBuildings;
+	/// Faction-specific buildings of random town, applied once its faction is picked. Not serialized - only used before game start
+	std::map<FactionID, std::set<BuildingID>> randomTownBuildings;
+	std::map<FactionID, std::set<BuildingID>> randomTownForbiddenBuildings;
 	std::map<BuildingID, std::unique_ptr<TownRewardableBuildingInstance>> rewardableBuildings;
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild

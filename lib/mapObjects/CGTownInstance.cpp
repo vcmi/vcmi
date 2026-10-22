@@ -455,6 +455,11 @@ void CGTownInstance::pickRandomObject(IGameRandomizer & gameRandomizer)
 	{
 		ID = MapObjectID::TOWN;
 		subID = randomizeFaction(gameRandomizer.getDefault());
+
+		builtBuildings.merge(randomTownBuildings[getFactionID()]);
+		forbiddenBuildings.merge(randomTownForbiddenBuildings[getFactionID()]);
+		for (auto & event : events)
+			event.buildings.merge(event.randomTownBuildings[getFactionID()]);
 	}
 
 	assert(ID == Obj::TOWN); // just in case

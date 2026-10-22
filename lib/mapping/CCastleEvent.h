@@ -19,6 +19,8 @@ public:
 	CCastleEvent() = default;
 
 	std::set<BuildingID> buildings;
+	/// Faction-specific buildings for event of random town, merged into buildings once faction is picked. Not serialized - only used before game start
+	std::map<FactionID, std::set<BuildingID>> randomTownBuildings;
 	std::vector<si32> creatures;
 	bool neutralAffected = false; ///< event also occurs while the town is neutral, without resources and message
 

@@ -14,6 +14,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/entities/building/CBuilding.h"
 
 /// Uses RoE map, whose format has no Conflux - same as factions added by mods or newer HotA versions
 class PlayerFactionsTest : public TinyMapGameTest
@@ -63,4 +64,29 @@ TEST_F(PlayerFactionsTest, randomTownNotAlignedWithPlayerAvoidsHisFaction)
 	EXPECT_EQ(towns.front()->alignmentToPlayer, player);
 	EXPECT_TRUE(towns.front()->alignmentExcludesPlayer);
 	EXPECT_NE(towns.front()->getFactionID(), FactionID::CASTLE);
+}
+
+TEST_F(PlayerFactionsTest, specialBuildingsOfTownFactionAreApplied)
+{
+	// Castle: raw 19 (Brotherhood of the Sword) built, raw 20 (Stables) banned; Rampart: raw 18 (Mystic Pond) built
+	const std::vector<uint8_t> specialBuildings = {0, 1, 2, 0, 1, 0, 0, 0};
+
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::HOTA);
+	builder.hotaVersion(5)
+		.size(36, false)
+		.playerActive(player)
+		.playerFactions(player, 1 << FactionID::CASTLE.getNum())
+		.randomTown({10, 10, 0}, player, 0xff, specialBuildings)
+		.town({20, 10, 0}, FactionID::CASTLE, PlayerColor::NEUTRAL, specialBuildings);
+	startWithMap(std::move(builder));
+
+	auto towns = findAll<CGTownInstance>();
+	ASSERT_EQ(towns.size(), 2);
+	for(const auto * town : towns)
+	{
+		ASSERT_EQ(town->getFactionID(), FactionID::CASTLE);
+		EXPECT_TRUE(town->hasBuilt(BuildingID::SPECIAL_3));
+		EXPECT_TRUE(town->forbiddenBuildings.count(BuildingID::SPECIAL_2));
+		EXPECT_FALSE(town->hasBuilt(BuildingID::SPECIAL_1)) << "building of another faction must not be applied";
+	}
 }

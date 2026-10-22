@@ -217,9 +217,10 @@ TinyH3MBuilder & TinyH3MBuilder::playerFactions(PlayerColor color, uint32_t mask
 	return *this;
 }
 
-TinyH3MBuilder & TinyH3MBuilder::town(const int3 & pos, FactionID faction, PlayerColor owner)
+TinyH3MBuilder & TinyH3MBuilder::town(const int3 & pos, FactionID faction, PlayerColor owner, std::vector<uint8_t> specialBuildings)
 {
 	ObjectSpec spec;
+	spec.townSpecialBuildings = std::move(specialBuildings);
 	spec.id            = Obj::TOWN;
 	spec.subid         = MapObjectSubID(faction.getNum());
 	spec.position      = pos;
@@ -229,9 +230,10 @@ TinyH3MBuilder & TinyH3MBuilder::town(const int3 & pos, FactionID faction, Playe
 	return *this;
 }
 
-TinyH3MBuilder & TinyH3MBuilder::randomTown(const int3 & pos, PlayerColor owner, uint8_t alignment)
+TinyH3MBuilder & TinyH3MBuilder::randomTown(const int3 & pos, PlayerColor owner, uint8_t alignment, std::vector<uint8_t> specialBuildings)
 {
 	ObjectSpec spec;
+	spec.townSpecialBuildings = std::move(specialBuildings);
 	spec.id            = Obj::RANDOM_TOWN;
 	spec.subid         = MapObjectSubID(0);
 	spec.position      = pos;
@@ -1113,6 +1115,12 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 				w.skipZero(features.spellsBytes);                      // possibleSpells bitmask
 				if(features.levelHOTA1)
 					w.writeBool(false);                                // spellResearchAllowed
+				if(features.levelHOTA5)
+				{
+					w.writeUInt32(obj.townSpecialBuildings.size());
+					for(uint8_t state : obj.townSpecialBuildings)
+						w.writeUInt8(state);
+				}
 				w.writeUInt32(0);                                      // castle events count
 				if(features.levelSOD)
 					w.writeUInt8(obj.townAlignment);

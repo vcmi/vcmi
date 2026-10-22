@@ -2914,21 +2914,27 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 
 	if(features.levelHOTA5)
 	{
-		// Most likely customization of special buildings per faction -> 4x11 table
-		// presumably:
-		// 0 -> default / allowed
-		// 1 -> built?
-		// 2 -> banned?
+		// 4 entries per faction, entry K is faction-specific building 18+K: 0 - default, 1 - built, 2 - banned
 		uint32_t specialBuildingsSize = reader->readUInt32();
 
 		for (int i = 0; i < specialBuildingsSize; ++i)
 		{
-			int factionID = i / 4;
-			int buildingID = i % 4;
+			int8_t specialBuildingState = reader->readInt8Checked(0, 2);
+			if (specialBuildingState == 0)
+				continue;
 
-			int8_t specialBuildingBuilt = reader->readInt8Checked(0, 2);
-			if (specialBuildingBuilt != 0)
-				logGlobal->warn("Map '%s': Town at %s: Constructing / banning town-specific special building %d in faction %d on start is not implemented!", mapName, position.toString(), buildingID, factionID);
+			FactionID buildingFaction = reader->toFaction(i / 4);
+			BuildingID building = reader->toBuilding(18 + i % 4, buildingFaction);
+			if (building == BuildingID::NONE || (faction && *faction != buildingFaction))
+				continue;
+
+			// faction of random town is unknown until game start
+			if (faction && specialBuildingState == 1)
+				object->addBuilding(building);
+			else if (faction)
+				object->forbiddenBuildings.insert(building);
+			else
+				(specialBuildingState == 1 ? object->randomTownBuildings : object->randomTownForbiddenBuildings)[buildingFaction].insert(building);
 		}
 	}
 
@@ -2946,16 +2952,26 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 		{
 			int32_t creatureGrowth8 = reader->readInt32();
 
-			// always 44
-			int32_t hotaAmount = reader->readInt32();
+			// bitmask with same layout as table of faction-specific buildings in town
+			int32_t specialBuildingsSize = reader->readInt32();
+			uint64_t specialBuildingsMask = reader->readUInt32();
+			specialBuildingsMask |= static_cast<uint64_t>(reader->readUInt16()) << 32;
 
-			// contains bitmask on which town-specific buildings to build
-			// 4 bits / town, for each of special building in town (special 1 - special 4)
-			int32_t hotaSpecialA = reader->readInt32();
-			int16_t hotaSpecialB = reader->readInt16();
+			for (int i = 0; i < std::min(specialBuildingsSize, 48); ++i)
+			{
+				if (!(specialBuildingsMask & (1ull << i)))
+					continue;
 
-			if (hotaSpecialA != 0 || hotaSpecialB != 0 || hotaAmount != 44)
-				logGlobal->warn("Map '%s': Town at %s: Constructing town-specific special buildings in event is not implemented!", mapName, position.toString());
+				FactionID buildingFaction = reader->toFaction(i / 4);
+				BuildingID building = reader->toBuilding(18 + i % 4, buildingFaction);
+				if (building == BuildingID::NONE || (faction && *faction != buildingFaction))
+					continue;
+
+				if (faction)
+					event.buildings.insert(building);
+				else
+					event.randomTownBuildings[buildingFaction].insert(building);
+			}
 
 			event.creatures.push_back(creatureGrowth8);
 		}
