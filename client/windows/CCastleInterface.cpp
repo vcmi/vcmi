@@ -756,14 +756,15 @@ void CCastleBuildings::recreate()
 	if(town->hasBuilt(BuildingID::SHIPYARD))
 	{
 		auto bayPos = town->bestLocation();
-		if(!bayPos.isValid())
-			logGlobal->warn("Shipyard in non-coastal town!");
-		std::vector <const CGObjectInstance *> vobjs = GAME->interface()->cb->getVisitableObjs(bayPos);
-		//there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
-		if(!vobjs.empty() && (vobjs.front()->ID == Obj::BOAT || vobjs.front()->ID == Obj::HERO))
+		if(bayPos.isValid())
 		{
-			buildingsCopy.insert(BuildingID::SHIP);
+			std::vector <const CGObjectInstance *> vobjs = GAME->interface()->cb->getVisitableObjs(bayPos);
+			//there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
+			if(!vobjs.empty() && (vobjs.front()->ID == Obj::BOAT || vobjs.front()->ID == Obj::HERO))
+				buildingsCopy.insert(BuildingID::SHIP);
 		}
+		else
+			logGlobal->warn("Shipyard in non-coastal town!");
 	}
 
 	for(const auto & structure : town->getTown()->clientInfo.structures)
