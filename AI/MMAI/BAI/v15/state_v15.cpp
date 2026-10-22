@@ -1495,6 +1495,12 @@ namespace
 			// => don't add it twice
 			auto adjunits = std::unordered_set<UnitPtr>{};
 
+			// When moving a shooter next to an enemy, the edge is
+			// action-blocks-unit where the unit is the actor itself.
+			// Moving a shooter next to multiple enemies should still create
+			// only 1 such edge for this action => guard with a flag.
+			bool selfblocked = false;
+
 			for(const auto & adjbhex : stack.getSurroundingHexes(hex->bhex))
 			{
 				if(!adjbhex.isAvailable())
@@ -1510,11 +1516,12 @@ namespace
 				if(!wasNew) // key already existed
 					continue;
 
-				if(G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(unit, adjunit, false))
+				if(!selfblocked && G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(unit, adjunit, false))
 				{
 					// this action will block `unit`
 					G.add(E::Action_Blocks_Unit::Create(action, unit));
 					G.add(E::Unit_BlockedBy_Action::Create(unit, action));
+					selfblocked = true;
 				}
 
 				if(G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(adjunit, unit, false))
