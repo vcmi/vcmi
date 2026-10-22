@@ -2103,10 +2103,18 @@ namespace
 				const auto & tunit = G.getByExtraIndex<N::Unit>(tstack->unitId());
 				G.add(E::Unit_IsMeleedBy_Action::Create(tunit, amove, false));
 
-				// MMAI is unaware how dangerous friendly fire is, as there are
-				// no Unit_MeleeDmg_Unit edges between allied units unless the
-				// attacker is berserk or hypnotized.
-				// If such an edge did not exist before, add it now.
+				// The Unit_IsMeleedBy_Action edge contains no information about
+				// the actual damage dealt. MMAI has to infer it from the
+				// corresponding Unit_MeleeDmg_Unit edge, however that becomes
+				// insufficient since 1/ such edges between allies do not exist
+				// and 2/ same pair of enemies can melee themselves in different
+				// ways (direct attack, or indirect aoe).
+				// An improved design might either add damage-related attributes
+				// to all Unit_IsMeleedBy_Action edges, or introduce an entirely
+				// new edge type, e.g. Unit_IsMeleeAOEdBy_Action.
+				// None of those options is viable for already trained models,
+				// => just add another Unit_MeleeDmg_Unit edge if it did not
+				// exist (e.g. for friendly-fire AOE).
 				if(G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(unit, tunit, false))
 					continue;
 
@@ -2164,7 +2172,7 @@ namespace
 		}
 	}
 
-	void AddShootAction(Graph::Graph & G, const ActionPtr & defend, const CPlayerBattleCallback & battle)
+	void AddShootAction(Graph::Graph & G, const ActionPtr & defend, const CPlayerBattleCallback & battle, const State::GlobalStats & stats)
 	{
 		// Iterate from a snapshot as new nodes will be added to the index (via clone)
 		const auto & range = G.getAllEdgesSrcByDst<E::Unit_BecomesShootTargetAfter_Action>(defend);
@@ -2220,6 +2228,39 @@ namespace
 
 				const auto & tunit = G.getByExtraIndex<N::Unit>(tstack->unitId());
 				G.add(E::Unit_IsShotBy_Action::Create(tunit, shoot, false));
+
+
+				// MMAI is unaware how dangerous friendly fire is
+				// (see note in AddAmoveAction)
+				if(G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(unit, tunit, false))
+					continue;
+
+				auto states = UnitStates{.a = CUnitStateWrapper(&stack, stack.acquireState()), .b = CUnitStateWrapper(&tunit->cstack, tunit->cstack.acquireState())};
+				ApplyAttack(states, battle, true, true);
+				const auto & tstate = states.b;
+				auto hpdiff_defender = tstate.calcAvailableHealth() - tstack->getAvailableHealth();
+				auto qtydiff_defender = tstate.cstate->getCount() - tstack->getCount();
+				auto vdiff_defender = tunit->valueOne * qtydiff_defender;
+
+				bool friendlyFire = stack.unitSide() == tstack->unitSide();
+				bool isHypnotized = stack.isHypnotized();
+
+				// Discourage units from killing their allies via AoE unless they are hypnotized
+				if (friendlyFire && !isHypnotized)
+					vdiff_defender *= -1;
+
+				G.add(
+					E::Unit_ShootDmg_Unit::Create(
+						unit,
+						tunit,
+						{.vdiffAttacker = 0,
+						 .vdiffDefender = vdiff_defender,
+						 .hpdiffAttacker = 0,
+						 .hpdiffDefender = static_cast<int>(hpdiff_defender),
+						 .battlefieldValue = stats.totalValue,
+						 .battlefieldHp = stats.totalHp}
+					)
+				);
 			}
 
 			CloneActionEdges(G, defend, shoot);
@@ -2279,7 +2320,7 @@ namespace
 		{
 			const auto & defendhex = G.getByExtraIndex<N::Hex>(unit->cstack.getPosition().toInt());
 			const auto & defend = defendmoves.at(unit);
-			AddShootAction(G, defend, battle);
+			AddShootAction(G, defend, battle, stats);
 			AddWaitAction(G, defend);
 		}
 	}
