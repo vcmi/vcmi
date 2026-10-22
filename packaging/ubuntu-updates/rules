@@ -1,0 +1,7 @@
+#! /usr/bin/make -f
+
+%:
+	dh $@
+
+# Plain Python package: no build system, files are listed in debian/install
+override_dh_auto_configure override_dh_auto_build override_dh_auto_install:
