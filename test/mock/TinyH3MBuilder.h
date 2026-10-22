@@ -134,7 +134,8 @@ public:
 
 	/// Append a Random Town object owned by `owner`. Builder auto-registers the
 	/// RANDOM_TOWN template on first call. No garrison, standard fort, no events.
-	TinyH3MBuilder & randomTown(const int3 & pos, PlayerColor owner);
+	/// `alignment` is the raw h3m value: 0xff - none, 0-7 - same as player, 8-15 - not as player (HotA).
+	TinyH3MBuilder & randomTown(const int3 & pos, PlayerColor owner, uint8_t alignment = 0xff);
 
 	/// Append a standalone shipyard owned by `owner`.
 	TinyH3MBuilder & shipyard(const int3 & pos, PlayerColor owner);
@@ -323,6 +324,9 @@ private:
 		// The single-quest seerHut() populates one one-shot entry.
 		std::vector<std::pair<Quest, SeerReward>> seerOneShots;
 		std::vector<std::pair<Quest, SeerReward>> seerRepeatables;
+
+		// RANDOM_TOWN / TOWN
+		uint8_t        townAlignment = 0xff;
 
 		// MINE subID 7 (abandoned mine)
 		CreatureID     mineGuard = CreatureID::NONE;

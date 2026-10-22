@@ -2974,12 +2974,17 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 			}
 			else
 			{
-				// TODO: HOTA support
 				uint8_t invertedAlignment = alignment - PlayerColor::PLAYER_LIMIT.getNum();
 
 				if(invertedAlignment < PlayerColor::PLAYER_LIMIT.getNum())
 				{
-					logGlobal->warn("Map '%s': Alignment of town at %s 'not as player %d' is not implemented!", mapName, position.toString(), alignment - PlayerColor::PLAYER_LIMIT.getNum());
+					if (mapHeader->players[invertedAlignment].canAnyonePlay())
+					{
+						object->alignmentToPlayer = PlayerColor(invertedAlignment);
+						object->alignmentExcludesPlayer = true;
+					}
+					else
+						logGlobal->warn("Map '%s': Alignment of town at %s is invalid! Player %d is not present on map!", mapName, position.toString(), static_cast<int>(invertedAlignment));
 				}
 				else
 				{

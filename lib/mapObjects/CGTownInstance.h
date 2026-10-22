@@ -64,6 +64,7 @@ public:
 	si32 destroyed; //how many buildings have been destroyed this turn
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	PlayerColor alignmentToPlayer; // if set to non-neutral, random town will have same faction as specified player
+	bool alignmentExcludesPlayer = false; // random town will have any faction other than one of alignmentToPlayer
 	std::set<BuildingID> forbiddenBuildings;
 	std::map<BuildingID, std::unique_ptr<TownRewardableBuildingInstance>> rewardableBuildings;
 	std::vector<SpellID> possibleSpells, obligatorySpells;
@@ -94,6 +95,8 @@ public:
 		h & visitingHero;
 
 		h & alignmentToPlayer;
+		if(h.hasFeature(Handler::Version::TOWN_ALIGNMENT_EXCLUSION))
+			h & alignmentExcludesPlayer;
 		h & forbiddenBuildings;
 		h & builtBuildings;
 		h & bonusValue;

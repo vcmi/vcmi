@@ -229,13 +229,14 @@ TinyH3MBuilder & TinyH3MBuilder::town(const int3 & pos, FactionID faction, Playe
 	return *this;
 }
 
-TinyH3MBuilder & TinyH3MBuilder::randomTown(const int3 & pos, PlayerColor owner)
+TinyH3MBuilder & TinyH3MBuilder::randomTown(const int3 & pos, PlayerColor owner, uint8_t alignment)
 {
 	ObjectSpec spec;
 	spec.id            = Obj::RANDOM_TOWN;
 	spec.subid         = MapObjectSubID(0);
 	spec.position      = pos;
 	spec.owner         = owner;
+	spec.townAlignment = alignment;
 	spec.templateIndex = registerTemplate(spec.id, spec.subid);
 	registerObject(std::move(spec));
 	return *this;
@@ -1114,7 +1115,7 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 					w.writeBool(false);                                // spellResearchAllowed
 				w.writeUInt32(0);                                      // castle events count
 				if(features.levelSOD)
-					w.writeUInt8(0xff);                                // alignment = "same as owner / random"
+					w.writeUInt8(obj.townAlignment);
 				w.skipZero(3);
 				break;
 
