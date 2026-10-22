@@ -48,20 +48,12 @@ do
 			continue
 		fi
 
-		if [[ "$extension" == "json" ]]
-		then
-			targetdirectory="${TARGET_BASE_DIRECTORY}/${category}/${branchname}/metadata"
-			targetname="VCMI-${category}-${branchname}-${commitsha:0:7}.json"
-			echo "Target Directory: $targetdirectory"
-			echo "Target Name: $targetname"
-			mkdir -p "$targetdirectory"
-			mv -f "${fullpath}" "$targetdirectory/$targetname"
-			continue
-		fi
-
-		if [[ "$extension" == "exe" || "$extension" == "zip" ]]
+		if [[ "$extension" == "exe" ]]
 		then
 			system="windows"
+		elif [[ "$extension" == "zip" ]]
+		then
+			system="windows-zip"
 		elif [[ "$extension" == "dmg" ]]
 		then
 			system="macos"
@@ -74,6 +66,9 @@ do
 		elif [[ "$extension" == "AppImage" ]]
 		then
 			system="linux"
+		elif [[ "$extension" == "json" ]]
+		then
+			system="metadata"
 		else
 			echo "Unknown extension :-("
 			continue

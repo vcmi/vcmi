@@ -16,7 +16,7 @@ import sys
 
 # Same naming as docs/maintainers/scripts/builds/sort_builds.sh, which moves uploads into place on the server
 UPLOAD_NAME = re.compile(r"^(?P<run>[0-9]+)-vcmi-branch-(?P<branch>[^-]+)-(?P<commit>[a-f0-9]+)(-(?P<arch>[^.]+))?$")
-SYSTEMS = {"exe": "windows", "zip": "windows", "dmg": "macos", "ipa": "ios", "apk": "android", "AppImage": "linux"}
+SYSTEMS = {"exe": "windows", "zip": "windows-zip", "dmg": "macos", "ipa": "ios", "apk": "android", "AppImage": "linux"}
 KINDS = ("installer", "package")
 PLATFORM_KEY = re.compile(r"^(windows|macos|linux|android|ios)-(x86|x64|arm32|arm64)$")
 
