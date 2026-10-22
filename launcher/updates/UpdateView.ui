@@ -59,13 +59,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="buttonCheck">
-       <property name="text">
-        <string>Check for Updates</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="buttonChangelog">
        <property name="text">
         <string>Full Changelog</string>
@@ -84,6 +77,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonBack">
+       <property name="text">
+        <string>Back</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

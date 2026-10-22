@@ -70,7 +70,9 @@ void AboutProjectView::changeEvent(QEvent *event)
 
 void AboutProjectView::on_updatesButton_clicked()
 {
-	Helper::getMainWindow()->switchToUpdateTab();
+	// result of the check is shown in the start tab
+	Helper::getMainWindow()->getUpdateChecker()->check();
+	Helper::getMainWindow()->switchToStartTab();
 }
 
 void AboutProjectView::on_openGameDataDir_clicked()
