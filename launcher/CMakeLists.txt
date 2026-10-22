@@ -29,8 +29,8 @@ set(launcher_SRCS
 		innoextract.cpp
 		mainwindow_moc.cpp
 		languages.cpp
-		updatedialog_moc.cpp
 		updates/UpdateChecker.cpp
+		updates/UpdateView.cpp
 		prepare.cpp
 )
 if(IOS)
@@ -68,8 +68,8 @@ set(launcher_HEADERS
 		firstLaunch/progressoverlay.h
 		mainwindow_moc.h
 		languages.h
-		updatedialog_moc.h
 		updates/UpdateChecker.h
+		updates/UpdateView.h
 		demo.h
 		main.h
 		helper.h
@@ -93,7 +93,7 @@ set(launcher_FORMS
 		firstLaunch/firstlaunch_moc.ui
 		mainwindow_moc.ui
 		startGame/StartGameTab.ui
-		updatedialog_moc.ui
+		updates/UpdateView.ui
 )
 
 set(launcher_RESOURCES

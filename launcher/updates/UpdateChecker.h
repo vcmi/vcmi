@@ -35,7 +35,7 @@ enum class EUpdateAction : int8_t
 
 enum class EUpdateCheckState : int8_t
 {
-	DISABLED, ///< build of a channel other than stable, or for a platform unknown to the update service
+	DISABLED, ///< see UpdateChecker::isEnabled
 	NOT_CHECKED,
 	CHECKING,
 	FAILED,
@@ -71,6 +71,9 @@ class UpdateChecker : public QObject
 public:
 	explicit UpdateChecker(QObject * parent);
 	~UpdateChecker() override;
+
+	/// false for builds of a channel other than stable, or for a platform unknown to the update service
+	static bool isEnabled();
 
 	/// starts a check, unless checks are disabled or a check is already running
 	void check();
