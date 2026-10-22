@@ -735,15 +735,34 @@ void CMapLoaderH3M::readMapOptions()
 
 	if(features.levelHOTA1)
 	{
-		int32_t combinedArtifactsCount = reader->readInt32();
-		int32_t combinedArtifactsBytes = (combinedArtifactsCount + 7) / 8;
+		// bit N refers to N-th combined artifact of the map format, in order of artifact identifiers
+		std::vector<ArtifactID> combinedArtifacts;
+		for(int32_t i = 0; i < features.artifactsCount; ++i)
+		{
+			ArtifactID artifact = reader->toArtifact(i);
+			// artifacts of the format may be missing if the mod that provides them is not active
+			if(artifact.hasValue() && artifact.getNum() < LIBRARY->arth->size() && artifact.toArtifact()->isCombined())
+				combinedArtifacts.push_back(artifact);
+		}
 
-		for (int i = 0; i < combinedArtifactsBytes; ++i)
+		int32_t combinedArtifactsCount = reader->readInt32();
+		if(combinedArtifactsCount != combinedArtifacts.size())
+			logGlobal->warn("Map '%s': Expected %d combined artifacts, but %d found!", mapName, combinedArtifacts.size(), combinedArtifactsCount);
+
+		JsonNode disabledCombinations;
+		for(int32_t i = 0; i < (combinedArtifactsCount + 7) / 8; ++i)
 		{
 			uint8_t mask = reader->readUInt8();
-			if (mask != 0)
-				logGlobal->warn("Map '%s': Option to ban specific combined artifacts is not implemented!", mapName);
+			for(int32_t bit = 0; bit < 8; ++bit)
+			{
+				size_t index = i * 8 + bit;
+				if((mask & (1 << bit)) && index < combinedArtifacts.size())
+					disabledCombinations.Vector().emplace_back(combinedArtifacts[index].toArtifact()->getJsonKey());
+			}
 		}
+
+		if(!disabledCombinations.Vector().empty())
+			map->overrideGameSetting(EGameSettings::ARTIFACTS_DISABLED_COMBINATIONS, disabledCombinations);
 	}
 
 	if(features.levelHOTA3)

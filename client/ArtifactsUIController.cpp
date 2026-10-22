@@ -60,7 +60,7 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 
 	if(numOfArtsAskAssembleSession != 0)
 		numOfArtsAskAssembleSession--;
-	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId(), onlyEquipped);
+	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(GAME->interface()->cb->getSettings(), hero, art->getTypeId(), onlyEquipped);
 	if(!assemblyPossibilities.empty())
 	{
 		auto askThread = new std::thread([this, hero, slot, assemblyPossibilities, checkIgnored]() -> void

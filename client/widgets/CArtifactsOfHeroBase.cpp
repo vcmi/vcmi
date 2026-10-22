@@ -312,6 +312,9 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 		for(const auto combinedArt : slotInfo->getArt()->getType()->getPartOf())
 		{
 			assert(combinedArt->isCombined());
+			if(ArtifactUtils::isCombinationDisabled(GAME->interface()->cb->getSettings(), combinedArt->getId()))
+				continue;
+
 			arts.try_emplace(combinedArt->getId());
 			CArtifactFittingSet fittingSet(*curHero);
 			for(const auto part : combinedArt->getConstituents())
