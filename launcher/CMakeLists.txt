@@ -275,6 +275,7 @@ target_link_libraries(vcmilauncher vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )
+target_compile_definitions(vcmilauncher PRIVATE VCMI_UPDATE_CHANNEL="${VCMI_UPDATE_CHANNEL}")
 vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
 
