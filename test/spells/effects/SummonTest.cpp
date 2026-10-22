@@ -53,8 +53,10 @@ public:
 		EXPECT_CALL(unit, isValidTarget(Eq(false))).WillRepeatedly(Return(true));
 		EXPECT_CALL(unit, getPosition()).WillRepeatedly(Return(BattleHex(5,5)));
 		EXPECT_CALL(unit, doubleWide()).WillRepeatedly(Return(false));
-		EXPECT_CALL(unit, unitSide()).Times(AnyNumber());
+		EXPECT_CALL(unit, unitSide()).WillRepeatedly(Return(BattleSide::ATTACKER));
 		EXPECT_CALL(unit, unitSlot()).WillRepeatedly(Return(SlotID::SUMMONED_SLOT_PLACEHOLDER));
+		EXPECT_CALL(unit, isHypnotized()).WillRepeatedly(Return(false));
+		EXPECT_CALL(*battleFake, getSidePlayer(BattleSide::ATTACKER)).WillRepeatedly(Return(PlayerColor(5)));
 
 		if(expectAlive)
 			EXPECT_CALL(unit, alive()).WillRepeatedly(Return(true));

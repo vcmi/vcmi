@@ -56,7 +56,7 @@ void BuyArmy::accept(AIGateway * aiGw)
 		if(objid != CreatureID::NONE && ci.creID.getNum() != objid)
 			continue;
 
-		vstd::amin(ci.count, res / ci.creID.toCreature()->getFullRecruitCost());
+		vstd::amin(ci.count, res.affordableCount(ci.creID.toCreature()->getFullRecruitCost()));
 
 		if(ci.count)
 		{
@@ -102,7 +102,11 @@ void BuyArmy::accept(AIGateway * aiGw)
 	// a visiting hero may belong to an ally
 	if(town->getVisitingHero() && town->getVisitingHero()->tempOwner == aiGw->playerID && !town->getGarrisonHero())
 	{
-		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(town->getVisitingHero(), aiGw->cc.get()));
+		if(aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(town->getVisitingHero(), aiGw->cc.get()))
+			!= HeroMovementResult::COMPLETE)
+		{
+			throw cannotFulfillGoalException("Unable to revisit town after buying army.");
+		}
 	}
 }
 

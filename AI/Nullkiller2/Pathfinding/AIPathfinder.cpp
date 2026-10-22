@@ -45,7 +45,7 @@ void AIPathfinder::calculatePathInfo(std::vector<AIPath> & paths, const int3 & t
 	if(!includeGraph && !storage->hasCurrentNodes(tile))
 		return;
 
-	const TerrainTile * tileInfo = aiNk->cc->getTile(tile, false);
+	const TerrainTile * tileInfo = aiNk->cc->tryGetTile(tile);
 	if(!tileInfo)
 		return;
 
@@ -71,7 +71,7 @@ void AIPathfinder::calculatePathSummaries(
 	if(!storage->hasCurrentNodes(tile))
 		return;
 
-	const TerrainTile * tileInfo = aiNk->cc->getTile(tile, false);
+	const TerrainTile * tileInfo = aiNk->cc->tryGetTile(tile);
 	if(tileInfo)
 		storage->calculatePathSummaries(summaries, tile, !tileInfo->isWater());
 }

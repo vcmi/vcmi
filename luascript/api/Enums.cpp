@@ -157,6 +157,28 @@ EnumGroup<EPlayerStatus> Enums::exportPlayerStatus() const
 	}};
 }
 
+EnumGroup<ComponentType> Enums::exportComponentType() const
+{
+	return {{
+		{ "primarySkill",   ComponentType::PRIM_SKILL,       "Primary skill; `subType` is the skill, `value` the change." },
+		{ "secondarySkill", ComponentType::SEC_SKILL,        "Secondary skill; `subType` is the skill, `value` the mastery level (1-3)." },
+		{ "resource",       ComponentType::RESOURCE,         "Resource; `subType` is the resource, `value` the amount." },
+		{ "resourcePerDay", ComponentType::RESOURCE_PER_DAY, "Daily resource income; `subType` is the resource, `value` the amount per day." },
+		{ "creature",       ComponentType::CREATURE,         "Creature; `subType` is the creature, `value` the optional count." },
+		{ "artifact",       ComponentType::ARTIFACT,         "Artifact; `subType` is the artifact." },
+		{ "spellScroll",    ComponentType::SPELL_SCROLL,     "Spell scroll; `subType` is the spell in the scroll." },
+		{ "mana",           ComponentType::MANA,             "Spell points; `value` is the change." },
+		{ "experience",     ComponentType::EXPERIENCE,       "Experience; `value` is the amount." },
+		{ "level",          ComponentType::LEVEL,            "Hero levels; `value` is the number of levels." },
+		{ "spell",          ComponentType::SPELL,            "Spell; `subType` is the spell." },
+		{ "morale",         ComponentType::MORALE,           "Morale; `value` is the change." },
+		{ "luck",           ComponentType::LUCK,             "Luck; `value` is the change." },
+		{ "building",       ComponentType::BUILDING,         "Town building; `subType` is the building and `faction` its faction." },
+		{ "heroPortrait",   ComponentType::HERO_PORTRAIT,    "Hero portrait; `subType` is the hero." },
+		{ "flag",           ComponentType::FLAG,             "Player flag; `subType` is the player." },
+	}};
+}
+
 EnumGroup<BonusSource> Enums::exportBonusSource() const
 {
 	return {{

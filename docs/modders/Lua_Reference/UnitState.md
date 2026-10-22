@@ -1,6 +1,6 @@
 # UnitState
 
-Editable copy of a battle Unit. Obtained via `Unit:copy()`; scripts edit fields (position, defending, clone, summoned, …) and inflict damage locally, then hand the result to ServerCallback `changeUnit` or `addUnit` to broadcast the update through a battle pack.
+Editable copy of a battle Unit. Obtained via `Unit:copy()`; scripts edit fields (position, clone, summoned, …) and inflict damage locally, then hand the result to ServerCallback `changeUnit` or `addUnit` to broadcast the update through a battle pack.
 
 ### getMinDamage
 
@@ -154,12 +154,6 @@ Returns the list of hexes currently occupied by the unit.
 
 - returns [`BattleHexArray`](BattleHexArray.md)
 
-### setDefending
-
-Sets whether unit has defended in this round.
-
-- param `value`: `boolean` — New defending flag.
-
 ### setCloned
 
 Marks the stack as a clone.
@@ -202,29 +196,11 @@ Marks the unit as transitioning to the ghost state.
 
 - param `value`: `boolean` — New ghost-pending flag.
 
-### setMoved
-
-Marks that the unit has moved this round.
-
-- param `value`: `boolean` — New moved-this-round flag.
-
 ### setSummoned
 
 Marks the unit as summoned during combat.
 
 - param `value`: `boolean` — New summoned flag.
-
-### setWaiting
-
-Marks that the unit is currently waiting.
-
-- param `value`: `boolean` — New waiting flag.
-
-### setWaitedThisTurn
-
-Marks that the unit has already used its wait this turn.
-
-- param `value`: `boolean` — New waited-this-turn flag.
 
 ### setPosition
 

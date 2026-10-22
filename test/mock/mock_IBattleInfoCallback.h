@@ -38,7 +38,7 @@ public:
 	MOCK_CONST_METHOD0(getBattle, IBattleInfo*());
 	MOCK_CONST_METHOD0(getPlayerID, std::optional<PlayerColor>());
 
-	MOCK_CONST_METHOD2(battleGetAllObstaclesOnPos, std::vector<std::shared_ptr<const CObstacleInstance>>(const BattleHex&, bool));
+	MOCK_CONST_METHOD3(battleGetAllObstaclesOnPos, std::vector<std::shared_ptr<const CObstacleInstance>>(const BattleHex&, bool, std::optional<BattleSide>));
 	MOCK_CONST_METHOD2(getAllAffectedObstaclesByStack, std::vector<std::shared_ptr<const CObstacleInstance>>(const battle::Unit *, const BattleHexArray &));
 
 	MOCK_CONST_METHOD0(hasFortifications, bool());

@@ -124,7 +124,12 @@ void ReplayLog::recordPack(CPackForClient & pack, CGameState & gs)
 	// every game day opens a new chapter, anchored by the state that day started from.
 	// NewTurn is recorded before it is applied, so the new day is only known from the pack itself
 	const auto * newTurn = dynamic_cast<const NewTurn *>(&pack);
-	if(chapters.empty() || newTurn != nullptr)
+
+	// packs sent before the first day of a new game share its chapter, to avoid a second snapshot right after the first one
+	const bool beforeFirstDay = !chapters.empty() && chapters.back().day == 0;
+	if(newTurn != nullptr && beforeFirstDay)
+		chapters.back().day = newTurn->day;
+	else if(chapters.empty() || newTurn != nullptr)
 		beginDay(newTurn ? newTurn->day : gs.day, gs.saveToMemory());
 
 	if(const auto * turnStart = dynamic_cast<const PlayerStartsTurn *>(&pack))

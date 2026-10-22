@@ -97,7 +97,11 @@ void AdventureSpellCast::accept(AIGateway * aiGw)
 	if(town && townPortalEffect)
 	{
 		// visit town
-		aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(hero, aiGw->cc.get()));
+		if(aiGw->moveHeroToTile(town->visitablePos(), HeroPtr(hero, aiGw->cc.get()))
+			!= HeroMovementResult::COMPLETE)
+		{
+			throw cannotFulfillGoalException("Unable to visit town after casting Town Portal.");
+		}
 	}
 
 	throw goalFulfilledException(sptr(*this));

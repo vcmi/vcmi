@@ -152,6 +152,7 @@ bool CGarrisonSlot::ally() const
 std::function<void()> CGarrisonSlot::getDismiss() const
 {
 	const bool canDismiss = getObj()->tempOwner == GAME->interface()->playerID
+		&& !getObj()->isLocked()
 		&& (getObj()->stacksCount() > 1 ||
 			!getObj()->needsLastStack());
 
@@ -259,6 +260,10 @@ bool CGarrisonSlot::split()
 	int countLeft = selection->myStack ? selection->myStack->getCount() : 0;
 	int countRight = myStack ? myStack->getCount() : 0;
 
+	// units can be given to an ally or put into a locked garrison, but not taken back
+	if(owner->isStackTransferLocked(this))
+		minRight = countRight;
+
 	auto splitFunctor = [this, selection](int amountLeft, int amountRight)
 	{
 		owner->splitStacks(selection, owner->army(upg), ID, amountRight);
@@ -289,7 +294,7 @@ bool CGarrisonSlot::mustForceReselection() const
 		return true;
 
 	// Adding or merging units into a locked garrison is allowed, but swapping would remove its stack.
-	if (!owner->removableUnits && selection->upg == EGarrisonType::LOWER && upg == EGarrisonType::UPPER)
+	if (owner->isUpperArmyLocked() && selection->upg == EGarrisonType::LOWER && upg == EGarrisonType::UPPER)
 		return selection->creature != creature;
 	return false;
 }
@@ -638,9 +643,15 @@ bool CGarrisonInt::checkSelected(const CGarrisonSlot * selected, TQuantity min) 
 	return selected && selected->myStack && selected->myStack->getCount() > min && selected->creature;
 }
 
+bool CGarrisonInt::isUpperArmyLocked() const
+{
+	const auto * upperArmy = army(EGarrisonType::UPPER);
+	return !removableUnits || (upperArmy && upperArmy->isLocked());
+}
+
 bool CGarrisonInt::isStackTransferLocked(const CGarrisonSlot * selected) const
 {
-	return selected && !removableUnits && selected->upg == EGarrisonType::UPPER;
+	return selected && (!selected->our() || (selected->upg == EGarrisonType::UPPER && isUpperArmyLocked()));
 }
 
 bool CGarrisonInt::showStackTransferError(const CGarrisonSlot * selected) const

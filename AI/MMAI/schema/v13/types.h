@@ -333,7 +333,7 @@ enum class GlobalAction : int
 
 enum class GlobalAttribute : int
 {
-	BATTLE_SIDE, //               0=left, 1=right (does not change during battle)
+	BATTLE_SIDE,
 	BATTLE_SIDE_ACTIVE_PLAYER, // 0=left, 1=right (NA = battle finished)
 	BATTLE_WINNER, //             0=left, 1=right (NA = battle not finished)
 	BFIELD_VALUE_START_ABS, //    global_value_at_start

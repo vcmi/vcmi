@@ -33,7 +33,7 @@ size_t IFont::getGlyphWidth(const char * data) const
 	return getGlyphWidthScaled(data) / getScalingFactor();
 }
 
-size_t IFont::getStringWidth(const std::string & data) const
+size_t IFont::getStringWidth(std::string_view data) const
 {
 	return getStringWidthScaled(data) / getScalingFactor();
 }
@@ -43,7 +43,7 @@ size_t IFont::getFontAscent() const
 	return getFontAscentScaled() / getScalingFactor();
 }
 
-size_t IFont::getStringWidthScaled(const std::string & data) const
+size_t IFont::getStringWidthScaled(std::string_view data) const
 {
 	size_t width = 0;
 

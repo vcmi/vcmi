@@ -21,6 +21,7 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/mapping/MapDifficulty.h"
+#include "../../lib/networkPacks/Component.h"
 
 namespace scripting::api
 {
@@ -60,6 +61,7 @@ class Enums : public scripting::ApiSerializable<Enums>
 	EnumGroup<PrimarySkill> exportPrimarySkill() const;
 	EnumGroup<PlayerColor> exportPlayerColor() const;
 	EnumGroup<EPlayerStatus> exportPlayerStatus() const;
+	EnumGroup<ComponentType> exportComponentType() const;
 
 public:
 	static constexpr std::string_view luaName = "Enums";
@@ -86,6 +88,7 @@ public:
 		s("PrimarySkill",     exportPrimarySkill(),     "The four primary hero skills.");
 		s("PlayerColor",      exportPlayerColor(),      "Player colours, plus the neutral owner used by unowned objects.");
 		s("PlayerStatus",     exportPlayerStatus(),     "Whether a player is still playing, has won, or has lost.");
+		s("ComponentType",    exportComponentType(),    "Kinds of icons shown in message windows, used by Component `type`.");
 	}
 };
 

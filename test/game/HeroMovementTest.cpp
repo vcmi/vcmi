@@ -16,6 +16,13 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/TerrainTile.h"
+#include "../../lib/networkPacks/PacksForClient.h"
+#include "../../lib/spells/CSpellHandler.h"
+#include "../../lib/spells/Problem.h"
+#include "../../lib/spells/adventure/AdventureSpellMechanics.h"
+#include "../../lib/bonuses/Bonus.h"
+#include "../../lib/pathfinder/CPathfinder.h"
+#include "../../lib/pathfinder/PathfinderOptions.h"
 #include "../../server/CGameHandler.h"
 
 class HeroMovementTest : public TinyMapGameTest
@@ -97,4 +104,96 @@ TEST_F(HeroMovementTest, heroStartingOnSharedEntranceVisitsOnlyTopTown)
 	EXPECT_EQ(hero->getVisitedTown(), topTown);
 	for(const auto * town : findAll<CGTownInstance>())
 		EXPECT_EQ(town->getVisitingHero(), town == topTown ? hero : nullptr);
+}
+
+/// A hero stays where he stood when visiting another hero. Water Walk lasts only one day, so a visit
+/// made from water would leave the hero stranded there.
+TEST_F(HeroMovementTest, noVisitFromWaterToHeroStandingOnObject)
+{
+	const PlayerColor player(0);
+
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.playerActive(player)
+		.hero(int3(10, 10, 0), HeroTypeID(0), player)
+		.hero(int3(14, 10, 0), HeroTypeID(1), player)
+		.keymaster(int3(13, 10, 0), 0);
+	startWithMap(std::move(builder));
+	revealMap(player);
+
+	CGHeroInstance * walker = nullptr;
+	CGHeroInstance * islander = nullptr;
+	for(auto * hero : findAll<CGHeroInstance>())
+		(hero->getHeroTypeID() == HeroTypeID(0) ? walker : islander) = hero;
+	ASSERT_NE(walker, nullptr);
+	ASSERT_NE(islander, nullptr);
+	// a hero standing on a passable object, as on a Garden of Revelation, leaves two visitable objects on the tile
+	ASSERT_EQ(map()->getTile(islander->visitablePos()).visitableObjects.size(), 2);
+
+	// islander stands on a single land tile surrounded by water
+	const int3 island = islander->visitablePos();
+	for(int x = walker->visitablePos().x + 1; x <= island.x + 1; ++x)
+		for(int y = island.y - 1; y <= island.y + 1; ++y)
+			if(int3(x, y, 0) != island)
+				map()->getTile(int3(x, y, 0)).terrainType = ETerrainId::WATER;
+
+	walker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::WATER_WALKING, BonusSource::OTHER, 0, BonusSourceID()));
+	walker->setMovementPoints(2000);
+
+	CPathsInfo paths(gameState()->getMapSize(), walker);
+	auto config = std::make_shared<SingleHeroPathfinderConfig>(paths, *gameState(), walker);
+	CPathfinder pathfinder(*gameState(), config);
+	pathfinder.calculatePaths();
+
+	ASSERT_TRUE(paths.getNode(island + int3(0, 1, 0), EPathfindingLayer::WATER)->reachable());
+	EXPECT_FALSE(paths.getNode(island, EPathfindingLayer::LAND)->reachable());
+}
+
+TEST_F(HeroMovementTest, cursedGroundBlocksHighLevelAdventureSpells)
+{
+	const PlayerColor player(0);
+	const int3 cursedTile(10, 10, 0);
+	const SpellID dimensionDoor(SpellID::decode("core:dimensionDoor"));
+	const SpellID viewAir(SpellID::decode("core:viewAir"));
+
+	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);
+	builder
+		.size(36, false)
+		.playerActive(player)
+		.terrainOverlay(cursedTile, Obj::CURSED_GROUND1)
+		.hero(cursedTile + int3(1, 0, 0), HeroTypeID(0), player)
+		.heroSpells({dimensionDoor, viewAir})
+		.heroEquipped({{ArtifactPosition::SPELLBOOK, ArtifactID::SPELLBOOK}});
+	startWithMap(std::move(builder));
+
+	auto * hero = findHeroByOwner(player);
+	ASSERT_NE(hero, nullptr);
+	ASSERT_EQ(hero->visitablePos(), cursedTile);
+	hero->mana = 100;
+
+	auto canCast = [&](SpellID spell)
+	{
+		spells::detail::ProblemImpl problem;
+		return spell.toSpell()->getAdventureMechanics().canBeCast(problem, gameState().get(), hero);
+	};
+	auto moveHero = [&](const int3 & destination)
+	{
+		TryMoveHero move;
+		move.id = hero->id;
+		move.result = TryMoveHero::SUCCESS;
+		move.start = hero->pos;
+		move.end = hero->convertFromVisitablePos(destination);
+		move.movePoints = hero->movementPointsRemaining();
+		gameState()->apply(move);
+	};
+
+	EXPECT_FALSE(canCast(dimensionDoor));
+	EXPECT_TRUE(canCast(viewAir));
+
+	moveHero(int3(20, 20, 0));
+	EXPECT_TRUE(canCast(dimensionDoor));
+
+	moveHero(cursedTile);
+	EXPECT_FALSE(canCast(dimensionDoor));
 }

@@ -43,9 +43,14 @@ TeamState * CNonConstInfoCallback::getPlayerTeam(const PlayerColor & color)
 	return const_cast<TeamState*>(CGameInfoCallback::getPlayerTeam(color));
 }
 
-PlayerState * CNonConstInfoCallback::getPlayerState(const PlayerColor & color, bool verbose)
+PlayerState * CNonConstInfoCallback::getPlayerState(const PlayerColor & color)
 {
-	return const_cast<PlayerState*>(CGameInfoCallback::getPlayerState(color, verbose));
+	return const_cast<PlayerState*>(CGameInfoCallback::getPlayerState(color));
+}
+
+PlayerState * CNonConstInfoCallback::tryGetPlayerState(const PlayerColor & color)
+{
+	return const_cast<PlayerState*>(CGameInfoCallback::tryGetPlayerState(color));
 }
 
 CArtifactInstance * CNonConstInfoCallback::getArtInstance(const ArtifactInstanceID & aid)

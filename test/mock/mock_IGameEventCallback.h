@@ -37,6 +37,7 @@ public:
 	std::vector<BlockingDialog>         blockingDialogs;
 	std::vector<InfoWindow>             infoWindows;
 	std::vector<AddQuest>               addedQuests;
+	std::vector<Component>              questHintComponents; ///< components of the last setQuestHint()
 	JsonNode                            visitState; ///< last setVisitState(), handed back by QuestTest::answerDialog
 	bool                                experienceGranted = false; ///< giveExperience() owes the object experienceApplied()
 
@@ -52,7 +53,8 @@ public:
 	void showInfoDialog(InfoWindow * iw) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
-	void setQuestHintText(ObjectInstanceID, const MetaString &) override {}
+	void setQuestHint(ObjectInstanceID, const MetaString &, const std::vector<Component> & components) override { questHintComponents = components; }
+	void disableMapEvent(ObjectInstanceID, const std::string &) override {}
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;
 	void showBlockingDialog(BlockingDialog * iw) override;
 	void setVisitState(const CGHeroInstance * hero, const JsonNode & state) override { visitState = state; }
@@ -63,6 +65,7 @@ public:
 	bool changeStackCount(const StackLocation & sl, TQuantity count, ChangeValueMode mode) override;
 	bool eraseStack(const StackLocation & sl, bool forceRemoval) override;
 	void removeAfterVisit(const ObjectInstanceID & id) override;
+	bool isObjectBeingVisited(const ObjectInstanceID &) const override { return false; }
 	void removeArtifact(const ArtifactLocation & al) override;
 	void sendAndApply(CPackForClient & pack) override;
 	vstd::RNG & getRandomGenerator() override;
@@ -79,7 +82,7 @@ public:
 	void setOwner(const CGObjectInstance *, PlayerColor) override {}
 	void changePrimSkill(const CGHeroInstance *, PrimarySkill, si64, ChangeValueMode) override {}
 	void changeSecSkill(const CGHeroInstance *, SecondarySkill, int, ChangeValueMode) override {}
-	void showGarrisonDialog(ObjectInstanceID, ObjectInstanceID, bool, const MetaString &) override {}
+	void showGarrisonDialog(ObjectInstanceID, ObjectInstanceID, const MetaString &) override {}
 	void showTeleportDialog(TeleportDialog *) override {}
 	void showObjectWindow(const CGObjectInstance *, EOpenWindowMode, const CGHeroInstance *, bool) override {}
 	void giveCreatures(const CGHeroInstance *, const CCreatureSet &) override {}

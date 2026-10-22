@@ -245,3 +245,17 @@ INSTANTIATE_TEST_SUITE_P(Actions, ActionEventTest, ::testing::Values(
 	}}
 ),
 	[](const ::testing::TestParamInfo<ActionEventCase> & info) { return info.param.name; });
+
+TEST_F(CombatEventTriggerTest, refusedWalkFiresNoMoveEvent)
+{
+	startGame();
+	startBattle();
+
+	CStack * unit = addStack(BattleSide::ATTACKER, CreatureID(pikeman), BattleHex(3, 5), 10);
+	reactWithMarker(unit, CombatEventType::BEFORE_MOVE, 1);
+	reactWithMarker(unit, CombatEventType::AFTER_MOVE, 2);
+
+	// out of the reach of a pikeman
+	ASSERT_FALSE(act(BattleAction::makeMove(unit, BattleHex(9, 5))));
+	EXPECT_EQ(markersOf(unit), 0);
+}

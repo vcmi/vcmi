@@ -36,14 +36,12 @@ void CreatureCostBox::createItems(TResources res)
 
 	OBJECT_CONSTRUCTION;
 
-	TResources::nziterator iter(res);
-	while(iter.valid())
+	for(const auto & [resource, amount] : res.nonZeroEntries())
 	{
-		auto image = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), iter->resType.getNum());
+		auto image = std::make_shared<CAnimImage>(AnimationPath::builtin("RESOURCE"), resource.getNum());
 		auto text = std::make_shared<CLabel>(15, 43, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, "0");
 
-		resources.insert(std::make_pair(iter->resType, std::make_pair(text, image)));
-		iter++;
+		resources.insert(std::make_pair(resource, std::make_pair(text, image)));
 	}
 
 	if(!resources.empty())

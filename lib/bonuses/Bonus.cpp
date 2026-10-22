@@ -55,7 +55,7 @@ std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32>
 				descriptionHelper.appendTextID(sid.as<HeroTypeID>().toEntity(LIBRARY)->getNameTextID());
 				break;
 			case BonusSource::OBJECT_INSTANCE:
-				const auto * object = cb->getObj(sid.as<ObjectInstanceID>());
+				const auto * object = cb->tryGetObj(sid.as<ObjectInstanceID>());
 				if (object)
 					descriptionHelper.appendTextID(object->getObjectNameTextID());
 		}

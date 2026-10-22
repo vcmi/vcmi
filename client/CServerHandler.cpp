@@ -216,8 +216,10 @@ void CServerHandler::startLocalServerAndConnect(bool connectToLobby)
 
 	auto si = std::make_shared<StartInfo>();
 
-	auto lastDifficulty = settings["general"]["lastDifficulty"];
-	si->difficulty = lastDifficulty.Integer();
+	if (loadMode == ELoadMode::TUTORIAL)
+		si->difficulty = static_cast<ui8>(EMapDifficulty::EASY);
+	else
+		si->difficulty = settings["general"]["lastDifficulty"].Integer();
 
 	logNetwork->trace("\tStarting local server");
 	serverRunner->start(loadMode == ELoadMode::MULTI, connectToLobby, si);
@@ -654,6 +656,13 @@ void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 	if(verify)
 		verifyStateBeforeStart(allowOnlyAI ? true : settings["session"]["onlyai"].Bool());
 
+	// sent first, so that the server prepares the game while loading screen is constructed
+	LobbyPrepareStartGame lpsg;
+	sendLobbyPack(lpsg);
+
+	LobbyStartGame lsg;
+	sendLobbyPack(lsg);
+
 	if(!settings["session"]["headless"].Bool())
 	{
 		if(si->campState && !si->campState->getLoadingBackground().empty())
@@ -661,12 +670,6 @@ void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 		else
 			ENGINE->windows().createAndPushWindow<CLoadingScreen>();
 	}
-	
-	LobbyPrepareStartGame lpsg;
-	sendLobbyPack(lpsg);
-
-	LobbyStartGame lsg;
-	sendLobbyPack(lsg);
 }
 
 void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)

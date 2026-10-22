@@ -1293,6 +1293,7 @@ struct DLL_LINKAGE SetQuestHint : public CPackForClient
 {
 	ObjectInstanceID object;
 	MetaString hint;
+	std::vector<Component> components;
 
 	SetQuestHint() = default;
 
@@ -1302,6 +1303,25 @@ struct DLL_LINKAGE SetQuestHint : public CPackForClient
 	{
 		h & object;
 		h & hint;
+		h & components;
+	}
+};
+
+/// Turns off a scripted timed event, so it no longer occurs
+struct DLL_LINKAGE DisableMapEvent : public CPackForClient
+{
+	/// Town that owns the event, or NONE for player events of the map
+	ObjectInstanceID town;
+	std::string scriptHandler;
+
+	DisableMapEvent() = default;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler & h)
+	{
+		h & town;
+		h & scriptHandler;
 	}
 };
 
@@ -1452,7 +1472,6 @@ struct DLL_LINKAGE GarrisonDialog : public Question
 {
 	ObjectInstanceID objid;
 	ObjectInstanceID hid;
-	bool removableUnits = false;
 	MetaString customTitle;
 
 	void visitTyped(ICPackVisitor & visitor) override;
@@ -1462,7 +1481,11 @@ struct DLL_LINKAGE GarrisonDialog : public Question
 		h & questionID;
 		h & objid;
 		h & hid;
-		h & removableUnits;
+		if (!h.hasFeature(Handler::Version::GARRISON_DIALOG_REMOVABLE_UNITS_REMOVED))
+		{
+			bool removableUnits = false;
+			h & removableUnits;
+		}
 		if (h.hasFeature(Handler::Version::CUSTOM_GARRISON_TITLE))
 			h & customTitle;
 	}

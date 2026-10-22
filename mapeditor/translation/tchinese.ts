@@ -53,7 +53,7 @@
         <location filename="../inspector/artifactwidget.ui" line="29"/>
         <location filename="../inspector/artifactwidget.ui" line="44"/>
         <source>Artifact</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
         <location filename="../inspector/artifactwidget.ui" line="57"/>
@@ -122,7 +122,7 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="139"/>
         <source>Save as...</source>
-        <translation>另存新檔</translation>
+        <translation>另存為⋯</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="142"/>
@@ -150,12 +150,12 @@
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="186"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.ui" line="189"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../campaigneditor/campaigneditor.cpp" line="82"/>
@@ -409,7 +409,7 @@
     <name>EditorMainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="530"/>
+        <location filename="../mainwindow.cpp" line="538"/>
         <source>VCMI Map Editor</source>
         <translation>VCMI地圖編輯器</translation>
     </message>
@@ -522,7 +522,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1049"/>
         <source>More...</source>
-        <translation>更多</translation>
+        <translation>更多⋯</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1057"/>
@@ -547,7 +547,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1073"/>
         <source>Save as...</source>
-        <translation>另存新檔</translation>
+        <translation>另存為⋯</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1076"/>
@@ -715,7 +715,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1257"/>
-        <location filename="../mainwindow.cpp" line="1592"/>
+        <location filename="../mainwindow.cpp" line="1601"/>
         <source>Select map layer type</source>
         <translation>選擇地圖層級類型</translation>
     </message>
@@ -727,16 +727,16 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1268"/>
-        <location filename="../mainwindow.cpp" line="1532"/>
-        <location filename="../mainwindow.cpp" line="1547"/>
+        <location filename="../mainwindow.cpp" line="1541"/>
+        <location filename="../mainwindow.cpp" line="1556"/>
         <source>Add level</source>
-        <translation type="unfinished"></translation>
+        <translation>新增層級</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1276"/>
-        <location filename="../mainwindow.cpp" line="1441"/>
-        <location filename="../mainwindow.cpp" line="1445"/>
-        <location filename="../mainwindow.cpp" line="1503"/>
+        <location filename="../mainwindow.cpp" line="1450"/>
+        <location filename="../mainwindow.cpp" line="1454"/>
+        <location filename="../mainwindow.cpp" line="1512"/>
         <source>Update appearance</source>
         <translation>更新外觀</translation>
     </message>
@@ -828,7 +828,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1383"/>
         <source>Export as...</source>
-        <translation>匯出為</translation>
+        <translation>匯出為⋯</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1386"/>
@@ -870,12 +870,12 @@
     <message>
         <location filename="../mainwindow.ui" line="1424"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1427"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1432"/>
@@ -947,308 +947,310 @@ For the best experience, we recommend using the map editor on a tablet (or with 
 為獲得最佳體驗，建議在平板裝置上使用地圖編輯器（或搭配滑鼠/手寫筆）。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="496"/>
+        <location filename="../mainwindow.cpp" line="504"/>
         <source>Confirmation</source>
         <translation>確認</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="496"/>
+        <location filename="../mainwindow.cpp" line="504"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>未儲存的變更將會遺失，您確定要這麼做嗎？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1520"/>
-        <location filename="../mainwindow.cpp" line="1609"/>
+        <location filename="../mainwindow.cpp" line="1529"/>
+        <location filename="../mainwindow.cpp" line="1618"/>
         <source>Level %1: %2</source>
         <translation>層級%1：%2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="589"/>
+        <location filename="../mainwindow.cpp" line="597"/>
         <source>Mods are required</source>
         <translation>需要模組</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="597"/>
-        <location filename="../mainwindow.cpp" line="603"/>
+        <location filename="../mainwindow.cpp" line="605"/>
+        <location filename="../mainwindow.cpp" line="611"/>
         <source>Failed to open map</source>
         <translation>開啟地圖失敗</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="634"/>
+        <location filename="../mainwindow.cpp" line="642"/>
         <source>Open map</source>
         <translation>開啟地圖</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="636"/>
+        <location filename="../mainwindow.cpp" line="644"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>所有支援的地圖類型(*.vmap *.h3m);;VCMI地圖(*.vmap);;英雄無敵3地圖(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="691"/>
+        <location filename="../mainwindow.cpp" line="699"/>
         <source>Recently Opened Files</source>
         <translation>最近開啟檔案</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="744"/>
+        <location filename="../mainwindow.cpp" line="752"/>
         <source>Map validation</source>
         <translation>地圖驗證</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="746"/>
+        <location filename="../mainwindow.cpp" line="754"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation>地圖有致命問題，很可能無法遊玩。開啟地圖選單的驗證功能以定位問題</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="748"/>
+        <location filename="../mainwindow.cpp" line="756"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation>地圖有一些錯誤，開啟地圖選單的驗證功能以定位問題</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="775"/>
+        <location filename="../mainwindow.cpp" line="783"/>
         <source>Failed to save map</source>
         <translation>儲存地圖失敗</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="788"/>
+        <location filename="../mainwindow.cpp" line="796"/>
         <source>Save map</source>
         <translation>儲存地圖</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="789"/>
+        <location filename="../mainwindow.cpp" line="797"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>VCMI地圖(*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1004"/>
+        <location filename="../mainwindow.cpp" line="1013"/>
         <source>Type</source>
         <translation>類型</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1017"/>
+        <location filename="../mainwindow.cpp" line="1026"/>
         <source>Towns</source>
         <translation>城鎮</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1018"/>
+        <location filename="../mainwindow.cpp" line="1027"/>
         <source>Objects</source>
         <translation>物體</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1019"/>
+        <location filename="../mainwindow.cpp" line="1028"/>
         <source>Heroes</source>
         <translation>英雄</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1020"/>
+        <location filename="../mainwindow.cpp" line="1029"/>
         <source>Artifacts</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1021"/>
+        <location filename="../mainwindow.cpp" line="1030"/>
         <source>Resources</source>
         <translation>資源</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1022"/>
+        <location filename="../mainwindow.cpp" line="1031"/>
         <source>Banks</source>
         <translation>寶屋</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1023"/>
+        <location filename="../mainwindow.cpp" line="1032"/>
         <source>Dwellings</source>
         <translation>巢穴</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1024"/>
+        <location filename="../mainwindow.cpp" line="1033"/>
         <source>Grounds</source>
         <translation>地面</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1025"/>
+        <location filename="../mainwindow.cpp" line="1034"/>
         <source>Teleports</source>
         <translation>傳送門</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1026"/>
+        <location filename="../mainwindow.cpp" line="1035"/>
         <source>Mines</source>
         <translation>礦井</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1027"/>
+        <location filename="../mainwindow.cpp" line="1036"/>
         <source>Triggers</source>
         <translation>觸發器</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1028"/>
+        <location filename="../mainwindow.cpp" line="1037"/>
         <source>Monsters</source>
         <translation>怪物</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1029"/>
+        <location filename="../mainwindow.cpp" line="1038"/>
         <source>Quests</source>
         <translation>任務</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1030"/>
+        <location filename="../mainwindow.cpp" line="1039"/>
         <source>Wog Objects</source>
         <translation>Wog物體</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1031"/>
+        <location filename="../mainwindow.cpp" line="1040"/>
         <source>Obstacles</source>
         <translation>障礙物</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1032"/>
+        <location filename="../mainwindow.cpp" line="1041"/>
         <source>Other</source>
         <translation>其他</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1169"/>
+        <location filename="../mainwindow.cpp" line="1178"/>
         <source>Mods loading problem</source>
         <translation>模組載入遇到問題</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1169"/>
+        <location filename="../mainwindow.cpp" line="1178"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation>載入模組時遇到致命錯誤，請停用無效模組後重新啟動。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1175"/>
+        <location filename="../mainwindow.cpp" line="1184"/>
         <source>Undo clicked</source>
         <translation>已復原</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1186"/>
+        <location filename="../mainwindow.cpp" line="1195"/>
         <source>Redo clicked</source>
         <translation>已重做</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1197"/>
+        <location filename="../mainwindow.cpp" line="1206"/>
         <source>Passability clicked</source>
         <translation>開關通行性</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1210"/>
+        <location filename="../mainwindow.cpp" line="1219"/>
         <source>Grid clicked</source>
         <translation>觸發網格</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1291"/>
+        <location filename="../mainwindow.cpp" line="1300"/>
         <source>Fill clicked</source>
         <translation>觸發填充</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1441"/>
+        <location filename="../mainwindow.cpp" line="1450"/>
         <source>No objects selected</source>
         <translation>未選擇任何物體</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1445"/>
+        <location filename="../mainwindow.cpp" line="1454"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>此操作無法被復原，您確定要繼續嗎？</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1503"/>
+        <location filename="../mainwindow.cpp" line="1512"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>發生錯誤！%1 個物體未完成更新</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1532"/>
+        <location filename="../mainwindow.cpp" line="1541"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>該地圖已達到編輯器支援的最大層數。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1548"/>
+        <location filename="../mainwindow.cpp" line="1557"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇新層級的類型。
+
+警告：層級新增後便無法刪除。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1593"/>
+        <location filename="../mainwindow.cpp" line="1602"/>
         <source>Type:</source>
         <translation>類型：</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1654"/>
+        <location filename="../mainwindow.cpp" line="1663"/>
         <source>Image format</source>
         <translation>圖像格式</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1655"/>
+        <location filename="../mainwindow.cpp" line="1664"/>
         <source>Select image format:</source>
         <translation>選擇圖像格式：</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1669"/>
-        <location filename="../mainwindow.cpp" line="1673"/>
+        <location filename="../mainwindow.cpp" line="1678"/>
+        <location filename="../mainwindow.cpp" line="1682"/>
         <source>Save to image</source>
         <translation>儲存為圖片</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1715"/>
+        <location filename="../mainwindow.cpp" line="1724"/>
         <source>Failed to save image</source>
         <translation>未能儲存圖像</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1715"/>
+        <location filename="../mainwindow.cpp" line="1724"/>
         <source>Cannot save image to %1.</source>
         <translation>無法儲存圖像至%1。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1735"/>
+        <location filename="../mainwindow.cpp" line="1744"/>
         <source>Select maps to convert</source>
         <translation>選擇待轉換的地圖</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1737"/>
+        <location filename="../mainwindow.cpp" line="1746"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>英雄無敵3地圖檔案(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1743"/>
-        <location filename="../mainwindow.cpp" line="1750"/>
+        <location filename="../mainwindow.cpp" line="1752"/>
+        <location filename="../mainwindow.cpp" line="1759"/>
         <source>Choose directory to save converted maps</source>
         <translation>選擇儲存轉換地圖的目錄</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1745"/>
+        <location filename="../mainwindow.cpp" line="1754"/>
         <source>Directory</source>
         <translation>目錄</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1766"/>
+        <location filename="../mainwindow.cpp" line="1775"/>
         <source>Operation completed</source>
         <translation>操作完成</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1766"/>
+        <location filename="../mainwindow.cpp" line="1775"/>
         <source>Successfully converted %1 maps</source>
         <translation>成功轉換 %1 張地圖</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1770"/>
+        <location filename="../mainwindow.cpp" line="1779"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>轉換地圖失敗，操作終止</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1778"/>
+        <location filename="../mainwindow.cpp" line="1787"/>
         <source>Select campaign to convert</source>
         <translation>選擇待轉換的戰役</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1779"/>
+        <location filename="../mainwindow.cpp" line="1788"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation>英雄無敵3戰役檔案(*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1785"/>
+        <location filename="../mainwindow.cpp" line="1794"/>
         <source>Select destination file</source>
         <translation>選擇目標檔案</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1786"/>
+        <location filename="../mainwindow.cpp" line="1795"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation>VCMI戰役檔案(*.vcmp)</translation>
     </message>
@@ -1365,7 +1367,7 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="29"/>
         <source>Artifacts</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="71"/>
@@ -1385,7 +1387,7 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="135"/>
         <source>Artifact</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
         <location filename="../inspector/heroartifactswidget.ui" line="158"/>
@@ -1523,27 +1525,27 @@ Warning: levels cannot be removed once added.</source>
         <translation>參數</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="38"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="39"/>
         <source>No special loss</source>
         <translation>沒有特殊失敗條件</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="39"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="40"/>
         <source>Lose castle</source>
         <translation>失去城鎮</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="40"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="41"/>
         <source>Lose hero</source>
         <translation>失去英雄</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="41"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="42"/>
         <source>Time expired</source>
         <translation>超過時限</translation>
     </message>
     <message>
-        <location filename="../mapsettings/loseconditions.cpp" line="42"/>
+        <location filename="../mapsettings/loseconditions.cpp" line="43"/>
         <source>Days without town</source>
         <translation>無城鎮超過特定天數</translation>
     </message>
@@ -1589,22 +1591,22 @@ Do you want to do that now ?</source>
         <location filename="../maplayerselectiondialog.ui" line="20"/>
         <location filename="../maplayerselectiondialog.cpp" line="29"/>
         <source>Map Layer Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>地圖圖層配置</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Level</source>
-        <translation type="unfinished">等級</translation>
+        <translation>層級</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Map Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>地圖圖層</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="47"/>
         <source>Level %1</source>
-        <translation type="unfinished"></translation>
+        <translation>第 %1 層</translation>
     </message>
 </context>
 <context>
@@ -1662,7 +1664,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="249"/>
         <source>Artifacts</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
         <location filename="../mapsettings/mapsettings.ui" line="284"/>
@@ -1737,7 +1739,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="68"/>
         <source>Set required mods based on objects placed on the map. This method may cause problems if you have customized rewards, garrisons, etc from mods</source>
-        <translation>按照放置在地圖上的物體設定依賴模組，如果您設定了模組相關的獎勵、部隊等，可能會出現問題。</translation>
+        <translation>根據地圖上放置的物件自動設定所需的模組。若你有自訂來自模組的獎勵、駐軍等內容，此方法可能會引發問題。</translation>
     </message>
     <message>
         <location filename="../mapsettings/modsettings.ui" line="71"/>
@@ -1849,7 +1851,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="112"/>
         <source>Random artifact</source>
-        <translation>隨機寶物</translation>
+        <translation>隨機神器</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="113"/>
@@ -1859,7 +1861,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="114"/>
         <source>Quest artifact</source>
-        <translation>任務寶物</translation>
+        <translation>任務神器</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="115"/>
@@ -2216,7 +2218,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/inspector.cpp" line="342"/>
         <source>Artifacts</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="362"/>
@@ -2320,46 +2322,46 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="452"/>
         <location filename="../inspector/inspector.cpp" line="839"/>
         <source>Aggression</source>
-        <translation type="unfinished"></translation>
+        <translation>侵略性</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="453"/>
         <location filename="../inspector/inspector.cpp" line="841"/>
         <source>Join only for money</source>
-        <translation type="unfinished"></translation>
+        <translation>只為錢而加入</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="454"/>
         <location filename="../inspector/inspector.cpp" line="843"/>
         <source>Joining percentage</source>
-        <translation type="unfinished"></translation>
+        <translation>加入成功率</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="458"/>
         <location filename="../inspector/inspector.cpp" line="845"/>
         <source>Upgraded stack</source>
-        <translation type="unfinished"></translation>
+        <translation>升級後的部隊</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="460"/>
         <location filename="../inspector/inspector.cpp" line="847"/>
         <source>Stacks count</source>
-        <translation type="unfinished"></translation>
+        <translation>部隊數量</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="461"/>
         <source>Artifact reward</source>
-        <translation>寶物獎勵</translation>
+        <translation>神器獎勵</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1038"/>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>永不</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1039"/>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>總是</translation>
     </message>
     <message>
         <source>Abilities</source>
@@ -2553,7 +2555,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="817"/>
         <source>Artifacts: %1</source>
-        <translation>寶物：%1</translation>
+        <translation>神器：%1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="823"/>
@@ -2690,23 +2692,38 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../helper.cpp" line="96"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>關閉</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.cpp" line="216"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>無效</translation>
     </message>
     <message>
-        <location filename="../mapsettings/abstractsettings.cpp" line="116"/>
+        <location filename="../mapsettings/abstractsettings.cpp" line="77"/>
         <source>Hero placeholder (power rank %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄佔位符（戰力排名 %1）</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1037"/>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
-        <translation type="unfinished">隨機</translation>
+        <translation>隨機</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/loseconditions.cpp" line="293"/>
+        <source>Day</source>
+        <translation>日</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/loseconditions.cpp" line="298"/>
+        <source>Week</source>
+        <translation>週</translation>
+    </message>
+    <message>
+        <location filename="../mapsettings/loseconditions.cpp" line="303"/>
+        <source>Month</source>
+        <translation>月</translation>
     </message>
 </context>
 <context>
@@ -2719,32 +2736,32 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/questwidget.ui" line="37"/>
         <source>Delete</source>
-        <translation type="unfinished">刪除</translation>
+        <translation>刪除</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
         <source>First Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>初次到訪</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="94"/>
         <source>Next Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>下次到訪</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="116"/>
         <source>Completed</source>
-        <translation type="unfinished"></translation>
+        <translation>已完成</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="148"/>
         <source>Repeatable</source>
-        <translation type="unfinished"></translation>
+        <translation>可重複的</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="158"/>
         <source>Set Deadline</source>
-        <translation type="unfinished"></translation>
+        <translation>設定截止日期</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="179"/>
@@ -2819,7 +2836,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/questwidget.ui" line="489"/>
         <source>Artifacts</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="521"/>
@@ -2875,7 +2892,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/questwidget.cpp" line="303"/>
         <source>%1 quest on position %2</source>
-        <translation type="unfinished"></translation>
+        <translation>位於 %2 的 %1 任務</translation>
     </message>
 </context>
 <context>
@@ -3057,7 +3074,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../inspector/rewardswidget.ui" line="573"/>
         <location filename="../inspector/rewardswidget.ui" line="1277"/>
         <source>Artifacts</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="605"/>
@@ -3231,12 +3248,12 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="96"/>
         <source>Import...</source>
-        <translation>匯入</translation>
+        <translation>匯入⋯</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="103"/>
         <source>Export...</source>
-        <translation>匯出</translation>
+        <translation>匯出⋯</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="110"/>
@@ -3337,7 +3354,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="398"/>
         <source>Artifacts</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="431"/>
@@ -3352,7 +3369,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="465"/>
         <source>Crossover artifacts</source>
-        <translation>跨場景寶物</translation>
+        <translation>跨場景神器</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="494"/>
@@ -3404,12 +3421,12 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="584"/>
         <source>Add...</source>
-        <translation>新增</translation>
+        <translation>新增⋯</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.ui" line="591"/>
         <source>Edit...</source>
-        <translation>編輯</translation>
+        <translation>編輯⋯</translation>
     </message>
     <message>
         <location filename="../campaigneditor/scenarioproperties.cpp" line="126"/>
@@ -3489,27 +3506,27 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished"></translation>
+        <translation>學者</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">隨機</translation>
+        <translation>隨機</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="105"/>
         <source>Primary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>主要屬性</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="138"/>
         <source>Secondary Skill</source>
-        <translation type="unfinished"></translation>
+        <translation>輔助技能</translation>
     </message>
     <message>
         <location filename="../inspector/scholarwidget.ui" line="174"/>
         <source>Spell</source>
-        <translation type="unfinished">魔法</translation>
+        <translation>法術</translation>
     </message>
 </context>
 <context>
@@ -3517,7 +3534,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="158"/>
         <source>Can&apos;t open editor!</source>
-        <translation type="unfinished"></translation>
+        <translation>無法開啟編輯器！</translation>
     </message>
 </context>
 <context>
@@ -3525,27 +3542,27 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished"></translation>
+        <translation>學者</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">隨機</translation>
+        <translation>隨機</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="111"/>
         <source>Spell</source>
-        <translation type="unfinished">魔法</translation>
+        <translation>法術</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="77"/>
         <source>MapEditor was unable to read intended spell level for this shrine type</source>
-        <translation type="unfinished"></translation>
+        <translation>地圖編輯器無法讀取此神殿類型預定的法術等級</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="92"/>
         <source>Intended spell level %1 for this shrine type is invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>此神殿類型預定的法術等級 %1 無效</translation>
     </message>
 </context>
 <context>
@@ -3587,7 +3604,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../campaigneditor/startingbonus.ui" line="214"/>
         <location filename="../campaigneditor/startingbonus.ui" line="230"/>
         <source>Artifact</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="55"/>
@@ -3735,7 +3752,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="370"/>
         <source>%1 artifact for %2</source>
-        <translation>%2的%1寶物</translation>
+        <translation>%2 的 %1 神器</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.cpp" line="375"/>
@@ -3891,7 +3908,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="517"/>
         <source>Banned Artifacts</source>
-        <translation>已禁用寶物</translation>
+        <translation>已禁用神器</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="524"/>
@@ -4107,7 +4124,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1369"/>
         <source>Save as...</source>
-        <translation>另存新檔</translation>
+        <translation>另存為⋯</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1372"/>
@@ -4183,12 +4200,12 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1436"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.ui" line="1439"/>
         <source>Ctrl+Q</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="254"/>
@@ -4906,7 +4923,7 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="85"/>
         <source>Artifact Selector</source>
-        <translation>寶物選擇器</translation>
+        <translation>神器選擇器</translation>
     </message>
     <message>
         <location filename="../templateeditor/entitiesselector.cpp" line="89"/>
@@ -4954,7 +4971,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="91"/>
         <source>Object&apos;s %1 visitable position %2 is outside of the map bounds</source>
-        <translation type="unfinished"></translation>
+        <translation>物件的 %1 可訪問位置 %2 超出了地圖邊界</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="100"/>
@@ -5004,42 +5021,42 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="157"/>
         <source>Artifact %1 is prohibited by map settings</source>
-        <translation>寶物 %1 被地圖設定禁止</translation>
+        <translation>神器 %1 被地圖設定禁止</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="166"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>位於第 %3 層 x: %1 y: %2 的女巫小屋包含無效的獎勵。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="171"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>位於第 %3 層 x: %1 y: %2 的女巫小屋無法被編輯器驗證。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="184"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>位於第 %3 層 x: %1 y: %2 的學者包含無效的獎勵。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="190"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>位於第 %3 層 x: %1 y: %2 的學者會傳授地圖設定所禁止的獎勵，是故意這樣設定的嗎？</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="196"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>位於第 %3 層 x: %1 y: %2 的學者無法被編輯器驗證。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="207"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
-        <translation type="unfinished"></translation>
+        <translation>位於第 %3 層 x: %1 y: %2 的神殿包含無效的法術。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="213"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>位於第 %3 層 x: %1 y: %2 的神殿會傳授地圖設定所禁止的獎勵，是故意這樣設定的嗎？</translation>
     </message>
     <message>
         <source>A customized witch hut at x: %1 y: %2 on %3 layer does not hold a valid secondary skill</source>
@@ -5068,22 +5085,22 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="254"/>
         <source>defeat a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>擊敗特定英雄</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="255"/>
         <source>lose a specific hero</source>
-        <translation type="unfinished"></translation>
+        <translation>失去特定英雄</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="258"/>
         <source>hero placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄佔位符</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="260"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>觸發事件「%1」在 %4 針對 %3 使用了 %2 條件。這種設定相當罕見且應儘量避免；地圖仍可正常遊玩，但除非支援佔位符替換，否則該條件將無法生效。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="273"/>
@@ -5136,7 +5153,7 @@ Guard: %3</source>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="43"/>
         <source>Capture artifact</source>
-        <translation>獲取寶物</translation>
+        <translation>獲取神器</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="44"/>
@@ -5166,7 +5183,7 @@ Guard: %3</source>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="49"/>
         <source>Transport artifact</source>
-        <translation>運送寶物</translation>
+        <translation>運送神器</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="50"/>
@@ -5176,7 +5193,7 @@ Guard: %3</source>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="51"/>
         <source>Capture all mines</source>
-        <translation type="unfinished"></translation>
+        <translation>控制所有礦坑</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="454"/>
@@ -5259,7 +5276,7 @@ Guard: %3</source>
     <message>
         <location filename="../windownewmap.ui" line="326"/>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>圖層</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="358"/>

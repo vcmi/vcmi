@@ -41,7 +41,7 @@ public:
 	const IGameInfoCallback * getCb() const override;
 	bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) override;
 	void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) override;
-	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) override;
+	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, const MetaString & customTitle) override;
 	void askToSelectTown(const MapObjectSelectDialog & request, SpellID spell, ObjectInstanceID caster) override;
 private:
 	CGameHandler * gh;

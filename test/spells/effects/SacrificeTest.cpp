@@ -34,6 +34,15 @@ public:
 	{
 	}
 
+	/// The victim is not hypnotized, so the caster controls it
+	void expectControlledByCaster(battle::UnitFake & victim)
+	{
+		const PlayerColor caster(0);
+		EXPECT_CALL(victim, isHypnotized()).WillRepeatedly(Return(false));
+		EXPECT_CALL(*battleFake, getSidePlayer(BattleSide::ATTACKER)).WillRepeatedly(Return(caster));
+		EXPECT_CALL(mechanicsMock, getCasterColor()).WillRepeatedly(Return(caster));
+	}
+
 protected:
 	void SetUp() override
 	{
@@ -42,6 +51,7 @@ protected:
 		{
 			JsonNode config;
 			config["healLevel"].String() = "resurrect";
+			config["healPower"].String() = "permanent";
 			EffectFixture::setupEffect(config);
 		}
 	}
@@ -80,6 +90,7 @@ TEST_F(SacrificeTest, ApplicableForTwoTargets)
 
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&victim))).Times(AtLeast(1)).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&victim))).Times(AtLeast(1)).WillRepeatedly(Return(true));
+	expectControlledByCaster(victim);
 
 
 	Target aimPoint;
@@ -121,61 +132,14 @@ TEST_F(SacrificeTest, NotApplicableWhenVictimHexIsEmpty)
 	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, transformed));
 }
 
-#if 0
-
-TEST_F(SacrificeTest, NotApplicableWithoutVictim)
-{
-	{
-		JsonNode config(JsonNode::JsonType::DATA_STRUCT);
-		config["healLevel"].String() = "resurrect";
-		EffectFixture::setupEffect(config);
-	}
-
-	auto & unit = unitsFake.add(BattleSide::ATTACKER);
-
-	EXPECT_CALL(unit, getPosition()).WillRepeatedly(Return(BattleHex(5,5)));
-	EXPECT_CALL(unit, isValidTarget(Eq(false))).WillRepeatedly(Return(false));
-	EXPECT_CALL(unit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
-
-	EXPECT_CALL(unit, getTotalHealth()).WillRepeatedly(Return(0));
-	EXPECT_CALL(unit, getAvailableHealth()).WillRepeatedly(Return(200));
-
-	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
-	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(false));
-	EXPECT_CALL(mechanicsMock, alwaysHitFirstTarget()).WillRepeatedly(Return(false));
-
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillRepeatedly(Return(true));
-	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&unit))).WillRepeatedly(Return(true));
-
-	Target aimPoint;
-	aimPoint.emplace_back(&unit, BattleHex());
-
-	Target transformed = subject->transformTarget(&mechanicsMock, aimPoint, aimPoint);
-
-	EXPECT_FALSE(subject->applicable(problemMock, &mechanicsMock, transformed));
-}
-
-#endif
-
 struct AdjustTargetTypesParam
 {
 	std::vector<TargetType> input;
 	std::vector<TargetType> expected;
 };
 
-class SacrificeAdjustTargetTypesTest : public TestWithParam<AdjustTargetTypesParam>, public EffectFixture
+class SacrificeAdjustTargetTypesTest : public SacrificeTest, public WithParamInterface<AdjustTargetTypesParam>
 {
-public:
-	SacrificeAdjustTargetTypesTest() : EffectFixture("core:sacrifice") {}
-
-protected:
-	void SetUp() override
-	{
-		EffectFixture::setUp();
-		JsonNode config;
-		config["healLevel"].String() = "resurrect";
-		EffectFixture::setupEffect(config);
-	}
 };
 
 TEST_P(SacrificeAdjustTargetTypesTest, AdjustsCorrectly)
@@ -197,19 +161,8 @@ INSTANTIATE_TEST_SUITE_P(
 	)
 );
 
-class SacrificeApplicableGeneralTest : public Test, public EffectFixture
+class SacrificeApplicableGeneralTest : public SacrificeTest
 {
-public:
-	SacrificeApplicableGeneralTest() : EffectFixture("core:sacrifice") {}
-
-protected:
-	void SetUp() override
-	{
-		EffectFixture::setUp();
-		JsonNode config;
-		config["healLevel"].String() = "resurrect";
-		EffectFixture::setupEffect(config);
-	}
 };
 
 TEST_F(SacrificeApplicableGeneralTest, ReturnsFalseWhenNoValidTargets)
@@ -243,6 +196,22 @@ TEST_F(SacrificeApplicableGeneralTest, ReturnsFalseWhenNoInjuredUnits)
 	EXPECT_FALSE(subject->applicableGeneral(problemMock, &mechanicsMock));
 }
 
+TEST_F(SacrificeApplicableGeneralTest, ReturnsFalseWithLoneInjuredUnit)
+{
+	auto & unit = unitsFake.add(BattleSide::ATTACKER);
+	unit.makeAlive();
+	EXPECT_CALL(unit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
+	EXPECT_CALL(unit, getTotalHealth()).WillRepeatedly(Return(100));
+	EXPECT_CALL(unit, getAvailableHealth()).WillRepeatedly(Return(50));
+	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&unit))).WillRepeatedly(Return(true));
+	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&unit))).WillRepeatedly(Return(true));
+
+	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
+	// a unit can not be sacrificed to heal itself
+	EXPECT_CALL(mechanicsMock, adaptProblem(_, _)).WillOnce(Return(false));
+	EXPECT_FALSE(subject->applicableGeneral(problemMock, &mechanicsMock));
+}
+
 TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWithTwoInjuredUnits)
 {
 	auto & injuredUnit1 = unitsFake.add(BattleSide::ATTACKER);
@@ -266,29 +235,6 @@ TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWithTwoInjuredUnits)
 	EXPECT_TRUE(subject->applicableGeneral(problemMock, &mechanicsMock));
 }
 
-TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWithInjuredAndAliveUnits)
-{
-	auto & injuredUnit = unitsFake.add(BattleSide::ATTACKER);
-	injuredUnit.makeAlive();
-	EXPECT_CALL(injuredUnit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
-	EXPECT_CALL(injuredUnit, getTotalHealth()).WillRepeatedly(Return(100));
-	EXPECT_CALL(injuredUnit, getAvailableHealth()).WillRepeatedly(Return(50));
-	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&injuredUnit))).WillRepeatedly(Return(true));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&injuredUnit))).WillRepeatedly(Return(true));
-
-	auto & aliveUnit = unitsFake.add(BattleSide::ATTACKER);
-	aliveUnit.makeAlive();
-	EXPECT_CALL(aliveUnit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
-	EXPECT_CALL(aliveUnit, getTotalHealth()).WillRepeatedly(Return(100));
-	EXPECT_CALL(aliveUnit, getAvailableHealth()).WillRepeatedly(Return(100));
-	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&aliveUnit))).WillRepeatedly(Return(true));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&aliveUnit))).WillRepeatedly(Return(true));
-
-	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
-
-	EXPECT_TRUE(subject->applicableGeneral(problemMock, &mechanicsMock));
-}
-
 TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWithDeadAndAliveUnits)
 {
 	auto & deadUnit = unitsFake.add(BattleSide::ATTACKER);
@@ -304,29 +250,6 @@ TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWithDeadAndAliveUnits)
 	EXPECT_CALL(aliveUnit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
 	EXPECT_CALL(aliveUnit, getTotalHealth()).WillRepeatedly(Return(100));
 	EXPECT_CALL(aliveUnit, getAvailableHealth()).WillRepeatedly(Return(100));
-	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&aliveUnit))).WillRepeatedly(Return(true));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&aliveUnit))).WillRepeatedly(Return(true));
-
-	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(false));
-
-	EXPECT_TRUE(subject->applicableGeneral(problemMock, &mechanicsMock));
-}
-
-TEST_F(SacrificeApplicableGeneralTest, ReturnsTrueWithDeadAndInjuredUnits)
-{
-	auto & deadUnit = unitsFake.add(BattleSide::ATTACKER);
-	deadUnit.makeDead();
-	EXPECT_CALL(deadUnit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
-	EXPECT_CALL(deadUnit, getTotalHealth()).WillRepeatedly(Return(100));
-	EXPECT_CALL(deadUnit, getAvailableHealth()).WillRepeatedly(Return(0));
-	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&deadUnit))).WillRepeatedly(Return(true));
-	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&deadUnit))).WillRepeatedly(Return(true));
-
-	auto & aliveUnit = unitsFake.add(BattleSide::ATTACKER);
-	aliveUnit.makeAlive();
-	EXPECT_CALL(aliveUnit, isValidTarget(Eq(true))).WillRepeatedly(Return(true));
-	EXPECT_CALL(aliveUnit, getTotalHealth()).WillRepeatedly(Return(100));
-	EXPECT_CALL(aliveUnit, getAvailableHealth()).WillRepeatedly(Return(50));
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&aliveUnit))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&aliveUnit))).WillRepeatedly(Return(true));
 
@@ -360,19 +283,8 @@ TEST_F(SacrificeApplicableGeneralTest, ReturnsFalseWhenOnlyCorpseIsCovered)
 	EXPECT_FALSE(subject->applicableGeneral(problemMock, &mechanicsMock));
 }
 
-class SacrificeApplicableTargetTest : public Test, public EffectFixture
+class SacrificeApplicableTargetTest : public SacrificeTest
 {
-public:
-	SacrificeApplicableTargetTest() : EffectFixture("core:sacrifice") {}
-
-protected:
-	void SetUp() override
-	{
-		EffectFixture::setUp();
-		JsonNode config;
-		config["healLevel"].String() = "resurrect";
-		EffectFixture::setupEffect(config);
-	}
 };
 
 TEST_F(SacrificeApplicableTargetTest, ReturnsFalseWhenTargetIsNotInjured)
@@ -461,6 +373,7 @@ TEST_F(SacrificeApplicableTargetTest, ReturnsTrueForInjuredTargetAndOtherVictim)
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&victim))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&victim))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
+	expectControlledByCaster(victim);
 
 	Target target;
 	target.emplace_back(&injuredTarget, BattleHex());
@@ -488,22 +401,10 @@ TEST_F(SacrificeApplicableTargetTest, ReturnsFalseWhenVictimIsTheTarget)
 	EXPECT_FALSE(subject->applicableTarget(problemMock, &mechanicsMock, target));
 }
 
-class SacrificeGetHealthChangeTest : public Test, public EffectFixture
+class SacrificeGetHealthChangeTest : public SacrificeTest
 {
 public:
 	UnitEnvironmentMock unitEnvironmentMock;
-
-	SacrificeGetHealthChangeTest() : EffectFixture("core:sacrifice") {}
-
-protected:
-	void SetUp() override
-	{
-		EffectFixture::setUp();
-		JsonNode config;
-		config["healLevel"].String() = "resurrect";
-		config["healPower"].String() = "permanent";
-		EffectFixture::setupEffect(config);
-	}
 };
 
 TEST_F(SacrificeGetHealthChangeTest, EmptyTargetReturnsZero)
@@ -579,33 +480,10 @@ TEST_F(SacrificeGetHealthChangeTest, VictimSetsHealOfTarget)
 	EXPECT_EQ(result.unitType, static_cast<const Creature *>(CreatureID(unitId).toCreature()));
 }
 
-class SacrificeApplyTest : public Test, public EffectFixture
+class SacrificeApplyTest : public SacrificeTest
 {
 public:
 	UnitEnvironmentMock unitEnvironmentMock;
-
-	SacrificeApplyTest()
-		: EffectFixture("core:sacrifice")
-	{
-	}
-
-	void setDefaultExpectations()
-	{
-
-	}
-
-protected:
-	void SetUp() override
-	{
-		EffectFixture::setUp();
-
-		{
-			JsonNode config;
-			config["healLevel"].String() = "resurrect";
-			config["healPower"].String() = "permanent";
-			EffectFixture::setupEffect(config);
-		}
-	}
 };
 
 TEST_F(SacrificeApplyTest, ResurrectsTarget)
@@ -632,8 +510,6 @@ TEST_F(SacrificeApplyTest, ResurrectsTarget)
 	EXPECT_CALL(targetUnit, creatureId()).WillRepeatedly(Return(CreatureID(unitId)));
 
 	EXPECT_CALL(mechanicsMock, getEffectPower()).Times(AtLeast(1)).WillRepeatedly(Return(effectPower));
-	// NOTE: seems to be incorrect assumption? Sacrifice is not affected by Sorcery, which is what applySpellBonus does
-	//EXPECT_CALL(mechanicsMock, applySpellBonus(_, Eq(&targetUnit))).WillOnce(ReturnArg<0>());
 	EXPECT_CALL(mechanicsMock, calculateRawEffectValue(_,_)).WillOnce(Return(effectValue));
 
 	targetUnit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::CREATURE_ABILITY, unitHP, BonusSourceID()));

@@ -10,8 +10,10 @@
 #pragma once
 
 #include "../../lib/battle/BattleHexArray.h"
+#include "../../lib/battle/actions/ActionOption.h"
 #include "../../lib/Point.h"
 #include "../gui/CIntObject.h"
+#include "../widgets/ControllerPrompt.h"
 
 class CStack;
 class Rect;
@@ -26,6 +28,37 @@ class BattleInterface;
 class BattleFieldController : public CIntObject
 {
 	BattleInterface & owner;
+
+	ControllerPrompt::Renderer promptRenderer;
+	void showControllerPrompts(Canvas & canvas);
+	bool nativeController = true;
+	bool controllerFocusInitialized = false;
+	std::array<double, 2> navigationAxis{};
+	uint32_t navigationRepeat = 0;
+	std::array<double, 2> unitNavigationAxis{};
+	uint32_t unitNavigationRepeat = 0;
+	const CStack * controllerActor = nullptr;
+	int attackDirectionStep = 0;
+	uint32_t attackDirectionRepeat = 0;
+	BattleHex attackDirectionTarget;
+
+	bool usesNativeController() const;
+	bool allowsControllerPrimaryAction() const;
+	void resetControllerPress();
+	void controllerInputCanceled() override;
+	void focusHex(BattleHex hex);
+	void moveControllerFocus();
+	void moveControllerUnitFocus();
+	bool hasControllerAttackDirections() const;
+	bool cycleControllerAttackDirection(int step);
+	bool controllerAxisMoved(EShortcut axis, double value) override;
+	bool translateControllerShortcuts(std::vector<EShortcut> & shortcuts) const override;
+	void keyPressed(EShortcut key) override;
+	void keyReleased(EShortcut key) override;
+	void keyCanceled(EShortcut key) override;
+	void inputModeChanged(InputMode mode) override;
+	void clickReleased(const Point & cursorPosition) override;
+	void activateHoveredHex();
 
 	std::shared_ptr<IImage> background;
 	std::shared_ptr<IImage> cellBorder;
@@ -69,10 +102,15 @@ class BattleFieldController : public CIntObject
 
 	void showHighlightedHex(Canvas & to, std::shared_ptr<IImage> highlight, const BattleHex & hex, bool darkBorder);
 
-	BattleHexArray getHighlightedHexesForActiveStack();
 	BattleHexArray getMovementRangeForHoveredStack();
-	BattleHexArray getHighlightedHexesForSpellRange();
 	BattleHexArray getHighlightedHexesForMovementTarget();
+
+	/// Mask of the directions that the approaches use
+	static std::array<bool, 8> approachDirections(const std::vector<ActionApproach> & approaches);
+	/// Cursor test point of each allowed direction around the hex, invalid for the others
+	std::array<Point, 8> directionPoints(const BattleHex & myNumber, const std::array<bool, 8> & allowedDirections) const;
+	/// Returns the allowed direction of attack on the hex nearest to the cursor, or NONE if no direction is allowed
+	BattleHex::EDir selectNearestDirection(const BattleHex & myNumber, const std::array<bool, 8> & allowedDirections) const;
 
 	// Range limit highlight helpers
 
@@ -123,6 +161,7 @@ class BattleFieldController : public CIntObject
 	bool receiveEvent(const Point & position, int eventType) const override;
 
 public:
+	void activeStackChanged();
 	BattleFieldController(BattleInterface & owner);
 
 	void createHeroes();
@@ -148,7 +187,8 @@ public:
 	/// returns true if stack should render its stack count image in default position - outside own hex
 	bool stackCountOutsideHex(const BattleHex & number) const;
 
-	BattleHex::EDir selectAttackDirection(const BattleHex & myNumber) const;
+	/// Returns the approach of the non-empty list with the direction nearest to the cursor
+	ActionApproach selectApproach(const BattleHex & hex, const std::vector<ActionApproach> & approaches) const;
 
 	/// starts screen shake effect (used by earthquake spell)
 	void startShakeAnimation();

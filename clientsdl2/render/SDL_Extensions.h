@@ -79,6 +79,8 @@ SDL_Color toSDL(const ColorRGBA & color);
 	void setDefaultColorKeyPresize(SDL_Surface * surface);
 
 	SDL_Surface * drawOutline(SDL_Surface * source, const SDL_Color & color, int thickness);
+	/// Horizontal shear of the shadow generated with doSheer
+	constexpr double shadowShearX = 0.5;
 	SDL_Surface * drawShadow(SDL_Surface * source, bool doSheer);
 
 	void adjustBrightness(SDL_Surface* surface, float factor);

@@ -277,8 +277,12 @@ std::vector<SlotInfo> ArmyManager::getBestArmy(const IBonusBearer * armyCarrier,
 		auto weakest = getBestUnitForScout(resultingArmy, armyTerrain);
 		if(weakest->count == 1)
 		{
-			if (resultingArmy.size() == 1)
-				logAi->warn("ArmyManager::getBestArmy Unexpected resulting army size!");
+			// the only wanted unit must stay in source, so target keeps what it has
+			if(resultingArmy.size() == 1)
+			{
+				newArmyInstance.clearSlots();
+				return getSortedSlots(target, &newArmyInstance);
+			}
 
 			resultingArmy.erase(weakest);
 		}
@@ -311,7 +315,7 @@ std::shared_ptr<CCreatureSet> ArmyManager::getArmyAvailableToBuyAsCCreatureSet(
 		if(!ci.count || ci.creID == CreatureID::NONE)
 			continue;
 
-		vstd::amin(ci.count, availableRes / ci.creID.toCreature()->getFullRecruitCost()); //max count we can afford
+		vstd::amin(ci.count, availableRes.affordableCount(ci.creID.toCreature()->getFullRecruitCost())); //max count we can afford
 
 		if(!ci.count)
 			continue;
@@ -431,13 +435,13 @@ std::vector<creInfo> ArmyManager::getArmyAvailableToBuy(
 			}
 		}
 
-		vstd::amin(ci.count, availableRes / ci.creID.toCreature()->getFullRecruitCost()); //max count we can afford
+		vstd::amin(ci.count, availableRes.affordableCount(ci.creID.toCreature()->getFullRecruitCost())); //max count we can afford
 
 		int disbandMalus = 0;
 		
 		if (shouldDisband)
 		{
-			disbandMalus = leastValuableStackValue / ci.creID.toCreature()->getFullRecruitCost();
+			disbandMalus = leastValuableStackValue.affordableCount(ci.creID.toCreature()->getFullRecruitCost());
 			alreadyDisbanded.insert(leastValuableSlot);
 		}
 

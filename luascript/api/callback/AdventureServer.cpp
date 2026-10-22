@@ -76,12 +76,24 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 		}, {},
 		"Adds the object's active quest to a player's in-game quest log. Calling it again for a quest already "
 		"in the log does nothing.");
-	R.function<&AdventureServerProxy::setQuestHintText>("setQuestHintText",
+	R.function<&AdventureServerProxy::setQuestHint>("setQuestHint",
 		{
 			{"target", "The quest source (seer hut / quest guard) whose hint changes."},
-			{"text", "New hover / quest-log text for the object's active quest."}
+			{"text", "New hover / quest-log text for the object's active quest."},
+			{"components", "Icons shown with the hint in the quest log; nil for none."}
 		}, {},
-		"Internal plumbing for the setQuestHint helper. Scripts should call setQuestHint instead.");
+		"Sets the hover / quest-log hint of a scripted quest, and the icons shown with it in the quest log.");
+	R.function<&AdventureServerProxy::disablePlayerEvent>("disablePlayerEvent",
+		{
+			{"handler", "Name of the map script handler that the timed player event runs."}
+		}, {},
+		"Turns off a timed player event of the map, so it no longer occurs.");
+	R.function<&AdventureServerProxy::disableTownEvent>("disableTownEvent",
+		{
+			{"town", "Town that owns the event."},
+			{"handler", "Name of the map script handler that the timed town event runs."}
+		}, {},
+		"Turns off a timed event of a town, so it no longer occurs.");
 	R.function<&AdventureServerProxy::random>("random",
 		{
 			{"lower", "Smallest value that may be returned."},
@@ -275,7 +287,11 @@ void AdventureServerProxy::setMapVariable(IGameEventCallback & object, const std
 
 void AdventureServerProxy::removeObject(IGameEventCallback & object, const CGObjectInstance & target)
 {
-	object.removeObject(&target, target.getOwner());
+	// visited object stays until its visit ends, so script may keep using it after removal, as HotA allows
+	if(object.isObjectBeingVisited(target.id))
+		object.removeAfterVisit(target.id);
+	else
+		object.removeObject(&target, target.getOwner());
 }
 
 void AdventureServerProxy::finishQuestOrRemoveObject(IGameEventCallback & object, const CGObjectInstance & target)
@@ -288,7 +304,7 @@ void AdventureServerProxy::finishQuestOrRemoveObject(IGameEventCallback & object
 	}
 	if(dynamic_cast<const QuestGuard *>(&target))
 	{
-		object.removeObject(&target, target.getOwner());
+		removeObject(object, target);
 		return;
 	}
 	if(dynamic_cast<const SeerHut *>(&target))
@@ -317,9 +333,24 @@ void AdventureServerProxy::addToQuestLog(IGameEventCallback & object, const CGOb
 	object.addQuest(player, questSource->getQuestIdentity());
 }
 
-void AdventureServerProxy::setQuestHintText(IGameEventCallback & object, const CGObjectInstance & target, const LuaMetaString & text)
+void AdventureServerProxy::setQuestHint(IGameEventCallback & object, const CGObjectInstance & target, const LuaMetaString & text, const std::optional<std::vector<LuaComponent>> & components)
 {
-	object.setQuestHintText(target.id, text.toMetaString());
+	std::vector<Component> result;
+	if(components)
+		for(const auto & component : *components)
+			result.push_back(component.toComponent());
+
+	object.setQuestHint(target.id, text.toMetaString(), result);
+}
+
+void AdventureServerProxy::disablePlayerEvent(IGameEventCallback & object, const std::string & handler)
+{
+	object.disableMapEvent(ObjectInstanceID::NONE, handler);
+}
+
+void AdventureServerProxy::disableTownEvent(IGameEventCallback & object, const CGTownInstance & town, const std::string & handler)
+{
+	object.disableMapEvent(town.id, handler);
 }
 
 int AdventureServerProxy::random(IGameEventCallback & object, int lower, int upper)
@@ -399,6 +430,12 @@ void AdventureServerProxy::takeArtifact(IGameEventCallback & object, const CGHer
 
 void AdventureServerProxy::grantCreatures(IGameEventCallback & object, const CGHeroInstance & hero, const Creature & creature, int count)
 {
+	if(count <= 0)
+	{
+		logScript->error("grantCreatures: can not grant %d units of %s", count, creature.getJsonKey());
+		return;
+	}
+
 	CCreatureSet army;
 	army.addToSlot(army.getFreeSlot(), creature.getId(), count);
 	object.giveCreatures(&hero, army);
@@ -406,6 +443,12 @@ void AdventureServerProxy::grantCreatures(IGameEventCallback & object, const CGH
 
 void AdventureServerProxy::takeCreatures(IGameEventCallback & object, const CGHeroInstance & hero, const Creature & creature, int count)
 {
+	if(count <= 0)
+	{
+		logScript->error("takeCreatures: can not take %d units of %s", count, creature.getJsonKey());
+		return;
+	}
+
 	object.takeCreatures(hero.id, {CStackBasicDescriptor(creature.getId(), count)});
 }
 
@@ -484,7 +527,9 @@ void AdventureServerProxy::grantCreaturesToHire(IGameEventCallback & object, con
 
 void AdventureServerProxy::constructBuilding(IGameEventCallback & object, const CGTownInstance & town, BuildingID building)
 {
-	object.buildStructureForced(town.id, building);
+	// HotA scripts re-issue construction every turn and expect existing buildings to be skipped
+	if(town.getTown()->buildings.count(building) && !town.hasBuilt(building))
+		object.buildStructureForced(town.id, building);
 }
 
 void AdventureServerProxy::showMessage(IGameEventCallback & object, PlayerColor player, const LuaMetaString & text,

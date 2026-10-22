@@ -1,37 +1,37 @@
 {
-	"allowedAbilities" : {
-		"anyOf" : [
-			"airMagic",
-			"archery",
-			"armorer",
-			"artillery",
-			"ballistics",
-			"diplomacy",
-			"earthMagic",
-			"estates",
-			"fireMagic",
-			"firstAid",
-			"intelligence",
-			"leadership",
-			"learning",
-			"logistics",
-			"luck",
-			"mysticism",
-			"navigation",
-			"necromancy",
-			"offence",
-			"pathfinding",
-			"resistance",
-			"scholar",
-			"scouting",
-			"sorcery",
-			"tactics",
-			"waterMagic",
-			"wisdom"
+	"allowedAbilities": {
+		"anyOf": [
+			"core:airMagic",
+			"core:archery",
+			"core:armorer",
+			"core:artillery",
+			"core:ballistics",
+			"core:diplomacy",
+			"core:earthMagic",
+			"core:estates",
+			"core:fireMagic",
+			"core:firstAid",
+			"core:intelligence",
+			"core:leadership",
+			"core:learning",
+			"core:logistics",
+			"core:luck",
+			"core:mysticism",
+			"core:navigation",
+			"core:necromancy",
+			"core:offence",
+			"core:pathfinding",
+			"core:resistance",
+			"core:scholar",
+			"core:scouting",
+			"core:sorcery",
+			"core:tactics",
+			"core:waterMagic",
+			"core:wisdom"
 		]
 	},
-	"allowedArtifacts" : {
-		"anyOf" : [
+	"allowedArtifacts": {
+		"anyOf": [
 			"core:admiralsHat",
 			"core:angelicAlliance",
 			"core:armageddonsBlade",
@@ -48,8 +48,8 @@
 			"core:wizardsWell"
 		]
 	},
-	"allowedHeroes" : {
-		"anyOf" : [
+	"allowedHeroes": {
+		"anyOf": [
 			"core:adela",
 			"core:adelaide",
 			"core:aenain",
@@ -171,7 +171,7 @@
 			"core:thorgrim",
 			"core:thunar",
 			"core:tiva",
-			"core:torosar ",
+			"core:torosar",
 			"core:tyraxor",
 			"core:tyris",
 			"core:ufretin",
@@ -190,8 +190,8 @@
 			"core:zydar"
 		]
 	},
-	"allowedSpells" : {
-		"anyOf" : [
+	"allowedSpells": {
+		"anyOf": [
 			"core:airElemental",
 			"core:airShield",
 			"core:animateDead",
@@ -264,104 +264,203 @@
 			"core:weakness"
 		]
 	},
-	"defeatIconIndex" : 3,
-	"defeatString" : "Test defeatString",
-	"difficulty" : "NORMAL",
-	"mapLevels" : {
-		"surface" : {
-			"height" : 144,
-			"index" : 0,
-			"width" : 144
+	"author": {
+		"exactStrings": null,
+		"localStrings": null,
+		"message": null,
+		"numbers": null,
+		"stringsTextID": null
+	},
+	"authorContact": {
+		"exactStrings": null,
+		"localStrings": null,
+		"message": null,
+		"numbers": null,
+		"stringsTextID": null
+	},
+	"battleOnly": false,
+	"defeatIconIndex": 3,
+	"defeatMessage": {
+		"exactStrings": null,
+		"localStrings": null,
+		"message": null,
+		"numbers": null,
+		"stringsTextID": null
+	},
+	"description": {
+		"exactStrings": null,
+		"localStrings": null,
+		"message": null,
+		"numbers": null,
+		"stringsTextID": null
+	},
+	"difficulty": "NORMAL",
+	"events": [],
+	"mapLevels": {
+		"surface": {
+			"height": 144,
+			"index": 0,
+			"layer": "core:surface",
+			"width": 144
 		},
-		"underground" : {
-			"height" : 144,
-			"index" : 1,
-			"width" : 144
+		"underground": {
+			"height": 144,
+			"index": 1,
+			"layer": "core:underground",
+			"width": 144
 		}
 	},
-	"mods" : null,
-	"name" : "ObjectPropertyTest v1",
-	"players" : {
-		"blue" : {
-			"canPlay" : "AIOnly",
-			"heroes" : {
-				"randomHero_104" : {}
+	"mapVersion": {
+		"exactStrings": null,
+		"localStrings": null,
+		"message": null,
+		"numbers": null,
+		"stringsTextID": null
+	},
+	"mods": null,
+	"name": {
+		"exactStrings": [
+			"ObjectPropertyTest v1"
+		],
+		"localStrings": null,
+		"message": [
+			0
+		],
+		"numbers": null,
+		"stringsTextID": null
+	},
+	"players": {
+		"blue": {
+			"canPlay": "AIOnly",
+			"heroes": {
+				"randomHero_104": {}
 			}
 		},
-		"green" : {
-			"canPlay" : "AIOnly",
-			"heroes" : {
-				"randomHero_105" : {}
+		"green": {
+			"canPlay": "AIOnly",
+			"heroes": {
+				"randomHero_105": {}
 			}
 		},
-		"orange" : {
-			"canPlay" : "AIOnly",
-			"heroes" : {
-				"randomHero_106" : {}
+		"orange": {
+			"canPlay": "AIOnly",
+			"heroes": {
+				"randomHero_106": {}
 			}
 		},
-		"pink" : {
-			"canPlay" : "AIOnly",
-			"heroes" : {
-				"randomHero_109" : {}
+		"pink": {
+			"canPlay": "AIOnly",
+			"heroes": {
+				"randomHero_109": {}
 			}
 		},
-		"purple" : {
-			"canPlay" : "AIOnly",
-			"heroes" : {
-				"randomHero_107" : {}
+		"purple": {
+			"canPlay": "AIOnly",
+			"heroes": {
+				"randomHero_107": {}
 			}
 		},
-		"red" : {
-			"canPlay" : "PlayerOrAI",
-			"mainHero" : "hero_101",
-			"heroes" : {
-				"hero_101" : {
-					"type" : "core:ingham"
+		"red": {
+			"canPlay": "PlayerOrAI",
+			"heroes": {
+				"hero_101": {
+					"type": "core:ingham"
 				}
+			},
+			"mainHero": "hero_101"
+		},
+		"tan": {
+			"canPlay": "AIOnly",
+			"heroes": {
+				"randomHero_103": {}
 			}
 		},
-		"tan" : {
-			"canPlay" : "AIOnly",
-			"heroes" : {
-				"randomHero_103" : {}
-			}
-		},
-		"teal" : {
-			"canPlay" : "AIOnly",
-			"heroes" : {
-				"randomHero_108" : {}
+		"teal": {
+			"canPlay": "AIOnly",
+			"heroes": {
+				"randomHero_108": {}
 			}
 		}
 	},
-	"triggeredEvents" : {
-		"standardVictory" : {
-			"condition" : [
-				"standardWin"
-
-			],
-			"effect" : {
-				"messageToSend" : "%s standardVictory effect test message",
-				"type" : "victory"
-			},
-			"message" : "Test standardVictory message"
-		},
-		"standardDefeat" : {
-			"condition" : [
+	"rumors": [],
+	"triggeredEvents": {
+		"standardDefeat": {
+			"condition": [
 				"daysWithoutTown",
 				{
-					"value" : 7
+					"type": "",
+					"value": 7
 				}
 			],
-			"effect" : {
-				"messageToSend" : "%s standardDefeat effect test message",
-				"type" : "defeat"
+			"effect": {
+				"messageToSend": {
+					"exactStrings": [
+						"%s standardDefeat effect test message"
+					],
+					"localStrings": null,
+					"message": [
+						0
+					],
+					"numbers": null,
+					"stringsTextID": null
+				},
+				"type": "defeat"
 			},
-			"message" : "%s, standardDefeat"
+			"message": {
+				"exactStrings": [
+					"%s, standardDefeat"
+				],
+				"localStrings": null,
+				"message": [
+					0
+				],
+				"numbers": null,
+				"stringsTextID": null
+			}
+		},
+		"standardVictory": {
+			"condition": [
+				"standardWin",
+				{
+					"type": "",
+					"value": -1
+				}
+			],
+			"effect": {
+				"messageToSend": {
+					"exactStrings": [
+						"%s standardVictory effect test message"
+					],
+					"localStrings": null,
+					"message": [
+						0
+					],
+					"numbers": null,
+					"stringsTextID": null
+				},
+				"type": "victory"
+			},
+			"message": {
+				"exactStrings": [
+					"Test standardVictory message"
+				],
+				"localStrings": null,
+				"message": [
+					0
+				],
+				"numbers": null,
+				"stringsTextID": null
+			}
 		}
 	},
-	"victoryIconIndex" : 11,
-	"victoryString" : "Test victoryString",
-	"versionMajor" : 1,
-	"versionMinor" : 1
+	"versionMajor": 3,
+	"versionMinor": 0,
+	"victoryIconIndex": 11,
+	"victoryMessage": {
+		"exactStrings": null,
+		"localStrings": null,
+		"message": null,
+		"numbers": null,
+		"stringsTextID": null
+	}
 }

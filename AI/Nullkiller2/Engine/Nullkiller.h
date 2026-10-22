@@ -78,13 +78,29 @@ enum class TaskFailureAction
 
 TaskFailureAction chooseTaskFailureAction(bool hasAnySuccess, bool hasRemainingTasks, bool canReplan);
 
+class NullkillerTestAccess;
+
 class Nullkiller
 {
 private:
+	friend class NullkillerTestAccess;
+
+	struct FailedHeroPath
+	{
+		ObjectInstanceID hero;
+		int3 destination;
+	};
+
 	const CGHeroInstance * activeHero;
+	ObjectInstanceID activeHeroID;
 	int3 targetTile;
+	const CGHeroInstance * activePathHero;
+	ObjectInstanceID activePathHeroID;
+	int3 activePathDestination;
 	ObjectInstanceID targetObject;
 	HeroMap<HeroLockedReason> lockedHeroes;
+	std::vector<FailedHeroPath> failedHeroPaths;
+	std::vector<FailedHeroPath> idleInteractions;
 	std::unique_ptr<PathfinderCache> pathfinderCache;
 	ScanDepth scanDepth;
 	TResources lockedResources;
@@ -92,6 +108,7 @@ private:
 	bool openMap;
 	bool useObjectGraph;
 	bool pathfinderInvalidated;
+	bool lastTaskFailureHadPath;
 
 public:
 	static std::unique_ptr<ObjectGraph> baseGraph;
@@ -130,11 +147,25 @@ public:
 	int3 getTargetTile() const { return targetTile; }
 	ObjectInstanceID getTargetObject() const { return targetObject; }
 	void setTargetObject(int objid) { targetObject = ObjectInstanceID(objid); }
-	void setActive(const CGHeroInstance * hero, int3 tile) { activeHero = hero; targetTile = tile; }
+	void setActive(const CGHeroInstance * hero, int3 tile)
+	{
+		if(hero && !activePathHeroID.hasValue())
+		{
+			activePathHero = hero;
+			activePathHeroID = hero->id;
+			activePathDestination = tile;
+		}
+
+		activeHero = hero;
+		activeHeroID = hero ? hero->id : ObjectInstanceID::NONE;
+		targetTile = tile;
+	}
 	void lockHero(const CGHeroInstance * hero, HeroLockedReason lockReason);
 	void unlockHero(const CGHeroInstance * hero);
 	bool canReleaseDefenderForTownCapture(const CGHeroInstance * hero, const CGObjectInstance * target, const AIPath & path) const;
 	bool arePathHeroesLocked(const AIPath & path, const CGHeroInstance * releasedDefender = nullptr) const;
+	/// Records an interaction that left the hero in place; true if it already happened this turn
+	bool repeatsIdleInteraction(const CGHeroInstance * hero, const int3 & tile);
 	TResources getFreeResources() const;
 	int32_t getFreeGold() const { return getFreeResources()[EGameResID::GOLD]; }
 	void lockResources(const TResources & res);
@@ -165,6 +196,9 @@ private:
 	HeroRole getTaskRole(const Goals::TTask & task) const;
 	std::vector<const CGHeroInstance *> getTaskHeroes(const Goals::TTask & task) const;
 	void lockTaskHeroes(const Goals::TTask & task, HeroLockedReason lockReason);
+	void resetTaskExecutionContext();
+	bool rememberActivePathFailure();
+	bool isPathKnownToFail(const AIPathNodeInfo & node) const;
 	bool hasUnlockedHeroWithMovement() const;
 	void tracePlayerStatus(bool beginning) const;
 };

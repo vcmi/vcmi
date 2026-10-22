@@ -7,6 +7,8 @@ endif()
 set(launcher_SRCS
 		StdInc.cpp
 		aboutProject/aboutproject_moc.cpp
+		aboutProject/dataexporter.cpp
+		aboutProject/deviceinfo.cpp
 		modManager/cdownloadmanager_moc.cpp
 		modManager/modstateitemmodel_moc.cpp
 		modManager/cmodlistview_moc.cpp
@@ -48,6 +50,7 @@ endif()
 set(launcher_HEADERS
 		StdInc.h
 		aboutProject/aboutproject_moc.h
+		aboutProject/deviceinfo.h
 		modManager/cdownloadmanager_moc.h
 		modManager/modstateitemmodel_moc.h
 		modManager/cmodlistview_moc.h

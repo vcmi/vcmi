@@ -171,6 +171,12 @@ void CRecruitmentWindow::select(std::shared_ptr<CCreatureCard> card)
 
 		vstd::amin(maxAmount, card->amount);
 
+		if(card->creature->warMachine.hasValue())
+		{
+			const auto * hero = dynamic_cast<const CGHeroInstance *>(dst);
+			vstd::amin(maxAmount, hero && hero->canRecruitWarMachine(card->creature->warMachine) ? 1 : 0);
+		}
+
 		slider->setAmount(maxAmount);
 
 		if(slider->getValue() != maxAmount)
@@ -212,7 +218,7 @@ void CRecruitmentWindow::buy()
 	{
 		ArtifactID newWarMachine = selected->creature->warMachine;
 		ArtifactID currentWarMachine = hero->getReplacedWarMachine(newWarMachine);
-		if (currentWarMachine.hasValue() && newWarMachine != currentWarMachine)
+		if (currentWarMachine.hasValue())
 		{
 			MetaString message;
 			message.appendTextID("vcmi.townWindow.blacksmith.replaceWarMachine");
@@ -1326,12 +1332,12 @@ void CUnivConfirmWindow::makeDeal(SecondarySkill skill)
 	close();
 }
 
-CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, const MetaString & customTitle)
+CGarrisonWindow::CGarrisonWindow(const CArmedInstance * up, const CGHeroInstance * down, const MetaString & customTitle)
 	: CWindowObject(PLAYER_COLORED, ImagePath::builtin("GARRISON"))
 {
 	OBJECT_CONSTRUCTION;
 
-	garr = std::make_shared<CGarrisonInt>(Point(92, 127), 4, Point(0,96), up, down, removableUnits);
+	garr = std::make_shared<CGarrisonInt>(Point(92, 127), 4, Point(0,96), up, down);
 	garr->showMoveUnitsOnHover = true;
 	{
 		auto split = std::make_shared<CButton>(Point(88, 314), AnimationPath::builtin("IDV6432.DEF"), CButton::tooltip(LIBRARY->generaltexth->translate("core.tcommand.3"), ""), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT );
@@ -1488,7 +1494,7 @@ void CHillFortWindow::updateGarrisons()
 		if (allUpgraded)
 			newState = State::ALREADY_UPGRADED;
 
-		if(!totalSum.canBeAfforded(myRes))
+		if(!myRes.canAfford(totalSum))
 			newState = State::UNAFFORDABLE;
 	}
 
@@ -1512,14 +1518,10 @@ void CHillFortWindow::updateGarrisons()
 			{
 				//reverse iterator is used to display gold as first element
 				int j = 0;
-				for(int res = (int)costs[i].size()-1; (res >= 0) && (j < 2); res--)
+				for(const auto & [res, val] : costs[i].nonZeroEntries() | std::views::reverse | std::views::take(2))
 				{
-					int val = costs[i][res];
-					if(!val)
-						continue;
-
 					slotIcons[i][j]->visible = true;
-					slotIcons[i][j]->setFrame(res);
+					slotIcons[i][j]->setFrame(res.getNum());
 
 					slotLabels[i][j]->setText(std::to_string(val));
 					j++;
@@ -1610,7 +1612,7 @@ CHillFortWindow::State CHillFortWindow::getState(SlotID slot)
 	if(!info.hasUpgrades())
 		return State::ALREADY_UPGRADED;
 
-	if(!(info.getUpgradeCosts() * hero->getStackCount(slot)).canBeAfforded(myRes))
+	if(!myRes.canAfford(info.getUpgradeCosts() * hero->getStackCount(slot)))
 		return State::UNAFFORDABLE;
 
 	return State::MAKE_UPGRADE;

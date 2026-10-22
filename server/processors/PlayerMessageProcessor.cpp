@@ -339,7 +339,7 @@ void PlayerMessageProcessor::startVoting(PlayerColor initiator, ECurrentChatVote
 
 	for(PlayerColor player(0); player < PlayerColor::PLAYER_LIMIT; ++player)
 	{
-		auto state = gameHandler->gameInfo().getPlayerState(player, false);
+		auto state = gameHandler->gameInfo().tryGetPlayerState(player);
 		if(state && state->isHuman() && initiator != player)
 			awaitingPlayers.insert(player);
 	}
@@ -441,6 +441,9 @@ void PlayerMessageProcessor::cheatGiveArmy(PlayerColor player, const CGHeroInsta
 	catch(std::logic_error&)
 	{
 	}
+
+	if (amountPerSlot.has_value() && *amountPerSlot < 1)
+		return;
 
 	std::optional<int32_t> creatureId = LIBRARY->identifiers()->getIdentifierCaseInsensitive(ModScope::scopeGame(), "creature", creatureIdentifier, false);
 

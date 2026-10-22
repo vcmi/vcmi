@@ -281,38 +281,6 @@ TEST_F(TimedTest, ConvertBonusKeepsExplicitTurnsRemain)
 	EXPECT_EQ(actualBonus[0].turnsRemain, customDuration);
 }
 
-TEST_F(TimedTest, ConvertBonusInvertsShieldDamageReduction)
-{
-	Bonus b(BonusDuration::PERMANENT, BonusType::GENERAL_DAMAGE_REDUCTION, BonusSource::OTHER, 30, BonusSourceID());
-	JsonNode options;
-	options["bonus"]["shield"] = b.toJsonNode();
-	options.setModScope(ModScope::scopeBuiltin());
-	setupEffect(options);
-
-	auto & unit = unitsFake.add(BattleSide::ATTACKER);
-	unit.makeAlive();
-	EXPECT_CALL(unit, unitId()).WillRepeatedly(Return(42u));
-	EXPECT_CALL(unit, creatureLevel()).WillRepeatedly(Return(1));
-	unitsFake.setDefaultBonusExpectations();
-
-	EXPECT_CALL(mechanicsMock, getSpell()).WillRepeatedly(Return(&spellStub));
-	EXPECT_CALL(spellStub, getJsonKey()).WillRepeatedly(Return(SpellID::encode(SpellID(SpellID::SHIELD).getNum())));
-	EXPECT_CALL(mechanicsMock, getEffectDuration()).WillRepeatedly(Return(1));
-	EXPECT_CALL(serverMock, describeChanges()).WillRepeatedly(Return(false));
-
-	Target target;
-	target.emplace_back(&unit, BattleHex());
-
-	std::vector<Bonus> actualBonus;
-	EXPECT_CALL(*battleFake, updateUnitBonus(_, _)).WillOnce(SaveArg<1>(&actualBonus));
-	EXPECT_CALL(serverMock, apply(Matcher<SetStackEffect &>(_))).Times(1);
-
-	subject->apply(&serverMock, &mechanicsMock, target);
-
-	ASSERT_EQ(actualBonus.size(), 1u);
-	EXPECT_EQ(actualBonus[0].val, 70); // 100 - 30
-}
-
 TEST_F(TimedTest, ConvertBonusBindSetsCasterUnitId)
 {
 	Bonus b(BonusDuration::PERMANENT, BonusType::BIND_EFFECT, BonusSource::OTHER, 0, BonusSourceID());

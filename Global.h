@@ -155,6 +155,7 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 
 #include <boost/algorithm/string.hpp>
+#include <boost/container/flat_map.hpp>
 #include <boost/container/small_vector.hpp>
 #include <boost/container/static_vector.hpp>
 // C++ 20 -> std::source_location::function_name
@@ -228,13 +229,6 @@ typedef int8_t si8; //signed int 8 bits (1 byte)
 #define __IPHONE_13_0 130000
 #endif
 #endif // VCMI_IOS
-
-// Transition no-op macros: VCMI_LIB_NAMESPACE_* were removed from the codebase,
-// these stubs keep code from not-yet-merged branches compiling. Remove once stale.
-#define VCMI_LIB_NAMESPACE_BEGIN
-#define VCMI_LIB_NAMESPACE_END
-#define VCMI_LIB_USING_NAMESPACE
-#define VCMI_LIB_WRAP_NAMESPACE(x) ::x
 
 /* ---------------------------------------------------------------------------- */
 /* VCMI standard library */

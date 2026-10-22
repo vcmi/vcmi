@@ -29,6 +29,7 @@ public:
 	static void registerMethods(MethodRegistrar & R);
 
 	static std::vector<const CBuilding *> getBuildings(const CGTownInstance & town);
+	static const Faction * getFaction(const CGTownInstance & town);
 };
 
 }

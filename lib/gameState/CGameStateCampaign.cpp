@@ -680,7 +680,7 @@ void CGameStateCampaign::initTowns()
 	{
 		auto town = gameState->getTown(townID);
 
-		PlayerState * owner = gameState->getPlayerState(town->getOwner());
+		PlayerState * owner = gameState->tryGetPlayerState(town->getOwner());
 		if (!owner)
 			continue;
 

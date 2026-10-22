@@ -125,6 +125,7 @@ public:
 			pset.name = "Player";
 			pset.castle = pinfo.defaultCastle();
 			pset.hero = pinfo.defaultHero();
+			pset.bonus = PlayerStartingBonus::GOLD; // random bonus may be an artifact that changes hero stats
 
 			if(pset.hero != HeroTypeID::RANDOM && pinfo.hasCustomMainHero())
 			{

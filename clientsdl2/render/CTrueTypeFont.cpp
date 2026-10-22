@@ -95,7 +95,7 @@ size_t CTrueTypeFont::getLineHeightScaled() const
 
 size_t CTrueTypeFont::getGlyphWidthScaled(const char *text) const
 {
-	return getStringWidthScaled(std::string(text, TextOperations::getUnicodeCharacterSize(*text)));
+	return getStringWidthScaled(std::string_view(text, TextOperations::getUnicodeCharacterSize(*text)));
 }
 
 bool CTrueTypeFont::canRepresentCharacter(const char * text) const
@@ -112,10 +112,10 @@ bool CTrueTypeFont::canRepresentCharacter(const char * text) const
 #endif
 }
 
-size_t CTrueTypeFont::getStringWidthScaled(const std::string & text) const
+size_t CTrueTypeFont::getStringWidthScaled(std::string_view text) const
 {
 	int width;
-	TTF_SizeUTF8(font.get(), text.c_str(), &width, nullptr);
+	TTF_SizeUTF8(font.get(), std::string(text).c_str(), &width, nullptr);
 
 	if (outline)
 		width += getScalingFactor();

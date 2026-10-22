@@ -13,9 +13,8 @@
 #include "Unit.h"
 #include "../GameConstants.h"
 
-bool AccessibilityInfo::tileAccessibleWithGate(const BattleHex & tile, BattleSide side) const
+bool AccessibilityInfo::tileAccessibleWithGate(const BattleHex & tile, bool canUseGate) const
 {
-	//at(otherHex) != EAccessibility::ACCESSIBLE && (at(otherHex) != EAccessibility::GATE || side != BattleSide::DEFENDER)
 	const auto & accessibility = at(tile.toInt());
 
 	if(accessibility == EAccessibility::ALIVE_STACK)
@@ -27,7 +26,7 @@ bool AccessibilityInfo::tileAccessibleWithGate(const BattleHex & tile, BattleSid
 	}
 
 	if(accessibility != EAccessibility::ACCESSIBLE)
-		if(accessibility != EAccessibility::GATE || side != BattleSide::DEFENDER)
+		if(accessibility != EAccessibility::GATE || !canUseGate)
 			return false;
 
 	return true;
@@ -35,16 +34,16 @@ bool AccessibilityInfo::tileAccessibleWithGate(const BattleHex & tile, BattleSid
 
 bool AccessibilityInfo::accessible(const BattleHex & tile, const battle::Unit * stack) const
 {
-	return accessible(tile, stack->doubleWide(), stack->unitSide());
+	return accessible(tile, stack->doubleWide(), stack->unitSide(), stack->controllingSide() == BattleSide::DEFENDER);
 }
 
-bool AccessibilityInfo::accessible(const BattleHex & tile, bool doubleWide, BattleSide side) const
+bool AccessibilityInfo::accessible(const BattleHex & tile, bool doubleWide, BattleSide side, bool canUseGate) const
 {
 	// All hexes that stack would cover if standing on tile have to be accessible.
 	//do not use getHexes for speed reasons
 	if(!tile.isValid())
 		return false;
-	if(!tileAccessibleWithGate(tile, side))
+	if(!tileAccessibleWithGate(tile, canUseGate))
 		return false;
 
 	if(doubleWide)
@@ -52,7 +51,7 @@ bool AccessibilityInfo::accessible(const BattleHex & tile, bool doubleWide, Batt
 		auto otherHex = battle::Unit::occupiedHex(tile, doubleWide, side);
 		if(!otherHex.isValid())
 			return false;
-		if(!tileAccessibleWithGate(otherHex, side))
+		if(!tileAccessibleWithGate(otherHex, canUseGate))
 			return false;
 	}
 

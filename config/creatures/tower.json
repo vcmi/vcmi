@@ -202,6 +202,10 @@
 			{
 				"type" : "NO_MELEE_PENALTY"
 			},
+			"noWallPenalty" :
+			{
+				"type" : "NO_WALL_PENALTY"
+			},
 			"reduceSpellCost" :
 			{
 				"type" : "CHANGES_SPELL_COST_FOR_ALLY",
@@ -342,7 +346,7 @@
 			"spellsLength" :
 			{
 				"type" : "CREATURE_ENCHANT_POWER",
-				"val" : 5
+				"val" : 6
 			},
 			"randomSpellcaster" :
 			{

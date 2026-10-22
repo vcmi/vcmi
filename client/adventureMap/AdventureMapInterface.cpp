@@ -366,6 +366,11 @@ void AdventureMapInterface::keyPressed(EShortcut key)
 	ENGINE->fakeMouseMove();
 }
 
+void AdventureMapInterface::keyCanceled(EShortcut key)
+{
+	keyReleased(key);
+}
+
 void AdventureMapInterface::keyReleased(EShortcut key)
 {
 	heldScrollShortcuts.erase(key);
@@ -947,7 +952,7 @@ void AdventureMapInterface::onTileRightClicked(const int3 &mapPos)
 	if(!obj)
 	{
 		// Bare or undiscovered terrain
-		const TerrainTile * tile = GAME->interface()->cb->getTile(mapPos);
+		const TerrainTile * tile = GAME->interface()->cb->tryGetTile(mapPos);
 		if(tile)
 		{
 			std::string hlp = GAME->map().getTerrainDescr(mapPos, true);

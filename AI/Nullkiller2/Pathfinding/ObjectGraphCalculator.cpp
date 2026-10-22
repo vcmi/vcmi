@@ -48,7 +48,7 @@ void ObjectGraphCalculator::calculateConnections()
 
 	std::vector<AIPath> pathCache;
 
-	foreach_tile_pos(aiNk->cc.get(), [this, &pathCache](const CPlayerSpecificInfoCallback * cb, const int3 & pos)
+	foreach_visible_tile_pos(*aiNk->cc, [this, &pathCache](const int3 & pos)
 		{
 			calculateConnections(pos, pathCache);
 		});

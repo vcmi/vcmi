@@ -76,5 +76,6 @@ public:
 	RadialMenu(const Point & positionToCenter, const std::vector<RadialMenuConfig> & menuConfig, bool alternativeLayout = false);
 
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
+	void gestureCanceled() override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 };

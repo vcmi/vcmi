@@ -189,6 +189,8 @@ private:
 		void clickReleased(const Point & cursorPosition) override;
 		void scrollBy(int distance) override;
 
+		/// Whether the player is allowed to change what this box shows
+		bool canChangeSelection() const;
 		void update();
 	};
 

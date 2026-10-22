@@ -117,7 +117,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 	loadMapping(mappingCampaignRegions, mapping["campaignRegions"], "campaignRegion");
 }
 
-void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
+void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate, const std::string & mapName)
 {
 	auto name = objectTemplate.animationFile;
 
@@ -144,7 +144,7 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 
 	if (LIBRARY->objtypeh->knownObjects().count(objectTemplate.id) == 0)
 	{
-		logGlobal->warn("Unknown object found: %d | %d (%s)", objectTemplate.id, objectTemplate.subid, objectTemplate.animationFile.getName());
+		logGlobal->warn("Map '%s': Unknown object found: %d | %d (%s)", mapName, objectTemplate.id, objectTemplate.subid, objectTemplate.animationFile.getName());
 
 		objectTemplate.id = Obj::NOTHING;
 		objectTemplate.subid = {};
@@ -153,7 +153,7 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate)
 	{
 		if (LIBRARY->objtypeh->knownSubObjects(objectTemplate.id).count(objectTemplate.subid) == 0)
 		{
-			logGlobal->warn("Unknown subobject found: %d | %d", objectTemplate.id, objectTemplate.subid);
+			logGlobal->warn("Map '%s': Unknown subobject found: %d | %d", mapName, objectTemplate.id, objectTemplate.subid);
 			objectTemplate.subid = {};
 		}
 	}

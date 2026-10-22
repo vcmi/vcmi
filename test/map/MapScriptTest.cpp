@@ -9,27 +9,17 @@
  */
 #include "StdInc.h"
 
-#include "../mock/TinyH3MBuilder.h"
-#include "../mock/mock_MapServiceTinyH3M.h"
-#include "../mock/mock_Services.h"
+#include "../mock/TinyMapGameTest.h"
 #include "../mock/mock_IGameEventCallback.h"
 
 #include "../../lib/CPlayerState.h"
-#include "../../lib/CRandomGenerator.h"
-#include "../../lib/StartInfo.h"
-#include "../../lib/callback/GameRandomizer.h"
-#include "../../lib/filesystem/ResourcePath.h"
 #include "../../lib/GameLibrary.h"
-#include "../../lib/gameState/CGameState.h"
 #include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGPandoraBox.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/Quest.h"
-#include "../../lib/mapping/CMap.h"
-#include "../../lib/mapping/CMapHeader.h"
 
-#include <vcmi/ServerCallback.h>
 #include <vcmi/scripting/MapEventDispatcher.h>
 #include <vcmi/scripting/Service.h>
 
@@ -85,7 +75,7 @@ function Map:onVisit(game, server, object, hero)
 	server:showQuestion{
 		text = {append = {"question"}},
 		mode = 1,
-		images = {},
+		components = {},
 		onYes = function() server:giveResource(player, LIBRARY:getResourceByName("gold"), 100) end,
 		onNo  = function() server:giveResource(player, LIBRARY:getResourceByName("gold"), 5) end,
 	}
@@ -140,6 +130,17 @@ end
 return Map
 )lua";
 
+/// questEvents handler that sets the hint of the quest together with an icon.
+constexpr auto SEER_HUT_HINT_SCRIPT = R"lua(
+local Map = {}
+
+function Map:questEvents_7(game, server, object, hero)
+	server:setQuestHint(object, {append = {"hint"}}, {{type = ENUM.ComponentType.artifact, subType = 7}})
+end
+
+return Map
+)lua";
+
 /// questEvents handler that immediately finishes the quest.
 constexpr auto SEER_HUT_FINISH_SCRIPT = R"lua(
 local Map = {}
@@ -186,6 +187,25 @@ end
 return Map
 )lua";
 
+/// Message components as written by the HotA converter, plus one with an invalid spell that must be rejected.
+constexpr auto COMPONENTS_SCRIPT = R"lua(
+local Map = {}
+
+function Map:validComponents(game, server, object, hero)
+	server:showMessage(hero:getOwner(), {append = {"valid"}}, {
+		{type = ENUM.ComponentType.resource, subType = 6, value = -200},
+		{type = ENUM.ComponentType.spellScroll, subType = 9},
+		{type = ENUM.ComponentType.building, subType = 9, faction = 0},
+	})
+end
+
+function Map:invalidComponent(game, server, object, hero)
+	server:showMessage(hero:getOwner(), {append = {"invalid"}}, {{type = ENUM.ComponentType.spell, subType = -1}})
+end
+
+return Map
+)lua";
+
 /// townEvents handler that grows the tier-0 hire pool of the town it runs on.
 constexpr auto HIRE_SCRIPT = R"lua(
 local Map = {}
@@ -198,47 +218,9 @@ return Map
 )lua";
 }
 
-class MapScriptTest : public ::testing::Test, public ServerCallback, public MapListener
+class MapScriptTest : public TinyMapGameTest
 {
 public:
-	MapScriptTest()
-		: gameEventCallback(std::make_shared<GameEventCallbackMock>(this))
-	{
-	}
-
-	void SetUp() override
-	{
-		gameState = std::make_shared<CGameState>();
-		gameState->preInit(&services);
-	}
-
-	void TearDown() override
-	{
-		gameState.reset();
-		mapService.reset();
-		map = nullptr;
-	}
-
-	// ---- ServerCallback overrides ----
-	bool describeChanges() const override { return true; }
-	void apply(CPackForClient & pack) override { gameState->apply(pack); }
-	void complain(const std::string & problem) override { FAIL() << "Server-side assertion: " << problem; }
-	vstd::RNG * getRNG() override { return &randomGenerator; }
-	bool rollCombatAbility(const IBattleInfoCallback &, const battle::Unit &, int) override { return false; }
-	void apply(BattleLogMessage &) override {}
-	void apply(BattleStackMoved &) override {}
-	void apply(BattleUnitsChanged &) override {}
-	void apply(SetStackEffect &) override {}
-	void apply(StacksInjured &) override {}
-	void apply(BattleObstaclesChanged &) override {}
-	void apply(CatapultAttack &) override {}
-
-	void mapLoaded(CMap * loadedMap) override
-	{
-		EXPECT_EQ(map, nullptr);
-		map = loadedMap;
-	}
-
 	/// Minimal playable map every test starts from: one active player with a hero, plus the script.
 	/// Tests add the object under test on top.
 	static TinyH3M::TinyH3MBuilder baseMap(EMapFormat format, const std::string & script)
@@ -246,99 +228,19 @@ public:
 		TinyH3M::TinyH3MBuilder builder(format);
 		builder
 			.size(36, false)
-			.name("MapScriptTest")
 			.playerActive(PLAYER)
 			.hero({5, 5, 0}, HeroTypeID(0), PLAYER)
 			.withScript(script);
 		return builder;
 	}
 
-	void startWithMap(TinyH3M::TinyH3MBuilder builder)
-	{
-		std::string script = builder.script();
-		auto bytes = builder.build();
-		mapService = std::make_unique<MapServiceTinyH3M>(std::move(bytes), this, std::move(script));
-
-		StartInfo si;
-		si.mapname = "tiny";
-		si.difficulty = 0;
-		si.mode = EStartMode::NEW_GAME;
-
-		auto header = mapService->loadMapHeader(ResourcePath(si.mapname));
-		ASSERT_NE(header.get(), nullptr) << "TinyH3M scenario header failed to load";
-
-		for(int i = 0; i < static_cast<int>(header->players.size()); ++i)
-		{
-			const PlayerInfo & pinfo = header->players[i];
-			if(!(pinfo.canHumanPlay || pinfo.canComputerPlay))
-				continue;
-
-			PlayerSettings & pset = si.playerInfos[PlayerColor(i)];
-			pset.color = PlayerColor(i);
-			pset.connectedPlayerIDs.insert(static_cast<PlayerConnectionID>(i));
-			pset.name = "Player";
-			pset.castle = pinfo.defaultCastle();
-			pset.hero = pinfo.defaultHero();
-		}
-
-		GameRandomizer randomizer(*gameState);
-		Load::ProgressAccumulator progressTracker;
-		gameState->init(mapService.get(), &si, randomizer, progressTracker, false);
-
-		ASSERT_NE(map, nullptr) << "gameState init did not populate the CMap";
-		gameEventCallback->setGameInfoCallback(gameState.get());
-	}
-
-	CGPandoraBox * findPandora() const
-	{
-		for(const auto & obj : map->objects)
-			if(auto * pandora = dynamic_cast<CGPandoraBox *>(obj.get()))
-				return pandora;
-		return nullptr;
-	}
-
-	SeerHut * findSeerHut() const
-	{
-		for(const auto & obj : map->objects)
-			if(auto * hut = dynamic_cast<SeerHut *>(obj.get()))
-				return hut;
-		return nullptr;
-	}
-
-	CGHeroInstance * findHero() const
-	{
-		for(const auto & obj : map->objects)
-			if(auto * hero = dynamic_cast<CGHeroInstance *>(obj.get()))
-				return hero;
-		return nullptr;
-	}
-
-	CGTownInstance * findTown() const
-	{
-		for(const auto & obj : map->objects)
-			if(auto * town = dynamic_cast<CGTownInstance *>(obj.get()))
-				return town;
-		return nullptr;
-	}
-
-	CGObjectInstance * findMonster() const
-	{
-		for(const auto & obj : map->objects)
-			if(auto * monster = dynamic_cast<CGCreature *>(obj.get()))
-				return monster;
-		return nullptr;
-	}
-
-	int gold() const { return gameState->players.at(PLAYER).resources[GameResID::GOLD]; }
-	int gems() const { return gameState->players.at(PLAYER).resources[GameResID::GEMS]; }
+	int gold() const { return gameState()->players.at(PLAYER).resources[GameResID::GOLD]; }
+	int gems() const { return gameState()->players.at(PLAYER).resources[GameResID::GEMS]; }
 
 protected:
-	std::shared_ptr<CGameState>            gameState;
-	std::shared_ptr<GameEventCallbackMock> gameEventCallback;
-	std::unique_ptr<MapServiceTinyH3M>     mapService;
-	ServicesMock                           services;
-	CMap *                                 map = nullptr;
-	CRandomGenerator                       randomGenerator;
+	void onMapStarted() override { gameEventCallback->setGameInfoCallback(gameState().get()); }
+
+	std::shared_ptr<GameEventCallbackMock> gameEventCallback = std::make_shared<GameEventCallbackMock>(this);
 };
 
 TEST_F(MapScriptTest, initBindsHandlerToPandoraByInstanceName)
@@ -348,7 +250,7 @@ TEST_F(MapScriptTest, initBindsHandlerToPandoraByInstanceName)
 
 	startWithMap(builder);
 
-	CGPandoraBox * pandora = findPandora();
+	CGPandoraBox * pandora = findFirst<CGPandoraBox>();
 	ASSERT_NE(pandora, nullptr) << "the built map has no Pandora's Box";
 	EXPECT_EQ(pandora->heroVisitScriptHandler, "onVisit")
 		<< "init should have bound onVisit to the pandora via attachEventScript";
@@ -361,7 +263,7 @@ TEST_F(MapScriptTest, attachToUnknownObjectLeavesGameLoadable)
 
 	startWithMap(builder);
 
-	CGPandoraBox * pandora = findPandora();
+	CGPandoraBox * pandora = findFirst<CGPandoraBox>();
 	ASSERT_NE(pandora, nullptr);
 	EXPECT_TRUE(pandora->heroVisitScriptHandler.empty())
 		<< "a failed attach must not bind any handler";
@@ -374,10 +276,10 @@ TEST_F(MapScriptTest, showQuestionPausesUntilAnswered)
 
 	startWithMap(builder);
 
-	auto * dispatcher = gameState->getMapEventDispatcher();
+	auto * dispatcher = gameState()->getMapEventDispatcher();
 	ASSERT_NE(dispatcher, nullptr);
-	CGPandoraBox * pandora = findPandora();
-	CGHeroInstance * hero = findHero();
+	CGPandoraBox * pandora = findFirst<CGPandoraBox>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
 	ASSERT_NE(pandora, nullptr);
 	ASSERT_NE(hero, nullptr);
 
@@ -405,9 +307,9 @@ TEST_F(MapScriptTest, startCombatReplacesGarrisonAndPauses)
 
 	startWithMap(builder);
 
-	auto * dispatcher = gameState->getMapEventDispatcher();
-	CGPandoraBox * pandora = findPandora();
-	CGHeroInstance * hero = findHero();
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	CGPandoraBox * pandora = findFirst<CGPandoraBox>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
 	ASSERT_NE(dispatcher, nullptr);
 	ASSERT_NE(pandora, nullptr);
 	ASSERT_NE(hero, nullptr);
@@ -433,9 +335,9 @@ TEST_F(MapScriptTest, seerHutScriptedQuestTracksProposalThenProgression)
 
 	startWithMap(builder);
 
-	auto * dispatcher = gameState->getMapEventDispatcher();
-	SeerHut * hut = findSeerHut();
-	CGHeroInstance * hero = findHero();
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	SeerHut * hut = findFirst<SeerHut>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
 	ASSERT_NE(dispatcher, nullptr);
 	ASSERT_NE(hut, nullptr);
 	ASSERT_NE(hero, nullptr);
@@ -447,12 +349,12 @@ TEST_F(MapScriptTest, seerHutScriptedQuestTracksProposalThenProgression)
 	auto handle = dispatcher->onObjectVisit(*gameEventCallback, "questEvents_7", hut, hero);
 	EXPECT_FALSE(handle.has_value()) << "this handler never blocks";
 	EXPECT_TRUE(hut->getActiveQuest()->isKnownTo(PLAYER)) << "markQuestProposed must record the visit";
-	EXPECT_EQ(gameState->players.at(PLAYER).quests.size(), 1u) << "addToQuestLog must add exactly one entry";
+	EXPECT_EQ(gameState()->players.at(PLAYER).quests.size(), 1u) << "addToQuestLog must add exactly one entry";
 	ASSERT_EQ(gameEventCallback->infoWindows.size(), 1u);
 
 	// Repeat visit: already proposed -> progression branch, no duplicate log entry.
 	dispatcher->onObjectVisit(*gameEventCallback, "questEvents_7", hut, hero);
-	EXPECT_EQ(gameState->players.at(PLAYER).quests.size(), 1u) << "a repeat visit must not add a duplicate quest log entry";
+	EXPECT_EQ(gameState()->players.at(PLAYER).quests.size(), 1u) << "a repeat visit must not add a duplicate quest log entry";
 	ASSERT_EQ(gameEventCallback->infoWindows.size(), 2u);
 }
 
@@ -463,9 +365,9 @@ TEST_F(MapScriptTest, finishQuestOrRemoveObjectEmptiesSeerHutWithoutRemovingIt)
 
 	startWithMap(builder);
 
-	auto * dispatcher = gameState->getMapEventDispatcher();
-	SeerHut * hut = findSeerHut();
-	CGHeroInstance * hero = findHero();
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	SeerHut * hut = findFirst<SeerHut>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
 	ASSERT_NE(dispatcher, nullptr);
 	ASSERT_NE(hut, nullptr);
 	ASSERT_NE(hero, nullptr);
@@ -474,7 +376,7 @@ TEST_F(MapScriptTest, finishQuestOrRemoveObjectEmptiesSeerHutWithoutRemovingIt)
 	dispatcher->onObjectVisit(*gameEventCallback, "questEvents_7", hut, hero);
 
 	EXPECT_EQ(hut->getActiveQuest(), nullptr) << "finishQuestOrRemoveObject must empty a seer hut's quest, not remove the hut";
-	EXPECT_EQ(findSeerHut(), hut) << "the seer hut object itself must remain on the map";
+	EXPECT_EQ(findFirst<SeerHut>(), hut) << "the seer hut object itself must remain on the map";
 }
 
 TEST_F(MapScriptTest, playerOwnsTownResolvesObjectByName)
@@ -484,9 +386,9 @@ TEST_F(MapScriptTest, playerOwnsTownResolvesObjectByName)
 
 	startWithMap(builder);
 
-	auto * dispatcher = gameState->getMapEventDispatcher();
-	CGTownInstance * town = findTown();
-	CGHeroInstance * hero = findHero();
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	CGTownInstance * town = findFirst<CGTownInstance>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
 	ASSERT_NE(dispatcher, nullptr);
 	ASSERT_NE(town, nullptr) << "the built map has no town";
 	ASSERT_NE(hero, nullptr);
@@ -504,9 +406,9 @@ TEST_F(MapScriptTest, playerDefeatedMonsterReadsDestroyedObjects)
 
 	startWithMap(builder);
 
-	auto * dispatcher = gameState->getMapEventDispatcher();
-	CGObjectInstance * monster = findMonster();
-	CGHeroInstance * hero = findHero();
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	CGObjectInstance * monster = findFirst<CGCreature>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
 	ASSERT_NE(dispatcher, nullptr);
 	ASSERT_NE(monster, nullptr) << "the built map has no monster";
 	ASSERT_NE(hero, nullptr);
@@ -518,7 +420,7 @@ TEST_F(MapScriptTest, playerDefeatedMonsterReadsDestroyedObjects)
 	EXPECT_EQ(gold(), baseGold + 5) << "an undefeated monster must read as not-defeated";
 
 	// Record the defeat and fire again -> true branch grants 100 gold.
-	gameState->players.at(PLAYER).destroyedObjects.insert(monster->id);
+	gameState()->players.at(PLAYER).destroyedObjects.insert(monster->id);
 	dispatcher->onObjectVisit(*gameEventCallback, "checkDefeatedMonster", monster, hero);
 	EXPECT_EQ(gold(), baseGold + 5 + 100) << "a monster in the player's destroyedObjects must read as defeated";
 }
@@ -529,8 +431,8 @@ TEST_F(MapScriptTest, grantPointsRespectMode)
 
 	startWithMap(builder);
 
-	auto * dispatcher = gameState->getMapEventDispatcher();
-	CGHeroInstance * hero = findHero();
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
 	ASSERT_NE(dispatcher, nullptr);
 	ASSERT_NE(hero, nullptr);
 
@@ -553,8 +455,8 @@ TEST_F(MapScriptTest, grantCreaturesToHireChangesTownPool)
 
 	startWithMap(builder);
 
-	auto * dispatcher = gameState->getMapEventDispatcher();
-	CGTownInstance * town = findTown();
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	CGTownInstance * town = findFirst<CGTownInstance>();
 	ASSERT_NE(dispatcher, nullptr);
 	ASSERT_NE(town, nullptr);
 	ASSERT_FALSE(town->creatures.empty());
@@ -564,4 +466,58 @@ TEST_F(MapScriptTest, grantCreaturesToHireChangesTownPool)
 	dispatcher->onTownTurnStart(*gameEventCallback, "hire", town);
 
 	EXPECT_EQ(town->creatures[0].first, base + 7) << "grantCreaturesToHire adds to the town's tier-0 pool";
+}
+
+TEST_F(MapScriptTest, showMessageBuildsComponentsAndRejectsInvalidOnes)
+{
+	auto builder = baseMap(EMapFormat::SOD, COMPONENTS_SCRIPT);
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(hero, nullptr);
+
+	dispatcher->onObjectVisit(*gameEventCallback, "validComponents", hero, hero);
+	ASSERT_EQ(gameEventCallback->infoWindows.size(), 1u);
+	const auto & components = gameEventCallback->infoWindows[0].components;
+	ASSERT_EQ(components.size(), 3u);
+	EXPECT_EQ(components[0].type, ComponentType::RESOURCE);
+	EXPECT_EQ(components[0].subType.as<GameResID>(), GameResID::GOLD);
+	EXPECT_EQ(components[0].value, -200);
+	EXPECT_EQ(components[1].type, ComponentType::SPELL_SCROLL);
+	EXPECT_EQ(components[1].subType.as<SpellID>(), SpellID(9));
+	EXPECT_EQ(components[2].type, ComponentType::BUILDING);
+	EXPECT_EQ(components[2].subType.as<BuildingTypeUniqueID>(), BuildingTypeUniqueID(FactionID::CASTLE, BuildingID::CASTLE));
+
+	dispatcher->onObjectVisit(*gameEventCallback, "invalidComponent", hero, hero);
+	EXPECT_EQ(gameEventCallback->infoWindows.size(), 1u) << "a component no client can show must not be sent";
+}
+
+TEST_F(MapScriptTest, scriptedQuestHintCarriesComponentsToTheQuestLog)
+{
+	auto builder = baseMap(EMapFormat::HOTA, SEER_HUT_HINT_SCRIPT);
+	builder.seerHut({10, 10, 0}, TinyH3M::TinyH3MBuilder::missionScripted(7));
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	SeerHut * hut = findFirst<SeerHut>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(hut, nullptr);
+
+	dispatcher->onObjectVisit(*gameEventCallback, "questEvents_7", hut, hero);
+	ASSERT_EQ(gameEventCallback->questHintComponents.size(), 1u);
+	EXPECT_EQ(gameEventCallback->questHintComponents[0].type, ComponentType::ARTIFACT);
+	EXPECT_EQ(gameEventCallback->questHintComponents[0].subType.as<ArtifactID>(), ArtifactID(7));
+
+	// the quest log takes the icons of a scripted quest from its hint
+	hut->getQuest().scriptHintComponents = gameEventCallback->questHintComponents;
+	MetaString text;
+	std::vector<Component> components;
+	hut->getActiveQuest()->getVisitText(gameState().get(), text, components, true);
+	ASSERT_EQ(components.size(), 1u);
+	EXPECT_EQ(components[0].subType.as<ArtifactID>(), ArtifactID(7));
 }

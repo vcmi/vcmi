@@ -37,7 +37,7 @@ public:
 
 	/// Stable key of the Lua handler for an event bucket + id. Shared by the converter (which emits
 	/// the handler table key) and the H3M loader (which tags objects/events with the handler to fire).
-	std::string eventHandlerName(const std::string & bucket, int eventID);
+	static std::string eventHandlerName(const std::string & bucket, int eventID);
 
 private:
 	MapReaderH3M & reader;
@@ -71,7 +71,23 @@ private:
 	/// Error for a field whose meaning is not known yet, naming the map and the event being converted
 	std::runtime_error unsupported(const std::string & message) const;
 
-	std::string loadImageList(int count);
+	std::string luaString(const std::string & value) const;
+	std::string bucketName(int eventType) const;
+
+	/// Engine component an image converts to, as Lua table fields, and how its amount is shown
+	struct ImageInfo
+	{
+		std::string component; ///< empty for images the engine cannot show
+		int sign = 1; ///< HotA stores some amounts as two kinds (gain/loss), others carry the sign in the subtype
+		std::optional<int> valueOverride; ///< value taken from the subtype instead of the amount
+		bool hasValue = true;
+	};
+
+	ImageInfo loadMessageImage(int kind);
+	ImageInfo loadQuestHintImage(int kind);
+	std::string loadImage(bool questHint); ///< single Lua Component table, empty for images the engine cannot show
+	std::string loadImageList(int count, bool questHint); ///< Lua array of Component tables
+	void skipImageList(int count);
 	std::string localizedText(const std::string & role); ///< reads a text field, returns a Lua MetaString table holding its identifier
 
 	std::string loadQuestReferences(CMap * map, const std::map<si32, ObjectInstanceID> & questIdentifierToId);
@@ -79,4 +95,13 @@ private:
 	/// Records an H3M object identifier and returns the Lua expression that looks up its runtime
 	/// object name in the loader-populated `questObjects` table.
 	std::string questObjectRef(uint32_t identifier);
+
+	/// Action that ends the event currently being emitted
+	std::string disableCurrentEvent(const std::string & pad) const;
+	/// Hero-targeting action, skipped in handlers where hero may be absent
+	std::string heroStatement(const std::string & pad, const std::string & call) const;
+	/// Hero-based condition, false in handlers where hero is absent
+	std::string heroCondition(const std::string & expression) const;
+	/// Hero-based numeric expression, zero in handlers where hero is absent
+	std::string heroValue(const std::string & expression) const;
 };

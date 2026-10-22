@@ -40,7 +40,8 @@ public:
 	MOCK_CONST_METHOD1(getHero, const CGHeroInstance *(ObjectInstanceID));
 
 	//objects
-	MOCK_CONST_METHOD2(getObj, const CGObjectInstance *(ObjectInstanceID, bool));
+	MOCK_CONST_METHOD1(getObj, const CGObjectInstance *(ObjectInstanceID));
+	MOCK_CONST_METHOD1(tryGetObj, const CGObjectInstance *(ObjectInstanceID));
 	MOCK_CONST_METHOD2(getVisitableObjs, std::vector<const CGObjectInstance*>(int3, bool));
 
 	const scripting::Pool & getScriptContextPool() const override { throw std::runtime_error("not implemented");}
@@ -53,19 +54,21 @@ public:
 	MOCK_CONST_METHOD1(isInTheMap, bool(const int3 & pos));
 	MOCK_CONST_METHOD1(getTeam, const TeamState *(TeamID teamID));
 	MOCK_CONST_METHOD1(getPlayerTeam, const TeamState *(PlayerColor color));
-	MOCK_CONST_METHOD2(getPlayerState, const PlayerState *(PlayerColor color, bool verbose));
+	MOCK_CONST_METHOD1(getPlayerState, const PlayerState *(PlayerColor color));
+	MOCK_CONST_METHOD1(tryGetPlayerState, const PlayerState *(PlayerColor color));
 	MOCK_CONST_METHOD1(getPlayerSettings, const PlayerSettings *(PlayerColor color));
 	MOCK_CONST_METHOD2(getPlayerRelations, PlayerRelations(PlayerColor color1, PlayerColor color2));
 	MOCK_CONST_METHOD2(getHeroCount, int(PlayerColor player, bool includeGarrisoned));
-	MOCK_CONST_METHOD2(getPlayerStatus, EPlayerStatus(PlayerColor player, bool verbose));
+	MOCK_CONST_METHOD1(getPlayerStatus, EPlayerStatus(PlayerColor player));
 	MOCK_CONST_METHOD2(getResource, int(PlayerColor Player, GameResID which));
 	MOCK_CONST_METHOD1(getTown, const CGTownInstance *(ObjectInstanceID objid));
 	MOCK_CONST_METHOD1(getObjInstance, const CGObjectInstance *(ObjectInstanceID oid));
 	MOCK_CONST_METHOD1(getArtInstance, const CArtifactInstance *(ArtifactInstanceID aid));
-	MOCK_CONST_METHOD2(getTile, const TerrainTile *(int3 tile, bool verbose));
+	MOCK_CONST_METHOD1(getTile, const TerrainTile *(int3 tile));
+	MOCK_CONST_METHOD1(tryGetTile, const TerrainTile *(int3 tile));
 	MOCK_CONST_METHOD1(getTileUnchecked, const TerrainTile *(int3 tile));
 	MOCK_CONST_METHOD1(getTopObj, const CGObjectInstance *(int3 pos));
-	MOCK_CONST_METHOD2(getTileDigStatus, EDiggingStatus(int3 tile, bool verbose));
+	MOCK_CONST_METHOD1(getTileDigStatus, EDiggingStatus(int3 tile));
 	MOCK_CONST_METHOD1(calculatePaths, void(const std::shared_ptr<PathfinderConfig> & config));
 	MOCK_CONST_METHOD6(getTilesInRange, void(FowTilesType & tiles, const int3 & pos, int radius, ETileVisibility mode, std::optional<PlayerColor> player, int3::EDistanceFormula formula));
 	MOCK_CONST_METHOD4(getAllTiles, void(FowTilesType & tiles, std::optional<PlayerColor> player, int level, const std::function<bool(const TerrainTile *)> & filter));

@@ -41,28 +41,26 @@ namespace PathfinderUtil
 						return EPathAccessibility::BLOCKED;
 					}
 				}
-				else
+
+				bool hasBlockedVisitable = false;
+				bool hasVisitable = false;
+
+				for(const auto objID : tinfo.visitableObjects)
 				{
-					bool hasBlockedVisitable = false;
-					bool hasVisitable = false;
+					auto obj = gameInfo.getObjInstance(objID);
 
-					for(const auto objID : tinfo.visitableObjects)
-					{
-						auto obj = gameInfo.getObjInstance(objID);
-
-						if(obj->isBlockedVisitable())
-							hasBlockedVisitable = true;
-						else if(!obj->passableFor(player) && obj->ID != Obj::EVENT)
-							hasVisitable = true;
-					}
-
-					if(hasBlockedVisitable)
-						return EPathAccessibility::BLOCKVIS;
-					if(hasVisitable)
-						return EPathAccessibility::VISITABLE;
-
-					return EPathAccessibility::ACCESSIBLE;
+					if(obj->isBlockedVisitable())
+						hasBlockedVisitable = true;
+					else if(!obj->passableFor(player) && obj->ID != Obj::EVENT)
+						hasVisitable = true;
 				}
+
+				if(hasBlockedVisitable)
+					return EPathAccessibility::BLOCKVIS;
+				if(hasVisitable)
+					return EPathAccessibility::VISITABLE;
+
+				return EPathAccessibility::ACCESSIBLE;
 			}
 			else if(tinfo.blocked())
 			{

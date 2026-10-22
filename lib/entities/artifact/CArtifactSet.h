@@ -15,6 +15,7 @@
 
 class CArtifactInstance;
 class CMap;
+class JsonNode;
 
 class DLL_LINKAGE CArtifactSet : public virtual Serializeable
 {
@@ -62,4 +63,6 @@ private:
 	void serializeJsonCommander(JsonSerializeFormat & handler);
 
 	void serializeJsonSlot(JsonSerializeFormat & handler, const ArtifactPosition & slot, CMap * map);//normal slots
+	static JsonNode serializeJsonArtifact(const CArtifactInstance & artifact);
+	static CArtifactInstance * deserializeJsonArtifact(const JsonNode & json, CMap * map);
 };

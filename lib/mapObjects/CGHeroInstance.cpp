@@ -38,6 +38,7 @@
 #include "../entities/hero/CHeroHandler.h"
 #include "../entities/hero/CHeroClass.h"
 #include "../entities/ResourceTypeHandler.h"
+#include "../battle/BattleInfo.h"
 #include "../battle/CBattleInfoEssentials.h"
 #include "../bonuses/BonusParameters.h"
 #include "../campaign/CampaignState.h"
@@ -213,11 +214,16 @@ int CGHeroInstance::movementPointsLimit() const
 static int getMovementSpeed(const CStackInstance & stack)
 {
 	// artifact speed bonuses (e.g. Ring of the Wayfarer) only apply in battle
+	// so do general hero specialties (e.g. Sir Mullich), only creature-specific specialties have effect on adventure map
 	static const CSelector selector = Selector::type()(BonusType::STACKS_SPEED)
 		.And(Selector::sourceTypeSel(BonusSource::ARTIFACT).Not())
-		.And(Selector::sourceTypeSel(BonusSource::ARTIFACT_INSTANCE).Not());
+		.And(Selector::sourceTypeSel(BonusSource::ARTIFACT_INSTANCE).Not())
+		.And([](const Bonus * bonus)
+		{
+			return bonus->source != BonusSource::HERO_SPECIAL || bonus->limiter != nullptr;
+		});
 
-	return stack.valOfBonuses(selector, "type_STACKS_SPEED_noArtifacts");
+	return stack.valOfBonuses(selector, "type_STACKS_SPEED_noArtifactsNoGeneralSpecialty");
 }
 
 int CGHeroInstance::getLowestCreatureSpeed() const
@@ -584,6 +590,11 @@ bool CGHeroInstance::needsLastStack() const
 	return true;
 }
 
+bool CGHeroInstance::canRecruitWarMachine(const ArtifactID & warMachine) const
+{
+	return warMachine != ArtifactID::CATAPULT && !hasArt(warMachine);
+}
+
 void CGHeroInstance::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
 {
 	if(h == this) return; //exclude potential self-visiting
@@ -813,12 +824,12 @@ bool CGHeroInstance::compareCampaignValue(const CGHeroInstance * left, const CGH
 
 	uint32_t leftLevel = left->level;
 	uint64_t leftExperience = left->exp;
-	uint32_t leftPrimary = left->getPrimSkillLevel(PrimarySkill::ATTACK) + left->getPrimSkillLevel(PrimarySkill::DEFENSE) + left->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + left->getPrimSkillLevel(PrimarySkill::DEFENSE);
+	uint32_t leftPrimary = left->getPrimSkillLevel(PrimarySkill::ATTACK) + left->getPrimSkillLevel(PrimarySkill::DEFENSE) + left->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + left->getPrimSkillLevel(PrimarySkill::KNOWLEDGE);
 	uint32_t leftPrimaryAndLevel = leftPrimary + leftLevel;
 
 	uint32_t rightLevel = right->level;
 	uint64_t rightExperience = right->exp;
-	uint32_t rightPrimary = right->getPrimSkillLevel(PrimarySkill::ATTACK) + right->getPrimSkillLevel(PrimarySkill::DEFENSE) + right->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + right->getPrimSkillLevel(PrimarySkill::DEFENSE);
+	uint32_t rightPrimary = right->getPrimSkillLevel(PrimarySkill::ATTACK) + right->getPrimSkillLevel(PrimarySkill::DEFENSE) + right->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + right->getPrimSkillLevel(PrimarySkill::KNOWLEDGE);
 	uint32_t rightPrimaryAndLevel = rightPrimary + rightLevel;
 
 	if (leftPrimaryAndLevel != rightPrimaryAndLevel)
@@ -1464,6 +1475,44 @@ void CGHeroInstance::restoreBonusSystem(CGameState & gs)
 		if (boat)
 			attachTo(dynamic_cast<CGBoat&>(*boat));
 	}
+
+	// battle participants are detached from special terrain until the battle ends
+	const auto * battle = gs.getBattle(getOwner());
+	if(!battle || (battle->getSide(BattleSide::ATTACKER).heroID != id && battle->getSide(BattleSide::DEFENDER).heroID != id))
+		updateSpecialTerrain(gs);
+}
+
+void CGHeroInstance::attachToBonusSystem(CGameState & gs)
+{
+	CArmedInstance::attachToBonusSystem(gs);
+	updateSpecialTerrain(gs);
+}
+
+void CGHeroInstance::detachFromBonusSystem(CGameState & gs)
+{
+	leaveSpecialTerrain(gs);
+	CArmedInstance::detachFromBonusSystem(gs);
+}
+
+void CGHeroInstance::updateSpecialTerrain(CGameState & gs)
+{
+	// prisons are heroes too, but are not affected by terrain
+	BattleField newTerrain = ID == Obj::HERO ? gs.getSpecialTerrainAt(visitablePos()) : BattleField::NONE;
+
+	if(newTerrain == specialTerrain)
+		return;
+
+	leaveSpecialTerrain(gs);
+	specialTerrain = newTerrain;
+	if(specialTerrain != BattleField::NONE)
+		attachTo(gs.getSpecialTerrainNode(specialTerrain));
+}
+
+void CGHeroInstance::leaveSpecialTerrain(CGameState & gs)
+{
+	if(specialTerrain != BattleField::NONE)
+		detachFrom(gs.getSpecialTerrainNode(specialTerrain));
+	specialTerrain = BattleField::NONE;
 }
 
 CBonusSystemNode & CGHeroInstance::whereShouldBeAttached(CGameState & gs)
@@ -1925,15 +1974,17 @@ bool CGHeroInstance::isMissionCritical() const
 
 void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & stack) const
 {
-	TConstBonusListPtr lista = stack.getBonusesOfType(BonusType::SPECIAL_UPGRADE, BonusSubtypeID(stack.getId()));
-	for(const auto & it : *lista)
+	TConstBonusListPtr upgrades = stack.getBonusesOfType(BonusType::SPECIAL_UPGRADE);
+	for (const auto & bonus : *upgrades)
 	{
-		if (it->parameters)
+		if (bonus->parameters &&
+			(bonus->subtype == BonusSubtypeID(stack.getId()) ||
+			(bonus->subtype == BonusSubtypeID() && bonus->limiter)))
 		{
-			auto nid = it->parameters->toCreature();
-			if (nid != stack.getId()) //in very specific case the upgrade is available by default (?)
+			auto upgradeID = bonus->parameters->toCreature();
+			if(upgradeID != stack.getId()) //in very specific case the upgrade is available by default (?)
 				// SPECIAL_UPGRADE value adjusts the default 100% cost; clamp the final modifier to 0%.
-				info.addUpgrade(nid, stack.getType(), std::max(0, 100 + it->val));
+				info.addUpgrade(upgradeID, stack.getType(), std::max(0, 100 + bonus->val));
 		}
 	}
 }
@@ -1983,18 +2034,18 @@ int CGHeroInstance::getBasePrimarySkillValue(PrimarySkill which) const
 
 ArtifactID CGHeroInstance::getReplacedWarMachine(ArtifactID artifactID) const
 {
-	ArtifactID replacedArtifact;
-	auto art = artifactID.toArtifact();
+	const auto * currentArtifact = getArt(getWarMachineSlot(artifactID));
+	return currentArtifact ? currentArtifact->getTypeId() : ArtifactID();
+}
 
-	for(auto slot : art->getPossibleSlots().at(ArtBearer::HERO))
-	{
-		const auto * currentArtifact = getArt(slot);
+ArtifactPosition CGHeroInstance::getWarMachineSlot(ArtifactID warMachine) const
+{
+	const auto & possibleSlots = warMachine.toArtifact()->getPossibleSlots().at(ArtBearer::HERO);
 
-		if(currentArtifact == nullptr)
-			return ArtifactID();
-		else
-			replacedArtifact = currentArtifact->getTypeId();
-	}
-	return replacedArtifact;
+	for(const auto & slot : possibleSlots)
+		if(getArt(slot) == nullptr)
+			return slot;
+
+	return possibleSlots.front();
 }
 

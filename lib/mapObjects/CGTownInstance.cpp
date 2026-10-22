@@ -175,7 +175,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 		ret.entries.emplace_back(b->val, b->Description(cb));
 
 	int dwellingBonus = 0;
-	if(const PlayerState *p = cb->getPlayerState(tempOwner, false))
+	if(const PlayerState *p = cb->tryGetPlayerState(tempOwner))
 	{
 		dwellingBonus = getDwellingBonus(creatures[level].second, p->getOwnedObjects());
 	}
@@ -691,7 +691,7 @@ ObjectInstanceID CGTownInstance::getObjInstanceID() const
 
 void CGTownInstance::updateAppearance()
 {
-	const auto tile = cb->getTile(visitablePos());
+	const auto tile = cb->tryGetTile(visitablePos());
 	if(!tile)
 	{
 		logGlobal->warn("Town is misplaced at (%d, %d, %d)", visitablePos().x,

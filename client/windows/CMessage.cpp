@@ -65,6 +65,19 @@ void CMessage::dispose()
 		item.clear();
 }
 
+/// State of line breaking after some symbols of the text were consumed
+struct BreakTextStep
+{
+	size_t textPos = 0; // position in text after this step
+	size_t printableSize = 0; // size of printable part of the line after this step
+	size_t symbolSize = 0; // width of last consumed character, in bytes
+	size_t wordBreak = std::string::npos; // last position for line break (last space character)
+	bool opened = false; // set to true when opening brace is found
+	bool wordBreakOpened = false; // formatting state at last possible line break
+	std::string_view color; // color found
+	std::string_view wordBreakColor;
+};
+
 std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWidth, EFonts font)
 {
 	assert(maxLineWidth != 0);
@@ -77,73 +90,113 @@ std::vector<std::string> CMessage::breakText(std::string text, size_t maxLineWid
 
 	const auto & fontPtr = ENGINE->renderHandler().loadFont(font);
 
+	std::vector<BreakTextStep> steps;
+	std::string printableString;
+
 	// each iteration generates one output line
 	while(text.length())
 	{
-		ui32 wordBreak = -1; //last position for line break (last space character)
-		bool wordBreakOpened = false; // formatting state at last possible line break
-		std::string wordBreakColor;
-		ui32 currPos = 0; //current position in text
-		bool opened = false; //set to true when opening brace is found
-		std::string color; //color found
+		steps.assign(1, BreakTextStep());
+		printableString.clear();
 
-		size_t symbolSize = 0; // width of character, in bytes
-
-		std::string printableString;
-
-		// loops till line is full or end of text reached
-		while(currPos < text.length() && text[currPos] != 0x0a && fontPtr->getStringWidth(printableString) <= maxLineWidth)
+		// consumes symbols of the line until `count` steps are known or end of line is reached
+		const auto scanUntil = [&](size_t count)
 		{
-			symbolSize = TextOperations::getUnicodeCharacterSize(text[currPos]);
-
-			// candidate for line break
-			if(ui8(text[currPos]) <= ui8(' '))
+			while(steps.size() <= count && steps.back().textPos < text.length() && text[steps.back().textPos] != 0x0a)
 			{
-				wordBreak = currPos;
-				wordBreakOpened = opened;
-				wordBreakColor = color;
-			}
+				BreakTextStep step = steps.back();
+				size_t currPos = step.textPos;
+				step.symbolSize = TextOperations::getUnicodeCharacterSize(text[currPos]);
 
-			/* We don't count braces in string length. */
-			if(text[currPos] == '{')
-			{
-				opened = true;
-
-				std::smatch match;
-				std::regex expr("^\\{(.*?)\\|");
-				std::string tmp = text.substr(currPos);
-				if(std::regex_search(tmp, match, expr, std::regex_constants::match_continuous))
+				// candidate for line break
+				if(ui8(text[currPos]) <= ui8(' '))
 				{
-					std::string colorText = match[1].str();
-					if(auto c = Colors::parseColor(colorText))
+					step.wordBreak = currPos;
+					step.wordBreakOpened = step.opened;
+					step.wordBreakColor = step.color;
+				}
+
+				/* We don't count braces in string length. */
+				if(text[currPos] == '{')
+				{
+					step.opened = true;
+
+					// color is given as "{color|text}"
+					size_t colorEnd = text.find_first_of("|\r\n", currPos + 1);
+					if(colorEnd != std::string::npos && text[colorEnd] == '|')
 					{
-						color = colorText + "|";
-						currPos += colorText.length() + 1;
+						std::string_view colorText = std::string_view(text).substr(currPos + 1, colorEnd - currPos - 1);
+						if(Colors::parseColor(std::string(colorText)))
+						{
+							step.color = std::string_view(text).substr(currPos + 1, colorText.length() + 1);
+							currPos += colorText.length() + 1;
+						}
 					}
 				}
+				else if(text[currPos] == '}')
+				{
+					step.opened = false;
+					step.color = {};
+				}
+				else
+					printableString.append(text.data() + currPos, step.symbolSize);
+
+				step.textPos = currPos + step.symbolSize;
+				step.printableSize = printableString.size();
+				steps.push_back(step);
 			}
-			else if(text[currPos] == '}')
+		};
+
+		const auto isTooLong = [&](size_t stepIndex)
+		{
+			return fontPtr->getStringWidth(std::string_view(printableString).substr(0, steps[stepIndex].printableSize)) > maxLineWidth;
+		};
+
+		// Line ends at the first step that is too long, or at the end of line if everything fits.
+		// Width only grows with every symbol, so that step is searched for instead of measuring after every symbol
+		size_t fitting = 0;
+		size_t lineEnd = 0;
+		for(size_t probe = 16; ; probe *= 2)
+		{
+			scanUntil(probe);
+			lineEnd = std::min(probe, steps.size() - 1);
+
+			if(isTooLong(lineEnd))
 			{
-				opened = false;
-				color = "";
+				while(fitting + 1 < lineEnd)
+				{
+					size_t middle = (fitting + lineEnd) / 2;
+					if(isTooLong(middle))
+						lineEnd = middle;
+					else
+						fitting = middle;
+				}
+				break;
 			}
-			else
-				printableString.append(text.data() + currPos, symbolSize);
-			currPos += symbolSize;
+
+			fitting = lineEnd;
+			if(lineEnd < probe)
+				break;
 		}
+
+		const BreakTextStep & last = steps[lineEnd];
+		ui32 currPos = last.textPos;
+		bool opened = last.opened;
+		std::string color(last.color);
+		const bool tooLong = lineEnd != fitting;
 
 		// not all line has been processed - it turned out to be too long, so erase everything after last word break
 		// if string consists from a single word (or this is Chinese/Korean) - erase only last symbol to bring line back to allowed length
-		if(fontPtr->getStringWidth(printableString) > maxLineWidth && (text[currPos] != 0x0a))
+		if(tooLong && (text[currPos] != 0x0a))
 		{
-			if(wordBreak != ui32(-1))
+			if(last.wordBreak != std::string::npos)
 			{
-				currPos = wordBreak;
-				opened = wordBreakOpened;
-				color = wordBreakColor;
+				currPos = last.wordBreak;
+				opened = last.wordBreakOpened;
+				color = last.wordBreakColor;
 			}
 			else
-				currPos -= symbolSize;
+				currPos -= last.symbolSize;
 		}
 
 		//non-blank line

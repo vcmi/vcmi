@@ -94,6 +94,7 @@ public:
 	virtual void visitSetObjectProperty(SetObjectProperty & pack) {}
 	virtual void visitSetScriptVariable(SetScriptVariable & pack) {}
 	virtual void visitSetQuestHint(SetQuestHint & pack) {}
+	virtual void visitDisableMapEvent(DisableMapEvent & pack) {}
 	virtual void visitChangeObjectVisitors(ChangeObjectVisitors & pack) {}
 	virtual void visitChangeArtifactsCostume(ChangeArtifactsCostume & pack) {}
 	virtual void visitHeroLevelUp(HeroLevelUp & pack) {}
@@ -123,6 +124,7 @@ public:
 	virtual void visitBattleTriggerEffect(BattleTriggerEffect & pack) {}
 	virtual void visitBattleAnimationPlayed(BattleAnimationPlayed & pack) {}
 	virtual void visitBattleUpdateGateState(BattleUpdateGateState & pack) {}
+	virtual void visitBattleTacticsEnded(BattleTacticsEnded & pack) {}
 	virtual void visitAdvmapSpellCast(AdvmapSpellCast & pack) {}
 	virtual void visitShowWorldViewEx(ShowWorldViewEx & pack) {}
 	virtual void visitEndTurn(EndTurn & pack) {}

@@ -870,6 +870,10 @@ CastAnimation::CastAnimation(BattleInterface & owner_, const CStack * attacker, 
 	: RangedAttackAnimation(owner_, attacker, dest, defender),
 	  spell(spell)
 {
+	// Preserve the inherited shoot sound when no cast sound is configured.
+	if(!getCreature()->sounds.cast.empty())
+		setSound(getCreature()->sounds.cast);
+
 	if(!dest.isValid())
 	{
 		assert(spell->animationInfo.projectile.empty());

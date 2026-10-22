@@ -18,8 +18,6 @@
 #include <vcmi/Entity.h>
 #include <vcmi/scripting/ApiTags.h>
 
-#define RETURN_IF_NOT_BATTLE(...) do { if(!duringBattle()) {logGlobal->error("%s called when no battle!", __FUNCTION__); return __VA_ARGS__; } } while (false)
-
 struct CObstacleInstance;
 class BattleField;
 class IBattleInfo;
@@ -85,7 +83,7 @@ public:
 	virtual BattleHex getAvailableHex(const Creature * creature, BattleSide side, BattleHex initialPos = {}) const = 0;
 
 	//blocking obstacles makes tile inaccessible, others cause special effects (like Land Mines, Moat, Quicksands)
-	virtual std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(const BattleHex & tile, bool onlyBlocking = true) const = 0;
+	virtual std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(const BattleHex & tile, bool onlyBlocking = true, std::optional<BattleSide> perspective = std::nullopt) const = 0;
 	virtual std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const battle::Unit * unit, const BattleHexArray & passed) const = 0;
 	virtual std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstacles(std::optional<BattleSide> perspective = std::nullopt) const = 0;
 

@@ -101,7 +101,8 @@
 				"chainLength" : { "type" : "number" },
 				"healLevel" : { "type" : "string" },
 				"healPower" : { "type" : "string" },
-				"minFullUnits" : { "type" : "number" }
+				"minFullUnits" : { "type" : "number" },
+				"minValue" : { "type" : "number" }
 			},
 			"additionalProperties" : false
 		}
@@ -268,7 +269,7 @@
 		"implements" : "spellEffect",
 		"script" : "spells/timed",
 		"stringRegistrations" : ["battleLogSingular", "battleLogPlural"],
-		"patches" : ["spells/patches/timedShield", "spells/patches/timedBind"],
+		"patches" : ["spells/patches/timedBind"],
 		"schema" : {
 			"properties" : {
 				"type" : {},

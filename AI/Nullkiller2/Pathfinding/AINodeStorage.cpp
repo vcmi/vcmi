@@ -479,7 +479,7 @@ bool AINodeStorage::increaseHeroChainTurnLimit()
 
 	for(auto layer : phisycalLayers)
 	{
-		foreach_tile_pos(*aiNk->cc, [&](const int3 & pos)
+		foreach_visible_tile_pos(*aiNk->cc, [&](const int3 & pos)
 		{
 			iterateValidNodesUntil(pos, layer, [&](AIPathNode & node)
 				{
@@ -504,7 +504,7 @@ bool AINodeStorage::calculateHeroChainFinal()
 
 	for(auto layer : phisycalLayers)
 	{
-		foreach_tile_pos(*aiNk->cc, [&](const int3 & pos)
+		foreach_visible_tile_pos(*aiNk->cc, [&](const int3 & pos)
 		{
 			iterateValidNodes(pos, layer, [&](AIPathNode & node)
 				{

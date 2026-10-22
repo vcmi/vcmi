@@ -44,6 +44,8 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 {
 	ui->setupUi(this);
 	Helper::decorateDialog(this);
+	rewardWidget = std::make_unique<RewardWidget>(map, object.id , this);
+	ui->rewardLayout->addWidget(rewardWidget.get());
 	//fill core elements
 	for(const auto & s : Rewardable::VisitModeString)
 		ui->visitMode->addItem(QString::fromUtf8(s.data(), s.size()));
@@ -59,95 +61,71 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 		ui->lDayOfWeek->addItem(tr("Day %1").arg(i));
 	
 	//fill resources
-	ui->rResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
 	ui->lResources->setRowCount(LIBRARY->resourceTypeHandler->getAllObjects().size());
 	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
 		MetaString str;
 		str.appendName(GameResID(i));
-		for(auto * w : {ui->rResources, ui->lResources})
-		{
 			auto * item = new QTableWidgetItem(QString::fromStdString(str.toString(&Translator::instance())));
 			item->setData(Qt::UserRole, QVariant::fromValue(i.getNum()));
-			w->setItem(i, 0, item);
+			ui->lResources->setItem(i, 0, item);
 			auto * spinBox = new QSpinBox;
 			spinBox->setMaximum(i == GameResID::GOLD ? 999999 : 999);
-			if(w == ui->rResources)
-				spinBox->setMinimum(i == GameResID::GOLD ? -999999 : -999);
-			w->setCellWidget(i, 1, spinBox);
-		}
+			ui->lResources->setCellWidget(i, 1, spinBox);
 	}
 	
 	//fill artifacts
 	for(int i = 0; i < map.allowedArtifact.size(); ++i)
 	{
-		for(auto * w : {ui->rArtifacts, ui->lArtifacts})
-		{
-			auto * item = new QListWidgetItem(QString::fromStdString(LIBRARY->artifacts()->getByIndex(i)->getNameTranslated()));
-			item->setData(Qt::UserRole, QVariant::fromValue(i));
-			item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-			item->setCheckState(Qt::Unchecked);
-			if(map.allowedArtifact.count(i) == 0)
-				item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-			w->addItem(item);
-		}
+		auto * item = new QListWidgetItem(QString::fromStdString(LIBRARY->artifacts()->getByIndex(i)->getNameTranslated()));
+		item->setData(Qt::UserRole, QVariant::fromValue(i));
+		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+		item->setCheckState(Qt::Unchecked);
+		if(map.allowedArtifact.count(i) == 0)
+			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+		ui->lArtifacts->addItem(item);
 	}
 	
 	//fill spells
 	for(int i = 0; i < map.allowedSpells.size(); ++i)
 	{
-		for(auto * w : {ui->rSpells, ui->lSpells})
-		{
+
 			auto * item = new QListWidgetItem(QString::fromStdString(LIBRARY->spells()->getByIndex(i)->getNameTranslated()));
 			item->setData(Qt::UserRole, QVariant::fromValue(i));
 			item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 			item->setCheckState(Qt::Unchecked);
 			if(map.allowedSpells.count(i) == 0)
 				item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-			w->addItem(item);
-		}
-		
-		//spell cast
-		if(LIBRARY->spells()->getByIndex(i)->isAdventure())
-		{
-			ui->castSpell->addItem(QString::fromStdString(LIBRARY->spells()->getByIndex(i)->getNameTranslated()));
-			ui->castSpell->setItemData(ui->castSpell->count() - 1, QVariant::fromValue(i));
-		}
+			ui->lSpells->addItem(item);
 	}
 	
 	//fill skills
-	ui->rSkills->setRowCount(map.allowedAbilities.size());
 	ui->lSkills->setRowCount(map.allowedAbilities.size());
 	for(int i = 0; i < map.allowedAbilities.size(); ++i)
 	{
-		for(auto * w : {ui->rSkills, ui->lSkills})
+
+		auto * item = new QTableWidgetItem(QString::fromStdString(LIBRARY->skills()->getByIndex(i)->getNameTranslated()));
+		item->setData(Qt::UserRole, QVariant::fromValue(i));
+
+		auto * widget = new QComboBox;
+		for(auto & s : NSecondarySkill::levels)
+			widget->addItem(QString::fromUtf8(s));
+
+		if(map.allowedAbilities.count(i) == 0)
 		{
-			auto * item = new QTableWidgetItem(QString::fromStdString(LIBRARY->skills()->getByIndex(i)->getNameTranslated()));
-			item->setData(Qt::UserRole, QVariant::fromValue(i));
-			
-			auto * widget = new QComboBox;
-			for(auto & s : NSecondarySkill::levels)
-				widget->addItem(QString::fromUtf8(s));
-			
-			if(map.allowedAbilities.count(i) == 0)
-			{
-				item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
-				widget->setEnabled(false);
-			}
-			
-			w->setItem(i, 0, item);
-			w->setCellWidget(i, 1, widget);
+			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+			widget->setEnabled(false);
 		}
+
+		ui->lSkills->setItem(i, 0, item);
+		ui->lSkills->setCellWidget(i, 1, widget);
 	}
 	
 	//fill creatures
 	for(auto & creature : LIBRARY->creh->objects)
 	{
-		for(auto * w : {ui->rCreatureId, ui->lCreatureId})
-		{
-			w->addItem(QString::fromStdString(creature->getNameSingularTranslated()));
-			w->setItemData(w->count() - 1, creature->getIndex());
-		}
+		ui->lCreatureId->addItem(QString::fromStdString(creature->getNameSingularTranslated()));
+		ui->lCreatureId->setItemData(ui->lCreatureId->count() - 1, creature->getIndex());
 	}
 	
 	//fill heroes
@@ -181,17 +159,6 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 		item->setCheckState(Qt::Unchecked);
 		ui->lPlayers->addItem(item);
 	}
-	
-	//fill spell cast
-	for(auto & s : NSecondarySkill::levels)
-		ui->castLevel->addItem(QString::fromUtf8(s));
-	on_castSpellCheck_toggled(false);
-	
-	//fill bonuses
-	for(auto & s : bonusDurationMap)
-		ui->bonusDuration->addItem(QString::fromStdString(s.first));
-	for(auto & s : LIBRARY->bth->getAllObjets())
-		ui->bonusType->addItem(QString::fromStdString(LIBRARY->bth->bonusToString(s)));
 	
 	//set default values
 	if(dynamic_cast<CGPandoraBox*>(&object))
@@ -282,79 +249,13 @@ bool RewardsWidget::commitChanges()
 
 void RewardsWidget::saveCurrentVisitInfo(int index)
 {
+	rewardWidget->commit();
 	auto & vinfo = object.configuration.info.at(index);
 	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 	if(ui->rewardMessage->text().isEmpty())
 		vinfo.message.clear();
 	else
 		vinfo.message = MetaString::createFromTextID(mapRegisterLocalizedString("map", map, TextIdentifier("reward", object.instanceName, "info", index, "message"), ui->rewardMessage->text().toStdString()));
-	
-	vinfo.reward.heroLevel = ui->rHeroLevel->value();
-	vinfo.reward.heroExperience = ui->rHeroExperience->value();
-	vinfo.reward.manaDiff = ui->rManaDiff->value();
-	vinfo.reward.manaPercentage = ui->rManaPercentage->value();
-	vinfo.reward.manaOverflowFactor = ui->rOverflowFactor->value();
-	vinfo.reward.movePoints = ui->rMovePoints->value();
-	vinfo.reward.movePercentage = ui->rMovePercentage->value();
-	vinfo.reward.removeObject = ui->removeObject->isChecked();
-	vinfo.reward.primary.resize(4);
-	vinfo.reward.primary[0] = ui->rAttack->value();
-	vinfo.reward.primary[1] = ui->rDefence->value();
-	vinfo.reward.primary[2] = ui->rPower->value();
-	vinfo.reward.primary[3] = ui->rKnowledge->value();
-	for(int i = 0; i < ui->rResources->rowCount(); ++i)
-	{
-		if(auto * widget = qobject_cast<QSpinBox*>(ui->rResources->cellWidget(i, 1)))
-			vinfo.reward.resources[i] = widget->value();
-	}
-	
-	vinfo.reward.grantedArtifacts.clear();
-	for(int i = 0; i < ui->rArtifacts->count(); ++i)
-	{
-		if(ui->rArtifacts->item(i)->checkState() == Qt::Checked)
-			vinfo.reward.grantedArtifacts.push_back(LIBRARY->artifacts()->getByIndex(i)->getId());
-	}
-	vinfo.reward.spells.clear();
-	for(int i = 0; i < ui->rSpells->count(); ++i)
-	{
-		if(ui->rSpells->item(i)->checkState() == Qt::Checked)
-			vinfo.reward.spells.push_back(LIBRARY->spells()->getByIndex(i)->getId());
-	}
-	
-	vinfo.reward.secondary.clear();
-	for(int i = 0; i < ui->rSkills->rowCount(); ++i)
-	{
-		if(auto * widget = qobject_cast<QComboBox*>(ui->rSkills->cellWidget(i, 1)))
-		{
-			if(widget->currentIndex() > 0)
-				vinfo.reward.secondary[LIBRARY->skills()->getByIndex(i)->getId()] = widget->currentIndex();
-		}
-	}
-	
-	vinfo.reward.creatures.clear();
-	for(int i = 0; i < ui->rCreatures->rowCount(); ++i)
-	{
-		int index = ui->rCreatures->item(i, 0)->data(Qt::UserRole).toInt();
-		if(auto * widget = qobject_cast<QSpinBox*>(ui->rCreatures->cellWidget(i, 1)))
-			if(widget->value())
-				vinfo.reward.creatures.emplace_back(LIBRARY->creatures()->getByIndex(index)->getId(), widget->value());
-	}
-	
-	vinfo.reward.spellCast.first = SpellID::NONE;
-	if(ui->castSpellCheck->isChecked())
-	{
-		vinfo.reward.spellCast.first = LIBRARY->spells()->getByIndex(ui->castSpell->itemData(ui->castSpell->currentIndex()).toInt())->getId();
-		vinfo.reward.spellCast.second = ui->castLevel->currentIndex();
-	}
-	
-	vinfo.reward.heroBonuses.clear();
-	for(int i = 0; i < ui->bonuses->rowCount(); ++i)
-	{
-		auto dur = bonusDurationMap.at(ui->bonuses->item(i, 0)->text().toStdString());
-		auto typ = static_cast<BonusType>(*LIBRARY->identifiers()->getIdentifier(ModScope::scopeBuiltin(), "bonus", ui->bonuses->item(i, 1)->text().toStdString()));
-		auto val = ui->bonuses->item(i, 2)->data(Qt::UserRole).toInt();
-		vinfo.reward.heroBonuses.push_back(std::make_shared<Bonus>(dur, typ, BonusSource::OBJECT_INSTANCE, val, BonusSourceID(object.id)));
-	}
 	
 	vinfo.limiter.dayOfWeek = ui->lDayOfWeek->currentIndex();
 	vinfo.limiter.daysPassed = ui->lDaysPassed->value();
@@ -429,91 +330,15 @@ void RewardsWidget::saveCurrentVisitInfo(int index)
 
 void RewardsWidget::loadCurrentVisitInfo(int index)
 {
-	for(auto * w : {ui->rArtifacts, ui->rSpells, ui->lArtifacts, ui->lSpells})
+	for(auto * w : {ui->lArtifacts, ui->lSpells})
 		for(int i = 0; i < w->count(); ++i)
 			w->item(i)->setCheckState(Qt::Unchecked);
-	
-	for(auto * w : {ui->rSkills, ui->lSkills})
-		for(int i = 0; i < w->rowCount(); ++i)
-			if(auto * widget = qobject_cast<QComboBox*>(ui->rSkills->cellWidget(i, 1)))
-				widget->setCurrentIndex(0);
-	
-	ui->rCreatures->setRowCount(0);
+
 	ui->lCreatures->setRowCount(0);
-	ui->bonuses->setRowCount(0);
 	
-	const auto & vinfo = object.configuration.info.at(index);
+	auto & vinfo = object.configuration.info.at(index);
+	rewardWidget->loadReward(&vinfo.reward);
 	ui->rewardMessage->setText(QString::fromStdString(vinfo.message.toString(&Translator::instance())));
-	
-	ui->rHeroLevel->setValue(vinfo.reward.heroLevel);
-	ui->rHeroExperience->setValue(vinfo.reward.heroExperience);
-	ui->rManaDiff->setValue(vinfo.reward.manaDiff);
-	ui->rManaPercentage->setValue(vinfo.reward.manaPercentage);
-	ui->rOverflowFactor->setValue(vinfo.reward.manaOverflowFactor);
-	ui->rMovePoints->setValue(vinfo.reward.movePoints);
-	ui->rMovePercentage->setValue(vinfo.reward.movePercentage);
-	ui->removeObject->setChecked(vinfo.reward.removeObject);
-	ui->rAttack->setValue(vinfo.reward.primary[0]);
-	ui->rDefence->setValue(vinfo.reward.primary[1]);
-	ui->rPower->setValue(vinfo.reward.primary[2]);
-	ui->rKnowledge->setValue(vinfo.reward.primary[3]);
-	for(int i = 0; i < ui->rResources->rowCount(); ++i)
-	{
-		if(auto * widget = qobject_cast<QSpinBox*>(ui->rResources->cellWidget(i, 1)))
-			widget->setValue(vinfo.reward.resources[i]);
-	}
-	
-	for(auto i : vinfo.reward.grantedArtifacts)
-		ui->rArtifacts->item(LIBRARY->artifacts()->getById(i)->getIndex())->setCheckState(Qt::Checked);
-	for(auto i : vinfo.reward.spells)
-		ui->rSpells->item(LIBRARY->spells()->getById(i)->getIndex())->setCheckState(Qt::Checked);
-	for(auto & i : vinfo.reward.secondary)
-	{
-		int index = LIBRARY->skills()->getById(i.first)->getIndex();
-		if(auto * widget = qobject_cast<QComboBox*>(ui->rSkills->cellWidget(index, 1)))
-			widget->setCurrentIndex(i.second);
-	}
-	for(auto & i : vinfo.reward.creatures)
-	{
-		int index = i.getType()->getIndex();
-		ui->rCreatureId->setCurrentIndex(index);
-		ui->rCreatureAmount->setValue(i.getCount());
-		onCreatureAdd(ui->rCreatures, ui->rCreatureId, ui->rCreatureAmount);
-	}
-	
-	ui->castSpellCheck->setChecked(vinfo.reward.spellCast.first != SpellID::NONE);
-	if(ui->castSpellCheck->isChecked())
-	{
-		int index = LIBRARY->spells()->getById(vinfo.reward.spellCast.first)->getIndex();
-		ui->castSpell->setCurrentIndex(index);
-		ui->castLevel->setCurrentIndex(vinfo.reward.spellCast.second);
-	}
-	
-	for(auto & i : vinfo.reward.heroBonuses)
-	{
-		auto dur = vstd::findKey(bonusDurationMap, i->duration);
-		for(int i = 0; i < ui->bonusDuration->count(); ++i)
-		{
-			if(ui->bonusDuration->itemText(i) == QString::fromStdString(dur))
-			{
-				ui->bonusDuration->setCurrentIndex(i);
-				break;
-			}
-		}
-		
-		std::string typ = LIBRARY->bth->bonusToString(i->type);
-		for(int i = 0; i < ui->bonusType->count(); ++i)
-		{
-			if(ui->bonusType->itemText(i) == QString::fromStdString(typ))
-			{
-				ui->bonusType->setCurrentIndex(i);
-				break;
-			}
-		}
-		
-		ui->bonusValue->setValue(i->val);
-		on_bonusAdd_clicked();
-	}
 	
 	ui->lDayOfWeek->setCurrentIndex(vinfo.limiter.dayOfWeek);
 	ui->lDaysPassed->setValue(vinfo.limiter.daysPassed);
@@ -689,23 +514,6 @@ void RewardsWidget::on_visitInfoList_currentItemChanged(QListWidgetItem * curren
 }
 
 
-void RewardsWidget::on_rCreatureAdd_clicked()
-{
-	onCreatureAdd(ui->rCreatures, ui->rCreatureId, ui->rCreatureAmount);
-}
-
-
-void RewardsWidget::on_rCreatureRemove_clicked()
-{
-	std::set<int, std::greater<int>> rowsToRemove;
-	for(auto * i : ui->rCreatures->selectedItems())
-		rowsToRemove.insert(i->row());
-	
-	for(auto i : rowsToRemove)
-		ui->rCreatures->removeRow(i);
-}
-
-
 void RewardsWidget::on_lCreatureAdd_clicked()
 {
 	onCreatureAdd(ui->lCreatures, ui->lCreatureId, ui->lCreatureAmount);
@@ -720,35 +528,6 @@ void RewardsWidget::on_lCreatureRemove_clicked()
 	
 	for(auto i : rowsToRemove)
 		ui->lCreatures->removeRow(i);
-}
-
-void RewardsWidget::on_castSpellCheck_toggled(bool checked)
-{
-	ui->castSpell->setEnabled(checked);
-	ui->castLevel->setEnabled(checked);
-}
-
-void RewardsWidget::on_bonusAdd_clicked()
-{
-	auto * itemType = new QTableWidgetItem(ui->bonusType->currentText());
-	auto * itemDur = new QTableWidgetItem(ui->bonusDuration->currentText());
-	auto * itemVal = new QTableWidgetItem(QString::number(ui->bonusValue->value()));
-	itemVal->setData(Qt::UserRole, ui->bonusValue->value());
-	
-	ui->bonuses->setRowCount(ui->bonuses->rowCount() + 1);
-	ui->bonuses->setItem(ui->bonuses->rowCount() - 1, 0, itemDur);
-	ui->bonuses->setItem(ui->bonuses->rowCount() - 1, 1, itemType);
-	ui->bonuses->setItem(ui->bonuses->rowCount() - 1, 2, itemVal);
-}
-
-void RewardsWidget::on_bonusRemove_clicked()
-{
-	std::set<int, std::greater<int>> rowsToRemove;
-	for(auto * i : ui->bonuses->selectedItems())
-		rowsToRemove.insert(i->row());
-	
-	for(auto i : rowsToRemove)
-		ui->bonuses->removeRow(i);
 }
 
 

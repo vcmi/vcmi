@@ -161,7 +161,7 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 	
 	auto & timer = timers[player];
 	timer.isTurnStart = false;
-	const auto * state = gameHandler.gameInfo().getPlayerState(player);
+	const auto * state = gameHandler.gameInfo().tryGetPlayerState(player);
 	if(state && state->human && timer.isActive && !timer.isBattle && state->status == EPlayerStatus::INGAME)
 	{
 		// turn timers are only used if turn timer is non-zero
@@ -186,8 +186,8 @@ bool TurnTimerHandler::isPvpBattle(const BattleID & battleID) const
 	auto defender = gs.getBattle(battleID)->getSidePlayer(BattleSide::DEFENDER);
 	if(attacker.isValidPlayer() && defender.isValidPlayer())
 	{
-		const auto * attackerState = gameHandler.gameInfo().getPlayerState(attacker);
-		const auto * defenderState = gameHandler.gameInfo().getPlayerState(defender);
+		const auto * attackerState = gameHandler.gameInfo().tryGetPlayerState(attacker);
+		const auto * defenderState = gameHandler.gameInfo().tryGetPlayerState(defender);
 		if(attackerState && defenderState && attackerState->human && defenderState->human)
 			return true;
 	}
@@ -306,7 +306,7 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 	if(!player.isValidPlayer())
 		return;
 	
-	const auto * state = gameHandler.gameInfo().getPlayerState(player);
+	const auto * state = gameHandler.gameInfo().tryGetPlayerState(player);
 	assert(state && state->status == EPlayerStatus::INGAME);
 	if(!state || state->status != EPlayerStatus::INGAME || !state->human)
 		return;
@@ -332,15 +332,7 @@ void TurnTimerHandler::onBattleLoop(const BattleID & battleID, int waitTime)
 
 		if(isPvpBattle(battleID))
 		{
-			BattleAction doNothing;
-			doNothing.side = side;
-			if(isTactisPhase)
-				doNothing.actionType = EActionType::END_TACTIC_PHASE;
-			else
-			{
-				doNothing.actionType = EActionType::DEFEND;
-				doNothing.stackNumber = stack->unitId();
-			}
+			BattleAction doNothing = isTactisPhase ? BattleAction::makeEndOFTacticPhase(side) : BattleAction::makeDefend(stack);
 			gameHandler.battles->makePlayerBattleAction(battleID, player, doNothing);
 		}
 		else

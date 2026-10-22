@@ -86,6 +86,7 @@ class ReplayPackFilter final : public ICPackVisitor
 	void visitBattleSetStackProperty(BattleSetStackProperty & pack) override { markBattle(); }
 	void visitBattleTriggerEffect(BattleTriggerEffect & pack) override { markBattle(); }
 	void visitBattleUpdateGateState(BattleUpdateGateState & pack) override { markBattle(); }
+	void visitBattleTacticsEnded(BattleTacticsEnded & pack) override { markBattle(); }
 	void visitCatapultAttack(CatapultAttack & pack) override { markBattle(); }
 
 public:

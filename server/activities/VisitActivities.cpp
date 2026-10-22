@@ -95,7 +95,7 @@ void MapObjectVisitActivity::startVisit()
 
 void MapObjectVisitActivity::onChildCompleted(const ActivityPtr & child)
 {
-	const auto * object = gh->gameInfo().getObj(visitedObject, false);
+	const auto * object = gh->gameInfo().tryGetObj(visitedObject);
 	const auto * hero = gh->gameState().getHero(visitingHero);
 
 	// The object may have been removed by the visit itself. A dead hero is passed on
@@ -212,7 +212,7 @@ StepResult TurnStartRoutine::advance()
 
 void TurnStartRoutine::collectVisits()
 {
-	const auto * playerState = gh->gameInfo().getPlayerState(getPlayers().front());
+	const auto * playerState = gh->gameInfo().tryGetPlayerState(getPlayers().front());
 	if(!playerState)
 		return;
 

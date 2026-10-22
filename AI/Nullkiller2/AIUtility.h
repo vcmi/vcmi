@@ -135,7 +135,7 @@ struct creInfo
 creInfo infoFromDC(const dwellingContent & dc);
 
 template<class Func>
-void foreach_tile_pos(const CCallback & cc, const Func & foo)
+void foreach_visible_tile_pos(const CCallback & cc, const Func & foo)
 {
 	// some micro-optimizations since this function gets called a LOT
 	// callback pointer is thread-specific and slow to retrieve -> read map size only once
@@ -146,23 +146,9 @@ void foreach_tile_pos(const CCallback & cc, const Func & foo)
 		{
 			for(int y = 0; y < mapSize.y; y++)
 			{
-				foo(int3(x, y, z));
-			}
-		}
-	}
-}
-
-template<class Func, class TCallback>
-void foreach_tile_pos(TCallback * cbp, const Func & foo) // avoid costly retrieval of thread-specific pointer
-{
-	int3 mapSize = cbp->getMapSize();
-	for(int z = 0; z < mapSize.z; z++)
-	{
-		for(int x = 0; x < mapSize.x; x++)
-		{
-			for(int y = 0; y < mapSize.y; y++)
-			{
-				foo(cbp, int3(x, y, z));
+				int3 tile(x, y, z);
+				if (cc.isVisible(tile))
+					foo(tile);
 			}
 		}
 	}
@@ -222,6 +208,11 @@ uint64_t timeElapsed(std::chrono::time_point<std::chrono::high_resolution_clock>
 // todo: move to obj manager
 bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGObjectInstance * obj);
 int getDuplicatingSlots(const CArmedInstance * army);
+const CGObjectInstance * findObjectOfType(const std::vector<const CGObjectInstance *> & objects, Obj type);
+/// True if this is the only hero of a player that has no towns left
+bool isSoleNoTownHero(const CGHeroInstance * hero, const Nullkiller * aiNk);
+/// Combat value of the army scaled by the primary skills of the hero leading it
+uint64_t getHeroFightingStrength(const CGHeroInstance * hero, const CCreatureSet * army);
 
 template <class T>
 class SharedPool

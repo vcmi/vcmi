@@ -84,9 +84,6 @@ void LuaUnitStateProxy::registerMethods(MethodRegistrar & R)
 		"Returns the list of hexes currently occupied by the unit.");
 
 	// Mutable — flags
-	R.method<&LuaUnitState::setDefending>("setDefending",
-		{{"value", "New defending flag."}}, {},
-		"Sets whether unit has defended in this round.");
 	R.method<&LuaUnitState::setCloned>("setCloned",
 		{{"value", "New cloned flag."}}, {},
 		"Marks the stack as a clone.");
@@ -108,18 +105,9 @@ void LuaUnitStateProxy::registerMethods(MethodRegistrar & R)
 	R.method<&LuaUnitState::setGhostPending>("setGhostPending",
 		{{"value", "New ghost-pending flag."}}, {},
 		"Marks the unit as transitioning to the ghost state.");
-	R.method<&LuaUnitState::setMoved>("setMoved",
-		{{"value", "New moved-this-round flag."}}, {},
-		"Marks that the unit has moved this round.");
 	R.method<&LuaUnitState::setSummoned>("setSummoned",
 		{{"value", "New summoned flag."}}, {},
 		"Marks the unit as summoned during combat.");
-	R.method<&LuaUnitState::setWaiting>("setWaiting",
-		{{"value", "New waiting flag."}}, {},
-		"Marks that the unit is currently waiting.");
-	R.method<&LuaUnitState::setWaitedThisTurn>("setWaitedThisTurn",
-		{{"value", "New waited-this-turn flag."}}, {},
-		"Marks that the unit has already used its wait this turn.");
 
 	// Mutable — other fields
 	R.method<&LuaUnitState::setPosition>("setPosition",
@@ -174,18 +162,14 @@ uint32_t    LuaUnitState::getMaxHealth()     const { return state->getMaxHealth(
 bool        LuaUnitState::coversPos(BattleHex pos) const { return state->coversPos(pos); }
 int32_t     LuaUnitState::getBaseAmount()    const { return state->unitBaseAmount(); }
 
-void LuaUnitState::setDefending(bool v)         { state->defending = v; }
 void LuaUnitState::setCloned(bool v)            { state->cloned = v; }
 void LuaUnitState::setDrainedMana(bool v)       { state->drainedMana = v; }
 void LuaUnitState::setFear(bool v)              { state->fear = v; }
 void LuaUnitState::setHadMorale(bool v)         { state->hadMorale = v; }
-void LuaUnitState::setCastSpellThisTurn(bool v) { state->castSpellThisTurn = v; }
+void LuaUnitState::setCastSpellThisTurn(bool v) { state->setCastSpellThisTurn(v); }
 void LuaUnitState::setGhost(bool v)             { state->ghost = v; }
 void LuaUnitState::setGhostPending(bool v)      { state->ghostPending = v; }
-void LuaUnitState::setMoved(bool v)             { state->movedThisRound = v; }
 void LuaUnitState::setSummoned(bool v)          { state->summoned = v; }
-void LuaUnitState::setWaiting(bool v)           { state->waiting = v; }
-void LuaUnitState::setWaitedThisTurn(bool v)    { state->waitedThisTurn = v; }
 
 void LuaUnitState::setPosition(BattleHex hex)   { state->setPosition(hex); }
 void LuaUnitState::setClone(const ::battle::Unit & unit) { state->cloneID = unit.unitId(); }

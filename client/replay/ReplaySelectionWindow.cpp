@@ -41,7 +41,7 @@ namespace
 
 	std::string describeTurn(const ReplayTurnOption & turn)
 	{
-		const auto * playerState = GAME->interface()->cb->getPlayerState(turn.player, false);
+		const auto * playerState = GAME->interface()->cb->tryGetPlayerState(turn.player);
 		const std::string playerName = playerState
 			? playerState->getNameTranslated()
 			: LIBRARY->generaltexth->translate(TextIdentifier("core.plcolors", turn.player.getNum()).get());

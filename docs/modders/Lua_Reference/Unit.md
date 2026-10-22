@@ -128,6 +128,12 @@ True if the stack was summoned during battle (e.g. by Summon Elementals).
 
 - returns `boolean`
 
+### isCommander
+
+True if the stack is a hero's commander.
+
+- returns `boolean`
+
 ### isLiving
 
 True if the stack is a living creature - not undead, not a golem-like non-living unit.
@@ -136,7 +142,7 @@ True if the stack is a living creature - not undead, not a golem-like non-living
 
 ### getOwner
 
-Returns the player color controlling this unit.
+Returns the player owning this unit. A hypnotized unit keeps its owner; Battle:getUnitController returns who controls it.
 
 - returns `integer`
 
@@ -148,7 +154,7 @@ Returns the army slot in the army this unit occupies. NOTE: All summoned units s
 
 ### getSide
 
-Returns the battle side (attacker or defender) this unit belongs to.
+Returns the battle side (attacker or defender) this unit belongs to. A hypnotized unit keeps its side; use Battle:isHostile to tell friend from foe.
 
 - returns [`BattleSide`](BattleSide.md)
 

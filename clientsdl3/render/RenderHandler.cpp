@@ -49,6 +49,8 @@
 #include <vcmi/spells/Service.h>
 #include <vcmi/ResourceTypeService.h>
 
+#include <tbb/parallel_for.h>
+
 std::atomic<uint32_t> RenderHandler::placeholderDraws{0};
 
 
@@ -134,6 +136,7 @@ std::pair<std::string, CDefFile::SSpriteDef> RenderHandler::getAnimationSpriteDe
 {
 	AnimationPath actualPath = boost::starts_with(path.getName(), "SPRITES") ? path : path.addPrefix("SPRITES/");
 
+	std::lock_guard lock(animationCacheMutex);
 	return animationSpriteDefs[actualPath][group][frame];
 }
 
@@ -216,10 +219,31 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 
 	AnimationPath actualPath = AnimationPath::builtin(scaledSpritesPath.at(scalingFactor) + pathString);
 
+	std::lock_guard lock(animationLayoutMutex);
 	auto it = animationLayouts.find(actualPath);
 
 	if (it != animationLayouts.end() && (settings["video"]["useHdTextures"].Bool() || scalingFactor == 1))
-		return it->second;
+	{
+		const auto modeIt = animationLayoutModes.find(actualPath);
+		if (modeIt == animationLayoutModes.end() || modeIt->second == mode)
+			return it->second;
+
+		// locators of json animations carry the mode they were created with. The same file can be
+		// requested in several modes (e.g. shadow, body and player color layers of a map object)
+		auto & variants = animationLayoutVariants[actualPath];
+		auto variantIt = variants.find(mode);
+		if (variantIt == variants.end())
+		{
+			AnimationLayoutMap variant = it->second;
+			for (auto & group : variant)
+				for (auto & locator : group.second)
+					if (locator.layer == modeIt->second)
+						locator.layer = mode;
+
+			variantIt = variants.emplace(mode, std::move(variant)).first;
+		}
+		return variantIt->second;
+	}
 
 	AnimationLayoutMap result;
 
@@ -247,6 +271,8 @@ RenderHandler::AnimationLayoutMap & RenderHandler::getAnimationLayout(const Anim
 	}
 
 	animationLayouts[actualPath] = result;
+	animationLayoutModes[actualPath] = mode;
+	animationLayoutVariants.erase(actualPath);
 	return animationLayouts[actualPath];
 }
 
@@ -257,6 +283,7 @@ int RenderHandler::getScalingFactor() const
 
 ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & path, int frame, int group, int scaling, EImageBlitMode mode)
 {
+	std::lock_guard lock(animationLayoutMutex);
 	const auto & layout = getAnimationLayout(path, scaling, mode);
 	if (!layout.count(group))
 		return ImageLocator();
@@ -273,14 +300,17 @@ ImageLocator RenderHandler::getLocatorForAnimationFrame(const AnimationPath & pa
 
 std::shared_ptr<ScalableImageShared> RenderHandler::loadImageImpl(const ImageLocator & locator)
 {
-	auto it = imageFiles.find(locator);
-	if (it != imageFiles.end())
 	{
-		auto locked = it->second.lock();
-		if (locked)
+		std::lock_guard lock(imageCacheMutex);
+		auto it = imageFiles.find(locator);
+		if (it != imageFiles.end())
 		{
-			retainedAssets.store(locator, locked);
-			return locked;
+			auto locked = it->second.lock();
+			if (locked)
+			{
+				retainedAssets.store(locator, locked);
+				return locked;
+			}
 		}
 	}
 
@@ -343,9 +373,35 @@ std::shared_ptr<ISharedImage> RenderHandler::loadImageFromFileUncached(const Ima
 	throw std::runtime_error("Invalid image locator received!");
 }
 
+void RenderHandler::preloadPaletteShiftedFrames()
+{
+	const auto & tiles = assetGenerator->getPaletteShiftedFrames();
+	std::vector<std::vector<std::shared_ptr<ScalableImageShared>>> loaded(tiles.size());
+
+	// One task takes all frames of a tile: those are drawn from the same source image, which can't be used by several threads at once
+	tbb::parallel_for(size_t(0), tiles.size(), [&](size_t tile)
+	{
+		for(ImageLocator locator : tiles[tile])
+		{
+			locator.scalingFactor = getScalingFactor();
+			loaded[tile].push_back(loadImageImpl(locator));
+
+			// cache must not drop upscaled frames - they would be made again by the frame that draws them
+			loaded[tile].back()->setPermanent();
+		}
+	});
+
+	paletteShiftedFrames.clear();
+	for(const auto & tile : loaded)
+		paletteShiftedFrames.insert(paletteShiftedFrames.end(), tile.begin(), tile.end());
+}
+
 void RenderHandler::storeCachedImage(const ImageLocator & locator, std::shared_ptr<ScalableImageShared> image)
 {
-	imageFiles[locator] = image;
+	{
+		std::lock_guard lock(imageCacheMutex);
+		imageFiles[locator] = image;
+	}
 	retainedAssets.store(locator, image);
 }
 
@@ -443,8 +499,6 @@ std::shared_ptr<SDLImageShared> RenderHandler::loadScaledImage(const ImageLocato
 
 	if(img)
 	{
-		// TODO: Performance improvement - Run algorithm on optimized ("trimmed") images
-		// Not implemented yet because different frame image sizes seems to cause wobbeling shadow -> needs a way around this
 		if(isShadow && generateShadow)
 			img = img->drawShadow((*locator.generateShadow) == SharedImageLocator::ShadowMode::SHADOW_SHEAR);
 		if(isOverlay && generateOverlay && (*locator.generateOverlay) == SharedImageLocator::OverlayMode::OVERLAY_OUTLINE)
@@ -531,6 +585,7 @@ std::shared_ptr<CanvasImage> RenderHandler::createImage(const Point & size, Canv
 
 std::shared_ptr<CAnimation> RenderHandler::loadAnimation(const AnimationPath & path, EImageBlitMode mode)
 {
+	std::lock_guard lock(animationLayoutMutex);
 	return std::make_shared<CAnimation>(path, getAnimationLayout(path, 1, mode), mode);
 }
 
@@ -620,6 +675,7 @@ void RenderHandler::onLibraryLoadingFinished(const Services * services)
 	assert(animationLayouts.empty());
 	assetGenerator->initialize();
 	updateGeneratedAssets();
+	preloadPaletteShiftedFrames();
 
 	addImageListEntries(services->creatures());
 	addImageListEntries(services->heroTypes());
@@ -691,5 +747,9 @@ std::shared_ptr<AssetGenerator> RenderHandler::getAssetGenerator()
 void RenderHandler::updateGeneratedAssets()
 {
 	for(const auto & [key, value] : assetGenerator->generateAllAnimations())
+	{
 		animationLayouts[key] = value;
+		animationLayoutModes.erase(key);
+		animationLayoutVariants.erase(key);
+	}
 }

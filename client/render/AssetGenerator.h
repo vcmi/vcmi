@@ -30,6 +30,9 @@ public:
 	std::map<ImagePath, std::shared_ptr<ISharedImage>> generateAllImages();
 	std::map<AnimationPath, AnimationLayoutMap> generateAllAnimations();
 
+	/// Frames of all palette-animated terrains and rivers. Every entry holds frames made from one source tile
+	const std::vector<std::vector<ImageLocator>> & getPaletteShiftedFrames() const;
+
 	bool hasAnimationFile(const AnimationPath & path) const;
 	void addImageFile(const ImagePath & path, ImageGenerationFunctor & img);
 	void addAnimationFile(const AnimationPath & path, AnimationLayoutMap & anim);
@@ -55,6 +58,7 @@ private:
 
 	std::map<ImagePath, ImageGenerationFunctor> imageFiles;
 	std::map<AnimationPath, AnimationLayoutMap> animationFiles;
+	std::vector<std::vector<ImageLocator>> paletteShiftedFrames;
 
 	CanvasPtr createAdventureOptionsCleanBackground() const;
 	CanvasPtr createBigSpellBook() const;

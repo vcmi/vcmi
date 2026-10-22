@@ -48,6 +48,11 @@ std::string CampaignHeader::getDescriptionTranslated(const ITranslator * transla
 	return description.toString(translator);
 }
 
+const MetaString & CampaignHeader::getName() const
+{
+	return name;
+}
+
 std::string CampaignHeader::getNameTranslated(const ITranslator * translator) const
 {
 	return name.toString(translator);

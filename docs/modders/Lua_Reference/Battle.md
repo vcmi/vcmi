@@ -119,15 +119,32 @@ Returns the unit covering the given hex, or nil.
 
 - returns [`Unit`](Unit.md)
 
+### getUnitController
+
+Returns the player currently controlling the unit. Unlike Unit:getOwner, this accounts for Hypnotize, which hands a unit over to the opposing player.
+
+- param `unit`: [`Unit`](Unit.md) — Unit whose controller is queried.
+
+- returns `integer`
+
+### isHostile
+
+True if the actor treats the target as an enemy. Accounts for Hypnotize: a hypnotized unit fights its own army, which still counts it as one of their own.
+
+- param `actor`: [`Unit`](Unit.md) — Unit that acts, e.g. attacks or casts a spell.
+- param `target`: [`Unit`](Unit.md) — Unit the action is aimed at.
+
+- returns `boolean`
+
 ### getAllObstacles
 
-Returns all obstacles on the battlefield.
+Returns all obstacles on the battlefield, including ones hidden from the caller.
 
 - returns [`Obstacle[]`](Obstacle.md)
 
 ### getObstaclesOnPos
 
-Returns the obstacles on the given hex.
+Returns the obstacles on the given hex, including ones hidden from the caller.
 
 - param `hex`: [`BattleHex`](BattleHex.md) — Hex whose obstacles are queried.
 - param `onlyBlocking`: `boolean` — Pass true to limit results to obstacles that block movement.

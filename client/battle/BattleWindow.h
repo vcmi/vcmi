@@ -9,10 +9,11 @@
  */
 #pragma once
 
+#include "BattleActionEntry.h"
+
 #include "../gui/CIntObject.h"
 #include "../gui/InterfaceObjectConfigurable.h"
 #include "../../lib/battle/CBattleInfoCallback.h"
-#include "../../lib/battle/PossiblePlayerBattleAction.h"
 
 class CStack;
 class CGTownInstance;
@@ -100,6 +101,9 @@ class BattleWindow : public InterfaceObjectConfigurable
 public:
 	BattleWindow(BattleInterface & owner );
 
+	/// Battlefield area available for prompts, excluding visible queue and side panels.
+	Rect controllerPromptArea(Rect field) const;
+
 	/// Closes window once battle finished
 	void close();
 
@@ -152,7 +156,7 @@ public:
 	void tacticPhaseEnded();
 
 	/// Set possible alternative options to fill unit actions panel
-	void setPossibleActions(const std::vector<PossiblePlayerBattleAction> & allActions);
+	void setPossibleActions(const BattleActionEntries & allActions);
 
 	/// ends battle with autocombat
 	void endWithAutocombat();

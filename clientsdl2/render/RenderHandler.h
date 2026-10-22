@@ -30,12 +30,20 @@ class RenderHandler final : public IRenderHandler
 	std::map<AnimationPath, std::map<int, std::map<int, std::pair<std::string, CDefFile::SSpriteDef>>>> animationSpriteDefs;
 	std::map<AnimationPath, std::weak_ptr<CDefFile>> animationFiles;
 	std::map<AnimationPath, AnimationLayoutMap> animationLayouts;
+	/// Mode the locators of animationLayouts were created with. Missing for generated layouts
+	std::map<AnimationPath, EImageBlitMode> animationLayoutModes;
+	/// Copies of animationLayouts with locators of the original mode switched to the requested one
+	std::map<AnimationPath, std::map<EImageBlitMode, AnimationLayoutMap>> animationLayoutVariants;
 	std::map<SharedImageLocator, std::weak_ptr<ScalableImageShared>> imageFiles;
 	std::map<EFonts, std::shared_ptr<const IFont>> fonts;
 	std::shared_ptr<AssetGenerator> assetGenerator;
 	std::shared_ptr<HdImageLoader> hdImageLoader;
 	
 	std::mutex animationCacheMutex;
+
+	/// Recursive, since layout is returned by reference and has to stay locked while the caller reads it
+	std::recursive_mutex animationLayoutMutex;
+	std::mutex imageCacheMutex;
 
 	std::pair<std::string, CDefFile::SSpriteDef> getAnimationSpriteDef(const AnimationPath & path, int frame, int group);
 	ImagePath getAnimationFrameName(const AnimationPath & path, int frame, int group);
@@ -48,6 +56,11 @@ class RenderHandler final : public IRenderHandler
 	void storeCachedImage(const ImageLocator & locator, std::shared_ptr<ScalableImageShared> image);
 
 	std::shared_ptr<ScalableImageShared> loadImageImpl(const ImageLocator & config);
+
+	/// Generates and upscales all frames of palette-animated terrains and rivers, which is too slow to do when such tile is first drawn
+	void preloadPaletteShiftedFrames();
+
+	std::vector<std::shared_ptr<IImage>> paletteShiftedFrames;
 
 	std::shared_ptr<ISharedImage> loadImageFromFileUncached(const ImageLocator & locator);
 

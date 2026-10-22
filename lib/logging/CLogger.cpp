@@ -140,17 +140,9 @@ void CLogger::log(ELogLevel::ELogLevel level, const std::string & message) const
 
 void CLogger::log(ELogLevel::ELogLevel level, const boost::format & fmt) const
 {
+	// may throw on arguments mismatch, caller reports it together with format string
 	if (getEffectiveLevel() <= level)
-	{
-		try
-		{
-			log(level, fmt.str());
-		}
-		catch (...)
-		{
-			log(ELogLevel::ERROR, "Invalid log format!");
-		}
-	}
+		log(level, fmt.str());
 }
 
 ELogLevel::ELogLevel CLogger::getLevel() const

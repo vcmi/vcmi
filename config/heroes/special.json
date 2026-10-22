@@ -65,10 +65,24 @@
 				"type" : "SPECIAL_UPGRADE"
 			},
 			"bonuses" : {
-				"archMage2enchanter" : { "subtype" : "archMage" },
-				"mage2enchanter" : { "subtype" : "mage" },
-				"monk2enchanter" : { "subtype" : "monk" },
-				"zealot2enchanter" : { "subtype" : "zealot" }
+				"mage2enchanter" : {
+					"limiters" : [
+						{
+							"type" : "CREATURE_TYPE_LIMITER",
+							"creature" : "mage",
+							"includeUpgrades" : true
+						}
+					]
+				},
+				"monk2enchanter" : {
+					"limiters" : [
+						{
+							"type" : "CREATURE_TYPE_LIMITER",
+							"creature" : "monk",
+							"includeUpgrades" : true
+						}
+					]
+				}
 			}
 		}
 	},
@@ -89,10 +103,24 @@
 				"type" : "SPECIAL_UPGRADE"
 			},
 			"bonuses" : {
-				"archer2sharpshooter" : { "subtype" : "archer" },
-				"grandElf2sharpshooter" : { "subtype" : "grandElf" },
-				"marksman2sharpshooter" : { "subtype" : "marksman" },
-				"woodElf2sharpshooter" : { "subtype" : "woodElf" }
+				"archer2sharpshooter" : {
+					"limiters" : [
+						{
+							"type" : "CREATURE_TYPE_LIMITER",
+							"creature" : "archer",
+							"includeUpgrades" : true
+						}
+					]
+				},
+				"woodElf2sharpshooter" : {
+					"limiters" : [
+						{
+							"type" : "CREATURE_TYPE_LIMITER",
+							"creature" : "woodElf",
+							"includeUpgrades" : true
+						}
+					]
+				}
 			}
 		}
 	},

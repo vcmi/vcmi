@@ -58,7 +58,7 @@ std::vector<int3> QuestInfo::getMarkerTiles(CGameInfoCallback *cb) const
 
 	// objects the player must destroy (kill creature / kill hero)
 	for(const auto & targetID : limiter.destroyedObjects)
-		if(const auto * target = cb->getObj(targetID, false))
+		if(const auto * target = cb->tryGetObj(targetID))
 			result.push_back(target->visitablePos());
 
 	// Heroes are matched by the limiter itself (heroAllowed), which unifies the

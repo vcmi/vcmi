@@ -20,8 +20,9 @@ function Script:targets(battle, unit)
 		return { unit }
 	end
 
+	-- a hypnotized bearer enchants the units of its current controller
 	return battle:getUnitsIf(function(other)
-		return other:getSide() == unit:getSide() and other:isValidTarget(false)
+		return not battle:isHostile(unit, other) and other:isValidTarget(false)
 	end)
 end
 

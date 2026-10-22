@@ -114,8 +114,11 @@ end
 --- and return list of affected units
 function Script:transformTarget(mechanics, aimPoint, spellTarget)
 	local creature = LIBRARY:getCreatureByName(self.id)
-	local sameSummoned = mechanics:getBattle():getUnitsIf(function(unit)
+	local battle = mechanics:getBattle()
+	-- own summoned unit that is hypnotized fights for the enemy, so it is not reinforced
+	local sameSummoned = battle:getUnitsIf(function(unit)
 		return (unit:getOwner() == mechanics:getCasterColor())
+			and (battle:getUnitController(unit) == mechanics:getCasterColor())
 			and (unit:isSummoned())
 			and (not unit:isClone())
 			and (unit:getCreature():getJsonKey() == creature:getJsonKey())
@@ -123,7 +126,7 @@ function Script:transformTarget(mechanics, aimPoint, spellTarget)
 	end)[1]
 
 	if sameSummoned == nil or not self.summonSameUnit then
-		local hex = mechanics:getBattle():getAvailableHex(creature, mechanics:getCasterSide())
+		local hex = battle:getAvailableHex(creature, mechanics:getCasterSide())
 		if not hex:isValid() then
 			return {} -- no free space. FIXME: should be in isApplicable
 		else

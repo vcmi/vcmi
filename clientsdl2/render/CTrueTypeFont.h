@@ -42,5 +42,5 @@ public:
 
 	size_t getLineHeightScaled() const override;
 	size_t getGlyphWidthScaled(const char * data) const override;
-	size_t getStringWidthScaled(const std::string & data) const override;
+	size_t getStringWidthScaled(std::string_view data) const override;
 };

@@ -79,12 +79,14 @@ struct SeerReward
 		EXPERIENCE = 1,
 		MANA       = 2,
 		RESOURCES  = 5,
+		CREATURE   = 10,
 	};
 
 	Kind      kind           = Kind::NOTHING;
-	uint32_t  amount         = 0;             // EXPERIENCE, MANA
+	uint32_t  amount         = 0;             // EXPERIENCE, MANA, CREATURE
 	GameResID resourceType;                   // RESOURCES
 	uint32_t  resourceAmount = 0;             // RESOURCES
+	CreatureID creature;                      // CREATURE
 };
 
 /// Fluent API for building .h3m binary streams in test code.
@@ -109,6 +111,9 @@ public:
 	/// Maximum hero level, 0 for no limit. Written only for AB+ formats.
 	TinyH3MBuilder & heroLevelLimit(uint8_t level);
 
+	/// Override terrain for one tile. Tiles not specified here remain grass.
+	TinyH3MBuilder & terrain(const int3 & pos, TerrainId type);
+
 	/// Plain-text Lua script for the built map. Not part of the H3M bytes (H3M cannot embed Lua) -
 	/// retrieve via script() and hand it to the loader/service to set as CMap::scriptSource.
 	TinyH3MBuilder & withScript(std::string lua) { mapScript = std::move(lua); return *this; }
@@ -121,6 +126,8 @@ public:
 	/// Mark a player as both human- and computer-playable. Required for any
 	/// object that ownership-validates against canAnyonePlay (towns, heroes).
 	TinyH3MBuilder & playerActive(PlayerColor color);
+	/// Bitmask of factions the player may pick, in map format order. Default allows all factions
+	TinyH3MBuilder & playerFactions(PlayerColor color, uint32_t mask);
 
 	/// Append a fixed-faction Town object owned by `owner`.
 	TinyH3MBuilder & town(const int3 & pos, FactionID faction, PlayerColor owner);
@@ -128,6 +135,12 @@ public:
 	/// Append a Random Town object owned by `owner`. Builder auto-registers the
 	/// RANDOM_TOWN template on first call. No garrison, standard fort, no events.
 	TinyH3MBuilder & randomTown(const int3 & pos, PlayerColor owner);
+
+	/// Append a standalone shipyard owned by `owner`.
+	TinyH3MBuilder & shipyard(const int3 & pos, PlayerColor owner);
+
+	/// Append a garrison owned by `owner` with up to 7 stacks; `removableUnits` needs AB or later.
+	TinyH3MBuilder & garrison(const int3 & pos, PlayerColor owner, std::vector<std::pair<CreatureID, uint16_t>> stacks, bool removableUnits);
 
 	// ---- heroes --------------------------------------------------------
 
@@ -185,7 +198,10 @@ public:
 	TinyH3MBuilder & resource(const int3 & pos, GameResID resource, uint32_t amount = 0);
 
 	/// Empty Pandora's Box - no message, guards or rewards.
-	TinyH3MBuilder & pandora(const int3 & pos);
+	TinyH3MBuilder & pandora(const int3 & pos, std::vector<std::pair<CreatureID, uint16_t>> creatures = {});
+
+	/// Place a terrain overlay without object data, such as Cursed Ground or Magic Plains
+	TinyH3MBuilder & terrainOverlay(const int3 & pos, MapObjectID id);
 
 	/// Specific artifact pickup.
 	TinyH3MBuilder & artifact(const int3 & pos, ArtifactID artifact);
@@ -195,6 +211,14 @@ public:
 
 	/// Fixed creature dwelling owned by `owner`.
 	TinyH3MBuilder & dwelling(const int3 & pos, MapObjectSubID type, PlayerColor owner);
+
+	// ---- teleports ------------------------------------------------------
+
+	/// One-way monolith entrance. Matching entrance/exit subids form a channel.
+	TinyH3MBuilder & oneWayPortalEntrance(const int3 & pos, int channel);
+
+	/// One-way monolith exit. Matching entrance/exit subids form a channel.
+	TinyH3MBuilder & oneWayPortalExit(const int3 & pos, int channel);
 
 	// ---- quest objects -------------------------------------------------
 
@@ -253,6 +277,7 @@ public:
 	static SeerReward rewardExperience(uint32_t amount);
 	static SeerReward rewardMana(uint32_t amount);
 	static SeerReward rewardResource(GameResID resource, uint32_t amount);
+	static SeerReward rewardCreature(CreatureID creature, uint16_t amount);
 
 	// ---- output ---------------------------------------------------------
 
@@ -295,6 +320,13 @@ private:
 		// The single-quest seerHut() populates one one-shot entry.
 		std::vector<std::pair<Quest, SeerReward>> seerOneShots;
 		std::vector<std::pair<Quest, SeerReward>> seerRepeatables;
+
+		// PANDORAS_BOX
+		std::vector<std::pair<CreatureID, uint16_t>> pandoraCreatures;
+
+		// GARRISON
+		std::vector<std::pair<CreatureID, uint16_t>> garrisonStacks;
+		bool                                         garrisonRemovableUnits = true;
 
 		// Hero customisation. Only consumed for HERO / RANDOM_HERO objects.
 		std::vector<std::pair<CreatureID, uint16_t>>           heroGarrisonStacks;
@@ -368,6 +400,8 @@ private:
 	uint8_t        mapHeroLevelLimit = 0;
 
 	std::array<bool, 8> playerEnabled{};
+	std::array<uint32_t, 8> playerFactionMask = {~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u};
+	std::map<int3, TerrainId> terrainOverrides;
 	std::vector<std::pair<MapObjectID, MapObjectSubID>> templates;
 	std::vector<ObjectSpec>                              objects;
 	uint32_t                                             nextWireIdentifier = 1;

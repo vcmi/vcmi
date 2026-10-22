@@ -68,7 +68,7 @@ std::string CMapHandler::getTerrainDescr(const int3 & pos, bool rightClick) cons
 		}
 	}
 
-	if(GAME->interface()->cb->getTileDigStatus(pos, false) == EDiggingStatus::CAN_DIG)
+	if(GAME->interface()->cb->getTileDigStatus(pos) == EDiggingStatus::CAN_DIG)
 	{
 		// New line for the Message Box, space for the Status Bar
 		MetaString description = MetaString::createFromRawString(rightClick ? "%s\r\n%s" : "%s %s");

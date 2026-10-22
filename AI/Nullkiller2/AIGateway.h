@@ -17,6 +17,7 @@
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/callback/CAdventureAI.h"
 #include "../../lib/mapObjects/MiscObjects.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 #include "Pathfinding/AIPathfinder.h"
 #include "Engine/Nullkiller.h"
 
@@ -24,6 +25,13 @@ class AsyncRunner;
 
 namespace NK2AI
 {
+
+enum class HeroMovementResult
+{
+	COMPLETE,
+	PROGRESSED,
+	BLOCKED
+};
 
 class AIStatus
 {
@@ -35,6 +43,7 @@ class AIStatus
 	std::map<QuestionID, std::string> remainingQuestions;
 	std::map<int, QuestionID> requestToQuestionID; //IDs of answer-requests sent to server => question ids (so we can match answer confirmation from server to the question)
 	std::vector<ObjectInstanceID> objectsBeingVisited;
+	std::map<ObjectInstanceID, TryMoveHero> lastMovementResults;
 	bool ongoingHeroMovement;
 	bool ongoingChannelProbing; // true if AI currently explore bidirectional teleport channel exits
 
@@ -59,6 +68,9 @@ public:
 	void receivedAnswerConfirmation(int answerRequestID, int result);
 	void heroVisit(const CGObjectInstance * obj, bool started);
 	ObjectInstanceID getCurrentVisitedObject();
+	void clearLastMovementResult(ObjectInstanceID heroID);
+	void recordMovementResult(const TryMoveHero & details);
+	std::optional<TryMoveHero> getLastMovementResult(ObjectInstanceID heroID);
 };
 
 // The gateway is responsible for AI events handling. Copied from VCAI.h and refined a bit
@@ -97,7 +109,7 @@ public:
 	void heroGotLevel(const CGHeroInstance * hero, PrimarySkill pskill, const std::vector<SecondarySkill> & skills, bool moreLevelsFollow, QuestionID questionID) override; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	void commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, bool moreLevelsFollow, QuestionID questionID) override; //TODO
 	void showBlockingDialog(const std::string & text, const std::vector<Component> & components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept) override; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and questionID.
-	void showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QuestionID questionID, const MetaString & customTitle) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
+	void showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, QuestionID questionID, const MetaString & customTitle) override; //all stacks operations between these objects become allowed, interface has to call onEnd when done
 	void showTeleportDialog(const CGHeroInstance * hero, TeleportChannelID channel, TTeleportExitsList exits, bool impassable, QuestionID questionID) override;
 	void showMapObjectSelectDialog(QuestionID questionID, const Component & icon, const MetaString & title, const MetaString & description, const std::vector<ObjectInstanceID> & objects) override;
 	void finish() override;
@@ -159,6 +171,7 @@ public:
 	bool canRetreatFromBattle(const BattleID & battleID, const CGHeroInstance * hero) const;
 
 	void makeTurn();
+	void saveOneWayPortalState();
 
 	void buildArmyIn(const CGTownInstance * t);
 	void endTurn();
@@ -171,7 +184,7 @@ public:
 	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr heroPtr);
 	bool makePossibleUpgrades(const CArmedInstance * obj);
 
-	bool moveHeroToTile(int3 dst, const HeroPtr & heroPtr);
+	HeroMovementResult moveHeroToTile(int3 dst, const HeroPtr & heroPtr);
 	/// whether the server allows swapping garrison and visiting heroes of the town
 	bool canSwapGarrisonHero(const CGTownInstance * town) const;
 	void buildStructure(const CGTownInstance * t, BuildingID building);

@@ -152,7 +152,7 @@ CInfoBar::VisibleGameStatusInfo::VisibleGameStatusInfo()
 	//generate list of allies and enemies
 	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		if(GAME->interface()->cb->getPlayerStatus(PlayerColor(i), false) == EPlayerStatus::INGAME)
+		if(GAME->interface()->cb->getPlayerStatus(PlayerColor(i)) == EPlayerStatus::INGAME)
 		{
 			if(GAME->interface()->cb->getPlayerRelations(GAME->interface()->playerID, PlayerColor(i)) != PlayerRelations::ENEMIES)
 				allies.push_back(PlayerColor(i));

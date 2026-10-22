@@ -13,6 +13,7 @@
 #include "../ResourceSet.h"
 #include "../serializer/Serializeable.h"
 #include "../texts/MetaString.h"
+#include "../networkPacks/Component.h"
 
 class CGCreature;
 class CMap;
@@ -62,6 +63,8 @@ public:
 
 	/// HotA scripted quest: hint text last set by the script, shown in the quest log and on hover
 	MetaString scriptHintText;
+	/// HotA scripted quest: icons last set by the script, shown with the hint in the quest log
+	std::vector<Component> scriptHintComponents;
 
 	// following fields are used only for kill creature/hero missions, the original
 	// objects became inaccessible after their removal, so we need to store info
@@ -74,8 +77,8 @@ public:
 	std::string heroNameTextID; //backup of hero name identifier, the hero itself is gone by then
 	HeroTypeID heroPortrait;
 
-	/// Map-defined name of this quest's giver, overriding the seer hut's own name. Only seer huts show it.
-	std::string questGiverNameTextID;
+	/// Map-defined message for the quest running out of time
+	std::string timeoutTextID;
 
 	MetaString firstVisitText;
 	MetaString nextVisitText;
@@ -133,8 +136,10 @@ public:
 			h & scriptHandler;
 			h & scriptHintText;
 		}
+		if(h.hasFeature(Handler::Version::QUEST_HINT_COMPONENTS))
+			h & scriptHintComponents;
 		if(h.hasFeature(Handler::Version::SEER_HUT_NAME_TEXT_ID))
-			h & questGiverNameTextID;
+			h & timeoutTextID; // older saves hold a quest giver name here instead
 		// legacy "text was customized" flags; now derived on the fly from text
 		// emptiness in initObj. Kept on the wire for save compatibility.
 		bool isCustomFirst = !firstVisitText.empty();
@@ -341,6 +346,8 @@ protected:
 
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 	/// Loads reward from old VCMI maps that used single "reward" entry
+	void readOrWriteReward18(JsonSerializeFormat & handler);
+	void readReward17(JsonSerializeFormat & handler);
 	void readLegacyReward(JsonSerializeFormat & handler);
 };
 

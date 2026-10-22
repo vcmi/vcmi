@@ -52,7 +52,6 @@ public:
 	void localInit(BattleInfo * battleInfo);
 	std::string getName() const; //plural or singular
 
-	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
 	bool isOnNativeTerrain() const;
 	TerrainId getCurrentTerrain() const;
 

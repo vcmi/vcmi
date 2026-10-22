@@ -91,3 +91,9 @@ Player colours, plus the neutral owner used by unowned objects.
 Whether a player is still playing, has won, or has lost.
 
 - type: [`PlayerStatus`](PlayerStatus.md)
+
+### ComponentType
+
+Kinds of icons shown in message windows, used by Component `type`.
+
+- type: [`ComponentType`](ComponentType.md)

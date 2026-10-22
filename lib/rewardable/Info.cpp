@@ -218,6 +218,7 @@ void Rewardable::Info::configureReward(Rewardable::Configuration & object, IGame
 	reward.spells = randomizer.loadSpells(source["spells"], variables);
 	reward.creatures = randomizer.loadCreatures(source["creatures"], variables);
 	reward.takenCreatures = randomizer.loadCreatures(source["takenCreatures"], variables);
+	reward.removeInvalidCreatures(textIdentifier.get());
 	if(!source["spellCast"].isNull() && source["spellCast"].isStruct())
 	{
 		reward.spellCast.first = randomizer.loadSpell(source["spellCast"]["spell"], variables);

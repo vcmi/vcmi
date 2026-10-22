@@ -179,7 +179,7 @@ void MapAudioPlayer::updateMusic()
 {
 	if(audioPlaying && playerMakingTurn && currentSelection)
 	{
-		const auto * tile = GAME->interface()->cb->getTile(currentSelection->visitablePos());
+		const auto * tile = GAME->interface()->cb->tryGetTile(currentSelection->visitablePos());
 
 		if (tile)
 			ENGINE->music().playMusicFromSet("terrain", tile->getTerrain()->getJsonKey(), true, false);

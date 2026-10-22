@@ -318,6 +318,34 @@ bool BaseMechanics::adaptGenericProblem(Problem & target) const
 	return false;
 }
 
+void BaseMechanics::describeSpellLevelLimit(const Caster * caster, Problem & target)
+{
+	MetaString text;
+	const auto * hero = dynamic_cast<const CGHeroInstance *>(caster);
+	//Recanter's Cloak or similar effect. Try to retrieve bonus
+	const auto b = hero ? hero->getFirstBonus(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE)) : nullptr;
+
+	//TODO what about other values and non-artifact sources?
+	if(b && b->val == 2 && b->source == BonusSource::ARTIFACT)
+	{
+		//The %s prevents %s from casting 3rd level or higher spells.
+		text.appendTextID("core.genrltxt.536");
+		text.replaceName(b->sid.as<ArtifactID>());
+		text.replaceTextID(caster->getCasterNameTextID());
+	}
+	else if(b && b->source == BonusSource::TERRAIN_OVERLAY && LIBRARY->battlefields()->getById(b->sid.as<BattleField>())->identifier == "cursed_ground")
+	{
+		text.appendTextID("core.genrltxt.537");
+	}
+	else
+	{
+		// %s recites the incantations but they seem to have no effect.
+		text.appendTextID("core.genrltxt.541");
+		text.replaceTextID(caster->getCasterNameTextID());
+	}
+	target.add(std::move(text), spells::Problem::NORMAL);
+}
+
 bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) const
 {
 	if(source == ESpellCastProblem::OK)
@@ -326,34 +354,7 @@ bool BaseMechanics::adaptProblem(ESpellCastProblem source, Problem & target) con
 	switch(source)
 	{
 	case ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED:
-		{
-			MetaString text;
-			//TODO: refactor
-			const auto * hero = dynamic_cast<const CGHeroInstance *>(caster);
-			if(!hero)
-				return adaptGenericProblem(target);
-
-			//Recanter's Cloak or similar effect. Try to retrieve bonus
-			const auto b = hero->getFirstBonus(Selector::type()(BonusType::BLOCK_MAGIC_ABOVE));
-			//TODO what about other values and non-artifact sources?
-			if(b && b->val == 2 && b->source == BonusSource::ARTIFACT)
-			{
-				//The %s prevents %s from casting 3rd level or higher spells.
-				text.appendTextID("core.genrltxt.536");
-				text.replaceName(b->sid.as<ArtifactID>());
-				text.replaceTextID(caster->getCasterNameTextID());
-				target.add(std::move(text), spells::Problem::NORMAL);
-			}
-			else if(b && b->source == BonusSource::TERRAIN_OVERLAY && LIBRARY->battlefields()->getById(b->sid.as<BattleField>())->identifier == "cursed_ground")
-			{
-				text.appendTextID("core.genrltxt.537");
-				target.add(std::move(text), spells::Problem::NORMAL);
-			}
-			else
-			{
-				return adaptGenericProblem(target);
-			}
-		}
+		describeSpellLevelLimit(caster, target);
 		break;
 	case ESpellCastProblem::WRONG_SPELL_TARGET:
 	case ESpellCastProblem::STACK_IMMUNE_TO_SPELL:

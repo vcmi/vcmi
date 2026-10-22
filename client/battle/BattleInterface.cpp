@@ -279,38 +279,6 @@ void BattleInterface::newRound()
 	round++;
 }
 
-void BattleInterface::giveCommand(EActionType action, const BattleHex & tile, SpellID spell)
-{
-	std::vector<BattleHex> tiles = {tile};
-	giveCommand(action, tiles, spell);
-}
-
-void BattleInterface::giveCommand(EActionType action, const std::vector<BattleHex> & tiles,  SpellID spell)
-{
-	const CStack * actor = nullptr;
-	if(action != EActionType::HERO_SPELL && action != EActionType::RETREAT && action != EActionType::SURRENDER)
-	{
-		actor = stacksController->getActiveStack();
-	}
-
-	auto side = getBattle()->playerToSide(curInt->playerID);
-	if(side == BattleSide::NONE)
-	{
-		logGlobal->error("Player %s is not in battle", curInt->playerID.toString());
-		return;
-	}
-
-	BattleAction ba;
-	ba.side = side;
-	ba.actionType = action;
-
-	for(auto & tile : tiles)
-		ba.aimToHex(tile);
-	ba.spell = spell;
-
-	sendCommand(ba, actor);
-}
-
 void BattleInterface::sendCommand(BattleAction command, const CStack * actor)
 {
 	command.stackNumber = actor ? actor->unitId() : ((command.side == BattleSide::ATTACKER) ? -1 : -2);
@@ -736,12 +704,6 @@ void BattleInterface::appendBattleLog(const std::string & newEntry)
 
 void BattleInterface::startAction(const BattleAction & action)
 {
-	if(action.actionType == EActionType::END_TACTIC_PHASE)
-	{
-		windowObject->tacticPhaseEnded();
-		return;
-	}
-
 	stacksController->startAction(action);
 
 	if (!action.isUnitAction())
@@ -924,6 +886,18 @@ void BattleInterface::waitForAnimations()
 	{
 		auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
 		ongoingAnimationsState.waitWhileBusy();
+	}
+
+	while(!awaitingEvents.empty())
+	{
+		executeStagedAnimations();
+
+		if(hasAnimations())
+		{
+			auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+			ongoingAnimationsState.waitWhileBusy();
+			assert(!hasAnimations());
+		}
 	}
 
 	assert(!hasAnimations());

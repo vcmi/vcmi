@@ -39,7 +39,6 @@
 #include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/rmg/CMapGenOptions.h"
-#include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/TextOperations.h"
 
@@ -168,11 +167,9 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 		std::unique_ptr<CMap> campaignMap = nullptr;
 		if(p.tabType != ESelectionScreen::newGame && config["variables"]["mapPreviewForSaves"].Bool())
 		{
-			CLoadFile lf(*CResourceHandler::get()->getResourceName(ResourcePath(p.resource.getName(), EResType::SAVEGAME)), nullptr);
-			CMapHeader mapHeader;
-			StartInfo startInfo;
-			lf.load(mapHeader);
-			lf.load(startInfo);
+			CMapInfo saveInfo;
+			saveInfo.saveInit(ResourcePath(p.resource.getName(), EResType::SAVEGAME));
+			const StartInfo & startInfo = *saveInfo.scenarioOptionsOfSave;
 
 			if(startInfo.campState)
 				campaignMap = startInfo.campState->getMap(*startInfo.campState->currentScenario(), nullptr);

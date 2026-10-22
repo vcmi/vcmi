@@ -102,6 +102,9 @@ CMapEvent::CMapEvent()
 
 bool CMapEvent::occursToday(int currentDay) const
 {
+	if (disabled)
+		return false;
+
 	if (currentDay == firstOccurrence + 1)
 		return true;
 
@@ -255,8 +258,16 @@ CMap::~CMap()
 				artifact->detachFromSource(*part.getArtifact());
 }
 
+bool CMap::isHoleAt(const int3 & pos) const
+{
+	return holePositions.contains(pos);
+}
+
 void CMap::hideObject(CGObjectInstance * obj)
 {
+	if(obj->ID == Obj::HOLE)
+		holePositions.erase(obj->anchorPos());
+
 	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{
@@ -276,6 +287,9 @@ void CMap::hideObject(CGObjectInstance * obj)
 
 void CMap::showObject(CGObjectInstance * obj)
 {
+	if(obj->ID == Obj::HOLE)
+		holePositions.insert(obj->anchorPos());
+
 	const int zVal = obj->anchorPos().z;
 	for(int fx = 0; fx < obj->getWidth(); ++fx)
 	{

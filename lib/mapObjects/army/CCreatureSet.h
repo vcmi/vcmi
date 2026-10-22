@@ -138,7 +138,7 @@ public:
 	bool contains(const CStackInstance * stack) const;
 	bool canBeMergedWith(const CCreatureSet & cs, bool allowMergingStacks = true) const;
 
-	/// Returns true if this creature set contains all listed units
+	/// Returns true if this creature set contains all listed units, with repeated entries of a creature added up
 	/// If requireLastStack is true, then this function will also
 	/// require presence of any unit other than requested (or more units than requested)
 	bool hasUnits(const std::vector<CStackBasicDescriptor> & units, bool requireLastStack = true) const;

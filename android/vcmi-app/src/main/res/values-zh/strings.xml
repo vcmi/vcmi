@@ -3,4 +3,16 @@
     <string name="server_name">VCMI服务器</string>
     <string name="shortcut_play">启动VCMI</string>
     <string name="shortcut_editor">打开VCMI地图编辑器</string>
+    <string name="notification_channel_running">后台运行</string>
+    <string name="notification_channel_game">游戏事件</string>
+    <string name="notification_running_title">VCMI正在运行</string>
+    <string name="notification_running_text">游戏在后台保持运行</string>
+    <string name="notification_game_title">VCMI</string>
+    <string name="notification_quit">退出</string>
+    <string name="quit_title">退出VCMI</string>
+    <string name="notification_permission_title">通知已关闭</string>
+    <string name="notification_permission_denied">VCMI 需要通知权限，以便在游戏后台运行时告知您轮到您开始或有聊天消息到达。如果没有该权限，游戏仍可正常运行，但您将不会收到通知。</string>
+    <string name="notification_permission_settings">设置</string>
+    <string name="quit_message">您真的要结束当前的游戏吗？未保存的进度将会丢失。</string>
+    <string name="data_folder_name">VCMI数据</string>
 </resources>

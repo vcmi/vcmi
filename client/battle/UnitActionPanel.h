@@ -9,9 +9,9 @@
  */
 #pragma once
 
+#include "BattleActionEntry.h"
+
 #include "../gui/CIntObject.h"
-#include "../../lib/battle/PossiblePlayerBattleAction.h"
-#include "../../lib/filesystem/ResourcePath.h"
 
 class CFilledTexture;
 class TransparentFilledRectangle;
@@ -28,17 +28,16 @@ private:
 
 	BattleInterface & owner;
 
-	void testAndAddAction(const std::vector<PossiblePlayerBattleAction> & allActions, const std::vector<PossiblePlayerBattleAction::Actions> & actionFilter, const ImagePath & iconPath, const std::string & descriptionTextID );
-	void testAndAddSpell(const std::vector<PossiblePlayerBattleAction> & allActions, const SpellID & spellFilter );
+	void addButton(const UnitActionButton & button, const BattleActionEntries & entries);
 
 	void restoreAllActions();
-	void setActions(int buttonIndex, const std::vector<PossiblePlayerBattleAction> & newActions);
+	void setActions(int buttonIndex, const BattleActionEntries & newActions);
 public:
 	static constexpr int ACTION_SLOTS = 12;
 
 	UnitActionPanel(BattleInterface & owner);
 
-	void setPossibleActions(const std::vector<PossiblePlayerBattleAction> & actions);
+	void setPossibleActions(const BattleActionEntries & actions);
 
 	std::vector<std::tuple<SpellID, bool>> getSpells() const;
 

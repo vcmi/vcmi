@@ -79,6 +79,7 @@ public:
 	void visitSetObjectProperty(SetObjectProperty & pack) override;
 	void visitSetScriptVariable(SetScriptVariable & pack) override;
 	void visitSetQuestHint(SetQuestHint & pack) override;
+	void visitDisableMapEvent(DisableMapEvent & pack) override;
 	void visitHeroLevelUp(HeroLevelUp & pack) override;
 	void visitCommanderLevelUp(CommanderLevelUp & pack) override;
 	void visitBattleStart(BattleStart & pack) override;
@@ -114,6 +115,7 @@ public:
 	void visitSetRewardableConfiguration(SetRewardableConfiguration & pack) override;
 	void visitBattleSetStackProperty(BattleSetStackProperty & pack) override;
 	void visitBattleNextRound(BattleNextRound & pack) override;
+	void visitBattleTacticsEnded(BattleTacticsEnded & pack) override;
 	void visitBattleCancelled(BattleCancelled & pack) override;
 	void visitBattleResultsApplied(BattleResultsApplied & pack) override;
 	void visitBattleEnded(BattleEnded & pack) override;

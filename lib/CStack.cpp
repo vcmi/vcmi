@@ -95,7 +95,8 @@ si32 CStack::magicResistance() const
 
 	for(const auto * one : battle->battleAdjacentUnits(this))
 	{
-		if(one->unitOwner() == owner)
+		// a hypnotized unicorn protects units of the player controlling it
+		if(battle->battleGetOwner(one) == battle->battleGetOwner(this))
 			vstd::amax(auraBonus, one->valOfBonuses(BonusType::SPELL_RESISTANCE_AURA)); //max value
 	}
 	vstd::abetween(auraBonus, 0, 100);
@@ -193,11 +194,6 @@ void CStack::prepareAttacked(BattleStackAttacked & bsa, vstd::RNG & rand, const 
 std::string CStack::getName() const
 {
 	return (getCount() == 1) ? typeID.toEntity(LIBRARY)->getNameSingularTranslated() : typeID.toEntity(LIBRARY)->getNamePluralTranslated(); //War machines can't use base
-}
-
-bool CStack::canBeHealed() const
-{
-	return getFirstHPleft() < static_cast<int32_t>(getMaxHealth()) && isValidTarget() && !hasBonusOfType(BonusType::SIEGE_WEAPON);
 }
 
 bool CStack::isOnNativeTerrain() const

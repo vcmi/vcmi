@@ -25,6 +25,8 @@
 
 #include "lib/constants/EntityIdentifiers.h"
 
+#include <tbb/parallel_invoke.h>
+
 #include <SDL_surface.h>
 
 //First 8 colors in def palette used for transparency
@@ -77,6 +79,19 @@ static bool colorsSimilar (const SDL_Color & lhs, const SDL_Color & rhs)
 	int diffA = static_cast<int>(lhs.a) - rhs.a;
 
 	return std::abs(diffR) < threshold && std::abs(diffG) < threshold && std::abs(diffB) < threshold && std::abs(diffA) < threshold;
+}
+
+/// Shadow and overlay layers of images without palette (e.g. 32-bit mod sprites) have nothing to hide the body with,
+/// so the body is drawn only by the body layer. Indexed images hide it through the palette and need the draw
+static bool drawsOnlyExtraLayers(EImageBlitMode layer, const SDL_Palette * palette)
+{
+	if(palette)
+		return false;
+
+	return layer == EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR
+		|| layer == EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION
+		|| layer == EImageBlitMode::ONLY_FLAG_COLOR
+		|| layer == EImageBlitMode::ONLY_SELECTION;
 }
 
 ScalableImageParameters::ScalableImageParameters(const SDL_Palette * originalPalette, EImageBlitMode blitMode)
@@ -273,6 +288,8 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 		return images[index];
 	};
 
+	const bool extraLayersOnly = drawsOnlyExtraLayers(locator.layer, parameters.palette);
+
 	bool shadowLoading = scaled.at(scalingFactor).shadow.at(0) && scaled.at(scalingFactor).shadow.at(0)->isLoading();
 	bool bodyLoading = scaled.at(scalingFactor).body.at(0) && scaled.at(scalingFactor).body.at(0)->isLoading();
 	bool overlayLoading = scaled.at(scalingFactor).overlay.at(0) && scaled.at(scalingFactor).overlay.at(0)->isLoading();
@@ -283,6 +300,9 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 	{
 		// upscaling is still running - the 1x image is stretched to stand in for it
 		RenderHandler::notifyPlaceholderDrawn();
+
+		if (extraLayersOnly)
+			return;
 
 		getFlippedImage(scaled[1].body)->scaledDraw(where, parameters.palette, dimensions() * scalingFactor, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
 
@@ -300,7 +320,7 @@ void ScalableImageShared::draw(SDL_Surface * where, const Point & dest, const Re
 	}
 	else
 	{
-		if (scaled.at(scalingFactor).body.at(0))
+		if (scaled.at(scalingFactor).body.at(0) && !extraLayersOnly)
 			getFlippedImage(scaled.at(scalingFactor).body)->draw(where, parameters.palette, dest, src, parameters.colorMultiplier, parameters.alphaValue, locator.layer);
 
 		if (scaled.at(scalingFactor).bodyGrayscale.at(0) && parameters.effectColorMultiplier.a != ColorRGBA::ALPHA_TRANSPARENT)
@@ -474,7 +494,8 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	}
 
 	// alternatively, find largest pre-scaled image, load it and rescale to desired scaling
-	for (int8_t scaling = 4; scaling > 0; --scaling)
+	// the 1x image is only useful for optional images, other images are scaled from the base image below
+	for (int8_t scaling = 4; scaling > (optionalImage ? 0 : 1); --scaling)
 	{
 		loadingLocator.scalingFactor = scaling;
 		auto loadedImage = ENGINE->renderHandler().loadScaledImage(loadingLocator);
@@ -482,11 +503,8 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 		{
 			if (scaling == 1)
 			{
-				if (optionalImage)
-				{
-					ScalableImageParameters parameters(getPalette(), mode);
-					return loadedImage->scaleInteger(scalingFactor, parameters.palette, mode);
-				}
+				ScalableImageParameters parameters(getPalette(), mode);
+				return loadedImage->scaleInteger(scalingFactor, parameters.palette, mode);
 			}
 			else
 			{
@@ -500,6 +518,9 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	// if all else fails - use base (presumably, indexed) image and convert it to desired form
 	if (color != PlayerColor::CANNOT_DETERMINE && parameters.palette)
 		parameters.playerColored(color);
+
+	if (drawsOnlyExtraLayers(mode, parameters.palette))
+		return nullptr;
 
 	if (upscalingSource)
 		return upscalingSource->scaleInteger(scalingFactor, parameters.palette, mode);
@@ -561,39 +582,54 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 		}
 	}
 
-	if (scaled[scalingFactor].shadow[0] == nullptr)
+	const auto loadShadow = [&]()
 	{
-		switch(locator.layer)
+		if (scaled[scalingFactor].shadow[0] == nullptr)
 		{
-			case EImageBlitMode::WITH_SHADOW:
-			case EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION:
-			case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
-				scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
-				break;
-			case EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR:
-			case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
-				scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
-				break;
-			default:
-				break;
+			switch(locator.layer)
+			{
+				case EImageBlitMode::WITH_SHADOW:
+				case EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION:
+				case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
+					scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
+					break;
+				case EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR:
+				case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
+					scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
+					break;
+				default:
+					break;
+			}
 		}
-	}
+	};
 
-	if (scaled[scalingFactor].overlay[0] == nullptr)
+	const auto loadOverlay = [&]()
 	{
-		switch(locator.layer)
+		if (scaled[scalingFactor].overlay[0] == nullptr)
 		{
-			case EImageBlitMode::ONLY_FLAG_COLOR:
-			case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
-				scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_FLAG_COLOR, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
-				break;
-			case EImageBlitMode::ONLY_SELECTION:
-			case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
-				scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
-				break;
-			default:
-				break;
+			switch(locator.layer)
+			{
+				case EImageBlitMode::ONLY_FLAG_COLOR:
+				case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
+					scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_FLAG_COLOR, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
+					break;
+				case EImageBlitMode::ONLY_SELECTION:
+				case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
+					scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
+					break;
+				default:
+					break;
+			}
 		}
+	};
+
+	// generated shadow and outline are expensive and independent from each other
+	if (locator.generateShadow && locator.generateOverlay)
+		tbb::parallel_invoke(loadShadow, loadOverlay);
+	else
+	{
+		loadShadow();
+		loadOverlay();
 	}
 }
 

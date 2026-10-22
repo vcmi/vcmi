@@ -13,6 +13,15 @@
 #include "IImage.h"
 #include "lib/Rect.h"
 
+/// Pixels kept around the content when a surface is cut
+struct SDLImageMargins
+{
+	int left = 0;
+	int top = 0;
+	int right = 0;
+	int bottom = 0;
+};
+
 class SDLImageOptimizer : boost::noncopyable
 {
 	SDL_Surface * surf = nullptr;
@@ -21,7 +30,8 @@ class SDLImageOptimizer : boost::noncopyable
 public:
 	SDLImageOptimizer(SDL_Surface * surf, const Rect & virtualDimensions);
 
-	void optimizeSurface(SDL_Surface * formatSourceSurface);
+	/// The cut may reach below the surface to keep its height a multiple of heightMultiple, with transparent rows. Its top edge is a multiple of heightMultiple as well
+	void optimizeSurface(SDL_Surface * formatSourceSurface, const SDLImageMargins & keep = SDLImageMargins(), int heightMultiple = 1);
 
 	/// Aquires resulting surface and transfers surface ownership to the caller
 	/// May return nullptr if input image was empty

@@ -236,7 +236,7 @@ TEST_F(QuestSeerMultiTest, ActiveQuestIsGlobalAcrossPlayers)
 
 // ---- quest giver name -------------------------------------------------------
 
-TEST_F(QuestSeerMultiTest, GiverName_activeQuestOverridesRolledSeerName)
+TEST_F(QuestSeerMultiTest, GiverName_isRolledSeerName)
 {
 	const int3 guardPos(9, 9, 0);
 
@@ -248,23 +248,12 @@ TEST_F(QuestSeerMultiTest, GiverName_activeQuestOverridesRolledSeerName)
 	auto * seer = expectAt<SeerHut>(kSeerPos);
 	ASSERT_EQ(seer->allQuests().size(), 2u);
 
-	Quest & active = seer->getQuest();
-	Quest & inactive = *(seer->allQuests().front().get() == &active ? seer->allQuests().back() : seer->allQuests().front());
-
-	// without an override the hut falls back to the name rolled on map start
+	// the hut uses the name rolled on map start
 	EXPECT_FALSE(seer->seerNameTextID.empty());
 	EXPECT_EQ(seer->getQuestGiverName(), seer->seerNameTextID);
 
-	// a name on some other quest of the same hut must not leak into the active one
-	inactive.questGiverNameTextID = "map.test.inactiveSeer";
-	EXPECT_EQ(seer->getQuestGiverName(), seer->seerNameTextID);
-
-	active.questGiverNameTextID = "map.test.activeSeer";
-	EXPECT_EQ(seer->getQuestGiverName(), "map.test.activeSeer");
-
-	// quest guards name no seer, even when their quest carries a name
+	// quest guards name no seer
 	auto * guard = expectAt<QuestGuard>(guardPos);
-	guard->getQuest().questGiverNameTextID = "map.test.guard";
 	EXPECT_TRUE(guard->getQuestGiverName().empty());
 }
 

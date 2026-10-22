@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "ControllerPromptFamily.h"
+
 enum class EShortcut;
 
 class JsonNode;
@@ -17,16 +19,19 @@ class JsonNode;
 class ShortcutHandler
 {
 	std::multimap<std::string, EShortcut> mappedKeyboardShortcuts;
-	std::multimap<std::string, EShortcut> mappedJoystickShortcuts;
+	std::map<ControllerPrompt::Family, std::multimap<std::string, EShortcut>> mappedJoystickShortcuts;
 	std::multimap<std::string, EShortcut> mappedJoystickAxes;
 
-	std::multimap<std::string, EShortcut> loadShortcuts(const JsonNode & data) const;
+	std::multimap<std::string, EShortcut> loadShortcuts(const JsonNode & data, ControllerPrompt::Family family = ControllerPrompt::Family::UNKNOWN) const;
 	std::vector<EShortcut> translateShortcut(const std::multimap<std::string, EShortcut> & options, const std::string & key) const;
 
 public:
 	ShortcutHandler();
 
 	void reloadShortcuts();
+
+	/// Resolves a family default; an explicit string/vector binding always takes precedence.
+	const JsonNode & resolveBinding(const JsonNode & binding, ControllerPrompt::Family family) const;
 
 	/// returns list of shortcuts assigned to provided SDL keycode
 	std::vector<EShortcut> translateKeycode(const std::string & key) const;

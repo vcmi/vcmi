@@ -74,5 +74,9 @@
 			"battleBonuses": []
 		}
 	},
+	"tutorial":
+	{
+		"resources": { "wood" : 50, "mercury": 50, "ore": 50, "sulfur": 50, "crystal": 50, "gems": 50, "gold": 50000 }
+	}
 }
 

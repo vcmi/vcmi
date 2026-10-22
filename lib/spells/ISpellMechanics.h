@@ -17,6 +17,7 @@
 #include "../int3.h"
 #include "../GameConstants.h"
 #include "../bonuses/Bonus.h"
+#include "../texts/MetaString.h"
 
 struct Question;
 struct MapObjectSelectDialog;
@@ -62,7 +63,7 @@ public:
 
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual bool moveHero(ObjectInstanceID hid, int3 dst, EMovementMode mode) = 0;	//TODO: remove
-	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) = 0;
+	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, const MetaString & customTitle) = 0;
 
 	/// Asks the player to pick one of several towns and completes the cast at the chosen
 	/// one. Takes ids instead of a callback, which can not be serialized and would hold
@@ -175,6 +176,14 @@ protected:
 	ISpellMechanicsFactory(const CSpell * s);
 };
 
+/// What the client shows while the player chooses one destination of a spell target
+struct TargetStepDescription
+{
+	std::string cursor; ///< cursor id from config/cursors.json
+	MetaString text; ///< status bar text for a hex the spell can be cast at
+	MetaString blockedText; ///< status bar text for a hex the spell can't be cast at, may be empty
+};
+
 class Mechanics : public scripting::ApiRawPointer<Mechanics>
 {
 public:
@@ -219,6 +228,8 @@ public:
 	virtual bool wouldResist(const battle::Unit * target) const = 0;
 
 	virtual std::vector<AimType> getTargetTypes() const = 0;
+	/// Describes the choice of the destination that follows the chosen ones, for the hovered hex
+	virtual TargetStepDescription describeTargetStep(const Target & partialTarget, const BattleHex & hoveredHex) const = 0;
 
 	virtual const Spell * getSpell() const = 0;
 
@@ -287,6 +298,8 @@ public:
 
 	bool adaptProblem(ESpellCastProblem source, Problem & target) const override;
 	bool adaptGenericProblem(Problem & target) const override;
+	/// Explains to player why caster can not cast spells of this level, e.g. due to Recanter's Cloak or Cursed Ground
+	static void describeSpellLevelLimit(const Caster * caster, Problem & target);
 
 	int32_t getSpellIndex() const override;
 	SpellID getSpellId() const override;

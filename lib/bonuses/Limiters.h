@@ -248,7 +248,8 @@ public:
 	}
 };
 
-class RankRangeLimiter : public ILimiter //applies to creatures with min <= Rank <= max
+/// applies to stacks with stack experience rank minRank <= rank < maxRank
+class DLL_LINKAGE RankRangeLimiter : public ILimiter
 {
 public:
 	ui8 minRank;
@@ -257,12 +258,17 @@ public:
 	RankRangeLimiter();
 	RankRangeLimiter(ui8 Min, ui8 Max = 255);
 	EDecision limit(const BonusLimitationContext &context) const override;
+	JsonNode toJsonNode() const override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & static_cast<ILimiter&>(*this);
 		h & minRank;
 		h & maxRank;
+
+		// older saves stored an exclusive lower bound
+		if(!h.saving && !h.hasFeature(Handler::Version::RANK_LIMITER_INCLUSIVE_MIN))
+			minRank += 1;
 	}
 };
 

@@ -37,6 +37,7 @@ public:
 	MOCK_CONST_METHOD1(isReceptive, bool(const battle::Unit * ));
 	MOCK_CONST_METHOD1(wouldResist, bool(const battle::Unit * ));
 	MOCK_CONST_METHOD0(getTargetTypes, std::vector<AimType>());
+	MOCK_CONST_METHOD2(describeTargetStep, TargetStepDescription(const Target &, const BattleHex &));
 	MOCK_CONST_METHOD4(getPossibleDestinations, std::vector<Destination>(size_t, AimType, const Target &, bool));
 
 	MOCK_CONST_METHOD0(getSpell, const Spell *());

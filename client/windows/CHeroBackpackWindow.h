@@ -30,6 +30,7 @@ class CHeroQuickBackpackWindow : public CWindowWithArtifacts
 {
 public:
 	CHeroQuickBackpackWindow(const CGHeroInstance * hero, ArtifactPosition targetSlot);
+	void gestureCanceled() override;
 	void gesture(bool on, const Point & initialPosition, const Point & finalPosition) override;
 	void gesturePanning(const Point & initialPosition, const Point & currentPosition, const Point & lastUpdateDistance) override;
 	void notFocusedClick() override;

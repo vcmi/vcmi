@@ -20,6 +20,7 @@ class DLL_LINKAGE CNonConstInfoCallback : public CGameInfoCallback
 public:
 	//keep const version of callback accessible
 	using CGameInfoCallback::getPlayerState;
+	using CGameInfoCallback::tryGetPlayerState;
 	using CGameInfoCallback::getTeam;
 	using CGameInfoCallback::getPlayerTeam;
 	using CGameInfoCallback::getHero;
@@ -29,7 +30,8 @@ public:
 	using CGameInfoCallback::getObjInstance;
 	using CGameInfoCallback::getArtSet;
 
-	PlayerState * getPlayerState(const PlayerColor & color, bool verbose = true);
+	PlayerState * getPlayerState(const PlayerColor & color);
+	PlayerState * tryGetPlayerState(const PlayerColor & color);
 	TeamState * getTeam(const TeamID & teamID); //get team by team ID
 	TeamState * getPlayerTeam(const PlayerColor & color); // get team by player color
 	CGHeroInstance * getHero(const ObjectInstanceID & objid);

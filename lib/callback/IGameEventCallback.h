@@ -18,6 +18,7 @@ class int3;
 class JsonNode;
 struct GiveBonus;
 struct QuestInfo;
+struct Component;
 struct CPackForClient;
 struct SetMovePoints;
 struct BattleLayout;
@@ -73,8 +74,10 @@ public:
 	virtual void buildStructureForced(ObjectInstanceID townID, BuildingID building)=0; //erects a building ignoring cost and prerequisites
 	virtual bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) = 0;
 	virtual void addQuest(const PlayerColor & player, const QuestInfo & quest) = 0;
-	/// Sets the quest-log / hover hint text of an active quest.
-	virtual void setQuestHintText(ObjectInstanceID obj, const MetaString & hint) = 0;
+	/// Sets the quest-log / hover hint text of an active quest, and icons shown with it in the quest log.
+	virtual void setQuestHint(ObjectInstanceID obj, const MetaString & hint, const std::vector<Component> & components) = 0;
+	/// Turns off scripted timed event of specified town, or player event of the map if town is NONE
+	virtual void disableMapEvent(ObjectInstanceID town, const std::string & scriptHandler) = 0;
 	virtual void createBoat(const int3 & visitablePosition, BoatId type, PlayerColor initiator) = 0;
 	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
 	/// Always ends in experienceApplied() on the object whose visit is running, whether or
@@ -90,7 +93,7 @@ public:
 	/// its step from state that may have changed. Must be called while that hero's visit runs.
 	virtual void setVisitState(const CGHeroInstance * hero, const JsonNode & state) =0;
 	virtual void showScriptDialog(BlockingDialog *iw) =0; //dialog spawned by a map script; its reply resumes the paused script coroutine
-	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const MetaString & customTitle) =0; //cb will be called when player closes garrison window
+	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, const MetaString & customTitle) =0; //cb will be called when player closes garrison window
 	virtual void showTeleportDialog(TeleportDialog *iw) =0;
 	virtual void showObjectWindow(const CGObjectInstance * object, EOpenWindowMode window, const CGHeroInstance * visitor, bool addActivity) = 0;
 	virtual void giveResource(PlayerColor player, GameResID which, int val)=0;
@@ -101,7 +104,7 @@ public:
 	virtual void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures, bool forceRemoval = false) =0;
 	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, ChangeValueMode mode) =0;
 	virtual bool changeStackType(const StackLocation &sl, const CCreature *c) =0;
-	virtual bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) =0; //count -1 => moves whole stack
+	virtual bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count) =0;
 	virtual bool eraseStack(const StackLocation &sl, bool forceRemoval = false) =0;
 	virtual bool swapStacks(const StackLocation &sl1, const StackLocation &sl2) =0;
 	virtual bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) =0; //makes new stack or increases count of already existing
@@ -109,6 +112,8 @@ public:
 	virtual bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count) = 0;
 
 	virtual void removeAfterVisit(const ObjectInstanceID & id) = 0; //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
+	/// Returns true if a hero is currently interacting with this object
+	virtual bool isObjectBeingVisited(const ObjectInstanceID & id) const = 0;
 
 	virtual bool giveHeroNewArtifact(const CGHeroInstance * h, const ArtifactID & artId, const ArtifactPosition & pos) = 0;
 	virtual bool giveHeroNewScroll(const CGHeroInstance * h, const SpellID & spellId, const ArtifactPosition & pos) = 0;

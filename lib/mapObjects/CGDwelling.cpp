@@ -410,14 +410,19 @@ void CGDwelling::updateGuards(IGameEventCallback & gameEvents) const
 		for (auto creatureEntry : creatures)
 		{
 			const CCreature * crea = creatureEntry.second.at(0).toCreature();
+			const TQuantity guardsCount = crea->getGrowth() * 3;
 			SlotID slot = getSlotFor(crea->getId());
+
+			// special creatures, such as war machines, may have no growth
+			if (guardsCount <= 0)
+				continue;
 
 			if (hasStackAtSlot(slot)) //stack already exists, overwrite it
 			{
 				ChangeStackCount csc;
 				csc.army = this->id;
 				csc.slot = slot;
-				csc.count = crea->getGrowth() * 3;
+				csc.count = guardsCount;
 				csc.mode = ChangeValueMode::ABSOLUTE;
 				gameEvents.sendAndApply(csc);
 			}
@@ -427,7 +432,7 @@ void CGDwelling::updateGuards(IGameEventCallback & gameEvents) const
 				ns.army = this->id;
 				ns.slot = slot;
 				ns.type = crea->getId();
-				ns.count = crea->getGrowth() * 3;
+				ns.count = guardsCount;
 				gameEvents.sendAndApply(ns);
 			}
 		}

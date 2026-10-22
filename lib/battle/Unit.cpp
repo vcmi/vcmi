@@ -20,6 +20,7 @@
 
 #include <vcmi/Faction.h>
 #include <vcmi/FactionService.h>
+#include <vcmi/spells/Spell.h>
 
 namespace battle
 {
@@ -62,9 +63,29 @@ bool Unit::isAmmoCart() const
 	return unitType()->warMachine == ArtifactID::AMMO_CART;
 }
 
+int32_t Unit::getAbilitySpellLevel(int32_t abilityLevel, const spells::Spell * spell) const
+{
+	//Magic Plains raise level of spells cast by creatures, unlike battlefields of a specific magic school
+	if(spell->getLevel() > 0)
+		vstd::amax(abilityLevel, valOfBonuses(BonusType::MAGIC_SCHOOL_SKILL, BonusSubtypeID(SpellSchool::ANY)));
+	return abilityLevel;
+}
+
+BattleSide Unit::controllingSide() const
+{
+	if(!isHypnotized())
+		return unitSide();
+	return unitSide() == BattleSide::ATTACKER ? BattleSide::DEFENDER : BattleSide::ATTACKER;
+}
+
 bool Unit::isSummoned() const
 {
 	return unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER;
+}
+
+bool Unit::isCommander() const
+{
+	return unitSlot() == SlotID::COMMANDER_SLOT_PLACEHOLDER;
 }
 
 
@@ -247,12 +268,6 @@ BattleHex Unit::occupiedHex(const BattleHex & assumedPos, bool twoHex, BattleSid
 	}
 }
 
-void Unit::addText(MetaString & text, EMetaText type, int32_t serial) const
-{
-	serial = LIBRARY->generaltexth->pluralText(serial, getCount());
-	text.appendLocalString(type, serial);
-}
-
 void Unit::addNameReplacement(MetaString & text) const
 {
 	addNameReplacement(text, getCount());
@@ -263,7 +278,7 @@ void Unit::addNameReplacement(MetaString & text, TQuantity count) const
 	text.replaceName(creatureId(), count);
 }
 
-std::string Unit::formatGeneralMessage(const int32_t baseTextId, const ITranslator * translator) const
+MetaString Unit::formatGeneralMessage(const int32_t baseTextId) const
 {
 	const int32_t textId = LIBRARY->generaltexth->pluralText(baseTextId, getCount());
 
@@ -271,7 +286,7 @@ std::string Unit::formatGeneralMessage(const int32_t baseTextId, const ITranslat
 	text.appendLocalString(EMetaText::GENERAL_TXT, textId);
 	text.replaceName(creatureId(), getCount());
 
-	return text.toString(translator);
+	return text;
 }
 
 int Unit::getRawSurrenderCost() const

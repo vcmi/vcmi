@@ -19,6 +19,7 @@
 #include "TownPortalEffect.h"
 #include "ViewWorldEffect.h"
 
+#include "../ISpellMechanics.h"
 #include "../Problem.h"
 #include "../CSpell.h"
 
@@ -139,6 +140,13 @@ bool AdventureSpellMechanics::canBeCast(spells::Problem & problem, const IGameIn
 
 		if(!heroCaster->canCastThisSpell(owner))
 			return false;
+
+		const auto levelLimits = heroCaster->getBonusesOfType(BonusType::BLOCK_MAGIC_ABOVE);
+		if(!levelLimits->empty() && owner->getLevel() > levelLimits->totalValue())
+		{
+			spells::BaseMechanics::describeSpellLevelLimit(heroCaster, problem);
+			return false;
+		}
 
 		if(heroCaster->mana < cost)
 			return false;

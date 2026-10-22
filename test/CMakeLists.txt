@@ -29,6 +29,7 @@ set(test_SRCS
 
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp
+		entity/StackExperienceBonusesTest.cpp
 		entity/CFactionTest.cpp
 		entity/CHeroClassTest.cpp
 		entity/CHeroTest.cpp
@@ -45,16 +46,19 @@ set(test_SRCS
 		game/HeroMovementTest.cpp
 		game/HeroSecondarySkillsTest.cpp
 		game/MovementCostTest.cpp
+		game/SaveGameTest.cpp
 		game/VictoryLossTest.cpp
 
 		json/JsonTests.cpp
 
+		serializer/SaveFileTest.cpp
+
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
 		map/CGArtifactRegressionTest.cpp
-		map/MapComparer.cpp
 		map/MapScriptTest.cpp
 		map/MapObjectDrawOrderTest.cpp
+		map/PlayerFactionsTest.cpp
 		map/TinyH3MBuilderTest.cpp
 
 		quest/QuestTest.cpp
@@ -118,7 +122,10 @@ set(test_SRCS
 		server/battles/EnchantedTest.cpp
 		server/battles/FireShieldTest.cpp
 		server/battles/HotaAbilitiesTest.cpp
+		server/battles/HypnotizeTest.cpp
 		server/battles/LifeDrainTest.cpp
+		server/battles/WarMachineResurrectionTest.cpp
+		server/battles/ResurrectionCasualtiesTest.cpp
 		server/battles/MeleeActionTest.cpp
 		server/battles/MoatActionTest.cpp
 		server/battles/NoTargetActionTest.cpp
@@ -126,11 +133,13 @@ set(test_SRCS
 		server/battles/RebirthTest.cpp
 		server/battles/SoulStealTest.cpp
 		server/battles/SpellcastActionTest.cpp
+		server/battles/SpellTargetStepTest.cpp
 		server/battles/SummonGuardiansTest.cpp
 		server/battles/TurnOrderTest.cpp
 		server/battles/TransmutationTest.cpp
 		server/battles/WalkActionTest.cpp
 		server/activities/ActivityProcessorTest.cpp
+		server/ArmyManagementTest.cpp
 
 		texts/TextOperationsTest.cpp
 
@@ -153,7 +162,6 @@ set(test_HEADERS
  		CVcmiTestConfig.h
 		JsonComparer.h
 
-		map/MapComparer.h
 
  		netpacks/NetPackFixture.h
 
@@ -195,20 +203,25 @@ endif()
 
 if(ENABLE_NULLKILLER2_AI)
 	list(APPEND test_SRCS
+		nullkiller2/AIGatewayDialogTest.cpp
+		nullkiller2/AIGatewayMovementTest.cpp
 		nullkiller2/AIUtilityTest.cpp
 		nullkiller2/Analyzers/ArmyManagerTest.cpp
 		nullkiller2/Analyzers/HeroManagerTest.cpp
 		nullkiller2/Analyzers/ObjectClusterizerTest.cpp
 		nullkiller2/Behaviors/DefenceBehaviorTest.cpp
 		nullkiller2/Behaviors/EscapeBehaviorTest.cpp
-		nullkiller2/Behaviors/ExplorationBehaviorTest.cpp
 		nullkiller2/Behaviors/GatherArmyBehaviorTest.cpp
+		nullkiller2/Behaviors/OneWayPortalBehaviorTest.cpp
 		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
+		nullkiller2/Behaviors/WaterExplorationBehaviorTest.cpp
 		nullkiller2/Engine/PriorityEvaluatorTest.cpp
+		nullkiller2/Engine/ResourceTradingTurnTest.cpp
 		nullkiller2/Engine/TaskFailureTest.cpp
 		nullkiller2/Goals/BuyArmyTest.cpp
 		nullkiller2/Goals/CompleteQuestTest.cpp
 		nullkiller2/Goals/CompositionTest.cpp
+		nullkiller2/Goals/ExecuteHeroChainTest.cpp
 		nullkiller2/Goals/ExploreNeighbourTileTest.cpp
 		nullkiller2/Helpers/ExplorationHelperTest.cpp
 		nullkiller2/Helpers/TinyH3MDimensionDoorExplorationTest.cpp
@@ -221,6 +234,7 @@ if(ENABLE_NULLKILLER2_AI)
 	list(APPEND test_HEADERS
 		nullkiller2/Nulkiller2TestUtils.h
 		nullkiller2/NullkillerTest.h
+		nullkiller2/ScriptedMovementClient.h
 	)
 endif()
 

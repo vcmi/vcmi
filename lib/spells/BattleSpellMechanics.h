@@ -52,6 +52,7 @@ public:
 
 	/// Returns list of target types that can be targeted by spell
 	std::vector<AimType> getTargetTypes() const override final;
+	TargetStepDescription describeTargetStep(const Target & partialTarget, const BattleHex & hoveredHex) const override;
 
 	/// Returns true if spell can be cast on unit
 	bool isReceptive(const battle::Unit * target) const override;
@@ -91,6 +92,9 @@ private:
 	Target transformSpellTarget(const Target & aimPoint) const;
 
 	bool canCastAtTarget(const battle::Unit * target) const;
+
+	/// Text of the base text id followed by the health change the spell makes at the aim, in brackets
+	MetaString describeEffectValue(MetaString text, const Target & aim, const std::string & healTextID) const;
 };
 
 }

@@ -68,4 +68,14 @@ TEST_F(TextOperationsTest, ToUnicodeReusesDescriptor)
 	ASSERT_EQ(failures, 0);
 }
 
+TEST_F(TextOperationsTest, SingleByteCodepoint)
+{
+	ASSERT_EQ(TextOperations::getUnicodeCodepoint('A', "GBK"), 0x41u);
+	ASSERT_EQ(TextOperations::getUnicodeCodepoint('\xc0', "CP1251"), 0x410u);
+
+	// lead byte of a two-byte GBK character
+	ASSERT_FALSE(TextOperations::getUnicodeCodepoint('\xb0', "GBK").has_value());
+	ASSERT_FALSE(TextOperations::getUnicodeCodepoint('A', "NoSuchEncoding").has_value());
+}
+
 }

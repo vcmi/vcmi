@@ -14,6 +14,7 @@
 
 #include "LuaContext.h"
 #include "LuaScriptInstance.h"
+#include "api/spells/TargetStepDescriptor.h"
 
 #include <vcmi/scripting/Service.h>
 
@@ -29,6 +30,7 @@ static const std::string APPLY = "apply";
 static const std::string GET_HEALTH_CHANGE = "getHealthChange";
 static const std::string ADJUST_AFFECTED_HEXES = "adjustAffectedHexes";
 static const std::string ADJUST_TARGET_TYPES = "adjustTargetTypes";
+static const std::string DESCRIBE_TARGET_STEP = "describeTargetStep";
 
 namespace spells
 {
@@ -60,6 +62,15 @@ SpellEffectValue LuaSpellEffect::getHealthChange(const Mechanics * m, const Targ
 	std::shared_ptr<LuaContext> context = resolveScript(m);
 	auto result = context->callMethod<SpellEffectValue>(GET_HEALTH_CHANGE, parameters, m, spellTarget);
 	return result;
+}
+
+std::optional<EffectTargetStep> LuaSpellEffect::describeTargetStep(const Mechanics * m, const Target & partialTarget, const BattleHex & hoveredHex) const
+{
+	std::shared_ptr<LuaContext> context = resolveScript(m);
+	const auto result = context->callMethod<std::optional<scripting::api::TargetStepDescriptor>>(DESCRIBE_TARGET_STEP, parameters, m, partialTarget, hoveredHex);
+	if(!result)
+		return std::nullopt;
+	return result->toTargetStep();
 }
 
 bool LuaSpellEffect::applicableGeneral(Problem & problem, const Mechanics * m) const

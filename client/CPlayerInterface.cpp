@@ -337,7 +337,7 @@ void CPlayerInterface::acceptTurn(QuestionID questionID, bool hotseatWait)
 	// warn player if he has no town
 	if (cb->howManyTowns() == 0)
 	{
-		auto playerColor = *cb->getPlayerID();
+		auto playerColor = cb->getPlayerID().value();
 
 		std::vector<Component> components;
 		components.emplace_back(ComponentType::FLAG, playerColor);
@@ -738,6 +738,14 @@ void CPlayerInterface::battleCatapultAttacked(const BattleID & battleID, const C
 	battleInt->stackIsCatapulting(ca);
 }
 
+void CPlayerInterface::battleTacticsEnded(const BattleID & battleID)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	BATTLE_EVENT_POSSIBLE_RETURN;
+
+	battleInt->windowObject->tacticPhaseEnded();
+}
+
 void CPlayerInterface::battleNewRound(const BattleID & battleID) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -1075,12 +1083,12 @@ void CPlayerInterface::showInfoDialogAndWait(std::vector<Component> & components
 	waitWhileDialog();
 }
 
-void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components, uint32_t timeoutMs)
+void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, const std::vector<std::shared_ptr<CComponent>> & components, uint32_t timeoutMs, QuestionID questionID)
 {
 	waitWhileDialog();
 	movementController->requestMovementAbort();
 	GAME->interface()->showingDialog->setBusy();
-	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID, timeoutMs);
+	CInfoWindow::showYesNoDialog(text, components, onYes, onNo, playerID, timeoutMs, questionID);
 }
 
 void CPlayerInterface::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QuestionID questionID, const int soundID, bool selection, bool cancel, bool safeToAutoaccept)
@@ -1116,7 +1124,7 @@ void CPlayerInterface::showBlockingDialog(const std::string &text, const std::ve
 			intComps.push_back(uiComponent); //will be deleted by close in window
 		}
 
-		showYesNoDialog(text, [this, questionID](){ cb->selectionMade(1, questionID); }, [this, questionID](){ cb->selectionMade(0, questionID); }, intComps);
+		showYesNoDialog(text, [this, questionID](){ cb->selectionMade(1, questionID); }, [this, questionID](){ cb->selectionMade(0, questionID); }, intComps, 0, questionID);
 	}
 	else if (selection)
 	{
@@ -1184,7 +1192,7 @@ void CPlayerInterface::showMapObjectSelectDialog(QuestionID questionID, const Co
 	{
 		if(!settings["general"]["enableUiEnhancements"].Bool())
 			break;
-		const CGTownInstance * t = dynamic_cast<const CGTownInstance *>(cb->getObj(obj));
+		const CGTownInstance * t = dynamic_cast<const CGTownInstance *>(cb->tryGetObj(obj));
 		if(t)
 		{
 			auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("ITPA"), t->getTown()->clientInfo.icons[t->hasFort()][false] + 2, 0, EImageBlitMode::OPAQUE);
@@ -1288,7 +1296,7 @@ void CPlayerInterface::moveHero( const CGHeroInstance *h, const CGPath& path )
 	movementController->requestMovementStart(h, path);
 }
 
-void CPlayerInterface::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, bool removableUnits, QuestionID questionID, const MetaString & customTitle)
+void CPlayerInterface::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstance * down, QuestionID questionID, const MetaString & customTitle)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onEnd = [this, questionID](){ cb->selectionMade(0, questionID); };
@@ -1301,7 +1309,7 @@ void CPlayerInterface::showGarrisonDialog(const CArmedInstance * up, const CGHer
 
 	waitForAllDialogs();
 
-	auto cgw = std::make_shared<CGarrisonWindow>(up, down, removableUnits, customTitle);
+	auto cgw = std::make_shared<CGarrisonWindow>(up, down, customTitle);
 	cgw->quit->addCallback(onEnd);
 	ENGINE->windows().pushWindow(cgw);
 }
@@ -1384,7 +1392,7 @@ void CPlayerInterface::beforeObjectPropertyChanged(const SetObjectProperty * sop
 {
 	if (sop->what == ObjProperty::OWNER)
 	{
-		const CGObjectInstance * obj = cb->getObj(sop->id, false);
+		const CGObjectInstance * obj = cb->tryGetObj(sop->id);
 
 		if(!obj)
 			return;
@@ -1408,7 +1416,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 	if (sop->what == ObjProperty::OWNER)
 	{
-		const CGObjectInstance * obj = cb->getObj(sop->id, false);
+		const CGObjectInstance * obj = cb->tryGetObj(sop->id);
 
 		if(!obj)
 			return;
@@ -1452,7 +1460,7 @@ void CPlayerInterface::initializeHeroTownList()
 
 	const std::optional<PlayerColor> callbackPlayer = cb->getPlayerID();
 	const PlayerColor localStatePlayer = callbackPlayer.value_or(playerID);
-	const PlayerState * playerState = cb->getPlayerState(localStatePlayer);
+	const PlayerState * playerState = cb->tryGetPlayerState(localStatePlayer);
 	if(playerState)
 		localState->deserialize(*playerState->playerLocalSettings);
 
@@ -2000,9 +2008,11 @@ void CPlayerInterface::tryShowNextPendingDialog()
 			return;
 		}
 
+		// dialog is destroyed together with its list node
+		const auto blockingPolicy = dialog.blockingPolicy;
 		dialogs.pop_front();
 
-		if(dialog.blockingPolicy != PendingDialog::Type::NonBlocking || showingDialog->isBusy())
+		if(blockingPolicy != PendingDialog::Type::NonBlocking || showingDialog->isBusy())
 			return;
 	}
 }

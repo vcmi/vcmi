@@ -11,6 +11,7 @@
 #pragma once
 
 #include "BattleUnitTurnReason.h"
+#include "UnitTurnStatus.h"
 #include "Unit.h"
 #include "../bonuses/BonusCache.h"
 
@@ -110,7 +111,8 @@ public:
 	/// returns total initial health
 	int64_t total() const;
 
-	void takeResurrected();
+	/// Removes units resurrected only for this battle, optionally leaving one of them alive
+	void takeResurrected(bool keepLastUnit = false);
 
 	void serializeJson(JsonSerializeFormat & handler);
 private:
@@ -127,17 +129,12 @@ class DLL_LINKAGE CUnitState : public Unit
 {
 public:
 	bool cloned;
-	bool defending;
 	bool drainedMana;
 	bool fear;
 	bool hadMorale;
-	bool castSpellThisTurn;
 	bool ghost;
 	bool ghostPending;
-	bool movedThisRound;
 	bool summoned;
-	bool waiting;
-	bool waitedThisTurn; //"waited()" that stays true for full turn after wait - needed as UI button hackfix
 
 	CCasts casts;
 	CRetaliations counterAttacks;
@@ -228,6 +225,13 @@ public:
 	bool willMove(int turn = 0) const override;
 	bool waited(int turn = 0) const override;
 
+	UnitTurnStatus getTurnStatus() const;
+	void setTurnStatus(UnitTurnStatus status);
+	/// Waited at some point of the current round, unlike waited() also after acting since then
+	bool waitedThisRound() const;
+	bool castSpellThisTurn() const;
+	void setCastSpellThisTurn(bool value);
+
 	std::shared_ptr<Unit> acquire() const override;
 	std::shared_ptr<CUnitState> acquireState() const override;
 
@@ -264,6 +268,10 @@ public:
 
 private:
 	const IUnitEnvironment * env;
+
+	UnitTurnStatus turnStatus = UnitTurnStatus::READY;
+	bool hasWaitedThisRound = false;
+	bool hasCastSpellThisTurn = false;
 
 	BonusCachePerTurn immobilizedPerTurn;
 	BonusCachePerTurn stackSpeedPerTurn;

@@ -42,11 +42,13 @@ set(Nullkiller2_SRCS
 		Goals/CompleteQuest.cpp
 		Goals/StayAtTown.cpp
 		Goals/ExploreNeighbourTile.cpp
+		Goals/AttackOneWayPortalGuard.cpp
 		Markers/ArmyUpgrade.cpp
 		Markers/HeroExchange.cpp
 		Markers/UnlockCluster.cpp
 		Markers/DefendTown.cpp
 		Markers/ExplorationPoint.cpp
+		Markers/OneWayPortalProbe.cpp
 		Engine/Nullkiller.cpp
 		Engine/DeepDecomposer.cpp
 		Engine/PriorityEvaluator.cpp
@@ -120,6 +122,7 @@ set(Nullkiller2_HEADERS
 		Goals/Goals.h
 		Goals/StayAtTown.h
 		Goals/ExploreNeighbourTile.h
+		Goals/AttackOneWayPortalGuard.h
 		Helpers/DimensionDoorUtils.h
 		Helpers/HeroMap.h
 		Markers/ArmyUpgrade.h
@@ -127,6 +130,7 @@ set(Nullkiller2_HEADERS
 		Markers/UnlockCluster.h
 		Markers/DefendTown.h
 		Markers/ExplorationPoint.h
+		Markers/OneWayPortalProbe.h
 		Engine/Nullkiller.h
 		Engine/DeepDecomposer.h
 		Engine/PriorityEvaluator.h

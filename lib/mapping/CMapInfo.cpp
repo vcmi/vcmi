@@ -21,7 +21,9 @@
 #include "../filesystem/Filesystem.h"
 #include "../GameLibrary.h"
 #include "../rmg/CMapGenOptions.h"
+#include "../serializer/CLegacyLoadFile.h"
 #include "../serializer/CLoadFile.h"
+#include "../serializer/CMemorySerializer.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextOperations.h"
 #include "../CCreatureHandler.h"
@@ -52,13 +54,30 @@ void CMapInfo::mapInit(const std::string & fname)
 
 void CMapInfo::saveInit(const ResourcePath & file)
 {
-	CLoadFile lf(*CResourceHandler::get()->getResourceName(file), nullptr);
+	const auto saveFileName = CResourceHandler::get()->getResourceName(file);
+	if(!saveFileName)
+		throw std::runtime_error("Error: saved game '" + file.getOriginalName() + "' not found!");
+
+	const auto & saveFile = *saveFileName;
 
 	mapHeader = std::make_unique<CMapHeader>();
 	scenarioOptionsOfSave = std::make_unique<StartInfo>();
-	lf.load(*mapHeader);
+
+	if(CLoadFile::readVersion(saveFile) < ESerializationVersion::SAVE_CHUNKS)
+	{
+		CLegacyLoadFile lf(saveFile, nullptr);
+		lf.loadHeader(*mapHeader, *scenarioOptionsOfSave);
+	}
+	else
+	{
+		CLoadFile lf(saveFile);
+		auto header = lf.openChunk(SaveFileFormat::CHUNK_HEADER, nullptr);
+		header->iser & *mapHeader;
+		header->iser & *scenarioOptionsOfSave;
+		if(!header->isFullyRead())
+			throw std::runtime_error("Error: saved game '" + file.getOriginalName() + "' contains unexpected data after map header!");
+	}
 	mapHeader->registerMapStrings();
-	lf.load(*scenarioOptionsOfSave);
 
 	fileURI = file.getName(); // Name without file extension
 	originalFileURI = file.getOriginalName(); // Same as file.getName() but keep letter case

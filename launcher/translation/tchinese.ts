@@ -6,22 +6,22 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="22"/>
         <source>VCMI on Discord</source>
-        <translation>訪問VCMI的Discord</translation>
+        <translation>VCMI 的 Discord</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>有疑問？找到BUG？需要幫助？加入我們！</translation>
+        <translation>有疑問？找到 Bug？需要幫助？加入我們！</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
-        <translation>訪問VCMI的Github</translation>
+        <translation>VCMI 的 Github</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="54"/>
         <source>Our Community</source>
-        <translation>聯繫社群</translation>
+        <translation>我們的社群</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="88"/>
@@ -34,7 +34,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="107"/>
         <source>Data Directories</source>
-        <translation>資料目錄</translation>
+        <translation>資料夾目錄</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="114"/>
@@ -49,7 +49,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="168"/>
         <source>Game data directory</source>
-        <translation>遊戲資料目錄</translation>
+        <translation>遊戲資料夾目錄</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="175"/>
@@ -59,7 +59,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="182"/>
         <source>User data directory</source>
-        <translation>用戶資料目錄</translation>
+        <translation>用戶資料夾目錄</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="189"/>
@@ -69,7 +69,7 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="220"/>
         <source>Build Information</source>
-        <translation>編譯資訊</translation>
+        <translation>建構資訊</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="227"/>
@@ -93,72 +93,72 @@
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="311"/>
         <source>Export saves</source>
-        <translation type="unfinished"></translation>
+        <translation>匯出存檔</translation>
     </message>
     <message>
         <source>Save logs</source>
         <translation type="vanished">儲存日誌</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="442"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="311"/>
         <source>Zip archives (*.zip)</source>
-        <translation>ZIP 壓縮檔 (*.zip)</translation>
+        <translation>Zip 壓縮檔 (*.zip)</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="284"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="401"/>
         <source>Error</source>
         <translation>錯誤</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="280"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="317"/>
         <source>Saves exported to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>存檔已匯出至 %1</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="415"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="284"/>
         <source>Failed to save archive to selected destination</source>
-        <translation type="unfinished"></translation>
+        <translation>無法將存檔封存至所選的目的地</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="302"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="304"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇目的地檔案</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="433"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="302"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation type="unfinished"></translation>
+        <translation>請選擇目的地檔案，並將存檔封存為 vcmi-saves.zip。</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="435"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="304"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zip 封存檔 (*.zip);;所有檔案 (*.*)</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="333"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="334"/>
         <source>Exporting logs...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在匯出日誌…</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="464"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="333"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>取消</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="465"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="334"/>
         <source>Log export</source>
-        <translation type="unfinished"></translation>
+        <translation>日誌匯出</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="532"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="401"/>
         <source>Failed to create archive: %1</source>
-        <translation>建立壓縮檔失敗：%1</translation>
+        <translation>無法建立封存檔：%1</translation>
     </message>
     <message>
         <source>Send logs</source>
@@ -169,16 +169,24 @@
         <translation type="vanished">壓縮檔將透過其他應用程式傳送。請將日誌（例如透過 Discord）分享給開發者。</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="411"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="448"/>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="541"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="280"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="317"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="410"/>
         <source>Success</source>
         <translation>成功</translation>
     </message>
     <message>
-        <location filename="../aboutProject/aboutproject_moc.cpp" line="541"/>
+        <location filename="../aboutProject/dataexporter.cpp" line="410"/>
         <source>Logs saved to %1, please send them to the developers</source>
         <translation>日誌已儲存到 %1，請將其傳送給開發者</translation>
+    </message>
+</context>
+<context>
+    <name>CDownloadManager</name>
+    <message>
+        <location filename="../modManager/cdownloadmanager_moc.cpp" line="171"/>
+        <source>Failed to copy file %1</source>
+        <translation>無法複製檔案 %1</translation>
     </message>
 </context>
 <context>
@@ -186,7 +194,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
         <source>Filter</source>
-        <translation>過濾器</translation>
+        <translation>篩選</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="69"/>
@@ -211,7 +219,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="89"/>
         <source>Active</source>
-        <translation>啟用</translation>
+        <translation>已啟用</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="94"/>
@@ -226,12 +234,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
         <source>Description</source>
-        <translation>詳細介紹</translation>
+        <translation>描述</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="214"/>
         <source>Changelog</source>
-        <translation>修改日誌</translation>
+        <translation>更新日誌</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="236"/>
@@ -280,8 +288,8 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="217"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1124"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1129"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1183"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1188"/>
         <source>mods repository index</source>
         <translation>模組來源索引</translation>
     </message>
@@ -330,12 +338,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
         <source>Git-Repository</source>
-        <translation>Git來源</translation>
+        <translation>Git 來源</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>GitHub-Stars</source>
-        <translation>GitHub星標</translation>
+        <translation>GitHub 星標</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
@@ -346,12 +354,12 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
         <source>Required VCMI version</source>
-        <translation>需要VCMI版本</translation>
+        <translation>需要的 VCMI 版本</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>Supported VCMI version</source>
-        <translation>支援的VCMI版本</translation>
+        <translation>支援的 VCMI 版本</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
@@ -366,7 +374,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="406"/>
         <source>Supported VCMI versions</source>
-        <translation>支援的VCMI版本</translation>
+        <translation>支援的 VCMI 版本</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="422"/>
@@ -376,7 +384,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
         <source>Required mods</source>
-        <translation>前置模組</translation>
+        <translation>所需的模組</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
@@ -386,22 +394,22 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="437"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation>這個模組無法啟用，因為它被翻譯成其他語言。</translation>
+        <translation>這個模組無法啟用，因為它翻譯成不同的語言。</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="438"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation>這個模組無法啟用，因為下列依賴不滿足</translation>
+        <translation>這個模組無法啟用，因為缺少以下依賴項目</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="439"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation>這個模組無法安裝，因為下列依賴不滿足</translation>
+        <translation>這個模組無法啟用，因為缺少以下依賴項目</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="440"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
-        <translation>這是一個子模組，無法脫離所屬模組單獨安裝或解除安裝</translation>
+        <translation>這是一個子模組，無法與所屬的主模組分開安裝或解除安裝</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="459"/>
@@ -416,30 +424,37 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="584"/>
         <source>Open directory</source>
-        <translation>開啟目錄</translation>
+        <translation>開啟資料夾</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="589"/>
         <source>Open repository</source>
         <translation>開啟來源</translation>
     </message>
+    <message numerus="yes">
+        <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
+        <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
+        <translation>
+            <numerusform>正在下載 %n 個模組。 %p%（%v MB / %m MB）已完成</numerusform>
+        </translation>
+    </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="877"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="888"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>正在下載 %1. %p% (%v MB 共 %m MB) 已完成</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="906"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="923"/>
         <source>Extracting content.zip (%1/%2) for %3</source>
         <translation>正在解壓縮 %3 的 content.zip (%1/%2)</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="913"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
         <source>Download failed</source>
         <translation>下載失敗</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="914"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -447,12 +462,12 @@ Encountered errors:
 </source>
         <translation>無法下載全部檔案。
 
-遇到問題：
+遇到錯誤：
 
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="915"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="932"/>
         <source>
 
 Process successfully downloaded files?</source>
@@ -461,14 +476,36 @@ Process successfully downloaded files?</source>
 是否處理已成功下載的檔案？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1097"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1000"/>
+        <source>VCMI could not confirm that it is connected to the real download server.
+
+This usually happens on older systems, such as Windows 7, that are missing recent security updates.
+
+However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. In that case, downloaded files could be replaced with harmful ones.
+
+Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the &quot;Ignore SSL errors&quot; option.</source>
+        <translation>VCMI 無法確認目前連線到的是真實的下載伺服器。
+
+這種情況通常出現在缺少近期安全性更新的舊版系統（如 Windows 7）上。
+
+不過，這也可能意味著你的網路連線正遭到他人竄改（例如使用公共 Wi-Fi 時）。在此情況下，下載的檔案可能會被惡意檔案取代。
+
+你是否希望關閉此項檢查並重試？你可以隨時在啟動器設定中透過「忽略 SSL 錯誤」選項重新開啟該功能。</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
+        <source>Unable to verify download server</source>
+        <translation>無法驗證下載伺服器</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
         <source>Import failed</source>
         <translation>匯入失敗</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1097"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
@@ -477,143 +514,160 @@ Please report this issue to developers</source>
 請將此問題回報給開發者</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1200"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
         <source>Installing Heroes Chronicles</source>
-        <translation>安裝歷代記</translation>
+        <translation>正在安裝魔法門英雄誌</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1232"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1291"/>
         <source>Extracting error!</source>
         <translation>解壓縮錯誤！</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1234"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
         <source>Invalid file selected</source>
         <translation>所選的檔案無效</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1234"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation>您必須選擇一個歷代記安裝檔案！</translation>
+        <translation>您必須選擇一個魔法門英雄誌安裝檔案！</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1366"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1425"/>
         <source>Save exists</source>
-        <translation type="unfinished"></translation>
+        <translation>存檔已存在</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1367"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1426"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>存檔「%1」已存在。你要覆蓋它嗎？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1387"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>無法從 %1 匯入存檔。
+原因：%2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
         <source>Success</source>
-        <translation type="unfinished">成功</translation>
+        <translation>成功</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
         <source>Imported %1 save files</source>
-        <translation type="unfinished"></translation>
+        <translation>已匯入 %1 個存檔</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1457"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1499"/>
         <source>Installing mod %1</source>
         <translation>正在安裝模組 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1489"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1530"/>
         <source>%1 requires: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 需要：%2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1492"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1533"/>
         <source>Failed to enable mod</source>
-        <translation type="unfinished"></translation>
+        <translation>無法啟用模組</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1493"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1534"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>一個或多個已安裝的模組無法啟用：
+
+%1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
+        <source>Mods disabled</source>
+        <translation>模組已停用</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
+        <source>Following mods were disabled due to changes in installed mods:
+
+%1</source>
+        <translation>由於已安裝模組有更改，以下模組已停用：
+
+%1</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
         <source>Map exists</source>
         <translation>地圖已存在</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1582"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1610"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation>地圖 &apos;%1&apos; 已存在。要覆蓋嗎？</translation>
+        <translation>地圖 &apos;%1&apos; 已存在，你要覆蓋它嗎？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1003"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1062"/>
         <source>Yes to All</source>
-        <translation>全部是</translation>
+        <translation>全部皆是</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1004"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1063"/>
         <source>No to All</source>
-        <translation>全部否</translation>
+        <translation>全部皆非</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
         <source>Import complete</source>
         <translation>匯入完成</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1629"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>已成功匯入 %1 張地圖。</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>無法匯入以下地圖：
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1662"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1696"/>
         <source>Operation failed</source>
         <translation>操作失敗</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1697"/>
         <source>Encountered errors:
 </source>
         <translation>遇到問題：
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1715"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1749"/>
         <source>screenshots</source>
         <translation>截圖</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1721"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1755"/>
         <source>Screenshot %1</source>
         <translation>截圖 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
         <source>Uninstall mod</source>
         <translation>解除安裝模組</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation>你確定要解除安裝 %1？</translation>
     </message>
@@ -623,7 +677,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="68"/>
         <source>Full</source>
-        <translation>完備</translation>
+        <translation>完全</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="112"/>
@@ -637,7 +691,7 @@ Reason: %2</source>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="128"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="129"/>
         <source>Off</source>
         <translation>關閉</translation>
     </message>
@@ -654,7 +708,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="226"/>
         <source>VCMI Language</source>
-        <translation>VCMI語言</translation>
+        <translation>VCMI 語言</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="252"/>
@@ -719,7 +773,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="392"/>
         <source>Heroes III Translation</source>
-        <translation>英雄無敵3翻譯</translation>
+        <translation>英雄無敵 III 翻譯</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="420"/>
@@ -759,12 +813,12 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
         <source>Sharpening strength for the xBRZ + Sharpen upscaling filters</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ + 銳化圖像放大演算法的銳化強度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="520"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="675"/>
-        <location filename="../settingsView/csettingsview_moc.ui" line="895"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="922"/>
         <source>Automatic</source>
         <translation>自動</translation>
     </message>
@@ -781,7 +835,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="535"/>
         <source>xBRZ x2 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2 + 銳化</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="540"/>
@@ -791,7 +845,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="545"/>
         <source>xBRZ x3 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3 + 銳化</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="550"/>
@@ -801,7 +855,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="555"/>
         <source>xBRZ x4 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4 + 銳化</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="589"/>
@@ -816,7 +870,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="630"/>
         <source>Show Status in Discord</source>
-        <translation>在Discord上顯示狀態</translation>
+        <translation>在 Discord 上顯示狀態</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="685"/>
@@ -826,12 +880,12 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="692"/>
         <source>Downscaling Filter</source>
-        <translation>圖像縮小過濾器</translation>
+        <translation>圖像縮小演算法</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="699"/>
         <source>Handle back as right mouse button</source>
-        <translation>將返回鍵視為右鍵</translation>
+        <translation>將返回鍵視為滑鼠右鍵</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="706"/>
@@ -841,7 +895,7 @@ Reason: %2</source>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="744"/>
         <source>Upscaling Filter</source>
-        <translation>圖像放大過濾器</translation>
+        <translation>圖像放大演算法</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="754"/>
@@ -854,9 +908,24 @@ Reason: %2</source>
         <translation>滑鼠點擊靈敏度</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1222"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="819"/>
+        <source>HTTP proxy</source>
+        <translation>HTTP 代理</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="826"/>
+        <source>Open help</source>
+        <translation>打開幫助</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="833"/>
+        <source>Proxy server used for downloads, for example http://host:port or socks5h://host:port. If empty, proxy from environment variables is used</source>
+        <translation>用於下載的代理伺服器，例如 http://host:port 或 socks5h://host:port。如果留空，則使用環境變數中的代理設定</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
         <source>Autosaves per game (0 = unlimited)</source>
-        <translation type="unfinished"></translation>
+        <translation>每局自動儲存次數（0 = 無限制）</translation>
     </message>
     <message>
         <source>Autosave prefix</source>
@@ -867,92 +936,92 @@ Reason: %2</source>
         <translation type="vanished">空 = 地圖名稱前置詞</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="829"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="856"/>
         <source>Adventure Map Enemies</source>
         <translation>冒險地圖敵方玩家</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="852"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="879"/>
         <source>Resolution</source>
         <translation>解析度</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="859"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="886"/>
         <source>Display index</source>
-        <translation>顯示器序號</translation>
+        <translation>顯示器索引</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="882"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="909"/>
         <source>Software Cursor</source>
         <translation>軟體游標</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="911"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="938"/>
         <source>Enemy AI in battles</source>
-        <translation>戰場敵方玩家AI</translation>
+        <translation>戰鬥敵方玩家 AI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="918"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="945"/>
         <source>Allow portrait mode</source>
-        <translation>允許直式模式</translation>
+        <translation>允許直向模式</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="941"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="968"/>
         <source>Music Volume</source>
         <translation>音樂音量</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="948"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="975"/>
         <source>Additional repository</source>
         <translation>額外來源</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="961"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="988"/>
         <source>Scalable</source>
-        <translation>可縮放字型</translation>
+        <translation>可縮放</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="977"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1004"/>
         <source>Show intro</source>
-        <translation>顯示開場動畫</translation>
+        <translation>播放開場動畫</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="989"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1016"/>
         <source>Audio</source>
         <translation>音訊</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1004"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1031"/>
         <source>Video</source>
-        <translation>視訊設定</translation>
+        <translation>視訊</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1020"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1047"/>
         <source>Original</source>
-        <translation>原始字型</translation>
+        <translation>原始</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1039"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1066"/>
         <source>Use scalable fonts</source>
         <translation>使用可縮放字型</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1136"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1163"/>
         <source>Sticks Acceleration</source>
         <translation>搖桿加速度</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1193"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1220"/>
         <source>Fullscreen</source>
         <translation>全螢幕</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1200"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1227"/>
         <source>Autocombat AI in battles</source>
-        <translation>自動戰鬥AI</translation>
+        <translation>自動戰鬥 AI</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1212"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1239"/>
         <source>Input - Controller</source>
         <translation>輸入 - 控制器</translation>
     </message>
@@ -961,77 +1030,77 @@ Reason: %2</source>
         <translation type="vanished">自動儲存限制 (0 = 不限制)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1229"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
         <source>Renderer</source>
         <translation>渲染器</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1237"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1264"/>
         <source>Nearest</source>
         <translation>最鄰近</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1242"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1269"/>
         <source>Linear</source>
         <translation>線性</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1247"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1274"/>
         <source>Automatic (Linear)</source>
         <translation>自動（線性）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1255"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1282"/>
         <source>Reserved screen area</source>
         <translation>保留螢幕區域</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1267"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1294"/>
         <source>Input - Mouse</source>
         <translation>輸入 - 滑鼠</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1282"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1309"/>
         <source>Input - Touchscreen</source>
         <translation>輸入 - 觸控螢幕</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1308"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
         <source>Sound Volume</source>
         <translation>音效音量</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1315"/>
-        <source>Ignore SSL errors</source>
-        <translation>忽略SSL錯誤</translation>
-    </message>
-    <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
-        <source>Neutral AI in battles</source>
-        <translation>戰場中立生物AI</translation>
-    </message>
-    <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
+        <source>Ignore SSL errors</source>
+        <translation>忽略 SSL 錯誤</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1362"/>
+        <source>Neutral AI in battles</source>
+        <translation>戰鬥中立生物 AI</translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1369"/>
         <source>Online Lobby address</source>
         <translation>線上大廳位址</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1378"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1405"/>
         <source>Controller Click Tolerance</source>
         <translation>控制器按鍵靈敏度</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1385"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
         <source>Config editor</source>
-        <translation>設定編輯器</translation>
+        <translation>設定檔編輯器</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1436"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1463"/>
         <source>Relative Pointer Speed</source>
         <translation>相對游標速度</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1443"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1470"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -1039,86 +1108,86 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation>選擇遊戲的顯示模式：
+        <translation>選擇遊戲顯示模式
 
-視窗化 - 遊戲將在一個視窗中執行，佔用螢幕的一部分。
+視窗模式 — 遊戲將在一個覆蓋螢幕部分區域的視窗中運作。
 
-無邊框全螢幕模式 - 遊戲將在一個全螢幕視窗中執行，解析度與螢幕匹配。
+無邊框視窗模式 — 遊戲將在全螢幕視窗中運行，其解析度與你的螢幕解析度一致。
 
-獨佔全螢幕模式 - 遊戲將覆蓋整個螢幕，並使用選定的解析度。</translation>
+獨佔全螢幕模式 — 遊戲將覆蓋整個螢幕，並使用所選的解析度。</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1456"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1483"/>
         <source>Windowed</source>
-        <translation>視窗化</translation>
+        <translation>視窗模式</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1461"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1488"/>
         <source>Borderless fullscreen</source>
         <translation>無邊框全螢幕</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1466"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1493"/>
         <source>Exclusive fullscreen</source>
         <translation>獨佔全螢幕</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1550"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1577"/>
         <source>Save Before Visit</source>
-        <translation>訪問前存檔</translation>
+        <translation>到訪前存檔</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="126"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
         <source>On</source>
         <translation>開啟</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="137"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="138"/>
         <source>StupidAI (deprecated)</source>
         <translation>StupidAI（已棄用）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="141"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
         <source>BattleAI (default, recommended)</source>
         <translation>BattleAI（預設，推薦）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="145"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
         <source>MMAI (experimental)</source>
         <translation>MMAI（實驗性）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="158"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="159"/>
         <source>Nullkiller2 (default, recommended)</source>
         <translation>Nullkiller2（預設，推薦）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="168"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="169"/>
         <source>EmptyAI - No valid AI libraries found!</source>
-        <translation>EmptyAI - 未找到有效的 AI 函式庫！</translation>
+        <translation>EmptyAI - 找不到有效的 AI 程式庫！</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="763"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="765"/>
         <source>Active</source>
-        <translation>啟用</translation>
+        <translation>已啟用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="768"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="770"/>
         <source>Disabled</source>
-        <translation>停用</translation>
+        <translation>已停用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="769"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="771"/>
         <source>Enable</source>
         <translation>啟用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="774"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="776"/>
         <source>Not Installed</source>
         <translation>未安裝</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="775"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="777"/>
         <source>Install</source>
         <translation>安裝</translation>
     </message>
@@ -1129,12 +1198,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <location filename="../modManager/chroniclesextractor.cpp" line="100"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="101"/>
         <source>Heroes Chronicles</source>
-        <translation>英雄無敵歷代記</translation>
+        <translation>魔法門英雄誌</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="149"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation>英雄無敵歷代記 %1 - %2</translation>
+        <translation>魔法門英雄誌 %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1157,7 +1226,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="27"/>
         <source>Config editor</source>
-        <translation>設定編輯器</translation>
+        <translation>設定檔編輯器</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
@@ -1167,19 +1236,19 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
         <source>Do you want to discard changes?</source>
-        <translation>是否放棄變更？</translation>
+        <translation>你想捨棄變更？</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="123"/>
         <source>JSON file is not valid!</source>
-        <translation>JSON檔案格式錯誤！</translation>
+        <translation>JSON 檔案無效！</translation>
     </message>
 </context>
 <context>
     <name>File size</name>
     <message>
         <location filename="../modManager/modstate.cpp" line="159"/>
-        <location filename="../modManager/modstatemodel.cpp" line="101"/>
+        <location filename="../modManager/modstatemodel.cpp" line="106"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
     </message>
@@ -1194,32 +1263,32 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="53"/>
         <source>Heroes III Data</source>
-        <translation>英雄無敵3資料</translation>
+        <translation>英雄無敵 III 資料</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation>預設模組</translation>
+        <translation>模組預設</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="127"/>
         <source>Select your language</source>
-        <translation>選擇您的語言</translation>
+        <translation>選擇你的語言</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="159"/>
         <source>VCMI on Github</source>
-        <translation>訪問VCMI的Github</translation>
+        <translation>VCMI 的 Github</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="166"/>
         <source>VCMI on Discord</source>
-        <translation>訪問VCMI的Discord</translation>
+        <translation>VCMI 的 Discord</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="173"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation>有疑問？找到BUG？需要幫助？加入我們！</translation>
+        <translation>有疑問？找到 Bug？需要幫助？加入我們！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="182"/>
@@ -1230,13 +1299,13 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation>謝謝您安裝VCMI！
+        <translation>謝謝您安裝 VCMI！
 
-在您開始遊戲之前，還有幾個步驟需要完成。
+在你開始遊戲之前，還有幾個步驟需要完成。
 
-請記住，為了使用VCMI，您必須擁有《魔法門之英雄無敵3完整版》或《死亡陰影》的原始資料檔案。
+請記住，為了使用 VCMI，您必須擁有《魔法門之英雄無敵 III 完整版》或《毁滅之影》的原始資料檔案。
 
-目前不支援《英雄無敵3高畫質版》！</translation>
+目前不支援《魔法門之英雄無敵 III 高清版》！</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="216"/>
@@ -1247,7 +1316,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="253"/>
         <source>Locate Heroes III data files</source>
-        <translation>定位英雄無敵3資料檔案</translation>
+        <translation>定位《英雄無敵 III》資料文件</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="287"/>
@@ -1257,17 +1326,17 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="305"/>
         <source>Use offline installer from gog.com</source>
-        <translation>使用gog.com的離線安裝程式</translation>
+        <translation>使用 gog.com 的離線安裝程式</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="318"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation>你可以手動從原版遊戲目錄中複製Maps，Data和Mp3資料夾到下方顯示的VCMI資料目錄</translation>
+        <translation>您可以手動將原始遊戲目錄中的 Maps、Data 及 Mp3 資料夾，複製到下方顯示的 VCMI 資料目錄</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="337"/>
         <source>Install gog.com files</source>
-        <translation>安裝gog.com檔案</translation>
+        <translation>安裝 gog.com 檔案</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="355"/>
@@ -1282,17 +1351,17 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="396"/>
         <source>Installing... %p%</source>
-        <translation>安裝中... %p%</translation>
+        <translation>安裝中⋯ %p%</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="425"/>
         <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
-        <translation>如果你已經在你的裝置裡準備好英雄無敵3檔案，你可以選擇這個目錄，VCMI會自動複製已存在的資料。</translation>
+        <translation>如果你的裝置上已有安裝好的 英雄無敵 III 檔案，你可以選擇該目錄，VCMI 將會自動複製現有的資料。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="450"/>
         <source>Heroes III data files</source>
-        <translation>英雄無敵3資料檔案</translation>
+        <translation>英雄無敵 III 資料檔案</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="469"/>
@@ -1302,7 +1371,7 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="482"/>
         <source>No Heroes III data? Download the free demo to try VCMI</source>
-        <translation>沒有英雄無敵3的資料？下載免費的試玩版資料以試用VCMI</translation>
+        <translation>沒有英雄無敵 III 的資料？下載免費試玩版體驗 VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="498"/>
@@ -1312,14 +1381,14 @@ Heroes® of Might and Magic® III HD is currently not supported!</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
         <source>Your Heroes III data files have been successfully found.</source>
-        <translation>已成功找到英雄無敵3資料檔案。</translation>
+        <translation>已成功找到英雄無敵 III 資料檔案。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="543"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation>如果你已經在gog.com擁有了英雄無敵3，你可以從gog.com下載離線安裝程式。VCMI將會透過離線安裝程式匯入英雄無敵3資料
-離線安裝程式包含兩部分：exe檔案和bin檔案。請確保這兩部分都已下載。</translation>
+        <translation>如果你在 gog.com 擁有英雄無敵 III，可以從 gog.com 下載離線備份安裝檔。VCMI 會利用該離線安裝檔匯入英雄無敵 III 的資料。
+離線安裝檔包含兩個檔案：「.exe」 與 「.bin」— 你必須下載這兩個檔案。</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
@@ -1330,17 +1399,17 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="634"/>
         <source>Install recommended VCMI Mods</source>
-        <translation>安裝推薦的VCMI模組</translation>
+        <translation>安裝推薦的 VCMI 模組</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="739"/>
         <source>Install a translation of Heroes III in your preferred language</source>
-        <translation>安裝您所選語言的英雄無敵3翻譯</translation>
+        <translation>安裝英雄無敵 III 翻譯語言</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="709"/>
         <source>Heroes III Translation</source>
-        <translation>英雄無敵3翻譯</translation>
+        <translation>英雄無敵 III 翻譯</translation>
     </message>
     <message>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
@@ -1359,7 +1428,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
         <source>VCMI Extras</source>
-        <translation>VCMI附加內容</translation>
+        <translation>VCMI 附加內容</translation>
     </message>
     <message>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
@@ -1368,12 +1437,12 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="819"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation>一款功能豐富的擴充包，為9個原版城鎮各自新增一種替代單位，同時加入新的中立生物、生物寶屋、技能與魔法，極大地拓展了遊戲玩法</translation>
+        <translation>一個拓闊遊玩內容，功能豐富的資料片。為 9 個原版城鎮的每個生物提供額外升級選擇，以及全新的中立生物、生物據點、技能和法術</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="824"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
-        <translation>深入地下世界，揭開炮塔族的面紗——這是一個新種族，位於蘑菇、岩石與符文魔法在黑暗中蓬勃生長之地，這個種族為VCMI而創作</translation>
+        <translation>深入地下王國，探索 Casemete — 一個全新的陣營，在這個黑暗之地，真菌、磐石與符文魔法蓬勃共生。為 VCMI 而製</translation>
     </message>
     <message>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
@@ -1387,7 +1456,7 @@ Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; -
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="814"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
-        <translation type="unfinished"></translation>
+        <translation>透過引入指揮官、部隊經驗、部隊神器、大量全新的英雄及指揮官神器、額外的成長系統以及可互動的冒險地圖物件，深化了《英雄無敵 III》的遊戲體驗</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="818"/>
@@ -1560,22 +1629,22 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
-        <translation type="unfinished"></translation>
+        <translation>增加了多項介面與玩法改進，例如優化了隨機地圖介面，新增了冒險地圖的「重訪」與「搜尋」按鈕、英雄快速交換功能、增益與免疫圖示，以及戰鬥中的動作</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="809"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>一款製作精良的玩家自製資料片，新增了海灣、工廠和堡壘城鎮，全新的戰役、英雄、神器、地圖物品、干涉和符文技能，平衡性調整與全新地形，完全忠於《英雄無敵3》原作神髓</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="828"/>
         <source>Tears of Ashan</source>
-        <translation type="unfinished"></translation>
+        <translation>亞莎之淚</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="829"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>這是一個受《英雄無敵5》啟發而製作的《英雄無敵3》玩家自製資料片，引入了生物的替代升級形態、光暗魔法、傳送門、更高的副技能等級上限，並重塑了元素城的遊戲玩法</translation>
     </message>
 </context>
 <context>
@@ -1583,12 +1652,12 @@ Please select the directory with Heroes III: Complete Edition or Heroes III: Sha
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>HD Edition installation found!</source>
-        <translation type="unfinished"></translation>
+        <translation>偵測到已安裝高清版！</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>Heroes III HD Edition installation was found. Install HD graphics mod using this installation?</source>
-        <translation type="unfinished"></translation>
+        <translation>偵測到已安裝《英雄無敵3 HD版》。是否使用此安裝來安裝 HD 圖形模組？</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="49"/>
@@ -1808,7 +1877,7 @@ Bin (%n位元組):
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Lithuanian</source>
-        <translation type="unfinished"></translation>
+        <translation>立陶宛語</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
@@ -1904,12 +1973,12 @@ Bin (%n位元組):
         <translation>啟動可執行檔時發生錯誤</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="460"/>
+        <location filename="../mainwindow_moc.cpp" line="465"/>
         <source>Replace config file?</source>
         <translation>取代設定檔？</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="460"/>
+        <location filename="../mainwindow_moc.cpp" line="465"/>
         <source>Do you want to replace %1?</source>
         <translation>您想要取代%1嗎？</translation>
     </message>
@@ -1930,79 +1999,101 @@ Bin (%n位元組):
 <context>
     <name>ModStateController</name>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="214"/>
         <source>Can not install submod</source>
-        <translation>無法安裝子模組</translation>
+        <translation type="vanished">無法安裝子模組</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="217"/>
         <source>Mod is already installed</source>
-        <translation>模組已安裝</translation>
+        <translation type="vanished">模組已安裝</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="226"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="207"/>
         <source>Can not uninstall submod</source>
         <translation>無法解除安裝子模組</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="229"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="210"/>
         <source>Mod is not installed</source>
         <translation>模組未安裝</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="242"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="223"/>
+        <source>Mod is not located in user data directory and can not be managed by launcher</source>
+        <translation>模組不是存放在使用者資料夾中，無法由啟動器管理</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="227"/>
+        <source>Mod directory is a git repository and can not be managed by launcher</source>
+        <translation>模組資料夾是 Git 儲存庫，無法由啟動器管理</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="245"/>
         <source>Mod is already enabled</source>
         <translation>模組已啟用</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="245"/>
-        <location filename="../modManager/modstatecontroller.cpp" line="271"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="248"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="274"/>
         <source>Mod must be installed first</source>
         <translation>需要先安裝模組</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="249"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="252"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
         <translation>模組不相容，請更新VCMI並取得模組最新版本</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="252"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="255"/>
         <source>Can not enable translation mod for a different language!</source>
         <translation>無法啟用不同語言的模組！</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="257"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Required mod %1 is missing</source>
         <translation>需要的模組%1未找到</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="268"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="271"/>
         <source>Mod is already disabled</source>
         <translation>模組已停用</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="281"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="304"/>
         <source>Mod archive is missing</source>
-        <translation>模組歸檔檔案未找到</translation>
+        <translation>找不到模組封存檔</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="286"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="309"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation>模組歸檔檔案無效或損毀</translation>
+        <translation>模組封存檔無效或已損毀</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="312"/>
-        <location filename="../modManager/modstatecontroller.cpp" line="332"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="317"/>
+        <source>Failed to remove directory %1</source>
+        <translation>刪除資料夾 %1 失敗</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="320"/>
+        <source>Failed to create directory %1</source>
+        <translation>建立資料夾 %1 失敗</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="352"/>
         <source>Failed to extract mod data</source>
         <translation>解壓縮模組資料失敗</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="344"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="359"/>
+        <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
+        <translation>無法取代資料夾 %1。請關閉所有可能正在使用該資料夾的應用程式（例如檔案總管），然後重試。</translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="386"/>
         <source>Mod data was not found</source>
         <translation>未找到模組資料</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="348"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="390"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
         <translation>模組位於受保護的目錄，請手動刪除它：
@@ -2110,7 +2201,7 @@ Bin (%n位元組):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="56"/>
         <source>Artifacts</source>
-        <translation>寶物</translation>
+        <translation>神器</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
@@ -2131,32 +2222,32 @@ Bin (%n位元組):
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="158"/>
+        <location filename="../main.cpp" line="148"/>
         <source>Error starting executable</source>
         <translation>啟動可執行檔時發生錯誤</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="159"/>
+        <location filename="../main.cpp" line="149"/>
         <source>Failed to start %1
 Reason: %2</source>
         <translation>啟動%1失敗
 原因：%2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
         <source>Import failed</source>
-        <translation type="unfinished">匯入失敗</translation>
+        <translation>匯入失敗</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1319"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
         <source>Failed to import save %1 from %2</source>
-        <translation type="unfinished"></translation>
+        <translation>無法從 %2 匯入儲存檔案 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1338"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
         <source>Failed to import save file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>無法匯入儲存檔案 %1</translation>
     </message>
 </context>
 <context>
@@ -2314,7 +2405,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇要安裝的檔案（設定檔、模組、存檔、地圖、戰役、GOG 檔案）…</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="298"/>
@@ -2344,7 +2435,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="279"/>
         <source>Saves</source>
-        <translation type="unfinished"></translation>
+        <translation>存檔</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="280"/>
@@ -2392,22 +2483,22 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.cpp" line="333"/>
         <location filename="../startGame/StartGameTab.cpp" line="368"/>
         <source>Preparing selected files for import...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在準備所選的檔案匯入…</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="338"/>
         <source>Preparing selected files for import... %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>正在準備所選的檔案匯入… %1/%2</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Import failed</source>
-        <translation type="unfinished">匯入失敗</translation>
+        <translation>匯入失敗</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Failed to prepare file for import: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>準備文件匯入失敗：%1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="427"/>
@@ -2421,7 +2512,16 @@ Reason: %2</source>
  - VCMI save files (.vsgm1)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>此選項可讓你將額外的資料檔案匯入至 VCMI 安裝。目前支援以下選項：
+
+- 《英雄無敵 3》地圖（.h3m 或 .vmap）。 
+- 《英雄無敵 3》戰役（.h3c 或 .vcmp）。 
+- 來自 GOG.com 離線備份安裝程式（.exe）的《英雄無敵3：歷代記》（Heroes III Chronicles）。 
+- Zip 格式的 VCMI 模組（.zip）。
+- Zip 格式的 VCMI 存檔封存（.zip）。
+- VCMI 存檔（.vsgm1）。
+- VCMI 設定檔（.json）。
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="444"/>
@@ -2490,9 +2590,9 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
-        <translation>要改善VCMI的畫質，你可以從Steam上安裝來自英雄無敵3高畫質版的檔案。選擇Steam上的英雄無敵3高畫質版資料夾。
+        <translation>要改善 VCMI 的畫質，你可以從 Steam 安裝來來自官方的英雄無敵 3 高清版檔案。選擇 Steam 上的英雄無敵 3 高清版資料夾。
 
-安裝完成後，你需要設定圖像放大過濾器到x2或更高，高畫質圖像效果才可見。</translation>
+完成安裝後，你需要將圖像放大演算法設為 x2 或更上才能看到高清版圖像。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="572"/>
@@ -2535,12 +2635,12 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
         <translation>在啟動時檢查更新</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="64"/>
+        <location filename="../updatedialog_moc.cpp" line="71"/>
         <source>Network error</source>
         <translation>網路錯誤</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="101"/>
+        <location filename="../updatedialog_moc.cpp" line="100"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
         <translation>無法從URL中讀取JSON或JSON資料不正確</translation>
     </message>

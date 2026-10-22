@@ -351,13 +351,14 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 				logGlobal->warn("Map '%s': This map is forced to use specific hota version!", filename);
 		}
 
-		[[maybe_unused]] int32_t unknownB = reader.readInt8();
-		[[maybe_unused]] int32_t unknownC = reader.readInt32();
+		int unknownB = reader.readInt8(); // 1 in nearly all campaigns
+		int unknownC = reader.readInt32(); // 0 in official campaigns, varying values in user-made ones
 		ret.numberOfScenarios = reader.readInt32();
 
-		assert(unknownB == 1);
-		assert(unknownC == 0);
-		assert(ret.numberOfScenarios <= 8);
+		if (unknownB != 1 || unknownC != 0)
+			logGlobal->warn("Campaign '%s': unknown header fields have unexpected values %d and %d", filename, unknownB, unknownC);
+
+		assert(ret.numberOfScenarios <= 32);
 	}
 
 	const auto & mapping = LIBRARY->mapFormat->getMapping(ret.version);
@@ -366,7 +367,8 @@ void CampaignHandler::readHeaderFromMemory( CampaignHeader & ret, CBinaryReader 
 	if(ret.version != CampaignVersion::Chr)
 	{
 		ret.campaignRegions = *LIBRARY->campaignRegions->getByIndex(mapping.remap(campaignMapId));
-		if(ret.version != CampaignVersion::HotA)
+		// HotA campaigns on a non-HotA region map may store 0 scenarios
+		if(ret.version != CampaignVersion::HotA || ret.numberOfScenarios == 0)
 			ret.numberOfScenarios = ret.campaignRegions.regionsCount();
 	}
 	ret.name.appendTextID(readLocalizedString(ret, reader, filename, modName, encoding, "name"));
@@ -408,14 +410,16 @@ CampaignScenario CampaignHandler::readScenarioFromMemory( CBinaryReader & reader
 	CampaignScenario ret;
 	ret.mapName = reader.readBaseString();
 	reader.readUInt32(); //packedMapSize - not used
-	if(header.numberOfScenarios > 8) //unholy alliance
+	if(header.numberOfScenarios > 16) // HotA custom campaigns
 	{
+		if(header.numberOfScenarios <= 24)
+			logGlobal->warn("Campaign '%s': unverified size of scenario preconditions for %d scenarios, assuming 4 bytes", header.filename, header.numberOfScenarios);
+		ret.loadPreconditionRegions(reader.readUInt32());
+	}
+	else if(header.numberOfScenarios > 8) //unholy alliance
 		ret.loadPreconditionRegions(reader.readUInt16());
-	}
 	else
-	{
 		ret.loadPreconditionRegions(reader.readUInt8());
-	}
 	ret.regionColor = reader.readUInt8();
 	ret.difficulty = reader.readUInt8();
 	assert(ret.difficulty < 5);

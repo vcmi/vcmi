@@ -10,14 +10,8 @@ local nextId = 0
 local function wrapServer(raw, player, host)
 	local server = {}
 	function server:showQuestion(opts)
-		local components = {}
-		if opts.images then
-			for _, image in ipairs(opts.images) do
-				components[#components + 1] = {type = image[1], subType = image[2], value = image[3]}
-			end
-		end
 		-- A HotA SHOW_QUESTION is always a yes/no prompt (mode 1), regardless of its image/exit code.
-		raw:spawnDialog(player, opts.text, 1, components)
+		raw:spawnDialog(player, opts.text, 1, opts.components or {})
 		local answer = coroutine.yield()
 		if answer == 1 then
 			if opts.onYes then opts.onYes() end

@@ -146,7 +146,7 @@ void CArmedInstance::armyChanged()
 CBonusSystemNode & CArmedInstance::whereShouldBeAttached(CGameState & gs)
 {
 	if(tempOwner.isValidPlayer())
-		if(auto * where = gs.getPlayerState(tempOwner))
+		if(auto * where = gs.tryGetPlayerState(tempOwner))
 			return *where;
 
 	return gs.globalEffects;
@@ -191,6 +191,16 @@ void CArmedInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	CGObjectInstance::serializeJsonOptions(handler);
 	CCreatureSet::serializeJson(handler, "army", 7);
+}
+
+bool CArmedInstance::isLocked() const
+{
+	return false;
+}
+
+std::string CArmedInstance::describeArmy() const
+{
+	return getObjectNameTextID() + " (id " + std::to_string(id.getNum()) + ") at " + anchorPos().toString();
 }
 
 TerrainId CArmedInstance::getCurrentTerrain() const

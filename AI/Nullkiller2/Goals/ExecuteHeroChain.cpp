@@ -12,6 +12,7 @@
 #include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../Pathfinding/Actions/DimensionDoorAction.h"
+#include "../Pathfinding/Actions/QuestAction.h"
 
 namespace NK2AI
 {
@@ -151,7 +152,31 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 	aiGw->nullkiller->setTargetObject(objid);
 	aiGw->nullkiller->objectClusterizer->reset();
 
-	auto targetObject = aiGw->cc->getObj(static_cast<ObjectInstanceID>(objid), false);
+	auto targetObject = aiGw->cc->tryGetObj(static_cast<ObjectInstanceID>(objid));
+	// entrances are terminal path nodes, so only the last tile can hold one
+	const auto * pathEntrance = findObjectOfType(
+		aiGw->cc->getVisitableObjs(chainPath.targetTile()),
+		Obj::MONOLITH_ONE_WAY_ENTRANCE);
+	if(pathEntrance && (!targetObject || targetObject->id != pathEntrance->id))
+	{
+		throw cannotFulfillGoalException(
+			"Hero chain would accidentally enter a one-way portal.");
+	}
+
+	if(targetObject && targetObject->ID == Obj::MONOLITH_ONE_WAY_ENTRANCE)
+	{
+		if(!aiGw->nullkiller->memory->reserveOneWayPortal(targetObject->id, chainPath.targetHero->id))
+		{
+			throw cannotFulfillGoalException(
+				"One-way portal is already reserved for another hero.");
+		}
+
+		logAi->info(
+			"One-way portal intent: probe entrance %d with %s hero %s",
+			targetObject->id.getNum(),
+			aiGw->nullkiller->heroManager->getHeroRoleOrDefaultInefficient(chainPath.targetHero) == HeroRole::SCOUT ? "scout" : "main",
+			chainPath.targetHero->getNameTextID());
+	}
 
 	if(chainPath.turn() == 0 && targetObject && targetObject->ID == Obj::TOWN)
 	{
@@ -219,6 +244,16 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 						throw cannotFulfillGoalException("Hero was lost!");
 					}
 
+					// quest visit changes passability of its object, so live paths beyond it are stale
+					if(dynamic_cast<const AIPathfinding::QuestAction *>(node->specialAction.get()))
+					{
+						logAi->debug(
+							"Hero %s visited quest object at %s. Replanning the remaining route.",
+							hero->getNameTextID(),
+							node->coord.toString());
+						return;
+					}
+
 					// hero can be already on the target tile after move in specialAction->execute()
 					if(node->coord == heroPtr->visitablePos())
 						continue;
@@ -256,12 +291,12 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 						|| targetNode->accessible == EPathAccessibility::BLOCKED
 						|| targetNode->accessible == EPathAccessibility::FLYABLE)
 					{
-						logAi->error(
-							"Unable to complete chain. Expected hero %s to arrive to %s in 0 turns but he cannot do this",
+						logAi->debug(
+							"Replanning stale hero chain for %s: immediate destination %s is no longer reachable",
 							hero->getNameTextID(),
 							node->coord.toString());
 
-						return;
+						throw cannotFulfillGoalException("Hero chain target is no longer reachable.");
 					}
 
 					if(targetNode->turns != 0)
@@ -273,7 +308,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							static_cast<int>(targetNode->turns),
 							hero->movementPointsRemaining());
 
-						return;
+						throw cannotFulfillGoalException("Hero chain target is no longer reachable this turn.");
 					}
 				}
 
@@ -290,10 +325,16 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 				auto sourceWhirlpool = findWhirlpool(hero->visitablePos());
 				auto targetWhirlpool = findWhirlpool(node->coord);
+				const bool heroAlreadyOnNode = i > 0 && hero->visitablePos() == node->coord;
+				const bool stalledOnWhirlpool = i != chainPath.nodes.size() - 1
+					&& hero->visitablePos() != chainPath.nodes[i + 1].coord
+					&& sourceWhirlpool.hasValue()
+					&& sourceWhirlpool == targetWhirlpool;
 
-				if(i != chainPath.nodes.size() - 1 && sourceWhirlpool.hasValue() && sourceWhirlpool == targetWhirlpool)
+				if(heroAlreadyOnNode || stalledOnWhirlpool)
 				{
-					logAi->trace("AI exited whirlpool at %s but expected at %s", hero->visitablePos().toString(), node->coord.toString());
+					if(hero->visitablePos() != node->coord)
+						logAi->trace("AI exited whirlpool at %s but expected at %s", hero->visitablePos().toString(), node->coord.toString());
 					continue;
 				}
 
@@ -301,9 +342,55 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 				{
 					try
 					{
-						if(moveHeroToTile(aiGw, hero, node->coord))
+						const auto movementResult = moveHeroToTile(aiGw, hero, node->coord);
+						if(movementResult == HeroMovementResult::COMPLETE)
 						{
+							if(!heroPtr.isVerified())
+								throw cannotFulfillGoalException("Hero was lost!");
+
+							if(hero->visitablePos() != node->coord)
+							{
+								logAi->debug(
+									"Hero %s completed an interaction towards %s without occupying the tile. Replanning the remaining route.",
+									hero->getNameTextID(),
+									node->coord.toString());
+
+								// e.g. quest guard that is still closed or own hero standing on a teleport exit
+								if(aiGw->nullkiller->repeatsIdleInteraction(hero, node->coord))
+									throw cannotFulfillGoalException("Repeated interaction did not move the hero.");
+
+								return;
+							}
+
 							continue;
+						}
+
+						// a multi-turn node is expected to stop short: lock the hero below and keep its dependants waiting
+						const bool stoppedAsPlanned = node->turns > 0
+							&& (movementResult == HeroMovementResult::PROGRESSED
+								|| aiGw->nullkiller->getPathsInfo(hero)->getPathInfo(node->coord)->reachable());
+
+						if(!stoppedAsPlanned)
+						{
+							if(movementResult == HeroMovementResult::PROGRESSED)
+							{
+								logAi->debug(
+									"Pausing hero chain for %s: movement towards %s stopped at %s with %d MP left",
+									hero->getNameTextID(),
+									node->coord.toString(),
+									hero->visitablePos().toString(),
+									hero->movementPointsRemaining());
+
+								aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+								return;
+							}
+
+							logAi->debug(
+								"Replanning stale hero chain for %s: no current path to %s",
+								hero->getNameTextID(),
+								node->coord.toString());
+
+							throw cannotFulfillGoalException("Hero cannot reach hero chain target.");
 						}
 					}
 					catch(const cannotFulfillGoalException &)
@@ -315,20 +402,6 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 							throw cannotFulfillGoalException("Hero was lost!");
 						}
 
-						if(hero->movementPointsRemaining() > 0)
-						{
-							CGPath path;
-							bool isOk = aiGw->nullkiller->getPathsInfo(hero)->getPath(path, node->coord);
-
-							if(isOk && path.nodes.front().turns > 0)
-							{
-								logAi->warn("Hero %s has %d mp which is not enough to continue his way towards %s.", hero->getNameTextID(), hero->movementPointsRemaining(), node->coord.toString());
-
-								aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
-								return;
-							}
-						}
-
 						throw;
 					}
 				}
@@ -336,6 +409,17 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 			if(node->coord == hero->visitablePos())
 				continue;
+
+			if(node->turns == 0 && !hero->movementPointsRemaining())
+			{
+				logAi->debug(
+					"Pausing hero chain for %s: movement towards %s exhausted at %s",
+					hero->getNameTextID(),
+					node->coord.toString(),
+					hero->visitablePos().toString());
+				aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
+				return;
+			}
 
 			if(node->turns == 0)
 			{
@@ -345,7 +429,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 					node->coord.toString(),
 					hero->visitablePos().toString());
 
-				return;
+				throw cannotFulfillGoalException("Hero did not reach the expected hero chain destination.");
 			}
 			
 			// no exception means we were not able to reach the tile
@@ -373,13 +457,16 @@ std::string ExecuteHeroChain::toString() const
 #endif
 }
 
-bool ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile)
+HeroMovementResult ExecuteHeroChain::moveHeroToTile(AIGateway * aiGw, const CGHeroInstance * hero, const int3 & tile)
 {
 	if(tile == hero->visitablePos() && aiGw->cc->getVisitableObjs(hero->visitablePos()).size() < 2)
 	{
 		logAi->warn("Why do I want to move hero %s to tile %s? Already standing on that tile! ", hero->getNameTextID(), tile.toString());
 
-		return true;
+		if(aiGw->nullkiller->repeatsIdleInteraction(hero, tile))
+			throw cannotFulfillGoalException("Hero keeps targeting the tile it stands on.");
+
+		return HeroMovementResult::COMPLETE;
 	}
 
 	return aiGw->moveHeroToTile(tile, HeroPtr(hero, aiGw->cc.get()));

@@ -138,8 +138,8 @@ static void upgradeAllCreatures(const CArmedInstance *obj, const UpgradableSlots
 	}
 
 	std::vector<std::shared_ptr<CComponent>> resComps;
-	for(TResources::nziterator i(upgradableSlots.totalCosts); i.valid(); i++)
-		resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
+	for(const auto & [resource, amount] : upgradableSlots.totalCosts.nonZeroEntries())
+		resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, resource, amount));
 	// Free upgrades have no resource components, so only add a separator when costs are present.
 	if(!resComps.empty())
 		resComps.back()->newLine = true;
@@ -758,7 +758,7 @@ void CCastleBuildings::recreate()
 		auto bayPos = town->bestLocation();
 		if(!bayPos.isValid())
 			logGlobal->warn("Shipyard in non-coastal town!");
-		std::vector <const CGObjectInstance *> vobjs = GAME->interface()->cb->getVisitableObjs(bayPos, false);
+		std::vector <const CGObjectInstance *> vobjs = GAME->interface()->cb->getVisitableObjs(bayPos);
 		//there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
 		if(!vobjs.empty() && (vobjs.front()->ID == Obj::BOAT || vobjs.front()->ID == Obj::HERO))
 		{
@@ -1101,8 +1101,7 @@ void CCastleBuildings::enterBlacksmith(BuildingID building, ArtifactID artifactI
 	ArtifactID existingArtifact = hero->getReplacedWarMachine(artifactID);
 
 	bool canAfford = GAME->interface()->cb->getResourceAmount(EGameResID::GOLD) >= price;
-	bool hasSameMachine = existingArtifact.hasValue() && existingArtifact == artifactID;
-	bool possible = canAfford && !hasSameMachine;
+	bool possible = canAfford && hero->canRecruitWarMachine(artifactID);
 
 	ENGINE->windows().createAndPushWindow<CBlacksmithDialog>(possible, artifactID, existingArtifact, hero->id);
 }
@@ -1247,7 +1246,7 @@ void CCastleBuildings::enterTownHall()
 	if(town->getVisitingHero() && town->getVisitingHero()->hasArt(ArtifactID::GRAIL) &&
 		!town->hasBuilt(BuildingID::GRAIL)) //hero has grail, but town does not have it
 	{
-		if(!vstd::contains(town->forbiddenBuildings, BuildingID::GRAIL))
+		if(GAME->interface()->cb->isGrailAllowed(town))
 		{
 			GAME->interface()->showYesNoDialog(LIBRARY->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
 										[&](){ GAME->interface()->cb->buildBuilding(town, BuildingID::GRAIL); },
@@ -2469,10 +2468,8 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, newSpell));
 		resComps.back()->newLine = true;
-		for(TResources::nziterator i(cost); i.valid(); i++)
-		{
-			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal, CComponent::ESize::medium));
-		}
+		for(const auto & [resource, amount] : cost.nonZeroEntries())
+			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, resource, amount, CComponent::ESize::medium));
 
 		MetaString text;
 		text.appendTextID(GAME->interface()->cb->getResourceAmount().canAfford(cost) ? "vcmi.spellResearch.pay" : "vcmi.spellResearch.canNotAfford");

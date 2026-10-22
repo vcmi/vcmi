@@ -102,3 +102,24 @@ TEST_F(TransmutationTest, NonLivingVictimIsLeftAlone)
 	ASSERT_NE(survivor, nullptr);
 	EXPECT_EQ(survivor->unitType()->getId(), creatureByName("core:ironGolem"));
 }
+
+TEST_F(TransmutationTest, CommanderIsLeftAlone)
+{
+	startGame();
+	startBattle();
+
+	const auto commanderId = battle()->battleNextUnitId();
+	const CStackBasicDescriptor commander(creatureByName("core:blackDragon"), 1);
+	battle()->generateNewStack(commanderId, commander, BattleSide::ATTACKER, SlotID::COMMANDER_SLOT_PLACEHOLDER, BattleHex(leftHex));
+	battle()->getStack(commanderId)->localInit(battle());
+
+	attacker = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testTransmuterCount"), BattleHex(rightHex), transmuterCount);
+	blockRetaliation(attacker);
+
+	ASSERT_TRUE(attack(attacker, BattleHex(leftHex)));
+
+	const CStack * survivor = unitOnVictimHex();
+	ASSERT_NE(survivor, nullptr);
+	EXPECT_TRUE(survivor->isCommander()) << "a transmuted commander would be lost to its hero";
+	EXPECT_EQ(survivor->unitType()->getId(), creatureByName("core:blackDragon"));
+}

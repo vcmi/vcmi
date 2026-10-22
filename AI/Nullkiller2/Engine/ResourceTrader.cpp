@@ -30,7 +30,7 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 	if(!marketId.hasValue())
 		return false;
 
-	const CGObjectInstance * obj = cc.getObj(marketId, false);
+	const CGObjectInstance * obj = cc.tryGetObj(marketId);
 	assert(obj);
 	// if (!obj)
 	// return false;
@@ -47,7 +47,7 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 		buildAnalyzer.update();
 
 		// if we favor getResourcesRequiredNow is better on short term, if we favor getTotalResourcesRequired is better on long term
-		TResources missingNow = buildAnalyzer.getMissingResourcesNow(ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS);
+		TResources missingNow = buildAnalyzer.getMissingResourcesNow(ARMY_GOLD_RATIO_PER_TURN);
 		if(missingNow.empty())
 			break;
 
@@ -55,7 +55,7 @@ bool ResourceTrader::trade(BuildAnalyzer & buildAnalyzer, CCallback & cc, const 
 		// We don't want to sell something that's necessary later on, though that could make short term a bit harder sometimes
 		// TODO: Mircea: Consider allowing the sale of just a few resources even if necessary long term if critical short term
 		// to buy a capitol for example
-		TResources freeAfterMissingTotal = buildAnalyzer.getFreeResourcesAfterMissingTotal(ARMY_GOLD_RATIO_PER_MAKE_TURN_PASS);
+		TResources freeAfterMissingTotal = buildAnalyzer.getFreeResourcesAfterMissingTotal(ARMY_GOLD_RATIO_PER_TURN);
 
 		logAi->trace(
 			"ResourceTrader: Free %s. FreeAfterMissingTotal %s. MissingNow  %s",
@@ -90,12 +90,10 @@ bool ResourceTrader::tradeHelper(
 	TResource mostExpendableAmountPos = 0;
 
 	// Find the most wanted resource
-	for(int i = 0; i < missingNow.size(); ++i)
+	for(const auto & [resource, missing] : missingNow.nonZeroEntries())
 	{
-		if(missingNow[i] == 0)
-			continue;
-
-		TResource score = income[i] - missingNow[i];
+		const int i = resource.getNum();
+		TResource score = income[resource] - missing;
 		if(i != GameResID::GOLD)
 		{
 			int givenPerUnit;
@@ -113,12 +111,9 @@ bool ResourceTrader::tradeHelper(
 	}
 
 	// Find the most expendable resource
-	for(int i = 0; i < missingNow.size(); ++i)
+	for(const auto & [resource, amountToSell] : freeAfterMissingTotal)
 	{
-		const TResource amountToSell = freeAfterMissingTotal[i];
-		if(amountToSell == 0)
-			continue;
-
+		const int i = resource.getNum();
 		bool okToSell = false;
 		if(i == GameResID::GOLD)
 		{
@@ -183,7 +178,20 @@ bool ResourceTrader::tradeHelper(
 		return false;
 	}
 
+	const TResources resourcesBeforeTrade = cc.getResourceAmount();
 	cc.trade(market.getObjInstanceID(), EMarketMode::RESOURCE_RESOURCE, GameResID(mostExpendable), GameResID(mostWanted), givenMultiplied);
+
+	// the server reports rejected requests as applied, so only the resource change shows whether the trade happened
+	if(cc.getResourceAmount() == resourcesBeforeTrade)
+	{
+		logAi->error(
+			"ResourceTrader: Trade of %d %s for %s was rejected",
+			givenMultiplied,
+			GameResID::encode(mostExpendable),
+			GameResID::encode(mostWanted));
+		return false;
+	}
+
 	logAi->debug(
 		"ResourceTrader: Traded %d %s for %d %s",
 		givenMultiplied,

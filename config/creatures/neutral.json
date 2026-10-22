@@ -230,7 +230,7 @@
 			{
 				"type" : "SPELLCASTER",
 				"subtype" : "magicArrow",
-				"addInfo" : 22,
+				"addInfo" : 10,
 				"val" : 2
 			},
 			"castsIceBolt" :
@@ -402,42 +402,56 @@
 				"type" : "ENCHANTER",
 				"subtype" : "haste",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : { "cooldown" : 3, "weight" : 15 }
 			},
 			"castsSlow" :
 			{
 				"type" : "ENCHANTER",
 				"subtype" : "slow",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : { "cooldown" : 3, "weight" : 10 }
 			},
 			"castsStoneSkin" :
 			{
 				"type" : "ENCHANTER",
 				"subtype" : "stoneSkin",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : { "cooldown" : 3, "weight" : 15 }
 			},
 			"castsBless" :
 			{
 				"type" : "ENCHANTER",
 				"subtype" : "bless",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : { "cooldown" : 3, "weight" : 15 }
 			},
 			"castsWeakness" :
 			{
 				"type" : "ENCHANTER",
 				"subtype" : "weakness",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : { "cooldown" : 3, "weight" : 4 }
 			},
 			"castsAirShield" :
 			{
 				"type" : "ENCHANTER",
 				"subtype" : "airShield",
 				"val" : 3,
-				"addInfo" : 3
+				"addInfo" : { "cooldown" : 3, "weight" : 10 }
+			},
+			"castsBloodlust" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "bloodlust",
+				"val" : 3,
+				"addInfo" : { "cooldown" : 3, "weight" : 5 }
+			},
+			"castsCure" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "cure",
+				"val" : 3,
+				"addInfo" : { "cooldown" : 3, "weight" : 10 }
 			}
 		},
 		"graphics" :

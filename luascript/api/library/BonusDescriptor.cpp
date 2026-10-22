@@ -51,9 +51,7 @@ JsonNode BonusDescriptor::toJson() const
 
 Bonus BonusDescriptor::toBonus() const
 {
-	Bonus b;
-	JsonUtils::parseBonus(toJson(), &b);
-	return b;
+	return *JsonUtils::parseBonus(toJson());
 }
 
 }

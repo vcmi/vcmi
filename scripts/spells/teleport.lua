@@ -41,6 +41,17 @@ function Script:applicableTarget(mechanics, problem, target)
 	return true
 end
 
+--- The second destination is the hex to teleport to; the unit is chosen with the texts of the engine.
+function Script:describeTargetStep(mechanics, partialTarget, hoveredHex)
+	if #partialTarget ~= 1 then return nil end
+
+	return {
+		cursor      = "combatTeleport",
+		text        = { append = { "core.genrltxt.25" } }, -- Teleport Here
+		blockedText = { append = { "core.genrltxt.24" } }  -- Invalid Teleport Destination
+	}
+end
+
 --- Filter the unit target via the base, then re-attach the destination hex.
 function Script:transformTarget(mechanics, aimPoint, spellTarget)
 	local filtered = Base.transformTarget(self, mechanics, aimPoint, spellTarget)

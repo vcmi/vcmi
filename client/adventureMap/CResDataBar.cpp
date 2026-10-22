@@ -114,8 +114,8 @@ void CResDataBar::showPopupWindow(const Point & cursorPosition)
 	auto playerSettings = GAME->interface()->cb->getPlayerSettings(GAME->interface()->playerID);
 	for(auto & k : LIBRARY->resourceTypeHandler->getAllObjects())
 	{
-		income += playerState->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k));
-		income += playerState->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * playerState->getTowns().size();
+		income[k] += playerState->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(k));
+		income[k] += playerState->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(k)) * playerState->getTowns().size();
 	}
 	TResources incomeHandicapped = income;
 	incomeHandicapped.applyHandicap(playerSettings->handicap.percentIncome);

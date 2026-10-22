@@ -97,7 +97,7 @@ size_t CTrueTypeFont::getLineHeightScaled() const
 
 size_t CTrueTypeFont::getGlyphWidthScaled(const char *text) const
 {
-	return getStringWidthScaled(std::string(text, TextOperations::getUnicodeCharacterSize(*text)));
+	return getStringWidthScaled(std::string_view(text, TextOperations::getUnicodeCharacterSize(*text)));
 }
 
 bool CTrueTypeFont::canRepresentCharacter(const char * text) const
@@ -106,10 +106,10 @@ bool CTrueTypeFont::canRepresentCharacter(const char * text) const
 	return TTF_FontHasGlyph(font.get(), codepoint);
 }
 
-size_t CTrueTypeFont::getStringWidthScaled(const std::string & text) const
+size_t CTrueTypeFont::getStringWidthScaled(std::string_view text) const
 {
 	int width = 0;
-	TTF_GetStringSize(font.get(), text.c_str(), text.size(), &width, nullptr);
+	TTF_GetStringSize(font.get(), text.data(), text.size(), &width, nullptr);
 
 	if (hasColorGlyphs(text))
 		return width;
@@ -122,7 +122,7 @@ size_t CTrueTypeFont::getStringWidthScaled(const std::string & text) const
 	return width;
 }
 
-bool CTrueTypeFont::hasColorGlyphs(const std::string & text) const
+bool CTrueTypeFont::hasColorGlyphs(std::string_view text) const
 {
 	if (colorGlyphs.has_value())
 		return *colorGlyphs;
@@ -130,7 +130,7 @@ bool CTrueTypeFont::hasColorGlyphs(const std::string & text) const
 	if (text.empty())
 		return false;
 
-	uint32_t codepoint = TextOperations::getUnicodeCodepoint(text.c_str(), TextOperations::getUnicodeCharacterSize(text[0]));
+	uint32_t codepoint = TextOperations::getUnicodeCodepoint(text.data(), TextOperations::getUnicodeCharacterSize(text[0]));
 
 	TTF_ImageType imageType = TTF_IMAGE_INVALID;
 	SDL_Surface * glyph = TTF_GetGlyphImage(font.get(), codepoint, &imageType);

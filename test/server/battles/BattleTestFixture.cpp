@@ -18,9 +18,11 @@
 
 #include "../../../lib/CSkillHandler.h"
 #include "../../../lib/CStack.h"
+#include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/GameLibrary.h"
 #include "../../../lib/StartInfo.h"
 #include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/battle/BattleInfo.h"
 #include "../../../lib/battle/BattleLayout.h"
 #include "../../../lib/battle/CObstacleInstance.h"
@@ -29,6 +31,7 @@
 #include "../../../lib/callback/GameRandomizer.h"
 #include "../../../lib/entities/hero/CHero.h"
 #include "../../../lib/filesystem/ResourcePath.h"
+#include "../../../lib/json/JsonNode.h"
 #include "../../../lib/gameState/CGameState.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
@@ -39,6 +42,7 @@
 #include "../../../lib/spells/CSpell.h"
 #include "../../../lib/spells/ISpellMechanics.h"
 #include "../../../lib/spells/Problem.h"
+#include "../../../lib/texts/MetaString.h"
 
 void RecordingGameServer::applyPack(CPackForClient & pack)
 {
@@ -116,11 +120,6 @@ void BattleTestFixture::TearDown()
 Services * BattleTestFixture::gameServices()
 {
 	return LIBRARY;
-}
-
-void BattleTestFixture::configurePlayer(PlayerSettings & settings) const
-{
-	settings.bonus = PlayerStartingBonus::GOLD; // no random starting artifact
 }
 
 void BattleTestFixture::startGame()
@@ -276,27 +275,31 @@ bool BattleTestFixture::castOn(const CGHeroInstance * hero, SpellID spellID, con
 	return true;
 }
 
-bool BattleTestFixture::castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const CStack * target)
+bool BattleTestFixture::castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const battle::Target & target)
 {
 	const BattleSide side = hero == attackerSideHero ? BattleSide::ATTACKER : BattleSide::DEFENDER;
 
-	// Hero spell actions require an active allied unit.
-	for(const auto & unit : battle()->stacks)
+	// Hero spell actions require an active unit controlled by the hero's player.
+	const PlayerColor player = battle()->sideToPlayer(side);
+	const auto * active = battle()->battleActiveUnit();
+	if(!active || battle()->battleGetOwner(active) != player || !active->alive())
 	{
-		if(unit->unitSide() == side && unit->alive())
+		for(const auto & unit : battle()->stacks)
 		{
-			battle()->activeStack = unit->unitId();
-			break;
+			if(battle()->battleGetOwner(unit.get()) == player && unit->alive())
+			{
+				battle()->activeStack = unit->unitId();
+				break;
+			}
 		}
 	}
 
-	BattleAction action;
-	action.actionType = EActionType::HERO_SPELL;
-	action.side = side;
-	action.spell = spellID;
-	action.aimToUnit(target);
+	return act(BattleAction::makeHeroSpellcast(side, target, spellID));
+}
 
-	return act(action);
+bool BattleTestFixture::castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const CStack * target)
+{
+	return castAsHero(hero, spellID, battle::Target{battle::Destination(target)});
 }
 
 bool BattleTestFixture::attack(const CStack * attacker, const BattleHex & targetHex)
@@ -312,10 +315,47 @@ bool BattleTestFixture::attackFrom(const CStack * attacker, const BattleHex & ta
 bool BattleTestFixture::act(const BattleAction & action)
 {
 	// hero actions name no stack; a hero spell still needs a unit of the hero's side to be active
-	if(battle()->battleGetStackByID(action.stackNumber, false) != nullptr)
+	const auto * stack = battle()->battleGetStackByID(action.stackNumber, false);
+	if(stack != nullptr)
 		battle()->activeStack = action.stackNumber;
 
-	return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(action.side), action);
+	// a hypnotized unit is controlled by the player of the other side
+	const PlayerColor player = stack ? battle()->battleGetOwner(stack) : battle()->sideToPlayer(action.side);
+	return gameHandler->battles->makePlayerBattleAction(BattleID(0), player, action);
+}
+
+std::vector<ActionOption> BattleTestFixture::optionsOf(const CStack * unit) const
+{
+	battle()->activeStack = unit->unitId();
+
+	std::vector<ActionOption> options;
+	BattleActionType::collectAllOptions(*battle(), *unit, options);
+	return options;
+}
+
+ActionOption BattleTestFixture::optionOf(const CStack * unit, EActionType actionType) const
+{
+	for(const auto & option : optionsOf(unit))
+		if(option.type == BattleActionType::find(actionType))
+			return option;
+
+	ADD_FAILURE() << "no option of action type " << static_cast<int>(actionType);
+	return {};
+}
+
+bool BattleTestFixture::isLegal(const ActionOption & option, const ActionContext & context) const
+{
+	return option.type->isLegal(*gameState(), *battle(), option, context);
+}
+
+ActionPreview BattleTestFixture::preview(const ActionOption & option, const ActionContext & context) const
+{
+	return option.type->preview(*gameState(), *battle(), option, context);
+}
+
+ActionPreview BattleTestFixture::previewOf(const CStack * unit, EActionType actionType, const BattleHex & hex) const
+{
+	return preview(optionOf(unit, actionType), {unit, hex});
 }
 
 void BattleTestFixture::addQuicksand(const BattleHex & hex)
@@ -351,6 +391,19 @@ void BattleTestFixture::addMoat(const BattleHex & hex)
 	addObstacle(obstacle);
 }
 
+void BattleTestFixture::addForceField(const BattleHex & hex)
+{
+	SpellCreatedObstacle obstacle;
+	obstacle.ID = SpellID(SpellID::FORCE_FIELD).getNum();
+	obstacle.obstacleType = CObstacleInstance::SPELL_CREATED;
+	obstacle.pos = hex;
+	obstacle.customSize.insert(hex);
+	obstacle.casterSide = BattleSide::DEFENDER;
+	obstacle.passable = false;
+
+	addObstacle(obstacle);
+}
+
 void BattleTestFixture::addObstacle(SpellCreatedObstacle & obstacle)
 {
 	obstacle.uniqueID = battle()->nextObstacleId();
@@ -359,6 +412,33 @@ void BattleTestFixture::addObstacle(SpellCreatedObstacle & obstacle)
 	pack.battleID = BattleID(0);
 	obstacle.toInfo(pack.change);
 	gameHandler->sendAndApply(pack);
+}
+
+std::vector<std::string> BattleTestFixture::textIDsOf(const MetaString & text)
+{
+	JsonNode json;
+	text.jsonSerialize(json);
+
+	std::vector<std::string> result;
+	for(const auto & entry : json["stringsTextID"].Vector())
+		result.push_back(entry.String());
+	return result;
+}
+
+std::vector<int64_t> BattleTestFixture::numbersOf(const MetaString & text)
+{
+	JsonNode json;
+	text.jsonSerialize(json);
+
+	std::vector<int64_t> result;
+	for(const auto & entry : json["numbers"].Vector())
+		result.push_back(entry.Integer());
+	return result;
+}
+
+std::string BattleTestFixture::pluralNameOf(CreatureID creature)
+{
+	return creature.toEntity(LIBRARY)->getNamePluralTextID();
 }
 
 void BattleTestFixture::injure(const CStack * stack, int64_t damage)
@@ -383,6 +463,12 @@ void BattleTestFixture::teachSpell(CGHeroInstance * hero, SpellID spell)
 
 	hero->addSpellToSpellbook(spell);
 	hero->mana = 999;
+}
+
+void BattleTestFixture::setMagicMastery(CGHeroInstance * hero, int level)
+{
+	for(auto school : {SecondarySkill::FIRE_MAGIC, SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC})
+		hero->setSecSkillLevel(school, level, ChangeValueMode::ABSOLUTE);
 }
 
 void BattleTestFixture::grantSpell(CStack * unit, BonusType ability, SpellID spell, int level)
@@ -445,6 +531,11 @@ void BattleTestFixture::blockRetaliation(CStack * stack)
 void BattleTestFixture::forceMaximumDamage(CStack * stack)
 {
 	stack->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ALWAYS_MAXIMUM_DAMAGE, BonusSource::OTHER, 0, BonusSourceID()));
+}
+
+void BattleTestFixture::hypnotize(CStack * stack)
+{
+	stack->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::OTHER, 0, BonusSourceID()));
 }
 
 static std::optional<si32> identifierByName(const std::string & category, const std::string & name)

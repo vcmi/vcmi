@@ -143,10 +143,16 @@ void InputHandler::handleCurrentEvent(const SDL_Event & current)
 	}
 }
 
+void InputHandler::cancelControllerInput(bool dismissPopup)
+{
+	gameControllerHandler->resetInput(dismissPopup);
+}
+
 void InputHandler::setCurrentInputMode(InputMode modi)
 {
 	if(currentInputMode != modi)
 	{
+		cancelControllerInput();
 		currentInputMode = modi;
 		ENGINE->events().dispatchInputModeChanged(modi);
 	}

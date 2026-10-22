@@ -51,11 +51,16 @@ void DamageCache::buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb,
 		if(!triggerIsNegative)
 			continue;
 
+		const bool spellCreated = spellObstacle->obstacleType == SpellCreatedObstacle::EObstacleType::SPELL_CREATED;
+		// a neutral obstacle belongs to no side and is hostile to whichever unit triggers it, as on the server
+		const bool neutralObstacle = spellObstacle->casterSide != BattleSide::ATTACKER && spellObstacle->casterSide != BattleSide::DEFENDER;
+
 		std::unique_ptr<spells::BattleCast> cast = nullptr;
 		std::unique_ptr<spells::ObstacleCasterProxy> caster = nullptr;
-		if(spellObstacle->obstacleType == SpellCreatedObstacle::EObstacleType::SPELL_CREATED)
+		if(spellCreated && !neutralObstacle)
 		{
-			const auto * hero = hb->battleGetFightingHero(spellObstacle->casterSide);
+			// enemy hero is hidden from us, so enemy obstacles are estimated without caster bonuses
+			const auto * hero = spellObstacle->casterSide == side ? hb->battleGetFightingHero(side) : nullptr;
 			caster = std::make_unique<spells::ObstacleCasterProxy>(hb->getSidePlayer(spellObstacle->casterSide), hero, *spellObstacle);
 			cast = std::make_unique<spells::BattleCast>(spells::BattleCast(hb.get(), caster.get(), spells::Mode::PASSIVE, obst->getTrigger().toSpell()));
 		}
@@ -76,6 +81,13 @@ void DamageCache::buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb,
 
 			if(cast)
 				cast->castEval(inner->getServerCallback(), target);
+			else if(spellCreated && neutralObstacle)
+			{
+				const BattleSide casterSide = CBattleInfoEssentials::otherSide(stack->unitSide());
+				spells::ObstacleCasterProxy neutralCaster(hb->getSidePlayer(casterSide), nullptr, *spellObstacle);
+				spells::BattleCast neutralCast(hb.get(), &neutralCaster, spells::Mode::PASSIVE, obst->getTrigger().toSpell());
+				neutralCast.castEval(inner->getServerCallback(), target);
+			}
 
 			auto damageDealt = stack->getAvailableHealth() - updated->getAvailableHealth();
 

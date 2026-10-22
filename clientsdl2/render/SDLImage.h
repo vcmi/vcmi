@@ -12,6 +12,8 @@
 #include "IImage.h"
 #include "lib/Point.h"
 
+#include <functional>
+
 class JsonNode;
 
 class CDefFile;
@@ -40,6 +42,9 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 	void savePalette();
 
 	void optimizeSurface();
+
+	/// Runs the generator on the part of the image that has pixels. The result equals running it on the whole surface padded to a multiple of 4 rows
+	std::shared_ptr<SDLImageShared> generateCropped(const std::function<SDL_Surface *(SDL_Surface *)> & generate, int border, double shearX) const;
 
 public:
 	//Load image from def file

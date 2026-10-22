@@ -165,7 +165,17 @@ ArtifactID GameRandomizer::rollArtifact()
 		if(!LIBRARY->arth->legalArtifact(artifactID))
 			continue;
 
+		if(!gameInfo.isAllowed(artifactID))
+			continue;
+
 		potentialPicks.insert(artifactID);
+	}
+
+	// Grail can't be banned, so it is the last resort for maps that ban every artifact
+	if(potentialPicks.empty())
+	{
+		logGlobal->error("Failed to find any allowed artifact! Using Grail instead");
+		return ArtifactID::GRAIL;
 	}
 
 	return rollArtifact(potentialPicks);
@@ -196,12 +206,11 @@ ArtifactID GameRandomizer::rollArtifact(EArtifactClass type)
 
 ArtifactID GameRandomizer::rollArtifact(std::set<ArtifactID> potentialPicks)
 {
-	// No allowed artifacts at all - give Grail - this can't be banned (hopefully)
 	// FIXME: investigate how such cases are handled by H3 - some heavily customized user-made maps likely rely on H3 behavior
 	if(potentialPicks.empty())
 	{
-		logGlobal->warn("Failed to find artifact that matches requested parameters!");
-		return ArtifactID::GRAIL;
+		logGlobal->warn("Failed to find artifact that matches requested parameters! Picking artifact of any class instead");
+		return rollArtifact();
 	}
 
 	// Find how many times least used artifacts were picked by randomizer

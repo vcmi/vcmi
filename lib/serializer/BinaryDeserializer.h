@@ -381,6 +381,20 @@ private:
 	}
 
 	template<typename T1, typename T2>
+	void load(boost::container::flat_map<T1, T2> & data)
+	{
+		uint32_t length = readAndCheckLength();
+		data.clear();
+		data.reserve(length);
+		T1 key;
+		for(uint32_t i = 0; i < length; i++)
+		{
+			load(key);
+			load(data[key]);
+		}
+	}
+
+	template<typename T1, typename T2>
 	void load(std::map<T1, T2> & data)
 	{
 		uint32_t length = readAndCheckLength();

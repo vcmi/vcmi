@@ -19,7 +19,7 @@ In order to make functional creature you also need:
 
 ### Sounds
 
-- Set of sounds (up to 8 sounds)
+- Set of sounds (up to 9 sounds)
 
 ## Format
 
@@ -210,7 +210,9 @@ In order to make functional creature you also need:
 		"move": "",
 		// Shooters only, creature shoots
 		"shoot" : "",
-		// Creature not in "defend mode" is under attack 
+		// Creature spellcasting; falls back to "shoot" if not specified
+		"cast" : "",
+		// Creature not in "defend mode" is under attack
 		"wince": "",
 		
 		// Creature start/end movement or teleports
@@ -223,7 +225,7 @@ In order to make functional creature you also need:
 		{
 			// Bonus description
 			"bonus" : { BONUS_FORMAT },
-			// Per-level value of bonus. Must have 10 elements
+			// Value of bonus for stack experience ranks 1 to 10. Must have 10 elements
 			"values" : [
 				0, 0, 1, 1, 2, 2, 3, 3, 4, 4
 			]

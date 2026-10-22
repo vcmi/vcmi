@@ -89,6 +89,24 @@ TEST_F(DemonSummonTest, ValidCorpse_Applicable)
 	EXPECT_TRUE(subject->applicableGeneral(problemMock, &mechanicsMock));
 }
 
+TEST_F(DemonSummonTest, CommanderCorpse_NotApplicable)
+{
+	auto & corpse = unitsFake.add(BattleSide::DEFENDER);
+	EXPECT_CALL(corpse, alive()).WillRepeatedly(Return(false));
+	EXPECT_CALL(corpse, isGhost()).WillRepeatedly(Return(false));
+	EXPECT_CALL(corpse, unitSlot()).WillRepeatedly(Return(SlotID::COMMANDER_SLOT_PLACEHOLDER));
+	EXPECT_CALL(corpse, getPosition()).WillRepeatedly(Return(BattleHex(5, 5)));
+	EXPECT_CALL(corpse, doubleWide()).WillRepeatedly(Return(false));
+	EXPECT_CALL(corpse, isValidTarget(Eq(false))).WillRepeatedly(Return(false));
+	EXPECT_CALL(corpse, unitBaseAmount()).WillRepeatedly(Return(1));
+	EXPECT_CALL(corpse, getTotalHealth()).WillRepeatedly(Return(500));
+
+	EXPECT_CALL(mechanicsMock, adaptProblem(Eq(ESpellCastProblem::NO_APPROPRIATE_TARGET), Ref(problemMock)))
+		.WillOnce(Return(false));
+
+	EXPECT_FALSE(subject->applicableGeneral(problemMock, &mechanicsMock));
+}
+
 class DemonSummonApplyTest : public TestWithParam<bool>, public EffectFixture
 {
 public:

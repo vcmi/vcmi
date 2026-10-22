@@ -386,6 +386,11 @@ void SetScriptVariable::visitTyped(ICPackVisitor & visitor)
 	visitor.visitSetScriptVariable(*this);
 }
 
+void DisableMapEvent::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitDisableMapEvent(*this);
+}
+
 void SetQuestHint::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitSetQuestHint(*this);
@@ -534,6 +539,11 @@ void BattleAnimationPlayed::visitTyped(ICPackVisitor & visitor)
 void BattleUpdateGateState::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitBattleUpdateGateState(*this);
+}
+
+void BattleTacticsEnded::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitBattleTacticsEnded(*this);
 }
 
 void AdvmapSpellCast::visitTyped(ICPackVisitor & visitor)

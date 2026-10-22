@@ -126,7 +126,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 			return HERO_RANDOM;
 
 		if(playerSettings.heroPortrait != HeroTypeID::NONE)
-			return playerSettings.heroPortrait;
+			return (*LIBRARY->heroh)[playerSettings.heroPortrait]->imageIndex;
 
 		auto index = playerSettings.getHeroValidated();
 		return (*LIBRARY->heroh)[index]->imageIndex;
@@ -208,7 +208,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 					return LIBRARY->generaltexth->allTexts[522];
 
 			if(!playerSettings.heroNameTextId.empty())
-				return LIBRARY->generaltexth->translate(playerSettings.heroNameTextId);
+				return GAME->translator().translate(playerSettings.heroNameTextId);
 			auto index = playerSettings.getHeroValidated();
 			return (*LIBRARY->heroh)[index]->getNameTranslated();
 		}
@@ -968,24 +968,32 @@ void OptionsTab::SelectedBox::showPopupWindow(const Point & cursorPosition)
 		ENGINE->windows().createAndPushWindow<CPlayerOptionTooltipBox>(*this);
 }
 
-void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
+bool OptionsTab::SelectedBox::canChangeSelection() const
 {
 	if (!SEL)
-		return;
+		return false;
 
 	if(SEL->screenType != ESelectionScreen::newGame)
-		return;
-	
+		return false;
+
 	PlayerInfo pi = SEL->getPlayerInfo(playerSettings.color);
 	const bool foreignPlayer = GAME->server().isGuest() && !GAME->server().isMyColor(playerSettings.color);
 
 	if(selectionType == SelType::TOWN && ((pi.allowedFactions.size() < 2 && !pi.isFactionRandom) || foreignPlayer))
-		return;
+		return false;
 
 	if(selectionType == SelType::HERO && ((pi.defaultHero() == HeroTypeID::NONE || !playerSettings.castle.isValid() || foreignPlayer)))
-		return;
+		return false;
 
 	if(selectionType == SelType::BONUS && foreignPlayer)
+		return false;
+
+	return true;
+}
+
+void OptionsTab::SelectedBox::clickReleased(const Point & cursorPosition)
+{
+	if(!canChangeSelection())
 		return;
 
 	ENGINE->input().hapticFeedback();
@@ -998,6 +1006,9 @@ void OptionsTab::SelectedBox::scrollBy(int distance)
 	// because of that, panning event gets interrupted (due to destruction of element)
 	// so, currently, gesture will always move selection only by 1, and then wait for recreation from server info
 	distance = std::clamp(distance, -1, 1);
+
+	if(!canChangeSelection())
+		return;
 
 	switch(CPlayerSettingsHelper::selectionType)
 	{

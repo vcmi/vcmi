@@ -123,7 +123,7 @@ void BattleProcessor::startBattle(const CArmedInstance *army1, const CArmedInsta
 	assert(battle);
 
 	//add battle bonuses based from player state only when attacks neutral creatures
-	const auto * attackerInfo = gameHandler->gameInfo().getPlayerState(army1->getOwner(), false);
+	const auto * attackerInfo = gameHandler->gameInfo().tryGetPlayerState(army1->getOwner());
 	if(attackerInfo && !army2->getOwner().isValidPlayer())
 	{
 		for(const auto & bonus : attackerInfo->battleBonuses)
@@ -348,9 +348,15 @@ bool BattleProcessor::makePlayerBattleAction(const BattleID & battleID, PlayerCo
 	if (!battle)
 		return false;
 
+	const bool tacticsPhase = battle->battleGetTacticDist() != 0;
 	bool result = actionsProcessor->makePlayerBattleAction(*battle, player, ba);
-	if (gameHandler->gameState().getBattle(battleID) != nullptr && !resultProcessor->battleIsEnding(*battle))
-		flowProcessor->onActionMade(*battle, ba);
+	if (gameHandler->gameState().getBattle(battleID) == nullptr || resultProcessor->battleIsEnding(*battle))
+		return result;
+
+	if (tacticsPhase && battle->battleGetTacticDist() == 0)
+		flowProcessor->onTacticsEnded(*battle);
+	else
+		flowProcessor->onActionMade(*battle, ba, result);
 	return result;
 }
 

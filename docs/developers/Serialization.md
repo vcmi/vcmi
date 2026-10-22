@@ -136,7 +136,15 @@ Serializer classes provide iostream-like interface with operator `<<` for serial
 
 #### Serialization to file
 
-CLoadFile/CSaveFile classes allow to read data to file and store data to file. They take filename as the first parameter in constructor and, optionally, the minimum supported version number (default to the current version). If the construction fails (no file or wrong file) the exception is thrown.
+`CSaveFile` and `CLoadFile` write and read saved games. A saved game starts with the `VCMI` magic and the serialization version, followed by chunks in fixed order. Each chunk consists of a 4-byte identifier, compressed size, uncompressed size and zlib-compressed data. All integers are little-endian.
+
+- `META` - json with information on the save: map name, players, list of mods. Can be read without loading mods used by the save. Format is described by `config/schemas/saveMetadata.json`
+- `HEAD` - map header and start info, used by lobby when the save is selected
+- `GAME` - game state and server state
+
+Every chunk is written with its own serializer, so it can be read without the other chunks. `CLoadFile` throws if the file is truncated, a chunk is corrupted, or the file contains anything besides these chunks.
+
+Saves created before `ESerializationVersion::SAVE_CHUNKS` are not compressed and have no metadata. They are read by `CLegacyLoadFile`, which can be removed once `ESerializationVersion::MINIMAL` reaches `SAVE_CHUNKS`.
 
 #### Networking
 

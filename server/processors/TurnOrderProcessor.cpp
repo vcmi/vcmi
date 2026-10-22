@@ -134,8 +134,8 @@ bool TurnOrderProcessor::playersInContact(PlayerColor left, PlayerColor right) c
 	leftReachability.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 	rightReachability.resize(boost::extents[mapSize.z][mapSize.x][mapSize.y]);
 
-	const auto * leftInfo = gameHandler->gameInfo().getPlayerState(left, false);
-	const auto * rightInfo = gameHandler->gameInfo().getPlayerState(right, false);
+	const auto * leftInfo = gameHandler->gameInfo().tryGetPlayerState(left);
+	const auto * rightInfo = gameHandler->gameInfo().tryGetPlayerState(right);
 
 	for (auto obj : gameHandler->gameState().getMap().getObjects())
 	{
@@ -198,8 +198,8 @@ bool TurnOrderProcessor::isContactAllowed(PlayerColor active, PlayerColor waitin
 
 bool TurnOrderProcessor::computeCanActSimultaneously(PlayerColor active, PlayerColor waiting) const
 {
-	const auto * activeInfo = gameHandler->gameInfo().getPlayerState(active, false);
-	const auto * waitingInfo = gameHandler->gameInfo().getPlayerState(waiting, false);
+	const auto * activeInfo = gameHandler->gameInfo().tryGetPlayerState(active);
+	const auto * waitingInfo = gameHandler->gameInfo().tryGetPlayerState(waiting);
 
 	assert(active != waiting);
 	assert(activeInfo);
@@ -236,8 +236,8 @@ bool TurnOrderProcessor::computeCanActSimultaneously(PlayerColor active, PlayerC
 
 bool TurnOrderProcessor::mustActBefore(PlayerColor left, PlayerColor right) const
 {
-	const auto * leftInfo = gameHandler->gameInfo().getPlayerState(left, false);
-	const auto * rightInfo = gameHandler->gameInfo().getPlayerState(right, false);
+	const auto * leftInfo = gameHandler->gameInfo().tryGetPlayerState(left);
+	const auto * rightInfo = gameHandler->gameInfo().tryGetPlayerState(right);
 
 	assert(left != right);
 	assert(leftInfo && rightInfo);
@@ -350,6 +350,9 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 		// AI starts acting immediately from PlayerStartsTurn/yourTurn, so keep the
 		// original ordering and run the turn-start visits first.
 		startTurn();
+		// turn-start events may have ended the game for this player
+		if(gameHandler->gameInfo().getPlayerStatus(which) != EPlayerStatus::INGAME)
+			return;
 		gameHandler->sendAndApply(pst);
 	}
 
@@ -459,7 +462,8 @@ void TurnOrderProcessor::tryStartTurnsForPlayers()
 	auto awaitingPlayersCopy = awaitingPlayers;
 	for (auto player : awaitingPlayersCopy)
 	{
-		if (canStartTurn(player))
+		// starting a turn may end the game for that player and start turns of others
+		if (isPlayerAwaitsTurn(player) && canStartTurn(player))
 			doStartPlayerTurn(player);
 	}
 }

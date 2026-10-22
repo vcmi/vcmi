@@ -228,6 +228,19 @@ Scenario seerEmptyArmyToggle()
 	return s;
 }
 
+Scenario seerZeroCreatureReward()
+{
+	Scenario s;
+	s.builder = fresh("SeerZeroCreatureReward");
+	s.builder
+		.hero(s.heroPos, kHeroChristian, PlayerColor(0))
+			.heroGarrison({{kCreatureGriffin, 1}})
+		.seerHut(s.questPos,
+			TinyH3MBuilder::missionArmy({{kCreatureGriffin, 1}}),
+			TinyH3MBuilder::rewardCreature(kCreatureGriffin, 0));
+	return s;
+}
+
 Scenario questGuard()
 {
 	Scenario s;

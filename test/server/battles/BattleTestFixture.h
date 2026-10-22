@@ -16,6 +16,7 @@
 #include "../../../lib/CStack.h"
 #include "../../../lib/battle/BattleInfo.h"
 #include "../../../lib/battle/BattleHex.h"
+#include "../../../lib/battle/Destination.h"
 #include "../../../lib/constants/EntityIdentifiers.h"
 #include "../../../lib/networkPacks/PacksForClientBattle.h"
 
@@ -23,6 +24,10 @@ class BattleAction;
 class CArmedInstance;
 class CGHeroInstance;
 class CGTownInstance;
+class MetaString;
+struct ActionContext;
+struct ActionOption;
+struct ActionPreview;
 struct SpellCreatedObstacle;
 class CGameHandler;
 
@@ -97,6 +102,7 @@ public:
 	/// Applies a hero spell without creating a battle action
 	bool castOn(const CGHeroInstance * hero, SpellID spellID, const CStack * target) const;
 	/// Executes a hero spell battle action during an allied unit turn
+	bool castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const battle::Target & target);
 	bool castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const CStack * target);
 
 	/// Melee attack of the given stack against whatever stands on `targetHex`.
@@ -111,18 +117,30 @@ public:
 	void makeClone(CStack * stack);
 	/// Executes a creature spell action; an invalid hex creates an empty target
 	bool castAsUnit(const CStack * caster, const SpellID & spellID, const BattleHex & targetHex = BattleHex());
-	/// Submits the action as the player of its side, making the stack it names the active one.
+	/// Submits the action as the player controlling its stack, or of its side, making the stack it names the active one.
 	bool act(const BattleAction & action);
+
+	/// Options the client offers for the unit, which becomes the active one
+	std::vector<ActionOption> optionsOf(const CStack * unit) const;
+	/// Option of the given action type, failing the test if there is none
+	ActionOption optionOf(const CStack * unit, EActionType actionType) const;
+	bool isLegal(const ActionOption & option, const ActionContext & context) const;
+	ActionPreview preview(const ActionOption & option, const ActionContext & context) const;
+	/// Preview of the unit's option of the given action type on the hovered hex
+	ActionPreview previewOf(const CStack * unit, EActionType actionType, const BattleHex & hex) const;
 
 	/// Hidden quicksand of the defender, which stops a unit that walks into it.
 	void addQuicksand(const BattleHex & hex);
 	/// Castle moat, which stops a unit that walks into it and damages a unit that acts inside it.
 	void addMoat(const BattleHex & hex);
+	void addForceField(const BattleHex & hex);
 
 	/// Takes health from the stack, killing it when the damage covers all it has.
 	void injure(const CStack * stack, int64_t damage);
 	/// Gives the hero a spellbook, the spell, and mana to cast it.
 	void teachSpell(CGHeroInstance * hero, SpellID spell);
+	/// Sets every magic school of the hero to `level`
+	static void setMagicMastery(CGHeroInstance * hero, int level);
 	/// Lets the unit cast `spell` once, at the given level, through `ability` - SPELLCASTER or ADJACENT_SPELLCASTER.
 	static void grantSpell(CStack * unit, BonusType ability, SpellID spell, int level);
 	/// Waits out the current round with every unit defending, leaving the battle in the next one.
@@ -134,6 +152,15 @@ public:
 	/// Collapses the stack's damage range onto its maximum, the way Bless does. Granted directly
 	/// rather than cast, because some of the creatures that need it are undead and refuse the spell.
 	static void forceMaximumDamage(CStack * stack);
+	/// Hands the stack over to the opposing player, the way Hypnotize does
+	static void hypnotize(CStack * stack);
+
+	/// Text IDs that the text is made of, in order. Lets a test check a text without depending on the language of the game
+	static std::vector<std::string> textIDsOf(const MetaString & text);
+	/// Numbers that the text shows, in order
+	static std::vector<int64_t> numbersOf(const MetaString & text);
+	/// Text ID of the plural name of the creature
+	static std::string pluralNameOf(CreatureID creature);
 
 	/// Resolves a mod entity by its full identifier, for example `vcmi-test:testSoulStealer`
 	static CreatureID creatureByName(const std::string & name);
@@ -153,7 +180,6 @@ public:
 protected:
 	/// A battle runs real game logic, which the mocked services cannot answer.
 	Services * gameServices() override;
-	void configurePlayer(PlayerSettings & settings) const override;
 
 private:
 	static void makeNeutral(CGHeroInstance * hero);
