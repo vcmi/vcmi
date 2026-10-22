@@ -13,8 +13,6 @@
 #include "modstatecontroller.h"
 #include "../../lib/CConfigHandler.h"
 
-#include <QPair>
-
 namespace Ui
 {
 class CModListView;
@@ -37,6 +35,7 @@ class CModListView : public QWidget
 
 	struct ArchiveImportOutcome
 	{
+		QString originalPath;
 		QString sourcePath;
 		bool temporarySource = false;
 		ModStateController::ArchiveImportResult result;
@@ -53,8 +52,8 @@ class CModListView : public QWidget
 	std::shared_ptr<QVector<ArchiveImportOutcome>> importOutcomes;
 	QStringList importInstalledBefore;
 	QStringList importEnabledRootsBefore;
-	QVector<QPair<QString, bool>> pendingImportFiles;
-	bool importRemoveArchives = false;
+	QStringList pendingImportFiles;
+	QStringList downloadedArchives;
 	bool retryRepositoriesAfterImport = false;
 	QStringList modsToRetryAfterImport;
 	JsonNode accumulatedRepositoryData;
@@ -81,7 +80,8 @@ class CModListView : public QWidget
 
 	bool askOverwriteDialog(const QString & windowTitle, const QString & message, int conflictCount, bool & applyToAll, bool & overwriteAll);
 
-	void installMods(QStringList archives, bool removeArchives);
+	void installMods(QStringList archives);
+	void cleanupDownloadedArchives(QStringList archives);
 	void finishModImport();
 	static ArchiveImportOutcome importArchive(const QString & archive, const QString & hint,
 		ModStateController::ArchiveImportProgress & progress, const QStringList & protectedMods, bool fullModExtraction);
@@ -167,7 +167,7 @@ public:
 	void downloadMod(const ModState & mod);
 	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
 	/// Returns true if the files started an asynchronous mod import.
-	bool installFiles(QStringList mods, bool removeArchives = false);
+	bool installFiles(QStringList mods);
 
 	void showExternalProgress(const QString & format, int current, int max);
 	void hideExternalProgress();
