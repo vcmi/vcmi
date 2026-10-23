@@ -248,7 +248,7 @@ std::string CModHandler::getResourceEncoding(const ResourcePath & resource, cons
 		// in this case, this file may be in user-preferred language, and not in same language as the rest of H3 data
 		// however at the moment we have no way to detect that for sure - file can be either in English or in user-preferred language
 		// but since all known H3 encodings (Win125X or GBK) are supersets of ASCII, we can safely load English data using encoding of user-preferred language
-		std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
+		std::string preferredLanguage = CGeneralTextHandler::getPreferredLanguage();
 		std::string fileEncoding = Languages::getLanguageOptions(preferredLanguage).encoding;
 		return fileEncoding;
 	}
@@ -262,11 +262,11 @@ std::string CModHandler::getResourceEncoding(const ResourcePath & resource, cons
 std::string CModHandler::getModLanguage(const TModID& modId) const
 {
 	if(modId == "core")
-		return LIBRARY->generaltexth->getInstalledLanguage();
+		return CGeneralTextHandler::getInstalledLanguage();
 	if(modId == "map")
-		return LIBRARY->generaltexth->getPreferredLanguage();
+		return CGeneralTextHandler::getPreferredLanguage();
 	if(modId == "mapEditor")
-		return LIBRARY->generaltexth->getPreferredLanguage();
+		return CGeneralTextHandler::getPreferredLanguage();
 	return getModInfo(modId).getBaseLanguage();
 }
 
@@ -392,7 +392,7 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 void CModHandler::loadModContent(LibraryLoadContext & context) const
 {
 	const auto & activeMods = getActiveMods();
-	const std::string preferredLanguage = context.lib.generaltexth->getPreferredLanguage();
+	const std::string preferredLanguage = CGeneralTextHandler::getPreferredLanguage();
 	const std::vector<std::string> contentTypes = context.content.getContentTypeNames();
 
 	std::vector<JsonNode> loadedContent(activeMods.size());
@@ -427,7 +427,7 @@ void CModHandler::loadTranslation(LibraryLoadContext & context, const TModID & m
 	const JsonNode & translations = context.modContent.at(modName);
 
 	context.lib.generaltexth->loadTranslationOverrides(modName, getModInfo(modName).getBaseLanguage(), translations["translations"]);
-	context.lib.generaltexth->loadTranslationOverrides(modName, context.lib.generaltexth->getPreferredLanguage(), translations[context.lib.generaltexth->getPreferredLanguage()]["translations"]);
+	context.lib.generaltexth->loadTranslationOverrides(modName, CGeneralTextHandler::getPreferredLanguage(), translations[CGeneralTextHandler::getPreferredLanguage()]["translations"]);
 }
 
 void CModHandler::load(LibraryLoadContext & context)

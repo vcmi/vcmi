@@ -38,7 +38,7 @@ void TextLocalizationContainer::registerStringOverride(const std::string & modCo
 		}
 		else
 		{
-			if (language == LIBRARY->generaltexth->getPreferredLanguage())
+			if (language == CGeneralTextHandler::getPreferredLanguage())
 				entry.overriden = true;
 		}
 	}
