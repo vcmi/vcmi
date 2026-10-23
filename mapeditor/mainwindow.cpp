@@ -1216,6 +1216,7 @@ void EditorMainWindow::loadObjectsTree()
 		objectBrowser->terrain = TerrainId(current->data(TerrainIDRole).toInt());
 		objectBrowser->invalidate();
 		objectBrowser->sort(0);
+		ui->objectView->scrollToTop();
 	});
 	ui->categoryList->setCurrentRow(0);
 	ui->categoryList->fitHeight();
