@@ -12,6 +12,7 @@
 #include <vcmi/Creature.h>
 
 #include "BattleSide.h"
+#include "../constants/EntityIdentifiers.h"
 
 class CCreature;
 class CGHeroInstance;
@@ -21,6 +22,11 @@ class GameLibrary;
 namespace battle
 {
 class Unit;
+}
+
+namespace spells
+{
+class Service;
 }
 
 /// Data of units that a unit fights against. Bonuses useful only against a particular enemy are weighted
@@ -78,7 +84,7 @@ public:
 	/// Damage multiplier from bonuses that are useful against any enemy
 	double offenseMultiplier(const ACreature & creature) const;
 	/// Effective hit points multiplier from bonuses that are useful against any enemy
-	static double survivalMultiplier(const ACreature & creature);
+	double survivalMultiplier(const ACreature & creature) const;
 
 	/// Same two, for bonuses that are only useful against a particular enemy
 	static double situationalOffense(const ACreature & creature, const CombatValueContext & context);
@@ -117,6 +123,9 @@ private:
 
 	/// Weight of combat scripts that are known to the AI, by script index
 	std::map<si32, double> combatScriptWeights;
+
+	const spells::Service & spellService;
+	ScriptID rebirthScript;
 
 	/// Value of every creature by index. Bonuses of a creature type never change, so this never goes stale
 	std::vector<int64_t> creatureValues;

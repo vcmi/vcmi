@@ -162,7 +162,7 @@ CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battl
 static constexpr int skillCap = 120;
 
 /// Level of the spell referenced by a bonus, with schoolless abilities treated as mid-level
-static int spellLevelOf(const BonusSubtypeID & subtype)
+static int spellLevelOf(const spells::Service & spellService, const BonusSubtypeID & subtype)
 {
 	// H3 creature abilities belong to no school, which does not make them weak
 	static constexpr int schoollessSpellLevel = 2;
@@ -172,7 +172,7 @@ static int spellLevelOf(const BonusSubtypeID & subtype)
 	if(!spell.hasValue())
 		return schoollessSpellLevel;
 
-	const int level = spell.toSpell()->getLevel();
+	const int level = spellService.getById(spell)->getLevel();
 
 	return level > 0 ? level : schoollessSpellLevel;
 }
@@ -295,7 +295,13 @@ double CombatValue::median(std::vector<double> values)
 }
 
 CombatValue::CombatValue(const GameLibrary & library)
+	: spellService(*library.spells())
 {
+	const auto rebirth = library.identifiers()->getIdentifier(ModScope::scopeGame(), "script", std::string("rebirth"));
+	if(!rebirth)
+		throw IdentifierResolutionException("rebirth");
+	rebirthScript = ScriptID(*rebirth);
+
 	std::vector<const CCreature *> builtinCreatures;
 
 	for(const auto & creature : library.creh->objects)
@@ -608,7 +614,7 @@ double CombatValue::offenseMultiplier(const ACreature & creature) const
 	int bestSpellLevel = 0;
 	for(auto type : {BonusType::SPELLCASTER, BonusType::RANDOM_SPELLCASTER})
 		for(const auto matchingBonuses = unit->getBonusesOfType(type); const auto & bonus : *matchingBonuses)
-			bestSpellLevel = std::max(bestSpellLevel, spellLevelOf(bonus->subtype));
+			bestSpellLevel = std::max(bestSpellLevel, spellLevelOf(spellService, bonus->subtype));
 
 	result *= 1.0 + castWeight * bestSpellLevel;
 
@@ -623,7 +629,7 @@ double CombatValue::offenseMultiplier(const ACreature & creature) const
 	{
 		for(const auto matchingBonuses = unit->getBonusesOfType(type); const auto & bonus : *matchingBonuses)
 		{
-			const double landed = std::sqrt(std::clamp(bonus->val, 0, 100) / 100.0) * spellLevelOf(bonus->subtype);
+			const double landed = std::sqrt(std::clamp(bonus->val, 0, 100) / 100.0) * spellLevelOf(spellService, bonus->subtype);
 
 			rest += std::min(best, landed);
 			best = std::max(best, landed);
@@ -683,12 +689,11 @@ double CombatValue::offenseMultiplier(const ACreature & creature) const
 	return result;
 }
 
-double CombatValue::survivalMultiplier(const ACreature & creature)
+double CombatValue::survivalMultiplier(const ACreature & creature) const
 {
 	const auto * unit = creature.getBonusBearer();
 	double result = 1.0;
 
-	const ScriptID rebirthScript(ScriptID::decode("rebirth"));
 	result *= 1.0 + unit->valOfBonuses(BonusType::COMBAT_EVENT_TRIGGER, rebirthScript) / 100.0;
 
 	if(unit->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))

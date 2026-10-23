@@ -319,7 +319,7 @@ void CreatureValueEstimator::deriveValues()
 		const double retaliations = sum(retaliatedBySubject[subject]) / baselineCount * CombatValue::retaliationsPerRound(*unit);
 
 		rawOutput[subject] = std::max(ownTurn + retaliations, 1e-6);
-		survival[subject] = CombatValue::survivalMultiplier(*unit) * CombatValue::situationalSurvival(*unit, values.averageBattle());
+		survival[subject] = values.survivalMultiplier(*unit) * CombatValue::situationalSurvival(*unit, values.averageBattle());
 
 		Entry & entry = entries[subject];
 		entry.creature = subjects[subject];
