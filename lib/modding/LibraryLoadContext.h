@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "ContentTypeHandler.h"
 #include "IdentifierResolver.h"
 
 class GameLibrary;
@@ -22,6 +23,21 @@ public:
 
 	/// Resolves identifiers requested by loaded content once content of all mods is loaded
 	DeferredIdentifierResolver resolver;
+
+	/// Content of all entity types, with json of all loaded mods
+	CContentHandler content;
+
+	/// Contents of all files that mods list in their mod.json, in the same layout as mod.json itself
+	std::map<std::string, JsonNode> modContent;
+
+	/// Checksums of files of every active mod
+	std::map<std::string, uint32_t> modChecksums;
+
+	/// Mods that have no issues found while loading their content
+	std::set<std::string> validationPassed;
+
+	/// Mods that list a file that does not exist in their filesystem
+	std::set<std::string> modsWithMissingFiles;
 
 	explicit LibraryLoadContext(GameLibrary & lib);
 };

@@ -21,7 +21,7 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/modding/CModHandler.h"
-#include "../lib/modding/ContentTypeHandler.h"
+#include "../lib/modding/LibraryLoadContext.h"
 #include "../lib/modding/ModUtility.h"
 #include "../lib/modding/ModManager.h"
 #include "callback/EditorCallback.h"
@@ -229,7 +229,7 @@ static void generateTranslations(const std::string & modID)
 
 }
 
-static void exportConfiguration()
+static void exportConfiguration(const LibraryLoadContext & context)
 {
 	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "configuration";
 
@@ -239,7 +239,7 @@ static void exportConfiguration()
 
 	for(const auto & contentName : contentNames)
 	{
-		const auto & content = (*LIBRARY->modh->content)[contentName];
+		const auto & content = context.content[contentName];
 
 		auto contentOutPath = outPath / contentName;
 		boost::filesystem::create_directories(contentOutPath);
@@ -346,17 +346,20 @@ int main(int argc, const char * argv[])
 	LIBRARY->initializeFilesystem(false);
 	logConfigurator.configure();
 
-	LIBRARY->initializeLibrary();
+	if(opts.count("export-config"))
+	{
+		LibraryLoadContext context(*LIBRARY);
+		LIBRARY->initializeLibrary(context);
+		exportConfiguration(context);
+	}
+	else
+		LIBRARY->initializeLibrary();
 
 	if(opts.count("creature-values"))
 	{
 		CreatureValueEstimator::run();
 	}
-	else if(opts.count("export-config"))
-	{
-		exportConfiguration();
-	}
-	else if(!opts.count("dummy-run"))
+	else if(!opts.count("dummy-run") && !opts.count("export-config"))
 	{
 		bool connectToLobby = opts.count("lobby");
 		bool runByClient = opts.count("runByClient");

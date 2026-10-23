@@ -30,8 +30,7 @@
 #include <zlib.h>
 
 CModHandler::CModHandler(bool useTestPreset)
-	: content(std::make_shared<CContentHandler>())
-	, modManager(std::make_unique<ModManager>(JsonNode(), useTestPreset))
+	: modManager(std::make_unique<ModManager>(JsonNode(), useTestPreset))
 {
 }
 
@@ -390,11 +389,11 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 	return result;
 }
 
-void CModHandler::loadModContent()
+void CModHandler::loadModContent(LibraryLoadContext & context) const
 {
 	const auto & activeMods = getActiveMods();
 	const std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
-	const std::vector<std::string> contentTypes = content->getContentTypeNames();
+	const std::vector<std::string> contentTypes = context.content.getContentTypeNames();
 
 	std::vector<JsonNode> loadedContent(activeMods.size());
 	std::vector<uint32_t> checksums(activeMods.size());
@@ -416,16 +415,16 @@ void CModHandler::loadModContent()
 
 	for (size_t i = 0; i < activeMods.size(); ++i)
 	{
-		modContent[activeMods[i]] = std::move(loadedContent[i]);
-		modChecksums[activeMods[i]] = checksums[i];
+		context.modContent[activeMods[i]] = std::move(loadedContent[i]);
+		context.modChecksums[activeMods[i]] = checksums[i];
 		if (validity[i] == 0)
-			modsWithMissingFiles.insert(activeMods[i]);
+			context.modsWithMissingFiles.insert(activeMods[i]);
 	}
 }
 
-void CModHandler::loadTranslation(const TModID & modName)
+void CModHandler::loadTranslation(const LibraryLoadContext & context, const TModID & modName)
 {
-	const JsonNode & translations = modContent.at(modName);
+	const JsonNode & translations = context.modContent.at(modName);
 
 	LIBRARY->generaltexth->loadTranslationOverrides(modName, getModInfo(modName).getBaseLanguage(), translations["translations"]);
 	LIBRARY->generaltexth->loadTranslationOverrides(modName, LIBRARY->generaltexth->getPreferredLanguage(), translations[LIBRARY->generaltexth->getPreferredLanguage()]["translations"]);
@@ -435,20 +434,20 @@ void CModHandler::load(LibraryLoadContext & context)
 {
 	logMod->info("\tInitializing content handler");
 
-	content->init(context);
+	context.content.init(context);
 
 	const auto & activeMods = getActiveMods();
 
-	validationPassed.insert(activeMods.begin(), activeMods.end());
+	context.validationPassed.insert(activeMods.begin(), activeMods.end());
 
-	loadModContent();
+	loadModContent(context);
 
 	for(const TModID & modName : activeMods)
 	{
 		const auto & modInfo = getModInfo(modName);
-		bool isValid = content->preloadData(modInfo, modContent.at(modName), isModValidationNeeded(modInfo));
+		bool isValid = context.content.preloadData(modInfo, context.modContent.at(modName), isModValidationNeeded(context, modInfo));
 
-		if (modsWithMissingFiles.count(modName))
+		if (context.modsWithMissingFiles.count(modName))
 			isValid = false;
 
 		if (isValid)
@@ -457,48 +456,48 @@ void CModHandler::load(LibraryLoadContext & context)
 			logGlobal->warn("\t\tParsing mod: Issues found! (%s)", modInfo.getID());
 
 		if (!isValid)
-			validationPassed.erase(modName);
+			context.validationPassed.erase(modName);
 	}
 	logMod->info("\tParsing mod data");
 
 	for(const TModID & modName : activeMods)
 	{
 		const auto & modInfo = getModInfo(modName);
-		bool isValid = content->load(context, getModInfo(modName), isModValidationNeeded(getModInfo(modName)));
+		bool isValid = context.content.load(context, getModInfo(modName), isModValidationNeeded(context, getModInfo(modName)));
 		if (isValid)
 			logGlobal->info("\t\tLoading mod: OK (%s)", modInfo.getID());
 		else
 			logGlobal->warn("\t\tLoading mod: Issues found! (%s)", modInfo.getID());
 
 		if (!isValid)
-			validationPassed.erase(modName);
+			context.validationPassed.erase(modName);
 	}
 
-	content->loadCustom(context);
+	context.content.loadCustom(context);
 
 	logMod->info("\tLoading mod data");
 	LIBRARY->creh->loadCrExpMod();
 	context.resolver.finalize();
 	logMod->info("\tResolving identifiers");
 
-	content->afterLoadFinalization(context);
+	context.content.afterLoadFinalization(context);
 	for(const TModID & modName : activeMods)
-		loadTranslation(modName);
+		loadTranslation(context, modName);
 
-	modContent.clear();
+	context.modContent.clear();
 	modsWithFailedRequests = context.resolver.getModsWithFailedRequests();
 
 	logMod->info("\tHandlers post-load finalization");
 	logMod->info("\tAll game content loaded");
 }
 
-void CModHandler::afterLoad()
+void CModHandler::afterLoad(const LibraryLoadContext & context)
 {
 	JsonNode modSettings;
 	for (const auto & modEntry : getActiveMods())
 	{
-		if (validationPassed.count(modEntry))
-			modManager->setValidatedChecksum(modEntry, modChecksums.at(modEntry));
+		if (context.validationPassed.count(modEntry))
+			modManager->setValidatedChecksum(modEntry, context.modChecksums.at(modEntry));
 		else
 			modManager->setValidatedChecksum(modEntry, std::nullopt);
 	}
@@ -506,12 +505,12 @@ void CModHandler::afterLoad()
 	modManager->saveConfigurationState();
 }
 
-bool CModHandler::isModValidationNeeded(const ModDescription & mod) const
+bool CModHandler::isModValidationNeeded(const LibraryLoadContext & context, const ModDescription & mod) const
 {
 	if (settings["mods"]["validation"].String() == "full")
 		return true;
 
-	if (modManager->getValidatedChecksum(mod.getID()) == modChecksums.at(mod.getID()))
+	if (modManager->getValidatedChecksum(mod.getID()) == context.modChecksums.at(mod.getID()))
 		return false;
 
 	if (settings["mods"]["validation"].String() == "off")

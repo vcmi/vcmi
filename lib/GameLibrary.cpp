@@ -218,7 +218,11 @@ bool GameLibrary::isDemoData() const
 void GameLibrary::initializeLibrary()
 {
 	LibraryLoadContext context(*this);
+	initializeLibrary(context);
+}
 
+void GameLibrary::initializeLibrary(LibraryLoadContext & context)
+{
 	createHandler(settingsHandler);
 	modh->initializeConfig();
 
@@ -249,7 +253,7 @@ void GameLibrary::initializeLibrary()
 	scriptHandler = std::make_unique<scripting::LuaModule>();
 	scriptHandler->installScripting(*scriptTypeHandler);
 	modh->load(context);
-	modh->afterLoad();
+	modh->afterLoad(context);
 
 	createHandler(mapFormat);
 
