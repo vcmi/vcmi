@@ -83,6 +83,8 @@ void UpdateView::refresh()
 					break;
 				case EUpdateDistribution::FLATPAK:
 					status += " " + tr("Update VCMI through Flatpak or your software center. It may take a few days to appear there.");
+					ui->buttonAction->setText(tr("Open Download Page"));
+					actionUrl = QUrl("https://vcmi.eu/download/");
 					break;
 				default:
 #if defined(Q_OS_LINUX) && !defined(VCMI_ANDROID)
@@ -90,6 +92,8 @@ void UpdateView::refresh()
 #else
 					status += " " + tr("Update VCMI the same way you installed it.");
 #endif
+					ui->buttonAction->setText(tr("Open Download Page"));
+					actionUrl = QUrl("https://vcmi.eu/download/");
 					break;
 			}
 			break;
