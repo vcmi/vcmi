@@ -2503,7 +2503,9 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	};
 
 	// now when everything is built - reveal tiles for lookout tower
-	changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
+	// town may be neutral if building was built by a town event that affects neutral towns
+	if(t->getOwner().isValidPlayer())
+		changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
 
 	if (!force)
 	{
@@ -3251,6 +3253,9 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 
 		if(!destArtifact->hasParts())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is fused combined artifact!");
+
+		if(ArtifactUtils::isCombinationDisabled(gameInfo().getSettings(), destArtifact->getTypeId()))
+			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble can not be assembled back on this map!");
 
 		if(ArtifactUtils::isSlotBackpack(artifactSlot)
 			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->getType()->getConstituents().size() - 1))

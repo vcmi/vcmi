@@ -113,7 +113,7 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 	if(hero->tempOwner != GAME->interface()->playerID)
 		return false;
 
-	if(art->hasParts())
+	if(art->hasParts() && !ArtifactUtils::isCombinationDisabled(GAME->interface()->cb->getSettings(), art->getTypeId()))
 	{
 		if(ArtifactUtils::isSlotBackpack(slot) && !ArtifactUtils::isBackpackFreeSlots(hero, art->getType()->getConstituents().size() - 1))
 			return false;
