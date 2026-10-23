@@ -1183,7 +1183,8 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	appearance->id = Obj(handler->getIndex());
 	appearance->subid = handler->getSubIndex();
-	appearance->readJson(configuration["template"], false);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	appearance->readJson(configuration["template"], resolver, false);
 
 	// Will be destroyed soon and replaced with shared template
 	instance = handler->create(owner->map->cb, appearance);

@@ -88,7 +88,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		tmpl->id = Obj(type);
 		tmpl->subid = subtype;
 		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
-		tmpl->readJson(entry.second);
+		tmpl->readJson(entry.second, LIBRARY->modh->getIdentifierResolver());
 		templates.push_back(tmpl);
 	}
 
@@ -208,7 +208,7 @@ void AObjectTypeHandler::addTemplate(JsonNode config)
 	tmpl->id = Obj(type);
 	tmpl->subid = subtype;
 	tmpl->stringID.clear(); // TODO?
-	tmpl->readJson(config);
+	tmpl->readJson(config, LIBRARY->modh->getIdentifierResolver());
 	templates.push_back(tmpl);
 }
 

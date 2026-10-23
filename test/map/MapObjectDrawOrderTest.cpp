@@ -15,6 +15,8 @@
 #include "../../lib/mapObjects/MapObjectDrawOrder.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapping/CMap.h"
+#include "../../lib/modding/IdentifierResolver.h"
+#include "../../lib/GameLibrary.h"
 
 namespace
 {
@@ -27,7 +29,8 @@ std::shared_ptr<ObjectTemplate> makeTemplate(const std::string & mask, int zInde
 
 	JsonNode node(text.data(), text.size(), "MapObjectDrawOrderTest");
 	auto result = std::make_shared<ObjectTemplate>();
-	result->readJson(node, false);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	result->readJson(node, resolver, false);
 	return result;
 }
 

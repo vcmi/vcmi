@@ -19,7 +19,6 @@
 #include "../TerrainHandler.h"
 
 #include "../mapObjectConstructors/CRewardableConstructor.h"
-#include "../modding/CModHandler.h"
 #include "../modding/IdentifierResolver.h"
 
 
@@ -198,7 +197,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 	recalculate();
 }
 
-void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
+void ObjectTemplate::readJson(const JsonNode &node, IIdentifierResolver & resolver, const bool withTerrain)
 {
 	animationFile = AnimationPath::fromJson(node["animation"]);
 	editorAnimationFile = AnimationPath::fromJson(node["editorAnimation"]);
@@ -227,7 +226,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 			for(const auto & entry : node["allowedTerrains"].Vector())
 			{
-				LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound("terrain", entry, [this](int32_t identifier){
+				resolver.requestIdentifierIfFound("terrain", entry, [this](int32_t identifier){
 					allowedTerrains.insert(TerrainId(identifier));
 				});
 			}
