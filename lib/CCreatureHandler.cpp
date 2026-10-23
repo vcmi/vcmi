@@ -489,7 +489,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(LibraryLoadContext & cont
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
-	CLegacyConfigParser parser(TextPath::builtin("DATA/CRTRAITS.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/CRTRAITS.TXT"), *context.lib.modh);
 
 	parser.endLine(); // header
 
@@ -703,7 +703,7 @@ void CCreatureHandler::loadCrExpMod(LibraryLoadContext & context)
 			}
 		}
 
-		CLegacyConfigParser expBonParser(TextPath::builtin("DATA/CREXPMOD.TXT"));
+		CLegacyConfigParser expBonParser(TextPath::builtin("DATA/CREXPMOD.TXT"), *context.lib.modh);
 
 		expBonParser.endLine(); //header
 
@@ -729,7 +729,7 @@ void CCreatureHandler::loadCrExpMod(LibraryLoadContext & context)
 
 void CCreatureHandler::loadAnimationInfo(LibraryLoadContext & context, std::vector<JsonNode> &h3Data) const
 {
-	CLegacyConfigParser parser(TextPath::builtin("DATA/CRANIM.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/CRANIM.TXT"), *context.lib.modh);
 
 	parser.endLine(); // header
 	parser.endLine();

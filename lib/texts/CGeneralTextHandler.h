@@ -13,6 +13,7 @@
 #include "../json/JsonNode.h"
 
 class CGeneralTextHandler;
+class CModHandler;
 
 /// Small wrapper that provides text access API compatible with old code
 class DLL_LINKAGE LegacyTextContainer
@@ -44,6 +45,10 @@ class DLL_LINKAGE CGeneralTextHandler: public TextLocalizationContainer
 
 	void readToVector(const std::string & sourceID, const std::string & sourceName);
 
+	std::string getModLanguage(const std::string & modContext) const override;
+
+	const CModHandler & modHandler;
+
 	JsonNode roeMapping;
 
 public:
@@ -55,7 +60,7 @@ public:
 
 	int32_t pluralText(int32_t textIndex, int32_t count) const;
 
-	CGeneralTextHandler();
+	explicit CGeneralTextHandler(const CModHandler & modHandler);
 	CGeneralTextHandler(const CGeneralTextHandler&) = delete;
 	CGeneralTextHandler operator=(const CGeneralTextHandler&) = delete;
 

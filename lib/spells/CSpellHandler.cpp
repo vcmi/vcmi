@@ -25,7 +25,7 @@ std::vector<JsonNode> CSpellHandler::loadLegacyData(LibraryLoadContext & context
 {
 	std::vector<JsonNode> legacyData;
 
-	CLegacyConfigParser parser(TextPath::builtin("DATA/SPTRAITS.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/SPTRAITS.TXT"), *context.lib.modh);
 
 	auto readSchool = [&](JsonMap & schools, const std::string & name)
 	{

@@ -16,6 +16,7 @@
 #include "Languages.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/Quest.h"
+#include "../modding/CModHandler.h"
 
 bool CGeneralTextHandler::isRoEData()
 {
@@ -112,13 +113,18 @@ void CGeneralTextHandler::detectInstallParameters()
 	encoding->String() =  Languages::getLanguageOptions(knownLanguages[bestIndex]).encoding;
 }
 
+std::string CGeneralTextHandler::getModLanguage(const std::string & modContext) const
+{
+	return modHandler.getModLanguage(modContext);
+}
+
 void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
 {
 	bool resExists = CResourceHandler::get()->existsResource(ResourcePath(sourceName));
 	if(!resExists && roeMapping["newLines"][sourceName].isVector())
 		return;
 
-	CLegacyConfigParser parser(TextPath::builtin(sourceName));
+	CLegacyConfigParser parser(TextPath::builtin(sourceName), modHandler);
 	size_t index = 0;
 	do
 	{
@@ -133,7 +139,8 @@ void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::
 	while (parser.endLine());
 }
 
-CGeneralTextHandler::CGeneralTextHandler():
+CGeneralTextHandler::CGeneralTextHandler(const CModHandler & modHandler):
+	modHandler(modHandler),
 	allTexts         (*this, "core.genrltxt" ),
 	zelp             (*this, "core.help"     )
 {
@@ -162,7 +169,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
 
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/RANDTVRN.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/RANDTVRN.TXT"), modHandler);
 		// first rumor was skipped as a header in older versions; it goes last so that translated rumor IDs stay valid
 		std::string firstLine = parser.readString();
 		parser.endLine();
@@ -181,7 +188,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 			registerString("core", {"core.randtvrn", index}, firstLine);
 	}
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/GENRLTXT.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/GENRLTXT.TXT"), modHandler);
 		parser.endLine();
 		size_t index = 0;
 		do
@@ -197,7 +204,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/HELP.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/HELP.TXT"), modHandler);
 		size_t index = 0;
 		do
 		{
@@ -215,7 +222,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/SEERHUT.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/SEERHUT.TXT"), modHandler);
 
 		//skip header
 		parser.endLine();
@@ -261,7 +268,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		}
 	}
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/CAMPTEXT.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/CAMPTEXT.TXT"), modHandler);
 
 		//skip header
 		parser.endLine();

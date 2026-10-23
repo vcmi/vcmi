@@ -111,7 +111,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(LibraryLoadContext &
 {
 	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_OBJECT);
 
-	CLegacyConfigParser parser(TextPath::builtin("Data/Objects.txt"));
+	CLegacyConfigParser parser(TextPath::builtin("Data/Objects.txt"), *context.lib.modh);
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
@@ -131,7 +131,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(LibraryLoadContext &
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
 	assert(dataSize == 256);
 
-	CLegacyConfigParser namesParser(TextPath::builtin("Data/ObjNames.txt"));
+	CLegacyConfigParser namesParser(TextPath::builtin("Data/ObjNames.txt"), *context.lib.modh);
 	for (size_t i=0; i<256; i++)
 	{
 		ret[i]["name"].String() = namesParser.readString();
@@ -141,7 +141,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(LibraryLoadContext &
 	JsonNode cregen1;
 	JsonNode cregen4;
 
-	CLegacyConfigParser cregen1Parser(TextPath::builtin("data/crgen1"));
+	CLegacyConfigParser cregen1Parser(TextPath::builtin("data/crgen1"), *context.lib.modh);
 	do
 	{
 		JsonNode subObject;
@@ -150,7 +150,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(LibraryLoadContext &
 	}
 	while(cregen1Parser.endLine());
 
-	CLegacyConfigParser cregen4Parser(TextPath::builtin("data/crgen4"));
+	CLegacyConfigParser cregen4Parser(TextPath::builtin("data/crgen4"), *context.lib.modh);
 	do
 	{
 		JsonNode subObject;

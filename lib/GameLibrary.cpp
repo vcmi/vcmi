@@ -226,7 +226,7 @@ void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 	createHandler(settingsHandler);
 	modh->initializeConfig(context);
 
-	createHandler(generaltexth);
+	generaltexth = std::make_unique<CGeneralTextHandler>(*modh);
 	bth = std::make_unique<CBonusTypeHandler>(context);
 	createHandler(resourceTypeHandler);
 	roadTypeHandler = std::make_unique<RoadTypeHandler>(context);

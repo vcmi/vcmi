@@ -373,9 +373,9 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData(LibraryLoadContext & context)
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
-	CLegacyConfigParser specParser(TextPath::builtin("DATA/HEROSPEC.TXT"));
-	CLegacyConfigParser bioParser(TextPath::builtin("DATA/HEROBIOS.TXT"));
-	CLegacyConfigParser parser(TextPath::builtin("DATA/HOTRAITS.TXT"));
+	CLegacyConfigParser specParser(TextPath::builtin("DATA/HEROSPEC.TXT"), *context.lib.modh);
+	CLegacyConfigParser bioParser(TextPath::builtin("DATA/HEROBIOS.TXT"), *context.lib.modh);
+	CLegacyConfigParser parser(TextPath::builtin("DATA/HOTRAITS.TXT"), *context.lib.modh);
 
 	parser.endLine(); //ignore header
 	parser.endLine();

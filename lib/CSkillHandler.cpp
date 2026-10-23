@@ -176,7 +176,7 @@ std::string CSkill::toString() const
 ///CSkillHandler
 std::vector<JsonNode> CSkillHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	CLegacyConfigParser parser(TextPath::builtin("DATA/SSTRAITS.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/SSTRAITS.TXT"), *context.lib.modh);
 
 	//skip header
 	parser.endLine();

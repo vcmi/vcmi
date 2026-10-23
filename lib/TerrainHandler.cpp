@@ -156,7 +156,7 @@ std::vector<JsonNode> TerrainTypeHandler::loadLegacyData(LibraryLoadContext & co
 
 	objects.resize(dataSize);
 
-	CLegacyConfigParser terrainParser(TextPath::builtin("DATA/TERRNAME.TXT"));
+	CLegacyConfigParser terrainParser(TextPath::builtin("DATA/TERRNAME.TXT"), *context.lib.modh);
 
 	std::vector<JsonNode> result;
 	do

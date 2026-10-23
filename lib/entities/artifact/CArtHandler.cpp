@@ -65,8 +65,8 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(LibraryLoadContext & context)
 	static const std::map<char, std::string> classes =
 		{{'S',"SPECIAL"}, {'T',"TREASURE"},{'N',"MINOR"},{'J',"MAJOR"},{'R',"RELIC"},};
 
-	CLegacyConfigParser parser(TextPath::builtin("DATA/ARTRAITS.TXT"));
-	CLegacyConfigParser events(TextPath::builtin("DATA/ARTEVENT.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/ARTRAITS.TXT"), *context.lib.modh);
+	CLegacyConfigParser events(TextPath::builtin("DATA/ARTEVENT.TXT"), *context.lib.modh);
 
 	parser.endLine(); // header
 	for(int i = 0; i < 7; i++)

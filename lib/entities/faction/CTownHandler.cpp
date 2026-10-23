@@ -78,7 +78,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData(LibraryLoadContext & context)
 		return dest[town]["town"]["buildings"][EBuildingType::names[building]];
 	};
 
-	CLegacyConfigParser parser(TextPath::builtin("DATA/BUILDING.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/BUILDING.TXT"), *context.lib.modh);
 
 	parser.endLine(); // header
 	parser.endLine();
@@ -130,7 +130,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData(LibraryLoadContext & context)
 		}
 	}
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/BLDGNEUT.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/BLDGNEUT.TXT"), *context.lib.modh);
 
 		for(int building=0; building<15; building++)
 		{
@@ -168,7 +168,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData(LibraryLoadContext & context)
 		}
 	}
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/BLDGSPEC.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/BLDGSPEC.TXT"), *context.lib.modh);
 
 		for(int town=0; town<dataSize; town++)
 		{
@@ -188,7 +188,7 @@ std::vector<JsonNode> CTownHandler::loadLegacyData(LibraryLoadContext & context)
 		}
 	}
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/DWELLING.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/DWELLING.TXT"), *context.lib.modh);
 
 		for(int town=0; town<dataSize; town++)
 		{
@@ -201,8 +201,8 @@ std::vector<JsonNode> CTownHandler::loadLegacyData(LibraryLoadContext & context)
 		}
 	}
 	{
-		CLegacyConfigParser typeParser(TextPath::builtin("DATA/TOWNTYPE.TXT"));
-		CLegacyConfigParser nameParser(TextPath::builtin("DATA/TOWNNAME.TXT"));
+		CLegacyConfigParser typeParser(TextPath::builtin("DATA/TOWNTYPE.TXT"), *context.lib.modh);
+		CLegacyConfigParser nameParser(TextPath::builtin("DATA/TOWNNAME.TXT"), *context.lib.modh);
 		size_t townID=0;
 		do
 		{
