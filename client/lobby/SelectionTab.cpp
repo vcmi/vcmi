@@ -297,8 +297,8 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 		sortByDate->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("lobby/selectionTabSortDate")));
 		buttonsSortBy.push_back(sortByDate);
 
-		Rect searchWidgetArea(22, 115, 366, 26);
-		Rect searchTextInputArea(87, 115, 301, 26);
+		Rect searchWidgetArea(22 - (ENGINE->isRoeData() ? 3 : 0), 115, 366 - (ENGINE->isRoeData() ? 33 : 0), 26);
+		Rect searchTextInputArea(87, 115, 301 - (ENGINE->isRoeData() ? 36 : 0), 26);
 
 		searchWidgetBackground = std::make_shared<FilledTexturePlayerColored>(searchWidgetArea);
 		searchWidgetBackground->setPlayerColor(PlayerColor(1));
