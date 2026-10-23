@@ -35,14 +35,14 @@ void Resource::registerIcons(const IconRegistar & cb) const
 	cb(getIconIndex(), 0, "RESOUR82", iconLarge);
 }
 
-std::vector<JsonNode> ResourceTypeHandler::loadLegacyData()
+std::vector<JsonNode> ResourceTypeHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	objects.resize(GameConstants::RESOURCE_QUANTITY);
 
 	return std::vector<JsonNode>(GameConstants::RESOURCE_QUANTITY, JsonNode(JsonMap()));
 }
 
-std::shared_ptr<Resource> ResourceTypeHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<Resource> ResourceTypeHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	auto ret = std::make_shared<Resource>();
 
@@ -67,7 +67,7 @@ const std::vector<std::string> & ResourceTypeHandler::getTypeNames() const
 	return types;
 }
 
-void ResourceTypeHandler::afterLoadFinalization()
+void ResourceTypeHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for (const auto & resource : objects)
 		if(resource)

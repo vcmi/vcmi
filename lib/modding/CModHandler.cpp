@@ -11,8 +11,7 @@
 #include "CModHandler.h"
 
 #include "ContentTypeHandler.h"
-#include "IdentifierResolver.h"
-#include "IdentifierStorage.h"
+#include "LibraryLoadContext.h"
 #include "ModDescription.h"
 #include "ModManager.h"
 #include "ModScope.h"
@@ -38,15 +37,9 @@ CModHandler::CModHandler(bool useTestPreset)
 
 CModHandler::~CModHandler() = default;
 
-void CModHandler::createIdentifierResolver(const CIdentifierStorage & storage)
+const std::vector<TModID> & CModHandler::getModsWithFailedRequests() const
 {
-	identifierResolver = std::make_unique<DeferredIdentifierResolver>(storage);
-}
-
-DeferredIdentifierResolver & CModHandler::getIdentifierResolver()
-{
-	assert(identifierResolver);
-	return *identifierResolver;
+	return modsWithFailedRequests;
 }
 
 std::vector<std::string> CModHandler::getAllMods() const
@@ -438,11 +431,11 @@ void CModHandler::loadTranslation(const TModID & modName)
 	LIBRARY->generaltexth->loadTranslationOverrides(modName, LIBRARY->generaltexth->getPreferredLanguage(), translations[LIBRARY->generaltexth->getPreferredLanguage()]["translations"]);
 }
 
-void CModHandler::load()
+void CModHandler::load(LibraryLoadContext & context)
 {
 	logMod->info("\tInitializing content handler");
 
-	content->init();
+	content->init(context);
 
 	const auto & activeMods = getActiveMods();
 
@@ -471,7 +464,7 @@ void CModHandler::load()
 	for(const TModID & modName : activeMods)
 	{
 		const auto & modInfo = getModInfo(modName);
-		bool isValid = content->load(getModInfo(modName), isModValidationNeeded(getModInfo(modName)));
+		bool isValid = content->load(context, getModInfo(modName), isModValidationNeeded(getModInfo(modName)));
 		if (isValid)
 			logGlobal->info("\t\tLoading mod: OK (%s)", modInfo.getID());
 		else
@@ -481,18 +474,19 @@ void CModHandler::load()
 			validationPassed.erase(modName);
 	}
 
-	content->loadCustom();
+	content->loadCustom(context);
 
 	logMod->info("\tLoading mod data");
 	LIBRARY->creh->loadCrExpMod();
-	identifierResolver->finalize();
+	context.resolver.finalize();
 	logMod->info("\tResolving identifiers");
 
-	content->afterLoadFinalization();
+	content->afterLoadFinalization(context);
 	for(const TModID & modName : activeMods)
 		loadTranslation(modName);
 
 	modContent.clear();
+	modsWithFailedRequests = context.resolver.getModsWithFailedRequests();
 
 	logMod->info("\tHandlers post-load finalization");
 	logMod->info("\tAll game content loaded");

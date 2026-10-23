@@ -21,8 +21,7 @@
 #include "../../bonuses/Updaters.h"
 #include "../../json/JsonBonus.h"
 #include "../../json/JsonUtils.h"
-#include "../../modding/CModHandler.h"
-#include "../../modding/IdentifierResolver.h"
+#include "../../modding/LibraryLoadContext.h"
 #include "../../CSkillHandler.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
@@ -40,7 +39,7 @@ const std::vector<std::string> & CHeroHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::shared_ptr<CHero> CHeroHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
+std::shared_ptr<CHero> CHeroHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
@@ -67,11 +66,11 @@ std::shared_ptr<CHero> CHeroHandler::loadFromJson(const std::string & scope, con
 	hero->portraitLarge = node["images"]["large"].String();
 	hero->battleImage = AnimationPath::fromJson(node["battleImage"]);
 
-	loadHeroArmy(hero.get(), node);
-	loadHeroSkills(hero.get(), node);
-	loadHeroSpecialty(hero.get(), node);
+	loadHeroArmy(context, hero.get(), node);
+	loadHeroSkills(context, hero.get(), node);
+	loadHeroSpecialty(context, hero.get(), node);
 
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier("heroClass", node["class"],
+	context.resolver.requestIdentifier("heroClass", node["class"],
 	[=](si32 classID)
 	{
 		hero->heroClass = HeroClassID(classID).toHeroClass();
@@ -80,7 +79,7 @@ std::shared_ptr<CHero> CHeroHandler::loadFromJson(const std::string & scope, con
 	return hero;
 }
 
-void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node) const
+void CHeroHandler::loadHeroArmy(LibraryLoadContext & context, CHero * hero, const JsonNode & node) const
 {
 	assert(node["army"].Vector().size() <= 3); // anything bigger is useless - army initialization uses up to 3 slots
 
@@ -99,14 +98,14 @@ void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node) const
 			std::swap(hero->initialArmy[i].minAmount, hero->initialArmy[i].maxAmount);
 		}
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", source["creature"], [=](si32 creature)
+		context.resolver.requestIdentifier("creature", source["creature"], [=](si32 creature)
 		{
 			hero->initialArmy[i].creature = CreatureID(creature);
 		});
 	}
 }
 
-void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
+void CHeroHandler::loadHeroSkills(LibraryLoadContext & context, CHero * hero, const JsonNode & node) const
 {
 	for(const JsonNode &set : node["skills"].Vector())
 	{
@@ -116,7 +115,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 			size_t currentIndex = hero->secSkillsInit.size();
 			hero->secSkillsInit.emplace_back(SecondarySkill(-1), skillLevel);
 
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier("skill", set["skill"], [=](si32 id)
+			context.resolver.requestIdentifier("skill", set["skill"], [=](si32 id)
 			{
 				hero->secSkillsInit[currentIndex].first = SecondarySkill(id);
 			});
@@ -132,7 +131,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 
 	for(const JsonNode & spell : node["spellbook"].Vector())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("spell", spell,
+		context.resolver.requestIdentifier("spell", spell,
 		[=](si32 spellID)
 		{
 			hero->spells.insert(SpellID(spellID));
@@ -248,7 +247,7 @@ void CHeroHandler::beforeValidate(JsonNode & object)
 	}
 }
 
-void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
+void CHeroHandler::loadHeroSpecialty(LibraryLoadContext & context, CHero * hero, const JsonNode & node) const
 {
 	auto prepSpec = [=](std::shared_ptr<Bonus> bonus)
 	{
@@ -273,7 +272,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 		int targetLevel = specialtyNode["creatureLevel"].Integer();
 		int stepSize = specialtyNode["stepSize"].Integer();
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", creatureNode, [this, hero, prepSpec, targetLevel, stepSize](si32 creature)
+		context.resolver.requestIdentifier("creature", creatureNode, [this, hero, prepSpec, targetLevel, stepSize](si32 creature)
 		{
 			for (const auto & bonus : createCreatureSpecialty(CreatureID(creature), targetLevel, stepSize))
 				hero->specialty.push_back(prepSpec(bonus));
@@ -286,7 +285,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 		const JsonNode & skillNode = specialtyNode["secondary"];
 		int stepSize = specialtyNode["stepSize"].Integer();
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("secondarySkill", skillNode, [this, hero, stepSize](si32 skill)
+		context.resolver.requestIdentifier("secondarySkill", skillNode, [this, hero, stepSize](si32 skill)
 		{
 			skillSpecialtiesToGenerate.push_back({hero->ID, SecondarySkill(skill), stepSize});
 		});
@@ -298,7 +297,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 		const JsonNode & spellNode = specialtyNode["spellScalingPercentage"];
 		int val = specialtyNode["spellScalingVal"].Integer();
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("spell", spellNode, [this, hero, prepSpec, val](si32 spell)
+		context.resolver.requestIdentifier("spell", spellNode, [this, hero, prepSpec, val](si32 spell)
 		{
 			for (const auto & bonus : createSpellScalingSpecialty(SpellID(spell), val))
 				hero->specialty.push_back(prepSpec(bonus));
@@ -313,7 +312,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 		for(const auto & entry : specialtyNode["spellFixedValues"].Vector())
 			values.push_back(static_cast<int32_t>(entry.Integer()));
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("spell", spellNode, [this, hero, prepSpec, values](si32 spell)
+		context.resolver.requestIdentifier("spell", spellNode, [this, hero, prepSpec, values](si32 spell)
 		{
 			for (const auto & bonus : createSpellFixedSpecialty(SpellID(spell), values))
 				hero->specialty.push_back(prepSpec(bonus));
@@ -321,7 +320,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 	}
 
 	for(const auto & keyValue : specialtyNode["bonuses"].Struct())
-		hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(keyValue.second, LIBRARY->modh->getIdentifierResolver(), hero->getSpecialtyBonusTextID(keyValue.first))));
+		hero->specialty.push_back(prepSpec(JsonUtils::parseBonus(keyValue.second, context.resolver, hero->getSpecialtyBonusTextID(keyValue.first))));
 }
 
 void CHeroHandler::loadExperience()
@@ -366,7 +365,7 @@ static std::string genRefName(std::string input)
 	return input;
 }
 
-std::vector<JsonNode> CHeroHandler::loadLegacyData()
+std::vector<JsonNode> CHeroHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_HERO);
 
@@ -412,11 +411,11 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData()
 	return h3Data;
 }
 
-void CHeroHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
+void CHeroHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	size_t index = objects.size();
 	static const int specialFramesCount = 2; // reserved for 2 special frames
-	auto object = loadFromJson(scope, data, name, index);
+	auto object = loadFromJson(context, scope, data, name, index);
 	object->imageIndex = static_cast<si32>(index) + specialFramesCount;
 
 	objects.emplace_back(object);
@@ -424,9 +423,9 @@ void CHeroHandler::loadObject(const std::string & scope, const std::string & nam
 	registerObject(scope, "hero", name, data, object->getIndex());
 }
 
-void CHeroHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
+void CHeroHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, name, index);
+	auto object = loadFromJson(context, scope, data, name, index);
 	object->imageIndex = static_cast<si32>(index);
 
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before
@@ -466,7 +465,7 @@ const std::set<HeroTypeID> & CHeroHandler::getDefaultAllowed() const
 	return defaultAllowed;
 }
 
-void CHeroHandler::afterLoadFinalization()
+void CHeroHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for(const auto & hero : objects)
 		if (hero && !hero->special)

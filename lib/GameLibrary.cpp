@@ -31,6 +31,7 @@
 #include "mapping/MapFormatSettings.h"
 #include "modding/CModHandler.h"
 #include "modding/IdentifierStorage.h"
+#include "modding/LibraryLoadContext.h"
 #include "modding/CModVersion.h"
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
@@ -161,7 +162,6 @@ void GameLibrary::loadModFilesystem(bool useTestPreset)
 	}
 	modh = std::make_unique<CModHandler>(useTestPreset);
 	identifiersHandler = std::make_unique<CIdentifierStorage>(*modh);
-	modh->createIdentifierResolver(*identifiersHandler);
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
 	modh->loadModFilesystems();
@@ -217,6 +217,8 @@ bool GameLibrary::isDemoData() const
 
 void GameLibrary::initializeLibrary()
 {
+	LibraryLoadContext context(*this);
+
 	createHandler(settingsHandler);
 	modh->initializeConfig();
 
@@ -229,7 +231,7 @@ void GameLibrary::initializeLibrary()
 	createHandler(heroh);
 	createHandler(heroclassesh);
 	createHandler(arth);
-	createHandler(creh);
+	creh = std::make_unique<CCreatureHandler>(context);
 	createHandler(townh);
 	createHandler(biomeHandler);
 	createHandler(objtypeh);
@@ -246,7 +248,7 @@ void GameLibrary::initializeLibrary()
 
 	scriptHandler = std::make_unique<scripting::LuaModule>();
 	scriptHandler->installScripting(*scriptTypeHandler);
-	modh->load();
+	modh->load(context);
 	modh->afterLoad();
 
 	createHandler(mapFormat);

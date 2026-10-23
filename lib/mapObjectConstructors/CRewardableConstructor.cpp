@@ -17,7 +17,7 @@
 #include "../CConfigHandler.h"
 #include "../GameLibrary.h"
 
-void CRewardableConstructor::initTypeData(const JsonNode & config)
+void CRewardableConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & config)
 {
 	objectInfo.init(config, getBaseTextID());
 	blockVisit = config["blockedVisitable"].Bool();

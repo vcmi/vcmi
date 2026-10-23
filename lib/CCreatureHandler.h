@@ -189,12 +189,12 @@ class DLL_LINKAGE CCreatureHandler : public CHandlerBase<CreatureID, Creature, C
 {
 private:
 	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics) const;
-	void loadStackExperience(CCreature * creature, const JsonNode & input) const;
-	void loadCreatureJson(CCreature * creature, const JsonNode & config) const;
+	void loadStackExperience(LibraryLoadContext & context, CCreature * creature, const JsonNode & input) const;
+	void loadCreatureJson(LibraryLoadContext & context, CCreature * creature, const JsonNode & config) const;
 
 	/// load all creatures from H3 files
 	void load();
-	void loadCommanders();
+	void loadCommanders(LibraryLoadContext & context);
 	/// load creature from json structure
 	void load(std::string creatureID, const JsonNode & node);
 	/// read cranim.txt file from H3
@@ -206,7 +206,7 @@ private:
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	std::shared_ptr<CCreature> loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CCreature> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 
 public:
 	std::set<CreatureID> doubledCreatures; //they get double week
@@ -223,7 +223,7 @@ public:
 	std::vector <std::pair <std::vector<std::shared_ptr<Bonus> >, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
 
-	CCreatureHandler();
+	explicit CCreatureHandler(LibraryLoadContext & context);
 	~CCreatureHandler();
 
 	/// load all stack modifier bonuses from H3 files. TODO: move this to json
@@ -238,9 +238,9 @@ public:
 	/// Estimates combat value of a creature or a battle unit
 	const CombatValue & getCombatValue() const;
 
-	void afterLoadFinalization() override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
 	std::set<CreatureID> getDefaultAllowed() const;
 

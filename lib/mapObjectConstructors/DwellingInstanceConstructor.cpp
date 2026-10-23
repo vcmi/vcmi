@@ -17,8 +17,7 @@
 #include "../mapObjects/army/CStackInstance.h"
 #include "../mapObjects/CGDwelling.h"
 #include "../mapObjects/ObjectTemplate.h"
-#include "../modding/CModHandler.h"
-#include "../modding/IdentifierResolver.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../CConfigHandler.h"
 
 bool DwellingInstanceConstructor::hasNameTextID() const
@@ -26,7 +25,7 @@ bool DwellingInstanceConstructor::hasNameTextID() const
 	return true;
 }
 
-void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
+void DwellingInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
 	if (input.Struct().count("name") == 0)
 		logMod->warn("Dwelling %s missing name!", getJsonKey());
@@ -45,7 +44,7 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 
 		for(int currentCreature = 0; currentCreature < creaturesNumber; currentCreature++)
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", creaturesOnLevel[currentCreature], [this, currentLevel, currentCreature] (si32 index)
+			context.resolver.requestIdentifier("creature", creaturesOnLevel[currentCreature], [this, currentLevel, currentCreature] (si32 index)
 			{
 				availableCreatures.at(currentLevel).at(currentCreature) = CreatureID(index).toCreature();
 			});

@@ -15,8 +15,7 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../GameLibrary.h"
 #include "../json/JsonUtils.h"
-#include "../modding/CModHandler.h"
-#include "../modding/IdentifierResolver.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
 
@@ -61,7 +60,7 @@ static ui32 loadJsonOrMax(const JsonNode & input)
 		return static_cast<ui32>(input.Float());
 }
 
-void AObjectTypeHandler::init(const JsonNode & input)
+void AObjectTypeHandler::init(LibraryLoadContext & context, const JsonNode & input)
 {
 	if (!input["base"].isNull())
 		base = std::make_unique<JsonNode>(input["base"]);
@@ -88,7 +87,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		tmpl->id = Obj(type);
 		tmpl->subid = subtype;
 		tmpl->stringID = entry.first; // FIXME: create "fullID" - type.object.template?
-		tmpl->readJson(entry.second, LIBRARY->modh->getIdentifierResolver());
+		tmpl->readJson(entry.second, context.resolver);
 		templates.push_back(tmpl);
 	}
 
@@ -117,7 +116,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 			battlefields.resize(input["battleground"].Vector().size());
 			for(int i = 0; i < battlefields.size(); i++)
 			{
-				LIBRARY->modh->getIdentifierResolver().requestIdentifier("battlefield", input["battleground"].Vector().at(i), [this, i](int32_t identifier)
+				context.resolver.requestIdentifier("battlefield", input["battleground"].Vector().at(i), [this, i](int32_t identifier)
 				{
 					battlefields.at(i) = BattleField(identifier);
 				});
@@ -126,7 +125,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		else
 		{
 			battlefields.resize(1);
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
+			context.resolver.requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
 			{
 				battlefields.at(0) = BattleField(identifier);
 			});
@@ -135,13 +134,13 @@ void AObjectTypeHandler::init(const JsonNode & input)
 
 	if(!input["battleTerrain"].isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("terrain", input["battleTerrain"], [this](int32_t identifier)
+		context.resolver.requestIdentifier("terrain", input["battleTerrain"], [this](int32_t identifier)
 		{
 			battleTerrain = TerrainId(identifier);
 		});
 	}
 
-	initTypeData(input);
+	initTypeData(context, input);
 }
 
 bool AObjectTypeHandler::objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const
@@ -157,7 +156,7 @@ void AObjectTypeHandler::preInitObject(CGObjectInstance * obj) const
 	obj->removable = removable;
 }
 
-void AObjectTypeHandler::initTypeData(const JsonNode & input)
+void AObjectTypeHandler::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
 	// empty implementation for overrides
 }
@@ -198,7 +197,7 @@ void AObjectTypeHandler::addTemplate(const std::shared_ptr<const ObjectTemplate>
 	onTemplateAdded(templ);
 }
 
-void AObjectTypeHandler::addTemplate(JsonNode config)
+void AObjectTypeHandler::addTemplate(LibraryLoadContext & context, JsonNode config)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not null
 	if (base)
@@ -208,7 +207,7 @@ void AObjectTypeHandler::addTemplate(JsonNode config)
 	tmpl->id = Obj(type);
 	tmpl->subid = subtype;
 	tmpl->stringID.clear(); // TODO?
-	tmpl->readJson(config, LIBRARY->modh->getIdentifierResolver());
+	tmpl->readJson(config, context.resolver);
 	templates.push_back(tmpl);
 }
 

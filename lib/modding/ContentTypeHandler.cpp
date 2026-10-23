@@ -45,10 +45,10 @@
 #include "../scripting/ScriptHandler.h"
 #include "../GameLibrary.h"
 
-ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & entityName):
+ContentTypeHandler::ContentTypeHandler(LibraryLoadContext & context, IHandlerBase * handler, const std::string & entityName):
 	handler(handler),
 	entityName(entityName),
-	originalData(handler->loadLegacyData())
+	originalData(handler->loadLegacyData(context))
 {
 	for(auto & node : originalData)
 	{
@@ -84,7 +84,7 @@ void ContentTypeHandler::preloadModData(const std::string & modName, JsonNode & 
 	}
 }
 
-bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
+bool ContentTypeHandler::loadMod(LibraryLoadContext & context, const std::string & modName, bool validate)
 {
 	ModInfo & modInfo = modData[modName];
 	bool result = true;
@@ -146,25 +146,25 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 				logMod->trace("no original data in loadMod(%s) at index %d", name, index);
 			}
 			performValidate(data, name);
-			handler->loadObject(modName, name, data, index);
+			handler->loadObject(context, modName, name, data, index);
 		}
 		else
 		{
 			// normal new object
 			logMod->trace("no index in loadMod(%s)", name);
 			performValidate(data, name);
-			handler->loadObject(modName, name, data);
+			handler->loadObject(context, modName, name, data);
 		}
 	}
 	return result;
 }
 
-void ContentTypeHandler::loadCustom()
+void ContentTypeHandler::loadCustom(LibraryLoadContext & context)
 {
-	handler->loadCustom();
+	handler->loadCustom(context);
 }
 
-void ContentTypeHandler::afterLoadFinalization()
+void ContentTypeHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	if (settings["mods"]["validation"].String() != "off")
 	{
@@ -244,32 +244,32 @@ void ContentTypeHandler::afterLoadFinalization()
 		}
 	}
 
-	handler->afterLoadFinalization();
+	handler->afterLoadFinalization(context);
 }
 
-void CContentHandler::init()
+void CContentHandler::init(LibraryLoadContext & context)
 {
-	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(LIBRARY->heroclassesh.get(), "heroClass")));
-	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(LIBRARY->arth.get(), "artifact")));
-	handlers.insert(std::make_pair("bonuses", ContentTypeHandler(LIBRARY->bth.get(), "bonus")));
-	handlers.insert(std::make_pair("creatures", ContentTypeHandler(LIBRARY->creh.get(), "creature")));
-	handlers.insert(std::make_pair("campaignRegions", ContentTypeHandler(LIBRARY->campaignRegions.get(), "campaignRegion")));
-	handlers.insert(std::make_pair("factions", ContentTypeHandler(LIBRARY->townh.get(), "faction")));
-	handlers.insert(std::make_pair("objects", ContentTypeHandler(LIBRARY->objtypeh.get(), "object")));
-	handlers.insert(std::make_pair("heroes", ContentTypeHandler(LIBRARY->heroh.get(), "hero")));
-	handlers.insert(std::make_pair("spells", ContentTypeHandler(LIBRARY->spellh.get(), "spell")));
-	handlers.insert(std::make_pair("scripts", ContentTypeHandler(LIBRARY->scriptTypeHandler.get(), "script")));
-	handlers.insert(std::make_pair("spellSchools", ContentTypeHandler(LIBRARY->spellSchoolHandler.get(), "spellSchool")));
-	handlers.insert(std::make_pair("skills", ContentTypeHandler(LIBRARY->skillh.get(), "skill")));
-	handlers.insert(std::make_pair("templates", ContentTypeHandler(LIBRARY->tplh.get(), "template")));
-	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(LIBRARY->battlefieldsHandler.get(), "battlefield")));
-	handlers.insert(std::make_pair("terrains", ContentTypeHandler(LIBRARY->terrainTypeHandler.get(), "terrain")));
-	handlers.insert(std::make_pair("rivers", ContentTypeHandler(LIBRARY->riverTypeHandler.get(), "river")));
-	handlers.insert(std::make_pair("roads", ContentTypeHandler(LIBRARY->roadTypeHandler.get(), "road")));
-	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(LIBRARY->obstacleHandler.get(), "obstacle")));
-	handlers.insert(std::make_pair("biomes", ContentTypeHandler(LIBRARY->biomeHandler.get(), "biome")));
-	handlers.insert(std::make_pair("resources", ContentTypeHandler(LIBRARY->resourceTypeHandler.get(), "resources")));
-	handlers.insert(std::make_pair("mapLayers", ContentTypeHandler(LIBRARY->mapLayerHandler.get(), "mapLayer")));
+	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(context, LIBRARY->heroclassesh.get(), "heroClass")));
+	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(context, LIBRARY->arth.get(), "artifact")));
+	handlers.insert(std::make_pair("bonuses", ContentTypeHandler(context, LIBRARY->bth.get(), "bonus")));
+	handlers.insert(std::make_pair("creatures", ContentTypeHandler(context, LIBRARY->creh.get(), "creature")));
+	handlers.insert(std::make_pair("campaignRegions", ContentTypeHandler(context, LIBRARY->campaignRegions.get(), "campaignRegion")));
+	handlers.insert(std::make_pair("factions", ContentTypeHandler(context, LIBRARY->townh.get(), "faction")));
+	handlers.insert(std::make_pair("objects", ContentTypeHandler(context, LIBRARY->objtypeh.get(), "object")));
+	handlers.insert(std::make_pair("heroes", ContentTypeHandler(context, LIBRARY->heroh.get(), "hero")));
+	handlers.insert(std::make_pair("spells", ContentTypeHandler(context, LIBRARY->spellh.get(), "spell")));
+	handlers.insert(std::make_pair("scripts", ContentTypeHandler(context, LIBRARY->scriptTypeHandler.get(), "script")));
+	handlers.insert(std::make_pair("spellSchools", ContentTypeHandler(context, LIBRARY->spellSchoolHandler.get(), "spellSchool")));
+	handlers.insert(std::make_pair("skills", ContentTypeHandler(context, LIBRARY->skillh.get(), "skill")));
+	handlers.insert(std::make_pair("templates", ContentTypeHandler(context, LIBRARY->tplh.get(), "template")));
+	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(context, LIBRARY->battlefieldsHandler.get(), "battlefield")));
+	handlers.insert(std::make_pair("terrains", ContentTypeHandler(context, LIBRARY->terrainTypeHandler.get(), "terrain")));
+	handlers.insert(std::make_pair("rivers", ContentTypeHandler(context, LIBRARY->riverTypeHandler.get(), "river")));
+	handlers.insert(std::make_pair("roads", ContentTypeHandler(context, LIBRARY->roadTypeHandler.get(), "road")));
+	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(context, LIBRARY->obstacleHandler.get(), "obstacle")));
+	handlers.insert(std::make_pair("biomes", ContentTypeHandler(context, LIBRARY->biomeHandler.get(), "biome")));
+	handlers.insert(std::make_pair("resources", ContentTypeHandler(context, LIBRARY->resourceTypeHandler.get(), "resources")));
+	handlers.insert(std::make_pair("mapLayers", ContentTypeHandler(context, LIBRARY->mapLayerHandler.get(), "mapLayer")));
 }
 
 std::vector<std::string> CContentHandler::getContentTypeNames() const
@@ -297,29 +297,29 @@ bool CContentHandler::preloadData(const ModDescription & mod, JsonNode & modCont
 	return result;
 }
 
-bool CContentHandler::load(const ModDescription & mod, bool validate)
+bool CContentHandler::load(LibraryLoadContext & context, const ModDescription & mod, bool validate)
 {
 	bool result = true;
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.loadMod(mod.getID(), validate);
+		result &= handler.second.loadMod(context, mod.getID(), validate);
 	}
 	return result;
 }
 
-void CContentHandler::loadCustom()
+void CContentHandler::loadCustom(LibraryLoadContext & context)
 {
 	for(auto & handler : handlers)
 	{
-		handler.second.loadCustom();
+		handler.second.loadCustom(context);
 	}
 }
 
-void CContentHandler::afterLoadFinalization()
+void CContentHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for(auto & handler : handlers)
 	{
-		handler.second.afterLoadFinalization();
+		handler.second.afterLoadFinalization(context);
 	}
 }
 

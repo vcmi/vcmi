@@ -14,7 +14,7 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../texts/CGeneralTextHandler.h"
 
-void HillFortInstanceConstructor::initTypeData(const JsonNode & config)
+void HillFortInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & config)
 {
 	parameters = config;
 	if(!parameters["unavailableUpgradeMessage"].isNull())

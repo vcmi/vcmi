@@ -90,13 +90,13 @@ class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, Skill, CSki
 {
 public:
 	///IHandler base
-	std::vector<JsonNode> loadLegacyData() override;
-	void afterLoadFinalization() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 	void beforeValidate(JsonNode & object) override;
 
 	std::set<SecondarySkill> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	std::shared_ptr<CSkill> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CSkill> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
 };

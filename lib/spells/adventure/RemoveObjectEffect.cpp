@@ -17,10 +17,9 @@
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapping/CMap.h"
 #include "../../networkPacks/PacksForClient.h"
-#include "../../modding/CModHandler.h"
-#include "../../modding/IdentifierResolver.h"
+#include "../../modding/LibraryLoadContext.h"
 
-RemoveObjectEffect::RemoveObjectEffect(const CSpell * s, const JsonNode & config)
+RemoveObjectEffect::RemoveObjectEffect(LibraryLoadContext & context, const CSpell * s, const JsonNode & config)
 	: AdventureSpellRangedEffect(config)
 	, owner(s)
 	, failMessage(MetaString::createFromTextID("core.genrltxt.337")) //%s tried to scuttle the boat, but failed
@@ -30,7 +29,7 @@ RemoveObjectEffect::RemoveObjectEffect(const CSpell * s, const JsonNode & config
 	{
 		if(objectNode.second.Bool())
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier(objectNode.second.getModScope(), "object", objectNode.first, [this](si32 index)
+			context.resolver.requestIdentifier(objectNode.second.getModScope(), "object", objectNode.first, [this](si32 index)
 			{
 				removedObjects.push_back(MapObjectID(index));
 			});

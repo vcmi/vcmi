@@ -107,10 +107,10 @@ public:
 	ObstacleSetHandler() = default;
 	~ObstacleSetHandler() = default;
 
-	std::vector<JsonNode> loadLegacyData() override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
-	std::shared_ptr<ObstacleSet> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
+	std::shared_ptr<ObstacleSet> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
 
 	ObstacleSet::EObstacleType convertObstacleClass(MapObjectID id);
 
@@ -119,7 +119,7 @@ public:
 
 	void addObstacleSet(std::shared_ptr<ObstacleSet> set);
 
-	void afterLoadFinalization() override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 	
 	TObstacleTypes getObstacles(const ObstacleSetFilter &filter) const;
 

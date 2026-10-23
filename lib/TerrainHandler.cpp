@@ -12,13 +12,12 @@
 #include "TerrainHandler.h"
 #include "IGameSettings.h"
 #include "json/JsonNode.h"
-#include "modding/CModHandler.h"
-#include "modding/IdentifierResolver.h"
+#include "modding/LibraryLoadContext.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
 #include "GameLibrary.h"
 
-std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 
@@ -89,7 +88,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 	}
 	for(const auto& node : json["allowedLayers"].Vector())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("mapLayer", node, [info](int32_t identifier)
+		context.resolver.requestIdentifier("mapLayer", node, [info](int32_t identifier)
 		{
 			info->allowedLayers.push_back(MapLayerId(identifier));
 		});
@@ -98,7 +97,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 	info->river = River::NO_RIVER;
 	if(!json["river"].isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("river", json["river"], [info](int32_t identifier)
+		context.resolver.requestIdentifier("river", json["river"], [info](int32_t identifier)
 		{
 			info->river = RiverId(identifier);
 		});
@@ -118,7 +117,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	for(const auto & t : json["battleFields"].Vector())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("battlefield", t, [info](int32_t identifier)
+		context.resolver.requestIdentifier("battlefield", t, [info](int32_t identifier)
 		{
 			info->battleFields.emplace_back(identifier);
 		});
@@ -126,7 +125,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	for(const auto & t : json["prohibitTransitions"].Vector())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("terrain", t, [info](int32_t identifier)
+		context.resolver.requestIdentifier("terrain", t, [info](int32_t identifier)
 		{
 			info->prohibitTransitions.emplace_back(identifier);
 		});
@@ -136,7 +135,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	if(!json["rockTerrain"].isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
+		context.resolver.requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
 		{
 			info->rockTerrain = TerrainId(identifier);
 		});
@@ -151,7 +150,7 @@ const std::vector<std::string> & TerrainTypeHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
+std::vector<JsonNode> TerrainTypeHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_TERRAIN);
 

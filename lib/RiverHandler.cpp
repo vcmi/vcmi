@@ -22,8 +22,7 @@ RiverTypeHandler::RiverTypeHandler()
 	LIBRARY->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
-std::shared_ptr<RiverType> RiverTypeHandler::loadFromJson(
-	const std::string & scope,
+std::shared_ptr<RiverType> RiverTypeHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope,
 	const JsonNode & json,
 	const std::string & identifier,
 	size_t index)
@@ -59,7 +58,7 @@ const std::vector<std::string> & RiverTypeHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
+std::vector<JsonNode> RiverTypeHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_RIVER);
 

@@ -17,11 +17,10 @@
 #include "../../callback/IGameInfoCallback.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapping/CMap.h"
-#include "../../modding/CModHandler.h"
-#include "../../modding/IdentifierResolver.h"
+#include "../../modding/LibraryLoadContext.h"
 #include "../../networkPacks/PacksForClient.h"
 
-ViewWorldEffect::ViewWorldEffect(const CSpell * s, const JsonNode & config)
+ViewWorldEffect::ViewWorldEffect(LibraryLoadContext & context, const CSpell * s, const JsonNode & config)
 {
 	showTerrain = config["showTerrain"].Bool();
 
@@ -29,7 +28,7 @@ ViewWorldEffect::ViewWorldEffect(const CSpell * s, const JsonNode & config)
 	{
 		if(objectNode.second.Bool())
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier(objectNode.second.getModScope(), "object", objectNode.first, [this](si32 index)
+			context.resolver.requestIdentifier(objectNode.second.getModScope(), "object", objectNode.first, [this](si32 index)
 			{
 				filteredObjects.push_back(MapObjectID(index));
 			});

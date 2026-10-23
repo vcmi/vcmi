@@ -24,8 +24,7 @@
 #include "../../constants/StringConstants.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../modding/CModHandler.h"
-#include "../../modding/IdentifierResolver.h"
+#include "../../modding/LibraryLoadContext.h"
 #include "../../modding/IdentifierStorage.h"
 #include "../../modding/ModScope.h"
 #include "../../spells/CSpellHandler.h"
@@ -67,7 +66,7 @@ const TPropagatorPtr & CTownHandler::emptyPropagator()
 	return emptyProp;
 }
 
-std::vector<JsonNode> CTownHandler::loadLegacyData()
+std::vector<JsonNode> CTownHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_FACTION);
 
@@ -235,13 +234,13 @@ void CTownHandler::loadBuildingRequirements(CBuilding * building, const JsonNode
 	bidsToLoad.push_back(hlp);
 }
 
-void CTownHandler::loadBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building) const
+void CTownHandler::loadBuildingBonuses(LibraryLoadContext & context, const JsonNode & source, BonusList & bonusList, CBuilding * building) const
 {
 	for(size_t i = 0; i < source.Vector().size(); ++i)
 	{
 		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, BonusSourceID(building->getUniqueTypeID()));
 
-		if(!JsonUtils::parseBonus(source.Vector()[i], bonus.get(), LIBRARY->modh->getIdentifierResolver(), TextIdentifier(building->getBaseTextID(), "bonus", i)))
+		if(!JsonUtils::parseBonus(source.Vector()[i], bonus.get(), context.resolver, TextIdentifier(building->getBaseTextID(), "bonus", i)))
 			continue;
 
 		if (bonus->description.empty() && (bonus->type == BonusType::MORALE || bonus->type == BonusType::LUCK))
@@ -257,7 +256,7 @@ void CTownHandler::loadBuildingBonuses(const JsonNode & source, BonusList & bonu
 	}
 }
 
-void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source)
+void CTownHandler::loadBuilding(LibraryLoadContext & context, CTown * town, const std::string & stringID, const JsonNode & source)
 {
 	assert(stringID.find(':') == std::string::npos);
 	assert(!source.getModScope().empty());
@@ -281,7 +280,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	LIBRARY->generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"]);
 
 	ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
-	ret->resources.resolveFromJson(source["cost"], LIBRARY->modh->getIdentifierResolver());
+	ret->resources.resolveFromJson(source["cost"], context.resolver);
 
 	//MODS COMPATIBILITY FOR pre-1.6
 	bool produceEmpty = true;
@@ -289,7 +288,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		if(res.second.Integer() != 0)
 			produceEmpty = false;
 	if(!produceEmpty)
-		ret->produce.resolveFromJson(source["produce"], LIBRARY->modh->getIdentifierResolver()); // non legacy
+		ret->produce.resolveFromJson(source["produce"], context.resolver); // non legacy
 	else if(ret->bid == BuildingID::RESOURCE_SILO)
 	{
 		logGlobal->warn("Resource silo in town '%s' does not produce any resources!", ret->town->faction->getJsonKey());
@@ -314,17 +313,17 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	const JsonNode & fortifications = source["fortifications"];
 	if (!fortifications.isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull("creature", fortifications["citadelShooter"], [=](si32 identifier)
+		context.resolver.requestIdentifierIfNotNull("creature", fortifications["citadelShooter"], [=](si32 identifier)
 		{
 			ret->fortifications.citadelShooter = CreatureID(identifier);
 		});
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull("creature", fortifications["upperTowerShooter"], [=](si32 identifier)
+		context.resolver.requestIdentifierIfNotNull("creature", fortifications["upperTowerShooter"], [=](si32 identifier)
 		{
 			ret->fortifications.upperTowerShooter = CreatureID(identifier);
 		});
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull("creature", fortifications["lowerTowerShooter"], [=](si32 identifier)
+		context.resolver.requestIdentifierIfNotNull("creature", fortifications["lowerTowerShooter"], [=](si32 identifier)
 		{
 			ret->fortifications.lowerTowerShooter = CreatureID(identifier);
 		});
@@ -336,11 +335,11 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		ret->fortifications.hasMoat = fortifications["hasMoat"].Bool();
 	}
 
-	loadBuildingBonuses(source["bonuses"], ret->buildingBonuses, ret);
+	loadBuildingBonuses(context, source["bonuses"], ret->buildingBonuses, ret);
 
 	if(!source["mapObjectLikeBonuses"].isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull("object", source["mapObjectLikeBonuses"], [ret](si32 identifier)
+		context.resolver.requestIdentifierIfNotNull("object", source["mapObjectLikeBonuses"], [ret](si32 identifier)
 		{
 			ret->mapObjectLikeBonuses = MapObjectID(identifier);
 		});
@@ -353,7 +352,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 
 	if (!source["warMachine"].isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("artifact", source["warMachine"], [=](si32 identifier)
+		context.resolver.requestIdentifier("artifact", source["warMachine"], [=](si32 identifier)
 		{
 			ret->warMachine = ArtifactID(identifier);
 		});
@@ -371,7 +370,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		}
 		else
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier(ret->town->getBuildingScope(), source["upgrades"], [=](si32 identifier)
+			context.resolver.requestIdentifier(ret->town->getBuildingScope(), source["upgrades"], [=](si32 identifier)
 			{
 				ret->upgrade = BuildingID(identifier);
 			});
@@ -397,7 +396,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 				ret->marketOffer.resize(items.size());
 				for (int i = 0; i < items.size(); ++i)
 				{
-					LIBRARY->modh->getIdentifierResolver().requestIdentifier("secondarySkill", items[i], [ret, i](si32 identifier)
+					context.resolver.requestIdentifier("secondarySkill", items[i], [ret, i](si32 identifier)
 					{
 						ret->marketOffer[i] = SecondarySkill(identifier);
 					});
@@ -409,37 +408,37 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	registerObject(source.getModScope(), ret->town->getBuildingScope(), ret->identifier, source, ret->bid.getNum());
 }
 
-void CTownHandler::loadBuildings(CTown * town, const JsonNode & source)
+void CTownHandler::loadBuildings(LibraryLoadContext & context, CTown * town, const JsonNode & source)
 {
 	for(const auto & node : source.Struct())
 	{
 		if (!node.second.isNull())
-			loadBuilding(town, node.first, node.second);
+			loadBuilding(context, town, node.first, node.second);
 	}
 }
 
-void CTownHandler::loadStructure(CTown &town, const std::string & stringID, const JsonNode & source) const
+void CTownHandler::loadStructure(LibraryLoadContext & context, CTown &town, const std::string & stringID, const JsonNode & source) const
 {
 	auto * ret = new CStructure();
 
 	ret->building = nullptr;
 	ret->buildable = nullptr;
 
-	LIBRARY->modh->getIdentifierResolver().tryRequestIdentifier( source.getModScope(), "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
+	context.resolver.tryRequestIdentifier( source.getModScope(), "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
 	{
 		ret->building = town.buildings[BuildingID(identifier)].get();
 	});
 
 	if (source["builds"].isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().tryRequestIdentifier( source.getModScope(), "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
+		context.resolver.tryRequestIdentifier( source.getModScope(), "building." + town.faction->getJsonKey(), stringID, [=, &town](si32 identifier) mutable
 		{
 			ret->building = town.buildings[BuildingID(identifier)].get();
 		});
 	}
 	else
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("building." + town.faction->getJsonKey(), source["builds"], [=, &town](si32 identifier) mutable
+		context.resolver.requestIdentifier("building." + town.faction->getJsonKey(), source["builds"], [=, &town](si32 identifier) mutable
 		{
 			ret->buildable = town.buildings[BuildingID(identifier)].get();
 		});
@@ -459,16 +458,16 @@ void CTownHandler::loadStructure(CTown &town, const std::string & stringID, cons
 	town.clientInfo.structures.emplace_back(ret);
 }
 
-void CTownHandler::loadStructures(CTown &town, const JsonNode & source) const
+void CTownHandler::loadStructures(LibraryLoadContext & context, CTown &town, const JsonNode & source) const
 {
 	for(const auto & node : source.Struct())
 	{
 		if (!node.second.isNull())
-			loadStructure(town, node.first, node.second);
+			loadStructure(context, town, node.first, node.second);
 	}
 }
 
-void CTownHandler::loadTownHall(CTown &town, const JsonNode & source) const
+void CTownHandler::loadTownHall(LibraryLoadContext & context, CTown &town, const JsonNode & source) const
 {
 	auto & dstSlots = town.clientInfo.hallSlots;
 	const auto & srcSlots = source.Vector();
@@ -491,7 +490,7 @@ void CTownHandler::loadTownHall(CTown &town, const JsonNode & source) const
 				auto & dst = dstBox[k];
 				const auto & src = srcBox[k];
 
-				LIBRARY->modh->getIdentifierResolver().requestIdentifier("building." + town.faction->getJsonKey(), src, [&](si32 identifier)
+				context.resolver.requestIdentifier("building." + town.faction->getJsonKey(), src, [&](si32 identifier)
 				{
 					dst = BuildingID(identifier);
 				});
@@ -511,7 +510,7 @@ Point JsonToPoint(const JsonNode & node)
 	return ret;
 }
 
-void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source) const
+void CTownHandler::loadSiegeScreen(LibraryLoadContext & context, CTown &town, const JsonNode & source) const
 {
 	if(source["imagePrefix"].isString())
 		town.clientInfo.siegePrefix = {
@@ -525,7 +524,7 @@ void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source) const
 		for(auto & layer : layers)
 		{
 			auto text = layer.second.String();
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier(layer.second.getModScope(), "mapLayer", layer.first, [&town, text](int32_t idx)
+			context.resolver.requestIdentifier(layer.second.getModScope(), "mapLayer", layer.first, [&town, text](int32_t idx)
 			{
 				town.clientInfo.siegePrefix[MapLayerId(idx)] = text;
 			});
@@ -534,7 +533,7 @@ void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source) const
 	town.clientInfo.towerIconSmall = source["towerIconSmall"].String();
 	town.clientInfo.towerIconLarge = source["towerIconLarge"].String();
 
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", source["shooter"], [&town](si32 creature)
+	context.resolver.requestIdentifier("creature", source["shooter"], [&town](si32 creature)
 	{
 		auto crId = CreatureID(creature);
 		if((*LIBRARY->creh)[crId]->animation.missileFrameAngles.empty())
@@ -587,7 +586,7 @@ static void readIcon(JsonNode source, std::string & small, std::string & large)
 	}
 }
 
-void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
+void CTownHandler::loadClientData(LibraryLoadContext & context, CTown &town, const JsonNode & source) const
 {
 	CTown::ClientInfo & info = town.clientInfo;
 
@@ -625,19 +624,19 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source) const
 	loadStringOrVector(info.guildBackground, source["guildBackground"], ImagePath::fromJson);
 	loadStringOrVector(info.guildWindow, source["guildWindow"], ImagePath::fromJson);
 
-	loadTownHall(town,   source["hallSlots"]);
-	loadStructures(town, source["structures"]);
-	loadSiegeScreen(town, source["siege"]);
+	loadTownHall(context, town,   source["hallSlots"]);
+	loadStructures(context, town, source["structures"]);
+	loadSiegeScreen(context, town, source["siege"]);
 }
 
-void CTownHandler::loadTown(CTown * town, const JsonNode & source)
+void CTownHandler::loadTown(LibraryLoadContext & context, CTown * town, const JsonNode & source)
 {
 	int primaryResIndex = vstd::find_pos(GameConstants::RESOURCE_NAMES, source["primaryResource"].String());
 	town->primaryRes = primaryResIndex < 0 ? GameResID(EGameResID::WOOD_AND_ORE) : GameResID(primaryResIndex);
 
 	if (!source["warMachine"].isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier( "creature", source["warMachine"], [=](si32 creatureID)
+		context.resolver.requestIdentifier( "creature", source["warMachine"], [=](si32 creatureID)
 		{
 			town->warMachineDeprecated = creatureID;
 		});
@@ -654,14 +653,14 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 
 	if (!source["moatAbility"].isNull()) // VCMI 1.2 compatibility code
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier( "spell", source["moatAbility"], [=](si32 ability)
+		context.resolver.requestIdentifier( "spell", source["moatAbility"], [=](si32 ability)
 		{
 			town->fortifications.moatSpell = SpellID(ability);
 		});
 	}
 	else
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier( source.getModScope(), "spell", "castleMoat", [=](si32 ability)
+		context.resolver.requestIdentifier( source.getModScope(), "spell", "castleMoat", [=](si32 ability)
 		{
 			town->fortifications.moatSpell = SpellID(ability);
 		});
@@ -688,7 +687,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 
 		for (size_t j=0; j<level.size(); j++)
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", level[j], [=](si32 creature)
+			context.resolver.requestIdentifier("creature", level[j], [=](si32 creature)
 			{
 				town->creatures[i][j] = CreatureID(creature);
 			});
@@ -701,7 +700,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(node.second.getModScope(), "heroClass", node.first, [=](si32 classID)
+		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "heroClass", node.first, [=](si32 classID)
 		{
 			LIBRARY->heroclassesh->objects[classID]->selectionProbability[town->faction->getId()] = chance;
 		});
@@ -711,7 +710,7 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(node.second.getModScope(), "spell", node.first, [=](si32 spellID)
+		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "spell", node.first, [=](si32 spellID)
 		{
 			LIBRARY->spellh->objects.at(spellID)->probabilities[town->faction->getId()] = chance;
 		});
@@ -723,11 +722,11 @@ void CTownHandler::loadTown(CTown * town, const JsonNode & source)
 		town->dwellingNames.push_back(d["name"].String());
 	}
 
-	loadBuildings(town, source["buildings"]);
-	loadClientData(*town, source);
+	loadBuildings(context, town, source["buildings"]);
+	loadClientData(context, *town, source);
 }
 
-void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source) const
+void CTownHandler::loadPuzzle(LibraryLoadContext & context, CFaction &faction, const JsonNode &source) const
 {
 	faction.puzzleMap.reserve(GameConstants::PUZZLE_MAP_PIECES);
 
@@ -761,7 +760,7 @@ static std::vector<JsonNode> getNativeTerrainEntries(const JsonNode & nativeTerr
 	return {nativeTerrainConfig};
 }
 
-static void loadNativeTerrains(const JsonNode & nativeTerrainConfig, const std::shared_ptr<CFaction> & faction)
+static void loadNativeTerrains(LibraryLoadContext & context, const JsonNode & nativeTerrainConfig, const std::shared_ptr<CFaction> & faction)
 {
 	faction->nativeTerrains.clear();
 
@@ -774,7 +773,7 @@ static void loadNativeTerrains(const JsonNode & nativeTerrainConfig, const std::
 		if (terrainIdentifier.String() == "none")
 			continue;
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("terrain", terrainIdentifier, [=](int32_t index)
+		context.resolver.requestIdentifier("terrain", terrainIdentifier, [=](int32_t index)
 		{
 			auto terrainId = TerrainId(index);
 			faction->nativeTerrains.push_back(terrainId);
@@ -782,7 +781,7 @@ static void loadNativeTerrains(const JsonNode & nativeTerrainConfig, const std::
 	}
 }
 
-std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, const JsonNode & source, const std::string & identifier, size_t index)
+std::shared_ptr<CFaction> CTownHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & source, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 
@@ -801,7 +800,7 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, 
 	faction->boatType = BoatId::CASTLE; //Do not crash
 	if (!source["boat"].isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("core:boat", source["boat"], [=](int32_t boatTypeID)
+		context.resolver.requestIdentifier("core:boat", source["boat"], [=](int32_t boatTypeID)
 		{
 			faction->boatType = BoatId(boatTypeID);
 		});
@@ -819,26 +818,26 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(const std::string & scope, 
 
 	// NOTE: normally, towns are expected to have native terrains.
 	// "none" results in an empty nativeTerrains vector.
-	loadNativeTerrains(source["nativeTerrain"], faction);
+	loadNativeTerrains(context, source["nativeTerrain"], faction);
 
 	if (!source["town"].isNull())
 	{
 		faction->town = std::make_unique<CTown>();
 		faction->town->faction = faction.get();
-		loadTown(faction->town.get(), source["town"]);
+		loadTown(context, faction->town.get(), source["town"]);
 	}
 	else
 		faction->town = nullptr;
 
 	if (!source["puzzleMap"].isNull())
-		loadPuzzle(*faction, source["puzzleMap"]);
+		loadPuzzle(context, *faction, source["puzzleMap"]);
 
 	return faction;
 }
 
-void CTownHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
+void CTownHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, name, objects.size());
+	auto object = loadFromJson(context, scope, data, name, objects.size());
 
 	objects.emplace_back(object);
 
@@ -850,7 +849,7 @@ void CTownHandler::loadObject(const std::string & scope, const std::string & nam
 		info.icons[1][0] = 8 + object->index.getNum() * 4 + 2;
 		info.icons[1][1] = 8 + object->index.getNum() * 4 + 3;
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "object", "town", [=](si32 index)
+		context.resolver.requestIdentifier(scope, "object", "town", [=, &context](si32 index)
 		{
 			// register town once objects are loaded
 			JsonNode config = data["town"]["mapObject"];
@@ -858,7 +857,7 @@ void CTownHandler::loadObject(const std::string & scope, const std::string & nam
 			config["faction"].setModScope(scope, false);
 			if (config.getModScope().empty())// MODS COMPATIBILITY FOR 0.96
 				config.setModScope(scope, false);
-			LIBRARY->objtypeh->loadSubObject(object->identifier, config, index, object->index);
+			LIBRARY->objtypeh->loadSubObject(context, object->identifier, config, index, object->index);
 
 			// MODS COMPATIBILITY FOR 0.96
 			const auto & advMap = data["town"]["adventureMap"];
@@ -867,7 +866,7 @@ void CTownHandler::loadObject(const std::string & scope, const std::string & nam
 				logMod->warn("Outdated town mod. Will try to generate valid templates out of fort");
 				JsonNode config;
 				config["animation"] = advMap["castle"];
-				LIBRARY->objtypeh->getHandlerFor(index, object->index)->addTemplate(config);
+				LIBRARY->objtypeh->getHandlerFor(index, object->index)->addTemplate(context, config);
 			}
 		});
 	}
@@ -875,9 +874,9 @@ void CTownHandler::loadObject(const std::string & scope, const std::string & nam
 	registerObject(scope, "faction", name, data, object->index.getNum());
 }
 
-void CTownHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
+void CTownHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, name, index);
+	auto object = loadFromJson(context, scope, data, name, index);
 
 	if (objects.size() > index)
 		assert(objects[index] == nullptr); // ensure that this id was not loaded before
@@ -893,29 +892,29 @@ void CTownHandler::loadObject(const std::string & scope, const std::string & nam
 		info.icons[1][0] = object->index.getNum() * 2 + 0;
 		info.icons[1][1] = object->index.getNum() * 2 + 1;
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "object", "town", [=](si32 index)
+		context.resolver.requestIdentifier(scope, "object", "town", [=, &context](si32 index)
 		{
 			// register town once objects are loaded
 			JsonNode config = data["town"]["mapObject"];
 			config["faction"].String() = name;
 			config["faction"].setModScope(scope, false);
-			LIBRARY->objtypeh->loadSubObject(object->identifier, config, index, object->index);
+			LIBRARY->objtypeh->loadSubObject(context, object->identifier, config, index, object->index);
 		});
 	}
 
 	registerObject(scope, "faction", name, data, object->index.getNum());
 }
 
-void CTownHandler::loadRandomFaction()
+void CTownHandler::loadRandomFaction(LibraryLoadContext & context)
 {
 	JsonNode randomFactionJson(JsonPath::builtin("config/factions/random.json"));
 	randomFactionJson.setModScope(ModScope::scopeBuiltin(), true);
-	loadBuildings(randomFaction->town.get(), randomFactionJson["random"]["town"]["buildings"]);
+	loadBuildings(context, randomFaction->town.get(), randomFactionJson["random"]["town"]["buildings"]);
 }
 
-void CTownHandler::loadCustom()
+void CTownHandler::loadCustom(LibraryLoadContext & context)
 {
-	loadRandomFaction();
+	loadRandomFaction(context);
 }
 
 void CTownHandler::beforeValidate(JsonNode & object)
@@ -964,7 +963,7 @@ void CTownHandler::beforeValidate(JsonNode & object)
 	}
 }
 
-void CTownHandler::afterLoadFinalization()
+void CTownHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	initializeRequirements();
 }

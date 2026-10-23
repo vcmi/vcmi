@@ -23,8 +23,7 @@
 #include "GameConstants.h"
 #include "GameLibrary.h"
 #include "modding/ModScope.h"
-#include "modding/CModHandler.h"
-#include "modding/IdentifierResolver.h"
+#include "modding/LibraryLoadContext.h"
 #include "texts/CGeneralTextHandler.h"
 #include "json/JsonUtils.h"
 #include "spells/CSpellHandler.h"
@@ -181,19 +180,19 @@ ImagePath CBonusTypeHandler::bonusToGraphics(const std::shared_ptr<Bonus> & bonu
 	return bt.icon;
 }
 
-std::vector<JsonNode> CBonusTypeHandler::loadLegacyData()
+std::vector<JsonNode> CBonusTypeHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	return {};
 }
 
-void CBonusTypeHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
+void CBonusTypeHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	if (vstd::contains(builtinBonusNames, name))
 	{
 		//h3 bonus
 		BonusType bonus = static_cast<BonusType>(vstd::find_pos(builtinBonusNames, name));
 		CBonusType & bt =*bonusTypes.at(vstd::to_underlying(bonus));
-		loadItem(data, bt, name);
+		loadItem(context, data, bt, name);
 		logBonus->trace("Loaded bonus type %s", name);
 	}
 	else
@@ -201,17 +200,17 @@ void CBonusTypeHandler::loadObject(const std::string & scope, const std::string 
 		// new bonus
 		registerObject(scope, "bonus", name, data, bonusTypes.size());
 		bonusTypes.push_back(std::make_shared<CBonusType>());
-		loadItem(data, *bonusTypes.back(), name);
+		loadItem(context, data, *bonusTypes.back(), name);
 		logBonus->trace("New bonus type %s", name);
 	}
 }
 
-void CBonusTypeHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
+void CBonusTypeHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	assert(0);
 }
 
-void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const
+void CBonusTypeHandler::loadItem(LibraryLoadContext & context, const JsonNode & source, CBonusType & dest, const std::string & name) const
 {
 	dest.identifier = name;
 	dest.hidden = source["hidden"].Bool(); //Null -> false
@@ -229,7 +228,7 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 	for (const auto & additionalIcon : graphics["subtypeIcons"].Struct())
 	{
 		auto path = ImagePath::fromJson(additionalIcon.second);
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier(additionalIcon.second.getModScope(), additionalIcon.first, [&dest, path](int32_t index)
+		context.resolver.requestIdentifier(additionalIcon.second.getModScope(), additionalIcon.first, [&dest, path](int32_t index)
 		{
 			dest.subtypeIcons[index] = path;
 		});
@@ -246,7 +245,7 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 	{
 		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID() + "." + additionalDescription.first, additionalDescription.second);
 		auto stringID = additionalDescription.first;
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier(additionalDescription.second.getModScope(), additionalDescription.first, [&dest, stringID](int32_t index)
+		context.resolver.requestIdentifier(additionalDescription.second.getModScope(), additionalDescription.first, [&dest, stringID](int32_t index)
 		{
 			dest.subtypeDescriptions[index] = stringID;
 		});

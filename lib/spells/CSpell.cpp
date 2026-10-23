@@ -469,10 +469,10 @@ JsonNode CSpell::convertTargetCondition(const BTVector & immunity, const BTVecto
 	return res;
 }
 
-void CSpell::setupMechanics()
+void CSpell::setupMechanics(LibraryLoadContext & context)
 {
-	mechanics = spells::ISpellMechanicsFactory::get(this);
-	adventureMechanics = IAdventureSpellMechanics::createMechanics(this);
+	mechanics = spells::ISpellMechanicsFactory::get(context, this);
+	adventureMechanics = IAdventureSpellMechanics::createMechanics(context, this);
 }
 
 const IAdventureSpellMechanics & CSpell::getAdventureMechanics() const

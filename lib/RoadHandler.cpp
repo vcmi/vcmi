@@ -22,8 +22,7 @@ RoadTypeHandler::RoadTypeHandler()
 	LIBRARY->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
-std::shared_ptr<RoadType> RoadTypeHandler::loadFromJson(
-	const std::string & scope,
+std::shared_ptr<RoadType> RoadTypeHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope,
 	const JsonNode & json,
 	const std::string & identifier,
 	size_t index)
@@ -50,7 +49,7 @@ const std::vector<std::string> & RoadTypeHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::vector<JsonNode> RoadTypeHandler::loadLegacyData()
+std::vector<JsonNode> RoadTypeHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_ROAD);
 

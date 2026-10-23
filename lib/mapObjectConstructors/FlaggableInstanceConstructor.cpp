@@ -14,17 +14,16 @@
 #include "../GameLibrary.h"
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
-#include "../modding/CModHandler.h"
-#include "../modding/IdentifierResolver.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../texts/CGeneralTextHandler.h"
 
-void FlaggableInstanceConstructor::initTypeData(const JsonNode & config)
+void FlaggableInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & config)
 {
 	if (settings["mods"]["validation"].String() != "off")
 		JsonUtils::validate(config, "vcmi:flaggable", getJsonKey());
 
 	for (const auto & bonusJson : config["bonuses"].Struct())
-		providedBonuses.push_back(JsonUtils::parseBonus(bonusJson.second, LIBRARY->modh->getIdentifierResolver()));
+		providedBonuses.push_back(JsonUtils::parseBonus(bonusJson.second, context.resolver));
 
 	if (!config["message"].isNull())
 	{
@@ -40,7 +39,7 @@ void FlaggableInstanceConstructor::initTypeData(const JsonNode & config)
 		}
 	}
 
-	dailyIncome.resolveFromJson(config["dailyIncome"], LIBRARY->modh->getIdentifierResolver());
+	dailyIncome.resolveFromJson(config["dailyIncome"], context.resolver);
 }
 
 void FlaggableInstanceConstructor::initializeObject(FlaggableMapObject * flaggable) const

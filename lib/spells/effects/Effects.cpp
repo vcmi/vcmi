@@ -17,8 +17,7 @@
 
 #include "../../GameLibrary.h"
 #include "../../json/JsonNode.h"
-#include "../../modding/CModHandler.h"
-#include "../../modding/IdentifierResolver.h"
+#include "../../modding/LibraryLoadContext.h"
 #include "../../modding/IdentifierStorage.h"
 #include "../../scripting/ScriptService.h"
 #include "../../texts/TextIdentifier.h"
@@ -126,7 +125,7 @@ Effects::EffectsToApply Effects::prepare(const Mechanics * m, const Target & aim
 	return effectsToApply;
 }
 
-Effects::EffectsMap Effects::loadJson(const JsonNode & effectMap, const std::string & spellScope, const std::string & spellIdentifier)
+Effects::EffectsMap Effects::loadJson(LibraryLoadContext & context, const JsonNode & effectMap, const std::string & spellScope, const std::string & spellIdentifier)
 {
 	EffectsMap result;
 
@@ -149,7 +148,7 @@ Effects::EffectsMap Effects::loadJson(const JsonNode & effectMap, const std::str
 		}
 
 		JsonNode data = raw;
-		LIBRARY->scriptTypes()->prepareParameters(effectID, data, LIBRARY->modh->getIdentifierResolver(), TextIdentifier("spell", spellScope, spellIdentifier, name));
+		LIBRARY->scriptTypes()->prepareParameters(effectID, data, context.resolver, TextIdentifier("spell", spellScope, spellIdentifier, name));
 
 		auto effect = LIBRARY->scriptTypes()->createSpellEffect(effectID);
 

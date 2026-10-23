@@ -15,12 +15,11 @@
 #include "../constants/StringConstants.h"
 #include "../json/JsonRandom.h"
 #include "../json/JsonUtils.h"
-#include "../modding/CModHandler.h"
-#include "../modding/IdentifierResolver.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
 
-void MarketInstanceConstructor::initTypeData(const JsonNode & input)
+void MarketInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
 	if (settings["mods"]["validation"].String() != "off")
 		JsonUtils::validate(input, "vcmi:market", getJsonKey());
@@ -65,7 +64,7 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 
 	for(const auto & element : input["resources"].Vector())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("resource", element, [this](si32 identifier)
+		context.resolver.requestIdentifier("resource", element, [this](si32 identifier)
 		{
 			tradeableResources.emplace_back(identifier);
 		});

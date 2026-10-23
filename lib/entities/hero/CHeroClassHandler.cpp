@@ -22,8 +22,7 @@
 #include "../../json/JsonNode.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../modding/CModHandler.h"
-#include "../../modding/IdentifierResolver.h"
+#include "../../modding/LibraryLoadContext.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
 
@@ -50,7 +49,7 @@ const std::vector<std::string> & CHeroClassHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
+std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
@@ -96,12 +95,12 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & 
 	for(auto skillPair : node["secondarySkills"].Struct())
 	{
 		int probability = static_cast<int>(skillPair.second.Integer());
-		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(skillPair.second.getModScope(), "skill", skillPair.first, [heroClass, probability](si32 skillID) {
+		context.resolver.requestIdentifierIfFound(skillPair.second.getModScope(), "skill", skillPair.first, [heroClass, probability](si32 skillID) {
 			heroClass->secSkillProbability[skillID] = probability;
 		});
 	}
 
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier ("creature", node["commander"], [=](si32 commanderID) {
+	context.resolver.requestIdentifier ("creature", node["commander"], [=](si32 commanderID) {
 			heroClass->commander = CreatureID(commanderID);
 		});
 
@@ -110,28 +109,28 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & 
 	{
 		int value = static_cast<int>(tavern.second.Float());
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(tavern.second.getModScope(), "faction", tavern.first, [=](si32 factionID) {
+		context.resolver.requestIdentifierIfFound(tavern.second.getModScope(), "faction", tavern.first, [=](si32 factionID) {
 			heroClass->selectionProbability[FactionID(factionID)] = value;
 		});
 	}
 
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier("faction", node["faction"], [=](si32 factionID) {
+	context.resolver.requestIdentifier("faction", node["faction"], [=](si32 factionID) {
 		heroClass->faction.setNum(factionID);
 	});
 
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "object", "hero", [=](si32 index) {
+	context.resolver.requestIdentifier(scope, "object", "hero", [=, &context](si32 index) {
 		JsonNode classConf = node["mapObject"];
 		classConf["heroClass"].String() = identifier;
 		classConf["heroClass"].setModScope(scope);
 		if (!node["compatibilityIdentifiers"].isNull())
 			classConf["compatibilityIdentifiers"] = node["compatibilityIdentifiers"];
-		LIBRARY->objtypeh->loadSubObject(identifier, classConf, index, heroClass->getIndex());
+		LIBRARY->objtypeh->loadSubObject(context, identifier, classConf, index, heroClass->getIndex());
 	});
 
 	return heroClass;
 }
 
-std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
+std::vector<JsonNode> CHeroClassHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_HERO_CLASS);
 
@@ -173,7 +172,7 @@ std::vector<JsonNode> CHeroClassHandler::loadLegacyData()
 	return h3Data;
 }
 
-void CHeroClassHandler::afterLoadFinalization()
+void CHeroClassHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	// for each pair <class, town> set selection probability if it was not set before in tavern entries
 	for(auto & heroClass : objects)
@@ -207,7 +206,7 @@ void CHeroClassHandler::afterLoadFinalization()
 		{
 			JsonNode templ;
 			templ["animation"].String() = hc->imageMapMale;
-			LIBRARY->objtypeh->getHandlerFor(Obj::HERO, hc->getIndex())->addTemplate(templ);
+			LIBRARY->objtypeh->getHandlerFor(Obj::HERO, hc->getIndex())->addTemplate(context, templ);
 		}
 	}
 }

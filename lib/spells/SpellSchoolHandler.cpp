@@ -26,14 +26,14 @@ std::string spells::SpellSchoolType::getNameTranslated() const
 	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
-std::vector<JsonNode> SpellSchoolHandler::loadLegacyData()
+std::vector<JsonNode> SpellSchoolHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	objects.resize(4);
 
 	return std::vector<JsonNode>(4, JsonNode(JsonMap()));
 }
 
-std::shared_ptr<spells::SpellSchoolType> SpellSchoolHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<spells::SpellSchoolType> SpellSchoolHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	auto ret = std::make_shared<spells::SpellSchoolType>();
 

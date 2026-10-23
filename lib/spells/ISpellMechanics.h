@@ -32,6 +32,7 @@ class CGObjectInstance;
 class CGHeroInstance;
 class IAdventureSpellEffect;
 class MetaString;
+class LibraryLoadContext;
 
 namespace spells
 {
@@ -168,7 +169,7 @@ public:
 
 	virtual std::unique_ptr<Mechanics> create(const IBattleCast * event) const = 0;
 
-	static std::unique_ptr<ISpellMechanicsFactory> get(const CSpell * s);
+	static std::unique_ptr<ISpellMechanicsFactory> get(LibraryLoadContext & context, const CSpell * s);
 
 protected:
 	const CSpell * spell;
@@ -401,7 +402,7 @@ public:
 	virtual int getCastsLimit(const spells::Caster * caster, const int3 & mapSize) const = 0;
 	virtual int getCastsAlreadyPerformed(const spells::Caster * caster) const = 0;
 
-	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(const CSpell * s);
+	static std::unique_ptr<IAdventureSpellMechanics> createMechanics(LibraryLoadContext & context, const CSpell * s);
 
 	virtual bool givesBonus(const spells::Caster * caster, BonusType which) const = 0;
 

@@ -14,19 +14,19 @@
 #include "CRmgTemplate.h"
 
 #include "../GameLibrary.h"
-#include "../modding/CModHandler.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../texts/CGeneralTextHandler.h"
 
 using namespace rmg;
 
-void CRmgTemplateStorage::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
+void CRmgTemplateStorage::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	//unused
-	loadObject(scope, name, data);
+	loadObject(context, scope, name, data);
 }
 
-void CRmgTemplateStorage::afterLoadFinalization()
+void CRmgTemplateStorage::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for (auto& temp : templates)
 	{
@@ -34,11 +34,11 @@ void CRmgTemplateStorage::afterLoadFinalization()
 	}
 }
 
-void CRmgTemplateStorage::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
+void CRmgTemplateStorage::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	try
 	{
-		JsonDeserializer handler(nullptr, LIBRARY->modh->getIdentifierResolver(), data);
+		JsonDeserializer handler(nullptr, context.resolver, data);
 		auto fullKey = scope + ":" + name; //actually it's not used
 		templates[fullKey] = std::make_shared<CRmgTemplate>();
 		templates[fullKey]->setId(fullKey);
@@ -56,7 +56,7 @@ void CRmgTemplateStorage::loadObject(const std::string & scope, const std::strin
 	}
 }
 
-std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData()
+std::vector<JsonNode> CRmgTemplateStorage::loadLegacyData(LibraryLoadContext & context)
 {
 	return std::vector<JsonNode>();
 	//it would be cool to load old rmg.txt files

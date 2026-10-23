@@ -28,11 +28,11 @@ public:
 
 	void registerFactory(std::shared_ptr<IScriptFactory> factory) override;
 
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 
 private:
 	std::shared_ptr<IScriptFactory> factory;

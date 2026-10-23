@@ -17,8 +17,7 @@ class CContentHandler;
 class ResourcePath;
 class ModManager;
 class ISimpleResourceLoader;
-class DeferredIdentifierResolver;
-class CIdentifierStorage;
+class LibraryLoadContext;
 
 using TModID = std::string;
 
@@ -34,7 +33,8 @@ class DLL_LINKAGE CModHandler final : boost::noncopyable
 	/// Mods that list a file that does not exist in their filesystem
 	std::set<TModID> modsWithMissingFiles;
 
-	std::unique_ptr<DeferredIdentifierResolver> identifierResolver;
+	/// Mods from which at least one identifier request has failed to resolve while loading library content
+	std::vector<TModID> modsWithFailedRequests;
 
 	/// Reads files of all active mods and computes their checksums
 	void loadModContent();
@@ -78,13 +78,11 @@ public:
 	const ModDescription & getModInfo(const TModID & modId) const;
 
 	/// load content from all available mods
-	void load();
+	void load(LibraryLoadContext & context);
 	void afterLoad();
 
-	void createIdentifierResolver(const CIdentifierStorage & storage);
-
-	/// Resolver for identifier requests made while loading library content. Resolves immediately once loading is over
-	DeferredIdentifierResolver & getIdentifierResolver();
+	/// Returns list of all mods, from which at least one identifier has failed to resolve
+	const std::vector<TModID> & getModsWithFailedRequests() const;
 
 	explicit CModHandler(bool useTestPreset = false);
 	~CModHandler();

@@ -11,8 +11,7 @@
 #include "StdInc.h"
 #include "ObstacleSetHandler.h"
 
-#include "../modding/CModHandler.h"
-#include "../modding/IdentifierResolver.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../modding/IdentifierStorage.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
@@ -310,14 +309,14 @@ void ObstacleSetFilter::setTypes(const std::vector<ObstacleSet::EObstacleType> &
 	this->allowedTypes = types;
 }
 
-std::vector<JsonNode> ObstacleSetHandler::loadLegacyData()
+std::vector<JsonNode> ObstacleSetHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	return {};
 }
 
-void ObstacleSetHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
+void ObstacleSetHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data)
 {
-	auto os = loadFromJson(scope, data, name, biomes.size());
+	auto os = loadFromJson(context, scope, data, name, biomes.size());
 	if(os)
 	{
 		addObstacleSet(os);
@@ -330,13 +329,13 @@ void ObstacleSetHandler::loadObject(const std::string & scope, const std::string
 	}
 }
 
-void ObstacleSetHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
+void ObstacleSetHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	//Unused
-	loadObject(scope, name, data);
+	loadObject(context, scope, name, data);
 }
 
-std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
+std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
 {
 	auto os = std::make_shared<ObstacleSet>();
 	os->id = index;
@@ -350,7 +349,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 	{
 		auto terrainName = biome["terrain"].String();
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "terrain", terrainName, [os](si32 id)
+		context.resolver.requestIdentifier(scope, "terrain", terrainName, [os](si32 id)
 		{
 			os->setTerrain(TerrainId(id));
 		});
@@ -361,7 +360,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 
 		for (const auto & terrain : terrains)
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "terrain", terrain.String(), [os](si32 id)
+			context.resolver.requestIdentifier(scope, "terrain", terrain.String(), [os](si32 id)
 			{
 				os->addTerrain(TerrainId(id));
 			});
@@ -378,9 +377,9 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 		os->setLevel(ObstacleSet::levelFromString(level));
 	}
 
-	auto handleFaction = [os, scope](const std::string & str)
+	auto handleFaction = [&context, os, scope](const std::string & str)
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "faction", str, [os](si32 id)
+		context.resolver.requestIdentifier(scope, "faction", str, [os](si32 id)
 		{
 			os->addFaction(FactionID(id));
 		});
@@ -436,7 +435,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 		auto identifier = boost::algorithm::to_lower_copy(node.String());
 		auto jsonName = JsonNode(identifier);
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier(node.getModScope(), "obstacleTemplate", identifier, [this, os](si32 id)
+		context.resolver.requestIdentifier(node.getModScope(), "obstacleTemplate", identifier, [this, os](si32 id)
 		{
 			logMod->trace("Resolved obstacle id: %d", id);
 			os->addObstacle(obstacleTemplates[id]);
@@ -475,7 +474,7 @@ void ObstacleSetHandler::addObstacleSet(std::shared_ptr<ObstacleSet> os)
 	biomes.push_back(os);
 }
 
-void ObstacleSetHandler::afterLoadFinalization()
+void ObstacleSetHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for(const auto & os : biomes)
 		os->removeEmptyTemplates();

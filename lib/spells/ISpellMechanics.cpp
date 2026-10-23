@@ -25,7 +25,7 @@
 #include "../battle/IBattleState.h"
 #include "../battle/Unit.h"
 #include "../mapObjects/CGHeroInstance.h"
-#include "../modding/CModHandler.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 #include "../BattleFieldHandler.h"
@@ -35,11 +35,11 @@
 namespace spells
 {
 
-static std::shared_ptr<TargetCondition> makeCondition(const CSpell * s)
+static std::shared_ptr<TargetCondition> makeCondition(LibraryLoadContext & context, const CSpell * s)
 {
 	auto res = std::make_shared<TargetCondition>();
 
-	JsonDeserializer deser(nullptr, LIBRARY->modh->getIdentifierResolver(), s->targetCondition);
+	JsonDeserializer deser(nullptr, context.resolver, s->targetCondition);
 	res->serializeJson(deser, TargetConditionItemFactory::getDefault());
 
 	return res;
@@ -56,15 +56,15 @@ public:
 protected:
 	std::shared_ptr<effects::Effects> effects;
 
-	CustomMechanicsFactory(const CSpell * s)
+	CustomMechanicsFactory(LibraryLoadContext & context, const CSpell * s)
 		: ISpellMechanicsFactory(s), effects(new effects::Effects)
 	{
-		targetCondition = makeCondition(s);
+		targetCondition = makeCondition(context, s);
 	}
 
-	void loadEffects(const JsonNode & config, const int level)
+	void loadEffects(LibraryLoadContext & context, const JsonNode & config, const int level)
 	{
-		effects->data.at(level) = effects::Effects::loadJson(config, spell->modScope, spell->identifier);
+		effects->data.at(level) = effects::Effects::loadJson(context, config, spell->modScope, spell->identifier);
 	}
 private:
 	std::shared_ptr<IReceptiveCheck> targetCondition;
@@ -73,11 +73,11 @@ private:
 class ConfigurableMechanicsFactory : public CustomMechanicsFactory
 {
 public:
-	ConfigurableMechanicsFactory(const CSpell * s)
-		: CustomMechanicsFactory(s)
+	ConfigurableMechanicsFactory(LibraryLoadContext & context, const CSpell * s)
+		: CustomMechanicsFactory(context, s)
 	{
 		for(int level = 0; level < GameConstants::SPELL_SCHOOL_LEVELS; level++)
-			loadEffects(s->getLevelInfo(level).battleEffects, level);
+			loadEffects(context, s->getLevelInfo(level).battleEffects, level);
 	}
 };
 
@@ -95,8 +95,8 @@ class FallbackMechanicsFactory : public CustomMechanicsFactory
 	}
 
 public:
-	FallbackMechanicsFactory(const CSpell * s)
-		: CustomMechanicsFactory(s)
+	FallbackMechanicsFactory(LibraryLoadContext & context, const CSpell * s)
+		: CustomMechanicsFactory(context, s)
 	{
 		for(int level = 0; level < GameConstants::SPELL_SCHOOL_LEVELS; level++)
 		{
@@ -109,7 +109,7 @@ public:
 				config["timed"]["type"].String() = "core:timed";
 				config["timed"]["bonus"] = usePowerAsVal(levelInfo.effects, levelInfo.power);
 				config.setModScope(s->modScope);
-				loadEffects(config, level);
+				loadEffects(context, config, level);
 			}
 			else if(!levelInfo.cumulativeEffects.Struct().empty())
 			{
@@ -118,7 +118,7 @@ public:
 				config["timed"]["cumulative"].Bool() = true;
 				config["timed"]["bonus"] = usePowerAsVal(levelInfo.cumulativeEffects, levelInfo.power);
 				config.setModScope(s->modScope);
-				loadEffects(config, level);
+				loadEffects(context, config, level);
 			}
 		}
 	}
@@ -249,12 +249,12 @@ ISpellMechanicsFactory::ISpellMechanicsFactory(const CSpell * s)
 //must be instantiated in .cpp file for access to complete types of all member fields
 ISpellMechanicsFactory::~ISpellMechanicsFactory() = default;
 
-std::unique_ptr<ISpellMechanicsFactory> ISpellMechanicsFactory::get(const CSpell * s)
+std::unique_ptr<ISpellMechanicsFactory> ISpellMechanicsFactory::get(LibraryLoadContext & context, const CSpell * s)
 {
 	if(s->hasBattleEffects())
-		return std::make_unique<ConfigurableMechanicsFactory>(s);
+		return std::make_unique<ConfigurableMechanicsFactory>(context, s);
 	else
-		return std::make_unique<FallbackMechanicsFactory>(s);
+		return std::make_unique<FallbackMechanicsFactory>(context, s);
 }
 
 ///Mechanics
@@ -580,10 +580,10 @@ IAdventureSpellMechanics::IAdventureSpellMechanics(const CSpell * s)
 {
 }
 
-std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(const CSpell * s)
+std::unique_ptr<IAdventureSpellMechanics> IAdventureSpellMechanics::createMechanics(LibraryLoadContext & context, const CSpell * s)
 {
 	if (s->isCombat())
 		return nullptr;
 
-	return std::make_unique<AdventureSpellMechanics>(s);
+	return std::make_unique<AdventureSpellMechanics>(context, s);
 }

@@ -61,12 +61,12 @@ void ScriptHandler::registerFactory(std::shared_ptr<IScriptFactory> newFactory)
 	factory = std::move(newFactory);
 }
 
-std::vector<JsonNode> ScriptHandler::loadLegacyData()
+std::vector<JsonNode> ScriptHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	return {};
 }
 
-void ScriptHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
+void ScriptHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	ScriptTypeDescription description;
 	description.identifier = name;
@@ -127,7 +127,7 @@ void ScriptHandler::loadObject(const std::string & scope, const std::string & na
 	scripts.push_back(std::move(description));
 }
 
-void ScriptHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
+void ScriptHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	throw std::runtime_error("Not supported");
 }

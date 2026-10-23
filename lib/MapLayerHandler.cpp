@@ -14,16 +14,14 @@
 #include "IGameSettings.h"
 #include "json/JsonNode.h"
 #include "GameLibrary.h"
-#include "modding/CModHandler.h"
-#include "modding/IdentifierResolver.h"
+#include "modding/LibraryLoadContext.h"
 
 MapLayerTypeHandler::MapLayerTypeHandler()
 {
 	objects.resize(3);
 }
 
-std::shared_ptr<MapLayerType> MapLayerTypeHandler::loadFromJson(
-	const std::string & scope,
+std::shared_ptr<MapLayerType> MapLayerTypeHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope,
 	const JsonNode & json,
 	const std::string & identifier,
 	size_t index)
@@ -39,7 +37,7 @@ std::shared_ptr<MapLayerType> MapLayerTypeHandler::loadFromJson(
 
 	LIBRARY->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
-	LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull("terrain", json["defaultTerrain"], [info](int32_t terrainIndex)
+	context.resolver.requestIdentifierIfNotNull("terrain", json["defaultTerrain"], [info](int32_t terrainIndex)
 	{
 		info->defaultTerrain = TerrainId(terrainIndex);
 	});
@@ -53,7 +51,7 @@ const std::vector<std::string> & MapLayerTypeHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::vector<JsonNode> MapLayerTypeHandler::loadLegacyData()
+std::vector<JsonNode> MapLayerTypeHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	return {};
 }

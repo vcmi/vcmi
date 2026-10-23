@@ -22,8 +22,7 @@
 
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../modding/CModHandler.h"
-#include "../../modding/IdentifierResolver.h"
+#include "../../modding/LibraryLoadContext.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
 
@@ -51,7 +50,7 @@
 
 CArtHandler::~CArtHandler() = default;
 
-std::vector<JsonNode> CArtHandler::loadLegacyData()
+std::vector<JsonNode> CArtHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
 
@@ -122,9 +121,9 @@ std::vector<JsonNode> CArtHandler::loadLegacyData()
 	return h3Data;
 }
 
-void CArtHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
+void CArtHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data)
 {
-	auto object = loadFromJson(scope, data, name, objects.size());
+	auto object = loadFromJson(context, scope, data, name, objects.size());
 
 	object->iconIndex = object->getIndex() + 5;
 
@@ -133,9 +132,9 @@ void CArtHandler::loadObject(const std::string & scope, const std::string & name
 	registerObject(scope, "artifact", name, data, object->id.getNum());
 }
 
-void CArtHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
+void CArtHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
-	auto object = loadFromJson(scope, data, name, index);
+	auto object = loadFromJson(context, scope, data, name, index);
 
 	object->iconIndex = object->getIndex();
 
@@ -151,7 +150,7 @@ const std::vector<std::string> & CArtHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
+std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
@@ -160,10 +159,10 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	if(!node["growing"].isNull())
 	{
 		for(auto bonus : node["growing"]["bonusesPerLevel"].Vector())
-			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"], LIBRARY->modh->getIdentifierResolver()));
+			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"], context.resolver));
 
 		for(auto bonus : node["growing"]["thresholdBonuses"].Vector())
-			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"], LIBRARY->modh->getIdentifierResolver()));
+			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"], context.resolver));
 	}
 
 	art->id = ArtifactID(index);
@@ -192,13 +191,13 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	loadSlots(art.get(), node);
 	loadClass(art.get(), node);
 	loadType(art.get(), node);
-	loadComponents(art.get(), node);
+	loadComponents(context, art.get(), node);
 
 	if (node["bonuses"].isVector())
 	{
 		for(const auto & b : node["bonuses"].Vector())
 		{
-			auto bonus = JsonUtils::parseBonus(b, LIBRARY->modh->getIdentifierResolver());
+			auto bonus = JsonUtils::parseBonus(b, context.resolver);
 			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
@@ -209,7 +208,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		{
 			if (b.second.isNull())
 				continue;
-			auto bonus = JsonUtils::parseBonus(b.second, LIBRARY->modh->getIdentifierResolver(), art->getBonusTextID(b.first));
+			auto bonus = JsonUtils::parseBonus(b.second, context.resolver, art->getBonusTextID(b.first));
 			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
@@ -219,7 +218,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	{
 		if (b.second.isNull())
 			continue;
-		auto bonus = JsonUtils::parseBonus(b.second, LIBRARY->modh->getIdentifierResolver(), art->getBonusTextID(b.first));
+		auto bonus = JsonUtils::parseBonus(b.second, context.resolver, art->getBonusTextID(b.first));
 		bonus->sid = art->getId();
 		bonus->source = BonusSource::ARTIFACT;
 		bonus->duration = BonusDuration::PERMANENT;
@@ -231,7 +230,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	const JsonNode & warMachine = node["warMachine"];
 	if(!warMachine.isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", warMachine, [art](si32 id)
+		context.resolver.requestIdentifier("creature", warMachine, [art](si32 id)
 		{
 			art->warMachine = CreatureID(id);
 
@@ -240,12 +239,12 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		});
 	}
 
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "object", "artifact", [scope, art](si32 index)
+	context.resolver.requestIdentifier(scope, "object", "artifact", [&context, scope, art](si32 index)
 	{
 		JsonNode conf;
 		conf.setModScope(scope);
 
-		LIBRARY->objtypeh->loadSubObject(art->identifier, conf, Obj::ARTIFACT, art->getIndex());
+		LIBRARY->objtypeh->loadSubObject(context, art->identifier, conf, Obj::ARTIFACT, art->getIndex());
 
 		if(!art->advMapDef.empty())
 		{
@@ -255,7 +254,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 
 			// add new template.
 			// Necessary for objects added via mods that don't have any templates in H3
-			LIBRARY->objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->addTemplate(templ);
+			LIBRARY->objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->addTemplate(context, templ);
 		}
 	});
 
@@ -427,13 +426,13 @@ void CArtHandler::loadType(CArtifact * art, const JsonNode & node) const
 	}
 }
 
-void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
+void CArtHandler::loadComponents(LibraryLoadContext & context, CArtifact * art, const JsonNode & node)
 {
 	if(!node["components"].isNull())
 	{
 		for(const auto & component : node["components"].Vector())
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier("artifact", component, [this, art](int32_t id)
+			context.resolver.requestIdentifier("artifact", component, [this, art](int32_t id)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
@@ -501,7 +500,7 @@ std::set<ArtifactID> CArtHandler::getDefaultAllowed() const
 	return allowedArtifacts;
 }
 
-void CArtHandler::afterLoadFinalization()
+void CArtHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	//All artifacts have their id, so we can properly update their bonuses' source ids.
 	for(auto &art : objects)

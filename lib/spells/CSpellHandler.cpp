@@ -15,14 +15,13 @@
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
 #include "../GameLibrary.h"
-#include "../modding/CModHandler.h"
-#include "../modding/IdentifierResolver.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../texts/CLegacyConfigParser.h"
 #include "../texts/CGeneralTextHandler.h"
 
 static constexpr std::array LEVEL_NAMES = {"none", "basic", "advanced", "expert"};
 
-std::vector<JsonNode> CSpellHandler::loadLegacyData()
+std::vector<JsonNode> CSpellHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	std::vector<JsonNode> legacyData;
 
@@ -197,7 +196,7 @@ std::vector<int> CSpellHandler::spellRangeInHexes(std::string input) const
 	return result;
 }
 
-std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
@@ -230,7 +229,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		if (schoolJson.second.Bool())
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier(schoolJson.second.getModScope(), "spellSchool", schoolJson.first, [spell](si32 schoolID)
+			context.resolver.requestIdentifier(schoolJson.second.getModScope(), "spellSchool", schoolJson.first, [spell](si32 schoolID)
 			{
 				spell->schools.emplace(schoolID);
 			});
@@ -249,7 +248,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		const int chance = static_cast<int>(node.second.Integer());
 
-		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
+		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
 		{
 			spell->probabilities[FactionID(factionID)] = chance;
 		});
@@ -272,7 +271,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		if(counteredSpell.second.Bool())
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
+			context.resolver.requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.emplace_back(id);
 			});
@@ -334,7 +333,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 			if(!bonusData.second.Bool())
 				continue;
 
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier(bonusData.second.getModScope(), "bonus", bonusData.first, [&vec](si32 bonusID)
+			context.resolver.requestIdentifier(bonusData.second.getModScope(), "bonus", bonusData.first, [&vec](si32 bonusID)
 			{
 				vec.push_back(static_cast<BonusType>(bonusID));
 			});
@@ -493,11 +492,11 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	return spell;
 }
 
-void CSpellHandler::afterLoadFinalization()
+void CSpellHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for(auto & spell : objects)
 	{
-		spell->setupMechanics();
+		spell->setupMechanics(context);
 	}
 }
 

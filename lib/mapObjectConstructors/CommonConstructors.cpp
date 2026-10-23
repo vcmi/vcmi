@@ -23,8 +23,7 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapping/TerrainTile.h"
-#include "../modding/CModHandler.h"
-#include "../modding/IdentifierResolver.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../modding/IdentifierStorage.h"
 #include "../texts/TextIdentifier.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -44,12 +43,12 @@ std::string CreatureInstanceConstructor::getNameTextID() const
 	return LIBRARY->creatures()->getByIndex(getSubIndex())->getNamePluralTextID();
 }
 
-void ResourceInstanceConstructor::initTypeData(const JsonNode & input)
+void ResourceInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
 	config = input;
 
 	resourceType = GameResID::GOLD; //set up fallback
-	LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull("resource", input["resource"], [&](si32 index)
+	context.resolver.requestIdentifierIfNotNull("resource", input["resource"], [&](si32 index)
 	{
 		resourceType = GameResID(index);
 	});
@@ -91,12 +90,12 @@ void ResourceInstanceConstructor::randomizeObject(CGResource * object, IGameRand
 		object->amount = 5 * getAmountMultiplier();
 }
 
-void MineInstanceConstructor::initTypeData(const JsonNode & input)
+void MineInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
 	config = input;
 
 	resourceType = GameResID::NONE; //set up fallback
-	LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull("resource", input["resource"], [&](si32 index)
+	context.resolver.requestIdentifierIfNotNull("resource", input["resource"], [&](si32 index)
 	{
 		resourceType = GameResID(index);
 	});
@@ -185,9 +184,9 @@ std::vector<CStackBasicDescriptor> MineInstanceConstructor::getGuards(IGameInfoC
 	return randomizer.loadCreatures(guards, emptyVariables);
 }
 
-void CTownInstanceConstructor::initTypeData(const JsonNode & input)
+void CTownInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier("faction", input["faction"], [&](si32 index)
+	context.resolver.requestIdentifier("faction", input["faction"], [&](si32 index)
 	{
 		faction = (*LIBRARY->townh)[index];
 	});
@@ -245,9 +244,9 @@ std::string CTownInstanceConstructor::getNameTextID() const
 	return faction->getNameTextID();
 }
 
-void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
+void CHeroInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier(
+	context.resolver.requestIdentifier(
 		"heroClass",
 		input["heroClass"],
 		[&](si32 index) { heroClass = HeroClassID(index).toHeroClass(); });
@@ -261,7 +260,7 @@ void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 
 		if (!config["hero"].isNull())
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "hero", config["hero"], [this, templateName = name](si32 index) {
+			context.resolver.requestIdentifier( "hero", config["hero"], [this, templateName = name](si32 index) {
 				filters.at(templateName).fixedHero = HeroTypeID(index);
 			});
 		}
@@ -334,7 +333,7 @@ std::string CHeroInstanceConstructor::getNameTextID() const
 	return heroClass->getNameTextID();
 }
 
-void BoatInstanceConstructor::initTypeData(const JsonNode & input)
+void BoatInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
 	layer = EPathfindingLayer::SAIL;
 	int pos = vstd::find_pos(NPathfindingLayer::names, input["layer"].String());
@@ -349,7 +348,7 @@ void BoatInstanceConstructor::initTypeData(const JsonNode & input)
 	overlayAnimation = AnimationPath::fromJson(input["overlayAnimation"]);
 	for(int i = 0; i < flagAnimations.size() && i < input["flagAnimations"].Vector().size(); ++i)
 		flagAnimations[i] = AnimationPath::fromJson(input["flagAnimations"].Vector()[i]);
-	bonuses = JsonRandom::loadBonuses(input["bonuses"]);
+	bonuses = JsonRandom::loadBonuses(input["bonuses"], context.resolver);
 }
 
 void BoatInstanceConstructor::initializeObject(CGBoat * boat) const
