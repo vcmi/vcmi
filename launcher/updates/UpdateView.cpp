@@ -50,7 +50,7 @@ void UpdateView::refresh()
 	ui->labelTitle->setText(tr("VCMI %1 is available. You have %2.").arg(update.version, GameConstants::VCMI_VERSION));
 
 	QString instructions;
-	QString actionText = tr("Open Store");
+	QString actionText;
 	actionUrl = update.url;
 	actionFallbackUrl = QUrl();
 
@@ -58,6 +58,7 @@ void UpdateView::refresh()
 	{
 		case EUpdateAction::INSTALL:
 			instructions = tr("Your browser will download the installer. Run it once the download finishes: it will close VCMI and update it.");
+			actionText = tr("Download Update");
 			break;
 		case EUpdateAction::DOWNLOAD:
 #if defined(VCMI_WINDOWS)
@@ -69,9 +70,11 @@ void UpdateView::refresh()
 #else
 			instructions = tr("Your browser will download the update as an AppImage. Allow it to run as a program, for example with 'chmod +x', and start it.");
 #endif
+			actionText = tr("Download Update");
 			break;
 		case EUpdateAction::EXTERNAL:
 		{
+			actionText = tr("Open Store");
 			switch(UpdateChecker::getDistribution())
 			{
 				case EUpdateDistribution::GOOGLE_PLAY:
@@ -105,8 +108,6 @@ void UpdateView::refresh()
 		}
 	}
 
-	if(update.action != EUpdateAction::EXTERNAL)
-		actionText = tr("Download Update");
 	instructions += " " + tr("Your saves, settings and mods are kept.");
 
 	ui->buttonAction->setText(actionText);

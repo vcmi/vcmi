@@ -14,18 +14,14 @@
 #include "../modManager/cdownloadmanager_moc.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/json/JsonFormatException.h"
 #include "../../lib/json/JsonNode.h"
 
 #ifdef VCMI_IOS
 #include "iOS_utils.h"
 #endif
 
-namespace
-{
-
 /// returns empty string if the update service does not know this operating system
-QString operatingSystemName()
+static QString operatingSystemName()
 {
 #if defined(VCMI_WINDOWS)
 	return "windows";
@@ -43,7 +39,7 @@ QString operatingSystemName()
 }
 
 /// returns empty string if the update service does not know this architecture
-QString architectureName()
+static QString architectureName()
 {
 	static const QMap<QString, QString> names = {
 		{"i386", "x86"},
@@ -54,7 +50,7 @@ QString architectureName()
 	return names.value(QSysInfo::buildCpuArchitecture());
 }
 
-QString distributionName(EUpdateDistribution distribution)
+static QString distributionName(EUpdateDistribution distribution)
 {
 	switch(distribution)
 	{
@@ -77,7 +73,7 @@ QString distributionName(EUpdateDistribution distribution)
 }
 
 #ifdef VCMI_WINDOWS
-bool isInstalledByInstaller()
+static bool isInstalledByInstaller()
 {
 	const QString launcherDirectory = QDir(QCoreApplication::applicationDirPath()).canonicalPath();
 
@@ -104,7 +100,7 @@ bool isInstalledByInstaller()
 #endif
 
 #ifdef VCMI_ANDROID
-EUpdateDistribution distributionFromInstaller(const QString & installer)
+static EUpdateDistribution distributionFromInstaller(const QString & installer)
 {
 	static const QStringList fdroidClients = {
 		"org.fdroid.fdroid",
@@ -127,16 +123,6 @@ EUpdateDistribution distributionFromInstaller(const QString & installer)
 	return EUpdateDistribution::UNKNOWN;
 }
 #endif
-
-QString requireString(const JsonNode & response, const std::string & field)
-{
-	const JsonNode & node = response[field];
-	if(!node.isString())
-		throw std::runtime_error("field '" + field + "' is missing or is not a string");
-	return QString::fromStdString(node.String());
-}
-
-}
 
 UpdateChecker::UpdateChecker(QObject * parent)
 	: QObject(parent)
@@ -233,56 +219,39 @@ void UpdateChecker::parseResponse(const QByteArray & data)
 {
 	JsonParsingSettings parserSettings;
 	parserSettings.mode = JsonParsingSettings::JsonFormatMode::JSON;
-	parserSettings.maxDepth = 3;
 	parserSettings.strict = true;
 
+	// update service always sends valid responses, strict parsing rejects foreign pages, e.g. from captive portals
 	const JsonNode response(data.data(), data.size(), parserSettings, "update information");
-	if(!response.isStruct())
-		throw std::runtime_error("response is not a JSON object");
 
-	const QString status = requireString(response, "status");
-	if(status == "none")
+	if(response["status"].String() != "update")
 	{
 		setState(EUpdateCheckState::NO_UPDATE);
 		return;
 	}
-	if(status != "update")
-		throw std::runtime_error("unknown status '" + status.toStdString() + "'");
 
 	UpdateInfo result;
-	result.version = requireString(response, "version");
-	if(!QRegularExpression("^[0-9]+\\.[0-9]+\\.[0-9]+$").match(result.version).hasMatch())
-		throw std::runtime_error("invalid version '" + result.version.toStdString() + "'");
-	result.date = requireString(response, "date");
-	result.changelog = requireString(response, "changelog");
-
-	if(!response["notes"].isVector())
-		throw std::runtime_error("field 'notes' is missing or is not a list");
+	result.version = QString::fromStdString(response["version"].String());
+	result.date = QString::fromStdString(response["date"].String());
+	result.changelog = QString::fromStdString(response["changelog"].String());
 	for(const auto & note : response["notes"].Vector())
-	{
-		if(!note.isString())
-			throw std::runtime_error("field 'notes' contains a value that is not a string");
 		result.notes.push_back(QString::fromStdString(note.String()));
-	}
 
-	const QUrl changelogUrl(requireString(response, "changelogUrl"));
+	// both URLs are opened in the browser
+	const QUrl changelogUrl(QString::fromStdString(response["changelogUrl"].String()));
 	if(changelogUrl.scheme() == "https")
 		result.changelogUrl = changelogUrl;
 	else
 		logGlobal->warn("Ignoring changelog URL '%s'", changelogUrl.toString().toStdString());
 
-	const QUrl url = response["url"].isString() ? QUrl(QString::fromStdString(response["url"].String())) : QUrl();
+	const QUrl url(QString::fromStdString(response["url"].String()));
 	const bool urlAllowed = url.scheme() == "https" && url.host() == "download.vcmi.eu";
 	if(!url.isEmpty() && !urlAllowed)
 		logGlobal->warn("Ignoring download URL '%s'", url.toString().toStdString());
 
 	// actions unknown to this version are handled as a download if there is a file, as an external update otherwise
-	const QString action = requireString(response, "action");
-	if(action == "external" || !urlAllowed)
-	{
-		result.action = EUpdateAction::EXTERNAL;
-	}
-	else
+	const std::string & action = response["action"].String();
+	if(urlAllowed && action != "external")
 	{
 		result.action = action == "install" ? EUpdateAction::INSTALL : EUpdateAction::DOWNLOAD;
 		result.url = url;
