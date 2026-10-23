@@ -24,7 +24,7 @@ public:
 	std::shared_ptr<spells::effects::Effect> createSpellEffect(ScriptID scriptID) const override;
 	const IDamageCalculatorScript * getDamageCalculator() const override;
 
-	void prepareParameters(ScriptID scriptID, JsonNode & parameters, const TextIdentifier & owner) const override;
+	void prepareParameters(ScriptID scriptID, JsonNode & parameters, IIdentifierResolver & resolver, const TextIdentifier & owner) const override;
 
 	void registerFactory(std::shared_ptr<IScriptFactory> factory) override;
 

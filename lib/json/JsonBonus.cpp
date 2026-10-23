@@ -257,7 +257,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 /// scripts are a content type of their own and may well load after whoever refers to them.
 static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode, IIdentifierResolver & resolver, const TextIdentifier & descriptionID)
 {
-	resolver.requestIdentifier("script", scriptNode, [b, descriptionID](int32_t identifier)
+	resolver.requestIdentifier("script", scriptNode, [b, descriptionID, &resolver](int32_t identifier)
 	{
 		ScriptID scriptID(identifier);
 
@@ -278,7 +278,7 @@ static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode
 		else
 			parameters.setType(JsonNode::JsonType::DATA_STRUCT);
 
-		LIBRARY->scriptTypes()->prepareParameters(scriptID, parameters, descriptionID);
+		LIBRARY->scriptTypes()->prepareParameters(scriptID, parameters, resolver, descriptionID);
 
 		// parameters are immutable once stored, so the prepared payload replaces them wholesale
 		b->parameters = std::make_shared<BonusParameters>(parameters);

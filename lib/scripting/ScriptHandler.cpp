@@ -14,7 +14,6 @@
 #include "../GameLibrary.h"
 #include "../json/JsonNode.h"
 #include "../json/JsonUtils.h"
-#include "../modding/CModHandler.h"
 #include "../modding/IdentifierResolver.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
@@ -133,7 +132,7 @@ void ScriptHandler::loadObject(const std::string & scope, const std::string & na
 	throw std::runtime_error("Not supported");
 }
 
-void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, const TextIdentifier & owner) const
+void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, IIdentifierResolver & resolver, const TextIdentifier & owner) const
 {
 	const ScriptTypeDescription & description = getById(scriptID);
 
@@ -147,7 +146,7 @@ void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, 
 		const std::string & entityType = property["entity"].String();
 
 		if(!entityType.empty())
-			LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull(entityType, static_cast<const JsonNode &>(parameters)[field], [](si32){});
+			resolver.requestIdentifierIfNotNull(entityType, static_cast<const JsonNode &>(parameters)[field], [](si32){});
 	}
 
 	if(description.stringRegistrations.empty())
