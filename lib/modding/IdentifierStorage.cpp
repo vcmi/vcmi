@@ -13,13 +13,13 @@
 #include "CModHandler.h"
 #include "ModScope.h"
 
-#include "../GameLibrary.h"
 #include "../constants/StringConstants.h"
 #include "../json/JsonNode.h"
 
 #include <vstd/StringUtils.h>
 
-CIdentifierStorage::CIdentifierStorage()
+CIdentifierStorage::CIdentifierStorage(const CModHandler & modHandler_):
+	modHandler(modHandler_)
 {
 	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool::ANY.getNum());
 
@@ -292,7 +292,7 @@ void CIdentifierStorage::showIdentifierResolutionErrorDetails(const ObjectCallba
 			{
 				// attempt to access identifier from mods that is not dependency
 				bool isValidScope = true;
-				const auto & dependencies = LIBRARY->modh->getModDependencies(options.localScope, isValidScope);
+				const auto & dependencies = modHandler.getModDependencies(options.localScope, isValidScope);
 				if (!vstd::contains(dependencies, testOption.scope))
 				{
 					logMod->error("Identifier '%s' exists in mod %s", options.name, testOption.scope);
@@ -366,14 +366,14 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		// special scope that should have access to all in-game objects
 		if (request.localScope == ModScope::scopeGame())
 		{
-			for(const auto & modName : LIBRARY->modh->getActiveMods())
+			for(const auto & modName : modHandler.getActiveMods())
 				allowedScopes.insert(modName);
 		}
 
 		// normally ID's from all required mods, own mod and virtual built-in mod are allowed
 		else if(request.localScope != ModScope::scopeBuiltin() && !request.localScope.empty())
 		{
-			allowedDependencies = &LIBRARY->modh->getModDependencies(request.localScope, isValidScope);
+			allowedDependencies = &modHandler.getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
 				return std::vector<ObjectData>();
@@ -410,7 +410,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		else
 		{
 			// allow access only if mod is in our dependencies
-			const auto & myDeps = LIBRARY->modh->getModDependencies(request.localScope, isValidScope);
+			const auto & myDeps = modHandler.getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
 				return std::vector<ObjectData>();
@@ -458,7 +458,7 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request) const
 
 	if (request.bypassDependenciesCheck && !request.remoteScope.empty())
 	{
-		if (!vstd::contains(LIBRARY->modh->getActiveMods(), request.remoteScope))
+		if (!vstd::contains(modHandler.getActiveMods(), request.remoteScope))
 		{
 			logMod->debug("Mod '%s' requested identifier '%s' from not loaded mod '%s'. Ignoring.", request.localScope, request.name, request.remoteScope);
 			return true; // mod was not loaded - ignore

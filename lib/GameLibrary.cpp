@@ -160,7 +160,7 @@ void GameLibrary::loadModFilesystem(bool useTestPreset)
 		dynamic_cast<CFilesystemList*>(CResourceHandler::get("initial"))->addLoader(std::move(loader), false);
 	}
 	modh = std::make_unique<CModHandler>(useTestPreset);
-	identifiersHandler = std::make_unique<CIdentifierStorage>();
+	identifiersHandler = std::make_unique<CIdentifierStorage>(*modh);
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
 	modh->loadModFilesystems();

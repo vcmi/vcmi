@@ -10,6 +10,7 @@
 #pragma once
 
 class JsonNode;
+class CModHandler;
 
 /// class that stores all object identifiers strings and maps them to numeric ID's
 /// if possible, objects ID's should be in format <type>.<name>, camelCase e.g. "creature.grandElf"
@@ -55,6 +56,9 @@ class DLL_LINKAGE CIdentifierStorage
 		}
 	};
 
+	/// source of active mods and mod dependencies
+	const CModHandler & modHandler;
+
 	std::multimap<std::string, ObjectData> registeredObjects;
 	std::map<std::string, std::string> registeredObjectsCaseLookup;
 	mutable std::vector<ObjectCallback> scheduledRequests;
@@ -77,7 +81,7 @@ class DLL_LINKAGE CIdentifierStorage
 	void showIdentifierResolutionErrorDetails(const ObjectCallback & callback) const;
 	std::optional<si32> getIdentifierImpl(const ObjectCallback & callback, bool silent) const;
 public:
-	CIdentifierStorage();
+	explicit CIdentifierStorage(const CModHandler & modHandler_);
 	virtual ~CIdentifierStorage() = default;
 
 	/// request identifier for specific object name.
