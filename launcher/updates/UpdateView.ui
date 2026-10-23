@@ -35,7 +35,7 @@
       <bool>true</bool>
      </property>
      <property name="textInteractionFlags">
-      <set>Qt::TextSelectableByMouse</set>
+      <set>Qt::TextInteractionFlag::TextSelectableByMouse</set>
      </property>
     </widget>
    </item>
@@ -50,25 +50,25 @@
     </widget>
    </item>
    <item>
+    <widget class="QTextBrowser" name="textBrowserChangelog">
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayoutButtons">
      <item>
-      <widget class="QPushButton" name="buttonAction">
+      <widget class="QPushButton" name="buttonBack">
        <property name="text">
-        <string notr="true"/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="buttonChangelog">
-       <property name="text">
-        <string>Full Changelog</string>
+        <string>Back</string>
        </property>
       </widget>
      </item>
      <item>
       <spacer name="horizontalSpacerButtons">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -79,20 +79,20 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="buttonBack">
+      <widget class="QPushButton" name="buttonChangelog">
        <property name="text">
-        <string>Back</string>
+        <string>Full Changelog</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonAction">
+       <property name="text">
+        <string notr="true"/>
        </property>
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QTextBrowser" name="textBrowserChangelog">
-     <property name="openExternalLinks">
-      <bool>true</bool>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>
