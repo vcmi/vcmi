@@ -210,25 +210,11 @@ bool BAI::maybeCastSpell(const CStack * astack, const BattleID & bid)
 
 std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, const BattleID & bid) const
 {
-	if(astack->creatureId() == CreatureID::FIRST_AID_TENT)
+	if(astack->hasBonusOfType(BonusType::SIEGE_WEAPON) && astack->hasBonusOfType(BonusType::HEALER))
 	{
-		const CStack * target = nullptr;
-		auto maxdmg = 0;
-		for(const auto * stack : battle->battleGetStacks(CBattleInfoEssentials::ONLY_MINE))
-		{
-			auto dmg = stack->getMaxHealth() - stack->getFirstHPleft();
-			if(dmg <= maxdmg)
-				continue;
-			maxdmg = static_cast<int>(dmg);
-			target = stack;
-		}
-
-		if(target)
-		{
-			return std::make_shared<BattleAction>(BattleAction::makeHeal(astack, target));
-		}
+		return std::make_shared<BattleAction>(BattleAction::makeHeal(astack));
 	}
-	else if(astack->creatureId() == CreatureID::CATAPULT)
+	else if(astack->isCatapult())
 	{
 		if(!astack->canShoot())
 			// out of ammo
@@ -239,7 +225,7 @@ std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, c
 		ba->stackNumber = astack->unitId();
 		ba->actionType = EActionType::CATAPULT;
 
-		if(battle->battleGetGateState() == EGateState::CLOSED)
+		if(battle->battleGetGateState() != EGateState::DESTROYED)
 		{
 			ba->aimToHex(battle->wallPartToBattleHex(EWallPart::GATE));
 			return ba;
@@ -260,9 +246,9 @@ std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, c
 		}
 
 		// no walls left
-		return std::make_shared<BattleAction>(BattleAction::makeDefend(astack)); // out of ammo (arrow towers have 99 shots)
+		return std::make_shared<BattleAction>(BattleAction::makeDefend(astack));
 	}
-	else if(astack->creatureId() == CreatureID::ARROW_TOWERS)
+	else if(astack->isTurret())
 	{
 		if(!astack->canShoot())
 			// out of ammo (arrow towers have 99 shots)
@@ -277,7 +263,12 @@ std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, c
 			}
 		);
 
-		ASSERT(target != allstacks.end(), "Could not find an enemy stack to attack. Falling back to a defend.");
+		if(target == allstacks.end())
+		{
+			logger.warn("Could not find an enemy stack to attack. Falling back to a defend.");
+			return std::make_shared<BattleAction>(BattleAction::makeDefend(astack));
+		}
+
 		return std::make_shared<BattleAction>(BattleAction::makeShotAttack(astack, *target));
 	}
 
