@@ -363,7 +363,7 @@ void CTownHandler::loadBuilding(LibraryLoadContext & context, CTown * town, cons
 		// building id and upgrades can't be the same
 		if(stringID == source["upgrades"].String())
 		{
-			auto townName = ret->town->faction->getNameTranslated();
+			auto townName = ret->town->faction->getJsonKey();
 			logMod->error("Building with ID '%s' of town '%s' can't be an upgrade of the same building.", stringID, townName);
 			throw std::runtime_error(boost::str(boost::format("Building with ID '%s' of town '%s' can't be an upgrade of the same building.")
 												% stringID % townName));
@@ -538,8 +538,8 @@ void CTownHandler::loadSiegeScreen(LibraryLoadContext & context, CTown &town, co
 		auto crId = CreatureID(creature);
 		if((*context.lib.creh)[crId]->animation.missileFrameAngles.empty())
 			logMod->error("Mod '%s' error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Siege will not work properly!"
-				, town.faction->getNameTranslated()
-				, (*context.lib.creh)[crId]->getNameSingularTranslated());
+				, town.faction->getJsonKey()
+				, (*context.lib.creh)[crId]->getJsonKey());
 
 		town.fortifications.citadelShooter = crId;
 		town.fortifications.upperTowerShooter = crId;

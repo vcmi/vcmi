@@ -261,7 +261,7 @@ void CHeroHandler::loadHeroSpecialty(LibraryLoadContext & context, CHero * hero,
 	const JsonNode & specialtyNode = node["specialty"];
 	if(specialtyNode.getType() != JsonNode::JsonType::DATA_STRUCT)
 	{
-		logMod->error("Unsupported speciality format for hero %s!", hero->getNameTranslated());
+		logMod->error("Unsupported speciality format for hero %s!", hero->getJsonKey());
 		return;
 	}
 

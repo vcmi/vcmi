@@ -35,7 +35,7 @@ void CHeroClassHandler::fillPrimarySkillData(LibraryLoadContext & context, const
 	if(currentPrimarySkillValue < primarySkillLegalMinimum)
 	{
 		logMod->error("Hero class '%s' has incorrect initial value '%d' for skill '%s'. Value '%d' will be used instead.",
-					  heroClass->getNameTranslated(), currentPrimarySkillValue, skillName, primarySkillLegalMinimum);
+					  heroClass->getJsonKey(), currentPrimarySkillValue, skillName, primarySkillLegalMinimum);
 		currentPrimarySkillValue = primarySkillLegalMinimum;
 	}
 	heroClass->primarySkillInitial.push_back(currentPrimarySkillValue);

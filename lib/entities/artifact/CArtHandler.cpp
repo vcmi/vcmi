@@ -270,7 +270,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & contex
 		{
 			const auto charges = node["charged"]["startingCharges"].Integer();
 			if(charges < 0)
-				logMod->warn("Warning! Charged artifact %s number of charges cannot be less than zero %d!", art->getNameTranslated(), charges);
+				logMod->warn("Warning! Charged artifact %s number of charges cannot be less than zero %d!", art->getJsonKey(), charges);
 			else
 				art->setDefaultStartCharges(charges);
 		}

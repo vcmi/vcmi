@@ -223,7 +223,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context
 
 	context.lib.generaltexth->registerString(scope, spell->getNameTextID(), json["name"]);
 
-	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->getNameTranslated());
+	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->getJsonKey());
 
 	for(const auto & schoolJson : json["school"].Struct())
 	{
@@ -265,7 +265,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context
 	else if(targetType == "LOCATION")
 		spell->targetType = spells::AimType::LOCATION;
 	else
-		logMod->warn("Spell %s: target type %s - assumed NO_TARGET.", spell->getNameTranslated(), (targetType.empty() ? "empty" : "unknown ("+targetType+")"));
+		logMod->warn("Spell %s: target type %s - assumed NO_TARGET.", spell->getJsonKey(), (targetType.empty() ? "empty" : "unknown ("+targetType+")"));
 
 	for(const auto & counteredSpell: json["counters"].Struct())
 	{
@@ -319,7 +319,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context
 	{
 		spell->positive = false; //duplicates constructor but, just in case
 		spell->negative = false;
-		logMod->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->getNameTranslated());
+		logMod->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->getJsonKey());
 	}
 
 	spell->special = flags["special"].Bool();
@@ -354,7 +354,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context
 
 		if(!(immunities.empty() && absoluteImmunities.empty() && limiters.empty() && absoluteLimiters.empty()))
 		{
-			logMod->warn("Spell %s has old target condition format. Expected configuration: ", spell->getNameTranslated());
+			logMod->warn("Spell %s has old target condition format. Expected configuration: ", spell->getJsonKey());
 			spell->targetCondition = spell->convertTargetCondition(immunities, absoluteImmunities, limiters, absoluteLimiters);
 			logMod->warn("\n\"targetCondition\" : %s", spell->targetCondition.toString());
 		}
@@ -365,13 +365,13 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context
 
 		//TODO: could this be safely merged instead of discarding?
 		if(!json["immunity"].isNull())
-			logMod->warn("Spell %s 'immunity' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
+			logMod->warn("Spell %s 'immunity' field mixed with 'targetCondition' discarded", spell->getJsonKey());
 		if(!json["absoluteImmunity"].isNull())
-			logMod->warn("Spell %s 'absoluteImmunity' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
+			logMod->warn("Spell %s 'absoluteImmunity' field mixed with 'targetCondition' discarded", spell->getJsonKey());
 		if(!json["limit"].isNull())
-			logMod->warn("Spell %s 'limit' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
+			logMod->warn("Spell %s 'limit' field mixed with 'targetCondition' discarded", spell->getJsonKey());
 		if(!json["absoluteLimit"].isNull())
-			logMod->warn("Spell %s 'absoluteLimit' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
+			logMod->warn("Spell %s 'absoluteLimit' field mixed with 'targetCondition' discarded", spell->getJsonKey());
 	}
 
 	const JsonNode & graphicsNode = json["graphics"];
@@ -486,7 +486,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context
 			levelObject.battleEffects = levelNode["battleEffects"];
 
 			if(!levelObject.cumulativeEffects.Struct().empty() || !levelObject.effects.Struct().empty() || spell->isOffensive())
-				logGlobal->error("Mixing %s special effects with old format effects gives unpredictable result", spell->getNameTranslated());
+				logGlobal->error("Mixing %s special effects with old format effects gives unpredictable result", spell->getJsonKey());
 		}
 	}
 	return spell;
