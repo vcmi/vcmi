@@ -562,6 +562,8 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 {
 	assert(&allBonuses != &out); //todo should it work in-place?
 
+	std::map<SpellID, std::map<int, BonusList>> spellBonuses;
+
 	BonusList undecided = allBonuses;
 	BonusList & accepted = out;
 
@@ -581,6 +583,11 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 			else if(decision == ILimiter::EDecision::ACCEPT)
 			{
 				accepted.push_back(b);
+				if (b->source == BonusSource::SPELL_EFFECT)
+				{
+					SpellWithMasteryID id = b->sid.as<SpellWithMasteryID>();
+					spellBonuses[id.getSpellID()][id.getMastery()].push_back(b);
+				}
 				undecided.erase(i);
 				i--; continue;
 			}
@@ -589,8 +596,25 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 		}
 
 		if(undecided.size() == undecidedCount) //we haven't moved a single bonus -> limiters reached a stable state
-			return;
+			break;
 	}
+
+	// if under multiple casts of the same spell, only effects with the highest mastery apply
+	for (auto const& [id, effectsMap] : spellBonuses)
+	{
+		for(auto const& [mastery, bonuses] : effectsMap)
+		{
+			if (mastery < effectsMap.rbegin()->first)
+			{
+				for (const auto & bonus : bonuses)
+				{
+					int i = vstd::find_pos(accepted, bonus);
+					accepted.erase(i);
+				}
+			}
+		}
+	}
+
 }
 
 void CBonusSystemNode::nodeHasChanged()
