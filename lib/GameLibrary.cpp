@@ -255,9 +255,9 @@ void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 	modh->load(context);
 	modh->afterLoad(context);
 
-	createHandler(mapFormat);
+	mapFormat = std::make_unique<MapFormatSettings>(*this);
 
-	creh->buildCombatValues();
+	creh->buildCombatValues(*this);
 }
 
 GameLibrary::GameLibrary() = default;

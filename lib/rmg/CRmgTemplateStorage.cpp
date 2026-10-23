@@ -30,7 +30,7 @@ void CRmgTemplateStorage::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for (auto& temp : templates)
 	{
-		temp.second->afterLoad();
+		temp.second->afterLoad(context.lib);
 	}
 }
 

@@ -382,13 +382,13 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 	throw std::out_of_range(errorString);
 }
 
-TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const
+TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const CIdentifierStorage & identifiers, const std::string & scope, const std::string & type, const std::string & subtype) const
 {
-	std::optional<si32> id = LIBRARY->identifiers()->getIdentifier(scope, "object", type);
+	std::optional<si32> id = identifiers.getIdentifier(scope, "object", type);
 	if(id)
 	{
 		const auto & object = mapObjectTypes.at(id.value());
-		std::optional<si32> subID = LIBRARY->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
+		std::optional<si32> subID = identifiers.getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
 			return object->objectTypeHandlers.at(subID.value());

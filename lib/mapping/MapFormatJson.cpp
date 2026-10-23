@@ -1177,7 +1177,7 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	configuration.setModScope(ModScope::scopeGame());
 
-	auto handler = LIBRARY->objtypeh->getHandlerFor( ModScope::scopeMap(), typeName, subtypeName);
+	auto handler = LIBRARY->objtypeh->getHandlerFor(*LIBRARY->identifiers(), ModScope::scopeMap(), typeName, subtypeName);
 
 	auto appearance = std::make_shared<ObjectTemplate>();
 

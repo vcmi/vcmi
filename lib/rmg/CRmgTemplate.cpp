@@ -196,9 +196,14 @@ std::optional<int> ZoneOptions::getOwner() const
 
 std::set<TerrainId> ZoneOptions::getTerrainTypes() const
 {
+	return getTerrainTypes(*LIBRARY);
+}
+
+std::set<TerrainId> ZoneOptions::getTerrainTypes(const GameLibrary & library) const
+{
 	if (terrainTypes.empty())
 	{
-		return vstd::difference(getDefaultTerrainTypes(), bannedTerrains);
+		return vstd::difference(getDefaultTerrainTypes(library), bannedTerrains);
 	}
 	else
 	{
@@ -211,10 +216,10 @@ void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 	terrainTypes = value;
 }
 
-std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes() const
+std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes(const GameLibrary & library) const
 {
 	std::set<TerrainId> terrains;
-	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
+	for(const auto & terrain : library.terrainTypeHandler->objects)
 	{
 		if (terrain->isLand() && terrain->isPassable())
 		{
@@ -992,9 +997,9 @@ const JsonNode & CRmgTemplate::getMapSettings() const
 	return *mapSettings;
 }
 
-template<typename T>
+template<typename T, typename Getter>
 T CRmgTemplate::inheritZoneProperty(std::shared_ptr<rmg::ZoneOptions> zone, 
-									T (rmg::ZoneOptions::*getter)() const,
+									Getter getter,
 									void (rmg::ZoneOptions::*setter)(const T&),
 									TRmgTemplateZoneId (rmg::ZoneOptions::*inheritFrom)() const,
 									const std::string& propertyString,
@@ -1014,10 +1019,10 @@ T CRmgTemplate::inheritZoneProperty(std::shared_ptr<rmg::ZoneOptions> zone,
 		((*zone).*setter)(inheritedValue);
 	}
 	
-	return ((*zone).*getter)();
+	return std::invoke(getter, *zone);
 }
 
-void CRmgTemplate::afterLoad()
+void CRmgTemplate::afterLoad(const GameLibrary & library)
 {
 	for(auto & idAndZone : zones)
 	{
@@ -1027,7 +1032,7 @@ void CRmgTemplate::afterLoad()
 		inheritTownProperties(zone);
 
 		inheritZoneProperty(zone, 
-							&rmg::ZoneOptions::getTerrainTypes, 
+							[&library](const rmg::ZoneOptions & options){ return options.getTerrainTypes(library); },
 							&rmg::ZoneOptions::setTerrainTypes, 
 							&rmg::ZoneOptions::getTerrainTypeLikeZone,
 							"terrain types");
@@ -1054,7 +1059,7 @@ void CRmgTemplate::afterLoad()
 		auto monsterTypes = zone->getMonsterTypes();
 		if (monsterTypes.empty())
 		{
-			zone->setMonsterTypes(LIBRARY->townh->getAllowedFactions(false));
+			zone->setMonsterTypes(library.townh->getAllowedFactions(false));
 		}
 	}
 

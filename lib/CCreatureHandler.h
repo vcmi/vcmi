@@ -29,6 +29,7 @@ class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 class CombatValue;
+class GameLibrary;
 class JsonSerializeFormat;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
@@ -233,7 +234,7 @@ public:
 
 	/// Builds the combat value model. Reads creature stats and resolves script identifiers,
 	/// so it can only be called once all mods are loaded
-	void buildCombatValues();
+	void buildCombatValues(const GameLibrary & library);
 
 	/// Estimates combat value of a creature or a battle unit
 	const CombatValue & getCombatValue() const;

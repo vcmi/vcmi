@@ -968,9 +968,9 @@ CCreatureHandler::~CCreatureHandler()
 		p.first.clear();
 }
 
-void CCreatureHandler::buildCombatValues()
+void CCreatureHandler::buildCombatValues(const GameLibrary & library)
 {
-	combatValues = std::make_unique<CombatValue>();
+	combatValues = std::make_unique<CombatValue>(library);
 }
 
 const CombatValue & CCreatureHandler::getCombatValue() const

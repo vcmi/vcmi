@@ -11,6 +11,7 @@
 
 #include "../lib/battle/BattleHex.h"
 #include "../lib/battle/CombatValue.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/battle/BattleSide.h"
 
 class CCreature;
@@ -79,7 +80,7 @@ private:
 	std::vector<Entry> entries;
 
 	/// Formula-based model that measurements are compared against
-	CombatValue values;
+	CombatValue values{*LIBRARY};
 
 	/// Builds a game just complete enough to hold a battle, with nothing that could scale damage
 	void startGame();

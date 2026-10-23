@@ -177,8 +177,7 @@ static int spellLevelOf(const BonusSubtypeID & subtype)
 	return level > 0 ? level : schoollessSpellLevel;
 }
 
-/// Value added by one point of combat script magnitude, or zero if magnitude does not describe the effect
-static double combatScriptWeight(const BonusSubtypeID & subtype)
+void CombatValue::weighCombatScripts(const GameLibrary & library)
 {
 	static constexpr std::array<std::pair<std::string_view, double>, 3> weights = {{
 		{ "deathStare", 0.02 },
@@ -186,24 +185,21 @@ static double combatScriptWeight(const BonusSubtypeID & subtype)
 		{ "fireShield", 0.003 },
 	}};
 
-	static const std::map<si32, double> priced = []
+	for(const auto & [name, weight] : weights)
 	{
-		std::map<si32, double> result;
+		auto index = library.identifiers()->getIdentifier(ModScope::scopeGame(), "script", std::string(name), false);
 
-		for(const auto & [name, weight] : weights)
-		{
-			auto index = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "script", std::string(name), false);
+		if(index.has_value())
+			combatScriptWeights[*index] = weight;
+	}
+}
 
-			if(index.has_value())
-				result[*index] = weight;
-		}
+/// Value added by one point of combat script magnitude, or zero if magnitude does not describe the effect
+static double combatScriptWeight(const std::map<si32, double> & weights, const BonusSubtypeID & subtype)
+{
+	auto entry = weights.find(subtype.getNum());
 
-		return result;
-	}();
-
-	auto entry = priced.find(subtype.getNum());
-
-	return entry == priced.end() ? 0.0 : entry->second;
+	return entry == weights.end() ? 0.0 : entry->second;
 }
 
 /// Effect that ends on the next attack made or received lasts about one round
@@ -298,30 +294,31 @@ double CombatValue::median(std::vector<double> values)
 	return values[values.size() / 2];
 }
 
-CombatValue::CombatValue()
+CombatValue::CombatValue(const GameLibrary & library)
 {
 	std::vector<const CCreature *> builtinCreatures;
 
-	for(const auto & creature : LIBRARY->creh->objects)
+	for(const auto & creature : library.creh->objects)
 		if(!creature->special && creature->getModScope() == ModScope::scopeBuiltin())
 			builtinCreatures.push_back(creature.get());
 
-	buildCurves(builtinCreatures);
+	weighCombatScripts(library);
+	buildCurves(library, builtinCreatures);
 	pinScale(builtinCreatures);
-	tabulateCreatures();
+	tabulateCreatures(library);
 }
 
-void CombatValue::tabulateCreatures()
+void CombatValue::tabulateCreatures(const GameLibrary & library)
 {
-	creatureValues.resize(LIBRARY->creh->objects.size());
+	creatureValues.resize(library.creh->objects.size());
 
-	for(const auto & creature : LIBRARY->creh->objects)
+	for(const auto & creature : library.creh->objects)
 		creatureValues.at(creature->getIndex()) = getAIValue(*creature, creature.get());
 }
 
-void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCreatures)
+void CombatValue::buildCurves(const GameLibrary & library, const std::vector<const CCreature *> & builtinCreatures)
 {
-	const auto * settings = LIBRARY->engineSettings();
+	const auto * settings = library.engineSettings();
 	const double attackPerPoint = settings->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
 	const double attackCap = settings->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
 	const double defensePerPoint = settings->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
@@ -581,7 +578,7 @@ double CombatValue::uptimeOf(const ACreature & creature, int hexesToEnemy)
 	return uptime * (bonuses->hasBonusOfType(BonusType::FLYING) ? flyingApproachBonus : 1.0);
 }
 
-double CombatValue::offenseMultiplier(const ACreature & creature)
+double CombatValue::offenseMultiplier(const ACreature & creature) const
 {
 	// value of one spell level, cast in place of an attack or for free after a successful attack
 	static constexpr double castWeight = 0.045;
@@ -643,7 +640,7 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 	for(const auto matchingBonuses = unit->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER);
 		const auto & bonus : *matchingBonuses)
 	{
-		const double weight = combatScriptWeight(bonus->subtype);
+		const double weight = combatScriptWeight(combatScriptWeights, bonus->subtype);
 
 		if(weight > 0)
 			result *= 1.0 + weight * bonus->val;
