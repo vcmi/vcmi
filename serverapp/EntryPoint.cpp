@@ -146,6 +146,17 @@ static void generateTranslations(const std::string & modID)
 		}
 
 		LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
+
+		// map and campaign texts are owned by maps and campaigns themselves, not by the library
+		for (auto const & map : loadedMaps)
+			map->texts->exportAllTexts(textsByMod, false);
+
+		for (auto const & campaign : loadedCampaigns)
+		{
+			campaign->getTexts()->exportAllTexts(textsByMod, false);
+			for (auto const & scenarioTexts : campaign->getScenarioTexts())
+				scenarioTexts.second->exportAllTexts(textsByMod, false);
+		}
 	}
 
 	for(const auto & modEntry : textsByMod)
