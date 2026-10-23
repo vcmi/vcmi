@@ -51,8 +51,6 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	/// map that is filled during construction with all known handlers. Not serializeable due to usage of std::function
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
 
-	std::vector<std::pair<CompoundMapObjectID, std::function<void(CompoundMapObjectID)>>> objectIdHandlers;
-
 	/// container with H3 templates, used only during loading, no need to serialize it
 	using TTemplatesContainer = std::multimap<std::pair<MapObjectID, MapObjectSubID>, std::shared_ptr<const ObjectTemplate>>;
 	TTemplatesContainer legacyTemplates;
@@ -89,15 +87,11 @@ public:
 	TObjectTypeHandler getHandlerFor(MapObjectID type, MapObjectSubID subtype) const;
 	TObjectTypeHandler getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const;
 	TObjectTypeHandler getHandlerFor(CompoundMapObjectID compoundIdentifier) const;
-	CompoundMapObjectID getCompoundIdentifier(const std::string & scope, const std::string & type, const std::string & subtype) const;
-	CompoundMapObjectID getCompoundIdentifier(const std::string & objectName) const;
 
 	/// Name shared by every object of this group, used when an object type provides no name of its own
 	std::string getObjectGroupNameTextID(MapObjectID type) const;
 
 	SObjectSounds getObjectSounds(MapObjectID type, MapObjectSubID subtype) const;
-
-	void resolveObjectCompoundId(const std::string & id, std::function<void(CompoundMapObjectID)> callback);
 
 	/// Returns handler string describing the handler (for use in client)
 	std::string getObjectHandlerName(MapObjectID type) const;

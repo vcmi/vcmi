@@ -47,8 +47,6 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/CLegacyConfigParser.h"
 
-#include <vstd/StringUtils.h>
-
 CObjectClassesHandler::CObjectClassesHandler()
 {
 #define SET_HANDLER_CLASS(STRING, CLASSNAME) handlerConstructors[STRING] = std::make_shared<CLASSNAME>
@@ -405,62 +403,6 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID comp
 	return getHandlerFor(compoundIdentifier.primaryID, compoundIdentifier.secondaryID);
 }
 
-CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & scope, const std::string & type, const std::string & subtype) const
-{
-	std::optional<si32> id;
-	if (scope.empty())
-	{
-		id = LIBRARY->identifiers()->getIdentifier("object", type);
-	}
-	else
-	{
-		id = LIBRARY->identifiers()->getIdentifier(scope, "object", type);
-	}
-
-	if(id)
-	{
-		if (subtype.empty())
-			return CompoundMapObjectID(id.value(), -1);
-
-		const auto & object = mapObjectTypes.at(id.value());
-		std::optional<si32> subID = LIBRARY->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
-
-		if (subID)
-			return CompoundMapObjectID(id.value(), subID.value());
-	}
-
-	std::string errorString = "Failed to get id for object of type " + type + "." + subtype;
-	logGlobal->error(errorString);
-	throw std::runtime_error(errorString);
-}
-
-CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & objectName) const
-{
-	std::string subtype;
-	std::string type;
-
-	auto scopeAndFullName = vstd::splitStringToPair(objectName, ':');
-	logGlobal->debug("scopeAndFullName: %s, %s", scopeAndFullName.first, scopeAndFullName.second);
-	
-	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
-	logGlobal->debug("typeAndName: %s, %s", typeAndName.first, typeAndName.second);
-	
-	auto nameAndSubtype = vstd::splitStringToPair(typeAndName.second, '.');
-	logGlobal->debug("nameAndSubtype: %s, %s", nameAndSubtype.first, nameAndSubtype.second);
-
-	if (!nameAndSubtype.first.empty())
-	{
-		type = nameAndSubtype.first;
-		subtype = nameAndSubtype.second;
-	}
-	else
-	{
-		type = typeAndName.second;
-	}
-	
-	return getCompoundIdentifier(boost::to_lower_copy(scopeAndFullName.first), type, subtype);
-}
-
 std::set<MapObjectID> CObjectClassesHandler::knownObjects() const
 {
 	std::set<MapObjectID> ret;
@@ -530,18 +472,6 @@ void CObjectClassesHandler::afterLoadFinalization()
 				logMod->debug("No templates found for %s:%s", entry->getJsonKey(), obj->getJsonKey());
 		}
 	}
-
-	for(auto & entry : objectIdHandlers)
-	{
-		// Call function for each object id
-		entry.second(entry.first);
-	}
-}
-
-void CObjectClassesHandler::resolveObjectCompoundId(const std::string & id, std::function<void(CompoundMapObjectID)> callback)
-{
-	auto compoundId = getCompoundIdentifier(id);
-	objectIdHandlers.push_back(std::make_pair(compoundId, callback));
 }
 
 void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container)

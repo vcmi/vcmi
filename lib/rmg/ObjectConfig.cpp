@@ -154,45 +154,28 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 		const JsonNode & configBannedObjects = config["bannedObjects"];
 		auto & resolver = handler.getIdentifierResolver();
 
-		if(configBannedObjects.isVector())
+		for(const auto & node : configBannedObjects.Struct())
 		{
-			// MOD COMPATIBILITY - 1.6 format
-
-			for(const auto & node : configBannedObjects.Vector())
+			resolver.requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, &resolver](int primaryID)
 			{
-				LIBRARY->objtypeh->resolveObjectCompoundId(node.String(),
-					[this](CompoundMapObjectID objid)
-					{
-						addBannedObject(objid);
-					}
-				);
-			}
-		}
-		else
-		{
-			for(const auto & node : configBannedObjects.Struct())
-			{
-				resolver.requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, &resolver](int primaryID)
+				if (node.second.isBool())
 				{
-					if (node.second.isBool())
+					if (node.second.Bool())
+						addBannedObject(CompoundMapObjectID(primaryID, -1));
+				}
+				else
+				{
+					for (const auto & subNode : node.second.Struct())
 					{
-						if (node.second.Bool())
-							addBannedObject(CompoundMapObjectID(primaryID, -1));
-					}
-					else
-					{
-						for (const auto & subNode : node.second.Struct())
-						{
-							const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+						const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
 
-							resolver.requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
-							{
-								addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
-							});
-						}
+						resolver.requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
+						{
+							addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
+						});
 					}
-				});
-			}
+				}
+			});
 		}
 	}
 
@@ -247,46 +230,28 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 			if (object.maxPerZone == 0)
 				object.maxPerZone = std::numeric_limits<int>::max();
 
-			if (objectConfig["id"].isNull())
+			resolver.requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig, &resolver](int primaryID)
 			{
-				resolver.requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig, &resolver](int primaryID)
+				if (objectConfig["subtype"].isNull())
 				{
-					if (objectConfig["subtype"].isNull())
+					auto objectWithID = object;
+					objectWithID.primaryID = primaryID;
+					objectWithID.secondaryID = 0;
+					addCustomObject(objectWithID);
+				}
+				else
+				{
+					const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+
+					resolver.requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object](int secondaryID)
 					{
 						auto objectWithID = object;
 						objectWithID.primaryID = primaryID;
-						objectWithID.secondaryID = 0;
+						objectWithID.secondaryID = secondaryID;
 						addCustomObject(objectWithID);
-					}
-					else
-					{
-						const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
-
-						resolver.requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object](int secondaryID)
-						{
-							auto objectWithID = object;
-							objectWithID.primaryID = primaryID;
-							objectWithID.secondaryID = secondaryID;
-							addCustomObject(objectWithID);
-						});
-					}
-				});
-			}
-			else
-			{
-				// MOD COMPATIBILITY - 1.6 format
-				auto objectName = objectConfig["id"].String();
-
-				LIBRARY->objtypeh->resolveObjectCompoundId(objectName, [this, object](CompoundMapObjectID objid)
-				{
-					auto objectWithID = object;
-					objectWithID.primaryID = objid.primaryID;
-					objectWithID.secondaryID = objid.secondaryID;
-					if (objectWithID.secondaryID == -1)
-						objectWithID.secondaryID = 0;
-					addCustomObject(objectWithID);
-				});
-			}
+					});
+				}
+			});
 		}
 	}
 
