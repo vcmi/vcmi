@@ -77,7 +77,7 @@ AdventureSpellMechanics::AdventureSpellMechanics(LibraryLoadContext & context, c
 		for(const auto & elem : config["bonuses"].Struct())
 		{
 			auto b = JsonUtils::parseBonus(elem.second, context);
-			b->sid = BonusSourceID(s->id);
+			b->sid = BonusSourceID(SpellWithMasteryID(static_cast<MasteryLevel::Type>(level), s->id));
 			b->source = BonusSource::SPELL_EFFECT;
 			levelOptions[level].bonuses.push_back(b);
 		}
@@ -218,7 +218,9 @@ void AdventureSpellMechanics::giveBonuses(SpellCastEnvironment * env, const Adve
 
 	GiveBonus gb;
 	gb.id = ObjectInstanceID(parameters.caster->getCasterUnitId());
-	gb.bonus = Bonus(BonusDuration::ONE_DAY, BonusType::SPELL_CAST_COUNTER, BonusSource::SPELL_EFFECT, 1, BonusSourceID(owner->id));
+	auto masteryLevel = static_cast<MasteryLevel::Type>(parameters.caster->getSpellSchoolLevel(owner));
+	gb.bonus = Bonus(BonusDuration::ONE_DAY, BonusType::SPELL_CAST_COUNTER, BonusSource::SPELL_EFFECT, 1,
+					 BonusSourceID(SpellWithMasteryID(masteryLevel, owner->id)));
 	env->apply(gb);
 }
 
