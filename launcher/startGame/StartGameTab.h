@@ -41,6 +41,7 @@ private slots:
 	void on_buttonGameStart_clicked();
 	void on_buttonUpdateCheck_clicked();
 	void on_buttonUpdateAvailable_clicked();
+	void on_buttonUpdateStatusHelp_clicked();
 	void on_buttonGameEditor_clicked();
 	void on_buttonImportFiles_clicked();
 	void on_buttonInstallTranslation_clicked();

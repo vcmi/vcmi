@@ -12,7 +12,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="labelCurrentVersion">
+    <widget class="QLabel" name="labelTitle">
      <property name="font">
       <font>
        <bold>true</bold>
@@ -21,21 +21,11 @@
      <property name="text">
       <string notr="true">VCMI</string>
      </property>
-     <property name="margin">
-      <number>5</number>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="labelStatus">
-     <property name="text">
-      <string notr="true"/>
-     </property>
      <property name="wordWrap">
       <bool>true</bool>
      </property>
-     <property name="textInteractionFlags">
-      <set>Qt::TextInteractionFlag::TextSelectableByMouse</set>
+     <property name="margin">
+      <number>5</number>
      </property>
     </widget>
    </item>
@@ -50,9 +40,40 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="labelChangelog">
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Changelog</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="margin">
+      <number>5</number>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QTextBrowser" name="textBrowserChangelog">
      <property name="openExternalLinks">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="labelInstructions">
+     <property name="text">
+      <string notr="true"/>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::TextInteractionFlag::TextSelectableByMouse</set>
      </property>
     </widget>
    </item>
