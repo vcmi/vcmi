@@ -482,17 +482,17 @@ void CGameState::initDifficulty()
 
 	auto setDifficulty = [this, &config, isTutorialScenario](PlayerState & state, const JsonNode & json)
 	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+
 		//set starting resources
 		if (isTutorialScenario && state.human)
-			state.resources.resolveFromJson(config["tutorial"]["resources"]);
+			state.resources.resolveFromJson(config["tutorial"]["resources"], resolver);
 		else
-			state.resources.resolveFromJson(json["resources"]);
+			state.resources.resolveFromJson(json["resources"], resolver);
 
 		//handicap
 		const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(state.color);
 		state.resources += ps.handicap.startBonus;
-
-		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
 
 		//set global bonuses
 		for(auto & jsonBonus : json["globalBonuses"].Vector())

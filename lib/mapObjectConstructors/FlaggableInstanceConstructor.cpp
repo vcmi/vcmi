@@ -40,7 +40,7 @@ void FlaggableInstanceConstructor::initTypeData(const JsonNode & config)
 		}
 	}
 
-	dailyIncome.resolveFromJson(config["dailyIncome"]);
+	dailyIncome.resolveFromJson(config["dailyIncome"], LIBRARY->modh->getIdentifierResolver());
 }
 
 void FlaggableInstanceConstructor::initializeObject(FlaggableMapObject * flaggable) const

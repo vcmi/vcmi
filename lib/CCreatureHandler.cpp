@@ -442,7 +442,7 @@ void CCreatureHandler::loadCommanders()
 
 	const JsonNode & config = data; // switch to const data accessors
 
-	commanderResurrectionPrice.resolveFromJson(config["resurrectionPrice"]);
+	commanderResurrectionPrice.resolveFromJson(config["resurrectionPrice"], LIBRARY->modh->getIdentifierResolver());
 
 	for (auto bonus : config["bonusPerLevel"].Vector())
 	{
@@ -583,11 +583,11 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	JsonDeserializer handler(nullptr, node);
 	cre->serializeJson(handler);
 
-	cre->cost.resolveFromJson(node["cost"]);
+	cre->cost.resolveFromJson(node["cost"], LIBRARY->modh->getIdentifierResolver());
 	if(!node["resurrectionPrice"].isNull())
 	{
 		cre->commanderResurrectionPrice.emplace();
-		cre->commanderResurrectionPrice->resolveFromJson(node["resurrectionPrice"]);
+		cre->commanderResurrectionPrice->resolveFromJson(node["resurrectionPrice"], LIBRARY->modh->getIdentifierResolver());
 	}
 
 	LIBRARY->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);

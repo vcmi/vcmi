@@ -281,7 +281,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 	LIBRARY->generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"]);
 
 	ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
-	ret->resources.resolveFromJson(source["cost"]);
+	ret->resources.resolveFromJson(source["cost"], LIBRARY->modh->getIdentifierResolver());
 
 	//MODS COMPATIBILITY FOR pre-1.6
 	bool produceEmpty = true;
@@ -289,7 +289,7 @@ void CTownHandler::loadBuilding(CTown * town, const std::string & stringID, cons
 		if(res.second.Integer() != 0)
 			produceEmpty = false;
 	if(!produceEmpty)
-		ret->produce.resolveFromJson(source["produce"]); // non legacy
+		ret->produce.resolveFromJson(source["produce"], LIBRARY->modh->getIdentifierResolver()); // non legacy
 	else if(ret->bid == BuildingID::RESOURCE_SILO)
 	{
 		logGlobal->warn("Resource silo in town '%s' does not produce any resources!", ret->town->faction->getJsonKey());
