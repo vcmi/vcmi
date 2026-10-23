@@ -327,7 +327,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 
 		for(const auto & node : configRequiredObjects.Struct())
 		{
-			LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, &getInfo](int primaryID)
+			LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, getInfo](int primaryID)
 			{
 				if (node.second.isNumber())
 				{
@@ -349,7 +349,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 								//FIXME: core:artifact is not resolved properly by requestIdentifierIfFound
 								jsonKey = "artifact";
 
-							LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID, subNode, &getInfo](int secondaryID)
+							LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID, subNode, getInfo](int secondaryID)
 							{
 								if(subNode.second.isNumber())
 									addRequiredObject(CompoundMapObjectID(primaryID, secondaryID), static_cast<ui16>(subNode.second.Integer()));

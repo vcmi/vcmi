@@ -96,9 +96,8 @@ JsonSerializeFormat::LICSet::LICSet(const std::set<si32> & Standard, TDecoder De
 }
 
 //JsonSerializeFormat
-JsonSerializeFormat::JsonSerializeFormat(const IInstanceResolver * instanceResolver_, const bool saving_, const bool updating_)
+JsonSerializeFormat::JsonSerializeFormat(const IInstanceResolver * instanceResolver_, const bool saving_)
 	: saving(saving_),
-	updating(updating_),
 	instanceResolver(instanceResolver_)
 {
 }

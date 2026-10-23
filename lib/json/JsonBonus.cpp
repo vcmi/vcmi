@@ -949,14 +949,26 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	value = &ability["type"];
 	if(value->isString())
 	{
-		ret = ret.And(Selector::type()(static_cast<BonusType>(*LIBRARY->identifiers()->getIdentifier("bonus", value->String()))));
+		auto bonusID = LIBRARY->identifiers()->getIdentifier("bonus", *value);
+		if(!bonusID)
+		{
+			logMod->error("Bonus selector from mod '%s' has unknown bonus type '%s'!", value->getModScope(), value->String());
+			return Selector::none;
+		}
+		type = static_cast<BonusType>(*bonusID);
+		ret = ret.And(Selector::type()(type));
 	}
 	value = &ability["subtype"];
 	if(!value->isNull() && type != BonusType::NONE)
 	{
-		BonusSubtypeID subtype;
-		loadBonusSubtype(subtype, type, ability);
-		ret = ret.And(Selector::subtype()(subtype));
+		// subtype is resolved asynchronously, same as source instance below
+		auto subtype = std::make_shared<BonusSubtypeID>();
+		loadBonusSubtype(*subtype, type, *value);
+
+		ret = ret.And(CSelector([subtype](const Bonus * bonus)
+		{
+			return bonus->subtype == *subtype;
+		}));
 	}
 	value = &ability["sourceType"];
 	std::optional<BonusSource> src = std::nullopt; //Fixes for GCC false maybe-uninitialized
