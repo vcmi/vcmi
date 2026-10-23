@@ -41,9 +41,6 @@
 #include "render/CAnimation.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/filesystem/Filesystem.h"
-#include "../lib/modding/CModHandler.h"
-#include "../lib/modding/ContentTypeHandler.h"
-#include "../lib/modding/ModUtility.h"
 #include "../lib/serializer/GameConnection.h"
 #include "../lib/VCMIDirs.h"
 #include "../lib/texts/TextOperations.h"
@@ -275,47 +272,6 @@ void ClientCommandManager::handleTranslateMapsCommand()
 	printCommandMessage("Translation export complete");
 	printCommandMessage("Extracted files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory\n");
 
-}
-
-void ClientCommandManager::handleGetConfigCommand()
-{
-	printCommandMessage("Command accepted.\t");
-
-	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "configuration";
-
-	boost::filesystem::create_directories(outPath);
-
-	const std::vector<std::string> contentNames = { "heroClasses", "artifacts", "creatures", "factions", "objects", "heroes", "spells", "skills" };
-
-	for(auto contentName : contentNames)
-	{
-		auto const & handler = *LIBRARY->modh->content;
-		auto const & content = handler[contentName];
-
-		auto contentOutPath = outPath / contentName;
-		boost::filesystem::create_directories(contentOutPath);
-
-		for(auto& iter : content.modData)
-		{
-			const JsonNode& modData = iter.second.modData;
-
-			for(auto& nameAndObject : modData.Struct())
-			{
-				const JsonNode& object = nameAndObject.second;
-
-				std::string name = ModUtility::makeFullIdentifier(object.getModScope(), contentName, nameAndObject.first);
-
-				boost::algorithm::replace_all(name, ":", "_");
-
-				const boost::filesystem::path filePath = contentOutPath / (name + ".json");
-				std::ofstream file(filePath.c_str());
-				file << object.toString();
-			}
-		}
-	}
-
-	printCommandMessage("\rExtracting done :)\n");
-	printCommandMessage("Extracted files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory\n");
 }
 
 void ClientCommandManager::handleAntilagCommand(std::istringstream& singleWordBuffer)
@@ -651,9 +607,6 @@ void ClientCommandManager::processCommand(const std::string & message, bool call
 
 	else if(message=="translate maps")
 		handleTranslateMapsCommand();
-
-	else if(message=="get config")
-		handleGetConfigCommand();
 
 	else if(message=="get txt")
 		handleGetTextCommand();
