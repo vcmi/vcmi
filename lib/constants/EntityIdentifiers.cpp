@@ -148,6 +148,46 @@ FactionID BuildingTypeUniqueID::getFaction() const
 	return FactionID(getNum() / 0x10000);
 }
 
+SpellWithMasteryID::SpellWithMasteryID(MasteryLevel::Type mastery, SpellID spell):
+	Identifier(spell.getNum() * 0x1000 + mastery)
+{
+	assert(mastery >= 0);
+	assert(mastery < 0x1000);
+	assert(spell.getNum() >= 0);
+	assert(spell.getNum() < std::numeric_limits<int32_t>::max() - 0x1000);
+}
+
+si32 SpellWithMasteryID::decode(const std::string & identifier)
+{
+	return SpellID::decode(identifier);
+}
+
+std::string SpellWithMasteryID::encode(const si32 index)
+{
+	return SpellID::encode(SpellWithMasteryID(index).getSpellID().getNum());
+}
+
+
+MasteryLevel::Type SpellWithMasteryID::getMastery() const
+{
+	return static_cast<MasteryLevel::Type>(getNum() % 0x1000);
+}
+
+SpellID SpellWithMasteryID::getSpellID() const
+{
+	return SpellID(getNum() / 0x1000);
+}
+
+const CSpell * SpellWithMasteryID::toSpell() const
+{
+	return getSpellID().toSpell();
+}
+
+bool SpellWithMasteryID::compareOnlyBySpellID() const
+{
+	return getMastery() == MasteryLevel::ANY;
+}
+
 int32_t IdentifierBase::resolveIdentifier(const std::string & entityType, const std::string identifier)
 {
 	if (identifier.empty())

@@ -45,6 +45,7 @@ JsonNode BonusDescriptor::toJson() const
 	if(!propagator.isNull())         result["propagator"] = propagator;
 	if(!updater.isNull())            result["updater"] = updater;
 	if(!propagationUpdater.isNull()) result["propagationUpdater"] = propagationUpdater;
+	if(!sourceSecondaryID.isNull())  result["sourceSecondaryID"] = sourceSecondaryID;
 
 	return result;
 }
