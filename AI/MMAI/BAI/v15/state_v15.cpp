@@ -1129,7 +1129,8 @@ namespace
 						 .hpdiffAttacker = static_cast<int>(hpdiff_attacker),
 						 .hpdiffDefender = static_cast<int>(hpdiff_defender),
 						 .battlefieldValue = stats.totalValue,
-						 .battlefieldHp = stats.totalHp}
+						 .battlefieldHp = stats.totalHp,
+						 .isIndirect = false}
 					)
 				);
 			}
@@ -1516,7 +1517,7 @@ namespace
 				if(!wasNew) // key already existed
 					continue;
 
-				if(!selfblocked && G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(unit, adjunit, false))
+				if(!selfblocked && G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(unit, adjunit, false) && !stack.canShootBlocked())
 				{
 					// this action will block `unit`
 					G.add(E::Action_Blocks_Unit::Create(action, unit));
@@ -1524,7 +1525,7 @@ namespace
 					selfblocked = true;
 				}
 
-				if(G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(adjunit, unit, false))
+				if(G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(adjunit, unit, false) && !adjunit->cstack.canShootBlocked())
 				{
 					// this action will block `adjunit`
 					G.add(E::Action_Blocks_Unit::Create(action, adjunit));
@@ -2076,7 +2077,10 @@ namespace
 			if(!ounit)
 				continue;
 
-			if(!G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(unit, ounit, false))
+			const auto & edge = G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(unit, ounit, false);
+
+			// Indirect MeleeDmg edges should not have a corresponding AMOVE action.
+			if(!edge || edge->isIndirect)
 				continue;
 
 			auto [it, inserted] = ounits.emplace(ounit);
@@ -2139,9 +2143,8 @@ namespace
 				if (friendlyFire && !isHypnotized)
 					vdiff_defender *= -1;
 
-				// Adding a new Unit_MeleeDmg_Unit edge is dangerous as it might
-				// influence how other edges are built.
-				// However, the graph is mostly built by now so we should be safe.
+				// Adding a new Unit_MeleeDmg_Unit edge is dangerous as it
+				// influences an earlier `if` in this loop => mark as indirect
 				G.add(
 					E::Unit_MeleeDmg_Unit::Create(
 						unit,
@@ -2151,7 +2154,8 @@ namespace
 						 .hpdiffAttacker = 0,
 						 .hpdiffDefender = static_cast<int>(hpdiff_defender),
 						 .battlefieldValue = stats.totalValue,
-						 .battlefieldHp = stats.totalHp}
+						 .battlefieldHp = stats.totalHp,
+						 .isIndirect = true}
 					)
 				);
 			}

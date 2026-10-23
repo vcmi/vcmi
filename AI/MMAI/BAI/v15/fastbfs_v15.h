@@ -57,10 +57,7 @@ struct FastBFS
 
 		for(const auto & o : battle.battleGetAllObstacles(battle.battleGetMySide()))
 			if(o->obstacleType == CObstacleInstance::MOAT)
-			{
-				std::cout << "FOUND MOAT!\n";
 				return o;
-			}
 		return nullptr;
 	};
 

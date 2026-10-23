@@ -717,7 +717,7 @@ namespace
 			const auto & blocker = edge->dstNode->cstack;
 
 			expect(blocked.canShoot(), "EDGE_UNIT_BLOCKS_UNIT: blocked unit cannot shoot");
-			expect(!blocked.canShootBlocked(), "EDGE_UNIT_BLOCKS_UNIT: blocked unit can shoot while blocked");
+			expect(!blocked.canShootBlocked(), "EDGE_UNIT_BLOCKS_UNIT: blocked unit can shoot while blocked" + edge->srcNode->name());
 			expect(!blocked.hasBonusOfType(BonusType::SIEGE_WEAPON), "EDGE_UNIT_BLOCKS_UNIT: war machine cannot be blocked");
 			expect(
 				blocker.unitSide() != blocked.unitSide() || blocked.hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE),
