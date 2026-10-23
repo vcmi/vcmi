@@ -14,6 +14,7 @@
 #include "CRmgTemplate.h"
 
 #include "../GameLibrary.h"
+#include "../modding/CModHandler.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../texts/CGeneralTextHandler.h"
 
@@ -37,7 +38,7 @@ void CRmgTemplateStorage::loadObject(const std::string & scope, const std::strin
 {
 	try
 	{
-		JsonDeserializer handler(nullptr, data);
+		JsonDeserializer handler(nullptr, LIBRARY->modh->getIdentifierResolver(), data);
 		auto fullKey = scope + ":" + name; //actually it's not used
 		templates[fullKey] = std::make_shared<CRmgTemplate>();
 		templates[fullKey]->setId(fullKey);

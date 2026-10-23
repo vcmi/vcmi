@@ -580,7 +580,7 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	cre->identifier = identifier;
 	cre->modScope = scope;
 
-	JsonDeserializer handler(nullptr, node);
+	JsonDeserializer handler(nullptr, LIBRARY->modh->getIdentifierResolver(), node);
 	cre->serializeJson(handler);
 
 	cre->cost.resolveFromJson(node["cost"], LIBRARY->modh->getIdentifierResolver());

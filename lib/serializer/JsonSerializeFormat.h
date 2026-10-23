@@ -11,7 +11,6 @@
 
 #include "../constants/IdentifierBase.h"
 #include "../json/JsonNode.h"
-#include "../modding/CModHandler.h"
 #include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
@@ -156,6 +155,9 @@ public:
 	virtual ~JsonSerializeFormat() = default;
 
 	virtual const JsonNode & getCurrent() = 0;
+
+	/// Resolver for identifiers in loaded data. Only available when loading
+	IIdentifierResolver & getIdentifierResolver();
 
 	JsonStructSerializer enterStruct(const std::string & fieldName);
 	JsonArraySerializer enterArray(const std::string & fieldName);
@@ -313,7 +315,7 @@ public:
 
 			if (!fieldValue.String().empty())
 			{
-				LIBRARY->modh->getIdentifierResolver().requestIdentifier(IdentifierType::entityType(), fieldValue, [&value](int32_t index){
+				getIdentifierResolver().requestIdentifier(IdentifierType::entityType(), fieldValue, [&value](int32_t index){
 					value = IdentifierType(index);
 				});
 			}
@@ -342,7 +344,7 @@ public:
 			const auto & node = getCurrent()[fieldName].Struct();
 			for (const auto & n : node)
 			{
-				LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(n.second.getModScope(), Key::entityType(), n.first, [&value, n](int32_t index) {
+				getIdentifierResolver().requestIdentifierIfFound(n.second.getModScope(), Key::entityType(), n.first, [&value, n](int32_t index) {
 					value[Key(index)] = n.second.Integer(); // TODO: only int supported yet
 				});
 			}
@@ -369,7 +371,7 @@ public:
 
 			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				LIBRARY->modh->getIdentifierResolver().requestIdentifier(E::entityType(), fieldValue[i], [&value, i](int32_t index){
+				getIdentifierResolver().requestIdentifier(E::entityType(), fieldValue[i], [&value, i](int32_t index){
 					value[i] = T(index);
 				});
 			}
@@ -393,7 +395,7 @@ public:
 		{
 			for (const auto & element : getCurrent()[fieldName].Vector())
 			{
-				LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(U::entityType(), element, [&value](int32_t index){
+				getIdentifierResolver().requestIdentifierIfFound(U::entityType(), element, [&value](int32_t index){
 					value.insert(T(index));
 				});
 			}
@@ -438,7 +440,7 @@ public:
 	virtual void serializeRaw(const std::string & fieldName, JsonNode & value, const std::optional<std::reference_wrapper<const JsonNode>> defaultValue) = 0;
 
 protected:
-	JsonSerializeFormat(const IInstanceResolver * instanceResolver_, const bool saving_);
+	JsonSerializeFormat(const IInstanceResolver * instanceResolver_, IIdentifierResolver * identifierResolver_, const bool saving_);
 
 	///bool <-> Json bool, indeterminate is default
 	virtual void serializeInternal(const std::string & fieldName, std::optional<bool> & value) = 0;
@@ -479,6 +481,7 @@ protected:
 
 private:
 	const IInstanceResolver * instanceResolver;
+	IIdentifierResolver * identifierResolver;
 
 	template<typename VType, typename DVType, typename IType, typename... Args>
 	void doSerializeInternal(const std::string & fieldName, VType & value, const std::optional<DVType> & defaultValue, Args... args)

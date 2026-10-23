@@ -402,7 +402,7 @@ public:
 		return Object();
 	}
 
-	Object createFromJsonStruct(const JsonNode & jsonStruct) const override
+	Object createFromJsonStruct(const JsonNode & jsonStruct, IIdentifierResolver & resolver) const override
 	{
 		auto type = jsonStruct["type"].String();
 		auto parameters = jsonStruct["parameters"];
@@ -414,7 +414,7 @@ public:
 				minVal = parameters["minVal"].Integer();
 			if(parameters["maxVal"].isNumber())
 				maxVal = parameters["maxVal"].Integer();
-			auto sel = JsonUtils::parseSelector(parameters, LIBRARY->modh->getIdentifierResolver());
+			auto sel = JsonUtils::parseSelector(parameters, resolver);
 			return std::make_shared<SelectorCondition>(sel, minVal, maxVal);
 		}
 
@@ -477,17 +477,17 @@ void TargetCondition::serializeJson(JsonSerializeFormat & handler, const ItemFac
 
 	{
 		auto anyOf = handler.enterStruct("anyOf");
-		loadConditions(anyOf->getCurrent(), false, false, itemFactory);
+		loadConditions(anyOf->getCurrent(), false, false, itemFactory, handler.getIdentifierResolver());
 	}
 
 	{
 		auto allOf = handler.enterStruct("allOf");
-		loadConditions(allOf->getCurrent(), true, false, itemFactory);
+		loadConditions(allOf->getCurrent(), true, false, itemFactory, handler.getIdentifierResolver());
 	}
 
 	{
 		auto noneOf = handler.enterStruct("noneOf");
-		loadConditions(noneOf->getCurrent(), true, true, itemFactory);
+		loadConditions(noneOf->getCurrent(), true, true, itemFactory, handler.getIdentifierResolver());
 	}
 }
 
@@ -513,7 +513,7 @@ bool TargetCondition::check(const ItemVector & condition, const Mechanics * m, c
 	return !nonExclusiveExits || nonExclusiveCheck;
 }
 
-void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bool inverted, const ItemFactory * itemFactory)
+void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bool inverted, const ItemFactory * itemFactory, IIdentifierResolver & resolver)
 {
 	for(const auto & keyValue : source.Struct())
 	{
@@ -535,7 +535,7 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 
 		std::shared_ptr<TargetConditionItem> item;
 		if(value.isStruct())
-			item = itemFactory->createFromJsonStruct(value);
+			item = itemFactory->createFromJsonStruct(value, resolver);
 		else
 		{
 			std::string scope;

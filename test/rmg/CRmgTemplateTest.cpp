@@ -38,7 +38,8 @@ protected:
 		subject->setId(id);
 
 		{
-			JsonDeserializer handler(nullptr, config);
+			InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+			JsonDeserializer handler(nullptr, resolver, config);
 			subject->serializeJson(handler);
 		}
 

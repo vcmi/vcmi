@@ -25,6 +25,7 @@
 #include "../battle/IBattleState.h"
 #include "../battle/Unit.h"
 #include "../mapObjects/CGHeroInstance.h"
+#include "../modding/CModHandler.h"
 #include "../serializer/JsonDeserializer.h"
 #include "../serializer/JsonSerializer.h"
 #include "../BattleFieldHandler.h"
@@ -38,7 +39,7 @@ static std::shared_ptr<TargetCondition> makeCondition(const CSpell * s)
 {
 	auto res = std::make_shared<TargetCondition>();
 
-	JsonDeserializer deser(nullptr, s->targetCondition);
+	JsonDeserializer deser(nullptr, LIBRARY->modh->getIdentifierResolver(), s->targetCondition);
 	res->serializeJson(deser, TargetConditionItemFactory::getDefault());
 
 	return res;
