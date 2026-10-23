@@ -23,6 +23,8 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../mapping/TerrainTile.h"
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
 #include "../texts/TextIdentifier.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -47,7 +49,7 @@ void ResourceInstanceConstructor::initTypeData(const JsonNode & input)
 	config = input;
 
 	resourceType = GameResID::GOLD; //set up fallback
-	LIBRARY->identifiers()->requestIdentifierIfNotNull("resource", input["resource"], [&](si32 index)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull("resource", input["resource"], [&](si32 index)
 	{
 		resourceType = GameResID(index);
 	});
@@ -94,7 +96,7 @@ void MineInstanceConstructor::initTypeData(const JsonNode & input)
 	config = input;
 
 	resourceType = GameResID::NONE; //set up fallback
-	LIBRARY->identifiers()->requestIdentifierIfNotNull("resource", input["resource"], [&](si32 index)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull("resource", input["resource"], [&](si32 index)
 	{
 		resourceType = GameResID(index);
 	});
@@ -185,7 +187,7 @@ std::vector<CStackBasicDescriptor> MineInstanceConstructor::getGuards(IGameInfoC
 
 void CTownInstanceConstructor::initTypeData(const JsonNode & input)
 {
-	LIBRARY->identifiers()->requestIdentifier("faction", input["faction"], [&](si32 index)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier("faction", input["faction"], [&](si32 index)
 	{
 		faction = (*LIBRARY->townh)[index];
 	});
@@ -245,7 +247,7 @@ std::string CTownInstanceConstructor::getNameTextID() const
 
 void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 {
-	LIBRARY->identifiers()->requestIdentifier(
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier(
 		"heroClass",
 		input["heroClass"],
 		[&](si32 index) { heroClass = HeroClassID(index).toHeroClass(); });
@@ -259,7 +261,7 @@ void CHeroInstanceConstructor::initTypeData(const JsonNode & input)
 
 		if (!config["hero"].isNull())
 		{
-			LIBRARY->identifiers()->requestIdentifier( "hero", config["hero"], [this, templateName = name](si32 index) {
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "hero", config["hero"], [this, templateName = name](si32 index) {
 				filters.at(templateName).fixedHero = HeroTypeID(index);
 			});
 		}

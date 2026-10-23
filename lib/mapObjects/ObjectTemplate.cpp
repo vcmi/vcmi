@@ -19,7 +19,8 @@
 #include "../TerrainHandler.h"
 
 #include "../mapObjectConstructors/CRewardableConstructor.h"
-#include "../modding/IdentifierStorage.h"
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 
 
 static bool isOnVisitableFromTopList(Obj identifier, int type)
@@ -226,7 +227,7 @@ void ObjectTemplate::readJson(const JsonNode &node, const bool withTerrain)
 
 			for(const auto & entry : node["allowedTerrains"].Vector())
 			{
-				LIBRARY->identifiers()->requestIdentifierIfFound("terrain", entry, [this](int32_t identifier){
+				LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound("terrain", entry, [this](int32_t identifier){
 					allowedTerrains.insert(TerrainId(identifier));
 				});
 			}

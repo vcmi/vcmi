@@ -13,6 +13,8 @@
 #include "ObjectConfig.h"
 
 #include "../GameLibrary.h"
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
@@ -170,7 +172,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 		{
 			for(const auto & node : configBannedObjects.Struct())
 			{
-				LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node](int primaryID)
+				LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node](int primaryID)
 				{
 					if (node.second.isBool())
 					{
@@ -183,7 +185,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 						{
 							const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
 
-							LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
+							LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
 							{
 								addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
 							});
@@ -246,7 +248,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 
 			if (objectConfig["id"].isNull())
 			{
-				LIBRARY->identifiers()->requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig](int primaryID)
+				LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig](int primaryID)
 				{
 					if (objectConfig["subtype"].isNull())
 					{
@@ -259,7 +261,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 					{
 						const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
 
-						LIBRARY->identifiers()->requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object](int secondaryID)
+						LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object](int secondaryID)
 						{
 							auto objectWithID = object;
 							objectWithID.primaryID = primaryID;
@@ -327,7 +329,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 
 		for(const auto & node : configRequiredObjects.Struct())
 		{
-			LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, getInfo](int primaryID)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, getInfo](int primaryID)
 			{
 				if (node.second.isNumber())
 				{
@@ -349,7 +351,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 								//FIXME: core:artifact is not resolved properly by requestIdentifierIfFound
 								jsonKey = "artifact";
 
-							LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID, subNode, getInfo](int secondaryID)
+							LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID, subNode, getInfo](int secondaryID)
 							{
 								if(subNode.second.isNumber())
 									addRequiredObject(CompoundMapObjectID(primaryID, secondaryID), static_cast<ui16>(subNode.second.Integer()));

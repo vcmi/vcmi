@@ -17,7 +17,8 @@
 #include "../../callback/IGameInfoCallback.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapping/CMap.h"
-#include "../../modding/IdentifierStorage.h"
+#include "../../modding/CModHandler.h"
+#include "../../modding/IdentifierResolver.h"
 #include "../../networkPacks/PacksForClient.h"
 
 ViewWorldEffect::ViewWorldEffect(const CSpell * s, const JsonNode & config)
@@ -28,7 +29,7 @@ ViewWorldEffect::ViewWorldEffect(const CSpell * s, const JsonNode & config)
 	{
 		if(objectNode.second.Bool())
 		{
-			LIBRARY->identifiers()->requestIdentifier(objectNode.second.getModScope(), "object", objectNode.first, [this](si32 index)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier(objectNode.second.getModScope(), "object", objectNode.first, [this](si32 index)
 			{
 				filteredObjects.push_back(MapObjectID(index));
 			});

@@ -15,11 +15,13 @@
 #include "serializer/JsonSerializeFormat.h"
 #include "entities/ResourceTypeHandler.h"
 #include "GameLibrary.h"
+#include "modding/CModHandler.h"
+#include "modding/IdentifierResolver.h"
 
 void ResourceSet::resolveFromJson(const JsonNode & node)
 {
 	for(auto & n : node.Struct())
-		LIBRARY->identifiers()->requestIdentifier(n.second.getModScope(), "resource", n.first, [n, this](int32_t identifier)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier(n.second.getModScope(), "resource", n.first, [n, this](int32_t identifier)
 		{
 			container[GameResID(identifier)] = static_cast<int>(n.second.Float());
 		});

@@ -16,6 +16,7 @@
 #include "entities/faction/CTownHandler.h"
 #include "filesystem/Filesystem.h"
 #include "GameLibrary.h"
+#include "modding/IdentifierResolver.h"
 #include "IGameSettings.h"
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
@@ -638,7 +639,7 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	JsonNode advMapFile = node["graphics"]["map"];
 	JsonNode advMapMask = node["graphics"]["mapMask"];
 
-	LIBRARY->identifiers()->requestIdentifier(scope, "object", "monster", [cre, scope, advMapFile, advMapMask](si32 monsterIndex)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "object", "monster", [cre, scope, advMapFile, advMapMask](si32 monsterIndex)
 	{
 		JsonNode conf;
 		conf.setModScope(scope);
@@ -839,14 +840,14 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		}
 	}
 
-	LIBRARY->identifiers()->requestIdentifier("faction", config["faction"], [=](si32 faction)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier("faction", config["faction"], [=](si32 faction)
 	{
 		creature->faction = FactionID(faction);
 	});
 
 	for(const JsonNode &value : config["upgrades"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("creature", value, [=](si32 identifier)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", value, [=](si32 identifier)
 		{
 			creature->upgrades.insert(CreatureID(identifier));
 		});

@@ -15,7 +15,8 @@
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
 #include "../GameLibrary.h"
-#include "../modding/IdentifierStorage.h"
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 #include "../texts/CLegacyConfigParser.h"
 #include "../texts/CGeneralTextHandler.h"
 
@@ -229,7 +230,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		if (schoolJson.second.Bool())
 		{
-			LIBRARY->identifiers()->requestIdentifier(schoolJson.second.getModScope(), "spellSchool", schoolJson.first, [spell](si32 schoolID)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier(schoolJson.second.getModScope(), "spellSchool", schoolJson.first, [spell](si32 schoolID)
 			{
 				spell->schools.emplace(schoolID);
 			});
@@ -248,7 +249,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		const int chance = static_cast<int>(node.second.Integer());
 
-		LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
 		{
 			spell->probabilities[FactionID(factionID)] = chance;
 		});
@@ -271,7 +272,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		if(counteredSpell.second.Bool())
 		{
-			LIBRARY->identifiers()->requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.emplace_back(id);
 			});
@@ -333,7 +334,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 			if(!bonusData.second.Bool())
 				continue;
 
-			LIBRARY->identifiers()->requestIdentifier(bonusData.second.getModScope(), "bonus", bonusData.first, [&vec](si32 bonusID)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier(bonusData.second.getModScope(), "bonus", bonusData.first, [&vec](si32 bonusID)
 			{
 				vec.push_back(static_cast<BonusType>(bonusID));
 			});

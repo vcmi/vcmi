@@ -21,7 +21,8 @@
 #include "../../bonuses/Updaters.h"
 #include "../../json/JsonBonus.h"
 #include "../../json/JsonUtils.h"
-#include "../../modding/IdentifierStorage.h"
+#include "../../modding/CModHandler.h"
+#include "../../modding/IdentifierResolver.h"
 #include "../../CSkillHandler.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
@@ -70,7 +71,7 @@ std::shared_ptr<CHero> CHeroHandler::loadFromJson(const std::string & scope, con
 	loadHeroSkills(hero.get(), node);
 	loadHeroSpecialty(hero.get(), node);
 
-	LIBRARY->identifiers()->requestIdentifier("heroClass", node["class"],
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier("heroClass", node["class"],
 	[=](si32 classID)
 	{
 		hero->heroClass = HeroClassID(classID).toHeroClass();
@@ -98,7 +99,7 @@ void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node) const
 			std::swap(hero->initialArmy[i].minAmount, hero->initialArmy[i].maxAmount);
 		}
 
-		LIBRARY->identifiers()->requestIdentifier("creature", source["creature"], [=](si32 creature)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", source["creature"], [=](si32 creature)
 		{
 			hero->initialArmy[i].creature = CreatureID(creature);
 		});
@@ -115,7 +116,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 			size_t currentIndex = hero->secSkillsInit.size();
 			hero->secSkillsInit.emplace_back(SecondarySkill(-1), skillLevel);
 
-			LIBRARY->identifiers()->requestIdentifier("skill", set["skill"], [=](si32 id)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier("skill", set["skill"], [=](si32 id)
 			{
 				hero->secSkillsInit[currentIndex].first = SecondarySkill(id);
 			});
@@ -131,7 +132,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node) const
 
 	for(const JsonNode & spell : node["spellbook"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("spell", spell,
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("spell", spell,
 		[=](si32 spellID)
 		{
 			hero->spells.insert(SpellID(spellID));
@@ -272,7 +273,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 		int targetLevel = specialtyNode["creatureLevel"].Integer();
 		int stepSize = specialtyNode["stepSize"].Integer();
 
-		LIBRARY->identifiers()->requestIdentifier("creature", creatureNode, [this, hero, prepSpec, targetLevel, stepSize](si32 creature)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", creatureNode, [this, hero, prepSpec, targetLevel, stepSize](si32 creature)
 		{
 			for (const auto & bonus : createCreatureSpecialty(CreatureID(creature), targetLevel, stepSize))
 				hero->specialty.push_back(prepSpec(bonus));
@@ -285,7 +286,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 		const JsonNode & skillNode = specialtyNode["secondary"];
 		int stepSize = specialtyNode["stepSize"].Integer();
 
-		LIBRARY->identifiers()->requestIdentifier("secondarySkill", skillNode, [this, hero, stepSize](si32 skill)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("secondarySkill", skillNode, [this, hero, stepSize](si32 skill)
 		{
 			skillSpecialtiesToGenerate.push_back({hero->ID, SecondarySkill(skill), stepSize});
 		});
@@ -297,7 +298,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 		const JsonNode & spellNode = specialtyNode["spellScalingPercentage"];
 		int val = specialtyNode["spellScalingVal"].Integer();
 
-		LIBRARY->identifiers()->requestIdentifier("spell", spellNode, [this, hero, prepSpec, val](si32 spell)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("spell", spellNode, [this, hero, prepSpec, val](si32 spell)
 		{
 			for (const auto & bonus : createSpellScalingSpecialty(SpellID(spell), val))
 				hero->specialty.push_back(prepSpec(bonus));
@@ -312,7 +313,7 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node) const
 		for(const auto & entry : specialtyNode["spellFixedValues"].Vector())
 			values.push_back(static_cast<int32_t>(entry.Integer()));
 
-		LIBRARY->identifiers()->requestIdentifier("spell", spellNode, [this, hero, prepSpec, values](si32 spell)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("spell", spellNode, [this, hero, prepSpec, values](si32 spell)
 		{
 			for (const auto & bonus : createSpellFixedSpecialty(SpellID(spell), values))
 				hero->specialty.push_back(prepSpec(bonus));

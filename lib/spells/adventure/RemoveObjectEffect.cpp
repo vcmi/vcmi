@@ -17,7 +17,8 @@
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapping/CMap.h"
 #include "../../networkPacks/PacksForClient.h"
-#include "../../modding/IdentifierStorage.h"
+#include "../../modding/CModHandler.h"
+#include "../../modding/IdentifierResolver.h"
 
 RemoveObjectEffect::RemoveObjectEffect(const CSpell * s, const JsonNode & config)
 	: AdventureSpellRangedEffect(config)
@@ -29,7 +30,7 @@ RemoveObjectEffect::RemoveObjectEffect(const CSpell * s, const JsonNode & config
 	{
 		if(objectNode.second.Bool())
 		{
-			LIBRARY->identifiers()->requestIdentifier(objectNode.second.getModScope(), "object", objectNode.first, [this](si32 index)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier(objectNode.second.getModScope(), "object", objectNode.first, [this](si32 index)
 			{
 				removedObjects.push_back(MapObjectID(index));
 			});

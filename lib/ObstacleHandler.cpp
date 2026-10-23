@@ -11,7 +11,8 @@
 #include "ObstacleHandler.h"
 #include "BattleFieldHandler.h"
 #include "json/JsonNode.h"
-#include "modding/IdentifierStorage.h"
+#include "modding/CModHandler.h"
+#include "modding/IdentifierResolver.h"
 #include "GameLibrary.h"
 
 int32_t ObstacleInfo::getIndex() const
@@ -99,7 +100,7 @@ std::shared_ptr<ObstacleInfo> ObstacleHandler::loadFromJson(const std::string & 
 	info->height = json["height"].Integer();
 	for(const auto & t : json["allowedTerrains"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifierIfFound("terrain", t, [info](int32_t identifier){
+		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound("terrain", t, [info](int32_t identifier){
 			info->allowedTerrains.emplace_back(identifier);
 		});
 	}

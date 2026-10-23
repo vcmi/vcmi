@@ -22,7 +22,8 @@
 
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../modding/IdentifierStorage.h"
+#include "../../modding/CModHandler.h"
+#include "../../modding/IdentifierResolver.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
 
@@ -230,7 +231,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	const JsonNode & warMachine = node["warMachine"];
 	if(!warMachine.isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("creature", warMachine, [art](si32 id)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", warMachine, [art](si32 id)
 		{
 			art->warMachine = CreatureID(id);
 
@@ -239,7 +240,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		});
 	}
 
-	LIBRARY->identifiers()->requestIdentifier(scope, "object", "artifact", [scope, art](si32 index)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "object", "artifact", [scope, art](si32 index)
 	{
 		JsonNode conf;
 		conf.setModScope(scope);
@@ -432,7 +433,7 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 	{
 		for(const auto & component : node["components"].Vector())
 		{
-			LIBRARY->identifiers()->requestIdentifier("artifact", component, [this, art](int32_t id)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier("artifact", component, [this, art](int32_t id)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them

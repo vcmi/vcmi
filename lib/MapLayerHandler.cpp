@@ -14,7 +14,8 @@
 #include "IGameSettings.h"
 #include "json/JsonNode.h"
 #include "GameLibrary.h"
-#include "modding/IdentifierStorage.h"
+#include "modding/CModHandler.h"
+#include "modding/IdentifierResolver.h"
 
 MapLayerTypeHandler::MapLayerTypeHandler()
 {
@@ -38,7 +39,7 @@ std::shared_ptr<MapLayerType> MapLayerTypeHandler::loadFromJson(
 
 	LIBRARY->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
-	LIBRARY->identifiers()->requestIdentifierIfNotNull("terrain", json["defaultTerrain"], [info](int32_t terrainIndex)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull("terrain", json["defaultTerrain"], [info](int32_t terrainIndex)
 	{
 		info->defaultTerrain = TerrainId(terrainIndex);
 	});

@@ -22,6 +22,8 @@
 #include "../bonuses/BonusParameters.h"
 #include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
 #include "../scripting/ScriptService.h"
 
@@ -89,7 +91,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 
 	// deferred, unlike the runtime decodeBonusSubtype: while content loads the identifier this
 	// names may belong to a mod that has not been read yet
-	LIBRARY->identifiers()->requestIdentifier(entityTypeName(entityType), node, [&subtype, entityType](int32_t identifier)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier(entityTypeName(entityType), node, [&subtype, entityType](int32_t identifier)
 	{
 		subtype = bonusSubtypeOf(entityType, identifier);
 	});
@@ -146,7 +148,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		}
 		case BonusType::SPECIAL_UPGRADE:
 			// 1 creature ID
-			LIBRARY->identifiers()->requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = CreatureID(identifier); });
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = CreatureID(identifier); });
 			break;
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPELL_AFTER_ATTACK:
@@ -225,7 +227,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectSpell{
 						SpellID(), mastery, targetEnemy
 					});
-					LIBRARY->identifiers()->requestIdentifier( "spell", effect["spell"], [&loadedData, index](int32_t identifier)
+					LIBRARY->modh->getIdentifierResolver().requestIdentifier( "spell", effect["spell"], [&loadedData, index](int32_t identifier)
 					{
 						auto * targetEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectSpell>(&loadedData.effects[index]);
 						targetEffect->spell = SpellID(identifier);
@@ -256,7 +258,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 /// scripts are a content type of their own and may well load after whoever refers to them.
 static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode, const TextIdentifier & descriptionID)
 {
-	LIBRARY->identifiers()->requestIdentifier("script", scriptNode, [b, descriptionID](int32_t identifier)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier("script", scriptNode, [b, descriptionID](int32_t identifier)
 	{
 		ScriptID scriptID(identifier);
 
@@ -311,7 +313,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		case BonusSource::ARTIFACT:
 		case BonusSource::ARTIFACT_INSTANCE:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "artifact", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "artifact", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = ArtifactID(identifier);
 			});
@@ -319,7 +321,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::OBJECT_TYPE:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "object", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "object", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = Obj(identifier);
 			});
@@ -331,7 +333,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 			break;
 		case BonusSource::CREATURE_ABILITY:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "creature", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "creature", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = CreatureID(identifier);
 			});
@@ -339,7 +341,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::TERRAIN_OVERLAY:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "battlefield", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "battlefield", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = BattleField(identifier);
 			});
@@ -347,7 +349,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::SPELL_EFFECT:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = SpellID(identifier);
 			});
@@ -359,7 +361,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 			break;
 		case BonusSource::SECONDARY_SKILL:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "secondarySkill", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "secondarySkill", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = SecondarySkill(identifier);
 			});
@@ -367,7 +369,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::HERO_SPECIAL:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "hero", node, [&sourceInstance](int32_t identifier)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "hero", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = HeroTypeID(identifier);
 			});
@@ -461,14 +463,14 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 			}
 			if (!updaterJson["filteredFaction"].isNull())
 			{
-				LIBRARY->identifiers()->requestIdentifier( "faction", updaterJson["filteredFaction"], [result](int32_t identifier)
+				LIBRARY->modh->getIdentifierResolver().requestIdentifier( "faction", updaterJson["filteredFaction"], [result](int32_t identifier)
 				{
 					result->filteredFaction = FactionID(identifier);
 				});
 			}
 			if (!updaterJson["filteredCreature"].isNull())
 			{
-				LIBRARY->identifiers()->requestIdentifier( "creature", updaterJson["filteredCreature"], [result](int32_t identifier)
+				LIBRARY->modh->getIdentifierResolver().requestIdentifier( "creature", updaterJson["filteredCreature"], [result](int32_t identifier)
 				{
 					result->filteredCreature = CreatureID(identifier);
 				});
@@ -489,7 +491,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 	const JsonNode & typeNode = ability_vec[0];
 	const JsonNode & subtypeNode = ability_vec[2];
 
-	LIBRARY->identifiers()->requestIdentifier("bonus", typeNode, [b, subtypeNode](si32 bonusID)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier("bonus", typeNode, [b, subtypeNode](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);
 		loadBonusSubtype(b->subtype, b->type, subtypeNode);
@@ -546,7 +548,7 @@ static std::shared_ptr<const ILimiter> parseCreatureTypeLimiter(const JsonNode &
 	const JsonNode & creatureNode = limiter.Struct().count("creature") ? limiter["creature"] : parameters[0];
 	const JsonNode & upgradesNode = limiter.Struct().count("includeUpgrades") ? limiter["includeUpgrades"] : parameters[1];
 
-	LIBRARY->identifiers()->requestIdentifier( "creature", creatureNode, [creatureLimiter](si32 creature)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier( "creature", creatureNode, [creatureLimiter](si32 creature)
 	{
 		creatureLimiter->setCreature(CreatureID(creature));
 	});
@@ -585,7 +587,7 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 
 	if (!jsonType.isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("bonus", jsonType, [bonusLimiter, jsonSubtype](si32 bonusID)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("bonus", jsonType, [bonusLimiter, jsonSubtype](si32 bonusID)
 		{
 			bonusLimiter->type = static_cast<BonusType>(bonusID);
 			if (!jsonSubtype.isNull())
@@ -636,7 +638,7 @@ static std::shared_ptr<const ILimiter> parseFactionLimiter(const JsonNode & limi
 	const JsonNode & factionNode = limiter.Struct().count("faction") ? limiter["faction"] : parameters[0];
 
 	auto factionLimiter = std::make_shared<FactionLimiter>();
-	LIBRARY->identifiers()->requestIdentifier("faction", factionNode, [=](si32 faction)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier("faction", factionNode, [=](si32 faction)
 	{
 		factionLimiter->faction = FactionID(faction);
 	});
@@ -682,7 +684,7 @@ static std::shared_ptr<const ILimiter> parseTerrainLimiter(const JsonNode & limi
 	auto terrainLimiter = std::make_shared<TerrainLimiter>();
 	if(!terrainNode.isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("terrain", terrainNode, [terrainLimiter](si32 terrain)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("terrain", terrainNode, [terrainLimiter](si32 terrain)
 		{
 			terrainLimiter->terrainType = terrain;
 		});
@@ -708,7 +710,7 @@ static std::shared_ptr<const ILimiter> parseUnitAdjacentLimiter(const JsonNode &
 	const JsonNode & creatureNode = limiter["creature"];
 
 	auto unitLimiter = std::make_shared<UnitAdjacentLimiter>();
-	LIBRARY->identifiers()->requestIdentifier("creature", creatureNode, [unitLimiter](si32 creatureID)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", creatureNode, [unitLimiter](si32 creatureID)
 	{
 		unitLimiter->targetUnit = creatureID;
 	});
@@ -795,7 +797,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 
 	BonusMigration::warnIfRetired(ability, descriptionID);
 
-	LIBRARY->identifiers()->requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode, descriptionID](si32 bonusID)
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode, descriptionID](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);
 		loadBonusSubtype(b->subtype, b->type, subtypeNode);

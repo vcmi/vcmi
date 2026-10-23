@@ -22,7 +22,8 @@
 #include "../../json/JsonNode.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../modding/IdentifierStorage.h"
+#include "../../modding/CModHandler.h"
+#include "../../modding/IdentifierResolver.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
 
@@ -95,12 +96,12 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & 
 	for(auto skillPair : node["secondarySkills"].Struct())
 	{
 		int probability = static_cast<int>(skillPair.second.Integer());
-		LIBRARY->identifiers()->requestIdentifierIfFound(skillPair.second.getModScope(), "skill", skillPair.first, [heroClass, probability](si32 skillID) {
+		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(skillPair.second.getModScope(), "skill", skillPair.first, [heroClass, probability](si32 skillID) {
 			heroClass->secSkillProbability[skillID] = probability;
 		});
 	}
 
-	LIBRARY->identifiers()->requestIdentifier ("creature", node["commander"], [=](si32 commanderID) {
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier ("creature", node["commander"], [=](si32 commanderID) {
 			heroClass->commander = CreatureID(commanderID);
 		});
 
@@ -109,16 +110,16 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(const std::string & 
 	{
 		int value = static_cast<int>(tavern.second.Float());
 
-		LIBRARY->identifiers()->requestIdentifierIfFound(tavern.second.getModScope(), "faction", tavern.first, [=](si32 factionID) {
+		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(tavern.second.getModScope(), "faction", tavern.first, [=](si32 factionID) {
 			heroClass->selectionProbability[FactionID(factionID)] = value;
 		});
 	}
 
-	LIBRARY->identifiers()->requestIdentifier("faction", node["faction"], [=](si32 factionID) {
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier("faction", node["faction"], [=](si32 factionID) {
 		heroClass->faction.setNum(factionID);
 	});
 
-	LIBRARY->identifiers()->requestIdentifier(scope, "object", "hero", [=](si32 index) {
+	LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "object", "hero", [=](si32 index) {
 		JsonNode classConf = node["mapObject"];
 		classConf["heroClass"].String() = identifier;
 		classConf["heroClass"].setModScope(scope);

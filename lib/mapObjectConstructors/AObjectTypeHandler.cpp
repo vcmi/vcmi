@@ -15,7 +15,8 @@
 #include "../texts/CGeneralTextHandler.h"
 #include "../GameLibrary.h"
 #include "../json/JsonUtils.h"
-#include "../modding/IdentifierStorage.h"
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 #include "../mapObjects/CGObjectInstance.h"
 #include "../mapObjects/ObjectTemplate.h"
 
@@ -116,7 +117,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 			battlefields.resize(input["battleground"].Vector().size());
 			for(int i = 0; i < battlefields.size(); i++)
 			{
-				LIBRARY->identifiers()->requestIdentifier("battlefield", input["battleground"].Vector().at(i), [this, i](int32_t identifier)
+				LIBRARY->modh->getIdentifierResolver().requestIdentifier("battlefield", input["battleground"].Vector().at(i), [this, i](int32_t identifier)
 				{
 					battlefields.at(i) = BattleField(identifier);
 				});
@@ -125,7 +126,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 		else
 		{
 			battlefields.resize(1);
-			LIBRARY->identifiers()->requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier("battlefield", input["battleground"], [this](int32_t identifier)
 			{
 				battlefields.at(0) = BattleField(identifier);
 			});
@@ -134,7 +135,7 @@ void AObjectTypeHandler::init(const JsonNode & input)
 
 	if(!input["battleTerrain"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("terrain", input["battleTerrain"], [this](int32_t identifier)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("terrain", input["battleTerrain"], [this](int32_t identifier)
 		{
 			battleTerrain = TerrainId(identifier);
 		});

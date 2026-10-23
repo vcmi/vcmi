@@ -17,6 +17,8 @@ class CContentHandler;
 class ResourcePath;
 class ModManager;
 class ISimpleResourceLoader;
+class DeferredIdentifierResolver;
+class CIdentifierStorage;
 
 using TModID = std::string;
 
@@ -31,6 +33,8 @@ class DLL_LINKAGE CModHandler final : boost::noncopyable
 
 	/// Mods that list a file that does not exist in their filesystem
 	std::set<TModID> modsWithMissingFiles;
+
+	std::unique_ptr<DeferredIdentifierResolver> identifierResolver;
 
 	/// Reads files of all active mods and computes their checksums
 	void loadModContent();
@@ -76,6 +80,11 @@ public:
 	/// load content from all available mods
 	void load();
 	void afterLoad();
+
+	void createIdentifierResolver(const CIdentifierStorage & storage);
+
+	/// Resolver for identifier requests made while loading library content. Resolves immediately once loading is over
+	DeferredIdentifierResolver & getIdentifierResolver();
 
 	explicit CModHandler(bool useTestPreset = false);
 	~CModHandler();

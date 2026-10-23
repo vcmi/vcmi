@@ -11,6 +11,7 @@
 #include "CModHandler.h"
 
 #include "ContentTypeHandler.h"
+#include "IdentifierResolver.h"
 #include "IdentifierStorage.h"
 #include "ModDescription.h"
 #include "ModManager.h"
@@ -36,6 +37,17 @@ CModHandler::CModHandler(bool useTestPreset)
 }
 
 CModHandler::~CModHandler() = default;
+
+void CModHandler::createIdentifierResolver(const CIdentifierStorage & storage)
+{
+	identifierResolver = std::make_unique<DeferredIdentifierResolver>(storage);
+}
+
+DeferredIdentifierResolver & CModHandler::getIdentifierResolver()
+{
+	assert(identifierResolver);
+	return *identifierResolver;
+}
 
 std::vector<std::string> CModHandler::getAllMods() const
 {
@@ -473,7 +485,7 @@ void CModHandler::load()
 
 	logMod->info("\tLoading mod data");
 	LIBRARY->creh->loadCrExpMod();
-	LIBRARY->identifiersHandler->finalize();
+	identifierResolver->finalize();
 	logMod->info("\tResolving identifiers");
 
 	content->afterLoadFinalization();

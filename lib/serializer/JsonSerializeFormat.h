@@ -11,6 +11,8 @@
 
 #include "../constants/IdentifierBase.h"
 #include "../json/JsonNode.h"
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../GameLibrary.h"
@@ -311,7 +313,7 @@ public:
 
 			if (!fieldValue.String().empty())
 			{
-				LIBRARY->identifiers()->requestIdentifier(IdentifierType::entityType(), fieldValue, [&value](int32_t index){
+				LIBRARY->modh->getIdentifierResolver().requestIdentifier(IdentifierType::entityType(), fieldValue, [&value](int32_t index){
 					value = IdentifierType(index);
 				});
 			}
@@ -340,7 +342,7 @@ public:
 			const auto & node = getCurrent()[fieldName].Struct();
 			for (const auto & n : node)
 			{
-				LIBRARY->identifiers()->requestIdentifierIfFound(n.second.getModScope(), Key::entityType(), n.first, [&value, n](int32_t index) {
+				LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(n.second.getModScope(), Key::entityType(), n.first, [&value, n](int32_t index) {
 					value[Key(index)] = n.second.Integer(); // TODO: only int supported yet
 				});
 			}
@@ -367,7 +369,7 @@ public:
 
 			for(size_t i = 0; i < fieldValue.size(); ++i)
 			{
-				LIBRARY->identifiers()->requestIdentifier(E::entityType(), fieldValue[i], [&value, i](int32_t index){
+				LIBRARY->modh->getIdentifierResolver().requestIdentifier(E::entityType(), fieldValue[i], [&value, i](int32_t index){
 					value[i] = T(index);
 				});
 			}
@@ -391,7 +393,7 @@ public:
 		{
 			for (const auto & element : getCurrent()[fieldName].Vector())
 			{
-				LIBRARY->identifiers()->requestIdentifierIfFound(U::entityType(), element, [&value](int32_t index){
+				LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(U::entityType(), element, [&value](int32_t index){
 					value.insert(T(index));
 				});
 			}

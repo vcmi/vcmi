@@ -12,7 +12,8 @@
 #include "TerrainHandler.h"
 #include "IGameSettings.h"
 #include "json/JsonNode.h"
-#include "modding/IdentifierStorage.h"
+#include "modding/CModHandler.h"
+#include "modding/IdentifierResolver.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
 #include "GameLibrary.h"
@@ -88,7 +89,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 	}
 	for(const auto& node : json["allowedLayers"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("mapLayer", node, [info](int32_t identifier)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("mapLayer", node, [info](int32_t identifier)
 		{
 			info->allowedLayers.push_back(MapLayerId(identifier));
 		});
@@ -97,7 +98,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 	info->river = River::NO_RIVER;
 	if(!json["river"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("river", json["river"], [info](int32_t identifier)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("river", json["river"], [info](int32_t identifier)
 		{
 			info->river = RiverId(identifier);
 		});
@@ -117,7 +118,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	for(const auto & t : json["battleFields"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("battlefield", t, [info](int32_t identifier)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("battlefield", t, [info](int32_t identifier)
 		{
 			info->battleFields.emplace_back(identifier);
 		});
@@ -125,7 +126,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	for(const auto & t : json["prohibitTransitions"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("terrain", t, [info](int32_t identifier)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("terrain", t, [info](int32_t identifier)
 		{
 			info->prohibitTransitions.emplace_back(identifier);
 		});
@@ -135,7 +136,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	if(!json["rockTerrain"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
 		{
 			info->rockTerrain = TerrainId(identifier);
 		});

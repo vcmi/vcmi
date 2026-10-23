@@ -14,7 +14,8 @@
 #include "../GameLibrary.h"
 #include "../json/JsonNode.h"
 #include "../json/JsonUtils.h"
-#include "../modding/IdentifierStorage.h"
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
 
@@ -146,7 +147,7 @@ void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, 
 		const std::string & entityType = property["entity"].String();
 
 		if(!entityType.empty())
-			LIBRARY->identifiers()->requestIdentifierIfNotNull(entityType, static_cast<const JsonNode &>(parameters)[field], [](si32){});
+			LIBRARY->modh->getIdentifierResolver().requestIdentifierIfNotNull(entityType, static_cast<const JsonNode &>(parameters)[field], [](si32){});
 	}
 
 	if(description.stringRegistrations.empty())

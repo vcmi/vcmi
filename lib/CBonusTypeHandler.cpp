@@ -23,7 +23,8 @@
 #include "GameConstants.h"
 #include "GameLibrary.h"
 #include "modding/ModScope.h"
-#include "modding/IdentifierStorage.h"
+#include "modding/CModHandler.h"
+#include "modding/IdentifierResolver.h"
 #include "texts/CGeneralTextHandler.h"
 #include "json/JsonUtils.h"
 #include "spells/CSpellHandler.h"
@@ -228,7 +229,7 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 	for (const auto & additionalIcon : graphics["subtypeIcons"].Struct())
 	{
 		auto path = ImagePath::fromJson(additionalIcon.second);
-		LIBRARY->identifiers()->requestIdentifier(additionalIcon.second.getModScope(), additionalIcon.first, [&dest, path](int32_t index)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier(additionalIcon.second.getModScope(), additionalIcon.first, [&dest, path](int32_t index)
 		{
 			dest.subtypeIcons[index] = path;
 		});
@@ -245,7 +246,7 @@ void CBonusTypeHandler::loadItem(const JsonNode & source, CBonusType & dest, con
 	{
 		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID() + "." + additionalDescription.first, additionalDescription.second);
 		auto stringID = additionalDescription.first;
-		LIBRARY->identifiers()->requestIdentifier(additionalDescription.second.getModScope(), additionalDescription.first, [&dest, stringID](int32_t index)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier(additionalDescription.second.getModScope(), additionalDescription.first, [&dest, stringID](int32_t index)
 		{
 			dest.subtypeDescriptions[index] = stringID;
 		});

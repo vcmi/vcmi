@@ -13,7 +13,8 @@
 #include "BattleFieldHandler.h"
 #include "GameLibrary.h"
 #include "json/JsonBonus.h"
-#include "modding/IdentifierStorage.h"
+#include "modding/CModHandler.h"
+#include "modding/IdentifierResolver.h"
 #include "CRandomGenerator.h"
 
 #include <vstd/RNG.h>
@@ -43,7 +44,7 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 	info->limitToLayers.resize(json["limitToLayers"].Vector().size());
 	for(int i = 0; i < info->limitToLayers.size(); i++)
 	{
-		LIBRARY->identifiers()->requestIdentifier("mapLayer", json["limitToLayers"].Vector()[i], [i, info](int32_t idx)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("mapLayer", json["limitToLayers"].Vector()[i], [i, info](int32_t idx)
 		{
 			info->limitToLayers.at(i) = MapLayerId(idx);
 		});

@@ -15,7 +15,8 @@
 #include "../constants/StringConstants.h"
 #include "../json/JsonRandom.h"
 #include "../json/JsonUtils.h"
-#include "../modding/IdentifierStorage.h"
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
 
@@ -64,7 +65,7 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 
 	for(const auto & element : input["resources"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("resource", element, [this](si32 identifier)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("resource", element, [this](si32 identifier)
 		{
 			tradeableResources.emplace_back(identifier);
 		});

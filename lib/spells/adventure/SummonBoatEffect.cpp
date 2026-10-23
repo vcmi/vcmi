@@ -17,7 +17,8 @@
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../mapping/CMap.h"
-#include "../../modding/IdentifierStorage.h"
+#include "../../modding/CModHandler.h"
+#include "../../modding/IdentifierResolver.h"
 #include "../../networkPacks/PacksForClient.h"
 
 SummonBoatEffect::SummonBoatEffect(const CSpell * s, const JsonNode & config)
@@ -26,7 +27,7 @@ SummonBoatEffect::SummonBoatEffect(const CSpell * s, const JsonNode & config)
 {
 	if (!config["createdBoat"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("core:boat", config["createdBoat"], [this](int32_t boatTypeID)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier("core:boat", config["createdBoat"], [this](int32_t boatTypeID)
 		{
 			createdBoat = BoatId(boatTypeID);
 		});

@@ -161,6 +161,7 @@ void GameLibrary::loadModFilesystem(bool useTestPreset)
 	}
 	modh = std::make_unique<CModHandler>(useTestPreset);
 	identifiersHandler = std::make_unique<CIdentifierStorage>(*modh);
+	modh->createIdentifierResolver(*identifiersHandler);
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
 	modh->loadModFilesystems();

@@ -391,13 +391,13 @@ CArtifactInstance * CArtifactSet::deserializeJsonArtifact(const JsonNode & json,
 
 	if(!type.String().empty())
 	{
-		LIBRARY->identifiers()->requestIdentifier(ArtifactID::entityType(), type, [&artifactID](int32_t index){
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier(ArtifactID::entityType(), type, [&artifactID](int32_t index){
 			artifactID = ArtifactID(index);
 		});
 	}
 	if(json.isStruct() && !json["spell"].String().empty())
 	{
-		LIBRARY->identifiers()->requestIdentifier(SpellID::entityType(), json["spell"], [&spellID](int32_t index){
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier(SpellID::entityType(), json["spell"], [&spellID](int32_t index){
 			spellID = SpellID(index);
 		});
 	}

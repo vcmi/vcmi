@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "ObstacleSetHandler.h"
 
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
@@ -348,7 +350,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 	{
 		auto terrainName = biome["terrain"].String();
 
-		LIBRARY->identifiers()->requestIdentifier(scope, "terrain", terrainName, [os](si32 id)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "terrain", terrainName, [os](si32 id)
 		{
 			os->setTerrain(TerrainId(id));
 		});
@@ -359,7 +361,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 
 		for (const auto & terrain : terrains)
 		{
-			LIBRARY->identifiers()->requestIdentifier(scope, "terrain", terrain.String(), [os](si32 id)
+			LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "terrain", terrain.String(), [os](si32 id)
 			{
 				os->addTerrain(TerrainId(id));
 			});
@@ -378,7 +380,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 
 	auto handleFaction = [os, scope](const std::string & str)
 	{
-		LIBRARY->identifiers()->requestIdentifier(scope, "faction", str, [os](si32 id)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier(scope, "faction", str, [os](si32 id)
 		{
 			os->addFaction(FactionID(id));
 		});
@@ -434,7 +436,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(const std::string 
 		auto identifier = boost::algorithm::to_lower_copy(node.String());
 		auto jsonName = JsonNode(identifier);
 
-		LIBRARY->identifiers()->requestIdentifier(node.getModScope(), "obstacleTemplate", identifier, [this, os](si32 id)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifier(node.getModScope(), "obstacleTemplate", identifier, [this, os](si32 id)
 		{
 			logMod->trace("Resolved obstacle id: %d", id);
 			os->addObstacle(obstacleTemplates[id]);

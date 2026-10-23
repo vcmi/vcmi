@@ -18,7 +18,8 @@
 #include "constants/StringConstants.h"
 #include "entities/hero/CHeroClassHandler.h"
 #include "filesystem/Filesystem.h"
-#include "modding/IdentifierStorage.h"
+#include "modding/CModHandler.h"
+#include "modding/IdentifierResolver.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
 #include "json/JsonBonus.h"
@@ -262,7 +263,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 			continue;
 		}
 
-		LIBRARY->identifiers()->requestIdentifierIfFound(skillPair.second.getModScope(), "heroClass", skillPair.first, [skill, probability](si32 classID)
+		LIBRARY->modh->getIdentifierResolver().requestIdentifierIfFound(skillPair.second.getModScope(), "heroClass", skillPair.first, [skill, probability](si32 classID)
 		{
 			LIBRARY->heroclassesh->objects[classID]->secSkillProbability[skill->id] = probability;
 		});
