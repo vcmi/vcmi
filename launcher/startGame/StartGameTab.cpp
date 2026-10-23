@@ -237,6 +237,7 @@ void StartGameTab::refreshUpdateStatus()
 	ui->buttonUpdateCheck->setEnabled(checker->getState() != EUpdateCheckState::CHECKING);
 	ui->buttonUpdateAvailable->setVisible(checker->getState() == EUpdateCheckState::UPDATE_AVAILABLE);
 	ui->labelUpdateStatus->hide();
+	ui->buttonUpdateStatusHelp->setVisible(checker->getState() == EUpdateCheckState::FAILED);
 
 	switch(checker->getState())
 	{
@@ -250,13 +251,11 @@ void StartGameTab::refreshUpdateStatus()
 		case EUpdateCheckState::FAILED:
 			ui->buttonUpdateCheck->setText(tr("Check for Updates"));
 			ui->labelUpdateStatus->setText(tr("Could not check for updates"));
-			ui->labelUpdateStatus->setToolTip(checker->getErrorMessage());
 			ui->labelUpdateStatus->show();
 			break;
 		case EUpdateCheckState::NO_UPDATE:
 			ui->buttonUpdateCheck->setText(tr("Check for Updates"));
 			ui->labelUpdateStatus->setText(tr("You are using the latest version"));
-			ui->labelUpdateStatus->setToolTip({});
 			ui->labelUpdateStatus->show();
 			break;
 		case EUpdateCheckState::UPDATE_AVAILABLE:
@@ -280,6 +279,17 @@ void StartGameTab::on_buttonUpdateCheck_clicked()
 void StartGameTab::on_buttonUpdateAvailable_clicked()
 {
 	Helper::getMainWindow()->switchToUpdateTab();
+}
+
+void StartGameTab::on_buttonUpdateStatusHelp_clicked()
+{
+	QString message = tr(
+		"VCMI could not contact the update server. "
+		"Make sure that you are connected to the internet and try again later.\n\n"
+		"Error details:\n%1"
+		).arg(Helper::getMainWindow()->getUpdateChecker()->getErrorMessage());
+
+	MessageBoxCustom::information(this, ui->labelUpdateStatus->text(), message);
 }
 
 void StartGameTab::on_buttonGameEditor_clicked()

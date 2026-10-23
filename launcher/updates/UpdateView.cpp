@@ -47,52 +47,57 @@ void UpdateView::refresh()
 
 	const UpdateInfo & update = checker->getUpdate();
 
-	ui->labelCurrentVersion->setText(tr("Installed version: %1").arg(GameConstants::VCMI_VERSION));
+	ui->labelTitle->setText(tr("VCMI %1 is available. You have %2.").arg(update.version, GameConstants::VCMI_VERSION));
 
-	QString status = tr("VCMI %1 has been released.").arg(update.version);
+	QString instructions;
+	QString actionText = tr("Open Store");
 	actionUrl = update.url;
 	actionFallbackUrl = QUrl();
 
 	switch(update.action)
 	{
 		case EUpdateAction::INSTALL:
-			ui->buttonAction->setText(tr("Update to %1").arg(update.version));
+			instructions = tr("Your browser will download the installer. Run it once the download finishes: it will close VCMI and update it.");
 			break;
 		case EUpdateAction::DOWNLOAD:
-			ui->buttonAction->setText(tr("Download %1").arg(update.version));
+#if defined(VCMI_WINDOWS)
+			instructions = tr("Your browser will download the update as a ZIP archive. Close VCMI, then extract the archive into your VCMI folder, replacing existing files.");
+#elif defined(VCMI_ANDROID)
+			instructions = tr("Your browser will download the update as an APK file. Open it to install the update over the current version. Android may ask you to allow your browser to install apps.");
+#elif defined(VCMI_MAC)
+			instructions = tr("Your browser will download a disk image. Close VCMI, open the downloaded file and drag VCMI into the Applications folder, replacing the old version.");
+#else
+			instructions = tr("Your browser will download the update as an AppImage. Allow it to run as a program, for example with 'chmod +x', and start it.");
+#endif
 			break;
 		case EUpdateAction::EXTERNAL:
 		{
 			switch(UpdateChecker::getDistribution())
 			{
 				case EUpdateDistribution::GOOGLE_PLAY:
-					status += " " + tr("It may take a few days to appear in Google Play.");
-					ui->buttonAction->setText(tr("Open Google Play"));
+					instructions = tr("Update VCMI in Google Play. Google Play releases updates gradually, so the new version may take a few days to appear there.");
 					actionUrl = QUrl("market://details?id=is.xyz.vcmi");
 					actionFallbackUrl = QUrl("https://play.google.com/store/apps/details?id=is.xyz.vcmi");
 					break;
 				case EUpdateDistribution::FDROID:
-					status += " " + tr("It may take a few days to appear in F-Droid.");
-					ui->buttonAction->setText(tr("Open F-Droid"));
+					instructions = tr("Update VCMI in your F-Droid app. F-Droid builds new versions itself, so the update may take a few days to appear there.");
 					actionUrl = QUrl("https://f-droid.org/packages/is.xyz.vcmi/");
 					break;
 				case EUpdateDistribution::TESTFLIGHT:
-					status += " " + tr("It may take a few days to appear in TestFlight.");
-					ui->buttonAction->setText(tr("Open TestFlight"));
+					instructions = tr("Update VCMI in the TestFlight app. New versions may take a few days to appear there.");
 					actionUrl = QUrl("https://testflight.apple.com/join/pJWHSbmu");
 					break;
 				case EUpdateDistribution::FLATPAK:
-					status += " " + tr("Update VCMI through Flatpak or your software center. It may take a few days to appear there.");
-					ui->buttonAction->setText(tr("Open Download Page"));
-					actionUrl = QUrl("https://vcmi.eu/download/");
+					instructions = tr("Update VCMI in your software center or with 'flatpak update eu.vcmi.VCMI'. New versions may take a few days to appear on Flathub.");
+					actionUrl = QUrl("https://flathub.org/apps/eu.vcmi.VCMI");
 					break;
 				default:
 #if defined(Q_OS_LINUX) && !defined(VCMI_ANDROID)
-					status += " " + tr("Update VCMI the same way you installed it, for example through the package manager of your distribution.");
+					instructions = tr("Update VCMI with the package manager of your distribution. Some distributions take a long time to ship new versions.");
 #else
-					status += " " + tr("Update VCMI the same way you installed it.");
+					instructions = tr("Update VCMI the same way you installed it.");
 #endif
-					ui->buttonAction->setText(tr("Open Download Page"));
+					actionText = tr("Open Download Page");
 					actionUrl = QUrl("https://vcmi.eu/download/");
 					break;
 			}
@@ -100,7 +105,13 @@ void UpdateView::refresh()
 		}
 	}
 
-	ui->labelStatus->setText(status);
+	if(update.action != EUpdateAction::EXTERNAL)
+		actionText = tr("Download Update");
+	instructions += " " + tr("Your saves, settings and mods are kept.");
+
+	ui->buttonAction->setText(actionText);
+
+	ui->labelInstructions->setText(instructions);
 	ui->buttonAction->setVisible(actionUrl.isValid());
 	ui->labelNotes->setText("• " + update.notes.join("\n• "));
 	ui->labelNotes->setVisible(!update.notes.isEmpty());
