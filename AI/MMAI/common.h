@@ -66,11 +66,12 @@ inline std::unordered_set<std::string_view> MMAIGraphDebugFlags()
 			return res;
 
 		auto csv = std::string_view{envvar};
-		while (!csv.empty()) {
+		while(!csv.empty())
+		{
 			auto pos = csv.find(',');
 			res.insert(csv.substr(0, pos));
 
-			if (pos == std::string_view::npos)
+			if(pos == std::string_view::npos)
 				break;
 
 			csv.remove_prefix(pos + 1);

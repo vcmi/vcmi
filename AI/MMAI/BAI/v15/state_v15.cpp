@@ -1193,7 +1193,6 @@ namespace
 		}
 	}
 
-
 	// Similar to CBattleInfoCallback::canShootAdjacentUnits, but includes war machines and uses bonus caching strings.
 	bool CanShootAdjacent(const UnitPtr & unit)
 	{
@@ -2129,7 +2128,8 @@ namespace
 				if(G.getEdgeBySrcDst<E::Unit_MeleeDmg_Unit>(unit, tunit, false))
 					continue;
 
-				auto states = UnitStates{.a = CUnitStateWrapper(&stack, stack.acquireState()), .b = CUnitStateWrapper(&tunit->cstack, tunit->cstack.acquireState())};
+				auto states =
+					UnitStates{.a = CUnitStateWrapper(&stack, stack.acquireState()), .b = CUnitStateWrapper(&tunit->cstack, tunit->cstack.acquireState())};
 				ApplyAttack(states, battle, false, true);
 				const auto & tstate = states.b;
 				auto hpdiff_defender = tstate.calcAvailableHealth() - tstack->getAvailableHealth();
@@ -2140,7 +2140,7 @@ namespace
 				bool isHypnotized = stack.isHypnotized();
 
 				// Discourage units from killing their allies via AoE unless they are hypnotized
-				if (friendlyFire && !isHypnotized)
+				if(friendlyFire && !isHypnotized)
 					vdiff_defender *= -1;
 
 				// Adding a new Unit_MeleeDmg_Unit edge is dangerous as it
@@ -2240,13 +2240,13 @@ namespace
 				const auto & tunit = G.getByExtraIndex<N::Unit>(tstack->unitId());
 				G.add(E::Unit_IsShotBy_Action::Create(tunit, shoot, false));
 
-
 				// MMAI is unaware how dangerous friendly fire is
 				// (see note in AddAmoveAction)
 				if(G.getEdgeBySrcDst<E::Unit_ShootDmg_Unit>(unit, tunit, false))
 					continue;
 
-				auto states = UnitStates{.a = CUnitStateWrapper(&stack, stack.acquireState()), .b = CUnitStateWrapper(&tunit->cstack, tunit->cstack.acquireState())};
+				auto states =
+					UnitStates{.a = CUnitStateWrapper(&stack, stack.acquireState()), .b = CUnitStateWrapper(&tunit->cstack, tunit->cstack.acquireState())};
 				ApplyAttack(states, battle, true, true);
 				const auto & tstate = states.b;
 				auto hpdiff_defender = tstate.calcAvailableHealth() - tstack->getAvailableHealth();
@@ -2257,7 +2257,7 @@ namespace
 				bool isHypnotized = stack.isHypnotized();
 
 				// Discourage units from killing their allies via AoE unless they are hypnotized
-				if (friendlyFire && !isHypnotized)
+				if(friendlyFire && !isHypnotized)
 					vdiff_defender *= -1;
 
 				G.add(

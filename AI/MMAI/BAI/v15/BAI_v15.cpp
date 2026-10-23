@@ -94,30 +94,33 @@ void BAI::battleStart(
 	getActionTotalMs = 0;
 	getActionTotalCalls = 0;
 
-	logger.trace([this]() {
-		std::ostringstream oss;
-		oss << "Battle start:";
-
-		oss << "\n  Town: ";
-		if(const auto * town = battle->battleGetDefendedTown())
+	logger.trace(
+		[this]()
 		{
-			const auto fort = town->fortificationsLevel();
-			oss << "\n    faction: " << town->getFaction()->getJsonKey();
-			oss << "\n    hasMoat: " << fort.hasMoat;
-			oss << "\n    wallsHealth: " << static_cast<int>(fort.wallsHealth);
+			std::ostringstream oss;
+			oss << "Battle start:";
+
+			oss << "\n  Town: ";
+			if(const auto * town = battle->battleGetDefendedTown())
+			{
+				const auto fort = town->fortificationsLevel();
+				oss << "\n    faction: " << town->getFaction()->getJsonKey();
+				oss << "\n    hasMoat: " << fort.hasMoat;
+				oss << "\n    wallsHealth: " << static_cast<int>(fort.wallsHealth);
+			}
+
+			oss << "\n  Obstacles: ";
+			for(const auto & obstacle : battle->battleGetAllObstacles())
+				for(const auto & bhex : obstacle->getBlockedTiles())
+					oss << bhex.toInt() << ",";
+
+			oss << "\n  Units:";
+			for(const auto & cstack : battle->battleGetStacks())
+				oss << "\n    " << cstack->getDescription() << ", pos=" << cstack->getPosition().toInt();
+
+			return oss.str();
 		}
-
-		oss << "\n  Obstacles: ";
-		for(const auto & obstacle : battle->battleGetAllObstacles())
-			for(const auto & bhex : obstacle->getBlockedTiles())
-				oss << bhex.toInt() << ",";
-
-		oss << "\n  Units:";
-		for(const auto & cstack : battle->battleGetStacks())
-			oss << "\n    " << cstack->getDescription() << ", pos=" << cstack->getPosition().toInt();
-
-		return oss.str();
-	});
+	);
 }
 
 // XXX: battleEnd() is NOT called by CPlayerInterface (i.e. GUI)
