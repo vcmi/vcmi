@@ -31,7 +31,7 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 	info->name = json["name"].String();
 	for(const auto & b : json["bonuses"].Vector())
 	{
-		auto bonus = JsonUtils::parseBonus(b);
+		auto bonus = JsonUtils::parseBonus(b, LIBRARY->modh->getIdentifierResolver());
 
 		bonus->source = BonusSource::TERRAIN_OVERLAY;
 		bonus->sid = BonusSourceID(info->getId());

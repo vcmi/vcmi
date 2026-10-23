@@ -160,10 +160,10 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	if(!node["growing"].isNull())
 	{
 		for(auto bonus : node["growing"]["bonusesPerLevel"].Vector())
-			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"]));
+			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"], LIBRARY->modh->getIdentifierResolver()));
 
 		for(auto bonus : node["growing"]["thresholdBonuses"].Vector())
-			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"]));
+			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"], LIBRARY->modh->getIdentifierResolver()));
 	}
 
 	art->id = ArtifactID(index);
@@ -198,7 +198,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	{
 		for(const auto & b : node["bonuses"].Vector())
 		{
-			auto bonus = JsonUtils::parseBonus(b);
+			auto bonus = JsonUtils::parseBonus(b, LIBRARY->modh->getIdentifierResolver());
 			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
@@ -209,7 +209,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 		{
 			if (b.second.isNull())
 				continue;
-			auto bonus = JsonUtils::parseBonus(b.second, art->getBonusTextID(b.first));
+			auto bonus = JsonUtils::parseBonus(b.second, LIBRARY->modh->getIdentifierResolver(), art->getBonusTextID(b.first));
 			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
@@ -219,7 +219,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(const std::string & scope, 
 	{
 		if (b.second.isNull())
 			continue;
-		auto bonus = JsonUtils::parseBonus(b.second, art->getBonusTextID(b.first));
+		auto bonus = JsonUtils::parseBonus(b.second, LIBRARY->modh->getIdentifierResolver(), art->getBonusTextID(b.first));
 		bonus->sid = art->getId();
 		bonus->source = BonusSource::ARTIFACT;
 		bonus->duration = BonusDuration::PERMANENT;

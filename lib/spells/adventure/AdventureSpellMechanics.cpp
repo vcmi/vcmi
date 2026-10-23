@@ -23,8 +23,11 @@
 #include "../Problem.h"
 #include "../CSpell.h"
 
+#include "../../GameLibrary.h"
 #include "../../json/JsonBonus.h"
 #include "../../mapObjects/CGHeroInstance.h"
+#include "../../modding/CModHandler.h"
+#include "../../modding/IdentifierResolver.h"
 #include "../../networkPacks/PacksForClient.h"
 #include "../../callback/IGameInfoCallback.h"
 
@@ -63,7 +66,7 @@ AdventureSpellMechanics::AdventureSpellMechanics(const CSpell * s)
 
 		for(const auto & [name, bonusNode] : s->getLevelInfo(level).effects.Struct())
 		{
-			auto b = JsonUtils::parseBonus(bonusNode);
+			auto b = JsonUtils::parseBonus(bonusNode, LIBRARY->modh->getIdentifierResolver());
 			if(b)
 			{
 				b->sid = BonusSourceID(s->id);
@@ -74,7 +77,7 @@ AdventureSpellMechanics::AdventureSpellMechanics(const CSpell * s)
 
 		for(const auto & elem : config["bonuses"].Struct())
 		{
-			auto b = JsonUtils::parseBonus(elem.second);
+			auto b = JsonUtils::parseBonus(elem.second, LIBRARY->modh->getIdentifierResolver());
 			b->sid = BonusSourceID(s->id);
 			b->source = BonusSource::SPELL_EFFECT;
 			levelOptions[level].bonuses.push_back(b);

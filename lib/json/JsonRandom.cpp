@@ -31,6 +31,8 @@
 #include "../gameState/CGameState.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../mapObjects/army/CStackBasicDescriptor.h"
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../spells/CSpellHandler.h"
@@ -374,7 +376,7 @@ std::vector<std::shared_ptr<Bonus>> JsonRandom::loadBonuses(const JsonNode & val
 	std::vector<std::shared_ptr<Bonus>> ret;
 	for(const JsonNode & entry : value.Vector())
 	{
-		if(auto bonus = JsonUtils::parseBonus(entry))
+		if(auto bonus = JsonUtils::parseBonus(entry, LIBRARY->modh->getIdentifierResolver()))
 			ret.push_back(bonus);
 	}
 	return ret;

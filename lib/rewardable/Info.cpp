@@ -21,6 +21,7 @@
 #include "../json/JsonBonus.h"
 #include "../json/JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
+#include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../entities/ResourceTypeHandler.h"
@@ -64,10 +65,11 @@ namespace {
 	std::vector<std::shared_ptr<Bonus>> loadBonuses(const JsonNode & value, const TextIdentifier & textIdentifier)
 	{
 		std::vector<std::shared_ptr<Bonus>> ret;
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
 		for(size_t i = 0; i < value.Vector().size(); ++i)
 		{
 			const JsonNode & entry = value[i];
-			auto bonus = JsonUtils::parseBonus(entry);
+			auto bonus = JsonUtils::parseBonus(entry, resolver);
 			if(!bonus)
 				continue;
 

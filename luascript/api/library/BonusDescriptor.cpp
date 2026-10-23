@@ -11,8 +11,10 @@
 
 #include "BonusDescriptor.h"
 
+#include "../../../lib/GameLibrary.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/json/JsonBonus.h"
+#include "../../../lib/modding/IdentifierResolver.h"
 
 namespace scripting::api
 {
@@ -51,7 +53,8 @@ JsonNode BonusDescriptor::toJson() const
 
 Bonus BonusDescriptor::toBonus() const
 {
-	return *JsonUtils::parseBonus(toJson());
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	return *JsonUtils::parseBonus(toJson(), resolver);
 }
 
 }

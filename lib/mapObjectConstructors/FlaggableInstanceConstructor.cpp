@@ -14,6 +14,8 @@
 #include "../GameLibrary.h"
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
+#include "../modding/CModHandler.h"
+#include "../modding/IdentifierResolver.h"
 #include "../texts/CGeneralTextHandler.h"
 
 void FlaggableInstanceConstructor::initTypeData(const JsonNode & config)
@@ -22,7 +24,7 @@ void FlaggableInstanceConstructor::initTypeData(const JsonNode & config)
 		JsonUtils::validate(config, "vcmi:flaggable", getJsonKey());
 
 	for (const auto & bonusJson : config["bonuses"].Struct())
-		providedBonuses.push_back(JsonUtils::parseBonus(bonusJson.second));
+		providedBonuses.push_back(JsonUtils::parseBonus(bonusJson.second, LIBRARY->modh->getIdentifierResolver()));
 
 	if (!config["message"].isNull())
 	{

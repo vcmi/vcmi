@@ -22,7 +22,6 @@
 #include "../bonuses/BonusParameters.h"
 #include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
-#include "../modding/CModHandler.h"
 #include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
 #include "../scripting/ScriptService.h"
@@ -58,7 +57,7 @@ const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, 
 		return parseByMap<T>(map, val, err);
 }
 
-static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const JsonNode & node)
+static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const JsonNode & node, IIdentifierResolver & resolver)
 {
 	if (node.isNull())
 	{
@@ -91,13 +90,13 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 
 	// deferred, unlike the runtime decodeBonusSubtype: while content loads the identifier this
 	// names may belong to a mod that has not been read yet
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier(entityTypeName(entityType), node, [&subtype, entityType](int32_t identifier)
+	resolver.requestIdentifier(entityTypeName(entityType), node, [&subtype, entityType](int32_t identifier)
 	{
 		subtype = bonusSubtypeOf(entityType, identifier);
 	});
 }
 
-static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & value)
+static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & value, IIdentifierResolver & resolver)
 {
 	const auto & getFirstValue = [](const JsonNode & jsonNode) -> const JsonNode &
 	{
@@ -148,7 +147,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 		}
 		case BonusType::SPECIAL_UPGRADE:
 			// 1 creature ID
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = CreatureID(identifier); });
+			resolver.requestIdentifier("creature", getFirstValue(value), [&](si32 identifier) { var = CreatureID(identifier); });
 			break;
 		case BonusType::SPELL_BEFORE_ATTACK:
 		case BonusType::SPELL_AFTER_ATTACK:
@@ -216,7 +215,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 				bool targetEnemy = effect["targetEnemy"].Bool();
 				if (effect["action"].String() == "bonus")
 				{
-					const auto bonus = JsonUtils::parseBonus(effect["bonus"]);
+					const auto bonus = JsonUtils::parseBonus(effect["bonus"], resolver);
 					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectBonus{
 						bonus, targetEnemy
 					});
@@ -227,7 +226,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectSpell{
 						SpellID(), mastery, targetEnemy
 					});
-					LIBRARY->modh->getIdentifierResolver().requestIdentifier( "spell", effect["spell"], [&loadedData, index](int32_t identifier)
+					resolver.requestIdentifier( "spell", effect["spell"], [&loadedData, index](int32_t identifier)
 					{
 						auto * targetEffect = std::get_if<BonusParametersOnCombatEvent::CombatEffectSpell>(&loadedData.effects[index]);
 						targetEffect->spell = SpellID(identifier);
@@ -256,9 +255,9 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 /// A combat script validates the parameters the bonus hands it and registers any translatable text
 /// among them. Both need the script itself, which only resolves once every mod has been loaded -
 /// scripts are a content type of their own and may well load after whoever refers to them.
-static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode, const TextIdentifier & descriptionID)
+static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode, IIdentifierResolver & resolver, const TextIdentifier & descriptionID)
 {
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier("script", scriptNode, [b, descriptionID](int32_t identifier)
+	resolver.requestIdentifier("script", scriptNode, [b, descriptionID](int32_t identifier)
 	{
 		ScriptID scriptID(identifier);
 
@@ -286,7 +285,7 @@ static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode
 	});
 }
 
-static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
+static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node, IIdentifierResolver & resolver)
 {
 	if (node.isNull())
 	{
@@ -313,7 +312,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		case BonusSource::ARTIFACT:
 		case BonusSource::ARTIFACT_INSTANCE:
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "artifact", node, [&sourceInstance](int32_t identifier)
+			resolver.requestIdentifier( "artifact", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = ArtifactID(identifier);
 			});
@@ -321,7 +320,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::OBJECT_TYPE:
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "object", node, [&sourceInstance](int32_t identifier)
+			resolver.requestIdentifier( "object", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = Obj(identifier);
 			});
@@ -333,7 +332,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 			break;
 		case BonusSource::CREATURE_ABILITY:
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "creature", node, [&sourceInstance](int32_t identifier)
+			resolver.requestIdentifier( "creature", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = CreatureID(identifier);
 			});
@@ -341,7 +340,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::TERRAIN_OVERLAY:
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "battlefield", node, [&sourceInstance](int32_t identifier)
+			resolver.requestIdentifier( "battlefield", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = BattleField(identifier);
 			});
@@ -349,7 +348,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::SPELL_EFFECT:
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			resolver.requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = SpellID(identifier);
 			});
@@ -361,7 +360,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 			break;
 		case BonusSource::SECONDARY_SKILL:
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "secondarySkill", node, [&sourceInstance](int32_t identifier)
+			resolver.requestIdentifier( "secondarySkill", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = SecondarySkill(identifier);
 			});
@@ -369,7 +368,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::HERO_SPECIAL:
 		{
-			LIBRARY->modh->getIdentifierResolver().requestIdentifier( "hero", node, [&sourceInstance](int32_t identifier)
+			resolver.requestIdentifier( "hero", node, [&sourceInstance](int32_t identifier)
 			{
 				sourceInstance = HeroTypeID(identifier);
 			});
@@ -390,7 +389,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 	}
 }
 
-static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
+static TUpdaterPtr parseUpdater(const JsonNode & updaterJson, IIdentifierResolver & resolver)
 {
 	const std::map<std::string, std::shared_ptr<IUpdater>> bonusUpdaterMap =
 	{
@@ -417,7 +416,7 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 		{
 			auto result = std::make_shared<CompositeUpdater>();
 			for (const auto & entry : updaterJson.Vector())
-				result->updaters.push_back(parseUpdater(entry));
+				result->updaters.push_back(parseUpdater(entry, resolver));
 			return result;
 		}
 	case JsonNode::JsonType::DATA_STRUCT:
@@ -463,14 +462,14 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 			}
 			if (!updaterJson["filteredFaction"].isNull())
 			{
-				LIBRARY->modh->getIdentifierResolver().requestIdentifier( "faction", updaterJson["filteredFaction"], [result](int32_t identifier)
+				resolver.requestIdentifier( "faction", updaterJson["filteredFaction"], [result](int32_t identifier)
 				{
 					result->filteredFaction = FactionID(identifier);
 				});
 			}
 			if (!updaterJson["filteredCreature"].isNull())
 			{
-				LIBRARY->modh->getIdentifierResolver().requestIdentifier( "creature", updaterJson["filteredCreature"], [result](int32_t identifier)
+				resolver.requestIdentifier( "creature", updaterJson["filteredCreature"], [result](int32_t identifier)
 				{
 					result->filteredCreature = CreatureID(identifier);
 				});
@@ -484,17 +483,17 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson)
 	return nullptr;
 }
 
-std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
+std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec, IIdentifierResolver & resolver)
 {
 	auto b = std::make_shared<Bonus>();
 
 	const JsonNode & typeNode = ability_vec[0];
 	const JsonNode & subtypeNode = ability_vec[2];
 
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier("bonus", typeNode, [b, subtypeNode](si32 bonusID)
+	resolver.requestIdentifier("bonus", typeNode, [b, subtypeNode, &resolver](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);
-		loadBonusSubtype(b->subtype, b->type, subtypeNode);
+		loadBonusSubtype(b->subtype, b->type, subtypeNode, resolver);
 	});
 	b->val = static_cast<si32>(ability_vec[1].Float());
 	b->parameters = std::make_shared<BonusParameters>(static_cast<si32>(ability_vec[3].Integer()));
@@ -503,7 +502,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec)
 	return b;
 }
 
-static std::shared_ptr<const ILimiter> parseAggregateLimiter(const JsonNode & limiter)
+static std::shared_ptr<const ILimiter> parseAggregateLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
 	const JsonVector & subLimiters = limiter.Vector();
 	if(subLimiters.empty())
@@ -528,7 +527,7 @@ static std::shared_ptr<const ILimiter> parseAggregateLimiter(const JsonNode & li
 	{
 		// collapse for single limiter without explicit aggregate operator
 		if(subLimiters.size() == 1)
-			return JsonUtils::parseLimiter(subLimiters[0]);
+			return JsonUtils::parseLimiter(subLimiters[0], resolver);
 		// implicit aggregator must be allOf
 		result = std::make_shared<AllOfLimiter>();
 		offset = 0;
@@ -536,11 +535,11 @@ static std::shared_ptr<const ILimiter> parseAggregateLimiter(const JsonNode & li
 	if(subLimiters.size() == offset)
 		logMod->warn("Warning: empty sub-limiter list");
 	for(int sl = offset; sl < subLimiters.size(); ++sl)
-		result->add(JsonUtils::parseLimiter(subLimiters[sl]));
+		result->add(JsonUtils::parseLimiter(subLimiters[sl], resolver));
 	return result;
 }
 
-static std::shared_ptr<const ILimiter> parseCreatureTypeLimiter(const JsonNode & limiter)
+static std::shared_ptr<const ILimiter> parseCreatureTypeLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
 	auto creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
 
@@ -548,7 +547,7 @@ static std::shared_ptr<const ILimiter> parseCreatureTypeLimiter(const JsonNode &
 	const JsonNode & creatureNode = limiter.Struct().count("creature") ? limiter["creature"] : parameters[0];
 	const JsonNode & upgradesNode = limiter.Struct().count("includeUpgrades") ? limiter["includeUpgrades"] : parameters[1];
 
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier( "creature", creatureNode, [creatureLimiter](si32 creature)
+	resolver.requestIdentifier( "creature", creatureNode, [creatureLimiter](si32 creature)
 	{
 		creatureLimiter->setCreature(CreatureID(creature));
 	});
@@ -567,7 +566,7 @@ static std::shared_ptr<const ILimiter> parseCreatureTypeLimiter(const JsonNode &
 	return creatureLimiter;
 }
 
-static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNode & limiter)
+static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
 	auto bonusLimiter = std::make_shared<HasAnotherBonusLimiter>();
 
@@ -587,12 +586,12 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 
 	if (!jsonType.isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("bonus", jsonType, [bonusLimiter, jsonSubtype](si32 bonusID)
+		resolver.requestIdentifier("bonus", jsonType, [bonusLimiter, jsonSubtype, &resolver](si32 bonusID)
 		{
 			bonusLimiter->type = static_cast<BonusType>(bonusID);
 			if (!jsonSubtype.isNull())
 			{
-				loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, jsonSubtype);
+				loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, jsonSubtype, resolver);
 				bonusLimiter->isSubtypeRelevant = true;
 			}
 		});
@@ -606,7 +605,7 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 			bonusLimiter->source = sourceIt->second;
 			bonusLimiter->isSourceRelevant = true;
 			if(!jsonSourceID.isNull()) {
-				loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, jsonSourceID);
+				loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, jsonSourceID, resolver);
 				bonusLimiter->isSourceIDRelevant = true;
 			}
 		}
@@ -617,7 +616,7 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 	return bonusLimiter;
 }
 
-static std::shared_ptr<const ILimiter> parseCreatureAlignmentLimiter(const JsonNode & limiter)
+static std::shared_ptr<const ILimiter> parseCreatureAlignmentLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
 	const JsonNode & parameters = limiter["parameters"];
 	const JsonNode & alignmentNode = limiter.Struct().count("alignment") ? limiter["alignment"] : parameters[0];
@@ -632,20 +631,20 @@ static std::shared_ptr<const ILimiter> parseCreatureAlignmentLimiter(const JsonN
 		return std::make_shared<CreatureAlignmentLimiter>(static_cast<EAlignment>(alignment));
 }
 
-static std::shared_ptr<const ILimiter> parseFactionLimiter(const JsonNode & limiter)
+static std::shared_ptr<const ILimiter> parseFactionLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
 	const JsonNode & parameters = limiter["parameters"];
 	const JsonNode & factionNode = limiter.Struct().count("faction") ? limiter["faction"] : parameters[0];
 
 	auto factionLimiter = std::make_shared<FactionLimiter>();
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier("faction", factionNode, [=](si32 faction)
+	resolver.requestIdentifier("faction", factionNode, [=](si32 faction)
 	{
 		factionLimiter->faction = FactionID(faction);
 	});
 	return factionLimiter;
 }
 
-static std::shared_ptr<const ILimiter> parseCreatureLevelLimiter(const JsonNode & limiter)
+static std::shared_ptr<const ILimiter> parseCreatureLevelLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
 	const JsonNode & parameters = limiter["parameters"];
 	const JsonNode & minLevelNode = limiter.Struct().count("minLevel") ? limiter["minLevel"] : parameters[0];
@@ -663,7 +662,7 @@ static std::shared_ptr<const ILimiter> parseCreatureLevelLimiter(const JsonNode 
 	return levelLimiter;
 }
 
-static std::shared_ptr<const ILimiter> parseExperienceRankLimiter(const JsonNode & limiter)
+static std::shared_ptr<const ILimiter> parseExperienceRankLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
 	auto rankLimiter = std::make_shared<RankRangeLimiter>(0);
 
@@ -676,7 +675,7 @@ static std::shared_ptr<const ILimiter> parseExperienceRankLimiter(const JsonNode
 	return rankLimiter;
 }
 
-static std::shared_ptr<const ILimiter> parseTerrainLimiter(const JsonNode & limiter)
+static std::shared_ptr<const ILimiter> parseTerrainLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
 	const JsonNode & parameters = limiter["parameters"];
 	const JsonNode & terrainNode = limiter.Struct().count("terrain") ? limiter["terrain"] : parameters[0];
@@ -684,7 +683,7 @@ static std::shared_ptr<const ILimiter> parseTerrainLimiter(const JsonNode & limi
 	auto terrainLimiter = std::make_shared<TerrainLimiter>();
 	if(!terrainNode.isNull())
 	{
-		LIBRARY->modh->getIdentifierResolver().requestIdentifier("terrain", terrainNode, [terrainLimiter](si32 terrain)
+		resolver.requestIdentifier("terrain", terrainNode, [terrainLimiter](si32 terrain)
 		{
 			terrainLimiter->terrainType = terrain;
 		});
@@ -692,7 +691,7 @@ static std::shared_ptr<const ILimiter> parseTerrainLimiter(const JsonNode & limi
 	return terrainLimiter;
 }
 
-static std::shared_ptr<const ILimiter> parseUnitOnHexLimiter(const JsonNode & limiter)
+static std::shared_ptr<const ILimiter> parseUnitOnHexLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
 	const JsonNode & parameters = limiter["parameters"];
 	const JsonNode & hexesNode = limiter.Struct().count("hexes") ? limiter["hexes"] : parameters[0];
@@ -705,12 +704,12 @@ static std::shared_ptr<const ILimiter> parseUnitOnHexLimiter(const JsonNode & li
 	return hexLimiter;
 }
 
-static std::shared_ptr<const ILimiter> parseUnitAdjacentLimiter(const JsonNode & limiter)
+static std::shared_ptr<const ILimiter> parseUnitAdjacentLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
 	const JsonNode & creatureNode = limiter["creature"];
 
 	auto unitLimiter = std::make_shared<UnitAdjacentLimiter>();
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier("creature", creatureNode, [unitLimiter](si32 creatureID)
+	resolver.requestIdentifier("creature", creatureNode, [unitLimiter](si32 creatureID)
 	{
 		unitLimiter->targetUnit = creatureID;
 	});
@@ -718,7 +717,7 @@ static std::shared_ptr<const ILimiter> parseUnitAdjacentLimiter(const JsonNode &
 	return unitLimiter;
 }
 
-static std::shared_ptr<const ILimiter> parseHasChargesLimiter(const JsonNode & limiter)
+static std::shared_ptr<const ILimiter> parseHasChargesLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
 	const JsonNode & parameters = limiter["parameters"];
 	const JsonNode & costNode = limiter.Struct().count("cost") ? limiter["cost"] : parameters[0];
@@ -730,9 +729,9 @@ static std::shared_ptr<const ILimiter> parseHasChargesLimiter(const JsonNode & l
 	return hasChargesLimiter;
 }
 
-std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter)
+std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter, IIdentifierResolver & resolver)
 {
-	static const std::map<std::string, std::function<std::shared_ptr<const ILimiter>(const JsonNode & limiter)>> limiterParsers = {
+	static const std::map<std::string, std::function<std::shared_ptr<const ILimiter>(const JsonNode & limiter, IIdentifierResolver & resolver)>> limiterParsers = {
 		{"CREATURE_TYPE_LIMITER",      parseCreatureTypeLimiter     },
 		{"HAS_ANOTHER_BONUS_LIMITER",  parseHasAnotherBonusLimiter  },
 		{"CREATURE_ALIGNMENT_LIMITER", parseCreatureAlignmentLimiter},
@@ -750,14 +749,14 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 	switch(limiter.getType())
 	{
 		case JsonNode::JsonType::DATA_VECTOR:
-			return parseAggregateLimiter(limiter);
+			return parseAggregateLimiter(limiter, resolver);
 		case JsonNode::JsonType::DATA_STRING: //pre-defined limiters
 			return parseByMap(bonusLimiterMap, &limiter, "limiter type ");
 		case JsonNode::JsonType::DATA_STRUCT: //customizable limiters
 		{
 			std::string limiterType = limiter["type"].String();
 			if (limiterParsers.count(limiterType))
-				return limiterParsers.at(limiterType)(limiter);
+				return limiterParsers.at(limiterType)(limiter, resolver);
 			else
 				logMod->error("Error: invalid customizable limiter type %s.", limiterType);
 		}
@@ -765,10 +764,10 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 	return nullptr;
 }
 
-std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability, const TextIdentifier & descriptionID)
+std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability, IIdentifierResolver & resolver, const TextIdentifier & descriptionID)
 {
 	auto b = std::make_shared<Bonus>();
-	if (!parseBonus(ability, b.get(), descriptionID))
+	if (!parseBonus(ability, b.get(), resolver, descriptionID))
 	{
 		// caller code can not handle this case and presumes that returned bonus is always valid
 		logGlobal->error("Failed to parse bonus! Json config was %S ", ability.toString());
@@ -778,7 +777,7 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability, const Text
 	return b;
 }
 
-bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifier & descriptionID)
+bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, IIdentifierResolver & resolver, const TextIdentifier & descriptionID)
 {
 	const JsonNode * value = nullptr;
 	const JsonNode & subtypeNode = ability["subtype"];
@@ -793,18 +792,18 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 	// rewrite before parsing, so that identifiers of the replacement resolve through the normal path
 	JsonNode migrated;
 	if (BonusMigration::migrateBonus(ability, migrated))
-		return parseBonus(migrated, b, descriptionID);
+		return parseBonus(migrated, b, resolver, descriptionID);
 
 	BonusMigration::warnIfRetired(ability, descriptionID);
 
-	LIBRARY->modh->getIdentifierResolver().requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode, descriptionID](si32 bonusID)
+	resolver.requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode, descriptionID, &resolver](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);
-		loadBonusSubtype(b->subtype, b->type, subtypeNode);
-		b->parameters = loadBonusAddInfo(b->type, addinfoNode);
+		loadBonusSubtype(b->subtype, b->type, subtypeNode, resolver);
+		b->parameters = loadBonusAddInfo(b->type, addinfoNode, resolver);
 
 		if (b->type == BonusType::COMBAT_EVENT_TRIGGER)
-			prepareCombatScriptParameters(b, subtypeNode, descriptionID);
+			prepareCombatScriptParameters(b, subtypeNode, resolver, descriptionID);
 	});
 
 	b->val = static_cast<si32>(ability["val"].Float());
@@ -871,7 +870,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 		b->source = static_cast<BonusSource>(parseByMapN(bonusSourceMap, value, "source type "));
 
 	if (!ability["sourceID"].isNull())
-		loadBonusSourceInstance(b->sid, b->source, ability["sourceID"]);
+		loadBonusSourceInstance(b->sid, b->source, ability["sourceID"], resolver);
 
 	value = &ability["targetSourceType"];
 	if (!value->isNull())
@@ -883,12 +882,12 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 		if (b->targetSourceType == BonusSource::OTHER)
 			logMod->warn("Bonus has 'targetSourceID' without 'targetSourceType' - target source ID will be ignored!");
 		else
-			loadBonusSourceInstance(b->targetSourceID, b->targetSourceType, *value);
+			loadBonusSourceInstance(b->targetSourceID, b->targetSourceType, *value, resolver);
 	}
 
 	value = &ability["limiters"];
 	if (!value->isNull())
-		b->limiter = parseLimiter(*value);
+		b->limiter = parseLimiter(*value, resolver);
 
 	value = &ability["propagator"];
 	if (!value->isNull())
@@ -906,14 +905,14 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 
 	value = &ability["updater"];
 	if(!value->isNull())
-		b->addUpdater(parseUpdater(*value));
+		b->addUpdater(parseUpdater(*value, resolver));
 	value = &ability["propagationUpdater"];
 	if(!value->isNull())
-		b->propagationUpdater = parseUpdater(*value);
+		b->propagationUpdater = parseUpdater(*value, resolver);
 	return true;
 }
 
-CSelector JsonUtils::parseSelector(const JsonNode & ability)
+CSelector JsonUtils::parseSelector(const JsonNode & ability, IIdentifierResolver & resolver)
 {
 	CSelector ret = Selector::all;
 
@@ -922,7 +921,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	if(value->isVector())
 	{
 		for(const auto & andN : value->Vector())
-			ret = ret.And(parseSelector(andN));
+			ret = ret.And(parseSelector(andN, resolver));
 	}
 
 	value = &ability["anyOf"];
@@ -930,7 +929,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	{
 		CSelector base = Selector::none;
 		for(const auto & andN : value->Vector())
-			base = base.Or(parseSelector(andN));
+			base = base.Or(parseSelector(andN, resolver));
 
 		ret = ret.And(base);
 	}
@@ -940,7 +939,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	{
 		CSelector base = Selector::none;
 		for(const auto & andN : value->Vector())
-			base = base.Or(parseSelector(andN));
+			base = base.Or(parseSelector(andN, resolver));
 
 		ret = ret.And(base.Not());
 	}
@@ -965,7 +964,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 	{
 		// subtype is resolved asynchronously, same as source instance below
 		auto subtype = std::make_shared<BonusSubtypeID>();
-		loadBonusSubtype(*subtype, type, *value);
+		loadBonusSubtype(*subtype, type, *value, resolver);
 
 		ret = ret.And(CSelector([subtype](const Bonus * bonus)
 		{
@@ -987,7 +986,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		// source instance is resolved asynchronously, so it becomes known only after library loading is complete.
 		// Selector has to look it up on each use, rather than capture it right away
 		auto sourceId = std::make_shared<BonusSourceID>();
-		loadBonusSourceInstance(*sourceId, *src, *value);
+		loadBonusSourceInstance(*sourceId, *src, *value, resolver);
 
 		ret = ret.And(CSelector([source = *src, sourceId](const Bonus * bonus)
 		{
@@ -1013,7 +1012,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		// source instance is resolved asynchronously, so it becomes known only after library loading is complete.
 		// Selector has to look it up on each use, rather than capture it right away
 		auto targetId = std::make_shared<BonusSourceID>();
-		loadBonusSourceInstance(*targetId, *targetSrc, *value);
+		loadBonusSourceInstance(*targetId, *targetSrc, *value, resolver);
 
 		ret = ret.And(CSelector([targetSource = *targetSrc, targetId](const Bonus * bonus)
 		{

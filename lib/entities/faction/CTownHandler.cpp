@@ -241,7 +241,7 @@ void CTownHandler::loadBuildingBonuses(const JsonNode & source, BonusList & bonu
 	{
 		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, BonusSourceID(building->getUniqueTypeID()));
 
-		if(!JsonUtils::parseBonus(source.Vector()[i], bonus.get(), TextIdentifier(building->getBaseTextID(), "bonus", i)))
+		if(!JsonUtils::parseBonus(source.Vector()[i], bonus.get(), LIBRARY->modh->getIdentifierResolver(), TextIdentifier(building->getBaseTextID(), "bonus", i)))
 			continue;
 
 		if (bonus->description.empty() && (bonus->type == BonusType::MORALE || bonus->type == BonusType::LUCK))

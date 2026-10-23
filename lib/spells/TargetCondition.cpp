@@ -414,7 +414,7 @@ public:
 				minVal = parameters["minVal"].Integer();
 			if(parameters["maxVal"].isNumber())
 				maxVal = parameters["maxVal"].Integer();
-			auto sel = JsonUtils::parseSelector(parameters);
+			auto sel = JsonUtils::parseSelector(parameters, LIBRARY->modh->getIdentifierResolver());
 			return std::make_shared<SelectorCondition>(sel, minVal, maxVal);
 		}
 

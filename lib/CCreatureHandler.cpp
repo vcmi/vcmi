@@ -429,9 +429,9 @@ void CCreatureHandler::loadCommanders()
 		// MOD COMPATIBILITY: 1.6 mods use old, vector format.
 		// NOTE: please also remove parseBonus itself - commanders is the last place that uses it
 		if (node.isVector())
-			return JsonUtils::parseBonus(node.Vector());
+			return JsonUtils::parseBonus(node.Vector(), LIBRARY->modh->getIdentifierResolver());
 		else
-			return JsonUtils::parseBonus(node);
+			return JsonUtils::parseBonus(node, LIBRARY->modh->getIdentifierResolver());
 	};
 
 	auto configResource = JsonPath::builtin("config/commanders.json");
@@ -832,7 +832,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	{
 		if (!ability.second.isNull())
 		{
-			auto b = JsonUtils::parseBonus(ability.second, creature->getBonusTextID(ability.first));
+			auto b = JsonUtils::parseBonus(ability.second, LIBRARY->modh->getIdentifierResolver(), creature->getBonusTextID(ability.first));
 			b->source = BonusSource::CREATURE_ABILITY;
 			b->sid = BonusSourceID(creature->getId());
 			b->duration = BonusDuration::PERMANENT;
@@ -931,7 +931,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					// parse each bonus separately
 					// we can not create copies since identifiers resolution does not tracks copies
 					// leading to unset identifier values in copies
-					auto bonus = JsonUtils::parseBonus (exp["bonus"], descriptionID);
+					auto bonus = JsonUtils::parseBonus(exp["bonus"], LIBRARY->modh->getIdentifierResolver(), descriptionID);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
 					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
@@ -952,7 +952,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 				JsonNode bonusInput = exp["bonus"];
 				bonusInput["val"].Float() = range.value;
 
-				auto bonus = JsonUtils::parseBonus (bonusInput, descriptionID);
+				auto bonus = JsonUtils::parseBonus(bonusInput, LIBRARY->modh->getIdentifierResolver(), descriptionID);
 				bonus->source = BonusSource::STACK_EXPERIENCE;
 				bonus->duration = BonusDuration::PERMANENT;
 				bonus->addLimiter(range.limiter());

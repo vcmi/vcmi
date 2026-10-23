@@ -20,6 +20,7 @@
 #include "../bonuses/BonusSelector.h"
 #include "../GameLibrary.h"
 #include "../json/JsonBonus.h"
+#include "../modding/IdentifierResolver.h"
 #include "../texts/CGeneralTextHandler.h"
 
 #include <vcmi/spells/Caster.h>
@@ -338,9 +339,10 @@ void CSpell::getEffects(std::vector<Bonus> & lst, const int schoolLevel, const b
 		return;
 	}
 
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
 	for(const auto & [name, bonusNode] : effectsJson.Struct())
 	{
-		auto b = JsonUtils::parseBonus(bonusNode);
+		auto b = JsonUtils::parseBonus(bonusNode, resolver);
 		if(!b)
 			continue;
 		const bool usePowerAsValue = bonusNode["val"].isNull();

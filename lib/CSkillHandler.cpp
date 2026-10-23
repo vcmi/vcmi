@@ -289,7 +289,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 		// parse bonus effects
 		for(const auto & b : levelNode["effects"].Struct())
 		{
-			auto bonus = JsonUtils::parseBonus(b.second);
+			auto bonus = JsonUtils::parseBonus(b.second, LIBRARY->modh->getIdentifierResolver());
 			skill->addNewBonus(bonus, level);
 		}
 		CSkill::LevelInfo & skillAtLevel = skill->at(level);
@@ -309,7 +309,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 
 		if (bonusNode.isStruct())
 		{
-			auto bonus = JsonUtils::parseBonus(bonusNode);
+			auto bonus = JsonUtils::parseBonus(bonusNode, LIBRARY->modh->getIdentifierResolver());
 			bonus->val = 0; // set by HeroHandler on specialty load
 			if (bonus->propagator != nullptr)
 				bonus->addPropagationUpdater(std::make_shared<TimesHeroLevelUpdater>());
