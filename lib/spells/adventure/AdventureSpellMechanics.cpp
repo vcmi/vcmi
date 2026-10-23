@@ -65,7 +65,7 @@ AdventureSpellMechanics::AdventureSpellMechanics(LibraryLoadContext & context, c
 
 		for(const auto & [name, bonusNode] : s->getLevelInfo(level).effects.Struct())
 		{
-			auto b = JsonUtils::parseBonus(bonusNode, context.resolver);
+			auto b = JsonUtils::parseBonus(bonusNode, context);
 			if(b)
 			{
 				b->sid = BonusSourceID(s->id);
@@ -76,7 +76,7 @@ AdventureSpellMechanics::AdventureSpellMechanics(LibraryLoadContext & context, c
 
 		for(const auto & elem : config["bonuses"].Struct())
 		{
-			auto b = JsonUtils::parseBonus(elem.second, context.resolver);
+			auto b = JsonUtils::parseBonus(elem.second, context);
 			b->sid = BonusSourceID(s->id);
 			b->source = BonusSource::SPELL_EFFECT;
 			levelOptions[level].bonuses.push_back(b);

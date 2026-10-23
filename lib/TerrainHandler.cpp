@@ -43,7 +43,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson(LibraryLoadContext
 	info->transitionRequired = json["transitionRequired"].Bool();
 	info->terrainViewPatterns = json["terrainViewPatterns"].String();
 
-	LIBRARY->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
+	context.lib.generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
 	const JsonNode & grailRumor = json["grailRumor"];
 	if (!grailRumor.String().empty())
@@ -55,7 +55,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson(LibraryLoadContext
 		else
 		{
 			info->grailRumorTextID = TextIdentifier("terrain", scope, identifier, "grailRumor").get();
-			LIBRARY->generaltexth->registerString(scope, info->grailRumorTextID, grailRumor);
+			context.lib.generaltexth->registerString(scope, info->grailRumorTextID, grailRumor);
 		}
 	}
 
@@ -152,7 +152,7 @@ const std::vector<std::string> & TerrainTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> TerrainTypeHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_TERRAIN);
+	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_TERRAIN);
 
 	objects.resize(dataSize);
 

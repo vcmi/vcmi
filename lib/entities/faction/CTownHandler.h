@@ -37,7 +37,7 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 
 	static const TPropagatorPtr & emptyPropagator();
 
-	void initializeRequirements();
+	void initializeRequirements(LibraryLoadContext & context);
 
 	/// loads CBuilding's into town
 	void loadBuildingRequirements(CBuilding * building, const JsonNode & source, std::vector<BuildingRequirementsHelper> & bidsToLoad) const;

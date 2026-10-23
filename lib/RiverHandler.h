@@ -64,7 +64,7 @@ public:
 		const std::string & identifier,
 		size_t index) override;
 
-	RiverTypeHandler();
+	explicit RiverTypeHandler(LibraryLoadContext & context);
 
 	const std::vector<std::string> & getTypeNames() const override;
 	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;

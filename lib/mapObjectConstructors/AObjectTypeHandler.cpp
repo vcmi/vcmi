@@ -289,7 +289,7 @@ bool AObjectTypeHandler::isStaticObject()
 	return false; // most of classes are not static
 }
 
-void AObjectTypeHandler::afterLoadFinalization()
+void AObjectTypeHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 }
 

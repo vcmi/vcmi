@@ -120,7 +120,7 @@ public:
 
 	virtual bool isStaticObject();
 
-	virtual void afterLoadFinalization();
+	virtual void afterLoadFinalization(LibraryLoadContext & context);
 
 	/// Creates object and set up core properties (like ID/subID). Object is NOT initialized
 	/// to allow creating objects before game start (e.g. map loading)

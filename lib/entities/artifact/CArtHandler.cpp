@@ -52,7 +52,7 @@ CArtHandler::~CArtHandler() = default;
 
 std::vector<JsonNode> CArtHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
+	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_ARTIFACT);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
@@ -129,7 +129,7 @@ void CArtHandler::loadObject(LibraryLoadContext & context, const std::string & s
 
 	objects.emplace_back(object);
 
-	registerObject(scope, "artifact", name, data, object->id.getNum());
+	registerObject(context, scope, "artifact", name, data, object->id.getNum());
 }
 
 void CArtHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
@@ -141,7 +141,7 @@ void CArtHandler::loadObject(LibraryLoadContext & context, const std::string & s
 	assert(objects[index] == nullptr); // ensure that this id was not loaded before
 	objects[index] = object;
 
-	registerObject(scope, "artifact", name, data, object->id.getNum());
+	registerObject(context, scope, "artifact", name, data, object->id.getNum());
 }
 
 const std::vector<std::string> & CArtHandler::getTypeNames() const
@@ -159,10 +159,10 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & contex
 	if(!node["growing"].isNull())
 	{
 		for(auto bonus : node["growing"]["bonusesPerLevel"].Vector())
-			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"], context.resolver));
+			art->bonusesPerLevel.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"], context));
 
 		for(auto bonus : node["growing"]["thresholdBonuses"].Vector())
-			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"], context.resolver));
+			art->thresholdBonuses.emplace_back(static_cast<ui16>(bonus["level"].Float()), JsonUtils::parseBonus(bonus["bonus"], context));
 	}
 
 	art->id = ArtifactID(index);
@@ -171,9 +171,9 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & contex
 
 	const JsonNode & text = node["text"];
 
-	LIBRARY->generaltexth->registerString(scope, art->getNameTextID(), text["name"]);
-	LIBRARY->generaltexth->registerString(scope, art->getDescriptionTextID(), text["description"]);
-	LIBRARY->generaltexth->registerString(scope, art->getEventTextID(), text["event"]);
+	context.lib.generaltexth->registerString(scope, art->getNameTextID(), text["name"]);
+	context.lib.generaltexth->registerString(scope, art->getDescriptionTextID(), text["description"]);
+	context.lib.generaltexth->registerString(scope, art->getEventTextID(), text["event"]);
 
 	const JsonNode & graphics = node["graphics"];
 	art->image = graphics["image"].String();
@@ -197,7 +197,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & contex
 	{
 		for(const auto & b : node["bonuses"].Vector())
 		{
-			auto bonus = JsonUtils::parseBonus(b, context.resolver);
+			auto bonus = JsonUtils::parseBonus(b, context);
 			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
@@ -208,7 +208,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & contex
 		{
 			if (b.second.isNull())
 				continue;
-			auto bonus = JsonUtils::parseBonus(b.second, context.resolver, art->getBonusTextID(b.first));
+			auto bonus = JsonUtils::parseBonus(b.second, context, art->getBonusTextID(b.first));
 			bonus->sid = art->getId();
 			art->addNewBonus(bonus);
 		}
@@ -218,7 +218,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & contex
 	{
 		if (b.second.isNull())
 			continue;
-		auto bonus = JsonUtils::parseBonus(b.second, context.resolver, art->getBonusTextID(b.first));
+		auto bonus = JsonUtils::parseBonus(b.second, context, art->getBonusTextID(b.first));
 		bonus->sid = art->getId();
 		bonus->source = BonusSource::ARTIFACT;
 		bonus->duration = BonusDuration::PERMANENT;
@@ -230,12 +230,12 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & contex
 	const JsonNode & warMachine = node["warMachine"];
 	if(!warMachine.isNull())
 	{
-		context.resolver.requestIdentifier("creature", warMachine, [art](si32 id)
+		context.resolver.requestIdentifier("creature", warMachine, [&context, art](si32 id)
 		{
 			art->warMachine = CreatureID(id);
 
 			//this assumes that creature object is stored before registration
-			LIBRARY->creh->objects.at(id)->warMachine = art->id;
+			context.lib.creh->objects.at(id)->warMachine = art->id;
 		});
 	}
 
@@ -244,7 +244,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & contex
 		JsonNode conf;
 		conf.setModScope(scope);
 
-		LIBRARY->objtypeh->loadSubObject(context, art->identifier, conf, Obj::ARTIFACT, art->getIndex());
+		context.lib.objtypeh->loadSubObject(context, art->identifier, conf, Obj::ARTIFACT, art->getIndex());
 
 		if(!art->advMapDef.empty())
 		{
@@ -254,7 +254,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & contex
 
 			// add new template.
 			// Necessary for objects added via mods that don't have any templates in H3
-			LIBRARY->objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->addTemplate(context, templ);
+			context.lib.objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->addTemplate(context, templ);
 		}
 	});
 

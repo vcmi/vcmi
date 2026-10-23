@@ -30,7 +30,7 @@ void DwellingInstanceConstructor::initTypeData(LibraryLoadContext & context, con
 	if (input.Struct().count("name") == 0)
 		logMod->warn("Dwelling %s missing name!", getJsonKey());
 
-	LIBRARY->generaltexth->registerString( input.getModScope(), getNameTextID(), input["name"]);
+	context.lib.generaltexth->registerString( input.getModScope(), getNameTextID(), input["name"]);
 
 	const JsonVector & levels = input["creatures"].Vector();
 	const auto totalLevels = levels.size();

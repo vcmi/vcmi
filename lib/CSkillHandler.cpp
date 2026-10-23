@@ -243,7 +243,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(LibraryLoadContext & context
 	if (json["obligatoryMinor"].Bool() && !vstd::contains(skill->tags, "spellSchool"))
 		skill->tags.emplace_back("spellSchool");
 
-	LIBRARY->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
+	context.lib.generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
 	skill->offerCooldown = static_cast<int>(json["offerCooldown"].Integer());
 
 	for(auto skillPair : json["gainChance"].Struct())
@@ -262,9 +262,9 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(LibraryLoadContext & context
 			continue;
 		}
 
-		context.resolver.requestIdentifierIfFound(skillPair.second.getModScope(), "heroClass", skillPair.first, [skill, probability](si32 classID)
+		context.resolver.requestIdentifierIfFound(skillPair.second.getModScope(), "heroClass", skillPair.first, [&context, skill, probability](si32 classID)
 		{
-			LIBRARY->heroclassesh->objects[classID]->secSkillProbability[skill->id] = probability;
+			context.lib.heroclassesh->objects[classID]->secSkillProbability[skill->id] = probability;
 		});
 	}
 
@@ -288,11 +288,11 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(LibraryLoadContext & context
 		// parse bonus effects
 		for(const auto & b : levelNode["effects"].Struct())
 		{
-			auto bonus = JsonUtils::parseBonus(b.second, context.resolver);
+			auto bonus = JsonUtils::parseBonus(b.second, context);
 			skill->addNewBonus(bonus, level);
 		}
 		CSkill::LevelInfo & skillAtLevel = skill->at(level);
-		LIBRARY->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"]);
+		context.lib.generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"]);
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
@@ -308,7 +308,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(LibraryLoadContext & context
 
 		if (bonusNode.isStruct())
 		{
-			auto bonus = JsonUtils::parseBonus(bonusNode, context.resolver);
+			auto bonus = JsonUtils::parseBonus(bonusNode, context);
 			bonus->val = 0; // set by HeroHandler on specialty load
 			if (bonus->propagator != nullptr)
 				bonus->addPropagationUpdater(std::make_shared<TimesHeroLevelUpdater>());

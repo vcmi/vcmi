@@ -15,6 +15,7 @@
 #include "../json/JsonNode.h"
 #include "../json/JsonUtils.h"
 #include "../modding/IdentifierResolver.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
 
@@ -92,7 +93,7 @@ void ScriptHandler::loadObject(LibraryLoadContext & context, const std::string &
 	if(!data["description"].isNull())
 	{
 		description.descriptionTextID = TextIdentifier(scope, "script", name, "description").get();
-		LIBRARY->generaltexth->registerString(scope, description.descriptionTextID, data["description"]);
+		context.lib.generaltexth->registerString(scope, description.descriptionTextID, data["description"]);
 	}
 
 	factory->initialize(description);
@@ -123,7 +124,7 @@ void ScriptHandler::loadObject(LibraryLoadContext & context, const std::string &
 			damageCalculator = description.damageCalculatorScript;
 	}
 
-	registerObject(scope, "script", name, data, scripts.size());
+	registerObject(context, scope, "script", name, data, scripts.size());
 	scripts.push_back(std::move(description));
 }
 
@@ -132,12 +133,10 @@ void ScriptHandler::loadObject(LibraryLoadContext & context, const std::string &
 	throw std::runtime_error("Not supported");
 }
 
-void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, IIdentifierResolver & resolver, const TextIdentifier & owner) const
+void ScriptHandler::validateParameters(const ScriptTypeDescription & description, const JsonNode & parameters, IIdentifierResolver & resolver, const std::string & owner) const
 {
-	const ScriptTypeDescription & description = getById(scriptID);
-
 	if(!description.parametersSchema.isNull())
-		JsonUtils::validate(parameters, description.parametersSchema, owner.get());
+		JsonUtils::validate(parameters, description.parametersSchema, owner);
 
 	// a parameter naming an entity is resolved here purely to have it reported when it names
 	// nothing - otherwise a typo only shows up as a raw json key in the creature window
@@ -146,8 +145,25 @@ void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, 
 		const std::string & entityType = property["entity"].String();
 
 		if(!entityType.empty())
-			resolver.requestIdentifierIfNotNull(entityType, static_cast<const JsonNode &>(parameters)[field], [](si32){});
+			resolver.requestIdentifierIfNotNull(entityType, parameters[field], [](si32){});
 	}
+}
+
+void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, IIdentifierResolver & resolver) const
+{
+	const ScriptTypeDescription & description = getById(scriptID);
+
+	validateParameters(description, parameters, resolver, "");
+
+	if(!description.stringRegistrations.empty())
+		logMod->warn("Script '%s' registers translatable strings, but is used by a source that provides no identifier for them!", description.scriptId);
+}
+
+void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, LibraryLoadContext & context, const TextIdentifier & owner) const
+{
+	const ScriptTypeDescription & description = getById(scriptID);
+
+	validateParameters(description, parameters, context.resolver, owner.get());
 
 	if(description.stringRegistrations.empty())
 		return;
@@ -178,7 +194,7 @@ void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, 
 		else
 		{
 			TextIdentifier textID(owner.get(), field);
-			LIBRARY->generaltexth->registerString(fieldNode.getModScope(), textID, fieldNode);
+			context.lib.generaltexth->registerString(fieldNode.getModScope(), textID, fieldNode);
 			parameters[field].String() = textID.get();
 		}
 	}

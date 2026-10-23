@@ -43,9 +43,9 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 
 	void loadExperience();
 
-	std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID cid, int fixedLevel, int growthPerStep) const;
-	std::vector<std::shared_ptr<Bonus>> createSecondarySkillSpecialty(SecondarySkill skillID, int growthPerStep) const;
-	std::vector<std::shared_ptr<Bonus>> createSpellScalingSpecialty(SpellID spellID, int growthPerStep) const;
+	std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(LibraryLoadContext & context, CreatureID cid, int fixedLevel, int growthPerStep) const;
+	std::vector<std::shared_ptr<Bonus>> createSecondarySkillSpecialty(LibraryLoadContext & context, SecondarySkill skillID, int growthPerStep) const;
+	std::vector<std::shared_ptr<Bonus>> createSpellScalingSpecialty(LibraryLoadContext & context, SpellID spellID, int growthPerStep) const;
 	std::vector<std::shared_ptr<Bonus>> createSpellFixedSpecialty(SpellID spellID, const std::vector<int32_t> & values) const;
 
 public:

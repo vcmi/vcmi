@@ -302,13 +302,13 @@ std::set<TModID> CModHandler::getModEnabledSoftDependencies(const TModID & modId
 	return softDependencies;
 }
 
-void CModHandler::initializeConfig()
+void CModHandler::initializeConfig(LibraryLoadContext & context)
 {
 	for(const TModID & modName : getActiveMods())
 	{
 		const auto & mod = getModInfo(modName);
 		if (!mod.getLocalConfig()["settings"].isNull())
-			LIBRARY->settingsHandler->loadBase(mod.getLocalConfig()["settings"]);
+			context.lib.settingsHandler->loadBase(mod.getLocalConfig()["settings"]);
 	}
 }
 
@@ -392,7 +392,7 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 void CModHandler::loadModContent(LibraryLoadContext & context) const
 {
 	const auto & activeMods = getActiveMods();
-	const std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
+	const std::string preferredLanguage = context.lib.generaltexth->getPreferredLanguage();
 	const std::vector<std::string> contentTypes = context.content.getContentTypeNames();
 
 	std::vector<JsonNode> loadedContent(activeMods.size());
@@ -422,12 +422,12 @@ void CModHandler::loadModContent(LibraryLoadContext & context) const
 	}
 }
 
-void CModHandler::loadTranslation(const LibraryLoadContext & context, const TModID & modName)
+void CModHandler::loadTranslation(LibraryLoadContext & context, const TModID & modName)
 {
 	const JsonNode & translations = context.modContent.at(modName);
 
-	LIBRARY->generaltexth->loadTranslationOverrides(modName, getModInfo(modName).getBaseLanguage(), translations["translations"]);
-	LIBRARY->generaltexth->loadTranslationOverrides(modName, LIBRARY->generaltexth->getPreferredLanguage(), translations[LIBRARY->generaltexth->getPreferredLanguage()]["translations"]);
+	context.lib.generaltexth->loadTranslationOverrides(modName, getModInfo(modName).getBaseLanguage(), translations["translations"]);
+	context.lib.generaltexth->loadTranslationOverrides(modName, context.lib.generaltexth->getPreferredLanguage(), translations[context.lib.generaltexth->getPreferredLanguage()]["translations"]);
 }
 
 void CModHandler::load(LibraryLoadContext & context)
@@ -476,7 +476,7 @@ void CModHandler::load(LibraryLoadContext & context)
 	context.content.loadCustom(context);
 
 	logMod->info("\tLoading mod data");
-	LIBRARY->creh->loadCrExpMod();
+	context.lib.creh->loadCrExpMod(context);
 	context.resolver.finalize();
 	logMod->info("\tResolving identifiers");
 

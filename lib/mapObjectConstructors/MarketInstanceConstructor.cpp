@@ -34,7 +34,7 @@ void MarketInstanceConstructor::initTypeData(LibraryLoadContext & context, const
 		else
 		{
 			descriptionTextID = TextIdentifier(getBaseTextID(), "description").get();
-			LIBRARY->generaltexth->registerString( input.getModScope(), descriptionTextID, input["description"]);
+			context.lib.generaltexth->registerString( input.getModScope(), descriptionTextID, input["description"]);
 		}
 	}
 
@@ -48,7 +48,7 @@ void MarketInstanceConstructor::initTypeData(LibraryLoadContext & context, const
 		else
 		{
 			speechTextID = TextIdentifier(getBaseTextID(), "speech").get();
-			LIBRARY->generaltexth->registerString( input.getModScope(), speechTextID, input["speech"]);
+			context.lib.generaltexth->registerString( input.getModScope(), speechTextID, input["speech"]);
 		}
 	}
 

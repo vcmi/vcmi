@@ -14,12 +14,13 @@
 #include "IGameSettings.h"
 #include "json/JsonNode.h"
 #include "GameLibrary.h"
+#include "modding/LibraryLoadContext.h"
 
-RoadTypeHandler::RoadTypeHandler()
+RoadTypeHandler::RoadTypeHandler(LibraryLoadContext & context)
 {
 	objects.emplace_back(new RoadType());
 
-	LIBRARY->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
+	context.lib.generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
 std::shared_ptr<RoadType> RoadTypeHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope,
@@ -38,7 +39,7 @@ std::shared_ptr<RoadType> RoadTypeHandler::loadFromJson(LibraryLoadContext & con
 	info->shortIdentifier = json["shortIdentifier"].String();
 	info->movementCost    = json["moveCost"].Integer();
 
-	LIBRARY->generaltexth->registerString(scope,info->getNameTextID(), json["text"]);
+	context.lib.generaltexth->registerString(scope,info->getNameTextID(), json["text"]);
 
 	return info;
 }
@@ -51,7 +52,7 @@ const std::vector<std::string> & RoadTypeHandler::getTypeNames() const
 
 std::vector<JsonNode> RoadTypeHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_ROAD);
+	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_ROAD);
 
 	objects.resize(dataSize);
 	return {};

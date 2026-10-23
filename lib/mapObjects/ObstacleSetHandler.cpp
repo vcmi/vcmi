@@ -321,7 +321,7 @@ void ObstacleSetHandler::loadObject(LibraryLoadContext & context, const std::str
 	{
 		addObstacleSet(os);
 		// TODO: Define some const array of object types ("biome" etc.)
-		LIBRARY->identifiersHandler->registerObject(scope, "biome", name, biomes.back()->id);
+		context.lib.identifiersHandler->registerObject(scope, "biome", name, biomes.back()->id);
 	}
 	else
 	{
@@ -445,7 +445,7 @@ std::shared_ptr<ObstacleSet> ObstacleSetHandler::loadFromJson(LibraryLoadContext
 	return os;
 }
 
-void ObstacleSetHandler::addTemplate(const std::string & scope, const std::string &name, std::shared_ptr<const ObjectTemplate> tmpl)
+void ObstacleSetHandler::addTemplate(LibraryLoadContext & context, const std::string & scope, const std::string &name, std::shared_ptr<const ObjectTemplate> tmpl)
 {
 	auto id = obstacleTemplates.size();
 
@@ -454,7 +454,7 @@ void ObstacleSetHandler::addTemplate(const std::string & scope, const std::strin
 	if(pos != std::string::npos)
 		strippedName.erase(pos, 4);
 
-	if (LIBRARY->identifiersHandler->getIdentifier(scope, "obstacleTemplate", strippedName, true))
+	if (context.lib.identifiersHandler->getIdentifier(scope, "obstacleTemplate", strippedName, true))
 	{
 		logMod->debug("Duplicate obstacle template: %s", strippedName);
 		return;
@@ -462,7 +462,7 @@ void ObstacleSetHandler::addTemplate(const std::string & scope, const std::strin
 	else
 	{
 		// Save by name
-		LIBRARY->identifiersHandler->registerObject(scope, "obstacleTemplate", strippedName, id);
+		context.lib.identifiersHandler->registerObject(scope, "obstacleTemplate", strippedName, id);
 
 		// Index by id
 		obstacleTemplates[id] = tmpl;

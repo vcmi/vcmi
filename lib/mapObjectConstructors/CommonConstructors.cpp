@@ -102,7 +102,7 @@ void MineInstanceConstructor::initTypeData(LibraryLoadContext & context, const J
 	defaultQuantity = !config["defaultQuantity"].isNull() ? config["defaultQuantity"].Integer() : 1;
 
 	if(!config["name"].isNull())
-		LIBRARY->generaltexth->registerString(config.getModScope(), getNameTextID(), config["name"]);
+		context.lib.generaltexth->registerString(config.getModScope(), getNameTextID(), config["name"]);
 
 	if(!config["description"].isNull())
 	{
@@ -112,7 +112,7 @@ void MineInstanceConstructor::initTypeData(LibraryLoadContext & context, const J
 		else
 		{
 			descriptionTextID = TextIdentifier(getBaseTextID(), "description").get();
-			LIBRARY->generaltexth->registerString(config.getModScope(), descriptionTextID, config["description"]);
+			context.lib.generaltexth->registerString(config.getModScope(), descriptionTextID, config["description"]);
 		}
 	}
 
@@ -131,7 +131,7 @@ void MineInstanceConstructor::initTypeData(LibraryLoadContext & context, const J
 			return message.substr(1);
 
 		const std::string textID = TextIdentifier(getBaseTextID(), key).get();
-		LIBRARY->generaltexth->registerString(config.getModScope(), textID, inputNode);
+		context.lib.generaltexth->registerString(config.getModScope(), textID, inputNode);
 		return textID;
 	};
 
@@ -188,7 +188,7 @@ void CTownInstanceConstructor::initTypeData(LibraryLoadContext & context, const 
 {
 	context.resolver.requestIdentifier("faction", input["faction"], [&](si32 index)
 	{
-		faction = (*LIBRARY->townh)[index];
+		faction = (*context.lib.townh)[index];
 	});
 
 	filtersJson = input["filters"];
@@ -198,14 +198,14 @@ void CTownInstanceConstructor::initTypeData(LibraryLoadContext & context, const 
 	filtersJson.setModScope(input["faction"].getModScope());
 }
 
-void CTownInstanceConstructor::afterLoadFinalization()
+void CTownInstanceConstructor::afterLoadFinalization(LibraryLoadContext & context)
 {
 	assert(faction);
 	for(const auto & entry : filtersJson.Struct())
 	{
-		filters[entry.first] = LogicalExpression<BuildingID>(entry.second, [this](const JsonNode & node)
+		filters[entry.first] = LogicalExpression<BuildingID>(entry.second, [this, &context](const JsonNode & node)
 		{
-			return BuildingID(LIBRARY->identifiers()->getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).value_or(-1));
+			return BuildingID(context.lib.identifiers()->getIdentifier("building." + faction->getJsonKey(), node.Vector()[0]).value_or(-1));
 		});
 	}
 }
@@ -348,7 +348,7 @@ void BoatInstanceConstructor::initTypeData(LibraryLoadContext & context, const J
 	overlayAnimation = AnimationPath::fromJson(input["overlayAnimation"]);
 	for(int i = 0; i < flagAnimations.size() && i < input["flagAnimations"].Vector().size(); ++i)
 		flagAnimations[i] = AnimationPath::fromJson(input["flagAnimations"].Vector()[i]);
-	bonuses = JsonRandom::loadBonuses(input["bonuses"], context.resolver);
+	bonuses = JsonRandom::loadBonuses(input["bonuses"], context);
 }
 
 void BoatInstanceConstructor::initializeObject(CGBoat * boat) const

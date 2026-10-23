@@ -131,7 +131,7 @@ Effects::EffectsMap Effects::loadJson(LibraryLoadContext & context, const JsonNo
 
 	for(const auto & [name, raw] : effectMap.Struct())
 	{
-		auto identifier = LIBRARY->identifiers()->getIdentifier("script", raw["type"]);
+		auto identifier = context.lib.identifiers()->getIdentifier("script", raw["type"]);
 
 		if(!identifier.has_value())
 		{
@@ -141,16 +141,16 @@ Effects::EffectsMap Effects::loadJson(LibraryLoadContext & context, const JsonNo
 
 		ScriptID effectID(*identifier);
 
-		if(LIBRARY->scriptTypes()->getById(effectID).kind != ScriptKind::SPELL_EFFECT)
+		if(context.lib.scriptTypes()->getById(effectID).kind != ScriptKind::SPELL_EFFECT)
 		{
 			logMod->error("Spell '%s:%s' uses script '%s' as effect '%s', but that script is not a spell effect!", spellScope, spellIdentifier, raw["type"].String(), name);
 			continue;
 		}
 
 		JsonNode data = raw;
-		LIBRARY->scriptTypes()->prepareParameters(effectID, data, context.resolver, TextIdentifier("spell", spellScope, spellIdentifier, name));
+		context.lib.scriptTypes()->prepareParameters(effectID, data, context, TextIdentifier("spell", spellScope, spellIdentifier, name));
 
-		auto effect = LIBRARY->scriptTypes()->createSpellEffect(effectID);
+		auto effect = context.lib.scriptTypes()->createSpellEffect(effectID);
 
 		if(!effect)
 			continue; // reported by the handler

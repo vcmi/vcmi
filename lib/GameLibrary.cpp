@@ -224,13 +224,13 @@ void GameLibrary::initializeLibrary()
 void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 {
 	createHandler(settingsHandler);
-	modh->initializeConfig();
+	modh->initializeConfig(context);
 
 	createHandler(generaltexth);
-	createHandler(bth);
+	bth = std::make_unique<CBonusTypeHandler>(context);
 	createHandler(resourceTypeHandler);
-	createHandler(roadTypeHandler);
-	createHandler(riverTypeHandler);
+	roadTypeHandler = std::make_unique<RoadTypeHandler>(context);
+	riverTypeHandler = std::make_unique<RiverTypeHandler>(context);
 	createHandler(terrainTypeHandler);
 	createHandler(heroh);
 	createHandler(heroclassesh);

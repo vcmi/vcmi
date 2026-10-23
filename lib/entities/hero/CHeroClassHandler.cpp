@@ -26,11 +26,11 @@
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
 
-void CHeroClassHandler::fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const
+void CHeroClassHandler::fillPrimarySkillData(LibraryLoadContext & context, const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const
 {
 	const auto & skillName = NPrimarySkill::names[pSkill.getNum()];
 	auto currentPrimarySkillValue = static_cast<int>(node["primarySkills"][skillName].Integer());
-	int primarySkillLegalMinimum = LIBRARY->engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, pSkill.getNum());
+	int primarySkillLegalMinimum = context.lib.engineSettings()->getVectorValue(EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS, pSkill.getNum());
 
 	if(currentPrimarySkillValue < primarySkillLegalMinimum)
 	{
@@ -67,7 +67,7 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(LibraryLoadContext &
 	heroClass->imageMapFemale    = node["animation"]["map"]["female"].String();
 	heroClass->imageMapMale      = node["animation"]["map"]["male"].String();
 
-	LIBRARY->generaltexth->registerString(scope, heroClass->getNameTextID(), node["name"].String());
+	context.lib.generaltexth->registerString(scope, heroClass->getNameTextID(), node["name"].String());
 
 	if (vstd::contains(affinityStr, node["affinity"].String()))
 	{
@@ -79,10 +79,10 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(LibraryLoadContext &
 		heroClass->affinity = CHeroClass::MIGHT;
 	}
 
-	fillPrimarySkillData(node, heroClass.get(), PrimarySkill::ATTACK);
-	fillPrimarySkillData(node, heroClass.get(), PrimarySkill::DEFENSE);
-	fillPrimarySkillData(node, heroClass.get(), PrimarySkill::SPELL_POWER);
-	fillPrimarySkillData(node, heroClass.get(), PrimarySkill::KNOWLEDGE);
+	fillPrimarySkillData(context, node, heroClass.get(), PrimarySkill::ATTACK);
+	fillPrimarySkillData(context, node, heroClass.get(), PrimarySkill::DEFENSE);
+	fillPrimarySkillData(context, node, heroClass.get(), PrimarySkill::SPELL_POWER);
+	fillPrimarySkillData(context, node, heroClass.get(), PrimarySkill::KNOWLEDGE);
 
 	auto percentSumm = std::accumulate(heroClass->primarySkillLowLevel.begin(), heroClass->primarySkillLowLevel.end(), 0);
 	if(percentSumm <= 0)
@@ -124,7 +124,7 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(LibraryLoadContext &
 		classConf["heroClass"].setModScope(scope);
 		if (!node["compatibilityIdentifiers"].isNull())
 			classConf["compatibilityIdentifiers"] = node["compatibilityIdentifiers"];
-		LIBRARY->objtypeh->loadSubObject(context, identifier, classConf, index, heroClass->getIndex());
+		context.lib.objtypeh->loadSubObject(context, identifier, classConf, index, heroClass->getIndex());
 	});
 
 	return heroClass;
@@ -132,7 +132,7 @@ std::shared_ptr<CHeroClass> CHeroClassHandler::loadFromJson(LibraryLoadContext &
 
 std::vector<JsonNode> CHeroClassHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_HERO_CLASS);
+	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_HERO_CLASS);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
@@ -177,7 +177,7 @@ void CHeroClassHandler::afterLoadFinalization(LibraryLoadContext & context)
 	// for each pair <class, town> set selection probability if it was not set before in tavern entries
 	for(auto & heroClass : objects)
 	{
-		for(auto & faction : LIBRARY->townh->objects)
+		for(auto & faction : context.lib.townh->objects)
 		{
 			if (!faction->town)
 				continue;
@@ -189,11 +189,11 @@ void CHeroClassHandler::afterLoadFinalization(LibraryLoadContext & context)
 		}
 
 		// set default probabilities for gaining secondary skills where not loaded previously
-		for(int skillID = 0; skillID < LIBRARY->skillh->size(); skillID++)
+		for(int skillID = 0; skillID < context.lib.skillh->size(); skillID++)
 		{
 			if(heroClass->secSkillProbability.count(skillID) == 0)
 			{
-				const CSkill * skill = (*LIBRARY->skillh)[SecondarySkill(skillID)];
+				const CSkill * skill = (*context.lib.skillh)[SecondarySkill(skillID)];
 				logMod->trace("%s: no probability for %s, using default", heroClass->identifier, skill->getJsonKey());
 				heroClass->secSkillProbability[skillID] = skill->gainChance[heroClass->affinity];
 			}
@@ -206,7 +206,7 @@ void CHeroClassHandler::afterLoadFinalization(LibraryLoadContext & context)
 		{
 			JsonNode templ;
 			templ["animation"].String() = hc->imageMapMale;
-			LIBRARY->objtypeh->getHandlerFor(Obj::HERO, hc->getIndex())->addTemplate(context, templ);
+			context.lib.objtypeh->getHandlerFor(Obj::HERO, hc->getIndex())->addTemplate(context, templ);
 		}
 	}
 }

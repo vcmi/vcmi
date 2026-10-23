@@ -43,7 +43,7 @@ class DLL_LINKAGE CBonusTypeHandler : public IBonusTypeHandler
 {
 	std::vector<std::string> builtinBonusNames;
 public:
-	CBonusTypeHandler();
+	explicit CBonusTypeHandler(LibraryLoadContext & context);
 	virtual ~CBonusTypeHandler();
 
 	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer) const override;

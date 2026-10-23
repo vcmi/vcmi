@@ -23,7 +23,7 @@ void FlaggableInstanceConstructor::initTypeData(LibraryLoadContext & context, co
 		JsonUtils::validate(config, "vcmi:flaggable", getJsonKey());
 
 	for (const auto & bonusJson : config["bonuses"].Struct())
-		providedBonuses.push_back(JsonUtils::parseBonus(bonusJson.second, context.resolver));
+		providedBonuses.push_back(JsonUtils::parseBonus(bonusJson.second, context));
 
 	if (!config["message"].isNull())
 	{
@@ -35,7 +35,7 @@ void FlaggableInstanceConstructor::initTypeData(LibraryLoadContext & context, co
 		else
 		{
 			visitMessageTextID = TextIdentifier(getBaseTextID(), "onVisit").get();
-			LIBRARY->generaltexth->registerString( config.getModScope(), visitMessageTextID, config["message"]);
+			context.lib.generaltexth->registerString( config.getModScope(), visitMessageTextID, config["message"]);
 		}
 	}
 

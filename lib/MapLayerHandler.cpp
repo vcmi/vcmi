@@ -35,7 +35,7 @@ std::shared_ptr<MapLayerType> MapLayerTypeHandler::loadFromJson(LibraryLoadConte
 	info->modScope        = scope;
 	info->icon            = json["icon"].String();
 
-	LIBRARY->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
+	context.lib.generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
 	context.resolver.requestIdentifierIfNotNull("terrain", json["defaultTerrain"], [info](int32_t terrainIndex)
 	{

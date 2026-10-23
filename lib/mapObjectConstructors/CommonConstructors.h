@@ -99,7 +99,7 @@ public:
 
 	void initializeObject(CGTownInstance * object) const override;
 	void randomizeObject(CGTownInstance * object, IGameRandomizer & gameRandomizer) const override;
-	void afterLoadFinalization() override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;

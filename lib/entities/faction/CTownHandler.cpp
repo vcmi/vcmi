@@ -68,7 +68,7 @@ const TPropagatorPtr & CTownHandler::emptyPropagator()
 
 std::vector<JsonNode> CTownHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_FACTION);
+	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_FACTION);
 
 	std::vector<JsonNode> dest(dataSize);
 	objects.resize(dataSize);
@@ -240,7 +240,7 @@ void CTownHandler::loadBuildingBonuses(LibraryLoadContext & context, const JsonN
 	{
 		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NONE, BonusSource::TOWN_STRUCTURE, 0, BonusSourceID(building->getUniqueTypeID()));
 
-		if(!JsonUtils::parseBonus(source.Vector()[i], bonus.get(), context.resolver, TextIdentifier(building->getBaseTextID(), "bonus", i)))
+		if(!JsonUtils::parseBonus(source.Vector()[i], bonus.get(), context, TextIdentifier(building->getBaseTextID(), "bonus", i)))
 			continue;
 
 		if (bonus->description.empty() && (bonus->type == BonusType::MORALE || bonus->type == BonusType::LUCK))
@@ -276,8 +276,8 @@ void CTownHandler::loadBuilding(LibraryLoadContext & context, CTown * town, cons
 	ret->modScope = source.getModScope();
 	ret->town = town;
 
-	LIBRARY->generaltexth->registerString(source.getModScope(), ret->getNameTextID(), source["name"]);
-	LIBRARY->generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"]);
+	context.lib.generaltexth->registerString(source.getModScope(), ret->getNameTextID(), source["name"]);
+	context.lib.generaltexth->registerString(source.getModScope(), ret->getDescriptionTextID(), source["description"]);
 
 	ret->subId = vstd::find_or(MappedKeys::SPECIAL_BUILDINGS, source["type"].String(), BuildingSubID::NONE);
 	ret->resources.resolveFromJson(source["cost"], context.resolver);
@@ -346,7 +346,7 @@ void CTownHandler::loadBuilding(LibraryLoadContext & context, CTown * town, cons
 	}
 
 	if(!source["configuration"].isNull())
-		ret->rewardableObjectInfo.init(source["configuration"], ret->getBaseTextID());
+		ret->rewardableObjectInfo.init(context, source["configuration"], ret->getBaseTextID());
 
 	loadBuildingRequirements(ret, source["requires"], requirementsToLoad);
 
@@ -405,7 +405,7 @@ void CTownHandler::loadBuilding(LibraryLoadContext & context, CTown * town, cons
 		}
 	}
 
-	registerObject(source.getModScope(), ret->town->getBuildingScope(), ret->identifier, source, ret->bid.getNum());
+	registerObject(context, source.getModScope(), ret->town->getBuildingScope(), ret->identifier, source, ret->bid.getNum());
 }
 
 void CTownHandler::loadBuildings(LibraryLoadContext & context, CTown * town, const JsonNode & source)
@@ -533,13 +533,13 @@ void CTownHandler::loadSiegeScreen(LibraryLoadContext & context, CTown &town, co
 	town.clientInfo.towerIconSmall = source["towerIconSmall"].String();
 	town.clientInfo.towerIconLarge = source["towerIconLarge"].String();
 
-	context.resolver.requestIdentifier("creature", source["shooter"], [&town](si32 creature)
+	context.resolver.requestIdentifier("creature", source["shooter"], [&context, &town](si32 creature)
 	{
 		auto crId = CreatureID(creature);
-		if((*LIBRARY->creh)[crId]->animation.missileFrameAngles.empty())
+		if((*context.lib.creh)[crId]->animation.missileFrameAngles.empty())
 			logMod->error("Mod '%s' error: Creature '%s' on the Archer's tower is not a shooter. Mod should be fixed. Siege will not work properly!"
 				, town.faction->getNameTranslated()
-				, (*LIBRARY->creh)[crId]->getNameSingularTranslated());
+				, (*context.lib.creh)[crId]->getNameSingularTranslated());
 
 		town.fortifications.citadelShooter = crId;
 		town.fortifications.upperTowerShooter = crId;
@@ -647,7 +647,7 @@ void CTownHandler::loadTown(LibraryLoadContext & context, CTown * town, const Js
 	town->namesCount = 0;
 	for(const auto & name : source["names"].Vector())
 	{
-		LIBRARY->generaltexth->registerString(town->faction->modScope, town->getRandomNameTextID(town->namesCount), name);
+		context.lib.generaltexth->registerString(town->faction->modScope, town->getRandomNameTextID(town->namesCount), name);
 		town->namesCount += 1;
 	}
 
@@ -700,9 +700,9 @@ void CTownHandler::loadTown(LibraryLoadContext & context, CTown * town, const Js
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "heroClass", node.first, [=](si32 classID)
+		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "heroClass", node.first, [=, &context](si32 classID)
 		{
-			LIBRARY->heroclassesh->objects[classID]->selectionProbability[town->faction->getId()] = chance;
+			context.lib.heroclassesh->objects[classID]->selectionProbability[town->faction->getId()] = chance;
 		});
 	}
 
@@ -710,9 +710,9 @@ void CTownHandler::loadTown(LibraryLoadContext & context, CTown * town, const Js
 	{
 		int chance = static_cast<int>(node.second.Float());
 
-		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "spell", node.first, [=](si32 spellID)
+		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "spell", node.first, [=, &context](si32 spellID)
 		{
-			LIBRARY->spellh->objects.at(spellID)->probabilities[town->faction->getId()] = chance;
+			context.lib.spellh->objects.at(spellID)->probabilities[town->faction->getId()] = chance;
 		});
 	}
 
@@ -791,8 +791,8 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(LibraryLoadContext & contex
 	faction->modScope = scope;
 	faction->identifier = identifier;
 
-	LIBRARY->generaltexth->registerString(scope, faction->getNameTextID(), source["name"]);
-	LIBRARY->generaltexth->registerString(scope, faction->getDescriptionTextID(), source["description"]);
+	context.lib.generaltexth->registerString(scope, faction->getNameTextID(), source["name"]);
+	context.lib.generaltexth->registerString(scope, faction->getDescriptionTextID(), source["description"]);
 
 	faction->creatureBg120 = ImagePath::fromJson(source["creatureBackground"]["120px"]);
 	faction->creatureBg130 = ImagePath::fromJson(source["creatureBackground"]["130px"]);
@@ -857,7 +857,7 @@ void CTownHandler::loadObject(LibraryLoadContext & context, const std::string & 
 			config["faction"].setModScope(scope, false);
 			if (config.getModScope().empty())// MODS COMPATIBILITY FOR 0.96
 				config.setModScope(scope, false);
-			LIBRARY->objtypeh->loadSubObject(context, object->identifier, config, index, object->index);
+			context.lib.objtypeh->loadSubObject(context, object->identifier, config, index, object->index);
 
 			// MODS COMPATIBILITY FOR 0.96
 			const auto & advMap = data["town"]["adventureMap"];
@@ -866,12 +866,12 @@ void CTownHandler::loadObject(LibraryLoadContext & context, const std::string & 
 				logMod->warn("Outdated town mod. Will try to generate valid templates out of fort");
 				JsonNode config;
 				config["animation"] = advMap["castle"];
-				LIBRARY->objtypeh->getHandlerFor(index, object->index)->addTemplate(context, config);
+				context.lib.objtypeh->getHandlerFor(index, object->index)->addTemplate(context, config);
 			}
 		});
 	}
 
-	registerObject(scope, "faction", name, data, object->index.getNum());
+	registerObject(context, scope, "faction", name, data, object->index.getNum());
 }
 
 void CTownHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
@@ -898,11 +898,11 @@ void CTownHandler::loadObject(LibraryLoadContext & context, const std::string & 
 			JsonNode config = data["town"]["mapObject"];
 			config["faction"].String() = name;
 			config["faction"].setModScope(scope, false);
-			LIBRARY->objtypeh->loadSubObject(context, object->identifier, config, index, object->index);
+			context.lib.objtypeh->loadSubObject(context, object->identifier, config, index, object->index);
 		});
 	}
 
-	registerObject(scope, "faction", name, data, object->index.getNum());
+	registerObject(context, scope, "faction", name, data, object->index.getNum());
 }
 
 void CTownHandler::loadRandomFaction(LibraryLoadContext & context)
@@ -965,10 +965,10 @@ void CTownHandler::beforeValidate(JsonNode & object)
 
 void CTownHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
-	initializeRequirements();
+	initializeRequirements(context);
 }
 
-void CTownHandler::initializeRequirements()
+void CTownHandler::initializeRequirements(LibraryLoadContext & context)
 {
 	// must be done separately after all ID's are known
 	for (auto & requirement : requirementsToLoad)
@@ -982,7 +982,7 @@ void CTownHandler::initializeRequirements()
 				logMod->error(node.toString());
 			}
 
-			auto index = LIBRARY->identifiers()->getIdentifier(requirement.town->getBuildingScope(), node[0]);
+			auto index = context.lib.identifiers()->getIdentifier(requirement.town->getBuildingScope(), node[0]);
 
 			if (!index.has_value())
 			{

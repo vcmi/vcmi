@@ -24,6 +24,7 @@
 #include "../constants/StringConstants.h"
 #include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../scripting/ScriptService.h"
 
 
@@ -96,7 +97,9 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 	});
 }
 
-static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & value, IIdentifierResolver & resolver)
+static std::shared_ptr<Bonus> parseBonusOrNone(const JsonNode & ability, IIdentifierResolver & resolver, LibraryLoadContext * context, const TextIdentifier & descriptionID);
+
+static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & value, IIdentifierResolver & resolver, LibraryLoadContext * context)
 {
 	const auto & getFirstValue = [](const JsonNode & jsonNode) -> const JsonNode &
 	{
@@ -215,7 +218,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 				bool targetEnemy = effect["targetEnemy"].Bool();
 				if (effect["action"].String() == "bonus")
 				{
-					const auto bonus = JsonUtils::parseBonus(effect["bonus"], resolver);
+					const auto bonus = parseBonusOrNone(effect["bonus"], resolver, context, "");
 					loadedData.effects.push_back(BonusParametersOnCombatEvent::CombatEffectBonus{
 						bonus, targetEnemy
 					});
@@ -255,13 +258,15 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 /// A combat script validates the parameters the bonus hands it and registers any translatable text
 /// among them. Both need the script itself, which only resolves once every mod has been loaded -
 /// scripts are a content type of their own and may well load after whoever refers to them.
-static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode, IIdentifierResolver & resolver, const TextIdentifier & descriptionID)
+/// `context` is null when the bonus is not part of library content
+static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode, IIdentifierResolver & resolver, LibraryLoadContext * context, const TextIdentifier & descriptionID)
 {
-	resolver.requestIdentifier("script", scriptNode, [b, descriptionID, &resolver](int32_t identifier)
+	resolver.requestIdentifier("script", scriptNode, [b, descriptionID, &resolver, context](int32_t identifier)
 	{
 		ScriptID scriptID(identifier);
 
-		const ScriptTypeDescription & script = LIBRARY->scriptTypes()->getById(scriptID);
+		const ScriptService & scripts = context ? *context->lib.scriptTypes() : *LIBRARY->scriptTypes();
+		const ScriptTypeDescription & script = scripts.getById(scriptID);
 
 		if (script.kind != ScriptKind::COMBAT_EVENT)
 		{
@@ -278,7 +283,10 @@ static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode
 		else
 			parameters.setType(JsonNode::JsonType::DATA_STRUCT);
 
-		LIBRARY->scriptTypes()->prepareParameters(scriptID, parameters, resolver, descriptionID);
+		if (context)
+			scripts.prepareParameters(scriptID, parameters, *context, descriptionID);
+		else
+			scripts.prepareParameters(scriptID, parameters, resolver);
 
 		// parameters are immutable once stored, so the prepared payload replaces them wholesale
 		b->parameters = std::make_shared<BonusParameters>(parameters);
@@ -483,17 +491,17 @@ static TUpdaterPtr parseUpdater(const JsonNode & updaterJson, IIdentifierResolve
 	return nullptr;
 }
 
-std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec, IIdentifierResolver & resolver)
+std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec, LibraryLoadContext & context)
 {
 	auto b = std::make_shared<Bonus>();
 
 	const JsonNode & typeNode = ability_vec[0];
 	const JsonNode & subtypeNode = ability_vec[2];
 
-	resolver.requestIdentifier("bonus", typeNode, [b, subtypeNode, &resolver](si32 bonusID)
+	context.resolver.requestIdentifier("bonus", typeNode, [b, subtypeNode, &context](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);
-		loadBonusSubtype(b->subtype, b->type, subtypeNode, resolver);
+		loadBonusSubtype(b->subtype, b->type, subtypeNode, context.resolver);
 	});
 	b->val = static_cast<si32>(ability_vec[1].Float());
 	b->parameters = std::make_shared<BonusParameters>(static_cast<si32>(ability_vec[3].Integer()));
@@ -764,10 +772,13 @@ std::shared_ptr<const ILimiter> JsonUtils::parseLimiter(const JsonNode & limiter
 	return nullptr;
 }
 
-std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability, IIdentifierResolver & resolver, const TextIdentifier & descriptionID)
+/// `context` is null when the bonus is not part of library content
+static bool parseBonusImpl(const JsonNode & ability, Bonus * b, IIdentifierResolver & resolver, LibraryLoadContext * context, const TextIdentifier & descriptionID);
+
+static std::shared_ptr<Bonus> parseBonusOrNone(const JsonNode & ability, IIdentifierResolver & resolver, LibraryLoadContext * context, const TextIdentifier & descriptionID)
 {
 	auto b = std::make_shared<Bonus>();
-	if (!parseBonus(ability, b.get(), resolver, descriptionID))
+	if (!parseBonusImpl(ability, b.get(), resolver, context, descriptionID))
 	{
 		// caller code can not handle this case and presumes that returned bonus is always valid
 		logGlobal->error("Failed to parse bonus! Json config was %S ", ability.toString());
@@ -777,7 +788,22 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode &ability, IIdentifie
 	return b;
 }
 
-bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, IIdentifierResolver & resolver, const TextIdentifier & descriptionID)
+std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode & ability, IIdentifierResolver & resolver)
+{
+	return parseBonusOrNone(ability, resolver, nullptr, "");
+}
+
+std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonNode & ability, LibraryLoadContext & context, const TextIdentifier & descriptionID)
+{
+	return parseBonusOrNone(ability, context.resolver, &context, descriptionID);
+}
+
+bool JsonUtils::parseBonus(const JsonNode & ability, Bonus * placement, LibraryLoadContext & context, const TextIdentifier & descriptionID)
+{
+	return parseBonusImpl(ability, placement, context.resolver, &context, descriptionID);
+}
+
+static bool parseBonusImpl(const JsonNode & ability, Bonus * b, IIdentifierResolver & resolver, LibraryLoadContext * context, const TextIdentifier & descriptionID)
 {
 	const JsonNode * value = nullptr;
 	const JsonNode & subtypeNode = ability["subtype"];
@@ -792,18 +818,18 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, IIdentifierResolve
 	// rewrite before parsing, so that identifiers of the replacement resolve through the normal path
 	JsonNode migrated;
 	if (BonusMigration::migrateBonus(ability, migrated))
-		return parseBonus(migrated, b, resolver, descriptionID);
+		return parseBonusImpl(migrated, b, resolver, context, descriptionID);
 
 	BonusMigration::warnIfRetired(ability, descriptionID);
 
-	resolver.requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode, descriptionID, &resolver](si32 bonusID)
+	resolver.requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode, descriptionID, &resolver, context](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);
 		loadBonusSubtype(b->subtype, b->type, subtypeNode, resolver);
-		b->parameters = loadBonusAddInfo(b->type, addinfoNode, resolver);
+		b->parameters = loadBonusAddInfo(b->type, addinfoNode, resolver, context);
 
 		if (b->type == BonusType::COMBAT_EVENT_TRIGGER)
-			prepareCombatScriptParameters(b, subtypeNode, resolver, descriptionID);
+			prepareCombatScriptParameters(b, subtypeNode, resolver, context, descriptionID);
 	});
 
 	b->val = static_cast<si32>(ability["val"].Float());
@@ -823,7 +849,8 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, IIdentifierResolve
 				b->description.appendTextID(ability["description"].String().substr(1));
 			else if (!descriptionID.get().empty())
 			{
-				LIBRARY->generaltexth->registerString(ability.getModScope(), descriptionID, ability["description"]);
+				assert(context);
+				context->lib.generaltexth->registerString(ability.getModScope(), descriptionID, ability["description"]);
 				b->description.appendTextID(descriptionID.get());
 			}
 		}
@@ -887,7 +914,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, IIdentifierResolve
 
 	value = &ability["limiters"];
 	if (!value->isNull())
-		b->limiter = parseLimiter(*value, resolver);
+		b->limiter = JsonUtils::parseLimiter(*value, resolver);
 
 	value = &ability["propagator"];
 	if (!value->isNull())

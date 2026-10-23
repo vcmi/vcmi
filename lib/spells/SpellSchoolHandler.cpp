@@ -12,6 +12,7 @@
 #include "SpellSchoolHandler.h"
 
 #include "../GameLibrary.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../json/JsonNode.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
@@ -44,7 +45,7 @@ std::shared_ptr<spells::SpellSchoolType> SpellSchoolHandler::loadFromJson(Librar
 	ret->schoolBookmarkPath = AnimationPath::fromJson(json["schoolBookmark"]);
 	ret->schoolHeaderPath = ImagePath::fromJson(json["schoolHeader"]);
 
-	LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
+	context.lib.generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
 
 	return ret;
 }

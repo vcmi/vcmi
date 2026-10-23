@@ -23,6 +23,7 @@
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../entities/ResourceTypeHandler.h"
 
@@ -94,13 +95,13 @@ namespace {
 	}
 }
 
-void Rewardable::Info::init(const JsonNode & objectConfig, const std::string & objectName)
+void Rewardable::Info::init(LibraryLoadContext & context, const JsonNode & objectConfig, const std::string & objectName)
 {
 	objectTextID = objectName;
 
 	auto loadString = [&](const JsonNode & entry, const TextIdentifier & textID){
 		if (entry.isString() && !entry.String().empty() && entry.String()[0] != '@')
-			LIBRARY->generaltexth->registerString(entry.getModScope(), textID, entry);
+			context.lib.generaltexth->registerString(entry.getModScope(), textID, entry);
 	};
 
 	parameters = objectConfig;

@@ -115,7 +115,7 @@ public:
 	ObstacleSet::EObstacleType convertObstacleClass(MapObjectID id);
 
 	// TODO: Populate obstacleSets with all the obstacle sets from the game data
-	void addTemplate(const std::string & scope, const std::string &name, std::shared_ptr<const ObjectTemplate> tmpl);
+	void addTemplate(LibraryLoadContext & context, const std::string & scope, const std::string &name, std::shared_ptr<const ObjectTemplate> tmpl);
 
 	void addObstacleSet(std::shared_ptr<ObstacleSet> set);
 

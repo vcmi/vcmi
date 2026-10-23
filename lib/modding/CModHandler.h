@@ -31,14 +31,14 @@ class DLL_LINKAGE CModHandler final : boost::noncopyable
 	void loadModContent(LibraryLoadContext & context) const;
 	JsonNode loadModContent(const TModID & modName, const std::vector<std::string> & contentTypes, const std::string & preferredLanguage, uint32_t & checksum, bool & isValid) const;
 
-	void loadTranslation(const LibraryLoadContext & context, const TModID & modName);
+	void loadTranslation(LibraryLoadContext & context, const TModID & modName);
 	void checkModFilesystemsConflicts(const std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> & modFilesystems);
 
 	bool isModValidationNeeded(const LibraryLoadContext & context, const ModDescription & mod) const;
 
 public:
 	/// receives list of available mods and trying to load mod.json from all of them
-	void initializeConfig();
+	void initializeConfig(LibraryLoadContext & context);
 	void loadModFilesystems();
 
 	/// returns ID of mod that provides selected file resource

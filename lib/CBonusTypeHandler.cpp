@@ -37,13 +37,13 @@ std::string CBonusType::getDescriptionTextID() const
 
 ///CBonusTypeHandler
 
-CBonusTypeHandler::CBonusTypeHandler()
+CBonusTypeHandler::CBonusTypeHandler(LibraryLoadContext & context)
 {
 	//register predefined bonus types
 
 	// MOD COMPATIBILITY FOR 1.6
-	registerObject(ModScope::scopeBuiltin(), "bonus", "FEAR", JsonNode(), 0);
-	registerObject(ModScope::scopeBuiltin(), "bonus", "FEARLESS", JsonNode(), 0);
+	registerObject(context, ModScope::scopeBuiltin(), "bonus", "FEAR", JsonNode(), 0);
+	registerObject(context, ModScope::scopeBuiltin(), "bonus", "FEARLESS", JsonNode(), 0);
 
 #define BONUS_NAME(x) { #x },
 	builtinBonusNames = {
@@ -55,7 +55,7 @@ CBonusTypeHandler::CBonusTypeHandler()
 		bonusTypes.push_back(std::make_shared<CBonusType>());
 
 	for (int i = 0; i < builtinBonusNames.size(); ++i)
-		registerObject(ModScope::scopeBuiltin(), "bonus", builtinBonusNames[i], JsonNode(), i);
+		registerObject(context, ModScope::scopeBuiltin(), "bonus", builtinBonusNames[i], JsonNode(), i);
 }
 
 CBonusTypeHandler::~CBonusTypeHandler() = default;
@@ -198,7 +198,7 @@ void CBonusTypeHandler::loadObject(LibraryLoadContext & context, const std::stri
 	else
 	{
 		// new bonus
-		registerObject(scope, "bonus", name, data, bonusTypes.size());
+		registerObject(context, scope, "bonus", name, data, bonusTypes.size());
 		bonusTypes.push_back(std::make_shared<CBonusType>());
 		loadItem(context, data, *bonusTypes.back(), name);
 		logBonus->trace("New bonus type %s", name);
@@ -218,7 +218,7 @@ void CBonusTypeHandler::loadItem(LibraryLoadContext & context, const JsonNode & 
 	dest.blockDescriptionPropagation = source["blockDescriptionPropagation"].Bool(); //Null -> false
 
 	if (!dest.hidden)
-		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"]);
+		context.lib.generaltexth->registerString( "vcmi", dest.getDescriptionTextID(), source["description"]);
 
 	const JsonNode & graphics = source["graphics"];
 
@@ -243,7 +243,7 @@ void CBonusTypeHandler::loadItem(LibraryLoadContext & context, const JsonNode & 
 
 	for (const auto & additionalDescription : source["subtypeDescriptions"].Struct())
 	{
-		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID() + "." + additionalDescription.first, additionalDescription.second);
+		context.lib.generaltexth->registerString( "vcmi", dest.getDescriptionTextID() + "." + additionalDescription.first, additionalDescription.second);
 		auto stringID = additionalDescription.first;
 		context.resolver.requestIdentifier(additionalDescription.second.getModScope(), additionalDescription.first, [&dest, stringID](int32_t index)
 		{
@@ -253,7 +253,7 @@ void CBonusTypeHandler::loadItem(LibraryLoadContext & context, const JsonNode & 
 
 	for (const auto & additionalDescription : source["valueDescriptions"].Struct())
 	{
-		LIBRARY->generaltexth->registerString( "vcmi", dest.getDescriptionTextID() + "." + additionalDescription.first, additionalDescription.second);
+		context.lib.generaltexth->registerString( "vcmi", dest.getDescriptionTextID() + "." + additionalDescription.first, additionalDescription.second);
 		auto stringID = additionalDescription.first;
 		int value = std::stoi(additionalDescription.first);
 		dest.valueDescriptions[value] = stringID;

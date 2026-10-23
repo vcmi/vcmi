@@ -46,7 +46,7 @@ void CRmgTemplateStorage::loadObject(LibraryLoadContext & context, const std::st
 		templates[fullKey]->setName(name);
 
 		if (!templates[fullKey]->getDescription().empty())
-			LIBRARY->generaltexth->registerString(scope, templates[fullKey]->getDescriptionTextID(), data["description"]);
+			context.lib.generaltexth->registerString(scope, templates[fullKey]->getDescriptionTextID(), data["description"]);
 
 		templates[fullKey]->validate();
 	}

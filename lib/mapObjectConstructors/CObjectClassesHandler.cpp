@@ -43,6 +43,7 @@
 
 #include "../modding/IdentifierStorage.h"
 #include "../modding/CModHandler.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../modding/ModScope.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/CLegacyConfigParser.h"
@@ -108,7 +109,7 @@ CObjectClassesHandler::~CObjectClassesHandler() = default;
 
 std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_OBJECT);
+	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_OBJECT);
 
 	CLegacyConfigParser parser(TextPath::builtin("Data/Objects.txt"));
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
@@ -174,7 +175,7 @@ void CObjectClassesHandler::loadSubObject(LibraryLoadContext & context, const st
 	assert(subObject);
 	baseObject->objectTypeHandlers.push_back(subObject);
 
-	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
+	registerObject(context, scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
 }
 
 void CObjectClassesHandler::loadSubObject(LibraryLoadContext & context, const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
@@ -187,7 +188,7 @@ void CObjectClassesHandler::loadSubObject(LibraryLoadContext & context, const st
 
 	baseObject->objectTypeHandlers.at(index) = subObject;
 
-	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
+	registerObject(context, scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
 }
 
 TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(LibraryLoadContext & context, const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
@@ -231,7 +232,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(LibraryLoadConte
 		for (auto & templ : createdObject->getTemplates())
 		{
 			// Register templates for new objects from mods
-			LIBRARY->biomeHandler->addTemplate(scope, templ->stringID, templ);
+			context.lib.biomeHandler->addTemplate(context, scope, templ->stringID, templ);
 		}
 	}
 
@@ -242,7 +243,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(LibraryLoadConte
 		{
 			// Register legacy templates as "core"
 			// FIXME: Why does it clear stringID?
-			LIBRARY->biomeHandler->addTemplate("core", templ.second->stringID, templ.second);
+			context.lib.biomeHandler->addTemplate(context, "core", templ.second->stringID, templ.second);
 		}
 
 		createdObject->addTemplate(templ.second);
@@ -283,7 +284,7 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(LibraryLoadCont
 	newObject->base = json["base"];
 	newObject->id = index;
 
-	LIBRARY->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"]);
+	context.lib.generaltexth->registerString(scope, newObject->getNameTextID(), json["name"]);
 
 	newObject->objectTypeHandlers.resize(json["lastReservedIndex"].Float() + 1);
 
@@ -309,7 +310,7 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(LibraryLoadCont
 	}
 
 	if (newObject->id == MapObjectID::MONOLITH_TWO_WAY)
-		generateExtraMonolithsForRMG(newObject.get());
+		generateExtraMonolithsForRMG(context, newObject.get());
 
 	return newObject;
 }
@@ -318,7 +319,7 @@ void CObjectClassesHandler::loadObject(LibraryLoadContext & context, const std::
 {
 	mapObjectTypes.push_back(loadFromJson(context, scope, data, name, mapObjectTypes.size()));
 
-	LIBRARY->identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.back()->id);
+	context.lib.identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.back()->id);
 }
 
 void CObjectClassesHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
@@ -326,7 +327,7 @@ void CObjectClassesHandler::loadObject(LibraryLoadContext & context, const std::
 	assert(mapObjectTypes.at(index) == nullptr); // ensure that this id was not loaded before
 
 	mapObjectTypes.at(index) = loadFromJson(context, scope, data, name, index);
-	LIBRARY->identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.at(index)->id);
+	context.lib.identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.at(index)->id);
 }
 
 void CObjectClassesHandler::loadSubObject(LibraryLoadContext & context, const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID)
@@ -467,14 +468,14 @@ void CObjectClassesHandler::afterLoadFinalization(LibraryLoadContext & context)
 			if (!obj)
 				continue;
 
-			obj->afterLoadFinalization();
+			obj->afterLoadFinalization(context);
 			if(obj->getTemplates().empty())
 				logMod->debug("No templates found for %s:%s", entry->getJsonKey(), obj->getJsonKey());
 		}
 	}
 }
 
-void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container)
+void CObjectClassesHandler::generateExtraMonolithsForRMG(LibraryLoadContext & context, ObjectClass * container)
 {
 	//duplicate existing two-way portals to make reserve for RMG
 	auto& portalVec = container->objectTypeHandlers;
@@ -514,7 +515,7 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 
 		portalVec.push_back(newPortal);
 
-		registerObject(newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, JsonNode(), newPortal->subtype);
+		registerObject(context, newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, JsonNode(), newPortal->subtype);
 	}
 }
 

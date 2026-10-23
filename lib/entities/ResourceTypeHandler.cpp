@@ -12,6 +12,7 @@
 #include "ResourceTypeHandler.h"
 
 #include "../GameLibrary.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../json/JsonNode.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
@@ -56,7 +57,7 @@ std::shared_ptr<Resource> ResourceTypeHandler::loadFromJson(LibraryLoadContext &
 	ret->iconLarge = json["images"]["large"].String();
 
 	if(ret->id.getNum() >= GameConstants::RESOURCE_QUANTITY) // not OH3 resources
-		LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
+		context.lib.generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
 
 	return ret;
 }

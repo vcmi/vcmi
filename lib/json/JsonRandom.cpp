@@ -31,7 +31,7 @@
 #include "../gameState/CGameState.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../mapObjects/army/CStackBasicDescriptor.h"
-#include "../modding/IdentifierResolver.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../spells/CSpellHandler.h"
@@ -370,12 +370,12 @@ std::vector<JsonRandom::RandomStackInfo> JsonRandom::evaluateCreatures(const Jso
 	return ret;
 }
 
-std::vector<std::shared_ptr<Bonus>> JsonRandom::loadBonuses(const JsonNode & value, IIdentifierResolver & resolver)
+std::vector<std::shared_ptr<Bonus>> JsonRandom::loadBonuses(const JsonNode & value, LibraryLoadContext & context)
 {
 	std::vector<std::shared_ptr<Bonus>> ret;
 	for(const JsonNode & entry : value.Vector())
 	{
-		if(auto bonus = JsonUtils::parseBonus(entry, resolver))
+		if(auto bonus = JsonUtils::parseBonus(entry, context))
 			ret.push_back(bonus);
 	}
 	return ret;

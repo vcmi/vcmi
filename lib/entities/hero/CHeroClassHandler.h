@@ -18,7 +18,7 @@
 
 class CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>
 {
-	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const;
+	void fillPrimarySkillData(LibraryLoadContext & context, const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const;
 
 public:
 	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;

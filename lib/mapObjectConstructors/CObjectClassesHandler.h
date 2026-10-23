@@ -62,7 +62,7 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 
 	std::unique_ptr<ObjectClass> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
 
-	void generateExtraMonolithsForRMG(ObjectClass * container);
+	void generateExtraMonolithsForRMG(LibraryLoadContext & context, ObjectClass * container);
 
 public:
 	CObjectClassesHandler();

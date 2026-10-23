@@ -198,7 +198,7 @@ private:
 	/// load creature from json structure
 	void load(std::string creatureID, const JsonNode & node);
 	/// read cranim.txt file from H3
-	void loadAnimationInfo(std::vector<JsonNode> & h3Data) const;
+	void loadAnimationInfo(LibraryLoadContext & context, std::vector<JsonNode> & h3Data) const;
 	/// read one line from cranim.txt
 	void loadUnitAnimInfo(JsonNode & unit, CLegacyConfigParser & parser) const;
 
@@ -227,7 +227,7 @@ public:
 	~CCreatureHandler();
 
 	/// load all stack modifier bonuses from H3 files. TODO: move this to json
-	void loadCrExpMod();
+	void loadCrExpMod(LibraryLoadContext & context);
 
 	const ResourceSet & getCommanderResurrectionPrice(const CCreature * commander) const;
 

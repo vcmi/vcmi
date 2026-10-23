@@ -54,7 +54,7 @@ public:
 		const std::string & identifier,
 		size_t index) override;
 
-	RoadTypeHandler();
+	explicit RoadTypeHandler(LibraryLoadContext & context);
 
 	const std::vector<std::string> & getTypeNames() const override;
 	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;

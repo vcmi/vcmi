@@ -429,14 +429,14 @@ void CCreatureHandler::loadCommanders(LibraryLoadContext & context)
 		// MOD COMPATIBILITY: 1.6 mods use old, vector format.
 		// NOTE: please also remove parseBonus itself - commanders is the last place that uses it
 		if (node.isVector())
-			return JsonUtils::parseBonus(node.Vector(), context.resolver);
+			return JsonUtils::parseBonus(node.Vector(), context);
 		else
-			return JsonUtils::parseBonus(node, context.resolver);
+			return JsonUtils::parseBonus(node, context);
 	};
 
 	auto configResource = JsonPath::builtin("config/commanders.json");
 
-	std::string modSource = LIBRARY->modh->findResourceOrigin(configResource);
+	std::string modSource = context.lib.modh->findResourceOrigin(configResource);
 	JsonNode data(configResource);
 	data.setModScope(modSource);
 
@@ -483,7 +483,7 @@ void CCreatureHandler::loadCommanders(LibraryLoadContext & context)
 
 std::vector<JsonNode> CCreatureHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE);
+	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
@@ -509,7 +509,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(LibraryLoadContext & cont
 		parser.endLine();
 	}
 
-	const bool isRoe = LIBRARY->isRoeData();
+	const bool isRoe = context.lib.isRoeData();
 
 	for (size_t i=0; i<dataSize; i++)
 	{
@@ -559,7 +559,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(LibraryLoadContext & cont
 		h3Data.push_back(data);
 	}
 
-	loadAnimationInfo(h3Data);
+	loadAnimationInfo(context, h3Data);
 
 	return h3Data;
 }
@@ -590,9 +590,9 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(LibraryLoadContext & c
 		cre->commanderResurrectionPrice->resolveFromJson(node["resurrectionPrice"], context.resolver);
 	}
 
-	LIBRARY->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
-	LIBRARY->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
-	LIBRARY->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"]);
+	context.lib.generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
+	context.lib.generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
+	context.lib.generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"]);
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);
@@ -644,7 +644,7 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(LibraryLoadContext & c
 		JsonNode conf;
 		conf.setModScope(scope);
 
-		LIBRARY->objtypeh->loadSubObject(context, cre->identifier, conf, Obj::MONSTER, cre->getId().num);
+		context.lib.objtypeh->loadSubObject(context, cre->identifier, conf, Obj::MONSTER, cre->getId().num);
 		if (!advMapFile.isNull())
 		{
 			JsonNode templ;
@@ -654,17 +654,17 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(LibraryLoadContext & c
 			templ.setModScope(scope);
 
 			// if creature has custom advMapFile, reset any potentially imported H3M templates and use provided file instead
-			LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
-			LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->addTemplate(context, templ);
+			context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
+			context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->addTemplate(context, templ);
 		}
 
 		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
-		if (LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
+		if (context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
 		{
 			if (!cre->special)
 				throw ModLoadingException(scope, "creature " + cre->getJsonKey() + " has no adventure map animation but is not marked as special!" );
 
-			LIBRARY->objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
+			context.lib.objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
 		}
 	});
 
@@ -677,9 +677,9 @@ const std::vector<std::string> & CCreatureHandler::getTypeNames() const
 	return typeNames;
 }
 
-void CCreatureHandler::loadCrExpMod()
+void CCreatureHandler::loadCrExpMod(LibraryLoadContext & context)
 {
-	if (LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
+	if (context.lib.engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
 	{
 		//Calculate rank exp values, formula appears complicated bu no parsing needed
 		expRanks.resize(8);
@@ -727,14 +727,14 @@ void CCreatureHandler::loadCrExpMod()
 	}
 }
 
-void CCreatureHandler::loadAnimationInfo(std::vector<JsonNode> &h3Data) const
+void CCreatureHandler::loadAnimationInfo(LibraryLoadContext & context, std::vector<JsonNode> &h3Data) const
 {
 	CLegacyConfigParser parser(TextPath::builtin("DATA/CRANIM.TXT"));
 
 	parser.endLine(); // header
 	parser.endLine();
 
-	for(int dd = 0; dd < LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE); ++dd)
+	for(int dd = 0; dd < context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE); ++dd)
 	{
 		while (parser.isNextEntryEmpty() && parser.endLine()) // skip empty lines
 			;
@@ -832,7 +832,7 @@ void CCreatureHandler::loadCreatureJson(LibraryLoadContext & context, CCreature 
 	{
 		if (!ability.second.isNull())
 		{
-			auto b = JsonUtils::parseBonus(ability.second, context.resolver, creature->getBonusTextID(ability.first));
+			auto b = JsonUtils::parseBonus(ability.second, context, creature->getBonusTextID(ability.first));
 			b->source = BonusSource::CREATURE_ABILITY;
 			b->sid = BonusSourceID(creature->getId());
 			b->duration = BonusDuration::PERMANENT;
@@ -931,7 +931,7 @@ void CCreatureHandler::loadStackExperience(LibraryLoadContext & context, CCreatu
 					// parse each bonus separately
 					// we can not create copies since identifiers resolution does not tracks copies
 					// leading to unset identifier values in copies
-					auto bonus = JsonUtils::parseBonus(exp["bonus"], context.resolver, descriptionID);
+					auto bonus = JsonUtils::parseBonus(exp["bonus"], context, descriptionID);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
 					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
@@ -952,7 +952,7 @@ void CCreatureHandler::loadStackExperience(LibraryLoadContext & context, CCreatu
 				JsonNode bonusInput = exp["bonus"];
 				bonusInput["val"].Float() = range.value;
 
-				auto bonus = JsonUtils::parseBonus(bonusInput, context.resolver, descriptionID);
+				auto bonus = JsonUtils::parseBonus(bonusInput, context, descriptionID);
 				bonus->source = BonusSource::STACK_EXPERIENCE;
 				bonus->duration = BonusDuration::PERMANENT;
 				bonus->addLimiter(range.limiter());
@@ -994,8 +994,8 @@ void CCreatureHandler::afterLoadFinalization(LibraryLoadContext & context)
 		if (!creature)
 			continue;
 
-		auto natureBonuses = creature->getBonuses([](const Bonus * b){
-				return LIBRARY->bth->isCreatureNatureBonus(b->type);
+		auto natureBonuses = creature->getBonuses([&context](const Bonus * b){
+				return context.lib.bth->isCreatureNatureBonus(b->type);
 		});
 
 		if (natureBonuses->empty())

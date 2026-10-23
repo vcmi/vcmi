@@ -221,7 +221,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context
 		spell->combat = type == "combat";
 	}
 
-	LIBRARY->generaltexth->registerString(scope, spell->getNameTextID(), json["name"]);
+	context.lib.generaltexth->registerString(scope, spell->getNameTextID(), json["name"]);
 
 	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->getNameTranslated());
 
@@ -454,7 +454,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context
 		CSpell::LevelInfo & levelObject = spell->levels[levelIndex];
 
 		if (!levelNode["description"].String().empty())
-			LIBRARY->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
+			context.lib.generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
 
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
 		levelObject.smartTarget   = levelNode["targetModifier"]["smart"].Bool();
@@ -472,7 +472,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context
 			{
 				const std::string & value = levelObject.adventureEffect[field].String();
 				if(!value.empty() && value.front() != '@')
-					LIBRARY->generaltexth->registerString(scope, spell->getAdventureEffectTextID("reinforcements", field), levelObject.adventureEffect[field]);
+					context.lib.generaltexth->registerString(scope, spell->getAdventureEffectTextID("reinforcements", field), levelObject.adventureEffect[field]);
 			};
 
 			registerField("casterInTown");
