@@ -362,6 +362,7 @@
 	"vcmi.adventureOptions.smoothDragging.help": "{Smooth Map Dragging}\n\nWhen enabled, map dragging has a modern run out effect.",
 	"vcmi.adventureOptions.smoothDragging.hover": "Smooth Map Dragging",
 	"vcmi.artifact.charges": "Charges",
+	"vcmi.artifact.disabledCombination": "It is rumored that elsewhere, this artifact can be combined with others into %s, but nothing like that is possible here.",
 	"vcmi.battle.surrender.marketplaceFailed": "Even after visiting the Marketplace, you do not have enough gold to purchase safe passage.",
 	"vcmi.battle.surrender.tryMarketplace": "You do not have enough gold to purchase safe passage.\n\nVisit the Marketplace to exchange resources for gold?",
 	"vcmi.battle.escapeImpossibleCritical": "{No Escape}\n\nThere is no fleeing this fight — were your hero to fall, your entire cause would fall with him.",

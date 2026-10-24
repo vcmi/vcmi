@@ -431,13 +431,17 @@ FactionID CGTownInstance::randomizeFaction(vstd::RNG & rand)
 	if(getOwner().isValidPlayer())
 		return cb->getStartInfo()->getIthPlayersSettings(getOwner()).castle;
 
-	if(alignmentToPlayer.isValidPlayer())
+	if(alignmentToPlayer.isValidPlayer() && !alignmentExcludesPlayer)
 		return cb->getStartInfo()->getIthPlayersSettings(alignmentToPlayer).castle;
+
+	FactionID excludedFaction = FactionID::NONE;
+	if(alignmentToPlayer.isValidPlayer())
+		excludedFaction = cb->getStartInfo()->getIthPlayersSettings(alignmentToPlayer).castle;
 
 	std::vector<FactionID> potentialPicks;
 
 	for (FactionID faction(0); faction < FactionID(LIBRARY->townh->size()); ++faction)
-		if (LIBRARY->factions()->getById(faction)->hasTown())
+		if (LIBRARY->factions()->getById(faction)->hasTown() && faction != excludedFaction)
 			potentialPicks.push_back(faction);
 
 	assert(!potentialPicks.empty());
@@ -451,6 +455,11 @@ void CGTownInstance::pickRandomObject(IGameRandomizer & gameRandomizer)
 	{
 		ID = MapObjectID::TOWN;
 		subID = randomizeFaction(gameRandomizer.getDefault());
+
+		builtBuildings.merge(randomTownBuildings[getFactionID()]);
+		forbiddenBuildings.merge(randomTownForbiddenBuildings[getFactionID()]);
+		for (auto & event : events)
+			event.buildings.merge(event.randomTownBuildings[getFactionID()]);
 	}
 
 	assert(ID == Obj::TOWN); // just in case
@@ -1138,6 +1147,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		eventsHandler.serializeStruct(events);
 	}
 	handler.serializeId("alignmentToPlayer", alignmentToPlayer, PlayerColor::NEUTRAL);
+	handler.serializeBool("alignmentExcludesPlayer", alignmentExcludesPlayer, false);
 }
 
 const CFaction * CGTownInstance::getFaction() const

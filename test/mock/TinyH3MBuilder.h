@@ -130,11 +130,13 @@ public:
 	TinyH3MBuilder & playerFactions(PlayerColor color, uint32_t mask);
 
 	/// Append a fixed-faction Town object owned by `owner`.
-	TinyH3MBuilder & town(const int3 & pos, FactionID faction, PlayerColor owner);
+	/// `specialBuildings` is the raw HotA 1.7 table of faction-specific buildings, 4 entries per faction.
+	TinyH3MBuilder & town(const int3 & pos, FactionID faction, PlayerColor owner, std::vector<uint8_t> specialBuildings = {});
 
 	/// Append a Random Town object owned by `owner`. Builder auto-registers the
 	/// RANDOM_TOWN template on first call. No garrison, standard fort, no events.
-	TinyH3MBuilder & randomTown(const int3 & pos, PlayerColor owner);
+	/// `alignment` is the raw h3m value: 0xff - none, 0-7 - same as player, 8-15 - not as player (HotA).
+	TinyH3MBuilder & randomTown(const int3 & pos, PlayerColor owner, uint8_t alignment = 0xff, std::vector<uint8_t> specialBuildings = {});
 
 	/// Append a standalone shipyard owned by `owner`.
 	TinyH3MBuilder & shipyard(const int3 & pos, PlayerColor owner);
@@ -196,6 +198,9 @@ public:
 
 	/// Resource pile. amount=0 means "use default".
 	TinyH3MBuilder & resource(const int3 & pos, GameResID resource, uint32_t amount = 0);
+
+	/// Abandoned mine producing gold; custom guards need HOTA v5+, NONE keeps the default guards.
+	TinyH3MBuilder & abandonedMine(const int3 & pos, CreatureID guard = CreatureID::NONE, int32_t minAmount = 0, int32_t maxAmount = 0);
 
 	/// Empty Pandora's Box - no message, guards or rewards.
 	TinyH3MBuilder & pandora(const int3 & pos, std::vector<std::pair<CreatureID, uint16_t>> creatures = {});
@@ -320,6 +325,15 @@ private:
 		// The single-quest seerHut() populates one one-shot entry.
 		std::vector<std::pair<Quest, SeerReward>> seerOneShots;
 		std::vector<std::pair<Quest, SeerReward>> seerRepeatables;
+
+		// RANDOM_TOWN / TOWN
+		uint8_t        townAlignment = 0xff;
+		std::vector<uint8_t> townSpecialBuildings;
+
+		// MINE subID 7 (abandoned mine)
+		CreatureID     mineGuard = CreatureID::NONE;
+		int32_t        mineGuardMin = 0;
+		int32_t        mineGuardMax = 0;
 
 		// PANDORAS_BOX
 		std::vector<std::pair<CreatureID, uint16_t>> pandoraCreatures;

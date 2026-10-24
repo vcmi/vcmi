@@ -166,6 +166,7 @@ void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
 {
 	CMapEvent::serializeJson(handler);
+	handler.serializeBool("neutralAffected", neutralAffected, false);
 
 	// TODO: handler.serializeIdArray("buildings", buildings);
 	{

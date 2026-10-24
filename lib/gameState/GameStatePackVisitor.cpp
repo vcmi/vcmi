@@ -1097,7 +1097,7 @@ void GameStatePackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
 	const auto transformedArt = artSet->getArt(pack.al.slot);
 	assert(transformedArt);
 	const auto builtArt = pack.artId.toArtifact();
-	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(artSet, transformedArt->getTypeId()), [=](const CArtifact * art)->bool
+	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(gs.getSettings(), artSet, transformedArt->getTypeId()), [=](const CArtifact * art)->bool
 	{
 		return art->getId() == builtArt->getId();
 	}));

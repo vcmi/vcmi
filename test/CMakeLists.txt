@@ -140,6 +140,7 @@ set(test_SRCS
 		server/battles/WalkActionTest.cpp
 		server/activities/ActivityProcessorTest.cpp
 		server/ArmyManagementTest.cpp
+		server/NeutralTownEventsTest.cpp
 
 		texts/TextOperationsTest.cpp
 

@@ -217,9 +217,10 @@ TinyH3MBuilder & TinyH3MBuilder::playerFactions(PlayerColor color, uint32_t mask
 	return *this;
 }
 
-TinyH3MBuilder & TinyH3MBuilder::town(const int3 & pos, FactionID faction, PlayerColor owner)
+TinyH3MBuilder & TinyH3MBuilder::town(const int3 & pos, FactionID faction, PlayerColor owner, std::vector<uint8_t> specialBuildings)
 {
 	ObjectSpec spec;
+	spec.townSpecialBuildings = std::move(specialBuildings);
 	spec.id            = Obj::TOWN;
 	spec.subid         = MapObjectSubID(faction.getNum());
 	spec.position      = pos;
@@ -229,13 +230,15 @@ TinyH3MBuilder & TinyH3MBuilder::town(const int3 & pos, FactionID faction, Playe
 	return *this;
 }
 
-TinyH3MBuilder & TinyH3MBuilder::randomTown(const int3 & pos, PlayerColor owner)
+TinyH3MBuilder & TinyH3MBuilder::randomTown(const int3 & pos, PlayerColor owner, uint8_t alignment, std::vector<uint8_t> specialBuildings)
 {
 	ObjectSpec spec;
+	spec.townSpecialBuildings = std::move(specialBuildings);
 	spec.id            = Obj::RANDOM_TOWN;
 	spec.subid         = MapObjectSubID(0);
 	spec.position      = pos;
 	spec.owner         = owner;
+	spec.townAlignment = alignment;
 	spec.templateIndex = registerTemplate(spec.id, spec.subid);
 	registerObject(std::move(spec));
 	return *this;
@@ -431,6 +434,20 @@ TinyH3MBuilder & TinyH3MBuilder::artifact(const int3 & pos, ArtifactID artifact)
 	spec.id            = Obj::ARTIFACT;
 	spec.subid         = MapObjectSubID(artifact.getNum());
 	spec.position      = pos;
+	spec.templateIndex = registerTemplate(spec.id, spec.subid);
+	registerObject(std::move(spec));
+	return *this;
+}
+
+TinyH3MBuilder & TinyH3MBuilder::abandonedMine(const int3 & pos, CreatureID guard, int32_t minAmount, int32_t maxAmount)
+{
+	ObjectSpec spec;
+	spec.id            = Obj::MINE;
+	spec.subid         = MapObjectSubID(7);
+	spec.position      = pos;
+	spec.mineGuard     = guard;
+	spec.mineGuardMin  = minAmount;
+	spec.mineGuardMax  = maxAmount;
 	spec.templateIndex = registerTemplate(spec.id, spec.subid);
 	registerObject(std::move(spec));
 	return *this;
@@ -1098,9 +1115,15 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 				w.skipZero(features.spellsBytes);                      // possibleSpells bitmask
 				if(features.levelHOTA1)
 					w.writeBool(false);                                // spellResearchAllowed
+				if(features.levelHOTA5)
+				{
+					w.writeUInt32(obj.townSpecialBuildings.size());
+					for(uint8_t state : obj.townSpecialBuildings)
+						w.writeUInt8(state);
+				}
 				w.writeUInt32(0);                                      // castle events count
 				if(features.levelSOD)
-					w.writeUInt8(0xff);                                // alignment = "same as owner / random"
+					w.writeUInt8(obj.townAlignment);
 				w.skipZero(3);
 				break;
 
@@ -1128,6 +1151,19 @@ void TinyH3MBuilder::writeObjects(TinyH3MWriter & w) const
 				w.writeBool(false);                                    // hasMessage
 				w.writeUInt32(obj.resourceAmount);
 				w.skipZero(4);
+				break;
+
+			case Obj::MINE:
+				// Mirror of readAbandonedMine
+				assert(obj.subid.getNum() == 7 && "only abandoned mines are supported");
+				w.writeUInt32(1 << GameResID::GOLD);                   // allowed resources
+				if(features.levelHOTA5)
+				{
+					w.writeBool(obj.mineGuard.hasValue());
+					w.writeInt32(obj.mineGuard.getNum());
+					w.writeInt32(obj.mineGuardMin);
+					w.writeInt32(obj.mineGuardMax);
+				}
 				break;
 
 			case Obj::PANDORAS_BOX:

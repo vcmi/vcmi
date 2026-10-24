@@ -101,6 +101,13 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 			continue;
 
 		PlayerColor player = town->getOwner();
+		if (!player.isValidPlayer())
+		{
+			if (event.neutralAffected)
+				applyTownEventEffects(town, event, nullptr);
+			continue;
+		}
+
 		if (!event.affectsPlayer(player, gameHandler->gameInfo().getPlayerState(player)->isHuman()))
 			continue;
 
@@ -126,37 +133,44 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
 		}
 
-		for (auto & i : event.buildings)
-		{
-			// Only perform action if:
-			// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
-			// 2. Building was not built yet
-			// othervice, silently ignore / skip it
-			if (town->getTown()->buildings.count(i) && !town->hasBuilt(i))
-			{
-				gameHandler->buildStructure(town->id, i, true);
-				iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFactionID(), i));
-			}
-		}
-
-		if (!event.creatures.empty())
-		{
-			SetAvailableCreatures sac;
-			sac.tid = town->id;
-			sac.creatures = town->creatures;
-
-			for (si32 i=0;i<event.creatures.size();i++) //creature growths
-			{
-				if (i < town->creatures.size() && !town->creatures.at(i).second.empty() && event.creatures.at(i) > 0)//there is dwelling
-				{
-					sac.creatures[i].first += event.creatures.at(i);
-					iw.components.emplace_back(ComponentType::CREATURE, town->creatures.at(i).second.back(), event.creatures.at(i));
-				}
-			}
-
-			gameHandler->sendAndApply(sac); //show dialog
-		}
+		applyTownEventEffects(town, event, &iw);
 		gameHandler->sendAndApply(iw); //show dialog
+	}
+}
+
+void NewTurnProcessor::applyTownEventEffects(const CGTownInstance * town, const CCastleEvent & event, InfoWindow * iw)
+{
+	for (auto & i : event.buildings)
+	{
+		// Only perform action if:
+		// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
+		// 2. Building was not built yet
+		// othervice, silently ignore / skip it
+		if (town->getTown()->buildings.count(i) && !town->hasBuilt(i))
+		{
+			gameHandler->buildStructure(town->id, i, true);
+			if (iw)
+				iw->components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFactionID(), i));
+		}
+	}
+
+	if (!event.creatures.empty())
+	{
+		SetAvailableCreatures sac;
+		sac.tid = town->id;
+		sac.creatures = town->creatures;
+
+		for (si32 i=0;i<event.creatures.size();i++) //creature growths
+		{
+			if (i < town->creatures.size() && !town->creatures.at(i).second.empty() && event.creatures.at(i) > 0)//there is dwelling
+			{
+				sac.creatures[i].first += event.creatures.at(i);
+				if (iw)
+					iw->components.emplace_back(ComponentType::CREATURE, town->creatures.at(i).second.back(), event.creatures.at(i));
+			}
+		}
+
+		gameHandler->sendAndApply(sac);
 	}
 }
 
@@ -749,6 +763,14 @@ void NewTurnProcessor::onNewTurn()
 	bool newMonth = calendar.nextDay().getDayOfMonth() == 1;
 
 	gameHandler->sendAndApply(n);
+
+	// neutral towns have no turn of their own, so their events occur as soon as the day starts
+	for (const auto & townID : gameHandler->gameState().getMap().getAllTowns())
+	{
+		const auto * t = gameHandler->gameState().getTown(townID);
+		if (!t->getOwner().isValidPlayer())
+			handleTownEvents(t);
+	}
 
 	if (newWeek)
 	{

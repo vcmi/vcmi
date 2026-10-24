@@ -116,14 +116,15 @@ void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance *
 
 void CGMine::initObj(IGameRandomizer & gameRandomizer)
 {
-	const auto configuredGuards = getResourceHandler()->getGuards(cb, gameRandomizer);
-	if(!configuredGuards.empty())
+	if(abandonedMineGuards.creature.hasValue())
 	{
-		for(const auto & stack : configuredGuards)
-		{
-			auto guards = std::make_unique<CStackInstance>(cb, stack.getId(), stack.getCount());
-			putStack(SlotID(stacksCount()), std::move(guards));
-		}
+		int amount = gameRandomizer.getDefault().nextInt(abandonedMineGuards.minAmount, abandonedMineGuards.maxAmount);
+		putStack(SlotID(stacksCount()), std::make_unique<CStackInstance>(cb, abandonedMineGuards.creature, amount));
+	}
+	else
+	{
+		for(const auto & stack : getResourceHandler()->getGuards(cb, gameRandomizer))
+			putStack(SlotID(stacksCount()), std::make_unique<CStackInstance>(cb, stack.getId(), stack.getCount()));
 	}
 
 	if(isAbandoned())

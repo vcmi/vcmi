@@ -40,6 +40,7 @@ GameSettings::GameSettings() = default;
 GameSettings::~GameSettings() = default;
 
 const std::vector<GameSettings::SettingOption> GameSettings::settingProperties = {
+		{EGameSettings::ARTIFACTS_DISABLED_COMBINATIONS,                  "artifacts", "disabledCombinations"                 },
 		{EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION,                    "banks",     "showGuardsComposition"                },
 		{EGameSettings::BONUSES_GLOBAL,                                   "bonuses",   "global"                               },
 		{EGameSettings::BONUSES_PER_HERO,                                 "bonuses",   "perHero"                              },

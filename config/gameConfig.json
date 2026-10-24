@@ -508,6 +508,12 @@
 			}
 		},
 
+		"artifacts" :
+		{
+			// combined artifacts that can not be assembled from their parts
+			"disabledCombinations" : []
+		},
+
 		"heroes" :
 		{
 			// number of heroes that player can have active on map at the same time
