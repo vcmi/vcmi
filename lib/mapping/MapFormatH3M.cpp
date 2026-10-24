@@ -2065,11 +2065,12 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			return readTown(mapPosition, objectTemplate, objectInstanceID);
 
 		case Obj::MINE:
-		case Obj::ABANDONED_MINE:
 			if (subid < 7)
 				return readMine(mapPosition);
 			else
 				return readAbandonedMine(mapPosition);
+		case Obj::ABANDONED_MINE:
+			return readAbandonedMine(mapPosition);
 
 		case Obj::CREATURE_GENERATOR1:
 		case Obj::CREATURE_GENERATOR2:

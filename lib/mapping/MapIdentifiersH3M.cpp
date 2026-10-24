@@ -151,10 +151,12 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate, const std
 	}
 	else
 	{
-		if (LIBRARY->objtypeh->knownSubObjects(objectTemplate.id).count(objectTemplate.subid) == 0)
+		auto knownSubObjects = LIBRARY->objtypeh->knownSubObjects(objectTemplate.id);
+		if (knownSubObjects.count(objectTemplate.subid) == 0)
 		{
 			logGlobal->warn("Map '%s': Unknown subobject found: %d | %d", mapName, objectTemplate.id, objectTemplate.subid);
-			objectTemplate.subid = {};
+			// not every type has subtype 0, e.g. abandoned mine only has 7
+			objectTemplate.subid = *knownSubObjects.begin();
 		}
 	}
 }

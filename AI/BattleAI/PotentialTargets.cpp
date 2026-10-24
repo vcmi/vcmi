@@ -66,9 +66,10 @@ PotentialTargets::PotentialTargets(
 		}
 		else
 		{
+			// a blocked war machine, e.g. Ballista, can neither shoot nor fight in melee
 			for(const BattleHex & hex : avHexes)
 			{
-				if(!state->isMeleeAttackPossible(attackerInfo, defender, hex))
+				if(!attackerInfo->isMeleeAttacker() || !state->isMeleeAttackPossible(attackerInfo, defender, hex))
 					continue;
 
 				auto bai = GenerateAttackInfo(false, hex);

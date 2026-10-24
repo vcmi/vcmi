@@ -170,6 +170,8 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 
 	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(*cb));
 	ENGINE->music().loadTerrainMusicThemes();
+	// in hotseat, adventure map of previous player still exists and must not receive selection of this player
+	adventureInt.reset();
 	initializeHeroTownList();
 
 	adventureInt.reset(new AdventureMapInterface());
