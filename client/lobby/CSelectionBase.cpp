@@ -166,7 +166,7 @@ InfoCard::InfoCard()
 	labelSaveDate = std::make_shared<CLabel>(305, 38, FONT_SMALL, ETextAlignment::BOTTOMRIGHT, Colors::WHITE);
 	labelMapSize = std::make_shared<CLabel>(327, 57, FONT_TINY, ETextAlignment::CENTER, Colors::WHITE);
 	mapName = std::make_shared<CLabel>(26, 39, FONT_BIG, ETextAlignment::TOPLEFT, Colors::YELLOW, "", SEL->screenType == ESelectionScreen::campaignList ? 325 : 280);
-	Rect descriptionRect(26, 149, 320, 115);
+	Rect descriptionRect(26, 149 - (ENGINE->isRoeData() ? 25 : 0), 320, 115 + (ENGINE->isRoeData() ? 25 : 0));
 	mapDescription = std::make_shared<CTextBox>("", descriptionRect, 1);
 	if(!ENGINE->isRoeData())
 		playerListBg = std::make_shared<CPicture>(ImagePath::builtin("CHATPLUG.bmp"), 16, 276);
@@ -214,7 +214,7 @@ InfoCard::InfoCard()
 		labelPlayerDifficulty = std::make_shared<CLabel>(133, 430, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[492] + ":");
 		labelRating = std::make_shared<CLabel>(290, 430, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[218] + ":");
 		labelScenarioName = std::make_shared<CLabel>(26, 22, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[495]);
-		labelScenarioDescription = std::make_shared<CLabel>(26, 132, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[496]);
+		labelScenarioDescription = std::make_shared<CLabel>(26, 132 - (ENGINE->isRoeData() ? 25 : 0), FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[496]);
 		labelVictoryCondition = std::make_shared<CLabel>(26, 283, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[497]);
 		labelLossCondition = std::make_shared<CLabel>(26, 339, FONT_SMALL, ETextAlignment::TOPLEFT, Colors::YELLOW, LIBRARY->generaltexth->allTexts[498]);
 		iconsVictoryCondition = std::make_shared<CAnimImage>(AnimationPath::builtin("SCNRVICT"), 0, 0, 24, 302);
