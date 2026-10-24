@@ -43,7 +43,7 @@ std::string Bonus::Description(const IGameInfoCallback * cb, std::optional<si32>
 				descriptionHelper.appendName(sid.as<ArtifactID>());
 				break;
 			case BonusSource::SPELL_EFFECT:
-				descriptionHelper.appendName(sid.as<SpellID>());
+				descriptionHelper.appendName(sid.as<SpellWithMasteryID>().getSpellID());
 				break;
 			case BonusSource::CREATURE_ABILITY:
 				descriptionHelper.appendNamePlural(sid.as<CreatureID>());

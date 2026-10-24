@@ -284,7 +284,7 @@ static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode
 	});
 }
 
-static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node)
+static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node, const JsonNode & secondaryIdNode)
 {
 	if (node.isNull())
 	{
@@ -347,9 +347,18 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::SPELL_EFFECT:
 		{
-			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			int8_t mastery = MasteryLevel::NONE;
+			if (secondaryIdNode.isString())
 			{
-				sourceInstance = SpellID(identifier);
+				mastery = MasteryLevel::decode(secondaryIdNode.String());
+			}
+			else if (secondaryIdNode.isNumber())
+			{
+				mastery = secondaryIdNode.Integer();
+			}
+			LIBRARY->identifiers()->requestIdentifier( "spell", node, [&sourceInstance, mastery](int32_t identifier)
+			{
+				sourceInstance = SpellWithMasteryID(static_cast<MasteryLevel::Type>(mastery), identifier);
 			});
 			break;
 		}
@@ -574,6 +583,7 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 	const JsonNode & jsonSubtype = limiter.Struct().count("bonusSubtype") ? limiter["bonusSubtype"] : parameters[1];
 	const JsonNode & jsonSourceType = limiter.Struct().count("bonusSourceType") ? limiter["bonusSourceType"] : parameters[2]["type"];
 	const JsonNode & jsonSourceID = limiter.Struct().count("bonusSourceID") ? limiter["bonusSourceID"] : parameters[2]["id"];
+	const JsonNode & jsonSourceSecondaryId = limiter["bonusSourceSecondaryID"];
 	const JsonNode & jsonMinValue = limiter["bonusMinValue"];
 	const JsonNode & jsonMaxValue = limiter["bonusMaxValue"];
 
@@ -604,7 +614,7 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 			bonusLimiter->source = sourceIt->second;
 			bonusLimiter->isSourceRelevant = true;
 			if(!jsonSourceID.isNull()) {
-				loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, jsonSourceID);
+				loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, jsonSourceID, jsonSourceSecondaryId);
 				bonusLimiter->isSourceIDRelevant = true;
 			}
 		}
@@ -869,7 +879,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 		b->source = static_cast<BonusSource>(parseByMapN(bonusSourceMap, value, "source type "));
 
 	if (!ability["sourceID"].isNull())
-		loadBonusSourceInstance(b->sid, b->source, ability["sourceID"]);
+		loadBonusSourceInstance(b->sid, b->source, ability["sourceID"], ability["sourceSecondaryID"]);
 
 	value = &ability["targetSourceType"];
 	if (!value->isNull())
@@ -881,7 +891,7 @@ bool JsonUtils::parseBonus(const JsonNode &ability, Bonus *b, const TextIdentifi
 		if (b->targetSourceType == BonusSource::OTHER)
 			logMod->warn("Bonus has 'targetSourceID' without 'targetSourceType' - target source ID will be ignored!");
 		else
-			loadBonusSourceInstance(b->targetSourceID, b->targetSourceType, *value);
+			loadBonusSourceInstance(b->targetSourceID, b->targetSourceType, *value, JsonNode());
 	}
 
 	value = &ability["limiters"];
@@ -985,7 +995,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		// source instance is resolved asynchronously, so it becomes known only after library loading is complete.
 		// Selector has to look it up on each use, rather than capture it right away
 		auto sourceId = std::make_shared<BonusSourceID>();
-		loadBonusSourceInstance(*sourceId, *src, *value);
+		loadBonusSourceInstance(*sourceId, *src, *value, ability["sourceSecondaryID"]);
 
 		ret = ret.And(CSelector([source = *src, sourceId](const Bonus * bonus)
 		{
@@ -1011,7 +1021,7 @@ CSelector JsonUtils::parseSelector(const JsonNode & ability)
 		// source instance is resolved asynchronously, so it becomes known only after library loading is complete.
 		// Selector has to look it up on each use, rather than capture it right away
 		auto targetId = std::make_shared<BonusSourceID>();
-		loadBonusSourceInstance(*targetId, *targetSrc, *value);
+		loadBonusSourceInstance(*targetId, *targetSrc, *value, JsonNode());
 
 		ret = ret.And(CSelector([targetSource = *targetSrc, targetId](const Bonus * bonus)
 		{

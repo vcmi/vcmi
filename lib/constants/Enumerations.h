@@ -115,14 +115,25 @@ enum class ETeleportChannelType : int8_t
 
 namespace MasteryLevel
 {
-	enum Type
+	enum Type : int8_t
 	{
 		NONE,
 		BASIC,
 		ADVANCED,
 		EXPERT,
-		LEVELS_SIZE
+		LEVELS_SIZE,
+		ANY //used on rhs in equality operator of SpellWithMastery to make it ignore mastery
 	};
+
+	const std::map<int8_t, std::string> masteryIdToName = {
+		{MasteryLevel::NONE , "NONE"},
+		{MasteryLevel::BASIC, "BASIC"},
+		{MasteryLevel::ADVANCED, "ADVANCED"},
+		{MasteryLevel::EXPERT, "EXPERT"}
+	};
+
+	int8_t decode(const std::string & identifier);
+	std::string encode(const int8_t index);
 }
 
 enum class EActionType : int8_t
