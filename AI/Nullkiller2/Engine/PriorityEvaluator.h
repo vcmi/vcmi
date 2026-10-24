@@ -8,18 +8,63 @@
 *
 */
 #pragma once
-#include "../Goals/CGoal.h"
+
 #include "../Pathfinding/AIPathfinder.h"
+
+struct RewardableObjectInfo;
 
 namespace NK2AI
 {
 
+class IArmyManager;
+class Nullkiller;
+
 float evaluateEnemyTownConquestValue(float baseValue, int visibleEnemyTownCount);
+float evaluateArmyPowerRatio(const IArmyManager & armyManager, const CCreatureSet * army);
+float evaluateMaxArmyLossRatio(float configuredMaxArmyLoss, float armyPowerRatio, bool isWithoutCastle);
 float evaluateMaxArmyLossForConquest(float baseMaxArmyLoss, float conquestValue, bool isEnemyTownConquest);
 
 class BuildingInfo;
-class Nullkiller;
 struct HitMapInfo;
+
+struct RewardEvaluationRequest
+{
+	const CGObjectInstance * target;
+	const CGHeroInstance * hero;
+	const CCreatureSet * army;
+	HeroRole heroRole;
+	bool considerRecruitmentCost;
+};
+
+struct CreatureRewardValueInfo
+{
+	enum class State : uint8_t
+	{
+		UNKNOWN, // improvement cannot be determined
+		NO_ARMY_IMPROVEMENT, // no possible reward improves the current army
+		IMPROVEMENT_DEPENDS_ON_TIER, // only some hidden bank tiers improve the current army
+		IMPROVES_ARMY // every possible reward improves the current army
+	};
+	State state = State::UNKNOWN;
+
+	/// Priority value of the creature reward, including creatures that fit without immediately improving the army.
+	std::pair<uint64_t, uint64_t> minMaxValue = {0, 0};
+
+	// nullopt is for unknown rewards
+	std::optional<bool> canMergeWithArmy = std::nullopt;
+};
+
+struct RewardEvaluationResult
+{
+	int32_t goldReward = 0;
+	uint64_t armyReward = 0;
+	uint64_t armyGrowth = 0;
+	float skillReward = 0;
+	float strategicalValue = 0;
+	float conquestValue = 0;
+	int32_t goldCost = 0;
+	CreatureRewardValueInfo creatureRewardValue;
+};
 
 class RewardEvaluator
 {
@@ -28,22 +73,30 @@ public:
 
 	RewardEvaluator(const Nullkiller * aiNk) : aiNk(aiNk) {}
 
-	uint64_t getArmyReward(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army, bool checkGold) const;
-	uint64_t getArmyGrowth(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
-	int getGoldCost(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const;
+	RewardEvaluationResult evaluateRewards(const RewardEvaluationRequest &) const;
+	CreatureRewardValueInfo getCreatureReward(const RewardEvaluationRequest &) const;
+	uint64_t getArmyGrowth(const RewardEvaluationRequest &) const;
+	int getGoldCost(const RewardEvaluationRequest &) const;
 	float getEnemyHeroStrategicalValue(const CGHeroInstance * enemy) const;
 	float getNowResourceRequirementStrength(GameResID resType) const;
 	float getCombinedResourceRequirementStrength(const TResources & res) const;
-	float getStrategicalValue(const CGObjectInstance * target, const CGHeroInstance * hero = nullptr) const;
+	float getStrategicalValue(const CGObjectInstance * target) const;
 	float getConquestValue(const CGObjectInstance* target) const;
 	float getTotalResourceRequirementStrength(GameResID resType) const;
-	float evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const;
-	float getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role) const;
-	int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero) const;
 	uint64_t getUpgradeArmyReward(const CGTownInstance * town, const BuildingInfo & bi) const;
 	const HitMapInfo & getEnemyHeroDanger(const int3 & tile, uint8_t turn) const;
 	uint64_t townArmyGrowth(const CGTownInstance * town) const;
 	float getManaRecoveryArmyReward(const CGHeroInstance * hero) const;
+
+private:
+	uint64_t calculateRewardArmyValue(const RewardableObjectInfo *, const CreatureRewardValueInfo & creatureReward) const;
+	uint64_t getArmyReward(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo, const CreatureRewardValueInfo & creatureReward) const;
+	CreatureRewardValueInfo getCreatureRewardValue(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo) const;
+	float calculateStrategicalRewardValue(const CGObjectInstance * target, const RewardableObjectInfo * rewardableInfo) const;
+	float getStrategicalValue(const CGObjectInstance * target, const RewardableObjectInfo * rewardableInfo) const;
+	float evaluateWitchHutSkillScore(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo) const;
+	float getSkillReward(const RewardEvaluationRequest &, const RewardableObjectInfo * rewardableInfo) const;
+	int32_t getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero, const RewardableObjectInfo * rewardableInfo) const;
 };
 
 struct DLL_EXPORT EvaluationContext
@@ -126,7 +179,7 @@ private:
 
 	static float evaluateMovement(float score, float movementCost);
 	static float evaluateArmyLossRatio(float score, float armyLossRatio, HeroRole heroRole);
-	static float evaluateSkillReward(float score, float skillReward, float armyInvolvement, float armyLossRatio);
+	static float evaluateSkillReward(float score, float skillReward, float armyLossRatio);
 	static float evaluateConquestValue(float score, float conquestValue, float armyInvolvement);
 };
 

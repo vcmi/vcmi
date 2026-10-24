@@ -10,6 +10,7 @@
 #pragma once
 
 #include "MapInfoCallback.h"
+#include "../mapObjects/CRewardableObject.h"
 
 struct SThievesGuildInfo;
 class ITranslator;
@@ -74,6 +75,7 @@ public:
 	std::vector<const CGObjectInstance *> getFlaggableObjects(int3 pos) const;
 	const CGObjectInstance * getTopObj(int3 pos) const override;
 	const IMarket * getMarket(ObjectInstanceID objid) const;
+	[[nodiscard]] std::optional<RewardableObjectInfo> getRewardableObjectInfo(const CGObjectInstance * obj, const CGHeroInstance * hero = nullptr) const;
 
 	//map
 

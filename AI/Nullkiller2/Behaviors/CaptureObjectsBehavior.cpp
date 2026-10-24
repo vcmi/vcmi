@@ -8,18 +8,65 @@
 *
 */
 #include "StdInc.h"
-#include "../AIGateway.h"
 #include "../Engine/Nullkiller.h"
 #include "../Goals/Composition.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/Invalid.h"
+#include "../Goals/PrepareFreeSlotForCreatureReward.h"
 #include "CaptureObjectsBehavior.h"
 #include "../AIUtility.h"
+#include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 
 namespace NK2AI
 {
 
 using namespace Goals;
+
+static std::optional<AIPath> findCreatureBankRewardPreparationPath(
+	const Nullkiller * nullkiller,
+	const AIPath & rewardPath,
+	const CGObjectInstance * creatureBank)
+{
+	const auto * rewardHero = rewardPath.targetHero;
+	auto paths = nullkiller->pathfinder->getPathInfo(rewardHero->visitablePos(), nullkiller->isObjectGraphAllowed());
+	const AIPath * bestPath = nullptr;
+
+	for(const auto & path : paths)
+	{
+		// The helper must complete the exchange this turn because this preparation goal is not persisted.
+		if(path.targetHero == rewardHero
+			|| path.targetHero->getOwner() != nullkiller->playerID
+			|| path.turn() > 0
+			|| path.exchangeCount != 1)
+			continue;
+		if(path.containsHero(rewardHero) || path.getFirstBlockedAction() || nullkiller->arePathHeroesLocked(path))
+			continue;
+		if(!isSafeToVisit(path.targetHero, path.heroArmy, path.getTotalDanger(), nullkiller->settings->getSafeAttackRatio()))
+			continue;
+
+		const auto transferSlot = getWeakestTransferableStack(rewardHero, path.targetHero);
+		if(!transferSlot.validSlot())
+			continue;
+
+		CCreatureSet remainingArmy;
+		for(const auto & slot : rewardHero->Slots())
+		{
+			if(slot.first != transferSlot)
+				remainingArmy.addToSlot(slot.first, slot.second->getCreatureID(), slot.second->getCount());
+		}
+		const auto creatureReward = RewardEvaluator(nullkiller).getCreatureReward(
+			{creatureBank, rewardHero, &remainingArmy, HeroRole::SCOUT, false});
+		if(creatureReward.canMergeWithArmy && !*creatureReward.canMergeWithArmy)
+			continue;
+		if(!isSafeToVisit(rewardHero, &remainingArmy, rewardPath.getTotalDanger(), nullkiller->settings->getSafeAttackRatio()))
+			continue;
+
+		if(!bestPath || path.turn() < bestPath->turn() || (path.turn() == bestPath->turn() && path.movementCost() < bestPath->movementCost()))
+			bestPath = &path;
+	}
+
+	return bestPath ? std::optional<AIPath>(*bestPath) : std::nullopt;
+}
 
 template <typename T>
 bool vectorEquals(const std::vector<T> & v1, const std::vector<T> & v2)
@@ -161,14 +208,12 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		{
 			auto heroRole = nullkiller->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero);
 
-			auto & closestWay = closestWaysByRole[heroRole];
-			if(!closestWay || closestWay->movementCost() > path.movementCost())
-			{
-				closestWay = &path;
-			}
-
 			if(isEnemyTown)
 			{
+				auto & closestWay = closestWaysByRole[heroRole];
+				if(!closestWay || closestWay->movementCost() > path.movementCost())
+					closestWay = &path;
+
 				auto & bestPath = bestEnemyTownPathsByHero[path.targetHero];
 				if(!bestPath || isBetterTownCapturePath(path, *bestPath))
 					bestPath = &path;
@@ -178,8 +223,44 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 
 			auto sharedPtr = sptr(ExecuteHeroChain(path, objToVisit));
 
+			const auto objectInfo = objToVisit && objToVisit->ID == Obj::CREATURE_BANK
+				? objToVisit->getObjectHandler()->getObjectInfo() : nullptr;
+			const auto creatureReward = objectInfo && objectInfo->givesCreatures()
+				? RewardEvaluator(nullkiller).getCreatureReward({objToVisit, path.targetHero, path.heroArmy, HeroRole::SCOUT, false})
+				: CreatureRewardValueInfo();
+			const bool fullArmy = path.heroArmy->stacksCount() == GameConstants::ARMY_SIZE;
+			const bool needsFreeSlot = fullArmy && objectInfo && objectInfo->givesCreatures()
+				&& !creatureReward.canMergeWithArmy.value_or(false);
+
+			if(needsFreeSlot)
+			{
+				const auto preparationPath = path.exchangeCount == 1
+					? findCreatureBankRewardPreparationPath(nullkiller, path, objToVisit) : std::nullopt;
+				// Without helper hero which could free a slot, only pure creature reward that improves the army is processed
+				if(!preparationPath && objectInfo->givesOnlyCreatures() && creatureReward.state != CreatureRewardValueInfo::State::IMPROVES_ARMY)
+					continue;
+
+				if(preparationPath)
+				{
+					Composition composition;
+					composition.addNext(sharedPtr);
+					composition.addNext(PrepareFreeSlotForCreatureReward(*preparationPath, path, objToVisit));
+					tasks[tasks.size() - 1] = sptr(composition);
+				}
+				else
+				{
+					tasks[tasks.size() - 1] = sharedPtr;
+				}
+			}
+			else
+			{
+				tasks[tasks.size() - 1] = sharedPtr;
+			}
+
+			auto & closestWay = closestWaysByRole[heroRole];
+			if(!closestWay || closestWay->movementCost() > path.movementCost())
+				closestWay = &path;
 			waysToVisitObj.push_back(sharedPtr);
-			tasks[tasks.size() - 1] = sharedPtr;
 		}
 	}
 

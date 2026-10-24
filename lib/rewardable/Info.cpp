@@ -15,6 +15,7 @@
 #include "Limiter.h"
 #include "Reward.h"
 
+#include "../battle/CombatValue.h"
 #include "../CCreatureHandler.h"
 #include "../GameLibrary.h"
 #include "../callback/IGameRandomizer.h"
@@ -22,6 +23,7 @@
 #include "../json/JsonRandom.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../modding/IdentifierStorage.h"
+#include "../modding/ModScope.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../entities/ResourceTypeHandler.h"
 
@@ -89,6 +91,24 @@ namespace {
 				return true;
 		}
 		return false;
+	}
+
+	bool hasOnlyBuiltinData(const JsonNode & node)
+	{
+		if(node.getModScope() != ModScope::scopeBuiltin())
+			return false;
+
+		if(node.isStruct())
+			for(const auto & [_, child] : node.Struct())
+				if(!hasOnlyBuiltinData(child))
+					return false;
+
+		if(node.isVector())
+			for(const auto & child : node.Vector())
+				if(!hasOnlyBuiltinData(child))
+					return false;
+
+		return true;
 	}
 }
 
@@ -172,7 +192,7 @@ void Rewardable::Info::configureLimiter(Rewardable::Configuration & object, IGam
 	limiter.canLearnSpells  = randomizer.loadSpells(source["canLearnSpells"], variables);
 	limiter.creatures = randomizer.loadCreatures(source["creatures"], variables);
 	limiter.canReceiveCreatures = randomizer.loadCreatures(source["canReceiveCreatures"], variables);
-	
+
 	limiter.players = randomizer.loadColors(source["colors"], variables);
 	limiter.heroes = randomizer.loadHeroes(source["heroes"]);
 	limiter.heroClasses = randomizer.loadHeroClasses(source["heroClasses"]);
@@ -521,7 +541,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGame
 		object.infoWindowType = EInfoWindowMode::AUTO;
 	else
 		object.infoWindowType = parameters["showInInfobox"].Bool() ? EInfoWindowMode::INFO : EInfoWindowMode::MODAL;
-	
+
 	auto visitMode = parameters["visitMode"].String();
 	for(int i = 0; i < Rewardable::VisitModeString.size(); ++i)
 	{
@@ -531,7 +551,7 @@ void Rewardable::Info::configureObject(Rewardable::Configuration & object, IGame
 			break;
 		}
 	}
-	
+
 	auto selectMode = parameters["selectMode"].String();
 	for(int i = 0; i < Rewardable::SelectModeString.size(); ++i)
 	{
@@ -584,12 +604,76 @@ bool Rewardable::Info::givesArtifacts() const
 
 bool Rewardable::Info::givesCreatures() const
 {
-	return testForKey(parameters, "spells");
+	return testForKey(parameters, "creatures");
+}
+
+bool Rewardable::Info::givesOnlyCreatures() const
+{
+	return givesCreatures()
+		&& !givesResources()
+		&& !givesExperience()
+		&& !givesMana()
+		&& !givesMovement()
+		&& !givesPrimarySkills()
+		&& !givesSecondarySkills()
+		&& !givesArtifacts()
+		&& !givesSpells()
+		&& !givesBonuses()
+		&& !testForKey(parameters, "heroExperience")
+		&& !testForKey(parameters, "heroLevel")
+		&& !testForKey(parameters, "commanderBonuses")
+		&& !testForKey(parameters, "playerBonuses")
+		&& !testForKey(parameters, "scrolls")
+		&& !testForKey(parameters, "spellCast")
+		&& !testForKey(parameters, "revealTiles")
+		&& !testForKey(parameters, "changeCreatures");
+}
+
+Rewardable::Info::CreatureRewardVariants Rewardable::Info::getPossibleCreatureRewards() const
+{
+	CreatureRewardVariants result;
+	if(!givesCreatures())
+		return result;
+
+	for(const auto & reward : parameters["rewards"].Vector())
+	{
+		if(reward["creatures"].isNull())
+		{
+			result.emplace_back();
+			continue;
+		}
+
+		const auto creatures = JsonRandom::evaluateCreatures(reward["creatures"]);
+		if(!creatures)
+			return {};
+
+		CreatureReward creatureReward;
+		for(const auto & creature : *creatures)
+		{
+			if(creature.allowedCreatures.size() != 1 || creature.minAmount != creature.maxAmount)
+				return {};
+			creatureReward.emplace_back(creature.allowedCreatures.front()->getId(), creature.minAmount);
+		}
+		result.push_back(std::move(creatureReward));
+	}
+	return result;
+}
+
+bool Rewardable::Info::hasOnlyBuiltinCreatureRewards() const
+{
+	for(const auto & reward : parameters["rewards"].Vector())
+	{
+		const auto & creatures = reward["creatures"];
+		if(!creatures.isNull() && !hasOnlyBuiltinData(creatures))
+			return false;
+	}
+
+	return true;
 }
 
 bool Rewardable::Info::givesSpells() const
 {
-	return testForKey(parameters, "creatures");
+	return testForKey(parameters, "spells");
 }
 
 bool Rewardable::Info::givesBonuses() const
@@ -600,6 +684,44 @@ bool Rewardable::Info::givesBonuses() const
 bool Rewardable::Info::hasGuards() const
 {
 	return testForKey(parameters, "guards");
+}
+
+std::optional<std::pair<uint64_t, uint64_t>> Rewardable::Info::getCreatureBankGuardRange() const
+{
+	if(!hasGuards())
+		return std::nullopt;
+
+	const auto & combatValue = LIBRARY->creh->getCombatValue();
+	std::optional<std::pair<uint64_t, uint64_t>> result;
+	for(const auto & reward : parameters["rewards"].Vector())
+	{
+		std::pair<uint64_t, uint64_t> tier;
+		const auto guards = JsonRandom::evaluateCreatures(reward["guards"]);
+		if(!guards)
+			return std::nullopt;
+		for(const auto & guard : *guards)
+		{
+			const auto * weakest = std::ranges::min(guard.allowedCreatures, {}, [&](const auto * creature)
+			{
+				return combatValue.getAIValue(creature);
+			});
+			const auto * strongest = std::ranges::max(guard.allowedCreatures, {}, [&](const auto * creature)
+			{
+				return combatValue.getAIValue(creature);
+			});
+			tier.first += guard.minAmount * combatValue.getAIValue(weakest);
+			tier.second += guard.maxAmount * combatValue.getAIValue(strongest);
+		}
+
+		if(result.has_value())
+		{
+			result->first = std::min(result->first, tier.first);
+			result->second = std::max(result->second, tier.second);
+		}
+		else
+			result = tier;
+	}
+	return result;
 }
 
 const JsonNode & Rewardable::Info::getParameters() const

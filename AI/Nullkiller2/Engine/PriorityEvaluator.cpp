@@ -8,22 +8,21 @@
 *
 */
 #include "StdInc.h"
-#include <limits>
 
+#include "PriorityEvaluator.h"
 #include "Nullkiller.h"
 #include "../../../lib/battle/CombatValue.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
 #include "../../../lib/entities/ResourceTypeHandler.h"
+#include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjects/CGResource.h"
+#include "../../../lib/mapObjects/CRewardableObject.h"
 #include "../../../lib/mapping/TerrainTile.h"
 #include "../../../lib/CPlayerState.h"
-#include "../../../lib/RoadHandler.h"
 #include "../../../lib/CCreatureHandler.h"
 #include "../../../lib/GameLibrary.h"
-#include "../../../lib/entities/hero/CHeroHandler.h"
 #include "../../../lib/StartInfo.h"
 #include "../../../lib/GameSettings.h"
-#include "../../../lib/filesystem/Filesystem.h"
 #include "../Goals/ExecuteHeroChain.h"
 #include "../Goals/AdventureSpellCast.h"
 #include "../Goals/BuildThis.h"
@@ -34,6 +33,7 @@
 #include "../../../lib/spells/adventure/DimensionDoorEffect.h"
 #include "../Markers/UnlockCluster.h"
 #include "../Markers/HeroExchange.h"
+#include "../Goals/PrepareFreeSlotForCreatureReward.h"
 #include "../Markers/ArmyUpgrade.h"
 #include "../Markers/DefendTown.h"
 #include "../Markers/OneWayPortalProbe.h"
@@ -58,6 +58,31 @@ float evaluateEnemyTownConquestValue(float baseValue, int visibleEnemyTownCount)
 		return std::max(baseValue * 3.5f, 5.0f);
 
 	return std::max(baseValue * 3.0f, 4.0f);
+}
+
+float evaluateArmyPowerRatio(const IArmyManager & armyManager, const CCreatureSet * army)
+{
+	const float armyPower = army->estimateCombatValue();
+	std::set<CreatureID> creatureTypes;
+	for(const auto & slot : army->Slots())
+		creatureTypes.insert(slot.second->getCreatureID());
+
+	uint64_t totalPower = 0;
+	for(const auto creature : creatureTypes)
+		totalPower += armyManager.getTotalCreaturesAvailable(creature).power;
+
+	if(armyPower <= 0)
+		return 0;
+
+	return totalPower > armyPower ? armyPower / static_cast<float>(totalPower) : 1.0f;
+}
+
+float evaluateMaxArmyLossRatio(float configuredMaxArmyLoss, float armyPowerRatio, bool isWithoutCastle)
+{
+	if(isWithoutCastle)
+		return 1.0f;
+
+	return armyPowerRatio > 0 ? std::min(configuredMaxArmyLoss / armyPowerRatio, 1.0f) : 1.0f;
 }
 
 float evaluateMaxArmyLossForConquest(float baseMaxArmyLoss, float conquestValue, bool isEnemyTownConquest)
@@ -173,7 +198,7 @@ int32_t getResourcesGoldReward(const TResources & res)
 	return result;
 }
 
-uint64_t getDwellingArmyValue(CCallback * cb, const CGObjectInstance * target, bool checkGold)
+uint64_t getDwellingArmyValue(CCallback * cb, const CGObjectInstance * target, bool considerRecruitmentCost)
 {
 	auto dwelling = dynamic_cast<const CGDwelling *>(target);
 	uint64_t score = 0;
@@ -184,7 +209,7 @@ uint64_t getDwellingArmyValue(CCallback * cb, const CGObjectInstance * target, b
 		{
 			auto creature = creLevel.second.back().toCreature();
 			auto creaturesAreFree = creature->getLevel() == 1;
-			if(!creaturesAreFree && checkGold && !cb->getResourceAmount().canAfford(creature->getFullRecruitCost() * creLevel.first))
+			if(!creaturesAreFree && considerRecruitmentCost && !cb->getResourceAmount().canAfford(creature->getFullRecruitCost() * creLevel.first))
 				continue;
 
 			score += LIBRARY->creh->getCombatValue().getAIValue(creature) * creLevel.first;
@@ -253,91 +278,212 @@ static uint64_t evaluateArtifactArmyValue(const CArtifact * art)
 	return getPotentialArtifactScore(art);
 }
 
-uint64_t RewardEvaluator::getArmyReward(
-	const CGObjectInstance * target,
-	const CGHeroInstance * hero,
-	const CCreatureSet * army,
-	bool checkGold) const
+static CreatureRewardValueInfo makeCreatureRewardValueInfo(
+	std::pair<uint64_t, uint64_t> minMaxValue,
+	std::pair<uint64_t, uint64_t> minMaxImprovement,
+	bool canMergeWithArmy)
+{
+	if(minMaxImprovement.second == 0)
+		return {CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT, minMaxValue, canMergeWithArmy};
+	if(minMaxImprovement.first == 0)
+		return {CreatureRewardValueInfo::State::IMPROVEMENT_DEPENDS_ON_TIER, minMaxValue, canMergeWithArmy};
+	return {CreatureRewardValueInfo::State::IMPROVES_ARMY, minMaxValue, canMergeWithArmy};
+}
+
+RewardEvaluationResult RewardEvaluator::evaluateRewards(const RewardEvaluationRequest & request) const
+{
+	RewardEvaluationResult result;
+	const auto rewardableInfo = aiNk->cc->getRewardableObjectInfo(request.target, request.hero);
+	const RewardableObjectInfo * cachedRewardableInfo = rewardableInfo ? &*rewardableInfo : nullptr;
+
+	result.creatureRewardValue = getCreatureRewardValue(request, cachedRewardableInfo);
+	result.goldReward = getGoldReward(request.target, request.hero, cachedRewardableInfo);
+	result.armyReward = getArmyReward(request, cachedRewardableInfo, result.creatureRewardValue);
+	result.armyGrowth = getArmyGrowth(request);
+	result.skillReward = getSkillReward(request, cachedRewardableInfo);
+	result.strategicalValue = getStrategicalValue(request.target, cachedRewardableInfo);
+	result.conquestValue = getConquestValue(request.target);
+	result.goldCost = getGoldCost(request);
+	return result;
+}
+
+CreatureRewardValueInfo RewardEvaluator::getCreatureReward(const RewardEvaluationRequest & request) const
+{
+	const auto rewardableInfo = aiNk->cc->getRewardableObjectInfo(request.target, request.hero);
+	return getCreatureRewardValue(request, rewardableInfo ? &*rewardableInfo : nullptr);
+}
+
+uint64_t RewardEvaluator::calculateRewardArmyValue(const RewardableObjectInfo * rewardableInfo, const CreatureRewardValueInfo & creatureReward) const
+{
+	uint64_t totalValue = 0;
+
+	if(rewardableInfo)
+	{
+		for(const auto & reward : rewardableInfo->rewards)
+		{
+			for(auto artID : reward.grantedArtifacts)
+				totalValue += evaluateArtifactArmyValue(artID.toArtifact());
+
+			for(auto scroll : reward.grantedScrolls)
+				totalValue += evaluateSpellScrollArmyValue(scroll);
+		}
+
+		if(creatureReward.state != CreatureRewardValueInfo::State::UNKNOWN)
+			totalValue += creatureReward.minMaxValue.second;
+	}
+
+	return totalValue;
+}
+
+uint64_t RewardEvaluator::getArmyReward(const RewardEvaluationRequest & request, const RewardableObjectInfo * rewardableInfo, const CreatureRewardValueInfo & creatureReward) const
 {
 	const float enemyArmyEliminationRewardRatio = 0.5f;
-	auto relations = aiNk->cc->getPlayerRelations(target->tempOwner, aiNk->playerID);
-	if(!target) // TODO: Mircea: Shouldn't it be relations instead of target in the if? See getArmyGrowth below
+	auto relations = aiNk->cc->getPlayerRelations(request.target->tempOwner, aiNk->playerID);
+	if(!request.target) // TODO: Mircea: Shouldn't it be relations instead of target in the if? See getArmyGrowth below
 		return 0;
 
-	switch(target->ID)
+	switch(request.target->ID)
 	{
 	case Obj::HILL_FORT:
-		return aiNk->armyManager->calculateCreaturesUpgrade(army, target, aiNk->cc->getResourceAmount()).upgradeValue;
+		return aiNk->armyManager->calculateCreaturesUpgrade(request.army, request.target, aiNk->cc->getResourceAmount()).upgradeValue;
 	case Obj::CREATURE_GENERATOR1:
 	case Obj::CREATURE_GENERATOR2:
 	case Obj::CREATURE_GENERATOR3:
 	case Obj::CREATURE_GENERATOR4:
-		return getDwellingArmyValue(aiNk->cc.get(), target, checkGold);
+		return getDwellingArmyValue(aiNk->cc.get(), request.target, request.considerRecruitmentCost);
 	case Obj::SPELL_SCROLL:
-		return evaluateSpellScrollArmyValue(dynamic_cast<const CGArtifact *>(target)->getArtifactInstance()->getScrollSpellID());
+		return evaluateSpellScrollArmyValue(dynamic_cast<const CGArtifact *>(request.target)->getArtifactInstance()->getScrollSpellID());
 	case Obj::ARTIFACT:
-		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(target)->getArtifactInstance()->getType());
+		return evaluateArtifactArmyValue(dynamic_cast<const CGArtifact *>(request.target)->getArtifactInstance()->getType());
 	case Obj::HERO:
 		return  relations == PlayerRelations::ENEMIES
-			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->estimateCombatValue()
+			? enemyArmyEliminationRewardRatio * dynamic_cast<const CGHeroInstance *>(request.target)->estimateCombatValue()
 			: 0;
 	case Obj::PANDORAS_BOX:
 		return 5000;
 	case Obj::MAGIC_WELL:
 	case Obj::MAGIC_SPRING:
-		return getManaRecoveryArmyReward(hero);
+		return getManaRecoveryArmyReward(request.hero);
 	default:
 		break;
 	}
 
-	auto rewardable = dynamic_cast<const Rewardable::Interface *>(target);
-	if(rewardable)
-	{
-		auto totalValue = 0;
-
-		for(int index : rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
-		{
-			auto & info = rewardable->configuration.info[index];
-			auto rewardValue = 0;
-
-			for(auto artID : info.reward.grantedArtifacts)
-				rewardValue += evaluateArtifactArmyValue(artID.toArtifact());
-
-			for(auto scroll : info.reward.grantedScrolls)
-				rewardValue += evaluateSpellScrollArmyValue(scroll);
-
-			for(const auto & stackInfo : info.reward.creatures)
-				rewardValue += LIBRARY->creh->getCombatValue().getAIValue(stackInfo.getType()) * stackInfo.getCount();
-
-			const auto combined_size = std::min(static_cast<size_t>(1),
-			                                    info.reward.grantedArtifacts.size() + info.reward.creatures.size() +
-			                                    info.reward.grantedScrolls.size());
-			totalValue += rewardValue > 0 ? rewardValue / combined_size : 0;
-		}
-
-		return totalValue;
-	}
-
-	return 0;
+	return calculateRewardArmyValue(rewardableInfo, creatureReward);
 }
 
-uint64_t RewardEvaluator::getArmyGrowth(
-	const CGObjectInstance * target,
-	const CGHeroInstance * hero,
-	const CCreatureSet * army) const
+CreatureRewardValueInfo RewardEvaluator::getCreatureRewardValue(const RewardEvaluationRequest & request, const RewardableObjectInfo * rewardableInfo) const
 {
-	if(!target)
+	if(!request.hero || !request.army || !rewardableInfo)
+		return {};
+	if(!rewardableInfo->scouted && request.target->ID != Obj::CREATURE_BANK)
+		return {};
+
+	const auto terrain = aiNk->cc->getTile(request.target->visitablePos())->getTerrainID();
+	bool canMergeWithArmy = true;
+	const auto evaluateCreatures = [this, &request, terrain, &canMergeWithArmy](const std::vector<CStackBasicDescriptor> & creatures)
+	{
+		CCreatureSet rewardArmy;
+		for(const auto & creature : creatures)
+		{
+			const auto slot = rewardArmy.getSlotFor(creature.getId());
+			if(!slot.validSlot())
+			{
+				canMergeWithArmy = false;
+				return std::pair<uint64_t, uint64_t>{0, 0};
+			}
+			rewardArmy.addToSlot(slot, creature.getId(), creature.getCount());
+		}
+
+		const bool rewardFits = request.army->canBeMergedWith(rewardArmy, true);
+		canMergeWithArmy &= rewardFits;
+
+		const auto bestArmyInfo = aiNk->armyManager->getBestArmyInfo(request.hero, request.army, &rewardArmy, terrain);
+		const uint64_t improvement = bestArmyInfo.sourceStrength ? bestArmyInfo.strengthGain : 0;
+		const uint64_t value = rewardFits ? std::max(improvement, rewardArmy.getArmyStrength()) : improvement;
+		return std::pair<uint64_t, uint64_t>{value, improvement};
+	};
+
+	uint64_t resultValue = 0;
+	uint64_t resultImprovement = 0;
+	bool hasCreatureReward = false;
+	for(const auto & reward : rewardableInfo->rewards)
+	{
+		if(reward.creatures.empty())
+			continue;
+		hasCreatureReward = true;
+		const auto [value, improvement] = evaluateCreatures(reward.creatures);
+		resultValue += value;
+		resultImprovement += improvement;
+	}
+	if(hasCreatureReward || rewardableInfo->rewardValueKnown || request.target->ID != Obj::CREATURE_BANK)
+		return makeCreatureRewardValueInfo(
+			{resultValue, resultValue}, {resultImprovement, resultImprovement}, canMergeWithArmy);
+
+	const auto objectInfo = request.target->getObjectHandler()->getObjectInfo();
+
+	assert(objectInfo);
+	if(!objectInfo)
+		return {};
+
+	const auto * rewardable = dynamic_cast<const Rewardable::Info *>(objectInfo.get());
+	if(!rewardable)
+		return {};
+	const bool builtinCreatureRewards = rewardable->hasOnlyBuiltinCreatureRewards();
+	const bool hiddenModdedCreatureReward = !aiNk->cc->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION)
+		&& !builtinCreatureRewards;
+	const bool requiresFreeSlotForHiddenModdedReward = hiddenModdedCreatureReward
+		&& request.army->stacksCount() == GameConstants::ARMY_SIZE;
+
+	if(builtinCreatureRewards)
+	{
+		const auto * rewardableObject = dynamic_cast<const Rewardable::Interface *>(request.target);
+		assert(rewardableObject);
+		if(!rewardableObject)
+			return {};
+
+		for(auto index : rewardableObject->getAvailableRewards(request.hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
+		{
+			const auto & creatures = rewardableObject->configuration.info.at(index).reward.creatures;
+			const auto [value, improvement] = evaluateCreatures(creatures);
+			resultValue += value;
+			resultImprovement += improvement;
+		}
+		return makeCreatureRewardValueInfo(
+			{resultValue, resultValue}, {resultImprovement, resultImprovement}, canMergeWithArmy);
+	}
+
+	const auto possibleRewards = rewardable->getPossibleCreatureRewards();
+	if(possibleRewards.empty())
+		return requiresFreeSlotForHiddenModdedReward ? CreatureRewardValueInfo{
+			CreatureRewardValueInfo::State::UNKNOWN, {0, 0}, false} : CreatureRewardValueInfo{};
+	std::pair<uint64_t, uint64_t> minMaxValue = {std::numeric_limits<uint64_t>::max(), 0};
+	std::pair<uint64_t, uint64_t> minMaxImprovement = {std::numeric_limits<uint64_t>::max(), 0};
+	for(const auto & reward : possibleRewards)
+	{
+		const auto [value, improvement] = evaluateCreatures(reward);
+		minMaxValue.first = std::min(minMaxValue.first, value);
+		minMaxValue.second = std::max(minMaxValue.second, value);
+		minMaxImprovement.first = std::min(minMaxImprovement.first, improvement);
+		minMaxImprovement.second = std::max(minMaxImprovement.second, improvement);
+	}
+	canMergeWithArmy &= !requiresFreeSlotForHiddenModdedReward;
+	return makeCreatureRewardValueInfo(minMaxValue, minMaxImprovement, canMergeWithArmy);
+}
+
+uint64_t RewardEvaluator::getArmyGrowth(const RewardEvaluationRequest & request) const
+{
+	if(!request.target)
 		return 0;
 
-	auto relations = aiNk->cc->getPlayerRelations(target->tempOwner, hero->tempOwner);
+	auto relations = aiNk->cc->getPlayerRelations(request.target->tempOwner, request.hero->tempOwner);
 	if(relations != PlayerRelations::ENEMIES)
 		return 0;
 
-	switch(target->ID)
+	switch(request.target->ID)
 	{
 	case Obj::TOWN:
 	{
-		auto town = dynamic_cast<const CGTownInstance *>(target);
+		auto town = dynamic_cast<const CGTownInstance *>(request.target);
 		auto fortLevel = town->fortLevel();
 		auto neutral = !town->getOwner().isValidPlayer();
 		auto booster = isAnotherAi(town, *aiNk->cc) ||  neutral ? 1 : 2;
@@ -352,7 +498,7 @@ uint64_t RewardEvaluator::getArmyGrowth(
 	case Obj::CREATURE_GENERATOR2:
 	case Obj::CREATURE_GENERATOR3:
 	case Obj::CREATURE_GENERATOR4:
-		return getDwellingArmyGrowth(aiNk->cc.get(), target, hero->getOwner());
+		return getDwellingArmyGrowth(aiNk->cc.get(), request.target, request.hero->getOwner());
 	case Obj::ARTIFACT:
 		// it is not supported now because hero will not sit in town on 7th day but later parts of legion may be counted as army growth as well.
 		return 0;
@@ -361,21 +507,21 @@ uint64_t RewardEvaluator::getArmyGrowth(
 	}
 }
 
-int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroInstance * hero, const CCreatureSet * army) const
+int RewardEvaluator::getGoldCost(const RewardEvaluationRequest & request) const
 {
-	if(!target)
+	if(!request.target)
 		return 0;
 
-	if(auto * m = dynamic_cast<const IMarket *>(target))
+	if(auto * m = dynamic_cast<const IMarket *>(request.target))
 	{
 		if(m->allowsTrade(EMarketMode::RESOURCE_SKILL))
 			return aiNk->cc->getSettings().getInteger(EGameSettings::MARKETS_UNIVERSITY_GOLD_COST);
 	}
 
-	switch(target->ID)
+	switch(request.target->ID)
 	{
 	case Obj::HILL_FORT:
-		return aiNk->armyManager->calculateCreaturesUpgrade(army, target, aiNk->cc->getResourceAmount()).upgradeCost[EGameResID::GOLD];
+		return aiNk->armyManager->calculateCreaturesUpgrade(request.army, request.target, aiNk->cc->getResourceAmount()).upgradeCost[EGameResID::GOLD];
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
 		return 1000;
@@ -383,7 +529,7 @@ int RewardEvaluator::getGoldCost(const CGObjectInstance * target, const CGHeroIn
 	case Obj::CREATURE_GENERATOR2:
 	case Obj::CREATURE_GENERATOR3:
 	case Obj::CREATURE_GENERATOR4:
-		return getDwellingArmyCost(target);
+		return getDwellingArmyCost(request.target);
 	default:
 		return 0;
 	}
@@ -477,7 +623,28 @@ float RewardEvaluator::getCombinedResourceRequirementStrength(const TResources &
 	return sum;
 }
 
-float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, const CGHeroInstance * hero) const
+float RewardEvaluator::calculateStrategicalRewardValue(const CGObjectInstance * target, const RewardableObjectInfo * rewardableInfo) const
+{
+	auto resourceReward = 0.0f;
+	if(rewardableInfo)
+	{
+		if(!rewardableInfo->rewardValueKnown)
+			return target->getObjectHandler()->getAiValue().value_or(0) / 1000.0f;
+
+		for(const auto & reward : rewardableInfo->rewards)
+			resourceReward += getCombinedResourceRequirementStrength(reward.resources);
+	}
+
+	return resourceReward;
+}
+
+float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target) const
+{
+	const auto rewardableInfo = aiNk->cc->getRewardableObjectInfo(target);
+	return getStrategicalValue(target, rewardableInfo ? &*rewardableInfo : nullptr);
+}
+
+float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, const RewardableObjectInfo * rewardableInfo) const
 {
 	if(!target)
 		return 0;
@@ -542,21 +709,7 @@ float RewardEvaluator::getStrategicalValue(const CGObjectInstance * target, cons
 		break;
 	}
 
-	auto rewardable = dynamic_cast<const Rewardable::Interface *>(target);
-
-	if(rewardable && hero)
-	{
-		auto resourceReward = 0.0f;
-
-		for(int index : rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
-		{
-			resourceReward += getCombinedResourceRequirementStrength(rewardable->configuration.info[index].reward.resources);
-		}
-
-		return resourceReward;
-	}
-
-	return 0;
+	return calculateStrategicalRewardValue(target, rewardableInfo);
 }
 
 float RewardEvaluator::getConquestValue(const CGObjectInstance* target) const
@@ -609,35 +762,77 @@ float RewardEvaluator::getConquestValue(const CGObjectInstance* target) const
 	}
 }
 
-float RewardEvaluator::evaluateWitchHutSkillScore(const CGObjectInstance * hut, const CGHeroInstance * hero, HeroRole role) const
+float RewardEvaluator::evaluateWitchHutSkillScore(const RewardEvaluationRequest & request, const RewardableObjectInfo * rewardableInfo) const
 {
-	auto rewardable = dynamic_cast<const CRewardableObject *>(hut);
-	assert(rewardable);
-
-	auto skill = SecondarySkill(*rewardable->configuration.getVariable("secondarySkill", "gainedSkill"));
-
 	// TODO: Mircea: Move to constants
-	if(!hut->wasVisited(hero->tempOwner))
-		return role == HeroRole::SCOUT ? 2 : 0;
+	if(!rewardableInfo)
+		return request.heroRole == HeroRole::SCOUT ? 2 : 0;
+	if(!rewardableInfo->scouted)
+		return request.heroRole == HeroRole::SCOUT ? 2 : 0;
 
-	if(hero->getSecSkillLevel(skill) != MasteryLevel::NONE
-		|| static_cast<int>(hero->secSkills.size()) >= aiNk->cc->getSettings().getInteger(EGameSettings::HEROES_SKILL_PER_HERO))
+	const auto & rewards = rewardableInfo->rewards;
+	if(rewards.empty())
 		return 0;
 
-	auto score = aiNk->heroManager->evaluateSecSkill(skill, hero);
+	const auto & skills = rewards.front().secondary;
+	if(skills.empty())
+		return 0;
+
+	auto skill = skills.begin()->first;
+
+	if(request.hero->getSecSkillLevel(skill) != MasteryLevel::NONE
+		|| static_cast<int>(request.hero->secSkills.size()) >= aiNk->cc->getSettings().getInteger(EGameSettings::HEROES_SKILL_PER_HERO))
+		return 0;
+
+	auto score = aiNk->heroManager->evaluateSecSkill(skill, request.hero);
 
 	// TODO: Mircea: Move to constants
-	return score >= 2 ? (role == HeroRole::MAIN ? 10 : 4) : score;
+	return score >= 2 ? (request.heroRole == HeroRole::MAIN ? 10 : 4) : score;
 }
 
-float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGHeroInstance * hero, HeroRole role) const
+static float evaluateRewardableSkillValue(const RewardableObjectInfo & rewardableInfo, const CGHeroInstance * hero, float spellLevelDivisor)
+{
+	auto totalValue = 0.0f;
+
+	for(const auto & reward : rewardableInfo.rewards)
+	{
+		auto rewardValue = 0.0f;
+
+		if(!reward.spells.empty())
+		{
+			for(auto spellID : reward.spells)
+			{
+				const spells::Spell * spell = LIBRARY->spells()->getById(spellID);
+
+				if(hero->canLearnSpell(spell, true))
+				{
+					rewardValue += std::sqrt(spell->getLevel()) / spellLevelDivisor;
+				}
+			}
+
+			totalValue += rewardValue / reward.spells.size();
+		}
+
+		if(!reward.primary.empty())
+		{
+			for(auto value : reward.primary)
+			{
+				totalValue += value;
+			}
+		}
+	}
+
+	return totalValue;
+}
+
+float RewardEvaluator::getSkillReward(const RewardEvaluationRequest & request, const RewardableObjectInfo * rewardableInfo) const
 {
 	const float enemyHeroEliminationSkillRewardRatio = 0.5f;
 
-	if(!target)
+	if(!request.target)
 		return 0;
 
-	switch(target->ID)
+	switch(request.target->ID)
 	{
 	case Obj::STAR_AXIS:
 	case Obj::SCHOLAR:
@@ -649,7 +844,7 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	case Obj::TREE_OF_KNOWLEDGE:
 		return 1;
 	case Obj::LEARNING_STONE:
-		return 1.0f / std::sqrt(hero->level);
+		return 1.0f / std::sqrt(request.hero->level);
 	case Obj::ARENA:
 		return 2;
 	case Obj::SHRINE_OF_MAGIC_INCANTATION:
@@ -661,66 +856,21 @@ float RewardEvaluator::getSkillReward(const CGObjectInstance * target, const CGH
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		return 8;
 	case Obj::WITCH_HUT:
-		return evaluateWitchHutSkillScore(target, hero, role);
+		return evaluateWitchHutSkillScore(request, rewardableInfo);
 	case Obj::PANDORAS_BOX:
 		//Can contains experience, spells, or skills (only on custom maps)
 		return 2.5f;
 	case Obj::HERO:
-		return aiNk->cc->getPlayerRelations(target->tempOwner, aiNk->playerID) == PlayerRelations::ENEMIES
-			? enemyHeroEliminationSkillRewardRatio * dynamic_cast<const CGHeroInstance *>(target)->level
+		return aiNk->cc->getPlayerRelations(request.target->tempOwner, aiNk->playerID) == PlayerRelations::ENEMIES
+			? enemyHeroEliminationSkillRewardRatio * dynamic_cast<const CGHeroInstance *>(request.target)->level
 			: 0;
 
 	default:
 		break;
 	}
 
-	auto rewardable = dynamic_cast<const Rewardable::Interface *>(target);
-
-	if(rewardable)
-	{
-		auto totalValue = 0.0f;
-
-		for(int index : rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
-		{
-			auto & info = rewardable->configuration.info[index];
-
-			auto rewardValue = 0.0f;
-
-			if(!info.reward.spells.empty())
-			{
-				for(auto spellID : info.reward.spells)
-				{
-					const spells::Spell * spell = LIBRARY->spells()->getById(spellID);
-
-					if(hero->canLearnSpell(spell, true))
-					{
-						rewardValue += std::sqrt(spell->getLevel()) / 4.0f;
-					}
-				}
-
-				totalValue += rewardValue / info.reward.spells.size();
-			}
-
-			if(!info.reward.primary.empty())
-			{
-				for(auto value : info.reward.primary)
-				{
-					totalValue += value;
-				}
-			}
-
-			// each gained level is worth as much as a Tree of Knowledge visit
-			TExpType gainedExp = 0;
-			if(info.reward.heroLevel > 0)
-				gainedExp += hero->experienceToGainLevels(info.reward.heroLevel);
-			if(info.reward.heroExperience > 0)
-				gainedExp += hero->calculateXp(info.reward.heroExperience);
-			if(gainedExp > 0)
-				totalValue += LIBRARY->heroh->level(hero->exp + gainedExp) - hero->level;
-		}
-
-		return totalValue;
-	}
+	if(rewardableInfo)
+		return evaluateRewardableSkillValue(*rewardableInfo, request.hero, 4.0f);
 
 	return 0;
 }
@@ -750,7 +900,7 @@ int32_t getArmyCost(const CArmedInstance * army)
 	return value;
 }
 
-int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero) const
+int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CGHeroInstance * hero, const RewardableObjectInfo * rewardableInfo) const
 {
 	if(!target)
 		return 0;
@@ -793,18 +943,12 @@ int32_t RewardEvaluator::getGoldReward(const CGObjectInstance * target, const CG
 		break;
 	}
 
-	auto rewardable = dynamic_cast<const Rewardable::Interface *>(target);
-
-	if(rewardable)
+	if(rewardableInfo)
 	{
 		auto goldReward = 0;
 
-		for(int index : rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
-		{
-			auto & info = rewardable->configuration.info[index];
-
-			goldReward += getResourcesGoldReward(info.reward.resources);
-		}
+		for(const auto & reward : rewardableInfo->rewards)
+			goldReward += getResourcesGoldReward(reward.resources);
 
 		return goldReward;
 	}
@@ -838,6 +982,26 @@ public:
 		evaluationContext.danger = heroExchange.exchangePath.getTotalDanger();
 		evaluationContext.heroRole = giverHeroRole;
 		evaluationContext.isExchange = true;
+	}
+};
+
+class PrepareFreeSlotForCreatureRewardEvaluator : public IEvaluationContextBuilder
+{
+public:
+	void buildEvaluationContext(EvaluationContext & evaluationContext, Goals::TSubgoal task) const override
+	{
+		if(task->goalType != Goals::PREPARE_FREE_SLOT_FOR_CREATURE_REWARD)
+			return;
+
+		const auto & preparation = dynamic_cast<Goals::PrepareFreeSlotForCreatureReward &>(*task);
+		const auto & path = preparation.getPath();
+		const auto heroRole = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(path.targetHero);
+		const auto armyStrength = std::max<uint64_t>(1, path.heroArmy->estimateCombatValue());
+		const auto armyLossRatio = static_cast<float>(path.getTotalArmyLoss()) / armyStrength;
+		vstd::amax(evaluationContext.armyLossRatio, armyLossRatio);
+		evaluationContext.movementCost += path.movementCost();
+		evaluationContext.movementCostByRole.at(static_cast<size_t>(heroRole)) += path.movementCost();
+		vstd::amax(evaluationContext.turn, path.turn());
 	}
 };
 
@@ -932,10 +1096,13 @@ public:
 			if(!target)
 				continue;
 
-			evaluationContext.goldReward += evaluator.getGoldReward(target, probe.hero);
-			evaluationContext.armyReward += evaluator.getArmyReward(target, probe.hero, probe.hero, false);
-			evaluationContext.skillReward += evaluator.getSkillReward(target, probe.hero, role);
-			evaluationContext.addNonCriticalStrategicalValue(evaluator.getStrategicalValue(target, probe.hero));
+			RewardEvaluationRequest request = {.target=target, .hero=probe.hero, .army=probe.hero, .heroRole=role, .considerRecruitmentCost=false };
+			RewardEvaluationResult rewards = evaluator.evaluateRewards(request);
+
+			evaluationContext.goldReward += rewards.goldReward;
+			evaluationContext.armyReward += rewards.armyReward;
+			evaluationContext.skillReward += rewards.skillReward;
+			evaluationContext.addNonCriticalStrategicalValue(rewards.strategicalValue);
 		}
 	}
 };
@@ -1093,18 +1260,10 @@ public:
 				evaluationContext.involvesSailing = true;
 		}
 
-		float highestCostForSingleHero = 0;
 		for(auto pair : costsPerHero)
 		{
 			auto role = evaluationContext.evaluator.aiNk->heroManager->getHeroRoleOrDefaultInefficient(pair.first);
 			evaluationContext.movementCostByRole.at(static_cast<size_t>(role)) += pair.second;
-			if (pair.second > highestCostForSingleHero)
-				highestCostForSingleHero = pair.second;
-		}
-		if (highestCostForSingleHero > 1 && costsPerHero.size() > 1)
-		{
-			//Chains that involve more than 1 hero doing something for more than a turn are too expensive in my book. They often involved heroes doing nothing just standing there waiting to fulfill their part of the chain.
-			return;
 		}
 		evaluationContext.movementCost *= costsPerHero.size(); //further deincentivise chaining as it often involves bringing back the army afterwards
 
@@ -1118,35 +1277,26 @@ public:
 		if(heroRole == HeroRole::MAIN)
 			evaluationContext.heroRole = heroRole;
 
-		const float armyPower = army->estimateCombatValue();
-		float totalPower = 0;
-
-		std::set<CreatureID> armyCreatures;
-		for(const auto & slot : army->Slots())
-			armyCreatures.insert(slot.second->getCreatureID());
-
-		for(const auto & creatureID : armyCreatures)
-			totalPower += aiNk->armyManager->getTotalCreaturesAvailable(creatureID).power;
-
-		// Planned army may hold creatures that are not owned yet, to be upgraded or bought on the way
-		if(armyPower > 0)
-			evaluationContext.powerRatio = totalPower > armyPower ? armyPower / totalPower : 1.0f;
+		evaluationContext.powerRatio = evaluateArmyPowerRatio(*aiNk->armyManager, army);
 
 		if (target)
 		{
-			evaluationContext.goldReward += evaluationContext.evaluator.getGoldReward(target, hero);
-			evaluationContext.armyReward += evaluationContext.evaluator.getArmyReward(target, hero, army, checkGold);
-			evaluationContext.armyGrowth += evaluationContext.evaluator.getArmyGrowth(target, hero, army);
-			evaluationContext.skillReward += evaluationContext.evaluator.getSkillReward(target, hero, heroRole);
-			evaluationContext.addNonCriticalStrategicalValue(evaluationContext.evaluator.getStrategicalValue(target));
-			evaluationContext.conquestValue += evaluationContext.evaluator.getConquestValue(target);
+			RewardEvaluationRequest rewardEvalRequest { .target=target, .hero=hero, .army=army, .heroRole=heroRole, .considerRecruitmentCost=checkGold };
+			const auto rewards = evaluationContext.evaluator.evaluateRewards(rewardEvalRequest);
+
+			evaluationContext.goldReward += rewards.goldReward;
+			evaluationContext.armyReward += rewards.armyReward;
+			evaluationContext.armyGrowth += rewards.armyGrowth;
+			evaluationContext.skillReward += rewards.skillReward;
+			evaluationContext.addNonCriticalStrategicalValue(rewards.strategicalValue);
+			evaluationContext.conquestValue += rewards.conquestValue;
 			if (target->ID == Obj::HERO)
 				evaluationContext.isHero = true;
 			if (target->getOwner().isValidPlayer() && aiNk->cc->getPlayerRelations(aiNk->playerID, target->getOwner()) == PlayerRelations::ENEMIES)
 				evaluationContext.isEnemy = true;
 			if (target->ID == Obj::TOWN)
 				evaluationContext.defenseValue = dynamic_cast<const CGTownInstance*>(target)->fortLevel();
-			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army);
+			evaluationContext.goldCost += rewards.goldCost;
 			if(evaluationContext.danger > 0)
 				evaluationContext.skillReward += (float)evaluationContext.danger / (float)hero->estimateCombatValue();
 		}
@@ -1189,15 +1339,17 @@ public:
 		for(auto & objInfo : objects)
 		{
 			auto target = evaluationContext.evaluator.aiNk->cc->getObj(objInfo.first);
+			//TODO: Debug the line below. Why it needs to be safe ? Before commit e3c87fb58 (2021), affordability was always checked;
 			bool checkGold = objInfo.second.danger == 0;
-			auto army = hero;
+			RewardEvaluationRequest request {.target=target, .hero=hero, .army=hero, .heroRole=role, .considerRecruitmentCost=checkGold};
+			const auto rewards = evaluationContext.evaluator.evaluateRewards(request);
 
-			evaluationContext.goldReward += evaluationContext.evaluator.getGoldReward(target, hero) / boost;
-			evaluationContext.armyReward += evaluationContext.evaluator.getArmyReward(target, hero, army, checkGold) / boost;
-			evaluationContext.skillReward += evaluationContext.evaluator.getSkillReward(target, hero, role) / boost;
-			evaluationContext.addNonCriticalStrategicalValue(evaluationContext.evaluator.getStrategicalValue(target) / boost);
-			evaluationContext.conquestValue += evaluationContext.evaluator.getConquestValue(target);
-			evaluationContext.goldCost += evaluationContext.evaluator.getGoldCost(target, hero, army) / boost;
+			evaluationContext.goldReward += rewards.goldReward / boost;
+			evaluationContext.armyReward += rewards.armyReward / boost;
+			evaluationContext.skillReward += rewards.skillReward / boost;
+			evaluationContext.addNonCriticalStrategicalValue(rewards.strategicalValue / boost);
+			evaluationContext.conquestValue += rewards.conquestValue;
+			evaluationContext.goldCost += rewards.goldCost / boost;
 			evaluationContext.movementCostByRole.at(static_cast<size_t>(role)) += objInfo.second.movementCost / boost;
 			evaluationContext.movementCost += objInfo.second.movementCost / boost;
 
@@ -1390,6 +1542,7 @@ PriorityEvaluator::PriorityEvaluator(const Nullkiller * aiNk) : aiNk(aiNk)
 	evaluationContextBuilders.push_back(std::make_shared<BuildThisEvaluationContextBuilder>());
 	evaluationContextBuilders.push_back(std::make_shared<ClusterEvaluationContextBuilder>(aiNk));
 	evaluationContextBuilders.push_back(std::make_shared<HeroExchangeEvaluator>());
+	evaluationContextBuilders.push_back(std::make_shared<PrepareFreeSlotForCreatureRewardEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ArmyUpgradeEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<DefendTownEvaluator>());
 	evaluationContextBuilders.push_back(std::make_shared<ExchangeSwapTownHeroesContextBuilder>());
@@ -1455,10 +1608,10 @@ float PriorityEvaluator::evaluateArmyLossRatio(float score, const float armyLoss
 	return score;
 }
 
-float PriorityEvaluator::evaluateSkillReward(float score, const float skillReward, const float armyInvolvement, const float armyLossRatio)
+float PriorityEvaluator::evaluateSkillReward(float score, const float skillReward, const float armyLossRatio)
 {
-	// Encourage stronger heroes
-	return score + skillReward * armyInvolvement * (1 - armyLossRatio) * 0.05;
+	// Keep skill rewards bounded and loss-aware.
+	return score + skillReward * 1000.0f * std::max(0.0f, 1.0f - armyLossRatio);
 }
 
 float PriorityEvaluator::evaluateConquestValue(float score, const float conquestValue, const float armyInvolvement)
@@ -1489,14 +1642,8 @@ float PriorityEvaluator::evaluate(
 		float score = 0;
 
 		// TODO: Mircea: Shouldn't it default to 0 instead of 1.0 in the end?
-		float maxWillingToLose = 1.0f;
-		if(!amIWithoutCastle && evaluationContext.powerRatio > 0)
-		{
-			// Convert the player-wide loss budget to a fraction of the committed army.
-			maxWillingToLose = std::min(
-				aiNk->settings->getMaxArmyLossTarget() / evaluationContext.powerRatio,
-				1.0f);
-		}
+		const float maxWillingToLose = evaluateMaxArmyLossRatio(
+			aiNk->settings->getMaxArmyLossTarget(), evaluationContext.powerRatio, amIWithoutCastle);
 		const float maxEnemyDangerRatio = evaluationContext.powerRatio > 0 ? evaluationContext.powerRatio : 1.0;
 		auto calendar = aiNk->cc->getCalendar();
 		const bool arriveNextWeek = calendar.getDayOfWeek() + evaluationContext.turn > calendar.getDaysInWeek();
@@ -1699,20 +1846,11 @@ float PriorityEvaluator::evaluate(
 
 				if(evaluationContext.skillReward > 0)
 				{
-					if(evaluationContext.heroRole == MAIN)
-					{
-						score = 1000 + evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyInvolvement, evaluationContext.armyLossRatio);
-
-						// Encourage skill increases before battles
-						if(!requiresBattle)
-							score *= 3;
-					}
+					if(!requiresBattle)
+						score += evaluationContext.skillReward * (evaluationContext.heroRole == MAIN ? 1000.0f : 200.0f);
 					else
-						// TODO: Mircea: Improve logic so that skill reward should be 0 for SCOUTs for one time things like a scholar, but allowed for buildings that give to all visiting heroes
-						// TODO: Mircea: Ease the restriction after 1 month or a bit more, because MAINs had enough time to grow, avoiding a SPAM of role shifts for each upgrade a SCOUT gets
-						// Discourage SCOUTs to pick-up skills/artifacts, otherwise it creates a mess with shifting MAIN responsibility.
-						// MAINs grow and fight, SCOUTs do the groundwork.
-						score = std::max(1.0f, score / 1000.0f);
+						score = 1000 + evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyLossRatio);
+					score *= evaluationContext.heroRole == SCOUT ? 1.2f : 2.0f;
 				}
 
 				score += evaluationContext.heroRole == MAIN ? evaluationContext.armyReward : evaluationContext.armyReward / 10.0f;
@@ -1763,7 +1901,7 @@ float PriorityEvaluator::evaluate(
 				score += evaluationContext.conquestValue * 1000;
 				score += evaluationContext.strategicalValue * 1000;
 				score += evaluationContext.goldReward;
-				score = evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyInvolvement, evaluationContext.armyLossRatio);
+				score = evaluateSkillReward(score, evaluationContext.skillReward, evaluationContext.armyLossRatio);
 				score += evaluationContext.armyReward;
 				score += evaluationContext.armyGrowth;
 

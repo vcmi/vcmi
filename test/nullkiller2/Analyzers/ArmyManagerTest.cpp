@@ -51,7 +51,7 @@ TEST_F(Nullkiller2_Analyzers_ArmyManagerMap, targetKeepsOwnArmyWhenOnlyWantedUni
 	ASSERT_NE(source, nullptr);
 
 	// undead would only lower morale of the archangel (13), which is the last unit of its hero
-	const auto army = gateway->nullkiller->armyManager->getBestArmy(target, target, source, TerrainId::GRASS);
+	const auto army = gateway->nullkiller->armyManager->getBestArmyInfo(target, target, source, TerrainId::GRASS).army;
 
 	ASSERT_EQ(army.size(), 1) << "an empty army makes the AI move away the last unit of the target";
 	EXPECT_EQ(army.front().creature->getId(), CreatureID::SKELETON);

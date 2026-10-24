@@ -18,11 +18,11 @@
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/building/CBuilding.h"
-#include "../../lib/mapObjects/MapObjects.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMapHeader.h"
+#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/pathfinder/CPathfinder.h"
 #include "../../lib/pathfinder/PathfinderOptions.h"
@@ -34,7 +34,6 @@
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/PacksForServer.h"
-#include "../../lib/networkPacks/StackLocation.h"
 #include "../../lib/battle/BattleStateInfoForRetreat.h"
 #include "../../lib/battle/BattleInfo.h"
 #include "../../lib/CPlayerState.h"
@@ -241,7 +240,10 @@ void AIGateway::heroVisit(const CGHeroInstance * visitor, const CGObjectInstance
 
 	if(start && visitedObj) //we can end visit with null object, anyway
 	{
-		nullkiller->memory->markObjectVisited(visitedObj);
+		const auto rewardableInfo = cc->getRewardableObjectInfo(visitedObj, visitor);
+		if(!rewardableInfo || (rewardableInfo->scouted && rewardableInfo->rewardAvailable.value_or(false) && !rewardableInfo->guarded))
+			nullkiller->memory->markObjectVisited(visitedObj);
+
 		nullkiller->objectClusterizer->invalidate(visitedObj->id);
 	}
 
@@ -284,6 +286,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 	LOG_TRACE(logAi);
 	auto firstHero = cc->getHero(hero1);
 	auto secondHero = cc->getHero(hero2);
+	const auto rewardPreparation = creatureBankRewardPreparation;
 
 	status.addQuestion(
 		question,
@@ -295,7 +298,7 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 
 	executeActionAsync(
 		"heroExchangeStarted",
-		[this, firstHero, secondHero, question]()
+		[this, firstHero, secondHero, question, rewardPreparation]()
 		{
 			auto transferFrom2to1 = [this](const CGHeroInstance * h1, const CGHeroInstance * h2) -> void
 			{
@@ -309,6 +312,18 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 			{
 				logAi->debug("Heroes owned by different players. Do not exchange army or artifacts.");
 			}
+			else if(rewardPreparation
+				&& ((firstHero->id == rewardPreparation->rewardHero && secondHero->id == rewardPreparation->helperHero)
+					|| (secondHero->id == rewardPreparation->rewardHero && firstHero->id == rewardPreparation->helperHero)))
+			{
+				const auto * rewardHero = firstHero->id == rewardPreparation->rewardHero ? firstHero : secondHero;
+				const auto * helperHero = rewardHero == firstHero ? secondHero : firstHero;
+				const auto transferSlot = getWeakestTransferableStack(rewardHero, helperHero);
+				if(!transferSlot.validSlot())
+					logAi->warn("Unable to make room for creature bank reward on hero %s", rewardHero->getNameTextID());
+				else
+					cc->mergeOrSwapStacks(rewardHero, helperHero, transferSlot, helperHero->getSlotFor(rewardHero->getCreature(transferSlot)));
+			}
 			else
 			{
 				if(nullkiller->isActive(firstHero))
@@ -320,6 +335,16 @@ void AIGateway::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID her
 			answerQuestion(question, 0);
 		}
 	);
+}
+
+void AIGateway::beginCreatureBankRewardPreparation(ObjectInstanceID rewardHero, ObjectInstanceID helperHero)
+{
+	creatureBankRewardPreparation = CreatureBankRewardPreparation{rewardHero, helperHero};
+}
+
+void AIGateway::endCreatureBankRewardPreparation()
+{
+	creatureBankRewardPreparation.reset();
 }
 
 void AIGateway::heroExperienceChanged(const CGHeroInstance * hero, si64 val)
@@ -676,12 +701,16 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				auto topObj = objects.front()->id == heroPtr->id ? objects.back() : objects.front();
 				auto objType = topObj->ID; // top object should be our hero
 				auto goalObjectID = nullkiller->getTargetObject();
-				auto danger = nullkiller->dangerEvaluator->evaluateDanger(target, heroPtr.get());
+
+				const auto rewardableInfo = cc->getRewardableObjectInfo(topObj, heroPtr.get());
+				const bool guardedRewardable = rewardableInfo && rewardableInfo->guarded;
+				const auto objectDanger = nullkiller->dangerEvaluator->evaluateDanger(topObj);
+				auto danger = guardedRewardable ? objectDanger : nullkiller->dangerEvaluator->evaluateDanger(target, heroPtr.get());
 				auto ratio = static_cast<float>(danger) / heroPtr->estimateHeroCombatValue();
 
 				answer = true;
 
-				if(topObj->id != goalObjectID && nullkiller->dangerEvaluator->evaluateDanger(topObj) > 0)
+				if(topObj->id != goalObjectID && objectDanger > 0)
 				{
 					// no if we do not aim to visit this object
 					answer = false;
@@ -701,12 +730,41 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 				{
 					answer = true;
 				}
-				else if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE)
+				else if(objType == Obj::ARTIFACT || objType == Obj::RESOURCE || guardedRewardable)
 				{
 					bool dangerUnknown = danger == 0;
 					bool dangerTooHigh = ratio * nullkiller->settings->getSafeAttackRatio() > 1;
+					bool armyLossTooHigh = false;
+					if(guardedRewardable)
+					{
+						dangerTooHigh = !isSafeToVisit(heroPtr.get(), danger, nullkiller->settings->getSafeAttackRatio());
+						const auto armyStrength = getHeroArmyStrengthWithCommander(heroPtr.get(), heroPtr.get());
+						const auto armyLoss = nullkiller->pathfinder->getStorage()->evaluateArmyLoss(
+							heroPtr.get(), armyStrength, danger);
+						const auto armyLossRatio = static_cast<float>(armyLoss) / std::max<uint64_t>(1, heroPtr->estimateCombatValue());
+						const auto playerState = cc->getPlayerState(playerID);
+						const auto maxArmyLoss = evaluateMaxArmyLossRatio(
+							nullkiller->settings->getMaxArmyLossTarget(),
+							evaluateArmyPowerRatio(*nullkiller->armyManager, heroPtr.get()),
+							playerState->daysWithoutCastle.has_value());
+						armyLossTooHigh = armyLossRatio > maxArmyLoss;
+					}
 
-					answer = !dangerUnknown && !dangerTooHigh;
+					answer = !dangerUnknown && !dangerTooHigh && !armyLossTooHigh;
+				}
+
+				if(answer && objType == Obj::CREATURE_BANK)
+				{
+					const auto objectInfo = topObj->getObjectHandler()->getObjectInfo();
+					if(objectInfo && objectInfo->givesOnlyCreatures())
+					{
+						const auto creatureReward = RewardEvaluator(nullkiller.get()).getCreatureReward({topObj, heroPtr.get(), heroPtr.get(), HeroRole::SCOUT, false});
+						const bool cannotMerge = creatureReward.canMergeWithArmy && !*creatureReward.canMergeWithArmy;
+						if(cannotMerge
+							&& (creatureReward.state == CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT
+								|| creatureReward.state == CreatureRewardValueInfo::State::IMPROVEMENT_DEPENDS_ON_TIER))
+							answer = false;
+					}
 				}
 			}
 
@@ -793,10 +851,12 @@ void AIGateway::showGarrisonDialog(const CArmedInstance * up, const CGHeroInstan
 	//you can't request action from action-response thread
 	executeActionAsync("showGarrisonDialog", [this, up, down, questionID]()
 	{
-		if(!up->isLocked() && up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed() && !cc->getStartInfo()->restrictedGarrisonsForAI())
-		{
+		const bool rewardTransfer = dynamic_cast<const Rewardable::Interface *>(up);
+		const bool ownedGarrison = up->tempOwner == down->tempOwner && nullkiller->settings->isGarrisonTroopsUsageAllowed()
+			&& !cc->getStartInfo()->restrictedGarrisonsForAI();
+
+		if(!up->isLocked() && (rewardTransfer || ownedGarrison))
 			pickBestCreatures(down, up);
-		}
 
 		answerQuestion(questionID, 0);
 	});
@@ -947,7 +1007,8 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 
 	const CArmedInstance * armies[] = {destinationArmy, source};
 
-	auto bestArmy = nullkiller->armyManager->getBestArmy(destinationArmy, destinationArmy, source, cc->getTile(source->visitablePos())->getTerrainID());
+	auto bestArmyInfo = nullkiller->armyManager->getBestArmyInfo(
+		destinationArmy, destinationArmy, source, cc->getTile(source->visitablePos())->getTerrainID());
 
 	for(auto army : armies)
 	{
@@ -965,7 +1026,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
 	for(SlotID i = SlotID(0); i.validSlot(); i.advance(1)) //i-th strongest creature type will go to i-th slot
 	{
-		if(i.getNum() >= bestArmy.size())
+		if(i.getNum() >= bestArmyInfo.army.size())
 		{
 			if(destinationArmy->hasStackAtSlot(i))
 			{
@@ -987,7 +1048,7 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 			continue;
 		}
 
-		const CCreature * targetCreature = bestArmy[i.getNum()].creature;
+		const CCreature * targetCreature = bestArmyInfo.army[i.getNum()].creature;
 
 		for(auto armyPtr : armies)
 		{
@@ -1001,7 +1062,8 @@ void AIGateway::pickBestCreatures(const CArmedInstance * destinationArmy, const 
 						&& source->stacksCount() == 1
 						&& (!destinationArmy->hasStackAtSlot(i) || destinationArmy->getCreature(i) == targetCreature))
 					{
-						auto weakest = nullkiller->armyManager->getBestUnitForScout(bestArmy, cc->getTile(source->visitablePos())->getTerrainID());
+						auto weakest = nullkiller->armyManager->getBestUnitForScout(
+							bestArmyInfo.army, cc->getTile(source->visitablePos())->getTerrainID());
 
 						if(weakest->creature == targetCreature)
 						{

@@ -170,6 +170,23 @@ bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength, float safe
 	return isSafeToVisit(h, h, dangerStrength, safeAttackRatio);
 }
 
+SlotID getWeakestTransferableStack(const CCreatureSet * source, const CCreatureSet * destination)
+{
+	SlotID result;
+	uint64_t weakestCombatValue = std::numeric_limits<uint64_t>::max();
+	for(const auto & slot : source->Slots())
+	{
+		if(destination->getSlotFor(slot.second->getCreatureID()).validSlot()
+			&& slot.second->estimateCombatValue() < weakestCombatValue)
+		{
+			result = slot.first;
+			weakestCombatValue = slot.second->estimateCombatValue();
+		}
+	}
+
+	return result;
+}
+
 bool isObjectRemovable(const CGObjectInstance * obj)
 {
 	//FIXME: move logic to object property!
@@ -783,14 +800,8 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 	if(obj->wasVisited(hero))
 		return false;
 
-	auto rewardable = dynamic_cast<const Rewardable::Interface *>(obj);
-
-	if(rewardable && rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
-	{
-		return false;
-	}
-
-	return true;
+	const auto rewardableObjInfo = aiNk->cc->getRewardableObjectInfo(obj, hero);
+	return !rewardableObjInfo || !rewardableObjInfo->scouted || rewardableObjInfo->rewardAvailable != false;
 }
 
 bool townHasFreeTavern(const CGTownInstance * town)

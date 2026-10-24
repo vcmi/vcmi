@@ -77,6 +77,15 @@ public:
 // Probably we can use concept of hooks to handle event in their related goals
 class DLL_EXPORT AIGateway : public CAdventureAI
 {
+private:
+	struct CreatureBankRewardPreparation
+	{
+		ObjectInstanceID rewardHero;
+		ObjectInstanceID helperHero;
+	};
+
+	std::optional<CreatureBankRewardPreparation> creatureBankRewardPreparation;
+
 public:
 	ObjectInstanceID destinationTeleport;
 	int3 destinationTeleportPos;
@@ -179,6 +188,8 @@ public:
 	// TODO: all the routines like recruiting hero or building army should be removed from here and extracted to elementar goals or whatever
 	void recruitCreatures(const CGDwelling * d, const CArmedInstance * recruiter);
 	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
+	void beginCreatureBankRewardPreparation(ObjectInstanceID rewardHero, ObjectInstanceID helperHero);
+	void endCreatureBankRewardPreparation();
 
 	void moveCreaturesToHero(const CGTownInstance * t);
 	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr heroPtr);
