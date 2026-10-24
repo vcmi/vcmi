@@ -47,7 +47,7 @@ class CModListView : public QWidget
 	ModStateItemModel * modModel;
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
-	QThread * importThread = nullptr;
+	std::unique_ptr<QThread> importThread;
 	QTimer * importProgressTimer = nullptr;
 	std::shared_ptr<ModStateController::ArchiveImportProgress> importProgress;
 	std::shared_ptr<QVector<ArchiveImportOutcome>> importOutcomes;

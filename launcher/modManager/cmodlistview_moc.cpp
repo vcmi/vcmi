@@ -251,8 +251,7 @@ CModListView::~CModListView()
 		if(importProgress)
 			importProgress->canceled = true;
 		importThread->wait();
-		delete importThread;
-		importThread = nullptr;
+		importThread.reset();
 	}
 	if(importProgressTimer)
 		importProgressTimer->stop();
@@ -1563,7 +1562,7 @@ void CModListView::installMods(QStringList archives, bool removeArchives)
 
 	const auto outcomes = importOutcomes;
 	const auto progress = importProgress;
-	importThread = new ImportThread([sources, outcomes, progress, protectedMods, fullModExtraction]()
+	importThread = std::make_unique<ImportThread>([sources, outcomes, progress, protectedMods, fullModExtraction]()
 	{
 		for(int index = 0; index < sources->size(); ++index)
 		{
@@ -1577,7 +1576,7 @@ void CModListView::installMods(QStringList archives, bool removeArchives)
 		}
 	});
 
-	connect(importThread, &QThread::finished, this, &CModListView::finishModImport, Qt::QueuedConnection);
+	connect(importThread.get(), &QThread::finished, this, &CModListView::finishModImport, Qt::QueuedConnection);
 	importThread->start();
 }
 
@@ -1589,8 +1588,7 @@ void CModListView::finishModImport()
 	if(importThread)
 	{
 		importThread->wait();
-		delete importThread;
-		importThread = nullptr;
+		importThread.reset();
 	}
 
 	QVector<ArchiveImportOutcome> outcomes;
