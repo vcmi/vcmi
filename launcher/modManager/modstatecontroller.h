@@ -9,7 +9,13 @@
  */
 #pragma once
 
+#include <QObject>
+#include <QStringList>
 #include <QVector>
+
+#include <atomic>
+#include <memory>
+#include <mutex>
 
 class JsonNode;
 
@@ -19,6 +25,42 @@ class ModStateController : public QObject, public boost::noncopyable
 {
 	Q_OBJECT
 
+public:
+	struct ArchiveImportResult
+	{
+		QStringList installedMods;
+		QStringList errors;
+		bool canceled = false;
+		bool mapArchive = false;
+		bool saveArchive = false;
+	};
+
+	struct ArchiveImportProgress
+	{
+		std::atomic<quint64> completedBytes{0};
+		std::atomic<quint64> totalBytes{0};
+		std::atomic<int> completedMods{0};
+		std::atomic<int> totalMods{0};
+		std::atomic<bool> canceled{false};
+
+		void setCurrentMod(const QString & name)
+		{
+			std::lock_guard<std::mutex> lock(currentModMutex);
+			currentModName = name;
+		}
+
+		QString getCurrentMod() const
+		{
+			std::lock_guard<std::mutex> lock(currentModMutex);
+			return currentModName;
+		}
+
+	private:
+		mutable std::mutex currentModMutex;
+		QString currentModName;
+	};
+
+private:
 	std::shared_ptr<ModStateModel> modList;
 
 	// check-free version of public method
@@ -33,7 +75,7 @@ class ModStateController : public QObject, public boost::noncopyable
 
 	QStringList recentErrors;
 	bool addError(QString modname, QString message);
-	bool removeModDir(QString mod);
+	static bool removeModDir(QString mod);
 
 public:
 	ModStateController(std::shared_ptr<ModStateModel> modList);
@@ -43,21 +85,23 @@ public:
 
 	QStringList getErrors();
 
+	/// Installs every mod found in the archive. File system only, safe to run outside the GUI thread.
+	static ArchiveImportResult installArchive(const QString & archivePath, const QString & modIdHint,
+		bool fullModExtraction, const QStringList & protectedMods, ArchiveImportProgress & progress);
+	/// Derives the mod ID from the archive filename, including GitHub zip suffixes.
+	static QString modIdFromArchivePath(const QString & archivePath);
+
 	/// mod management functions. Return true if operation was successful
 
-	/// installs mod from zip archive located at archivePath, replacing installed version of the mod, if any. On failure, installed version remains unchanged
-	bool installMod(QString mod, QString archivePath);
 	bool uninstallMod(QString mod);
 	bool enableMods(QStringList mod);
+	/// Enables every mod from the list that can be enabled, skipping the rest
+	void enableAvailableMods(QStringList mod);
 	bool disableMod(QString mod);
 
 	bool canUninstallMod(QString mod);
 	/// mods located outside of user Mods directory, e.g. in system-wide data directory, or under version control can not be uninstalled or updated
 	bool isModManageable(QString mod);
-	bool canEnableMod(QString mod);
+	bool canEnableMod(QString mod, bool reportError = true);
 	bool canDisableMod(QString mod);
-	
-signals:
-	void extractionProgress(qint64 currentAmount, qint64 maxAmount);
-	void contentExtractionProgress(QString modName, qint64 currentAmount, qint64 maxAmount);
 };
