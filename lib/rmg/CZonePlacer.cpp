@@ -1112,7 +1112,7 @@ void CZonePlacer::RemoveRoadsForWideConnections()
 	{
 		for(auto & connection : zonePtr.second->getConnections())
 		{
-			if(connection.getConnectionType() == rmg::EConnectionType::WIDE)
+			if(connection.getConnectionType() == rmg::EConnectionType::WIDE && connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
 			{
 				zonePtr.second->setRoadOption(connection.getId(), rmg::ERoadOption::ROAD_FALSE);
 			}

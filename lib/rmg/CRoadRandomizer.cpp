@@ -73,7 +73,11 @@ void CRoadRandomizer::dropRandomRoads(vstd::RNG * rand)
 	std::set<TRmgTemplateZoneId> zonesWithTowns;
 	for(const auto & zone : zones)
 	{
-		if(zone.second->getPlayerTowns().getTownCount() || 
+		// start zones always receive a main town, even without explicit playerTowns
+		bool isStartZone = zone.second->getOwner() && (zone.second->getType() == ETemplateZoneType::PLAYER_START || zone.second->getType() == ETemplateZoneType::CPU_START);
+
+		if(isStartZone ||
+		   zone.second->getPlayerTowns().getTownCount() || 
 		   zone.second->getPlayerTowns().getCastleCount() ||
 		   zone.second->getNeutralTowns().getTownCount() ||
 		   zone.second->getNeutralTowns().getCastleCount())
@@ -113,12 +117,14 @@ void CRoadRandomizer::dropRandomRoads(vstd::RNG * rand)
 	}
 
 	// Process all connections that are already set to TRUE
+	std::set<int> explicitRoads;
 	for(auto & zonePtr : zones)
 	{
 		for(auto & connection : zonePtr.second->getConnections())
 		{
 			if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
 			{
+				explicitRoads.insert(connection.getId());
 				auto zoneA = connection.getZoneA();
 				auto zoneB = connection.getZoneB();
 				auto rootA = findSet(parent, zoneA);
@@ -222,8 +228,8 @@ void CRoadRandomizer::dropRandomRoads(vstd::RNG * rand)
 				}
 			}
 			
-			// If exactly one road enters this zone, remove it
-			if(roadCount == 1)
+			// If exactly one road enters this zone, remove it - unless template requested it
+			if(roadCount == 1 && !explicitRoads.count(looseEndConnectionId))
 			{
 				logGlobal->info("Trimming loose end: removing road connection %d from zone %d (no town)", looseEndConnectionId, zoneId);
 				setRoadOptionForConnection(looseEndConnectionId, rmg::ERoadOption::ROAD_FALSE);

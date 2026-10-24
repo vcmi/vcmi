@@ -196,6 +196,12 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 							otherZone->connectPath(theirPath);
 							otherZone->getModificator<ObjectManager>()->updateDistances(potentialPos);
 
+							if (createRoad)
+							{
+								zone.getModificator<RoadPlacer>()->addRoadNode(potentialPos);
+								otherZone->getModificator<RoadPlacer>()->addRoadNode(borderPos);
+							}
+
 							success = true;
 							break;
 						}
