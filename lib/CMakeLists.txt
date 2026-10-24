@@ -356,6 +356,10 @@ if (NOT ENABLE_MINIMAL_LIB)
 	list(APPEND lib_SRCS ${lib_MAIN_SRCS})
 endif()
 
+if(WIN32)
+	list(APPEND lib_SRCS platform/windows/Registry.cpp)
+endif()
+
 # Version.cpp is a generated file
 list(APPEND lib_SRCS ${CMAKE_BINARY_DIR}/Version.cpp)
 set_source_files_properties(${CMAKE_BINARY_DIR}/Version.cpp
@@ -909,6 +913,10 @@ target_include_directories(vcmiMain
 if(MINGW)
 	# Link Windows system libs: WinSock2 (ws2_32) + socket extensions (mswsock) + Debug Help API (dbghelp)
 	target_link_libraries(vcmiMain PRIVATE ws2_32 mswsock dbghelp)
+endif()
+
+if(WIN32)
+	target_link_libraries(vcmiMain INTERFACE advapi32)
 endif()
 
 # Use '-Wa,-mbig-obj' for files that generate very large object files
