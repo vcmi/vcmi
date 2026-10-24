@@ -71,12 +71,13 @@ enum class ESerializationVersion : int32_t
 	RANK_LIMITER_INCLUSIVE_MIN, // RankRangeLimiter accepts stacks of its minimal rank
 	SPARSE_RESOURCE_SET, // ResourceSet stores only resources present in the set
 	QUEST_HINT_COMPONENTS, // HotA scripted quests store components shown with their hint
+	ADVANCED_CLASSES, // persist server-authoritative advanced class progression
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = QUEST_HINT_COMPONENTS,
+	CURRENT = ADVANCED_CLASSES,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

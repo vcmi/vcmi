@@ -12,14 +12,17 @@
 #include "BattleTestFixture.h"
 
 #include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/IGameSettings.h"
 #include "../../../lib/battle/CPlayerBattleCallback.h"
 #include "../../../lib/battle/Destination.h"
 #include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
+#include "../../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../../lib/spells/CSpell.h"
 #include "../../../lib/spells/ISpellMechanics.h"
 #include "../../../lib/spells/Problem.h"
+#include "../../../server/CGameHandler.h"
 
 namespace
 {
@@ -287,6 +290,54 @@ TEST_F(SpellcastActionTest, heroCastsOnlyOncePerRound)
 	EXPECT_FALSE(castAsHero(attackerSideHero, SpellID::BLESS, ally));
 	EXPECT_EQ(attackerSideHero->mana, manaAfterFirstCast);
 	EXPECT_EQ(battle()->getSide(BattleSide::ATTACKER).castSpellsCount, 1u);
+}
+
+TEST_F(SpellcastActionTest, advancedClassAbilityUsesConfiguredSpellAndCooldown)
+{
+	startGame();
+	attackerSideHero->advancedClass.classes[0] = "vcmi-test:integrationAdvancedClass";
+	attackerSideHero->advancedClass.classes[1] = "vcmi-test:integrationAdvancedClassTier2";
+	startBattle();
+
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, 100);
+	battle()->activeStack = ally->unitId();
+	const auto manaBefore = attackerSideHero->mana;
+	const auto target = battle::Target{battle::Destination(enemy)};
+
+	EXPECT_FALSE(act(BattleAction::makeHeroAbility(BattleSide::ATTACKER, target, SpellID::BLESS, 0)));
+	ASSERT_TRUE(act(BattleAction::makeHeroAbility(BattleSide::ATTACKER, target, SpellID::MAGIC_ARROW, 0)));
+	EXPECT_EQ(attackerSideHero->mana, manaBefore);
+	EXPECT_EQ(battle()->getSide(BattleSide::ATTACKER).castSpellsCount, 0u);
+	EXPECT_EQ(battle()->getSide(BattleSide::ATTACKER).classAbilityLastUse.at(0), battle()->getRound());
+	EXPECT_FALSE(act(BattleAction::makeHeroAbility(BattleSide::ATTACKER, target, SpellID::MAGIC_ARROW, 0)));
+
+	BattleNextRound nextRound;
+	nextRound.battleID = battle()->getBattle()->getBattleID();
+	gameHandler->sendAndApply(nextRound);
+	EXPECT_FALSE(act(BattleAction::makeHeroAbility(BattleSide::ATTACKER, target, SpellID::MAGIC_ARROW, 0)));
+
+	gameHandler->sendAndApply(nextRound);
+	EXPECT_TRUE(act(BattleAction::makeHeroAbility(BattleSide::ATTACKER, target, SpellID::MAGIC_ARROW, 0)));
+}
+
+TEST_F(SpellcastActionTest, advancedClassAbilityIsRejectedWhenModuleIsDisabled)
+{
+	startGame();
+	attackerSideHero->advancedClass.classes[0] = "vcmi-test:integrationAdvancedClass";
+	attackerSideHero->advancedClass.classes[1] = "vcmi-test:integrationAdvancedClassTier2";
+	JsonNode disabled;
+	disabled.Bool() = false;
+	map()->overrideGameSetting(EGameSettings::MODULE_ADVANCED_CLASSES, disabled);
+	startBattle();
+
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, 100);
+	battle()->activeStack = ally->unitId();
+	const auto target = battle::Target{battle::Destination(enemy)};
+
+	EXPECT_FALSE(act(BattleAction::makeHeroAbility(BattleSide::ATTACKER, target, SpellID::MAGIC_ARROW, 0)));
+	EXPECT_EQ(battle()->getSide(BattleSide::ATTACKER).classAbilityLastUse.at(0), -1000);
 }
 
 TEST_F(SpellcastActionTest, heroCastsSpellAtHexOfUnit)

@@ -1,0 +1,115 @@
+{
+	"integrationAdvancedClass" :
+	{
+		"name" : "Integration Test Class",
+		"tier" : 1,
+		"requiredLevel" : 0,
+		"requiredPoints" : 0,
+		"parents" : [],
+		"skillGroups" :
+		[
+			{
+				"offence" : [ 0, 0, 0 ]
+			}
+		],
+		"bonuses" :
+		{
+			"morale" :
+			{
+				"type" : "MORALE",
+				"val" : 1
+			}
+		}
+	},
+	"integrationAdvancedClassTier2" :
+	{
+		"name" : "Integration Test Class Tier 2",
+		"tier" : 2,
+		"requiredLevel" : 0,
+		"requiredPoints" : 0,
+		"parents" : [ "integrationAdvancedClass" ],
+		"ability" :
+		{
+			"spell" : "magicArrow",
+			"slot" : 0,
+			"cooldown" : 2
+		}
+	},
+	"integrationAdvancedClassTier3" :
+	{
+		"name" : "Integration Test Class Tier 3",
+		"tier" : 3,
+		"requiredLevel" : 0,
+		"requiredPoints" : 0,
+		"parents" : [ "integrationAdvancedClassTier2" ],
+		"ability" :
+		{
+			"spell" : "haste",
+			"cooldown" : 2
+		}
+	},
+	"integrationAdvancedClassTier4" :
+	{
+		"name" : "Integration Test Class Tier 4",
+		"tier" : 4,
+		"requiredLevel" : 0,
+		"requiredPoints" : 0,
+		"parents" : [ "integrationAdvancedClassTier3" ],
+		"ability" :
+		{
+			"spell" : "slow",
+			"slot" : 1,
+			"cooldown" : 2
+		}
+	},
+	"integrationOtherRoot" :
+	{
+		"name" : "Integration Test Other Root",
+		"tier" : 1,
+		"requiredLevel" : 0,
+		"requiredPoints" : 0,
+		"parents" : [],
+		"skillGroups" :
+		[
+			{
+				"offence" : [ 0, 0, 0 ]
+			}
+		]
+	},
+	"integrationOtherRootTier2" :
+	{
+		"name" : "Integration Test Other Root Tier 2",
+		"tier" : 2,
+		"requiredLevel" : 0,
+		"requiredPoints" : 999,
+		"parents" : [ "integrationOtherRoot" ]
+	},
+	"integrationLevelLocked" :
+	{
+		"name" : "Integration Test Level Locked",
+		"tier" : 1,
+		"requiredLevel" : 999,
+		"requiredPoints" : 0,
+		"parents" : [],
+		"skillGroups" :
+		[
+			{
+				"offence" : [ 0, 0, 0 ]
+			}
+		]
+	},
+	"integrationPointsLocked" :
+	{
+		"name" : "Integration Test Points Locked",
+		"tier" : 1,
+		"requiredLevel" : 0,
+		"requiredPoints" : 999,
+		"parents" : [],
+		"skillGroups" :
+		[
+			{
+				"offence" : [ 0, 0, 0 ]
+			}
+		]
+	}
+}

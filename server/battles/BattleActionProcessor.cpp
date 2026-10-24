@@ -278,6 +278,14 @@ public:
 		processor.gameHandler->useChargeBasedSpell(hero->id, spell->getId());
 	}
 
+	void castHeroAbility(BattleSide side, const CSpell * spell, const battle::Target & target, size_t slot) override
+	{
+		const CGHeroInstance * hero = battle.battleGetFightingHero(side);
+		const auto mode = slot == 0 ? spells::Mode::HERO_ABILITY_1 : spells::Mode::HERO_ABILITY_2;
+		spells::BattleCast parameters(&battle, hero, mode, spell);
+		parameters.cast(processor.gameHandler->spellcastEnvironment(), target);
+	}
+
 	vstd::RNG & getRandom() override
 	{
 		return processor.gameHandler->getRandomGenerator();

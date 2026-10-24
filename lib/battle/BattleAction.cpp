@@ -172,6 +172,13 @@ BattleAction BattleAction::makeHeroSpellcast(BattleSide side, const battle::Targ
 	return ba;
 }
 
+BattleAction BattleAction::makeHeroAbility(BattleSide side, const battle::Target & target, const SpellID & spellID, size_t slot)
+{
+	BattleAction result = makeHeroSpellcast(side, target, spellID);
+	result.actionType = slot == 0 ? EActionType::HERO_ABILITY_1 : EActionType::HERO_ABILITY_2;
+	return result;
+}
+
 BattleAction BattleAction::makeRandomSpellcast(const battle::Unit * stack, const BattleHex & destination)
 {
 	BattleAction ba;

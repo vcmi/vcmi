@@ -176,6 +176,17 @@ void CCallback::assembleArtifacts(const ObjectInstanceID & heroID, ArtifactPosit
 	sendRequest(aa);
 }
 
+bool CCallback::selectAdvancedClass(const CGHeroInstance * hero, const std::string & classId)
+{
+	if(!hero || hero->tempOwner != getPlayerID())
+		return false;
+	SelectAdvancedClass pack;
+	pack.hero = hero->id;
+	pack.classId = classId;
+	sendRequest(pack);
+	return true;
+}
+
 void CCallback::bulkMoveArtifacts(ObjectInstanceID srcHero, ObjectInstanceID dstHero, bool swap, bool equipped, bool backpack)
 {
 	BulkExchangeArtifacts bma(srcHero, dstHero, swap, equipped, backpack);

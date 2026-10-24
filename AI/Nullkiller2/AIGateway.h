@@ -171,6 +171,7 @@ public:
 	bool canRetreatFromBattle(const BattleID & battleID, const CGHeroInstance * hero) const;
 
 	void makeTurn();
+	void selectAdvancedClasses();
 	void saveOneWayPortalState();
 
 	void buildArmyIn(const CGTownInstance * t);

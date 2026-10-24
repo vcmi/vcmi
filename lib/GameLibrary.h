@@ -44,6 +44,7 @@ class SpellSchoolHandler;
 class MapFormatSettings;
 class CampaignRegionsHandler;
 class MapLayerTypeHandler;
+class AdvancedClassHandler;
 
 /// Loads and constructs several handlers
 class DLL_LINKAGE GameLibrary final : public Services
@@ -106,6 +107,7 @@ public:
 	std::unique_ptr<MapFormatSettings> mapFormat;
 	std::unique_ptr<CampaignRegionsHandler> campaignRegions;
 	std::unique_ptr<MapLayerTypeHandler> mapLayerHandler;
+	std::unique_ptr<AdvancedClassHandler> advancedClassHandler;
 	std::unique_ptr<scripting::Service> scriptHandler;
 
 	GameLibrary();

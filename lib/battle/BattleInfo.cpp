@@ -625,6 +625,11 @@ int32_t BattleInfo::getEnchanterCounter(BattleSide side) const
 	return getSide(side).enchanterCounter;
 }
 
+int32_t BattleInfo::getClassAbilityLastUse(BattleSide side, size_t slot) const
+{
+	return getSide(side).classAbilityLastUse.at(slot);
+}
+
 const IBonusBearer * BattleInfo::getBonusBearer() const
 {
 	return this;

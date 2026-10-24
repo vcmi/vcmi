@@ -119,6 +119,11 @@ int32_t BattleProxy::getEnchanterCounter(BattleSide side) const
 	return subject->battleGetEnchanterCounter(side);
 }
 
+int32_t BattleProxy::getClassAbilityLastUse(BattleSide side, size_t slot) const
+{
+	return subject->battleGetClassAbilityLastUse(side, slot);
+}
+
 const IBonusBearer * BattleProxy::getBonusBearer() const
 {
 	return subject->getBonusBearer();

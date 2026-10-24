@@ -54,6 +54,23 @@ protected:
 	BattleAction makeAction(const ActionOption & option, const ActionContext & context, const battle::Target & target) const override;
 };
 
+class HeroClassAbilityAction : public SpellCastAction
+{
+	size_t slot;
+
+public:
+	explicit HeroClassAbilityAction(size_t slot);
+	ActionOption makeOption(SpellID spell) const;
+	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
+	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
+
+protected:
+	spells::Mode getMode() const override;
+	const spells::Caster * getCaster(const CBattleInfoCallback & battle, BattleSide side, const battle::Unit * actor) const override;
+	bool validateCaster(const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
+	BattleAction makeAction(const ActionOption & option, const ActionContext & context, const battle::Target & target) const override;
+};
+
 /// MONSTER_SPELL: a SPELLCASTER unit casts one of its spells
 class UnitSpellAction : public SpellCastAction
 {

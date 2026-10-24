@@ -15,7 +15,11 @@
 #include "../BattleAction.h"
 #include "../CBattleInfoCallback.h"
 #include "../CUnitState.h"
+#include "../../GameLibrary.h"
+#include "../../IGameSettings.h"
 #include "../../bonuses/BonusSelector.h"
+#include "../../callback/IGameInfoCallback.h"
+#include "../../mapObjects/AdvancedClass.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../spells/CSpell.h"
 #include "../../spells/ISpellMechanics.h"
@@ -214,6 +218,70 @@ BattleAction HeroSpellAction::makeAction(const ActionOption & option, const Acti
 void HeroSpellAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
 	env.castHeroSpell(action.side, action.spell.toSpell(), action.getTarget(&battle));
+}
+
+HeroClassAbilityAction::HeroClassAbilityAction(size_t slot_)
+	: slot(slot_)
+{
+}
+
+ActionOption HeroClassAbilityAction::makeOption(SpellID spell) const
+{
+	return {this, UnitActionButton{7 + static_cast<int>(slot), spell, {}, {}}, spell};
+}
+
+bool HeroClassAbilityAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
+{
+	if(!game.getSettings().getBoolean(EGameSettings::MODULE_ADVANCED_CLASSES))
+	{
+		problem.add(MetaString::createFromTextID("advancedClasses.battle.invalidAbility"));
+		return false;
+	}
+	return SpellCastAction::validate(game, battle, action, problem);
+}
+
+spells::Mode HeroClassAbilityAction::getMode() const
+{
+	return slot == 0 ? spells::Mode::HERO_ABILITY_1 : spells::Mode::HERO_ABILITY_2;
+}
+
+const spells::Caster * HeroClassAbilityAction::getCaster(const CBattleInfoCallback & battle, BattleSide side, const battle::Unit * actor) const
+{
+	return battle.battleGetFightingHero(side);
+}
+
+bool HeroClassAbilityAction::validateCaster(const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
+{
+	const auto * hero = battle.battleGetFightingHero(action.side);
+	if(!hero)
+	{
+		problem.add(MetaString::createFromTextID("advancedClasses.battle.noHero"));
+		return false;
+	}
+
+	const auto * definition = LIBRARY->advancedClassHandler->getAbility(*hero, slot);
+	if(!definition || definition->ability != action.spell)
+	{
+		problem.add(MetaString::createFromTextID("advancedClasses.battle.invalidAbility"));
+		return false;
+	}
+
+	if(!definition->isAbilityReady(battle.battleGetRound(), battle.battleGetClassAbilityLastUse(action.side, slot)))
+	{
+		problem.add(MetaString::createFromTextID("advancedClasses.battle.cooldown"));
+		return false;
+	}
+	return true;
+}
+
+BattleAction HeroClassAbilityAction::makeAction(const ActionOption & option, const ActionContext & context, const battle::Target & target) const
+{
+	return BattleAction::makeHeroAbility(context.side, target, option.spell, slot);
+}
+
+void HeroClassAbilityAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
+{
+	env.castHeroAbility(action.side, action.spell.toSpell(), action.getTarget(&battle), slot);
 }
 
 bool UnitSpellAction::isUnitAction() const

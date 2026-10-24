@@ -71,6 +71,7 @@
 #include "../lib/mapObjects/Quest.h"
 #include "../lib/mapObjects/TownBuildingInstance.h"
 #include "../lib/mapObjects/CGHeroInstance.h"
+#include "../lib/mapObjects/AdvancedClass.h"
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
@@ -2342,6 +2343,44 @@ bool CGameHandler::disbandCreature(ObjectInstanceID id, SlotID pos)
 void CGameHandler::buildStructureForced(ObjectInstanceID townID, BuildingID building)
 {
 	buildStructure(townID, building, true);
+}
+
+bool CGameHandler::selectAdvancedClass(ObjectInstanceID heroId, const std::string & classId)
+{
+	if(!gameInfo().getSettings().getBoolean(EGameSettings::MODULE_ADVANCED_CLASSES))
+		COMPLAIN_RET("Cannot select advanced class: module is disabled");
+
+	const auto * hero = gameInfo().getHero(heroId);
+	if(!hero)
+		COMPLAIN_RET("Cannot select advanced class: hero does not exist");
+
+	const auto problem = LIBRARY->advancedClassHandler->selectionProblem(*hero, classId);
+	if(problem != AdvancedClassSelectionProblem::NONE)
+		COMPLAIN_RET("Cannot select advanced class: " + std::string(advancedClassSelectionProblemName(problem)));
+
+	const auto * definition = LIBRARY->advancedClassHandler->find(classId);
+	assert(definition);
+
+	SetAdvancedClass pack;
+	pack.hero = heroId;
+	pack.progress = hero->advancedClass;
+	pack.progress.classes.at(definition->tier - 1) = classId;
+	sendAndApply(pack);
+
+	int bonusIndex = 0;
+	for(const auto & bonusDefinition : definition->bonuses)
+	{
+		GiveBonus bonus(GiveBonus::ETarget::OBJECT);
+		bonus.id = heroId;
+		bonus.bonus = *bonusDefinition;
+		bonus.bonus.source = BonusSource::HERO_SPECIAL;
+		bonus.bonus.sid = BonusSourceID(heroId);
+		if(bonus.bonus.stacking.empty())
+			bonus.bonus.stacking = "advancedClass." + classId + "." + std::to_string(bonusIndex);
+		++bonusIndex;
+		sendAndApply(bonus);
+	}
+	return true;
 }
 
 bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, bool force)

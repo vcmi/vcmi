@@ -113,6 +113,12 @@ These are fields that are present only in local mod.json file
 		"config/heroClasses.json"
 	],
 
+	// List of advanced hero class configuration files
+	"advancedClasses" :
+	[
+		"config/advancedClasses.json"
+	],
+
 	// List of heroes configuration files
 	"heroes" :
 	[

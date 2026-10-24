@@ -42,6 +42,7 @@ public:
 	virtual void visitSetResources(SetResources & pack) {}
 	virtual void visitSetPrimarySkill(SetPrimarySkill & pack) {}
 	virtual void visitSetHeroExperience(SetHeroExperience & pack) {}
+	virtual void visitSetAdvancedClass(SetAdvancedClass & pack) {}
 	virtual void visitGiveStackExperience(GiveStackExperience & pack) {}
 	virtual void visitSetSecSkill(SetSecSkill & pack) {}
 	virtual void visitHeroVisitCastle(HeroVisitCastle & pack) {}
@@ -197,6 +198,7 @@ public:
 	virtual void visitLobbyPvPAction(LobbyPvPAction & pack) {}
 	virtual void visitLobbyDelete(LobbyDelete & pack) {}
 	virtual void visitSaveLocalState(SaveLocalState & pack) {}
+	virtual void visitSelectAdvancedClass(SelectAdvancedClass & pack) {}
 	virtual void visitBattleCancelled(BattleCancelled & pack) {}
 	virtual void visitBattleResultAccepted(BattleResultAccepted & pack) {}
 	virtual void visitBattleStackMoved(BattleLogMessage & pack) {}

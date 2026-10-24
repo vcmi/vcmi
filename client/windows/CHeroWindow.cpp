@@ -9,12 +9,14 @@
  */
 #include "StdInc.h"
 #include "CHeroWindow.h"
+#include "CAdvancedClassWindow.h"
 #include "wiki/WikiWindow.h"
 
 #include "CCreatureWindow.h"
 #include "CHeroBackpackWindow.h"
 #include "CKingdomInterface.h"
 #include "CExchangeWindow.h"
+#include "GUIClasses.h"
 
 #include "../CPlayerInterface.h"
 
@@ -35,9 +37,11 @@
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/CSkillHandler.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
+#include "../../lib/mapObjects/AdvancedClass.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/networkPacks/ArtifactLocation.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -100,6 +104,14 @@ CHeroWindow::CHeroWindow(const CGHeroInstance * hero)
 		questlogButton = std::make_shared<CButton>(Point(314, 429), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), [](){ GAME->interface()->showQuestLog(); }, EShortcut::ADVENTURE_QUEST_LOG);
 	}
 	questlogButton->block(!GAME->interface()->hasJournalEntries());
+
+	if(hero->tempOwner == GAME->interface()->playerID
+		&& GAME->interface()->cb->getSettings().getBoolean(EGameSettings::MODULE_ADVANCED_CLASSES)
+		&& !LIBRARY->advancedClassHandler->getAll().empty())
+	{
+		advancedClassButton = std::make_shared<CButton>(Point(367, 18), AnimationPath::builtin("heroCommander"), CButton::tooltipLocalized("advancedClasses.heroWindow.open"), [this](){ createAdvancedClassWindow(); });
+		advancedClassButton->setOverlay(std::make_shared<CPicture>(ImagePath::builtin("heroWindow/classButtonIcon")));
+	}
 
 	formations = std::make_shared<CToggleGroup>(0);
 	formations->addToggle(0, std::make_shared<CToggleButton>(Point(481, 483), AnimationPath::builtin("hsbtns6.def"), std::make_pair(LIBRARY->generaltexth->translate("core.heroscrn.23"), LIBRARY->generaltexth->translate("core.heroscrn.29")), 0, EShortcut::HERO_TIGHT_FORMATION));
@@ -366,6 +378,11 @@ void CHeroWindow::dismissCurrent()
 void CHeroWindow::createBackpackWindow()
 {
 	ENGINE->windows().createAndPushWindow<CHeroBackpackWindow>(curHero, artSets);
+}
+
+void CHeroWindow::createAdvancedClassWindow()
+{
+	ENGINE->windows().createAndPushWindow<CAdvancedClassWindow>(curHero);
 }
 
 void CHeroWindow::commanderWindow()

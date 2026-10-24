@@ -19,6 +19,7 @@
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/callback/CBattleCallback.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
+#include "../../lib/mapObjects/AdvancedClass.h"
 #include "../../lib/entities/building/TownFortifications.h"
 #include "../../lib/spells/BattleSpellMechanics.h"
 #include "../../lib/spells/ISpellMechanics.h"
@@ -607,11 +608,25 @@ BattleAction BattleEvaluator::goTowardsNearest(
 
 bool BattleEvaluator::canCastSpell()
 {
-	auto hero = cb->getBattle(battleID)->battleGetMyHero();
+	const auto battle = cb->getBattle(battleID);
+	auto hero = battle->battleGetMyHero();
 	if(!hero)
 		return false;
 
-	return cb->getBattle(battleID)->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK;
+	if(battle->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK)
+		return true;
+
+	for(size_t slot = 0; slot < GameConstants::ADVANCED_CLASS_ABILITY_SLOTS; ++slot)
+	{
+		const auto * definition = LIBRARY->advancedClassHandler->getAbility(*hero, slot);
+		const auto mode = slot == 0 ? spells::Mode::HERO_ABILITY_1 : spells::Mode::HERO_ABILITY_2;
+		const bool cooldownReady = definition
+			&& definition->isAbilityReady(battle->battleGetRound(), battle->battleGetClassAbilityLastUse(side, slot));
+		if(definition && cooldownReady
+			&& definition->ability.toSpell()->canBeCast(battle.get(), mode, hero))
+			return true;
+	}
+	return false;
 }
 
 bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
@@ -621,33 +636,53 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 		return false;
 
 	LOGL("Casting spells sounds like fun. Let's see...");
-	//Get all spells we can cast
-	std::vector<const CSpell*> possibleSpells;
+	struct SpellCandidate
+	{
+		const CSpell * spell;
+		spells::Mode mode;
+		std::optional<size_t> classAbilitySlot;
+	};
+	std::vector<SpellCandidate> possibleSpells;
 
 	for (auto const & s : LIBRARY->spellh->objects)
 		if (s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero))
-			possibleSpells.push_back(s.get());
+			possibleSpells.push_back({s.get(), spells::Mode::HERO, std::nullopt});
+
+	for(size_t slot = 0; slot < GameConstants::ADVANCED_CLASS_ABILITY_SLOTS; ++slot)
+	{
+		const auto * definition = LIBRARY->advancedClassHandler->getAbility(*hero, slot);
+		const auto mode = slot == 0 ? spells::Mode::HERO_ABILITY_1 : spells::Mode::HERO_ABILITY_2;
+		const auto battle = cb->getBattle(battleID);
+		const bool cooldownReady = definition
+			&& definition->isAbilityReady(battle->battleGetRound(), battle->battleGetClassAbilityLastUse(side, slot));
+		if(definition && cooldownReady
+			&& definition->ability.toSpell()->canBeCast(battle.get(), mode, hero))
+		{
+			possibleSpells.push_back({definition->ability.toSpell(), mode, slot});
+		}
+	}
 
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 
-	vstd::erase_if(possibleSpells, [](const CSpell *s)
+	vstd::erase_if(possibleSpells, [](const SpellCandidate & candidate)
 	{
-		return spellType(s) != SpellTypes::BATTLE;
+		return spellType(candidate.spell) != SpellTypes::BATTLE;
 	});
 
 	LOGFL("I know how %d of them works.", possibleSpells.size());
 
 	//Get viable spell-target pairs
 	std::vector<PossibleSpellcast> possibleCasts;
-	for(auto spell : possibleSpells)
+	for(const auto & candidate : possibleSpells)
 	{
-		spells::BattleCast temp(cb->getBattle(battleID).get(), hero, spells::Mode::HERO, spell);
+		spells::BattleCast temp(cb->getBattle(battleID).get(), hero, candidate.mode, candidate.spell);
 
-		for(const auto & target : SpellTargetEvaluator::getViableTargets(spell->battleMechanics(&temp).get()))
+		for(const auto & target : SpellTargetEvaluator::getViableTargets(candidate.spell->battleMechanics(&temp).get()))
 		{
 			PossibleSpellcast ps;
 			ps.dest = target;
-			ps.spell = spell;
+			ps.spell = candidate.spell;
+			ps.classAbilitySlot = candidate.classAbilitySlot;
 			possibleCasts.push_back(ps);
 		}
 	}
@@ -822,7 +857,9 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 
 				auto state = std::make_shared<HypotheticBattle>(env.get(), cb->getBattle(battleID));
 
-				spells::BattleCast cast(state.get(), hero, spells::Mode::HERO, ps.spell);
+				const auto mode = ps.classAbilitySlot == 0 ? spells::Mode::HERO_ABILITY_1
+					: ps.classAbilitySlot == 1 ? spells::Mode::HERO_ABILITY_2 : spells::Mode::HERO;
+				spells::BattleCast cast(state.get(), hero, mode, ps.spell);
 				cast.castEval(state->getServerCallback(), ps.dest);
 
 				auto allUnits = state->battleGetUnitsIf([](const battle::Unit * u) -> bool { return u->isValidTarget(true); });
@@ -984,8 +1021,9 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				return true;
 			if(right.value < left.value)
 				return false;
-			return cb->getBattle(battleID)->battleGetSpellCost(left.spell, hero)
-				> cb->getBattle(battleID)->battleGetSpellCost(right.spell, hero);
+			const int leftCost = left.classAbilitySlot ? 0 : cb->getBattle(battleID)->battleGetSpellCost(left.spell, hero);
+			const int rightCost = right.classAbilitySlot ? 0 : cb->getBattle(battleID)->battleGetSpellCost(right.spell, hero);
+			return leftCost > rightCost;
 		});
 
 	const float baselineScore = vstd::isAlmostEqual(cachedAttack.score, EvaluationResult::INEFFECTIVE_SCORE)
@@ -994,7 +1032,10 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	{
 		// debug rather than trace, so that a cast the server refuses can be matched to the spell in reported logs
 		logAi->debug("%s will cast %s (value %f)", hero->getNameTextID(), castToPerform.spell->getJsonKey(), castToPerform.value);
-		cb->battleMakeSpellAction(battleID, BattleAction::makeHeroSpellcast(side, castToPerform.dest, castToPerform.spell->id));
+		const auto action = castToPerform.classAbilitySlot
+			? BattleAction::makeHeroAbility(side, castToPerform.dest, castToPerform.spell->id, *castToPerform.classAbilitySlot)
+			: BattleAction::makeHeroSpellcast(side, castToPerform.dest, castToPerform.spell->id);
+		cb->battleMakeSpellAction(battleID, action);
 		activeActionMade = true;
 
 		return true;

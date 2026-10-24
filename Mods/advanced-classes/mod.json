@@ -1,0 +1,22 @@
+{
+	"name": "Advanced Classes",
+	"description": "Four-tier pure and hybrid hero class progression with passive bonuses and battle abilities.",
+	"modType": "Expansion",
+	"author": "Piotr Pisarczyk",
+	"version": "0.1.0",
+	"settings": {
+		"modules": {
+			"advancedClasses": true
+		}
+	},
+	"translations": [ "config/translations/english.json" ],
+	"advancedClasses": [ "config/advancedClasses.json" ],
+	"czech": {
+		"skipValidation": true,
+		"translations": [ "config/translations/czech.json" ]
+	},
+	"polish": {
+		"skipValidation": true,
+		"translations": [ "config/translations/polish.json" ]
+	}
+}

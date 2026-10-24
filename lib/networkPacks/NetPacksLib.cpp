@@ -137,6 +137,11 @@ void SetHeroExperience::visitTyped(ICPackVisitor & visitor)
 	visitor.visitSetHeroExperience(*this);
 }
 
+void SetAdvancedClass::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSetAdvancedClass(*this);
+}
+
 void GiveStackExperience::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitGiveStackExperience(*this);
@@ -559,6 +564,11 @@ void ShowWorldViewEx::visitTyped(ICPackVisitor & visitor)
 void EndTurn::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitEndTurn(*this);
+}
+
+void SelectAdvancedClass::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitSelectAdvancedClass(*this);
 }
 
 void GamePause::visitTyped(ICPackVisitor & visitor)

@@ -42,6 +42,7 @@ public:
 	TerrainId battleTerrainType() const override;
 	BattleField battleGetBattlefieldType() const override;
 	int32_t battleGetEnchanterCounter(BattleSide side) const;
+	int32_t battleGetClassAbilityLastUse(BattleSide side, size_t slot) const;
 
 	int32_t nextObstacleId() const override; //returns next available obstacle ID
 	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstacles(std::optional<BattleSide> perspective = std::nullopt) const override;

@@ -188,6 +188,8 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 	switch(mode)
 	{
 	case Mode::HERO:
+	case Mode::HERO_ABILITY_1:
+	case Mode::HERO_ABILITY_2:
 		{
 			const auto * castingHero = dynamic_cast<const CGHeroInstance *>(caster); //todo: unify hero|creature spell cost
 			if(!castingHero)
@@ -195,9 +197,9 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 				logGlobal->debug("CSpell::canBeCast: invalid caster");
 				genProblem = ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
 			}
-			else if(!castingHero->canCastThisSpell(owner))
+			else if(mode == Mode::HERO && !castingHero->canCastThisSpell(owner))
 				genProblem = ESpellCastProblem::HERO_DOESNT_KNOW_SPELL;
-			else if(castingHero->mana < battle()->battleGetSpellCost(owner, castingHero)) //not enough mana
+			else if(mode == Mode::HERO && castingHero->mana < battle()->battleGetSpellCost(owner, castingHero)) //not enough mana
 				genProblem = ESpellCastProblem::NOT_ENOUGH_MANA;
 		}
 		break;
@@ -237,7 +239,7 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 
 bool BattleSpellMechanics::canCastAtTarget(const battle::Unit * target) const
 {
-	if(mode == Mode::HERO)
+	if(mode == Mode::HERO || mode == Mode::HERO_ABILITY_1 || mode == Mode::HERO_ABILITY_2)
 		return true;
 
 	if(!target)
@@ -358,9 +360,14 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	sc.battleID = battle()->getBattle()->getBattleID();
 	sc.tile = target.at(0).hexValue;
 
-	sc.castByHero = mode == Mode::HERO;
-	if (mode != Mode::HERO)
+	const bool castByHero = mode == Mode::HERO || mode == Mode::HERO_ABILITY_1 || mode == Mode::HERO_ABILITY_2;
+	sc.castByHero = castByHero;
+	if(!castByHero)
 		sc.casterStack = caster->getCasterUnitId();
+	if(mode == Mode::HERO_ABILITY_1)
+		sc.classAbilitySlot = 0;
+	if(mode == Mode::HERO_ABILITY_2)
+		sc.classAbilitySlot = 1;
 	sc.manaGained = 0;
 
 	sc.activeCast = false;
@@ -394,6 +401,10 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 		}
 		sc.activeCast = true;
 	}
+	else if(mode == Mode::HERO_ABILITY_1 || mode == Mode::HERO_ABILITY_2)
+	{
+		sc.activeCast = true;
+	}
 	else if(mode == Mode::CREATURE_ACTIVE || mode == Mode::ENCHANTER)
 	{
 		spellCost = 1;
@@ -410,6 +421,8 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	case Mode::CREATURE_ACTIVE:
 	case Mode::ENCHANTER:
 	case Mode::HERO:
+	case Mode::HERO_ABILITY_1:
+	case Mode::HERO_ABILITY_2:
 	case Mode::PASSIVE:
 	case Mode::MAGIC_MIRROR:
 		{
@@ -446,7 +459,7 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 	for(auto & p : effectsToApply)
 		p.first->apply(server, this, p.second);
 
-	if(sc.activeCast)
+	if(sc.activeCast && mode != Mode::HERO_ABILITY_1 && mode != Mode::HERO_ABILITY_2)
 	{
 		caster->spendMana(server, spellCost);
 
@@ -547,7 +560,8 @@ bool BattleSpellMechanics::isReflected(const battle::Unit * unit, vstd::RNG & rn
 		return false;
 	const std::vector<int> directSpellRange = { 0 };
 	bool isDirectSpell = !isMassive() && owner -> getLevelInfo(getRangeLevel()).range == directSpellRange;
-	bool spellIsReflectable = isDirectSpell && (mode == Mode::HERO || mode == Mode::MAGIC_MIRROR) && isNegativeSpell();
+	bool spellIsReflectable = isDirectSpell
+		&& (mode == Mode::HERO || mode == Mode::HERO_ABILITY_1 || mode == Mode::HERO_ABILITY_2 || mode == Mode::MAGIC_MIRROR) && isNegativeSpell();
 	bool targetCanReflectSpell = spellIsReflectable && unit->getAllBonuses(Selector::type()(BonusType::MAGIC_MIRROR))->size()>0;
 	return targetCanReflectSpell && rng.nextInt(0, 99) < unit->valOfBonuses(BonusType::MAGIC_MIRROR);
 }

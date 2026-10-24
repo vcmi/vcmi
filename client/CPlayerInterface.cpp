@@ -57,6 +57,7 @@
 #include "widgets/CComponent.h"
 #include "widgets/CGarrisonInt.h"
 
+#include "windows/CAdvancedClassWindow.h"
 #include "windows/CCastleInterface.h"
 #include "windows/CCreatureWindow.h"
 #include "windows/CExchangeWindow.h"
@@ -1320,6 +1321,11 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 {
 	if(pa->packType == CTypeList::getInstance().getTypeID<MoveHero>(nullptr))
 		movementController->onMoveHeroApplied();
+	if(pa->packType == CTypeList::getInstance().getTypeID<SelectAdvancedClass>(nullptr))
+	{
+		for(const auto & window : ENGINE->windows().findWindows<CAdvancedClassWindow>())
+			window->refresh();
+	}
 
 	if(pa->packType == CTypeList::getInstance().getTypeID<QuestionAnswer>(nullptr))
 	{
