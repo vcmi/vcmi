@@ -20,7 +20,7 @@ Unit_MeleeDmg_Unit::Unit_MeleeDmg_Unit(
 	const std::shared_ptr<const Nodes::Unit> & dstNode,
 	const Args & args
 )
-	: detail::Unit_MeleeDmg_Unit_Base(srcNode, dstNode)
+	: detail::Unit_MeleeDmg_Unit_Base(srcNode, dstNode), isIndirect(args.isIndirect)
 {
 	auto netValue = args.vdiffAttacker - args.vdiffDefender;
 	auto attackerHp = static_cast<int>(srcNode->cstack.getTotalHealth());
