@@ -95,11 +95,13 @@ public:
 
 	bool uninstallMod(QString mod);
 	bool enableMods(QStringList mod);
+	/// Enables every mod from the list that can be enabled, skipping the rest
+	void enableAvailableMods(QStringList mod);
 	bool disableMod(QString mod);
 
 	bool canUninstallMod(QString mod);
 	/// mods located outside of user Mods directory, e.g. in system-wide data directory, or under version control can not be uninstalled or updated
 	bool isModManageable(QString mod);
-	bool canEnableMod(QString mod);
+	bool canEnableMod(QString mod, bool reportError = true);
 	bool canDisableMod(QString mod);
 };

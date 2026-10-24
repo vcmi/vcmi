@@ -1504,7 +1504,10 @@ void CModListView::installMods(QStringList archives)
 		activatingPreset.clear();
 	}
 
-	importInstalledBefore = modStateModel->getAllMods();
+	importInstalledBefore.clear();
+	for(const auto & mod : modStateModel->getAllMods())
+		if(modStateModel->isModInstalled(mod))
+			importInstalledBefore.push_back(mod);
 	importEnabledRootsBefore.clear();
 	for(const auto & mod : importInstalledBefore)
 		if(!modStateModel->isSubmod(mod) && modStateModel->isModEnabled(mod))
@@ -1667,15 +1670,14 @@ void CModListView::finishModImport()
 		}
 		logGlobal->info("Mod list refresh after import took %d ms", reloadClock.elapsed());
 
-		// mods that were not activated on reload, e.g. due to dependencies that are installed but disabled
-		QStringList modsToEnable = newMods;
+		QStringList modsToEnable = installedMods;
 		vstd::erase_if(modsToEnable, [this](const QString & mod){ return !modStateModel->isModExists(mod) || modStateModel->isModEnabled(mod); });
 
 		if(!modsToEnable.empty())
 		{
 			try
 			{
-				manager->enableMods(modsToEnable);
+				manager->enableAvailableMods(modsToEnable);
 			}
 			catch (const std::exception & e)
 			{

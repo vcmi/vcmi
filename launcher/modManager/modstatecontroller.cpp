@@ -287,6 +287,18 @@ bool ModStateController::enableMods(QStringList modlist)
 	return true;
 }
 
+void ModStateController::enableAvailableMods(QStringList modlist)
+{
+	QStringList availableMods;
+
+	for(const auto & modname : modlist)
+		if(canEnableMod(modname, false))
+			availableMods.push_back(modname);
+
+	if(!availableMods.empty())
+		modList->doEnableMods(availableMods);
+}
+
 bool ModStateController::disableMod(QString modname)
 {
 	if (!canDisableMod(modname))
@@ -330,7 +342,7 @@ bool ModStateController::isModManageable(QString modname)
 	return getUnmanageableReason(modname).isEmpty();
 }
 
-bool ModStateController::canEnableMod(QString modname)
+bool ModStateController::canEnableMod(QString modname, bool reportError)
 {
 	if (!modList->isModExists(modname))
 		return false;
@@ -338,22 +350,22 @@ bool ModStateController::canEnableMod(QString modname)
 	auto mod = modList->getMod(modname);
 
 	if(modList->isModEnabled(modname))
-		return addError(modname, tr("Mod is already enabled"));
+		return reportError ? addError(modname, tr("Mod is already enabled")) : false;
 
 	if(!mod.isInstalled())
-		return addError(modname, tr("Mod must be installed first"));
+		return reportError ? addError(modname, tr("Mod must be installed first")) : false;
 
 	//check for compatibility
 	if(!mod.isCompatible())
-		return addError(modname, tr("Mod is not compatible, please update VCMI and check the latest mod revisions"));
+		return reportError ? addError(modname, tr("Mod is not compatible, please update VCMI and check the latest mod revisions")) : false;
 
 	if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString())
-		return addError(modname, tr("Can not enable translation mod for a different language!"));
+		return reportError ? addError(modname, tr("Can not enable translation mod for a different language!")) : false;
 
 	for(const auto & modEntry : mod.getDependencies())
 	{
-		if(!modList->isModExists(modEntry)) // required mod is not available
-			return addError(modname, tr("Required mod %1 is missing").arg(modEntry));
+		if(!modList->isModInstalled(modEntry)) // required mod is not installed
+			return reportError ? addError(modname, tr("Required mod %1 is missing").arg(modEntry)) : false;
 	}
 
 	return true;
