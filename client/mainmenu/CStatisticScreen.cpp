@@ -76,7 +76,10 @@ void CStatisticScreen::onSelectButton()
 	ENGINE->windows().createAndPushWindow<StatisticSelector>(texts, [this](int selectedIndex)
 	{
 		if(!std::get<1>(contentInfo[static_cast<Content>(selectedIndex)]))
+		{
+			OBJECT_CONSTRUCTION;
 			mainContent = getContent(static_cast<Content>(selectedIndex), EGameResID::NONE);
+		}
 		else
 		{
 			auto content = static_cast<Content>(selectedIndex);
