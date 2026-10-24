@@ -116,9 +116,7 @@ def _decide_branch(request, snapshot, branch):
 
 
 def decide(request, snapshot):
-    """Returns the response for a Request from parse_request() or None, as a JSON-serializable dict."""
-    if request is None:
-        return {"status": "none"}
+    """Returns the response for a Request from parse_request(), as a JSON-serializable dict."""
     channel = snapshot.channels.get(request.channel)
     if channel is None:
         return {"status": "none"}

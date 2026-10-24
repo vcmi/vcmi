@@ -25,6 +25,7 @@ class QTableWidgetItem;
 class CModList;
 class CModListView;
 class CSettingsView;
+class UpdateChecker;
 
 enum class ETranslationStatus : int8_t
 {
@@ -42,6 +43,7 @@ class MainWindow : public QMainWindow
 	QTranslator translator;
 #endif
 	Ui::MainWindow * ui;
+	UpdateChecker * updateChecker;
 
 #ifndef VCMI_MOBILE
 	std::unique_ptr<CConsoleHandler> console;
@@ -66,6 +68,7 @@ class MainWindow : public QMainWindow
 		SETUP = 2,
 		ABOUT = 3,
 		START = 4,
+		UPDATE = 5,
 	};
 
 public:
@@ -74,6 +77,7 @@ public:
 
 	CModListView * getModView();
 	CSettingsView * getSettingsView();
+	UpdateChecker * getUpdateChecker();
 
 	void updateTranslation();
 	void computeSidePanelSizes();
@@ -83,6 +87,7 @@ public:
 	void exitSetup(bool goToMods);
 	void switchToModsTab();
 	void switchToStartTab();
+	void switchToUpdateTab();
 	void moveToScreen(int screenIndex);
 
 	void dragEnterEvent(QDragEnterEvent* event) override;

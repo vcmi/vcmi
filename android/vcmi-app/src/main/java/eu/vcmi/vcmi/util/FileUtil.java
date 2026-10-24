@@ -166,10 +166,10 @@ public class FileUtil
 
 	@Keep
 	@SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
-	public static boolean isInstalledFromGooglePlay(Context context)
+	public static String getInstallerPackageName(Context context)
 	{
 		if (context == null)
-			return false;
+			return null;
 
 		try
 		{
@@ -186,12 +186,12 @@ public class FileUtil
 				installer = packageManager.getInstallerPackageName(packageName);
 			}
 
-			return "com.android.vending".equals(installer);
+			return installer;
 		}
 		catch (Exception e)
 		{
-			Log.e("FileUtil", "isInstalledFromGooglePlay failed", e);
-			return false;
+			Log.e("FileUtil", "getInstallerPackageName failed", e);
+			return null;
 		}
 	}
 
