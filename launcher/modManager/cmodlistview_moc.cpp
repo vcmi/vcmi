@@ -982,7 +982,17 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	ui->progressBar->setValue(0);
 
 	if(doInstallFiles)
+	{
 		installFiles(savedFiles);
+		for(const auto & file : savedFiles)
+		{
+			if(file.endsWith(".zip", Qt::CaseInsensitive))
+			{
+				logGlobal->info("Erasing archive '%s'", file.toStdString());
+				QFile::remove(file);
+			}
+		}
+	}
 
 	Helper::keepScreenOn(false);
 	hideProgressBar();
@@ -1235,7 +1245,14 @@ void CModListView::installFiles(QStringList files)
 	if(!mods.empty())
 	{
 		logGlobal->info("Installing mods: started");
+		ui->progressWidget->setVisible(true);
+		ui->progressBar->setRange(0, 0);
+		ui->abortButton->setEnabled(false);
+		Helper::keepScreenOn(true);
 		installMods(mods);
+		Helper::keepScreenOn(dlManager != nullptr);
+		hideProgressBar();
+		ui->abortButton->setEnabled(true);
 		logGlobal->info("Installing mods: ended");
 	}
 
@@ -1466,9 +1483,7 @@ void CModListView::installMods(QStringList archives)
 
 	for(QString archive : archives)
 	{
-		// get basename out of full file name
-		//                remove path                  remove extension
-		QString modName = archive.section('/', -1, -1).section('.', 0, 0);
+		const QString modName = ModStateController::modIdFromArchivePath(Helper::getRealPath(archive));
 
 		modNames.push_back(modName);
 	}
@@ -1549,12 +1564,6 @@ void CModListView::installMods(QStringList archives)
 			tr("Following mods were disabled due to changes in installed mods:\n\n%1").arg(disabledRootMods.join("\n")));
 
 	checkManagerErrors();
-
-	for(QString archive : archives)
-	{
-		logGlobal->info("Erasing archive '%s'", archive.toStdString());
-		QFile::remove(archive);
-	}
 }
 
 void CModListView::installMaps(QStringList maps)
