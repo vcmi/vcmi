@@ -157,6 +157,17 @@ float BattleEvaluator::scoreBonusEffects(const battle::Units & units, const Dama
 	return result;
 }
 
+static constexpr int minTurnsToSkipRecast = 2;
+
+static bool hasLongerLastingEffect(const battle::Unit * unit, const CSpell * spell)
+{
+	const auto effects = unit->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spell->id)));
+	return std::any_of(effects->begin(), effects->end(), [](const auto & bonus)
+	{
+		return (bonus->duration & BonusDuration::N_TURNS) && bonus->turnsRemain >= minTurnsToSkipRecast;
+	});
+}
+
 std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack * stack)
 {
 	if(!stack->canCast())
@@ -187,6 +198,11 @@ std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CS
 		spells::BattleCast temp(cb->getBattle(battleID).get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
 		for(const auto & target : SpellTargetEvaluator::getViableTargets(spell->battleMechanics(&temp).get()))
 		{
+			// refreshing a spell that still has turns left only wastes the action
+			const auto * targetUnit = !target.empty() ? cb->getBattle(battleID)->battleGetUnitByPos(target.front().hexValue, true) : nullptr;
+			if(targetUnit && hasLongerLastingEffect(targetUnit, spell))
+				continue;
+
 			PossibleSpellcast ps;
 			ps.dest = target;
 			ps.spell = spell;
