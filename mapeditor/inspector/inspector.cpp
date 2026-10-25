@@ -379,7 +379,10 @@ void Inspector::updateProperties(CGTownInstance * o)
 	addProperty(QObject::tr("Spells"), PropertyEditorPlaceholder(), new TownSpellsDelegate(*o), false);
 	addProperty(QObject::tr("Events"), PropertyEditorPlaceholder(), new TownEventsDelegate(*o, controller), false);
 	if(o->ID == Obj::RANDOM_TOWN)
+	{
 		addProperty(QObject::tr("Same as player"), o->alignmentToPlayer, new OwnerDelegate(controller), false);
+		addProperty(QObject::tr("Exclude player's faction"), o->alignmentExcludesPlayer, false);
+	}
 }
 
 void Inspector::updateProperties(CGArtifact * o)
@@ -696,6 +699,9 @@ void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVari
 
 	if(key == QObject::tr("Same as player"))
 		o->alignmentToPlayer = PlayerColor(value.toInt());
+
+	if(key == QObject::tr("Exclude player's faction"))
+		o->alignmentExcludesPlayer = value.toBool();
 }
 
 void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVariant & value)

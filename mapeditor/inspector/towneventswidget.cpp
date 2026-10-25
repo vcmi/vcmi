@@ -76,6 +76,7 @@ QVariant toVariant(const CCastleEvent& event)
 	result["players"] = toVariant(event.players);
 	result["humanAffected"] = QVariant::fromValue(event.humanAffected);
 	result["computerAffected"] = QVariant::fromValue(event.computerAffected);
+	result["neutralAffected"] = QVariant::fromValue(event.neutralAffected);
 	result["firstOccurrence"] = QVariant::fromValue(event.firstOccurrence);
 	result["nextOccurrence"] = QVariant::fromValue(event.nextOccurrence);
 	result["resources"] = toVariant(event.resources);
@@ -94,6 +95,7 @@ CCastleEvent eventFromVariant(CMapHeader& map, const CGTownInstance& town, const
 	result.players = playersFromVariant(v.value("players"));
 	result.humanAffected = v.value("humanAffected").toInt();
 	result.computerAffected = v.value("computerAffected").toInt();
+	result.neutralAffected = v.value("neutralAffected").toBool();
 	result.firstOccurrence = v.value("firstOccurrence").toInt();
 	result.nextOccurrence = v.value("nextOccurrence").toInt();
 	result.resources = resourcesFromVariant(v.value("resources"));

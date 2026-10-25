@@ -462,10 +462,26 @@ Quest & QuestSource::addQuest()
 	return *quests.back();
 }
 
+bool QuestSource::isQuestExpired(const Quest & q) const
+{
+	return q.lastDay >= 0 && q.lastDay <= cb->getCalendar().getCurrentDay() - 1;
+}
+
+std::string QuestSource::getTimeoutTextID() const
+{
+	if(quests.empty())
+		return {};
+
+	const Quest & q = *quests.at(currentQuestIndex);
+	if(q.isCompleted || !isQuestExpired(q))
+		return {};
+	return q.timeoutTextID;
+}
+
 bool QuestSource::isQuestAvailable(const Quest & q) const
 {
-	if(q.lastDay >= 0 && q.lastDay <= cb->getCalendar().getCurrentDay() - 1)
-		return false; // deadline passed
+	if(isQuestExpired(q))
+		return false;
 	if(!q.mission.allowedDifficulties.contains(cb->getStartInfo()->getDifficulty()))
 		return false; // not offered on this difficulty
 	if(!q.repeatedQuest && q.isCompleted)
@@ -829,6 +845,11 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 			return;
 		}
 	}
+	else if(std::string timeoutText = getTimeoutTextID(); !timeoutText.empty())
+	{
+		iw.text.appendTextID(timeoutText);
+		gameEvents.showInfoDialog(&iw);
+	}
 	else
 	{
 		// no active quest: pick a valid "empty seer" flavour without one
@@ -1107,7 +1128,15 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 	// deadline passed or quest not offered on this difficulty - it can never be met, so the gate stays shut
 	if(!isQuestAvailable(getQuest()))
 	{
-		h->showInfoDialog(gameEvents, 18);
+		if(std::string timeoutText = getTimeoutTextID(); !timeoutText.empty())
+		{
+			InfoWindow iw;
+			iw.player = h->getOwner();
+			iw.text.appendTextID(timeoutText);
+			gameEvents.showInfoDialog(&iw);
+		}
+		else
+			h->showInfoDialog(gameEvents, 18);
 		return;
 	}
 
