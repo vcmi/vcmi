@@ -47,6 +47,7 @@
 #include "../GameLibrary.h"
 
 ContentTypeHandler::ContentTypeHandler(LibraryLoadContext & context, IHandlerBase * handler, const std::string & entityName):
+	context(context),
 	handler(handler),
 	entityName(entityName),
 	originalData(handler->loadLegacyData(context))
@@ -85,7 +86,7 @@ void ContentTypeHandler::preloadModData(const std::string & modName, JsonNode & 
 	}
 }
 
-bool ContentTypeHandler::loadMod(LibraryLoadContext & context, const std::string & modName, bool validate)
+bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 {
 	ModInfo & modInfo = modData[modName];
 	bool result = true;
@@ -160,12 +161,12 @@ bool ContentTypeHandler::loadMod(LibraryLoadContext & context, const std::string
 	return result;
 }
 
-void ContentTypeHandler::loadCustom(LibraryLoadContext & context)
+void ContentTypeHandler::loadCustom()
 {
 	handler->loadCustom(context);
 }
 
-void ContentTypeHandler::afterLoadFinalization(LibraryLoadContext & context)
+void ContentTypeHandler::afterLoadFinalization()
 {
 	if (settings["mods"]["validation"].String() != "off")
 	{
@@ -248,7 +249,12 @@ void ContentTypeHandler::afterLoadFinalization(LibraryLoadContext & context)
 	handler->afterLoadFinalization(context);
 }
 
-void CContentHandler::init(LibraryLoadContext & context)
+CContentHandler::CContentHandler(LibraryLoadContext & context):
+	context(context)
+{
+}
+
+void CContentHandler::init()
 {
 	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(context, context.lib.heroclassesh.get(), "heroClass")));
 	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(context, context.lib.arth.get(), "artifact")));
@@ -298,29 +304,29 @@ bool CContentHandler::preloadData(const ModDescription & mod, JsonNode & modCont
 	return result;
 }
 
-bool CContentHandler::load(LibraryLoadContext & context, const ModDescription & mod, bool validate)
+bool CContentHandler::load(const ModDescription & mod, bool validate)
 {
 	bool result = true;
 	for(auto & handler : handlers)
 	{
-		result &= handler.second.loadMod(context, mod.getID(), validate);
+		result &= handler.second.loadMod(mod.getID(), validate);
 	}
 	return result;
 }
 
-void CContentHandler::loadCustom(LibraryLoadContext & context)
+void CContentHandler::loadCustom()
 {
 	for(auto & handler : handlers)
 	{
-		handler.second.loadCustom(context);
+		handler.second.loadCustom();
 	}
 }
 
-void CContentHandler::afterLoadFinalization(LibraryLoadContext & context)
+void CContentHandler::afterLoadFinalization()
 {
 	for(auto & handler : handlers)
 	{
-		handler.second.afterLoadFinalization(context);
+		handler.second.afterLoadFinalization();
 	}
 }
 

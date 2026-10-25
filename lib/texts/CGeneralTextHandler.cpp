@@ -113,12 +113,7 @@ void CGeneralTextHandler::detectInstallParameters()
 	encoding->String() =  Languages::getLanguageOptions(knownLanguages[bestIndex]).encoding;
 }
 
-std::string CGeneralTextHandler::getModLanguage(const std::string & modContext) const
-{
-	return modHandler.getModLanguage(modContext);
-}
-
-void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
+void CGeneralTextHandler::readToVector(const CModHandler & modHandler, const std::string & sourceID, const std::string & sourceName)
 {
 	bool resExists = CResourceHandler::get()->existsResource(ResourcePath(sourceName));
 	if(!resExists && roeMapping["newLines"][sourceName].isVector())
@@ -140,33 +135,32 @@ void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::
 }
 
 CGeneralTextHandler::CGeneralTextHandler(const CModHandler & modHandler):
-	modHandler(modHandler),
 	allTexts         (*this, "core.genrltxt" ),
 	zelp             (*this, "core.help"     )
 {
 	if(isRoEData())
 		roeMapping = JsonNode(JsonPath::builtin("config/roeStringMapping.json"));
-	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
-	readToVector("core.lcdesc",   "DATA/LCDESC.TXT"   );
-	readToVector("core.tcommand", "DATA/TCOMMAND.TXT" );
-	readToVector("core.hallinfo", "DATA/HALLINFO.TXT" );
-	readToVector("core.castinfo", "DATA/CASTINFO.TXT" );
-	readToVector("core.advevent", "DATA/ADVEVENT.TXT" );
-	readToVector("core.restypes", "DATA/RESTYPES.TXT" );
-	readToVector("core.randsign", "DATA/RANDSIGN.TXT" );
-	readToVector("core.overview", "DATA/OVERVIEW.TXT" );
-	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT" );
-	readToVector("core.priskill", "DATA/PRISKILL.TXT" );
-	readToVector("core.plcolors", "DATA/PLCOLORS.TXT" );
-	readToVector("core.jktext",   "DATA/JKTEXT.TXT"   );
-	readToVector("core.tvrninfo", "DATA/TVRNINFO.TXT" );
-	readToVector("core.turndur",  "DATA/TURNDUR.TXT"  );
-	readToVector("core.heroscrn", "DATA/HEROSCRN.TXT" );
-	readToVector("core.tentcolr", "DATA/TENTCOLR.TXT" );
-	readToVector("core.skilllev", "DATA/SKILLLEV.TXT" );
-	readToVector("core.minename", "DATA/MINENAME.TXT" );
-	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
-	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
+	readToVector(modHandler, "core.vcdesc",   "DATA/VCDESC.TXT"   );
+	readToVector(modHandler, "core.lcdesc",   "DATA/LCDESC.TXT"   );
+	readToVector(modHandler, "core.tcommand", "DATA/TCOMMAND.TXT" );
+	readToVector(modHandler, "core.hallinfo", "DATA/HALLINFO.TXT" );
+	readToVector(modHandler, "core.castinfo", "DATA/CASTINFO.TXT" );
+	readToVector(modHandler, "core.advevent", "DATA/ADVEVENT.TXT" );
+	readToVector(modHandler, "core.restypes", "DATA/RESTYPES.TXT" );
+	readToVector(modHandler, "core.randsign", "DATA/RANDSIGN.TXT" );
+	readToVector(modHandler, "core.overview", "DATA/OVERVIEW.TXT" );
+	readToVector(modHandler, "core.arraytxt", "DATA/ARRAYTXT.TXT" );
+	readToVector(modHandler, "core.priskill", "DATA/PRISKILL.TXT" );
+	readToVector(modHandler, "core.plcolors", "DATA/PLCOLORS.TXT" );
+	readToVector(modHandler, "core.jktext",   "DATA/JKTEXT.TXT"   );
+	readToVector(modHandler, "core.tvrninfo", "DATA/TVRNINFO.TXT" );
+	readToVector(modHandler, "core.turndur",  "DATA/TURNDUR.TXT"  );
+	readToVector(modHandler, "core.heroscrn", "DATA/HEROSCRN.TXT" );
+	readToVector(modHandler, "core.tentcolr", "DATA/TENTCOLR.TXT" );
+	readToVector(modHandler, "core.skilllev", "DATA/SKILLLEV.TXT" );
+	readToVector(modHandler, "core.minename", "DATA/MINENAME.TXT" );
+	readToVector(modHandler, "core.mineevnt", "DATA/MINEEVNT.TXT" );
+	readToVector(modHandler, "core.xtrainfo", "DATA/XTRAINFO.TXT" );
 
 	{
 		CLegacyConfigParser parser(TextPath::builtin("DATA/RANDTVRN.TXT"), modHandler);

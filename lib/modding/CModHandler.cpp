@@ -434,7 +434,7 @@ void CModHandler::load(LibraryLoadContext & context)
 {
 	logMod->info("\tInitializing content handler");
 
-	context.content.init(context);
+	context.content.init();
 
 	const auto & activeMods = getActiveMods();
 
@@ -463,7 +463,7 @@ void CModHandler::load(LibraryLoadContext & context)
 	for(const TModID & modName : activeMods)
 	{
 		const auto & modInfo = getModInfo(modName);
-		bool isValid = context.content.load(context, getModInfo(modName), isModValidationNeeded(context, getModInfo(modName)));
+		bool isValid = context.content.load(getModInfo(modName), isModValidationNeeded(context, getModInfo(modName)));
 		if (isValid)
 			logGlobal->info("\t\tLoading mod: OK (%s)", modInfo.getID());
 		else
@@ -473,14 +473,14 @@ void CModHandler::load(LibraryLoadContext & context)
 			context.validationPassed.erase(modName);
 	}
 
-	context.content.loadCustom(context);
+	context.content.loadCustom();
 
 	logMod->info("\tLoading mod data");
 	context.lib.creh->loadCrExpMod(context);
 	context.resolver.finalize();
 	logMod->info("\tResolving identifiers");
 
-	context.content.afterLoadFinalization(context);
+	context.content.afterLoadFinalization();
 	for(const TModID & modName : activeMods)
 		loadTranslation(context, modName);
 

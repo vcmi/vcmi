@@ -43,11 +43,7 @@ class DLL_LINKAGE CGeneralTextHandler: public TextLocalizationContainer
 	/// the static store is filled once during load; a duplicate afterwards is a content bug
 	bool allowsStringOverride() const override { return false; }
 
-	void readToVector(const std::string & sourceID, const std::string & sourceName);
-
-	std::string getModLanguage(const std::string & modContext) const override;
-
-	const CModHandler & modHandler;
+	void readToVector(const CModHandler & modHandler, const std::string & sourceID, const std::string & sourceName);
 
 	JsonNode roeMapping;
 

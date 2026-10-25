@@ -17,5 +17,6 @@
 LibraryLoadContext::LibraryLoadContext(GameLibrary & lib)
 	: lib(lib)
 	, resolver(*lib.identifiersHandler)
+	, content(*this)
 {
 }

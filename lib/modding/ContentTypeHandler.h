@@ -18,6 +18,7 @@ class ModDescription;
 /// internal type to handle loading of one data type (e.g. artifacts, creatures)
 class ContentTypeHandler
 {
+	LibraryLoadContext & context;
 	JsonNode conflictList;
 
 public:
@@ -42,18 +43,21 @@ public:
 	/// local version of methods in ContentHandler
 	/// returns true if loading was successful
 	void preloadModData(const std::string & modName, JsonNode & data);
-	bool loadMod(LibraryLoadContext & context, const std::string & modName, bool validate);
-	void loadCustom(LibraryLoadContext & context);
-	void afterLoadFinalization(LibraryLoadContext & context);
+	bool loadMod(const std::string & modName, bool validate);
+	void loadCustom();
+	void afterLoadFinalization();
 };
 
 /// class used to load all game data into handlers. Used only during loading
 class DLL_LINKAGE CContentHandler
 {
+	LibraryLoadContext & context;
 	std::map<std::string, ContentTypeHandler> handlers;
 
 public:
-	void init(LibraryLoadContext & context);
+	explicit CContentHandler(LibraryLoadContext & context);
+
+	void init();
 
 	/// Returns names of all types of content, e.g. 'creatures' or 'artifacts'
 	std::vector<std::string> getContentTypeNames() const;
@@ -62,12 +66,12 @@ public:
 	bool preloadData(const ModDescription & mod, JsonNode & modContent, bool validateMod);
 
 	/// actually loads data in mod
-	bool load(LibraryLoadContext & context, const ModDescription & mod, bool validateMod);
+	bool load(const ModDescription & mod, bool validateMod);
 
-	void loadCustom(LibraryLoadContext & context);
+	void loadCustom();
 
 	/// all data was loaded, time for final validation / integration
-	void afterLoadFinalization(LibraryLoadContext & context);
+	void afterLoadFinalization();
 
 	const ContentTypeHandler & operator[] (const std::string & name) const;
 };

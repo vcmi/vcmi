@@ -15,7 +15,6 @@
 
 struct Bonus;
 class ILimiter;
-class CSelector;
 class BonusParameters;
 class IIdentifierResolver;
 class LibraryLoadContext;
@@ -28,5 +27,4 @@ namespace JsonUtils
 	std::shared_ptr<Bonus> parseBonus(const JsonNode & ability, LibraryLoadContext & context, const TextIdentifier & descriptionID = "");
 	bool parseBonus(const JsonNode & ability, Bonus * placement, LibraryLoadContext & context, const TextIdentifier & descriptionID = "");
 	std::shared_ptr<const ILimiter> parseLimiter(const JsonNode & limiter, IIdentifierResolver & resolver);
-	CSelector parseSelector(const JsonNode & ability, IIdentifierResolver & resolver);
 }

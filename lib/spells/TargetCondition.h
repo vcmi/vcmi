@@ -14,7 +14,6 @@
 
 class JsonNode;
 class JsonSerializeFormat;
-class IIdentifierResolver;
 
 namespace battle
 {
@@ -51,7 +50,6 @@ public:
 	virtual Object createResistance() const = 0;
 
 	virtual Object createConfigurable(std::string scope, std::string type, std::string identifier) const = 0;
-	virtual Object createFromJsonStruct(const JsonNode & jsonStruct, IIdentifierResolver & resolver) const = 0;
 
 	virtual Object createReceptiveFeature() const = 0;
 	virtual Object createImmunityNegation() const = 0;
@@ -76,7 +74,7 @@ protected:
 private:
 	bool check(const ItemVector & condition, const Mechanics * m, const battle::Unit * target) const;
 
-	void loadConditions(const JsonNode & source, bool exclusive, bool inverted, const ItemFactory * itemFactory, IIdentifierResolver & resolver);
+	void loadConditions(const JsonNode & source, bool exclusive, bool inverted, const ItemFactory * itemFactory);
 };
 
 }
