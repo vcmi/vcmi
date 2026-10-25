@@ -357,7 +357,7 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::SPELL_EFFECT:
 		{
-			int8_t mastery = MasteryLevel::NONE;
+			int8_t mastery = MasteryLevel::ANY;
 			if (secondaryIdNode.isString())
 			{
 				mastery = MasteryLevel::decode(secondaryIdNode.String());

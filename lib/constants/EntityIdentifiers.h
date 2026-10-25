@@ -52,6 +52,20 @@ class CSkill;
 class IGameInfoCallback;
 class CNonConstInfoCallback;
 
+namespace MasteryLevel
+{
+
+const std::map<int8_t, std::string> masteryIdToName = {
+	{MasteryLevel::NONE , "NONE"},
+	{MasteryLevel::BASIC, "BASIC"},
+	{MasteryLevel::ADVANCED, "ADVANCED"},
+	{MasteryLevel::EXPERT, "EXPERT"}
+};
+
+int8_t decode(const std::string & identifier);
+std::string encode(const int8_t index);
+}
+
 class ArtifactInstanceID : public StaticIdentifier<ArtifactInstanceID>
 {
 public:

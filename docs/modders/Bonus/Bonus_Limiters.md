@@ -66,7 +66,7 @@ Examples:
 			"type" : "HAS_ANOTHER_BONUS_LIMITER",
 			"bonusSourceType" : "SPELL_EFFECT", // look for bonus of type SPELL_EFFECT
 			"bonusSourceID" : "spell.bless"     // ... from spell "Bless"
-			"bonusSourceID" : "EXPERT"     // ... at expert mastery level
+			"bonusSourceSecondaryId" : "EXPERT"     // ... at expert mastery level
 		}
 	],
 ```

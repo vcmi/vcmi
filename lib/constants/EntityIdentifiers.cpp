@@ -124,6 +124,23 @@ const MapLayerId MapLayerId::SURFACE(0);
 const MapLayerId MapLayerId::UNDERGROUND(1);
 const MapLayerId MapLayerId::UNKNOWN(2);
 
+int8_t MasteryLevel::decode(const std::string & identifier)
+{
+	for (auto const & spellToName : masteryIdToName)
+	{
+		if (spellToName.second == identifier)
+			return spellToName.first;
+	}
+	return MasteryLevel::ANY;
+}
+
+std::string MasteryLevel::encode(const int8_t index)
+{
+	if (masteryIdToName.contains(index))
+		return masteryIdToName.at(index);
+	return "ANY";
+}
+
 BuildingTypeUniqueID::BuildingTypeUniqueID(FactionID factionID, BuildingID buildingID ):
 	BuildingTypeUniqueID(factionID.getNum() * 0x10000 + buildingID.getNum())
 {
@@ -152,7 +169,6 @@ SpellWithMasteryID::SpellWithMasteryID(MasteryLevel::Type mastery, SpellID spell
 	Identifier(spell.getNum() * 0x1000 + mastery)
 {
 	assert(mastery >= 0);
-	assert(mastery < 0x1000);
 	assert(spell.getNum() >= 0);
 	assert(spell.getNum() < std::numeric_limits<int32_t>::max() - 0x1000);
 }

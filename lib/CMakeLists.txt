@@ -115,7 +115,6 @@ set(lib_MAIN_SRCS
 	campaign/CampaignRegionsHandler.cpp
 
 	constants/EntityIdentifiers.cpp
-	constants/Enumerations.cpp
 	constants/StringConstants.cpp
 	constants/IdentifierBase.cpp
 
