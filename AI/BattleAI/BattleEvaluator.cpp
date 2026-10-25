@@ -228,7 +228,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		&& hasWorkingTowers()
 		&& !enemyMellee.empty();
 
-	if(targets->possibleAttacks.empty() && bestSpellcast.has_value())
+	if(targets->possibleAttacks.empty() && bestSpellcast.has_value() && bestSpellcast->value > moveTarget.score)
 	{
 		activeActionMade = true;
 		return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
