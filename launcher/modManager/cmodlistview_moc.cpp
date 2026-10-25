@@ -1133,7 +1133,7 @@ EZipType classifyZipArchive(const std::vector<std::string> & fileList)
 }
 }
 
-void CModListView::installFiles(QStringList files)
+void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 {
 	QStringList mods;
 	QStringList maps;
@@ -1249,7 +1249,7 @@ void CModListView::installFiles(QStringList files)
 		ui->progressBar->setRange(0, 0);
 		ui->abortButton->setEnabled(false);
 		Helper::keepScreenOn(true);
-		installMods(mods);
+		installMods(mods, removeGithubSuffix);
 		Helper::keepScreenOn(dlManager != nullptr);
 		hideProgressBar();
 		ui->abortButton->setEnabled(true);
@@ -1476,14 +1476,14 @@ void CModListView::installSaves(QStringList saves)
 		QMessageBox::information(this, tr("Success"), tr("Imported %1 save files").arg(importedCount));
 }
 
-void CModListView::installMods(QStringList archives)
+void CModListView::installMods(QStringList archives, bool removeGithubSuffix)
 {
 	QStringList modNames;
 	QStringList modsToEnable;
 
 	for(QString archive : archives)
 	{
-		const QString modName = ModStateController::modIdFromArchivePath(Helper::getRealPath(archive));
+		const QString modName = ModStateController::modIdFromArchivePath(Helper::getRealPath(archive), removeGithubSuffix);
 
 		modNames.push_back(modName);
 	}
