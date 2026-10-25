@@ -449,7 +449,7 @@ void MainWindow::manualInstallFile(QString filePath)
 	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive))
 	{
 		// Local archives are imported directly, without copying them into the downloads directory first.
-		getModView()->installFiles(QStringList{filePath});
+		getModView()->installFiles(QStringList{filePath}, true);
 	}
 	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{
