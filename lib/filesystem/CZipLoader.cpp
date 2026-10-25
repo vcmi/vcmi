@@ -13,6 +13,9 @@
 #include "../ScopeGuard.h"
 #include "../texts/TextOperations.h"
 
+#include <memory>
+#include <type_traits>
+
 #include <boost/filesystem/fstream.hpp>
 
 #include <array>
@@ -38,7 +41,7 @@ thread_local IdleZipHandle idleHandle;
 std::atomic<uint64_t> nextArchiveId = 1;
 
 template<typename Visitor>
-void forEachZipEntry(unzFile archive, const Visitor & visitor)
+bool forEachZipEntry(unzFile archive, const Visitor & visitor)
 {
 	int result = unzGoToFirstFile(archive);
 	while(result == UNZ_OK)
@@ -46,13 +49,13 @@ void forEachZipEntry(unzFile archive, const Visitor & visitor)
 		unz_file_info64 info{};
 		unz64_file_pos position{};
 		if(unzGetCurrentFileInfo64(archive, &info, nullptr, 0, nullptr, 0, nullptr, 0) != UNZ_OK)
-			throw std::runtime_error("Failed to read zip entry metadata");
+			return false;
 
 		std::string name(info.size_filename + 1, '\0');
 		if(unzGetCurrentFileInfo64(archive, &info, name.data(), static_cast<uLong>(name.size()), nullptr, 0, nullptr, 0) != UNZ_OK)
-			throw std::runtime_error("Failed to read zip entry name");
+			return false;
 		if(unzGetFilePos64(archive, &position) != UNZ_OK)
-			throw std::runtime_error("Failed to read zip entry position");
+			return false;
 
 		name.resize(info.size_filename);
 		if(!name.empty() && name.find('\0') == std::string::npos)
@@ -60,9 +63,7 @@ void forEachZipEntry(unzFile archive, const Visitor & visitor)
 
 		result = unzGoToNextFile(archive);
 	}
-
-	if(result != UNZ_END_OF_LIST_OF_FILE)
-		throw std::runtime_error("Invalid or truncated zip central directory");
+	return result == UNZ_END_OF_LIST_OF_FILE;
 }
 }
 
@@ -135,18 +136,12 @@ std::unordered_map<ResourcePath, unz64_file_pos> CZipLoader::listFiles(const std
 	}
 
 	auto closeArchive = vstd::makeScopeGuard([file]() { unzClose(file); });
-	try
+	const bool success = forEachZipEntry(file, [&ret, &mountPoint](const std::string & name, const unz_file_info64 &, const unz64_file_pos & position)
 	{
-		forEachZipEntry(file, [&ret, &mountPoint](const std::string & name, const unz_file_info64 &, const unz64_file_pos & position)
-		{
-			ret.insert_or_assign(ResourcePath(mountPoint + name), position);
-		});
-	}
-	catch(const std::runtime_error & exception)
-	{
-		logGlobal->error("Failed to read zip archive '%s': %s", TextOperations::filesystemPathToUtf8(archive), exception.what());
-		return {};
-	}
+		ret.insert_or_assign(ResourcePath(mountPoint + name), position);
+	});
+	if(!success)
+		logGlobal->error("Failed to read zip directory in '%s'", TextOperations::filesystemPathToUtf8(archive));
 
 	return ret;
 }
@@ -215,34 +210,8 @@ boost::filesystem::path zipFilenameToFilesystemPath(const std::string & filename
 #endif
 }
 
-void ZipArchive::readIndex()
-{
-	if(indexed)
-		return;
-
-	std::vector<Entry> newEntries;
-	std::vector<unz64_file_pos> newPositions;
-	std::unordered_map<std::string, size_t> newNames;
-
-	forEachZipEntry(archive, [&newEntries, &newPositions, &newNames](std::string name, const unz_file_info64 & info, const unz64_file_pos & position)
-	{
-		constexpr uLong ZIP_UTF8_FILENAME_FLAG = 1 << 11;
-		const bool directory = name.back() == '/';
-		const bool isUtf8Filename = (info.flag & ZIP_UTF8_FILENAME_FLAG) != 0;
-		newNames.emplace(name, newEntries.size());
-		newEntries.push_back({std::move(name), info.uncompressed_size, directory, isUtf8Filename});
-		newPositions.push_back(position);
-	});
-
-	indexedEntries = std::move(newEntries);
-	positions = std::move(newPositions);
-	names = std::move(newNames);
-	indexed = true;
-}
-
 const std::vector<ZipArchive::Entry> & ZipArchive::entries()
 {
-	readIndex();
 	return indexedEntries;
 }
 
@@ -268,6 +237,19 @@ ZipArchive::ZipArchive(const boost::filesystem::path & from)
 
 	if (archive == nullptr)
 		throw std::runtime_error("Failed to open file '" + TextOperations::filesystemPathToUtf8(from));
+
+	std::unique_ptr<std::remove_pointer_t<unzFile>, decltype(&unzClose)> archiveGuard(archive, &unzClose);
+	const bool success = forEachZipEntry(archive, [this](std::string name, const unz_file_info64 & info, const unz64_file_pos & position)
+	{
+		constexpr uLong ZIP_UTF8_FILENAME_FLAG = 1 << 11;
+		const bool directory = name.back() == '/';
+		const bool isUtf8Filename = (info.flag & ZIP_UTF8_FILENAME_FLAG) != 0;
+		entryIndices.emplace(name, indexedEntries.size());
+		indexedEntries.push_back({std::move(name), info.uncompressed_size, directory, isUtf8Filename, position});
+	});
+	if(!success)
+		logGlobal->error("Failed to read zip directory in '%s'", TextOperations::filesystemPathToUtf8(from));
+	archiveGuard.release();
 }
 
 ZipArchive::~ZipArchive()
@@ -292,7 +274,6 @@ bool isSafeRelativePath(const boost::filesystem::path & path)
 
 bool ZipArchive::extractTo(const boost::filesystem::path & where, size_t entryIndex, const std::string & relativeName, const Progress & progress)
 {
-	readIndex();
 	if(entryIndex >= indexedEntries.size())
 		return false;
 
@@ -313,7 +294,7 @@ bool ZipArchive::extractTo(const boost::filesystem::path & where, size_t entryIn
 		}
 
 		boost::filesystem::create_directories(destination.parent_path());
-		if(unzGoToFilePos64(archive, &positions.at(entryIndex)) != UNZ_OK || unzOpenCurrentFile(archive) != UNZ_OK)
+		if(unzGoToFilePos64(archive, &entry.position) != UNZ_OK || unzOpenCurrentFile(archive) != UNZ_OK)
 			return false;
 
 		bool entryOpen = true;
@@ -380,9 +361,8 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::vecto
 
 bool ZipArchive::extract(const boost::filesystem::path & where, const std::string & file)
 {
-	readIndex();
-	const auto found = names.find(file);
-	if(found == names.end())
+	const auto found = entryIndices.find(file);
+	if(found == entryIndices.end())
 		return false;
 	return extractTo(where, found->second, file);
 }

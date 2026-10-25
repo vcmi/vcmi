@@ -71,6 +71,7 @@ public:
 		uint64_t uncompressedSize = 0;
 		bool directory = false;
 		bool isUtf8Filename = false;
+		unz64_file_pos position{};
 	};
 
 	/// Receives the number of extracted bytes and returns false to cancel extraction.
@@ -88,9 +89,6 @@ public:
 	bool extract(const boost::filesystem::path & where, const std::string & what);
 
 private:
-	bool indexed = false;
 	std::vector<Entry> indexedEntries;
-	std::vector<unz64_file_pos> positions;
-	std::unordered_map<std::string, size_t> names;
-	void readIndex();
+	std::unordered_map<std::string, size_t> entryIndices;
 };
