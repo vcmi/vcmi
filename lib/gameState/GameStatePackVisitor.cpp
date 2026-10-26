@@ -31,6 +31,7 @@
 #include "../mapping/CCastleEvent.h"
 #include "../mapping/CMap.h"
 #include "../networkPacks/StackLocation.h"
+#include "../pathfinder/TurnInfo.h"
 #include "../spells/CSpell.h"
 
 void GameStatePackVisitor::updateMoraleOnTroopMixingBonusChange(CBonusSystemNode * node, const Bonus & bonus)
@@ -1232,6 +1233,15 @@ void GameStatePackVisitor::visitNewTurn(NewTurn & pack)
 
 	for(auto & movePack : pack.heroesMovement)
 		movePack.visit(*this);
+
+	for(const auto & player : gs.players)
+	{
+		for(const CGHeroInstance * hero : player.second.getHeroes())
+		{
+			auto ti = hero->getTurnInfo(0);
+			gs.getHero(hero->id)->setMovementConversionLimits(*ti);
+		}
+	}
 
 	gs.heroesPool->onNewDay();
 

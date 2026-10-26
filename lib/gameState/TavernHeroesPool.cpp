@@ -14,6 +14,7 @@
 
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapping/CMap.h"
+#include "../pathfinder/TurnInfo.h"
 
 TavernHeroesPool::TavernHeroesPool(CGameState * owner)
 	: owner(owner)
@@ -136,6 +137,7 @@ void TavernHeroesPool::onNewDay()
 			continue;
 
 		heroPtr->setMovementPoints(heroPtr->movementPointsLimit());
+		heroPtr->setMovementConversionLimits(*heroPtr->getTurnInfo(0));
 		heroPtr->mana = heroPtr->getManaNewTurn();
 	}
 }

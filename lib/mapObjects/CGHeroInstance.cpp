@@ -250,6 +250,23 @@ std::unique_ptr<TurnInfo> CGHeroInstance::getTurnInfo(int days) const
 	return std::make_unique<TurnInfo>(turnInfoCache.get(), this, days);
 }
 
+void CGHeroInstance::setMovementConversionLimits(const TurnInfo & ti)
+{
+	movementConversionLandLimit = ti.getMaxMovePoints(EPathfindingLayer::LAND);
+	movementConversionSeaLimit = ti.getMaxMovePoints(EPathfindingLayer::SAIL);
+}
+
+int CGHeroInstance::getMovementConversionLimit(const EPathfindingLayer & layer) const
+{
+	if(layer == EPathfindingLayer::LAND)
+		return movementConversionLandLimit;
+
+	if(layer == EPathfindingLayer::SAIL)
+		return movementConversionSeaLimit;
+
+	return 0;
+}
+
 int CGHeroInstance::movementPointsLimitCached(const EPathfindingLayer & layer, const TurnInfo * ti) const
 {
 	if (layer == EPathfindingLayer::LAND)
@@ -517,6 +534,7 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 	recreateSecondarySkillsBonuses();
 
 	movement = movementPointsLimit();
+	setMovementConversionLimits(*getTurnInfo(0));
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 }
 
@@ -1536,8 +1554,12 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 	if(boatLayer == EPathfindingLayer::AVIATE)
 		return 0; // boarding an airship takes all MPs, can be extended to support airship boarding bonuses (similar to hasFreeShipBoarding)
 
-	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : boatLayer);
-	int mp2 = ti->getMaxMovePoints(disembark ? boatLayer : EPathfindingLayer::LAND);
+	const int mp1 = ti->getMovementConversionLimit(disembark ? EPathfindingLayer::LAND : boatLayer);
+	const int mp2 = ti->getMovementConversionLimit(disembark ? boatLayer : EPathfindingLayer::LAND);
+
+	if(mp1 <= 0 || mp2 <= 0)
+		return 0;
+
 	int ret = static_cast<int>((MPsBefore - basicCost) * static_cast<double>(mp1) / mp2);
 	return ret;
 }

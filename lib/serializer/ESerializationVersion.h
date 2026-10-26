@@ -73,12 +73,13 @@ enum class ESerializationVersion : int32_t
 	QUEST_HINT_COMPONENTS, // HotA scripted quests store components shown with their hint
 	TOWN_ALIGNMENT_EXCLUSION, // random town can be set to not match faction of a player
 	NEUTRAL_TOWN_EVENTS, // town events can affect neutral towns
+	HERO_MOVEMENT_CONVERSION_LIMITS, // Persist daily land/sea movement conversion limits
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = NEUTRAL_TOWN_EVENTS,
+	CURRENT = HERO_MOVEMENT_CONVERSION_LIMITS,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

@@ -251,7 +251,13 @@ public:
 		}
 
 		if(!h.saving && h.loadingGamestate)
+		{
 			restoreBonusSystemTree();
+
+			if(!h.hasFeature(Handler::Version::HERO_MOVEMENT_CONVERSION_LIMITS))
+				initializeLegacyMovementConversionLimits();
+		}
+
 	}
 
 private:
@@ -289,6 +295,7 @@ private:
 	void buildBonusSystemTree();
 	void buildGlobalTeamPlayerTree();
 	void restoreBonusSystemTree();
+	void initializeLegacyMovementConversionLimits();
 
 	// ---- misc helpers -----
 
