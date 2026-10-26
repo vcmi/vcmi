@@ -60,7 +60,7 @@ namespace
 				repo->seed = CRandomGenerator::getDefault().nextInt();
 
 			for(const auto & [key, node] : json["models"].Struct())
-				repo->paths.try_emplace(key, "MMAI/models/" + node.String());
+				repo->paths.try_emplace(key, node.String());
 
 			fallback = json["fallback"].isNull() ? "BattleAI" : json["fallback"].String();
 		}
@@ -110,9 +110,9 @@ namespace
 			keysToAdd.push_back(currentKey);
 
 			auto itPath = repo->paths.find(currentKey);
-			if(itPath != repo->paths.end())
+			if(itPath != repo->paths.end() && !itPath->second.empty())
 			{
-				const auto & path = itPath->second;
+				const auto & path = "MMAI/models/" + itPath->second;
 				logAi->debug("MMAI: Loading %s model from: %s", currentKey, path);
 				try
 				{
@@ -131,7 +131,7 @@ namespace
 			}
 			else
 			{
-				logAi->warn("MMAI: load error: %s: no path configured", currentKey);
+				logAi->info("MMAI: skip model %s: no path configured", currentKey);
 			}
 
 			// Try next key (if any)
