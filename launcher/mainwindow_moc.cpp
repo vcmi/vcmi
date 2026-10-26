@@ -152,7 +152,12 @@ MainWindow::MainWindow(QWidget * parent)
 void MainWindow::setGamepadStartAllowed(bool allowed)
 {
 	gamepadStartAllowed = allowed;
-	Helper::allowGamepadStart(allowed);
+	updateGamepadStartAllowed();
+}
+
+void MainWindow::updateGamepadStartAllowed()
+{
+	Helper::allowGamepadStart(gamepadStartAllowed && !QApplication::activeModalWidget());
 }
 
 void MainWindow::startGameFromGamepad()
