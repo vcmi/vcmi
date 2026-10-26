@@ -335,14 +335,14 @@ QStringList StartGameTab::stageUnreadableFiles(const QStringList & files)
 	for(int index = 0; index < files.size(); ++index)
 	{
 		const QString file = files[index];
-		modView->showExternalProgress(tr("Preparing selected files for import... %1/%2").arg(index + 1).arg(files.size()), index, files.size());
-		qApp->processEvents();
-
+		// Archives are copied by the background importer, which also handles content:// sources.
 		if(Helper::getRealPath(file).endsWith(".zip", Qt::CaseInsensitive))
 		{
 			preparedFiles << file;
 			continue;
 		}
+		modView->showExternalProgress(tr("Preparing selected files for import... %1/%2").arg(index + 1).arg(files.size()), index, files.size());
+		qApp->processEvents();
 
 		QString importPath = file;
 		QFile sourceFile(file);

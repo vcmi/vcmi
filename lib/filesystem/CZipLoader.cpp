@@ -13,6 +13,10 @@
 #include "../ScopeGuard.h"
 #include "../texts/TextOperations.h"
 
+#include <boost/filesystem/fstream.hpp>
+
+#include <array>
+
 namespace
 {
 /// Performance optimization: every unzOpen scans up to 64 KB at the end of the archive for its central directory.
@@ -174,36 +178,6 @@ std::time_t CZipLoader::getLastWriteTime(const ResourcePath& resourceName) const
 	return  boost::filesystem::last_write_time(path);
 }
 
-/// extracts currently selected file from zip into stream "where"
-static bool extractCurrent(unzFile file, std::ostream & where)
-{
-	std::array<char, 8 * 1024> buffer{};
-
-	unzOpenCurrentFile(file);
-
-	while(true)
-	{
-		int readSize = unzReadCurrentFile(file, buffer.data(), static_cast<unsigned int>(buffer.size()));
-
-		if (readSize < 0) // error
-			break;
-
-		if (readSize == 0) // end-of-file. Also performs CRC check
-			return unzCloseCurrentFile(file) == UNZ_OK;
-
-		if (readSize > 0) // successful read
-		{
-			where.write(buffer.data(), readSize);
-			if (!where.good())
-				break;
-		}
-	}
-
-	// extraction failed. Close file and exit
-	unzCloseCurrentFile(file);
-	return false;
-}
-
 boost::filesystem::path zipFilenameToFilesystemPath(const std::string & filename, bool isUtf8)
 {
 #ifdef VCMI_WINDOWS
@@ -221,7 +195,7 @@ void ZipArchive::readIndex()
 	if(indexed)
 		return;
 
-	std::vector<std::string> newEntries;
+	std::vector<Entry> newEntries;
 	std::vector<unz64_file_pos> newPositions;
 	std::unordered_map<std::string, size_t> newNames;
 
@@ -242,8 +216,11 @@ void ZipArchive::readIndex()
 		name.resize(info.size_filename);
 		if(!name.empty() && name.find('\0') == std::string::npos)
 		{
+			constexpr uLong ZIP_UTF8_FILENAME_FLAG = 1 << 11;
+			const bool directory = name.back() == '/';
+			const bool isUtf8Filename = (info.flag & ZIP_UTF8_FILENAME_FLAG) != 0;
 			newNames.emplace(name, newEntries.size());
-			newEntries.push_back(std::move(name));
+			newEntries.push_back({std::move(name), info.uncompressed_size, directory, isUtf8Filename});
 			newPositions.push_back(position);
 		}
 		result = unzGoToNextFile(archive);
@@ -258,10 +235,18 @@ void ZipArchive::readIndex()
 	indexed = true;
 }
 
-std::vector<std::string> ZipArchive::listFiles()
+const std::vector<ZipArchive::Entry> & ZipArchive::entries()
 {
 	readIndex();
 	return indexedEntries;
+}
+
+std::vector<std::string> ZipArchive::listFiles()
+{
+	std::vector<std::string> result;
+	for(const auto & entry : entries())
+		result.push_back(entry.name);
+	return result;
 }
 
 ZipArchive::ZipArchive(const boost::filesystem::path & from)
@@ -285,6 +270,101 @@ ZipArchive::~ZipArchive()
 	unzClose(archive);
 }
 
+namespace
+{
+bool isSafeRelativePath(const boost::filesystem::path & path)
+{
+	if(path.empty() || path.is_absolute() || path.has_root_name() || path.has_root_directory())
+		return false;
+
+	for(const auto & part : path)
+		if(part == "..")
+			return false;
+
+	return true;
+}
+}
+
+bool ZipArchive::extractTo(const boost::filesystem::path & where, size_t entryIndex, const std::string & relativeName, const Progress & progress)
+{
+	readIndex();
+	if(entryIndex >= indexedEntries.size())
+		return false;
+
+	const auto & entry = indexedEntries.at(entryIndex);
+	const auto relativePath = zipFilenameToFilesystemPath(relativeName, entry.isUtf8Filename);
+	if(relativePath.empty())
+		return entry.directory;
+	if(!isSafeRelativePath(relativePath))
+		return false;
+
+	try
+	{
+		const auto destination = where / relativePath;
+		if(entry.directory)
+		{
+			boost::filesystem::create_directories(destination);
+			return true;
+		}
+
+		boost::filesystem::create_directories(destination.parent_path());
+		if(unzGoToFilePos64(archive, &positions.at(entryIndex)) != UNZ_OK || unzOpenCurrentFile(archive) != UNZ_OK)
+			return false;
+
+		bool entryOpen = true;
+		bool success = false;
+		boost::filesystem::ofstream output(destination, std::ios::out | std::ios::binary | std::ios::trunc);
+		const bool outputOpened = output.is_open();
+		auto cleanup = vstd::makeScopeGuard([&]()
+		{
+			if(entryOpen)
+				unzCloseCurrentFile(archive);
+			if(output.is_open())
+				output.close();
+			if(!success && outputOpened)
+			{
+				boost::system::error_code error;
+				boost::filesystem::remove(destination, error);
+			}
+		});
+		if(!output.good())
+			return false;
+
+		std::array<char, 64 * 1024> buffer;
+		while(true)
+		{
+			const int count = unzReadCurrentFile(archive, buffer.data(), static_cast<unsigned int>(buffer.size()));
+			if(count < 0)
+				return false;
+			if(count == 0)
+				break;
+
+			output.write(buffer.data(), count);
+			if(!output.good())
+				return false;
+			if(progress && !progress(static_cast<uint64_t>(count)))
+				return false;
+		}
+
+		const int closeResult = unzCloseCurrentFile(archive);
+		entryOpen = false;
+		output.flush();
+		if(closeResult != UNZ_OK || !output.good())
+			return false;
+		output.close();
+		if(output.fail())
+			return false;
+
+		success = true;
+		return true;
+	}
+	catch(const std::exception & exception)
+	{
+		logGlobal->error("Failed to extract '%s': %s", relativeName.c_str(), exception.what());
+		return false;
+	}
+}
+
 bool ZipArchive::extract(const boost::filesystem::path & where, const std::vector<std::string> & what)
 {
 	for (const std::string & file : what)
@@ -298,41 +378,7 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::strin
 {
 	readIndex();
 	const auto found = names.find(file);
-	if(found == names.end() || unzGoToFilePos64(archive, &positions.at(found->second)) != UNZ_OK)
+	if(found == names.end())
 		return false;
-
-	unz_file_info64 info;
-	unzGetCurrentFileInfo64(archive, &info, nullptr, 0, nullptr, 0, nullptr, 0);
-
-	constexpr uLong ZIP_UTF8_FILENAME_FLAG = 1 << 11;
-	const bool isUtf8Filename = (info.flag & ZIP_UTF8_FILENAME_FLAG) != 0;
-
-	const boost::filesystem::path relativeName = zipFilenameToFilesystemPath(file, isUtf8Filename);
-	const boost::filesystem::path fullName = where / relativeName;
-	const boost::filesystem::path fullPath = fullName.parent_path();
-
-	boost::filesystem::create_directories(fullPath);
-	// directory. No file to extract
-	// TODO: better way to detect directory? Probably check return value of unzOpenCurrentFile?
-	if (boost::algorithm::ends_with(file, "/"))
-		return true;
-
-	std::fstream destFile(fullName.c_str(), std::ios::out | std::ios::binary);
-	if (!destFile.good())
-	{
-#ifdef VCMI_WINDOWS
-		if (fullName.size() < 260)
-			logGlobal->error("Failed to open file '%s'", TextOperations::filesystemPathToUtf8(fullName));
-		else
-			logGlobal->error("Failed to open file with long path '%s' (%d characters)", TextOperations::filesystemPathToUtf8(fullName), fullName.size());
-#else
-		logGlobal->error("Failed to open file '%s'", fullName.c_str());
-#endif
-
-		return false;
-	}
-
-	if (!extractCurrent(archive, destFile))
-		return false;
-	return true;
+	return extractTo(where, found->second, file);
 }
