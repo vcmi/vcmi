@@ -24,6 +24,7 @@
 #include "updatedialog_moc.h"
 #include "main.h"
 #include "helper.h"
+#include "modManager/modstatecontroller.h"
 #ifndef VCMI_MOBILE
 #include "gamepadHandler.h"
 #endif
@@ -448,7 +449,13 @@ void MainWindow::manualInstallFile(QString filePath)
 	QString fileName = QFileInfo{filePath}.fileName();
 	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive))
 	{
-		getModView()->installFiles(QStringList{filePath});
+		if(filePath.startsWith("content://", Qt::CaseInsensitive) || !QFileInfo(filePath).isFile())
+		{
+			const QString archiveName = ModStateController::modIdFromArchivePath(realFilePath) + ".zip";
+			getModView()->downloadFile(archiveName, QUrl::fromLocalFile(filePath), tr("mod archive"));
+		}
+		else
+			getModView()->installFiles(QStringList{filePath});
 	}
 	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{
