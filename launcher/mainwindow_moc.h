@@ -83,7 +83,6 @@ public:
 	void exitSetup(bool goToMods);
 	void switchToModsTab();
 	void switchToStartTab();
-	void updateGamepadStartAllowed();
 	void moveToScreen(int screenIndex);
 
 	void dragEnterEvent(QDragEnterEvent* event) override;

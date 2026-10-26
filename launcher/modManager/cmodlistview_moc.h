@@ -13,7 +13,7 @@
 #include "modstatecontroller.h"
 #include "../../lib/CConfigHandler.h"
 
-#include <QPointer>
+#include <QPair>
 
 namespace Ui
 {
@@ -26,7 +26,8 @@ class ModStateModel;
 class CModFilterModel;
 class CDownloadManager;
 class QTableWidgetItem;
-class QProgressDialog;
+class QThread;
+class QTimer;
 
 class ModState;
 
@@ -47,8 +48,16 @@ class CModListView : public QWidget
 	ModStateItemModel * modModel;
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
-	QPointer<QProgressDialog> importProgressDialog;
+	std::unique_ptr<QThread> importThread;
+	QTimer * importProgressTimer = nullptr;
+	std::shared_ptr<ModStateController::ArchiveImportProgress> importProgress;
+	std::shared_ptr<QVector<ArchiveImportOutcome>> importOutcomes;
+	QStringList importInstalledBefore;
+	QStringList importEnabledRootsBefore;
+	QVector<QPair<QString, bool>> pendingImportFiles;
 	QStringList downloadedArchives;
+	bool retryRepositoriesAfterImport = false;
+	QStringList modsToRetryAfterImport;
 	JsonNode accumulatedRepositoryData;
 	QString activatingPreset;
 
@@ -75,6 +84,7 @@ class CModListView : public QWidget
 
 	void installMods(QStringList archives, bool removeGithubSuffix);
 	void cleanupDownloadedArchives(QStringList archives);
+	void finishModImport();
 	static ArchiveImportOutcome importArchive(const QString & archive, const QString & hint,
 		ModStateController::ArchiveImportProgress & progress, const QStringList & protectedMods, bool fullModExtraction);
 	void installMaps(QStringList maps);
@@ -158,7 +168,8 @@ protected:
 public:
 	void downloadMod(const ModState & mod);
 	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
-	void installFiles(QStringList mods, bool removeGithubSuffix = false);
+	/// Returns true if the files started an asynchronous mod import.
+	bool installFiles(QStringList mods, bool removeGithubSuffix = false);
 
 	void showExternalProgress(const QString & format, int current, int max);
 	void hideExternalProgress();
