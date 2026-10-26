@@ -16,6 +16,8 @@
 #include <QJsonArray>
 #include <QCryptographicHash>
 #include <QRegularExpression>
+#include <QCloseEvent>
+#include <QProgressDialog>
 
 #include "modstatemodel.h"
 #include "modstateitemmodel_moc.h"
@@ -28,6 +30,7 @@
 #include "../helper.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/ScopeGuard.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CZipLoader.h"
@@ -39,37 +42,23 @@
 
 #include "../../vcmiqt/launcherdirs.h"
 
-#include <QCoreApplication>
-#include <QElapsedTimer>
-#include <QFile>
-#include <QSet>
-#include <QThread>
-#include <QTimer>
-#include <QUuid>
-
-#include <algorithm>
-#include <functional>
 #include <future>
-#include <utility>
 
 namespace
 {
-class ImportThread final : public QThread
+class ImportProgressDialog final : public QProgressDialog
 {
 public:
-	explicit ImportThread(std::function<void()> work)
-		: work(std::move(work))
-	{
-	}
+	using QProgressDialog::QProgressDialog;
+
+	// The launcher must stay blocked until installation and model updates finish.
+	void reject() override {}
 
 protected:
-	void run() override
+	void closeEvent(QCloseEvent * event) override
 	{
-		work();
+		event->ignore();
 	}
-
-private:
-	std::function<void()> work;
 };
 }
 
@@ -84,6 +73,12 @@ void CModListView::setupModModel()
 
 	modModel = new ModStateItemModel(modStateModel, this);
 	manager = std::make_unique<ModStateController>(modStateModel);
+
+	connect(manager.get(), SIGNAL(extractionProgress(qint64,qint64)),
+		this, SLOT(extractionProgress(qint64,qint64)));
+
+	connect(manager.get(), SIGNAL(contentExtractionProgress(QString,qint64,qint64)),
+		this, SLOT(contentExtractionProgress(QString,qint64,qint64)));
 }
 
 void CModListView::changeEvent(QEvent *event)
@@ -246,16 +241,6 @@ void CModListView::loadRepositories()
 
 CModListView::~CModListView()
 {
-	if(importThread)
-	{
-		if(importProgress)
-			importProgress->canceled = true;
-		importThread->wait();
-		importThread.reset();
-	}
-	if(importProgressTimer)
-		importProgressTimer->stop();
-
 	QSettings s = CLauncherDirs::getSettings(Ui::appName);
 	s.setValue("AllModsView/State", ui->allModsView->header()->saveState());
 
@@ -906,9 +891,6 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 
 void CModListView::downloadProgress(QString currentFile, qint64 current, qint64 max)
 {
-	if(importThread)
-		return;
-
 	Q_UNUSED(currentFile);
 
 	const auto toMegabytes = [](qint64 bytes){ return QString::number(bytes / (1024.0 * 1024.0), 'f', 1); };
@@ -952,6 +934,26 @@ void CModListView::extractionProgress(qint64 current, qint64 max)
 	ui->progressBar->setVisible(true);
 	ui->progressBar->setMaximum(max);
 	ui->progressBar->setValue(current);
+	if(importProgressDialog)
+	{
+		importProgressDialog->setRange(0, max);
+		importProgressDialog->setValue(current);
+	}
+}
+
+void CModListView::contentExtractionProgress(QString modName, qint64 current, qint64 max)
+{
+	const QString modDisplayName = modStateModel->isModExists(modName) ? modStateModel->getMod(modName).getName() : modName;
+
+	ui->progressBar->setVisible(true);
+	ui->progressBar->setFormat(tr("Extracting content.zip (%1/%2) for %3").arg(current).arg(max).arg(modDisplayName));
+	ui->progressBar->setMaximum(max);
+	ui->progressBar->setValue(current);
+	if(importProgressDialog)
+	{
+		importProgressDialog->setLabelText(ui->progressBar->format());
+		importProgressDialog->setRange(0, 0);
+	}
 }
 
 void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors)
@@ -1010,14 +1012,10 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	ui->progressBar->setMaximum(0);
 	ui->progressBar->setValue(0);
 
-	if(doInstallFiles && installFiles(savedFiles, true))
-	{
-		retryRepositoriesAfterImport = retryRepositoriesAfterImport || retryRepositories;
-		modsToRetryAfterImport.append(modsToRetry);
-		return;
-	}
+	if(doInstallFiles)
+		installFiles(savedFiles, true);
 
-	Helper::keepScreenOn(false);
+	Helper::keepScreenOn(importProgressDialog != nullptr);
 	hideProgressBar();
 
 	if(retryRepositories)
@@ -1057,7 +1055,7 @@ void CModListView::showExternalProgress(const QString & format, int current, int
 
 void CModListView::hideExternalProgress()
 {
-	if(dlManager == nullptr && importThread == nullptr)
+	if(dlManager == nullptr)
 	{
 		ui->progressWidget->setVisible(false);
 		ui->progressBar->setMaximum(0);
@@ -1067,7 +1065,7 @@ void CModListView::hideExternalProgress()
 
 void CModListView::hideProgressBar()
 {
-	if(dlManager == nullptr && importThread == nullptr)
+	if(dlManager == nullptr) // it was not recreated meanwhile
 	{
 		ui->progressWidget->setVisible(false);
 		ui->progressBar->setMaximum(0);
@@ -1116,13 +1114,81 @@ bool CModListView::askOverwriteDialog(const QString & windowTitle, const QString
 	return false;
 }
 
-bool CModListView::installFiles(QStringList files, bool removeArchives)
+namespace
 {
-	if(importThread)
+enum class EZipType
+{
+	MODS,
+	MAPS,
+	SAVES
+};
+
+EZipType classifyZipArchive(const std::vector<std::string> & fileList)
+{
+	bool hasModJson = false;
+	bool hasMaps = false;
+	bool hasSaves = false;
+
+	for(const auto & file : fileList)
 	{
-		for(const auto & file : files)
-			pendingImportFiles.push_back({file, removeArchives});
-		return true;
+		QString lower = QString::fromStdString(file).toLower();
+		// Check for mod.json anywhere in archive
+		if(lower.endsWith("mod.json"))
+			hasModJson = true;
+		// Check for map files anywhere
+		if(lower.endsWith(".h3m") || lower.endsWith(".h3c") || lower.endsWith(".vmap") || lower.endsWith(".vcmp"))
+			hasMaps = true;
+
+		// Check for save files
+		if(lower.endsWith(".vsgm1"))
+			hasSaves = true;
+	}
+
+	if(hasModJson)
+		return EZipType::MODS;
+	if(hasMaps)
+		return EZipType::MAPS;
+	if(hasSaves)
+		return EZipType::SAVES;
+	return EZipType::MODS;
+}
+}
+
+void CModListView::installFiles(QStringList files, bool removeArchives)
+{
+	if(importProgressDialog)
+	{
+		connect(importProgressDialog, &QObject::destroyed, this, [this, files, removeArchives]()
+		{
+			installFiles(files, removeArchives);
+		}, Qt::QueuedConnection);
+		return;
+	}
+
+	auto * mainWindow = Helper::getMainWindow();
+	auto restoreImportUi = vstd::makeScopeGuard([this, mainWindow]()
+	{
+		mainWindow->updateGamepadStartAllowed();
+		Helper::keepScreenOn(dlManager != nullptr);
+	});
+	std::unique_ptr<ImportProgressDialog> progress;
+	if(std::any_of(files.begin(), files.end(), [](const QString & file)
+	{
+		return Helper::getRealPath(file).endsWith(".zip", Qt::CaseInsensitive);
+	}))
+	{
+		progress = std::make_unique<ImportProgressDialog>(tr("Installing mods"), QString(), 0, 0, mainWindow);
+		importProgressDialog = progress.get();
+		progress->setWindowModality(Qt::WindowModal);
+		progress->setAutoClose(false);
+		progress->setAutoReset(false);
+		progress->setCancelButton(nullptr);
+		progress->setWindowFlag(Qt::WindowCloseButtonHint, false);
+		progress->setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+		progress->show();
+		mainWindow->updateGamepadStartAllowed();
+		Helper::keepScreenOn(true);
+		qApp->processEvents();
 	}
 
 	QStringList mods;
@@ -1135,9 +1201,34 @@ bool CModListView::installFiles(QStringList files, bool removeArchives)
 	for(QString filename : files)
 	{
 		QString realFilename = Helper::getRealPath(filename);
-
+	
 		if(realFilename.endsWith(".zip", Qt::CaseInsensitive))
-			mods.push_back(filename);
+		{
+			try
+			{
+				auto inspection = std::async(std::launch::async, [realFilename]()
+				{
+					ZipArchive archive(qstringToPath(realFilename));
+					return classifyZipArchive(archive.listFiles());
+				});
+				while(inspection.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
+					qApp->processEvents();
+				const auto zipType = inspection.get();
+
+				if(zipType == EZipType::MAPS)
+					maps.push_back(filename);
+				else if(zipType == EZipType::SAVES)
+					saves.push_back(filename);
+				else
+					mods.push_back(filename);
+			}
+			catch(const std::runtime_error & e)
+			{
+				logGlobal->warn("Install file failed for %s. Reason: %s", filename.toStdString(), e.what());
+				QMessageBox::warning(this, tr("Import failed"), tr("Failed to install file %1.\nReason: %2.\nPlease report this issue to developers").arg(filename).arg(QString::fromStdString(e.what())));
+			}
+
+		}
 		else if(realFilename.endsWith(".h3m", Qt::CaseInsensitive) || realFilename.endsWith(".h3c", Qt::CaseInsensitive) || realFilename.endsWith(".vmap", Qt::CaseInsensitive) || realFilename.endsWith(".vcmp", Qt::CaseInsensitive))
 			maps.push_back(filename);
 		else if(realFilename.endsWith(".vsgm1", Qt::CaseInsensitive))
@@ -1217,7 +1308,7 @@ bool CModListView::installFiles(QStringList files, bool removeArchives)
 	{
 		logGlobal->info("Installing mods: started");
 		installMods(mods, removeArchives);
-		logGlobal->info("Installing mods: started in background");
+		logGlobal->info("Installing mods: ended");
 	}
 
 	if(!maps.empty())
@@ -1258,11 +1349,10 @@ bool CModListView::installFiles(QStringList files, bool removeArchives)
 		}
 		const auto extractResult = futureExtract.get();
 
-		Helper::keepScreenOn(importThread != nullptr);
+		Helper::keepScreenOn(false);
 		hideProgressBar();
-		ui->abortButton->setEnabled(!importThread);
-		if(!importThread)
-			ui->progressWidget->setVisible(false);
+		ui->abortButton->setEnabled(true);
+		ui->progressWidget->setVisible(false);
 		//update
 		reload("chronicles");
 		if(modStateModel->isModExists("chronicles"))
@@ -1277,8 +1367,6 @@ bool CModListView::installFiles(QStringList files, bool removeArchives)
 
 	if(!images.empty())
 		loadScreenshots();
-
-	return importThread != nullptr;
 }
 
 namespace
@@ -1443,50 +1531,19 @@ void CModListView::installSaves(QStringList saves)
 		QMessageBox::information(this, tr("Success"), tr("Imported %1 save files").arg(importedCount));
 }
 
-CModListView::ArchiveImportOutcome CModListView::importArchive(const QString & archive, const QString & hint,
-	ModStateController::ArchiveImportProgress & progress, const QStringList & protectedMods, bool fullModExtraction)
-{
-	ArchiveImportOutcome outcome;
-	QString sourcePath = archive;
-	QFile sourceFile(sourcePath);
-	const bool needsCopy = archive.startsWith("content://", Qt::CaseInsensitive) || !sourceFile.open(QIODevice::ReadOnly);
-	sourceFile.close();
-
-	if(needsCopy)
-	{
-		const QString tempPath = CLauncherDirs::downloadsPath() + "/.vcmi-import-"
-			+ QUuid::createUuid().toString(QUuid::WithoutBraces) + ".zip";
-		if(Helper::performNativeCopy(archive, tempPath))
-		{
-			sourcePath = tempPath;
-			outcome.temporarySource = true;
-		}
-		else
-		{
-			outcome.result.errors.push_back(QCoreApplication::translate("CModListView", "Failed to prepare %1 for import").arg(archive));
-		}
-	}
-
-	outcome.sourcePath = sourcePath;
-	if(outcome.result.errors.isEmpty())
-	{
-		try
-		{
-			outcome.result = ModStateController::installArchive(sourcePath, hint, fullModExtraction, protectedMods, progress);
-		}
-		catch(const std::exception & exception)
-		{
-			outcome.result.errors.push_back(QCoreApplication::translate("CModListView", "Failed to import %1: %2")
-				.arg(archive, QString::fromUtf8(exception.what())));
-		}
-	}
-	return outcome;
-}
-
 void CModListView::installMods(QStringList archives, bool removeArchives)
 {
-	if(archives.empty() || importThread)
-		return;
+	QStringList modNames;
+	QStringList modsToEnable;
+
+	for(QString archive : archives)
+	{
+		const QString modName = removeArchives
+			? archive.section('/', -1, -1).section('.', 0, 0)
+			: ModStateController::modIdFromArchivePath(Helper::getRealPath(archive));
+
+		modNames.push_back(modName);
+	}
 
 	if (!activatingPreset.isEmpty())
 	{
@@ -1494,250 +1551,89 @@ void CModListView::installMods(QStringList archives, bool removeArchives)
 		activatingPreset.clear();
 	}
 
-	importInstalledBefore = modStateModel->getAllMods();
-	vstd::erase_if(importInstalledBefore, [this](const QString & mod){ return !modStateModel->isModInstalled(mod); });
-	importEnabledRootsBefore.clear();
-	for(const auto & mod : importInstalledBefore)
+	// Updated mods are replaced on disk without changes to the preset, so they keep their state and state of their submods
+	for(const auto & mod : modNames)
+		if(!modStateModel->isModInstalled(mod))
+			modsToEnable.push_back(mod);
+
+	QStringList enabledRootModsBefore;
+	for(const auto & mod : modStateModel->getAllMods())
 		if(!modStateModel->isSubmod(mod) && modStateModel->isModEnabled(mod))
-			importEnabledRootsBefore.push_back(mod);
+			enabledRootModsBefore.push_back(mod);
 
-	QStringList protectedMods;
-	for(const auto & mod : importInstalledBefore)
-		if(!modStateModel->isSubmod(mod) && modStateModel->isModInstalled(mod) && !manager->isModManageable(mod))
-			protectedMods.push_back(mod);
-
-	const bool fullModExtraction = settings["launcher"]["fullModExtraction"].Bool();
-	importRemoveArchives = removeArchives;
-	importOutcomes = std::make_shared<QVector<ArchiveImportOutcome>>();
-	importProgress = std::make_shared<ModStateController::ArchiveImportProgress>();
-
-	const auto sources = std::make_shared<QVector<QPair<QString, QString>>>();
-	for(const auto & archive : archives)
+	for(int i = 0; i < modNames.size(); i++)
 	{
-		const QString hint = removeArchives
-			? archive.section('/', -1, -1).section('.', 0, 0)
-			: ModStateController::modIdFromArchivePath(Helper::getRealPath(archive));
-		sources->push_back({archive, hint});
-	}
+		logGlobal->info("Installing mod '%s'", modNames[i].toStdString());
+		QString modDisplayName = modNames[i];
+		if(modStateModel->isModExists(modNames[i]))
+			modDisplayName = modStateModel->getMod(modNames[i]).getName();
 
-	ui->progressWidget->setVisible(true);
-	ui->progressBar->setFormat(tr("Inspecting archive..."));
-	ui->progressBar->setRange(0, 0);
-	ui->abortButton->setEnabled(true);
-	Helper::keepScreenOn(true);
-
-	if(!importProgressTimer)
-	{
-		importProgressTimer = new QTimer(this);
-		importProgressTimer->setInterval(100);
-		connect(importProgressTimer, &QTimer::timeout, this, [this]()
+		ui->progressBar->setFormat(tr("Installing mod %1").arg(modDisplayName));
+		if(importProgressDialog)
 		{
-			if(!importProgress)
-				return;
-
-			const int totalMods = importProgress->totalMods.load();
-			if(totalMods == 0)
-			{
-				ui->progressBar->setRange(0, 0);
-				ui->progressBar->setFormat(tr("Inspecting archive..."));
-				return;
-			}
-
-			const quint64 totalBytes = importProgress->totalBytes.load();
-			const quint64 completedBytes = std::min(importProgress->completedBytes.load(), totalBytes);
-			const int completedMods = importProgress->completedMods.load();
-			const QString currentMod = importProgress->getCurrentMod();
-			if(currentMod.isEmpty())
-				ui->progressBar->setFormat(tr("Installing mods %1/%2... %p%").arg(completedMods).arg(totalMods));
-			else
-				ui->progressBar->setFormat(tr("Installing mods %1 (%2/%3)... %p%").arg(currentMod).arg(completedMods).arg(totalMods));
-			ui->progressBar->setRange(0, 1000);
-			if(totalBytes > 0)
-				ui->progressBar->setValue(static_cast<int>(1000 * completedBytes / totalBytes));
-			else
-				ui->progressBar->setValue(1000 * completedMods / totalMods);
-		});
-	}
-	importProgressTimer->start();
-
-	const auto outcomes = importOutcomes;
-	const auto progress = importProgress;
-	importThread = std::make_unique<ImportThread>([sources, outcomes, progress, protectedMods, fullModExtraction]()
-	{
-		for(int index = 0; index < sources->size(); ++index)
-		{
-			if(progress->canceled)
-				break;
-
-			const auto & source = sources->at(index);
-			outcomes->push_back(CModListView::importArchive(source.first, source.second, *progress, protectedMods, fullModExtraction));
-			if(progress->canceled)
-				break;
-		}
-	});
-
-	connect(importThread.get(), &QThread::finished, this, &CModListView::finishModImport, Qt::QueuedConnection);
-	importThread->start();
-}
-
-void CModListView::finishModImport()
-{
-	if(importProgressTimer)
-		importProgressTimer->stop();
-
-	if(importThread)
-	{
-		importThread->wait();
-		importThread.reset();
-	}
-
-	QVector<ArchiveImportOutcome> outcomes;
-	if(importOutcomes)
-		outcomes = *importOutcomes;
-
-	const bool removeArchives = importRemoveArchives;
-	const QStringList installedBefore = importInstalledBefore;
-	const QStringList enabledRootsBefore = importEnabledRootsBefore;
-
-	importOutcomes.reset();
-	importProgress.reset();
-	importInstalledBefore.clear();
-	importEnabledRootsBefore.clear();
-	importRemoveArchives = false;
-
-	QStringList installedMods;
-	QStringList errors;
-	for(const auto & outcome : outcomes)
-	{
-		installedMods += outcome.result.installedMods;
-		errors += outcome.result.errors;
-
-		if(outcome.result.mapArchive)
-		{
-			try
-			{
-				installMaps({outcome.sourcePath});
-			}
-			catch(const std::exception & exception)
-			{
-				errors.push_back(tr("Failed to import %1: %2").arg(outcome.sourcePath, QString::fromUtf8(exception.what())));
-			}
-		}
-		else if(outcome.result.saveArchive)
-		{
-			try
-			{
-				installSaves({outcome.sourcePath});
-			}
-			catch(const std::exception & exception)
-			{
-				errors.push_back(tr("Failed to import %1: %2").arg(outcome.sourcePath, QString::fromUtf8(exception.what())));
-			}
+			importProgressDialog->setLabelText(ui->progressBar->format());
+			importProgressDialog->setRange(0, 0);
+			qApp->processEvents();
 		}
 
-		const bool isMapOrSave = outcome.result.mapArchive || outcome.result.saveArchive;
-		if(outcome.temporarySource || (removeArchives && !isMapOrSave))
-		{
-			logGlobal->info("Erasing archive '%s'", outcome.sourcePath.toStdString());
-			QFile::remove(outcome.sourcePath);
-		}
+		manager->installMod(modNames[i], archives[i]);
 	}
 
-	if(!installedMods.isEmpty())
+	reload(modNames.back(), modsToEnable);
+
+	// mods that were not activated on reload, e.g. due to dependencies that are installed but disabled
+	vstd::erase_if(modsToEnable, [this](const QString & mod){ return !modStateModel->isModExists(mod) || modStateModel->isModEnabled(mod); });
+
+	if(!modsToEnable.empty())
 	{
-		QSet<QString> installedBeforeSet;
-		for(const auto & mod : installedBefore)
-			installedBeforeSet.insert(mod);
-
-		QStringList newMods;
-		for(const auto & mod : installedMods)
-			if(!installedBeforeSet.contains(mod))
-				newMods.push_back(mod);
-
-		QElapsedTimer reloadClock;
-		reloadClock.start();
 		try
 		{
-			reload(installedMods.back(), newMods);
+			manager->enableMods(modsToEnable);
 		}
-		catch(const std::exception & exception)
+		catch (const std::exception & e)
 		{
-			errors.push_back(tr("Failed to update mod list: %1").arg(QString::fromUtf8(exception.what())));
-		}
-		logGlobal->info("Mod list refresh after import took %d ms", reloadClock.elapsed());
-
-		// mods that were not activated on reload, e.g. due to dependencies that are installed but disabled
-		QStringList modsToEnable = newMods;
-		vstd::erase_if(modsToEnable, [this](const QString & mod){ return !modStateModel->isModExists(mod) || modStateModel->isModEnabled(mod); });
-
-		if(!modsToEnable.empty())
-		{
-			try
+			// Mods are installed but the dep tree can't be satisfied (a required
+			// dependency wasn't included in the install set). Mod files stay on
+			// disk and disabled; canEnableMod blocks further enable attempts.
+			// Surface still-missing deps via getModsToInstall — works even if the
+			// dep isn't in the repository cache (it just doesn't recurse further).
+			QStringList lines;
+			for(const auto & modID : modsToEnable)
 			{
-				manager->enableMods(modsToEnable);
+				QStringList missing;
+				for(const auto & dep : getModsToInstall(modID))
+					if(dep != modID)
+						missing.push_back(dep);
+				if(!missing.isEmpty())
+					lines.push_back(tr("%1 requires: %2").arg(modID, missing.join(", ")));
 			}
-			catch (const std::exception & e)
-			{
-				// Mods are installed but the dep tree can't be satisfied (a required
-				// dependency wasn't included in the install set). Mod files stay on
-				// disk and disabled; canEnableMod blocks further enable attempts.
-				// Surface still-missing deps via getModsToInstall — works even if the
-				// dep isn't in the repository cache (it just doesn't recurse further).
-				QStringList lines;
-				for(const auto & modID : modsToEnable)
-				{
-					QStringList missing;
-					for(const auto & dep : getModsToInstall(modID))
-						if(dep != modID)
-							missing.push_back(dep);
-					if(!missing.isEmpty())
-						lines.push_back(tr("%1 requires: %2").arg(modID, missing.join(", ")));
-				}
-				QString details = lines.isEmpty() ? QString::fromUtf8(e.what()) : lines.join("\n");
-				QMessageBox::warning(this, tr("Failed to enable mod"),
-					tr("One or more installed mods could not be enabled:\n\n%1").arg(details));
-			}
+			QString details = lines.isEmpty() ? QString::fromUtf8(e.what()) : lines.join("\n");
+			QMessageBox::warning(this, tr("Failed to enable mod"),
+				tr("One or more installed mods could not be enabled:\n\n%1").arg(details));
 		}
-
-		QStringList disabledRootMods;
-		for(const auto & mod : enabledRootsBefore)
-		{
-			if(!modStateModel->isModExists(mod))
-				disabledRootMods.push_back(mod);
-			else if(!modStateModel->isModEnabled(mod))
-				disabledRootMods.push_back(modStateModel->getMod(mod).getName());
-		}
-
-		if(!disabledRootMods.isEmpty())
-			QMessageBox::warning(this, tr("Mods disabled"),
-				tr("Following mods were disabled due to changes in installed mods:\n\n%1").arg(disabledRootMods.join("\n")));
 	}
+
+	QStringList disabledRootMods;
+	for(const auto & mod : enabledRootModsBefore)
+	{
+		if(!modStateModel->isModExists(mod))
+			disabledRootMods.push_back(mod);
+		else if(!modStateModel->isModEnabled(mod))
+			disabledRootMods.push_back(modStateModel->getMod(mod).getName());
+	}
+
+	if(!disabledRootMods.isEmpty())
+		QMessageBox::warning(this, tr("Mods disabled"),
+			tr("Following mods were disabled due to changes in installed mods:\n\n%1").arg(disabledRootMods.join("\n")));
 
 	checkManagerErrors();
 
-	logGlobal->info("Mod import finished: %d mods installed, %d errors", installedMods.size(), errors.size());
-
-	if(!errors.isEmpty())
-		QMessageBox::warning(this, tr("Import failed"), errors.join("\n"));
-
-	ui->abortButton->setEnabled(true);
-	Helper::keepScreenOn(dlManager != nullptr || importThread != nullptr);
-	hideProgressBar();
-
-	const bool retryRepositories = std::exchange(retryRepositoriesAfterImport, false);
-	const QStringList modsToRetry = std::exchange(modsToRetryAfterImport, QStringList{});
-	if(retryRepositories)
-		loadRepositories();
-	for(const auto & modName : modsToRetry)
-		if(modStateModel->isModExists(modName))
-			downloadMod(modStateModel->getMod(modName));
-
-	if(!pendingImportFiles.isEmpty())
+	if(removeArchives)
 	{
-		while(!pendingImportFiles.isEmpty() && !importThread)
+		for(QString archive : archives)
 		{
-			const auto pending = pendingImportFiles.takeFirst();
-			installFiles({pending.first}, pending.second);
+			logGlobal->info("Erasing archive '%s'", archive.toStdString());
+			QFile::remove(archive);
 		}
 	}
 }
@@ -1858,17 +1754,6 @@ void CModListView::on_refreshButton_clicked()
 
 void CModListView::on_abortButton_clicked()
 {
-	if(importThread)
-	{
-		if(importProgress)
-			importProgress->canceled = true;
-		pendingImportFiles.clear();
-		retryRepositoriesAfterImport = false;
-		modsToRetryAfterImport.clear();
-		ui->abortButton->setEnabled(false);
-		return;
-	}
-
 	delete dlManager;
 	dlManager = nullptr;
 	enqueuedModDownloads.clear();
