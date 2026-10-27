@@ -272,6 +272,11 @@
 			"description" : "List of files with translations for this language",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
+		"rumors" : {
+			"description" : "List of files containing global tavern rumors",
+			"type" : "array",
+			"items" : { "type" : "string", "format" : "textFile" }
+		},
 		"factions" : {
 			"description" : "List of configuration files for towns/factions",
 			"$ref" : "#/definitions/fileListOrObject"

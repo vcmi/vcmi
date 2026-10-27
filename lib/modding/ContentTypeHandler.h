@@ -50,6 +50,7 @@ public:
 class DLL_LINKAGE CContentHandler
 {
 	std::map<std::string, ContentTypeHandler> handlers;
+	std::map<std::pair<std::string, std::string>, std::string> rumorTextIDs;
 
 public:
 	void init();
@@ -69,5 +70,12 @@ public:
 	void afterLoadFinalization();
 
 	const ContentTypeHandler & operator[] (const std::string & name) const;
+
+	/// Returns the localized text identifier for a mod rumor, or nullptr if it is not registered.
+	const std::string * findRumorTextID(const std::string & modID, const std::string & rumorID) const;
+	/// Returns IDs of mods with at least one registered rumor.
+	std::vector<std::string> getRumorModIDs() const;
+	/// Returns registered rumor IDs in deterministic (mod ID, rumor ID) order.
+	std::vector<std::pair<std::string, std::string>> getRumorIDs() const;
 };
 

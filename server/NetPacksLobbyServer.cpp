@@ -16,6 +16,7 @@
 #include "../lib/StartInfo.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ContentTypeHandler.h"
 #include "../lib/modding/ModDescription.h"
 
 #include "../lib/CRandomGenerator.h"
@@ -87,6 +88,30 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClie
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
+	std::map<std::string, uint32_t> localRumorChecksums;
+	for (const auto & modID : LIBRARY->modh->content->getRumorModIDs())
+		localRumorChecksums[modID] = LIBRARY->modh->getRumorChecksum(modID);
+
+	if (pack.version < ESerializationVersion::RUMOR_CHECKSUMS && !localRumorChecksums.empty())
+	{
+		LobbyShowMessage message;
+		message.message = MetaString::createFromTextID("vcmi.server.errors.rumorChecksumUnsupported");
+		connection->sendPack(message);
+		connection->getConnection()->close();
+		result = false;
+		return;
+	}
+
+	if (pack.rumorChecksums != localRumorChecksums)
+	{
+		LobbyShowMessage message;
+		message.message = MetaString::createFromTextID("vcmi.server.errors.rumorChecksumMismatch");
+		connection->sendPack(message);
+		connection->getConnection()->close();
+		result = false;
+		return;
+	}
+
 	auto compatibleVersion = std::min(pack.version, ESerializationVersion::CURRENT);
 	connection->setSerializationVersion(compatibleVersion);
 

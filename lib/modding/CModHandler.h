@@ -24,6 +24,7 @@ class DLL_LINKAGE CModHandler final : boost::noncopyable
 {
 	std::unique_ptr<ModManager> modManager;
 	std::map<std::string, uint32_t> modChecksums;
+	std::map<std::string, uint32_t> modRumorChecksums;
 	std::set<std::string> validationPassed;
 
 	/// Contents of all files that mods list in their mod.json, in the same layout as mod.json itself
@@ -34,7 +35,7 @@ class DLL_LINKAGE CModHandler final : boost::noncopyable
 
 	/// Reads files of all active mods and computes their checksums
 	void loadModContent();
-	JsonNode loadModContent(const TModID & modName, const std::vector<std::string> & contentTypes, const std::string & preferredLanguage, uint32_t & checksum, bool & isValid) const;
+	JsonNode loadModContent(const TModID & modName, const std::vector<std::string> & contentTypes, const std::string & preferredLanguage, uint32_t & checksum, uint32_t & rumorChecksum, bool & isValid) const;
 
 	void loadTranslation(const TModID & modName);
 	void checkModFilesystemsConflicts(const std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> & modFilesystems);
@@ -72,6 +73,7 @@ public:
 	const std::vector<std::string> & getActiveMods() const;
 
 	const ModDescription & getModInfo(const TModID & modId) const;
+	uint32_t getRumorChecksum(const TModID & modId) const;
 
 	/// load content from all available mods
 	void load();

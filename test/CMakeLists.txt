@@ -52,6 +52,7 @@ set(test_SRCS
 		json/JsonTests.cpp
 
 		serializer/SaveFileTest.cpp
+		serializer/RumorStateSerializationTest.cpp
 
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
@@ -306,7 +307,7 @@ target_include_directories(vcmitest
 # Running tests one by one using ctest not recommended due to vcmi having
 # slow global initialization.
 gtest_discover_tests(vcmitest
-	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
+	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 vcmi_set_output_dir(vcmitest "")
 

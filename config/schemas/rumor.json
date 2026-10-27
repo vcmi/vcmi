@@ -1,0 +1,19 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI mod tavern rumor format",
+	"description" : "A global tavern rumor provided by a mod",
+	"required" : [ "id", "text" ],
+	"additionalProperties" : false,
+	"properties" : {
+		"id" : {
+			"type" : "string",
+			"minLength" : 1,
+			"description" : "Stable identifier using only ASCII letters, digits, underscore, and hyphen. Dots and other characters are not allowed."
+		},
+		"text" : {
+			"type" : "string",
+			"minLength" : 1
+		}
+	}
+}

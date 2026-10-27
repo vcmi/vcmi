@@ -15,6 +15,8 @@
 #include "../entities/building/CBuilding.h"
 #include "../entities/ResourceTypeHandler.h"
 #include "../GameLibrary.h"
+#include "../modding/CModHandler.h"
+#include "../modding/ContentTypeHandler.h"
 #include "../gameState/CGameState.h"
 #include "../gameState/UpgradeInfo.h"
 #include "../gameState/InfoAboutArmy.h"
@@ -671,6 +673,20 @@ std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTav
 	case RumorState::TYPE_RAND:
 		text.replaceTextID("core.randtvrn", rumor.first);
 		break;
+
+	case RumorState::TYPE_MOD:
+	{
+		const auto & [modID, rumorID] = gameState().currentRumor.lastModRumor;
+		const std::string * textID = LIBRARY->modh->content->findRumorTextID(modID, rumorID);
+		if (!textID)
+		{
+			logGlobal->warn("Unable to resolve mod tavern rumor '%s' from mod '%s'; using fallback rumor", rumorID, modID);
+			return text.toString(translator);
+		}
+
+		text.replaceTextID(*textID);
+		break;
+	}
 	}
 
 	return text.toString(translator);

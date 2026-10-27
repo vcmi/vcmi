@@ -43,6 +43,7 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 	GameConnectionID clientId = GameConnectionID::INVALID;
 	GameConnectionID hostClientId = GameConnectionID::INVALID;
 	ESerializationVersion version = ESerializationVersion::CURRENT;
+	std::map<std::string, uint32_t> rumorChecksums;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -55,6 +56,10 @@ struct DLL_LINKAGE LobbyClientConnected : public CLobbyPackToPropagate
 		h & clientId;
 		h & hostClientId;
 		h & version;
+		if (version >= ESerializationVersion::RUMOR_CHECKSUMS)
+			h & rumorChecksums;
+		else if (!h.saving)
+			rumorChecksums.clear();
 	}
 };
 

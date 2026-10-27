@@ -27,3 +27,13 @@ bool RumorState::update(int id, int extra)
 
 	return true;
 }
+
+bool RumorState::updateModRumor(const std::string & modID, const std::string & rumorID)
+{
+	if(vstd::contains(last, TYPE_MOD) && lastModRumor == std::make_pair(modID, rumorID))
+		return false;
+
+	last[TYPE_MOD] = {0, 0};
+	lastModRumor = {modID, rumorID};
+	return true;
+}

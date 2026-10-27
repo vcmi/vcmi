@@ -25,6 +25,7 @@
 #include "../entities/hero/CHeroHandler.h"
 #include "../entities/ResourceTypeHandler.h"
 #include "../texts/CGeneralTextHandler.h"
+#include "../texts/TextIdentifier.h"
 #include "../CBonusTypeHandler.h"
 #include "../CSkillHandler.h"
 #include "../CStopWatch.h"
@@ -44,6 +45,18 @@
 #include "../spells/SpellSchoolHandler.h"
 #include "../scripting/ScriptHandler.h"
 #include "../GameLibrary.h"
+
+static bool isValidRumorID(const std::string & rumorID)
+{
+	return !rumorID.empty() && std::ranges::all_of(rumorID, [](unsigned char character)
+	{
+		return (character >= 'a' && character <= 'z')
+			|| (character >= 'A' && character <= 'Z')
+			|| (character >= '0' && character <= '9')
+			|| character == '_'
+			|| character == '-';
+	});
+}
 
 ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & entityName):
 	handler(handler),
@@ -279,6 +292,7 @@ std::vector<std::string> CContentHandler::getContentTypeNames() const
 
 	for(const auto & handler : handlers)
 		result.push_back(handler.first);
+	result.push_back("rumors");
 
 	return result;
 }
@@ -290,6 +304,51 @@ bool CContentHandler::preloadData(const ModDescription & mod, JsonNode & modCont
 	// mod.json is part of mod checksum, so it only needs validation together with the rest of mod data
 	if (validate && !JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
 		result = false;
+
+	const JsonNode & rumors = modContent["rumors"];
+	if (!rumors.isNull() && !rumors.isVector())
+	{
+		logMod->error("Rumors provided by mod '%s' must be a JSON array", mod.getID());
+		result = false;
+	}
+	else
+	{
+		std::set<std::string> rumorIDs;
+		for (const JsonNode & rumor : rumors.Vector())
+		{
+			if (!JsonUtils::validate(rumor, "vcmi:rumor", mod.getID() + ":rumors"))
+			{
+				result = false;
+				continue;
+			}
+
+			const std::string rumorID = rumor["id"].String();
+			if (!isValidRumorID(rumorID))
+			{
+				logMod->error("Mod '%s' provides invalid tavern rumor ID '%s'; use only ASCII letters, digits, underscore, and hyphen", mod.getID(), rumorID);
+				result = false;
+				continue;
+			}
+
+			if (!rumorIDs.insert(rumorID).second)
+			{
+				logMod->error("Mod '%s' provides duplicate tavern rumor ID '%s'", mod.getID(), rumorID);
+				result = false;
+				continue;
+			}
+
+			const TextIdentifier textID("rumor", mod.getID(), rumorID, "text");
+			const auto key = std::make_pair(mod.getID(), rumorID);
+			if (!rumorTextIDs.emplace(key, textID.get()).second)
+			{
+				logMod->error("Mod '%s' provides duplicate tavern rumor ID '%s'", mod.getID(), rumorID);
+				result = false;
+				continue;
+			}
+
+			LIBRARY->generaltexth->registerString(mod.getID(), textID, rumor["text"]);
+		}
+	}
 
 	for(auto & handler : handlers)
 		handler.second.preloadModData(mod.getID(), modContent[handler.first]);
@@ -326,4 +385,30 @@ void CContentHandler::afterLoadFinalization()
 const ContentTypeHandler & CContentHandler::operator[](const std::string & name) const
 {
 	return handlers.at(name);
+}
+
+const std::string * CContentHandler::findRumorTextID(const std::string & modID, const std::string & rumorID) const
+{
+	auto it = rumorTextIDs.find(std::make_pair(modID, rumorID));
+	return it == rumorTextIDs.end() ? nullptr : &it->second;
+}
+
+std::vector<std::string> CContentHandler::getRumorModIDs() const
+{
+	std::vector<std::string> result;
+	for (const auto & rumor : rumorTextIDs)
+	{
+		const auto & modID = rumor.first.first;
+		if (result.empty() || result.back() != modID)
+			result.push_back(modID);
+	}
+	return result;
+}
+
+std::vector<std::pair<std::string, std::string>> CContentHandler::getRumorIDs() const
+{
+	std::vector<std::pair<std::string, std::string>> result;
+	for (const auto & rumor : rumorTextIDs)
+		result.push_back(rumor.first);
+	return result;
 }

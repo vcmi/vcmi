@@ -52,6 +52,11 @@ const ModDescription & CModHandler::getModInfo(const TModID & modId) const
 	return modManager->getModDescription(modId);
 }
 
+uint32_t CModHandler::getRumorChecksum(const TModID & modId) const
+{
+	return modRumorChecksums.at(modId);
+}
+
 static JsonNode genDefaultFS()
 {
 	// default FS config for mods: directory "Content" that acts as H3 root directory
@@ -129,6 +134,47 @@ static ModFiles assembleModFiles(const TModID & modName, const JsonNode & fileLi
 		JsonUtils::merge(result.data, section);
 
 	result.checksum = static_cast<uint32_t>(checksum);
+	return result;
+}
+
+static ModFiles assembleRumorFiles(const TModID & modName, const JsonNode & fileList)
+{
+	ModFiles result;
+	result.data.Vector();
+	if (!fileList.isNull() && !fileList.isVector())
+	{
+		logMod->error("Rumor files declared by mod '%s' must be a list of file paths", modName);
+		result.valid = false;
+		return result;
+	}
+
+	for (const auto & fileNameNode : fileList.Vector())
+	{
+		const std::string fileName = fileNameNode.String();
+		JsonPath path = JsonPath::builtinTODO(fileName);
+		if (!CResourceHandler::get(modName)->existsResource(path))
+		{
+			logMod->error("Mod '%s' failed to find rumor file %s", modName, fileName);
+			result.valid = false;
+			continue;
+		}
+
+		auto contents = CResourceHandler::get(modName)->load(path)->readAll();
+		JsonNode section(reinterpret_cast<std::byte *>(contents.first.get()), contents.second, fileName);
+		if (!section.isVector())
+		{
+			logMod->error("Rumor file '%s' from mod '%s' must contain a JSON array", fileName, modName);
+			result.valid = false;
+			continue;
+		}
+
+		for (auto & rumor : section.Vector())
+			result.data.Vector().push_back(std::move(rumor));
+	}
+
+	const std::string normalizedRumors = result.data.toCompactString();
+	result.checksum = static_cast<uint32_t>(crc32(0, reinterpret_cast<const Bytef *>(normalizedRumors.data()), static_cast<uInt>(normalizedRumors.size())));
+
 	return result;
 }
 
@@ -308,8 +354,9 @@ void CModHandler::initializeConfig()
 	}
 }
 
-JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<std::string> & contentTypes, const std::string & preferredLanguage, uint32_t & checksum, bool & isValid) const
+JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<std::string> & contentTypes, const std::string & preferredLanguage, uint32_t & checksum, uint32_t & rumorChecksum, bool & isValid) const
 {
+	rumorChecksum = 0;
 	const auto & mod = getModInfo(modName);
 	const JsonNode & modConfig = mod.getLocalConfig();
 	const std::string & modBaseLanguage = mod.getBaseLanguage();
@@ -319,7 +366,9 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, contentTypes.size()), [&](const tbb::blocked_range<size_t> & range)
 	{
 		for (size_t i = range.begin(); i != range.end(); ++i)
-			contentFiles[i] = assembleModFiles(modName, modConfig[contentTypes[i]]);
+			contentFiles[i] = contentTypes[i] == "rumors"
+				? assembleRumorFiles(modName, modConfig[contentTypes[i]])
+				: assembleModFiles(modName, modConfig[contentTypes[i]]);
 	});
 
 	// translations are usually the largest files that a mod provides, so load all languages at once
@@ -351,7 +400,10 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 
 	for (size_t i = 0; i < contentTypes.size(); ++i)
 	{
-		modChecksum = crc32(modChecksum, reinterpret_cast<const Bytef *>(&contentFiles[i].checksum), sizeof(uint32_t));
+		if (contentTypes[i] == "rumors")
+			rumorChecksum = contentFiles[i].checksum;
+		else
+			modChecksum = crc32(modChecksum, reinterpret_cast<const Bytef *>(&contentFiles[i].checksum), sizeof(uint32_t));
 		isValid = isValid && contentFiles[i].valid;
 		contentFiles[i].data.setModScope(modName);
 		result[contentTypes[i]] = std::move(contentFiles[i].data);
@@ -393,6 +445,7 @@ void CModHandler::loadModContent()
 
 	std::vector<JsonNode> loadedContent(activeMods.size());
 	std::vector<uint32_t> checksums(activeMods.size());
+	std::vector<uint32_t> rumorChecksums(activeMods.size());
 	// std::vector<bool> can not be written to from multiple threads
 	std::vector<char> validity(activeMods.size(), 1);
 
@@ -404,7 +457,7 @@ void CModHandler::loadModContent()
 		for (size_t i = range.begin(); i != range.end(); ++i)
 		{
 			bool isValid = true;
-			loadedContent[i] = loadModContent(activeMods[i], contentTypes, preferredLanguage, checksums[i], isValid);
+			loadedContent[i] = loadModContent(activeMods[i], contentTypes, preferredLanguage, checksums[i], rumorChecksums[i], isValid);
 			validity[i] = isValid ? 1 : 0;
 		}
 	}, tbb::simple_partitioner());
@@ -413,6 +466,7 @@ void CModHandler::loadModContent()
 	{
 		modContent[activeMods[i]] = std::move(loadedContent[i]);
 		modChecksums[activeMods[i]] = checksums[i];
+		modRumorChecksums[activeMods[i]] = rumorChecksums[i];
 		if (validity[i] == 0)
 			modsWithMissingFiles.insert(activeMods[i]);
 	}

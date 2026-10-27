@@ -1127,6 +1127,8 @@
 	"vcmi.server.errors.modsToDisable": "{Following mods must be disabled}",
 	"vcmi.server.errors.modsToEnable": "{Following mods are required}",
 	"vcmi.server.errors.notAllowed": "You are not allowed to perform this action!",
+	"vcmi.server.errors.rumorChecksumUnsupported": "This server requires a newer VCMI client to verify mod tavern rumors.",
+	"vcmi.server.errors.rumorChecksumMismatch": "Your mod tavern rumor content does not match the server.",
 	"vcmi.server.errors.playerLeft": "{Player Left}\n\n%s player have disconnected from the game!",
 	"vcmi.server.errors.saveFile.unknownEntity": "Failed to load save! Unknown entity '%s' found in saved game! Save may not be compatible with currently installed version of mods!",
 	"vcmi.server.errors.wrongIdentified": "You were identified as player %s while expecting %s",

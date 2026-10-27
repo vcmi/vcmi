@@ -23,6 +23,8 @@
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/modding/CModHandler.h"
+#include "../../lib/modding/ContentTypeHandler.h"
 
 #include <vcmi/scripting/MapEventDispatcher.h>
 #include "../../lib/gameState/SThievesGuildInfo.h"
@@ -465,7 +467,10 @@ RumorState NewTurnProcessor::pickNewRumor()
 {
 	RumorState newRumor;
 
-	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
+	std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
+	const auto rumorCandidates = LIBRARY->modh->content->getRumorIDs();
+	if (!rumorCandidates.empty())
+		rumorTypes.push_back(RumorState::TYPE_MOD);
 	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
 															  RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
 	const int3 & grailPos = gameHandler->gameState().getMap().grailPos;
@@ -534,6 +539,25 @@ RumorState NewTurnProcessor::pickNewRumor()
 				rumorId = rand.nextInt(GameConstants::RANDOM_RUMORS - 1);
 
 				break;
+
+			case RumorState::TYPE_MOD:
+			{
+				int selectedIndex = rand.nextInt(static_cast<int>(rumorCandidates.size()) - 1);
+				if (rumorCandidates.size() > 1 && gameHandler->gameState().currentRumor.type == RumorState::TYPE_MOD)
+				{
+					auto previous = std::find(rumorCandidates.begin(), rumorCandidates.end(), gameHandler->gameState().currentRumor.lastModRumor);
+					if (previous != rumorCandidates.end())
+					{
+						const auto previousIndex = std::distance(rumorCandidates.begin(), previous);
+						if (selectedIndex >= previousIndex)
+							++selectedIndex;
+					}
+				}
+
+				const auto & selected = rumorCandidates.at(selectedIndex);
+				newRumor.updateModRumor(selected.first, selected.second);
+				return newRumor;
+			}
 		}
 	}
 	while(!newRumor.update(rumorId, rumorExtra));

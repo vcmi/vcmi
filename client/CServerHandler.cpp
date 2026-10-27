@@ -60,6 +60,8 @@
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/modding/ModIncompatibility.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ContentTypeHandler.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/GameConnection.h"
 #include "../lib/UnlockGuard.h"
@@ -427,6 +429,8 @@ void CServerHandler::sendClientConnecting() const
 	lcc.uuid = uuid;
 	lcc.names = localPlayerNames;
 	lcc.mode = si->mode;
+	for (const auto & modID : LIBRARY->modh->content->getRumorModIDs())
+		lcc.rumorChecksums[modID] = LIBRARY->modh->getRumorChecksum(modID);
 	sendLobbyPack(lcc);
 }
 

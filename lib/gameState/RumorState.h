@@ -13,7 +13,7 @@ struct DLL_LINKAGE RumorState
 {
 	enum ERumorType : ui8
 	{
-		TYPE_NONE = 0, TYPE_RAND, TYPE_SPECIAL, TYPE_MAP
+		TYPE_NONE = 0, TYPE_RAND, TYPE_SPECIAL, TYPE_MAP, TYPE_MOD
 	};
 
 	enum ERumorTypeSpecial : ui8
@@ -27,13 +27,22 @@ struct DLL_LINKAGE RumorState
 
 	ERumorType type;
 	std::map<ERumorType, std::pair<int, int>> last;
+	std::pair<std::string, std::string> lastModRumor;
 
 	RumorState(){type = TYPE_NONE;};
 	bool update(int id, int extra);
+	bool updateModRumor(const std::string & modID, const std::string & rumorID);
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & type;
 		h & last;
+
+		// Replay pack blobs have no per-pack version. The marker keeps old blobs from reading bytes
+		// belonging to the next NewTurn field as mod rumor IDs.
+		if (h.hasFeature(Handler::Version::RUMOR_MOD_ID) && last.contains(TYPE_MOD))
+			h & lastModRumor;
+		else if (!h.saving)
+			lastModRumor = {};
 	}
 };
