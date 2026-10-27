@@ -1,5 +1,5 @@
 /*
- * questwidget.h, part of VCMI engine
+ * questsourcewidget.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -21,42 +21,36 @@ class QuestWidget;
 class MapController;
 class TextIdentifier;
 class RewardWidget;
+class QuestWidget;
 
-class QuestWidget : public QDialog
+class QuestSourceWidget : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit QuestWidget(MapController &, QuestSource &, QWidget *parent = nullptr);
-	~QuestWidget();
+	explicit QuestSourceWidget(MapController &, QuestSource &, QWidget *parent = nullptr);
+	~QuestSourceWidget();
 	
 	void obtainData();
-	void prepareQuestsList(const std::shared_ptr<Quest> & questToSelect = nullptr);
 	void selectQuest(int index);
 	void loadQuestData();
 	bool commitChanges();
 
 private slots:
-	void onTargetPicked(const CGObjectInstance *);
 	void on_questsList_currentRowChanged(int row);
-	void on_lKillTargetSelect_clicked();
-	void on_lCreatureAdd_clicked();
-	void on_lCreatureRemove_clicked();
 	void on_addQuestButton_clicked();
 	void on_rewardButton_clicked();
 	void on_moveUpButton_clicked();
 	void on_moveDownButton_clicked();
 	void on_deleteQuestButton_clicked();
-	void on_deadlineCheckbox_stateChanged(int state);
-	void on_repetableCheckbox_stateChanged(int state);
 
 private:
-	void onCreatureAdd(QTableWidget * listWidget, QComboBox * comboWidget, QSpinBox * spinWidget);
+	void prepareQuestsList(const std::shared_ptr<Quest> & questToSelect = nullptr);
 	void setTranslationIdentifiers();
 	void setTranslation(MetaString & metastring, const TextIdentifier & identifier, const std::string & translation);
 	void shiftSelectedQuest(int shift);
 	void disableReward(bool disabled);
-	void printQuestInformation();
+	void disableQuest(bool disabled);
 	
 	QuestSource & questSource;
 	std::shared_ptr<Quest> selectedQuest;
@@ -64,15 +58,16 @@ private:
 	MapController & controller;
 	Ui::QuestWidget *ui;
 	std::unique_ptr<RewardWidget> rewardWidget;
+	std::unique_ptr<QuestWidget> questWidget;
 };
 
-class QuestDelegate : public BaseInspectorItemDelegate
+class QuestSourceDelegate : public BaseInspectorItemDelegate
 {
 	Q_OBJECT
 public:
 	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 	
-	QuestDelegate(MapController &, QuestSource &);
+	QuestSourceDelegate(MapController &, QuestSource &);
 	
 	QWidget * createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
 	void setEditorData(QWidget * editor, const QModelIndex & index) const override;

@@ -35,7 +35,7 @@
 #include "playerselectionwidget.h"
 #include "../mapcontroller.h"
 #include "questguardwidget.h"
-#include "questwidget.h"
+#include "questsourcewidget.h"
 #include "rewardswidget.h"
 #include "scholarwidget.h"
 #include "shrinewidget.h"
@@ -535,12 +535,12 @@ void Inspector::updateProperties(QuestSource * o)
 	{
 		case MapObjectID::SEER_HUT:
 		{
-			delegate = new QuestDelegate(controller, *o);
+			delegate = new QuestSourceDelegate(controller, *o);
 			break;
 		}
 		case MapObjectID::QUEST_GUARD:
 		{
-			delegate = new QuestGuardDelegate(controller, *(o->allQuestsEditor()[0].get()));
+			delegate = new QuestGuardDelegate(controller, *o);
 			break;
 		}
 	}
