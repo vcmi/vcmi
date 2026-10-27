@@ -13,9 +13,6 @@
 #include "../ScopeGuard.h"
 #include "../texts/TextOperations.h"
 
-#include <memory>
-#include <type_traits>
-
 namespace
 {
 /// Performance optimization: every unzOpen scans up to 64 KB at the end of the archive for its central directory.
