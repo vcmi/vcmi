@@ -90,6 +90,8 @@ class SelectionTab : public CIntObject
 
 	std::shared_ptr<ElementInfo> loadedElement;
 	std::shared_ptr<CMapInfo> loadedMapInfo;
+	/// Texts of the loaded map or save, needed by screens that show it without a round trip through the server, such as the save screen
+	std::optional<TranslatorOverlay> loadedTextOverlay;
 
 	/// Returns map info of a map, save or campaign, loaded once for the last requested element; null for folders or on error
 	std::shared_ptr<CMapInfo> loadMapInfo(const std::shared_ptr<ElementInfo> & element);

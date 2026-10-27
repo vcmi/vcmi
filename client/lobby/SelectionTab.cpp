@@ -1060,6 +1060,7 @@ std::shared_ptr<CMapInfo> SelectionTab::loadMapInfo(const std::shared_ptr<Elemen
 
 	loadedElement = element;
 	loadedMapInfo.reset();
+	loadedTextOverlay.reset();
 
 	if(!element || element->isFolder)
 		return nullptr;
@@ -1077,6 +1078,7 @@ std::shared_ptr<CMapInfo> SelectionTab::loadMapInfo(const std::shared_ptr<Elemen
 			mapInfo->mapInit(element->entry->fileURI);
 		else
 			mapInfo->saveInit(ResourcePath(element->entry->fileURI, EResType::SAVEGAME));
+		loadedTextOverlay.emplace(mapInfo->mapHeader->texts);
 		loadedMapInfo = mapInfo;
 	}
 	catch(const std::exception & e)
