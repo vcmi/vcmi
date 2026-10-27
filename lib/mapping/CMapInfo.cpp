@@ -31,7 +31,7 @@
 #include "../CConfigHandler.h"
 
 CMapInfo::CMapInfo()
-	: amountOfPlayersOnMap(0), amountOfHumanControllablePlayers(0),	amountOfHumanPlayersInSave(0), isRandomMap(false)
+	: isRandomMap(false)
 {
 
 }
@@ -49,7 +49,6 @@ void CMapInfo::mapInit(const std::string & fname)
 	mapHeader->registerMapStrings();
 	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
-	countPlayers();
 }
 
 void CMapInfo::saveInit(const ResourcePath & file)
@@ -81,7 +80,6 @@ void CMapInfo::saveInit(const ResourcePath & file)
 
 	fileURI = file.getName(); // Name without file extension
 	originalFileURI = file.getOriginalName(); // Same as file.getName() but keep letter case
-	countPlayers();
 	lastWrite = CResourceHandler::get()->getLastWriteTime(file);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
 
@@ -97,27 +95,6 @@ void CMapInfo::campaignInit()
 	campaign = CampaignHandler::getHeader(fileURI);
 	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
-}
-
-void CMapInfo::countPlayers()
-{
-	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
-	{
-		if(mapHeader->players[i].canHumanPlay)
-		{
-			amountOfPlayersOnMap++;
-			amountOfHumanControllablePlayers++;
-		}
-		else if(mapHeader->players[i].canComputerPlay)
-		{
-			amountOfPlayersOnMap++;
-		}
-	}
-
-	if(scenarioOptionsOfSave)
-		for(const auto & playerInfo : scenarioOptionsOfSave->playerInfos)
-			if(playerInfo.second.isControlledByHuman())
-				amountOfHumanPlayersInSave++;
 }
 
 std::string CMapInfo::getNameTranslated(const ITranslator * translator) const

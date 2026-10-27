@@ -326,7 +326,6 @@ std::shared_ptr<CMapInfo> CampaignState::getMapInfo(CampaignScenarioID scenarioI
 	auto mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->fileURI = getFilename();
 	mapInfo->mapHeader = getMapHeader(scenarioId);
-	mapInfo->countPlayers();
 	return mapInfo;
 }
 
