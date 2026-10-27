@@ -61,6 +61,7 @@ public:
 class DLL_LINKAGE ZipArchive : boost::noncopyable
 {
 	unzFile archive;
+	std::map<std::string, unz64_file_pos> filePositions;
 
 public:
 	ZipArchive(const boost::filesystem::path & from);
