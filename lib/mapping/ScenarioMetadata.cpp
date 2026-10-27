@@ -12,6 +12,7 @@
 
 #include "CMapHeader.h"
 
+#include "../GameLibrary.h"
 #include "../json/JsonNode.h"
 #include "../modding/ModScope.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -45,9 +46,16 @@ JsonNode ScenarioMetadata::textToJson(const MetaString & text, const std::map<st
 std::string ScenarioMetadata::textToString(const JsonNode & text, const ITranslator * translator)
 {
 	const auto & translations = text["translations"].Struct();
+	const auto & textIDs = text["text"]["stringsTextID"].Vector();
+
+	// translation mods override texts of the map in the static text store, same as in CompositeTranslator
+	const bool overriddenByMod = !textIDs.empty() && std::ranges::all_of(textIDs, [](const JsonNode & textID)
+	{
+		return LIBRARY->generaltexth->identifierExists(TextIdentifier(textID.String()));
+	});
 
 	// text without translations does not use texts of the map, for example, map name of a random map
-	if(translations.empty())
+	if(translations.empty() || overriddenByMod)
 	{
 		MetaString result;
 		result.jsonDeserialize(text["text"]);

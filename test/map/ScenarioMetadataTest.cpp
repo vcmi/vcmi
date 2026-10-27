@@ -9,6 +9,7 @@
  */
 #include "StdInc.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/mapping/ScenarioMetadata.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -70,4 +71,15 @@ TEST(ScenarioMetadataTest, textWithoutTranslationsUsesMetaString)
 	text["translations"].Struct();
 	TextLocalizationContainer translator;
 	EXPECT_EQ(ScenarioMetadata::textToString(text, &translator), "raw");
+}
+
+TEST(ScenarioMetadataTest, textOfTranslationModIsPreferredOverTextOfMap)
+{
+	const TextIdentifier textID("map", "scenarioMetadataTest", "header", "name");
+	LIBRARY->generaltexth->registerString("core", textID, "translated by mod");
+
+	JsonNode text;
+	MetaString::createFromTextID(textID.get()).jsonSerialize(text["text"]);
+	text["translations"][CGeneralTextHandler::getPreferredLanguage()].String() = "text of the map";
+	EXPECT_EQ(ScenarioMetadata::textToString(text, LIBRARY->generaltexth.get()), "translated by mod");
 }

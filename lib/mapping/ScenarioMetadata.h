@@ -25,7 +25,7 @@ namespace ScenarioMetadata
 /// using translators of every language provided by the map or campaign
 DLL_LINKAGE JsonNode textToJson(const MetaString & text, const std::map<std::string, TextLocalizationContainer> & translators);
 
-/// Returns text described by textToJson, in preferred language if available, same as CMapHeader::registerMapStrings
+/// Returns text described by textToJson: text of a translation mod if present, otherwise text of the map in preferred language if available
 DLL_LINKAGE std::string textToString(const JsonNode & text, const ITranslator * translator);
 
 /// Describes map with provided header, as "map" section of metadata
