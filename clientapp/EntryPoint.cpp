@@ -253,6 +253,11 @@ int main(int argc, char * argv[])
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
 	logGlobal->info("The log file will be saved to %s", TextOperations::filesystemPathToUtf8(logPath));
+#ifdef VCMI_SDL3
+	logGlobal->info("Media backend: SDL3");
+#else
+	logGlobal->warn("Media backend: SDL2 - deprecated, slower and does not support all features");
+#endif
 
 	// Init filesystem and settings
 	try
