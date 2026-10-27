@@ -8,9 +8,8 @@
  *
  */
 
-#include "BAI/router.h"
-
 #include "StdInc.h"
+
 #include "callback/CBattleCallback.h"
 #include "callback/IGameInfoCallback.h"
 #include "filesystem/Filesystem.h"
@@ -21,8 +20,8 @@
 #include "../../StupidAI/StupidAI.h"
 
 #include "BAI/factory.h"
+#include "BAI/router.h"
 #include "BAI/scripted/scripted_model.h"
-#include "BAI/v13/BAI_v13.h"
 
 #include "AI/MMAI/common.h"
 
@@ -39,6 +38,7 @@ namespace
 		mutable ModelStorage models;
 		float temperature = 1.0;
 		uint64_t seed = 0;
+		bool useCreatureSpells = false;
 		std::map<std::string, std::string> paths;
 		std::shared_ptr<ScriptedModel> fallbackModel;
 		std::string fallbackName;
@@ -54,6 +54,7 @@ namespace
 		{
 			JsonUtils::validate(json, "vcmi:mmaiSettings", "mmai");
 			repo->temperature = static_cast<float>(json["temperature"].Float());
+			repo->useCreatureSpells = json["useCreatureSpells"].Bool();
 
 			repo->seed = json["seed"].Integer();
 			if(repo->seed == 0)
@@ -333,9 +334,10 @@ void Router::battleStart(
 			break;
 		case Schema::ModelType::NN:
 			// XXX: must not call initBattleInterface here
-			bai = CreateBAI(model, env, cb, autocombatPreferences.enableSpellsUsage, autocombatPreferences.enableTacticsUsage);
+			bai = CreateBAI(
+				model, env, cb, GetModelRepository()->useCreatureSpells, autocombatPreferences.enableSpellsUsage, autocombatPreferences.enableTacticsUsage
+			);
 			break;
-
 		default:
 			THROW_FORMAT("Unexpected model type: %d", EI(model->getType()));
 	}

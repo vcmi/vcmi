@@ -12,6 +12,8 @@
 
 #include "AI/MMAI/common.h" // IWYU pragma: keep
 
+#include "AI/BattleAI/BattleEvaluator.h"
+
 #include "BAI/logger.h"
 #include "BAI/v15/state_v15.h"
 #include "TacticsHandler.h"
@@ -28,7 +30,8 @@ public:
 		int version,
 		const std::shared_ptr<Environment> & env,
 		const std::shared_ptr<CBattleCallback> & cb,
-		bool enableSpells,
+		bool useCreatureSpells,
+		bool useHeroSpells,
 		bool enableTactics);
 
 	void activeStack(const BattleID & bid, const CStack * stack) override;
@@ -68,7 +71,8 @@ public:
 	const std::shared_ptr<Environment> env;
 	const std::shared_ptr<CBattleCallback> cb;
 
-	bool enableSpells = false;
+	bool useCreatureSpells = false;
+	bool useHeroSpells = false;
 	bool enableTactics = false;
 
 	// consecutive invalid actions counter
@@ -88,7 +92,9 @@ public:
 	std::string renderANSI() const;
 	std::shared_ptr<BattleAction> buildBattleAction(const ActionPtr & a, const CStack * acstack) const;
 	std::shared_ptr<BattleAction> maybeBuildAutoAction(const CStack * stack, const BattleID & bid) const;
-	bool maybeCastSpell(const CStack * stack, const BattleID & bid);
+	BattleEvaluator createBattleAIEvaluator(const CStack * stack, const BattleID & bid) const;
+	bool maybeCastCreatureSpell(const CStack * stack, BattleEvaluator & evaluator, const BattleID & bid);
+	bool maybeCastSpell(const CStack * stack, BattleEvaluator & evaluator) const;
 	void _activeStack(const BattleID & bid, const CStack * stack);
 	bool guardVip(const BattleID & bid, const CStack * guard, const CStack * vip);
 	void tacticMove(const BattleID & bid, const CStack * cstack, const BattleHex & bh);
