@@ -342,7 +342,8 @@ JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero) const
 
 std::shared_ptr<CGHeroInstance> CampaignState::crossoverDeserialize(const JsonNode & node, CMap * map) const
 {
-	JsonDeserializer handler(nullptr, const_cast<JsonNode&>(node));
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer handler(nullptr, resolver, const_cast<JsonNode&>(node));
 	auto hero = std::make_shared<CGHeroInstance>(map ? map->cb : nullptr);
 	hero->ID = Obj::HERO;
 	hero->serializeJsonOptions(handler);

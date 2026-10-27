@@ -231,7 +231,8 @@ TEST(QuestLimiterJsonTest, AllowedDifficultiesRoundTrips)
 	src.serializeJson(ser);
 
 	Rewardable::Limiter dst;
-	JsonDeserializer deser(nullptr, node);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer deser(nullptr, resolver, node);
 	dst.serializeJson(deser);
 
 	EXPECT_EQ(dst.allowedDifficulties, src.allowedDifficulties);
@@ -280,7 +281,8 @@ TEST_F(QuestJsonRewardTest, SeerRewardSurvivesVmapRoundTrip)
 
 	// load it back
 	SeerProbe loaded(gameState().get());
-	JsonDeserializer loader(nullptr, written);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer loader(nullptr, resolver, written);
 	loaded.serializeJsonOptions(loader);
 	ASSERT_EQ(loaded.allQuests().size(), 1u);
 	ASSERT_TRUE(loaded.getQuest().reward.has_value());

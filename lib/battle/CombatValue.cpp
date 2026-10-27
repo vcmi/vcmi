@@ -162,7 +162,7 @@ CombatValueContext CombatValueContext::against(const CBattleInfoCallback & battl
 static constexpr int skillCap = 120;
 
 /// Level of the spell referenced by a bonus, with schoolless abilities treated as mid-level
-static int spellLevelOf(const BonusSubtypeID & subtype)
+static int spellLevelOf(const spells::Service & spellService, const BonusSubtypeID & subtype)
 {
 	// H3 creature abilities belong to no school, which does not make them weak
 	static constexpr int schoollessSpellLevel = 2;
@@ -172,13 +172,12 @@ static int spellLevelOf(const BonusSubtypeID & subtype)
 	if(!spell.hasValue())
 		return schoollessSpellLevel;
 
-	const int level = spell.toSpell()->getLevel();
+	const int level = spellService.getById(spell)->getLevel();
 
 	return level > 0 ? level : schoollessSpellLevel;
 }
 
-/// Value added by one point of combat script magnitude, or zero if magnitude does not describe the effect
-static double combatScriptWeight(const BonusSubtypeID & subtype)
+void CombatValue::weighCombatScripts(const GameLibrary & library)
 {
 	static constexpr std::array<std::pair<std::string_view, double>, 3> weights = {{
 		{ "deathStare", 0.02 },
@@ -186,24 +185,21 @@ static double combatScriptWeight(const BonusSubtypeID & subtype)
 		{ "fireShield", 0.003 },
 	}};
 
-	static const std::map<si32, double> priced = []
+	for(const auto & [name, weight] : weights)
 	{
-		std::map<si32, double> result;
+		auto index = library.identifiers()->getIdentifier(ModScope::scopeGame(), "script", std::string(name), false);
 
-		for(const auto & [name, weight] : weights)
-		{
-			auto index = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "script", std::string(name), false);
+		if(index.has_value())
+			combatScriptWeights[*index] = weight;
+	}
+}
 
-			if(index.has_value())
-				result[*index] = weight;
-		}
+/// Value added by one point of combat script magnitude, or zero if magnitude does not describe the effect
+static double combatScriptWeight(const std::map<si32, double> & weights, const BonusSubtypeID & subtype)
+{
+	auto entry = weights.find(subtype.getNum());
 
-		return result;
-	}();
-
-	auto entry = priced.find(subtype.getNum());
-
-	return entry == priced.end() ? 0.0 : entry->second;
+	return entry == weights.end() ? 0.0 : entry->second;
 }
 
 /// Effect that ends on the next attack made or received lasts about one round
@@ -298,30 +294,37 @@ double CombatValue::median(std::vector<double> values)
 	return values[values.size() / 2];
 }
 
-CombatValue::CombatValue()
+CombatValue::CombatValue(const GameLibrary & library)
+	: spellService(*library.spells())
 {
+	const auto rebirth = library.identifiers()->getIdentifier(ModScope::scopeGame(), "script", std::string("rebirth"));
+	if(!rebirth)
+		throw IdentifierResolutionException("rebirth");
+	rebirthScript = ScriptID(*rebirth);
+
 	std::vector<const CCreature *> builtinCreatures;
 
-	for(const auto & creature : LIBRARY->creh->objects)
+	for(const auto & creature : library.creh->objects)
 		if(!creature->special && creature->getModScope() == ModScope::scopeBuiltin())
 			builtinCreatures.push_back(creature.get());
 
-	buildCurves(builtinCreatures);
+	weighCombatScripts(library);
+	buildCurves(library, builtinCreatures);
 	pinScale(builtinCreatures);
-	tabulateCreatures();
+	tabulateCreatures(library);
 }
 
-void CombatValue::tabulateCreatures()
+void CombatValue::tabulateCreatures(const GameLibrary & library)
 {
-	creatureValues.resize(LIBRARY->creh->objects.size());
+	creatureValues.resize(library.creh->objects.size());
 
-	for(const auto & creature : LIBRARY->creh->objects)
+	for(const auto & creature : library.creh->objects)
 		creatureValues.at(creature->getIndex()) = getAIValue(*creature, creature.get());
 }
 
-void CombatValue::buildCurves(const std::vector<const CCreature *> & builtinCreatures)
+void CombatValue::buildCurves(const GameLibrary & library, const std::vector<const CCreature *> & builtinCreatures)
 {
-	const auto * settings = LIBRARY->engineSettings();
+	const auto * settings = library.engineSettings();
 	const double attackPerPoint = settings->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR);
 	const double attackCap = settings->getDouble(EGameSettings::COMBAT_ATTACK_POINT_DAMAGE_FACTOR_CAP);
 	const double defensePerPoint = settings->getDouble(EGameSettings::COMBAT_DEFENSE_POINT_DAMAGE_FACTOR);
@@ -581,7 +584,7 @@ double CombatValue::uptimeOf(const ACreature & creature, int hexesToEnemy)
 	return uptime * (bonuses->hasBonusOfType(BonusType::FLYING) ? flyingApproachBonus : 1.0);
 }
 
-double CombatValue::offenseMultiplier(const ACreature & creature)
+double CombatValue::offenseMultiplier(const ACreature & creature) const
 {
 	// value of one spell level, cast in place of an attack or for free after a successful attack
 	static constexpr double castWeight = 0.045;
@@ -611,7 +614,7 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 	int bestSpellLevel = 0;
 	for(auto type : {BonusType::SPELLCASTER, BonusType::RANDOM_SPELLCASTER})
 		for(const auto matchingBonuses = unit->getBonusesOfType(type); const auto & bonus : *matchingBonuses)
-			bestSpellLevel = std::max(bestSpellLevel, spellLevelOf(bonus->subtype));
+			bestSpellLevel = std::max(bestSpellLevel, spellLevelOf(spellService, bonus->subtype));
 
 	result *= 1.0 + castWeight * bestSpellLevel;
 
@@ -626,7 +629,7 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 	{
 		for(const auto matchingBonuses = unit->getBonusesOfType(type); const auto & bonus : *matchingBonuses)
 		{
-			const double landed = std::sqrt(std::clamp(bonus->val, 0, 100) / 100.0) * spellLevelOf(bonus->subtype);
+			const double landed = std::sqrt(std::clamp(bonus->val, 0, 100) / 100.0) * spellLevelOf(spellService, bonus->subtype);
 
 			rest += std::min(best, landed);
 			best = std::max(best, landed);
@@ -643,7 +646,7 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 	for(const auto matchingBonuses = unit->getBonusesOfType(BonusType::COMBAT_EVENT_TRIGGER);
 		const auto & bonus : *matchingBonuses)
 	{
-		const double weight = combatScriptWeight(bonus->subtype);
+		const double weight = combatScriptWeight(combatScriptWeights, bonus->subtype);
 
 		if(weight > 0)
 			result *= 1.0 + weight * bonus->val;
@@ -686,12 +689,11 @@ double CombatValue::offenseMultiplier(const ACreature & creature)
 	return result;
 }
 
-double CombatValue::survivalMultiplier(const ACreature & creature)
+double CombatValue::survivalMultiplier(const ACreature & creature) const
 {
 	const auto * unit = creature.getBonusBearer();
 	double result = 1.0;
 
-	const ScriptID rebirthScript(ScriptID::decode("rebirth"));
 	result *= 1.0 + unit->valOfBonuses(BonusType::COMBAT_EVENT_TRIGGER, rebirthScript) / 100.0;
 
 	if(unit->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))

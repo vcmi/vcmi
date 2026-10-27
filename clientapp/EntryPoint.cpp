@@ -35,7 +35,6 @@
 #include "../lib/ExceptionsCommon.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
-#include "../lib/modding/IdentifierStorage.h"
 #include "../lib/texts/TextOperations.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
@@ -105,7 +104,7 @@ static void init()
 
 static void checkForModLoadingFailure()
 {
-	const auto & brokenMods = LIBRARY->identifiersHandler->getModsWithFailedRequests();
+	const auto & brokenMods = LIBRARY->modh->getModsWithFailedRequests();
 	if (!brokenMods.empty())
 	{
 		MetaString messageText;

@@ -777,7 +777,8 @@ void RandomMapTab::loadOptions()
 	{
 		rmgSettings.setModScope(ModScope::scopeGame());
 		mapGenOptions.reset(new CMapGenOptions());
-		JsonDeserializer handler(nullptr, rmgSettings);
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, rmgSettings);
 		handler.serializeStruct("lastSettings", *mapGenOptions);
 
 		// Will check template and set other options as well

@@ -13,39 +13,32 @@
 
 class CModHandler;
 class ModDescription;
-class CContentHandler;
 class ResourcePath;
 class ModManager;
 class ISimpleResourceLoader;
+class LibraryLoadContext;
 
 using TModID = std::string;
 
 class DLL_LINKAGE CModHandler final : boost::noncopyable
 {
 	std::unique_ptr<ModManager> modManager;
-	std::map<std::string, uint32_t> modChecksums;
-	std::set<std::string> validationPassed;
 
-	/// Contents of all files that mods list in their mod.json, in the same layout as mod.json itself
-	std::map<TModID, JsonNode> modContent;
-
-	/// Mods that list a file that does not exist in their filesystem
-	std::set<TModID> modsWithMissingFiles;
+	/// Mods from which at least one identifier request has failed to resolve while loading library content
+	std::vector<TModID> modsWithFailedRequests;
 
 	/// Reads files of all active mods and computes their checksums
-	void loadModContent();
+	void loadModContent(LibraryLoadContext & context) const;
 	JsonNode loadModContent(const TModID & modName, const std::vector<std::string> & contentTypes, const std::string & preferredLanguage, uint32_t & checksum, bool & isValid) const;
 
-	void loadTranslation(const TModID & modName);
+	void loadTranslation(LibraryLoadContext & context, const TModID & modName);
 	void checkModFilesystemsConflicts(const std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> & modFilesystems);
 
-	bool isModValidationNeeded(const ModDescription & mod) const;
+	bool isModValidationNeeded(const LibraryLoadContext & context, const ModDescription & mod) const;
 
 public:
-	std::shared_ptr<CContentHandler> content;
-
 	/// receives list of available mods and trying to load mod.json from all of them
-	void initializeConfig();
+	void initializeConfig(LibraryLoadContext & context);
 	void loadModFilesystems();
 
 	/// returns ID of mod that provides selected file resource
@@ -74,8 +67,11 @@ public:
 	const ModDescription & getModInfo(const TModID & modId) const;
 
 	/// load content from all available mods
-	void load();
-	void afterLoad();
+	void load(LibraryLoadContext & context);
+	void afterLoad(const LibraryLoadContext & context);
+
+	/// Returns list of all mods, from which at least one identifier has failed to resolve
+	const std::vector<TModID> & getModsWithFailedRequests() const;
 
 	explicit CModHandler(bool useTestPreset = false);
 	~CModHandler();

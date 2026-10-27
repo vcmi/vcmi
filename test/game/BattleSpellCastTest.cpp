@@ -24,6 +24,7 @@
 #include "../../lib/json/JsonBonus.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/modding/IdentifierResolver.h"
 #include "../../lib/modding/ModScope.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -668,8 +669,9 @@ TEST_F(BattleSpellCastTest, battleInterference)
 	skillJson.setModScope(ModScope::scopeGame());
 	specialtyJson.setModScope(ModScope::scopeGame());
 
-	auto skillBonus = JsonUtils::parseBonus(skillJson);
-	auto specialtyBonus = JsonUtils::parseBonus(specialtyJson);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	auto skillBonus = JsonUtils::parseBonus(skillJson, resolver);
+	auto specialtyBonus = JsonUtils::parseBonus(specialtyJson, resolver);
 
 	startTestGame();
 

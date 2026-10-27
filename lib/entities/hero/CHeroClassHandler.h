@@ -18,16 +18,16 @@
 
 class CHeroClassHandler : public CHandlerBase<HeroClassID, HeroClass, CHeroClass, HeroClassService>
 {
-	void fillPrimarySkillData(const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const;
+	void fillPrimarySkillData(LibraryLoadContext & context, const JsonNode & node, CHeroClass * heroClass, PrimarySkill pSkill) const;
 
 public:
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
-	void afterLoadFinalization() override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 
 	~CHeroClassHandler();
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	std::shared_ptr<CHeroClass> loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CHeroClass> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 };

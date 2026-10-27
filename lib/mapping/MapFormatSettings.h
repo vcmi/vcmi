@@ -15,10 +15,12 @@
 #include "../campaign/CampaignConstants.h"
 #include "../json/JsonNode.h"
 
+class GameLibrary;
+
 class MapFormatSettings : boost::noncopyable
 {
-	static MapIdentifiersH3M generateMapping(EMapFormat format);
-	static std::map<EMapFormat, MapIdentifiersH3M> generateMappings();
+	static MapIdentifiersH3M generateMapping(const GameLibrary & library, EMapFormat format);
+	static std::map<EMapFormat, MapIdentifiersH3M> generateMappings(const GameLibrary & library);
 	static std::map<CampaignVersion, EMapFormat> generateCampaignMapping();
 
 	std::map<EMapFormat, MapIdentifiersH3M> mapping;
@@ -27,7 +29,7 @@ class MapFormatSettings : boost::noncopyable
 	JsonNode campaignOverridesConfig;
 	JsonNode mapOverridesConfig;
 public:
-	MapFormatSettings();
+	explicit MapFormatSettings(const GameLibrary & library);
 
 	bool isSupported(EMapFormat format) const
 	{

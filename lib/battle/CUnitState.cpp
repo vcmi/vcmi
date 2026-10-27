@@ -876,7 +876,8 @@ void CUnitState::load(const JsonNode & data)
 {
 	//TODO: use instance resolver
 	reset();
-	JsonDeserializer deser(nullptr, data);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer deser(nullptr, resolver, data);
 	deser.serializeStruct("state", *this);
 }
 

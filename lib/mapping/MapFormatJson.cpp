@@ -815,7 +815,8 @@ void CMapPatcher::patchMapHeader(std::unique_ptr<CMapHeader> & header)
 
 void CMapPatcher::readPatchData()
 {
-	JsonDeserializer handler(mapObjectResolver.get(), input);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer handler(mapObjectResolver.get(), resolver, input);
 	readTriggeredEvents(handler);
 
 	handler.serializeInt("defeatIconIndex", mapHeader->defeatIconIndex);
@@ -920,7 +921,8 @@ void CMapLoaderJson::readHeader(const bool complete)
 		logGlobal->warn("Too new map format revision: %d. This map should work but some of map features may be ignored.", fileVersionMinor);
 	}
 
-	JsonDeserializer handler(mapObjectResolver.get(), header);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer handler(mapObjectResolver.get(), resolver, header);
 
 	// Fix TextIDs in JSON to include map name prefix before deserialization
 	// Skip this when called from map editor to preserve original TextIDs without mapname prefix
@@ -1175,13 +1177,14 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	configuration.setModScope(ModScope::scopeGame());
 
-	auto handler = LIBRARY->objtypeh->getHandlerFor( ModScope::scopeMap(), typeName, subtypeName);
+	auto handler = LIBRARY->objtypeh->getHandlerFor(*LIBRARY->identifiers(), ModScope::scopeMap(), typeName, subtypeName);
 
 	auto appearance = std::make_shared<ObjectTemplate>();
 
 	appearance->id = Obj(handler->getIndex());
 	appearance->subid = handler->getSubIndex();
-	appearance->readJson(configuration["template"], false);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	appearance->readJson(configuration["template"], resolver, false);
 
 	// Will be destroyed soon and replaced with shared template
 	instance = handler->create(owner->map->cb, appearance);
@@ -1196,7 +1199,8 @@ void CMapLoaderJson::MapObjectLoader::configure()
 	if(nullptr == instance)
 		return;
 
-	JsonDeserializer handler(owner->mapObjectResolver.get(), configuration);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer handler(owner->mapObjectResolver.get(), resolver, configuration);
 
 	instance->serializeJson(handler);
 

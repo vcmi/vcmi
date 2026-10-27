@@ -85,7 +85,8 @@ BattleOnlyModeTab::BattleOnlyModeTab()
 		if(!node.isNull())
 		{
 			node.setModScope(ModScope::scopeGame());
-			JsonDeserializer handler(nullptr, node);
+			InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+			JsonDeserializer handler(nullptr, resolver, node);
 			startInfo->serializeJson(handler);
 		}
 	}

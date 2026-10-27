@@ -16,6 +16,7 @@
 #include "entities/faction/CTownHandler.h"
 #include "filesystem/Filesystem.h"
 #include "GameLibrary.h"
+#include "modding/LibraryLoadContext.h"
 #include "IGameSettings.h"
 #include "constants/StringConstants.h"
 #include "bonuses/Limiters.h"
@@ -415,33 +416,33 @@ void CCreature::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-CCreatureHandler::CCreatureHandler()
+CCreatureHandler::CCreatureHandler(LibraryLoadContext & context)
 	: expAfterUpgrade(0)
 {
-	loadCommanders();
+	loadCommanders(context);
 }
 
-void CCreatureHandler::loadCommanders()
+void CCreatureHandler::loadCommanders(LibraryLoadContext & context)
 {
-	const auto & parseBonusWithCompatibility = [](const JsonNode & node)
+	const auto & parseBonusWithCompatibility = [&context](const JsonNode & node)
 	{
 		// MOD COMPATIBILITY: 1.6 mods use old, vector format.
 		// NOTE: please also remove parseBonus itself - commanders is the last place that uses it
 		if (node.isVector())
-			return JsonUtils::parseBonus(node.Vector());
+			return JsonUtils::parseBonus(node.Vector(), context);
 		else
-			return JsonUtils::parseBonus(node);
+			return JsonUtils::parseBonus(node, context);
 	};
 
 	auto configResource = JsonPath::builtin("config/commanders.json");
 
-	std::string modSource = LIBRARY->modh->findResourceOrigin(configResource);
+	std::string modSource = context.lib.modh->findResourceOrigin(configResource);
 	JsonNode data(configResource);
 	data.setModScope(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
 
-	commanderResurrectionPrice.resolveFromJson(config["resurrectionPrice"]);
+	commanderResurrectionPrice.resolveFromJson(config["resurrectionPrice"], context.resolver);
 
 	for (auto bonus : config["bonusPerLevel"].Vector())
 	{
@@ -480,15 +481,15 @@ void CCreatureHandler::loadCommanders()
 	}
 }
 
-std::vector<JsonNode> CCreatureHandler::loadLegacyData()
+std::vector<JsonNode> CCreatureHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE);
+	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE);
 
 	objects.resize(dataSize);
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
-	CLegacyConfigParser parser(TextPath::builtin("DATA/CRTRAITS.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/CRTRAITS.TXT"), *context.lib.modh);
 
 	parser.endLine(); // header
 
@@ -508,7 +509,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 		parser.endLine();
 	}
 
-	const bool isRoe = LIBRARY->isRoeData();
+	const bool isRoe = context.lib.isRoeData();
 
 	for (size_t i=0; i<dataSize; i++)
 	{
@@ -558,12 +559,12 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData()
 		h3Data.push_back(data);
 	}
 
-	loadAnimationInfo(h3Data);
+	loadAnimationInfo(context, h3Data);
 
 	return h3Data;
 }
 
-std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
+std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
@@ -579,19 +580,19 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	cre->identifier = identifier;
 	cre->modScope = scope;
 
-	JsonDeserializer handler(nullptr, node);
+	JsonDeserializer handler(nullptr, context.resolver, node);
 	cre->serializeJson(handler);
 
-	cre->cost.resolveFromJson(node["cost"]);
+	cre->cost.resolveFromJson(node["cost"], context.resolver);
 	if(!node["resurrectionPrice"].isNull())
 	{
 		cre->commanderResurrectionPrice.emplace();
-		cre->commanderResurrectionPrice->resolveFromJson(node["resurrectionPrice"]);
+		cre->commanderResurrectionPrice->resolveFromJson(node["resurrectionPrice"], context.resolver);
 	}
 
-	LIBRARY->generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
-	LIBRARY->generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
-	LIBRARY->generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"]);
+	context.lib.generaltexth->registerString(scope, cre->getNameSingularTextID(), node["name"]["singular"]);
+	context.lib.generaltexth->registerString(scope, cre->getNamePluralTextID(), node["name"]["plural"]);
+	context.lib.generaltexth->registerString(scope, cre->getDescriptionTextID(), node["description"]);
 
 	cre->addBonus(node["hitPoints"].Integer(), BonusType::STACK_HEALTH);
 	cre->addBonus(node["speed"].Integer(), BonusType::STACKS_SPEED);
@@ -616,9 +617,9 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	if(!node["shots"].isNull())
 		cre->addBonus(node["shots"].Integer(), BonusType::SHOTS);
 
-	loadStackExperience(cre.get(), node["stackExperience"]);
+	loadStackExperience(context, cre.get(), node["stackExperience"]);
 	loadJsonAnimation(cre.get(), node["graphics"]);
-	loadCreatureJson(cre.get(), node);
+	loadCreatureJson(context, cre.get(), node);
 
 	// towns and dwellings produce and guard units in amounts based on growth
 	if (cre->getGrowth() < 0 || (cre->getGrowth() == 0 && !cre->special))
@@ -638,12 +639,12 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 	JsonNode advMapFile = node["graphics"]["map"];
 	JsonNode advMapMask = node["graphics"]["mapMask"];
 
-	LIBRARY->identifiers()->requestIdentifier(scope, "object", "monster", [cre, scope, advMapFile, advMapMask](si32 monsterIndex)
+	context.resolver.requestIdentifier(scope, "object", "monster", [&context, cre, scope, advMapFile, advMapMask](si32 monsterIndex)
 	{
 		JsonNode conf;
 		conf.setModScope(scope);
 
-		LIBRARY->objtypeh->loadSubObject(cre->identifier, conf, Obj::MONSTER, cre->getId().num);
+		context.lib.objtypeh->loadSubObject(context, cre->identifier, conf, Obj::MONSTER, cre->getId().num);
 		if (!advMapFile.isNull())
 		{
 			JsonNode templ;
@@ -653,17 +654,17 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(const std::string & sc
 			templ.setModScope(scope);
 
 			// if creature has custom advMapFile, reset any potentially imported H3M templates and use provided file instead
-			LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
-			LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->addTemplate(templ);
+			context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
+			context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->addTemplate(context, templ);
 		}
 
 		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
-		if (LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
+		if (context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
 		{
 			if (!cre->special)
 				throw ModLoadingException(scope, "creature " + cre->getJsonKey() + " has no adventure map animation but is not marked as special!" );
 
-			LIBRARY->objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
+			context.lib.objtypeh->removeSubObject(Obj::MONSTER, cre->getId().num);
 		}
 	});
 
@@ -676,9 +677,9 @@ const std::vector<std::string> & CCreatureHandler::getTypeNames() const
 	return typeNames;
 }
 
-void CCreatureHandler::loadCrExpMod()
+void CCreatureHandler::loadCrExpMod(LibraryLoadContext & context)
 {
-	if (LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
+	if (context.lib.engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE)) 	//reading default stack experience values
 	{
 		//Calculate rank exp values, formula appears complicated bu no parsing needed
 		expRanks.resize(8);
@@ -702,7 +703,7 @@ void CCreatureHandler::loadCrExpMod()
 			}
 		}
 
-		CLegacyConfigParser expBonParser(TextPath::builtin("DATA/CREXPMOD.TXT"));
+		CLegacyConfigParser expBonParser(TextPath::builtin("DATA/CREXPMOD.TXT"), *context.lib.modh);
 
 		expBonParser.endLine(); //header
 
@@ -726,14 +727,14 @@ void CCreatureHandler::loadCrExpMod()
 	}
 }
 
-void CCreatureHandler::loadAnimationInfo(std::vector<JsonNode> &h3Data) const
+void CCreatureHandler::loadAnimationInfo(LibraryLoadContext & context, std::vector<JsonNode> &h3Data) const
 {
-	CLegacyConfigParser parser(TextPath::builtin("DATA/CRANIM.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/CRANIM.TXT"), *context.lib.modh);
 
 	parser.endLine(); // header
 	parser.endLine();
 
-	for(int dd = 0; dd < LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE); ++dd)
+	for(int dd = 0; dd < context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_CREATURE); ++dd)
 	{
 		while (parser.isNextEntryEmpty() && parser.endLine()) // skip empty lines
 			;
@@ -821,7 +822,7 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 	cre->largeIconName = graphics["iconLarge"].String();
 }
 
-void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & config) const
+void CCreatureHandler::loadCreatureJson(LibraryLoadContext & context, CCreature * creature, const JsonNode & config) const
 {
 	creature->animDefName = AnimationPath::fromJson(config["graphics"]["animation"]);
 	creature->mapAttackFromLeft = ImagePath::fromJson(config["graphics"]["mapAttackFromLeft"]);
@@ -831,7 +832,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	{
 		if (!ability.second.isNull())
 		{
-			auto b = JsonUtils::parseBonus(ability.second, creature->getBonusTextID(ability.first));
+			auto b = JsonUtils::parseBonus(ability.second, context, creature->getBonusTextID(ability.first));
 			b->source = BonusSource::CREATURE_ABILITY;
 			b->sid = BonusSourceID(creature->getId());
 			b->duration = BonusDuration::PERMANENT;
@@ -839,14 +840,14 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		}
 	}
 
-	LIBRARY->identifiers()->requestIdentifier("faction", config["faction"], [=](si32 faction)
+	context.resolver.requestIdentifier("faction", config["faction"], [=](si32 faction)
 	{
 		creature->faction = FactionID(faction);
 	});
 
 	for(const JsonNode &value : config["upgrades"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("creature", value, [=](si32 identifier)
+		context.resolver.requestIdentifier("creature", value, [=](si32 identifier)
 		{
 			creature->upgrades.insert(CreatureID(identifier));
 		});
@@ -912,7 +913,7 @@ std::vector<StackExperienceRange> stackExperienceRanges(const std::vector<int> &
 
 }
 
-void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode & input) const
+void CCreatureHandler::loadStackExperience(LibraryLoadContext & context, CCreature * creature, const JsonNode & input) const
 {
 	for (size_t entryIndex = 0; entryIndex < input.Vector().size(); ++entryIndex)
 	{
@@ -930,7 +931,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 					// parse each bonus separately
 					// we can not create copies since identifiers resolution does not tracks copies
 					// leading to unset identifier values in copies
-					auto bonus = JsonUtils::parseBonus (exp["bonus"], descriptionID);
+					auto bonus = JsonUtils::parseBonus(exp["bonus"], context, descriptionID);
 					bonus->source = BonusSource::STACK_EXPERIENCE;
 					bonus->duration = BonusDuration::PERMANENT;
 					bonus->addLimiter(std::make_shared<RankRangeLimiter>(lowerLimit));
@@ -951,7 +952,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 				JsonNode bonusInput = exp["bonus"];
 				bonusInput["val"].Float() = range.value;
 
-				auto bonus = JsonUtils::parseBonus (bonusInput, descriptionID);
+				auto bonus = JsonUtils::parseBonus(bonusInput, context, descriptionID);
 				bonus->source = BonusSource::STACK_EXPERIENCE;
 				bonus->duration = BonusDuration::PERMANENT;
 				bonus->addLimiter(range.limiter());
@@ -967,9 +968,9 @@ CCreatureHandler::~CCreatureHandler()
 		p.first.clear();
 }
 
-void CCreatureHandler::buildCombatValues()
+void CCreatureHandler::buildCombatValues(const GameLibrary & library)
 {
-	combatValues = std::make_unique<CombatValue>();
+	combatValues = std::make_unique<CombatValue>(library);
 }
 
 const CombatValue & CCreatureHandler::getCombatValue() const
@@ -986,15 +987,15 @@ const ResourceSet & CCreatureHandler::getCommanderResurrectionPrice(const CCreat
 	return commanderResurrectionPrice;
 }
 
-void CCreatureHandler::afterLoadFinalization()
+void CCreatureHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for(auto & creature : objects)
 	{
 		if (!creature)
 			continue;
 
-		auto natureBonuses = creature->getBonuses([](const Bonus * b){
-				return LIBRARY->bth->isCreatureNatureBonus(b->type);
+		auto natureBonuses = creature->getBonuses([&context](const Bonus * b){
+				return context.lib.bth->isCreatureNatureBonus(b->type);
 		});
 
 		if (natureBonuses->empty())

@@ -15,13 +15,16 @@
 
 struct Bonus;
 class ILimiter;
-class CSelector;
 class BonusParameters;
+class IIdentifierResolver;
+class LibraryLoadContext;
 namespace JsonUtils
 {
-	std::shared_ptr<Bonus> parseBonus(const JsonVector & ability_vec);
-	std::shared_ptr<Bonus> parseBonus(const JsonNode & ability, const TextIdentifier & descriptionID = "");
-	bool parseBonus(const JsonNode & ability, Bonus * placement, const TextIdentifier & descriptionID = "");
-	std::shared_ptr<const ILimiter> parseLimiter(const JsonNode & limiter);
-	CSelector parseSelector(const JsonNode &ability);
+	std::shared_ptr<Bonus> parseBonus(const JsonVector & ability_vec, LibraryLoadContext & context);
+	/// Parses bonus outside of library loading, for example from map or game settings
+	std::shared_ptr<Bonus> parseBonus(const JsonNode & ability, IIdentifierResolver & resolver);
+	/// Parses bonus of library content. Description of the bonus, if any, is registered under descriptionID
+	std::shared_ptr<Bonus> parseBonus(const JsonNode & ability, LibraryLoadContext & context, const TextIdentifier & descriptionID = "");
+	bool parseBonus(const JsonNode & ability, Bonus * placement, LibraryLoadContext & context, const TextIdentifier & descriptionID = "");
+	std::shared_ptr<const ILimiter> parseLimiter(const JsonNode & limiter, IIdentifierResolver & resolver);
 }

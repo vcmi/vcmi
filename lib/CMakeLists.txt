@@ -215,6 +215,8 @@ set(lib_MAIN_SRCS
 	modding/CModHandler.cpp
 	modding/CModVersion.cpp
 	modding/ContentTypeHandler.cpp
+	modding/IdentifierResolver.cpp
+	modding/LibraryLoadContext.cpp
 	modding/IdentifierStorage.cpp
 	modding/ModDescription.cpp
 	modding/ModIncompatibility.cpp
@@ -681,6 +683,8 @@ set(lib_MAIN_HEADERS
 	modding/CModHandler.h
 	modding/CModVersion.h
 	modding/ContentTypeHandler.h
+	modding/IdentifierResolver.h
+	modding/LibraryLoadContext.h
 	modding/IdentifierStorage.h
 	modding/ModDescription.h
 	modding/ModIncompatibility.h

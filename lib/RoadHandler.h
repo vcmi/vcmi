@@ -49,14 +49,13 @@ public:
 class RoadTypeHandler : public CHandlerBase<RoadId, RoadType, RoadType, RoadTypeService>
 {
 public:
-	std::shared_ptr<RoadType> loadFromJson(
-		const std::string & scope,
+	std::shared_ptr<RoadType> loadFromJson(LibraryLoadContext & context, const std::string & scope,
 		const JsonNode & json,
 		const std::string & identifier,
 		size_t index) override;
 
-	RoadTypeHandler();
+	explicit RoadTypeHandler(LibraryLoadContext & context);
 
 	const std::vector<std::string> & getTypeNames() const override;
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 };

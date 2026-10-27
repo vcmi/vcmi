@@ -13,12 +13,14 @@
 
 #include "TinyH3MWriter.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/entities/hero/CHero.h"
 #include "../../lib/entities/hero/CHeroClass.h"
 #include "../../lib/texts/CLegacyConfigParser.h"
 #include "../../lib/mapping/MapFeaturesH3M.h"
 #include "../../lib/mapping/MapFormatSettings.h"
+#include "../../lib/modding/CModHandler.h"
 #include "../../lib/texts/TextOperations.h"
 
 #include <boost/algorithm/string.hpp>
@@ -56,7 +58,7 @@ const std::map<LegacyKey, LegacyTemplate> & legacyTemplates()
 		std::map<LegacyKey, LegacyTemplate> out;
 		auto loadFile = [&](const std::string & resourcePath)
 		{
-			CLegacyConfigParser parser(TextPath::builtin(resourcePath));
+			CLegacyConfigParser parser(TextPath::builtin(resourcePath), *LIBRARY->modh);
 			const auto total = static_cast<size_t>(parser.readNumber());
 			parser.endLine();
 
