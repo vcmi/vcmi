@@ -16,8 +16,6 @@
 
 #include "MinizipExtensions.h"
 
-#include <map>
-
 class CZipStream : public CBufferedStream
 {
 	unzFile file;
