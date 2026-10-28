@@ -1097,7 +1097,8 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 	if(bai.shooting) //FIXME: handle RANGED_RETALIATION
 		return ret;
 
-	if (!bai.defender->ableToRetaliate())	//FIXME: handle situation when NO_RETALIATION bonus is removed during attack
+	// attack removes UNTIL_BEING_ATTACKED bonuses, such as petrification, before retaliation is checked
+	if (!bai.defender->ableToRetaliateAfterBeingAttacked())
 		return ret;
 
 	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) || bai.attacker->isInvincible() || isLongWeaponAttack(bai.attacker, bai.defender, bai.attackerPos))

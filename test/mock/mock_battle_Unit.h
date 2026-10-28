@@ -54,6 +54,7 @@ public:
 	MOCK_CONST_METHOD0(creatureIconIndex, int32_t());
 
 	MOCK_CONST_METHOD0(ableToRetaliate, bool());
+	MOCK_CONST_METHOD0(ableToRetaliateAfterBeingAttacked, bool());
 	MOCK_CONST_METHOD0(alive, bool());
 	MOCK_CONST_METHOD0(isGhost, bool());
 	MOCK_CONST_METHOD0(isFrozen, bool());

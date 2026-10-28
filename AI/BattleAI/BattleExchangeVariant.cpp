@@ -167,7 +167,7 @@ float BattleExchangeVariant::trackAttack(
 		attacker->afterAttack(shooting, false);
 	}
 
-	if(mode == AttackMode::FIRST_STRIKE && defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
+	if(mode == AttackMode::FIRST_STRIKE && defender->alive() && defender->ableToRetaliateAfterBeingAttacked() && !counterAttacksBlocked && !shooting)
 	{
 		auto retaliationDamage = damageCache.getDamage(defender.get(), attacker.get(), hb);
 		attackerDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), retaliationDamage, damageCache);

@@ -119,6 +119,7 @@ CRetaliations::CRetaliations(const battle::Unit * Owner)
 	: CAmmo(Owner, Selector::type()(BonusType::ADDITIONAL_RETALIATION)),
 	totalCache(0),
 	noRetaliation(Owner, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::NO_RETALIATION))),
+	noRetaliationPersistent(Owner, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::NO_RETALIATION)).And(CSelector(Bonus::UntilBeingAttacked).Not())),
 	unlimited(Owner, Selector::type()(BonusType::UNLIMITED_RETALIATIONS))
 {
 }
@@ -137,6 +138,14 @@ int32_t CRetaliations::total() const
 	int32_t val = 1 + totalProxy.getValue();
 	vstd::amax(totalCache, val);
 	return totalCache;
+}
+
+bool CRetaliations::canUseAfterBeingAttacked() const
+{
+	if(noRetaliationPersistent.hasBonus())
+		return false;
+
+	return unlimited.hasBonus() || std::max(totalCache, 1 + totalProxy.getValue()) > used;
 }
 
 void CRetaliations::reset()
@@ -481,6 +490,12 @@ bool CUnitState::ableToRetaliate() const
 {
 	return alive()
 		&& counterAttacks.canUse();
+}
+
+bool CUnitState::ableToRetaliateAfterBeingAttacked() const
+{
+	return alive()
+		&& counterAttacks.canUseAfterBeingAttacked();
 }
 
 bool CUnitState::alive() const
