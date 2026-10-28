@@ -156,6 +156,7 @@ public:
 	std::string getBiographyTextID() const;
 
 	std::string getNameTextID() const;
+	std::string getName() const override;
 
 	HeroTypeID getPortraitSource() const;
 	int32_t getIconIndex() const;

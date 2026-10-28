@@ -2050,3 +2050,7 @@ ArtifactPosition CGHeroInstance::getWarMachineSlot(ArtifactID warMachine) const
 	return possibleSlots.front();
 }
 
+std::string CGHeroInstance::getName() const
+{
+	return nameFromTextID(getNameTextID());
+}

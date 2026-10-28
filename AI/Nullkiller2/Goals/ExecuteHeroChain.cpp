@@ -93,9 +93,9 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 		objid = obj->id.getNum();
 
 #if NK2AI_TRACE_LEVEL >= 1
-		targetName = obj->getObjectNameTextID() + tile.toString();
+		targetName = obj->getName() + path.toString();
 #else
-		targetName = obj->getTypeName() + tile.toString();
+		targetName = obj->getName() +" at "+ tile.toString();
 #endif
 	}
 	else
@@ -453,7 +453,7 @@ std::string ExecuteHeroChain::toString() const
 #if NK2AI_TRACE_LEVEL >= 1
 	return "ExecuteHeroChain " + targetName + " by " + chainPath.toString();
 #else
-	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getNameTextID();
+	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getName();
 #endif
 }
 

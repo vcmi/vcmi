@@ -117,7 +117,7 @@ void ExploreNeighbourTile::accept(AIGateway * aiGw)
 
 std::string ExploreNeighbourTile::toString() const
 {
-	return "Explore neighbour tiles by " + hero->getNameTextID();
+	return "Explore neighbour tiles by " + hero->getName();
 }
 
 }
