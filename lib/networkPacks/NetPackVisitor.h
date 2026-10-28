@@ -179,6 +179,7 @@ public:
 	virtual void visitLobbyQueryState(LobbyQueryState & pack) {}
 	virtual void visitLobbyModsCheck(LobbyModsCheck & pack) {}
 	virtual void visitLobbyUpdateState(LobbyUpdateState & pack) {}
+	virtual void visitLobbyUpdateMapInfo(LobbyUpdateMapInfo & pack) {}
 	virtual void visitLobbySetMap(LobbySetMap & pack) {}
 	virtual void visitLobbySetCampaign(LobbySetCampaign & pack) {}
 	virtual void visitLobbySetCampaignMap(LobbySetCampaignMap & pack) {}

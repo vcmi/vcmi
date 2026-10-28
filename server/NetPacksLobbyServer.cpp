@@ -87,6 +87,16 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClie
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
+	if(pack.version < ESerializationVersion::LOBBY_MAP_INFO_PACK)
+	{
+		// client of an older version can not read packs of the current lobby protocol
+		logNetwork->error("Rejecting client with incompatible serialization version %d", static_cast<int>(pack.version));
+		connection->getConnection()->close();
+		vstd::erase(srv.activeConnections, connection);
+		result = false;
+		return;
+	}
+
 	auto compatibleVersion = std::min(pack.version, ESerializationVersion::CURRENT);
 	connection->setSerializationVersion(compatibleVersion);
 
@@ -103,6 +113,13 @@ void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
+	// other clients already have map info, only the new client needs it
+	LobbyUpdateMapInfo lumi;
+	lumi.mapInfo = srv.mi;
+	for(const auto & connection : srv.activeConnections)
+		if(connection->connectionID == pack.clientId)
+			connection->sendPack(lumi);
+
 	srv.updateAndPropagateLobbyState();
 }
 
@@ -175,7 +192,9 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 
 	srv.updateStartInfoOnMapChange(pack.mapInfo, pack.mapGenOpts);
 
-	result = true;
+	// pack contains whole map header and clients receive it in LobbyUpdateMapInfo, so it is not announced
+	srv.updateAndPropagateLobbyState();
+	result = false;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)

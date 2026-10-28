@@ -43,6 +43,7 @@
 #include "../../lib/IGameSettings.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/SavegamePath.h"
+#include "../../lib/gameState/SaveMetadata.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
@@ -111,56 +112,25 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		}
 	}
 
-	auto a = aaa->mapHeader.get();
-	auto b = bbb->mapHeader.get();
-	if(a && b) //if we are sorting scenarios
+	if(aaa->entry && bbb->entry) //if we are sorting scenarios
 	{
+		const ScenarioListEntry & a = *aaa->entry;
+		const ScenarioListEntry & b = *bbb->entry;
 		switch(sortBy)
 		{
 		case _format: //by map format (RoE, WoG, etc)
-			return (a->version < b->version);
-			break;
+			return (a.getMapFormat() < b.getMapFormat());
 		case _loscon: //by loss conditions
-			return (a->defeatIconIndex < b->defeatIconIndex);
-			break;
+			return (a.getDefeatIcon() < b.getDefeatIcon());
 		case _playerAm: //by player amount
-			int playerAmntB;
-			int humenPlayersB;
-			int playerAmntA;
-			int humenPlayersA;
-			playerAmntB = humenPlayersB = playerAmntA = humenPlayersA = 0;
-			for(int i = 0; i < 8; i++)
-			{
-				if(a->players[i].canHumanPlay)
-				{
-					playerAmntA++;
-					humenPlayersA++;
-				}
-				else if(a->players[i].canComputerPlay)
-				{
-					playerAmntA++;
-				}
-				if(b->players[i].canHumanPlay)
-				{
-					playerAmntB++;
-					humenPlayersB++;
-				}
-				else if(b->players[i].canComputerPlay)
-				{
-					playerAmntB++;
-				}
-			}
-			if(playerAmntB != playerAmntA)
-				return (playerAmntA < playerAmntB);
+			if(a.getPlayers() != b.getPlayers())
+				return (a.getPlayers() < b.getPlayers());
 			else
-				return (humenPlayersA < humenPlayersB);
-			break;
+				return (a.getHumanPlayers() < b.getHumanPlayers());
 		case _size: //by size of map
-			return (a->width < b->width);
-			break;
+			return (a.getMapWidth() < b.getMapWidth());
 		case _viccon: //by victory conditions
-			return (a->victoryIconIndex < b->victoryIconIndex);
-			break;
+			return (a.getVictoryIcon() < b.getVictoryIcon());
 		case _name: //by name
 			return TextOperations::compareLocalizedStrings(aaa->name, bbb->name);
 		case _fileName: //by filename
@@ -176,11 +146,11 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 		switch(sortBy)
 		{
 		case _numOfMaps: //by number of maps in campaign
-			return aaa->campaign->scenariosCount() < bbb->campaign->scenariosCount();
+			return aaa->campaignInfo->campaign->scenariosCount() < bbb->campaignInfo->campaign->scenariosCount();
 		case _name: //by name
-			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(&GAME->translator()), bbb->campaign->getNameTranslated(&GAME->translator()));
+			return TextOperations::compareLocalizedStrings(aaa->campaignInfo->campaign->getNameTranslated(&GAME->translator()), bbb->campaignInfo->campaign->getNameTranslated(&GAME->translator()));
 		default:
-			return TextOperations::compareLocalizedStrings(aaa->campaign->getNameTranslated(&GAME->translator()), bbb->campaign->getNameTranslated(&GAME->translator()));
+			return TextOperations::compareLocalizedStrings(aaa->campaignInfo->campaign->getNameTranslated(&GAME->translator()), bbb->campaignInfo->campaign->getNameTranslated(&GAME->translator()));
 		}
 	}
 }
@@ -308,8 +278,8 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 		searchInput = std::make_shared<CTextInput>(searchTextInputArea, FONT_SMALL, ETextAlignment::CENTER, true);
 		searchInput->setCallback([this](const std::string & text) {
-									 std::shared_ptr<ElementInfo> selectedMap = getSelectedMapInfo();
-									 bool hideSelectedElement = !selectedMap || !checkNameFilter(getSelectedMapInfo()->name);
+									 std::shared_ptr<ElementInfo> selectedMap = getSelectedElement();
+									 bool hideSelectedElement = !selectedMap || !checkNameFilter(selectedMap->name);
 									 filter(-1, hideSelectedElement);
 									 if (!hideSelectedElement)
 									 {
@@ -545,7 +515,7 @@ void SelectionTab::clickDouble(const Point & cursorPosition)
 		return;
 
 	auto clickedItem = curItems[itemIndex];
-	auto selectedItem = getSelectedMapInfo();
+	auto selectedItem = getSelectedElement();
 
 	if (clickedItem != selectedItem)
 	{
@@ -581,18 +551,26 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		std::string creationDateTime;
 		std::string author;
 		std::string mapVersion;
+		const std::string fileDateTime = TextOperations::getFormattedDateTimeLocal(curItems[py]->lastWrite);
+		std::string authorContact;
 		if(tabType != ESelectionScreen::campaignList)
 		{
-			author = curItems[py]->mapHeader->author.toString(&GAME->translator()) + (!curItems[py]->mapHeader->authorContact.toString(&GAME->translator()).empty() ? (" <" + curItems[py]->mapHeader->authorContact.toString(&GAME->translator()) + ">") : "");
-			mapVersion = curItems[py]->mapHeader->mapVersion.toString(&GAME->translator());
-			creationDateTime = tabType == ESelectionScreen::newGame && curItems[py]->mapHeader->creationDateTime ? TextOperations::getFormattedDateTimeLocal(curItems[py]->mapHeader->creationDateTime) : curItems[py]->date;
+			const ScenarioListEntry & entry = *curItems[py]->entry;
+			author = entry.getMapAuthor(&GAME->translator());
+			authorContact = entry.getMapAuthorContact(&GAME->translator());
+			mapVersion = entry.getMapVersion(&GAME->translator());
+			creationDateTime = tabType == ESelectionScreen::newGame && entry.getMapCreationTime() ? TextOperations::getFormattedDateTimeLocal(entry.getMapCreationTime()) : fileDateTime;
 		}
 		else
 		{
-			author = curItems[py]->campaign->getAuthor(&GAME->translator()) + (!curItems[py]->campaign->getAuthorContact(&GAME->translator()).empty() ? (" <" + curItems[py]->campaign->getAuthorContact(&GAME->translator()) + ">") : "");
-			mapVersion = curItems[py]->campaign->getCampaignVersion(&GAME->translator());
-			creationDateTime = curItems[py]->campaign->getCreationDateTime() ? TextOperations::getFormattedDateTimeLocal(curItems[py]->campaign->getCreationDateTime()) : curItems[py]->date;
+			const auto & campaign = curItems[py]->campaignInfo->campaign;
+			author = campaign->getAuthor(&GAME->translator());
+			authorContact = campaign->getAuthorContact(&GAME->translator());
+			mapVersion = campaign->getCampaignVersion(&GAME->translator());
+			creationDateTime = campaign->getCreationDateTime() ? TextOperations::getFormattedDateTimeLocal(campaign->getCreationDateTime()) : fileDateTime;
 		}
+		if(!authorContact.empty())
+			author += " <" + authorContact + ">";
 
 		ENGINE->windows().createAndPushWindow<CMapOverview>(
 			curItems[py]->name,
@@ -682,7 +660,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 			continue;
 		}
 
-		if((elem->mapHeader && (!size || elem->mapHeader->width == size)) || tabType == ESelectionScreen::campaignList)
+		if((elem->entry && (!size || elem->entry->getMapWidth() == size)) || tabType == ESelectionScreen::campaignList)
 		{
 			if(!isMapCompatibleWithLobbyPlayerCount(*elem))
 			{
@@ -707,7 +685,6 @@ void SelectionTab::filter(int size, bool selectFirst)
 			if(firstPos < curItems.size())
 			{
 				slider->scrollTo(firstPos);
-				callOnSelect(curItems[firstPos]);
 				selectAbs(firstPos);
 			}
 		}
@@ -717,8 +694,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 		updateListItems();
 		redraw();
 		slider->block(true);
-		if(callOnSelect)
-			callOnSelect(nullptr);
+		notifySelection(nullptr);
 	}
 }
 
@@ -814,8 +790,7 @@ void SelectionTab::select(int position)
 
 	updateListItems();
 	redraw();
-	if(callOnSelect)
-		callOnSelect(curItems[py]);
+	notifySelection(curItems[py]);
 }
 
 void SelectionTab::selectAbs(int position)
@@ -930,9 +905,9 @@ bool SelectionTab::selectFileName(std::string fname)
 		slider->scrollTo(firstPos);
 		selectAbs(firstPos);
 	}
-	else if(callOnSelect)
+	else
 	{
-		callOnSelect(nullptr);
+		notifySelection(nullptr);
 	}
 
 	if(tabType == ESelectionScreen::saveGame && inputName->getText().empty())
@@ -962,8 +937,7 @@ void SelectionTab::selectNewestFile(bool skipAutosaves)
 	if(newestFile.empty())
 	{
 		selectionPos = curItems.size();
-		if(callOnSelect)
-			callOnSelect(nullptr);
+		notifySelection(nullptr);
 		return;
 	}
 
@@ -1066,19 +1040,70 @@ void SelectionTab::restoreLastSave()
 	}
 
 	selectionPos = curItems.size();
-	if(callOnSelect)
-		callOnSelect(nullptr);
+	notifySelection(nullptr);
 }
 
-std::shared_ptr<ElementInfo> SelectionTab::getSelectedMapInfo() const
+std::shared_ptr<ElementInfo> SelectionTab::getSelectedElement() const
 {
 	return selectionPos >= curItems.size() || curItems[selectionPos]->isFolder ? nullptr : curItems[selectionPos];
 }
 
+std::shared_ptr<CMapInfo> SelectionTab::getSelectedMapInfo()
+{
+	return loadMapInfo(getSelectedElement());
+}
+
+std::shared_ptr<CMapInfo> SelectionTab::loadMapInfo(const std::shared_ptr<ElementInfo> & element)
+{
+	if(element == loadedElement)
+		return loadedMapInfo;
+
+	loadedElement = element;
+	loadedMapInfo.reset();
+	loadedTextOverlay.reset();
+
+	if(!element || element->isFolder)
+		return nullptr;
+
+	if(element->campaignInfo)
+	{
+		loadedMapInfo = element->campaignInfo;
+		return loadedMapInfo;
+	}
+
+	try
+	{
+		auto mapInfo = std::make_shared<CMapInfo>();
+		if(element->entry->type == ScenarioListEntry::EType::MAP)
+			mapInfo->mapInit(element->entry->fileURI);
+		else
+			mapInfo->saveInit(ResourcePath(element->entry->fileURI, EResType::SAVEGAME));
+		loadedTextOverlay.emplace(mapInfo->mapHeader->texts);
+		loadedMapInfo = mapInfo;
+	}
+	catch(const std::exception & e)
+	{
+		// list entry is built from metadata, so the rest of the file may still be invalid
+		logGlobal->error("Failed to load %s: %s", element->entry->originalFileURI, e.what());
+
+		MetaString message;
+		message.appendTextID("vcmi.client.errors.invalidMap");
+		message.replaceRawString(e.what());
+		CInfoWindow::showInfoDialog(message.toString(&GAME->translator()), {});
+	}
+	return loadedMapInfo;
+}
+
+void SelectionTab::notifySelection(const std::shared_ptr<ElementInfo> & element)
+{
+	if(callOnSelect)
+		callOnSelect(loadMapInfo(element));
+}
+
 void SelectionTab::rememberCurrentSelection()
 {
-	const auto selectedMapInfo = getSelectedMapInfo();
-	if(!selectedMapInfo || selectedMapInfo->isFolder)
+	const auto selectedMapInfo = getSelectedElement();
+	if(!selectedMapInfo)
 		return;
 		
 	// TODO: this can be more elegant
@@ -1123,43 +1148,63 @@ bool SelectionTab::checkNameFilter(const std::string & fullstring) const
 					   [](char a, char b) -> bool {return std::tolower(a) == std::tolower(b);}) != fullstring.end();
 }
 
-bool SelectionTab::isMapSupported(const CMapInfo & info)
+static const JsonNode & getMapFormatSettings(EMapFormat format)
 {
-	switch (info.mapHeader->version)
+	switch(format)
 	{
 		case EMapFormat::ROE:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA)["supported"].Bool();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA);
 		case EMapFormat::AB:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE)["supported"].Bool();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE);
 		case EMapFormat::SOD:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH)["supported"].Bool();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH);
 		case EMapFormat::CHR:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES)["supported"].Bool();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES);
 		case EMapFormat::WOG:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS)["supported"].Bool();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS);
 		case EMapFormat::HOTA:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS)["supported"].Bool();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS);
 		case EMapFormat::VCMI:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI)["supported"].Bool();
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI);
 	}
-	return false;
+	static const JsonNode unknownFormat;
+	return unknownFormat;
+}
+
+static std::string getMapSizeName(int width)
+{
+	switch(width)
+	{
+	case CMapHeader::MAP_SIZE_SMALL:
+		return "S";
+	case CMapHeader::MAP_SIZE_MIDDLE:
+		return "M";
+	case CMapHeader::MAP_SIZE_LARGE:
+		return "L";
+	case CMapHeader::MAP_SIZE_XLARGE:
+		return "XL";
+	case CMapHeader::MAP_SIZE_HUGE:
+		return "H";
+	case CMapHeader::MAP_SIZE_XHUGE:
+		return "XH";
+	case CMapHeader::MAP_SIZE_GIANT:
+		return "G";
+	default:
+		return "C";
+	}
+}
+
+bool SelectionTab::isMapSupported(const ScenarioListEntry & entry) const
+{
+	return getMapFormatSettings(entry.getMapFormat())["supported"].Bool();
 }
 
 bool SelectionTab::isMapCompatibleWithLobbyPlayerCount(const ElementInfo & info) const
 {
-	if(tabType != ESelectionScreen::newGame || GAME->server().loadMode != ELoadMode::MULTI || !info.mapHeader)
+	if(tabType != ESelectionScreen::newGame || GAME->server().loadMode != ELoadMode::MULTI || !info.entry)
 		return true;
 
-	const auto requiredHumanPlayersCount = getRequiredHumanPlayers();
-	size_t supportedHumanPlayers = 0;
-
-	for(const auto & player : info.mapHeader->players)
-	{
-		if(player.canHumanPlay)
-			++supportedHumanPlayers;
-	}
-
-	return supportedHumanPlayers >= requiredHumanPlayersCount;
+	return info.entry->getHumanPlayers() >= getRequiredHumanPlayers();
 }
 
 size_t SelectionTab::getRequiredHumanPlayers() const
@@ -1194,11 +1239,13 @@ void SelectionTab::parseMaps(const std::unordered_set<ResourcePath> & files)
 			const auto & file = filesVector[i];
 			try
 			{
-				auto mapInfo = std::make_shared<ElementInfo>();
-				mapInfo->mapInit(file.getOriginalName());
+				auto element = std::make_shared<ElementInfo>();
+				element->entry = ScenarioListEntry::fromMap(file);
+				element->fileURI = element->entry->fileURI;
+				element->lastWrite = element->entry->lastWrite;
 
-				if (isMapSupported(*mapInfo))
-					allItems[offset + i] = mapInfo;
+				if(isMapSupported(*element->entry))
+					allItems[offset + i] = element;
 			}
 			catch(std::exception & e)
 			{
@@ -1234,13 +1281,14 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 			const auto & file = filesVector[i];
 			try
 			{
-				auto mapInfo = std::make_shared<ElementInfo>();
-				mapInfo->saveInit(file);
+				auto element = std::make_shared<ElementInfo>();
+				element->entry = ScenarioListEntry::fromSave(file);
+				element->fileURI = element->entry->fileURI;
+				element->lastWrite = element->entry->lastWrite;
+				SaveMetadata::verifyMods(element->entry->metadata);
 
-				if(!isSaveCompatible(*mapInfo, loadMode))
-					mapInfo->mapHeader.reset();
-
-				allItems[offset + i] = mapInfo;
+				if(isSaveCompatible(*element->entry, loadMode))
+					allItems[offset + i] = element;
 			}
 			catch(const SaveTooOldException & e)
 			{
@@ -1268,14 +1316,11 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 	return unsupported;
 }
 
-bool SelectionTab::isSaveCompatible(const CMapInfo & info, ELoadMode loadMode) const
+bool SelectionTab::isSaveCompatible(const ScenarioListEntry & entry, ELoadMode loadMode) const
 {
-	if(!info.scenarioOptionsOfSave)
-		return false;
-
-	const bool isCampaign = info.scenarioOptionsOfSave->mode == EStartMode::CAMPAIGN;
-	const bool isMultiplayer = info.amountOfHumanPlayersInSave > 1;
-	const bool isTutorial = boost::iequals(info.scenarioOptionsOfSave->mapname, "Maps/Tutorial");
+	const bool isCampaign = entry.isCampaignSave();
+	const bool isMultiplayer = entry.getHumanPlayersInSave() > 1;
+	const bool isTutorial = entry.isTutorialSave();
 
 	switch(loadMode)
 	{
@@ -1323,9 +1368,9 @@ std::optional<bool> SelectionTab::isFolderCompatible(
 	{
 		try
 		{
-			CMapInfo info;
-			info.saveInit(file);
-			return folderCompatibility[cacheKey] = isSaveCompatible(info, loadMode);
+			const auto entry = ScenarioListEntry::fromSave(file);
+			SaveMetadata::verifyMods(entry.metadata);
+			return folderCompatibility[cacheKey] = isSaveCompatible(entry, loadMode);
 		}
 		catch(const std::exception & e) // NOSONAR: malformed saves can throw several exception types
 		{
@@ -1441,10 +1486,13 @@ void SelectionTab::parseCampaigns(const std::unordered_set<ResourcePath> & files
 			try
 			{
 				auto info = std::make_shared<ElementInfo>();
-				info->fileURI = file.getOriginalName();
-				info->campaignInit();
+				info->campaignInfo = std::make_shared<CMapInfo>();
+				info->campaignInfo->fileURI = file.getOriginalName();
+				info->campaignInfo->campaignInit();
+				info->fileURI = info->campaignInfo->fileURI;
+				info->lastWrite = info->campaignInfo->lastWrite;
 
-				if(info->campaign)
+				if(info->campaignInfo->campaign)
 				{
 					// skip campaigns organized in sets
 					bool foundInSet = false;
@@ -1486,18 +1534,29 @@ std::string SelectionTab::getFullFileURI(const ElementInfo & item) const
 
 void SelectionTab::installTexts(size_t offset)
 {
-	// map texts are inert data, so every listed entry has to be installed before its
-	// name or description can be rendered. Keys are namespaced per map, so the whole
-	// set can stay installed while the picker is open
+	// campaign texts are inert data, so every listed campaign has to be installed before its
+	// name or description can be rendered. Keys are namespaced per campaign, so the whole
+	// set can stay installed while the picker is open. Maps and saves use texts of their metadata
 	for(size_t i = offset; i < allItems.size(); ++i)
 	{
 		const auto & item = allItems[i];
-		if(item->mapHeader)
-			item->textOverlays.emplace_back(item->mapHeader->texts);
-		if(item->campaign)
-			item->textOverlays.emplace_back(item->campaign->getTexts());
-
-		item->name = item->getNameForList(&GAME->translator());
+		if(item->campaignInfo)
+		{
+			item->textOverlays.emplace_back(item->campaignInfo->campaign->getTexts());
+			item->name = item->campaignInfo->getNameTranslated(&GAME->translator());
+		}
+		else if(item->entry->type == ScenarioListEntry::EType::SAVE)
+		{
+			std::vector<std::string> path;
+			boost::split(path, item->entry->originalFileURI, boost::is_any_of("\\/"));
+			item->name = path.back();
+		}
+		else
+		{
+			item->name = item->entry->getMapName(&GAME->translator());
+			if(item->name.empty())
+				item->name = LIBRARY->generaltexth->allTexts[508];
+		}
 	}
 }
 
@@ -1588,7 +1647,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 	}
 
 	labelName->enable();
-	if(info->campaign)
+	if(info->campaignInfo)
 	{
 		labelAmountOfPlayers->disable();
 		labelMapSizeLetter->disable();
@@ -1601,7 +1660,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconLossCondition->disable();
 		labelNumberOfCampaignMaps->enable();
 		std::ostringstream ostr(std::ostringstream::out);
-		ostr << info->campaign->scenariosCount();
+		ostr << info->campaignInfo->campaign->scenariosCount();
 		labelNumberOfCampaignMaps->setText(ostr.str());
 		labelNumberOfCampaignMaps->setColor(color);
 		labelName->setMaxWidth(316);
@@ -1612,12 +1671,12 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 	{
 		labelNumberOfCampaignMaps->disable();
 		std::ostringstream ostr(std::ostringstream::out);
-		ostr << info->amountOfPlayersOnMap << "/" << info->amountOfHumanControllablePlayers;
+		ostr << info->entry->getPlayers() << "/" << info->entry->getHumanPlayers();
 		labelAmountOfPlayers->enable();
 		labelAmountOfPlayers->setText(ostr.str());
 		labelAmountOfPlayers->setColor(color);
 		labelMapSizeLetter->enable();
-		labelMapSizeLetter->setText(info->getMapSizeName());
+		labelMapSizeLetter->setText(getMapSizeName(info->entry->getMapWidth()));
 		labelMapSizeLetter->setColor(color);
 		iconFolder->disable();
 		if(pictureEmptyLine)
@@ -1625,12 +1684,12 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		if(iconFormat)
 		{
 			iconFormat->enable();
-			iconFormat->setFrame(info->getMapSizeFormatIconId());
+			iconFormat->setFrame(getMapFormatSettings(info->entry->getMapFormat())["iconIndex"].Integer());
 		}
 		iconVictoryCondition->enable();
-		iconVictoryCondition->setFrame(info->mapHeader->victoryIconIndex, 0);
+		iconVictoryCondition->setFrame(info->entry->getVictoryIcon(), 0);
 		iconLossCondition->enable();
-		iconLossCondition->setFrame(info->mapHeader->defeatIconIndex, 0);
+		iconLossCondition->setFrame(info->entry->getDefeatIcon(), 0);
 		labelName->setMaxWidth(185);
 		labelName->alignment = ETextAlignment::CENTER;
 		labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
