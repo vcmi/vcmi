@@ -540,6 +540,8 @@ void BattleWindow::activate()
 	ENGINE->setStatusbar(console);
 	CIntObject::activate();
 	GAME->interface()->cingconsole->activate();
+	if(owner.stacksController)
+		owner.stacksController->setAnimationsPaused(false);
 }
 
 void BattleWindow::deactivate()
@@ -547,6 +549,8 @@ void BattleWindow::deactivate()
 	ENGINE->setStatusbar(nullptr);
 	CIntObject::deactivate();
 	GAME->interface()->cingconsole->deactivate();
+	if(owner.stacksController)
+		owner.stacksController->setAnimationsPaused(true);
 }
 
 bool BattleWindow::captureThisKey(EShortcut key)
