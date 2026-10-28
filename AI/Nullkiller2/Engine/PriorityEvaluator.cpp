@@ -46,6 +46,19 @@ namespace NK2AI
 
 constexpr float MAX_CRITICAL_VALUE = 2.0f;
 
+const char * toString(CreatureRewardValueInfo::State state)
+{
+	switch(state)
+	{
+		case CreatureRewardValueInfo::State::UNKNOWN: return "UNKNOWN";
+		case CreatureRewardValueInfo::State::GIVES_NO_CREATURE: return "GIVES_NO_CREATURE";
+		case CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT: return "NO_ARMY_IMPROVEMENT";
+		case CreatureRewardValueInfo::State::IMPROVEMENT_DEPENDS_ON_TIER: return "IMPROVEMENT_DEPENDS_ON_TIER";
+		case CreatureRewardValueInfo::State::IMPROVES_ARMY: return "IMPROVES_ARMY";
+	}
+	throw std::logic_error("Invalid creature reward state");
+}
+
 float evaluateEnemyTownConquestValue(float baseValue, int visibleEnemyTownCount)
 {
 	if(visibleEnemyTownCount <= 0)
