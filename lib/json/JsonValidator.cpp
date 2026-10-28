@@ -11,8 +11,6 @@
 #include "StdInc.h"
 #include "JsonValidator.h"
 
-#include "JsonUtils.h"
-
 #include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../modding/ModScope.h"
@@ -20,6 +18,8 @@
 #include "../texts/TextOperations.h"
 #include "../ScopeGuard.h"
 #include "modding/CModVersion.h"
+
+static const JsonNode nullNode;
 
 /// Searches for keys similar to 'target' in 'candidates' map
 /// Returns closest match or empty string if no suitable candidates are found
@@ -694,6 +694,62 @@ std::string JsonValidator::makeErrorMessage(const std::string &message)
 	return errors;
 }
 
+const JsonNode & JsonValidator::getSchemaByName(const std::string & name)
+{
+	if (vstd::contains(loadedSchemas, name))
+		return loadedSchemas[name];
+
+	auto filename = JsonPath::builtin("config/schemas/" + name);
+
+	// schemas are part of the engine, so mods can not replace them
+	if (CResourceHandler::get(ModScope::scopeBuiltin())->existsResource(filename))
+	{
+		loadedSchemas[name] = JsonNode(filename, ModScope::scopeBuiltin());
+		return loadedSchemas[name];
+	}
+
+	logMod->error("Error: missing schema with name %s!", name);
+	assert(0);
+	return nullNode;
+}
+
+const JsonNode & JsonValidator::getSchema(const std::string & URI)
+{
+	size_t posColon = URI.find(':');
+	size_t posHash  = URI.find('#');
+	std::string filename;
+	if(posColon == std::string::npos)
+	{
+		filename = URI.substr(0, posHash);
+	}
+	else
+	{
+		std::string protocolName = URI.substr(0, posColon);
+		filename = URI.substr(posColon + 1, posHash - posColon - 1) + ".json";
+		if(protocolName != "vcmi")
+		{
+			logMod->error("Error: unsupported URI protocol for schema: %s", URI);
+			return nullNode;
+		}
+	}
+
+	// check if json pointer if present (section after hash in string)
+	if(posHash == std::string::npos || posHash == URI.size() - 1)
+	{
+		auto const & result = getSchemaByName(filename);
+		if (result.isNull())
+			logMod->error("Error: missing schema %s", URI);
+		return result;
+	}
+	else
+	{
+		auto const & result = getSchemaByName(filename).resolvePointer(URI.substr(posHash + 1));
+		if (result.isNull())
+			logMod->error("Error: missing schema %s", URI);
+		return result;
+	}
+}
+
 std::string JsonValidator::check(const std::string & schemaName, const JsonNode & data)
 {
 	usedSchemas.push_back(schemaName);
@@ -701,7 +757,7 @@ std::string JsonValidator::check(const std::string & schemaName, const JsonNode 
 	{
 		usedSchemas.pop_back();
 	});
-	return check(JsonUtils::getSchema(schemaName), data);
+	return check(getSchema(schemaName), data);
 }
 
 std::string JsonValidator::check(const JsonNode & schema, const JsonNode & data)

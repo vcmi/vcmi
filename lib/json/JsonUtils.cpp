@@ -11,12 +11,7 @@
 #include "StdInc.h"
 #include "JsonUtils.h"
 
-
 #include "../filesystem/Filesystem.h"
-#include "../modding/ModScope.h"
-
-
-static const JsonNode nullNode;
 
 static std::optional<int> getIndexSafe(const JsonNode & node, const std::string & keyName)
 {
@@ -110,75 +105,14 @@ static void maximizeNode(JsonNode & node, const JsonNode & schema)
 	eraseOptionalNodes(node, schema);
 }
 
-void JsonUtils::minimize(JsonNode & node, const std::string & schemaName)
+void JsonUtils::minimize(JsonNode & node, const JsonNode & schema)
 {
-	minimizeNode(node, getSchema(schemaName));
+	minimizeNode(node, schema);
 }
 
-void JsonUtils::maximize(JsonNode & node, const std::string & schemaName)
+void JsonUtils::maximize(JsonNode & node, const JsonNode & schema)
 {
-	maximizeNode(node, getSchema(schemaName));
-}
-
-const JsonNode & getSchemaByName(const std::string & name)
-{
-	// cached schemas to avoid loading json data multiple times
-	static std::map<std::string, JsonNode> loadedSchemas;
-	static std::mutex loadedSchemasMutex;
-	std::lock_guard lock(loadedSchemasMutex);
-
-	if (vstd::contains(loadedSchemas, name))
-		return loadedSchemas[name];
-
-	auto filename = JsonPath::builtin("config/schemas/" + name);
-
-	// schemas are part of the engine, so mods can not replace them
-	if (CResourceHandler::get(ModScope::scopeBuiltin())->existsResource(filename))
-	{
-		loadedSchemas[name] = JsonNode(filename, ModScope::scopeBuiltin());
-		return loadedSchemas[name];
-	}
-
-	logMod->error("Error: missing schema with name %s!", name);
-	assert(0);
-	return nullNode;
-}
-
-const JsonNode & JsonUtils::getSchema(const std::string & URI)
-{
-	size_t posColon = URI.find(':');
-	size_t posHash  = URI.find('#');
-	std::string filename;
-	if(posColon == std::string::npos)
-	{
-		filename = URI.substr(0, posHash);
-	}
-	else
-	{
-		std::string protocolName = URI.substr(0, posColon);
-		filename = URI.substr(posColon + 1, posHash - posColon - 1) + ".json";
-		if(protocolName != "vcmi")
-		{
-			logMod->error("Error: unsupported URI protocol for schema: %s", URI);
-			return nullNode;
-		}
-	}
-
-	// check if json pointer if present (section after hash in string)
-	if(posHash == std::string::npos || posHash == URI.size() - 1)
-	{
-		auto const & result = getSchemaByName(filename);
-		if (result.isNull())
-			logMod->error("Error: missing schema %s", URI);
-		return result;
-	}
-	else
-	{
-		auto const & result = getSchemaByName(filename).resolvePointer(URI.substr(posHash + 1));
-		if (result.isNull())
-			logMod->error("Error: missing schema %s", URI);
-		return result;
-	}
+	maximizeNode(node, schema);
 }
 
 void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, bool copyMeta)

@@ -44,16 +44,12 @@ namespace JsonUtils
 	/**
 	 * @brief removes all nodes that are identical to default entry in schema
 	 * @param node - JsonNode to minimize
-	 * @param schemaName - name of schema to use
+	 * @param schema - schema to use
 	 * @note for minimizing data must be valid against given schema
 	 */
-	DLL_LINKAGE void minimize(JsonNode & node, const std::string & schemaName);
+	DLL_LINKAGE void minimize(JsonNode & node, const JsonNode & schema);
 	/// opposed to minimize, adds all missing, required entries that have default value
-	DLL_LINKAGE void maximize(JsonNode & node, const std::string & schemaName);
-
-	/// get schema by json URI: vcmi:<name of file in schemas directory>#<entry in file, optional>
-	/// example: schema "vcmi:settings" is used to check user settings
-	DLL_LINKAGE const JsonNode & getSchema(const std::string & URI);
+	DLL_LINKAGE void maximize(JsonNode & node, const JsonNode & schema);
 
 	/// detects potential conflicts - json entries present in both nodes
 	/// returns JsonNode that contains list of conflicting keys

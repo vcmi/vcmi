@@ -14,6 +14,13 @@
 /// Class for Json validation. Mostly compliant with json-schema v6 draf
 struct DLL_LINKAGE JsonValidator
 {
+private:
+	/// Schemas loaded by this validator, by name of their file
+	std::map<std::string, JsonNode> loadedSchemas;
+
+	const JsonNode & getSchemaByName(const std::string & name);
+
+public:
 	/// path from root node to current one.
 	/// JsonNode is used as variant - either string (name of node) or as float (index in list)
 	std::vector<JsonNode> currentPath;
@@ -33,6 +40,9 @@ struct DLL_LINKAGE JsonValidator
 	/// map of known fields in schema
 	const TValidatorMap & getKnownFieldsFor(JsonNode::JsonType type);
 	const TFormatMap & getKnownFormats();
+
+	/// Returns schema by json URI: vcmi:<name of file in schemas directory>#<entry in file, optional>
+	const JsonNode & getSchema(const std::string & URI);
 
 	std::string check(const std::string & schemaName, const JsonNode & data);
 	std::string check(const JsonNode & schema, const JsonNode & data);
