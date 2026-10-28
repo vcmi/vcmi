@@ -13,10 +13,22 @@
 #include "CModHandler.h"
 #include "IdentifierStorage.h"
 
+#include "../CConfigHandler.h"
 #include "../GameLibrary.h"
+
+static EContentValidation readValidationSetting()
+{
+	const std::string & value = settings["mods"]["validation"].String();
+	if (value == "off")
+		return EContentValidation::OFF;
+	if (value == "full")
+		return EContentValidation::FULL;
+	return EContentValidation::BASIC;
+}
 
 LibraryLoadContext::LibraryLoadContext(GameLibrary & lib)
 	: lib(lib)
+	, validation(readValidationSetting())
 	, resolver(*lib.identifiersHandler)
 	, content(*this)
 {

@@ -14,7 +14,6 @@
 #include "../json/JsonRandom.h"
 #include "../mapObjects/CRewardableObject.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../CConfigHandler.h"
 #include "../GameLibrary.h"
 #include "../modding/LibraryLoadContext.h"
 
@@ -26,7 +25,7 @@ void CRewardableConstructor::initTypeData(LibraryLoadContext & context, const Js
 	if (!config["name"].isNull())
 		context.lib.generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"]);
 
-	if (settings["mods"]["validation"].String() != "off")
+	if (context.validation != EContentValidation::OFF)
 		context.validator.validate(config, "vcmi:rewardable", getJsonKey());
 	
 }

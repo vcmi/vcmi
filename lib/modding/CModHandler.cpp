@@ -606,13 +606,13 @@ void CModHandler::afterLoad(const LibraryLoadContext & context)
 
 bool CModHandler::isModValidationNeeded(const LibraryLoadContext & context, const ModDescription & mod) const
 {
-	if (settings["mods"]["validation"].String() == "full")
+	if (context.validation == EContentValidation::FULL)
 		return true;
 
 	if (modManager->getValidatedChecksum(mod.getID()) == context.modChecksums.at(mod.getID()))
 		return false;
 
-	if (settings["mods"]["validation"].String() == "off")
+	if (context.validation == EContentValidation::OFF)
 		return false;
 
 	return true;

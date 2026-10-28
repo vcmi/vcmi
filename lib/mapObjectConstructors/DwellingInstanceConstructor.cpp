@@ -18,7 +18,6 @@
 #include "../mapObjects/CGDwelling.h"
 #include "../mapObjects/ObjectTemplate.h"
 #include "../modding/LibraryLoadContext.h"
-#include "../CConfigHandler.h"
 
 bool DwellingInstanceConstructor::hasNameTextID() const
 {
@@ -56,12 +55,12 @@ void DwellingInstanceConstructor::initTypeData(LibraryLoadContext & context, con
 	kingdomOverviewImage = AnimationPath::fromJson(input["kingdomOverviewImage"]);
 
 	for (const auto & mapTemplate : getTemplates())
-		onTemplateAdded(mapTemplate);
+		onTemplateAdded(context, mapTemplate);
 }
 
-void DwellingInstanceConstructor::onTemplateAdded(const std::shared_ptr<const ObjectTemplate> mapTemplate)
+void DwellingInstanceConstructor::onTemplateAdded(LibraryLoadContext & context, const std::shared_ptr<const ObjectTemplate> mapTemplate)
 {
-	if (bannedForRandomDwelling || settings["mods"]["validation"].String() == "off")
+	if (bannedForRandomDwelling || context.validation == EContentValidation::OFF)
 		return;
 
 	bool invalidForRandomDwelling = false;

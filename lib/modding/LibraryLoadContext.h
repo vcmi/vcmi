@@ -15,6 +15,14 @@
 
 class GameLibrary;
 
+/// Level of checks of loaded content, set by "mods/validation" setting
+enum class EContentValidation : int8_t
+{
+	OFF,
+	BASIC,
+	FULL
+};
+
 /// State of one library load, passed to all code that loads library content. Exists only while the library is loading
 class DLL_LINKAGE LibraryLoadContext : boost::noncopyable
 {
@@ -24,6 +32,9 @@ public:
 
 	/// Resolves identifiers requested by loaded content once content of all mods is loaded
 	DeferredIdentifierResolver resolver;
+
+	/// Level of checks of loaded content
+	const EContentValidation validation;
 
 	/// Validates loaded content against json schemas
 	JsonValidator validator;

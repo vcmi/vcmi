@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "MarketInstanceConstructor.h"
 
-#include "../CConfigHandler.h"
 #include "../GameLibrary.h"
 #include "../constants/StringConstants.h"
 #include "../json/JsonRandom.h"
@@ -21,7 +20,7 @@
 
 void MarketInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
-	if (settings["mods"]["validation"].String() != "off")
+	if (context.validation != EContentValidation::OFF)
 		context.validator.validate(input, "vcmi:market", getJsonKey());
 
 	if (!input["description"].isNull())

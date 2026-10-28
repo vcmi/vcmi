@@ -191,10 +191,10 @@ void AObjectTypeHandler::clearTemplates()
 	templates.clear();
 }
 
-void AObjectTypeHandler::addTemplate(const std::shared_ptr<const ObjectTemplate> & templ)
+void AObjectTypeHandler::addTemplate(LibraryLoadContext & context, const std::shared_ptr<const ObjectTemplate> & templ)
 {
 	templates.push_back(templ);
-	onTemplateAdded(templ);
+	onTemplateAdded(context, templ);
 }
 
 void AObjectTypeHandler::addTemplate(LibraryLoadContext & context, JsonNode config)

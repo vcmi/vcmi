@@ -8,7 +8,6 @@
  *
  */
 #include "StdInc.h"
-#include "CConfigHandler.h"
 #include "CObjectClassesHandler.h"
 
 #include "../filesystem/Filesystem.h"
@@ -195,7 +194,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(LibraryLoadConte
 {
 	assert(!scope.empty());
 
-	if (settings["mods"]["validation"].String() != "off")
+	if (context.validation != EContentValidation::OFF)
 	{
 		size_t separator = identifier.find(':');
 
@@ -246,7 +245,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(LibraryLoadConte
 			context.lib.biomeHandler->addTemplate(context, "core", templ.second->stringID, templ.second);
 		}
 
-		createdObject->addTemplate(templ.second);
+		createdObject->addTemplate(context, templ.second);
 
 	}
 	legacyTemplates.erase(range.first, range.second);
@@ -345,7 +344,7 @@ void CObjectClassesHandler::loadSubObject(LibraryLoadContext & context, const st
 	for (auto & templ : config["templates"].Struct())
 		JsonUtils::inherit(templ.second, config["base"]);
 
-	if (settings["mods"]["validation"].String() != "off")
+	if (context.validation != EContentValidation::OFF)
 		context.validator.validate(config, "vcmi:objectType", identifier);
 
 	loadSubObject(context, config.getModScope(), identifier, config, mapObjectTypes.at(ID.getNum()).get(), subID.getNum());
