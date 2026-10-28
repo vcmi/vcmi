@@ -538,8 +538,8 @@ Controls whether affected hero can surrender. Works in the same way as `BATTLE_C
 Negates all natural immunities for affected stacks. (Orb of Vulnerability)
 
 - subtype:
-  - immunityBattleWide: Entire battle will be affected by bonus
-  - immunityEnemyHero: Only enemy hero will be affected by bonus
+  - immunityBattleWide: affected units lose natural immunities against spells cast by their enemies. Use with `BATTLE_WIDE` propagator
+  - immunityEnemyHero: affected units lose natural immunities against spells from any caster, including their own side
 
 ### OPENING_BATTLE_SPELL
 
