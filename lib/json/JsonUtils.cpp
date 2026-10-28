@@ -14,6 +14,7 @@
 #include "JsonValidator.h"
 
 #include "../filesystem/Filesystem.h"
+#include "../modding/ModScope.h"
 
 
 static const JsonNode nullNode;
@@ -158,9 +159,10 @@ const JsonNode & getSchemaByName(const std::string & name)
 
 	auto filename = JsonPath::builtin("config/schemas/" + name);
 
-	if (CResourceHandler::get()->existsResource(filename))
+	// schemas are part of the engine, so mods can not replace them
+	if (CResourceHandler::get(ModScope::scopeBuiltin())->existsResource(filename))
 	{
-		loadedSchemas[name] = JsonNode(filename);
+		loadedSchemas[name] = JsonNode(filename, ModScope::scopeBuiltin());
 		return loadedSchemas[name];
 	}
 
