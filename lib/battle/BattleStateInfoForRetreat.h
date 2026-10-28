@@ -19,7 +19,7 @@ namespace battle
 
 class CGHeroInstance;
 
-class BattleStateInfoForRetreat
+class DLL_LINKAGE BattleStateInfoForRetreat
 {
 public:
 	bool canFlee;
@@ -31,8 +31,11 @@ public:
 	const CGHeroInstance * ourHero;
 	const CGHeroInstance * enemyHero;
 	int turnsSkippedByDefense;
+	int turnsWithoutEnemyLosses;
 
 	BattleStateInfoForRetreat();
 	uint64_t getOurStrength() const;
 	uint64_t getEnemyStrength() const;
+	/// Battle that none of the sides seems able to win, e.g. due to kiting or regeneration
+	bool isStalemate() const;
 };
