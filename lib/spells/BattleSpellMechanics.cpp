@@ -228,8 +228,8 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 
 	//effect like Recanter's Cloak. Blocks also passive casting.
 	//TODO: check any possible caster
-
-	if(battle()->battleMaxSpellLevel(side) < getSpellLevel() || battle()->battleMinSpellLevel(side) > getSpellLevel())
+	//like Orb of Inhibition, spell level limits never block level-0 creature abilities
+	if(getSpellLevel() > 0 && (battle()->battleMaxSpellLevel(side) < getSpellLevel() || battle()->battleMinSpellLevel(side) > getSpellLevel()))
 		return adaptProblem(ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED, problem);
 
 	return effects->applicable(problem, this);
