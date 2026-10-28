@@ -346,7 +346,7 @@ void CObjectClassesHandler::loadSubObject(LibraryLoadContext & context, const st
 		JsonUtils::inherit(templ.second, config["base"]);
 
 	if (settings["mods"]["validation"].String() != "off")
-		JsonUtils::validate(config, "vcmi:objectType", identifier);
+		context.validator.validate(config, "vcmi:objectType", identifier);
 
 	loadSubObject(context, config.getModScope(), identifier, config, mapObjectTypes.at(ID.getNum()).get(), subID.getNum());
 }

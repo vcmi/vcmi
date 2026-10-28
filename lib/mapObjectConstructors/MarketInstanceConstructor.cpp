@@ -22,7 +22,7 @@
 void MarketInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
 	if (settings["mods"]["validation"].String() != "off")
-		JsonUtils::validate(input, "vcmi:market", getJsonKey());
+		context.validator.validate(input, "vcmi:market", getJsonKey());
 
 	if (!input["description"].isNull())
 	{

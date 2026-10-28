@@ -58,6 +58,7 @@
 #include <vcmi/scripting/MapEventDispatcher.h>
 #include "../lib/gameState/QuestInfo.h"
 #include "../lib/gameState/SaveMetadata.h"
+#include "../lib/json/JsonValidator.h"
 #include "../lib/gameState/UpgradeInfo.h"
 
 #include "../lib/mapping/CCastleEvent.h"
@@ -1886,7 +1887,8 @@ void CGameHandler::load(const StartInfo &info)
 	else
 	{
 		CLoadFile lf(saveFile);
-		SaveMetadata::verifyMods(SaveMetadata::parse(lf.readChunk(SaveFileFormat::CHUNK_METADATA), info.mapname));
+		JsonValidator validator;
+		SaveMetadata::verifyMods(SaveMetadata::parse(lf.readChunk(SaveFileFormat::CHUNK_METADATA), info.mapname, validator));
 
 		auto game = lf.openChunk(SaveFileFormat::CHUNK_GAMESTATE, gs.get());
 		gs->loadGame(game->iser);

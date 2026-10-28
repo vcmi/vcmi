@@ -13,6 +13,7 @@
 
 class ITranslator;
 class ResourcePath;
+struct JsonValidator;
 enum class EMapFormat : uint8_t;
 
 /// Entry of the list of maps or saved games, described by metadata instead of the map header
@@ -36,7 +37,7 @@ public:
 
 	/// Throws SaveTooOldException or SaveTooNewException if version of the save is not supported,
 	/// std::runtime_error if the save is invalid
-	static ScenarioListEntry fromSave(const ResourcePath & file);
+	static ScenarioListEntry fromSave(const ResourcePath & file, JsonValidator & validator);
 
 	std::string getMapName(const ITranslator * translator) const;
 	std::string getMapAuthor(const ITranslator * translator) const;

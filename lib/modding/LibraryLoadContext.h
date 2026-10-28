@@ -11,6 +11,7 @@
 
 #include "ContentTypeHandler.h"
 #include "IdentifierResolver.h"
+#include "../json/JsonValidator.h"
 
 class GameLibrary;
 
@@ -23,6 +24,9 @@ public:
 
 	/// Resolves identifiers requested by loaded content once content of all mods is loaded
 	DeferredIdentifierResolver resolver;
+
+	/// Validates loaded content against json schemas
+	JsonValidator validator;
 
 	/// Content of all entity types, with json of all loaded mods
 	CContentHandler content;

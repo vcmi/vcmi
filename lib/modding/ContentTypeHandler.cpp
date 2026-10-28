@@ -94,7 +94,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	auto performValidate = [&,this](JsonNode & data, const std::string & name){
 		handler->beforeValidate(data);
 		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + entityName, name);
+			result &= context.validator.validate(data, "vcmi:" + entityName, name);
 	};
 
 	// apply patches
@@ -295,7 +295,7 @@ bool CContentHandler::preloadData(const ModDescription & mod, JsonNode & modCont
 	bool result = true;
 
 	// mod.json is part of mod checksum, so it only needs validation together with the rest of mod data
-	if (validate && !JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
+	if (validate && !context.validator.validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
 		result = false;
 
 	for(auto & handler : handlers)

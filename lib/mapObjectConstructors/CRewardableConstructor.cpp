@@ -27,7 +27,7 @@ void CRewardableConstructor::initTypeData(LibraryLoadContext & context, const Js
 		context.lib.generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"]);
 
 	if (settings["mods"]["validation"].String() != "off")
-		JsonUtils::validate(config, "vcmi:rewardable", getJsonKey());
+		context.validator.validate(config, "vcmi:rewardable", getJsonKey());
 	
 }
 

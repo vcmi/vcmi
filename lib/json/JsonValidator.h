@@ -12,7 +12,7 @@
 #include "JsonNode.h"
 
 /// Class for Json validation. Mostly compliant with json-schema v6 draf
-struct JsonValidator
+struct DLL_LINKAGE JsonValidator
 {
 	/// path from root node to current one.
 	/// JsonNode is used as variant - either string (name of node) or as float (index in list)
@@ -36,4 +36,9 @@ struct JsonValidator
 
 	std::string check(const std::string & schemaName, const JsonNode & data);
 	std::string check(const JsonNode & schema, const JsonNode & data);
+
+	/// Validates node against schema with provided URI and logs all found errors, with dataName identifying the node
+	bool validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName);
+	/// Validates node against provided inline schema and logs all found errors, with dataName identifying the node
+	bool validate(const JsonNode & node, const JsonNode & schema, const std::string & dataName);
 };

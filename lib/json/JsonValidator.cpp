@@ -560,6 +560,17 @@ static std::string version(const JsonNode & node)
 }
 #endif
 
+static bool logErrors(const std::string & errors, const JsonNode & node, const std::string & dataName)
+{
+	if (!errors.empty())
+	{
+		logMod->warn("Data in %s is invalid!", dataName);
+		logMod->warn(errors);
+		logMod->trace("%s json: %s", dataName, node.toCompactString());
+	}
+	return errors.empty();
+}
+
 JsonValidator::TValidatorMap createCommonFields()
 {
 	JsonValidator::TValidatorMap ret;
@@ -730,4 +741,14 @@ const JsonValidator::TFormatMap & JsonValidator::getKnownFormats()
 {
 	static const TFormatMap knownFormats = createFormatMap();
 	return knownFormats;
+}
+
+bool JsonValidator::validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName)
+{
+	return logErrors(check(schemaName, node), node, dataName);
+}
+
+bool JsonValidator::validate(const JsonNode & node, const JsonNode & schema, const std::string & dataName)
+{
+	return logErrors(check(schema, node), node, dataName);
 }

@@ -20,7 +20,7 @@
 void FlaggableInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & config)
 {
 	if (settings["mods"]["validation"].String() != "off")
-		JsonUtils::validate(config, "vcmi:flaggable", getJsonKey());
+		context.validator.validate(config, "vcmi:flaggable", getJsonKey());
 
 	for (const auto & bonusJson : config["bonuses"].Struct())
 		providedBonuses.push_back(JsonUtils::parseBonus(bonusJson.second, context));

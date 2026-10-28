@@ -14,6 +14,7 @@
 #include "GameConstants.h"
 #include "VCMIDirs.h"
 #include "json/JsonUtils.h"
+#include "json/JsonValidator.h"
 
 SettingsStorage settings;
 SettingsStorage persistentStorage;
@@ -81,7 +82,8 @@ void SettingsStorage::init(const std::string & dataFilename, const std::string &
 	if(!schema.empty())
 	{
 		JsonUtils::maximize(config, schema);
-		JsonUtils::validate(config, schema, "settings");
+		JsonValidator validator;
+		validator.validate(config, schema, "settings");
 	}
 }
 

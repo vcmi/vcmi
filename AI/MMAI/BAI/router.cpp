@@ -15,6 +15,7 @@
 #include "filesystem/Filesystem.h"
 #include "lib/CRandomGenerator.h"
 #include "json/JsonUtils.h"
+#include "json/JsonValidator.h"
 
 #include "../../BattleAI/BattleAI.h"
 #include "../../StupidAI/StupidAI.h"
@@ -52,7 +53,8 @@ namespace
 
 		if(json.isStruct())
 		{
-			JsonUtils::validate(json, "vcmi:mmaiSettings", "mmai");
+			JsonValidator validator;
+			validator.validate(json, "vcmi:mmaiSettings", "mmai");
 			repo->temperature = static_cast<float>(json["temperature"].Float());
 			repo->useCreatureSpells = json["useCreatureSpells"].Bool();
 

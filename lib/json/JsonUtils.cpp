@@ -11,7 +11,6 @@
 #include "StdInc.h"
 #include "JsonUtils.h"
 
-#include "JsonValidator.h"
 
 #include "../filesystem/Filesystem.h"
 #include "../modding/ModScope.h"
@@ -119,32 +118,6 @@ void JsonUtils::minimize(JsonNode & node, const std::string & schemaName)
 void JsonUtils::maximize(JsonNode & node, const std::string & schemaName)
 {
 	maximizeNode(node, getSchema(schemaName));
-}
-
-bool JsonUtils::validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName)
-{
-	JsonValidator validator;
-	std::string log = validator.check(schemaName, node);
-	if (!log.empty())
-	{
-		logMod->warn("Data in %s is invalid!", dataName);
-		logMod->warn(log);
-		logMod->trace("%s json: %s", dataName, node.toCompactString());
-	}
-	return log.empty();
-}
-
-bool JsonUtils::validate(const JsonNode & node, const JsonNode & schema, const std::string & dataName)
-{
-	JsonValidator validator;
-	std::string log = validator.check(schema, node);
-	if (!log.empty())
-	{
-		logMod->warn("Data in %s is invalid!", dataName);
-		logMod->warn(log);
-		logMod->trace("%s json: %s", dataName, node.toCompactString());
-	}
-	return log.empty();
 }
 
 const JsonNode & getSchemaByName(const std::string & name)

@@ -307,8 +307,12 @@ void CModHandler::initializeConfig(LibraryLoadContext & context)
 	for(const TModID & modName : getActiveMods())
 	{
 		const auto & mod = getModInfo(modName);
-		if (!mod.getLocalConfig()["settings"].isNull())
-			context.lib.settingsHandler->loadBase(mod.getLocalConfig()["settings"]);
+		const JsonNode & modSettings = mod.getLocalConfig()["settings"];
+		if (!modSettings.isNull())
+		{
+			context.validator.validate(modSettings, "vcmi:gameSettings", modName);
+			context.lib.settingsHandler->loadBase(modSettings);
+		}
 	}
 }
 

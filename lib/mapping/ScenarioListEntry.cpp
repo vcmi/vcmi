@@ -36,7 +36,7 @@ ScenarioListEntry ScenarioListEntry::fromMap(const ResourcePath & file)
 	return result;
 }
 
-ScenarioListEntry ScenarioListEntry::fromSave(const ResourcePath & file)
+ScenarioListEntry ScenarioListEntry::fromSave(const ResourcePath & file, JsonValidator & validator)
 {
 	const auto saveFile = CResourceHandler::get()->getResourceName(file);
 	if(!saveFile)
@@ -59,7 +59,7 @@ ScenarioListEntry ScenarioListEntry::fromSave(const ResourcePath & file)
 	else
 	{
 		CLoadFile loader(*saveFile);
-		result.metadata = SaveMetadata::parse(loader.readChunk(SaveFileFormat::CHUNK_METADATA), file.getOriginalName());
+		result.metadata = SaveMetadata::parse(loader.readChunk(SaveFileFormat::CHUNK_METADATA), file.getOriginalName(), validator);
 	}
 	return result;
 }

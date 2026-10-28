@@ -9,6 +9,7 @@
  */
 #pragma once
 
+#include "../lib/json/JsonValidator.h"
 #include "../lib/network/NetworkDefines.h"
 #include "LobbyDefines.h"
 
@@ -42,6 +43,9 @@ class LobbyServer final : public INetworkServerListener, INetworkTimerListener
 	std::unique_ptr<INetworkHandler> networkHandler;
 	std::unique_ptr<INetworkServer> networkServer;
 
+	/// Validates received and sent messages against lobby protocol schemas
+	JsonValidator validator;
+
 	/// removes any "weird" symbols from chat message that might break UI
 	std::string sanitizeChatMessage(const std::string & inputString) const;
 
@@ -66,7 +70,7 @@ class LobbyServer final : public INetworkServerListener, INetworkTimerListener
 
 	/// Attempts to load json from incoming byte stream and validate it
 	/// Returns parsed json on success or empty json node on failure
-	JsonNode parseAndValidateMessage(const std::vector<std::byte> & message) const;
+	JsonNode parseAndValidateMessage(const std::vector<std::byte> & message);
 
 	void sendChatMessage(const NetworkConnectionPtr & target, const std::string & channelType, const std::string & channelName, const std::string & accountID, const std::string & displayName, const std::string & messageText);
 	void sendAccountCreated(const NetworkConnectionPtr & target, const std::string & accountID, const std::string & accountCookie);

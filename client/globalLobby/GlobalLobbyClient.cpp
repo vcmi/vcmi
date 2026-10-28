@@ -25,7 +25,7 @@
 #include "../windows/InfoWindows.h"
 
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/json/JsonUtils.h"
+#include "../../lib/json/JsonValidator.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextOperations.h"
@@ -464,7 +464,7 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 
 void GlobalLobbyClient::sendMessage(const JsonNode & data)
 {
-	assert(JsonUtils::validate(data, "vcmi:lobbyProtocol/" + data["type"].String(), data["type"].String() + " pack"));
+	assert(JsonValidator().validate(data, "vcmi:lobbyProtocol/" + data["type"].String(), data["type"].String() + " pack"));
 	networkConnection->sendPacket(data.toBytes());
 }
 
@@ -667,7 +667,7 @@ void GlobalLobbyClient::sendProxyConnectionLogin(const NetworkConnectionPtr & ne
 	toSend["accountCookie"].String() = getAccountCookie();
 	toSend["gameRoomID"].String() = currentGameRoomUUID;
 
-	assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
+	assert(JsonValidator().validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
 	netConnection->sendPacket(toSend.toBytes());
 }
 
