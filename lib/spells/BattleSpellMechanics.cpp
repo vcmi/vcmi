@@ -179,7 +179,7 @@ void BattleSpellMechanics::applyEffects(ServerCallback * server, const Target & 
 bool BattleSpellMechanics::canBeCast(Problem & problem) const
 {
 	auto genProblem = battle()->battleCanCastSpell(caster, mode);
-	// Orb of Inhibition (BLOCK_ALL_MAGIC) must not block level-0 creature abilities (stone gaze, death stare, ...)
+	// Orb of Inhibition (BLOCK_ALL_MAGIC) must not block level-0 creature abilities (death stare, acid breath, ...)
 	if(genProblem == ESpellCastProblem::MAGIC_IS_BLOCKED && getSpellLevel() <= 0)
 		genProblem = ESpellCastProblem::OK;
 	if(genProblem != ESpellCastProblem::OK)
