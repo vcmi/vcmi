@@ -421,9 +421,14 @@ void HypotheticBattle::removeUnitBonus(uint32_t id, const std::vector<Bonus> & b
 	bonusTreeVersion++;
 }
 
+EWallState HypotheticBattle::getWallState(EWallPart partOfWall) const
+{
+	return vstd::find_or(wallStates, partOfWall, BattleProxy::getWallState(partOfWall));
+}
+
 void HypotheticBattle::setWallState(EWallPart partOfWall, EWallState state)
 {
-	//TODO:HypotheticBattle::setWallState
+	wallStates[partOfWall] = state;
 }
 
 void HypotheticBattle::addObstacle(const ObstacleChanges & changes)

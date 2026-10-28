@@ -621,6 +621,49 @@ BattleAction BattleEvaluator::goTowardsNearest(
 	return BattleAction::makeDefend(stack);
 }
 
+static constexpr std::array<EWallPart, 5> passableWallParts = {
+	EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL, EWallPart::GATE
+};
+
+/// Whether any of wall parts that block the way into town is in a different state in the two battles
+static bool wallsChanged(const CBattleInfoCallback & before, const CBattleInfoCallback & after)
+{
+	return std::ranges::any_of(passableWallParts, [&](EWallPart part){ return before.battleGetWallState(part) != after.battleGetWallState(part); });
+}
+
+bool BattleEvaluator::wallsBreached(const CBattleInfoCallback & battle)
+{
+	return std::ranges::any_of(passableWallParts, [&](EWallPart part){ return battle.battleGetWallState(part) == EWallState::DESTROYED; });
+}
+
+float BattleEvaluator::breachValue() const
+{
+	const auto battle = cb->getBattle(battleID);
+
+	if(side != BattleSide::ATTACKER || battle->getAttackableWallParts().empty() || wallsBreached(*battle))
+		return 0;
+
+	uint64_t ourArmy = 0;
+	uint64_t walkers = 0;
+	float enemyArmy = 0;
+
+	for(const auto * unit : battle->battleGetUnitsIf([](const battle::Unit * u){ return u->alive() && !u->hasBonusOfType(BonusType::SIEGE_WEAPON); }))
+	{
+		if(unit->unitSide() != side)
+		{
+			enemyArmy += AttackPossibility::calculateDamageReduce(unit, unit->getAvailableHealth(), damageCache);
+			continue;
+		}
+
+		const auto value = unit->estimateCombatValue();
+		ourArmy += value;
+		if(!unit->isShooter() && !unit->hasBonusOfType(BonusType::FLYING))
+			walkers += value;
+	}
+
+	return ourArmy == 0 ? 0 : enemyArmy * walkers / ourArmy;
+}
+
 bool BattleEvaluator::canCastSpell()
 {
 	auto hero = cb->getBattle(battleID)->battleGetMyHero();
@@ -781,6 +824,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	LOGFL("I have %d turns left in this round", ourRemainingTurns);
 
 	const bool castNow = ourRemainingTurns <= 1;
+	const float breachScore = breachValue();
 
 	if(castNow)
 		print("I should try to cast a spell now");
@@ -981,6 +1025,13 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				else
 				{
 					ps.value = stackActionScore + damageToFriendliesScore + damageToHostilesScore + bonusEffectsScore;
+				}
+
+				// simulation is too short to see walking units getting through, so value the breach itself
+				if(breachScore > 0 && wallsChanged(*cb->getBattle(battleID), *state))
+				{
+					ps.value += breachScore;
+					breachCastFound = true;
 				}
 
 #if BATTLE_TRACE_LEVEL >= 1

@@ -145,6 +145,9 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 	{
 		auto spelCasted = evaluator.attemptCastingSpell(stack);
 
+		// only known while hero can cast, so kept until the next chance to cast
+		heroCanBreachWalls = evaluator.canBreachWalls();
+
 		if(spelCasted)
 		{
 			heroCastBeforeUnit = stack->unitId();
@@ -193,6 +196,7 @@ void CBattleAI::battleStart(const BattleID & battleID, const CCreatureSet *army1
 	lastEnemyCreatureCount = std::numeric_limits<int>::max();
 	lastEnemyLossRound = 0;
 	heroCastBeforeUnit.reset();
+	heroCanBreachWalls = false;
 	auto tacticsSettings = TacticsHandler::Settings{.enabled = autobattlePreferences.enableTacticsUsage};
 	tacticsHandler = std::make_unique<TacticsHandler>(cb, battleID, tacticsSettings);
 }
@@ -232,6 +236,13 @@ std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering(const Battl
 	if(enemyCreatureCount < lastEnemyCreatureCount)
 		lastEnemyLossRound = round;
 	lastEnemyCreatureCount = enemyCreatureCount;
+
+	// units wait behind intact walls while hero still has mana to breach them
+	if(heroCanBreachWalls)
+	{
+		movesSkippedByDefense = 0;
+		lastEnemyLossRound = round;
+	}
 
 	bs.turnsSkippedByDefense = movesSkippedByDefense / bs.ourStacks.size();
 	bs.turnsWithoutEnemyLosses = round - lastEnemyLossRound;
