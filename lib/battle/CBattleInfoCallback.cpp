@@ -2076,16 +2076,13 @@ int32_t CBattleInfoCallback::battleGetSpellCost(const spells::Spell * sp, const 
 	int32_t manaReduction = 0;
 	int32_t manaIncrease = 0;
 
-	for(const auto * unit : battleAliveUnits())
+	// dead units still affect spell cost
+	for(const auto * unit : battleGetAllUnits())
 	{
-		if(unit->unitOwner() == caster->tempOwner && unit->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ALLY))
-		{
+		if(unit->unitOwner() == caster->tempOwner)
 			vstd::amax(manaReduction, unit->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ALLY));
-		}
-		if(unit->unitOwner() != caster->tempOwner && unit->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ENEMY))
-		{
+		else
 			vstd::amax(manaIncrease, unit->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ENEMY));
-		}
 	}
 
 	return std::max(0, ret - manaReduction + manaIncrease);
