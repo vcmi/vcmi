@@ -140,13 +140,18 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 
 	result = evaluator.selectStackAction(stack);
 
-	if(autobattlePreferences.enableSpellsUsage && evaluator.canCastSpell())
+	// re-evaluating spells after each cast is slow when hero has many casts per turn (e.g. from cheats)
+	if(autobattlePreferences.enableSpellsUsage && heroCastBeforeUnit != stack->unitId() && evaluator.canCastSpell())
 	{
 		auto spelCasted = evaluator.attemptCastingSpell(stack);
 
 		if(spelCasted)
+		{
+			heroCastBeforeUnit = stack->unitId();
 			return;
+		}
 	}
+	heroCastBeforeUnit.reset();
 
 	logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
 
@@ -185,6 +190,7 @@ void CBattleAI::battleStart(const BattleID & battleID, const CCreatureSet *army1
 {
 	LOG_TRACE(logAi);
 	side = Side;
+	heroCastBeforeUnit.reset();
 	auto tacticsSettings = TacticsHandler::Settings{.enabled = autobattlePreferences.enableTacticsUsage};
 	tacticsHandler = std::make_unique<TacticsHandler>(cb, battleID, tacticsSettings);
 }

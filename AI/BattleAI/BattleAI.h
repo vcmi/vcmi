@@ -54,6 +54,8 @@ class CBattleAI : public CBattleGameInterface
 	std::shared_ptr<Environment> env;
 
 	int movesSkippedByDefense;
+	/// Unit that was active when hero cast a spell, which is then activated again
+	std::optional<uint32_t> heroCastBeforeUnit;
 
 	std::unique_ptr<TacticsHandler> tacticsHandler;
 
