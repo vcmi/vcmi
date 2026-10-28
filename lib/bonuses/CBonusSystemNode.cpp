@@ -583,7 +583,7 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 			else if(decision == ILimiter::EDecision::ACCEPT)
 			{
 				accepted.push_back(b);
-				if (b->source == BonusSource::SPELL_EFFECT)
+				if (b->source == BonusSource::SPELL_EFFECT && b->type != BonusType::SPELL_CAST_COUNTER)
 				{
 					SpellWithMasteryID id = b->sid.as<SpellWithMasteryID>();
 					spellBonuses[id.getSpellID()][id.getMastery()].push_back(b);
