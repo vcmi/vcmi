@@ -303,20 +303,7 @@ static CreatureRewardValueInfo makeCreatureRewardValueInfo(
 	return {CreatureRewardValueInfo::State::IMPROVES_ARMY, minMaxValue, canMergeWithArmy};
 }
 
-struct CreatureOptionValue
-{
-	uint64_t value;
-	uint64_t improvement;
-	bool canMergeWithArmy;
-};
-
-struct CreatureRewardEvaluation
-{
-	CreatureRewardValueInfo reward;
-	std::pair<uint64_t, uint64_t> minMaxImprovement;
-};
-
-static CreatureOptionValue evaluateCreatureOption(
+static std::tuple<uint64_t, uint64_t, bool> evaluateCreatureOption(
 	const Nullkiller * aiNk,
 	const RewardEvaluationRequest & request,
 	TerrainId terrain,
@@ -338,7 +325,7 @@ static CreatureOptionValue evaluateCreatureOption(
 	return {value, improvement, rewardFits};
 }
 
-static CreatureRewardEvaluation evaluateCreatureOptions(
+static CreatureRewardValueInfo evaluateCreatureOptions(
 	const Nullkiller * aiNk,
 	const RewardEvaluationRequest & request,
 	TerrainId terrain,
@@ -357,20 +344,20 @@ static CreatureRewardEvaluation evaluateCreatureOptions(
 			continue;
 		}
 		hasCreatureReward = true;
-		const auto option = evaluateCreatureOption(aiNk, request, terrain, *creatures);
-		minMaxValue.first = std::min(minMaxValue.first, option.value);
-		minMaxValue.second = std::max(minMaxValue.second, option.value);
-		minMaxImprovement.first = std::min(minMaxImprovement.first, option.improvement);
-		minMaxImprovement.second = std::max(minMaxImprovement.second, option.improvement);
-		canMergeWithArmy &= option.canMergeWithArmy;
+		const auto [value, improvement, canMerge] = evaluateCreatureOption(aiNk, request, terrain, *creatures);
+		minMaxValue.first = std::min(minMaxValue.first, value);
+		minMaxValue.second = std::max(minMaxValue.second, value);
+		minMaxImprovement.first = std::min(minMaxImprovement.first, improvement);
+		minMaxImprovement.second = std::max(minMaxImprovement.second, improvement);
+		canMergeWithArmy &= canMerge;
 	}
 	if(!hasCreatureReward)
-		return {CreatureRewardValueInfo{.state=CreatureRewardValueInfo::State::GIVES_NO_CREATURE,
-			.minMaxValue={0, 0}, .canMergeWithArmy=true}, {0, 0}};
-	return {makeCreatureRewardValueInfo(minMaxValue, minMaxImprovement, canMergeWithArmy), minMaxImprovement};
+		return {.state=CreatureRewardValueInfo::State::GIVES_NO_CREATURE,
+			.minMaxValue={0, 0}, .canMergeWithArmy=true};
+	return makeCreatureRewardValueInfo(minMaxValue, minMaxImprovement, canMergeWithArmy);
 }
 
-static CreatureRewardEvaluation evaluateKnownCreatureOptions(
+static CreatureRewardValueInfo evaluateKnownCreatureOptions(
 	const Nullkiller * aiNk,
 	const RewardEvaluationRequest & request,
 	TerrainId terrain,
@@ -510,8 +497,7 @@ CreatureRewardValueInfo RewardEvaluator::getCreatureRewardValue(const RewardEval
 		for(const auto & reward : rewardableInfo->rewards)
 			rewards.push_back(&reward.creatures);
 
-		const auto evaluation = evaluateKnownCreatureOptions(aiNk, request, terrain, std::move(rewards), rewardableObject->configuration.selectMode);
-		return evaluation.reward;
+		return evaluateKnownCreatureOptions(aiNk, request, terrain, std::move(rewards), rewardableObject->configuration.selectMode);
 	}
 
 	if(request.target->ID != Obj::CREATURE_BANK)
@@ -539,8 +525,7 @@ CreatureRewardValueInfo RewardEvaluator::getCreatureRewardValue(const RewardEval
 		std::vector<const std::vector<CStackBasicDescriptor> *> rewards;
 		for(auto index : rewardableObject->getAvailableRewards(request.hero, Rewardable::EEventType::EVENT_FIRST_VISIT))
 			rewards.push_back(&rewardableObject->configuration.info.at(index).reward.creatures);
-		const auto evaluation = evaluateKnownCreatureOptions(aiNk, request, terrain, std::move(rewards), rewardableObject->configuration.selectMode);
-		return evaluation.reward;
+		return evaluateKnownCreatureOptions(aiNk, request, terrain, std::move(rewards), rewardableObject->configuration.selectMode);
 	}
 
 	const bool hiddenModdedCreatureReward = !aiNk->cc->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION)
@@ -559,13 +544,13 @@ CreatureRewardValueInfo RewardEvaluator::getCreatureRewardValue(const RewardEval
 		options.push_back(&reward);
 
 	auto evaluation = evaluateCreatureOptions(aiNk, request, terrain, options);
-	if(evaluation.reward.state == CreatureRewardValueInfo::State::GIVES_NO_CREATURE)
-		return evaluation.reward;
+	if(evaluation.state == CreatureRewardValueInfo::State::GIVES_NO_CREATURE)
+		return evaluation;
 
 	if(requiresFreeSlotForHiddenModdedReward)
-		evaluation.reward.canMergeWithArmy = false;
+		evaluation.canMergeWithArmy = false;
 
-	return evaluation.reward;
+	return evaluation;
 }
 
 uint64_t RewardEvaluator::getArmyGrowth(const RewardEvaluationRequest & request) const
