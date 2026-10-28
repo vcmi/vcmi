@@ -243,6 +243,9 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 			{
 				const auto preparationPath = path.exchangeCount == 1
 					? findCreatureBankRewardPreparationPath(nullkiller, path, objToVisit) : std::nullopt;
+				if(!preparationPath && creatureReward.state != CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT)
+					logAi->info("No free slot preparation path for creature bank %s at %s, hero %s, reward state %s",
+						objToVisit->getName(), objToVisit->visitablePos().toString(), hero->getName(), NK2AI::toString(creatureReward.state));
 				// Without helper hero which could free a slot, only pure creature reward that improves the army is processed
 				if(!preparationPath && objectInfo->givesOnlyCreatures() && creatureReward.state != CreatureRewardValueInfo::State::IMPROVES_ARMY)
 					continue;

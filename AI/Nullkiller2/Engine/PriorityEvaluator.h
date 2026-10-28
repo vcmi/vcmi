@@ -55,6 +55,8 @@ struct CreatureRewardValueInfo
 	std::optional<bool> canMergeWithArmy = std::nullopt;
 };
 
+const char * toString(CreatureRewardValueInfo::State state);
+
 struct RewardEvaluationResult
 {
 	int32_t goldReward = 0;
