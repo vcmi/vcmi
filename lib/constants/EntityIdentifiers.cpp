@@ -168,8 +168,12 @@ FactionID BuildingTypeUniqueID::getFaction() const
 SpellWithMasteryID::SpellWithMasteryID(MasteryLevel::Type mastery, SpellID spell):
 	Identifier(spell.getNum() * 0x1000 + mastery)
 {
-	assert(mastery >= 0);
-	assert(spell.getNum() >= 0);
+	if(spell.getNum() < 0 || mastery < 0)
+	{
+		//in case SpellWithMasteryID is construed with a value below 0 it will return a different spellId and mastery that it was created with
+		logGlobal->error("A corrupted SpellWithMasteryId was created!");
+		assert(0);
+	}
 	assert(spell.getNum() < std::numeric_limits<int32_t>::max() - 0x1000);
 }
 
