@@ -293,7 +293,8 @@ static void prepareCombatScriptParameters(Bonus * b, const JsonNode & scriptNode
 	});
 }
 
-static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node, IIdentifierResolver & resolver)
+
+static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource sourceType, const JsonNode & node, const JsonNode & secondaryIdNode, IIdentifierResolver & resolver)
 {
 	if (node.isNull())
 	{
@@ -356,9 +357,18 @@ static void loadBonusSourceInstance(BonusSourceID & sourceInstance, BonusSource 
 		}
 		case BonusSource::SPELL_EFFECT:
 		{
-			resolver.requestIdentifier( "spell", node, [&sourceInstance](int32_t identifier)
+			int8_t mastery = MasteryLevel::ANY;
+			if (secondaryIdNode.isString())
 			{
-				sourceInstance = SpellID(identifier);
+				mastery = MasteryLevel::decode(secondaryIdNode.String());
+			}
+			else if (secondaryIdNode.isNumber())
+			{
+				mastery = secondaryIdNode.Integer();
+			}
+			resolver.requestIdentifier( "spell", node, [&sourceInstance, mastery](int32_t identifier)
+			{
+				sourceInstance = SpellWithMasteryID(static_cast<MasteryLevel::Type>(mastery), identifier);
 			});
 			break;
 		}
@@ -583,6 +593,7 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 	const JsonNode & jsonSubtype = limiter.Struct().count("bonusSubtype") ? limiter["bonusSubtype"] : parameters[1];
 	const JsonNode & jsonSourceType = limiter.Struct().count("bonusSourceType") ? limiter["bonusSourceType"] : parameters[2]["type"];
 	const JsonNode & jsonSourceID = limiter.Struct().count("bonusSourceID") ? limiter["bonusSourceID"] : parameters[2]["id"];
+	const JsonNode & jsonSourceSecondaryId = limiter["bonusSourceSecondaryID"];
 	const JsonNode & jsonMinValue = limiter["bonusMinValue"];
 	const JsonNode & jsonMaxValue = limiter["bonusMaxValue"];
 
@@ -613,7 +624,7 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 			bonusLimiter->source = sourceIt->second;
 			bonusLimiter->isSourceRelevant = true;
 			if(!jsonSourceID.isNull()) {
-				loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, jsonSourceID, resolver);
+				loadBonusSourceInstance(bonusLimiter->sid, bonusLimiter->source, jsonSourceID, jsonSourceSecondaryId, resolver);
 				bonusLimiter->isSourceIDRelevant = true;
 			}
 		}
@@ -897,7 +908,7 @@ static bool parseBonusImpl(const JsonNode & ability, Bonus * b, IIdentifierResol
 		b->source = static_cast<BonusSource>(parseByMapN(bonusSourceMap, value, "source type "));
 
 	if (!ability["sourceID"].isNull())
-		loadBonusSourceInstance(b->sid, b->source, ability["sourceID"], resolver);
+		loadBonusSourceInstance(b->sid, b->source, ability["sourceID"], ability["sourceSecondaryID"], resolver);
 
 	value = &ability["targetSourceType"];
 	if (!value->isNull())
@@ -909,7 +920,7 @@ static bool parseBonusImpl(const JsonNode & ability, Bonus * b, IIdentifierResol
 		if (b->targetSourceType == BonusSource::OTHER)
 			logMod->warn("Bonus has 'targetSourceID' without 'targetSourceType' - target source ID will be ignored!");
 		else
-			loadBonusSourceInstance(b->targetSourceID, b->targetSourceType, *value, resolver);
+			loadBonusSourceInstance(b->targetSourceID, b->targetSourceType, *value, JsonNode(), resolver);
 	}
 
 	value = &ability["limiters"];

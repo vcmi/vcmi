@@ -645,7 +645,7 @@ bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
 
 	for(const SpellID & id : owner->counteredSpells)
 	{
-		if(bonus->sid.as<SpellID>() == id)
+		if(bonus->sid.as<SpellWithMasteryID>().getSpellID() == id)
 			return true;
 	}
 

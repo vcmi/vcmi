@@ -49,6 +49,7 @@ Parameters:
 - `bonusType` - type of bonus to check against
 - `bonusSubtype` - subtype of bonus to check against (only used if bonus type is set)
 - `bonusSourceType` - source type of bonus to check against
+- `sourceSecondaryID` - if applicable, the mastery level of spell effect (by default any)
 - `bonusSourceID` -source ID of bonus to check against (only used if bonus type is set)
 - `bonusMinValue` - minimal total value of bonus to check against (inclusive)
 - `bonusMaxValue` - maximal total value of bonus to check against (inclusive)
@@ -65,6 +66,7 @@ Examples:
 			"type" : "HAS_ANOTHER_BONUS_LIMITER",
 			"bonusSourceType" : "SPELL_EFFECT", // look for bonus of type SPELL_EFFECT
 			"bonusSourceID" : "spell.bless"     // ... from spell "Bless"
+			"bonusSourceSecondaryId" : "EXPERT"     // ... at expert mastery level
 		}
 	],
 ```
