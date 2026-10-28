@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "LibraryLoadContext.h"
 
+#include "CModHandler.h"
 #include "IdentifierStorage.h"
 
 #include "../GameLibrary.h"
@@ -19,4 +20,5 @@ LibraryLoadContext::LibraryLoadContext(GameLibrary & lib)
 	, resolver(*lib.identifiersHandler)
 	, content(*this)
 {
+	lib.modh->addFileFormats(validator);
 }

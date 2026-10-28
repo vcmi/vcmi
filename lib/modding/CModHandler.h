@@ -17,6 +17,7 @@ class ResourcePath;
 class ModManager;
 class ISimpleResourceLoader;
 class LibraryLoadContext;
+struct JsonValidator;
 
 using TModID = std::string;
 
@@ -59,6 +60,9 @@ public:
 	const std::set<TModID> & getModDependencies(const TModID & modId, bool & isModFound) const;
 	std::set<TModID> getModSoftDependencies(const TModID & modId) const;
 	std::set<TModID> getModEnabledSoftDependencies(const TModID & modId) const;
+
+	/// Adds checks of formats that name files, which look the file up in filesystems of the mod and of its dependencies
+	void addFileFormats(JsonValidator & validator) const;
 
 	/// returns list of all (active) mods
 	std::vector<std::string> getAllMods() const;

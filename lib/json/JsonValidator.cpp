@@ -11,10 +11,8 @@
 #include "StdInc.h"
 #include "JsonValidator.h"
 
-#include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../modding/ModScope.h"
-#include "../modding/CModHandler.h"
 #include "../texts/TextOperations.h"
 #include "../ScopeGuard.h"
 #include "modding/CModVersion.h"
@@ -198,7 +196,7 @@ static std::string refCheck(JsonValidator & validator, const JsonNode & baseSche
 
 static std::string formatCheck(JsonValidator & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 {
-	auto formats = validator.getKnownFormats();
+	const auto & formats = validator.getKnownFormats();
 	std::string errors;
 	auto checker = formats.find(schema.String());
 	if (checker != formats.end())
@@ -464,92 +462,6 @@ static std::string additionalPropertiesCheck(JsonValidator & validator, const Js
 	return errors;
 }
 
-static bool testFilePresence(const std::string & scope, const ResourcePath & resource)
-{
-#ifndef ENABLE_MINIMAL_LIB
-	std::set<std::string> allowedScopes;
-	if(scope != ModScope::scopeBuiltin() && !scope.empty()) // all real mods may have dependencies
-	{
-		//NOTE: recursive dependencies are not allowed at the moment - update code if this changes
-		bool found = true;
-		allowedScopes = LIBRARY->modh->getModDependencies(scope, found);
-
-		if(!found)
-			return false;
-
-		allowedScopes.insert(ModScope::scopeBuiltin()); // all mods can use H3 files
-	}
-	allowedScopes.insert(scope); // mods can use their own files
-
-	for(const auto & entry : allowedScopes)
-	{
-		try
-		{
-			if (CResourceHandler::get(entry)->existsResource(resource))
-				return true;
-		}
-		catch (const std::out_of_range &)
-		{
-			throw std::out_of_range("Failed to find filesystem of mod '" + entry + "' when testing file '" + resource.getOriginalName() + "' for mod '" + scope + "'");
-		}
-	}
-
-#endif
-	return false;
-}
-
-#define TEST_FILE(scope, prefix, file, type) \
-	if (testFilePresence(scope, ResourcePath(prefix + file, type))) \
-	return ""
-
-static std::string testAnimation(const std::string & path, const std::string & scope)
-{
-	TEST_FILE(scope, "Sprites/", path, EResType::ANIMATION);
-	TEST_FILE(scope, "Sprites/", path, EResType::JSON);
-	return "Animation file \"" + path + "\" was not found";
-}
-
-static std::string textFile(const JsonNode & node)
-{
-	TEST_FILE(node.getModScope(), "", node.String(), EResType::JSON);
-	return "Text file \"" + node.String() + "\" was not found";
-}
-
-static std::string musicFile(const JsonNode & node)
-{
-	TEST_FILE(node.getModScope(), "Music/", node.String(), EResType::SOUND);
-	TEST_FILE(node.getModScope(), "", node.String(), EResType::SOUND);
-	return "Music file \"" + node.String() + "\" was not found";
-}
-
-static std::string soundFile(const JsonNode & node)
-{
-	TEST_FILE(node.getModScope(), "Sounds/", node.String(), EResType::SOUND);
-	return "Sound file \"" + node.String() + "\" was not found";
-}
-
-static std::string animationFile(const JsonNode & node)
-{
-	return testAnimation(node.String(), node.getModScope());
-}
-
-static std::string imageFile(const JsonNode & node)
-{
-	TEST_FILE(node.getModScope(), "Data/", node.String(), EResType::IMAGE);
-	TEST_FILE(node.getModScope(), "Sprites/", node.String(), EResType::IMAGE);
-	if (node.String().find(':') != std::string::npos)
-		return testAnimation(node.String().substr(0, node.String().find(':')), node.getModScope());
-	return "Image file \"" + node.String() + "\" was not found";
-}
-
-static std::string videoFile(const JsonNode & node)
-{
-	TEST_FILE(node.getModScope(), "Video/", node.String(), EResType::VIDEO);
-	TEST_FILE(node.getModScope(), "Video/", node.String(), EResType::VIDEO_LOW_QUALITY);
-	return "Video file \"" + node.String() + "\" was not found";
-}
-#undef TEST_FILE
-
 #ifndef ENABLE_MINIMAL_LIB
 static std::string version(const JsonNode & node)
 {
@@ -656,12 +568,9 @@ JsonValidator::TValidatorMap createStructFields()
 JsonValidator::TFormatMap createFormatMap()
 {
 	JsonValidator::TFormatMap ret;
-	ret["textFile"]      = textFile;
-	ret["musicFile"]     = musicFile;
-	ret["soundFile"]     = soundFile;
-	ret["animationFile"] = animationFile;
-	ret["imageFile"]     = imageFile;
-	ret["videoFile"]     = videoFile;
+	// files can only be checked by validators that know mod filesystems, see CModHandler::addFileFormats
+	for (const auto & fileFormat : {"textFile", "musicFile", "soundFile", "animationFile", "imageFile", "videoFile"})
+		ret[fileFormat] = [](const JsonNode &){ return std::string(); };
 #ifndef ENABLE_MINIMAL_LIB
 	ret["version"]     = version;
 #endif
@@ -671,6 +580,11 @@ JsonValidator::TFormatMap createFormatMap()
 	// json-pointer
 
 	return ret;
+}
+
+JsonValidator::JsonValidator()
+	: knownFormats(createFormatMap())
+{
 }
 
 std::string JsonValidator::makeErrorMessage(const std::string &message)
@@ -793,10 +707,14 @@ const JsonValidator::TValidatorMap & JsonValidator::getKnownFieldsFor(JsonNode::
 	}
 }
 
-const JsonValidator::TFormatMap & JsonValidator::getKnownFormats()
+const JsonValidator::TFormatMap & JsonValidator::getKnownFormats() const
 {
-	static const TFormatMap knownFormats = createFormatMap();
 	return knownFormats;
+}
+
+void JsonValidator::addFormat(const std::string & name, TFormatValidator checker)
+{
+	knownFormats[name] = std::move(checker);
 }
 
 bool JsonValidator::validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName)
