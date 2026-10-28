@@ -60,6 +60,9 @@ const int GOLD_MINE_PRODUCTION = 1000;
 const int WOOD_ORE_MINE_PRODUCTION = 2;
 const int RESOURCE_MINE_PRODUCTION = 1;
 const int ACTUAL_RESOURCE_COUNT = 7;
+constexpr float CREATURE_BANK_MAX_ARMY_LOSS_RATIO = 0.5f;
+
+bool isCreatureBankLossAcceptable(const Nullkiller * nullkiller, const CCreatureSet * army, uint64_t predictedLoss);
 
 enum HeroRole
 {

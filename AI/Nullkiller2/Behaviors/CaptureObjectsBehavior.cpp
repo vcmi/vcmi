@@ -60,6 +60,10 @@ static std::optional<AIPath> findCreatureBankRewardPreparationPath(
 			continue;
 		if(!isSafeToVisit(rewardHero, &remainingArmy, rewardPath.getTotalDanger(), nullkiller->settings->getSafeAttackRatio()))
 			continue;
+		const auto predictedBankLoss = nullkiller->pathfinder->getStorage()->evaluateArmyLoss(
+			rewardHero, getHeroArmyStrengthWithCommander(rewardHero, &remainingArmy), rewardPath.targetObjectDanger);
+		if(!isCreatureBankLossAcceptable(nullkiller, &remainingArmy, predictedBankLoss))
+			continue;
 
 		if(!bestPath || path.turn() < bestPath->turn() || (path.turn() == bestPath->turn() && path.movementCost() < bestPath->movementCost()))
 			bestPath = &path;
@@ -150,6 +154,9 @@ Goals::TGoalVec CaptureObjectsBehavior::getVisitGoals(
 		const auto * hero = path.targetHero;
 		const auto danger = path.getTotalDanger();
 		if (hero->getOwner() != nullkiller->playerID)
+			continue;
+		if(objToVisit && objToVisit->ID == Obj::CREATURE_BANK
+			&& !isCreatureBankLossAcceptable(nullkiller, path.heroArmy, path.targetObjectArmyLoss))
 			continue;
 
 		if(nullkiller->heroManager->getHeroRoleOrDefaultInefficient(hero) == HeroRole::SCOUT
