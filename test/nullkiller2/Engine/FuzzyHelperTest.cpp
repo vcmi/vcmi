@@ -139,12 +139,65 @@ TEST_F(Nullkiller2_Engine_FuzzyHelper, hiddenGuardCompositionUsesMaximumBankDang
 	EXPECT_EQ(rewardableInfo->guardStrength, 0);
 	EXPECT_TRUE(rewardableInfo->rewards.empty());
 
-	const auto objectInfo = bank->getObjectHandler()->getObjectInfo();
+	auto & team = gameState()->teams.at(gameState()->players.at(PLAYER).team);
+	for(const auto type : {Obj::CREATURE_BANK, Obj::CRYPT, Obj::DRAGON_UTOPIA, Obj::SHIPWRECK, Obj::DERELICT_SHIP})
+	{
+		SCOPED_TRACE(static_cast<int>(type));
+		bank->ID = type;
+		const auto objectInfo = bank->getObjectHandler()->getObjectInfo();
+		const auto * bankInfo = dynamic_cast<const Rewardable::Info *>(objectInfo.get());
+		ASSERT_NE(bankInfo, nullptr);
+		const auto guardRange = bankInfo->getCreatureBankGuardRange();
+		ASSERT_TRUE(guardRange.has_value());
+		ASSERT_GT(guardRange->second, 0);
+		EXPECT_EQ(gateway->nullkiller->dangerEvaluator->evaluateDanger(bank.get()), guardRange->second);
+
+		team.scoutedObjects.erase(bank->id);
+		EXPECT_EQ(gateway->nullkiller->dangerEvaluator->evaluateDanger(bank.get()), guardRange->second);
+		team.scoutedObjects.insert(bank->id);
+	}
+}
+
+TEST_F(Nullkiller2_Engine_FuzzyHelper, hiddenGuardsUseConfigurationForCustomObjectType)
+{
+	class CustomBank : public CRewardableObject
+	{
+	public:
+		using CRewardableObject::CRewardableObject;
+		MOCK_METHOD(TObjectTypeHandler, getObjectHandler, (), (const, override));
+	};
+
+	setGuardsVisible(false);
+	CustomBank customBank(callback.get());
+	customBank.ID = MapObjectID(1000);
+	const auto handler = bank->getObjectHandler();
+	EXPECT_CALL(customBank, getObjectHandler()).WillRepeatedly(::testing::Return(handler));
+	const auto objectInfo = handler->getObjectInfo();
 	const auto * bankInfo = dynamic_cast<const Rewardable::Info *>(objectInfo.get());
 	ASSERT_NE(bankInfo, nullptr);
 	const auto guardRange = bankInfo->getCreatureBankGuardRange();
 	ASSERT_TRUE(guardRange.has_value());
-	EXPECT_EQ(gateway->nullkiller->dangerEvaluator->evaluateDanger(bank.get()), guardRange->second);
+	ASSERT_GT(guardRange->second, 0);
+	EXPECT_EQ(gateway->nullkiller->dangerEvaluator->evaluateDanger(&customBank), guardRange->second);
+
+	customBank.id = bank->id;
+	customBank.configuration = bank->configuration;
+	EXPECT_EQ(gateway->nullkiller->dangerEvaluator->evaluateDanger(&customBank), guardRange->second);
+
+	customBank.configuration.visitMode = Rewardable::VISIT_ONCE;
+	customBank.setPropertyDer(ObjProperty::REWARD_CLEARED, ObjPropertyID(NumericID(1)));
+	gameState()->players.at(PLAYER).visitedObjects.insert(customBank.id);
+	EXPECT_EQ(gateway->nullkiller->dangerEvaluator->evaluateDanger(&customBank), 0);
+}
+
+TEST_F(Nullkiller2_Engine_FuzzyHelper, hiddenGuardCompositionDoesNotMakeUnguardedObjectsDangerous)
+{
+	setGuardsVisible(false);
+	bank->ID = Obj::WITCH_HUT;
+	bank->clearSlots();
+	bank->configuration.info.front().reward.guards.clear();
+	gameState()->teams.at(gameState()->players.at(PLAYER).team).scoutedObjects.erase(bank->id);
+	EXPECT_EQ(gateway->nullkiller->dangerEvaluator->evaluateDanger(bank.get()), 0);
 }
 
 TEST_F(Nullkiller2_Engine_FuzzyHelper, visibleUnscoutedBankUsesMinimumDangerAtExpertDifficulty)
