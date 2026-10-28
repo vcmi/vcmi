@@ -15,7 +15,7 @@
 #include "lib/gameState/CGameState.h"
 #include "lib/json/JsonRandom.h"
 #include "lib/mapObjects/CGHeroInstance.h"
-#include "lib/mapObjects/CRewardableObject.h"
+#include "lib/mapObjects/CGPandoraBox.h"
 #include "lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "lib/mapping/CMap.h"
 #include "lib/modding/LibraryLoadContext.h"
@@ -127,6 +127,33 @@ TEST_F(Nullkiller2_Engine_FuzzyHelper, visitorDoesNotHideScoutedRewardableDanger
 	ASSERT_GT(bankDanger, 0);
 	ASSERT_NE(bankDanger, gateway->nullkiller->dangerEvaluator->evaluateDanger(hero));
 	EXPECT_EQ(gateway->nullkiller->dangerEvaluator->evaluateDanger(hero->visitablePos(), hero), bankDanger);
+}
+
+TEST_F(Nullkiller2_Engine_FuzzyHelper, unscoutedPandoraGuardsPreventUnsafeVisit)
+{
+	const CreatureID imp(CreatureID::decode("imp"));
+	hero->clearSlots();
+	ASSERT_TRUE(hero->setCreature(SlotID(0), imp, 1));
+
+	auto pandora = std::make_shared<CGPandoraBox>(callback.get());
+	pandora->ID = Obj::PANDORAS_BOX;
+	pandora->subID = MapObjectSubID(0);
+	pandora->instanceName = "unscoutedPandoraForTest";
+	pandora->appearance = hero->appearance;
+	pandora->setAnchorPos(OBJECT_POSITION);
+	ASSERT_TRUE(pandora->setCreature(SlotID(0), imp, 1000));
+	map()->addNewObject(pandora);
+	ASSERT_FALSE(pandora->wasScouted(PLAYER));
+
+	const auto safeAttackRatio = gateway->nullkiller->settings->getSafeAttackRatio();
+	const auto danger = gateway->nullkiller->dangerEvaluator->evaluateDanger(pandora.get());
+	EXPECT_EQ(danger, pandora->estimateCombatValue());
+	EXPECT_FALSE(NK2AI::isSafeToVisit(hero, danger, safeAttackRatio));
+
+	pandora->clearSlots();
+	const auto unguardedDanger = gateway->nullkiller->dangerEvaluator->evaluateDanger(pandora.get());
+	EXPECT_EQ(unguardedDanger, 0);
+	EXPECT_TRUE(NK2AI::isSafeToVisit(hero, unguardedDanger, safeAttackRatio));
 }
 
 TEST_F(Nullkiller2_Engine_FuzzyHelper, hiddenGuardCompositionUsesMaximumBankDanger)

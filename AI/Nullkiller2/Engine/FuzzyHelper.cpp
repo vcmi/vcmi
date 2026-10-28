@@ -160,6 +160,9 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 		return getHeroArmyStrengthWithCommander(hero, hero);
 	}
 
+	case Obj::PANDORAS_BOX:
+		return dynamic_cast<const CArmedInstance *>(obj)->estimateCombatValue();
+
 	case Obj::ARTIFACT:
 	case Obj::RESOURCE:
 	{
