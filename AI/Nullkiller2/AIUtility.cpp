@@ -51,6 +51,18 @@ uint64_t getHeroFightingStrength(const CGHeroInstance * hero, const CCreatureSet
 	return static_cast<uint64_t>(getNormalizedHeroStrength(hero) * army->estimateCombatValue());
 }
 
+bool isCreatureBankLossAcceptable(const Nullkiller * nullkiller, const CCreatureSet * army, uint64_t predictedLoss)
+{
+	const auto armyPowerRatio = evaluateArmyPowerRatio(*nullkiller->armyManager, army);
+	const auto maxArmyLoss = evaluateMaxArmyLossRatio(
+		nullkiller->settings->getMaxArmyLossTarget(),
+		armyPowerRatio,
+		nullkiller->cc->getPlayerState(nullkiller->playerID)->daysWithoutCastle.has_value());
+	const auto allowedArmyLoss = std::min(maxArmyLoss, CREATURE_BANK_MAX_ARMY_LOSS_RATIO);
+	const auto armyLossRatio = static_cast<float>(predictedLoss) / std::max<uint64_t>(1, army->estimateCombatValue());
+	return armyLossRatio <= allowedArmyLoss;
+}
+
 const CGObjectInstance * ObjectIdRef::operator->() const
 {
 	return cpsic->tryGetObj(id);

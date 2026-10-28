@@ -743,11 +743,23 @@ void AIGateway::showBlockingDialog(const std::string & text, const std::vector<C
 							heroPtr.get(), armyStrength, danger);
 						const auto armyLossRatio = static_cast<float>(armyLoss) / std::max<uint64_t>(1, heroPtr->estimateCombatValue());
 						const auto playerState = cc->getPlayerState(playerID);
+						const auto armyPowerRatio = evaluateArmyPowerRatio(*nullkiller->armyManager, heroPtr.get());
 						const auto maxArmyLoss = evaluateMaxArmyLossRatio(
 							nullkiller->settings->getMaxArmyLossTarget(),
-							evaluateArmyPowerRatio(*nullkiller->armyManager, heroPtr.get()),
+							armyPowerRatio,
 							playerState->daysWithoutCastle.has_value());
-						armyLossTooHigh = armyLossRatio > maxArmyLoss;
+						const auto allowedArmyLoss = objType == Obj::CREATURE_BANK
+							? std::min(maxArmyLoss, CREATURE_BANK_MAX_ARMY_LOSS_RATIO) : maxArmyLoss;
+						armyLossTooHigh = objType == Obj::CREATURE_BANK
+							? !isCreatureBankLossAcceptable(nullkiller.get(), heroPtr.get(), armyLoss)
+							: armyLossRatio > allowedArmyLoss;
+
+						if(objType == Obj::CREATURE_BANK)
+							logAi->trace("Bank guard decision at %s: armyStrength=%d predictedLoss=%d lossRatio=%f baseMaxLoss=%f armyPowerRatio=%f "
+								"noCastle=%d maxArmyLoss=%f allowedArmyLoss=%f safeAttackRatio=%f dangerUnknown=%d dangerTooHigh=%d armyLossTooHigh=%d",
+								target.toString(), armyStrength, armyLoss, armyLossRatio, nullkiller->settings->getMaxArmyLossTarget(), armyPowerRatio,
+								playerState->daysWithoutCastle.has_value(), maxArmyLoss, allowedArmyLoss, nullkiller->settings->getSafeAttackRatio(),
+								dangerUnknown, dangerTooHigh, armyLossTooHigh);
 					}
 
 					answer = !dangerUnknown && !dangerTooHigh && !armyLossTooHigh;

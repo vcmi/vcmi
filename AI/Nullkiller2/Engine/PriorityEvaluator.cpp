@@ -1684,10 +1684,6 @@ float PriorityEvaluator::evaluateArmyLossRatio(float score, const float armyLoss
 	if(armyLossRatio > 0)
 	{
 		score -= score * armyLossRatio;
-
-		// Encourage battles for MAIN to gather more XP in the same heroes, not in scouts
-		if(heroRole != MAIN)
-			score /= 5.0f;
 	}
 	return score;
 }
@@ -1937,15 +1933,17 @@ float PriorityEvaluator::evaluate(
 					score *= evaluationContext.heroRole == SCOUT ? 1.2f : 2.0f;
 				}
 
-				score += evaluationContext.heroRole == MAIN ? evaluationContext.armyReward : evaluationContext.armyReward / 10.0f;
 				// workshop (free lvl 1 units for Tower) and similar dwellings receive both armyReward and armyGrowth in evaluationContext
 				// For that reason only getDwellingArmyGrowth gets amplified towards day 7 if units are lost after
 				// Hero exchange and army upgrade are using this too
 				score += evaluationContext.armyGrowth;
 
+				score += evaluationContext.armyReward;
+
 				if(evaluationContext.goldCost > 0)
 					// Will be outside the if, just temporary for debugging
 					score -= evaluationContext.goldCost / 4.0f; // don't include the full cost of School of Magic or others because those locations are beneficial
+
 				score = evaluateArmyLossRatio(score, evaluationContext.armyLossRatio, evaluationContext.heroRole);
 
 				score *= evaluationContext.closestWayRatio;
