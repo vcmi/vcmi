@@ -186,6 +186,9 @@ static std::string refCheck(JsonValidator & validator, const JsonNode & baseSche
 	//Local reference. Turn it into more easy to handle remote ref
 	if (boost::algorithm::starts_with(URI, "#"))
 	{
+		if (validator.usedSchemas.empty())
+			return validator.makeErrorMessage("Local reference " + URI + " can not be used in schema that has no file");
+
 		const std::string name = validator.usedSchemas.back();
 		const std::string nameClean = name.substr(0, name.find('#'));
 		URI = nameClean + URI;
