@@ -176,7 +176,10 @@ public:
 			.And(Selector::sourceType()(BonusSource::ARMY).Not())
 			.And(Selector::sourceType()(BonusSource::CREATURE_ABILITY).Not());
 
-		for(const auto & bonus : *armyCarrier->getBonuses(externalBonuses))
+		// Copy BonusList before the temp shared_ptr expires; language pitfall - fixed in C++23:
+		// https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2718r0.html
+		const auto bonuses = *armyCarrier->getBonuses(externalBonuses);
+		for(const auto & bonus : bonuses)
 			addNewBonus(std::make_shared<Bonus>(*bonus));
 	}
 };
