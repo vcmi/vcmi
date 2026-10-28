@@ -411,12 +411,12 @@ void ObjectClusterizer::clusterize()
 	{
 		auto blocker = aiNk->cc->getObj(pair.first);
 
-		logAi->trace("Cluster %s %s count: %i", blocker->getObjectNameTextID(), blocker->visitablePos().toString(), pair.second->objects.size());
+		logAi->trace("Cluster %s %s count: %i", blocker->getName(), blocker->visitablePos().toString(), pair.second->objects.size());
 
 #if NK2AI_TRACE_LEVEL >= 1
 		for(auto obj : pair.second->getObjects(aiNk->cc.get()))
 		{
-			logAi->trace("Object %s %s", obj->getObjectNameTextID(), obj->visitablePos().toString());
+			logAi->trace("Object %s %s", obj->getName(), obj->visitablePos().toString());
 		}
 #endif
 	}
@@ -436,13 +436,13 @@ void ObjectClusterizer::clusterizeObject(
 	if(!shouldVisitObject(obj))
 	{
 #if NK2AI_TRACE_LEVEL >= 2
-		logAi->trace("Skip object %s%s.", obj->getObjectNameTextID(), obj->visitablePos().toString());
+		logAi->trace("Skip object %s%s.", obj->getName(), obj->visitablePos().toString());
 #endif
 		return;
 	}
 
 #if NK2AI_TRACE_LEVEL >= 2
-	logAi->trace("Check object %s%s.", obj->getObjectNameTextID(), obj->visitablePos().toString());
+	logAi->trace("Check object %s%s.", obj->getName(), obj->visitablePos().toString());
 #endif
 
 	if(aiNk->isObjectGraphAllowed())
@@ -521,7 +521,7 @@ void ObjectClusterizer::clusterizeObject(
 		if(!shouldVisit(aiNk, path.targetHero, obj))
 		{
 #if NK2AI_TRACE_LEVEL >= 2
-			logAi->trace("Hero %s shouldn't visit %s", path.targetHero->getNameTextID(), obj->getObjectNameTextID());
+			logAi->trace("Hero %s shouldn't visit %s", path.targetHero->getName(), obj->getName());
 #endif
 			continue;
 		}
@@ -537,7 +537,7 @@ void ObjectClusterizer::clusterizeObject(
 				if(vstd::contains(heroesProcessed, path.targetHero))
 				{
 #if NK2AI_TRACE_LEVEL >= 2
-					logAi->trace("Hero %s is already processed.", path.targetHero->getNameTextID());
+					logAi->trace("Hero %s is already processed.", path.targetHero->getName());
 #endif
 					continue;
 				}
@@ -562,7 +562,7 @@ void ObjectClusterizer::clusterizeObject(
 				cluster->second->addObject(obj, path, priority);
 
 #if NK2AI_TRACE_LEVEL >= 2
-				logAi->trace("Path added to cluster %s%s", blocker->getObjectNameTextID(), blocker->visitablePos().toString());
+				logAi->trace("Path added to cluster %s%s", blocker->getName(), blocker->visitablePos().toString());
 #endif
 				continue;
 			}
