@@ -1680,6 +1680,11 @@ namespace
 
 				const auto & ostack = ounit->cstack;
 
+				// Some units (e.g. toa lizard assassin) can NOT shoot at distance > X
+				const auto rangeLimit = stack.valOfBonuses(BonusType::LIMITED_SHOOTING_RANGE);
+				if(rangeLimit && !battle.isEnemyUnitWithinSpecifiedRange(hex->bhex, &ostack, rangeLimit))
+					continue;
+
 				float mult = CalcShootDmgMult(battle, ostack, ostack.getPosition(), stack.getHexes(hex->bhex));
 				G.add(E::Unit_BecomesShootThreatAfter_Action::Create(ounit, action, mult));
 			}
@@ -1800,6 +1805,9 @@ namespace
 			// enemy units that would be adjacent to this unit after the move
 			auto adjacentEnemies = std::unordered_set<const N::Unit *>{};
 
+			bool canShootBlocked = stack.canShootBlocked();
+			const auto rangeLimit = stack.valOfBonuses(BonusType::LIMITED_SHOOTING_RANGE);
+
 			for(const auto & adjbhex : adjacentHexes)
 			{
 				if(!adjbhex.isAvailable())
@@ -1830,8 +1838,6 @@ namespace
 					adjacentEnemies.emplace(ounit.get());
 			}
 
-			bool canShootBlocked = stack.canShootBlocked();
-
 			if(adjacentEnemies.size() && !canShootBlocked)
 				continue;
 
@@ -1842,6 +1848,10 @@ namespace
 
 				// Some units (e.g. hota steel elf) can NOT shoot at adjacent enemies
 				if(adjacentEnemies.contains(ounit.get()) && !canShootAdjacent)
+					continue;
+
+				// Some units (e.g. toa lizard assassin) can NOT shoot at distance > X
+				if(rangeLimit && !battle.isEnemyUnitWithinSpecifiedRange(hex->bhex, &ostack, rangeLimit))
 					continue;
 
 				float mult = CalcShootDmgMult(battle, stack, hex->bhex, ostack.getHexes());
@@ -1856,6 +1866,9 @@ namespace
 			for(const auto & ohex : G.getAll<N::Hex>())
 			{
 				if(adjacentHexes.contains(ohex->bhex) && !canShootAdjacent)
+					continue;
+
+				if(rangeLimit && !battle.isHexWithinSpecifiedRange(hex->bhex, ohex->bhex, rangeLimit))
 					continue;
 
 				float mult = CalcShootDmgMult(battle, stack, hex->bhex, {ohex->bhex});
