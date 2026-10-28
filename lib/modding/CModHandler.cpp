@@ -291,19 +291,18 @@ const std::set<TModID> & CModHandler::getModDependencies(const TModID & modId, b
 
 static bool testFilePresence(const CModHandler & modHandler, const std::string & scope, const ResourcePath & resource)
 {
-	std::set<std::string> allowedScopes;
-	if(scope != ModScope::scopeBuiltin() && !scope.empty()) // all real mods may have dependencies
+	std::set<std::string> allowedScopes = { scope }; // mods can use their own files
+	if(scope != ModScope::scopeBuiltin())
 	{
 		//NOTE: recursive dependencies are not allowed at the moment - update code if this changes
-		bool found = true;
-		allowedScopes = modHandler.getModDependencies(scope, found);
-
+		bool found = false;
+		const auto & dependencies = modHandler.getModDependencies(scope, found);
 		if(!found)
-			return false;
+			throw std::runtime_error("Failed to test presence of file '" + resource.getOriginalName() + "': '" + scope + "' is not an active mod");
 
+		allowedScopes.insert(dependencies.begin(), dependencies.end());
 		allowedScopes.insert(ModScope::scopeBuiltin()); // all mods can use H3 files
 	}
-	allowedScopes.insert(scope); // mods can use their own files
 
 	for(const auto & entry : allowedScopes)
 	{
