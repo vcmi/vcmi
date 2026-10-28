@@ -33,11 +33,11 @@ static ui64 evaluateRewardableDanger(const CGObjectInstance * obj, const Rewarda
 	const bool forceCombat = rewardableObject && rewardableObject->configuration.forceCombat;
 	const bool knowsRange = !guardsVisible || forceCombat || (!rewardableInfo.scouted &&
 		static_cast<int>(obj->cb->getStartInfo()->getDifficulty()) >= static_cast<int>(EMapDifficulty::EXPERT));
-	if(obj->ID == Obj::CREATURE_BANK && (!rewardableInfo.scouted || rewardableInfo.guarded) && knowsRange)
+	if((!rewardableInfo.scouted || rewardableInfo.guarded) && knowsRange)
 	{
 		auto objectInfo = obj->getObjectHandler()->getObjectInfo();
 		const auto * rewardable = dynamic_cast<const Rewardable::Info *>(objectInfo.get());
-		if(rewardable)
+		if(rewardable && rewardable->hasGuards())
 		{
 			if(const auto guardRange = rewardable->getCreatureBankGuardRange())
 			{
@@ -49,8 +49,8 @@ static ui64 evaluateRewardableDanger(const CGObjectInstance * obj, const Rewarda
 				// standard banks use minimum danger estimation so a hero with just-sufficient army can visit the bank and clear it if it is minimum tier
 				return guardRange->first;
 			}
+			return UNKNOWN_DANGER;
 		}
-		return UNKNOWN_DANGER;
 	}
 	return rewardableInfo.guardStrength;
 }
