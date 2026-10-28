@@ -735,13 +735,17 @@ bool CBattleInfoCallback::battleCanAttackFromHex(const BattleHexArray & availabl
 	{
 		if (!attacker->hasBonusOfType(BonusType::FLYING))
 		{
-			for (const auto & obstacle : battleGetAllObstacles())
+			const auto stoppers = getStoppers(attacker->unitSide());
+			const bool oneHexMove = LIBRARY->engineSettings()->getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES)
+				&& (fromHex == attacker->occupiedHex() || attacker->getPosition() == attacker->occupiedHex(fromHex));
+			// obstacles under the starting position do not stop the unit, matching server-side movement
+			auto stopsAt = [&](const BattleHex & hex)
 			{
-				if (obstacle->getStoppingTile().contains(fromHex))
-					return false;
-				if (attacker->doubleWide() && obstacle->getStoppingTile().contains(attacker->occupiedHex(fromHex)))
-					return false;
-			}
+				return stoppers.contains(hex) && (oneHexMove || !attacker->coversPos(hex));
+			};
+
+			if (stopsAt(fromHex) || (attacker->doubleWide() && stopsAt(attacker->occupiedHex(fromHex))))
+				return false;
 		}
 		const battle::Unit * defender = battleGetUnitOrCorpseByPos(position); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
 		if (defender && defender->isDead() && defender->coversPos(fromHex))
