@@ -46,7 +46,7 @@ public:
 		h & powerRank;
 		h & heroType;
 	}
-	
+
 protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 };

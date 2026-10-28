@@ -106,7 +106,7 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 
 bool ExecuteHeroChain::operator==(const ExecuteHeroChain & other) const
 {
-	return tile == other.tile 
+	return tile == other.tile
 		&& chainPath.targetHero == other.chainPath.targetHero
 		&& chainPath.nodes.size() == other.chainPath.nodes.size()
 		&& chainPath.chainMask == other.chainPath.chainMask;
@@ -431,7 +431,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 				throw cannotFulfillGoalException("Hero did not reach the expected hero chain destination.");
 			}
-			
+
 			// no exception means we were not able to reach the tile
 			aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node->parentIndex);
