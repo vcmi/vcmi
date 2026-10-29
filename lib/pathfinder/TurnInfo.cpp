@@ -240,7 +240,8 @@ int TurnInfo::getMovementConversionLimit(const EPathfindingLayer & layer) const
 	if(layer != EPathfindingLayer::LAND && layer != EPathfindingLayer::SAIL)
 		return 0;
 
-	if(isCurrentTurn)
+	// Keep the day's conversion ratio stable despite mid-turn changes to movement bonuses.
+	if(isCurrentTurn && target->cb->getSettings().getBoolean(EGameSettings::HEROES_PREVENT_LAND_SEA_MOVEMENT_EXPLOIT))
 	{
 		const int savedLimit = target->getMovementConversionLimit(layer);
 		if(savedLimit > 0)
