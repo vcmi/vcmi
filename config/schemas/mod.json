@@ -52,6 +52,12 @@
 						"items" : { "type" : "string" }
 					}
 				},
+				"progress" : {
+					"type" : "number",
+					"minimum" : 0,
+					"maximum" : 100,
+					"description" : "Set by mod repository. Percentage of mod strings translated into this language"
+				},
 				"skipValidation" : {
 					"type" : "boolean",
 					"description" : "If set to true, vcmi will skip validation of current translation json files"
@@ -89,6 +95,31 @@
 		"downloadSize": {
 			"type" : "number",
 			"description" : "Approximate size of mod, compressed by zip algorithm, in Mb"
+		},
+		"mod" : {
+			"type" : "string",
+			"description" : "Set by mod repository. URL to mod.json of this mod"
+		},
+		"download" : {
+			"type" : "string",
+			"description" : "Set by mod repository. URL to zip archive with this mod"
+		},
+		"screenshots" : {
+			"type" : "array",
+			"description" : "Set by mod repository. List of URLs to screenshots of this mod",
+			"items" : { "type" : "string" }
+		},
+		"githubStars" : {
+			"type" : "number",
+			"description" : "Set by mod repository. Number of stars of mod repository on GitHub"
+		},
+		"updateDate" : {
+			"type" : "string",
+			"description" : "Set by mod repository. Time of latest mod release, in UTC ISO 8601 format"
+		},
+		"validated" : {
+			"type" : "boolean",
+			"description" : "Set by mod repository. Whether this mod passed automatic validation on its release"
 		},
 		"contact" : {
 			"type" : "string",
