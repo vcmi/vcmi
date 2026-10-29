@@ -89,12 +89,13 @@ public:
 class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance>
 {
 	JsonNode filtersJson;
+	const CFaction * faction = nullptr;
+
 protected:
 	bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const override;
 	void initTypeData(LibraryLoadContext & context, const JsonNode & input) override;
 
 public:
-	const CFaction * faction = nullptr;
 	std::map<std::string, LogicalExpression<BuildingID>> filters;
 
 	void initializeObject(CGTownInstance * object) const override;
