@@ -16,6 +16,19 @@
 				}
 			]
 		},
+		"author" : {
+			"description" : "Author of the mod, or list of authors. Can be nickname, real name or name of team",
+			"oneOf" : [
+				{
+					"type" : "string"
+				},
+				{
+					"type" : "array",
+					"minItems" : 1,
+					"items" : { "type" : "string" }
+				}
+			]
+		},
 		"localizable" : {
 			"type" : "object",
 			"additionalProperties" : false,
@@ -29,8 +42,7 @@
 					"description" : "More lengthy description of mod. No hard limit"
 				},
 				"author" : {
-					"type" : "string",
-					"description" : "Author of the mod. Can be nickname, real name or name of team"
+					"$ref" : "#/definitions/author"
 				},
 				"changelog" : {
 					"type" : "object",
@@ -72,8 +84,7 @@
 			"description" : "Type of mod, e.g. Town, Artifacts, Graphical."
 		},
 		"author" : {
-			"type" : "string",
-			"description" : "Author of the mod. Can be nickname, real name or name of team"
+			"$ref" : "#/definitions/author"
 		},
 		"downloadSize": {
 			"type" : "number",

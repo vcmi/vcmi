@@ -14,6 +14,7 @@
 	"description" : "My test mod that add a lot of useless stuff into the game",
 
 	// Author of mod. Can be nickname, real name or name of team
+	// Multiple authors can be listed as an array, e.g. [ "Anonymous", "Someone Else" ]
 	"author" : "Anonymous",
 
 	// Full name of license used by mod. Should be set only if you're author of mod
