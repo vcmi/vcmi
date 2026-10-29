@@ -436,7 +436,7 @@ void CArtHandler::loadComponents(LibraryLoadContext & context, CArtifact * art, 
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
-				art->constituents.push_back(ArtifactID(id).toArtifact());
+				art->constituents.push_back(objects[id].get());
 				objects[id]->partOf.insert(art);
 			});
 		}
