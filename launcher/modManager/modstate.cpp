@@ -14,6 +14,7 @@
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
+#include "../../lib/texts/TextOperations.h"
 
 ModState::ModState(const ModDescription & impl)
 	: impl(impl)
@@ -137,6 +138,19 @@ QString ModState::getRepositoryVersion() const
 QString ModState::getVersion() const
 {
 	return QString::fromStdString(impl.getValue("version").String());
+}
+
+QString ModState::getUpdateDate() const
+{
+	// repository date describes repository version, which may differ from installed one
+	if (getRepositoryVersion() != getVersion())
+		return {};
+
+	QDateTime date = QDateTime::fromString(QString::fromStdString(impl.getRepositoryValue("updateDate").String()), Qt::ISODate);
+	if (!date.isValid())
+		return {};
+
+	return QString::fromStdString(TextOperations::getFormattedDateTimeLocal(date.toSecsSinceEpoch()));
 }
 
 int ModState::getGithubStars() const

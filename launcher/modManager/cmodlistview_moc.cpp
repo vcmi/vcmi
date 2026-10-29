@@ -363,6 +363,8 @@ QString CModListView::genModInfoText(const ModState & mod)
 			result += replaceIfNotEmpty(mod.getRepositoryVersion(), lineTemplate.arg(tr("Latest version")));
 	}
 
+	result += replaceIfNotEmpty(mod.getUpdateDate(), lineTemplate.arg(tr("Last updated")));
+
 	if (mod.isInstalled())
 		result += replaceIfNotEmpty(modStateModel->getInstalledModSizeFormatted(mod.getID()), lineTemplate.arg(tr("Size")));
 

@@ -41,6 +41,7 @@ public:
 	QString getInstalledVersion() const;
 	QString getRepositoryVersion() const;
 	QString getVersion() const;
+	QString getUpdateDate() const;
 	int getGithubStars() const;
 
 	double getDownloadSizeMegabytes() const;
