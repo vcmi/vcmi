@@ -221,6 +221,14 @@ QPair<QString, QString> ModState::getCompatibleVersionRange() const
 	return { min, max};
 }
 
+bool ModState::isValidationFailed() const
+{
+	const JsonNode & validated = impl.getRepositoryValue("validated");
+
+	// repository result describes repository version, which may differ from installed one
+	return getRepositoryVersion() == getVersion() && validated.isBool() && !validated.Bool();
+}
+
 bool ModState::isSubmod() const
 {
 	return !getParentID().isEmpty();

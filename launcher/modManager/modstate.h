@@ -58,6 +58,8 @@ public:
 
 	QPair<QString, QString> getCompatibleVersionRange() const;
 
+	/// Returns true if mod repository reported that this mod failed automatic validation
+	bool isValidationFailed() const;
 	bool isSubmod() const;
 	bool isCompatibility() const;
 	bool isTranslation() const;

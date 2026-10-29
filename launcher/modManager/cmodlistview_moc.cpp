@@ -448,6 +448,9 @@ QString CModListView::genModInfoText(const ModState & mod)
 	if(mod.isSubmod())
 		notes += noteTemplate.arg(thisIsSubmod);
 
+	if(mod.isValidationFailed())
+		notes += noteTemplate.arg(tr("This mod failed automatic validation and may not work correctly."));
+
 	if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString())
 		notes += noteTemplate.arg(translationMismatch);
 
