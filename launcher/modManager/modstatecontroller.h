@@ -13,10 +13,6 @@
 #include <QStringList>
 #include <QVector>
 
-#include <atomic>
-#include <memory>
-#include <mutex>
-
 class JsonNode;
 
 class ModStateModel;
