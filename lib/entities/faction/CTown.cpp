@@ -15,6 +15,11 @@
 #include "../building/CBuilding.h"
 #include "../../texts/TextIdentifier.h"
 
+const CBuilding * CStructure::getBuilding() const
+{
+	return building;
+}
+
 CTown::CTown()
 	: faction(nullptr), mageLevel(0), primaryRes(0), defaultTavernChance(0)
 {

@@ -97,12 +97,12 @@ public:
 		{
 			if(!structure || structure->defName.empty())
 				continue;
-			if(!structure->building)
+			if(!structure->getBuilding())
 			{
 				toRender.push_back(structure.get());
 				continue;
 			}
-			groups[structure->building->getBase()].push_back(structure.get());
+			groups[structure->getBuilding()->getBase()].push_back(structure.get());
 		}
 
 		for(auto & [baseId, group] : groups)
@@ -115,8 +115,8 @@ public:
 				group,
 				[base](const CStructure * a, const CStructure * b)
 				{
-					return base->getDistance(a->building->bid)
-					     < base->getDistance(b->building->bid);
+					return base->getDistance(a->getBuilding()->bid)
+					     < base->getDistance(b->getBuilding()->bid);
 				});
 			toRender.push_back(best);
 		}

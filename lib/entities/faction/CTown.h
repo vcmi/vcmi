@@ -23,8 +23,14 @@ class CBuilding;
 /// Should be moved from lib to client
 struct DLL_LINKAGE CStructure
 {
+private:
+	friend class CTownHandler;
+
 	const CBuilding * building;  // base building. If null - this structure will be always present on screen
 	const CBuilding * buildable; // building that will be used to determine built building and visible cost. Usually same as "building"
+
+public:
+	const CBuilding * getBuilding() const;
 
 	int3 pos;
 	AnimationPath defName;
