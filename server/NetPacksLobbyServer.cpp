@@ -14,6 +14,7 @@
 #include "CGameHandler.h"
 
 #include "../lib/StartInfo.h"
+#include "../lib/VCMIDirs.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
@@ -26,6 +27,18 @@
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/serializer/GameConnection.h"
+
+/// Returns true if canonical path points to an entry inside directory, and not to directory itself
+static bool isInsideDirectory(const boost::filesystem::path & canonicalPath, const boost::filesystem::path & directory)
+{
+	boost::system::error_code ec;
+	const auto canonicalDirectory = boost::filesystem::canonical(directory, ec);
+	if(ec)
+		return false;
+
+	const auto [directoryEnd, pathEnd] = std::mismatch(canonicalDirectory.begin(), canonicalDirectory.end(), canonicalPath.begin(), canonicalPath.end());
+	return directoryEnd == canonicalDirectory.end() && pathEnd != canonicalPath.end();
+}
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -471,10 +484,15 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 
 		boost::system::error_code ec;
 		auto file = boost::filesystem::canonical(*name, ec);
+		const auto directory = pack.type == LobbyDelete::EType::SAVEGAME ? VCMIDirs::get().userSavePath() : VCMIDirs::get().userDataPath() / "Maps" / "RandomMaps";
 
 		if (ec)
 		{
 			logGlobal->error("Failed to delete file '%s'. Reason: %s", res.getOriginalName(), ec.message());
+		}
+		else if (!isInsideDirectory(file, directory))
+		{
+			logGlobal->error("Refusing to delete file '%s' outside of directory '%s'", res.getOriginalName(), directory.string());
 		}
 		else
 		{
@@ -494,10 +512,14 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 		}
 
 		boost::system::error_code ec;
-		auto folder = boost::filesystem::canonical(*name);
+		auto folder = boost::filesystem::canonical(*name, ec);
 		if (ec)
 		{
 			logGlobal->error("Failed to delete folder '%s'. Reason: %s", res.getOriginalName(), ec.message());
+		}
+		else if (!isInsideDirectory(folder, VCMIDirs::get().userSavePath()))
+		{
+			logGlobal->error("Refusing to delete folder '%s' outside of directory '%s'", res.getOriginalName(), VCMIDirs::get().userSavePath().string());
 		}
 		else
 		{
