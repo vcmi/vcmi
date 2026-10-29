@@ -308,7 +308,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 	if (!bid.isDwelling())
 	{
 		CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
-									std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(bld->town->getFaction()->getId(), bld->bid)));
+									std::make_shared<CComponent>(ComponentType::BUILDING, bld->getUniqueTypeID()));
 	}
 	else
 	{
@@ -1513,7 +1513,7 @@ void CTownInfo::showPopupWindow(const Point & cursorPosition)
 {
 	if(building)
 	{
-		auto c =  std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(building->town->getFaction()->getId(), building->bid));
+		auto c =  std::make_shared<CComponent>(ComponentType::BUILDING, building->getUniqueTypeID());
 		CRClickPopup::createAndPush(CInfoWindow::genText(building->getNameTranslated(), building->getDescriptionTranslated()), c);
 	}
 }

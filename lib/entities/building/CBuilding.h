@@ -29,11 +29,11 @@ class DLL_LINKAGE CBuilding : public scripting::ApiRawPointer<CBuilding>
 {
 	std::string modScope;
 	std::string identifier;
+	CTown * town; // town this building belongs to
 
 public:
 	using TRequired = LogicalExpression<BuildingID>;
 
-	CTown * town; // town this building belongs to
 	TResources resources;
 	TResources produce;
 	TRequired requirements;
