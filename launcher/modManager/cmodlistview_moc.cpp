@@ -1191,8 +1191,16 @@ void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 				for(const auto & [modName, modJson] : availableRepositoryMods.Struct())
 				{
 					auto modNameLower = boost::algorithm::to_lower_copy(modName);
-					auto modJsonUrl = modJson["mod"];
-					auto modDescriptionUrl = modJson["descriptionURL"];
+
+					// plain string is URL to mod.json, which is expected to provide all other fields
+					JsonNode modEntry;
+					if(modJson.isString())
+						modEntry["mod"] = modJson;
+					else
+						modEntry = modJson;
+
+					auto modJsonUrl = std::as_const(modEntry)["mod"];
+					auto modDescriptionUrl = std::as_const(modEntry)["descriptionURL"];
 					if(!modJsonUrl.isNull())
 					{
 						downloadFile(QString::fromStdString(modName + ".json"), QString::fromStdString(modJsonUrl.String()), tr("mods repository index"));
@@ -1204,7 +1212,7 @@ void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 						repositoryFilesEnqueued = true;
 					}
 
-					accumulatedRepositoryData[modNameLower] = modJson;
+					accumulatedRepositoryData[modNameLower] = modEntry;
 				}
 			}
 			else
