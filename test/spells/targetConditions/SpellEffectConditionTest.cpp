@@ -11,6 +11,8 @@
 
 #include "TargetConditionItemFixture.h"
 
+#include "../../../lib/GameLibrary.h"
+
 namespace test
 {
 using namespace ::spells;
@@ -29,7 +31,7 @@ public:
 	{
 		TargetConditionItemTest::SetUp();
 
-		subject = TargetConditionItemFactory::getDefault()->createConfigurable("core", "spell", "age");
+		subject = TargetConditionItemFactory::create(*LIBRARY->identifiers())->createConfigurable("core", "spell", "age");
 		GTEST_ASSERT_NE(subject, nullptr);
 	}
 };

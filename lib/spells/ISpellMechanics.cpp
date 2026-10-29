@@ -40,7 +40,7 @@ static std::shared_ptr<TargetCondition> makeCondition(LibraryLoadContext & conte
 	auto res = std::make_shared<TargetCondition>();
 
 	JsonDeserializer deser(nullptr, context.resolver, s->targetCondition);
-	res->serializeJson(deser, TargetConditionItemFactory::getDefault());
+	res->serializeJson(deser, TargetConditionItemFactory::create(*context.lib.identifiers()).get());
 
 	return res;
 }
