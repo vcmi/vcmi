@@ -335,8 +335,6 @@ QString CModListView::genModInfoText(const ModState & mod)
 	QString textTemplate = "**%1**: \n\n%2\n\n";
 	QString listTemplate = "**%1**: %2\n\n";
 	QString noteTemplate = "**%1**\n\n";
-	QString incompatibleString = "**%1**: " + tr("Mod is incompatible") + "\n\n";
-	QString supportedVersions =  "**%1**: %2 %3 %4\n\n";
 
 	QString result;
 
@@ -366,7 +364,7 @@ QString CModListView::genModInfoText(const ModState & mod)
 	result += replaceIfNotEmpty(mod.getUpdateDate(), lineTemplate.arg(tr("Last updated")));
 
 	if (mod.isInstalled())
-		result += replaceIfNotEmpty(modStateModel->getInstalledModSizeFormatted(mod.getID()), lineTemplate.arg(tr("Size")));
+		result += replaceIfNotEmpty(modStateModel->getInstalledModSizeFormatted(mod.getID()), lineTemplate.arg(tr("Installed size")));
 
 	if((!mod.isInstalled() || mod.isUpdateAvailable()) && !mod.getDownloadSizeFormatted().isEmpty())
 		result += replaceIfNotEmpty(mod.getDownloadSizeFormatted(), lineTemplate.arg(tr("Download size")));
@@ -380,33 +378,25 @@ QString CModListView::genModInfoText(const ModState & mod)
 		result += lineTemplate.arg(tr("Contact")).arg(mod.getContact());
 
 	if(!mod.getDownloadUrl().isEmpty())
-		result += urlTemplate.arg(tr("Git-Repository")).arg(getRepoUrl(mod)).arg(getRepoUrl(mod));
+		result += urlTemplate.arg(tr("GitHub repository")).arg(getRepoUrl(mod)).arg(getRepoUrl(mod));
 
 	if(mod.getGithubStars() != -1)
-		result += replaceIfNotEmpty(mod.getGithubStars(), lineTemplate.arg(tr("GitHub-Stars")));
+		result += replaceIfNotEmpty(mod.getGithubStars(), lineTemplate.arg(tr("GitHub stars")));
 
 	//compatibility info
 	if(!mod.isCompatible())
 	{
-		auto compatibilityInfo = mod.getCompatibleVersionRange();
-		auto minStr = compatibilityInfo.first;
-		auto maxStr = compatibilityInfo.second;
+		auto [minStr, maxStr] = mod.getCompatibleVersionRange();
 
-		result += incompatibleString.arg(tr("Compatibility"));
+		result += lineTemplate.arg(tr("Compatibility"), tr("Not compatible with this VCMI version"));
 		if(minStr == maxStr)
-			result += supportedVersions.arg(tr("Required VCMI version"), minStr, "", "");
+			result += lineTemplate.arg(tr("Required VCMI version"), minStr);
+		else if(maxStr.isEmpty())
+			result += lineTemplate.arg(tr("Required VCMI version"), tr("%1 or newer").arg(minStr));
+		else if(minStr.isEmpty())
+			result += lineTemplate.arg(tr("Supported VCMI versions"), tr("up to %1").arg(maxStr));
 		else
-		{
-			if(minStr.isEmpty() || maxStr.isEmpty())
-			{
-				if(minStr.isEmpty())
-					result += supportedVersions.arg(tr("Supported VCMI version"), maxStr, ", ", tr("please upgrade mod"));
-				else
-					result += supportedVersions.arg(tr("Required VCMI version"), minStr, " ", tr("or newer"));
-			}
-			else
-				result += supportedVersions.arg(tr("Supported VCMI versions"), minStr, " - ", maxStr);
-		}
+			result += lineTemplate.arg(tr("Supported VCMI versions"), tr("%1 - %2").arg(minStr, maxStr));
 	}
 
 	QString preferredLanguage = QString::fromStdString(CGeneralTextHandler::getPreferredLanguage());
@@ -439,10 +429,10 @@ QString CModListView::genModInfoText(const ModState & mod)
 	result += replaceIfNotEmpty(getModNames(mod.getID(), mod.getDependencies()), lineTemplate.arg(tr("Required mods")));
 	result += replaceIfNotEmpty(getModNames(mod.getID(), conflicts), lineTemplate.arg(tr("Conflicting mods")));
 
-	QString translationMismatch = tr("This mod cannot be enabled because it translates into a different language.");
-	QString notInstalledDeps = tr("This mod can not be enabled because the following dependencies are not present");
-	QString unavailableDeps = tr("This mod can not be installed because the following dependencies are not present");
-	QString thisIsSubmod = tr("This is a submod and it cannot be installed or uninstalled separately from its parent mod");
+	QString translationMismatch = tr("This translation cannot be enabled because it is for a different language than the one selected in settings.");
+	QString notInstalledDeps = tr("This mod cannot be enabled because these required mods are missing");
+	QString unavailableDeps = tr("This mod cannot be installed because these required mods are missing");
+	QString thisIsSubmod = tr("This is a submod. It cannot be installed or uninstalled separately from its parent mod.");
 
 	QString notes;
 
