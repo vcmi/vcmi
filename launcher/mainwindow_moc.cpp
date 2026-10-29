@@ -24,7 +24,6 @@
 #include "updatedialog_moc.h"
 #include "main.h"
 #include "helper.h"
-#include "modManager/modstatecontroller.h"
 #ifndef VCMI_MOBILE
 #include "gamepadHandler.h"
 #endif
@@ -449,14 +448,8 @@ void MainWindow::manualInstallFile(QString filePath)
 	QString fileName = QFileInfo{filePath}.fileName();
 	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive))
 	{
-		if(filePath.startsWith("content://", Qt::CaseInsensitive) || !QFileInfo(filePath).isFile())
-		{
-			// URI sources need a local copy before minizip can open them.
-			const QString archiveName = ModStateController::modIdFromArchivePath(realFilePath, true) + ".zip";
-			getModView()->downloadFile(archiveName, QUrl::fromLocalFile(filePath), tr("mod archive"));
-		}
-		else
-			getModView()->installFiles(QStringList{filePath}, true);
+		// Local archives are imported directly, without copying them into the downloads directory first.
+		getModView()->installFiles(QStringList{filePath}, true);
 	}
 	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{

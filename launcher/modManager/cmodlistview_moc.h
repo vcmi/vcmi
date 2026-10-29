@@ -10,14 +10,16 @@
 #pragma once
 
 #include "../StdInc.h"
+#include "modstatecontroller.h"
 #include "../../lib/CConfigHandler.h"
+
+#include <QPointer>
 
 namespace Ui
 {
 class CModListView;
 }
 
-class ModStateController;
 class CModList;
 class ModStateItemModel;
 class ModStateModel;
@@ -31,11 +33,22 @@ class CModListView : public QWidget
 {
 	Q_OBJECT
 
+	struct ArchiveImportOutcome
+	{
+		QString originalPath;
+		QString sourcePath;
+		bool temporarySource = false;
+		ModStateController::ArchiveImportResult result;
+	};
+
 	std::shared_ptr<ModStateModel> modStateModel;
 	std::unique_ptr<ModStateController> manager;
 	ModStateItemModel * modModel;
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
+	QPointer<QObject> importOperation;
+	std::shared_ptr<ModStateController::ArchiveImportProgress> importProgress;
+	QStringList downloadedArchives;
 	JsonNode accumulatedRepositoryData;
 	QString activatingPreset;
 
@@ -61,6 +74,9 @@ class CModListView : public QWidget
 	bool askOverwriteDialog(const QString & windowTitle, const QString & message, int conflictCount, bool & applyToAll, bool & overwriteAll);
 
 	void installMods(QStringList archives, bool removeGithubSuffix);
+	void cleanupDownloadedArchives(QStringList archives);
+	static ArchiveImportOutcome importArchive(const QString & archive, const QString & hint,
+		ModStateController::ArchiveImportProgress & progress, const QStringList & protectedMods, bool fullModExtraction);
 	void installMaps(QStringList maps);
 	void installSaves(QStringList saves);
 
@@ -158,7 +174,6 @@ private slots:
 	void downloadProgress(QString currentFile, qint64 current, qint64 max);
 	void onDownloadFileFinished(QString fileName);
 	void extractionProgress(qint64 current, qint64 max);
-	void contentExtractionProgress(QString modName, qint64 current, qint64 max);
 	void downloadFinished(QStringList savedFiles, QStringList failedFiles, QStringList errors);
 	void modelReset();
 	void hideProgressBar();
