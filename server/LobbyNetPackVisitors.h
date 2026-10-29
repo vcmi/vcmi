@@ -45,6 +45,7 @@ public:
 	void visitLobbyGuiAction(LobbyGuiAction & pack) override;
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
+	void visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack) override;
 	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };
@@ -110,4 +111,5 @@ public:
 	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
+	void visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack) override;
 };

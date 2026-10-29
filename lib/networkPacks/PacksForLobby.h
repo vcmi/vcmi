@@ -11,6 +11,7 @@
 
 #include "StartInfo.h"
 #include "NetPacksBase.h"
+#include "../mapping/ScenarioList.h"
 #include "../modding/ModVerificationInfo.h"
 #include "../serializer/ESerializationVersion.h"
 #include "../texts/MetaString.h"
@@ -217,6 +218,36 @@ struct DLL_LINKAGE LobbyUpdateMapInfo : public CPackForLobby
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & mapInfo;
+	}
+};
+
+/// Sent by host to request maps or saved games of a folder on the server
+struct DLL_LINKAGE LobbyRequestScenarioList : public CLobbyPackToServer
+{
+	ScenarioListEntry::EType type = ScenarioListEntry::EType::MAP;
+	std::string folder; ///< relative to Maps/ or Saves/
+	ELoadMode loadMode = ELoadMode::NONE; ///< saves that can not be loaded in this mode are not listed
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & type;
+		h & folder;
+		h & loadMode;
+	}
+};
+
+/// Server response to LobbyRequestScenarioList, sent only to the requesting client
+struct DLL_LINKAGE LobbyScenarioList : public CPackForLobby
+{
+	ScenarioList list;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & list;
 	}
 };
 

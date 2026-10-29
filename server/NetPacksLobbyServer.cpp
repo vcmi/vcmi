@@ -12,6 +12,7 @@
 
 #include "CVCMIServer.h"
 #include "CGameHandler.h"
+#include "lobby/ScenarioListBuilder.h"
 
 #include "../lib/StartInfo.h"
 #include "../lib/VCMIDirs.h"
@@ -100,7 +101,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClie
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
-	if(pack.version < ESerializationVersion::LOBBY_MAP_INFO_PACK)
+	if(pack.version < ESerializationVersion::MINIMAL_LOBBY)
 	{
 		// client of an older version can not read packs of the current lobby protocol
 		logNetwork->error("Rejecting client with incompatible serialization version %d", static_cast<int>(pack.version));
@@ -465,9 +466,29 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack
 	result = srv.isClientHost(connection->connectionID);
 }
 
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack)
+{
+	result = srv.isClientHost(connection->connectionID);
+
+	const bool validLoadMode = pack.loadMode == ELoadMode::SINGLE || pack.loadMode == ELoadMode::MULTI || pack.loadMode == ELoadMode::CAMPAIGN || pack.loadMode == ELoadMode::TUTORIAL;
+	if(pack.type != ScenarioListEntry::EType::MAP && (pack.type != ScenarioListEntry::EType::SAVE || !validLoadMode))
+	{
+		logNetwork->error("Rejecting scenario list request with invalid type %d or load mode %d", static_cast<int>(pack.type), static_cast<int>(pack.loadMode));
+		result = false;
+	}
+}
+
 void ClientPermissionsCheckerNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
 {
 	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack)
+{
+	LobbyScenarioList reply;
+	reply.list = ScenarioListBuilder(pack.type, pack.loadMode).build(pack.folder);
+	connection->sendPack(reply);
+	result = false;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)

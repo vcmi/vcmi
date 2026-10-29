@@ -318,4 +318,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<BattleTacticsEnded>(271);
 	s.template registerType<DisableMapEvent>(272);
 	s.template registerType<LobbyUpdateMapInfo>(273);
+	s.template registerType<LobbyRequestScenarioList>(274);
+	s.template registerType<LobbyScenarioList>(275);
 }
