@@ -19,6 +19,7 @@ set(vcmiservercommon_SRCS
 		processors/PlayerMessageProcessor.cpp
 		processors/TurnOrderProcessor.cpp
 
+		lobby/LastSavedGames.cpp
 		lobby/ScenarioListBuilder.cpp
 
 		CGameHandler.cpp
@@ -52,6 +53,7 @@ set(vcmiservercommon_HEADERS
 		processors/PlayerMessageProcessor.h
 		processors/TurnOrderProcessor.h
 
+		lobby/LastSavedGames.h
 		lobby/ScenarioListBuilder.h
 
 		CGameHandler.h

@@ -96,6 +96,73 @@ ScenarioList ScenarioListBuilder::build(const std::string & folder) const
 	return result;
 }
 
+static const ScenarioListEntry * findNewestEntry(const ScenarioList & list)
+{
+	const ScenarioListEntry * result = nullptr;
+	for(const auto & entry : list.entries)
+		if(!result || entry.lastWrite > result->lastWrite || (entry.lastWrite == result->lastWrite && entry.fileURI > result->fileURI))
+			result = &entry;
+	return result;
+}
+
+ScenarioList ScenarioListBuilder::buildForSave(const std::string & saveName, std::string & selectedFile) const
+{
+	if(!saveName.empty())
+	{
+		auto list = build(ScenarioList::getFolderOf(saveName));
+
+		const ResourcePath save(saveName, EResType::SAVEGAME);
+		for(const auto & entry : list.entries)
+		{
+			if(entry.fileURI == save.getName())
+			{
+				selectedFile = entry.fileURI;
+				return list;
+			}
+		}
+	}
+
+	auto root = build("");
+
+	struct Candidate
+	{
+		std::time_t lastWrite;
+		std::string name;
+		bool isFolder;
+	};
+	std::vector<Candidate> candidates;
+	for(const auto & entry : root.entries)
+		candidates.push_back({entry.lastWrite, entry.fileURI, false});
+	for(const auto & folder : root.subfolders)
+		if(folder.compatible != false)
+			candidates.push_back({folder.lastWrite, folder.name, true});
+
+	std::ranges::sort(candidates, [](const Candidate & lhs, const Candidate & rhs)
+	{
+		if(lhs.lastWrite != rhs.lastWrite)
+			return lhs.lastWrite > rhs.lastWrite;
+		return lhs.name > rhs.name;
+	});
+
+	for(const auto & candidate : candidates)
+	{
+		if(!candidate.isFolder)
+		{
+			selectedFile = candidate.name;
+			return root;
+		}
+
+		auto list = build(root.folder + candidate.name + "/");
+		if(const auto * newest = findNewestEntry(list))
+		{
+			selectedFile = newest->fileURI;
+			return list;
+		}
+	}
+
+	return root;
+}
+
 std::vector<ScenarioListEntry> ScenarioListBuilder::parseMaps(const std::vector<ResourcePath> & folderFiles) const
 {
 	auto timeStart = std::chrono::steady_clock::now();

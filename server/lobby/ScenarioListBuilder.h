@@ -43,6 +43,10 @@ public:
 	/// Returns contents of a folder relative to Maps/ or Saves/, letter case of the folder is ignored
 	ScenarioList build(const std::string & folder) const;
 
+	/// Returns folder of the saved game to select, and its file URI in selectedFile; if the save is not listed,
+	/// selects the newest save of the root folder or of its newest subfolder with compatible saves
+	ScenarioList buildForSave(const std::string & saveName, std::string & selectedFile) const;
+
 	/// Returns true if saved game can be loaded in this load mode
 	static bool isSaveCompatible(const ScenarioListEntry & entry, ELoadMode loadMode);
 };

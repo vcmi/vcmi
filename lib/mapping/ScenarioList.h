@@ -36,6 +36,14 @@ struct DLL_LINKAGE ScenarioList
 	std::vector<ScenarioListFolder> subfolders;
 	std::vector<std::string> unsupportedSaves; ///< saves too old to be loaded
 
+	/// Returns folder of a file relative to Maps/ or Saves/, ends with '/' unless empty
+	static std::string getFolderOf(const std::string & fileURI)
+	{
+		const std::string relativePath = fileURI.substr(fileURI.find('/') + 1);
+		const auto separator = relativePath.rfind('/');
+		return separator == std::string::npos ? "" : relativePath.substr(0, separator + 1);
+	}
+
 	template<typename Handler>
 	void serialize(Handler & h)
 	{

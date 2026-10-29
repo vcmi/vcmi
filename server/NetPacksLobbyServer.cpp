@@ -12,6 +12,7 @@
 
 #include "CVCMIServer.h"
 #include "CGameHandler.h"
+#include "lobby/LastSavedGames.h"
 #include "lobby/ScenarioListBuilder.h"
 
 #include "../lib/StartInfo.h"
@@ -485,8 +486,12 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbySetBattleOnlyModeStartInf
 
 void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack)
 {
+	const ScenarioListBuilder builder(pack.type, pack.loadMode);
 	LobbyScenarioList reply;
-	reply.list = ScenarioListBuilder(pack.type, pack.loadMode).build(pack.folder);
+	if(pack.selectLastSave && pack.type == ScenarioListEntry::EType::SAVE)
+		reply.list = builder.buildForSave(LastSavedGames::get(pack.loadMode), reply.selectedFile);
+	else
+		reply.list = builder.build(pack.folder);
 	connection->sendPack(reply);
 	result = false;
 }

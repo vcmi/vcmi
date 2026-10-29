@@ -227,6 +227,7 @@ struct DLL_LINKAGE LobbyRequestScenarioList : public CLobbyPackToServer
 	ScenarioListEntry::EType type = ScenarioListEntry::EType::MAP;
 	std::string folder; ///< relative to Maps/ or Saves/
 	ELoadMode loadMode = ELoadMode::NONE; ///< saves that can not be loaded in this mode are not listed
+	bool selectLastSave = false; ///< ignore folder, list folder of the save last written or loaded in this load mode instead
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -235,6 +236,7 @@ struct DLL_LINKAGE LobbyRequestScenarioList : public CLobbyPackToServer
 		h & type;
 		h & folder;
 		h & loadMode;
+		h & selectLastSave;
 	}
 };
 
@@ -242,12 +244,14 @@ struct DLL_LINKAGE LobbyRequestScenarioList : public CLobbyPackToServer
 struct DLL_LINKAGE LobbyScenarioList : public CPackForLobby
 {
 	ScenarioList list;
+	std::string selectedFile; ///< file URI of the entry to select, set only for selectLastSave requests
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & list;
+		h & selectedFile;
 	}
 };
 
