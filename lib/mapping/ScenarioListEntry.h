@@ -57,4 +57,14 @@ public:
 	bool isCampaignSave() const;
 	bool isTutorialSave() const;
 	int getHumanPlayersInSave() const;
+
+	template<typename Handler>
+	void serialize(Handler & h)
+	{
+		h & type;
+		h & fileURI;
+		h & originalFileURI;
+		h & lastWrite;
+		h & metadata;
+	}
 };
