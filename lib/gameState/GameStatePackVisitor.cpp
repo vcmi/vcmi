@@ -752,7 +752,7 @@ void GameStatePackVisitor::visitGiveHero(GiveHero & pack)
 	h->updateAppearance();
 
 	h->setOwner(pack.player);
-	h->setMovementPoints(h->movementPointsLimit());
+	h->replenishMovementPoints();
 	h->setAnchorPos(h->convertFromVisitablePos(oldVisitablePos));
 	gs.getPlayerState(h->getOwner())->addOwnedObject(h);
 
@@ -1234,6 +1234,8 @@ void GameStatePackVisitor::visitNewTurn(NewTurn & pack)
 	for(auto & movePack : pack.heroesMovement)
 		movePack.visit(*this);
 
+	// heroesMovement only contains heroes whose MP changed.
+	// Refresh conversion limits for all heroes, including those omitted from the packet.
 	for(const auto & player : gs.players)
 	{
 		for(const CGHeroInstance * hero : player.second.getHeroes())

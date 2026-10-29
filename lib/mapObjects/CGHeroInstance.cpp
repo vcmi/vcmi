@@ -205,6 +205,12 @@ void CGHeroInstance::setMovementPoints(int points)
 		movement = std::max(0, points);
 }
 
+void CGHeroInstance::replenishMovementPoints()
+{
+	setMovementConversionLimits(*getTurnInfo(0));
+	setMovementPoints(movementPointsLimit());
+}
+
 int CGHeroInstance::movementPointsLimit() const
 {
 	auto layer = inBoat() ? getBoat()->layer : EPathfindingLayer::LAND;
@@ -252,17 +258,17 @@ std::unique_ptr<TurnInfo> CGHeroInstance::getTurnInfo(int days) const
 
 void CGHeroInstance::setMovementConversionLimits(const TurnInfo & ti)
 {
-	movementConversionLandLimit = ti.getMaxMovePoints(EPathfindingLayer::LAND);
-	movementConversionSeaLimit = ti.getMaxMovePoints(EPathfindingLayer::SAIL);
+	movementPointLandLimit = ti.getMovePointsLimitLand();
+	movementPointSeaLimit = ti.getMovePointsLimitWater();
 }
 
 int CGHeroInstance::getMovementConversionLimit(const EPathfindingLayer & layer) const
 {
 	if(layer == EPathfindingLayer::LAND)
-		return movementConversionLandLimit;
+		return movementPointLandLimit;
 
 	if(layer == EPathfindingLayer::SAIL)
-		return movementConversionSeaLimit;
+		return movementPointSeaLimit;
 
 	return 0;
 }
@@ -533,8 +539,8 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 	//initialize bonuses
 	recreateSecondarySkillsBonuses();
 
-	movement = movementPointsLimit();
 	setMovementConversionLimits(*getTurnInfo(0));
+	movement = movementPointsLimit();
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 }
 

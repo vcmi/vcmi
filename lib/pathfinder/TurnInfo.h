@@ -60,8 +60,7 @@ private:
 	int movePointsLimitLand;
 	int movePointsLimitWater;
 	int movePointsLimitAir;
-	int movementConversionLandLimit = 0;
-	int movementConversionSeaLimit = 0;
+	bool isCurrentTurn = false;
 
 	bool waterWalkingTest;
 	bool flyingMovementTest;

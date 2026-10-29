@@ -91,6 +91,7 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 	: target(target)
 	, noterrainPenalty(LIBRARY->terrainTypeHandler->size())
 {
+	isCurrentTurn = (Turn == 0);
 	CSelector daySelector = Selector::days(Turn);
 
 	int lowestSpeed;
@@ -169,19 +170,6 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 		movePointsLimitAir = 2000;
 	}
 
-	// Current-day conversion uses movement limits captured for this day.
-	// Future turns use projected limits, since their daily pools are not fixed yet.
-	if(Turn == 0)
-	{
-		movementConversionLandLimit = target->getMovementConversionLimit(EPathfindingLayer::LAND);
-		movementConversionSeaLimit = target->getMovementConversionLimit(EPathfindingLayer::SAIL);
-	}
-	else
-	{
-		movementConversionLandLimit = movePointsLimitLand;
-		movementConversionSeaLimit = movePointsLimitWater;
-	}
-
 	{
 		static const CSelector selector = Selector::type()(BonusType::NO_TERRAIN_PENALTY);
 		const auto & bonuses = sharedCache->noTerrainPenalty.getBonusList(target, selector);
@@ -249,11 +237,15 @@ int TurnInfo::getMaxMovePoints(const EPathfindingLayer & layer) const
 
 int TurnInfo::getMovementConversionLimit(const EPathfindingLayer & layer) const
 {
-	if(layer == EPathfindingLayer::LAND)
-		return movementConversionLandLimit;
+	if(layer != EPathfindingLayer::LAND && layer != EPathfindingLayer::SAIL)
+		return 0;
 
-	if(layer == EPathfindingLayer::SAIL)
-		return movementConversionSeaLimit;
+	if(isCurrentTurn)
+	{
+		const int savedLimit = target->getMovementConversionLimit(layer);
+		if(savedLimit > 0)
+			return savedLimit;
+	}
 
-	return 0;
+	return getMaxMovePoints(layer);
 }

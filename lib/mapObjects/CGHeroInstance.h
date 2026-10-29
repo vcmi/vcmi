@@ -85,8 +85,8 @@ private:
 
 	ui32 movement; //remaining movement points
 
-	int32_t movementConversionLandLimit = 0;
-	int32_t movementConversionSeaLimit = 0;
+	int32_t movementPointLandLimit = 0;
+	int32_t movementPointSeaLimit = 0;
 
 	bool inTownGarrison; // if hero is in town garrison
 
@@ -233,6 +233,7 @@ public:
 	void levelUp();
 
 	void setMovementPoints(int points);
+	void replenishMovementPoints();
 	int movementPointsRemaining() const;
 	int movementPointsLimit() const;
 	//cached version is much faster, TurnInfo construction is costly
@@ -405,13 +406,13 @@ public:
 
 		if(h.hasFeature(Handler::Version::HERO_MOVEMENT_CONVERSION_LIMITS))
 		{
-			h & movementConversionLandLimit;
-			h & movementConversionSeaLimit;
+			h & movementPointLandLimit;
+			h & movementPointSeaLimit;
 		}
 		else if(!h.saving)
 		{
-			movementConversionLandLimit = 0;
-			movementConversionSeaLimit = 0;
+			movementPointLandLimit = 0;
+			movementPointSeaLimit = 0;
 		}
 
 		h & gender;
