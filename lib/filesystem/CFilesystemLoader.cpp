@@ -142,6 +142,7 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 	static const EResType initArray[] = {
 		EResType::DIRECTORY,
 		EResType::JSON,
+		EResType::TEXT, // mod descriptions
 		EResType::ARCHIVE_LOD,
 		EResType::ARCHIVE_VID,
 		EResType::ARCHIVE_SND,

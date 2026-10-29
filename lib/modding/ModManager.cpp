@@ -17,6 +17,7 @@
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonNode.h"
 #include "../texts/CGeneralTextHandler.h"
+#include "../texts/Languages.h"
 
 static std::string getModDirectory(const TModID & modName)
 {
@@ -74,6 +75,30 @@ static JsonPath getModDefinitionFile(const TModID & modName)
 static TextPath getModDescriptionFile(const TModID & modName)
 {
 	return TextPath::builtin(getModDirectory(modName) + "/description");
+}
+
+static TextPath getModDescriptionFile(const TModID & modName, const std::string & language)
+{
+	return TextPath::builtin(getModDirectory(modName) + "/description/" + language);
+}
+
+static std::optional<std::string> loadModTextFile(const TModID & modName, const TextPath & path)
+{
+	// existsResource may report a stale entry (e.g. mod updated to a version without description);
+	// tolerate a failing load since description is optional and index/disk can diverge until reload
+	if (!CResourceHandler::get()->existsResource(path))
+		return std::nullopt;
+
+	try
+	{
+		auto data = CResourceHandler::get()->load(path)->readAll();
+		return std::string(reinterpret_cast<const char *>(data.first.get()), data.second);
+	}
+	catch (const std::exception & e)
+	{
+		logMod->warn("Failed to load %s for mod %s: %s", path.getOriginalName(), modName, e.what());
+		return std::nullopt;
+	}
 }
 
 ModsState::ModsState()
@@ -425,20 +450,15 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 			continue;
 		}
 
-		// existsResource may report a stale entry (e.g. mod updated to a version without description);
-		// tolerate a failing load since description is optional and index/disk can diverge until reload
-		if (CResourceHandler::get()->existsResource(getModDescriptionFile(modID)))
+		auto legacyDescriptions = loadModTextFile(modID, getModDescriptionFile(modID));
+		if (legacyDescriptions)
+			ModDescription::mergeModDescriptions(modConfig, *legacyDescriptions);
+
+		for(const auto & language : Languages::getLanguageList())
 		{
-			try
-			{
-				auto data = CResourceHandler::get()->load(getModDescriptionFile(modID))->readAll();
-				std::string modDescriptions(reinterpret_cast<const char *>(data.first.get()), data.second);
-				ModDescription::mergeModDescriptions(modConfig, modDescriptions);
-			}
-			catch (const std::exception & e)
-			{
-				logMod->warn("Failed to load description for mod %s: %s", modID, e.what());
-			}
+			auto description = loadModTextFile(modID, getModDescriptionFile(modID, language.identifier));
+			if (description)
+				modConfig[language.identifier]["description"].String() = *description;
 		}
 
 		mods.try_emplace(modID, modID, modConfig, availableRepositoryMods[modID]);
