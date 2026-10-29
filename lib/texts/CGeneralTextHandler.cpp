@@ -16,6 +16,7 @@
 #include "Languages.h"
 #include "../filesystem/Filesystem.h"
 #include "../mapObjects/Quest.h"
+#include "../modding/CModHandler.h"
 
 bool CGeneralTextHandler::isRoEData()
 {
@@ -112,13 +113,13 @@ void CGeneralTextHandler::detectInstallParameters()
 	encoding->String() =  Languages::getLanguageOptions(knownLanguages[bestIndex]).encoding;
 }
 
-void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::string & sourceName)
+void CGeneralTextHandler::readToVector(const CModHandler & modHandler, const std::string & sourceID, const std::string & sourceName)
 {
 	bool resExists = CResourceHandler::get()->existsResource(ResourcePath(sourceName));
 	if(!resExists && roeMapping["newLines"][sourceName].isVector())
 		return;
 
-	CLegacyConfigParser parser(TextPath::builtin(sourceName));
+	CLegacyConfigParser parser(TextPath::builtin(sourceName), modHandler);
 	size_t index = 0;
 	do
 	{
@@ -133,36 +134,36 @@ void CGeneralTextHandler::readToVector(const std::string & sourceID, const std::
 	while (parser.endLine());
 }
 
-CGeneralTextHandler::CGeneralTextHandler():
+CGeneralTextHandler::CGeneralTextHandler(const CModHandler & modHandler):
 	allTexts         (*this, "core.genrltxt" ),
 	zelp             (*this, "core.help"     )
 {
 	if(isRoEData())
 		roeMapping = JsonNode(JsonPath::builtin("config/roeStringMapping.json"));
-	readToVector("core.vcdesc",   "DATA/VCDESC.TXT"   );
-	readToVector("core.lcdesc",   "DATA/LCDESC.TXT"   );
-	readToVector("core.tcommand", "DATA/TCOMMAND.TXT" );
-	readToVector("core.hallinfo", "DATA/HALLINFO.TXT" );
-	readToVector("core.castinfo", "DATA/CASTINFO.TXT" );
-	readToVector("core.advevent", "DATA/ADVEVENT.TXT" );
-	readToVector("core.restypes", "DATA/RESTYPES.TXT" );
-	readToVector("core.randsign", "DATA/RANDSIGN.TXT" );
-	readToVector("core.overview", "DATA/OVERVIEW.TXT" );
-	readToVector("core.arraytxt", "DATA/ARRAYTXT.TXT" );
-	readToVector("core.priskill", "DATA/PRISKILL.TXT" );
-	readToVector("core.plcolors", "DATA/PLCOLORS.TXT" );
-	readToVector("core.jktext",   "DATA/JKTEXT.TXT"   );
-	readToVector("core.tvrninfo", "DATA/TVRNINFO.TXT" );
-	readToVector("core.turndur",  "DATA/TURNDUR.TXT"  );
-	readToVector("core.heroscrn", "DATA/HEROSCRN.TXT" );
-	readToVector("core.tentcolr", "DATA/TENTCOLR.TXT" );
-	readToVector("core.skilllev", "DATA/SKILLLEV.TXT" );
-	readToVector("core.minename", "DATA/MINENAME.TXT" );
-	readToVector("core.mineevnt", "DATA/MINEEVNT.TXT" );
-	readToVector("core.xtrainfo", "DATA/XTRAINFO.TXT" );
+	readToVector(modHandler, "core.vcdesc",   "DATA/VCDESC.TXT"   );
+	readToVector(modHandler, "core.lcdesc",   "DATA/LCDESC.TXT"   );
+	readToVector(modHandler, "core.tcommand", "DATA/TCOMMAND.TXT" );
+	readToVector(modHandler, "core.hallinfo", "DATA/HALLINFO.TXT" );
+	readToVector(modHandler, "core.castinfo", "DATA/CASTINFO.TXT" );
+	readToVector(modHandler, "core.advevent", "DATA/ADVEVENT.TXT" );
+	readToVector(modHandler, "core.restypes", "DATA/RESTYPES.TXT" );
+	readToVector(modHandler, "core.randsign", "DATA/RANDSIGN.TXT" );
+	readToVector(modHandler, "core.overview", "DATA/OVERVIEW.TXT" );
+	readToVector(modHandler, "core.arraytxt", "DATA/ARRAYTXT.TXT" );
+	readToVector(modHandler, "core.priskill", "DATA/PRISKILL.TXT" );
+	readToVector(modHandler, "core.plcolors", "DATA/PLCOLORS.TXT" );
+	readToVector(modHandler, "core.jktext",   "DATA/JKTEXT.TXT"   );
+	readToVector(modHandler, "core.tvrninfo", "DATA/TVRNINFO.TXT" );
+	readToVector(modHandler, "core.turndur",  "DATA/TURNDUR.TXT"  );
+	readToVector(modHandler, "core.heroscrn", "DATA/HEROSCRN.TXT" );
+	readToVector(modHandler, "core.tentcolr", "DATA/TENTCOLR.TXT" );
+	readToVector(modHandler, "core.skilllev", "DATA/SKILLLEV.TXT" );
+	readToVector(modHandler, "core.minename", "DATA/MINENAME.TXT" );
+	readToVector(modHandler, "core.mineevnt", "DATA/MINEEVNT.TXT" );
+	readToVector(modHandler, "core.xtrainfo", "DATA/XTRAINFO.TXT" );
 
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/RANDTVRN.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/RANDTVRN.TXT"), modHandler);
 		// first rumor was skipped as a header in older versions; it goes last so that translated rumor IDs stay valid
 		std::string firstLine = parser.readString();
 		parser.endLine();
@@ -181,7 +182,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 			registerString("core", {"core.randtvrn", index}, firstLine);
 	}
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/GENRLTXT.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/GENRLTXT.TXT"), modHandler);
 		parser.endLine();
 		size_t index = 0;
 		do
@@ -197,7 +198,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/HELP.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/HELP.TXT"), modHandler);
 		size_t index = 0;
 		do
 		{
@@ -215,7 +216,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/SEERHUT.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/SEERHUT.TXT"), modHandler);
 
 		//skip header
 		parser.endLine();
@@ -261,7 +262,7 @@ CGeneralTextHandler::CGeneralTextHandler():
 		}
 	}
 	{
-		CLegacyConfigParser parser(TextPath::builtin("DATA/CAMPTEXT.TXT"));
+		CLegacyConfigParser parser(TextPath::builtin("DATA/CAMPTEXT.TXT"), modHandler);
 
 		//skip header
 		parser.endLine();

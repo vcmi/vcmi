@@ -11,6 +11,7 @@
 #include "SaveFileFormat.h"
 
 SaveTooOldException::~SaveTooOldException() = default;
+SaveTooNewException::~SaveTooNewException() = default;
 
 std::string SaveFileFormat::toString(const ChunkID & id)
 {

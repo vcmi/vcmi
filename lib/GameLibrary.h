@@ -40,6 +40,7 @@ class IHandlerBase;
 class IGameSettings;
 class GameSettings;
 class CIdentifierStorage;
+class LibraryLoadContext;
 class SpellSchoolHandler;
 class MapFormatSettings;
 class CampaignRegionsHandler;
@@ -116,6 +117,9 @@ public:
 
 	/// Loads all game entities
 	void initializeLibrary();
+
+	/// Loads all game entities using provided context, which stays available to the caller after loading
+	void initializeLibrary(LibraryLoadContext & context);
 
 	/// Returns current game data mode
 	GameDataMode getGameDataMode() const;

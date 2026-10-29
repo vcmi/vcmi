@@ -12,11 +12,13 @@
 #include "../json/JsonNode.h"
 
 class IHandlerBase;
+class LibraryLoadContext;
 class ModDescription;
 
 /// internal type to handle loading of one data type (e.g. artifacts, creatures)
 class ContentTypeHandler
 {
+	LibraryLoadContext & context;
 	JsonNode conflictList;
 
 public:
@@ -36,7 +38,7 @@ public:
 	std::vector<JsonNode> originalData;
 	std::map<std::string, ModInfo> modData;
 
-	ContentTypeHandler(IHandlerBase * handler, const std::string & objectName);
+	ContentTypeHandler(LibraryLoadContext & context, IHandlerBase * handler, const std::string & objectName);
 
 	/// local version of methods in ContentHandler
 	/// returns true if loading was successful
@@ -49,9 +51,12 @@ public:
 /// class used to load all game data into handlers. Used only during loading
 class DLL_LINKAGE CContentHandler
 {
+	LibraryLoadContext & context;
 	std::map<std::string, ContentTypeHandler> handlers;
 
 public:
+	explicit CContentHandler(LibraryLoadContext & context);
+
 	void init();
 
 	/// Returns names of all types of content, e.g. 'creatures' or 'artifacts'

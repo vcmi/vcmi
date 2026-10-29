@@ -18,7 +18,7 @@
 #include "constants/StringConstants.h"
 #include "entities/hero/CHeroClassHandler.h"
 #include "filesystem/Filesystem.h"
-#include "modding/IdentifierStorage.h"
+#include "modding/LibraryLoadContext.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
 #include "json/JsonBonus.h"
@@ -174,9 +174,9 @@ std::string CSkill::toString() const
 }
 
 ///CSkillHandler
-std::vector<JsonNode> CSkillHandler::loadLegacyData()
+std::vector<JsonNode> CSkillHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	CLegacyConfigParser parser(TextPath::builtin("DATA/SSTRAITS.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/SSTRAITS.TXT"), *context.lib.modh);
 
 	//skip header
 	parser.endLine();
@@ -220,7 +220,7 @@ const std::vector<std::string> & CSkillHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<CSkill> CSkillHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
@@ -243,7 +243,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 	if (json["obligatoryMinor"].Bool() && !vstd::contains(skill->tags, "spellSchool"))
 		skill->tags.emplace_back("spellSchool");
 
-	LIBRARY->generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
+	context.lib.generaltexth->registerString(scope, skill->getNameTextID(), json["name"]);
 	skill->offerCooldown = static_cast<int>(json["offerCooldown"].Integer());
 
 	for(auto skillPair : json["gainChance"].Struct())
@@ -262,9 +262,9 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 			continue;
 		}
 
-		LIBRARY->identifiers()->requestIdentifierIfFound(skillPair.second.getModScope(), "heroClass", skillPair.first, [skill, probability](si32 classID)
+		context.resolver.requestIdentifierIfFound(skillPair.second.getModScope(), "heroClass", skillPair.first, [&context, skill, probability](si32 classID)
 		{
-			LIBRARY->heroclassesh->objects[classID]->secSkillProbability[skill->id] = probability;
+			context.lib.heroclassesh->objects[classID]->secSkillProbability[skill->id] = probability;
 		});
 	}
 
@@ -288,11 +288,11 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 		// parse bonus effects
 		for(const auto & b : levelNode["effects"].Struct())
 		{
-			auto bonus = JsonUtils::parseBonus(b.second);
+			auto bonus = JsonUtils::parseBonus(b.second, context);
 			skill->addNewBonus(bonus, level);
 		}
 		CSkill::LevelInfo & skillAtLevel = skill->at(level);
-		LIBRARY->generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"]);
+		context.lib.generaltexth->registerString(scope, skill->getDescriptionTextID(level), levelNode["description"]);
 		skillAtLevel.iconSmall = levelNode["images"]["small"].String();
 		skillAtLevel.iconMedium = levelNode["images"]["medium"].String();
 		skillAtLevel.iconLarge = levelNode["images"]["large"].String();
@@ -308,7 +308,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 
 		if (bonusNode.isStruct())
 		{
-			auto bonus = JsonUtils::parseBonus(bonusNode);
+			auto bonus = JsonUtils::parseBonus(bonusNode, context);
 			bonus->val = 0; // set by HeroHandler on specialty load
 			if (bonus->propagator != nullptr)
 				bonus->addPropagationUpdater(std::make_shared<TimesHeroLevelUpdater>());
@@ -327,7 +327,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(const std::string & scope, c
 	return skill;
 }
 
-void CSkillHandler::afterLoadFinalization()
+void CSkillHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 }
 

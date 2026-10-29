@@ -24,6 +24,8 @@ class IObjectInfo;
 class IGameInfoCallback;
 class IGameRandomizer;
 class Quest;
+class LibraryLoadContext;
+class JsonNode;
 
 /// Class responsible for creation of objects of specific type & subtype
 class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
@@ -57,7 +59,7 @@ protected:
 	virtual bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const;
 
 	/// initialization for classes that inherit this one
-	virtual void initTypeData(const JsonNode & input);
+	virtual void initTypeData(LibraryLoadContext & context, const JsonNode & input);
 
 	virtual void onTemplateAdded(const std::shared_ptr<const ObjectTemplate>) {}
 public:
@@ -72,7 +74,7 @@ public:
 	std::string getSubTypeName() const;
 
 	/// loads generic data from Json structure and passes it towards type-specific constructors
-	void init(const JsonNode & input);
+	void init(LibraryLoadContext & context, const JsonNode & input);
 
 	/// returns full form of identifier of this object in form of modName:objectName
 	std::string getJsonKey() const;
@@ -83,7 +85,7 @@ public:
 	SObjectSounds getSounds() const;
 
 	void addTemplate(const std::shared_ptr<const ObjectTemplate> & templ);
-	void addTemplate(JsonNode config);
+	void addTemplate(LibraryLoadContext & context, JsonNode config);
 	void clearTemplates();
 
 	/// returns all templates matching parameters
@@ -118,7 +120,7 @@ public:
 
 	virtual bool isStaticObject();
 
-	virtual void afterLoadFinalization();
+	virtual void afterLoadFinalization(LibraryLoadContext & context);
 
 	/// Creates object and set up core properties (like ID/subID). Object is NOT initialized
 	/// to allow creating objects before game start (e.g. map loading)

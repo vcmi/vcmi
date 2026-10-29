@@ -472,7 +472,7 @@ Unit::Unit(const Args & args)
 
 		if(bonus->source == BonusSource::SPELL_EFFECT)
 		{
-			switch(bonus->sid.as<SpellID>())
+			switch(bonus->sid.as<SpellWithMasteryID>().getSpellID())
 			{
 				case SpellID::AGE:
 					setattr(UA::HAS_AGE, bonus->turnsRemain);

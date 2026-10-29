@@ -60,6 +60,14 @@ BinaryDeserializer & CLegacyLoadFile::skipToGameState()
 	ActiveModsInSaveList activeMods;
 
 	loadHeader(dummyHeader, dummyStartInfo);
-	serializer & activeMods;
+	activeMods.mods = loadMods();
+	activeMods.verifyActiveMods();
 	return serializer;
+}
+
+ModCompatibilityInfo CLegacyLoadFile::loadMods()
+{
+	ActiveModsInSaveList activeMods;
+	serializer & activeMods;
+	return activeMods.mods;
 }

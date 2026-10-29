@@ -201,6 +201,8 @@ set(lib_MAIN_SRCS
 	mapping/CMapInfo.cpp
 	mapping/CMapOperation.cpp
 	mapping/CMapService.cpp
+	mapping/ScenarioListEntry.cpp
+	mapping/ScenarioMetadata.cpp
 	mapping/HotaScriptConverter.cpp
 	mapping/MapEditUtils.cpp
 	mapping/MapIdentifiersH3M.cpp
@@ -215,6 +217,8 @@ set(lib_MAIN_SRCS
 	modding/CModHandler.cpp
 	modding/CModVersion.cpp
 	modding/ContentTypeHandler.cpp
+	modding/IdentifierResolver.cpp
+	modding/LibraryLoadContext.cpp
 	modding/IdentifierStorage.cpp
 	modding/ModDescription.cpp
 	modding/ModIncompatibility.cpp
@@ -663,6 +667,8 @@ set(lib_MAIN_HEADERS
 	mapping/CMapInfo.h
 	mapping/CMapOperation.h
 	mapping/CMapService.h
+	mapping/ScenarioListEntry.h
+	mapping/ScenarioMetadata.h
 	mapping/MapDifficulty.h
 	mapping/HotaScriptConverter.h
 	mapping/MapEditUtils.h
@@ -681,6 +687,8 @@ set(lib_MAIN_HEADERS
 	modding/CModHandler.h
 	modding/CModVersion.h
 	modding/ContentTypeHandler.h
+	modding/IdentifierResolver.h
+	modding/LibraryLoadContext.h
 	modding/IdentifierStorage.h
 	modding/ModDescription.h
 	modding/ModIncompatibility.h

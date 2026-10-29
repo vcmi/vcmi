@@ -743,7 +743,7 @@ bool CBattleInfoCallback::battleCanAttackFromHex(const BattleHexArray & availabl
 					return false;
 			}
 		}
-		const battle::Unit * defender = battleGetUnitByPos(position, false); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
+		const battle::Unit * defender = battleGetUnitOrCorpseByPos(position); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
 		if (defender && defender->isDead() && defender->coversPos(fromHex))
 			return false;
 	}

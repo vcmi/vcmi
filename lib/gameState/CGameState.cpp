@@ -57,6 +57,7 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMapService.h"
+#include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../networkPacks/NetPacksBase.h"
@@ -460,9 +461,10 @@ void CGameState::initGlobalBonuses()
 {
 	const JsonNode & baseBonuses = getSettings().getValue(EGameSettings::BONUSES_GLOBAL);
 	logGlobal->debug("\tLoading global bonuses");
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
 	for(const auto & b : baseBonuses.Struct())
 	{
-		auto bonus = JsonUtils::parseBonus(b.second);
+		auto bonus = JsonUtils::parseBonus(b.second, resolver);
 		bonus->source = BonusSource::GLOBAL;//for all
 		bonus->sid = BonusSourceID(); //there is one global object
 		globalEffects.addNewBonus(bonus);
@@ -481,11 +483,13 @@ void CGameState::initDifficulty()
 
 	auto setDifficulty = [this, &config, isTutorialScenario](PlayerState & state, const JsonNode & json)
 	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+
 		//set starting resources
 		if (isTutorialScenario && state.human)
-			state.resources.resolveFromJson(config["tutorial"]["resources"]);
+			state.resources.resolveFromJson(config["tutorial"]["resources"], resolver);
 		else
-			state.resources.resolveFromJson(json["resources"]);
+			state.resources.resolveFromJson(json["resources"], resolver);
 
 		//handicap
 		const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(state.color);
@@ -493,12 +497,12 @@ void CGameState::initDifficulty()
 
 		//set global bonuses
 		for(auto & jsonBonus : json["globalBonuses"].Vector())
-			if(auto bonus = JsonUtils::parseBonus(jsonBonus))
+			if(auto bonus = JsonUtils::parseBonus(jsonBonus, resolver))
 				state.addNewBonus(bonus);
 
 		//set battle bonuses
 		for(auto & jsonBonus : json["battleBonuses"].Vector())
-			if(auto bonus = JsonUtils::parseBonus(jsonBonus))
+			if(auto bonus = JsonUtils::parseBonus(jsonBonus, resolver))
 				state.battleBonuses.push_back(*bonus);
 
 	};

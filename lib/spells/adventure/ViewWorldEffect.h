@@ -18,7 +18,7 @@ class ViewWorldEffect final : public IAdventureSpellEffect
 	bool showTerrain = false;
 
 public:
-	ViewWorldEffect(const CSpell * s, const JsonNode & config);
+	ViewWorldEffect(LibraryLoadContext & context, const CSpell * s, const JsonNode & config);
 
 	ESpellCastResult applyAdventureEffects(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const override;
 };

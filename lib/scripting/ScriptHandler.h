@@ -24,17 +24,20 @@ public:
 	std::shared_ptr<spells::effects::Effect> createSpellEffect(ScriptID scriptID) const override;
 	const IDamageCalculatorScript * getDamageCalculator() const override;
 
-	void prepareParameters(ScriptID scriptID, JsonNode & parameters, const TextIdentifier & owner) const override;
+	void prepareParameters(ScriptID scriptID, JsonNode & parameters, IIdentifierResolver & resolver) const override;
+	void prepareParameters(ScriptID scriptID, JsonNode & parameters, LibraryLoadContext & context, const TextIdentifier & owner) const override;
 
 	void registerFactory(std::shared_ptr<IScriptFactory> factory) override;
 
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 
 private:
+	void validateParameters(const ScriptTypeDescription & description, const JsonNode & parameters, IIdentifierResolver & resolver, const std::string & owner) const;
+
 	std::shared_ptr<IScriptFactory> factory;
 	std::shared_ptr<IDamageCalculatorScript> damageCalculator;
 	std::vector<ScriptTypeDescription> scripts;

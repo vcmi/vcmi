@@ -43,11 +43,10 @@
 
 #include "../modding/IdentifierStorage.h"
 #include "../modding/CModHandler.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../modding/ModScope.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/CLegacyConfigParser.h"
-
-#include <vstd/StringUtils.h>
 
 CObjectClassesHandler::CObjectClassesHandler()
 {
@@ -108,11 +107,11 @@ CObjectClassesHandler::CObjectClassesHandler()
 
 CObjectClassesHandler::~CObjectClassesHandler() = default;
 
-std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
+std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_OBJECT);
+	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_OBJECT);
 
-	CLegacyConfigParser parser(TextPath::builtin("Data/Objects.txt"));
+	CLegacyConfigParser parser(TextPath::builtin("Data/Objects.txt"), *context.lib.modh);
 	auto totalNumber = static_cast<size_t>(parser.readNumber()); // first line contains number of objects to read and nothing else
 	parser.endLine();
 
@@ -132,7 +131,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	std::vector<JsonNode> ret(dataSize);// create storage for 256 objects
 	assert(dataSize == 256);
 
-	CLegacyConfigParser namesParser(TextPath::builtin("Data/ObjNames.txt"));
+	CLegacyConfigParser namesParser(TextPath::builtin("Data/ObjNames.txt"), *context.lib.modh);
 	for (size_t i=0; i<256; i++)
 	{
 		ret[i]["name"].String() = namesParser.readString();
@@ -142,7 +141,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	JsonNode cregen1;
 	JsonNode cregen4;
 
-	CLegacyConfigParser cregen1Parser(TextPath::builtin("data/crgen1"));
+	CLegacyConfigParser cregen1Parser(TextPath::builtin("data/crgen1"), *context.lib.modh);
 	do
 	{
 		JsonNode subObject;
@@ -151,7 +150,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	}
 	while(cregen1Parser.endLine());
 
-	CLegacyConfigParser cregen4Parser(TextPath::builtin("data/crgen4"));
+	CLegacyConfigParser cregen4Parser(TextPath::builtin("data/crgen4"), *context.lib.modh);
 	do
 	{
 		JsonNode subObject;
@@ -169,19 +168,19 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData()
 	return ret;
 }
 
-void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject)
+void CObjectClassesHandler::loadSubObject(LibraryLoadContext & context, const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject)
 {
-	auto subObject = loadSubObjectFromJson(scope, identifier, entry, baseObject, baseObject->objectTypeHandlers.size());
+	auto subObject = loadSubObjectFromJson(context, scope, identifier, entry, baseObject, baseObject->objectTypeHandlers.size());
 
 	assert(subObject);
 	baseObject->objectTypeHandlers.push_back(subObject);
 
-	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
+	registerObject(context, scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
 }
 
-void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
+void CObjectClassesHandler::loadSubObject(LibraryLoadContext & context, const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
 {
-	auto subObject = loadSubObjectFromJson(scope, identifier, entry, baseObject, index);
+	auto subObject = loadSubObjectFromJson(context, scope, identifier, entry, baseObject, index);
 
 	assert(subObject);
 	if (baseObject->objectTypeHandlers.at(index) != nullptr)
@@ -189,10 +188,10 @@ void CObjectClassesHandler::loadSubObject(const std::string & scope, const std::
 
 	baseObject->objectTypeHandlers.at(index) = subObject;
 
-	registerObject(scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
+	registerObject(context, scope, baseObject->getJsonKey(), subObject->getSubTypeName(), entry, subObject->subtype);
 }
 
-TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
+TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(LibraryLoadContext & context, const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * baseObject, size_t index)
 {
 	assert(!scope.empty());
 
@@ -225,7 +224,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 
 	createdObject->type = baseObject->id;
 	createdObject->subtype = index;
-	createdObject->init(entry);
+	createdObject->init(context, entry);
 
 	bool staticObject = createdObject->isStaticObject();
 	if (staticObject)
@@ -233,7 +232,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 		for (auto & templ : createdObject->getTemplates())
 		{
 			// Register templates for new objects from mods
-			LIBRARY->biomeHandler->addTemplate(scope, templ->stringID, templ);
+			context.lib.biomeHandler->addTemplate(context, scope, templ->stringID, templ);
 		}
 	}
 
@@ -244,7 +243,7 @@ TObjectTypeHandler CObjectClassesHandler::loadSubObjectFromJson(const std::strin
 		{
 			// Register legacy templates as "core"
 			// FIXME: Why does it clear stringID?
-			LIBRARY->biomeHandler->addTemplate("core", templ.second->stringID, templ.second);
+			context.lib.biomeHandler->addTemplate(context, "core", templ.second->stringID, templ.second);
 		}
 
 		createdObject->addTemplate(templ.second);
@@ -275,7 +274,7 @@ std::string ObjectClass::getNameTranslated() const
 	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
-std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
+std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & name, size_t index)
 {
 	auto newObject = std::make_unique<ObjectClass>();
 
@@ -285,7 +284,7 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 	newObject->base = json["base"];
 	newObject->id = index;
 
-	LIBRARY->generaltexth->registerString(scope, newObject->getNameTextID(), json["name"]);
+	context.lib.generaltexth->registerString(scope, newObject->getNameTextID(), json["name"]);
 
 	newObject->objectTypeHandlers.resize(json["lastReservedIndex"].Float() + 1);
 
@@ -298,40 +297,40 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(const std::stri
 			if ( subMeta == "core")
 			{
 				size_t subIndex = subData.second["index"].Integer();
-				loadSubObject(subData.second.getModScope(), subData.first, subData.second, newObject.get(), subIndex);
+				loadSubObject(context, subData.second.getModScope(), subData.first, subData.second, newObject.get(), subIndex);
 			}
 			else
 			{
 				logMod->error("Object %s:%s.%s - attempt to load object with preset index! This option is reserved for built-in mod", subMeta, name, subData.first );
-				loadSubObject(subData.second.getModScope(), subData.first, subData.second, newObject.get());
+				loadSubObject(context, subData.second.getModScope(), subData.first, subData.second, newObject.get());
 			}
 		}
 		else
-			loadSubObject(subData.second.getModScope(), subData.first, subData.second, newObject.get());
+			loadSubObject(context, subData.second.getModScope(), subData.first, subData.second, newObject.get());
 	}
 
 	if (newObject->id == MapObjectID::MONOLITH_TWO_WAY)
-		generateExtraMonolithsForRMG(newObject.get());
+		generateExtraMonolithsForRMG(context, newObject.get());
 
 	return newObject;
 }
 
-void CObjectClassesHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
+void CObjectClassesHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data)
 {
-	mapObjectTypes.push_back(loadFromJson(scope, data, name, mapObjectTypes.size()));
+	mapObjectTypes.push_back(loadFromJson(context, scope, data, name, mapObjectTypes.size()));
 
-	LIBRARY->identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.back()->id);
+	context.lib.identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.back()->id);
 }
 
-void CObjectClassesHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
+void CObjectClassesHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	assert(mapObjectTypes.at(index) == nullptr); // ensure that this id was not loaded before
 
-	mapObjectTypes.at(index) = loadFromJson(scope, data, name, index);
-	LIBRARY->identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.at(index)->id);
+	mapObjectTypes.at(index) = loadFromJson(context, scope, data, name, index);
+	context.lib.identifiersHandler->registerObject(scope, "object", name, mapObjectTypes.at(index)->id);
 }
 
-void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID)
+void CObjectClassesHandler::loadSubObject(LibraryLoadContext & context, const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID)
 {
 	config.setType(JsonNode::JsonType::DATA_STRUCT); // ensure that input is not NULL
 
@@ -349,7 +348,7 @@ void CObjectClassesHandler::loadSubObject(const std::string & identifier, JsonNo
 	if (settings["mods"]["validation"].String() != "off")
 		JsonUtils::validate(config, "vcmi:objectType", identifier);
 
-	loadSubObject(config.getModScope(), identifier, config, mapObjectTypes.at(ID.getNum()).get(), subID.getNum());
+	loadSubObject(context, config.getModScope(), identifier, config, mapObjectTypes.at(ID.getNum()).get(), subID.getNum());
 }
 
 void CObjectClassesHandler::removeSubObject(MapObjectID ID, MapObjectSubID subID)
@@ -383,13 +382,13 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 	throw std::out_of_range(errorString);
 }
 
-TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const
+TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const CIdentifierStorage & identifiers, const std::string & scope, const std::string & type, const std::string & subtype) const
 {
-	std::optional<si32> id = LIBRARY->identifiers()->getIdentifier(scope, "object", type);
+	std::optional<si32> id = identifiers.getIdentifier(scope, "object", type);
 	if(id)
 	{
 		const auto & object = mapObjectTypes.at(id.value());
-		std::optional<si32> subID = LIBRARY->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
+		std::optional<si32> subID = identifiers.getIdentifier(scope, object->getJsonKey(), subtype);
 
 		if (subID)
 			return object->objectTypeHandlers.at(subID.value());
@@ -403,62 +402,6 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const std::string & scop
 TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID compoundIdentifier) const
 {
 	return getHandlerFor(compoundIdentifier.primaryID, compoundIdentifier.secondaryID);
-}
-
-CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & scope, const std::string & type, const std::string & subtype) const
-{
-	std::optional<si32> id;
-	if (scope.empty())
-	{
-		id = LIBRARY->identifiers()->getIdentifier("object", type);
-	}
-	else
-	{
-		id = LIBRARY->identifiers()->getIdentifier(scope, "object", type);
-	}
-
-	if(id)
-	{
-		if (subtype.empty())
-			return CompoundMapObjectID(id.value(), -1);
-
-		const auto & object = mapObjectTypes.at(id.value());
-		std::optional<si32> subID = LIBRARY->identifiers()->getIdentifier(scope, object->getJsonKey(), subtype);
-
-		if (subID)
-			return CompoundMapObjectID(id.value(), subID.value());
-	}
-
-	std::string errorString = "Failed to get id for object of type " + type + "." + subtype;
-	logGlobal->error(errorString);
-	throw std::runtime_error(errorString);
-}
-
-CompoundMapObjectID CObjectClassesHandler::getCompoundIdentifier(const std::string & objectName) const
-{
-	std::string subtype;
-	std::string type;
-
-	auto scopeAndFullName = vstd::splitStringToPair(objectName, ':');
-	logGlobal->debug("scopeAndFullName: %s, %s", scopeAndFullName.first, scopeAndFullName.second);
-	
-	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
-	logGlobal->debug("typeAndName: %s, %s", typeAndName.first, typeAndName.second);
-	
-	auto nameAndSubtype = vstd::splitStringToPair(typeAndName.second, '.');
-	logGlobal->debug("nameAndSubtype: %s, %s", nameAndSubtype.first, nameAndSubtype.second);
-
-	if (!nameAndSubtype.first.empty())
-	{
-		type = nameAndSubtype.first;
-		subtype = nameAndSubtype.second;
-	}
-	else
-	{
-		type = typeAndName.second;
-	}
-	
-	return getCompoundIdentifier(boost::to_lower_copy(scopeAndFullName.first), type, subtype);
 }
 
 std::set<MapObjectID> CObjectClassesHandler::knownObjects() const
@@ -513,7 +456,7 @@ void CObjectClassesHandler::beforeValidate(JsonNode & object)
 	object.Struct().erase("subObjects");
 }
 
-void CObjectClassesHandler::afterLoadFinalization()
+void CObjectClassesHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for(auto & entry : mapObjectTypes)
 	{
@@ -525,26 +468,14 @@ void CObjectClassesHandler::afterLoadFinalization()
 			if (!obj)
 				continue;
 
-			obj->afterLoadFinalization();
+			obj->afterLoadFinalization(context);
 			if(obj->getTemplates().empty())
 				logMod->debug("No templates found for %s:%s", entry->getJsonKey(), obj->getJsonKey());
 		}
 	}
-
-	for(auto & entry : objectIdHandlers)
-	{
-		// Call function for each object id
-		entry.second(entry.first);
-	}
 }
 
-void CObjectClassesHandler::resolveObjectCompoundId(const std::string & id, std::function<void(CompoundMapObjectID)> callback)
-{
-	auto compoundId = getCompoundIdentifier(id);
-	objectIdHandlers.push_back(std::make_pair(compoundId, callback));
-}
-
-void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container)
+void CObjectClassesHandler::generateExtraMonolithsForRMG(LibraryLoadContext & context, ObjectClass * container)
 {
 	//duplicate existing two-way portals to make reserve for RMG
 	auto& portalVec = container->objectTypeHandlers;
@@ -584,7 +515,7 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(ObjectClass * container
 
 		portalVec.push_back(newPortal);
 
-		registerObject(newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, JsonNode(), newPortal->subtype);
+		registerObject(context, newPortal->modScope, container->getJsonKey(), newPortal->subTypeName, JsonNode(), newPortal->subtype);
 	}
 }
 

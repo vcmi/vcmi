@@ -12,6 +12,7 @@
 #include "Global.h"
 #include "NumericConstants.h"
 #include "IdentifierBase.h"
+#include "Enumerations.h"
 
 class Services;
 class Artifact;
@@ -50,6 +51,20 @@ class CSpell;
 class CSkill;
 class IGameInfoCallback;
 class CNonConstInfoCallback;
+
+namespace MasteryLevel
+{
+
+const std::map<int8_t, std::string> masteryIdToName = {
+	{MasteryLevel::NONE , "NONE"},
+	{MasteryLevel::BASIC, "BASIC"},
+	{MasteryLevel::ADVANCED, "ADVANCED"},
+	{MasteryLevel::EXPERT, "EXPERT"}
+};
+
+int8_t decode(const std::string & identifier);
+std::string encode(const int8_t index);
+}
 
 class ArtifactInstanceID : public StaticIdentifier<ArtifactInstanceID>
 {
@@ -1133,6 +1148,46 @@ public:
 
 		if (!h.saving)
 			*this = BuildingTypeUniqueID(faction, building);
+	}
+};
+
+class DLL_LINKAGE SpellWithMasteryID : public Identifier<SpellWithMasteryID>
+{
+public:
+	SpellWithMasteryID(MasteryLevel::Type mastery, SpellID spell);
+	SpellWithMasteryID(SpellID spell) : SpellWithMasteryID(MasteryLevel::ANY, spell) {}
+
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+
+	MasteryLevel::Type getMastery() const;
+	SpellID getSpellID() const;
+	const CSpell * toSpell() const;
+	bool compareOnlyBySpellID() const;
+
+	using Identifier<SpellWithMasteryID>::Identifier;
+
+	template <typename Handler>
+	void serialize(Handler & h)
+	{
+		bool combinedId = h.hasFeature(Handler::Version::SPELL_ID_WITH_MASTERY);
+
+		SpellID spell = getSpellID();
+		MasteryLevel::Type mastery = combinedId ? getMastery() : MasteryLevel::ANY;
+
+		h & spell;
+		if(combinedId)
+			h & mastery;
+
+		if (!h.saving)
+			*this = SpellWithMasteryID(mastery, spell);
+	}
+
+	bool operator==(const SpellWithMasteryID & other) const
+	{
+		if (other.compareOnlyBySpellID() || compareOnlyBySpellID())
+			return getSpellID() == other.getSpellID();
+		return getSpellID() == other.getSpellID() && getMastery() == other.getMastery();
 	}
 };
 

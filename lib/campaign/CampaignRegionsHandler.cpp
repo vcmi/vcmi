@@ -12,19 +12,19 @@
 
 #include "../json/JsonNode.h"
 
-std::vector<JsonNode> CampaignRegionsHandler::loadLegacyData()
+std::vector<JsonNode> CampaignRegionsHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	return {};
 }
 
-void CampaignRegionsHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data)
+void CampaignRegionsHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data)
 {
 	auto object = std::make_shared<CampaignRegions>(data);
-	registerObject(scope, "campaignRegion", name, data, objects.size());
+	registerObject(context, scope, "campaignRegion", name, data, objects.size());
 	objects.push_back(object);
 }
 
-void CampaignRegionsHandler::loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
+void CampaignRegionsHandler::loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index)
 {
 	throw std::runtime_error("CampaignRegionsHandler::loadObject - load by index is not supported!");
 }

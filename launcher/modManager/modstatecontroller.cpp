@@ -25,6 +25,8 @@
 #include "../../vcmiqt/jsonutils.h"
 #include "../../vcmiqt/launcherdirs.h"
 
+#include <QRegularExpression>
+
 #include <future>
 
 namespace
@@ -148,6 +150,19 @@ QString detectModArchive(QString path, QString modName, std::vector<std::string>
 	
 	return "";
 }
+}
+
+
+QString ModStateController::modIdFromArchivePath(const QString & archivePath, bool removeGithubSuffix)
+{
+	QString name = QFileInfo(archivePath).completeBaseName().toLower();
+	if(removeGithubSuffix)
+	{
+		name.remove(QRegularExpression("-[0-9a-f]{40}$"));
+		name.remove(QRegularExpression("-vcmi-.+$"));
+		name.remove(QRegularExpression("-main$"));
+	}
+	return name;
 }
 
 

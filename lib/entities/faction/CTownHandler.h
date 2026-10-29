@@ -37,28 +37,28 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 
 	static const TPropagatorPtr & emptyPropagator();
 
-	void initializeRequirements();
+	void initializeRequirements(LibraryLoadContext & context);
 
 	/// loads CBuilding's into town
 	void loadBuildingRequirements(CBuilding * building, const JsonNode & source, std::vector<BuildingRequirementsHelper> & bidsToLoad) const;
-	void loadBuilding(CTown * town, const std::string & stringID, const JsonNode & source);
-	void loadBuildings(CTown * town, const JsonNode & source);
+	void loadBuilding(LibraryLoadContext & context, CTown * town, const std::string & stringID, const JsonNode & source);
+	void loadBuildings(LibraryLoadContext & context, CTown * town, const JsonNode & source);
 
 	/// loads CStructure's into town
-	void loadStructure(CTown & town, const std::string & stringID, const JsonNode & source) const;
-	void loadStructures(CTown & town, const JsonNode & source) const;
+	void loadStructure(LibraryLoadContext & context, CTown & town, const std::string & stringID, const JsonNode & source) const;
+	void loadStructures(LibraryLoadContext & context, CTown & town, const JsonNode & source) const;
 
 	/// loads town hall vector (hallSlots)
-	void loadTownHall(CTown & town, const JsonNode & source) const;
-	void loadSiegeScreen(CTown & town, const JsonNode & source) const;
+	void loadTownHall(LibraryLoadContext & context, CTown & town, const JsonNode & source) const;
+	void loadSiegeScreen(LibraryLoadContext & context, CTown & town, const JsonNode & source) const;
 
-	void loadClientData(CTown & town, const JsonNode & source) const;
+	void loadClientData(LibraryLoadContext & context, CTown & town, const JsonNode & source) const;
 
-	void loadTown(CTown * town, const JsonNode & source);
+	void loadTown(LibraryLoadContext & context, CTown * town, const JsonNode & source);
 
-	void loadPuzzle(CFaction & faction, const JsonNode & source) const;
+	void loadPuzzle(LibraryLoadContext & context, CFaction & faction, const JsonNode & source) const;
 
-	void loadRandomFaction();
+	void loadRandomFaction(LibraryLoadContext & context);
 
 public:
 	std::unique_ptr<CFaction> randomFaction;
@@ -66,13 +66,13 @@ public:
 	CTownHandler();
 	~CTownHandler();
 
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 
-	void loadCustom() override;
-	void afterLoadFinalization() override;
+	void loadCustom(LibraryLoadContext & context) override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 	void beforeValidate(JsonNode & object) override;
 
 	std::set<FactionID> getDefaultAllowed() const;
@@ -80,7 +80,7 @@ public:
 
 protected:
 
-	void loadBuildingBonuses(const JsonNode & source, BonusList & bonusList, CBuilding * building) const;
+	void loadBuildingBonuses(LibraryLoadContext & context, const JsonNode & source, BonusList & bonusList, CBuilding * building) const;
 	const std::vector<std::string> & getTypeNames() const override;
-	std::shared_ptr<CFaction> loadFromJson(const std::string & scope, const JsonNode & data, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CFaction> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & data, const std::string & identifier, size_t index) override;
 };

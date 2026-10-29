@@ -20,7 +20,7 @@ class HillFortInstanceConstructor final : public CDefaultObjectTypeHandler<HillF
 	JsonNode parameters;
 
 protected:
-	void initTypeData(const JsonNode & config) override;
+	void initTypeData(LibraryLoadContext & context, const JsonNode & config) override;
 	void initializeObject(HillFort * object) const override;
 
 public:

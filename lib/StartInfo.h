@@ -204,7 +204,6 @@ struct ClientPlayer
 struct DLL_LINKAGE LobbyState
 {
 	std::shared_ptr<StartInfo> si;
-	std::shared_ptr<CMapInfo> mi;
 	std::map<PlayerConnectionID, ClientPlayer> playerNames; // id of player <-> player name;
 	GameConnectionID hostClientId = GameConnectionID::INVALID;
 	// TODO: Campaign-only and we don't really need either of them.
@@ -216,7 +215,6 @@ struct DLL_LINKAGE LobbyState
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & si;
-		h & mi;
 		h & playerNames;
 		h & hostClientId;
 		h & campaignMap;
@@ -226,6 +224,8 @@ struct DLL_LINKAGE LobbyState
 
 struct DLL_LINKAGE LobbyInfo : public LobbyState
 {
+	/// Selected map, save or campaign; sent separately from LobbyState in LobbyUpdateMapInfo
+	std::shared_ptr<CMapInfo> mi;
 	std::string uuid;
 
 	LobbyInfo() {}

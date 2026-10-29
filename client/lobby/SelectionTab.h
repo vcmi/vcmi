@@ -12,6 +12,7 @@
 #include "CSelectionBase.h"
 #include "../Translator.h"
 #include "../../lib/mapping/CMapInfo.h"
+#include "../../lib/mapping/ScenarioListEntry.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
 class CMap;
@@ -28,14 +29,17 @@ enum ESortBy
 	_playerAm, _size, _format, _name, _viccon, _loscon, _numOfMaps, _fileName, _changeDate
 }; //_numOfMaps is for campaigns
 
-class ElementInfo : public CMapInfo
+class ElementInfo
 {
 public:
-	ElementInfo() : CMapInfo() { }
-	~ElementInfo() { }
-	/// Entries outlive the tab that listed them, so each one keeps its own texts installed.
-	/// The translator shares ownership of the containers, so a reloaded header can not strand them
+	/// Map or saved game, empty for folders and campaigns
+	std::optional<ScenarioListEntry> entry;
+	/// Campaign with its header, null for folders, maps and saved games
+	std::shared_ptr<CMapInfo> campaignInfo;
+	/// Campaign entries outlive the tab that listed them, so each one keeps its own texts installed
 	std::vector<TranslatorOverlay> textOverlays;
+	std::string fileURI;
+	std::time_t lastWrite = 0;
 	std::string folderName = "";
 	std::string name = "";
 	bool isFolder = false;
@@ -81,14 +85,23 @@ class SelectionTab : public CIntObject
 
 	JsonNode campaignSets;
 
-	/// Installs the text overlays of newly parsed entries and fills in their display names
+	/// Installs the text overlays of newly parsed campaigns and fills in display names of new entries
 	void installTexts(size_t offset);
+
+	std::shared_ptr<ElementInfo> loadedElement;
+	std::shared_ptr<CMapInfo> loadedMapInfo;
+	/// Texts of the loaded map or save, needed by screens that show it without a round trip through the server, such as the save screen
+	std::optional<TranslatorOverlay> loadedTextOverlay;
+
+	/// Returns map info of a map, save or campaign, loaded once for the last requested element; null for folders or on error
+	std::shared_ptr<CMapInfo> loadMapInfo(const std::shared_ptr<ElementInfo> & element);
+	void notifySelection(const std::shared_ptr<ElementInfo> & element);
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;
 	std::string curFolder;
 	size_t selectionPos;
-	std::function<void(std::shared_ptr<ElementInfo>)> callOnSelect;
+	std::function<void(std::shared_ptr<CMapInfo>)> callOnSelect;
 
 	ESortBy sortingBy;
 	ESortBy generalSortingBy;
@@ -123,7 +136,8 @@ public:
 	int getLine(const Point & position) const;
 	bool selectFileName(std::string fname);
 	void selectNewestFile(bool skipAutosaves = false);
-	std::shared_ptr<ElementInfo> getSelectedMapInfo() const;
+	std::shared_ptr<ElementInfo> getSelectedElement() const;
+	std::shared_ptr<CMapInfo> getSelectedMapInfo();
 	void setRequiredHumanPlayers(size_t players);
 	static void rememberSave(const std::string & savePath);
 	void rememberCurrentSelection();
@@ -155,13 +169,13 @@ private:
 	auto checkSubfolder(std::string path);
 	size_t getRequiredHumanPlayers() const;
 	bool isMapCompatibleWithLobbyPlayerCount(const ElementInfo & info) const;
-	bool isSaveCompatible(const CMapInfo & info, ELoadMode loadMode) const;
+	bool isSaveCompatible(const ScenarioListEntry & entry, ELoadMode loadMode) const;
 	std::optional<bool> isFolderCompatible(const std::string & folderName, const std::vector<ResourcePath> & files);
 	static std::string getLastSaveSettingName();
 	bool openSaveDirectory(std::string folder);
 	void restoreLastSave();
 
-	bool isMapSupported(const CMapInfo & info);
+	bool isMapSupported(const ScenarioListEntry & entry) const;
 	void parseMaps(const std::unordered_set<ResourcePath> & files);
 	void parseCurrentFolder();
 	std::vector<ResourcePath> parseSaves(const std::unordered_set<ResourcePath> & files);

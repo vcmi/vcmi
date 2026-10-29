@@ -167,6 +167,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	th = std::make_unique<CStopWatch>();
 	logicConnection.reset();
 	si = std::make_shared<StartInfo>();
+	mi.reset();
 	localPlayerNames.clear();
 	si->difficulty = 1;
 	si->mode = mode;
