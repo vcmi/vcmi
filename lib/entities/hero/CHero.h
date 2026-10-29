@@ -24,6 +24,7 @@ class DLL_LINKAGE CHero : public HeroType
 	HeroTypeID ID;
 	std::string identifier;
 	std::string modScope;
+	const CHeroClass * heroClass = nullptr;
 
 public:
 	struct InitialArmyStack
@@ -38,8 +39,6 @@ public:
 
 	/// Returns unit which should be given the hero on retreat from battle
 	CreatureID defaultCreature() const;
-
-	const CHeroClass * heroClass = nullptr;
 
 	//initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<std::pair<SecondarySkill, ui8>> secSkillsInit;
@@ -67,6 +66,7 @@ public:
 	std::string getJsonKey() const override;
 	std::string getModScope() const override;
 	HeroTypeID getId() const override;
+	const CHeroClass * getHeroClass() const;
 	void registerIcons(const IconRegistar & cb) const override;
 
 	std::string getNameTranslated() const override;

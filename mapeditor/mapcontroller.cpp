@@ -173,10 +173,10 @@ void MapController::repairMap(CMap * map)
 			map->allowedHeroes.insert(nih->getHeroTypeID());
 
 			auto const & type = LIBRARY->heroh->objects[nih->subID];
-			assert(type->heroClass);
+			assert(type->getHeroClass());
 
 			if(nih->ID == Obj::HERO) //not prison
-				nih->appearance = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, type->heroClass->getIndex())->getTemplates().front();
+				nih->appearance = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, type->getHeroClass()->getIndex())->getTemplates().front();
 			//fix spellbook
 			if(nih->spellbookContainsSpell(SpellID::SPELLBOOK_PRESET))
 			{

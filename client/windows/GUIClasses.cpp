@@ -786,10 +786,10 @@ void CTavernWindow::chooseHeroToInvite(CGHeroInstance* selectedHero, const std::
 	{
 		auto heroA = a.toHeroType();
 		auto heroB = b.toHeroType();
-		if(heroA->heroClass->faction != heroB->heroClass->faction)
-			return heroA->heroClass->faction < heroB->heroClass->faction;
-		if(heroA->heroClass->getId() != heroB->heroClass->getId())
-			return heroA->heroClass->getId() < heroB->heroClass->getId();
+		if(heroA->getHeroClass()->faction != heroB->getHeroClass()->faction)
+			return heroA->getHeroClass()->faction < heroB->getHeroClass()->faction;
+		if(heroA->getHeroClass()->getId() != heroB->getHeroClass()->getId())
+			return heroA->getHeroClass()->getId() < heroB->getHeroClass()->getId();
 		return heroA->getNameTranslated() < heroB->getNameTranslated();
 	};
 	std::map<HeroTypeID, CGHeroInstance*, decltype(comp)> orderedHeroes(comp);

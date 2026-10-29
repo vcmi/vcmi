@@ -292,14 +292,14 @@ PlayerColor CGHeroInstance::getOwner() const
 
 const CHeroClass * CGHeroInstance::getHeroClass() const
 {
-	return getHeroType()->heroClass;
+	return getHeroType()->getHeroClass();
 }
 
 HeroClassID CGHeroInstance::getHeroClassID() const
 {
 	auto heroType = getHeroTypeID();
 	if (heroType.hasValue())
-		return getHeroType()->heroClass->getId();
+		return getHeroType()->getHeroClass()->getId();
 	else
 		return HeroClassID();
 }

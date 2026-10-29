@@ -452,10 +452,10 @@ static void addHeroesTable(
 
 	for(const auto & h : LIBRARY->heroh->objects)
 	{
-		if(!h || h->special || !h->heroClass) continue;
-		if(h->heroClass->faction != factionId) continue;
-		HeroData hd{h.get(), h->heroClass->getNameTranslated()};
-		if(h->heroClass->affinity == CHeroClass::MAGIC)
+		if(!h || h->special || !h->getHeroClass()) continue;
+		if(h->getHeroClass()->faction != factionId) continue;
+		HeroData hd{h.get(), h->getHeroClass()->getNameTranslated()};
+		if(h->getHeroClass()->affinity == CHeroClass::MAGIC)
 			magicHeroes.push_back(hd);
 		else
 			mightHeroes.push_back(hd);
