@@ -806,12 +806,20 @@ SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* sourceSurface, const SDL_Color& 
 	int width = sourceSurface->w;
 	int height = sourceSurface->h;
 
+	// resolving format and palette for every pixel is a locked lookup in SDL
+	const SDL_PixelFormatDetails * sourceFormat = getFormat(sourceSurface);
+	const SDL_Palette * sourcePalette = getPalette(sourceSurface);
+	const SDL_PixelFormatDetails * destFormat = getFormat(destSurface);
+	const SDL_Palette * destPalette = getPalette(destSurface);
+
 	// Helper lambda to get alpha
 	auto getAlpha = [&](int x, int y) -> Uint8 {
 		if (x < 0 || x >= width || y < 0 || y >= height)
 			return 0;
 		Uint32 pixel = *((Uint32*)sourceSurface->pixels + y * width + x);
-		return getColor(sourceSurface, pixel).a;
+		Uint8 alpha;
+		SDL_GetRGBA(pixel, sourceFormat, sourcePalette, nullptr, nullptr, nullptr, &alpha);
+		return alpha;
 	};
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, height), [&](const tbb::blocked_range<size_t>& r)
@@ -847,7 +855,7 @@ SDL_Surface* CSDL_Ext::drawOutline(SDL_Surface* sourceSurface, const SDL_Color& 
 				if (maxNearbyAlpha > 0)
 				{
 					Uint8 finalAlpha = maxNearbyAlpha - alpha; // alpha is 0 here, so effectively maxNearbyAlpha
-					Uint32 newPixel = mapColor(destSurface, { color.r, color.g, color.b, finalAlpha });
+					Uint32 newPixel = SDL_MapRGBA(destFormat, destPalette, color.r, color.g, color.b, finalAlpha);
 					*((Uint32*)destSurface->pixels + y * width + x) = newPixel;
 				}
 			}
@@ -986,17 +994,20 @@ void fillAlphaPixelWithRGBA(SDL_Surface* surface, Uint8 r, Uint8 g, Uint8 b, Uin
 	auto pixels = (Uint32*)surface->pixels;
 	int pixelCount = surface->w * surface->h;
 
+	// resolving format and palette for every pixel is a locked lookup in SDL
+	const SDL_PixelFormatDetails * format = CSDL_Ext::getFormat(surface);
+	const SDL_Palette * palette = CSDL_Ext::getPalette(surface);
+	const Uint32 filled = SDL_MapRGBA(format, palette, r, g, b, a);
+	const Uint32 cleared = SDL_MapRGBA(format, palette, 0, 0, 0, 0);
+
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, pixelCount), [&](const tbb::blocked_range<size_t>& range)
 	{
 		for(int i = range.begin(); i != range.end(); ++i)
 		{
-			Uint8 pa = CSDL_Ext::getColor(surface, pixels[i]).a;
+			Uint8 pa;
+			SDL_GetRGBA(pixels[i], format, palette, nullptr, nullptr, nullptr, &pa);
 
-			Uint32 newPixel = CSDL_Ext::mapColor(surface, { r, g, b, a });
-			if(pa < 128)
-				newPixel = CSDL_Ext::mapColor(surface, { 0, 0, 0, 0 });
-
-			pixels[i] = newPixel;
+			pixels[i] = pa < 128 ? cleared : filled;
 		}
 	});
 
@@ -1057,7 +1068,7 @@ SDL_Surface * CSDL_Ext::drawShadow(SDL_Surface * sourceSurface, bool doSheer)
 {
 	SDL_Surface *destSurface = newSurface(Point(sourceSurface->w, sourceSurface->h));
 
-	double shearX = doSheer ? 0.5 : 0.0;
+	double shearX = doSheer ? shadowShearX : 0.0;
 	double scaleY = doSheer ? 0.5 : 0.25;
 
 	int lowestSource = getLowestNonTransparentY(sourceSurface);

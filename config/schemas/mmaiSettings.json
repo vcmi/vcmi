@@ -4,7 +4,7 @@
     "title" : "MMAI settings format",
     "description" : "Format used to define settings for the MMAI mod",
     "additionalProperties" : false,
-    "required" : [ "models", "fallback", "temperature", "seed" ],
+    "required" : [ "models", "fallback", "useCreatureSpells", "temperature", "seed" ],
     "properties" : {
         "$comment" : {
             "type" : "array",
@@ -28,6 +28,10 @@
             "type" : "string",
             "default" : "BattleAI",
             "enum" : [ "BattleAI", "StupidAI" ]
+        },
+        "useCreatureSpells": {
+            "type" : "boolean",
+            "default" : true
         },
         "temperature" : {
             "type" : "number",

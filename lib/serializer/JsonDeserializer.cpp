@@ -12,8 +12,8 @@
 
 #include <vstd/StringUtils.h>
 
-JsonDeserializer::JsonDeserializer(const IInstanceResolver * instanceResolver_, const JsonNode & root_):
-	JsonTreeSerializer(instanceResolver_, &root_, false, false)
+JsonDeserializer::JsonDeserializer(const IInstanceResolver * instanceResolver_, IIdentifierResolver & identifierResolver_, const JsonNode & root_):
+	JsonTreeSerializer(instanceResolver_, &identifierResolver_, &root_, false)
 {
 
 }

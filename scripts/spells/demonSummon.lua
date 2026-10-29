@@ -23,6 +23,9 @@ end
 function Script:isValidTarget(mechanics, unit)
 	if not unit:isDead() then return false end
 
+	-- demons take the army slot of their corpse after battle, and a commander has none
+	if unit:isCommander() then return false end
+
 	local hexes = unit:getHexes()
 	for i = 1, hexes:size() do
 		local hex = hexes:at(i)

@@ -311,7 +311,7 @@ std::string CComponent::getSubtitle() const
 			else
 				return LIBRARY->skillh->getById(data.subType.as<SecondarySkill>())->getNameTranslated();
 		case ComponentType::RESOURCE:
-			return std::to_string(data.value.value_or(0));
+			return data.value ? std::to_string(*data.value) : "";
 		case ComponentType::RESOURCE_PER_DAY:
 		{
 			MetaString subtitle = MetaString::createFromTextID("core.genrltxt.3"); // %d/day

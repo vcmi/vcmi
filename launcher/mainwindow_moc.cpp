@@ -451,11 +451,12 @@ void MainWindow::manualInstallFile(QString filePath)
 	{
 		if(filePath.startsWith("content://", Qt::CaseInsensitive) || !QFileInfo(filePath).isFile())
 		{
-			const QString archiveName = ModStateController::modIdFromArchivePath(realFilePath) + ".zip";
+			// URI sources need a local copy before minizip can open them.
+			const QString archiveName = ModStateController::modIdFromArchivePath(realFilePath, true) + ".zip";
 			getModView()->downloadFile(archiveName, QUrl::fromLocalFile(filePath), tr("mod archive"));
 		}
 		else
-			getModView()->installFiles(QStringList{filePath});
+			getModView()->installFiles(QStringList{filePath}, true);
 	}
 	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{

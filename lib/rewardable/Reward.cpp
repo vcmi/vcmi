@@ -180,11 +180,8 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 	for(const auto & entry : creatures)
 		comps.emplace_back(ComponentType::CREATURE, entry.getId(), entry.getCount());
 
-	for (size_t i=0; i<resources.size(); i++)
-	{
-		if (resources[i] !=0)
-			comps.emplace_back(ComponentType::RESOURCE, GameResID(i), resources[i]);
-	}
+	for(const auto & [resource, amount] : resources.nonZeroEntries())
+		comps.emplace_back(ComponentType::RESOURCE, resource, amount);
 }
 
 void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)

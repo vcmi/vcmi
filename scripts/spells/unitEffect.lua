@@ -110,6 +110,12 @@ function Script:transformByRange(mechanics, aimPoint, spellTarget)
 		return true
 	end
 
+	-- as in H3, mass versions of spells that pick a side skip hypnotized units of either side
+	local function massFilter(unit)
+		if mechanics:isSmart() and battle:getUnitController(unit) ~= unit:getOwner() then return false end
+		return mainFilter(unit)
+	end
+
 	-- ensure we have a non-empty target to work from
 	local effectiveTarget = spellTarget
 	if #aimPoint > 0 and #spellTarget == 0 then
@@ -130,7 +136,7 @@ function Script:transformByRange(mechanics, aimPoint, spellTarget)
 	end
 
 	if mechanics:isMassive() then
-		local units = battle:getUnitsIf(mainFilter)
+		local units = battle:getUnitsIf(massFilter)
 		for _, unit in ipairs(units) do
 			addUnit(unit)
 		end

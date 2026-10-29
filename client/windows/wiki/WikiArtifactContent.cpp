@@ -23,6 +23,7 @@
 #include "../../../lib/GameLibrary.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
 #include "../../../lib/entities/artifact/CArtHandler.h"
+#include "../../../lib/entities/artifact/ArtifactUtils.h"
 #include "../../../lib/entities/artifact/EArtifactClass.h"
 #include "../../../lib/entities/artifact/ArtBearer.h"
 #include "../../../lib/constants/EntityIdentifiers.h"
@@ -205,7 +206,9 @@ std::vector<std::shared_ptr<CIntObject>> buildArtifactContent(
 
 	// ── 3. Description ─────────────────────────────────────────────────────
 	{
-		const std::string desc = art->getDescriptionTranslated();
+		std::string desc = art->getDescriptionTranslated();
+		if(art->getId() == ArtifactID::SPELL_SCROLL)
+			ArtifactUtils::insertScrrollSpellName(desc, SpellID::NONE);
 		if(!desc.empty())
 		{
 			auto label = std::make_shared<CMultiLineLabel>(

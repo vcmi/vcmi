@@ -103,14 +103,13 @@ public:
 class TerrainTypeHandler : public CHandlerBase<TerrainId, TerrainType, TerrainType, TerrainTypeService>
 {
 public:
-	std::shared_ptr<TerrainType> loadFromJson(
-		const std::string & scope,
+	std::shared_ptr<TerrainType> loadFromJson(LibraryLoadContext & context, const std::string & scope,
 		const JsonNode & json,
 		const std::string & identifier,
 		size_t index) override;
 
 	const std::vector<std::string> & getTypeNames() const override;
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 };
 
 inline bool TerrainType::isLand() const

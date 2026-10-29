@@ -4,7 +4,7 @@ Descriptor for an icon shown in a message window (a creature, artifact, resource
 
 ### type
 
-Component kind (ComponentType index).
+Component kind, one of ENUM.ComponentType.
 
 - type: `integer`
 
@@ -17,5 +17,11 @@ Identifier index of the entity, interpreted according to `type`.
 ### value
 
 Optional amount: positive means gained, negative means lost.
+
+- type: `integer?`
+
+### faction
+
+Faction index of the town building, required by building components.
 
 - type: `integer?`

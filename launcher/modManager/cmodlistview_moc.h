@@ -65,7 +65,8 @@ class CModListView : public QWidget
 
 	bool askOverwriteDialog(const QString & windowTitle, const QString & message, int conflictCount, bool & applyToAll, bool & overwriteAll);
 
-	void installMods(QStringList archives, bool removeArchives);
+	void installDownloadedFiles(QStringList files);
+	void installMods(QStringList archives, bool removeGithubSuffix);
 	void installMaps(QStringList maps);
 	void installSaves(QStringList saves);
 
@@ -147,7 +148,7 @@ protected:
 public:
 	void downloadMod(const ModState & mod);
 	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
-	void installFiles(QStringList mods, bool removeArchives = false);
+	void installFiles(QStringList mods, bool removeGithubSuffix = false);
 
 	void showExternalProgress(const QString & format, int current, int max);
 	void hideExternalProgress();

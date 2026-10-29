@@ -12,12 +12,12 @@
 #include "TerrainHandler.h"
 #include "IGameSettings.h"
 #include "json/JsonNode.h"
-#include "modding/IdentifierStorage.h"
+#include "modding/LibraryLoadContext.h"
 #include "texts/CGeneralTextHandler.h"
 #include "texts/CLegacyConfigParser.h"
 #include "GameLibrary.h"
 
-std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 
@@ -43,7 +43,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 	info->transitionRequired = json["transitionRequired"].Bool();
 	info->terrainViewPatterns = json["terrainViewPatterns"].String();
 
-	LIBRARY->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
+	context.lib.generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
 	const JsonNode & grailRumor = json["grailRumor"];
 	if (!grailRumor.String().empty())
@@ -55,7 +55,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 		else
 		{
 			info->grailRumorTextID = TextIdentifier("terrain", scope, identifier, "grailRumor").get();
-			LIBRARY->generaltexth->registerString(scope, info->grailRumorTextID, grailRumor);
+			context.lib.generaltexth->registerString(scope, info->grailRumorTextID, grailRumor);
 		}
 	}
 
@@ -88,7 +88,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 	}
 	for(const auto& node : json["allowedLayers"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("mapLayer", node, [info](int32_t identifier)
+		context.resolver.requestIdentifier("mapLayer", node, [info](int32_t identifier)
 		{
 			info->allowedLayers.push_back(MapLayerId(identifier));
 		});
@@ -97,7 +97,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 	info->river = River::NO_RIVER;
 	if(!json["river"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("river", json["river"], [info](int32_t identifier)
+		context.resolver.requestIdentifier("river", json["river"], [info](int32_t identifier)
 		{
 			info->river = RiverId(identifier);
 		});
@@ -117,7 +117,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	for(const auto & t : json["battleFields"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("battlefield", t, [info](int32_t identifier)
+		context.resolver.requestIdentifier("battlefield", t, [info](int32_t identifier)
 		{
 			info->battleFields.emplace_back(identifier);
 		});
@@ -125,7 +125,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	for(const auto & t : json["prohibitTransitions"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("terrain", t, [info](int32_t identifier)
+		context.resolver.requestIdentifier("terrain", t, [info](int32_t identifier)
 		{
 			info->prohibitTransitions.emplace_back(identifier);
 		});
@@ -135,7 +135,7 @@ std::shared_ptr<TerrainType> TerrainTypeHandler::loadFromJson( const std::string
 
 	if(!json["rockTerrain"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
+		context.resolver.requestIdentifier("terrain", json["rockTerrain"], [info](int32_t identifier)
 		{
 			info->rockTerrain = TerrainId(identifier);
 		});
@@ -150,13 +150,13 @@ const std::vector<std::string> & TerrainTypeHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::vector<JsonNode> TerrainTypeHandler::loadLegacyData()
+std::vector<JsonNode> TerrainTypeHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_TERRAIN);
+	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_TERRAIN);
 
 	objects.resize(dataSize);
 
-	CLegacyConfigParser terrainParser(TextPath::builtin("DATA/TERRNAME.TXT"));
+	CLegacyConfigParser terrainParser(TextPath::builtin("DATA/TERRNAME.TXT"), *context.lib.modh);
 
 	std::vector<JsonNode> result;
 	do

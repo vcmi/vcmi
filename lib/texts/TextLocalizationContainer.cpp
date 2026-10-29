@@ -14,9 +14,7 @@
 #include "Languages.h"
 #include "TextOperations.h"
 
-#include "../GameLibrary.h"
 #include "../json/JsonNode.h"
-#include "../modding/CModHandler.h"
 
 void TextLocalizationContainer::registerStringOverride(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language)
 {
@@ -38,7 +36,7 @@ void TextLocalizationContainer::registerStringOverride(const std::string & modCo
 		}
 		else
 		{
-			if (language == LIBRARY->generaltexth->getPreferredLanguage())
+			if (language == CGeneralTextHandler::getPreferredLanguage())
 				entry.overriden = true;
 		}
 	}
@@ -63,7 +61,6 @@ const std::string & TextLocalizationContainer::translateString(const TextIdentif
 void TextLocalizationContainer::registerString(const std::string & modContext, const TextIdentifier & inputUID, const JsonNode & localized)
 {
 	assert(localized.isNull() || !localized.getModScope().empty());
-	assert(localized.isNull() || !getModLanguage(localized.getModScope()).empty());
 
 	if (localized.isNull())
 		registerString(modContext, modContext, inputUID, localized.String());
@@ -142,13 +139,6 @@ void TextLocalizationContainer::exportAllTexts(std::map<std::string, ExportedStr
 		if (!textToWrite.empty())
 			storage[modName].strings[entry.first] = textToWrite;
 	}
-}
-
-std::string TextLocalizationContainer::getModLanguage(const std::string & modContext) const
-{
-	if (modContext == "core")
-		return CGeneralTextHandler::getInstalledLanguage();
-	return LIBRARY->modh->getModLanguage(modContext);
 }
 
 void TextLocalizationContainer::jsonSerialize(JsonNode & dest) const

@@ -158,12 +158,8 @@ WikiResourceCost::WikiResourceCost(
 	struct ResEntry { GameResID id; int amount; };
 	std::vector<ResEntry> entries;
 
-	TResources::nziterator it(cost);
-	while(it.valid())
-	{
-		entries.push_back({it->resType, static_cast<int>(it->resVal)});
-		++it;
-	}
+	for(const auto & [resource, amount] : cost.nonZeroEntries())
+		entries.push_back({resource, amount});
 
 	if(entries.empty())
 		return;

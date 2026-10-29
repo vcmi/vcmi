@@ -21,7 +21,7 @@ class KeyGuardInstanceConstructor final : public CDefaultObjectTypeHandler<Objec
 {
 	Quest typeQuest;
 
-	void initTypeData(const JsonNode & input) override
+	void initTypeData(LibraryLoadContext & context, const JsonNode & input) override
 	{
 		typeQuest.mission.requiredKeys.push_back(MapObjectSubID(this->getSubIndex()));
 		typeQuest.defineQuestName();

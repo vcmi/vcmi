@@ -68,12 +68,19 @@ enum class ESerializationVersion : int32_t
 	SAVE_CHUNKS, // saved game is stored as compressed chunks: metadata, map header, game state
 	GARRISON_DIALOG_REMOVABLE_UNITS_REMOVED, // GarrisonDialog pack no longer carries removableUnits, the client checks CArmedInstance::isLocked
 	MAP_EVENT_DISABLED, // map events can be disabled by map scripts
+	RANK_LIMITER_INCLUSIVE_MIN, // RankRangeLimiter accepts stacks of its minimal rank
+	SPARSE_RESOURCE_SET, // ResourceSet stores only resources present in the set
+	QUEST_HINT_COMPONENTS, // HotA scripted quests store components shown with their hint
+	TOWN_ALIGNMENT_EXCLUSION, // random town can be set to not match faction of a player
+	NEUTRAL_TOWN_EVENTS, // town events can affect neutral towns
+	LOBBY_MAP_INFO_PACK, // lobby sends map info in its own pack instead of lobby state; client and server reject each other below this version
+	SPELL_ID_WITH_MASTERY, // spell id is combined with spell mastery level
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = MAP_EVENT_DISABLED,
+	CURRENT = SPELL_ID_WITH_MASTERY,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

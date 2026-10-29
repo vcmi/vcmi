@@ -76,6 +76,7 @@
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 
+#include "../lib/modding/IdentifierResolver.h"
 #include "../lib/modding/ModIncompatibility.h"
 
 #include "../lib/networkPacks/StackLocation.h"
@@ -1211,7 +1212,7 @@ void CGameHandler::disableMapEvent(ObjectInstanceID town, const std::string & sc
 	sendAndApply(pack);
 }
 
-void CGameHandler::setQuestHintText(ObjectInstanceID obj, const MetaString & hint)
+void CGameHandler::setQuestHint(ObjectInstanceID obj, const MetaString & hint, const std::vector<Component> & components)
 {
 	// applying hint to anything else would throw on every client, e.g. if script targets already removed object
 	const auto * questSource = dynamic_cast<const QuestSource *>(gameState().getObjInstance(obj));
@@ -1224,6 +1225,7 @@ void CGameHandler::setQuestHintText(ObjectInstanceID obj, const MetaString & hin
 	SetQuestHint pack;
 	pack.object = obj;
 	pack.hint = hint;
+	pack.components = components;
 	sendAndApply(pack);
 }
 
@@ -2502,7 +2504,9 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	};
 
 	// now when everything is built - reveal tiles for lookout tower
-	changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
+	// town may be neutral if building was built by a town event that affects neutral towns
+	if(t->getOwner().isValidPlayer())
+		changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
 
 	if (!force)
 	{
@@ -2592,7 +2596,8 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool
 		return false;
 
 	ResourceSet costBase;
-	costBase.resolveFromJson(gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	costBase.resolveFromJson(gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level], resolver);
 	double pastResearchesCostMultiplier = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_RESEARCH).Vector()[level].Float();
 	double pastRerollsCostMultiplier = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_REROLL).Vector()[level].Float();
 	double pastResearchesCurrentMultiplier = std::pow(pastResearchesCostMultiplier, t->spellResearchAcceptedCounter);
@@ -3225,7 +3230,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 		const CArtifact * combinedArt = assembleTo.toArtifact();
 		if(!combinedArt->isCombined())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
-		if(!vstd::contains(ArtifactUtils::assemblyPossibilities(hero, destArtifact->getTypeId()), combinedArt))
+		if(!vstd::contains(ArtifactUtils::assemblyPossibilities(gameInfo().getSettings(), hero, destArtifact->getTypeId()), combinedArt))
 		{
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
 		}
@@ -3250,6 +3255,9 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 
 		if(!destArtifact->hasParts())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is fused combined artifact!");
+
+		if(ArtifactUtils::isCombinationDisabled(gameInfo().getSettings(), destArtifact->getTypeId()))
+			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble can not be assembled back on this map!");
 
 		if(ArtifactUtils::isSlotBackpack(artifactSlot)
 			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->getType()->getConstituents().size() - 1))
@@ -3519,6 +3527,8 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 
 bool CGameHandler::sendResources(ui32 val, PlayerColor player, GameResID r1, PlayerColor r2)
 {
+	COMPLAIN_RET_FALSE_IF(!vstd::contains(LIBRARY->resourceTypeHandler->getAllObjects(), r1), "No such resource!");
+
 	const PlayerState *p2 = gameInfo().tryGetPlayerState(r2);
 	if (!p2  ||  p2->status != EPlayerStatus::INGAME)
 	{
@@ -3542,10 +3552,10 @@ void CGameHandler::informPlayerAboutSentResources(PlayerColor player, PlayerColo
 	iw.player = playerReceiver;
 	iw.text = MetaString::createFromTextID("core.genrltxt.358");
 	iw.text.replaceName(player);
-	for(auto it = ResourceSet::nziterator(resources); it.valid(); it++)
+	for(const auto & [resource, amount] : resources)
 	{
-		if(it->resVal > 0)
-			iw.components.emplace_back(ComponentType::RESOURCE, it->resType, it->resVal);
+		if(amount > 0)
+			iw.components.emplace_back(ComponentType::RESOURCE, resource, amount);
 	}
 	sendAndApply(iw);
 }

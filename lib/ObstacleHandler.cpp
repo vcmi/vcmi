@@ -11,7 +11,7 @@
 #include "ObstacleHandler.h"
 #include "BattleFieldHandler.h"
 #include "json/JsonNode.h"
-#include "modding/IdentifierStorage.h"
+#include "modding/LibraryLoadContext.h"
 #include "GameLibrary.h"
 
 int32_t ObstacleInfo::getIndex() const
@@ -87,7 +87,7 @@ bool ObstacleInfo::isAppropriate(const TerrainId terrainType, const BattleField 
 	return vstd::contains(allowedTerrains, terrainType);
 }
 
-std::shared_ptr<ObstacleInfo> ObstacleHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<ObstacleInfo> ObstacleHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 
@@ -99,7 +99,7 @@ std::shared_ptr<ObstacleInfo> ObstacleHandler::loadFromJson(const std::string & 
 	info->height = json["height"].Integer();
 	for(const auto & t : json["allowedTerrains"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifierIfFound("terrain", t, [info](int32_t identifier){
+		context.resolver.requestIdentifierIfFound("terrain", t, [info](int32_t identifier){
 			info->allowedTerrains.emplace_back(identifier);
 		});
 	}
@@ -113,7 +113,7 @@ std::shared_ptr<ObstacleInfo> ObstacleHandler::loadFromJson(const std::string & 
 	return info;
 }
 
-std::vector<JsonNode> ObstacleHandler::loadLegacyData()
+std::vector<JsonNode> ObstacleHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	return {};
 }

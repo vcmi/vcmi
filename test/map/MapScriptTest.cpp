@@ -75,7 +75,7 @@ function Map:onVisit(game, server, object, hero)
 	server:showQuestion{
 		text = {append = {"question"}},
 		mode = 1,
-		images = {},
+		components = {},
 		onYes = function() server:giveResource(player, LIBRARY:getResourceByName("gold"), 100) end,
 		onNo  = function() server:giveResource(player, LIBRARY:getResourceByName("gold"), 5) end,
 	}
@@ -130,6 +130,17 @@ end
 return Map
 )lua";
 
+/// questEvents handler that sets the hint of the quest together with an icon.
+constexpr auto SEER_HUT_HINT_SCRIPT = R"lua(
+local Map = {}
+
+function Map:questEvents_7(game, server, object, hero)
+	server:setQuestHint(object, {append = {"hint"}}, {{type = ENUM.ComponentType.artifact, subType = 7}})
+end
+
+return Map
+)lua";
+
 /// questEvents handler that immediately finishes the quest.
 constexpr auto SEER_HUT_FINISH_SCRIPT = R"lua(
 local Map = {}
@@ -171,6 +182,25 @@ function Map:grantPoints(game, server, object, hero)
 	server:grantSpellPoints(hero, 5, 0)      -- add
 	server:grantSpellPoints(hero, 3, 2)      -- set
 	server:grantMovementPoints(hero, 100, 0) -- add
+end
+
+return Map
+)lua";
+
+/// Message components as written by the HotA converter, plus one with an invalid spell that must be rejected.
+constexpr auto COMPONENTS_SCRIPT = R"lua(
+local Map = {}
+
+function Map:validComponents(game, server, object, hero)
+	server:showMessage(hero:getOwner(), {append = {"valid"}}, {
+		{type = ENUM.ComponentType.resource, subType = 6, value = -200},
+		{type = ENUM.ComponentType.spellScroll, subType = 9},
+		{type = ENUM.ComponentType.building, subType = 9, faction = 0},
+	})
+end
+
+function Map:invalidComponent(game, server, object, hero)
+	server:showMessage(hero:getOwner(), {append = {"invalid"}}, {{type = ENUM.ComponentType.spell, subType = -1}})
 end
 
 return Map
@@ -436,4 +466,58 @@ TEST_F(MapScriptTest, grantCreaturesToHireChangesTownPool)
 	dispatcher->onTownTurnStart(*gameEventCallback, "hire", town);
 
 	EXPECT_EQ(town->creatures[0].first, base + 7) << "grantCreaturesToHire adds to the town's tier-0 pool";
+}
+
+TEST_F(MapScriptTest, showMessageBuildsComponentsAndRejectsInvalidOnes)
+{
+	auto builder = baseMap(EMapFormat::SOD, COMPONENTS_SCRIPT);
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(hero, nullptr);
+
+	dispatcher->onObjectVisit(*gameEventCallback, "validComponents", hero, hero);
+	ASSERT_EQ(gameEventCallback->infoWindows.size(), 1u);
+	const auto & components = gameEventCallback->infoWindows[0].components;
+	ASSERT_EQ(components.size(), 3u);
+	EXPECT_EQ(components[0].type, ComponentType::RESOURCE);
+	EXPECT_EQ(components[0].subType.as<GameResID>(), GameResID::GOLD);
+	EXPECT_EQ(components[0].value, -200);
+	EXPECT_EQ(components[1].type, ComponentType::SPELL_SCROLL);
+	EXPECT_EQ(components[1].subType.as<SpellID>(), SpellID(9));
+	EXPECT_EQ(components[2].type, ComponentType::BUILDING);
+	EXPECT_EQ(components[2].subType.as<BuildingTypeUniqueID>(), BuildingTypeUniqueID(FactionID::CASTLE, BuildingID::CASTLE));
+
+	dispatcher->onObjectVisit(*gameEventCallback, "invalidComponent", hero, hero);
+	EXPECT_EQ(gameEventCallback->infoWindows.size(), 1u) << "a component no client can show must not be sent";
+}
+
+TEST_F(MapScriptTest, scriptedQuestHintCarriesComponentsToTheQuestLog)
+{
+	auto builder = baseMap(EMapFormat::HOTA, SEER_HUT_HINT_SCRIPT);
+	builder.seerHut({10, 10, 0}, TinyH3M::TinyH3MBuilder::missionScripted(7));
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	SeerHut * hut = findFirst<SeerHut>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(hut, nullptr);
+
+	dispatcher->onObjectVisit(*gameEventCallback, "questEvents_7", hut, hero);
+	ASSERT_EQ(gameEventCallback->questHintComponents.size(), 1u);
+	EXPECT_EQ(gameEventCallback->questHintComponents[0].type, ComponentType::ARTIFACT);
+	EXPECT_EQ(gameEventCallback->questHintComponents[0].subType.as<ArtifactID>(), ArtifactID(7));
+
+	// the quest log takes the icons of a scripted quest from its hint
+	hut->getQuest().scriptHintComponents = gameEventCallback->questHintComponents;
+	MetaString text;
+	std::vector<Component> components;
+	hut->getActiveQuest()->getVisitText(gameState().get(), text, components, true);
+	ASSERT_EQ(components.size(), 1u);
+	EXPECT_EQ(components[0].subType.as<ArtifactID>(), ArtifactID(7));
 }

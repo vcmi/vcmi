@@ -24,7 +24,6 @@
 #include "../mapping/CMap.h"
 #include "../entities/building/CBuilding.h"
 #include "../serializer/JsonDeserializer.h"
-#include "../serializer/JsonUpdater.h"
 #include "../entities/ResourceTypeHandler.h"
 
 

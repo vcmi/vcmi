@@ -80,6 +80,8 @@ function Script:applicableTarget(mechanics, problem, target)
 	if victim:isClone() then return false end
 	if not mechanics:isReceptive(victim) then return false end
 	if mechanics:isSmart() and not mechanics:ownerMatches(victim) then return false end
+	-- as in H3, an own unit hypnotized by the enemy can not be sacrificed
+	if mechanics:getBattle():getUnitController(victim) ~= mechanics:getCasterColor() then return false end
 	return true
 end
 

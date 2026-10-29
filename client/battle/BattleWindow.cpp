@@ -207,7 +207,8 @@ void BattleWindow::createQuickSpellWindow()
 	quickSpellWindow = std::make_shared<QuickSpellPanel>(owner);
 	quickSpellWindow->moveTo(Point(pos.x - 52, pos.y));
 
-	unitActionWindow = std::make_shared<UnitActionPanel>(owner);
+	if(!unitActionWindow)
+		unitActionWindow = std::make_shared<UnitActionPanel>(owner);
 	unitActionWindow->moveTo(Point(pos.x + pos.w, pos.y));
 
 	if(settings["battle"]["enableQuickSpellPanel"].Bool())
@@ -249,9 +250,6 @@ void BattleWindow::showStickyQuickSpellWindow()
 
 	quickSpellWindow->setEnabled(quickSpellWindowVisible);
 	unitActionWindow->setEnabled(unitActionWindowVisible);
-
-	if(owner.actionsController && unitActionWindowVisible) // needed after resize of window
-		owner.actionsController->activateStack();
 
 	createTimerInfoWindows();
 	setPositionInfoWindow();

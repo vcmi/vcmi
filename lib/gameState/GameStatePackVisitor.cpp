@@ -82,7 +82,7 @@ void GameStatePackVisitor::visitSetResources(SetResources & pack)
 	//just ensure that player resources are not negative
 	//server is responsible to check if player can afford deal
 	//but events on server side are allowed to take more than player have
-	gs.getPlayerState(pack.player)->resources.positive();
+	gs.getPlayerState(pack.player)->resources.removeNegative();
 }
 
 void GameStatePackVisitor::visitSetPrimarySkill(SetPrimarySkill & pack)
@@ -1097,7 +1097,7 @@ void GameStatePackVisitor::visitAssembledArtifact(AssembledArtifact & pack)
 	const auto transformedArt = artSet->getArt(pack.al.slot);
 	assert(transformedArt);
 	const auto builtArt = pack.artId.toArtifact();
-	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(artSet, transformedArt->getTypeId()), [=](const CArtifact * art)->bool
+	assert(vstd::contains_if(ArtifactUtils::assemblyPossibilities(gs.getSettings(), artSet, transformedArt->getTypeId()), [=](const CArtifact * art)->bool
 	{
 		return art->getId() == builtArt->getId();
 	}));
@@ -1267,6 +1267,7 @@ void GameStatePackVisitor::visitSetQuestHint(SetQuestHint & pack)
 		throw std::runtime_error("SetQuestHint: object is not a quest source!");
 
 	questSource->getQuest().scriptHintText = pack.hint;
+	questSource->getQuest().scriptHintComponents = pack.components;
 }
 
 void GameStatePackVisitor::visitDisableMapEvent(DisableMapEvent & pack)
@@ -1678,7 +1679,7 @@ void GameStatePackVisitor::visitBattleSetStackProperty(BattleSetStackProperty & 
 		}
 		case BattleSetStackProperty::ENCHANTER_COUNTER:
 		{
-			auto & counter = gs.getBattle(pack.battleID)->getSide(gs.getBattle(pack.battleID)->whatSide(stack->unitOwner())).enchanterCounter;
+			auto & counter = gs.getBattle(pack.battleID)->getSide(stack->controllingSide()).enchanterCounter;
 			if(pack.absolute)
 				counter = pack.val;
 			else

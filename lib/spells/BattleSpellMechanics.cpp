@@ -386,7 +386,8 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 			int manaChannel = 0;
 			for(const auto * stack : battle()->battleGetAllStacks(true)) //TODO: shouldn't bonus system handle it somehow?
 			{
-				if(stack->unitOwner() == otherHero->tempOwner && stack->alive())
+				// a hypnotized familiar channels mana to the player controlling it
+				if(battle()->battleGetOwner(stack) == otherHero->tempOwner && stack->alive())
 					vstd::amax(manaChannel, stack->valOfBonuses(BonusType::MANA_CHANNELING));
 			}
 			sc.manaGained = (manaChannel * spellCost) / 100;
@@ -644,7 +645,7 @@ bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
 
 	for(const SpellID & id : owner->counteredSpells)
 	{
-		if(bonus->sid.as<SpellID>() == id)
+		if(bonus->sid.as<SpellWithMasteryID>().getSpellID() == id)
 			return true;
 	}
 

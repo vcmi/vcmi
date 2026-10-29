@@ -23,18 +23,18 @@
 #include "../modding/IdentifierStorage.h"
 
 template<typename IdentifierID>
-void MapIdentifiersH3M::loadMapping(std::map<IdentifierID, IdentifierID> & result, const JsonNode & mapping, const std::string & identifierName)
+void MapIdentifiersH3M::loadMapping(const GameLibrary & library, std::map<IdentifierID, IdentifierID> & result, const JsonNode & mapping, const std::string & identifierName)
 {
 	for (auto entry : mapping.Struct())
 	{
 		IdentifierID sourceID (entry.second.Integer());
-		IdentifierID targetID (*LIBRARY->identifiers()->getIdentifier(entry.second.getModScope(), identifierName, entry.first));
+		IdentifierID targetID (*library.identifiers()->getIdentifier(entry.second.getModScope(), identifierName, entry.first));
 
 		result[sourceID] = targetID;
 	}
 }
 
-void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
+void MapIdentifiersH3M::loadMapping(const GameLibrary & library, const JsonNode & mapping)
 {
 	if (!mapping["supported"].Bool())
 		throw std::runtime_error("Unsupported map format!");
@@ -45,13 +45,13 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 
 	for (auto entryFaction : mapping["buildings"].Struct())
 	{
-		FactionID factionID (*LIBRARY->identifiers()->getIdentifier(entryFaction.second.getModScope(), "faction", entryFaction.first));
+		FactionID factionID (*library.identifiers()->getIdentifier(entryFaction.second.getModScope(), "faction", entryFaction.first));
 		auto buildingMap = entryFaction.second;
 
 		for (auto entryBuilding : buildingMap.Struct())
 		{
 			BuildingID sourceID (entryBuilding.second.Integer());
-			BuildingID targetID (*LIBRARY->identifiers()->getIdentifier(entryBuilding.second.getModScope(), "building." + LIBRARY->factions()->getById(factionID)->getJsonKey(), entryBuilding.first));
+			BuildingID targetID (*library.identifiers()->getIdentifier(entryBuilding.second.getModScope(), "building." + library.factions()->getById(factionID)->getJsonKey(), entryBuilding.first));
 
 			mappingFactionBuilding[factionID][sourceID] = targetID;
 		}
@@ -75,7 +75,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		{
 			for (auto entryInner : entryOuter.second.Struct())
 			{
-				auto handler = LIBRARY->objtypeh->getHandlerFor( entryInner.second.getModScope(), entryOuter.first, entryInner.first);
+				auto handler = library.objtypeh->getHandlerFor(*library.identifiers(), entryInner.second.getModScope(), entryOuter.first, entryInner.first);
 
 				auto entryValues = entryInner.second.Vector();
 				ObjectTypeIdentifier h3mID{Obj(entryValues[0].Integer()), int32_t(entryValues[1].Integer())};
@@ -85,7 +85,7 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 		}
 		else
 		{
-			auto handler = LIBRARY->objtypeh->getHandlerFor( entryOuter.second.getModScope(), entryOuter.first, entryOuter.first);
+			auto handler = library.objtypeh->getHandlerFor(*library.identifiers(), entryOuter.second.getModScope(), entryOuter.first, entryOuter.first);
 
 			auto entryValues = entryOuter.second.Vector();
 			ObjectTypeIdentifier h3mID{Obj(entryValues[0].Integer()), int32_t(entryValues[1].Integer())};
@@ -105,16 +105,16 @@ void MapIdentifiersH3M::loadMapping(const JsonNode & mapping)
 	for (auto entry : mapping["campaignMusic"].Struct())
 		mappingCampaignMusic[entry.second.Integer()] = AudioPath::builtinTODO(entry.first);
 
-	loadMapping(mappingHeroPortrait, mapping["portraits"], "hero");
-	loadMapping(mappingBuilding, mapping["buildingsCommon"], "building.core:random");
-	loadMapping(mappingFaction, mapping["factions"], "faction");
-	loadMapping(mappingCreature, mapping["creatures"], "creature");
-	loadMapping(mappingHeroType, mapping["heroes"], "hero");
-	loadMapping(mappingHeroClass, mapping["heroClasses"], "heroClass");
-	loadMapping(mappingTerrain, mapping["terrains"], "terrain");
-	loadMapping(mappingArtifact, mapping["artifacts"], "artifact");
-	loadMapping(mappingSecondarySkill, mapping["skills"], "skill");
-	loadMapping(mappingCampaignRegions, mapping["campaignRegions"], "campaignRegion");
+	loadMapping(library, mappingHeroPortrait, mapping["portraits"], "hero");
+	loadMapping(library, mappingBuilding, mapping["buildingsCommon"], "building.core:random");
+	loadMapping(library, mappingFaction, mapping["factions"], "faction");
+	loadMapping(library, mappingCreature, mapping["creatures"], "creature");
+	loadMapping(library, mappingHeroType, mapping["heroes"], "hero");
+	loadMapping(library, mappingHeroClass, mapping["heroClasses"], "heroClass");
+	loadMapping(library, mappingTerrain, mapping["terrains"], "terrain");
+	loadMapping(library, mappingArtifact, mapping["artifacts"], "artifact");
+	loadMapping(library, mappingSecondarySkill, mapping["skills"], "skill");
+	loadMapping(library, mappingCampaignRegions, mapping["campaignRegions"], "campaignRegion");
 }
 
 void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate, const std::string & mapName)
@@ -151,10 +151,12 @@ void MapIdentifiersH3M::remapTemplate(ObjectTemplate & objectTemplate, const std
 	}
 	else
 	{
-		if (LIBRARY->objtypeh->knownSubObjects(objectTemplate.id).count(objectTemplate.subid) == 0)
+		auto knownSubObjects = LIBRARY->objtypeh->knownSubObjects(objectTemplate.id);
+		if (knownSubObjects.count(objectTemplate.subid) == 0)
 		{
 			logGlobal->warn("Map '%s': Unknown subobject found: %d | %d", mapName, objectTemplate.id, objectTemplate.subid);
-			objectTemplate.subid = {};
+			// not every type has subtype 0, e.g. abandoned mine only has 7
+			objectTemplate.subid = *knownSubObjects.begin();
 		}
 	}
 }

@@ -17,16 +17,16 @@
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../mapping/CMap.h"
-#include "../../modding/IdentifierStorage.h"
+#include "../../modding/LibraryLoadContext.h"
 #include "../../networkPacks/PacksForClient.h"
 
-SummonBoatEffect::SummonBoatEffect(const CSpell * s, const JsonNode & config)
+SummonBoatEffect::SummonBoatEffect(LibraryLoadContext & context, const CSpell * s, const JsonNode & config)
 	: owner(s)
 	, useExistingBoat(config["useExistingBoat"].Bool())
 {
 	if (!config["createdBoat"].isNull())
 	{
-		LIBRARY->identifiers()->requestIdentifier("core:boat", config["createdBoat"], [this](int32_t boatTypeID)
+		context.resolver.requestIdentifier("core:boat", config["createdBoat"], [this](int32_t boatTypeID)
 		{
 			createdBoat = BoatId(boatTypeID);
 		});

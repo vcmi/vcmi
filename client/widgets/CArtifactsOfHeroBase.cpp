@@ -312,6 +312,17 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 		for(const auto combinedArt : slotInfo->getArt()->getType()->getPartOf())
 		{
 			assert(combinedArt->isCombined());
+			if(ArtifactUtils::isCombinationDisabled(GAME->interface()->cb->getSettings(), combinedArt->getId()))
+			{
+				MetaString info;
+				info.appendEOL();
+				info.appendEOL();
+				info.appendTextID("vcmi.artifact.disabledCombination");
+				info.replaceName(combinedArt->getId());
+				artPlace->text += info.toString(&GAME->translator());
+				continue;
+			}
+
 			arts.try_emplace(combinedArt->getId());
 			CArtifactFittingSet fittingSet(*curHero);
 			for(const auto part : combinedArt->getConstituents())

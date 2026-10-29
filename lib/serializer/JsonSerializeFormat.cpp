@@ -96,11 +96,17 @@ JsonSerializeFormat::LICSet::LICSet(const std::set<si32> & Standard, TDecoder De
 }
 
 //JsonSerializeFormat
-JsonSerializeFormat::JsonSerializeFormat(const IInstanceResolver * instanceResolver_, const bool saving_, const bool updating_)
+JsonSerializeFormat::JsonSerializeFormat(const IInstanceResolver * instanceResolver_, IIdentifierResolver * identifierResolver_, const bool saving_)
 	: saving(saving_),
-	updating(updating_),
-	instanceResolver(instanceResolver_)
+	instanceResolver(instanceResolver_),
+	identifierResolver(identifierResolver_)
 {
+}
+
+IIdentifierResolver & JsonSerializeFormat::getIdentifierResolver()
+{
+	assert(identifierResolver);
+	return *identifierResolver;
 }
 
 JsonStructSerializer JsonSerializeFormat::enterStruct(const std::string & fieldName)

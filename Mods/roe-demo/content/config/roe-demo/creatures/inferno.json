@@ -1,47 +1,47 @@
 {
 	"core:cerberus" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	},
 	"core:demon" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	},
 	"core:hornedDemon" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	},
 	"core:pitFiend" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	},
 	"core:pitLord" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	},
 	"core:efreet" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	},
 	"core:efreetSultan" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	},
 	"core:devil" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	},
 	"core:archDevil" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	}
 }

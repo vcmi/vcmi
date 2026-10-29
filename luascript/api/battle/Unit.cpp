@@ -74,11 +74,11 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 	R.method<&ACreature::isLiving, Unit>("isLiving", {},
 		"True if the stack is a living creature - not undead, not a golem-like non-living unit.");
 	R.method<&IUnitInfo::unitOwner, Unit>("getOwner", {},
-		"Returns the player color controlling this unit.");
+		"Returns the player owning this unit. A hypnotized unit keeps its owner; Battle:getUnitController returns who controls it.");
 	R.method<&IUnitInfo::unitSlot, Unit>("getSlot", {},
 		"Returns the army slot in the army this unit occupies. NOTE: All summoned units share the same slot");
 	R.method<&IUnitInfo::unitSide, Unit>("getSide", {},
-		"Returns the battle side (attacker or defender) this unit belongs to.");
+		"Returns the battle side (attacker or defender) this unit belongs to. A hypnotized unit keeps its side; use Battle:isHostile to tell friend from foe.");
 	R.method<&Unit::getPosition>("getPosition", {},
 		"Returns the battlefield hex occupied by the unit, or front hex for double-wide units");
 	R.method<&Unit::getTotalHealth>("getTotalHealth", {},

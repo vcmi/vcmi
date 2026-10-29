@@ -992,7 +992,7 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	ui->progressBar->setValue(0);
 
 	if(doInstallFiles)
-		installFiles(savedFiles, true);
+		installDownloadedFiles(savedFiles);
 
 	Helper::keepScreenOn(dlManager != nullptr || importOperation != nullptr);
 	hideProgressBar();
@@ -1003,6 +1003,34 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	for(const auto & modName : modsToRetry)
 		if(modStateModel->isModExists(modName))
 			downloadMod(modStateModel->getMod(modName));
+}
+
+void CModListView::installDownloadedFiles(QStringList files)
+{
+	const auto removeArchives = [files]()
+	{
+		for(const auto & file : files)
+		{
+			if(file.endsWith(".zip", Qt::CaseInsensitive))
+			{
+				logGlobal->info("Erasing archive '%s'", file.toStdString());
+				QFile::remove(file);
+			}
+		}
+	};
+	if(importOperation)
+	{
+		connect(importOperation, &QObject::destroyed, this, [this, files, canceled = importCanceled, removeArchives]()
+		{
+			if(canceled->load())
+				removeArchives();
+			else
+				installDownloadedFiles(files);
+		}, Qt::QueuedConnection);
+		return;
+	}
+	installFiles(files);
+	removeArchives();
 }
 
 bool CModListView::askToIgnoreSslErrors()
@@ -1133,14 +1161,14 @@ EZipType classifyZipArchive(const std::vector<std::string> & fileList)
 }
 }
 
-void CModListView::installFiles(QStringList files, bool removeArchives)
+void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 {
 	if(importOperation)
 	{
-		connect(importOperation, &QObject::destroyed, this, [this, files, removeArchives, canceled = importCanceled]()
+		connect(importOperation, &QObject::destroyed, this, [this, files, removeGithubSuffix, canceled = importCanceled]()
 		{
 			if(!canceled->load())
-				installFiles(files, removeArchives);
+				installFiles(files, removeGithubSuffix);
 		}, Qt::QueuedConnection);
 		return;
 	}
@@ -1288,7 +1316,7 @@ void CModListView::installFiles(QStringList files, bool removeArchives)
 	if(!mods.empty())
 	{
 		logGlobal->info("Installing mods: started");
-		installMods(mods, removeArchives);
+		installMods(mods, removeGithubSuffix);
 		logGlobal->info("Installing mods: ended");
 	}
 	if(importCanceled && importCanceled->load())
@@ -1517,7 +1545,7 @@ void CModListView::installSaves(QStringList saves)
 		QMessageBox::information(this, tr("Success"), tr("Imported %1 save files").arg(importedCount));
 }
 
-void CModListView::installMods(QStringList archives, bool removeArchives)
+void CModListView::installMods(QStringList archives, bool removeGithubSuffix)
 {
 	QStringList modNames;
 	QStringList installedMods;
@@ -1525,9 +1553,7 @@ void CModListView::installMods(QStringList archives, bool removeArchives)
 
 	for(QString archive : archives)
 	{
-		const QString modName = removeArchives
-			? archive.section('/', -1, -1).section('.', 0, 0)
-			: ModStateController::modIdFromArchivePath(Helper::getRealPath(archive));
+		const QString modName = ModStateController::modIdFromArchivePath(Helper::getRealPath(archive), removeGithubSuffix);
 
 		modNames.push_back(modName);
 	}
@@ -1616,15 +1642,6 @@ void CModListView::installMods(QStringList archives, bool removeArchives)
 			tr("Following mods were disabled due to changes in installed mods:\n\n%1").arg(disabledRootMods.join("\n")));
 
 	checkManagerErrors();
-
-	if(removeArchives)
-	{
-		for(QString archive : archives)
-		{
-			logGlobal->info("Erasing archive '%s'", archive.toStdString());
-			QFile::remove(archive);
-		}
-	}
 }
 
 void CModListView::installMaps(QStringList maps)

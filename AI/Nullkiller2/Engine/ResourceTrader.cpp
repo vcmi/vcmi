@@ -90,12 +90,10 @@ bool ResourceTrader::tradeHelper(
 	TResource mostExpendableAmountPos = 0;
 
 	// Find the most wanted resource
-	for(int i = 0; i < missingNow.size(); ++i)
+	for(const auto & [resource, missing] : missingNow.nonZeroEntries())
 	{
-		if(missingNow[i] == 0)
-			continue;
-
-		TResource score = income[i] - missingNow[i];
+		const int i = resource.getNum();
+		TResource score = income[resource] - missing;
 		if(i != GameResID::GOLD)
 		{
 			int givenPerUnit;
@@ -113,12 +111,9 @@ bool ResourceTrader::tradeHelper(
 	}
 
 	// Find the most expendable resource
-	for(int i = 0; i < missingNow.size(); ++i)
+	for(const auto & [resource, amountToSell] : freeAfterMissingTotal)
 	{
-		const TResource amountToSell = freeAfterMissingTotal[i];
-		if(amountToSell == 0)
-			continue;
-
+		const int i = resource.getNum();
 		bool okToSell = false;
 		if(i == GameResID::GOLD)
 		{

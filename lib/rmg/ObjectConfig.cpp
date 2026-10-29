@@ -13,6 +13,7 @@
 #include "ObjectConfig.h"
 
 #include "../GameLibrary.h"
+#include "../modding/IdentifierResolver.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../serializer/JsonSerializeFormat.h"
@@ -151,46 +152,30 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 	{
 		const JsonNode & config = handler.getCurrent();
 		const JsonNode & configBannedObjects = config["bannedObjects"];
+		auto & resolver = handler.getIdentifierResolver();
 
-		if(configBannedObjects.isVector())
+		for(const auto & node : configBannedObjects.Struct())
 		{
-			// MOD COMPATIBILITY - 1.6 format
-
-			for(const auto & node : configBannedObjects.Vector())
+			resolver.requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, &resolver](int primaryID)
 			{
-				LIBRARY->objtypeh->resolveObjectCompoundId(node.String(),
-					[this](CompoundMapObjectID objid)
-					{
-						addBannedObject(objid);
-					}
-				);
-			}
-		}
-		else
-		{
-			for(const auto & node : configBannedObjects.Struct())
-			{
-				LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node](int primaryID)
+				if (node.second.isBool())
 				{
-					if (node.second.isBool())
+					if (node.second.Bool())
+						addBannedObject(CompoundMapObjectID(primaryID, -1));
+				}
+				else
+				{
+					for (const auto & subNode : node.second.Struct())
 					{
-						if (node.second.Bool())
-							addBannedObject(CompoundMapObjectID(primaryID, -1));
-					}
-					else
-					{
-						for (const auto & subNode : node.second.Struct())
-						{
-							const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+						const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
 
-							LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
-							{
-								addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
-							});
-						}
+						resolver.requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
+						{
+							addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
+						});
 					}
-				});
-			}
+				}
+			});
 		}
 	}
 
@@ -228,6 +213,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 	{
 		const JsonNode & config = handler.getCurrent();
 		const JsonNode & configCommonObjects = config["commonObjects"];
+		auto & resolver = handler.getIdentifierResolver();
 
 		for (const auto & objectConfig : configCommonObjects.Vector())
 		{
@@ -244,46 +230,28 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 			if (object.maxPerZone == 0)
 				object.maxPerZone = std::numeric_limits<int>::max();
 
-			if (objectConfig["id"].isNull())
+			resolver.requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig, &resolver](int primaryID)
 			{
-				LIBRARY->identifiers()->requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig](int primaryID)
+				if (objectConfig["subtype"].isNull())
 				{
-					if (objectConfig["subtype"].isNull())
+					auto objectWithID = object;
+					objectWithID.primaryID = primaryID;
+					objectWithID.secondaryID = 0;
+					addCustomObject(objectWithID);
+				}
+				else
+				{
+					const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+
+					resolver.requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object](int secondaryID)
 					{
 						auto objectWithID = object;
 						objectWithID.primaryID = primaryID;
-						objectWithID.secondaryID = 0;
+						objectWithID.secondaryID = secondaryID;
 						addCustomObject(objectWithID);
-					}
-					else
-					{
-						const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
-
-						LIBRARY->identifiers()->requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object](int secondaryID)
-						{
-							auto objectWithID = object;
-							objectWithID.primaryID = primaryID;
-							objectWithID.secondaryID = secondaryID;
-							addCustomObject(objectWithID);
-						});
-					}
-				});
-			}
-			else
-			{
-				// MOD COMPATIBILITY - 1.6 format
-				auto objectName = objectConfig["id"].String();
-
-				LIBRARY->objtypeh->resolveObjectCompoundId(objectName, [this, object](CompoundMapObjectID objid)
-				{
-					auto objectWithID = object;
-					objectWithID.primaryID = objid.primaryID;
-					objectWithID.secondaryID = objid.secondaryID;
-					if (objectWithID.secondaryID == -1)
-						objectWithID.secondaryID = 0;
-					addCustomObject(objectWithID);
-				});
-			}
+					});
+				}
+			});
 		}
 	}
 
@@ -315,6 +283,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 	{
 		const JsonNode & config = handler.getCurrent();
 		const JsonNode & configRequiredObjects = config["requiredObjects"];
+		auto & resolver = handler.getIdentifierResolver();
 
 		const auto getInfo = [](const JsonNode & node) {
 			auto & child = node.Struct();
@@ -327,7 +296,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 
 		for(const auto & node : configRequiredObjects.Struct())
 		{
-			LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, &getInfo](int primaryID)
+			resolver.requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, getInfo, &resolver](int primaryID)
 			{
 				if (node.second.isNumber())
 				{
@@ -349,7 +318,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 								//FIXME: core:artifact is not resolved properly by requestIdentifierIfFound
 								jsonKey = "artifact";
 
-							LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID, subNode, &getInfo](int secondaryID)
+							resolver.requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID, subNode, getInfo](int secondaryID)
 							{
 								if(subNode.second.isNumber())
 									addRequiredObject(CompoundMapObjectID(primaryID, secondaryID), static_cast<ui16>(subNode.second.Integer()));

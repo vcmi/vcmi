@@ -52,15 +52,15 @@ class DLL_LINKAGE ResourceTypeHandler : public CHandlerBase<GameResID, ResourceT
 	std::vector<GameResID> allObjects;
 
 public:
-	std::shared_ptr<Resource> loadFromJson(const std::string & scope,
+	std::shared_ptr<Resource> loadFromJson(LibraryLoadContext & context, const std::string & scope,
 										const JsonNode & json,
 										const std::string & identifier,
 										size_t index) override;
 
-	void afterLoadFinalization() override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 	
 	const std::vector<std::string> & getTypeNames() const override;
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
 	const std::vector<GameResID> & getAllObjects() const;
 };

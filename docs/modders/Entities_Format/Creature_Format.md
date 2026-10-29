@@ -225,7 +225,7 @@ In order to make functional creature you also need:
 		{
 			// Bonus description
 			"bonus" : { BONUS_FORMAT },
-			// Per-level value of bonus. Must have 10 elements
+			// Value of bonus for stack experience ranks 1 to 10. Must have 10 elements
 			"values" : [
 				0, 0, 1, 1, 2, 2, 3, 3, 4, 4
 			]

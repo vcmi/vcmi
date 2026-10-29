@@ -100,6 +100,58 @@ enum class HotaScriptExpression : int32_t
 	HERO_OWNED_ARTIFACTS = 17
 };
 
+enum class HotaMessageImage : int32_t
+{
+	RESOURCE = 0,
+	ARTIFACT = 1,
+	SPELL = 2,
+	FLAG = 3,
+	LUCK = 4,
+	MORALE = 5,
+	EXPERIENCE = 6,
+	SECONDARY_SKILL = 7,
+	CREATURE = 8,
+	PRIMARY_SKILL = 9,
+	SPELL_POINTS = 10,
+	MOVEMENT_POINTS = 11,
+	RESOURCE_LOSS = 13,
+	RESOURCE_PER_DAY = 14,
+	SPELL_SCROLL = 15,
+	CREATURE_NO_COUNT = 17,
+	RESOURCE_NO_AMOUNT = 18,
+	PRIMARY_SKILL_ALT = 19,
+	TOWN_BUILDING = 1000 // offset by faction
+};
+
+enum class HotaQuestHintImage : int32_t
+{
+	ARTIFACT = 0,
+	SPELL = 1,
+	CREATURE = 2,
+	RESOURCE = 3,
+	SECONDARY_SKILL = 5,
+	HERO_LEVEL = 6,
+	FLAG = 7,
+	HERO_PORTRAIT = 8,
+	DEFEAT_HERO = 9,
+	DEFEAT_MONSTER = 10
+};
+
+enum class HotaChangeMode : int32_t
+{
+	ADD = 0,
+	SUBTRACT = 1,
+	SET = 2
+};
+
+enum class HotaQuestionMode : int32_t
+{
+	NO_IMAGES = 0,
+	NO_EXIT = 1,
+	CAN_EXIT = 2,
+	SPECIFY_IMAGES = 3
+};
+
 static std::string num(int64_t value)
 {
 	return std::to_string(value);
@@ -208,8 +260,8 @@ static const BucketTraits & bucketTraits(const std::string & bucket)
 	return object; // heroEvents, questEvents
 }
 
-/// Free helpers shared by every generated handler: player-sentinel resolution, HotA image
-/// triples to engine Component tables, the resource-set loop and the object-identity predicates.
+/// Free helpers shared by every generated handler: player-sentinel resolution, the resource-set
+/// loop and the object-identity predicates.
 static std::string helpersPrelude()
 {
 	// HotA addresses resources by index while the bindings take a resource handle, so the generated
@@ -223,15 +275,6 @@ static std::string helpersPrelude()
 local function resolvePlayer(player, eventPlayer)
 	if player < 0 then return eventPlayer end
 	return player
-end
-
--- Converts HotA image triples {kind, subtype, amount} to engine Component tables.
-local function toComponents(images)
-	local result = {}
-	for _, image in ipairs(images) do
-		result[#result + 1] = {type = image[1], subType = image[2], value = image[3]}
-	end
-	return result
 end
 
 -- Adds a whole resource set to a player; the amounts follow the engine resource order.
@@ -293,7 +336,7 @@ local function registerQuest(game, server, player, object, opts)
 		server:showMessage(player, opts.progression, {})
 	else
 		server:markQuestProposed(object, player)
-		server:setQuestHintText(object, opts.hint)
+		server:setQuestHint(object, opts.hint)
 		server:addToQuestLog(object, player)
 		server:showMessage(player, opts.proposal, {})
 	end
@@ -301,9 +344,8 @@ end
 
 -- Updates a scripted quest's quest-log / hover hint text, optionally adding it to the player's
 -- quest log (HotA's SET_QUEST_HINT action).
--- TODO: `images` is ignored - a quest-log hint has no engine-side component list yet.
-local function setQuestHint(server, player, object, text, images, showInLog)
-	server:setQuestHintText(object, text)
+local function setQuestHint(server, player, object, text, components, showInLog)
+	server:setQuestHint(object, text, components)
 	if showInLog then server:addToQuestLog(object, player) end
 end
 
@@ -468,21 +510,195 @@ std::string HotaScriptConverter::localizedText(const std::string & role)
 	return "{append = {\"" + localizeString(identifier) + "\"}}";
 }
 
-std::string HotaScriptConverter::loadImageList(int count)
+/// Invalid identifiers were already reported by the reader, such image is dropped
+template<typename IdentifierType>
+static std::string componentFields(const std::string & type, const IdentifierType & subType)
+{
+	if(subType.getNum() < 0)
+		return {};
+	return "type = ENUM.ComponentType." + type + ", subType = " + num(subType.getNum());
+}
+
+/// Image of a message or question. HotA kinds do not match engine component types,
+/// and the meaning of the subtype depends on the kind.
+HotaScriptConverter::ImageInfo HotaScriptConverter::loadMessageImage(int kind)
+{
+	ImageInfo image;
+	const auto type = static_cast<HotaMessageImage>(kind);
+	switch(type)
+	{
+		case HotaMessageImage::RESOURCE:
+		case HotaMessageImage::RESOURCE_LOSS:
+		case HotaMessageImage::RESOURCE_NO_AMOUNT:
+			image.component = componentFields("resource", reader.readGameResID32());
+			image.sign = type == HotaMessageImage::RESOURCE_LOSS ? -1 : 1;
+			image.hasValue = type != HotaMessageImage::RESOURCE_NO_AMOUNT;
+			break;
+		case HotaMessageImage::RESOURCE_PER_DAY:
+			image.component = componentFields("resourcePerDay", reader.readGameResID32());
+			break;
+		case HotaMessageImage::ARTIFACT:
+			image.component = componentFields("artifact", reader.readArtifact32());
+			image.hasValue = false;
+			break;
+		case HotaMessageImage::SPELL:
+			image.component = componentFields("spell", reader.readSpell32());
+			image.hasValue = false;
+			break;
+		case HotaMessageImage::FLAG:
+		{
+			PlayerColor player = reader.readPlayer32();
+			if(player.isValidPlayer())
+				image.component = "type = ENUM.ComponentType.flag, subType = " + playerRef(player);
+			image.hasValue = false;
+			break;
+		}
+		case HotaMessageImage::LUCK: // luck and morale keep their value in the subtype
+		case HotaMessageImage::MORALE:
+			image.valueOverride = reader.readInt32();
+			image.component = std::string("type = ENUM.ComponentType.") + (type == HotaMessageImage::LUCK ? "luck" : "morale");
+			break;
+		case HotaMessageImage::EXPERIENCE:
+			reader.readInt32();
+			image.component = "type = ENUM.ComponentType.experience";
+			break;
+		case HotaMessageImage::SECONDARY_SKILL: // amount is the mastery level
+			image.component = componentFields("secondarySkill", reader.readSkill32());
+			break;
+		case HotaMessageImage::CREATURE:
+		case HotaMessageImage::CREATURE_NO_COUNT:
+			image.component = componentFields("creature", reader.readCreature32());
+			image.hasValue = type == HotaMessageImage::CREATURE;
+			break;
+		case HotaMessageImage::PRIMARY_SKILL:
+		case HotaMessageImage::PRIMARY_SKILL_ALT:
+			image.component = componentFields("primarySkill", reader.readPrimary32());
+			break;
+		case HotaMessageImage::SPELL_POINTS:
+			image.sign = reader.readInt32() < 0 ? -1 : 1;
+			image.component = "type = ENUM.ComponentType.mana";
+			break;
+		case HotaMessageImage::SPELL_SCROLL:
+			image.component = componentFields("spellScroll", reader.readSpell32());
+			image.hasValue = false;
+			break;
+		default:
+			if(type >= HotaMessageImage::TOWN_BUILDING)
+			{
+				FactionID faction = reader.toFaction(kind - static_cast<int>(HotaMessageImage::TOWN_BUILDING));
+				BuildingID building = reader.readBuilding32(faction);
+				if(faction.getNum() >= 0 && building.getNum() >= 0)
+					image.component = componentFields("building", building) + ", faction = " + num(faction.getNum());
+				image.hasValue = false;
+			}
+			else
+			{
+				// TODO: movement points (subtype +1/-1 is the sign), engine has no component for it
+				reader.readInt32();
+				if(type != HotaMessageImage::MOVEMENT_POINTS)
+					logGlobal->warn("Map '%s', %s id %d: unknown message image kind %d", mapName, currentBucket, currentEventID, kind);
+			}
+			break;
+	}
+
+	return image;
+}
+
+/// Image of a quest hint, which numbers its kinds after the quest missions rather than message images
+HotaScriptConverter::ImageInfo HotaScriptConverter::loadQuestHintImage(int kind)
+{
+	ImageInfo image;
+
+	const auto type = static_cast<HotaQuestHintImage>(kind);
+	switch(type)
+	{
+		case HotaQuestHintImage::ARTIFACT:
+			image.component = componentFields("artifact", reader.readArtifact32());
+			image.hasValue = false;
+			break;
+		case HotaQuestHintImage::SPELL:
+			image.component = componentFields("spell", reader.readSpell32());
+			image.hasValue = false;
+			break;
+		case HotaQuestHintImage::CREATURE: // amount is the creature count
+			image.component = componentFields("creature", reader.readCreature32());
+			break;
+		case HotaQuestHintImage::RESOURCE:
+			image.component = componentFields("resource", reader.readGameResID32());
+			break;
+		case HotaQuestHintImage::SECONDARY_SKILL: // amount is the mastery level
+			image.component = componentFields("secondarySkill", reader.readSkill32());
+			break;
+		case HotaQuestHintImage::HERO_LEVEL: // amount is the hero level, shown the way level missions of seer huts are
+			reader.readInt32();
+			image.component = "type = ENUM.ComponentType.experience";
+			break;
+		case HotaQuestHintImage::FLAG:
+		{
+			PlayerColor player = reader.readPlayer32();
+			if(player.isValidPlayer())
+				image.component = "type = ENUM.ComponentType.flag, subType = " + playerRef(player);
+			image.hasValue = false;
+			break;
+		}
+		case HotaQuestHintImage::HERO_PORTRAIT:
+			image.component = componentFields("heroPortrait", reader.readHero32());
+			image.hasValue = false;
+			break;
+		default:
+			// TODO: hero and monster to defeat are named by map object identifier; kind 4 was not seen in any map so far
+			reader.readInt32();
+			if(type != HotaQuestHintImage::DEFEAT_HERO && type != HotaQuestHintImage::DEFEAT_MONSTER)
+				logGlobal->warn("Map '%s', %s id %d: unknown quest hint image kind %d", mapName, currentBucket, currentEventID, kind);
+			break;
+	}
+	return image;
+}
+
+std::string HotaScriptConverter::loadImage(bool questHint)
+{
+	const int kind = reader.readInt32();
+	const ImageInfo image = questHint ? loadQuestHintImage(kind) : loadMessageImage(kind);
+
+	bool isVariable = reader.readBool();
+	int value = reader.readInt32();
+
+	if(image.component.empty())
+		return {};
+
+	if(image.valueOverride)
+		return "{" + image.component + ", value = " + num(*image.valueOverride) + "}";
+
+	if(!image.hasValue)
+		return "{" + image.component + "}";
+
+	if(!isVariable)
+		return "{" + image.component + ", value = " + num(image.sign * static_cast<int64_t>(value)) + "}";
+
+	std::string variable = "game:getMapVariable(" + varRef(value) + ")";
+	return "{" + image.component + ", value = " + (image.sign < 0 ? "-" + variable : variable) + "}";
+}
+
+std::string HotaScriptConverter::loadImageList(int count, bool questHint)
 {
 	std::string result;
 	for(int i = 0; i < count; ++i)
 	{
-		int imageType = reader.readInt32();
-		int imageSubtype = reader.readInt32();
-		bool isVariable = reader.readBool();
-		int value = reader.readInt32();
-		std::string amount = isVariable ? "game:getMapVariable(" + varRef(value) + ")" : num(value);
-		if(i != 0)
+		std::string image = loadImage(questHint);
+		if(image.empty())
+			continue;
+		if(!result.empty())
 			result += ", ";
-		result += "{" + num(imageType) + ", " + num(imageSubtype) + ", " + amount + "}";
+		result += image;
 	}
-	return result;
+	return "{" + result + "}";
+}
+
+void HotaScriptConverter::skipImageList(int count)
+{
+	// kind, subtype, isVariable, amount
+	for(int i = 0; i < count; ++i)
+		reader.skipUnused(4 + 4 + 1 + 4);
 }
 
 std::string HotaScriptConverter::loadActions(int indent)
@@ -504,8 +720,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 			{
 				std::string text = localizedText("message");
 				int numberOfImages = reader.readInt32();
-				std::string images = loadImageList(numberOfImages);
-				result += pad + "server:showMessage(player, " + text + ", toComponents({" + images + "}))\n";
+				result += pad + "server:showMessage(player, " + text + ", " + loadImageList(numberOfImages, false) + ")\n";
 				break;
 			}
 			case HotaScriptActions::SHOW_REWARDS_MESSAGE:
@@ -593,43 +808,42 @@ std::string HotaScriptConverter::loadActions(int indent)
 			{
 				std::string text = localizedText("questHint");
 				int numberOfImages = reader.readInt32();
-				std::string images = loadImageList(numberOfImages);
+				std::string components = loadImageList(numberOfImages, true);
 				bool showInLog = reader.readBool();
-				result += pad + "setQuestHint(server, player, " + bucketTraits(currentBucket).subject + ", " + text + ", toComponents({" + images + "}), " + boolStr(showInLog) + ")\n";
+				result += pad + "setQuestHint(server, player, " + bucketTraits(currentBucket).subject + ", " + text + ", " + components + ", " + boolStr(showInLog) + ")\n";
 				break;
 			}
 			case HotaScriptActions::SHOW_QUESTION:
 			{
-				// 0 = no images, 1 = no exit, 2 = can exit, 3 = specify images
-				int mode = reader.readInt8();
+				auto mode = static_cast<HotaQuestionMode>(reader.readInt8());
 				std::string text = localizedText("question");
 				std::string onYes = loadActions(indent + 2);
 				std::string onNo = loadActions(indent + 2);
 				std::string onCancel;
-				bool hasCancel = mode == 2;
+				bool hasCancel = mode == HotaQuestionMode::CAN_EXIT;
 				if(hasCancel)
 					onCancel = loadActions(indent + 2);
 
 				int numberOfImages = 2;
-				if(mode == 0 || mode == 3)
+				if(mode == HotaQuestionMode::NO_IMAGES || mode == HotaQuestionMode::SPECIFY_IMAGES)
 					numberOfImages = reader.readInt32();
-				std::string images = loadImageList(numberOfImages);
+				std::string components = loadImageList(numberOfImages, false);
 
-				if(mode == 1 || mode == 2)
+				if(mode == HotaQuestionMode::NO_EXIT || mode == HotaQuestionMode::CAN_EXIT)
 				{
 					reader.readBool(); // show OR between images
 					// TODO: images shown besides the two choices, unclear where HotA displays them
 					int extraImagesCount = reader.readInt32();
 					if(extraImagesCount != 0)
 					{
-						loadImageList(extraImagesCount);
+						skipImageList(extraImagesCount);
 						logGlobal->warn("Map '%s': question with %d extra images is not implemented!", mapName, extraImagesCount);
 					}
 				}
 
 				result += pad + "server:showQuestion{\n";
 				result += inner + "text = " + text + ",\n";
-				result += inner + "images = {" + images + "},\n";
+				result += inner + "components = " + components + ",\n";
 				result += inner + "onYes = function()\n" + onYes + inner + "end,\n";
 				result += inner + "onNo = function()\n" + onNo + inner + "end,\n";
 				if(hasCancel)
@@ -802,7 +1016,7 @@ std::string HotaScriptConverter::loadActions(int indent)
 			}
 			case HotaScriptActions::RESOURCES:
 			{
-				int mode = reader.readInt8(); // 0 = give, 1 = take, 2 = set
+				auto mode = static_cast<HotaChangeMode>(reader.readInt8());
 				std::string amounts;
 				for(int i = 0; i < 7; ++i)
 				{
@@ -811,12 +1025,12 @@ std::string HotaScriptConverter::loadActions(int indent)
 					amounts += loadExpression();
 				}
 				reader.readBool(); // showMessage flag
-				if(mode == 2)
+				if(mode == HotaChangeMode::SET)
 					result += pad + "setResources(game, server, player, {" + amounts + "})\n";
-				else if(mode == 0 || mode == 1)
-					result += pad + "changeResources(server, player, {" + amounts + "}, " + (mode == 0 ? "1" : "-1") + ")\n";
+				else if(mode == HotaChangeMode::ADD || mode == HotaChangeMode::SUBTRACT)
+					result += pad + "changeResources(server, player, {" + amounts + "}, " + (mode == HotaChangeMode::ADD ? "1" : "-1") + ")\n";
 				else
-					throw unsupported("RESOURCES with mode " + num(mode));
+					throw unsupported("RESOURCES with mode " + num(static_cast<int>(mode)));
 				break;
 			}
 			case HotaScriptActions::PRIMARY_SKILL:
@@ -830,12 +1044,12 @@ std::string HotaScriptConverter::loadActions(int indent)
 			case HotaScriptActions::MODIFY_VARIABLE:
 			{
 				int variableID = reader.readInt32();
-				int mode = reader.readInt8(); // 0 = add, 1 = subtract, 2 = set
+				auto mode = static_cast<HotaChangeMode>(reader.readInt8());
 				std::string value = loadExpressionInternal();
 				std::string id = varRef(variableID);
-				if(mode == 0)
+				if(mode == HotaChangeMode::ADD)
 					result += pad + "server:setMapVariable(" + id + ", (game:getMapVariable(" + id + ") + " + value + "))\n";
-				else if(mode == 1)
+				else if(mode == HotaChangeMode::SUBTRACT)
 					result += pad + "server:setMapVariable(" + id + ", (game:getMapVariable(" + id + ") - " + value + "))\n";
 				else
 					result += pad + "server:setMapVariable(" + id + ", " + value + ")\n";

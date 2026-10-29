@@ -25,8 +25,8 @@ protected:
 	T currentObject;
 	std::vector<T> treeRoute;
 
-	JsonTreeSerializer(const IInstanceResolver * instanceResolver_, T root, const bool saving_, const bool updating_):
-		JsonSerializeFormat(instanceResolver_, saving_, updating_),
+	JsonTreeSerializer(const IInstanceResolver * instanceResolver_, IIdentifierResolver * identifierResolver_, T root, const bool saving_):
+		JsonSerializeFormat(instanceResolver_, identifierResolver_, saving_),
 		currentObject(root)
 	{
 	}

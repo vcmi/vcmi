@@ -30,22 +30,22 @@ public:
 
 	~CArtHandler();
 
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
-	void afterLoadFinalization() override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 
 	std::set<ArtifactID> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	std::shared_ptr<CArtifact> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CArtifact> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
 
 private:
 	void addSlot(CArtifact * art, const std::string & slotID) const;
 	void loadSlots(CArtifact * art, const JsonNode & node) const;
 	void loadClass(CArtifact * art, const JsonNode & node) const;
 	void loadType(CArtifact * art, const JsonNode & node) const;
-	void loadComponents(CArtifact * art, const JsonNode & node);
+	void loadComponents(LibraryLoadContext & context, CArtifact * art, const JsonNode & node);
 };

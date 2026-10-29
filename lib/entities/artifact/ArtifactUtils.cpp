@@ -18,6 +18,8 @@
 
 #include "../../IGameSettings.h"
 #include "../../GameLibrary.h"
+#include "../../modding/IdentifierStorage.h"
+#include "../../modding/ModScope.h"
 #include "../../mapObjects/CGHeroInstance.h"
 #include "../../texts/CGeneralTextHandler.h"
 
@@ -204,8 +206,16 @@ DLL_LINKAGE bool ArtifactUtils::isBackpackFreeSlots(const CArtifactSet * target,
 		return false;
 }
 
+DLL_LINKAGE bool ArtifactUtils::isCombinationDisabled(const IGameSettings & settings, const ArtifactID & combinedArtifact)
+{
+	for(const auto & entry : settings.getValue(EGameSettings::ARTIFACTS_DISABLED_COMBINATIONS).Vector())
+		if(LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "artifact", entry.String(), true) == combinedArtifact.getNum())
+			return true;
+	return false;
+}
+
 DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
-	const CArtifactSet * artSet, const ArtifactID & aid, const bool onlyEquiped)
+	const IGameSettings & settings, const CArtifactSet * artSet, const ArtifactID & aid, const bool onlyEquiped)
 {
 	std::vector<const CArtifact*> arts;
 	const auto * art = aid.toArtifact();
@@ -215,6 +225,9 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 	for(const auto combinedArt : art->getPartOf())
 	{
 		assert(combinedArt->isCombined());
+		if(isCombinationDisabled(settings, combinedArt->getId()))
+			continue;
+
 		bool possible = true;
 		CArtifactFittingSet fittingSet(*artSet);
 		for(const auto part : combinedArt->getConstituents()) // check if all constituents are available

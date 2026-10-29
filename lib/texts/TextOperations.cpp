@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "TextOperations.h"
 
-#include "../GameLibrary.h"
 #include "CGeneralTextHandler.h"
 #include "Languages.h"
 #include "CConfigHandler.h"
@@ -331,7 +330,7 @@ static const std::locale & getLocale()
 	auto getLocale = []() -> std::locale
 	{
 #ifndef ENABLE_MINIMAL_LIB
-		const std::string & baseLocaleName = Languages::getLanguageOptions(LIBRARY->generaltexth->getPreferredLanguage()).localeName;
+		const std::string & baseLocaleName = Languages::getLanguageOptions(CGeneralTextHandler::getPreferredLanguage()).localeName;
 		const std::string fallbackLocale = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).localeName;
 
 		for (const auto & localeName : { baseLocaleName + ".UTF-8", baseLocaleName, fallbackLocale + ".UTF-8", fallbackLocale })

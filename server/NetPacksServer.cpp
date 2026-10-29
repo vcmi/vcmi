@@ -340,8 +340,10 @@ void ApplyGhNetPackVisitor::visitTradeOnMarketplace(TradeOnMarketplace & pack)
 		ResourceSet resources;
 		for(int i = 0; i < pack.r1.size(); ++i)
 		{
-			result &= gh.sendResources(pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<PlayerColor>());
-			resources[pack.r1[i].as<GameResID>()] = pack.val[i];
+			if(gh.sendResources(pack.val[i], pack.player, pack.r1[i].as<GameResID>(), pack.r2[i].as<PlayerColor>()))
+				resources[pack.r1[i].as<GameResID>()] = pack.val[i];
+			else
+				result = false;
 		}
 		
 		if(pack.r1.size())

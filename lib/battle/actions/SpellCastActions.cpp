@@ -361,7 +361,7 @@ bool RandomSpellAction::validate(const IGameInfoCallback & game, const CBattleIn
 
 	const battle::Target target = action.getTarget(&battle);
 	const battle::Unit * subject = target.size() == 1 ? getDestinationUnit(battle, target.front()) : nullptr;
-	if(!subject || subject == unit || !subject->alive() || subject->unitOwner() != unit->unitOwner())
+	if(!subject || subject == unit || !subject->alive() || battle.battleMatchOwner(unit, subject))
 	{
 		problem.add(MetaString::createFromRawString("Invalid target for random spellcaster!"));
 		return false;

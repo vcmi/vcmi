@@ -11,6 +11,8 @@
 
 #include "filesystem/ResourcePath.h"
 
+class CModHandler;
+
 /// Parser for any text files from H3
 class CLegacyConfigParser
 {
@@ -56,5 +58,5 @@ public:
 	/// end current line
 	bool endLine();
 
-	explicit CLegacyConfigParser(const TextPath & URI);
+	CLegacyConfigParser(const TextPath & URI, const CModHandler & modHandler);
 };

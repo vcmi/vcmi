@@ -163,7 +163,7 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 		luck[b] = std::make_shared<MoraleLuckBox>(false,  Rect(Point(212 + 490 * b, 39), Point(32, 32)), true);
 	}
 
-	quit = std::make_shared<CButton>(Point(732, 567), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[600], std::bind(&CExchangeWindow::close, this), EShortcut::GLOBAL_ACCEPT);
+	quit = std::make_shared<CButton>(Point(732, 567), AnimationPath::builtin("IOKAY.DEF"), LIBRARY->generaltexth->zelp[600], std::bind(&CExchangeWindow::close, this), EShortcut::GLOBAL_RETURN);
 	if(questionID.getNum() > 0)
 		quit->addCallback([=](){ GAME->interface()->cb->selectionMade(0, questionID); });
 

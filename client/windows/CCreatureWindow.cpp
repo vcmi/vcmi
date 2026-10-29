@@ -229,9 +229,10 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 
 	//spell effects
 	int printed=0; //how many effect pics have been printed
-	std::vector<SpellID> spells = battleStack->activeSpells();
-	for(SpellID effect : spells)
+	std::vector<SpellWithMasteryID> spells = battleStack->activeSpells();
+	for(SpellWithMasteryID spellWithMastery : spells)
 	{
+		SpellID effect = spellWithMastery.getSpellID();
 		const spells::Spell * spell = LIBRARY->spells()->getById(effect);
 
 		//not all effects have graphics (for eg. Acid Breath)
@@ -240,7 +241,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 
 		if (hasGraphics)
 		{
-			auto spellBonuses = battleStack->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)));
+			auto spellBonuses = battleStack->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellWithMastery)));
 			if (spellBonuses->empty())
 				throw std::runtime_error("Failed to find effects for spell " + effect.toSpell()->getJsonKey());
 
@@ -248,7 +249,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 			std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
 
 			MetaString spellText;
-			spellText.appendTextID(spell->getDescriptionTextID(0)); // TODO: select correct mastery level?
+			spellText.appendTextID(spell->getDescriptionTextID(spellWithMastery.getMastery()));
 			spellText.appendRawString("\n");
 			spellText.appendTextID(Languages::getPluralFormTextID( preferredLanguage, duration, "vcmi.battleResultsWindow.spellDurationRemaining"));
 			spellText.replaceNumber(duration);
@@ -394,10 +395,8 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 			auto onClick = [totalCost, onUpgrade]()
 			{
 				std::vector<std::shared_ptr<CComponent>> resComps;
-				for(TResources::nziterator i(totalCost); i.valid(); i++)
-				{
-					resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
-				}
+				for(const auto & [resource, amount] : totalCost.nonZeroEntries())
+					resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, resource, amount));
 
 				if(GAME->interface()->cb->getResourceAmount().canAfford(totalCost))
 				{

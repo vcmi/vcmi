@@ -158,7 +158,8 @@ static void showEagleEyeLearnedSpellsDialog(CClient & cl, ObjectInstanceID heroI
 
 	const auto * hero = cl.gameInfo().getHero(heroId);
 	assert(hero);
-	callInterfaceIfPresent(cl, player, &CGameInterface::showInfoDialog, EInfoWindowMode::AUTO, UIHelper::getEagleEyeInfoWindowText(*hero, spells), UIHelper::getSpellsComponents(spells), soundBase::soundID(0));
+	// spells learned at the start of a battle arrive with the battle window already open, which hides the info bar
+	callInterfaceIfPresent(cl, player, &CGameInterface::showInfoDialog, EInfoWindowMode::MODAL, UIHelper::getEagleEyeInfoWindowText(*hero, spells), UIHelper::getSpellsComponents(spells), soundBase::soundID(0));
 }
 
 void ApplyClientNetPackVisitor::visitSetResources(SetResources & pack)
@@ -837,20 +838,10 @@ void ApplyClientNetPackVisitor::visitBattleSetActiveStack(BattleSetActiveStack &
 	if(pack.reason == BattleUnitTurnReason::AUTOMATIC_ACTION)
 		return;
 
-	const CStack *activated = gs.getBattle(pack.battleID)->battleGetStackByID(pack.stack);
-	PlayerColor playerToCall; //pack.player that will move activated stack
-	if(activated->isHypnotized())
-	{
-		playerToCall = gs.getBattle(pack.battleID)->getSide(BattleSide::ATTACKER).color == activated->unitOwner()
-			? gs.getBattle(pack.battleID)->getSide(BattleSide::DEFENDER).color
-			: gs.getBattle(pack.battleID)->getSide(BattleSide::ATTACKER).color;
-	}
-	else
-	{
-		playerToCall = activated->unitOwner();
-	}
+	const auto * battle = gs.getBattle(pack.battleID);
+	const CStack * activated = battle->battleGetStackByID(pack.stack);
 
-	cl.startPlayerBattleAction(pack.battleID, playerToCall);
+	cl.startPlayerBattleAction(pack.battleID, battle->battleGetOwner(activated));
 }
 
 void ApplyClientNetPackVisitor::visitBattleLogMessage(BattleLogMessage & pack)

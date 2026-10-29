@@ -425,7 +425,7 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 
 	bool canUseGate = false;
 	auto dbState = battle.battleGetGateState();
-	if(battle.battleGetFortifications().wallsHealth > 0 && currentUnit->unitSide() == BattleSide::DEFENDER &&
+	if(battle.battleGetFortifications().wallsHealth > 0 && currentUnit->controllingSide() == BattleSide::DEFENDER &&
 		dbState != EGateState::DESTROYED &&
 		dbState != EGateState::BLOCKED)
 	{
@@ -440,10 +440,13 @@ BattleActionProcessor::MovementResult BattleActionProcessor::moveStack(const CBa
 	if (battle.battleGetTacticDist() > 0 && unitMovementRange > 0)
 		unitMovementRange = GameConstants::BFIELD_SIZE;
 
+	logGlobal->trace("%s moves from %d to %d, distance %d, movement range %d, path from destination: %s",
+		currentUnit->getDescription(), start.toInt(), dest.toInt(), pathDistance, unitMovementRange, unitPath.toString());
+
 	if (pathDistance > unitMovementRange)
 	{
-		gameHandler->complain(boost::str(boost::format("Given destination is not reachable! %s can not move from %d to %d: distance %d, movement range %d")
-			% currentUnit->getDescription() % start.toInt() % dest.toInt() % pathDistance % unitMovementRange));
+		gameHandler->complain(boost::str(boost::format("Given destination is not reachable! %s can not move from %d to %d: distance %d, movement range %d, path from destination: %s")
+			% currentUnit->getDescription() % start.toInt() % dest.toInt() % pathDistance % unitMovementRange % unitPath.toString()));
 		return moveEnded({ 0, false, true });
 	}
 
@@ -978,7 +981,10 @@ std::set<SpellID> BattleActionProcessor::getSpellsForAttackCasting(const TConstB
 		bool areCurrentLayerSpellsApplied = std::all_of(item.second.begin(), item.second.end(),
 			[&](const std::shared_ptr<Bonus> spell)
 			{
-				std::vector<SpellID> activeSpells = defender->activeSpells();
+				std::vector<SpellWithMasteryID> activeCasts = defender->activeSpells();
+				std::vector<SpellID> activeSpells;
+				for (const SpellWithMasteryID & cast : activeCasts)
+					activeSpells.push_back(cast.getSpellID());
 				return vstd::find(activeSpells, spell->subtype.as<SpellID>()) != activeSpells.end();
 			});
 
