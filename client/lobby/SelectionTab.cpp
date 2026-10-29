@@ -1149,29 +1149,6 @@ bool SelectionTab::checkNameFilter(const std::string & fullstring) const
 					   [](char a, char b) -> bool {return std::tolower(a) == std::tolower(b);}) != fullstring.end();
 }
 
-static const JsonNode & getMapFormatSettings(EMapFormat format)
-{
-	switch(format)
-	{
-		case EMapFormat::ROE:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA);
-		case EMapFormat::AB:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE);
-		case EMapFormat::SOD:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH);
-		case EMapFormat::CHR:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES);
-		case EMapFormat::WOG:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS);
-		case EMapFormat::HOTA:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS);
-		case EMapFormat::VCMI:
-			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI);
-	}
-	static const JsonNode unknownFormat;
-	return unknownFormat;
-}
-
 static std::string getMapSizeName(int width)
 {
 	switch(width)
@@ -1197,7 +1174,7 @@ static std::string getMapSizeName(int width)
 
 bool SelectionTab::isMapSupported(const ScenarioListEntry & entry) const
 {
-	return getMapFormatSettings(entry.getMapFormat())["supported"].Bool();
+	return entry.getMapFormatSettings()["supported"].Bool();
 }
 
 bool SelectionTab::isMapCompatibleWithLobbyPlayerCount(const ElementInfo & info) const
@@ -1688,7 +1665,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		if(iconFormat)
 		{
 			iconFormat->enable();
-			iconFormat->setFrame(getMapFormatSettings(info->entry->getMapFormat())["iconIndex"].Integer());
+			iconFormat->setFrame(info->entry->getMapFormatSettings()["iconIndex"].Integer());
 		}
 		iconVictoryCondition->enable();
 		iconVictoryCondition->setFrame(info->entry->getVictoryIcon(), 0);

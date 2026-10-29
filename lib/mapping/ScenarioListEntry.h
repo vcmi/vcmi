@@ -46,6 +46,8 @@ public:
 	/// Returns 0 if creation time is unknown
 	std::time_t getMapCreationTime() const;
 	EMapFormat getMapFormat() const;
+	/// Returns settings of the map format from the engine settings, null node for unknown formats
+	const JsonNode & getMapFormatSettings() const;
 	int getMapWidth() const;
 	int getVictoryIcon() const;
 	int getDefeatIcon() const;
