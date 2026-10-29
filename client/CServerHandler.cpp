@@ -968,42 +968,12 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOCAL, {});
 		selection.type = ScenarioSelection::EType::MAP;
 	}
+	startScenarioAfterConnection(selection);
+
 	if(settings["session"]["donotstartserver"].Bool())
 		connectToServer(getLocalHostname(), getLocalPort());
 	else
 		startLocalServerAndConnect(false);
-
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-	while(!settings["session"]["headless"].Bool() && !ENGINE->windows().topWindow<CLobbyScreen>())
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-	// lobby screen selects the last map or save once it receives the list, so the selection is repeated until it is applied
-	const std::string expectedURI = save ? ResourcePath(filename, EResType::SAVEGAME).getName() : filename;
-	for(int i = 0; !mi || mi->fileURI != expectedURI; i++)
-	{
-		if(i % 20 == 0)
-			selectScenario(selection);
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-	}
-	// "Click" on color to remove us from it
-	setPlayer(myFirstColor());
-	while(myFirstColor() != PlayerColor::CANNOT_DETERMINE)
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-	while(true)
-	{
-		try
-		{
-			sendStartGame();
-			break;
-		}
-		catch(...)
-		{
-
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-	}
 }
 
 class ServerHandlerCPackVisitor : public ::ICPackVisitor

@@ -228,6 +228,13 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState &
 	handler.installLobbyTexts();
 	if(handler.scenarioToStart && handler.mi)
 	{
+		// debug test games are played by AI only, so the player of this client leaves its color first
+		if(settings["session"]["onlyai"].Bool() && handler.myFirstColor() != PlayerColor::CANNOT_DETERMINE)
+		{
+			handler.setPlayer(handler.myFirstColor());
+			return;
+		}
+
 		handler.scenarioToStart.reset();
 		handler.sendStartGame();
 	}
