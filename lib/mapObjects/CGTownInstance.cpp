@@ -398,7 +398,7 @@ MetaString CGTownInstance::getObjectName() const
 
 	MetaString result = MetaString::createFromTextID(getNameTextID());
 	result.appendRawString(", ");
-	result.appendTextID(getTown()->faction->getNameTextID());
+	result.appendTextID(getTown()->getFaction()->getNameTextID());
 	return result;
 }
 
@@ -651,7 +651,7 @@ void CGTownInstance::clearArmy(IGameEventCallback & gameEvents) const
 
 BoatId CGTownInstance::getBoatType() const
 {
-	return getTown()->faction->boatType;
+	return getTown()->getFaction()->boatType;
 }
 
 int CGTownInstance::getMarketEfficiency() const
@@ -1170,13 +1170,13 @@ FactionID CGTownInstance::getFactionID() const
 
 bool CGTownInstance::isNativeTerrain(TerrainId terrain) const
 {
-	return getTown()->faction->isNativeTerrain(terrain);
+	return getTown()->getFaction()->isNativeTerrain(terrain);
 }
 
 TerrainId CGTownInstance::getBattleTerrain() const
 {
 	// a siege takes place on the town's native terrain; NONE falls back to the map tile terrain
-	const auto & nativeTerrains = getTown()->faction->nativeTerrains;
+	const auto & nativeTerrains = getTown()->getFaction()->nativeTerrains;
 	if(nativeTerrains.empty())
 		return TerrainId::NONE;
 

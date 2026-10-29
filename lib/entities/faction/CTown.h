@@ -40,6 +40,7 @@ class DLL_LINKAGE CTown : boost::noncopyable
 {
 	friend class CTownHandler;
 	size_t namesCount = 0;
+	CFaction * faction;
 
 public:
 	CTown();
@@ -52,8 +53,7 @@ public:
 
 	std::string getRandomNameTextID(size_t index) const;
 	size_t getRandomNamesCount() const;
-
-	CFaction * faction;
+	const CFaction * getFaction() const;
 
 	/// level -> list of creatures on this tier
 	std::vector<std::vector<CreatureID> > creatures;

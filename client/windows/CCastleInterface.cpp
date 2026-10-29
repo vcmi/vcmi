@@ -308,7 +308,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 	if (!bid.isDwelling())
 	{
 		CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
-									std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(bld->town->faction->getId(), bld->bid)));
+									std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(bld->town->getFaction()->getId(), bld->bid)));
 	}
 	else
 	{
@@ -1513,7 +1513,7 @@ void CTownInfo::showPopupWindow(const Point & cursorPosition)
 {
 	if(building)
 	{
-		auto c =  std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(building->town->faction->getId(), building->bid));
+		auto c =  std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(building->town->getFaction()->getId(), building->bid));
 		CRClickPopup::createAndPush(CInfoWindow::genText(building->getNameTranslated(), building->getDescriptionTranslated()), c);
 	}
 }
@@ -1736,7 +1736,7 @@ void CCastleInterface::recreateIcons()
 
 	fastMarket = std::make_shared<LRClickableArea>(Rect(163, 410, 64, 42), [this]() { builds->enterAnyMarket(); });
 	{
-		const std::string factionKey = town->getTown()->faction->getJsonKey();
+		const std::string factionKey = town->getTown()->getFaction()->getJsonKey();
 		fastWiki = std::make_shared<LRClickableArea>(Rect(15, 387, 58, 64), [factionKey]()
 		{
 			ENGINE->windows().createAndPushWindow<WikiWindow>(
@@ -1843,7 +1843,7 @@ void CCastleInterface::keyPressed(EShortcut key)
 	case EShortcut::ADVENTURE_OPEN_WIKI:
 		ENGINE->windows().createAndPushWindow<WikiWindow>(
 			WikiWindow::Style::BROWN,
-			WikiEntryKey{WikiCategory::TOWN, town->getTown()->faction->getJsonKey()});
+			WikiEntryKey{WikiCategory::TOWN, town->getTown()->getFaction()->getJsonKey()});
 		break;
 	default:
 		break;

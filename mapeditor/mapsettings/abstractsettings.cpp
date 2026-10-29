@@ -57,7 +57,7 @@ std::string AbstractSettings::getTownName(const CMap & map, int objectIdx)
 		name = Translator::instance().translate(town->getNameTextID());
 		
 		if(name.empty())
-			name = town->getTown()->faction->getNameTranslated();
+			name = town->getTown()->getFaction()->getNameTranslated();
 	}
 	return name;
 }

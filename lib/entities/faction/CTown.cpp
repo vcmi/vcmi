@@ -32,6 +32,11 @@ size_t CTown::getRandomNamesCount() const
 	return namesCount;
 }
 
+const CFaction * CTown::getFaction() const
+{
+	return faction;
+}
+
 std::string CTown::getBuildingScope() const
 {
 	if(faction == nullptr)

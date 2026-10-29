@@ -1208,7 +1208,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, BuildingID bu
 
 	if(auto town = dynamic_cast<const CGTownInstance *>(_market))
 	{
-		auto faction = town->getTown()->faction->getId();
+		auto faction = town->getTown()->getFaction()->getId();
 		titlePic = std::make_shared<CAnimImage>(faction.toFaction()->town->clientInfo.buildingsIcons, building.getNum());
 	}
 	else if(auto uni = dynamic_cast<const CGUniversity *>(_market); uni->appearance)
