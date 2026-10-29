@@ -21,6 +21,7 @@
 #include "../filesystem/Filesystem.h"
 #include "../GameLibrary.h"
 #include "../rmg/CMapGenOptions.h"
+#include "../rmg/CRmgTemplate.h"
 #include "../serializer/CLegacyLoadFile.h"
 #include "../serializer/CLoadFile.h"
 #include "../serializer/CMemorySerializer.h"
@@ -95,6 +96,58 @@ void CMapInfo::campaignInit()
 	campaign = CampaignHandler::getHeader(fileURI);
 	lastWrite = CResourceHandler::get()->getLastWriteTime(resource);
 	date = TextOperations::getFormattedDateTimeLocal(lastWrite);
+}
+
+void CMapInfo::randomMapInit(const CMapGenOptions & options)
+{
+	isRandomMap = true;
+	mapHeader = std::make_unique<CMapHeader>();
+	mapHeader->version = EMapFormat::VCMI;
+	mapHeader->name = options.getMapName();
+	mapHeader->description.appendTextID("core.genrltxt.741");
+
+	if(options.getWaterContent() != EWaterContent::RANDOM)
+		mapHeader->banWaterHeroes(options.getWaterContent() != EWaterContent::NONE);
+
+	const auto * temp = options.getMapTemplate();
+	if(temp)
+	{
+		if(!temp->getDescription().empty())
+		{
+			mapHeader->description.appendRawString("\n\n");
+			mapHeader->description.appendTextID(temp->getDescriptionTextID());
+		}
+
+		for(const auto & hero : temp->getBannedHeroes())
+			mapHeader->allowedHeroes.erase(hero);
+
+		for(const auto & hero : temp->getEnabledHeroes())
+			mapHeader->allowedHeroes.insert(hero);
+	}
+
+	mapHeader->difficulty = EMapDifficulty::NORMAL;
+	mapHeader->height = options.getHeight();
+	mapHeader->width = options.getWidth();
+	mapHeader->mapLayers = options.getLevelMapLayers();
+	mapHeader->howManyTeams = options.getMaxPlayersCount();
+
+	for(auto & player : mapHeader->players)
+	{
+		player.canComputerPlay = false;
+		player.canHumanPlay = false;
+	}
+
+	for(const auto & [color, settings] : options.getPlayersSettings())
+	{
+		PlayerInfo playerInfo;
+		playerInfo.isFactionRandom = settings.getStartingTown() == FactionID::RANDOM;
+		playerInfo.canComputerPlay = settings.getPlayerType() != EPlayerType::HUMAN;
+		playerInfo.canHumanPlay = settings.getPlayerType() != EPlayerType::COMP_ONLY;
+		playerInfo.team = settings.getTeam();
+		playerInfo.hasMainTown = true;
+		playerInfo.generateHeroAtMainTown = true;
+		mapHeader->players[color.getNum()] = playerInfo;
+	}
 }
 
 std::string CMapInfo::getNameTranslated(const ITranslator * translator) const
