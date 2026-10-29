@@ -53,4 +53,19 @@ TEST_F(FilesystemTest, RemovesResourceAndUpdatesIndex)
 	EXPECT_FALSE(boost::filesystem::exists(getDirectory() / "example.txt"));
 }
 
+TEST_F(FilesystemTest, DoesNotCreateResourceOutsideOfDirectory)
+{
+	const auto loaderDirectory = getDirectory() / "loader";
+	ASSERT_TRUE(boost::filesystem::create_directory(loaderDirectory));
+	CFilesystemLoader loader("Test/", loaderDirectory);
+
+	EXPECT_FALSE(loader.createResource("Test/../example.txt"));
+	EXPECT_FALSE(loader.createResource("Test/folder/../../example.txt"));
+	EXPECT_FALSE(loader.createResource("Test/" + (getDirectory() / "example.txt").string()));
+	EXPECT_FALSE(boost::filesystem::exists(getDirectory() / "example.txt"));
+
+	EXPECT_TRUE(loader.createResource("Test/folder/example.txt"));
+	EXPECT_TRUE(boost::filesystem::exists(loaderDirectory / "folder" / "example.txt"));
+}
+
 }

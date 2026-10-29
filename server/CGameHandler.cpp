@@ -1814,7 +1814,6 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 	logGlobal->info("Saving to %s", filename);
 	ResourcePath savePath(filename, EResType::SAVEGAME);
 	const auto savefname = savePath.getOriginalName() + ".vsgm1";
-	CResourceHandler::get("local")->createResource(savefname);
 
 	std::string filenameWithoutPath;
 	auto pos = filename.find_last_of("/\\");
@@ -1827,6 +1826,9 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 
 	try
 	{
+		if(!CResourceHandler::get("local")->createResource(savefname))
+			throw std::runtime_error("Failed to create save file " + savefname);
+
 		CMemorySerializer header;
 		gameState().saveHeader(header.oser);
 
