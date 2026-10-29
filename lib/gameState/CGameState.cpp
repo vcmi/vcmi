@@ -182,7 +182,7 @@ void CGameState::setSaveDirectory(const std::string & value)
 		initialOpts->campState->setSaveDirectory(value);
 }
 
-void CGameState::preInit(Services * newServices)
+void CGameState::preInit(const Services * newServices)
 {
 	services = newServices;
 }
