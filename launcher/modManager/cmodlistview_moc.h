@@ -13,7 +13,6 @@
 #include "../../lib/CConfigHandler.h"
 
 #include <QPointer>
-#include <atomic>
 
 namespace Ui
 {

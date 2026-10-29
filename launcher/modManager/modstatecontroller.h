@@ -11,8 +11,6 @@
 
 #include <QVector>
 
-#include <atomic>
-
 class JsonNode;
 
 class ModStateModel;
