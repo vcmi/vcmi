@@ -109,7 +109,8 @@ class SelectionTab : public CIntObject
 	void sendDelete(const LobbyDelete & pack);
 	void setScenarioList(const ScenarioList & list);
 	void finishToggleMode(bool restoreSelection);
-	void requestLastSave();
+	/// Lists folder of the map or save last selected on the server and selects it
+	void requestLastSelection();
 	/// Selects file with this name if it is in the current folder
 	bool selectFileInCurrentFolder(const std::string & fname);
 	void selectFirstFile();

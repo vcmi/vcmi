@@ -13,7 +13,7 @@
 #include "CVCMIServer.h"
 #include "CGameHandler.h"
 #include "lobby/BattleOnlyMap.h"
-#include "lobby/LastSavedGames.h"
+#include "lobby/LastScenarios.h"
 #include "lobby/ScenarioListBuilder.h"
 
 #include "../lib/StartInfo.h"
@@ -282,6 +282,10 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 		message.message.replaceRawString(e.what());
 		connection->sendPack(message);
 	}
+
+	// tutorial and debug start select maps without listing them
+	if(mapInfo && pack.selection.type == ScenarioSelection::EType::MAP && srv.lastScenarioListRequest && srv.lastScenarioListRequest->type == ScenarioListEntry::EType::MAP)
+		LastScenarios::rememberMap(pack.selection.fileURI);
 
 	srv.updateStartInfoOnMapChange(mapInfo, pack.mapGenOpts);
 
@@ -579,15 +583,17 @@ void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScen
 {
 	const ScenarioListBuilder builder(pack.type, pack.loadMode);
 	LobbyScenarioList reply;
-	if(pack.selectLastSave && pack.type == ScenarioListEntry::EType::SAVE)
-		reply.list = builder.buildForSave(LastSavedGames::get(pack.loadMode), reply.selectedFile);
+	if(pack.selectLast && pack.type == ScenarioListEntry::EType::MAP)
+		reply.list = builder.buildForMap(LastScenarios::getMap(), reply.selectedFile);
+	else if(pack.selectLast)
+		reply.list = builder.buildForSave(LastScenarios::getSave(pack.loadMode), reply.selectedFile);
 	else
 		reply.list = builder.build(pack.folder);
 	connection->sendPack(reply);
 
 	srv.lastScenarioListRequest = pack;
 	srv.lastScenarioListRequest->folder = reply.list.folder;
-	srv.lastScenarioListRequest->selectLastSave = false;
+	srv.lastScenarioListRequest->selectLast = false;
 	result = false;
 }
 

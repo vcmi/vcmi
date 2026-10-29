@@ -105,22 +105,41 @@ static const ScenarioListEntry * findNewestEntry(const ScenarioList & list)
 	return result;
 }
 
-ScenarioList ScenarioListBuilder::buildForSave(const std::string & saveName, std::string & selectedFile) const
+std::optional<ScenarioList> ScenarioListBuilder::buildFolderOf(const std::string & fileName, std::string & selectedFile) const
 {
-	if(!saveName.empty())
-	{
-		auto list = build(ScenarioList::getFolderOf(saveName));
+	if(fileName.empty())
+		return std::nullopt;
 
-		const ResourcePath save(saveName, EResType::SAVEGAME);
-		for(const auto & entry : list.entries)
+	const std::string folder = ScenarioList::getFolderOf(fileName);
+
+	// random maps are selected in the random map tab, so their folder is not opened in the list of maps
+	if(type == ScenarioListEntry::EType::MAP && boost::algorithm::iequals(folder, "RandomMaps/"))
+		return std::nullopt;
+
+	auto list = build(folder);
+	const ResourcePath file(fileName, type == ScenarioListEntry::EType::MAP ? EResType::MAP : EResType::SAVEGAME);
+	for(const auto & entry : list.entries)
+	{
+		if(entry.fileURI == file.getName())
 		{
-			if(entry.fileURI == save.getName())
-			{
-				selectedFile = entry.fileURI;
-				return list;
-			}
+			selectedFile = entry.fileURI;
+			return list;
 		}
 	}
+	return std::nullopt;
+}
+
+ScenarioList ScenarioListBuilder::buildForMap(const std::string & mapName, std::string & selectedFile) const
+{
+	if(auto list = buildFolderOf(mapName, selectedFile))
+		return *list;
+	return build("");
+}
+
+ScenarioList ScenarioListBuilder::buildForSave(const std::string & saveName, std::string & selectedFile) const
+{
+	if(auto list = buildFolderOf(saveName, selectedFile))
+		return *list;
 
 	auto root = build("");
 

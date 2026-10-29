@@ -391,8 +391,8 @@ void SelectionTab::toggleMode()
 			break;
 		}
 
-		if(tabType == ESelectionScreen::loadGame && restoreSelection)
-			requestLastSave();
+		if(tabType != ESelectionScreen::campaignList && restoreSelection)
+			requestLastSelection();
 		else
 			openFolder(curFolder, [this, restoreSelection](){ finishToggleMode(restoreSelection); });
 	}
@@ -440,14 +440,21 @@ void SelectionTab::openFolder(const std::string & folder, const std::function<vo
 	sendListRequest(request, [onOpened](const LobbyScenarioList &){ onOpened(); });
 }
 
-void SelectionTab::requestLastSave()
+void SelectionTab::requestLastSelection()
 {
 	LobbyRequestScenarioList request;
-	request.selectLastSave = true;
+	request.selectLast = true;
 	sendListRequest(request, [this](const LobbyScenarioList & pack)
 	{
 		filter(0);
-		if(pack.selectedFile.empty() || !selectFileInCurrentFolder(pack.selectedFile))
+		if(!pack.selectedFile.empty() && selectFileInCurrentFolder(pack.selectedFile))
+			return;
+
+		if(tabType == ESelectionScreen::newGame)
+		{
+			selectFirstFile();
+		}
+		else
 		{
 			selectionPos = curItems.size();
 			notifySelection(nullptr);
@@ -931,10 +938,6 @@ void SelectionTab::selectFileName(const std::string & fname)
 {
 	const std::string folder = ScenarioList::getFolderOf(fname);
 
-	// Keep scenario selection on the root list: random maps are accessed via dedicated UI path.
-	if(tabType == ESelectionScreen::newGame && boost::algorithm::iequals(folder, "RandomMaps/"))
-		folder.clear();
-
 	if(boost::algorithm::iequals(folder, curFolder))
 	{
 		if(!selectFileInCurrentFolder(fname))
@@ -1052,13 +1055,8 @@ void SelectionTab::rememberCurrentSelection()
 	if(!selectedMapInfo)
 		return;
 		
-	// TODO: this can be more elegant
-	if(tabType == ESelectionScreen::newGame)
-	{
-		Settings lastMap = settings.write["general"]["lastMap"];
-		lastMap->String() = selectedMapInfo->fileURI;
-	}
-	else if(tabType == ESelectionScreen::campaignList)
+	// maps are remembered by the server once selected
+	if(tabType == ESelectionScreen::campaignList)
 	{
 		Settings lastCampaign = settings.write["general"]["lastCampaign"];
 		lastCampaign->String() = selectedMapInfo->fileURI;
@@ -1073,14 +1071,12 @@ void SelectionTab::restoreLastSelection()
 
 	switch(tabType)
 	{
-	case ESelectionScreen::newGame:
-		selectFileName(settings["general"]["lastMap"].String());
-		break;
 	case ESelectionScreen::campaignList:
 		selectFileName(settings["general"]["lastCampaign"].String());
 		break;
+	case ESelectionScreen::newGame:
 	case ESelectionScreen::loadGame:
-		requestLastSave();
+		requestLastSelection();
 		break;
 	case ESelectionScreen::saveGame:
 		selectNewestFile(true);

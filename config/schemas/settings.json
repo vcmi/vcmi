@@ -23,7 +23,6 @@
 				"music",
 				"sound",
 				"saveRandomMaps",
-				"lastMap",
 				"language",
 				"gameDataLanguage",
 				"lastSettingsTab",
@@ -69,10 +68,6 @@
 				"saveRandomMaps" : {
 					"type" : "boolean",
 					"default" : false
-				},
-				"lastMap" : {
-					"type" : "string",
-					"default" : "Maps/Arrogance"
 				},
 				"language" : {
 					"type" : "string",

@@ -1,5 +1,5 @@
 /*
- * LastSavedGames.cpp, part of VCMI engine
+ * LastScenarios.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "LastSavedGames.h"
+#include "LastScenarios.h"
 
 #include "ScenarioListBuilder.h"
 
@@ -35,7 +35,7 @@ static const std::map<ELoadMode, std::string> loadModeNames = {
 	{ ELoadMode::TUTORIAL, "tutorial" },
 };
 
-void LastSavedGames::remember(const ScenarioListEntry & entry)
+void LastScenarios::rememberSave(const ScenarioListEntry & entry)
 {
 	Settings lastSaves = getStorage().write["lastSaves"];
 	lastSaves["newest"].String() = entry.originalFileURI;
@@ -44,10 +44,22 @@ void LastSavedGames::remember(const ScenarioListEntry & entry)
 			lastSaves[name].String() = entry.originalFileURI;
 }
 
-std::string LastSavedGames::get(ELoadMode loadMode)
+std::string LastScenarios::getSave(ELoadMode loadMode)
 {
 	const auto name = loadModeNames.find(loadMode);
 	if(name == loadModeNames.end())
 		return {};
 	return getStorage()["lastSaves"][name->second].String();
+}
+
+void LastScenarios::rememberMap(const std::string & name)
+{
+	Settings lastMap = getStorage().write["lastMap"];
+	lastMap->String() = name;
+}
+
+std::string LastScenarios::getMap()
+{
+	const auto & lastMap = getStorage()["lastMap"];
+	return lastMap.isNull() ? "Maps/Arrogance" : lastMap.String();
 }

@@ -13,7 +13,7 @@
 #include "CGameHandler.h"
 #include "GlobalLobbyProcessor.h"
 #include "LobbyNetPackVisitors.h"
-#include "lobby/LastSavedGames.h"
+#include "lobby/LastScenarios.h"
 #include "processors/PlayerMessageProcessor.h"
 
 #include "../lib/CThreadHelper.h"
@@ -1199,7 +1199,7 @@ bool CVCMIServer::loadSavedGame(CGameHandler & handler, const StartInfo & info)
 	{
 		handler.load(info);
 		JsonValidator validator;
-		LastSavedGames::remember(ScenarioListEntry::fromSave(ResourcePath(info.mapname, EResType::SAVEGAME), validator));
+		LastScenarios::rememberSave(ScenarioListEntry::fromSave(ResourcePath(info.mapname, EResType::SAVEGAME), validator));
 	}
 	catch(const ModIncompatibility & e)
 	{

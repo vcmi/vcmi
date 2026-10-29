@@ -15,7 +15,7 @@
 #include "ServerNetPackVisitors.h"
 #include "ServerSpellCastEnvironment.h"
 #include "battles/BattleProcessor.h"
-#include "lobby/LastSavedGames.h"
+#include "lobby/LastScenarios.h"
 #include "processors/HeroPoolProcessor.h"
 #include "processors/NewTurnProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
@@ -1853,7 +1853,7 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 		save.write(saveFile);
 
 		pruneAutosaves(savePath, autosaveCountLimit);
-		LastSavedGames::remember(entry);
+		LastScenarios::rememberSave(entry);
 
 		if(playerToNotifyOnSuccess.isValidPlayer())
 		{

@@ -20,7 +20,7 @@ set(vcmiservercommon_SRCS
 		processors/TurnOrderProcessor.cpp
 
 		lobby/BattleOnlyMap.cpp
-		lobby/LastSavedGames.cpp
+		lobby/LastScenarios.cpp
 		lobby/ScenarioListBuilder.cpp
 
 		CGameHandler.cpp
@@ -55,7 +55,7 @@ set(vcmiservercommon_HEADERS
 		processors/TurnOrderProcessor.h
 
 		lobby/BattleOnlyMap.h
-		lobby/LastSavedGames.h
+		lobby/LastScenarios.h
 		lobby/ScenarioListBuilder.h
 
 		CGameHandler.h
