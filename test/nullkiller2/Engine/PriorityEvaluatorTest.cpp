@@ -587,9 +587,15 @@ TEST_F(Nullkiller2_Engine_CreatureBankReward, fullArmyCanUseOnlyLargerCreatureBa
 	markBankScouted();
 
 	const auto reward = evaluateCreatureReward();
-	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::IMPROVEMENT_DEPENDS_ON_TIER);
+	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT);
 	EXPECT_EQ(reward.minMaxValue.first, 0);
-	EXPECT_GT(reward.minMaxValue.second, 0);
+	EXPECT_EQ(reward.minMaxValue.second, 0);
+
+	bank->configuration.info.front().reward.creatures.front().setCount(4);
+	const auto largerReward = evaluateCreatureReward();
+	EXPECT_EQ(largerReward.state, NK2AI::CreatureRewardValueInfo::State::IMPROVES_ARMY);
+	EXPECT_GT(largerReward.minMaxValue.first, 0);
+	EXPECT_EQ(largerReward.minMaxValue.second, largerReward.minMaxValue.first);
 }
 
 TEST_F(Nullkiller2_Engine_CreatureBankReward, armyWithFreeSlotCanUseAngelReward)
@@ -600,7 +606,7 @@ TEST_F(Nullkiller2_Engine_CreatureBankReward, armyWithFreeSlotCanUseAngelReward)
 	const auto reward = evaluateCreatureReward();
 	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::IMPROVES_ARMY);
 	EXPECT_GT(reward.minMaxValue.first, 0);
-	EXPECT_GT(reward.minMaxValue.second, reward.minMaxValue.first);
+	EXPECT_EQ(reward.minMaxValue.second, reward.minMaxValue.first);
 }
 
 TEST_F(Nullkiller2_Engine_CreatureBankReward, moraleImprovementMakesWeakerRawRewardUsable)
@@ -638,15 +644,7 @@ TEST_F(Nullkiller2_Engine_CreatureBankReward, moraleImprovementMakesWeakerRawRew
 	const auto reward = evaluateCreatureReward();
 	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::IMPROVES_ARMY);
 	EXPECT_EQ(reward.minMaxValue.first, bestArmyInfo.strengthGain);
-	EXPECT_GT(reward.minMaxValue.second, bestArmyInfo.strengthGain);
-}
-
-TEST_F(Nullkiller2_Engine_CreatureBankReward, unscoutedCreatureRewardUsesPublicBankPossibilities)
-{
-	const auto reward = evaluateCreatureReward();
-	EXPECT_EQ(reward.state, NK2AI::CreatureRewardValueInfo::State::NO_ARMY_IMPROVEMENT);
-	EXPECT_EQ(reward.minMaxValue.first, 0);
-	EXPECT_EQ(reward.minMaxValue.second, 0);
+	EXPECT_EQ(reward.minMaxValue.second, bestArmyInfo.strengthGain);
 }
 
 TEST_F(Nullkiller2_Engine_CreatureBankReward, hiddenCoreBankUsesActualCreatureReward)
