@@ -12,6 +12,7 @@
 #include "IGameServer.h"
 
 #include "../lib/network/NetworkInterface.h"
+#include "../lib/networkPacks/PacksForLobby.h"
 #include "../lib/StartInfo.h"
 
 class CMapInfo;
@@ -76,6 +77,9 @@ public:
 
 	/// List of all active connections
 	std::vector<std::shared_ptr<GameConnection>> activeConnections;
+
+	/// Last list requested by the host, sent again after files are deleted
+	std::optional<LobbyRequestScenarioList> lastScenarioListRequest;
 
 	uint16_t prepare(bool connectToLobby, bool listenForConnections);
 

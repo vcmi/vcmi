@@ -465,6 +465,13 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 {
 	result = srv.isClientHost(connection->connectionID);
+
+	// list shown after deletion is the last one requested
+	if(!srv.lastScenarioListRequest)
+	{
+		logNetwork->error("Rejecting deletion of files before any list was requested");
+		result = false;
+	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack)
@@ -493,14 +500,18 @@ void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScen
 	else
 		reply.list = builder.build(pack.folder);
 	connection->sendPack(reply);
+
+	srv.lastScenarioListRequest = pack;
+	srv.lastScenarioListRequest->folder = reply.list.folder;
+	srv.lastScenarioListRequest->selectLastSave = false;
 	result = false;
 }
 
-void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
+static void deleteFile(LobbyDelete::EType type, const std::string & fileName)
 {
-	if(pack.type == LobbyDelete::EType::SAVEGAME || pack.type == LobbyDelete::EType::RANDOMMAP)
+	if(type == LobbyDelete::EType::SAVEGAME || type == LobbyDelete::EType::RANDOMMAP)
 	{
-		auto res = ResourcePath(pack.name, pack.type == LobbyDelete::EType::SAVEGAME ? EResType::SAVEGAME : EResType::MAP);
+		auto res = ResourcePath(fileName, type == LobbyDelete::EType::SAVEGAME ? EResType::SAVEGAME : EResType::MAP);
 		auto name = CResourceHandler::get()->getResourceName(res);
 		if (!name)
 		{
@@ -510,7 +521,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 
 		boost::system::error_code ec;
 		auto file = boost::filesystem::canonical(*name, ec);
-		const auto directory = pack.type == LobbyDelete::EType::SAVEGAME ? VCMIDirs::get().userSavePath() : VCMIDirs::get().userDataPath() / "Maps" / "RandomMaps";
+		const auto directory = type == LobbyDelete::EType::SAVEGAME ? VCMIDirs::get().userSavePath() : VCMIDirs::get().userDataPath() / "Maps" / "RandomMaps";
 
 		if (ec)
 		{
@@ -527,9 +538,9 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 				boost::filesystem::remove(file.parent_path());
 		}
 	}
-	else if(pack.type == LobbyDelete::EType::SAVEGAME_FOLDER)
+	else if(type == LobbyDelete::EType::SAVEGAME_FOLDER)
 	{
-		auto res = ResourcePath("Saves/" + pack.name, EResType::DIRECTORY);
+		auto res = ResourcePath("Saves/" + fileName, EResType::DIRECTORY);
 		auto name = CResourceHandler::get()->getResourceName(res);
 		if (!name)
 		{
@@ -552,9 +563,15 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 			boost::filesystem::remove_all(folder);
 		}
 	}
+}
 
-	LobbyUpdateState lus;
-	lus.state = *static_cast<LobbyState*>(&srv);
-	lus.refreshList = true;
-	srv.announcePack(lus);
+void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
+{
+	for(const auto & name : pack.names)
+		deleteFile(pack.type, name);
+
+	LobbyScenarioList reply;
+	reply.list = ScenarioListBuilder(srv.lastScenarioListRequest->type, srv.lastScenarioListRequest->loadMode).build(srv.lastScenarioListRequest->folder);
+	connection->sendPack(reply);
+	result = false;
 }

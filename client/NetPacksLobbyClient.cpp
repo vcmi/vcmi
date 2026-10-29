@@ -270,8 +270,16 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	else
 		lobby->updateAfterStateChange();
 
-	if(pack.firstState || pack.refreshList)
+	if(pack.firstState)
 		lobby->toggleMode(handler.isHost());
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyScenarioList(LobbyScenarioList & pack)
+{
+	// in-game save screen lists saves too, but it is not a lobby screen
+	auto * screen = dynamic_cast<CSelectionBase *>(SEL);
+	if(screen && screen->tabSel)
+		screen->tabSel->onScenarioListReceived(pack);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & pack)

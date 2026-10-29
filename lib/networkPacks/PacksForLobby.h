@@ -196,14 +196,12 @@ struct DLL_LINKAGE LobbyUpdateState : public CLobbyPackToPropagate
 {
 	LobbyState state;
 	bool firstState = false; // Used on client-side only, true for the first state received after connecting
-	bool refreshList = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & state;
-		h & refreshList;
 	}
 };
 
@@ -476,13 +474,13 @@ struct DLL_LINKAGE LobbyDelete : public CLobbyPackToServer
 	};
 
 	EType type = EType::SAVEGAME;
-	std::string name;
+	std::vector<std::string> names;
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
 		h & type;
-		h & name;
+		h & names;
 	}
 };

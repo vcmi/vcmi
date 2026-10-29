@@ -41,10 +41,11 @@ CSavingScreen::CSavingScreen()
 		*GAME->interface()->cb->getStartInfo(),
 		*GAME->interface()->cb->getMapHeader());
 	tabSel->callOnSelect = std::bind(&CSavingScreen::changeSelection, this, _1);
-	tabSel->toggleMode();
 	curTab = tabSel;
 		
 	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), LIBRARY->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
+	// after all widgets are created, so that input of all of them is blocked until the list is received
+	tabSel->toggleMode();
 	
 	GAME->interface()->gamePause(true);
 }
@@ -86,7 +87,6 @@ void CSavingScreen::saveGame()
 
 	auto overWrite = [this, path]() -> void
 	{
-		tabSel->rememberSave(path);
 		GAME->interface()->cb->save(path, true);
 		close();
 	};

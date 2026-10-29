@@ -156,8 +156,7 @@ RandomMapTab::RandomMapTab():
 			(static_cast<CLobbyScreen *>(parent))->toggleTab((static_cast<CLobbyScreen *>(parent))->tabSel);
 			auto selectionTab = (static_cast<CLobbyScreen *>(parent))->tabSel;
 			selectionTab->showRandom = true;
-			selectionTab->setCurrentFolder("RandomMaps/");
-			selectionTab->filter(0, true);
+			selectionTab->openFolder("RandomMaps/", [tab = selectionTab.get()](){ tab->filter(0, true); });
 		});
 	}
 
