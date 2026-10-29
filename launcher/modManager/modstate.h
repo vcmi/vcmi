@@ -34,7 +34,9 @@ public:
 	QStringList getScreenshots() const;
 
 	QString getBaseLanguage() const;
-	QStringList getSupportedLanguages() const;
+	/// Returns translation progress into specified language in percents, or -1 if unknown
+	int getTranslationProgress(const QString & language) const;
+	bool hasTranslation(const QString & language) const;
 
 	QMap<QString, QStringList> getChangelog() const;
 

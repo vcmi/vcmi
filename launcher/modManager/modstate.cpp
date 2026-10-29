@@ -94,19 +94,22 @@ QString ModState::getBaseLanguage() const
 	return QString::fromStdString(impl.getBaseLanguage());
 }
 
-QStringList ModState::getSupportedLanguages() const
+int ModState::getTranslationProgress(const QString & language) const
 {
-	QStringList result;
-	result.push_back(getBaseLanguage());
+	const JsonNode & progress = impl.getRepositoryValue(language.toStdString())["progress"];
+	return progress.isNumber() ? progress.Integer() : -1;
+}
 
-	for (const auto & language : Languages::getLanguageList())
-	{
-		QString languageID = QString::fromStdString(language.identifier);
+bool ModState::hasTranslation(const QString & language) const
+{
+	int progress = getTranslationProgress(language);
 
-		if (languageID != getBaseLanguage() && !impl.getValue(language.identifier).isNull())
-			result.push_back(languageID);
-	}
-	return result;
+	// mods released outside of mod repository workflow don't report progress
+	if (progress == -1)
+		return !impl.getValue(language.toStdString())["translations"].isNull();
+
+	// workflow may create language entry with zero progress just for translated mod name
+	return progress > 0;
 }
 
 QMap<QString, QStringList> ModState::getChangelog() const

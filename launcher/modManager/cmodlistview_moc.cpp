@@ -409,19 +409,22 @@ QString CModListView::genModInfoText(const ModState & mod)
 		}
 	}
 
-	QVariant baseLanguageVariant = mod.getBaseLanguage();
-	QString baseLanguageID = baseLanguageVariant.isValid() ? baseLanguageVariant.toString() : "english";
+	QString preferredLanguage = QString::fromStdString(CGeneralTextHandler::getPreferredLanguage());
 
-	QStringList supportedLanguages = mod.getSupportedLanguages();
-
-	if(supportedLanguages.size() > 1)
+	if(!mod.isTranslation() && mod.getBaseLanguage() != preferredLanguage && mod.hasTranslation(preferredLanguage))
 	{
-		QStringList supportedLanguagesTranslated;
+		QString languageName = QString::fromStdString(Languages::getLanguageOptions(preferredLanguage.toStdString()).nameNative);
+		int progress = mod.getTranslationProgress(preferredLanguage);
+		QString status;
 
-		for (const auto & languageID : supportedLanguages)
-			supportedLanguagesTranslated += QApplication::translate("Language", Languages::getLanguageOptions(languageID.toStdString()).nameEnglish.c_str());
+		if(progress == 100)
+			status = tr("%1, complete").arg(languageName);
+		else if(progress > 0)
+			status = tr("%1, %2% translated").arg(languageName, QString::number(progress));
+		else
+			status = tr("%1, available").arg(languageName);
 
-		result += replaceIfNotEmpty(supportedLanguagesTranslated, lineTemplate.arg(tr("Languages")));
+		result += lineTemplate.arg(tr("Translation"), status);
 	}
 
 	QStringList conflicts = mod.getConflicts();
