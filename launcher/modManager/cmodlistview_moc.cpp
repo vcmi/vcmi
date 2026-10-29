@@ -377,8 +377,9 @@ QString CModListView::genModInfoText(const ModState & mod)
 	if(!mod.getContact().isEmpty())
 		result += lineTemplate.arg(tr("Contact"), mod.getContact());
 
-	if(!mod.getDownloadUrl().isEmpty())
-		result += urlTemplate.arg(tr("GitHub repository"), getRepoUrl(mod), getRepoUrl(mod));
+	QString repoUrl = getRepoUrl(mod);
+	if(!repoUrl.isEmpty())
+		result += urlTemplate.arg(tr("GitHub repository"), repoUrl, repoUrl);
 
 	if(mod.getGithubStars() != -1)
 		result += replaceIfNotEmpty(mod.getGithubStars(), lineTemplate.arg(tr("GitHub stars")));
@@ -459,12 +460,13 @@ QString CModListView::genModInfoText(const ModState & mod)
 QString CModListView::getRepoUrl(const ModState & mod)
 {
 	QUrl url(mod.getDownloadUrl());
-	QString repoUrl = QString("%1://%2/%3/%4")
-		.arg(url.scheme())
-		.arg(url.host())
-		.arg(url.path().split('/')[1])
-		.arg(url.path().split('/')[2]);
-	return repoUrl;
+	QStringList path = url.path().split('/', Qt::SkipEmptyParts);
+
+	// expected format is https://github.com/<owner>/<repository>/...
+	if(path.size() < 2)
+		return {};
+
+	return QString("%1://%2/%3/%4").arg(url.scheme(), url.host(), path[0], path[1]);
 }
 
 void CModListView::disableModInfo()
@@ -510,7 +512,7 @@ auto CModListView::buttonEnabledState(QString modName, ModState & mod)
 #else
 	res.directoryVisible = false;
 #endif
-	res.repositoryVisible = !mod.getDownloadUrl().isEmpty();
+	res.repositoryVisible = !getRepoUrl(mod).isEmpty();
 
 	// Block buttons if action is not allowed at this time
 	res.disableEnabled = true;
