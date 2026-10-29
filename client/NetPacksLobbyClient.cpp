@@ -69,9 +69,9 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 			return;
 		}
 
-		if(handler.mapToStart)
+		if(handler.scenarioToStart)
 		{
-			handler.setMapInfo(handler.mapToStart);
+			handler.selectScenario(*handler.scenarioToStart);
 		}
 		else if(!settings["session"]["headless"].Bool())
 		{
@@ -226,9 +226,9 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState &
 	static_cast<LobbyState &>(handler) = pack.state;
 	// the campaign state the previous texts came from is gone now
 	handler.installLobbyTexts();
-	if(handler.mapToStart && handler.mi)
+	if(handler.scenarioToStart && handler.mi)
 	{
-		handler.startMapAfterConnection(nullptr);
+		handler.scenarioToStart.reset();
 		handler.sendStartGame();
 	}
 }

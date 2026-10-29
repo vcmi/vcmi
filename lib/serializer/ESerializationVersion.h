@@ -75,7 +75,7 @@ enum class ESerializationVersion : int32_t
 	NEUTRAL_TOWN_EVENTS, // town events can affect neutral towns
 	LOBBY_MAP_INFO_PACK, // lobby sends map info in its own pack instead of lobby state
 	SPELL_ID_WITH_MASTERY, // spell id is combined with spell mastery level
-	LOBBY_SCENARIO_LIST, // lobby lists maps and saved games of the server
+	LOBBY_SCENARIO_LIST, // lobby lists maps and saved games of the server and selects them by name
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,

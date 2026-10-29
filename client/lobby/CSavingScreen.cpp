@@ -18,6 +18,7 @@
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
+#include "../windows/InfoWindows.h"
 
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -62,12 +63,36 @@ const StartInfo * CSavingScreen::getStartInfo()
 	return GAME->interface()->cb->getStartInfo();
 }
 
-void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
+void CSavingScreen::changeSelection(const std::shared_ptr<ElementInfo> & element)
 {
-	if(localMi == to)
+	if(element == selectedElement)
 		return;
 
-	localMi = to;
+	selectedElement = element;
+	localMi.reset();
+	localTextOverlay.reset();
+
+	if(element)
+	{
+		try
+		{
+			auto mapInfo = std::make_shared<CMapInfo>();
+			mapInfo->saveInit(ResourcePath(element->fileURI, EResType::SAVEGAME));
+			localTextOverlay.emplace(mapInfo->mapHeader->texts);
+			localMi = mapInfo;
+		}
+		catch(const std::exception & e)
+		{
+			// list entry is built from metadata, so the rest of the file may still be invalid
+			logGlobal->error("Failed to load %s: %s", element->fileURI, e.what());
+
+			MetaString message;
+			message.appendTextID("vcmi.client.errors.invalidMap");
+			message.replaceRawString(e.what());
+			CInfoWindow::showInfoDialog(message.toString(&GAME->translator()), {});
+		}
+	}
+
 	card->changeSelection();
 	card->redraw();
 }

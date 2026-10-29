@@ -35,7 +35,6 @@
 #include "render/IFont.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/rmg/CRmgTemplateStorage.h"
@@ -290,9 +289,7 @@ void RandomMapTab::updateMapInfoByHost()
 	if(GAME->server().isGuest())
 		return;
 
-	mapInfo = std::make_shared<CMapInfo>();
-	mapInfo->randomMapInit(*mapGenOptions);
-	mapInfoChanged(mapInfo, mapGenOptions);
+	mapGenOptionsChanged(mapGenOptions);
 }
 
 void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)

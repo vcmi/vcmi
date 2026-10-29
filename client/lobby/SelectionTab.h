@@ -12,7 +12,7 @@
 #include "CSelectionBase.h"
 #include "../Translator.h"
 #include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/mapping/ScenarioListEntry.h"
+#include "../../lib/mapping/ScenarioList.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
 class CMap;
@@ -93,13 +93,6 @@ class SelectionTab : public CIntObject
 	/// Installs the text overlays of newly parsed campaigns and fills in display names of new entries
 	void installTexts(size_t offset);
 
-	std::shared_ptr<ElementInfo> loadedElement;
-	std::shared_ptr<CMapInfo> loadedMapInfo;
-	/// Texts of the loaded map or save, needed by screens that show it without a round trip through the server, such as the save screen
-	std::optional<TranslatorOverlay> loadedTextOverlay;
-
-	/// Returns map info of a map, save or campaign, loaded once for the last requested element; null for folders or on error
-	std::shared_ptr<CMapInfo> loadMapInfo(const std::shared_ptr<ElementInfo> & element);
 	void notifySelection(const std::shared_ptr<ElementInfo> & element);
 
 	/// Called once the reply to the request sent to the server is applied, empty if no request is sent
@@ -125,7 +118,8 @@ public:
 	std::vector<std::shared_ptr<ElementInfo>> curItems;
 	std::string curFolder;
 	size_t selectionPos;
-	std::function<void(std::shared_ptr<CMapInfo>)> callOnSelect;
+	/// Called with the selected map, save or campaign, or with null if nothing is selected
+	std::function<void(const std::shared_ptr<ElementInfo> &)> callOnSelect;
 
 	ESortBy sortingBy;
 	ESortBy generalSortingBy;
@@ -164,7 +158,8 @@ public:
 	void selectFileName(const std::string & fname);
 	void selectNewestFile(bool skipAutosaves = false);
 	std::shared_ptr<ElementInfo> getSelectedElement() const;
-	std::shared_ptr<CMapInfo> getSelectedMapInfo();
+	/// Returns selected map, save or campaign in the form sent to the server
+	ScenarioSelection getSelection() const;
 	void setRequiredHumanPlayers(size_t players);
 	void rememberCurrentSelection();
 	void restoreLastSelection();

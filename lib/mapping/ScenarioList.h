@@ -54,3 +54,29 @@ struct DLL_LINKAGE ScenarioList
 		h & unsupportedSaves;
 	}
 };
+
+/// Map, saved game or campaign selected in lobby; does not refer to a list, so it stays valid after the list or the server is replaced
+struct DLL_LINKAGE ScenarioSelection
+{
+	enum class EType : uint8_t
+	{
+		NONE,
+		MAP,
+		SAVE,
+		CAMPAIGN,
+		RANDOM_MAP,
+		BATTLE_ONLY
+	};
+
+	EType type = EType::NONE;
+	std::string fileURI; ///< for maps, saved games and campaigns
+
+	bool operator==(const ScenarioSelection & other) const = default;
+
+	template<typename Handler>
+	void serialize(Handler & h)
+	{
+		h & type;
+		h & fileURI;
+	}
+};

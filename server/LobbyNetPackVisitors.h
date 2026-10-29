@@ -48,6 +48,7 @@ public:
 	void visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack) override;
 	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
+	void visitLobbySetMap(LobbySetMap & pack) override;
 };
 
 class ApplyOnServerAfterAnnounceNetPackVisitor : public ::ICPackVisitor
@@ -112,4 +113,5 @@ public:
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
 	void visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack) override;
+	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };

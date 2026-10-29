@@ -159,7 +159,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	setState(EClientState::NONE);
 	serverMode = newServerMode;
 	loadMode = ELoadMode::NONE;
-	mapToStart = nullptr;
+	scenarioToStart.reset();
 	// si is replaced below - texts of the previous lobby must not shadow those of the next one
 	lobbyTextOverlays.clear();
 	hotseatMode = false;
@@ -441,7 +441,7 @@ void CServerHandler::sendClientDisconnecting()
 	}
 
 	setState(EClientState::DISCONNECTING);
-	mapToStart = nullptr;
+	scenarioToStart.reset();
 	LobbyClientDisconnected lcd;
 	lcd.clientId = logicConnection->connectionID;
 	logNetwork->info("Connection has been requested to be closed.");
@@ -496,10 +496,10 @@ void CServerHandler::setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeSt
 	sendLobbyPack(lsbomsui);
 }
 
-void CServerHandler::setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts) const
+void CServerHandler::selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts) const
 {
 	LobbySetMap lsm;
-	lsm.mapInfo = to;
+	lsm.selection = selection;
 	lsm.mapGenOpts = mapGenOpts;
 	sendLobbyPack(lsm);
 }
@@ -662,9 +662,9 @@ void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 	}
 }
 
-void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
+void CServerHandler::startScenarioAfterConnection(const ScenarioSelection & selection)
 {
-	mapToStart = to;
+	scenarioToStart = selection;
 }
 
 void CServerHandler::installLobbyTexts()
@@ -956,16 +956,17 @@ ELoadMode CServerHandler::getLoadMode()
 void CServerHandler::debugStartTest(std::string filename, bool save)
 {
 	logGlobal->info("Starting debug test with file: %s", filename);
-	auto mapInfo = std::make_shared<CMapInfo>();
+	ScenarioSelection selection;
+	selection.fileURI = filename;
 	if(save)
 	{
 		resetStateForLobby(EStartMode::LOAD_GAME, ESelectionScreen::loadGame, EServerMode::LOCAL, {});
-		mapInfo->saveInit(ResourcePath(filename, EResType::SAVEGAME));
+		selection.type = ScenarioSelection::EType::SAVE;
 	}
 	else
 	{
 		resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOCAL, {});
-		mapInfo->mapInit(filename);
+		selection.type = ScenarioSelection::EType::MAP;
 	}
 	if(settings["session"]["donotstartserver"].Bool())
 		connectToServer(getLocalHostname(), getLocalPort());
@@ -977,9 +978,12 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 	while(!settings["session"]["headless"].Bool() && !ENGINE->windows().topWindow<CLobbyScreen>())
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-	while(!mi || mapInfo->fileURI != mi->fileURI)
+	// lobby screen selects the last map or save once it receives the list, so the selection is repeated until it is applied
+	const std::string expectedURI = save ? ResourcePath(filename, EResType::SAVEGAME).getName() : filename;
+	for(int i = 0; !mi || mi->fileURI != expectedURI; i++)
 	{
-		setMapInfo(mapInfo);
+		if(i % 20 == 0)
+			selectScenario(selection);
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 	// "Click" on color to remove us from it

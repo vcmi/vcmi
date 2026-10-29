@@ -12,6 +12,7 @@
 
 #include "CVCMIServer.h"
 #include "CGameHandler.h"
+#include "lobby/BattleOnlyMap.h"
 #include "lobby/LastSavedGames.h"
 #include "lobby/ScenarioListBuilder.h"
 
@@ -197,6 +198,67 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuic
 		connection->enterLobbyConnectionMode();
 }
 
+void ClientPermissionsCheckerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
+{
+	result = srv.isClientHost(connection->connectionID);
+
+	const auto & selection = pack.selection;
+	bool valid = false;
+	switch(selection.type)
+	{
+		case ScenarioSelection::EType::NONE:
+			valid = true;
+			break;
+		case ScenarioSelection::EType::MAP:
+		case ScenarioSelection::EType::CAMPAIGN:
+			valid = boost::algorithm::istarts_with(selection.fileURI, "Maps/");
+			break;
+		case ScenarioSelection::EType::SAVE:
+			valid = boost::algorithm::istarts_with(selection.fileURI, "Saves/");
+			break;
+		case ScenarioSelection::EType::RANDOM_MAP:
+			valid = pack.mapGenOpts != nullptr;
+			break;
+		case ScenarioSelection::EType::BATTLE_ONLY:
+			valid = srv.battleOnlyModeStartInfo != nullptr;
+			break;
+	}
+
+	if(!valid)
+	{
+		logNetwork->error("Rejecting selection of '%s' with type %d", selection.fileURI, static_cast<int>(selection.type));
+		result = false;
+	}
+}
+
+static std::shared_ptr<CMapInfo> createMapInfo(const LobbySetMap & pack, const BattleOnlyModeStartInfo * battleOnlyModeStartInfo)
+{
+	auto mapInfo = std::make_shared<CMapInfo>();
+	switch(pack.selection.type)
+	{
+		case ScenarioSelection::EType::NONE:
+			return nullptr;
+		case ScenarioSelection::EType::MAP:
+			mapInfo->mapInit(pack.selection.fileURI);
+			break;
+		case ScenarioSelection::EType::SAVE:
+			mapInfo->saveInit(ResourcePath(pack.selection.fileURI, EResType::SAVEGAME));
+			break;
+		case ScenarioSelection::EType::CAMPAIGN:
+			mapInfo->fileURI = pack.selection.fileURI;
+			mapInfo->campaignInit();
+			break;
+		case ScenarioSelection::EType::RANDOM_MAP:
+			mapInfo->randomMapInit(*pack.mapGenOpts);
+			break;
+		case ScenarioSelection::EType::BATTLE_ONLY:
+			BattleOnlyMap::write(*battleOnlyModeStartInfo);
+			mapInfo->mapInit(BattleOnlyMap::fileURI);
+			break;
+	}
+	return mapInfo;
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 {
 	if(srv.getState() != EServerState::LOBBY)
@@ -205,9 +267,25 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 		return;
 	}
 
-	srv.updateStartInfoOnMapChange(pack.mapInfo, pack.mapGenOpts);
+	std::shared_ptr<CMapInfo> mapInfo;
+	try
+	{
+		mapInfo = createMapInfo(pack, srv.battleOnlyModeStartInfo.get());
+	}
+	catch(const std::exception & e)
+	{
+		// list entry is built from metadata, so the rest of the file may still be invalid
+		logGlobal->error("Failed to load %s: %s", pack.selection.fileURI, e.what());
 
-	// pack contains whole map header and clients receive it in LobbyUpdateMapInfo, so it is not announced
+		LobbyShowMessage message;
+		message.message.appendTextID("vcmi.client.errors.invalidMap");
+		message.message.replaceRawString(e.what());
+		connection->sendPack(message);
+	}
+
+	srv.updateStartInfoOnMapChange(mapInfo, pack.mapGenOpts);
+
+	// map info contains whole map header and clients receive it in LobbyUpdateMapInfo, so pack is not announced
 	srv.updateAndPropagateLobbyState();
 	result = false;
 }
@@ -488,6 +566,12 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyRequestScenarioList(Lobby
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
 {
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
+{
+	srv.battleOnlyModeStartInfo = pack.startInfo;
 	result = true;
 }
 

@@ -11,13 +11,10 @@
 
 #include "../windows/CWindowObject.h"
 #include "../../lib/constants/EntityIdentifiers.h"
-#include "../../lib/mapping/CMap.h"
 
 
 class CGHeroInstance;
 class CCreatureSet;
-class CMap;
-class EditorCallback;
 class BattleOnlyModeStartInfo;
 
 class FilledTexturePlayerColored;
@@ -76,8 +73,6 @@ class BattleOnlyModeTab : public CIntObject
 	friend class BattleOnlyModeHeroSelector;
 private:
 	std::shared_ptr<BattleOnlyModeStartInfo> startInfo;
-	std::unique_ptr<CMap> map;
-	std::shared_ptr<EditorCallback> cb;
 
 	std::shared_ptr<CPicture> backgroundImage;
 	std::shared_ptr<CLabel> title;
@@ -92,7 +87,6 @@ private:
 	ColorRGBA boxColor;
 	ColorRGBA disabledBoxColor;
 
-	void init();
 	void onChange();
 	void update();
 	void setTerrainButtonText();

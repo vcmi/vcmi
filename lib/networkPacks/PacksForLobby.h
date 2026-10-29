@@ -253,18 +253,17 @@ struct DLL_LINKAGE LobbyScenarioList : public CPackForLobby
 	}
 };
 
+/// Sent by host to select a map, saved game or campaign; the server loads its own copy and sends it in LobbyUpdateMapInfo
 struct DLL_LINKAGE LobbySetMap : public CLobbyPackToServer
 {
-	std::shared_ptr<CMapInfo> mapInfo;
-	std::shared_ptr<CMapGenOptions> mapGenOpts;
-
-	LobbySetMap() : mapInfo(nullptr), mapGenOpts(nullptr) {}
+	ScenarioSelection selection;
+	std::shared_ptr<CMapGenOptions> mapGenOpts; ///< set only for random maps
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & mapInfo;
+		h & selection;
 		h & mapGenOpts;
 	}
 };

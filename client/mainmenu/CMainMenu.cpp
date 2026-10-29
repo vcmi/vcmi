@@ -51,7 +51,6 @@
 #include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CCompressedStream.h"
-#include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/CStopWatch.h"
@@ -479,10 +478,11 @@ void CMainMenu::startTutorial()
 		return;
 	}
 		
-	auto mapInfo = std::make_shared<CMapInfo>();
-	mapInfo->mapInit(tutorialMap.getName());
+	ScenarioSelection selection;
+	selection.type = ScenarioSelection::EType::MAP;
+	selection.fileURI = tutorialMap.getName();
 	CMainMenu::openLobby(ESelectionScreen::newGame, true, {}, ELoadMode::TUTORIAL, false);
-	GAME->server().startMapAfterConnection(mapInfo);
+	GAME->server().startScenarioAfterConnection(selection);
 }
 
 void CMainMenu::openHighScoreScreen()

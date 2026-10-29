@@ -1023,56 +1023,27 @@ std::shared_ptr<ElementInfo> SelectionTab::getSelectedElement() const
 	return selectionPos >= curItems.size() || curItems[selectionPos]->isFolder ? nullptr : curItems[selectionPos];
 }
 
-std::shared_ptr<CMapInfo> SelectionTab::getSelectedMapInfo()
+ScenarioSelection SelectionTab::getSelection() const
 {
-	return loadMapInfo(getSelectedElement());
-}
+	ScenarioSelection selection;
+	const auto element = getSelectedElement();
+	if(!element)
+		return selection;
 
-std::shared_ptr<CMapInfo> SelectionTab::loadMapInfo(const std::shared_ptr<ElementInfo> & element)
-{
-	if(element == loadedElement)
-		return loadedMapInfo;
-
-	loadedElement = element;
-	loadedMapInfo.reset();
-	loadedTextOverlay.reset();
-
-	if(!element || element->isFolder)
-		return nullptr;
-
+	selection.fileURI = element->fileURI;
 	if(element->campaignInfo)
-	{
-		loadedMapInfo = element->campaignInfo;
-		return loadedMapInfo;
-	}
-
-	try
-	{
-		auto mapInfo = std::make_shared<CMapInfo>();
-		if(element->entry->type == ScenarioListEntry::EType::MAP)
-			mapInfo->mapInit(element->entry->fileURI);
-		else
-			mapInfo->saveInit(ResourcePath(element->entry->fileURI, EResType::SAVEGAME));
-		loadedTextOverlay.emplace(mapInfo->mapHeader->texts);
-		loadedMapInfo = mapInfo;
-	}
-	catch(const std::exception & e)
-	{
-		// list entry is built from metadata, so the rest of the file may still be invalid
-		logGlobal->error("Failed to load %s: %s", element->entry->originalFileURI, e.what());
-
-		MetaString message;
-		message.appendTextID("vcmi.client.errors.invalidMap");
-		message.replaceRawString(e.what());
-		CInfoWindow::showInfoDialog(message.toString(&GAME->translator()), {});
-	}
-	return loadedMapInfo;
+		selection.type = ScenarioSelection::EType::CAMPAIGN;
+	else if(element->entry->type == ScenarioListEntry::EType::MAP)
+		selection.type = ScenarioSelection::EType::MAP;
+	else
+		selection.type = ScenarioSelection::EType::SAVE;
+	return selection;
 }
 
 void SelectionTab::notifySelection(const std::shared_ptr<ElementInfo> & element)
 {
 	if(callOnSelect)
-		callOnSelect(loadMapInfo(element));
+		callOnSelect(element);
 }
 
 void SelectionTab::rememberCurrentSelection()

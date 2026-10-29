@@ -81,6 +81,9 @@ public:
 	/// Last list requested by the host, sent again after files are deleted
 	std::optional<LobbyRequestScenarioList> lastScenarioListRequest;
 
+	/// Heroes and battlefield of battle-only mode, last sent by a client
+	std::shared_ptr<BattleOnlyModeStartInfo> battleOnlyModeStartInfo;
+
 	uint16_t prepare(bool connectToLobby, bool listenForConnections);
 
 	// INetworkListener impl
