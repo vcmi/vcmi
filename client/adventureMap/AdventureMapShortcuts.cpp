@@ -101,7 +101,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_VIEW_SCENARIO,    optionInMapView(),      [this]() { this->showScenarioInfo(); } },
 		{ EShortcut::ADVENTURE_QUIT_GAME,        optionInMapView(),      [this]() { this->quitGame(); } },
 		{ EShortcut::ADVENTURE_TO_MAIN_MENU,     optionInMapView(),      [this]() { this->toMainMenu(); } },
-		{ EShortcut::ADVENTURE_SAVE_GAME,        optionInMapView(),      [this]() { this->saveGame(); } },
+		{ EShortcut::ADVENTURE_SAVE_GAME,        optionInMapView() && !GAME->server().isGuest(), [this]() { this->saveGame(); } },
 		{ EShortcut::ADVENTURE_NEW_GAME,         optionInMapView(),      [this]() { this->newGame(); } },
 		{ EShortcut::ADVENTURE_LOAD_GAME,        optionInMapView(),      [this]() { this->loadGame(); } },
 		{ EShortcut::ADVENTURE_QUICK_SAVE,       optionIsLocal(),        [this]() { this->quickSaveGame(); } },
