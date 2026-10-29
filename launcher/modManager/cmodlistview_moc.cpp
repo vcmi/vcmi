@@ -372,13 +372,13 @@ QString CModListView::genModInfoText(const ModState & mod)
 	result += replaceIfNotEmpty(mod.getAuthors(), lineTemplate.arg(tr("Authors")));
 
 	if(!mod.getLicenseName().isEmpty())
-		result += urlTemplate.arg(tr("License")).arg(mod.getLicenseUrl()).arg(mod.getLicenseName());
+		result += urlTemplate.arg(tr("License"), mod.getLicenseUrl(), mod.getLicenseName());
 
 	if(!mod.getContact().isEmpty())
-		result += lineTemplate.arg(tr("Contact")).arg(mod.getContact());
+		result += lineTemplate.arg(tr("Contact"), mod.getContact());
 
 	if(!mod.getDownloadUrl().isEmpty())
-		result += urlTemplate.arg(tr("GitHub repository")).arg(getRepoUrl(mod)).arg(getRepoUrl(mod));
+		result += urlTemplate.arg(tr("GitHub repository"), getRepoUrl(mod), getRepoUrl(mod));
 
 	if(mod.getGithubStars() != -1)
 		result += replaceIfNotEmpty(mod.getGithubStars(), lineTemplate.arg(tr("GitHub stars")));
@@ -451,7 +451,7 @@ QString CModListView::genModInfoText(const ModState & mod)
 		notes += noteTemplate.arg(translationMismatch);
 
 	if(notes.size())
-		result += textTemplate.arg(tr("Notes")).arg(notes);
+		result += textTemplate.arg(tr("Notes"), notes);
 
 	return result;
 }
@@ -1158,7 +1158,7 @@ void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 			catch(const std::runtime_error & e)
 			{
 				logGlobal->warn("Install file failed for %s. Reason: %s", filename.toStdString(), e.what());
-				QMessageBox::warning(this, tr("Import failed"), tr("Failed to install file %1.\nReason: %2.\nPlease report this issue to developers").arg(filename).arg(QString::fromStdString(e.what())));
+				QMessageBox::warning(this, tr("Import failed"), tr("Failed to install file %1.\nReason: %2.\nPlease report this issue to developers").arg(filename, QString::fromStdString(e.what())));
 			}
 
 		}
