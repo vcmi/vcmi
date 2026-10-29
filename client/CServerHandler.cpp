@@ -570,18 +570,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 	readed.str(txt);
 	std::string command;
 	readed >> command;
-	if(command == "!passhost")
-	{
-		std::string id;
-		readed >> id;
-		if(id.length())
-		{
-			LobbyChangeHost lch;
-			lch.newHostConnectionId = static_cast<GameConnectionID>(std::stoi(id));
-			sendLobbyPack(lch);
-		}
-	}
-	else if(command == "!forcep")
+	if(command == "!forcep")
 	{
 		std::string connectedId;
 		std::string playerColorId;

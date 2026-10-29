@@ -222,7 +222,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyModsCheck(LobbyModsCheck & pac
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)
 {
-	pack.hostChanged = pack.state.hostClientId != handler.hostClientId;
+	pack.firstState = handler.hostClientId == GameConnectionID::INVALID;
 	static_cast<LobbyState &>(handler) = pack.state;
 	// the campaign state the previous texts came from is gone now
 	handler.installLobbyTexts();
@@ -270,7 +270,7 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	else
 		lobby->updateAfterStateChange();
 
-	if(pack.hostChanged || pack.refreshList)
+	if(pack.firstState || pack.refreshList)
 		lobby->toggleMode(handler.isHost());
 }
 

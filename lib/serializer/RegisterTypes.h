@@ -270,7 +270,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbyRestartGame>(222);
 	s.template registerType<LobbyPrepareStartGame>(223);
 	s.template registerType<LobbyStartGame>(224);
-	s.template registerType<LobbyChangeHost>(225);
 	s.template registerType<LobbyUpdateState>(226);
 	s.template registerType<LobbyShowMessage>(227);
 	s.template registerType<LobbyChangePlayerOption>(228);

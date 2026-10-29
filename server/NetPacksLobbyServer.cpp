@@ -298,26 +298,6 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGam
 	srv.startGameImmediately();
 }
 
-void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
-{
-	result = srv.isClientHost(connection->connectionID);
-}
-
-void ApplyOnServerNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
-{
-	result = true;
-}
-
-void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
-{
-	auto result = srv.passHost(pack.newHostConnectionId);
-	
-	if(!result)
-	{
-		logGlobal->error("passHost returned false. What does it mean?");
-	}
-}
-
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack)
 {
 	if(srv.isClientHost(connection->connectionID))

@@ -479,22 +479,6 @@ void CVCMIServer::announceTxt(const std::string & txt, const std::string & playe
 	announceTxt(str, playerName);
 }
 
-bool CVCMIServer::passHost(GameConnectionID toConnectionId)
-{
-	for(auto activeConnection : activeConnections)
-	{
-		if(isClientHost(activeConnection->connectionID))
-			continue;
-		if(activeConnection->connectionID != toConnectionId)
-			continue;
-
-		hostClientId = activeConnection->connectionID;
-		announceTxt(boost::str(boost::format("Pass host to connection %d") % static_cast<int>(toConnectionId)));
-		return true;
-	}
-	return false;
-}
-
 void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, const std::vector<std::string> & names, const std::string & uuid, EStartMode mode)
 {
 	assert(getState() == EServerState::LOBBY);

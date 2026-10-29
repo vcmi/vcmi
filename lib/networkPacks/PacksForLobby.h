@@ -162,18 +162,6 @@ struct DLL_LINKAGE LobbyQuickLoadGame : public CLobbyPackToPropagate
 	}
 };
 
-struct DLL_LINKAGE LobbyChangeHost : public CLobbyPackToPropagate
-{
-	GameConnectionID newHostConnectionId = GameConnectionID::INVALID;
-
-	void visitTyped(ICPackVisitor & visitor) override;
-
-	template <typename Handler> void serialize(Handler & h)
-	{
-		h & newHostConnectionId;
-	}
-};
-
 /// Sent by client to query current lobby state without joining as a player
 struct DLL_LINKAGE LobbyQueryState : public CLobbyPackToServer
 {
@@ -206,7 +194,7 @@ struct DLL_LINKAGE LobbyModsCheck : public CPackForLobby
 struct DLL_LINKAGE LobbyUpdateState : public CLobbyPackToPropagate
 {
 	LobbyState state;
-	bool hostChanged = false; // Used on client-side only
+	bool firstState = false; // Used on client-side only, true for the first state received after connecting
 	bool refreshList = false;
 
 	void visitTyped(ICPackVisitor & visitor) override;

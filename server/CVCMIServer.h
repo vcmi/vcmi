@@ -101,7 +101,6 @@ public:
 	void threadHandleClient(std::shared_ptr<GameConnection> c);
 
 	void announcePack(CPackForLobby & pack);
-	bool passHost(GameConnectionID toConnectionId);
 
 	void announceTxt(const MetaString & txt, const std::string & playerName = "System");
 	void announceTxt(const std::string & txt, const std::string & playerName = "System");

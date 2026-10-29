@@ -40,7 +40,6 @@ public:
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
 	void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
-	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 	void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
 	void visitLobbyChatMessage(LobbyChatMessage & pack) override;
 	void visitLobbyGuiAction(LobbyGuiAction & pack) override;
@@ -68,7 +67,6 @@ public:
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
 	void visitLobbyQueryState(LobbyQueryState & pack) override;
-	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 };
 
 class ApplyOnServerNetPackVisitor : public ::ICPackVisitor
@@ -100,7 +98,6 @@ public:
 	void visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
-	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 	void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
 	void visitLobbySetPlayer(LobbySetPlayer & pack) override;
 	void visitLobbySetPlayerName(LobbySetPlayerName & pack) override;
