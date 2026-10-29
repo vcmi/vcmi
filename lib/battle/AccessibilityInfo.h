@@ -38,7 +38,7 @@ struct DLL_LINKAGE AccessibilityInfo : TAccessibilityArray
 
 	public:
 		bool accessible(const BattleHex & tile, const battle::Unit * stack) const; //checks for both tiles if stack is double wide
-		bool accessible(const BattleHex & tile, bool doubleWide, BattleSide side) const; //checks for both tiles if stack is double wide
+		bool accessible(const BattleHex & tile, bool doubleWide, BattleSide side, bool canUseGate) const; //checks for both tiles if stack is double wide
 	private:
-		bool tileAccessibleWithGate(const BattleHex & tile, BattleSide side) const;
+		bool tileAccessibleWithGate(const BattleHex & tile, bool canUseGate) const;
 };

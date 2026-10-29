@@ -121,7 +121,7 @@ public:
 	void buildStructureForced(ObjectInstanceID townID, BuildingID building) override;
 	bool removeObject(const CGObjectInstance * obj, const PlayerColor & initiator) override;
 	void addQuest(const PlayerColor & player, const QuestInfo & quest) override;
-	void setQuestHintText(ObjectInstanceID obj, const MetaString & hint) override;
+	void setQuestHint(ObjectInstanceID obj, const MetaString & hint, const std::vector<Component> & components) override;
 	void disableMapEvent(ObjectInstanceID town, const std::string & scriptHandler) override;
 	void setOwner(const CGObjectInstance * obj, PlayerColor owner) override;
 	void giveExperience(const CGHeroInstance * hero, TExpType val) override;

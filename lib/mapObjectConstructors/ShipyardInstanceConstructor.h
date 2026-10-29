@@ -20,7 +20,7 @@ class ShipyardInstanceConstructor final : public CDefaultObjectTypeHandler<CGShi
 	JsonNode parameters;
 
 protected:
-	void initTypeData(const JsonNode & config) override;
+	void initTypeData(LibraryLoadContext & context, const JsonNode & config) override;
 	void initializeObject(CGShipyard * object) const override;
 
 public:

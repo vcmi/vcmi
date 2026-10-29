@@ -15,6 +15,7 @@
 
 class AObjectTypeHandler;
 class ObjectTemplate;
+class CIdentifierStorage;
 struct SObjectSounds;
 
 class CGObjectInstance;
@@ -51,35 +52,33 @@ class DLL_LINKAGE CObjectClassesHandler : public IHandlerBase
 	/// map that is filled during construction with all known handlers. Not serializeable due to usage of std::function
 	std::map<std::string, std::function<TObjectTypeHandler()> > handlerConstructors;
 
-	std::vector<std::pair<CompoundMapObjectID, std::function<void(CompoundMapObjectID)>>> objectIdHandlers;
-
 	/// container with H3 templates, used only during loading, no need to serialize it
 	using TTemplatesContainer = std::multimap<std::pair<MapObjectID, MapObjectSubID>, std::shared_ptr<const ObjectTemplate>>;
 	TTemplatesContainer legacyTemplates;
 
-	TObjectTypeHandler loadSubObjectFromJson(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index);
+	TObjectTypeHandler loadSubObjectFromJson(LibraryLoadContext & context, const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index);
 
-	void loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj);
-	void loadSubObject(const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index);
+	void loadSubObject(LibraryLoadContext & context, const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj);
+	void loadSubObject(LibraryLoadContext & context, const std::string & scope, const std::string & identifier, const JsonNode & entry, ObjectClass * obj, size_t index);
 
-	std::unique_ptr<ObjectClass> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
+	std::unique_ptr<ObjectClass> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & name, size_t index);
 
-	void generateExtraMonolithsForRMG(ObjectClass * container);
+	void generateExtraMonolithsForRMG(LibraryLoadContext & context, ObjectClass * container);
 
 public:
 	CObjectClassesHandler();
 	~CObjectClassesHandler();
 
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 
-	void loadSubObject(const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID);
+	void loadSubObject(LibraryLoadContext & context, const std::string & identifier, JsonNode config, MapObjectID ID, MapObjectSubID subID);
 	void removeSubObject(MapObjectID ID, MapObjectSubID subID);
 
 	void beforeValidate(JsonNode & object) override;
-	void afterLoadFinalization() override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 
 	/// Queries to detect loaded objects
 	std::set<MapObjectID> knownObjects() const;
@@ -87,17 +86,13 @@ public:
 
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
 	TObjectTypeHandler getHandlerFor(MapObjectID type, MapObjectSubID subtype) const;
-	TObjectTypeHandler getHandlerFor(const std::string & scope, const std::string & type, const std::string & subtype) const;
+	TObjectTypeHandler getHandlerFor(const CIdentifierStorage & identifiers, const std::string & scope, const std::string & type, const std::string & subtype) const;
 	TObjectTypeHandler getHandlerFor(CompoundMapObjectID compoundIdentifier) const;
-	CompoundMapObjectID getCompoundIdentifier(const std::string & scope, const std::string & type, const std::string & subtype) const;
-	CompoundMapObjectID getCompoundIdentifier(const std::string & objectName) const;
 
 	/// Name shared by every object of this group, used when an object type provides no name of its own
 	std::string getObjectGroupNameTextID(MapObjectID type) const;
 
 	SObjectSounds getObjectSounds(MapObjectID type, MapObjectSubID subtype) const;
-
-	void resolveObjectCompoundId(const std::string & id, std::function<void(CompoundMapObjectID)> callback);
 
 	/// Returns handler string describing the handler (for use in client)
 	std::string getObjectHandlerName(MapObjectID type) const;

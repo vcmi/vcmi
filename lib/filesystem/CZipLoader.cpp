@@ -13,9 +13,6 @@
 #include "../ScopeGuard.h"
 #include "../texts/TextOperations.h"
 
-#include <memory>
-#include <type_traits>
-
 #include <boost/filesystem/fstream.hpp>
 
 #include <array>
@@ -218,6 +215,7 @@ const std::vector<ZipArchive::Entry> & ZipArchive::entries()
 std::vector<std::string> ZipArchive::listFiles()
 {
 	std::vector<std::string> result;
+	result.reserve(indexedEntries.size());
 	for(const auto & entry : entries())
 		result.push_back(entry.name);
 	return result;

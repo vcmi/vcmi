@@ -400,6 +400,9 @@ void BattleActionsController::tryActivateStackSpellcasting(const CStack * caster
 
 void BattleActionsController::activateStack()
 {
+	if(heroSpellcasting)
+		endCastingSpell();
+
 	// a target that was being chosen when the turn ended some other way, e.g. by the turn timer
 	partialTarget.clear();
 	suspendedStack = nullptr;

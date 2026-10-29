@@ -10,10 +10,12 @@
 
 #include "StdInc.h"
 #include "objectbrowser.h"
+#include "mapeditorroles.h"
 
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
+#include "../lib/TerrainHandler.h"
 #include "../lib/GameLibrary.h"
 
 ObjectBrowserProxyModel::ObjectBrowserProxyModel(QObject *parent)
@@ -21,67 +23,81 @@ ObjectBrowserProxyModel::ObjectBrowserProxyModel(QObject *parent)
 {
 }
 
+static bool fitsAnyLand(const AObjectTypeHandler & factory, const std::shared_ptr<const ObjectTemplate> & templ)
+{
+	//H3 templates of objects without terrain graphics have placeholder masks, JSON adds an any-land template with the same graphics
+	for(const auto & other : factory.getTemplates())
+		if(other->canBePlacedAtAnyTerrain() && other->animationFile == templ->animationFile)
+			return true;
+
+	//anyLandTerrain is false for templates that also allow water, such as Event; getTemplates(TerrainId) ignores the H3 masks of artifacts and monsters
+	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
+		if(terrain->isLand() && terrain->isPassable() && !vstd::contains(factory.getTemplates(terrain->getId()), templ))
+			return false;
+
+	return true;
+}
+
 bool ObjectBrowserProxyModel::filterAcceptsRow(int source_row, const QModelIndex & source_parent) const
 {
-	bool result = QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+	auto * standardModel = qobject_cast<QStandardItemModel*>(sourceModel());
+	assert(standardModel);
 
 	QModelIndex currentIndex = sourceModel()->index(source_row, 0, source_parent);
-	int childCount = currentIndex.model()->rowCount(currentIndex);
-	if(childCount)
-		return false;
-
-	auto item = dynamic_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(currentIndex);
+	auto item = standardModel->itemFromIndex(currentIndex);
 	if(!item)
-		return result;
+		return false;
 
 	if(!filterAcceptsRowText(source_row, source_parent))
 		return false;
 
+	if(!filter.isEmpty())
+		return true;
+
+	bool inCategory = item->data(ObjectGroupRole).toString() == category;
 	if(terrain == ETerrainId::ANY_TERRAIN)
-		return result;
+		return inCategory;
 
 	auto data = item->data().toJsonObject();
-	if(data.empty())
-		return result;
-
-	auto objIdJson = data["id"];
-	if(objIdJson == QJsonValue::Undefined)
-		return result;
-
 	auto objId = data["id"].toInt();
 	auto objSubId = data["subid"].toInt();
 	auto templateId = data["template"].toInt();
 
 	auto factory = LIBRARY->objtypeh->getHandlerFor(objId, objSubId);
-	auto templ = factory->getTemplates()[templateId];
+	auto templ = factory->getTemplates().at(templateId);
 
-	result = result && templ->canBePlacedAt(terrain);
-
-	//if we are here, just text filter will be applied
-	return result;
+	return templ->canBePlacedAt(terrain) && (inCategory || !fitsAnyLand(*factory, templ));
 }
 
 bool ObjectBrowserProxyModel::filterAcceptsRowText(int source_row, const QModelIndex &source_parent) const
 {
-	if(source_parent.isValid())
-	{
-		if(filterAcceptsRowText(source_parent.row(), source_parent.parent()))
-			return true;
-	}
-
 	QModelIndex index = sourceModel()->index(source_row, 0 ,source_parent);
 	if(!index.isValid())
 		return false;
 
-	auto item = dynamic_cast<QStandardItemModel*>(sourceModel())->itemFromIndex(index);
+	auto * standardModel = qobject_cast<QStandardItemModel*>(sourceModel());
+	assert(standardModel);
+
+	auto item = standardModel->itemFromIndex(index);
 	if(!item)
 		return false;
 	
 	auto data = item->data().toJsonObject();
 
-	return (filter.isNull() || filter.isEmpty()
+	return (filter.isEmpty()
 			|| item->text().contains(filter, Qt::CaseInsensitive)
 			|| data["typeName"].toString().contains(filter, Qt::CaseInsensitive));
+}
+
+//catalog order instead of names keeps the monsters of each faction together
+bool ObjectBrowserProxyModel::lessThan(const QModelIndex & left, const QModelIndex & right) const
+{
+	bool leftInCategory = left.data(ObjectGroupRole).toString() == category;
+	bool rightInCategory = right.data(ObjectGroupRole).toString() == category;
+	if(leftInCategory != rightInCategory)
+		return leftInCategory;
+
+	return left.row() < right.row();
 }
 
 Qt::ItemFlags ObjectBrowserProxyModel::flags(const QModelIndex & index) const
@@ -111,10 +127,44 @@ QMimeData * ObjectBrowserProxyModel::mimeData(const QModelIndexList & indexes) c
 	return mimeData;
 }
 
-ObjectBrowser::ObjectBrowser(QWidget * parent):
-	QTreeView(parent)
+class ObjectIconDelegate : public QStyledItemDelegate
 {
+public:
+	using QStyledItemDelegate::QStyledItemDelegate;
+
+protected:
+	void initStyleOption(QStyleOptionViewItem * option, const QModelIndex & index) const override
+	{
+		QStyledItemDelegate::initStyleOption(option, index);
+		const auto * view = qobject_cast<const QListView *>(option->widget);
+		if(view && view->viewMode() == QListView::IconMode)
+		{
+			option->text.clear();
+			option->features.setFlag(QStyleOptionViewItem::HasDisplay, false);
+		}
+	}
+};
+
+ObjectBrowser::ObjectBrowser(QWidget * parent):
+	QListView(parent)
+{
+	setItemDelegate(new ObjectIconDelegate(this));
 	setDropIndicatorShown(false);
+	setUniformItemSizes(true);
+	setGridMode(true);
+}
+
+void ObjectBrowser::setGridMode(bool grid)
+{
+	setViewMode(grid ? IconMode : ListMode);
+	setFlow(grid ? LeftToRight : TopToBottom);
+	setWrapping(grid);
+	setIconSize(grid ? QSize(64, 64) : QSize(32, 32));
+	setGridSize(grid ? QSize(68, 68) : QSize());
+	verticalScrollBar()->setSingleStep(grid ? gridSize().height() : 1); //in IconMode the automatic step from Qt scrolls only a few pixels per wheel notch
+	setMovement(Static); //IconMode defaults to Free, which lets items be dragged around inside the view
+	setResizeMode(Adjust);
+	setDragDropMode(DragOnly); //setMovement(Static) disables dragging, objects are dragged out onto the map
 }
 
 void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
@@ -131,4 +181,32 @@ void ObjectBrowser::startDrag(Qt::DropActions supportedActions)
 	auto *drag = new QDrag(this);
 	drag->setMimeData(mimeData);
 	drag->exec(supportedActions);
+}
+
+ObjectCategoryList::ObjectCategoryList(QWidget * parent):
+	QListWidget(parent)
+{
+	setViewMode(IconMode);
+	setFlow(LeftToRight);
+	setWrapping(true);
+	setMovement(Static);
+	setResizeMode(Adjust);
+	setIconSize(QSize(32, 32));
+	setGridSize(QSize(36, 36));
+	setSelectionMode(SingleSelection);
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+}
+
+void ObjectCategoryList::fitHeight()
+{
+	doItemsLayout();
+	setFixedHeight(contentsSize().height() + 2 * frameWidth());
+}
+
+void ObjectCategoryList::resizeEvent(QResizeEvent * event)
+{
+	QListWidget::resizeEvent(event);
+	fitHeight();
 }

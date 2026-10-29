@@ -436,6 +436,23 @@ TEST_F(QuestSeerTest, Timeout_expiresOnLastDay)
 		<< "expired seer must not offer its reward";
 }
 
+TEST_F(QuestSeerTest, Timeout_showsCustomTimeoutMessage)
+{
+	auto s = seerTimeout();
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
+
+	auto * seer = expectAt<SeerHut>(s.questPos);
+	seer->getQuest().timeoutTextID = "core.genrltxt.1";
+
+	advanceDays(10);
+	GameRandomizer randomizer(*gameState());
+	seer->newTurn(gameEvents(), randomizer);
+
+	visit(findHeroAt(s.heroPos), seer);
+	ASSERT_FALSE(gameEvents().infoWindows.empty());
+	EXPECT_EQ(gameEvents().infoWindows.back().text.toString(LIBRARY->staticTexts()), LIBRARY->generaltexth->translate("core.genrltxt.1"));
+}
+
 TEST_F(QuestSeerTest, ManaReward_exceedsFullManaPool)
 {
 	TinyH3M::TinyH3MBuilder builder(EMapFormat::SOD);

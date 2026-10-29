@@ -170,6 +170,8 @@ void CPlayerInterface::initGameInterface(std::shared_ptr<Environment> ENV, std::
 
 	pathfinderCache = std::make_unique<PathfinderCache>(cb.get(), PathfinderOptions(*cb));
 	ENGINE->music().loadTerrainMusicThemes();
+	// in hotseat, adventure map of previous player still exists and must not receive selection of this player
+	adventureInt.reset();
 	initializeHeroTownList();
 
 	adventureInt.reset(new AdventureMapInterface());
@@ -2008,9 +2010,11 @@ void CPlayerInterface::tryShowNextPendingDialog()
 			return;
 		}
 
+		// dialog is destroyed together with its list node
+		const auto blockingPolicy = dialog.blockingPolicy;
 		dialogs.pop_front();
 
-		if(dialog.blockingPolicy != PendingDialog::Type::NonBlocking || showingDialog->isBusy())
+		if(blockingPolicy != PendingDialog::Type::NonBlocking || showingDialog->isBusy())
 			return;
 	}
 }

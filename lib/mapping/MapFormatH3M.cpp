@@ -735,15 +735,34 @@ void CMapLoaderH3M::readMapOptions()
 
 	if(features.levelHOTA1)
 	{
-		int32_t combinedArtifactsCount = reader->readInt32();
-		int32_t combinedArtifactsBytes = (combinedArtifactsCount + 7) / 8;
+		// bit N refers to N-th combined artifact of the map format, in order of artifact identifiers
+		std::vector<ArtifactID> combinedArtifacts;
+		for(int32_t i = 0; i < features.artifactsCount; ++i)
+		{
+			ArtifactID artifact = reader->toArtifact(i);
+			// artifacts of the format may be missing if the mod that provides them is not active
+			if(artifact.hasValue() && artifact.getNum() < LIBRARY->arth->size() && artifact.toArtifact()->isCombined())
+				combinedArtifacts.push_back(artifact);
+		}
 
-		for (int i = 0; i < combinedArtifactsBytes; ++i)
+		int32_t combinedArtifactsCount = reader->readInt32();
+		if(combinedArtifactsCount != combinedArtifacts.size())
+			logGlobal->warn("Map '%s': Expected %d combined artifacts, but %d found!", mapName, combinedArtifacts.size(), combinedArtifactsCount);
+
+		JsonNode disabledCombinations;
+		for(int32_t i = 0; i < (combinedArtifactsCount + 7) / 8; ++i)
 		{
 			uint8_t mask = reader->readUInt8();
-			if (mask != 0)
-				logGlobal->warn("Map '%s': Option to ban specific combined artifacts is not implemented!", mapName);
+			for(int32_t bit = 0; bit < 8; ++bit)
+			{
+				size_t index = i * 8 + bit;
+				if((mask & (1 << bit)) && index < combinedArtifacts.size())
+					disabledCombinations.Vector().emplace_back(combinedArtifacts[index].toArtifact()->getJsonKey());
+			}
 		}
+
+		if(!disabledCombinations.Vector().empty())
+			map->overrideGameSetting(EGameSettings::ARTIFACTS_DISABLED_COMBINATIONS, disabledCombinations);
 	}
 
 	if(features.levelHOTA3)
@@ -1312,11 +1331,17 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readWitchHut(const int3 & posit
 		{
 			if(allowedAbilities.size() != 1)
 			{
-				auto defaultAllowed = LIBRARY->skillh->getDefaultAllowed();
+				// Skills added by mods are unknown to the map, so treat them the same way as witch huts on random maps
+				for(const auto & skill : LIBRARY->skillh->getDefaultAllowed())
+				{
+					if(skill.getNum() < features.skillsCount)
+						continue;
 
-				for(int skillID = features.skillsCount; skillID < defaultAllowed.size(); ++skillID)
-					if(defaultAllowed.count(skillID))
-						allowedAbilities.insert(SecondarySkill(skillID));
+					if(skill.toSkill()->hasTag("bannedForWitchHut"))
+						continue;
+
+					allowedAbilities.insert(skill);
+				}
 			}
 
 			JsonNode variable;
@@ -1499,9 +1524,10 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readAbandonedMine(const int3 & 
 		bool hasCustomGuards = reader->readBool();
 		if (hasCustomGuards)
 		{
-			object->abandonedMineGuards.creature = reader->readCreature32("abandoned mine at " + mapPosition.toString());
-			object->abandonedMineGuards.minAmount = reader->readInt32();
-			object->abandonedMineGuards.maxAmount = reader->readInt32();
+			auto & guards = object->abandonedMineGuards;
+			guards.creature = reader->readCreature32("abandoned mine at " + mapPosition.toString());
+			guards.minAmount = reader->readInt32Checked(1, std::numeric_limits<int32_t>::max());
+			guards.maxAmount = std::max(guards.minAmount, reader->readInt32Checked(1, std::numeric_limits<int32_t>::max()));
 		}
 		else
 			reader->skipUnused(12);
@@ -2059,11 +2085,12 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 			return readTown(mapPosition, objectTemplate, objectInstanceID);
 
 		case Obj::MINE:
-		case Obj::ABANDONED_MINE:
 			if (subid < 7)
 				return readMine(mapPosition);
 			else
 				return readAbandonedMine(mapPosition);
+		case Obj::ABANDONED_MINE:
+			return readAbandonedMine(mapPosition);
 
 		case Obj::CREATURE_GENERATOR1:
 		case Obj::CREATURE_GENERATOR2:
@@ -2681,7 +2708,6 @@ void CMapLoaderH3M::readQuestTimeoutMessage(Quest & quest, const int3 & position
 	if(!features.levelHOTA10)
 		return;
 
-	// TODO: stored, but not shown in game when the quest runs out of time
 	quest.timeoutTextID = readLocalizedString(TextIdentifier("quest", position.x, position.y, position.z, questIndex, "timeout"));
 }
 
@@ -2889,21 +2915,27 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 
 	if(features.levelHOTA5)
 	{
-		// Most likely customization of special buildings per faction -> 4x11 table
-		// presumably:
-		// 0 -> default / allowed
-		// 1 -> built?
-		// 2 -> banned?
+		// 4 entries per faction, entry K is faction-specific building 18+K: 0 - default, 1 - built, 2 - banned
 		uint32_t specialBuildingsSize = reader->readUInt32();
 
 		for (int i = 0; i < specialBuildingsSize; ++i)
 		{
-			int factionID = i / 4;
-			int buildingID = i % 4;
+			int8_t specialBuildingState = reader->readInt8Checked(0, 2);
+			if (specialBuildingState == 0)
+				continue;
 
-			int8_t specialBuildingBuilt = reader->readInt8Checked(0, 2);
-			if (specialBuildingBuilt != 0)
-				logGlobal->warn("Map '%s': Town at %s: Constructing / banning town-specific special building %d in faction %d on start is not implemented!", mapName, position.toString(), buildingID, factionID);
+			FactionID buildingFaction = reader->toFaction(i / 4);
+			BuildingID building = reader->toBuilding(18 + i % 4, buildingFaction);
+			if (building == BuildingID::NONE || (faction && *faction != buildingFaction))
+				continue;
+
+			// faction of random town is unknown until game start
+			if (faction && specialBuildingState == 1)
+				object->addBuilding(building);
+			else if (faction)
+				object->forbiddenBuildings.insert(building);
+			else
+				(specialBuildingState == 1 ? object->randomTownBuildings : object->randomTownForbiddenBuildings)[buildingFaction].insert(building);
 		}
 	}
 
@@ -2921,25 +2953,32 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 		{
 			int32_t creatureGrowth8 = reader->readInt32();
 
-			// always 44
-			int32_t hotaAmount = reader->readInt32();
+			// bitmask with same layout as table of faction-specific buildings in town
+			int32_t specialBuildingsSize = reader->readInt32();
+			uint64_t specialBuildingsMask = reader->readUInt32();
+			specialBuildingsMask |= static_cast<uint64_t>(reader->readUInt16()) << 32;
 
-			// contains bitmask on which town-specific buildings to build
-			// 4 bits / town, for each of special building in town (special 1 - special 4)
-			int32_t hotaSpecialA = reader->readInt32();
-			int16_t hotaSpecialB = reader->readInt16();
+			for (int i = 0; i < std::min(specialBuildingsSize, 48); ++i)
+			{
+				if (!(specialBuildingsMask & (1ull << i)))
+					continue;
 
-			if (hotaSpecialA != 0 || hotaSpecialB != 0 || hotaAmount != 44)
-				logGlobal->warn("Map '%s': Town at %s: Constructing town-specific special buildings in event is not implemented!", mapName, position.toString());
+				FactionID buildingFaction = reader->toFaction(i / 4);
+				BuildingID building = reader->toBuilding(18 + i % 4, buildingFaction);
+				if (building == BuildingID::NONE || (faction && *faction != buildingFaction))
+					continue;
+
+				if (faction)
+					event.buildings.insert(building);
+				else
+					event.randomTownBuildings[buildingFaction].insert(building);
+			}
 
 			event.creatures.push_back(creatureGrowth8);
 		}
 
 		if(features.levelHOTA7)
-		{
-			// TODO: hota
-			[[maybe_unused]] bool neutralAffected = reader->readBool();
-		}
+			event.neutralAffected = reader->readBool();
 
 		// New buildings
 		reader->readBitmaskBuildings(event.buildings, faction);
@@ -2968,12 +3007,17 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readTown(const int3 & position,
 			}
 			else
 			{
-				// TODO: HOTA support
 				uint8_t invertedAlignment = alignment - PlayerColor::PLAYER_LIMIT.getNum();
 
 				if(invertedAlignment < PlayerColor::PLAYER_LIMIT.getNum())
 				{
-					logGlobal->warn("Map '%s': Alignment of town at %s 'not as player %d' is not implemented!", mapName, position.toString(), alignment - PlayerColor::PLAYER_LIMIT.getNum());
+					if (mapHeader->players[invertedAlignment].canAnyonePlay())
+					{
+						object->alignmentToPlayer = PlayerColor(invertedAlignment);
+						object->alignmentExcludesPlayer = true;
+					}
+					else
+						logGlobal->warn("Map '%s': Alignment of town at %s is invalid! Player %d is not present on map!", mapName, position.toString(), static_cast<int>(invertedAlignment));
 				}
 				else
 				{

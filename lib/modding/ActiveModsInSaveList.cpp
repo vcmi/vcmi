@@ -15,9 +15,9 @@
 #include "CModHandler.h"
 #include "ModIncompatibility.h"
 
-void ActiveModsInSaveList::verifyActiveMods(const std::map<TModID, ModVerificationInfo> & modList)
+void ActiveModsInSaveList::verifyActiveMods() const
 {
-	auto comparison = ModVerificationInfo::verifyListAgainstLocalMods(modList);
+	auto comparison = ModVerificationInfo::verifyListAgainstLocalMods(mods);
 	std::vector<TModID> missingMods;
 	std::vector<TModID> excessiveMods;
 
@@ -27,7 +27,7 @@ void ActiveModsInSaveList::verifyActiveMods(const std::map<TModID, ModVerificati
 			continue; // ignore changes in submods since they change a lot between mod updates
 
 		if (compared.second == ModVerificationStatus::NOT_INSTALLED)
-			missingMods.push_back(modList.at(compared.first).name);
+			missingMods.push_back(mods.at(compared.first).name);
 
 		if (compared.second == ModVerificationStatus::DISABLED)
 			missingMods.push_back(LIBRARY->modh->getModInfo(compared.first).getName());

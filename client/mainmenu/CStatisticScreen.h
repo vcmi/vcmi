@@ -90,6 +90,7 @@ class StatisticSelector : public CWindowObject
 	void update(int to);
 public:
 	StatisticSelector(const std::vector<std::string> & texts, const std::function<void(int selectedIndex)> & cb);
+	void keyPressed(EShortcut key) override;
 };
 
 class OverviewPanel : public CIntObject

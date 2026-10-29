@@ -218,6 +218,20 @@ struct DLL_LINKAGE LobbyUpdateState : public CLobbyPackToPropagate
 	}
 };
 
+/// Map info of the selected map, save or campaign, sent on map change and to a newly connected client.
+/// Separate from LobbyUpdateState, which is sent on every change in lobby, since it contains the whole map header
+struct DLL_LINKAGE LobbyUpdateMapInfo : public CPackForLobby
+{
+	std::shared_ptr<CMapInfo> mapInfo;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & mapInfo;
+	}
+};
+
 struct DLL_LINKAGE LobbySetMap : public CLobbyPackToServer
 {
 	std::shared_ptr<CMapInfo> mapInfo;

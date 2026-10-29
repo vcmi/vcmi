@@ -11,7 +11,7 @@
 #include "JsonSerializer.h"
 
 JsonSerializer::JsonSerializer(const IInstanceResolver * instanceResolver_, JsonNode & root_):
-	JsonTreeSerializer(instanceResolver_, &root_, true, false)
+	JsonTreeSerializer(instanceResolver_, nullptr, &root_, true)
 {
 
 }

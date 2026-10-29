@@ -18,6 +18,8 @@ class ICombatEventScript;
 class IDamageCalculatorScript;
 class JsonNode;
 class TextIdentifier;
+class IIdentifierResolver;
+class LibraryLoadContext;
 
 namespace spells::effects
 {
@@ -54,11 +56,15 @@ public:
 	/// Fresh spell effect instance - the caller initializes it with its own parameters.
 	virtual std::shared_ptr<spells::effects::Effect> createSpellEffect(ScriptID scriptID) const = 0;
 
-	/// Validates the parameters of a single instance of this script against the schema it
-	/// declares, and turns every field it lists in stringRegistrations into a registered text ID.
+	/// Validates the parameters of a single instance of this script against the schema it declares.
+	/// Strings listed in stringRegistrations stay as they are, since only library content can register strings
+	virtual void prepareParameters(ScriptID scriptID, JsonNode & parameters, IIdentifierResolver & resolver) const = 0;
+
+	/// Validates the parameters of a single instance of this script, loaded as part of library content,
+	/// and turns every field it lists in stringRegistrations into a registered text ID.
 	/// `owner` identifies whoever holds this instance and prefixes the generated text IDs;
 	/// when it is empty only validation runs, since there is no stable key to register under.
-	virtual void prepareParameters(ScriptID scriptID, JsonNode & parameters, const TextIdentifier & owner) const = 0;
+	virtual void prepareParameters(ScriptID scriptID, JsonNode & parameters, LibraryLoadContext & context, const TextIdentifier & owner) const = 0;
 
 	/// The damage calculator of the game, or null when no script declares one - which leaves no rule
 	/// for how much damage an attack deals, so whoever asks for one throws.

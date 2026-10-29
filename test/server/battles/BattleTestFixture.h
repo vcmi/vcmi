@@ -117,7 +117,7 @@ public:
 	void makeClone(CStack * stack);
 	/// Executes a creature spell action; an invalid hex creates an empty target
 	bool castAsUnit(const CStack * caster, const SpellID & spellID, const BattleHex & targetHex = BattleHex());
-	/// Submits the action as the player of its side, making the stack it names the active one.
+	/// Submits the action as the player controlling its stack, or of its side, making the stack it names the active one.
 	bool act(const BattleAction & action);
 
 	/// Options the client offers for the unit, which becomes the active one
@@ -152,6 +152,8 @@ public:
 	/// Collapses the stack's damage range onto its maximum, the way Bless does. Granted directly
 	/// rather than cast, because some of the creatures that need it are undead and refuse the spell.
 	static void forceMaximumDamage(CStack * stack);
+	/// Hands the stack over to the opposing player, the way Hypnotize does
+	static void hypnotize(CStack * stack);
 
 	/// Text IDs that the text is made of, in order. Lets a test check a text without depending on the language of the game
 	static std::vector<std::string> textIDsOf(const MetaString & text);

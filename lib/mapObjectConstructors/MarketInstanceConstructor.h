@@ -26,7 +26,7 @@ class MarketInstanceConstructor : public CDefaultObjectTypeHandler<CGMarket>
 	/// if set, overrides exchange effectiveness that is normally derived from market efficiency
 	double exchangeEffectiveness = 0;
 
-	void initTypeData(const JsonNode & config) override;
+	void initTypeData(LibraryLoadContext & context, const JsonNode & config) override;
 public:
 	std::shared_ptr<CGMarket> createObject(IGameInfoCallback * cb) const override;
 	void randomizeObject(CGMarket * object, IGameRandomizer & gameRandomizer) const override;

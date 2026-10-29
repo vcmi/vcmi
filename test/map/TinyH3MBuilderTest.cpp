@@ -427,3 +427,37 @@ TEST(TinyH3MBuilderTest, KillCreatureQuest)
 	// the resolved target lives in quest.mission.destroyedObjects once mapping completes.
 	EXPECT_FALSE(guard->getQuest().mission.destroyedObjects.empty());
 }
+
+class HotaAbandonedMineTest : public TinyMapGameTest
+{
+protected:
+	const CGMine * startWithMine(CreatureID guard, int32_t minAmount, int32_t maxAmount)
+	{
+		TinyH3M::TinyH3MBuilder builder(EMapFormat::HOTA);
+		builder.hotaVersion(5)
+			.size(36, /*twoLevel*/ false)
+			.playerActive(PlayerColor(0))
+			.abandonedMine({10, 10, 0}, guard, minAmount, maxAmount);
+		startWithMap(std::move(builder));
+		auto mines = findAll<CGMine>();
+		return mines.size() == 1 ? mines.front() : nullptr;
+	}
+};
+
+TEST_F(HotaAbandonedMineTest, CustomGuardsReplaceDefaultOnes)
+{
+	const auto * mine = startWithMine(CreatureID(CreatureID::IMP), 20, 30);
+	ASSERT_NE(mine, nullptr);
+	ASSERT_EQ(mine->stacksCount(), 1);
+	EXPECT_EQ(mine->getCreature(SlotID(0))->getId(), CreatureID(CreatureID::IMP));
+	EXPECT_GE(mine->getStackCount(SlotID(0)), 20);
+	EXPECT_LE(mine->getStackCount(SlotID(0)), 30);
+}
+
+TEST_F(HotaAbandonedMineTest, DefaultGuardsWithoutCustomOnes)
+{
+	const auto * mine = startWithMine(CreatureID::NONE, 0, 0);
+	ASSERT_NE(mine, nullptr);
+	ASSERT_GT(mine->stacksCount(), 0);
+	EXPECT_EQ(mine->getCreature(SlotID(0))->getId(), CreatureID(CreatureID::TROGLODYTES));
+}

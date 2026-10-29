@@ -34,6 +34,7 @@
 #include "PickObjectDelegate.h"
 #include "playerselectionwidget.h"
 #include "../mapcontroller.h"
+#include "questguardwidget.h"
 #include "questwidget.h"
 #include "rewardswidget.h"
 #include "scholarwidget.h"
@@ -378,7 +379,10 @@ void Inspector::updateProperties(CGTownInstance * o)
 	addProperty(QObject::tr("Spells"), PropertyEditorPlaceholder(), new TownSpellsDelegate(*o), false);
 	addProperty(QObject::tr("Events"), PropertyEditorPlaceholder(), new TownEventsDelegate(*o, controller), false);
 	if(o->ID == Obj::RANDOM_TOWN)
+	{
 		addProperty(QObject::tr("Same as player"), o->alignmentToPlayer, new OwnerDelegate(controller), false);
+		addProperty(QObject::tr("Exclude player's faction"), o->alignmentExcludesPlayer, false);
+	}
 }
 
 void Inspector::updateProperties(CGArtifact * o)
@@ -490,10 +494,16 @@ void Inspector::updateProperties(CRewardableObject * o)
 			delegate = new ShrineDelegate(controller, *o);
 			break;
 		}
+		case MapObjectID::SEER_HUT:
+		case MapObjectID::QUEST_GUARD:	//don't add a reward widget
+		{
+			break;
+		}
 		default:
 			delegate = new RewardsDelegate(*controller.map(), *o);
 	}
-	addProperty(QObject::tr("Reward"), PropertyEditorPlaceholder(), delegate, false);
+	if (delegate)
+		addProperty(QObject::tr("Reward"), PropertyEditorPlaceholder(), delegate, false);
 }
 
 void Inspector::updateProperties(CGPandoraBox * o)
@@ -516,19 +526,26 @@ void Inspector::updateProperties(CGEvent * o)
 
 void Inspector::updateProperties(QuestSource * o)
 {
-	if(!o) return;
+	if(!o)
+		return;
+
+	BaseInspectorItemDelegate * delegate = nullptr;
+
+	switch(o->ID)
 	{
-		auto * delegate = new QuestDelegate(controller, *o);
-		addProperty(QObject::tr("Quest"), PropertyEditorPlaceholder(), delegate, false);
+		case MapObjectID::SEER_HUT:
+		{
+			delegate = new QuestDelegate(controller, *o);
+			break;
+		}
+		case MapObjectID::QUEST_GUARD:
+		{
+			delegate = new QuestGuardDelegate(controller, *(o->allQuestsEditor()[0].get()));
+			break;
+		}
 	}
-}
-
-void Inspector::updateProperties(QuestGuard * o)
-{
-	if(!o) return;
-
-	addProperty(QObject::tr("Reward"), PropertyEditorPlaceholder(), nullptr, true);
-	addProperty(QObject::tr("Repeat quest"), o->getQuest().repeatedQuest, true);
+	if (delegate)
+		addProperty(QObject::tr("Quest"), PropertyEditorPlaceholder(), delegate, false);
 }
 
 void Inspector::updateProperties()
@@ -567,7 +584,6 @@ void Inspector::updateProperties()
 	UPDATE_OBJ_PROPERTIES(CGPandoraBox);
 	UPDATE_OBJ_PROPERTIES(CGEvent);
 	UPDATE_OBJ_PROPERTIES(QuestSource);
-	UPDATE_OBJ_PROPERTIES(QuestGuard);
 
 	table->show();
 }
@@ -683,6 +699,9 @@ void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVari
 
 	if(key == QObject::tr("Same as player"))
 		o->alignmentToPlayer = PlayerColor(value.toInt());
+
+	if(key == QObject::tr("Exclude player's faction"))
+		o->alignmentExcludesPlayer = value.toBool();
 }
 
 void Inspector::setProperty(CGSignBottle * o, const QString & key, const QVariant & value)

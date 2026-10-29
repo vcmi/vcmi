@@ -18,6 +18,7 @@
 class CBinaryReader;
 class CLegacyConfigParser;
 class JsonNode;
+class IIdentifierResolver;
 class int3;
 
 class DLL_LINKAGE ObjectTemplate : public Serializeable
@@ -135,7 +136,7 @@ public:
 	void readTxt(CLegacyConfigParser & parser);
 	void readMsk();
 	void readMap(CBinaryReader & reader);
-	void readJson(const JsonNode & node, bool withTerrain = true);
+	void readJson(const JsonNode & node, IIdentifierResolver & resolver, bool withTerrain = true);
 	void writeJson(JsonNode & node, bool withTerrain = true) const;
 
 	bool operator==(const ObjectTemplate& ot) const { return (id == ot.id && subid == ot.subid); }

@@ -59,3 +59,4 @@ Auto-generated from C++ host bindings via `vcmiserver --export-lua-docs`. Do not
 - [PrimarySkill](PrimarySkill.md)
 - [PlayerColor](PlayerColor.md)
 - [PlayerStatus](PlayerStatus.md)
+- [ComponentType](ComponentType.md)

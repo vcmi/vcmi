@@ -1025,7 +1025,7 @@ SDL_Surface * CSDL_Ext::drawShadow(SDL_Surface * sourceSurface, bool doSheer)
 {
 	SDL_Surface *destSurface = newSurface(Point(sourceSurface->w, sourceSurface->h));
 
-	double shearX = doSheer ? 0.5 : 0.0;
+	double shearX = doSheer ? shadowShearX : 0.0;
 	double scaleY = doSheer ? 0.5 : 0.25;
 
 	int lowestSource = getLowestNonTransparentY(sourceSurface);

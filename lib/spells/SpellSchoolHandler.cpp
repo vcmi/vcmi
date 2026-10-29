@@ -12,6 +12,7 @@
 #include "SpellSchoolHandler.h"
 
 #include "../GameLibrary.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../json/JsonNode.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
@@ -26,14 +27,14 @@ std::string spells::SpellSchoolType::getNameTranslated() const
 	return LIBRARY->generaltexth->translate(getNameTextID());
 }
 
-std::vector<JsonNode> SpellSchoolHandler::loadLegacyData()
+std::vector<JsonNode> SpellSchoolHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	objects.resize(4);
 
 	return std::vector<JsonNode>(4, JsonNode(JsonMap()));
 }
 
-std::shared_ptr<spells::SpellSchoolType> SpellSchoolHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<spells::SpellSchoolType> SpellSchoolHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	auto ret = std::make_shared<spells::SpellSchoolType>();
 
@@ -44,7 +45,7 @@ std::shared_ptr<spells::SpellSchoolType> SpellSchoolHandler::loadFromJson(const 
 	ret->schoolBookmarkPath = AnimationPath::fromJson(json["schoolBookmark"]);
 	ret->schoolHeaderPath = ImagePath::fromJson(json["schoolHeader"]);
 
-	LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
+	context.lib.generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
 
 	return ret;
 }

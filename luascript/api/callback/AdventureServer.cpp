@@ -76,12 +76,13 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 		}, {},
 		"Adds the object's active quest to a player's in-game quest log. Calling it again for a quest already "
 		"in the log does nothing.");
-	R.function<&AdventureServerProxy::setQuestHintText>("setQuestHintText",
+	R.function<&AdventureServerProxy::setQuestHint>("setQuestHint",
 		{
 			{"target", "The quest source (seer hut / quest guard) whose hint changes."},
-			{"text", "New hover / quest-log text for the object's active quest."}
+			{"text", "New hover / quest-log text for the object's active quest."},
+			{"components", "Icons shown with the hint in the quest log; nil for none."}
 		}, {},
-		"Internal plumbing for the setQuestHint helper. Scripts should call setQuestHint instead.");
+		"Sets the hover / quest-log hint of a scripted quest, and the icons shown with it in the quest log.");
 	R.function<&AdventureServerProxy::disablePlayerEvent>("disablePlayerEvent",
 		{
 			{"handler", "Name of the map script handler that the timed player event runs."}
@@ -332,9 +333,14 @@ void AdventureServerProxy::addToQuestLog(IGameEventCallback & object, const CGOb
 	object.addQuest(player, questSource->getQuestIdentity());
 }
 
-void AdventureServerProxy::setQuestHintText(IGameEventCallback & object, const CGObjectInstance & target, const LuaMetaString & text)
+void AdventureServerProxy::setQuestHint(IGameEventCallback & object, const CGObjectInstance & target, const LuaMetaString & text, const std::optional<std::vector<LuaComponent>> & components)
 {
-	object.setQuestHintText(target.id, text.toMetaString());
+	std::vector<Component> result;
+	if(components)
+		for(const auto & component : *components)
+			result.push_back(component.toComponent());
+
+	object.setQuestHint(target.id, text.toMetaString(), result);
 }
 
 void AdventureServerProxy::disablePlayerEvent(IGameEventCallback & object, const std::string & handler)
@@ -521,7 +527,9 @@ void AdventureServerProxy::grantCreaturesToHire(IGameEventCallback & object, con
 
 void AdventureServerProxy::constructBuilding(IGameEventCallback & object, const CGTownInstance & town, BuildingID building)
 {
-	object.buildStructureForced(town.id, building);
+	// HotA scripts re-issue construction every turn and expect existing buildings to be skipped
+	if(town.getTown()->buildings.count(building) && !town.hasBuilt(building))
+		object.buildStructureForced(town.id, building);
 }
 
 void AdventureServerProxy::showMessage(IGameEventCallback & object, PlayerColor player, const LuaMetaString & text,

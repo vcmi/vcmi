@@ -283,6 +283,12 @@ void Quest::getVisitText(const IGameInfoCallback * cb, MetaString &iwText, std::
 
 void Quest::loadComponents(std::vector<Component> & components, const CGHeroInstance * h) const
 {
+	if(missionKind == EQuestMission::HOTA_SCRIPTED)
+	{
+		components.insert(components.end(), scriptHintComponents.begin(), scriptHintComponents.end());
+		return;
+	}
+
 	mission.loadComponents(components, h);
 
 	if(missionKind != EQuestMission::HERO || !heroPortrait.isValid())
@@ -367,6 +373,15 @@ void Quest::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeInt("timeLimit", lastDay, -1);
 	handler.serializeString("timeoutText", timeoutTextID);
 	handler.serializeStruct("limiter", mission);
+	if (handler.saving && reward)
+	{
+		handler.serializeStruct("reward", reward.value());
+	}
+	else if (!handler.saving && handler.getCurrent()["reward"].isStruct())
+	{
+		reward = Rewardable::VisitInfo();
+		handler.serializeStruct("reward", reward.value());
+	}
 
 	// kill quests have a single target; kept as a scalar "killTarget" key for map
 	// compatibility, but stored in the limiter as mission.destroyedObjects
@@ -447,10 +462,26 @@ Quest & QuestSource::addQuest()
 	return *quests.back();
 }
 
+bool QuestSource::isQuestExpired(const Quest & q) const
+{
+	return q.lastDay >= 0 && q.lastDay <= cb->getCalendar().getCurrentDay() - 1;
+}
+
+std::string QuestSource::getTimeoutTextID() const
+{
+	if(quests.empty())
+		return {};
+
+	const Quest & q = *quests.at(currentQuestIndex);
+	if(q.isCompleted || !isQuestExpired(q))
+		return {};
+	return q.timeoutTextID;
+}
+
 bool QuestSource::isQuestAvailable(const Quest & q) const
 {
-	if(q.lastDay >= 0 && q.lastDay <= cb->getCalendar().getCurrentDay() - 1)
-		return false; // deadline passed
+	if(isQuestExpired(q))
+		return false;
 	if(!q.mission.allowedDifficulties.contains(cb->getStartInfo()->getDifficulty()))
 		return false; // not offered on this difficulty
 	if(!q.repeatedQuest && q.isCompleted)
@@ -500,10 +531,20 @@ bool QuestSource::hasAnotherOfferableQuest() const
 void QuestSource::syncActiveReward()
 {
 	configuration.info.clear();
-	if(isEmpty() || !getQuest().reward)
+	if(isEmpty())
 		return;
 
-	configuration.info.push_back(*getQuest().reward);
+	if(getQuest().reward)
+	{
+		configuration.info.push_back(*getQuest().reward);
+	}
+	else
+	{
+		//empty visit info gives no reward, but allows to move to the next quest
+		auto emptyReward = Rewardable::VisitInfo();
+		emptyReward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		configuration.info.push_back(emptyReward);
+	}
 	getQuest().getCompletionText(cb, configuration.info.back().message);
 }
 
@@ -804,6 +845,11 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 			return;
 		}
 	}
+	else if(std::string timeoutText = getTimeoutTextID(); !timeoutText.empty())
+	{
+		iw.text.appendTextID(timeoutText);
+		gameEvents.showInfoDialog(&iw);
+	}
 	else
 	{
 		// no active quest: pick a valid "empty seer" flavour without one
@@ -868,70 +914,61 @@ void SeerHut::offerNextQuest(IGameEventCallback & gameEvents, const CGHeroInstan
 
 void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	// VCMI maps keep the reward in configuration, H3M maps only in the quest
-	if(handler.saving && configuration.info.empty() && !allQuests().empty() && getQuest().reward)
-		configuration.info.push_back(*getQuest().reward);
-
-	//quest and reward
 	CRewardableObject::serializeJsonOptions(handler);
 	handler.serializeString("seerName", seerNameTextID);
 
-	bool oldVersion = false;
-	{
-		if (!handler.saving)
-		{
-			auto s = handler.enterStruct("quest");
-			oldVersion = !handler.getCurrent().isNull();
-		}
-	}
-
-	if (oldVersion)
-	{
-		auto s = handler.enterStruct("quest");
-		addQuest().serializeJson(handler);
-		if (!configuration.info.empty())
-			allQuestsEditor()[0]->reward = configuration.info[0];
-	}
-	else
-	{
-		JsonArraySerializer questsArray = handler.enterArray("quests");
-		if(handler.saving)
-		{
-			int size = allQuests().size();
-			questsArray.resize(size, JsonNode::JsonType::DATA_VECTOR);
-			for (int i = 0; i<size; i++)
-			{
-				auto questSerializer = questsArray.enterStruct(i);
-				allQuests()[i]->serializeJson(handler);
-			}
-		} else
-		{
-			int size = questsArray.size();
-			for (int i = 0; i<size; i++)
-			{
-				auto & quest = addQuest();
-				auto questSerializer = questsArray.enterStruct(i);
-				quest.serializeJson(handler);
-			}
-		}
-
-		//we copy rewards consecutively from rewardable to quests (TODO:add reward widget included within quest widget in the editor and save rewards as reward)
-		if (!handler.saving)
-		{
-			for (int i = 0; i<configuration.info.size() && i<allQuests().size(); i++)
-			{
-				allQuestsEditor()[i]->reward = configuration.info[i];
-			}
-		}
-	}
-
+	int version = 2; // versions of serialization, 0 is the oldest one
 	if(!handler.saving)
 	{
-		readLegacyReward(handler);
-
-		if(!getQuest().reward && !configuration.info.empty())
-			getQuest().reward = configuration.info.front();
+		if (handler.getCurrent()["quest"].isStruct())
+			version = 1;
+		if (handler.getCurrent()["reward"].isStruct())
+			version = 0;
 	}
+
+	switch(version)
+	{
+		case 0:
+			readLegacyReward(handler);
+			break;
+		case 1:
+			readReward17(handler);
+			break;
+		default:
+			readOrWriteReward18(handler);
+	}
+}
+
+void SeerHut::readOrWriteReward18(JsonSerializeFormat & handler)
+{
+	JsonArraySerializer questsArray = handler.enterArray("quests");
+	if(handler.saving)
+	{
+		int size = allQuests().size();
+		questsArray.resize(size, JsonNode::JsonType::DATA_VECTOR);
+		for (int i = 0; i<size; i++)
+		{
+			auto questSerializer = questsArray.enterStruct(i);
+			allQuests()[i]->serializeJson(handler);
+		}
+	} else
+	{
+		int size = questsArray.size();
+		for (int i = 0; i<size; i++)
+		{
+			auto & quest = addQuest();
+			auto questSerializer = questsArray.enterStruct(i);
+			quest.serializeJson(handler);
+		}
+	}
+}
+
+void SeerHut::readReward17(JsonSerializeFormat & handler)
+{
+	auto s = handler.enterStruct("quest");
+	addQuest().serializeJson(handler);
+	if (!configuration.info.empty())
+		allQuestsEditor()[0]->reward = configuration.info[0];
 }
 
 void SeerHut::readLegacyReward(JsonSerializeFormat & handler)
@@ -985,6 +1022,9 @@ void SeerHut::readLegacyReward(JsonSerializeFormat & handler)
 	
 	vinfo.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 	configuration.info.push_back(vinfo);
+
+	if (!configuration.info.empty())
+		allQuestsEditor()[0]->reward = configuration.info[0];
 }
 
 void QuestGuard::init(vstd::RNG & rand)
@@ -1088,7 +1128,15 @@ void QuestGate::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstanc
 	// deadline passed or quest not offered on this difficulty - it can never be met, so the gate stays shut
 	if(!isQuestAvailable(getQuest()))
 	{
-		h->showInfoDialog(gameEvents, 18);
+		if(std::string timeoutText = getTimeoutTextID(); !timeoutText.empty())
+		{
+			InfoWindow iw;
+			iw.player = h->getOwner();
+			iw.text.appendTextID(timeoutText);
+			gameEvents.showInfoDialog(&iw);
+		}
+		else
+			h->showInfoDialog(gameEvents, 18);
 		return;
 	}
 

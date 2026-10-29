@@ -37,6 +37,7 @@
 #include "windows/GUIClasses.h"
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/GameLibrary.h"
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/serializer/GameConnection.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -59,6 +60,15 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 	{
 		handler.logicConnection->setSerializationVersion(pack.version);
 		handler.logicConnection->connectionID = pack.clientId;
+
+		// server of an older version does not reject clients of newer versions
+		if(pack.version < ESerializationVersion::LOBBY_MAP_INFO_PACK)
+		{
+			handler.showServerError(LIBRARY->generaltexth->translate("vcmi.server.errors.incompatibleVersion"));
+			handler.sendClientDisconnecting();
+			return;
+		}
+
 		if(handler.mapToStart)
 		{
 			handler.setMapInfo(handler.mapToStart);
@@ -214,13 +224,20 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState &
 {
 	pack.hostChanged = pack.state.hostClientId != handler.hostClientId;
 	static_cast<LobbyState &>(handler) = pack.state;
-	// the map info the previous texts came from is gone now
+	// the campaign state the previous texts came from is gone now
 	handler.installLobbyTexts();
 	if(handler.mapToStart && handler.mi)
 	{
 		handler.startMapAfterConnection(nullptr);
 		handler.sendStartGame();
 	}
+}
+
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateMapInfo(LobbyUpdateMapInfo & pack)
+{
+	handler.mi = pack.mapInfo;
+	// the map info the previous texts came from is gone now
+	handler.installLobbyTexts();
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)

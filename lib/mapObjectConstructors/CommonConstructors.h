@@ -50,7 +50,7 @@ class ResourceInstanceConstructor : public CDefaultObjectTypeHandler<CGResource>
 	JsonNode config;
 	GameResID resourceType;
 public:
-	void initTypeData(const JsonNode & input) override;
+	void initTypeData(LibraryLoadContext & context, const JsonNode & input) override;
 
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;
@@ -74,7 +74,7 @@ class DLL_LINKAGE MineInstanceConstructor : public CDefaultObjectTypeHandler<CGM
 	std::string ownedGuardedMessageTextID;
 	std::string onCaptureMessageTextID;
 public:
-	void initTypeData(const JsonNode & input) override;
+	void initTypeData(LibraryLoadContext & context, const JsonNode & input) override;
 
 	GameResID getResourceType() const;
 	ui32 getDefaultQuantity() const;
@@ -91,7 +91,7 @@ class CTownInstanceConstructor : public CDefaultObjectTypeHandler<CGTownInstance
 	JsonNode filtersJson;
 protected:
 	bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const override;
-	void initTypeData(const JsonNode & input) override;
+	void initTypeData(LibraryLoadContext & context, const JsonNode & input) override;
 
 public:
 	const CFaction * faction = nullptr;
@@ -99,7 +99,7 @@ public:
 
 	void initializeObject(CGTownInstance * object) const override;
 	void randomizeObject(CGTownInstance * object, IGameRandomizer & gameRandomizer) const override;
-	void afterLoadFinalization() override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 
 	bool hasNameTextID() const override;
 	std::string getNameTextID() const override;
@@ -118,7 +118,7 @@ class CHeroInstanceConstructor : public CDefaultObjectTypeHandler<CGHeroInstance
 	const CHeroClass * heroClass = nullptr;
 
 	std::shared_ptr<const ObjectTemplate> getOverride(TerrainId terrainType, const CGObjectInstance * object) const override;
-	void initTypeData(const JsonNode & input) override;
+	void initTypeData(LibraryLoadContext & context, const JsonNode & input) override;
 
 public:
 	void randomizeObject(CGHeroInstance * object, IGameRandomizer & gameRandomizer) const override;
@@ -130,7 +130,7 @@ public:
 class DLL_LINKAGE BoatInstanceConstructor : public CDefaultObjectTypeHandler<CGBoat>
 {
 protected:
-	void initTypeData(const JsonNode & config) override;
+	void initTypeData(LibraryLoadContext & context, const JsonNode & config) override;
 	
 	std::vector<std::shared_ptr<Bonus>> bonuses;
 	EPathfindingLayer layer;

@@ -782,7 +782,7 @@ void BattleInfo::updateUnit(uint32_t id, const JsonNode & data, int64_t healthDe
 		auto selector = [](const Bonus * b)
 		{
 			//Special case: persistent effects, such as DISRUPTING_RAY, survive death
-			return b->source == BonusSource::SPELL_EFFECT && !b->sid.as<SpellID>().toSpell()->isPersistent();
+			return b->source == BonusSource::SPELL_EFFECT && !b->sid.as<SpellWithMasteryID>().getSpellID().toSpell()->isPersistent();
 		};
 		changedStack->removeBonusesRecursive(selector);
 	}
@@ -932,6 +932,10 @@ void BattleInfo::addObstacle(const ObstacleChanges & changes)
 	auto obstacle = std::make_shared<SpellCreatedObstacle>();
 	obstacle->fromInfo(changes);
 	obstacles.push_back(obstacle);
+
+	logGlobal->debug("Battle %d: obstacle %d from spell %s placed by side %d, hidden: %d, affected hexes: %s, stopping hexes: %s",
+		battleID.getNum(), obstacle->uniqueID, SpellID::encode(obstacle->ID), static_cast<int>(obstacle->casterSide), obstacle->hidden,
+		obstacle->getAffectedTiles().toString(), obstacle->getStoppingTile().toString());
 }
 
 void BattleInfo::updateObstacle(const ObstacleChanges& changes)

@@ -29,10 +29,11 @@ function AdventureServer:markQuestProposed(target, player) end
 ---@param player integer # Player whose quest log gains the entry.
 function AdventureServer:addToQuestLog(target, player) end
 
----Internal plumbing for the setQuestHint helper. Scripts should call setQuestHint instead.
+---Sets the hover / quest-log hint of a scripted quest, and the icons shown with it in the quest log.
 ---@param target MapObject # The quest source (seer hut / quest guard) whose hint changes.
 ---@param text MetaString # New hover / quest-log text for the object's active quest.
-function AdventureServer:setQuestHintText(target, text) end
+---@param components Component[]? # Icons shown with the hint in the quest log; nil for none.
+function AdventureServer:setQuestHint(target, text, components) end
 
 ---Turns off a timed player event of the map, so it no longer occurs.
 ---@param handler string # Name of the map script handler that the timed player event runs.
@@ -290,6 +291,17 @@ function Battle:getDefendedTown() end
 ---@param onlyAlive boolean # Pass true to skip dead-but-resurrectable stacks.
 ---@return Unit
 function Battle:getUnitByPos(hex, onlyAlive) end
+
+---Returns the player currently controlling the unit. Unlike Unit:getOwner, this accounts for Hypnotize, which hands a unit over to the opposing player.
+---@param unit Unit # Unit whose controller is queried.
+---@return integer
+function Battle:getUnitController(unit) end
+
+---True if the actor treats the target as an enemy. Accounts for Hypnotize: a hypnotized unit fights its own army, which still counts it as one of their own.
+---@param actor Unit # Unit that acts, e.g. attacks or casts a spell.
+---@param target Unit # Unit the action is aimed at.
+---@return boolean
+function Battle:isHostile(actor, target) end
 
 ---Returns all obstacles on the battlefield, including ones hidden from the caller.
 ---@return Obstacle[]
@@ -721,9 +733,10 @@ function Calendar:getWeeksInMonth() end
 
 ---Descriptor for an icon shown in a message window (a creature, artifact, resource, skill, ... with an optional amount). `type` selects the kind and `subType` the specific entity.
 ---@class Component
----@field type integer # Component kind (ComponentType index).
+---@field type integer # Component kind, one of ENUM.ComponentType.
 ---@field subType integer # Identifier index of the entity, interpreted according to `type`.
 ---@field value integer? # Optional amount: positive means gained, negative means lost.
+---@field faction integer? # Faction index of the town building, required by building components.
 local Component = {}
 
 ---A creature type from the database (e.g. "pikeman"). Carries base stats, faction, recruitment cost, and the bonuses every instance starts with. Concrete battlefield or army-slot instances are Unit and StackInstance respectively.
@@ -797,6 +810,7 @@ function Creature:isDoubleWide() end
 ---@field PrimarySkill PrimarySkill # The four primary hero skills.
 ---@field PlayerColor PlayerColor # Player colours, plus the neutral owner used by unowned objects.
 ---@field PlayerStatus PlayerStatus # Whether a player is still playing, has won, or has lost.
+---@field ComponentType ComponentType # Kinds of icons shown in message windows, used by Component `type`.
 local Enums = {}
 
 ---Outcome categories for the heal action: plain heal / resurrect / overheal.
@@ -1084,6 +1098,43 @@ local PlayerStatus = {
     winner = 2,
 }
 
+---Kinds of icons shown in message windows, used by Component `type`.
+---@enum ComponentType
+local ComponentType = {
+    ---Primary skill; `subType` is the skill, `value` the change.
+    primarySkill = 0,
+    ---Secondary skill; `subType` is the skill, `value` the mastery level (1-3).
+    secondarySkill = 1,
+    ---Resource; `subType` is the resource, `value` the amount.
+    resource = 2,
+    ---Daily resource income; `subType` is the resource, `value` the amount per day.
+    resourcePerDay = 3,
+    ---Creature; `subType` is the creature, `value` the optional count.
+    creature = 4,
+    ---Artifact; `subType` is the artifact.
+    artifact = 5,
+    ---Spell scroll; `subType` is the spell in the scroll.
+    spellScroll = 6,
+    ---Spell points; `value` is the change.
+    mana = 7,
+    ---Experience; `value` is the amount.
+    experience = 8,
+    ---Hero levels; `value` is the number of levels.
+    level = 9,
+    ---Spell; `subType` is the spell.
+    spell = 10,
+    ---Morale; `value` is the change.
+    morale = 11,
+    ---Luck; `value` is the change.
+    luck = 12,
+    ---Town building; `subType` is the building and `faction` its faction.
+    building = 13,
+    ---Hero portrait; `subType` is the hero.
+    heroPortrait = 14,
+    ---Player flag; `subType` is the player.
+    flag = 15,
+}
+
 ---A town/army faction definition (Castle, Rampart, Inferno, …). Identifies the kind, not a placed town; use Game lookups for the latter.
 ---@class Faction
 local Faction = {}
@@ -1233,7 +1284,7 @@ function HeroInstance:getExperience() end
 function HeroInstance:getPrimarySkill(skill) end
 
 ---Returns the hero's mastery of the given secondary skill.
----@param skill integer # Secondary skill JSON key.
+---@param skill Skill # Secondary skill, as returned by Services:getSecondarySkillByName.
 ---@return integer # Mastery level (0 = none, 1 = basic, 2 = advanced, 3 = expert).
 function HeroInstance:getSecondarySkill(skill) end
 
@@ -1246,12 +1297,12 @@ function HeroInstance:getHeroType() end
 function HeroInstance:getHeroClass() end
 
 ---Returns whether the hero owns the given artifact, either as equipped or in the backpack.
----@param artifact integer # Artifact JSON key.
+---@param artifact Artifact # Artifact, as returned by Services:getArtifactByName.
 ---@return boolean # True if the hero owns the artifact.
 function HeroInstance:hasArtifact(artifact) end
 
 ---Returns how many copies of the given artifact the hero owns, counting both equipped slots and the backpack.
----@param artifact integer # Artifact JSON key.
+---@param artifact Artifact # Artifact, as returned by Services:getArtifactByName.
 ---@return integer # Number of copies of that artifact the hero carries.
 function HeroInstance:ownedArtifacts(artifact) end
 
@@ -1767,7 +1818,7 @@ function Unit:isCommander() end
 ---@return boolean
 function Unit:isLiving() end
 
----Returns the player color controlling this unit.
+---Returns the player owning this unit. A hypnotized unit keeps its owner; Battle:getUnitController returns who controls it.
 ---@return integer
 function Unit:getOwner() end
 
@@ -1775,7 +1826,7 @@ function Unit:getOwner() end
 ---@return integer
 function Unit:getSlot() end
 
----Returns the battle side (attacker or defender) this unit belongs to.
+---Returns the battle side (attacker or defender) this unit belongs to. A hypnotized unit keeps its side; use Battle:isHostile to tell friend from foe.
 ---@return BattleSide
 function Unit:getSide() end
 

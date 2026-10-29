@@ -5,6 +5,13 @@
 	"description" : "Format used to define game settings in VCMI",
 	"additionalProperties" : false,
 	"properties" : {
+		"artifacts" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"disabledCombinations" : { "type" : "array", "items" : { "type" : "string" } }
+			}
+		},
 		"textData" : {
 			"type" : "object",
 			"additionalProperties" : false,

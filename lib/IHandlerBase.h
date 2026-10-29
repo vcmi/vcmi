@@ -11,6 +11,7 @@
 
 class JsonNode;
 class Entity;
+class LibraryLoadContext;
 
 /// base class for all handlers that can be accessed from mod system
 class DLL_LINKAGE IHandlerBase : boost::noncopyable
@@ -19,27 +20,27 @@ protected:
 	static std::string getScopeBuiltin();
 
 	/// Calls modhandler. Mostly needed to avoid large number of includes in headers
-	void registerObject(const std::string & scope, const std::string & typeName, const std::string & name, const JsonNode & data, si32 index);
-	void registerObject(const std::string & scope, const std::vector<std::string> & typeNames, const std::string & name, const JsonNode & data, si32 index);
+	void registerObject(LibraryLoadContext & context, const std::string & scope, const std::string & typeName, const std::string & name, const JsonNode & data, si32 index);
+	void registerObject(LibraryLoadContext & context, const std::string & scope, const std::vector<std::string> & typeNames, const std::string & name, const JsonNode & data, si32 index);
 
 	std::optional<int32_t> resolveIdentifier(const std::string & scope, const std::string & typeName, const std::string & name) const;
 public:
 	/// loads all original game data in vector of json nodes
 	/// dataSize - is number of items that must be loaded (normally - constant from GameConstants)
-	virtual std::vector<JsonNode> loadLegacyData() = 0;
+	virtual std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) = 0;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
-	virtual void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) = 0;
-	virtual void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) = 0;
+	virtual void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data) = 0;
+	virtual void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index) = 0;
 
 	/// allows handlers to alter object configuration before validation and actual load
 	virtual void beforeValidate(JsonNode & object){};
 
 	/// allows handler to load some custom internal data before identifier finalization
-	virtual void loadCustom(){};
+	virtual void loadCustom(LibraryLoadContext & context){};
 
 	/// allows handler to do post-loading step for validation or integration of loaded data
-	virtual void afterLoadFinalization(){};
+	virtual void afterLoadFinalization(LibraryLoadContext & context){};
 
 	virtual ~IHandlerBase() = default;
 };
@@ -98,18 +99,18 @@ public:
 		forEachT(cb);
 	}
 
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data) override
 	{
-		objects.push_back(loadFromJson(scope, data, name, objects.size()));
-		registerObject(scope, getTypeNames(), name, data, objects.back()->getIndex());
+		objects.push_back(loadFromJson(context, scope, data, name, objects.size()));
+		registerObject(context, scope, getTypeNames(), name, data, objects.back()->getIndex());
 	}
 
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override
 	{
 		if(objects[index] != nullptr)
 			logMod->debug("Replacing existing object at index %d with '%s'", index, name); // required for war machines in demo (uses ids from conflux creatures)
-		objects[index] = loadFromJson(scope, data, name, index);
-		registerObject(scope, getTypeNames(), name, data, index);
+		objects[index] = loadFromJson(context, scope, data, name, index);
+		registerObject(context, scope, getTypeNames(), name, data, index);
 	}
 
 	const _Object * operator[] (const _ObjectID id) const
@@ -128,7 +129,7 @@ public:
 	}
 
 protected:
-	virtual ObjectPtr loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) = 0;
+	virtual ObjectPtr loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) = 0;
 	virtual const std::vector<std::string> & getTypeNames() const = 0;
 
 	template<typename ItemType>

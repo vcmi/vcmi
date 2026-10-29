@@ -49,6 +49,7 @@ Parameters:
 - `bonusType` - type of bonus to check against
 - `bonusSubtype` - subtype of bonus to check against (only used if bonus type is set)
 - `bonusSourceType` - source type of bonus to check against
+- `sourceSecondaryID` - if applicable, the mastery level of spell effect (by default any)
 - `bonusSourceID` -source ID of bonus to check against (only used if bonus type is set)
 - `bonusMinValue` - minimal total value of bonus to check against (inclusive)
 - `bonusMaxValue` - maximal total value of bonus to check against (inclusive)
@@ -65,6 +66,7 @@ Examples:
 			"type" : "HAS_ANOTHER_BONUS_LIMITER",
 			"bonusSourceType" : "SPELL_EFFECT", // look for bonus of type SPELL_EFFECT
 			"bonusSourceID" : "spell.bless"     // ... from spell "Bless"
+			"bonusSourceSecondaryId" : "EXPERT"     // ... at expert mastery level
 		}
 	],
 ```
@@ -134,6 +136,26 @@ Parameters:
 		"type" : "CREATURE_LEVEL_LIMITER",
 		"minLevel" : 2,
 		"maxlevel" : 5
+	}
+],
+```
+
+### EXPERIENCE_RANK_LIMITER
+
+Accepts stacks by their stack experience rank, from 0 (no experience) to 10. Commanders never pass this limiter.
+
+Parameters:
+
+- `minRank`: rank starting from which stack will pass the limiter, 0 if not specified
+- `maxRank`: rank starting from which stack will no longer pass the limiter, no upper limit if not specified
+
+```json
+"limiters": [
+	{
+		// accepts stacks of ranks 3 and 4
+		"type" : "EXPERIENCE_RANK_LIMITER",
+		"minRank" : 3,
+		"maxRank" : 5
 	}
 ],
 ```

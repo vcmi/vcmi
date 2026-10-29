@@ -2,284 +2,441 @@
 	"shield" : {
 		"index" : 27,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C13SPE0"]
+		"animation" : {
+			"affect" : [
+				"C13SPE0"
+			]
 		},
-		"sounds": {
-			"cast": "SHIELD"
+		"sounds" : {
+			"cast" : "SHIELD"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
+				"targetModifier" : {
+					"smart" : true
+				},
 				//no cumulative effect even with mods here
-				"effects" : {
-					"generalDamageReduction" : {
-						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : "damageTypeMelee",
-						"duration" : "N_TURNS"
+				"battleEffects" : {
+					"shield" : {
+						"type" : "timed",
+						"bonus" : {
+							"generalDamageReduction" : {
+								"type" : "GENERAL_DAMAGE_REDUCTION",
+								"subtype" : "damageTypeMelee",
+								"val" : 15,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"expert":{
-				"range" : "X"
+			"advanced" : {
+				"battleEffects" : {
+					"shield" : {
+						"bonus" : {
+							"generalDamageReduction" : {
+								"val" : 30
+							}
+						}
+					}
+				}
+			},
+			"expert" : {
+				"range" : "X",
+				"battleEffects" : {
+					"shield" : {
+						"bonus" : {
+							"generalDamageReduction" : {
+								"val" : 30
+							}
+						}
+					}
+				}
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		}
 	},
 	"airShield" : {
 		"index" : 28,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C01SPA0"]
+		"animation" : {
+			"affect" : [
+				"C01SPA0"
+			]
 		},
-		"sounds": {
-			"cast": "AIRSHELD"
+		"sounds" : {
+			"cast" : "AIRSHELD"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
+				"targetModifier" : {
+					"smart" : true
+				},
 				//no cumulative effect even with mods here
-				"effects" : {
-					"generalDamageReduction" : {
-						"type" : "GENERAL_DAMAGE_REDUCTION",
-						"subtype" : "damageTypeRanged",
-						"duration" : "N_TURNS"
+				"battleEffects" : {
+					"airShield" : {
+						"type" : "timed",
+						"bonus" : {
+							"generalDamageReduction" : {
+								"type" : "GENERAL_DAMAGE_REDUCTION",
+								"subtype" : "damageTypeRanged",
+								"val" : 25,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"expert":{
-				"range" : "X"
+			"advanced" : {
+				"battleEffects" : {
+					"airShield" : {
+						"bonus" : {
+							"generalDamageReduction" : {
+								"val" : 50
+							}
+						}
+					}
+				}
+			},
+			"expert" : {
+				"range" : "X",
+				"battleEffects" : {
+					"airShield" : {
+						"bonus" : {
+							"generalDamageReduction" : {
+								"val" : 50
+							}
+						}
+					}
+				}
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		}
 	},
 	"fireShield" : {
 		"index" : 29,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C05SPF0"]
+		"animation" : {
+			"affect" : [
+				"C05SPF0"
+			]
 		},
-		"sounds": {
-			"cast": "FIRESHLD"
+		"sounds" : {
+			"cast" : "FIRESHLD"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
 					"fireShield" : {
-						"type" : "COMBAT_EVENT_TRIGGER",
-						"subtype" : "fireShield",
-						"duration" : "N_TURNS",
-						"stacking" : "fireShield"
+						"type" : "timed",
+						"bonus" : {
+							"eventTrigger" : {
+								"type" : "COMBAT_EVENT_TRIGGER",
+								"subtype" : "fireShield",
+								"duration" : "N_TURNS",
+								"val" : 20,
+								"stacking" : "fireShield"
+							}
+						}
+					}
+				}
+			},
+			"advanced" : {
+				"battleEffects" : {
+					"fireShield" : {
+						"bonus" : {
+							"eventTrigger" : {
+								"val" : 25
+							}
+						}
+					}
+				}
+			},
+			"expert" : {
+				"battleEffects" : {
+					"fireShield" : {
+						"bonus" : {
+							"eventTrigger" : {
+								"val" : 30
+							}
+						}
 					}
 				}
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		}
 	},
 	"protectAir" : {
 		"index" : 30,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C11SPE0"]
+		"animation" : {
+			"affect" : [
+				"C11SPE0"
+			]
 		},
-		"sounds": {
-			"cast": "PROTECTA"
+		"sounds" : {
+			"cast" : "PROTECTA"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : "air",
-						"duration" : "N_TURNS",
-						"val" : 30
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"protectAir" : {
+						"type" : "timed",
+						"bonus" : {
+							"spellDamageReduction" : {
+								"type" : "SPELL_DAMAGE_REDUCTION",
+								"subtype" : "air",
+								"duration" : "N_TURNS",
+								"val" : 30
+							}
+						}
 					}
 				}
 			},
 			"advanced" : {
-				"effects" : {
-					"spellDamageReduction" : {
-						"val" : 50
+				"battleEffects" : {
+					"protectAir" : {
+						"bonus" : {
+							"spellDamageReduction" : {
+								"val" : 50
+							}
+						}
 					}
 				}
 			},
-			"expert":{
-				"effects" : {
-					"spellDamageReduction" : {
-						"val" : 50
+			"expert" : {
+				"battleEffects" : {
+					"protectAir" : {
+						"bonus" : {
+							"spellDamageReduction" : {
+								"val" : 50
+							}
+						}
 					}
 				},
 				"range" : "X"
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		}
 	},
 	"protectFire" : {
 		"index" : 31,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C11SPW0"]
+		"animation" : {
+			"affect" : [
+				"C11SPW0"
+			]
 		},
-		"sounds": {
-			"cast": "PROTECTF"
+		"sounds" : {
+			"cast" : "PROTECTF"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : "fire",
-						"duration" : "N_TURNS",
-						"val" : 30
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"protectFire" : {
+						"type" : "timed",
+						"bonus" : {
+							"spellDamageReduction" : {
+								"type" : "SPELL_DAMAGE_REDUCTION",
+								"subtype" : "fire",
+								"duration" : "N_TURNS",
+								"val" : 30
+							}
+						}
 					}
 				}
 			},
 			"advanced" : {
-				"effects" : {
-					"spellDamageReduction" : {
-						"val" : 50
+				"battleEffects" : {
+					"protectFire" : {
+						"type" : "timed",
+						"bonus" : {
+							"spellDamageReduction" : {
+								"val" : 50
+							}
+						}
 					}
 				}
 			},
-			"expert":{
-				"effects" : {
-					"spellDamageReduction" : {
-						"val" : 50
+			"expert" : {
+				"battleEffects" : {
+					"protectFire" : {
+						"bonus" : {
+							"spellDamageReduction" : {
+								"val" : 50
+							}
+						}
 					}
 				},
 				"range" : "X"
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		}
 	},
 	"protectWater" : {
 		"index" : 32,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C11SPF0"]
+		"animation" : {
+			"affect" : [
+				"C11SPF0"
+			]
 		},
-		"sounds": {
-			"cast": "PROTECTW"
+		"sounds" : {
+			"cast" : "PROTECTW"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : "water",
-						"duration" : "N_TURNS",
-						"val" : 30
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"protectWater" : {
+						"type" : "timed",
+						"bonus" : {
+							"spellDamageReduction" : {
+								"type" : "SPELL_DAMAGE_REDUCTION",
+								"subtype" : "water",
+								"duration" : "N_TURNS",
+								"val" : 30
+							}
+						}
 					}
 				}
 			},
 			"advanced" : {
-				"effects" : {
-					"spellDamageReduction" : {
-						"val" : 50
+				"battleEffects" : {
+					"protectWater" : {
+						"bonus" : {
+							"spellDamageReduction" : {
+								"val" : 50
+							}
+						}
 					}
 				}
 			},
-			"expert":{
-				"effects" : {
-					"spellDamageReduction" : {
-						"val" : 50
+			"expert" : {
+				"battleEffects" : {
+					"protectWater" : {
+						"bonus" : {
+							"spellDamageReduction" : {
+								"val" : 50
+							}
+						}
 					}
 				},
 				"range" : "X"
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		}
 	},
 	"protectEarth" : {
 		"index" : 33,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C13SPA0"]
+		"animation" : {
+			"affect" : [
+				"C13SPA0"
+			]
 		},
-		"sounds": {
-			"cast": "PROTECTE"
+		"sounds" : {
+			"cast" : "PROTECTE"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"spellDamageReduction" : {
-						"type" : "SPELL_DAMAGE_REDUCTION",
-						"subtype" : "earth",
-						"duration" : "N_TURNS",
-						"val" : 30
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"protectEarth" : {
+						"type" : "timed",
+						"bonus" : {
+							"spellDamageReduction" : {
+								"type" : "SPELL_DAMAGE_REDUCTION",
+								"subtype" : "earth",
+								"duration" : "N_TURNS",
+								"val" : 30
+							}
+						}
 					}
 				}
 			},
 			"advanced" : {
-				"effects" : {
-					"spellDamageReduction" : {
-						"val" : 50
+				"battleEffects" : {
+					"protectEarth" : {
+						"bonus" : {
+							"spellDamageReduction" : {
+								"val" : 50
+							}
+						}
 					}
 				}
 			},
-			"expert":{
-				"effects" : {
-					"spellDamageReduction" : {
-						"val" : 50
+			"expert" : {
+				"battleEffects" : {
+					"protectEarth" : {
+						"bonus" : {
+							"spellDamageReduction" : {
+								"val" : 50
+							}
+						}
 					}
 				},
 				"range" : "X"
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		}
 	},
 	"antiMagic" : {
 		"index" : 34,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C02SPE0"]
+		"animation" : {
+			"affect" : [
+				"C02SPE0"
+			]
 		},
-		"sounds": {
-			"cast": "ANTIMAGK"
+		"sounds" : {
+			"cast" : "ANTIMAGK"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"battleEffects":{
-					"spellImmunity":{
-						"type":"timed",
-						"bonus":{
-							"levelSpellImmunity":{
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"spellImmunity" : {
+						"type" : "timed",
+						"bonus" : {
+							"levelSpellImmunity" : {
 								"val" : 3,
 								"type" : "LEVEL_SPELL_IMMUNITY",
 								"valueType" : "INDEPENDENT_MAX",
@@ -287,31 +444,31 @@
 							}
 						}
 					},
-					"dispel":{
-						"type":"dispel",
-						"optional":true,
-						"dispelNegative":true,
-						"dispelNeutral":true,
-						"dispelPositive":false
+					"dispel" : {
+						"type" : "dispel",
+						"optional" : true,
+						"dispelNegative" : true,
+						"dispelNeutral" : true,
+						"dispelPositive" : false
 					}
 				}
 			},
-			"advanced":{
-				"battleEffects":{
-					"spellImmunity":{
-						"bonus" :{
-							"levelSpellImmunity":{
+			"advanced" : {
+				"battleEffects" : {
+					"spellImmunity" : {
+						"bonus" : {
+							"levelSpellImmunity" : {
 								"val" : 4
 							}
 						}
 					}
 				}
 			},
-			"expert":{
-				"battleEffects":{
-					"spellImmunity":{
-						"bonus":{
-							"levelSpellImmunity":{
+			"expert" : {
+				"battleEffects" : {
+					"spellImmunity" : {
+						"bonus" : {
+							"levelSpellImmunity" : {
 								"val" : 5
 							}
 						}
@@ -320,80 +477,128 @@
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		}
 	},
 	"magicMirror" : {
 		"index" : 36,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C02SPA0"]
+		"animation" : {
+			"affect" : [
+				"C02SPA0"
+			]
 		},
-		"sounds": {
-			"cast": "BACKLASH"
+		"sounds" : {
+			"cast" : "BACKLASH"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
 					"magicMirror" : {
-						"type" : "MAGIC_MIRROR",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
+						"type" : "timed",
+						"bonus" : {
+							"spellReflect" : {
+								"type" : "MAGIC_MIRROR",
+								"valueType" : "INDEPENDENT_MAX",
+								"duration" : "N_TURNS",
+								"val" : 20
+							}
+						}
+					}
+				}
+			},
+			"advanced" : {
+				"battleEffects" : {
+					"magicMirror" : {
+						"bonus" : {
+							"spellReflect" : {
+								"val" : 30
+							}
+						}
+					}
+				}
+			},
+			"expert" : {
+				"battleEffects" : {
+					"magicMirror" : {
+						"bonus" : {
+							"spellReflect" : {
+								"val" : 40
+							}
+						}
 					}
 				}
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		}
 	},
 	"bless" : {
 		"index" : 41,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C01SPW"] //C01SPW0
+		"animation" : {
+			"affect" : [
+				"C01SPW"
+			]
+			//C01SPW0
 		},
-		"sounds": {
-			"cast": "BLESS"
+		"sounds" : {
+			"cast" : "BLESS"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"alwaysMaximumDamage" : {
-						"val" : 0,
-						"type" : "ALWAYS_MAXIMUM_DAMAGE",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"bless" : {
+						"type" : "timed",
+						"bonus" : {
+							"alwaysMaximumDamage" : {
+								"val" : 0,
+								"type" : "ALWAYS_MAXIMUM_DAMAGE",
+								"valueType" : "INDEPENDENT_MAX",
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{ 
-				"effects" : {
-					"alwaysMaximumDamage" : {
-						"val" : 1
+			"advanced" : {
+				"battleEffects" : {
+					"bless" : {
+						"bonus" : {
+							"alwaysMaximumDamage" : {
+								"val" : 1
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"alwaysMaximumDamage" : {
-						"val" : 1
+				"battleEffects" : {
+					"bless" : {
+						"bonus" : {
+							"alwaysMaximumDamage" : {
+								"val" : 1
+							}
+						}
 					}
 				}
 			}
 		},
 		"counters" : {
-			"curse": true
+			"curse" : true
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -407,47 +612,64 @@
 	"curse" : {
 		"index" : 42,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C04SPW"]//C04SPW0
+		"animation" : {
+			"affect" : [
+				"C04SPW"
+			]
+			//C04SPW0
 		},
-		"sounds": {
-			"cast": "CURSE"
+		"sounds" : {
+			"cast" : "CURSE"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"alwaysMinimumDamage" : {
-						"val" : 0,
-						"type" : "ALWAYS_MINIMUM_DAMAGE",
-						"valueType" : "INDEPENDENT_MAX",
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"curse" : {
+						"type" : "timed",
+						"bonus" : {
+							"alwaysMinimumDamage" : {
+								"val" : 0,
+								"type" : "ALWAYS_MINIMUM_DAMAGE",
+								"valueType" : "INDEPENDENT_MAX",
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{ 
-				"effects" : {
-					"alwaysMinimumDamage" : {
-						"val" : 1
+			"advanced" : {
+				"battleEffects" : {
+					"curse" : {
+						"bonus" : {
+							"alwaysMinimumDamage" : {
+								"val" : 1
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"alwaysMinimumDamage" : {
-						"val" : 1
+				"battleEffects" : {
+					"curse" : {
+						"bonus" : {
+							"alwaysMinimumDamage" : {
+								"val" : 1
+							}
+						}
 					}
 				}
 			}
 		},
 		"counters" : {
-			"bless": true
+			"bless" : true
 		},
 		"flags" : {
-			"negative": true
+			"negative" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -461,50 +683,66 @@
 	"bloodlust" : {
 		"index" : 43,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":[ {
-				"effectName" : "bloodlust"
-			} ]
+		"animation" : {
+			"affect" : [
+				{
+					"effectName" : "bloodlust"
+				}
+			]
 		},
-		"sounds": {
-			"cast": "BLOODLUS"
+		"sounds" : {
+			"cast" : "BLOODLUS"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
-						"val" : 3,
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "attack",
-						"effectRange" : "ONLY_MELEE_FIGHT",
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"bloodlust" : {
+						"type" : "timed",
+						"bonus" : {
+							"primarySkill" : {
+								"val" : 3,
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "attack",
+								"effectRange" : "ONLY_MELEE_FIGHT",
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"primarySkill" : {
-						"val" : 6
+			"advanced" : {
+				"battleEffects" : {
+					"bloodlust" : {
+						"bonus" : {
+							"primarySkill" : {
+								"val" : 6
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"primarySkill" : {
-						"val" : 6
+				"battleEffects" : {
+					"bloodlust" : {
+						"bonus" : {
+							"primarySkill" : {
+								"val" : 6
+							}
+						}
 					}
 				}
 			}
 		},
 		"counters" : {
-			"weakness": true
+			"weakness" : true
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -515,45 +753,61 @@
 	"precision" : {
 		"index" : 44,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C12SPA0"]
+		"animation" : {
+			"affect" : [
+				"C12SPA0"
+			]
 		},
-		"sounds": {
-			"cast": "PRECISON"
+		"sounds" : {
+			"cast" : "PRECISON"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "attack",
-						"val" : 3,
-						"effectRange" : "ONLY_DISTANCE_FIGHT",
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"precision" : {
+						"type" : "timed",
+						"bonus" : {
+							"primarySkill" : {
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "attack",
+								"val" : 3,
+								"effectRange" : "ONLY_DISTANCE_FIGHT",
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"primarySkill" : {
-						"val" : 6
+			"advanced" : {
+				"battleEffects" : {
+					"precision" : {
+						"bonus" : {
+							"primarySkill" : {
+								"val" : 6
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"primarySkill" : {
-						"val" : 6
+				"battleEffects" : {
+					"precision" : {
+						"bonus" : {
+							"primarySkill" : {
+								"val" : 6
+							}
+						}
 					}
 				}
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		},
 		"targetCondition" : {
 			"allOf" : {
@@ -564,108 +818,151 @@
 	"weakness" : {
 		"index" : 45,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C17SPW0"]
+		"animation" : {
+			"affect" : [
+				"C17SPW0"
+			]
 		},
-		"sounds": {
-			"cast": "WEAKNESS"
+		"sounds" : {
+			"cast" : "WEAKNESS"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "attack",
-						"val" : -3,
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"weakness" : {
+						"type" : "timed",
+						"bonus" : {
+							"primarySkill" : {
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "attack",
+								"val" : -3,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-
-			"advanced":{
-				"effects" : {
-					"primarySkill" : {
-						"val" : -6
+			"advanced" : {
+				"battleEffects" : {
+					"weakness" : {
+						"bonus" : {
+							"primarySkill" : {
+								"val" : -6
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"primarySkill" : {
-						"val" : -6
+				"battleEffects" : {
+					"weakness" : {
+						"bonus" : {
+							"primarySkill" : {
+								"val" : -6
+							}
+						}
 					}
 				}
 			}
 		},
 		"counters" : {
-			"bloodlust": true
+			"bloodlust" : true
 		},
 		"flags" : {
-			"negative": true
+			"negative" : true
 		}
 	},
 	"stoneSkin" : {
 		"index" : 46,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C16SPE"] //C16SPE0
+		"animation" : {
+			"affect" : [
+				"C16SPE"
+			]
+			//C16SPE0
 		},
-		"sounds": {
-			"cast": "TUFFSKIN"
+		"sounds" : {
+			"cast" : "TUFFSKIN"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"primarySkill" : {
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "defence",
-						"val" : 3,
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"stoneSkin" : {
+						"type" : "timed",
+						"bonus" : {
+							"primarySkill" : {
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "defence",
+								"val" : 3,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"primarySkill" : {
-						"val" : 6
+			"advanced" : {
+				"battleEffects" : {
+					"stoneSkin" : {
+						"bonus" : {
+							"primarySkill" : {
+								"val" : 6
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"primarySkill" : {
-						"val" : 6
+				"battleEffects" : {
+					"stoneSkin" : {
+						"bonus" : {
+							"primarySkill" : {
+								"val" : 6
+							}
+						}
 					}
 				}
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		}
 	},
 	"disruptingRay" : {
 		"index" : 47,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":[{"defName" : "C07SPA1", "transparency" : 0.5}],
-			"projectile":[{"defName":"C07SPA0"}]//???
+		"animation" : {
+			"affect" : [
+				{
+					"defName" : "C07SPA1",
+					"transparency" : 0.5
+				}
+			],
+			"projectile" : [
+				{
+					"defName" : "C07SPA0"
+				}
+			]
+			//???
 		},
-		"sounds": {
-			"cast": "DISRUPTR"
+		"sounds" : {
+			"cast" : "DISRUPTR"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
+				"targetModifier" : {
+					"smart" : true
+				},
 				"cumulativeEffects" : {
 					"primarySkill" : {
 						"type" : "PRIMARY_SKILL",
@@ -676,14 +973,14 @@
 					}
 				}
 			},
-			"advanced":{
+			"advanced" : {
 				"cumulativeEffects" : {
 					"primarySkill" : {
 						"val" : -4
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"cumulativeEffects" : {
 					"primarySkill" : {
 						"val" : -5
@@ -692,119 +989,155 @@
 			}
 		},
 		"flags" : {
-			"negative": true,
+			"negative" : true,
 			"persistent" : true
 		}
 	},
 	"prayer" : {
 		"index" : 48,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":[{"defName":"C10SPW", "verticalPosition":"bottom", "transparency" : 0.5}]
+		"animation" : {
+			"affect" : [
+				{
+					"defName" : "C10SPW",
+					"verticalPosition" : "bottom",
+					"transparency" : 0.5
+				}
+			]
 		},
-		"sounds": {
-			"cast": "PRAYER"
+		"sounds" : {
+			"cast" : "PRAYER"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"attack" : {
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "attack",
-						"val" : 2,
-						"duration" : "N_TURNS"
-					},
-					"defence" : {
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "defence",
-						"val" : 2,
-						"duration" : "N_TURNS"
-					},
-					"stacksSpeed" : {
-						"type" : "STACKS_SPEED",
-						"val" : 2,
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"prayer" : {
+						"type" : "timed",
+						"bonus" : {
+							"attack" : {
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "attack",
+								"val" : 2,
+								"duration" : "N_TURNS"
+							},
+							"defence" : {
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "defence",
+								"val" : 2,
+								"duration" : "N_TURNS"
+							},
+							"stacksSpeed" : {
+								"type" : "STACKS_SPEED",
+								"val" : 2,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"attack" : {
-						"val" : 4
-					},
-					"defence" : {
-						"val" : 4
-					},
-					"stacksSpeed" : {
-						"val" : 4
+			"advanced" : {
+				"battleEffects" : {
+					"prayer" : {
+						"bonus" : {
+							"attack" : {
+								"val" : 4
+							},
+							"defence" : {
+								"val" : 4
+							},
+							"stacksSpeed" : {
+								"val" : 4
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"attack" : {
-						"val" : 4
-					},
-					"defence" : {
-						"val" : 4
-					},
-					"stacksSpeed" : {
-						"val" : 4
+				"battleEffects" : {
+					"prayer" : {
+						"bonus" : {
+							"attack" : {
+								"val" : 4
+							},
+							"defence" : {
+								"val" : 4
+							},
+							"stacksSpeed" : {
+								"val" : 4
+							}
+						}
 					}
 				}
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		}
 	},
 	"mirth" : {
 		"index" : 49,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C09SPW0"]
+		"animation" : {
+			"affect" : [
+				"C09SPW0"
+			]
 		},
-		"sounds": {
-			"cast": "MIRTH"
+		"sounds" : {
+			"cast" : "MIRTH"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"morale" : {
-						"type" : "MORALE",
-						"val" : 1,
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"mirth" : {
+						"type" : "timed",
+						"bonus" : {
+							"morale" : {
+								"type" : "MORALE",
+								"val" : 1,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"morale" : {
-						"val" : 2
+			"advanced" : {
+				"battleEffects" : {
+					"mirth" : {
+						"bonus" : {
+							"morale" : {
+								"val" : 2
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"morale" : {
-						"val" : 2
+				"battleEffects" : {
+					"mirth" : {
+						"bonus" : {
+							"morale" : {
+								"val" : 2
+							}
+						}
 					}
 				}
 			}
 		},
 		"counters" : {
-			"sorrow":true
+			"sorrow" : true
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -819,46 +1152,62 @@
 	"sorrow" : {
 		"index" : 50,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C14SPE0"]
+		"animation" : {
+			"affect" : [
+				"C14SPE0"
+			]
 		},
-		"sounds": {
-			"cast": "SORROW"
+		"sounds" : {
+			"cast" : "SORROW"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"morale" : {
-						"type" : "MORALE",
-						"val" : -1,
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"sorrow" : {
+						"type" : "timed",
+						"bonus" : {
+							"morale" : {
+								"type" : "MORALE",
+								"val" : -1,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"morale" : {
-						"val" : -2
+			"advanced" : {
+				"battleEffects" : {
+					"sorrow" : {
+						"bonus" : {
+							"morale" : {
+								"val" : -2
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"morale" : {
-						"val" : -2
+				"battleEffects" : {
+					"sorrow" : {
+						"bonus" : {
+							"morale" : {
+								"val" : -2
+							}
+						}
 					}
 				}
 			}
 		},
 		"counters" : {
-			"mirth":true
+			"mirth" : true
 		},
 		"flags" : {
-			"negative": true
+			"negative" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -873,46 +1222,62 @@
 	"fortune" : {
 		"index" : 51,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C09SPA0"]
+		"animation" : {
+			"affect" : [
+				"C09SPA0"
+			]
 		},
-		"sounds": {
-			"cast": "FORTUNE"
+		"sounds" : {
+			"cast" : "FORTUNE"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"luck" : {
-						"type" : "LUCK",
-						"val" : 1,
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"fortune" : {
+						"type" : "timed",
+						"bonus" : {
+							"luck" : {
+								"type" : "LUCK",
+								"val" : 1,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"luck" : {
-						"val" : 2
+			"advanced" : {
+				"battleEffects" : {
+					"fortune" : {
+						"bonus" : {
+							"luck" : {
+								"val" : 2
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"luck" : {
-						"val" : 2
+				"battleEffects" : {
+					"fortune" : {
+						"bonus" : {
+							"luck" : {
+								"val" : 2
+							}
+						}
 					}
 				}
 			}
 		},
 		"counters" : {
-			"misfortune": true
+			"misfortune" : true
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -925,46 +1290,62 @@
 	"misfortune" : {
 		"index" : 52,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C10SPF0"]
+		"animation" : {
+			"affect" : [
+				"C10SPF0"
+			]
 		},
-		"sounds": {
-			"cast": "MISFORT"
+		"sounds" : {
+			"cast" : "MISFORT"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"luck" : {
-						"type" : "LUCK",
-						"val" : -1,
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"misfortune" : {
+						"type" : "timed",
+						"bonus" : {
+							"luck" : {
+								"type" : "LUCK",
+								"val" : -1,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"luck" : {
-						"val" : -2
+			"advanced" : {
+				"battleEffects" : {
+					"misfortune" : {
+						"bonus" : {
+							"luck" : {
+								"val" : -2
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"luck" : {
-						"val" : -2
+				"battleEffects" : {
+					"misfortune" : {
+						"bonus" : {
+							"luck" : {
+								"val" : -2
+							}
+						}
 					}
 				}
 			}
 		},
 		"counters" : {
-			"fortune":true
+			"fortune" : true
 		},
 		"flags" : {
-			"negative": true
+			"negative" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -977,46 +1358,62 @@
 	"haste" : {
 		"index" : 53,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C15SPA0"]
+		"animation" : {
+			"affect" : [
+				"C15SPA0"
+			]
 		},
-		"sounds": {
-			"cast": "TAILWIND"
+		"sounds" : {
+			"cast" : "TAILWIND"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"stacksSpeed" : {
-						"type" : "STACKS_SPEED",
-						"val" : 3,
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"haste" : {
+						"type" : "timed",
+						"bonus" : {
+							"stacksSpeed" : {
+								"type" : "STACKS_SPEED",
+								"val" : 3,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"stacksSpeed" : {
-						"val" : 5
+			"advanced" : {
+				"battleEffects" : {
+					"haste" : {
+						"bonus" : {
+							"stacksSpeed" : {
+								"val" : 5
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"stacksSpeed" : {
-						"val" : 5
+				"battleEffects" : {
+					"haste" : {
+						"bonus" : {
+							"stacksSpeed" : {
+								"val" : 5
+							}
+						}
 					}
 				}
 			}
 		},
 		"counters" : {
-			"slow": true
+			"slow" : true
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -1027,47 +1424,66 @@
 	"slow" : {
 		"index" : 54,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":[{"defName":"C09SPE0", "verticalPosition":"bottom"}]
+		"animation" : {
+			"affect" : [
+				{
+					"defName" : "C09SPE0",
+					"verticalPosition" : "bottom"
+				}
+			]
 		},
-		"sounds": {
-			"cast": "MUCKMIRE"
+		"sounds" : {
+			"cast" : "MUCKMIRE"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"stacksSpeed" : {
-						"type" : "STACKS_SPEED",
-						"val" : -25,
-						"valueType" : "PERCENT_TO_ALL",
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"slow" : {
+						"type" : "timed",
+						"bonus" : {
+							"stacksSpeed" : {
+								"type" : "STACKS_SPEED",
+								"val" : -25,
+								"valueType" : "PERCENT_TO_ALL",
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"stacksSpeed" : {
-						"val" : -50
+			"advanced" : {
+				"battleEffects" : {
+					"slow" : {
+						"bonus" : {
+							"stacksSpeed" : {
+								"val" : -50
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"stacksSpeed" : {
-						"val" : -50
+				"battleEffects" : {
+					"slow" : {
+						"bonus" : {
+							"stacksSpeed" : {
+								"val" : -50
+							}
+						}
 					}
 				}
 			}
 		},
 		"counters" : {
-			"haste":true
+			"haste" : true
 		},
 		"flags" : {
-			"negative": true
+			"negative" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -1078,56 +1494,80 @@
 	"slayer" : {
 		"index" : 55,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C13SPW0"]
+		"animation" : {
+			"affect" : [
+				"C13SPW0"
+			]
 		},
-		"sounds": {
-			"cast": "SLAYER"
+		"sounds" : {
+			"cast" : "SLAYER"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
 					"slayer" : {
-						"type" : "SLAYER",
-						"val" : 8,
-						"duration" : "N_TURNS"
+						"type" : "timed",
+						"bonus" : {
+							"slayer" : {
+								"type" : "SLAYER",
+								"val" : 8,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"none":{
-				"effects" : {
+			"none" : {
+				"battleEffects" : {
 					"slayer" : {
-						"addInfo" : 0
+						"bonus" : {
+							"slayer" : {
+								"addInfo" : 0
+							}
+						}
 					}
 				}
 			},
-			"basic":{
-				"effects" : {
+			"basic" : {
+				"battleEffects" : {
 					"slayer" : {
-						"addInfo" : 1
+						"bonus" : {
+							"slayer" : {
+								"addInfo" : 1
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
+			"advanced" : {
+				"battleEffects" : {
 					"slayer" : {
-						"addInfo" : 2
+						"bonus" : {
+							"slayer" : {
+								"addInfo" : 2
+							}
+						}
 					}
 				}
 			},
-			"expert":{
-				"effects" : {
+			"expert" : {
+				"battleEffects" : {
 					"slayer" : {
-						"addInfo" : 3
+						"bonus" : {
+							"slayer" : {
+								"addInfo" : 3
+							}
+						}
 					}
 				}
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -1140,42 +1580,58 @@
 	"frenzy" : {
 		"index" : 56,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C08SPF0"]
+		"animation" : {
+			"affect" : [
+				"C08SPF0"
+			]
 		},
-		"sounds": {
-			"cast": "FRENZY"
+		"sounds" : {
+			"cast" : "FRENZY"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"inFrenzy" : {
-						"type" : "IN_FRENZY",
-						"val" : 100,
-						"duration" : "UNTIL_ATTACK"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"frenzy" : {
+						"type" : "timed",
+						"bonus" : {
+							"inFrenzy" : {
+								"type" : "IN_FRENZY",
+								"val" : 100,
+								"duration" : "UNTIL_ATTACK"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"inFrenzy" : {
-						"val" : 150
+			"advanced" : {
+				"battleEffects" : {
+					"frenzy" : {
+						"bonus" : {
+							"inFrenzy" : {
+								"val" : 150
+							}
+						}
 					}
 				}
 			},
-			"expert":{
-				"effects" : {
-					"inFrenzy" : {
-						"val" : 200
+			"expert" : {
+				"battleEffects" : {
+					"frenzy" : {
+						"bonus" : {
+							"inFrenzy" : {
+								"val" : 200
+							}
+						}
 					}
 				}
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -1190,43 +1646,59 @@
 	"counterstrike" : {
 		"index" : 58,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C04SPA0"]
+		"animation" : {
+			"affect" : [
+				"C04SPA0"
+			]
 		},
-		"sounds": {
-			"cast": "CNTRSTRK"
+		"sounds" : {
+			"cast" : "CNTRSTRK"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"additionalRetaliation" : {
-						"type" : "ADDITIONAL_RETALIATION",
-						"val" : 1,
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"counterstrike" : {
+						"type" : "timed",
+						"bonus" : {
+							"additionalRetaliation" : {
+								"type" : "ADDITIONAL_RETALIATION",
+								"val" : 1,
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"additionalRetaliation" : {
-						"val" : 2
+			"advanced" : {
+				"battleEffects" : {
+					"counterstrike" : {
+						"bonus" : {
+							"additionalRetaliation" : {
+								"val" : 2
+							}
+						}
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"additionalRetaliation" : {
-						"val" : 2
+				"battleEffects" : {
+					"counterstrike" : {
+						"bonus" : {
+							"additionalRetaliation" : {
+								"val" : 2
+							}
+						}
 					}
 				}
 			}
 		},
 		"flags" : {
-			"positive": true
+			"positive" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -1237,36 +1709,45 @@
 	"berserk" : {
 		"index" : 59,
 		"targetType" : "LOCATION",
-
-		"animation":{
-			"affect":["C01SPF"] //C01SPF0
+		"animation" : {
+			"affect" : [
+				"C01SPF"
+			]
+			//C01SPF0
 		},
-		"sounds": {
-			"cast": "BERSERK"
+		"sounds" : {
+			"cast" : "BERSERK"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":false},
-				"effects" : {
-					"attacksNearestCreature" : {
-						"type" : "ATTACKS_NEAREST_CREATURE",
-						"duration" : "UNTIL_OWN_ATTACK"
+				"targetModifier" : {
+					"smart" : false
+				},
+				"battleEffects" : {
+					"berserk" : {
+						"type" : "timed",
+						"bonus" : {
+							"attacksNearestCreature" : {
+								"type" : "ATTACKS_NEAREST_CREATURE",
+								"duration" : "UNTIL_OWN_ATTACK"
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
+			"advanced" : {
 				"range" : "0-1"
 			},
-			"expert":{
+			"expert" : {
 				"range" : "0-2"
 			}
 		},
 		"counters" : {
-			"hypnotize": true
+			"hypnotize" : true
 		},
 		"flags" : {
-			"negative": true
+			"negative" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -1281,17 +1762,20 @@
 	"hypnotize" : {
 		"index" : 60,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C10SPA0"]
+		"animation" : {
+			"affect" : [
+				"C10SPA0"
+			]
 		},
-		"sounds": {
-			"cast": "HYPNOTIZ"
+		"sounds" : {
+			"cast" : "HYPNOTIZ"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
+				"targetModifier" : {
+					"smart" : true
+				},
 				"effects" : {
 					"hypnotized" : {
 						"type" : "HYPNOTIZED",
@@ -1299,28 +1783,28 @@
 					}
 				}
 			},
-			"none":{
+			"none" : {
 				"effects" : {
 					"hypnotized" : {
 						"val" : 0
 					}
 				}
 			},
-			"basic":{
+			"basic" : {
 				"effects" : {
 					"hypnotized" : {
 						"val" : 1
 					}
 				}
 			},
-			"advanced":{
+			"advanced" : {
 				"effects" : {
 					"hypnotized" : {
 						"val" : 2
 					}
 				}
 			},
-			"expert":{
+			"expert" : {
 				"effects" : {
 					"hypnotized" : {
 						"val" : 3
@@ -1329,78 +1813,82 @@
 			}
 		},
 		"counters" : {
-			"berserk": true
+			"berserk" : true
 		},
 		"targetCondition" : {
 			"allOf" : {
 				"healthValueSpecial" : "absolute"
 			},
 			"noneOf" : {
-				"bonus.SIEGE_WEAPON":"absolute",
-				"bonus.MIND_IMMUNITY":"normal",
-				"bonus.UNDEAD":"normal",
-				"bonus.NON_LIVING":"normal",
-				"bonus.MECHANICAL":"normal",
-				"spell.magicMirror":"normal"
+				"bonus.SIEGE_WEAPON" : "absolute",
+				"bonus.MIND_IMMUNITY" : "normal",
+				"bonus.UNDEAD" : "normal",
+				"bonus.NON_LIVING" : "normal",
+				"bonus.MECHANICAL" : "normal",
+				"spell.magicMirror" : "normal"
 			}
 		},
 		"flags" : {
-			"negative": true
+			"negative" : true
 		}
 	},
 	"forgetfulness" : {
 		"index" : 61,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C06SPW"]//C06SPW0
+		"animation" : {
+			"affect" : [
+				"C06SPW"
+			]
+			//C06SPW0
 		},
-		"sounds": {
-			"cast": "FORGET"
+		"sounds" : {
+			"cast" : "FORGET"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"forgetful" : {
-						"type" : "FORGETFULL",
-						"duration" : "N_TURNS"
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"forgetfulness" : {
+						"type" : "timed",
+						"bonus" : {
+							"forgetful" : {
+								"type" : "FORGETFULL",
+								"duration" : "N_TURNS",
+								"val" : 50
+							}
+						}
 					}
 				}
 			},
-			"none":{
-				"effects" : {
-					"forgetful" : {
-						"val" : 50
+			"advanced" : {
+				"battleEffects" : {
+					"forgetfulness" : {
+						"bonus" : {
+							"forgetful" : {
+								"val" : 100
+							}
+						}
 					}
 				}
 			},
-			"basic":{
-				"effects" : {
-					"forgetful" : {
-						"val" : 50
-					}
-				}
-			},
-			"advanced":{
-				"effects" : {
-					"forgetful" : {
-						"val" : 100
-					}
-				}
-			},
-			"expert":{
+			"expert" : {
 				"range" : "X",
-				"effects" : {
-					"forgetful" : {
-						"val" : 100
+				"battleEffects" : {
+					"forgetfulness" : {
+						"bonus" : {
+							"forgetful" : {
+								"val" : 100
+							}
+						}
 					}
 				}
 			}
 		},
 		"flags" : {
-			"negative": true
+			"negative" : true
 		},
 		"targetCondition" : {
 			"allOf" : {
@@ -1418,67 +1906,79 @@
 	"blind" : {
 		"index" : 62,
 		"targetType" : "CREATURE",
-
-		"animation":{
-			"affect":["C02SPF0"]
+		"animation" : {
+			"affect" : [
+				"C02SPF0"
+			]
 		},
-		"sounds": {
-			"cast": "BLIND"
+		"sounds" : {
+			"cast" : "BLIND"
 		},
 		"levels" : {
-			"base":{
+			"base" : {
 				"range" : "0",
-				"targetModifier":{"smart":true},
-				"effects" : {
-					"notActive" : {
-						"val" : 0,
-						"type" : "NOT_ACTIVE",
-						"subtype" : "blind",
-						"duration" : [
-							"UNTIL_BEING_ATTACKED",
-							"N_TURNS"
-						]
-					},
-					"generalAttackReduction" : {
-						"type" : "GENERAL_ATTACK_REDUCTION",
-						"duration" : [
-							"UNTIL_AFTER_ATTACK_SEQUENCE",
-							"UNTIL_TAKING_INDIRECT_DAMAGE",
-							"N_TURNS"
-						]
+				"targetModifier" : {
+					"smart" : true
+				},
+				"battleEffects" : {
+					"blind" : {
+						"type" : "timed",
+						//"battleLogSingular" : "@core.genrltxt.556",
+						//"battleLogPlural" : "@core.genrltxt.556",
+						"bonus" : {
+							"notActive" : {
+								"val" : 0,
+								"type" : "NOT_ACTIVE",
+								"subtype" : "blind",
+								"duration" : [
+									"UNTIL_BEING_ATTACKED",
+									"N_TURNS"
+								]
+							},
+							"generalAttackReduction" : {
+								"type" : "GENERAL_ATTACK_REDUCTION",
+								"val" : 50,
+								"duration" : [
+									"UNTIL_AFTER_ATTACK_SEQUENCE",
+									"UNTIL_TAKING_INDIRECT_DAMAGE",
+									"N_TURNS"
+								]
+							}
+						}
 					}
 				}
 			},
-			"basic":{
-				"effects" : {
-					"generalAttackReduction" : {
-						"val" : 50
+			"advanced" : {
+				"battleEffects" : {
+					"blind" : {
+						"bonus" : {
+							"generalAttackReduction" : {
+								"val" : 75
+							}
+						}
 					}
 				}
 			},
-			"advanced":{
-				"effects" : {
-					"generalAttackReduction" : {
-						"val" : 75
-					}
-				}
-			},
-			"expert":{
-				"effects" : {
-					"noRetaliation" : {
-						"val" : 0,
-						"type" : "NO_RETALIATION",
-						"duration" : [
-							"UNTIL_AFTER_ATTACK_SEQUENCE",
-							"UNTIL_TAKING_INDIRECT_DAMAGE",
-							"N_TURNS"
-						]
+			"expert" : {
+				"battleEffects" : {
+					"blind" : {
+						"bonus" : {
+							"noRetaliation" : {
+								"val" : 0,
+								"type" : "NO_RETALIATION",
+								"duration" : [
+									"UNTIL_AFTER_ATTACK_SEQUENCE",
+									"UNTIL_TAKING_INDIRECT_DAMAGE",
+									"N_TURNS"
+								]
+							}
+						}
 					}
 				}
 			}
 		},
 		"flags" : {
-			"negative": true
+			"negative" : true
 		},
 		"targetCondition" : {
 			"noneOf" : {
@@ -1489,6 +1989,5 @@
 				"bonus.UNDEAD" : "absolute"
 			}
 		}
-
 	}
 }

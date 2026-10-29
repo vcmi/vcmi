@@ -74,7 +74,7 @@ private:
 	{
 		auto mask = Mask{};
 		for(int i = 0; i < GameConstants::BFIELD_SIZE; ++i)
-			mask[i] = accessibility.accessible(BattleHex(I16(i)), wide, side);
+			mask[i] = accessibility.accessible(BattleHex(I16(i)), wide, side, side == BattleSide::DEFENDER);
 		return mask;
 	}
 

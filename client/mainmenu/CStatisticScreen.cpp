@@ -57,7 +57,7 @@ CStatisticScreen::CStatisticScreen(const StatisticDataSet & stat)
 	contentArea = Rect(10, 40, 780, 510);
 	layout.emplace_back(std::make_shared<CLabel>(400, 20, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.statisticWindow.statistics")));
 	layout.emplace_back(std::make_shared<TransparentFilledRectangle>(contentArea, ColorRGBA(0, 0, 0, 128), ColorRGBA(64, 80, 128, 255), 1));
-	layout.emplace_back(std::make_shared<CButton>(Point(725, 558), AnimationPath::builtin("MUBCHCK"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_ACCEPT));
+	layout.emplace_back(std::make_shared<CButton>(Point(725, 558), AnimationPath::builtin("MUBCHCK"), CButton::tooltip(), [this](){ close(); }, EShortcut::GLOBAL_RETURN));
 
 	buttonSelect = std::make_shared<CButton>(Point(10, 564), AnimationPath::builtin("GSPBUT2"), CButton::tooltip(), [this](){ onSelectButton(); });
 	buttonSelect->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.statisticWindow.selectView"), EFonts::FONT_SMALL, Colors::YELLOW);
@@ -75,9 +75,11 @@ void CStatisticScreen::onSelectButton()
 		texts.emplace_back(LIBRARY->generaltexth->translate(std::get<0>(val.second)));
 	ENGINE->windows().createAndPushWindow<StatisticSelector>(texts, [this](int selectedIndex)
 	{
-		OBJECT_CONSTRUCTION;
 		if(!std::get<1>(contentInfo[static_cast<Content>(selectedIndex)]))
+		{
+			OBJECT_CONSTRUCTION;
 			mainContent = getContent(static_cast<Content>(selectedIndex), EGameResID::NONE);
+		}
 		else
 		{
 			auto content = static_cast<Content>(selectedIndex);
@@ -228,6 +230,7 @@ StatisticSelector::StatisticSelector(const std::vector<std::string> & texts, con
 	: CWindowObject(BORDERED | NEEDS_ANIMATED_BACKGROUND), texts(texts), cb(cb)
 {
 	OBJECT_CONSTRUCTION;
+	addUsedEvents(KEYBOARD);
 	pos = center(Rect(0, 0, 128 + 16, std::min(static_cast<int>(texts.size()), LINES) * 40));
 	filledBackground = std::make_shared<FilledTexturePlayerColored>(Rect(0, 0, pos.w, pos.h));
 	filledBackground->setPlayerColor(PlayerColor(1));
@@ -237,6 +240,12 @@ StatisticSelector::StatisticSelector(const std::vector<std::string> & texts, con
 	slider->setScrollBounds(Rect(-pos.w + slider->pos.w, 0, pos.w, pos.h));
 
 	update(0);
+}
+
+void StatisticSelector::keyPressed(EShortcut key)
+{
+	if(key == EShortcut::GLOBAL_RETURN)
+		close();
 }
 
 void StatisticSelector::update(int to)

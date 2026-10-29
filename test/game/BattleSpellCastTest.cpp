@@ -24,6 +24,7 @@
 #include "../../lib/json/JsonBonus.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/gameState/CGameState.h"
+#include "../../lib/modding/IdentifierResolver.h"
 #include "../../lib/modding/ModScope.h"
 #include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
@@ -238,7 +239,7 @@ public:
 
 		BattleStart bs;
 		bs.info = std::move(battle);
-		bs.battleID = BattleID(0);
+		bs.battleID = battleId;
 		ASSERT_EQ(gameState->currentBattles.size(), 0);
 		gameEventCallback->sendAndApply(bs);
 		ASSERT_EQ(gameState->currentBattles.size(), 1);
@@ -267,6 +268,7 @@ public:
 	MapServiceMock mapService;
 	std::unique_ptr<MapServiceTinyH3M> tinyMapService;
 	ServicesMock services;
+	BattleID battleId = BattleID(0);
 
 	CMap * map;
 	CRandomGenerator randomGenerator;
@@ -563,6 +565,85 @@ TEST_F(BattleSpellCastTest, issue2765)
 	}
 }
 
+TEST_F(BattleSpellCastTest, advancedSpellsOverrideBasicOnes)
+{
+	const int BLOODLUST_BASIC_VALUE = 3;
+	const int BLOODLUST_ADV_VALUE = 6;
+	const int HERO_POWER = 8;
+	const int OGRE_MAGI_POWER = 6;
+	startTestGame();
+
+	auto attacker = getHeroByOwner(PlayerColor(0));
+	auto defender = getHeroByOwner(PlayerColor(1));
+
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
+	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
+
+	attacker->addSpellToSpellbook(SpellID::BLOODLUST);
+	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, HERO_POWER, ChangeValueMode::ABSOLUTE);
+	attacker->setPrimarySkill(PrimarySkill::KNOWLEDGE, 20, ChangeValueMode::ABSOLUTE);
+	attacker->mana = attacker->manaLimit();
+
+	{
+		NewArtifact na;
+		na.artHolder = attacker->id;
+		na.artId = ArtifactID::SPELLBOOK;
+		na.pos = ArtifactPosition::SPELLBOOK;
+		gameEventCallback->sendAndApply(na);
+	}
+
+	startTestBattle(attacker, defender);
+	addStack(BattleSide::DEFENDER, CreatureID(13), 10);
+
+	CStack * unit = addStack(BattleSide::ATTACKER, CreatureID(90), 10);
+	CStack * casterStack = addStack(BattleSide::ATTACKER, CreatureID(91), 10); //ogreMagi
+
+	ASSERT_NE(unit, nullptr);
+
+	{
+		using namespace ::testing;
+
+		spells::ProblemMock problemMock;
+		EXPECT_CALL(problemMock, add(_)).Times(AnyNumber()); //todo: do smth with problems of optional effects
+
+		const CSpell * spell = SpellID(SpellID::BLOODLUST).toSpell();
+		ASSERT_NE(spell, nullptr);
+
+		spells::BattleCast heroCast(gameState->currentBattles.front().get(), attacker, spells::Mode::HERO, spell);
+		spells::BattleCast stackCast(gameState->currentBattles.front().get(), casterStack, spells::Mode::CREATURE_ACTIVE, spell);
+
+		spells::Target target;
+		target.emplace_back(unit);
+
+		spell->battleMechanics(&heroCast);
+		spell->battleMechanics(&stackCast);
+
+		heroCast.cast(this, target);
+		stackCast.cast(this, target);
+
+	}
+
+	BattleNextRound bnr;
+	bnr.battleID = BattleID(battleId);
+
+	auto sel = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK)
+				   .And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::BLOODLUST))));
+
+	for(int i = 0; i<OGRE_MAGI_POWER; i++)
+	{
+		gameEventCallback->sendAndApply(bnr);
+		ASSERT_EQ(unit->getBonuses(sel)->totalValue(), BLOODLUST_ADV_VALUE);
+	}
+	for(int i = 0; i<HERO_POWER - OGRE_MAGI_POWER; i++)
+	{
+		gameEventCallback->sendAndApply(bnr);
+		ASSERT_EQ(unit->getBonuses(sel)->totalValue(), BLOODLUST_BASIC_VALUE);
+	}
+	gameEventCallback->sendAndApply(bnr);
+	ASSERT_EQ(unit->getBonuses(sel)->totalValue(), 0);
+}
+
 TEST_F(BattleSpellCastTest, battleResurrection)
 {
 	startTestGame();
@@ -668,8 +749,9 @@ TEST_F(BattleSpellCastTest, battleInterference)
 	skillJson.setModScope(ModScope::scopeGame());
 	specialtyJson.setModScope(ModScope::scopeGame());
 
-	auto skillBonus = JsonUtils::parseBonus(skillJson);
-	auto specialtyBonus = JsonUtils::parseBonus(specialtyJson);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	auto skillBonus = JsonUtils::parseBonus(skillJson, resolver);
+	auto specialtyBonus = JsonUtils::parseBonus(specialtyJson, resolver);
 
 	startTestGame();
 

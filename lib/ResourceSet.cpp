@@ -15,34 +15,14 @@
 #include "serializer/JsonSerializeFormat.h"
 #include "entities/ResourceTypeHandler.h"
 #include "GameLibrary.h"
+#include "modding/IdentifierResolver.h"
 
-ResourceSet::ResourceSet()
-{
-	resizeContainer();
-};
-
-ResourceSet::ResourceSet(const ResourceSet& rhs)
-	: container(rhs.container) // vector copy constructor
-{
-	resizeContainer();
-}
-
-void ResourceSet::resizeContainer()
-{
-	container.resize(std::max({
-		static_cast<int>(container.size()),
-		static_cast<int>(LIBRARY->resourceTypeHandler->getAllObjects().size()),
-		GameConstants::RESOURCE_QUANTITY
-	}));
-}
-
-void ResourceSet::resolveFromJson(const JsonNode & node)
+void ResourceSet::resolveFromJson(const JsonNode & node, IIdentifierResolver & resolver)
 {
 	for(auto & n : node.Struct())
-		LIBRARY->identifiers()->requestIdentifier(n.second.getModScope(), "resource", n.first, [n, this](int32_t identifier)
+		resolver.requestIdentifier(n.second.getModScope(), "resource", n.first, [n, this](int32_t identifier)
 		{
-			container.resize(std::max(static_cast<int>(container.size()), identifier + 1)); // creature cost will access before resize
-			(*this)[identifier] = static_cast<int>(n.second.Float());
+			container[GameResID(identifier)] = static_cast<int>(n.second.Float());
 		});
 }
 
@@ -52,40 +32,45 @@ void ResourceSet::serializeJson(JsonSerializeFormat & handler, const std::string
 		return;
 	auto s = handler.enterStruct(fieldName);
 
-	for(auto & idx : LIBRARY->resourceTypeHandler->getAllObjects())
-		handler.serializeInt(idx.toResource()->getJsonKey(), this->operator[](idx), 0);
+	if(handler.saving)
+	{
+		for(auto & [resource, amount] : container)
+			handler.serializeInt(resource.toResource()->getJsonKey(), amount, 0);
+	}
+	else
+	{
+		container.clear();
+		for(const auto & resource : LIBRARY->resourceTypeHandler->getAllObjects())
+		{
+			TResource amount = 0;
+			handler.serializeInt(resource.toResource()->getJsonKey(), amount, 0);
+			if(amount)
+				container[resource] = amount;
+		}
+	}
 }
 
 bool ResourceSet::nonZero() const
 {
-	for(const auto & elem : *this)
-		if(elem)
-			return true;
-
-	return false;
-}
-
-void ResourceSet::amax(const TResourceCap &val)
-{
-	for(auto & elem : *this)
-		vstd::amax(elem, val);
+	return !nonZeroEntries().empty();
 }
 
 void ResourceSet::amin(const TResourceCap &val)
 {
-	for(auto & elem : *this)
-		vstd::amin(elem, val);
+	assert(val >= 0);
+	for(auto & entry : container)
+		vstd::amin(entry.second, val);
 }
 
-void ResourceSet::positive()
+void ResourceSet::removeNegative()
 {
-	for(auto & elem : *this)
-		vstd::amax(elem, 0);
+	for(auto & entry : container)
+		vstd::amax(entry.second, 0);
 }
 
 void ResourceSet::applyHandicap(int percentage)
 {
-	for(auto & elem : *this)
+	for(auto & [resource, elem] : container)
 	{
 		int64_t newAmount = vstd::divideAndCeil(static_cast<int64_t>(elem) * percentage, 100);
 		int64_t cap = GameConstants::PLAYER_RESOURCES_CAP;
@@ -93,30 +78,20 @@ void ResourceSet::applyHandicap(int percentage)
 	}
 }
 
-static bool canAfford(const ResourceSet &res, const ResourceSet &price)
+bool ResourceSet::canAfford(const ResourceSet &price) const
 {
-	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
-		if(price[i] > res[i])
+	for(const auto & [resource, amount] : price)
+		if(amount > (*this)[resource])
 			return false;
 
 	return true;
 }
 
-bool ResourceSet::canBeAfforded(const ResourceSet &res) const
-{
-	return ::canAfford(res, *this);
-}
-
-bool ResourceSet::canAfford(const ResourceSet &price) const
-{
-	return ::canAfford(*this, price);
-}
-
 TResourceCap ResourceSet::marketValue() const
 {
 	TResourceCap total = 0;
-	for(auto & i : LIBRARY->resourceTypeHandler->getAllObjects())
-		total += static_cast<TResourceCap>(i.toResource()->getPrice()) * static_cast<TResourceCap>(operator[](i));
+	for(const auto & [resource, amount] : container)
+		total += static_cast<TResourceCap>(resource.toResource()->getPrice()) * static_cast<TResourceCap>(amount);
 	return total;
 }
 
@@ -124,66 +99,12 @@ std::string ResourceSet::toString() const
 {
 	std::ostringstream out;
 	out << "[";
-	for(auto it = begin(); it != end(); ++it)
+	for(auto it = container.begin(); it != container.end(); ++it)
 	{
-		out << *it;
-		if(std::prev(end()) != it) out << ", ";
+		if(it != container.begin())
+			out << ", ";
+		out << it->first.getNum() << ": " << it->second;
 	}
 	out << "]";
 	return out.str();
-}
-
-bool ResourceSet::nziterator::valid() const
-{
-	return static_cast<int>(cur.resType) < LIBRARY->resourceTypeHandler->getAllObjects().size() && cur.resVal;
-}
-
-ResourceSet::nziterator ResourceSet::nziterator::operator++()
-{
-	advance();
-	return *this;
-}
-
-ResourceSet::nziterator ResourceSet::nziterator::operator++(int)
-{
-	nziterator ret = *this;
-	advance();
-	return ret;
-}
-
-const ResourceSet::nziterator::ResEntry& ResourceSet::nziterator::operator*() const
-{
-	return cur;
-}
-
-const ResourceSet::nziterator::ResEntry * ResourceSet::nziterator::operator->() const
-{
-	return &cur;
-}
-
-void ResourceSet::nziterator::advance()
-{
-	const auto resourceCount = static_cast<int>(LIBRARY->resourceTypeHandler->getAllObjects().size());
-	while(true)
-	{
-		++cur.resType;
-		if(static_cast<int>(cur.resType) >= resourceCount)
-		{
-			cur.resVal = -1;
-			return;
-		}
-		cur.resVal = rs[cur.resType];
-		if(cur.resVal)
-			return;
-	}
-}
-
-ResourceSet::nziterator::nziterator(const ResourceSet &RS)
-	: rs(RS)
-{
-	cur.resType = EGameResID::WOOD;
-	cur.resVal = rs[EGameResID::WOOD];
-
-	if(!valid())
-		advance();
 }

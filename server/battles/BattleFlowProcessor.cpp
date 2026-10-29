@@ -208,20 +208,21 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 
 		const CStack * next = getNextStack(battle);
 
-		if (!next)
+		// No stacks to move - start next round.
+		// Every unit can be unable to act for several rounds in a row, e.g. when both sides are paralyzed
+		// or frozen - keep starting new rounds, as H3 does, until an effect expires and some unit can act
+		while (!next)
 		{
-			// No stacks to move - start next round
 			startNextRound(battle, false);
 
 			// round start triggers (e.g. damage-over-time combat scripts) may have killed the last
 			// units of a side - end the battle now instead of giving a turn to a surviving stack
-			// (or throwing below, if both sides were wiped out)
 			if (owner->checkBattleStateChanges(battle))
 				return;
 
 			next = getNextStack(battle);
 			if (!next)
-				throw std::runtime_error("Failed to find valid stack to act!");
+				logGlobal->warn("No valid stack to act during round! Skipping to next round!");
 		}
 
 		BattleUnitsChanged removeGhosts;
@@ -335,7 +336,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCa
 	{
 		const TStacks possibleTargets = battle.battleGetStacksIf([&next, &battle](const CStack * s)
 		{
-			return s->unitOwner() != next->unitOwner() && s->isValidTarget() && battle.battleCanShoot(next, s->getPosition());
+			return battle.battleMatchOwner(next, s) && s->isValidTarget() && battle.battleCanShoot(next, s->getPosition());
 		});
 
 		struct TargetInfo
@@ -457,7 +458,7 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCal
 
 	const TStacks possibleTargets = battle.battleGetStacksIf([&actingStack, &battle](const CStack * s)
 	{
-		return s->unitOwner() != actingStack->unitOwner() && s->isValidTarget()
+		return battle.battleMatchOwner(actingStack, s) && s->isValidTarget()
 		&& (!battle.isEnemyUnitWithinSpecifiedRange(actingStack->position, s, actingStack->getMovementRange())
 		|| (battle.isEnemyUnitWithinSpecifiedRange(actingStack->position, s, actingStack->getMovementRange()) && !s->getAttackableHexes(actingStack).empty()));
 	});
@@ -758,7 +759,8 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 		}
 		if(st->hasBonusOfType(BonusType::MANA_DRAIN) && !st->drainedMana)
 		{
-			const CGHeroInstance * opponentHero = battle.battleGetFightingHero(battle.otherSide(st->unitSide()));
+			// a hypnotized wraith drains the opponent of the player controlling it
+			const CGHeroInstance * opponentHero = battle.battleGetFightingHero(battle.otherSide(battle.playerToSide(battle.battleGetOwner(st))));
 			if(opponentHero)
 			{
 				ui32 manaDrained = st->valOfBonuses(BonusType::MANA_DRAIN);
@@ -789,7 +791,8 @@ void BattleFlowProcessor::stackTurnTrigger(const CBattleInfoCallback & battle, c
 			return b->subtype.as<SpellID>() == SpellID::NONE;
 		});
 
-		BattleSide side = battle.playerToSide(st->unitOwner());
+		// a hypnotized enchanter does not wait for the cooldown of its owner
+		BattleSide side = st->controllingSide();
 		if(st->canCast())
 		{
 			bool cast = false;

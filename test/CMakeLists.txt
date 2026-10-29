@@ -59,6 +59,7 @@ set(test_SRCS
 		map/MapScriptTest.cpp
 		map/MapObjectDrawOrderTest.cpp
 		map/PlayerFactionsTest.cpp
+		map/ScenarioMetadataTest.cpp
 		map/TinyH3MBuilderTest.cpp
 
 		quest/QuestTest.cpp
@@ -122,6 +123,7 @@ set(test_SRCS
 		server/battles/EnchantedTest.cpp
 		server/battles/FireShieldTest.cpp
 		server/battles/HotaAbilitiesTest.cpp
+		server/battles/HypnotizeTest.cpp
 		server/battles/LifeDrainTest.cpp
 		server/battles/WarMachineResurrectionTest.cpp
 		server/battles/ResurrectionCasualtiesTest.cpp
@@ -139,6 +141,7 @@ set(test_SRCS
 		server/battles/WalkActionTest.cpp
 		server/activities/ActivityProcessorTest.cpp
 		server/ArmyManagementTest.cpp
+		server/NeutralTownEventsTest.cpp
 
 		texts/TextOperationsTest.cpp
 

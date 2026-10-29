@@ -62,6 +62,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/TownBuildingInstance.h"
+#include "../../lib/modding/IdentifierResolver.h"
 #include "../../lib/spells/CSpell.h"
 #include "wiki/WikiWindow.h"
 
@@ -138,8 +139,8 @@ static void upgradeAllCreatures(const CArmedInstance *obj, const UpgradableSlots
 	}
 
 	std::vector<std::shared_ptr<CComponent>> resComps;
-	for(TResources::nziterator i(upgradableSlots.totalCosts); i.valid(); i++)
-		resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal));
+	for(const auto & [resource, amount] : upgradableSlots.totalCosts.nonZeroEntries())
+		resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, resource, amount));
 	// Free upgrades have no resource components, so only add a separator when costs are present.
 	if(!resComps.empty())
 		resComps.back()->newLine = true;
@@ -756,14 +757,15 @@ void CCastleBuildings::recreate()
 	if(town->hasBuilt(BuildingID::SHIPYARD))
 	{
 		auto bayPos = town->bestLocation();
-		if(!bayPos.isValid())
-			logGlobal->warn("Shipyard in non-coastal town!");
-		std::vector <const CGObjectInstance *> vobjs = GAME->interface()->cb->getVisitableObjs(bayPos);
-		//there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
-		if(!vobjs.empty() && (vobjs.front()->ID == Obj::BOAT || vobjs.front()->ID == Obj::HERO))
+		if(bayPos.isValid())
 		{
-			buildingsCopy.insert(BuildingID::SHIP);
+			std::vector <const CGObjectInstance *> vobjs = GAME->interface()->cb->getVisitableObjs(bayPos);
+			//there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
+			if(!vobjs.empty() && (vobjs.front()->ID == Obj::BOAT || vobjs.front()->ID == Obj::HERO))
+				buildingsCopy.insert(BuildingID::SHIP);
 		}
+		else
+			logGlobal->warn("Shipyard in non-coastal town!");
 	}
 
 	for(const auto & structure : town->getTown()->clientInfo.structures)
@@ -2449,7 +2451,8 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		}
 
 		ResourceSet costBase;
-		costBase.resolveFromJson(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		costBase.resolveFromJson(GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level], resolver);
 		double pastResearchesCostMultiplier = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_RESEARCH).Vector()[level].Float();
 		double pastRerollsCostMultiplier = GAME->interface()->cb->getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_REROLL).Vector()[level].Float();
 		double pastResearchesCurrentMultiplier = std::pow(pastResearchesCostMultiplier, town->spellResearchAcceptedCounter);
@@ -2468,10 +2471,8 @@ void CMageGuildScreen::Scroll::clickPressed(const Point & cursorPosition)
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, spell->id));
 		resComps.push_back(std::make_shared<CComponent>(ComponentType::SPELL, newSpell));
 		resComps.back()->newLine = true;
-		for(TResources::nziterator i(cost); i.valid(); i++)
-		{
-			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, i->resType, i->resVal, CComponent::ESize::medium));
-		}
+		for(const auto & [resource, amount] : cost.nonZeroEntries())
+			resComps.push_back(std::make_shared<CComponent>(ComponentType::RESOURCE, resource, amount, CComponent::ESize::medium));
 
 		MetaString text;
 		text.appendTextID(GAME->interface()->cb->getResourceAmount().canAfford(cost) ? "vcmi.spellResearch.pay" : "vcmi.spellResearch.canNotAfford");

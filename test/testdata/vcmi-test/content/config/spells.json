@@ -1,6 +1,40 @@
 // Spells with properties that no Heroes 3 spell has, so that the engine paths reading them can be
 // tested in a real battle.
 {
+	// Reinforces the summoned stack of the same creature, which only mods do
+	"testSummonSameUnit" :
+	{
+		"type" : "combat",
+		"targetType" : "NO_TARGET",
+		"name" : "Test Summon Same Unit",
+		"school" : {},
+		"level" : 1,
+		"power" : 10,
+		"graphics" : {},
+		"levels" : {
+			"base" : {
+				"description" : "",
+				"cost" : 0,
+				"power" : 10,
+				"range" : "X",
+				"battleEffects" : {
+					"summon" : {
+						"type" : "core:summon",
+						"id" : "airElemental",
+						"permanent" : false,
+						"summonSameUnit" : true
+					}
+				}
+			},
+			"none" : {},
+			"basic" : {},
+			"advanced" : {},
+			"expert" : {}
+		},
+		"flags" : {
+			"indifferent" : true
+		}
+	},
 	"testCastWithoutSkip" :
 	{
 		"type" : "ability",

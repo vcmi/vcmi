@@ -14,6 +14,7 @@
 #include "../../lib/gameState/RumorState.h"
 
 class CGTownInstance;
+class CCastleEvent;
 class ResourceSet;
 struct SetAvailableCreatures;
 struct SetMovePoints;
@@ -39,6 +40,8 @@ class NewTurnProcessor : boost::noncopyable
 	NewTurn generateNewTurnPack();
 	void handleTimeEvents(PlayerColor player);
 	void handleTownEvents(const CGTownInstance *town);
+	/// Constructs buildings and adds creatures of a town event; components go to `iw` if it is set
+	void applyTownEventEffects(const CGTownInstance * town, const CCastleEvent & event, InfoWindow * iw);
 
 	void updateNeutralTownGarrison(const CGTownInstance * t, int currentWeek) const;
 

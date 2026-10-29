@@ -169,7 +169,8 @@ std::map<std::string, std::shared_ptr<CRmgTemplate>> Helper::openTemplateInterna
 	std::map<std::string, std::shared_ptr<CRmgTemplate>> templates;
 	for(auto & node : nodes.Struct())
 	{
-		JsonDeserializer handler(nullptr, node.second);
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, node.second);
 		auto rmg = std::make_shared<CRmgTemplate>();
 		rmg->serializeJson(handler);
 		rmg->validate();

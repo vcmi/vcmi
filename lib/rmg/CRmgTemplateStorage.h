@@ -22,13 +22,13 @@ class DLL_LINKAGE CRmgTemplateStorage : public IHandlerBase
 public:
 	CRmgTemplateStorage() = default;
 	
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
 	/// loads single object into game. Scope is namespace of this object, same as name of source mod
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 
-	void afterLoadFinalization() override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 	
 	const CRmgTemplate* getTemplate(const std::string & templateName) const;
 	std::vector<const CRmgTemplate *> getTemplates() const;

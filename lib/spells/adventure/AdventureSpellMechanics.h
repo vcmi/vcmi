@@ -28,10 +28,10 @@ class AdventureSpellMechanics final : public IAdventureSpellMechanics, boost::no
 
 	const LevelOptions & getLevel(const spells::Caster * caster) const;
 	void giveBonuses(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
-	std::unique_ptr<IAdventureSpellEffect> createAdventureEffect(const CSpell * s, const JsonNode & node);
+	std::unique_ptr<IAdventureSpellEffect> createAdventureEffect(LibraryLoadContext & context, const CSpell * s, const JsonNode & node);
 
 public:
-	AdventureSpellMechanics(const CSpell * s);
+	AdventureSpellMechanics(LibraryLoadContext & context, const CSpell * s);
 	~AdventureSpellMechanics();
 
 	void performCast(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const final;

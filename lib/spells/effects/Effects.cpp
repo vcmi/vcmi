@@ -17,6 +17,7 @@
 
 #include "../../GameLibrary.h"
 #include "../../json/JsonNode.h"
+#include "../../modding/LibraryLoadContext.h"
 #include "../../modding/IdentifierStorage.h"
 #include "../../scripting/ScriptService.h"
 #include "../../texts/TextIdentifier.h"
@@ -124,13 +125,13 @@ Effects::EffectsToApply Effects::prepare(const Mechanics * m, const Target & aim
 	return effectsToApply;
 }
 
-Effects::EffectsMap Effects::loadJson(const JsonNode & effectMap, const std::string & spellScope, const std::string & spellIdentifier)
+Effects::EffectsMap Effects::loadJson(LibraryLoadContext & context, const JsonNode & effectMap, const std::string & spellScope, const std::string & spellIdentifier)
 {
 	EffectsMap result;
 
 	for(const auto & [name, raw] : effectMap.Struct())
 	{
-		auto identifier = LIBRARY->identifiers()->getIdentifier("script", raw["type"]);
+		auto identifier = context.lib.identifiers()->getIdentifier("script", raw["type"]);
 
 		if(!identifier.has_value())
 		{
@@ -140,16 +141,16 @@ Effects::EffectsMap Effects::loadJson(const JsonNode & effectMap, const std::str
 
 		ScriptID effectID(*identifier);
 
-		if(LIBRARY->scriptTypes()->getById(effectID).kind != ScriptKind::SPELL_EFFECT)
+		if(context.lib.scriptTypes()->getById(effectID).kind != ScriptKind::SPELL_EFFECT)
 		{
 			logMod->error("Spell '%s:%s' uses script '%s' as effect '%s', but that script is not a spell effect!", spellScope, spellIdentifier, raw["type"].String(), name);
 			continue;
 		}
 
 		JsonNode data = raw;
-		LIBRARY->scriptTypes()->prepareParameters(effectID, data, TextIdentifier("spell", spellScope, spellIdentifier, name));
+		context.lib.scriptTypes()->prepareParameters(effectID, data, context, TextIdentifier("spell", spellScope, spellIdentifier, name));
 
-		auto effect = LIBRARY->scriptTypes()->createSpellEffect(effectID);
+		auto effect = context.lib.scriptTypes()->createSpellEffect(effectID);
 
 		if(!effect)
 			continue; // reported by the handler

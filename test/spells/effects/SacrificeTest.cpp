@@ -34,6 +34,15 @@ public:
 	{
 	}
 
+	/// The victim is not hypnotized, so the caster controls it
+	void expectControlledByCaster(battle::UnitFake & victim)
+	{
+		const PlayerColor caster(0);
+		EXPECT_CALL(victim, isHypnotized()).WillRepeatedly(Return(false));
+		EXPECT_CALL(*battleFake, getSidePlayer(BattleSide::ATTACKER)).WillRepeatedly(Return(caster));
+		EXPECT_CALL(mechanicsMock, getCasterColor()).WillRepeatedly(Return(caster));
+	}
+
 protected:
 	void SetUp() override
 	{
@@ -81,6 +90,7 @@ TEST_F(SacrificeTest, ApplicableForTwoTargets)
 
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&victim))).Times(AtLeast(1)).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&victim))).Times(AtLeast(1)).WillRepeatedly(Return(true));
+	expectControlledByCaster(victim);
 
 
 	Target aimPoint;
@@ -363,6 +373,7 @@ TEST_F(SacrificeApplicableTargetTest, ReturnsTrueForInjuredTargetAndOtherVictim)
 	EXPECT_CALL(mechanicsMock, isReceptive(Eq(&victim))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, ownerMatches(Eq(&victim))).WillRepeatedly(Return(true));
 	EXPECT_CALL(mechanicsMock, isSmart()).WillRepeatedly(Return(true));
+	expectControlledByCaster(victim);
 
 	Target target;
 	target.emplace_back(&injuredTarget, BattleHex());

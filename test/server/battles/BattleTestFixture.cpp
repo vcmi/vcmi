@@ -279,13 +279,14 @@ bool BattleTestFixture::castAsHero(const CGHeroInstance * hero, const SpellID & 
 {
 	const BattleSide side = hero == attackerSideHero ? BattleSide::ATTACKER : BattleSide::DEFENDER;
 
-	// Hero spell actions require an active allied unit.
+	// Hero spell actions require an active unit controlled by the hero's player.
+	const PlayerColor player = battle()->sideToPlayer(side);
 	const auto * active = battle()->battleActiveUnit();
-	if(!active || active->unitSide() != side || !active->alive())
+	if(!active || battle()->battleGetOwner(active) != player || !active->alive())
 	{
 		for(const auto & unit : battle()->stacks)
 		{
-			if(unit->unitSide() == side && unit->alive())
+			if(battle()->battleGetOwner(unit.get()) == player && unit->alive())
 			{
 				battle()->activeStack = unit->unitId();
 				break;
@@ -314,10 +315,13 @@ bool BattleTestFixture::attackFrom(const CStack * attacker, const BattleHex & ta
 bool BattleTestFixture::act(const BattleAction & action)
 {
 	// hero actions name no stack; a hero spell still needs a unit of the hero's side to be active
-	if(battle()->battleGetStackByID(action.stackNumber, false) != nullptr)
+	const auto * stack = battle()->battleGetStackByID(action.stackNumber, false);
+	if(stack != nullptr)
 		battle()->activeStack = action.stackNumber;
 
-	return gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(action.side), action);
+	// a hypnotized unit is controlled by the player of the other side
+	const PlayerColor player = stack ? battle()->battleGetOwner(stack) : battle()->sideToPlayer(action.side);
+	return gameHandler->battles->makePlayerBattleAction(BattleID(0), player, action);
 }
 
 std::vector<ActionOption> BattleTestFixture::optionsOf(const CStack * unit) const
@@ -527,6 +531,11 @@ void BattleTestFixture::blockRetaliation(CStack * stack)
 void BattleTestFixture::forceMaximumDamage(CStack * stack)
 {
 	stack->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ALWAYS_MAXIMUM_DAMAGE, BonusSource::OTHER, 0, BonusSourceID()));
+}
+
+void BattleTestFixture::hypnotize(CStack * stack)
+{
+	stack->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::HYPNOTIZED, BonusSource::OTHER, 0, BonusSourceID()));
 }
 
 static std::optional<si32> identifierByName(const std::string & category, const std::string & name)

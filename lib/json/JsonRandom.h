@@ -20,6 +20,7 @@ class RNG;
 }
 
 class JsonNode;
+class LibraryLoadContext;
 using JsonVector = std::vector<JsonNode>;
 
 struct Bonus;
@@ -78,5 +79,5 @@ public:
 	std::vector<HeroTypeID> loadHeroes(const JsonNode & value);
 	std::vector<HeroClassID> loadHeroClasses(const JsonNode & value);
 
-	static std::vector<std::shared_ptr<Bonus>> loadBonuses(const JsonNode & value);
+	static std::vector<std::shared_ptr<Bonus>> loadBonuses(const JsonNode & value, LibraryLoadContext & context);
 };

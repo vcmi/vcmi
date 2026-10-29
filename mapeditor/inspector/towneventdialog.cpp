@@ -53,6 +53,7 @@ TownEventDialog::TownEventDialog(CGTownInstance & t, QListWidgetItem * item, QWi
 	ui->eventMessageText->setPlainText(params.value("message").toString());
 	ui->eventAffectsCpu->setChecked(params.value("computerAffected").toBool());
 	ui->eventAffectsHuman->setChecked(params.value("humanAffected").toBool());
+	ui->eventAffectsNeutral->setChecked(params.value("neutralAffected").toBool());
 	ui->eventFirstOccurrence->setValue(params.value("firstOccurrence").toInt()+1);
 	ui->eventRepeatAfter->setValue(params.value("nextOccurrence").toInt());
 
@@ -206,6 +207,7 @@ void TownEventDialog::on_TownEventDialog_finished(int result)
 	descriptor["message"] = ui->eventMessageText->toPlainText();
 	descriptor["humanAffected"] = QVariant::fromValue(ui->eventAffectsHuman->isChecked());
 	descriptor["computerAffected"] = QVariant::fromValue(ui->eventAffectsCpu->isChecked());
+	descriptor["neutralAffected"] = QVariant::fromValue(ui->eventAffectsNeutral->isChecked());
 	descriptor["firstOccurrence"] = QVariant::fromValue(ui->eventFirstOccurrence->value()-1);
 	descriptor["nextOccurrence"] = QVariant::fromValue(ui->eventRepeatAfter->value());
 	descriptor["players"] = playersToVariant();

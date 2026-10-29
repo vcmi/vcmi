@@ -82,7 +82,7 @@ Returns the value of one of the hero's primary skills.
 
 Returns the hero's mastery of the given secondary skill.
 
-- param `skill`: `integer` — Secondary skill JSON key.
+- param `skill`: [`Skill`](Skill.md) — Secondary skill, as returned by Services:getSecondarySkillByName.
 
 - returns `integer` — Mastery level (0 = none, 1 = basic, 2 = advanced, 3 = expert).
 
@@ -102,7 +102,7 @@ Returns the hero class of this hero.
 
 Returns whether the hero owns the given artifact, either as equipped or in the backpack.
 
-- param `artifact`: `integer` — Artifact JSON key.
+- param `artifact`: [`Artifact`](Artifact.md) — Artifact, as returned by Services:getArtifactByName.
 
 - returns `boolean` — True if the hero owns the artifact.
 
@@ -110,7 +110,7 @@ Returns whether the hero owns the given artifact, either as equipped or in the b
 
 Returns how many copies of the given artifact the hero owns, counting both equipped slots and the backpack.
 
-- param `artifact`: `integer` — Artifact JSON key.
+- param `artifact`: [`Artifact`](Artifact.md) — Artifact, as returned by Services:getArtifactByName.
 
 - returns `integer` — Number of copies of that artifact the hero carries.
 

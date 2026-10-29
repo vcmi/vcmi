@@ -25,6 +25,8 @@
 
 #include "lib/constants/EntityIdentifiers.h"
 
+#include <tbb/parallel_invoke.h>
+
 #include <SDL_surface.h>
 
 //First 8 colors in def palette used for transparency
@@ -492,7 +494,8 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 	}
 
 	// alternatively, find largest pre-scaled image, load it and rescale to desired scaling
-	for (int8_t scaling = 4; scaling > 0; --scaling)
+	// the 1x image is only useful for optional images, other images are scaled from the base image below
+	for (int8_t scaling = 4; scaling > (optionalImage ? 0 : 1); --scaling)
 	{
 		loadingLocator.scalingFactor = scaling;
 		auto loadedImage = ENGINE->renderHandler().loadScaledImage(loadingLocator);
@@ -500,11 +503,8 @@ std::shared_ptr<const ISharedImage> ScalableImageShared::loadOrGenerateImage(EIm
 		{
 			if (scaling == 1)
 			{
-				if (optionalImage)
-				{
-					ScalableImageParameters parameters(getPalette(), mode);
-					return loadedImage->scaleInteger(scalingFactor, parameters.palette, mode);
-				}
+				ScalableImageParameters parameters(getPalette(), mode);
+				return loadedImage->scaleInteger(scalingFactor, parameters.palette, mode);
 			}
 			else
 			{
@@ -582,39 +582,54 @@ void ScalableImageShared::loadScaledImages(int8_t scalingFactor, PlayerColor col
 		}
 	}
 
-	if (scaled[scalingFactor].shadow[0] == nullptr)
+	const auto loadShadow = [&]()
 	{
-		switch(locator.layer)
+		if (scaled[scalingFactor].shadow[0] == nullptr)
 		{
-			case EImageBlitMode::WITH_SHADOW:
-			case EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION:
-			case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
-				scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
-				break;
-			case EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR:
-			case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
-				scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
-				break;
-			default:
-				break;
+			switch(locator.layer)
+			{
+				case EImageBlitMode::WITH_SHADOW:
+				case EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION:
+				case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
+					scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW_HIDE_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
+					break;
+				case EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR:
+				case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
+					scaled[scalingFactor].shadow[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SHADOW_HIDE_FLAG_COLOR, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].shadow[0]);
+					break;
+				default:
+					break;
+			}
 		}
-	}
+	};
 
-	if (scaled[scalingFactor].overlay[0] == nullptr)
+	const auto loadOverlay = [&]()
 	{
-		switch(locator.layer)
+		if (scaled[scalingFactor].overlay[0] == nullptr)
 		{
-			case EImageBlitMode::ONLY_FLAG_COLOR:
-			case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
-				scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_FLAG_COLOR, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
-				break;
-			case EImageBlitMode::ONLY_SELECTION:
-			case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
-				scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
-				break;
-			default:
-				break;
+			switch(locator.layer)
+			{
+				case EImageBlitMode::ONLY_FLAG_COLOR:
+				case EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR:
+					scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_FLAG_COLOR, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
+					break;
+				case EImageBlitMode::ONLY_SELECTION:
+				case EImageBlitMode::WITH_SHADOW_AND_SELECTION:
+					scaled[scalingFactor].overlay[0] = loadOrGenerateImage(EImageBlitMode::ONLY_SELECTION, scalingFactor, PlayerColor::CANNOT_DETERMINE, scaled[1].overlay[0]);
+					break;
+				default:
+					break;
+			}
 		}
+	};
+
+	// generated shadow and outline are expensive and independent from each other
+	if (locator.generateShadow && locator.generateOverlay)
+		tbb::parallel_invoke(loadShadow, loadOverlay);
+	else
+	{
+		loadShadow();
+		loadOverlay();
 	}
 }
 

@@ -350,6 +350,9 @@ void TurnOrderProcessor::doStartPlayerTurn(PlayerColor which)
 		// AI starts acting immediately from PlayerStartsTurn/yourTurn, so keep the
 		// original ordering and run the turn-start visits first.
 		startTurn();
+		// turn-start events may have ended the game for this player
+		if(gameHandler->gameInfo().getPlayerStatus(which) != EPlayerStatus::INGAME)
+			return;
 		gameHandler->sendAndApply(pst);
 	}
 
@@ -459,7 +462,8 @@ void TurnOrderProcessor::tryStartTurnsForPlayers()
 	auto awaitingPlayersCopy = awaitingPlayers;
 	for (auto player : awaitingPlayersCopy)
 	{
-		if (canStartTurn(player))
+		// starting a turn may end the game for that player and start turns of others
+		if (isPlayerAwaitsTurn(player) && canStartTurn(player))
 			doStartPlayerTurn(player);
 	}
 }

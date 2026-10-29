@@ -157,8 +157,7 @@ void CGPandoraBox::showRewardMessage(IGameEventCallback & gameEvents, const CGHe
 	temp.heroLevel = 0;
 	temp.secondary.clear();
 	temp.primary.clear();
-	temp.resources.amin(0);
-	temp.resources.amax(0);
+	temp.resources = ResourceSet();
 	temp.manaDiff = 0;
 	temp.manaPercentage = -1;
 	temp.spells.clear();

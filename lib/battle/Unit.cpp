@@ -71,6 +71,13 @@ int32_t Unit::getAbilitySpellLevel(int32_t abilityLevel, const spells::Spell * s
 	return abilityLevel;
 }
 
+BattleSide Unit::controllingSide() const
+{
+	if(!isHypnotized())
+		return unitSide();
+	return unitSide() == BattleSide::ATTACKER ? BattleSide::DEFENDER : BattleSide::ATTACKER;
+}
+
 bool Unit::isSummoned() const
 {
 	return unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER;
@@ -319,7 +326,8 @@ void UnitInfo::save(JsonNode & data)
 void UnitInfo::load(uint32_t id_, const JsonNode & data)
 {
 	id = id_;
-	JsonDeserializer deser(nullptr, data);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer deser(nullptr, resolver, data);
 	serializeJson(deser);
 }
 

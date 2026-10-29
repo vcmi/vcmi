@@ -21,6 +21,8 @@
 #include "../lib/CConfigHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/modding/CModHandler.h"
+#include "../lib/modding/LibraryLoadContext.h"
+#include "../lib/modding/ModUtility.h"
 #include "../lib/modding/ModManager.h"
 #include "callback/EditorCallback.h"
 #include "campaign/CampaignHandler.h"
@@ -146,6 +148,17 @@ static void generateTranslations(const std::string & modID)
 		}
 
 		LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
+
+		// map and campaign texts are owned by maps and campaigns themselves, not by the library
+		for (auto const & map : loadedMaps)
+			map->texts->exportAllTexts(textsByMod, false);
+
+		for (auto const & campaign : loadedCampaigns)
+		{
+			campaign->getTexts()->exportAllTexts(textsByMod, false);
+			for (auto const & scenarioTexts : campaign->getScenarioTexts())
+				scenarioTexts.second->exportAllTexts(textsByMod, false);
+		}
 	}
 
 	for(const auto & modEntry : textsByMod)
@@ -227,6 +240,44 @@ static void generateTranslations(const std::string & modID)
 
 }
 
+static void exportConfiguration(const LibraryLoadContext & context)
+{
+	const boost::filesystem::path outPath = VCMIDirs::get().userExtractedPath() / "configuration";
+
+	boost::filesystem::create_directories(outPath);
+
+	const std::vector<std::string> contentNames = { "heroClasses", "artifacts", "creatures", "factions", "objects", "heroes", "spells", "skills" };
+
+	for(const auto & contentName : contentNames)
+	{
+		const auto & content = context.content[contentName];
+
+		auto contentOutPath = outPath / contentName;
+		boost::filesystem::create_directories(contentOutPath);
+
+		for(const auto & iter : content.modData)
+		{
+			const JsonNode & modData = iter.second.modData;
+
+			for(const auto & nameAndObject : modData.Struct())
+			{
+				const JsonNode & object = nameAndObject.second;
+
+				std::string name = ModUtility::makeFullIdentifier(object.getModScope(), contentName, nameAndObject.first);
+
+				boost::algorithm::replace_all(name, ":", "_");
+
+				const boost::filesystem::path filePath = contentOutPath / (name + ".json");
+				std::ofstream file(filePath.c_str());
+				file << object.toString();
+			}
+		}
+	}
+
+	logGlobal->info("Configuration export complete");
+	logGlobal->info("Extracted files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory");
+}
+
 static void handleCommandOptions(int argc, const char * argv[], boost::program_options::variables_map & options)
 {
 	boost::program_options::options_description opts("Allowed options");
@@ -236,6 +287,7 @@ static void handleCommandOptions(int argc, const char * argv[], boost::program_o
 	("run-by-client", "indicate that server launched by client on same machine")
 	("dummy-run", "Shutdown immediately after loading was sucessful")
 	("creature-values", "Compute AI values and fight values of all creatures and compare them against configured values")
+	("export-config", "Export configuration of game objects from all active mods into json files")
 	("translate-mod", boost::program_options::value<std::string>(), "Export translations for specified mod")
 	("export-lua-docs", boost::program_options::value<std::string>(), "Export Lua scripting API documentation to specified directory")
 	("port", boost::program_options::value<ui16>(), "port at which server will listen to connections from client")
@@ -305,13 +357,20 @@ int main(int argc, const char * argv[])
 	LIBRARY->initializeFilesystem(false);
 	logConfigurator.configure();
 
-	LIBRARY->initializeLibrary();
+	if(opts.count("export-config"))
+	{
+		LibraryLoadContext context(*LIBRARY);
+		LIBRARY->initializeLibrary(context);
+		exportConfiguration(context);
+	}
+	else
+		LIBRARY->initializeLibrary();
 
 	if(opts.count("creature-values"))
 	{
 		CreatureValueEstimator::run();
 	}
-	else if(!opts.count("dummy-run"))
+	else if(!opts.count("dummy-run") && !opts.count("export-config"))
 	{
 		bool connectToLobby = opts.count("lobby");
 		bool runByClient = opts.count("runByClient");

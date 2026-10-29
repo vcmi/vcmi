@@ -14,7 +14,7 @@
 #include "../mapObjects/MiscObjects.h"
 #include "../modding/IdentifierStorage.h"
 
-void ShipyardInstanceConstructor::initTypeData(const JsonNode & config)
+void ShipyardInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & config)
 {
 	parameters = config;
 }

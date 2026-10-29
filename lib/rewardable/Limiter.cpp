@@ -307,11 +307,8 @@ void Rewardable::Limiter::loadComponents(std::vector<Component> & comps,
 	for(const auto & entry : heroes)
 		comps.emplace_back(ComponentType::HERO_PORTRAIT, entry);
 	
-	for (size_t i=0; i<resources.size(); i++)
-	{
-		if (resources[i] !=0)
-			comps.emplace_back(ComponentType::RESOURCE, GameResID(i), resources[i]);
-	}
+	for(const auto & [resource, amount] : resources.nonZeroEntries())
+		comps.emplace_back(ComponentType::RESOURCE, resource, amount);
 }
 
 void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)

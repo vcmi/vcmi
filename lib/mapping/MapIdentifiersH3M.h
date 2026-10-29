@@ -15,6 +15,7 @@
 #include "../json/JsonNode.h"
 
 class ObjectTemplate;
+class GameLibrary;
 
 struct ObjectTypeIdentifier
 {
@@ -51,9 +52,9 @@ class DLL_LINKAGE MapIdentifiersH3M
 	JsonNode formatSettings;
 
 	template<typename IdentifierID>
-	void loadMapping(std::map<IdentifierID, IdentifierID> & result, const JsonNode & mapping, const std::string & identifierName);
+	void loadMapping(const GameLibrary & library, std::map<IdentifierID, IdentifierID> & result, const JsonNode & mapping, const std::string & identifierName);
 public:
-	void loadMapping(const JsonNode & mapping);
+	void loadMapping(const GameLibrary & library, const JsonNode & mapping);
 
 	void remapTemplate(ObjectTemplate & objectTemplate, const std::string & mapName);
 

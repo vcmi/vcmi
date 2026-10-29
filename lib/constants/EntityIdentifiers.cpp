@@ -124,6 +124,23 @@ const MapLayerId MapLayerId::SURFACE(0);
 const MapLayerId MapLayerId::UNDERGROUND(1);
 const MapLayerId MapLayerId::UNKNOWN(2);
 
+int8_t MasteryLevel::decode(const std::string & identifier)
+{
+	for (auto const & spellToName : masteryIdToName)
+	{
+		if (spellToName.second == identifier)
+			return spellToName.first;
+	}
+	return MasteryLevel::ANY;
+}
+
+std::string MasteryLevel::encode(const int8_t index)
+{
+	if (masteryIdToName.contains(index))
+		return masteryIdToName.at(index);
+	return "ANY";
+}
+
 BuildingTypeUniqueID::BuildingTypeUniqueID(FactionID factionID, BuildingID buildingID ):
 	BuildingTypeUniqueID(factionID.getNum() * 0x10000 + buildingID.getNum())
 {
@@ -146,6 +163,49 @@ BuildingID BuildingTypeUniqueID::getBuilding() const
 FactionID BuildingTypeUniqueID::getFaction() const
 {
 	return FactionID(getNum() / 0x10000);
+}
+
+SpellWithMasteryID::SpellWithMasteryID(MasteryLevel::Type mastery, SpellID spell):
+	Identifier(spell.getNum() * 0x1000 + mastery)
+{
+	if(spell.getNum() < 0 || mastery < 0)
+	{
+		//in case SpellWithMasteryID is construed with a value below 0 it will return a different spellId and mastery that it was created with
+		logGlobal->error("A corrupted SpellWithMasteryId was created!");
+		assert(0);
+	}
+	assert(spell.getNum() < std::numeric_limits<int32_t>::max() - 0x1000);
+}
+
+si32 SpellWithMasteryID::decode(const std::string & identifier)
+{
+	return SpellID::decode(identifier);
+}
+
+std::string SpellWithMasteryID::encode(const si32 index)
+{
+	return SpellID::encode(SpellWithMasteryID(index).getSpellID().getNum());
+}
+
+
+MasteryLevel::Type SpellWithMasteryID::getMastery() const
+{
+	return static_cast<MasteryLevel::Type>(getNum() % 0x1000);
+}
+
+SpellID SpellWithMasteryID::getSpellID() const
+{
+	return SpellID(getNum() / 0x1000);
+}
+
+const CSpell * SpellWithMasteryID::toSpell() const
+{
+	return getSpellID().toSpell();
+}
+
+bool SpellWithMasteryID::compareOnlyBySpellID() const
+{
+	return getMastery() == MasteryLevel::ANY;
 }
 
 int32_t IdentifierBase::resolveIdentifier(const std::string & entityType, const std::string identifier)

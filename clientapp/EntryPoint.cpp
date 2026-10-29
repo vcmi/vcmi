@@ -35,7 +35,6 @@
 #include "../lib/ExceptionsCommon.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
-#include "../lib/modding/IdentifierStorage.h"
 #include "../lib/texts/TextOperations.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
@@ -105,7 +104,7 @@ static void init()
 
 static void checkForModLoadingFailure()
 {
-	const auto & brokenMods = LIBRARY->identifiersHandler->getModsWithFailedRequests();
+	const auto & brokenMods = LIBRARY->modh->getModsWithFailedRequests();
 	if (!brokenMods.empty())
 	{
 		MetaString messageText;
@@ -254,6 +253,11 @@ int main(int argc, char * argv[])
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
 	logGlobal->info("The log file will be saved to %s", TextOperations::filesystemPathToUtf8(logPath));
+#ifdef VCMI_SDL3
+	logGlobal->info("Media backend: SDL3");
+#else
+	logGlobal->warn("Media backend: SDL2 - deprecated, slower and does not support all features");
+#endif
 
 	// Init filesystem and settings
 	try

@@ -392,19 +392,36 @@ void Canvas::drawLine(const Point & from, const Point & dest, const ColorRGBA & 
 		const Point start = transformPos(from);
 		const Point end = transformPos(dest);
 
-		// SDL draws a line in a single color, so approximate the gradient with segments -
-		// these are hairlines, so the banding is not visible
-		static constexpr int segments = 16;
-		for(int i = 0; i < segments; ++i)
+		const Point delta = end - start;
+		const bool horizontal = std::abs(delta.x) > std::abs(delta.y);
+		const int length = std::max(std::abs(delta.x), std::abs(delta.y));
+		const int thickness = getScalingFactor();
+
+		if(length == 0)
 		{
-			const auto blend = [i](uint8_t a, uint8_t b){ return static_cast<uint8_t>(a + (b - a) * i / (segments - 1)); };
-
-			Point segmentFrom = start + (end - start) * i / segments;
-			Point segmentTo = start + (end - start) * (i + 1) / segments;
-
-			SDL_SetRenderDrawColor(renderer, blend(colorFrom.r, colorDest.r), blend(colorFrom.g, colorDest.g), blend(colorFrom.b, colorDest.b), blend(colorFrom.a, colorDest.a));
-			SDL_RenderLine(renderer, segmentFrom.x, segmentFrom.y, segmentTo.x, segmentTo.y);
+			SDL_SetRenderDrawColor(renderer, colorFrom.r, colorFrom.g, colorFrom.b, colorFrom.a);
+			const SDL_FRect pixel{static_cast<float>(start.x), static_cast<float>(start.y), static_cast<float>(thickness), static_cast<float>(thickness)};
+			SDL_RenderFillRect(renderer, &pixel);
+			return;
 		}
+
+		const SDL_FColor startColor{colorFrom.r / 255.f, colorFrom.g / 255.f, colorFrom.b / 255.f, colorFrom.a / 255.f};
+		const SDL_FColor endColor{colorDest.r / 255.f, colorDest.g / 255.f, colorDest.b / 255.f, colorDest.a / 255.f};
+		const SDL_FPoint offset = horizontal ? SDL_FPoint{0.f, static_cast<float>(thickness)} : SDL_FPoint{static_cast<float>(thickness), 0.f};
+
+		// Extend the caps by half a pixel to include both endpoints, as SDL_RenderLine does.
+		const SDL_FPoint halfStep{delta.x / (2.f * length), delta.y / (2.f * length)};
+		const SDL_FPoint first{start.x + (horizontal ? 0.5f : 0.f) - halfStep.x, start.y + (horizontal ? 0.f : 0.5f) - halfStep.y};
+		const SDL_FPoint last{end.x + (horizontal ? 0.5f : 0.f) + halfStep.x, end.y + (horizontal ? 0.f : 0.5f) + halfStep.y};
+		const SDL_Vertex vertices[] = {
+			{first, startColor, {}},
+			{{first.x + offset.x, first.y + offset.y}, startColor, {}},
+			{last, endColor, {}},
+			{{last.x + offset.x, last.y + offset.y}, endColor, {}}
+		};
+		const int indices[] = {0, 1, 2, 1, 3, 2};
+		if(!SDL_RenderGeometry(renderer, nullptr, vertices, 4, indices, 6))
+			logGpuIssueOnce(std::string("SDL_RenderGeometry failed: ") + SDL_GetError());
 		return;
 	}
 

@@ -117,6 +117,17 @@ void IBattleInfoCallbackProxy::registerMethods(MethodRegistrar & R)
 			{"onlyAlive", "Pass true to skip dead-but-resurrectable stacks."}
 		}, {},
 		"Returns the unit covering the given hex, or nil.");
+	R.function<&IBattleInfoCallbackProxy::getUnitController>("getUnitController",
+		{{"unit", "Unit whose controller is queried."}}, {},
+		"Returns the player currently controlling the unit. Unlike Unit:getOwner, this accounts for "
+		"Hypnotize, which hands a unit over to the opposing player.");
+	R.function<&IBattleInfoCallbackProxy::isHostile>("isHostile",
+		{
+			{"actor",  "Unit that acts, e.g. attacks or casts a spell."},
+			{"target", "Unit the action is aimed at."}
+		}, {},
+		"True if the actor treats the target as an enemy. Accounts for Hypnotize: a hypnotized unit "
+		"fights its own army, which still counts it as one of their own.");
 	R.function<&IBattleInfoCallbackProxy::getAllObstacles>("getAllObstacles", {},
 		"Returns all obstacles on the battlefield, including ones hidden from the caller.");
 	R.function<&IBattleInfoCallbackProxy::getObstaclesOnPos>("getObstaclesOnPos",
@@ -161,7 +172,7 @@ bool IBattleInfoCallbackProxy::isAccessibleForUnit(const IBattleInfoCallback & o
 bool IBattleInfoCallbackProxy::isAccessibleForNewUnit(const IBattleInfoCallback & object, BattleHex hex, const Creature & creature, BattleSide side)
 {
 	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
-	return cb.getAccessibility().accessible(hex, creature.isDoubleWide(), side);
+	return cb.getAccessibility().accessible(hex, creature.isDoubleWide(), side, side == BattleSide::DEFENDER);
 }
 
 int IBattleInfoCallbackProxy::getFieldWidth(const IBattleInfoCallback &)
@@ -232,6 +243,18 @@ int IBattleInfoCallbackProxy::getAvailableHex(lua_State * L)
 const battle::Unit * IBattleInfoCallbackProxy::getUnitByPos(const IBattleInfoCallback & object, BattleHex hex, bool onlyAlive)
 {
 	return object.battleGetUnitByPos(hex, onlyAlive);
+}
+
+PlayerColor IBattleInfoCallbackProxy::getUnitController(const IBattleInfoCallback & object, const battle::Unit & unit)
+{
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.battleGetOwner(&unit);
+}
+
+bool IBattleInfoCallbackProxy::isHostile(const IBattleInfoCallback & object, const battle::Unit & actor, const battle::Unit & target)
+{
+	const auto & cb = dynamic_cast<const CBattleInfoCallback &>(object);
+	return cb.battleMatchOwner(&actor, &target, false);
 }
 
 std::vector<std::shared_ptr<const CObstacleInstance>> IBattleInfoCallbackProxy::getAllObstacles(const IBattleInfoCallback & object)

@@ -30,15 +30,17 @@ struct LuaComponent final : ApiSerializable<LuaComponent>
 	int type = -1;   ///< ComponentType index (creature, artifact, resource, ...)
 	int subType = 0; ///< identifier index of the entity, interpreted according to `type`
 	std::optional<int> value; ///< optional amount (positive = gained, negative = lost)
+	std::optional<int> faction; ///< faction of the town building, only for building components
 
 	Component toComponent() const;
 
 	template<typename Serializer>
 	void serializeScript(Serializer & s)
 	{
-		s("type",    type,    "Component kind (ComponentType index).");
+		s("type",    type,    "Component kind, one of ENUM.ComponentType.");
 		s("subType", subType, "Identifier index of the entity, interpreted according to `type`.");
 		s("value",   value,   "Optional amount: positive means gained, negative means lost.");
+		s("faction", faction, "Faction index of the town building, required by building components.");
 	}
 };
 

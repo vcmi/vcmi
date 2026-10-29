@@ -13,6 +13,7 @@
 #include "../json/JsonNode.h"
 
 class CGeneralTextHandler;
+class CModHandler;
 
 /// Small wrapper that provides text access API compatible with old code
 class DLL_LINKAGE LegacyTextContainer
@@ -42,7 +43,7 @@ class DLL_LINKAGE CGeneralTextHandler: public TextLocalizationContainer
 	/// the static store is filled once during load; a duplicate afterwards is a content bug
 	bool allowsStringOverride() const override { return false; }
 
-	void readToVector(const std::string & sourceID, const std::string & sourceName);
+	void readToVector(const CModHandler & modHandler, const std::string & sourceID, const std::string & sourceName);
 
 	JsonNode roeMapping;
 
@@ -53,11 +54,9 @@ public:
 	LegacyTextContainer allTexts;
 	LegacyHelpContainer zelp;
 
-	std::vector<std::string> findStringsWithPrefix(const std::string & prefix);
-
 	int32_t pluralText(int32_t textIndex, int32_t count) const;
 
-	CGeneralTextHandler();
+	explicit CGeneralTextHandler(const CModHandler & modHandler);
 	CGeneralTextHandler(const CGeneralTextHandler&) = delete;
 	CGeneralTextHandler operator=(const CGeneralTextHandler&) = delete;
 

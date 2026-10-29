@@ -743,7 +743,7 @@ bool CBattleInfoCallback::battleCanAttackFromHex(const BattleHexArray & availabl
 					return false;
 			}
 		}
-		const battle::Unit * defender = battleGetUnitByPos(position, false); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
+		const battle::Unit * defender = battleGetUnitOrCorpseByPos(position); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
 		if (defender && defender->isDead() && defender->coversPos(fromHex))
 			return false;
 	}
@@ -1354,7 +1354,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo & accessib
 
 	std::array<bool, GameConstants::BFIELD_SIZE> accessibleCache{};
 	for(int hex = 0; hex < GameConstants::BFIELD_SIZE; hex++)
-		accessibleCache[hex] = accessibility.accessible(hex, params.doubleWide, params.side);
+		accessibleCache[hex] = accessibility.accessible(hex, params.doubleWide, params.side, params.canUseGate);
 
 	while(!hexq.empty()) //bfs loop
 	{
@@ -1410,7 +1410,7 @@ bool CBattleInfoCallback::isInObstacle(
 		{
 			if(occupiedHex == BattleHex::GATE_BRIDGE)
 			{
-				if(battleGetGateState() != EGateState::DESTROYED && params.side == BattleSide::ATTACKER)
+				if(battleGetGateState() != EGateState::DESTROYED && !params.canUseGate)
 					return true;
 			}
 			else
@@ -1592,7 +1592,7 @@ BattleHex CBattleInfoCallback::getAvailableHex(const Creature * creature, Battle
 
 	BattleHexArray occupyable;
 	for(int i = 0; i < accessibility.size(); i++)
-		if(accessibility.accessible(i, twoHex, side))
+		if(accessibility.accessible(i, twoHex, side, side == BattleSide::DEFENDER))
 			occupyable.insert(i);
 
 	if(occupyable.empty())
@@ -1631,20 +1631,20 @@ bool CBattleInfoCallback::isInTacticRange(const BattleHex & dest) const
 
 ReachabilityInfo CBattleInfoCallback::getReachability(const battle::Unit * unit) const
 {
-	ReachabilityInfo::Parameters params(unit, unit->getPosition());
-
-	if(!battleDoWeKnowAbout(unit->unitSide()))
-	{
-		//Stack is held by enemy, we can't use his perspective to check for reachability.
-		// Happens ie. when hovering enemy stack for its range. The arg could be set properly, but it's easier to fix it here.
-		params.perspective = battleGetMySide();
-	}
-
-	return getReachability(params);
+	return getReachability(ReachabilityInfo::Parameters(unit, unit->getPosition()));
 }
 
 ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Parameters & params) const
 {
+	if(params.perspective != BattleSide::ALL_KNOWING && !battleDoWeKnowAbout(params.perspective))
+	{
+		// we can't see what the unit's side knows, e.g. hidden obstacles, when it is an enemy unit
+		// or a unit that its side lost to Hypnotize, so our own knowledge is used instead
+		ReachabilityInfo::Parameters ownParams = params;
+		ownParams.perspective = battleGetMySide();
+		return getReachability(ownParams);
+	}
+
 	if(params.flying)
 		return getFlyingReachability(params);
 	else
@@ -1667,7 +1667,7 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 
 	for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
 	{
-		if(ret.accessibility.accessible(i, params.doubleWide, params.side))
+		if(ret.accessibility.accessible(i, params.doubleWide, params.side, params.canUseGate))
 		{
 			ret.predecessors[i] = params.startPosition;
 			ret.distances[i] = BattleHex::getDistance(params.startPosition, i);
@@ -2102,7 +2102,7 @@ bool CBattleInfoCallback::battleIsUnitBlocked(const battle::Unit * unit) const
 	bool isBerserk = unit->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE);
 	for(const auto * adjacent : battleAdjacentUnits(unit))
 	{
-		if(adjacent->unitOwner() != unit->unitOwner() || isBerserk)
+		if(battleMatchOwner(unit, adjacent) || isBerserk)
 			return true;
 	}
 	return false;
@@ -2162,7 +2162,7 @@ std::vector<SpellID> CBattleInfoCallback::getBeneficialSpells(const battle::Unit
 	{
 		auto stacks = battleGetStacksIf([&](const CStack * stack)
 		{
-			return pred(stack) && stack->unitOwner() != subject->unitOwner() && stack->isValidTarget(false);
+			return pred(stack) && battleMatchOwner(subject, stack) && stack->isValidTarget(false);
 		});
 
 		if(stacks.empty())

@@ -14,16 +14,16 @@
 #include "IGameSettings.h"
 #include "json/JsonNode.h"
 #include "GameLibrary.h"
+#include "modding/LibraryLoadContext.h"
 
-RiverTypeHandler::RiverTypeHandler()
+RiverTypeHandler::RiverTypeHandler(LibraryLoadContext & context)
 {
 	objects.emplace_back(new RiverType());
 
-	LIBRARY->generaltexth->registerString("core", objects[0]->getNameTextID(), "");
+	context.lib.generaltexth->registerString("core", objects[0]->getNameTextID(), "");
 }
 
-std::shared_ptr<RiverType> RiverTypeHandler::loadFromJson(
-	const std::string & scope,
+std::shared_ptr<RiverType> RiverTypeHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope,
 	const JsonNode & json,
 	const std::string & identifier,
 	size_t index)
@@ -48,7 +48,7 @@ std::shared_ptr<RiverType> RiverTypeHandler::loadFromJson(
 		info->paletteAnimation.push_back(element);
 	}
 
-	LIBRARY->generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
+	context.lib.generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
 	return info;
 }
@@ -59,9 +59,9 @@ const std::vector<std::string> & RiverTypeHandler::getTypeNames() const
 	return typeNames;
 }
 
-std::vector<JsonNode> RiverTypeHandler::loadLegacyData()
+std::vector<JsonNode> RiverTypeHandler::loadLegacyData(LibraryLoadContext & context)
 {
-	size_t dataSize = LIBRARY->engineSettings()->getInteger(EGameSettings::TEXTS_RIVER);
+	size_t dataSize = context.lib.engineSettings()->getInteger(EGameSettings::TEXTS_RIVER);
 
 	objects.resize(dataSize);
 	return {};

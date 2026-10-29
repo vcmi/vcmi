@@ -8,13 +8,16 @@
 # 16379399612-vcmi-branch-develop-7fcb024.exe
 # 16379399612-vcmi-branch-develop-7fcb024-armeabi-v7a.apk
 # 16379399612-vcmi-branch-develop-7fcb024-arm64-v8a.apk
+# 16379399612-vcmi-branch-develop-7fcb024-x64.zip
+# 16379399612-vcmi-branch-develop-7fcb024.json - build manifest of the CI run, see Update_Service.md
 
 SOURCE_BASE_DIRECTORY="/home/downloader/tmp"
 TARGET_BASE_DIRECTORY="/home/downloader/www"
 
-shopt -s nullglob
+shopt -s nullglob extglob
 
-for fullpath in "${SOURCE_BASE_DIRECTORY}"/*.*
+# Build manifests are moved last, so that the builds they list are in place when the update service reads them
+for fullpath in "${SOURCE_BASE_DIRECTORY}"/!(*.json) "${SOURCE_BASE_DIRECTORY}"/*.json
 do
 	echo "Full path: ${fullpath}"
 	filename=${fullpath##*/}
@@ -48,6 +51,9 @@ do
 		if [[ "$extension" == "exe" ]]
 		then
 			system="windows"
+		elif [[ "$extension" == "zip" ]]
+		then
+			system="windows-zip"
 		elif [[ "$extension" == "dmg" ]]
 		then
 			system="macos"
@@ -60,6 +66,9 @@ do
 		elif [[ "$extension" == "AppImage" ]]
 		then
 			system="linux"
+		elif [[ "$extension" == "json" ]]
+		then
+			system="metadata"
 		else
 			echo "Unknown extension :-("
 			continue
@@ -79,6 +88,7 @@ do
 		echo "Target Name: $targetname"
 
 		mkdir -p "$targetdirectory"
-		mv -n "${fullpath}" "$targetdirectory/$targetname"
+		# A re-run of a CI run uploads rebuilt files and a new manifest with their hashes; both replace the existing ones
+		mv -f "${fullpath}" "$targetdirectory/$targetname"
 	fi
 done

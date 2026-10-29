@@ -12,6 +12,7 @@
 #include "ResourceTypeHandler.h"
 
 #include "../GameLibrary.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../json/JsonNode.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
@@ -35,14 +36,14 @@ void Resource::registerIcons(const IconRegistar & cb) const
 	cb(getIconIndex(), 0, "RESOUR82", iconLarge);
 }
 
-std::vector<JsonNode> ResourceTypeHandler::loadLegacyData()
+std::vector<JsonNode> ResourceTypeHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	objects.resize(GameConstants::RESOURCE_QUANTITY);
 
 	return std::vector<JsonNode>(GameConstants::RESOURCE_QUANTITY, JsonNode(JsonMap()));
 }
 
-std::shared_ptr<Resource> ResourceTypeHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<Resource> ResourceTypeHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	auto ret = std::make_shared<Resource>();
 
@@ -56,7 +57,7 @@ std::shared_ptr<Resource> ResourceTypeHandler::loadFromJson(const std::string & 
 	ret->iconLarge = json["images"]["large"].String();
 
 	if(ret->id.getNum() >= GameConstants::RESOURCE_QUANTITY) // not OH3 resources
-		LIBRARY->generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
+		context.lib.generaltexth->registerString(scope, ret->getNameTextID(), json["name"]);
 
 	return ret;
 }
@@ -67,7 +68,7 @@ const std::vector<std::string> & ResourceTypeHandler::getTypeNames() const
 	return types;
 }
 
-void ResourceTypeHandler::afterLoadFinalization()
+void ResourceTypeHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for (const auto & resource : objects)
 		if(resource)

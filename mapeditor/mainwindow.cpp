@@ -32,6 +32,8 @@
 #include "../lib/campaign/CampaignHandler.h"
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../lib/mapObjectConstructors/DwellingInstanceConstructor.h"
+#include "../lib/CCreatureHandler.h"
 #include "../lib/mapObjects/ObjectTemplate.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
@@ -48,6 +50,7 @@
 #include "graphics.h"
 #include "windownewmap.h"
 #include "objectbrowser.h"
+#include "mapeditorroles.h"
 #include "inspector/inspector.h"
 #include "mapsettings/mapsettings.h"
 #include "mapsettings/translations.h"
@@ -151,6 +154,27 @@ QPixmap pixmapFromJson(const QJsonValue &val)
   return p;
 }
 
+static QPixmap makePreview(const std::string & animationFile, size_t frame = 0)
+{
+	QPixmap preview(128, 128);
+	preview.fill(QColor(255, 255, 255));
+	QPainter painter(&preview);
+	Animation animation(animationFile);
+	animation.preload();
+	auto picture = animation.getImage(frame);
+	if(picture && picture->width() && picture->height())
+	{
+		qreal xscale = static_cast<qreal>(128) / static_cast<qreal>(picture->width());
+		qreal yscale = static_cast<qreal>(128) / static_cast<qreal>(picture->height());
+		qreal scale = std::min(xscale, yscale);
+		painter.scale(scale, scale);
+		// the divisor needs to be multiplied by scale because scale is taken into consideration when positioning the first pixel of the image
+		painter.drawImage(QPoint((128 - picture->width() * scale) / (2 * scale), (128 - picture->height() * scale) / (2 * scale)), *picture);
+	}
+	painter.end();
+	return preview;
+}
+
 void EditorMainWindow::loadUserSettings()
 {
 	//load window settings
@@ -169,6 +193,7 @@ void EditorMainWindow::loadUserSettings()
 	lastSavingDir = s.value(lastDirectorySetting).toString();
 	if(lastSavingDir.isEmpty())
 		lastSavingDir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
+	ui->viewModeButton->setChecked(s.value(objectBrowserListSetting).toBool());
 }
 
 void EditorMainWindow::saveUserSettings()
@@ -177,6 +202,7 @@ void EditorMainWindow::saveUserSettings()
 	s.setValue(mainWindowSizeSetting, size());
 	s.setValue(mainWindowPositionSetting, pos());
 	s.setValue(lastDirectorySetting, lastSavingDir);
+	s.setValue(objectBrowserListSetting, ui->viewModeButton->isChecked());
 }
 
 void EditorMainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
@@ -881,22 +907,21 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool stati
 
 void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCustomName, bool staticOnly, int ID)
 {
-	QStandardItem * itemGroup = nullptr;
-	auto itms = objectsModel.findItems(groupName);
-	if(itms.empty())
-	{
-		itemGroup = new QStandardItem(groupName);
-		objectsModel.appendRow(itemGroup);
-	}
-	else
-	{
-		itemGroup = itms.front();
-	}
-
 	if (LIBRARY->objtypeh->knownObjects().count(ID) == 0)
 		return;
 
-	auto knownSubObjects = LIBRARY->objtypeh->knownSubObjects(ID);
+	auto subObjectIDs = LIBRARY->objtypeh->knownSubObjects(ID);
+	std::vector<MapObjectSubID> knownSubObjects(subObjectIDs.begin(), subObjectIDs.end());
+	//H3 numbers dwellings alphabetically, creature order groups them by faction
+	if(ID == Obj::CREATURE_GENERATOR1)
+	{
+		std::ranges::stable_sort(knownSubObjects, std::less{}, [](MapObjectSubID secondaryID)
+		{
+			auto dwelling = std::dynamic_pointer_cast<const DwellingInstanceConstructor>(LIBRARY->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, secondaryID));
+			auto creatures = dwelling->getProducedCreatures();
+			return creatures.empty() ? CreatureID::NONE : creatures.front()->getId();
+		});
+	}
 	for(auto secondaryID : knownSubObjects)
 	{
 		auto factory = LIBRARY->objtypeh->getHandlerFor(ID, secondaryID);
@@ -909,35 +934,19 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 		auto subGroupTextID = factory->hasNameTextID() ? factory->getNameTextID() : LIBRARY->objtypeh->getObjectGroupNameTextID(ID);
 		auto subGroupName = QString::fromStdString(Translator::instance().translate(subGroupTextID));
 
-		auto * itemType = new QStandardItem(subGroupName);
 		for(int templateId = 0; templateId < templates.size(); ++templateId)
 		{
 			auto templ = templates[templateId];
 
 			//selecting file
 			const AnimationPath & afile = templ->editorAnimationFile.empty() ? templ->animationFile : templ->editorAnimationFile;
-
-			//creating picture
-			QPixmap preview(128, 128);
-			preview.fill(QColor(255, 255, 255));
-			QPainter painter(&preview);
-			Animation animation(afile.getOriginalName());
-			animation.preload();
-			auto picture = animation.getImage(0);
-			if(picture && picture->width() && picture->height())
-			{
-				qreal xscale = static_cast<qreal>(128) / static_cast<qreal>(picture->width());
-				qreal yscale = static_cast<qreal>(128) / static_cast<qreal>(picture->height());
-				qreal scale = std::min(xscale, yscale);
-				painter.scale(scale, scale);
-				// the divisor needs to be multiply by scale because scale is taken into consideration when positioning the first pixed of the image
-				painter.drawImage(QPoint((128 - picture->width() * scale) / (2 * scale), (128 - picture->height() * scale) / (2 * scale)), *picture);
-			}
+			QPixmap preview = makePreview(afile.getOriginalName());
 
 			//create object to extract name
 			auto temporaryObj(factory->create(controller.getCallback(), templ));
 			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().toString(&Translator::instance())) : subGroupName;
-			itemType->setText(translated);
+			if(!singleTemplate)
+				translated += QString(" (%1)").arg(QString::fromStdString(templ->stringID));
 
 			//add parameters
 			QJsonObject data{{"id", QJsonValue(ID)},
@@ -949,41 +958,24 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 							 {"typeName", QString::fromStdString(factory->getJsonKey())}
 			};
 
-			//do not have extra level
-			if(singleTemplate)
-			{
-				itemType->setIcon(QIcon(preview));
-				itemType->setData(data);
-			}
-			else
-			{
-				auto * item = new QStandardItem(QIcon(preview), QString::fromStdString(templ->stringID));
-				item->setData(data);
-				itemType->appendRow(item);
-			}
+			auto * item = new QStandardItem(QIcon(preview), translated);
+			item->setData(data);
+			item->setData(groupName, ObjectGroupRole);
+			item->setToolTip(translated);
+			objectsModel.appendRow(item);
 		}
-		itemGroup->appendRow(itemType);
 		catalog.insert(ID);
 	}
 }
 
 void EditorMainWindow::loadObjectsTree()
 {
-	try
-	{
-	ui->terrainFilterCombo->addItem("");
 	//adding terrains
 	for(auto & terrain : LIBRARY->terrainTypeHandler->objects)
 	{
 		auto *b = new QPushButton(QString::fromStdString(terrain->getNameTranslated()));
 		ui->terrainLayout->addWidget(b);
 		connect(b, &QPushButton::clicked, this, [this, terrainID=terrain->getId()]{ terrainButtonClicked(terrainID); });
-
-		//filter
-		QString displayName = QString::fromStdString(terrain->getNameTranslated());
-		QString uniqueName = QString::fromStdString(terrain->getJsonKey());
-
-		ui->terrainFilterCombo->addItem(displayName, QVariant(uniqueName));
 	}
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -1010,15 +1002,13 @@ void EditorMainWindow::loadObjectsTree()
 		throw std::runtime_error("object browser exists");
 
 	//model
-	objectsModel.setHorizontalHeaderLabels(QStringList() << tr("Type"));
 	objectBrowser = new ObjectBrowserProxyModel(this);
 	objectBrowser->setSourceModel(&objectsModel);
 	objectBrowser->setDynamicSortFilter(false);
-	objectBrowser->setRecursiveFilteringEnabled(true);
-	ui->treeView->setModel(objectBrowser);
-	ui->treeView->setSelectionBehavior(QAbstractItemView::SelectItems);
-	ui->treeView->setSelectionMode(QAbstractItemView::SingleSelection);
-	connect(ui->treeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(treeViewSelected(const QModelIndex &, const QModelIndex &)));
+	ui->objectView->setModel(objectBrowser);
+	ui->objectView->setSelectionMode(QAbstractItemView::SingleSelection);
+	connect(ui->objectView->selectionModel(), &QItemSelectionModel::currentChanged, this, &EditorMainWindow::objectBrowserSelected);
+	ui->viewModeButton->setIcon(style()->standardIcon(QStyle::SP_FileDialogListView));
 
 	//groups
 	enum GroupCat { TOWNS, OBJECTS, HEROES, ARTIFACTS, RESOURCES, BANKS, DWELLINGS, GROUNDS, TELEPORTS, MINES, TRIGGERS, MONSTERS, QUESTS, WOG_OBJECTS, OBSTACLES, OTHER };
@@ -1042,6 +1032,8 @@ void EditorMainWindow::loadObjectsTree()
 	};
 
 	//adding objects
+	try
+	{
 	addGroupIntoCatalog(groups[TOWNS], false, false, Obj::TOWN);
 	addGroupIntoCatalog(groups[TOWNS], false, false, Obj::RANDOM_TOWN);
 	addGroupIntoCatalog(groups[TOWNS], true, false, Obj::SHIPYARD);
@@ -1177,6 +1169,57 @@ void EditorMainWindow::loadObjectsTree()
 	{
 		QMessageBox::critical(this, tr("Mods loading problem"), tr("Critical error during Mods loading. Disable invalid mods and restart."));
 	}
+
+	//category bar
+	ObjectBrowserProxyModel terrainFilter;
+	terrainFilter.setSourceModel(&objectsModel);
+	terrainFilter.category = groups[OBSTACLES];
+	for(auto & terrain : LIBRARY->terrainTypeHandler->objects)
+	{
+		terrainFilter.terrain = terrain->getId();
+		terrainFilter.invalidate();
+		if(terrainFilter.rowCount() == 0)
+			continue;
+
+		//n1 pattern holds plain ground
+		auto plainTile = LIBRARY->terviewh->getTerrainViewPatternById(terrain->terrainViewPatterns, "n1");
+		auto * item = new QListWidgetItem(QIcon(makePreview(terrain->tilesFilename.getOriginalName(), plainTile->get().mapping.front().first)), QString());
+		item->setToolTip(QString::fromStdString(terrain->getNameTranslated()));
+		item->setData(ObjectGroupRole, groups[OBSTACLES]);
+		item->setData(TerrainIDRole, terrain->getId().getNum());
+		ui->categoryList->addItem(item);
+	}
+
+	std::map<QString, QIcon> groupIcons;
+	for(int row = 0; row < objectsModel.rowCount(); ++row)
+		groupIcons.emplace(objectsModel.item(row)->data(ObjectGroupRole).toString(), objectsModel.item(row)->icon());
+
+	for(auto group = groups.begin(); group != groups.end(); ++group)
+	{
+		auto icon = groupIcons.find(group.value());
+		if(group.key() == OBSTACLES || icon == groupIcons.end())
+			continue;
+
+		auto * item = new QListWidgetItem(icon->second, QString());
+		item->setToolTip(group.value());
+		item->setData(ObjectGroupRole, group.value());
+		item->setData(TerrainIDRole, TerrainId(ETerrainId::ANY_TERRAIN).getNum());
+		ui->categoryList->addItem(item);
+	}
+
+	connect(ui->categoryList, &QListWidget::currentItemChanged, this, [this](QListWidgetItem * current)
+	{
+		if(!current)
+			return;
+
+		objectBrowser->category = current->data(ObjectGroupRole).toString();
+		objectBrowser->terrain = TerrainId(current->data(TerrainIDRole).toInt());
+		objectBrowser->invalidate();
+		objectBrowser->sort(0);
+		ui->objectView->scrollToTop();
+	});
+	ui->categoryList->setCurrentRow(0);
+	ui->categoryList->fitHeight();
 }
 
 void EditorMainWindow::on_actionUndo_triggered()
@@ -1258,30 +1301,12 @@ void EditorMainWindow::preparePreview(const QModelIndex &index)
 }
 
 
-void EditorMainWindow::treeViewSelected(const QModelIndex & index, const QModelIndex & deselected)
+void EditorMainWindow::objectBrowserSelected(const QModelIndex & index)
 {
 	ui->toolSelect->setChecked(true);
 	ui->mapView->selectionTool = MapView::SelectionTool::None;
 
 	preparePreview(index);
-}
-
-void EditorMainWindow::on_terrainFilterCombo_currentIndexChanged(int index)
-{
-	if(!objectBrowser)
-		return;
-
-	QString uniqueName = ui->terrainFilterCombo->itemData(index).toString();
-
-	objectBrowser->terrain = TerrainId(ETerrainId::ANY_TERRAIN);
-	if (!uniqueName.isEmpty())
-	{
-		for (auto const & terrain : LIBRARY->terrainTypeHandler->objects)
-			if (terrain->getJsonKey() == uniqueName.toStdString())
-				objectBrowser->terrain = terrain->getId();
-	}
-	objectBrowser->invalidate();
-	objectBrowser->sort(0);
 }
 
 void EditorMainWindow::on_filter_textChanged(const QString &arg1)
@@ -1292,6 +1317,11 @@ void EditorMainWindow::on_filter_textChanged(const QString &arg1)
 	objectBrowser->filter = arg1;
 	objectBrowser->invalidate();
 	objectBrowser->sort(0);
+}
+
+void EditorMainWindow::on_viewModeButton_toggled(bool checked)
+{
+	ui->objectView->setGridMode(!checked);
 }
 
 
