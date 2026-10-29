@@ -1210,7 +1210,7 @@ void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 			else
 			{
 				// This is json of a single mod. Extract name of mod and add it to repo
-				auto modName = QFileInfo(filename).baseName().toStdString();
+				auto modName = QFileInfo(filename).completeBaseName().toStdString();
 				auto modNameLower = boost::algorithm::to_lower_copy(modName);
 				JsonUtils::merge(accumulatedRepositoryData[modNameLower], repoData);
 			}
@@ -1220,7 +1220,7 @@ void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 		else if(realFilename.endsWith(".md", Qt::CaseInsensitive))
 		{
 			// This is description of a single mod. Extract name of mod and add it to index
-			auto modName = QFileInfo(filename).baseName().toStdString();
+			auto modName = QFileInfo(filename).completeBaseName().toStdString();
 			auto modNameLower = boost::algorithm::to_lower_copy(modName);
 			QFile file(realFilename);
 			if(file.open(QFile::ReadOnly))
