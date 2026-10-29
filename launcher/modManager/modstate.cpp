@@ -159,9 +159,17 @@ QString ModState::getDownloadSizeFormatted() const
 	return QCoreApplication::translate("File size", "%1 MiB").arg(QString::number(getDownloadSizeMegabytes(), 'f', 1));
 }
 
-QString ModState::getAuthors() const
+QStringList ModState::getAuthors() const
 {
-	return QString::fromStdString(impl.getLocalizedValue("author").String());
+	const JsonNode & author = impl.getLocalizedValue("author");
+
+	if (author.isVector())
+		return stringListStdToQt(author.convertTo<std::vector<std::string>>());
+
+	if (author.String().empty())
+		return {};
+
+	return { QString::fromStdString(author.String()) };
 }
 
 QString ModState::getContact() const
