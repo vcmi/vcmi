@@ -1,0 +1,23 @@
+// Skills that are withheld from level-up offers for some levels after they were gained
+{
+	"offerCooldownOne" : {
+		"name" : "Offer Cooldown One",
+		"gainChance" : { "might" : 0, "magic" : 0 },
+		"offerCooldown" : 1,
+		"specialty" : [ ],
+		"base" : { "description" : "", "effects" : { } },
+		"basic" : { "description" : "", "effects" : { } },
+		"advanced" : { "description" : "", "effects" : { } },
+		"expert" : { "description" : "", "effects" : { } }
+	},
+	"offerCooldownTwo" : {
+		"name" : "Offer Cooldown Two",
+		"gainChance" : { "might" : 0, "magic" : 0 },
+		"offerCooldown" : 2,
+		"specialty" : [ ],
+		"base" : { "description" : "", "effects" : { } },
+		"basic" : { "description" : "", "effects" : { } },
+		"advanced" : { "description" : "", "effects" : { } },
+		"expert" : { "description" : "", "effects" : { } }
+	}
+}
