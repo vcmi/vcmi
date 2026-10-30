@@ -21,6 +21,7 @@
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
 #include "lobby/BattleOnlyModeTab.h"
+#include "adventureMap/AdventureMapInterface.h"
 #include "globalLobby/GlobalLobbyWindow.h"
 #include "globalLobby/GlobalLobbyServerSetup.h"
 #include "globalLobby/GlobalLobbyClient.h"
@@ -49,6 +50,16 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGa
 
 	handler.restartGameplay();
 	handler.sendStartGame();
+}
+
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadInfo(LobbyQuickLoadInfo & pack)
+{
+	if(!pack.error.empty())
+		logGlobal->debug("Quick save can not be loaded: %s", pack.error);
+
+	handler.quickSaveAvailable = pack.error.empty();
+	if(adventureInt)
+		adventureInt->updateActiveState();
 }
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)

@@ -47,6 +47,7 @@ public:
 	void visitLobbyDelete(LobbyDelete & pack) override;
 	void visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack) override;
 	void visitLobbyRequestScenarioInfo(LobbyRequestScenarioInfo & pack) override;
+	void visitLobbyRequestQuickLoadInfo(LobbyRequestQuickLoadInfo & pack) override;
 	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 	void visitLobbySetMap(LobbySetMap & pack) override;
@@ -115,5 +116,6 @@ public:
 	void visitLobbyDelete(LobbyDelete & pack) override;
 	void visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack) override;
 	void visitLobbyRequestScenarioInfo(LobbyRequestScenarioInfo & pack) override;
+	void visitLobbyRequestQuickLoadInfo(LobbyRequestQuickLoadInfo & pack) override;
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };

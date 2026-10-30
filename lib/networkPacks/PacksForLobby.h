@@ -151,15 +151,36 @@ struct DLL_LINKAGE LobbyStartGame : public CLobbyPackToPropagate
 	}
 };
 
+/// Sent by host to load the quick save of the running game; the server finds the file and checks that it belongs to this game
 struct DLL_LINKAGE LobbyQuickLoadGame : public CLobbyPackToPropagate
 {
-	std::string saveFilePath;  //"Saves/Quicksave"
-
 	void visitTyped(ICPackVisitor & visitor) override;
-	
+
 	template <typename Handler> void serialize(Handler &h)
 	{
-			h & saveFilePath;
+	}
+};
+
+/// Sent by host to check whether the quick save of the running game can be loaded
+struct DLL_LINKAGE LobbyRequestQuickLoadInfo : public CLobbyPackToServer
+{
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+	}
+};
+
+/// Server response to LobbyRequestQuickLoadInfo or to a rejected LobbyQuickLoadGame, sent only to the requesting client
+struct DLL_LINKAGE LobbyQuickLoadInfo : public CPackForLobby
+{
+	std::string error; ///< reason why the quick save can not be loaded, empty if it can
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & error;
 	}
 };
 

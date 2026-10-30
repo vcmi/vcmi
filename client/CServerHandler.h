@@ -111,6 +111,8 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	/// Selected once connected, and started once the server has loaded it
 	std::optional<ScenarioSelection> scenarioToStart;
 	std::vector<std::string> localPlayerNames;
+	/// Quick save of the running game can be loaded, as reported by the server
+	bool quickSaveAvailable = false;
 
 	/// Texts of the map and campaign being set up. Rebuilt on every lobby update, since each one
 	/// replaces the lobby state, and texts of the map that is gone must stop shadowing the new one
@@ -185,6 +187,9 @@ public:
 
 	bool isHost() const;
 	bool isGuest() const;
+	bool hasQuickSave() const;
+	/// Called after a quick save is written, before the server can be asked about it
+	void onQuickSaveWritten();
 	bool hasRemoteClientInLobby() const;
 	bool inLobbyRoom() const;
 	bool inGame() const;
@@ -225,8 +230,7 @@ public:
 	void debugStartTest(std::string filename, bool save = false);
 
 	void startGameplay(std::shared_ptr<CGameState> gameState);
-	std::optional<std::string> canQuickLoadGame(const std::string & path) const; // returns reason why not compatible, or nullopt if can
-	void quickLoadGame(const std::string & path);
+	void quickLoadGame();
 	void showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic);
 	void stopNetwork();
 	void waitForNetworkThread();

@@ -801,6 +801,16 @@ void LobbyQuickLoadGame::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyQuickLoadGame(*this);
 }
 
+void LobbyRequestQuickLoadInfo::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyRequestQuickLoadInfo(*this);
+}
+
+void LobbyQuickLoadInfo::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyQuickLoadInfo(*this);
+}
+
 void LobbyQueryState::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbyQueryState(*this);

@@ -814,5 +814,5 @@ bool AdventureMapShortcuts::optionIsLocal()
 
 bool AdventureMapShortcuts::optionQuickSaveLoad()
 {
-	return optionIsLocal() && GAME->interface()->hasQuickSave;
+	return optionIsLocal() && GAME->server().hasQuickSave();
 }

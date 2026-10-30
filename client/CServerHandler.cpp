@@ -28,6 +28,8 @@
 #include "lobby/CLobbyScreen.h"
 #include "lobby/CBonusSelection.h"
 
+#include "adventureMap/AdventureMapInterface.h"
+
 #include "netlag/NetworkLagCompensator.h"
 #include "replay/GameplayReplayer.h"
 
@@ -728,6 +730,14 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 
 	// After everything initialized we can accept CPackToClient netpacks
 	setState(EClientState::GAMEPLAY);
+
+	// lobby packs are not sent while starting
+	quickSaveAvailable = false;
+	if(isHost())
+	{
+		LobbyRequestQuickLoadInfo request;
+		sendLobbyPack(request);
+	}
 }
 
 void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
@@ -797,51 +807,21 @@ void CServerHandler::endGameplay()
 		ENGINE->discord().setStatus("", "", {0, 0});
 }
 
-std::optional<std::string> CServerHandler::canQuickLoadGame(const std::string & path) const
+bool CServerHandler::hasQuickSave() const
 {
-	auto mapInfo = std::make_shared<CMapInfo>();
-	try
-	{
-		mapInfo->saveInit(ResourcePath(path, EResType::SAVEGAME));
-	}
-	catch(const IdentifierResolutionException & e)
-	{
-		return "Identifier not found.";
-	}
-	catch(const std::exception & e)
-	{
-		return "Generic error loading save.";
-	}
-
-	// initial start info from quick load slot
-	const auto * startInfo1 = mapInfo->scenarioOptionsOfSave.get();
-	// initial start info from game state (not current start info)
-	const auto * startInfo2 = client->gameState().getInitialStartInfo();
-
-	if (!startInfo1)
-		return "Missing quick load start info.";
-	if (!startInfo2)
-		return "Missing server start info.";
-	if (startInfo1->startTime != startInfo2->startTime)
-		return "Different initial start time.";
-	if (startInfo1->mapname != startInfo2->mapname)
-		return "Different map name.";
-	if (startInfo1->difficulty != startInfo2->difficulty)
-		return "Different difficulty.";
-	const auto & playerInfos1 = startInfo1->playerInfos;
-	const auto & playerInfos2 = startInfo2->playerInfos;
-	if (playerInfos1.size() != playerInfos2.size())
-		return "Different number of players.";
-	if (!std::equal(playerInfos1.begin(), playerInfos1.end(), playerInfos2.begin(), playerInfos2.end(),
-		[](const auto& p1, const auto& p2) { return p1.first == p2.first && p1.second.connectedPlayerIDs == p2.second.connectedPlayerIDs; }))
-		return "Different players.";
-	return std::nullopt;
+	return quickSaveAvailable;
 }
 
-void CServerHandler::quickLoadGame(const std::string & path)
+void CServerHandler::onQuickSaveWritten()
+{
+	quickSaveAvailable = true;
+	if(adventureInt)
+		adventureInt->updateActiveState();
+}
+
+void CServerHandler::quickLoadGame()
 {
 	LobbyQuickLoadGame pack;
-	pack.saveFilePath = path;
 	sendLobbyPack(pack);
 }
 

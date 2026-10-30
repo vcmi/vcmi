@@ -26,7 +26,9 @@
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/SavegamePath.h"
 #include "../lib/gameState/CGameState.h"
+#include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/serializer/GameConnection.h"
@@ -93,7 +95,66 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQueryState(LobbyQuerySt
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
 {
 	// only host can load quicksave
-	result = srv.isClientHost(connection->connectionID);
+	result = srv.isClientHost(connection->connectionID) && srv.getState() == EServerState::GAMEPLAY;
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyRequestQuickLoadInfo(LobbyRequestQuickLoadInfo & pack)
+{
+	result = srv.isClientHost(connection->connectionID) && srv.getState() == EServerState::GAMEPLAY;
+}
+
+static std::string getQuickSavePath(const CGameState & gs)
+{
+	return SavegamePath::getPath(*gs.getStartInfo(), gs.getMap(), "Quicksave");
+}
+
+/// Returns reason why the quick save can not be loaded into the running game, or empty string if it can
+static std::string checkQuickSave(const CGameState & gs, const std::string & path)
+{
+	if(!CResourceHandler::get()->existsResource(ResourcePath(path, EResType::SAVEGAME)))
+		return "No quick save found at " + path;
+
+	CMapInfo mapInfo;
+	try
+	{
+		mapInfo.saveInit(ResourcePath(path, EResType::SAVEGAME));
+	}
+	catch(const std::exception & e)
+	{
+		return std::string("Failed to load quick save: ") + e.what();
+	}
+
+	// initial start info from quick load slot
+	const auto * startInfo1 = mapInfo.scenarioOptionsOfSave.get();
+	// initial start info from game state (not current start info)
+	const auto * startInfo2 = gs.getInitialStartInfo();
+
+	if(!startInfo1)
+		return "Missing quick load start info.";
+	if(!startInfo2)
+		return "Missing server start info.";
+	if(startInfo1->startTime != startInfo2->startTime)
+		return "Different initial start time.";
+	if(startInfo1->mapname != startInfo2->mapname)
+		return "Different map name.";
+	if(startInfo1->difficulty != startInfo2->difficulty)
+		return "Different difficulty.";
+	const auto & playerInfos1 = startInfo1->playerInfos;
+	const auto & playerInfos2 = startInfo2->playerInfos;
+	if(playerInfos1.size() != playerInfos2.size())
+		return "Different number of players.";
+	if(!std::equal(playerInfos1.begin(), playerInfos1.end(), playerInfos2.begin(), playerInfos2.end(),
+		[](const auto & p1, const auto & p2) { return p1.first == p2.first && p1.second.connectedPlayerIDs == p2.second.connectedPlayerIDs; }))
+		return "Different players.";
+	return {};
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyRequestQuickLoadInfo(LobbyRequestQuickLoadInfo & pack)
+{
+	LobbyQuickLoadInfo reply;
+	reply.error = checkQuickSave(*srv.gh->gs, getQuickSavePath(*srv.gh->gs));
+	connection->sendPack(reply);
+	result = false;
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
@@ -184,11 +245,22 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyChatMessage(LobbyChatMess
 
 void ApplyOnServerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
 {
+	const std::string path = getQuickSavePath(*srv.gh->gs);
+	LobbyQuickLoadInfo info;
+	info.error = checkQuickSave(*srv.gh->gs, path);
+	if(!info.error.empty())
+	{
+		logNetwork->error("Rejecting quick load: %s", info.error);
+		connection->sendPack(info);
+		result = false;
+		return;
+	}
+
 	*srv.si = *srv.gh->gs->getStartInfo();
 	srv.prepareToRestart();
 	// modify StartInfo to load the quicksave
 	srv.si->mode = EStartMode::LOAD_GAME;
-	srv.si->mapname = pack.saveFilePath;
+	srv.si->mapname = path;
 	result = true;
 }
 

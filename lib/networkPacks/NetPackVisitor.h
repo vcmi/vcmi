@@ -167,6 +167,8 @@ public:
 	virtual void visitPlayerMessageClient(PlayerMessageClient & pack) {}
 	virtual void visitCenterView(CenterView & pack) {}
 	virtual	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) {}
+	virtual void visitLobbyRequestQuickLoadInfo(LobbyRequestQuickLoadInfo & pack) {}
+	virtual void visitLobbyQuickLoadInfo(LobbyQuickLoadInfo & pack) {}
 	virtual void visitLobbyClientConnected(LobbyClientConnected & pack) {}
 	virtual void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) {}
 	virtual void visitLobbyChatMessage(LobbyChatMessage & pack) {}

@@ -322,4 +322,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbyScenarioList>(275);
 	s.template registerType<LobbyRequestScenarioInfo>(276);
 	s.template registerType<LobbyScenarioInfo>(277);
+	s.template registerType<LobbyRequestQuickLoadInfo>(278);
+	s.template registerType<LobbyQuickLoadInfo>(279);
 }
