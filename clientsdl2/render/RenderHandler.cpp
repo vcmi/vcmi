@@ -577,9 +577,9 @@ static void detectOverlappingBuildings(RenderHandler * renderHandler, const Fact
 
 	auto faction = dynamic_cast<const CFaction*>(factionBase);
 
-	for (const auto & left : faction->town->clientInfo.structures)
+	for (const auto & left : faction->getTown()->clientInfo.structures)
 	{
-		for (const auto & right : faction->town->clientInfo.structures)
+		for (const auto & right : faction->getTown()->clientInfo.structures)
 		{
 			if (left->identifier <= right->identifier)
 				continue; // only a<->b comparison is needed, not a<->a or b<->a

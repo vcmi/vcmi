@@ -219,7 +219,7 @@ std::vector<std::shared_ptr<CIntObject>> buildModContent(
 			for(const CFaction * f : entries)
 				addIconRow(
 					AnimationPath::builtin("ITPA"),
-					(size_t)(f->town->clientInfo.icons[1][0] + 2),
+					(size_t)(f->getTown()->clientInfo.icons[1][0] + 2),
 					iIconW, iRowH,
 					f->getNameTranslated(),
 					WikiCategory::TOWN, f->getJsonKey(), "");

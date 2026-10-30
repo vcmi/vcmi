@@ -545,13 +545,13 @@ void TownSelector::updateListItems()
 	{
 		if(y >= line && (y - line) < 3)
 		{
-			auto getImageIndex = [](FactionID targetFactionID, bool enabled){ return targetFactionID.toFaction()->town->clientInfo.icons[true][!enabled] + 2; };
+			auto getImageIndex = [](FactionID targetFactionID, bool enabled){ return targetFactionID.toFaction()->getTown()->clientInfo.icons[true][!enabled] + 2; };
 			towns[factionID] = std::make_shared<CAnimImage>(AnimationPath::builtin("ITPA"), getImageIndex(factionID, townsEnabled[factionID]), 0, x_offset + 48 * x, 32 * (y - line));
 			townsArea[factionID] = std::make_shared<LRClickableArea>(Rect(x_offset + 48 * x, 32 * (y - line), 48, 32), [this, getImageIndex, factionID](){
 				townsEnabled[factionID] = !townsEnabled[factionID];
 				towns[factionID]->setFrame(getImageIndex(factionID, townsEnabled[factionID]));
 				redraw();
-			}, [factionID](){ CRClickPopup::createAndPush(factionID.toFaction()->town->getFaction()->getNameTranslated()); });
+			}, [factionID](){ CRClickPopup::createAndPush(factionID.toFaction()->getTown()->getFaction()->getNameTranslated()); });
 		}
 
 		if (x < 2)

@@ -682,7 +682,7 @@ std::tuple<EWeekType, CreatureID, int> NewTurnProcessor::pickWeekType(bool newMo
 			do
 			{
 				newMonster.second = gameHandler->randomizer->rollCreature();
-			} while (newMonster.second.toEntity(LIBRARY)->getFactionID().toFaction()->town == nullptr); // find first non neutral creature
+			} while (!newMonster.second.toEntity(LIBRARY)->getFactionID().toFaction()->hasTown()); // find first non neutral creature
 
 			return { EWeekType::BONUS_GROWTH, newMonster.second, gameHandler->gameInfo().getSettings().getInteger(EGameSettings::CREATURES_ADDITIONAL_WEEKLY_GROWTH_SPECIAL_WEEK)};
 		}

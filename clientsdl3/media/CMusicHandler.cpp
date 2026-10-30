@@ -96,7 +96,7 @@ void CMusicHandler::loadTerrainMusicThemes()
 		if (!faction || !faction->hasTown())
 			continue;
 
-		for(const auto & filename : faction->town->clientInfo.musicTheme)
+		for(const auto & filename : faction->getTown()->clientInfo.musicTheme)
 			addEntryToSet("faction_" + faction->getJsonKey(), filename);
 	}
 }

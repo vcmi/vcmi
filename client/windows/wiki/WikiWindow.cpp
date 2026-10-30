@@ -504,7 +504,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 			}
 			categoryEntries[iTown].push_back({
 				faction->getJsonKey(), faction->getNameTranslated(), "",
-				WikiIconInfo{ AnimationPath::builtin("ITPA"), static_cast<size_t>(faction->town->clientInfo.icons[1][0]) + 2, 0 },
+				WikiIconInfo{ AnimationPath::builtin("ITPA"), static_cast<size_t>(faction->getTown()->clientInfo.icons[1][0]) + 2, 0 },
 				coreExpansion(faction->getModScope(), faction->getId().getNum(), featROE.factionsCount, featAB.factionsCount, featSOD.factionsCount),
 				alignStr
 			});

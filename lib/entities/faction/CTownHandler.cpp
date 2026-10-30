@@ -39,7 +39,7 @@ CTownHandler::CTownHandler()
 	: buildingsLibrary(JsonPath::builtin("config/buildingsLibrary"))
 	, randomFaction(std::make_unique<CFaction>())
 {
-	randomFaction->town = std::make_unique<CTown>();
+	randomFaction->setTown(std::make_unique<CTown>());
 	randomFaction->town->faction = randomFaction.get();
 	randomFaction->identifier = "random";
 	randomFaction->modScope = "core";
@@ -822,12 +822,10 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(LibraryLoadContext & contex
 
 	if (!source["town"].isNull())
 	{
-		faction->town = std::make_unique<CTown>();
+		faction->setTown(std::make_unique<CTown>());
 		faction->town->faction = faction.get();
 		loadTown(context, faction->town.get(), source["town"]);
 	}
-	else
-		faction->town = nullptr;
 
 	if (!source["puzzleMap"].isNull())
 		loadPuzzle(context, *faction, source["puzzleMap"]);

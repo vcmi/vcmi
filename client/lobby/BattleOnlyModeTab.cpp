@@ -159,7 +159,7 @@ void BattleOnlyModeTab::selectTerrain()
 	{
 		texts.push_back(faction.toFaction()->getNameTranslated());
 
-		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("ITPA"), faction.toFaction()->town->clientInfo.icons[true][false] + 2, 0, EImageBlitMode::OPAQUE);
+		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("ITPA"), faction.toFaction()->getTown()->clientInfo.icons[true][false] + 2, 0, EImageBlitMode::OPAQUE);
 		image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
 		images.push_back(image);
 	}

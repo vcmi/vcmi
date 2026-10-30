@@ -831,7 +831,7 @@ void CMapGenOptions::CPlayerSettings::setStartingTown(FactionID value)
 	if(value != FactionID::RANDOM)
 	{
 		assert(value < FactionID(LIBRARY->townh->size()));
-		assert((*LIBRARY->townh)[value]->town != nullptr);
+		assert((*LIBRARY->townh)[value]->hasTown());
 	}
 	startingTown = value;
 }
