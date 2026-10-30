@@ -15,7 +15,8 @@
 			"petrifyImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "stoneGaze"
+				"subtype" : "stoneGaze",
+				"addInfo" : 1
 			}
 		},
 		"upgrades": ["infernalTroglodyte"],
@@ -51,7 +52,8 @@
 			"petrifyImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "stoneGaze"
+				"subtype" : "stoneGaze",
+				"addInfo" : 1
 			}
 		},
 		"graphics" :
