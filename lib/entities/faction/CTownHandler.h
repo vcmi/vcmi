@@ -60,9 +60,9 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 
 	void loadRandomFaction(LibraryLoadContext & context);
 
-public:
 	std::unique_ptr<CFaction> randomFaction;
 
+public:
 	CTownHandler();
 	~CTownHandler();
 
@@ -77,6 +77,9 @@ public:
 
 	std::set<FactionID> getDefaultAllowed() const;
 	std::set<FactionID> getAllowedFactions(bool withTown = true) const;
+
+	/// Returns faction used by random towns
+	const CFaction * getRandomFaction() const;
 
 protected:
 

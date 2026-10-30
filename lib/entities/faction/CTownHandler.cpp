@@ -1006,6 +1006,11 @@ std::set<FactionID> CTownHandler::getDefaultAllowed() const
 	return allowedFactions;
 }
 
+const CFaction * CTownHandler::getRandomFaction() const
+{
+	return randomFaction.get();
+}
+
 std::set<FactionID> CTownHandler::getAllowedFactions(bool withTown) const
 {
 	if (withTown)

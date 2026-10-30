@@ -1158,7 +1158,7 @@ const CFaction * CGTownInstance::getFaction() const
 const CTown * CGTownInstance::getTown() const
 {
 	if(ID == Obj::RANDOM_TOWN)
-		return LIBRARY->townh->randomFaction->town.get();
+		return LIBRARY->townh->getRandomFaction()->town.get();
 
 	return getFaction()->town.get();
 }
