@@ -142,7 +142,9 @@ void BattleEffectsController::startAction(const BattleAction & action)
 	if(action.actionType == EActionType::BAD_MORALE)
 	{
 		displayEffect(EBattleEffect::BAD_MORALE, AudioPath::builtin("BADMRLE"), stack->getPosition());
-		owner.stacksController->addNewAnim(new HittedAnimation(owner, stack)); // H3: unit flinches when it fails morale
+		auto * flinch = new HittedAnimation(owner, stack); // H3: unit flinches when it fails morale
+		flinch->setSound({}); // but without its wince sound, BADMRLE already plays
+		owner.stacksController->addNewAnim(flinch);
 	}
 
 	owner.waitForAnimations();
