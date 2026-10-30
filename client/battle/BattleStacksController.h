@@ -156,6 +156,7 @@ public:
 	const std::vector<uint32_t> getHoveredStacksUnitIds() const;
 
 	void tick(uint32_t msPassed);
+	void setAnimationsPaused(bool paused);
 
 	/// returns position of animation needed to place stack in specific hex
 	Point getStackPositionAtHex(const BattleHex & hexNum, const CStack * creature) const;

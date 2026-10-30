@@ -81,6 +81,8 @@ public:
 	virtual int32_t creatureIconIndex() const = 0;
 
 	virtual bool ableToRetaliate() const = 0;
+	/// Whether unit can retaliate once the incoming attack removes UNTIL_BEING_ATTACKED bonuses, such as petrification
+	virtual bool ableToRetaliateAfterBeingAttacked() const = 0;
 	virtual bool alive() const = 0;
 	virtual bool isGhost() const = 0;
 	virtual bool isFrozen() const = 0;

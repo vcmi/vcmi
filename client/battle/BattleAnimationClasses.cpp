@@ -445,6 +445,18 @@ void MovementAnimation::tick(uint32_t msPassed)
 	}
 }
 
+void MovementAnimation::setPaused(bool paused)
+{
+	// animations stop ticking while a popup is open, so the looped sound would play until it closes
+	if(paused)
+	{
+		ENGINE->sound().stopSound(moveSoundHandler);
+		moveSoundHandler = -1;
+	}
+	else if(initialized && moveSoundHandler == -1)
+		moveSoundHandler = ENGINE->sound().playSoundLooped(stack->unitType()->sounds.move);
+}
+
 MovementAnimation::~MovementAnimation()
 {
 	assert(stack);

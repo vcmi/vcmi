@@ -78,6 +78,12 @@ private:
 
 class ResistanceCondition : public TargetConditionItemBase
 {
+public:
+	ResistanceCondition()
+	{
+		exclusive = true;
+	}
+
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{

@@ -79,11 +79,15 @@ public:
 	int32_t total() const override;
 	void reset() override;
 
+	/// Whether retaliation is possible once the incoming attack removes UNTIL_BEING_ATTACKED bonuses
+	bool canUseAfterBeingAttacked() const;
+
 	void serializeJson(JsonSerializeFormat & handler) override;
 private:
 	mutable int32_t totalCache;
 
 	BonusValueCache noRetaliation;
+	BonusValueCache noRetaliationPersistent;
 	BonusValueCache unlimited;
 };
 
@@ -183,6 +187,7 @@ public:
 	int32_t manaLimit() const override;
 
 	bool ableToRetaliate() const override;
+	bool ableToRetaliateAfterBeingAttacked() const override;
 	bool alive() const override;
 	bool isGhost() const override;
 	bool isFrozen() const override;

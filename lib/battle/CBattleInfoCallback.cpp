@@ -735,13 +735,17 @@ bool CBattleInfoCallback::battleCanAttackFromHex(const BattleHexArray & availabl
 	{
 		if (!attacker->hasBonusOfType(BonusType::FLYING))
 		{
-			for (const auto & obstacle : battleGetAllObstacles())
+			const auto stoppers = getStoppers(attacker->unitSide());
+			const bool oneHexMove = LIBRARY->engineSettings()->getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES)
+				&& (fromHex == attacker->occupiedHex() || attacker->getPosition() == attacker->occupiedHex(fromHex));
+			// obstacles under the starting position do not stop the unit, matching server-side movement
+			auto stopsAt = [&](const BattleHex & hex)
 			{
-				if (obstacle->getStoppingTile().contains(fromHex))
-					return false;
-				if (attacker->doubleWide() && obstacle->getStoppingTile().contains(attacker->occupiedHex(fromHex)))
-					return false;
-			}
+				return stoppers.contains(hex) && (oneHexMove || !attacker->coversPos(hex));
+			};
+
+			if (stopsAt(fromHex) || (attacker->doubleWide() && stopsAt(attacker->occupiedHex(fromHex))))
+				return false;
 		}
 		const battle::Unit * defender = battleGetUnitOrCorpseByPos(position); //Do not allow to target corpses when standing on them (a WALK_AND_SPELLCAST action)
 		if (defender && defender->isDead() && defender->coversPos(fromHex))
@@ -1097,7 +1101,8 @@ DamageEstimation CBattleInfoCallback::battleEstimateDamage(const BattleAttackInf
 	if(bai.shooting) //FIXME: handle RANGED_RETALIATION
 		return ret;
 
-	if (!bai.defender->ableToRetaliate())	//FIXME: handle situation when NO_RETALIATION bonus is removed during attack
+	// attack removes UNTIL_BEING_ATTACKED bonuses, such as petrification, before retaliation is checked
+	if (!bai.defender->ableToRetaliateAfterBeingAttacked())
 		return ret;
 
 	if (bai.attacker->hasBonusOfType(BonusType::BLOCKS_RETALIATION) || bai.attacker->isInvincible() || isLongWeaponAttack(bai.attacker, bai.defender, bai.attackerPos))
@@ -2075,16 +2080,13 @@ int32_t CBattleInfoCallback::battleGetSpellCost(const spells::Spell * sp, const 
 	int32_t manaReduction = 0;
 	int32_t manaIncrease = 0;
 
-	for(const auto * unit : battleAliveUnits())
+	// dead units still affect spell cost
+	for(const auto * unit : battleGetAllUnits())
 	{
-		if(unit->unitOwner() == caster->tempOwner && unit->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ALLY))
-		{
+		if(unit->unitOwner() == caster->tempOwner)
 			vstd::amax(manaReduction, unit->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ALLY));
-		}
-		if(unit->unitOwner() != caster->tempOwner && unit->hasBonusOfType(BonusType::CHANGES_SPELL_COST_FOR_ENEMY))
-		{
+		else
 			vstd::amax(manaIncrease, unit->valOfBonuses(BonusType::CHANGES_SPELL_COST_FOR_ENEMY));
-		}
 	}
 
 	return std::max(0, ret - manaReduction + manaIncrease);

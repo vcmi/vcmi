@@ -47,6 +47,8 @@ public:
 	bool isInitialized();
 	bool tryInitialize();
 	virtual void tick(uint32_t msPassed) {} //call every new frame
+	/// Called when the battle window loses or regains focus, e.g. while a popup is open
+	virtual void setPaused(bool paused) {}
 	virtual ~BattleAnimation();
 
 	BattleAnimation(BattleInterface & owner);
@@ -158,6 +160,7 @@ private:
 public:
 	bool init() override;
 	void tick(uint32_t msPassed) override;
+	void setPaused(bool paused) override;
 
 	MovementAnimation(BattleInterface & owner, const CStack *_stack, const BattleHexArray & _destTiles, int _distance);
 	~MovementAnimation();

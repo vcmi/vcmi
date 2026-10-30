@@ -680,8 +680,8 @@ double CombatValue::offenseMultiplier(const ACreature & creature) const
 		result *= std::max(meleeFallback, shooting);
 	}
 
-	if(unit->hasBonusOfType(BonusType::HYPNOTIZED))
-		result *= 0.5;
+	// hypnotize usually lasts only a few turns
+	result *= 1.0 - 0.5 * lastingPresence(unit, BonusType::HYPNOTIZED);
 
 	// value gained by the source of fear is not counted - a propagated bonus is indistinguishable from it
 	result *= 1.0 - unit->valOfBonuses(BonusType::FEARFUL) / 100.0;

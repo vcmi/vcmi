@@ -371,6 +371,13 @@ void BattleStacksController::tick(uint32_t msPassed)
 	updateBattleAnimations(msPassed);
 }
 
+void BattleStacksController::setAnimationsPaused(bool paused)
+{
+	for(auto * anim : currentAnimations)
+		if(anim)
+			anim->setPaused(paused);
+}
+
 void BattleStacksController::initializeBattleAnimations()
 {
 	auto copiedVector = currentAnimations;

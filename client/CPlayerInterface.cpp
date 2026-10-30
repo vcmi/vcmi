@@ -90,6 +90,7 @@
 #include "../lib/VCMIDirs.h"
 
 #include "../lib/battle/CPlayerBattleCallback.h"
+#include "../lib/battle/BattleStateInfoForRetreat.h"
 
 #include "../lib/bonuses/Limiters.h"
 #include "../lib/bonuses/Propagators.h"
@@ -2168,6 +2169,10 @@ void CPlayerInterface::setColorScheme(ColorScheme scheme)
 
 std::optional<BattleAction> CPlayerInterface::makeSurrenderRetreatDecision(const BattleID & battleID, const BattleStateInfoForRetreat & battleState)
 {
+	// player who watches the battle can retreat on their own, but quick combat has nobody to stop it
+	if(!battleInt && battleState.canFlee && battleState.isStalemate())
+		return BattleAction::makeRetreat(battleState.ourSide);
+
 	return std::nullopt;
 }
 

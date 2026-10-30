@@ -54,6 +54,11 @@ class CBattleAI : public CBattleGameInterface
 	std::shared_ptr<Environment> env;
 
 	int movesSkippedByDefense;
+	int lastEnemyCreatureCount;
+	int lastEnemyLossRound;
+	/// Unit that was active when hero cast a spell, which is then activated again
+	std::optional<uint32_t> heroCastBeforeUnit;
+	bool heroCanBreachWalls = false;
 
 	std::unique_ptr<TacticsHandler> tacticsHandler;
 

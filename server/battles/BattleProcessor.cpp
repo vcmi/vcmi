@@ -15,6 +15,7 @@
 #include "BattleResultProcessor.h"
 
 #include "../CGameHandler.h"
+#include "../TurnTimerHandler.h"
 #include "../activities/ActivityProcessor.h"
 #include "../activities/BattleActivities.h"
 
@@ -260,6 +261,8 @@ BattleID BattleProcessor::setupBattle(int3 tile, BattleSideArray<const CArmedIns
 	bool onlyOnePlayerHuman = isDefenderHuman != isAttackerHuman;
 	bs.info->replayAllowed = topBattleActivity == nullptr && onlyOnePlayerHuman;
 
+	// before BattleStart, since client reads battle timers when creating battle interface
+	gameHandler->turnTimerHandler->onBattleStart(bs.info->getSide(BattleSide::ATTACKER).color, bs.info->getSide(BattleSide::DEFENDER).color);
 	gameHandler->sendAndApply(bs);
 
 	return bs.battleID;

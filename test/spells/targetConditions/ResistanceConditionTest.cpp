@@ -37,6 +37,12 @@ public:
 	}
 };
 
+// a non-exclusive default condition makes every "normal" anyOf condition pass
+TEST_P(ResistanceConditionTest, IsExclusive)
+{
+	EXPECT_TRUE(subject->isExclusive());
+}
+
 TEST_P(ResistanceConditionTest, ReceptiveIfNoBonus)
 {
 	setDefaultExpectations();
