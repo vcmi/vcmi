@@ -103,6 +103,12 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 	filename = filename.substr(mountPoint.size());
 	boost::filesystem::path filePath = TextOperations::Utf8TofilesystemPath(filename);
 
+	if (filePath.has_root_path() || std::any_of(filePath.begin(), filePath.end(), [](const boost::filesystem::path & part){ return part == ".."; }))
+	{
+		logGlobal->error("Can't create file outside of mount point %s: %s", mountPoint, requestedFilename);
+		return false;
+	}
+
 	if (!update)
 	{
 		// create folders if not exists

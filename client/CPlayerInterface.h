@@ -102,7 +102,6 @@ public: // TODO: make private
 
 	std::shared_ptr<CCallback> cb; //to communicate with engine
 
-	bool hasQuickSave;
 
 	//During battle is quick combat mode is used
 	std::shared_ptr<CBattleGameInterface> autofightingAI; //AI that makes decisions
@@ -228,7 +227,6 @@ public: // public interface for use by client via GAME->interface() access
 	void tryDigging(const CGHeroInstance *h);
 	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void proposeLoadingGame();
-	bool checkQuickLoadingGame(bool verbose = false);
 	void proposeQuickLoadingGame();
 	void quickSaveGame();
 	void performAutosave();

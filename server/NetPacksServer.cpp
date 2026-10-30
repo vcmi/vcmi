@@ -31,6 +31,10 @@
 
 void ApplyGhNetPackVisitor::visitSaveGame(SaveGame & pack)
 {
+	gh.throwIfWrongPlayer(connection, &pack);
+	if(!boost::istarts_with(pack.fname, "Saves/"))
+		gh.throwAndComplain(connection, "Games can only be saved to the save directory!");
+
 	gh.save(pack.fname, pack.notifySuccess ? pack.player : PlayerColor::CANNOT_DETERMINE, pack.autosaveCountLimit);
 	logGlobal->info("Game has been saved as %s", pack.fname);
 	result = true;

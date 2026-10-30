@@ -27,23 +27,21 @@
 #include "render/Graphics.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMap.h"
 #include "../../lib/mapping/CMapService.h"
-#include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/callback/EditorCallback.h"
-#include "../../lib/StartInfo.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/texts/TextOperations.h"
 
-CMapOverview::CMapOverview(const std::string & mapName, const std::string & fileName, const std::string & date, const std::string & author, const std::string & version, const ResourcePath & resource, ESelectionScreen tabType)
-	: CWindowObject(BORDERED | RCLICK_POPUP), resource(resource), mapName(mapName), fileName(fileName), date(date), author(author), version(version), tabType(tabType)
+CMapOverview::CMapOverview(const std::string & mapName, const std::string & fileName, const std::string & date, const std::string & author, const std::string & version, const std::string & mapFile, std::optional<CampaignScenarioID> campaignScenario, ESelectionScreen tabType)
+	: CWindowObject(BORDERED | RCLICK_POPUP), mapName(mapName), fileName(fileName), date(date), author(author), version(version), mapFile(mapFile), campaignScenario(campaignScenario), tabType(tabType)
 {
 
 	OBJECT_CONSTRUCTION;
@@ -97,21 +95,32 @@ std::shared_ptr<CanvasImage> CMapOverviewWidget::createMinimapForLayer(std::uniq
 	return canvasImage;
 }
 
-std::vector<std::shared_ptr<CanvasImage>> CMapOverviewWidget::createMinimaps(const ResourcePath & resource) const
+std::vector<std::shared_ptr<CanvasImage>> CMapOverviewWidget::createMinimaps() const
 {
-	std::vector<std::shared_ptr<CanvasImage>> ret;
-
-	CMapService mapService;
+	// the list comes from the server, which may have files that the client does not
 	std::unique_ptr<CMap> map;
 	try
 	{
-		auto cb = std::make_unique<EditorCallback>(map.get());
-		map = mapService.loadMap(resource, cb.get());
+		if(p.campaignScenario)
+		{
+			if(!CResourceHandler::get()->existsResource(ResourcePath(p.mapFile, EResType::CAMPAIGN)))
+				return {};
+			map = CampaignHandler::getCampaign(p.mapFile)->getMap(*p.campaignScenario, nullptr);
+		}
+		else
+		{
+			const ResourcePath resource(p.mapFile, EResType::MAP);
+			if(!CResourceHandler::get()->existsResource(resource))
+				return {};
+			CMapService mapService;
+			auto cb = std::make_unique<EditorCallback>(map.get());
+			map = mapService.loadMap(resource, cb.get());
+		}
 	}
 	catch (const std::exception & e)
 	{
 		logGlobal->warn("Failed to generate map preview! %s", e.what());
-		return ret;
+		return {};
 	}
 
 	return createMinimaps(map);
@@ -161,25 +170,10 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 
 	const JsonNode config(JsonPath::builtin("config/widgets/mapOverview.json"));
 
-	if(settings["lobby"]["mapPreview"].Bool() && p.tabType != ESelectionScreen::campaignList)
+	const bool previewEnabled = p.tabType == ESelectionScreen::newGame || config["variables"]["mapPreviewForSaves"].Bool();
+	if(settings["lobby"]["mapPreview"].Bool() && previewEnabled && !p.mapFile.empty())
 	{
-		ResourcePath res = ResourcePath(p.resource.getName(), EResType::MAP);
-		std::unique_ptr<CMap> campaignMap = nullptr;
-		if(p.tabType != ESelectionScreen::newGame && config["variables"]["mapPreviewForSaves"].Bool())
-		{
-			CMapInfo saveInfo;
-			saveInfo.saveInit(ResourcePath(p.resource.getName(), EResType::SAVEGAME));
-			const StartInfo & startInfo = *saveInfo.scenarioOptionsOfSave;
-
-			if(startInfo.campState)
-				campaignMap = startInfo.campState->getMap(*startInfo.campState->currentScenario(), nullptr);
-			res = ResourcePath(startInfo.fileURI, EResType::MAP);
-		}
-		if(!campaignMap)
-			minimaps = createMinimaps(res);
-		else
-			minimaps = createMinimaps(campaignMap);
-		
+		minimaps = createMinimaps();
 		resizeMinimaps(config["variables"]["minimapRenderSize"].Integer());
 	}
 
@@ -216,14 +210,7 @@ CMapOverviewWidget::CMapOverviewWidget(CMapOverview& parent):
 	}
 	if(auto w = widget<CLabel>("date"))
 	{
-		if(p.date.empty())
-		{
-			ResourcePath path(p.resource.getName(), p.tabType == ESelectionScreen::campaignList ? EResType::CAMPAIGN : EResType::MAP);
-			std::time_t time = CResourceHandler::get()->getLastWriteTime(path);
-			w->setText(TextOperations::getFormattedDateTimeLocal(time));
-		}
-		else
-			w->setText(p.date);
+		w->setText(p.date);
 	}
 	if(auto w = widget<CLabel>("author"))
 	{

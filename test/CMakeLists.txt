@@ -112,6 +112,7 @@ set(test_SRCS
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
 
+		server/lobby/ScenarioListBuilderTest.cpp
 		server/battles/AcidBreathTest.cpp
 		server/battles/ActionOptionsTest.cpp
 		server/battles/AttackSequenceTest.cpp

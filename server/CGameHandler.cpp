@@ -15,6 +15,7 @@
 #include "ServerNetPackVisitors.h"
 #include "ServerSpellCastEnvironment.h"
 #include "battles/BattleProcessor.h"
+#include "lobby/LastScenarios.h"
 #include "processors/HeroPoolProcessor.h"
 #include "processors/NewTurnProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
@@ -65,6 +66,7 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/HotaScriptConverter.h"
+#include "../lib/mapping/ScenarioListEntry.h"
 
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
@@ -1814,7 +1816,6 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 	logGlobal->info("Saving to %s", filename);
 	ResourcePath savePath(filename, EResType::SAVEGAME);
 	const auto savefname = savePath.getOriginalName() + ".vsgm1";
-	CResourceHandler::get("local")->createResource(savefname);
 
 	std::string filenameWithoutPath;
 	auto pos = filename.find_last_of("/\\");
@@ -1827,6 +1828,9 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 
 	try
 	{
+		if(!CResourceHandler::get("local")->createResource(savefname))
+			throw std::runtime_error("Failed to create save file " + savefname);
+
 		CMemorySerializer header;
 		gameState().saveHeader(header.oser);
 
@@ -1835,14 +1839,21 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 		logGlobal->info("Saving server state");
 		game.oser & *this;
 
+		ScenarioListEntry entry;
+		entry.type = ScenarioListEntry::EType::SAVE;
+		entry.fileURI = savePath.getName();
+		entry.originalFileURI = savePath.getOriginalName();
+		entry.metadata = SaveMetadata::create(gameState());
+
 		CSaveFile save;
-		save.addChunk(SaveFileFormat::CHUNK_METADATA, SaveMetadata::create(gameState()).toBytes());
+		save.addChunk(SaveFileFormat::CHUNK_METADATA, entry.metadata.toBytes());
 		save.addChunk(SaveFileFormat::CHUNK_HEADER, header.extractBuffer());
 		save.addChunk(SaveFileFormat::CHUNK_GAMESTATE, game.extractBuffer());
 		const auto saveFile = *CResourceHandler::get("local")->getResourceName(savePath);
 		save.write(saveFile);
 
 		pruneAutosaves(savePath, autosaveCountLimit);
+		LastScenarios::rememberSave(entry);
 
 		if(playerToNotifyOnSuccess.isValidPlayer())
 		{

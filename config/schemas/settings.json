@@ -23,12 +23,8 @@
 				"music",
 				"sound",
 				"saveRandomMaps",
-				"lastMap",
 				"language",
 				"gameDataLanguage",
-				"lastSave",
-				"lastScenarioSave",
-				"lastCampaignSave",
 				"lastSettingsTab",
 				"lastCampaign",
 				"lastDifficulty",
@@ -73,10 +69,6 @@
 					"type" : "boolean",
 					"default" : false
 				},
-				"lastMap" : {
-					"type" : "string",
-					"default" : "Maps/Arrogance"
-				},
 				"language" : {
 					"type" : "string",
 					"enum" : [ "english", "belarusian", "bulgarian", "czech", "chinese", "tchinese", "dutch", "filipino", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "latvian", "lithuanian", "norwegian", "polish", "portuguese", "romanian", "russian", "serbian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
@@ -86,18 +78,6 @@
 					"type" : "string",
 					"enum" : [ "auto", "english", "belarusian", "bulgarian", "czech", "chinese", "tchinese", "dutch", "filipino", "finnish", "french", "german", "greek", "hungarian", "italian", "japanese", "korean", "latvian", "lithuanian", "norwegian", "polish", "portuguese", "romanian", "russian", "serbian", "spanish", "swedish", "turkish", "ukrainian", "vietnamese" ],
 					"default" : "auto"
-				},
-				"lastSave" : {
-					"type" : "string",
-					"default" : "NEWGAME"
-				},
-				"lastScenarioSave" : {
-					"type" : "string",
-					"default" : ""
-				},
-				"lastCampaignSave" : {
-					"type" : "string",
-					"default" : ""
 				},
 				"lastSettingsTab" : {
 					"type" : "number",

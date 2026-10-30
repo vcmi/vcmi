@@ -40,14 +40,17 @@ public:
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
 	void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
-	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 	void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
 	void visitLobbyChatMessage(LobbyChatMessage & pack) override;
 	void visitLobbyGuiAction(LobbyGuiAction & pack) override;
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
+	void visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack) override;
+	void visitLobbyRequestScenarioInfo(LobbyRequestScenarioInfo & pack) override;
+	void visitLobbyRequestQuickLoadInfo(LobbyRequestQuickLoadInfo & pack) override;
 	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
+	void visitLobbySetMap(LobbySetMap & pack) override;
 };
 
 class ApplyOnServerAfterAnnounceNetPackVisitor : public ::ICPackVisitor
@@ -68,7 +71,6 @@ public:
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
 	void visitLobbyQueryState(LobbyQueryState & pack) override;
-	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 };
 
 class ApplyOnServerNetPackVisitor : public ::ICPackVisitor
@@ -100,7 +102,6 @@ public:
 	void visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
-	void visitLobbyChangeHost(LobbyChangeHost & pack) override;
 	void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
 	void visitLobbySetPlayer(LobbySetPlayer & pack) override;
 	void visitLobbySetPlayerName(LobbySetPlayerName & pack) override;
@@ -113,4 +114,8 @@ public:
 	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbyPvPAction(LobbyPvPAction & pack) override;
 	void visitLobbyDelete(LobbyDelete & pack) override;
+	void visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack) override;
+	void visitLobbyRequestScenarioInfo(LobbyRequestScenarioInfo & pack) override;
+	void visitLobbyRequestQuickLoadInfo(LobbyRequestQuickLoadInfo & pack) override;
+	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };

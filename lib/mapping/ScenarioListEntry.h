@@ -46,6 +46,8 @@ public:
 	/// Returns 0 if creation time is unknown
 	std::time_t getMapCreationTime() const;
 	EMapFormat getMapFormat() const;
+	/// Returns settings of the map format from the engine settings, null node for unknown formats
+	const JsonNode & getMapFormatSettings() const;
 	int getMapWidth() const;
 	int getVictoryIcon() const;
 	int getDefeatIcon() const;
@@ -57,4 +59,18 @@ public:
 	bool isCampaignSave() const;
 	bool isTutorialSave() const;
 	int getHumanPlayersInSave() const;
+	/// Returns map of the saved game, or campaign file for campaign saves; empty for random maps
+	std::string getMapFileInSave() const;
+	/// Returns current scenario of a campaign save
+	int getCampaignScenarioInSave() const;
+
+	template<typename Handler>
+	void serialize(Handler & h)
+	{
+		h & type;
+		h & fileURI;
+		h & originalFileURI;
+		h & lastWrite;
+		h & metadata;
+	}
 };

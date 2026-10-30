@@ -35,9 +35,7 @@
 #include "render/IFont.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
-#include "../../lib/mapping/MapFormat.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/rmg/CRmgTemplateStorage.h"
 #include "../../lib/MapLayerHandler.h"
@@ -156,8 +154,7 @@ RandomMapTab::RandomMapTab():
 			(static_cast<CLobbyScreen *>(parent))->toggleTab((static_cast<CLobbyScreen *>(parent))->tabSel);
 			auto selectionTab = (static_cast<CLobbyScreen *>(parent))->tabSel;
 			selectionTab->showRandom = true;
-			selectionTab->setCurrentFolder("RandomMaps/");
-			selectionTab->filter(0, true);
+			selectionTab->openFolder("RandomMaps/", [tab = selectionTab.get()](){ tab->filter(0, true); });
 		});
 	}
 
@@ -292,75 +289,7 @@ void RandomMapTab::updateMapInfoByHost()
 	if(GAME->server().isGuest())
 		return;
 
-	// Generate header info
-	mapInfo = std::make_shared<CMapInfo>();
-	mapInfo->isRandomMap = true;
-	mapInfo->mapHeader = std::make_unique<CMapHeader>();
-	mapInfo->mapHeader->version = EMapFormat::VCMI;
-	mapInfo->mapHeader->name = mapGenOptions->getMapName();
-	mapInfo->mapHeader->description.appendTextID("core.genrltxt.741");
-
-	if(mapGenOptions->getWaterContent() != EWaterContent::RANDOM)
-		mapInfo->mapHeader->banWaterHeroes(mapGenOptions->getWaterContent() != EWaterContent::NONE);
-
-	const auto * temp = mapGenOptions->getMapTemplate();
-	if (temp)
-	{
-		auto randomTemplateDescription = temp->getDescriptionTranslated();
-		if (!randomTemplateDescription.empty())
-		{
-			auto description = std::string("\n\n") + randomTemplateDescription;
-			mapInfo->mapHeader->description.appendRawString(description);
-		}
-
-		for (const auto & hero : temp->getBannedHeroes())
-			mapInfo->mapHeader->allowedHeroes.erase(hero);
-
-		for (const auto & hero : temp->getEnabledHeroes())
-			mapInfo->mapHeader->allowedHeroes.insert(hero);
-	}
-
-	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
-	mapInfo->mapHeader->height = mapGenOptions->getHeight();
-	mapInfo->mapHeader->width = mapGenOptions->getWidth();
-	mapInfo->mapHeader->mapLayers = mapGenOptions->getLevelMapLayers();
-
-	// Generate player information
-	int playersToGen = mapGenOptions->getMaxPlayersCount();
-
-	mapInfo->mapHeader->howManyTeams = playersToGen;
-
-	//TODO: Assign all human-controlled colors in first place
-
-	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
-	{
-		mapInfo->mapHeader->players[i].canComputerPlay = false;
-		mapInfo->mapHeader->players[i].canHumanPlay = false;
-	}
-
-	std::vector<PlayerColor> availableColors;
-	for (ui8 color = 0; color < PlayerColor::PLAYER_LIMIT_I; color++)
-	{
-		availableColors.push_back(PlayerColor(color));
-	}
-
-	//First restore known players
-	for (auto& player : mapGenOptions->getPlayersSettings())
-	{
-		PlayerInfo playerInfo;
-		playerInfo.isFactionRandom = (player.second.getStartingTown() == FactionID::RANDOM);
-		playerInfo.canComputerPlay = (player.second.getPlayerType() != EPlayerType::HUMAN);
-		playerInfo.canHumanPlay = (player.second.getPlayerType() != EPlayerType::COMP_ONLY);
-
-		auto team = player.second.getTeam();
-		playerInfo.team = team;
-		playerInfo.hasMainTown = true;
-		playerInfo.generateHeroAtMainTown = true;
-		mapInfo->mapHeader->players[player.first.getNum()] = playerInfo;
-		vstd::erase(availableColors, player.first);
-	}
-
-	mapInfoChanged(mapInfo, mapGenOptions);
+	mapGenOptionsChanged(mapGenOptions);
 }
 
 void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)

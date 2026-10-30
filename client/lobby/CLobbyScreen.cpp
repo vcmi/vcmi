@@ -47,9 +47,9 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 
 	auto initLobby = [&]()
 	{
-		tabSel->callOnSelect = [this](std::shared_ptr<CMapInfo> mapInfo)
+		tabSel->callOnSelect = [this](const std::shared_ptr<ElementInfo> &)
 		{
-			GAME->server().setMapInfo(mapInfo, nullptr);
+			GAME->server().selectScenario(tabSel->getSelection());
 			if(curTab != tabBattleOnlyMode)
 				updateStartButtonState();
 		};
@@ -59,7 +59,7 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 		{
 			toggleTab(tabSel);
 			if (getMapInfo() && getMapInfo()->isRandomMap)
-				GAME->server().setMapInfo(tabSel->getSelectedMapInfo());
+				GAME->server().selectScenario(tabSel->getSelection());
 		});
 
 		buttonOptions = std::make_shared<CButton>(Point(411, 510), AnimationPath::builtin("GSPBUTT.DEF"), LIBRARY->generaltexth->zelp[46], std::bind(&CLobbyScreen::toggleTab, this, tabOpt), EShortcut::LOBBY_ADDITIONAL_OPTIONS);
@@ -88,7 +88,10 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 			tabTurnOptions = std::make_shared<TurnOptionsTab>();
 		tabExtraOptions = std::make_shared<ExtraOptionsTab>();
 		tabRand = std::make_shared<RandomMapTab>();
-		tabRand->mapInfoChanged += std::bind(&IServerAPI::setMapInfo, &GAME->server(), _1, _2);
+		tabRand->mapGenOptionsChanged += [](std::shared_ptr<CMapGenOptions> options)
+		{
+			GAME->server().selectScenario(ScenarioSelection{ScenarioSelection::EType::RANDOM_MAP, ""}, options);
+		};
 		if(!ENGINE->isRoeData())
 		{
 			buttonRMG = std::make_shared<CButton>(Point(411, 105), AnimationPath::builtin("GSPBUTT.DEF"), LIBRARY->generaltexth->zelp[47], 0, EShortcut::LOBBY_RANDOM_MAP);
@@ -117,7 +120,10 @@ CLobbyScreen::CLobbyScreen(ESelectionScreen screenType, bool hideScreen)
 		break;
 	}
 	case ESelectionScreen::campaignList:
-		tabSel->callOnSelect = std::bind(&IServerAPI::setMapInfo, &GAME->server(), _1, nullptr);
+		tabSel->callOnSelect = [this](const std::shared_ptr<ElementInfo> &)
+		{
+			GAME->server().selectScenario(tabSel->getSelection());
+		};
 		buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRLOD.DEF"), CButton::tooltip(), std::bind(&CLobbyScreen::start, this, true), EShortcut::LOBBY_BEGIN_CAMPAIGN);
 		break;
 	}

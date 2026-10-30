@@ -12,6 +12,7 @@
 #include "LobbyClientNetPackVisitors.h"
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
+#include "lobby/CSavingScreen.h"
 
 #include "lobby/OptionsTab.h"
 #include "lobby/RandomMapTab.h"
@@ -20,6 +21,7 @@
 #include "lobby/SelectionTab.h"
 #include "lobby/CBonusSelection.h"
 #include "lobby/BattleOnlyModeTab.h"
+#include "adventureMap/AdventureMapInterface.h"
 #include "globalLobby/GlobalLobbyWindow.h"
 #include "globalLobby/GlobalLobbyServerSetup.h"
 #include "globalLobby/GlobalLobbyClient.h"
@@ -50,6 +52,16 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGa
 	handler.sendStartGame();
 }
 
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadInfo(LobbyQuickLoadInfo & pack)
+{
+	if(!pack.error.empty())
+		logGlobal->debug("Quick save can not be loaded: %s", pack.error);
+
+	handler.quickSaveAvailable = pack.error.empty();
+	if(adventureInt)
+		adventureInt->updateActiveState();
+}
+
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
 	const bool isLocalClient = pack.uuid == handler.logicConnection->uuid;
@@ -62,16 +74,16 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 		handler.logicConnection->connectionID = pack.clientId;
 
 		// server of an older version does not reject clients of newer versions
-		if(pack.version < ESerializationVersion::LOBBY_MAP_INFO_PACK)
+		if(pack.version < ESerializationVersion::MINIMAL_LOBBY)
 		{
 			handler.showServerError(LIBRARY->generaltexth->translate("vcmi.server.errors.incompatibleVersion"));
 			handler.sendClientDisconnecting();
 			return;
 		}
 
-		if(handler.mapToStart)
+		if(handler.scenarioToStart)
 		{
-			handler.setMapInfo(handler.mapToStart);
+			handler.selectScenario(*handler.scenarioToStart);
 		}
 		else if(!settings["session"]["headless"].Bool())
 		{
@@ -222,13 +234,20 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyModsCheck(LobbyModsCheck & pac
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)
 {
-	pack.hostChanged = pack.state.hostClientId != handler.hostClientId;
+	pack.firstState = handler.hostClientId == GameConnectionID::INVALID;
 	static_cast<LobbyState &>(handler) = pack.state;
 	// the campaign state the previous texts came from is gone now
 	handler.installLobbyTexts();
-	if(handler.mapToStart && handler.mi)
+	if(handler.scenarioToStart && handler.mi)
 	{
-		handler.startMapAfterConnection(nullptr);
+		// debug test games are played by AI only, so the player of this client leaves its color first
+		if(settings["session"]["onlyai"].Bool() && handler.myFirstColor() != PlayerColor::CANNOT_DETERMINE)
+		{
+			handler.setPlayer(handler.myFirstColor());
+			return;
+		}
+
+		handler.scenarioToStart.reset();
 		handler.sendStartGame();
 	}
 }
@@ -270,8 +289,23 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	else
 		lobby->updateAfterStateChange();
 
-	if(pack.hostChanged || pack.refreshList)
+	if(pack.firstState)
 		lobby->toggleMode(handler.isHost());
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyScenarioList(LobbyScenarioList & pack)
+{
+	// in-game save screen lists saves too, but it is not a lobby screen
+	auto * screen = dynamic_cast<CSelectionBase *>(SEL);
+	if(screen && screen->tabSel)
+		screen->tabSel->onScenarioListReceived(pack);
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyScenarioInfo(LobbyScenarioInfo & pack)
+{
+	auto * screen = dynamic_cast<CSavingScreen *>(SEL);
+	if(screen)
+		screen->onScenarioInfoReceived(pack);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & pack)
