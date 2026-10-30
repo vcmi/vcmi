@@ -135,7 +135,7 @@ RandomMapTab::RandomMapTab():
 		ENGINE->windows().createAndPushWindow<TeamAlignments>(*this);
 	});
 
-	for(const auto & road : LIBRARY->roadTypeHandler->objects)
+	for(const auto & road : LIBRARY->roadTypeHandler->getObjects())
 	{
 		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
 		addCallback(cbRoadType, [&, roadID = road->getId()](bool on)
@@ -231,7 +231,7 @@ RandomMapTab::RandomMapTab():
 
 void RandomMapTab::extendRoadButtonHitAreas()
 {
-	for(const auto & road : LIBRARY->roadTypeHandler->objects)
+	for(const auto & road : LIBRARY->roadTypeHandler->getObjects())
 	{
 		const auto widgetName = getRoadWidgetName(road->getJsonKey());
 		extendButtonHitArea(widget<CToggleButton>(widgetName), widget<CIntObject>(widgetName + "Preview"));
@@ -527,7 +527,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		else
 			w->setTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
-	for(const auto & r : LIBRARY->roadTypeHandler->objects)
+	for(const auto & r : LIBRARY->roadTypeHandler->getObjects())
 	{
 		// Workaround for vcmi-extras bug
 		if(auto w = widget<CToggleButton>(getRoadWidgetName(r->getJsonKey())))
@@ -901,7 +901,7 @@ MapLayerSelection::MapLayerSelection(RandomMapTab & randomMapTab, int initialLev
 	selectedLayers.reserve(levels);
 	for(int i = static_cast<int>(selectedLayers.size()); i < levels; i++)
 		selectedLayers.push_back(CMapGenOptions::getDefaultLayerForLevel(i));
-	const auto & layerTypes = LIBRARY->mapLayerHandler->objects;
+	const auto & layerTypes = LIBRARY->mapLayerHandler->getObjects();
 	int layerTypeCount = static_cast<int>(layerTypes.size());
 
 	constexpr int winW = 220;
@@ -943,11 +943,11 @@ MapLayerSelection::MapLayerSelection(RandomMapTab & randomMapTab, int initialLev
 
 		prevButtons.push_back(std::make_shared<CButton>(Point(btnPrevX, yPos), AnimationPath::builtin("SCNRBLF.DEF"), CButton::tooltip(), [this, i, layerTypeCount](){
 			selectedLayers[i] = MapLayerId((selectedLayers[i].getNum() + layerTypeCount - 1) % layerTypeCount);
-			layerLabels[i]->setText(LIBRARY->mapLayerHandler->objects[selectedLayers[i].getNum()]->getNameTranslated());
+			layerLabels[i]->setText((*LIBRARY->mapLayerHandler)[selectedLayers[i].getNum()]->getNameTranslated());
 		}));
 		nextButtons.push_back(std::make_shared<CButton>(Point(btnNextX, yPos), AnimationPath::builtin("SCNRBRT.DEF"), CButton::tooltip(), [this, i, layerTypeCount](){
 			selectedLayers[i] = MapLayerId((selectedLayers[i].getNum() + 1) % layerTypeCount);
-			layerLabels[i]->setText(LIBRARY->mapLayerHandler->objects[selectedLayers[i].getNum()]->getNameTranslated());
+			layerLabels[i]->setText((*LIBRARY->mapLayerHandler)[selectedLayers[i].getNum()]->getNameTranslated());
 		}));
 	}
 }

@@ -750,7 +750,7 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
 	std::vector<CreatureID> possibleCreatures;
-	for(auto const & cre : LIBRARY->creh->objects)
+	for(auto const & cre : LIBRARY->creh->getObjects())
 	{
 		if(cre->special)
 			continue;

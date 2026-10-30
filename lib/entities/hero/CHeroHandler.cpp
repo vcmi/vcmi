@@ -183,7 +183,7 @@ std::vector<std::shared_ptr<Bonus>> CHeroHandler::createCreatureSpecialty(Librar
 std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSecondarySkillSpecialty(LibraryLoadContext & context, SecondarySkill skillID, int growthPerStep) const
 {
 	std::vector<std::shared_ptr<Bonus>> result;
-	const auto & skillPtr = context.lib.skillh->objects[skillID.getNum()];
+	const auto & skillPtr = (*context.lib.skillh)[skillID.getNum()];
 
 	if (skillPtr->specialtyTargetBonuses.empty())
 		logMod->warn("Skill '%s' does not supports generic specialties!", skillPtr->getJsonKey());

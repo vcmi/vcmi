@@ -177,7 +177,7 @@ void CHeroClassHandler::afterLoadFinalization(LibraryLoadContext & context)
 	// for each pair <class, town> set selection probability if it was not set before in tavern entries
 	for(auto & heroClass : objects)
 	{
-		for(auto & faction : context.lib.townh->objects)
+		for(const auto * faction : context.lib.townh->getObjects())
 		{
 			if (!faction->town)
 				continue;

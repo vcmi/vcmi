@@ -1483,7 +1483,7 @@ void AINodeStorage::calculateTownPortal(
 		return; // no towns no need to run loop further
 	}
 
-	for (const auto & spell : LIBRARY->spellh->objects)
+	for (const auto & spell : LIBRARY->spellh->getObjects())
 	{
 		if (!spell || !spell->isAdventure())
 			continue;

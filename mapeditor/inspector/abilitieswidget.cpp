@@ -40,7 +40,7 @@ AbilitiesWidget::~AbilitiesWidget()
 
 void AbilitiesWidget::loadData()
 {
-	for(const auto & objectPtr : LIBRARY->skillh->objects)
+	for(const auto & objectPtr : LIBRARY->skillh->getObjects())
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		int skillId = objectPtr->getIndex();

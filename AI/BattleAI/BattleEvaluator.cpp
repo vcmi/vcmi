@@ -683,9 +683,9 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
 
-	for (auto const & s : LIBRARY->spellh->objects)
+	for (auto const & s : LIBRARY->spellh->getObjects())
 		if (s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero))
-			possibleSpells.push_back(s.get());
+			possibleSpells.push_back(s);
 
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 

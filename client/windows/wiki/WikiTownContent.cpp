@@ -322,7 +322,7 @@ static void addCreaturesTable(
 		for(int ci = 0; ci < (int)town->creatures[tier].size(); ++ci)
 		{
 			const CCreature * cr =
-				LIBRARY->creh->objects[town->creatures[tier][ci]].get();
+				(*LIBRARY->creh)[town->creatures[tier][ci]];
 			if(cr)
 				crRows.push_back({cr, tier + 1, ci > 0});
 		}
@@ -450,11 +450,11 @@ static void addHeroesTable(
 	struct HeroData { const CHero * hero; std::string className; };
 	std::vector<HeroData> mightHeroes, magicHeroes;
 
-	for(const auto & h : LIBRARY->heroh->objects)
+	for(const auto & h : LIBRARY->heroh->getObjects())
 	{
 		if(!h || h->special || !h->getHeroClass()) continue;
 		if(h->getHeroClass()->faction != factionId) continue;
-		HeroData hd{h.get(), h->getHeroClass()->getNameTranslated()};
+		HeroData hd{h, h->getHeroClass()->getNameTranslated()};
 		if(h->getHeroClass()->affinity == CHeroClass::MAGIC)
 			magicHeroes.push_back(hd);
 		else

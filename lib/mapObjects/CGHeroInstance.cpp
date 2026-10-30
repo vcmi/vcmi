@@ -1221,7 +1221,7 @@ si32 CGHeroInstance::getManaNewTurn() const
 //  */
 // void CGHeroInstance::giveArtifact (ui32 aid) //use only for fixed artifacts
 // {
-// 	CArtifact * const artifact = LIBRARY->arth->objects[aid]; //pointer to constant object
+// 	CArtifact * const artifact = (*LIBRARY->arth)[aid]; //pointer to constant object
 // 	CArtifactInstance *ai = CArtifactInstance::createNewArtifactInstance(artifact);
 // 	ai->putAt(this, ai->firstAvailableSlot(this));
 // }

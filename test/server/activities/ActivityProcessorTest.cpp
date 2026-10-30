@@ -1868,7 +1868,7 @@ TEST_F(MapObjectVisitTest, aRewardSkillThatGrantsALevelEndsTheVisitOnceTheLevelI
 	ASSERT_NE(hero, nullptr);
 	ASSERT_NE(pandora, nullptr);
 
-	const auto & skills = LIBRARY->skillh->objects;
+	const auto & skills = LIBRARY->skillh->getObjects();
 	const auto found = std::ranges::find_if(skills, [](const auto & s){ return s->getJsonKey() == "vcmi-test:levelGranting"; });
 	ASSERT_NE(found, skills.end());
 	const SecondarySkill skill = (*found)->getId();

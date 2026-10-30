@@ -219,7 +219,7 @@ void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes(const GameLibrary & library) const
 {
 	std::set<TerrainId> terrains;
-	for(const auto & terrain : library.terrainTypeHandler->objects)
+	for(const auto & terrain : library.terrainTypeHandler->getObjects())
 	{
 		if (terrain->isLand() && terrain->isPassable())
 		{
