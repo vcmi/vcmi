@@ -133,6 +133,9 @@ inline const auto & getLanguageList()
 	return languages;
 }
 
+/// Returns name of language preferred by user
+DLL_LINKAGE std::string getPreferredLanguage();
+
 inline const Options & getLanguageOptions(ELanguages language)
 {
 	return getLanguageList().at(static_cast<size_t>(language));

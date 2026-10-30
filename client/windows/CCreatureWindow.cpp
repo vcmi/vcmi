@@ -246,7 +246,7 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 				throw std::runtime_error("Failed to find effects for spell " + effect.toSpell()->getJsonKey());
 
 			int duration = spellBonuses->front()->turnsRemain;
-			std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
+			std::string preferredLanguage = Languages::getPreferredLanguage();
 
 			MetaString spellText;
 			spellText.appendTextID(spell->getDescriptionTextID(spellWithMastery.getMastery()));

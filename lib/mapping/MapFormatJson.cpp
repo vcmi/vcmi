@@ -39,7 +39,6 @@
 #include "../spells/CSpellHandler.h"
 #include "../json/JsonUtils.h"
 #include "../texts/Languages.h"
-#include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextOperations.h"
 
 class MapObjectResolver: public IInstanceResolver
@@ -1304,7 +1303,7 @@ void CMapLoaderJson::readTranslations()
 	{
 		std::string actualMapName = TextOperations::convertMapName(mapName);
 
-		std::string preferredLanguage = CGeneralTextHandler::getPreferredLanguage();
+		std::string preferredLanguage = Languages::getPreferredLanguage();
 		std::string baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
 
 		// Determine base language from translations with most strings

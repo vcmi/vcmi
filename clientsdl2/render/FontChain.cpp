@@ -16,7 +16,6 @@
 #include "lib/CConfigHandler.h"
 #include "lib/modding/CModHandler.h"
 #include "lib/texts/TextOperations.h"
-#include "lib/texts/CGeneralTextHandler.h"
 #include "lib/texts/Languages.h"
 #include "lib/GameLibrary.h"
 
@@ -59,7 +58,7 @@ bool FontChain::bitmapFontsPrioritized(const std::string & bitmapFontName) const
 	if (!vstd::isAlmostEqual(1.0, settings["video"]["fontScalingFactor"].Float()))
 		return false; // If player requested non-100% scaling - use scalable fonts
 
-	std::string gameLanguage = LIBRARY->generaltexth->getPreferredLanguage();
+	std::string gameLanguage = Languages::getPreferredLanguage();
 	std::string gameEncoding = Languages::getLanguageOptions(gameLanguage).encoding;
 	std::string fontEncoding = LIBRARY->modh->findResourceEncoding(ResourcePath("data/" + bitmapFontName, EResType::BMP_FONT));
 
