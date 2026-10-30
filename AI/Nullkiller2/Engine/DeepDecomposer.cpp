@@ -13,7 +13,6 @@
 #include "../Behaviors/CaptureObjectsBehavior.h"
 #include "../Behaviors/RecruitHeroBehavior.h"
 #include "../Behaviors/BuyArmyBehavior.h"
-#include "../Behaviors/StartupBehavior.h"
 #include "../Behaviors/DefenceBehavior.h"
 #include "../Behaviors/BuildingBehavior.h"
 #include "../Behaviors/GatherArmyBehavior.h"
@@ -68,7 +67,6 @@ void DeepDecomposer::decompose(TGoalVec & results, TSubgoal behavior, int depthL
 
 			if(subgoal->isElementar())
 			{
-				// TODO: need to get rid of priority control in behaviors like Startup to avoid this check.
 				// 0 - goals directly from behavior
 				Goals::TSubgoal task = depth >= 1 ? aggregateGoals(0, subgoal) : subgoal;
 
