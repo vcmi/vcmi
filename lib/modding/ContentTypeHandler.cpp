@@ -18,7 +18,6 @@
 
 #include "../BattleFieldHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CConfigHandler.h"
 #include "../campaign/CampaignRegionsHandler.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/faction/CTownHandler.h"
@@ -94,7 +93,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	auto performValidate = [&,this](JsonNode & data, const std::string & name){
 		handler->beforeValidate(data);
 		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + entityName, name);
+			result &= context.validator.validate(data, "vcmi:" + entityName, name);
 	};
 
 	// apply patches
@@ -102,7 +101,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	{
 		for (auto & objectPatch : objectPatches)
 		{
-			if (settings["mods"]["validation"].String() != "off" && !modInfo.modData[objectName].isNull())
+			if (context.validation != EContentValidation::OFF && !modInfo.modData[objectName].isNull())
 				JsonUtils::detectConflicts(conflictList, modInfo.modData[objectName], objectPatch, objectName);
 
 			JsonUtils::merge(modInfo.modData[objectName], objectPatch);
@@ -168,7 +167,7 @@ void ContentTypeHandler::loadCustom()
 
 void ContentTypeHandler::afterLoadFinalization()
 {
-	if (settings["mods"]["validation"].String() != "off")
+	if (context.validation != EContentValidation::OFF)
 	{
 		for (auto const & data : modData)
 		{
@@ -181,7 +180,7 @@ void ContentTypeHandler::afterLoadFinalization()
 		}
 
 		// comparing objects of every mod against objects of every other mod is too slow for a normal game start
-		if (settings["mods"]["validation"].String() == "full")
+		if (context.validation == EContentValidation::FULL)
 		{
 			for (auto const & data : modData)
 			{
@@ -295,7 +294,7 @@ bool CContentHandler::preloadData(const ModDescription & mod, JsonNode & modCont
 	bool result = true;
 
 	// mod.json is part of mod checksum, so it only needs validation together with the rest of mod data
-	if (validate && !JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
+	if (validate && !context.validator.validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
 		result = false;
 
 	for(auto & handler : handlers)

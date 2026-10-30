@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "FlaggableInstanceConstructor.h"
 
-#include "../CConfigHandler.h"
 #include "../GameLibrary.h"
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
@@ -19,8 +18,8 @@
 
 void FlaggableInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & config)
 {
-	if (settings["mods"]["validation"].String() != "off")
-		JsonUtils::validate(config, "vcmi:flaggable", getJsonKey());
+	if (context.validation != EContentValidation::OFF)
+		context.validator.validate(config, "vcmi:flaggable", getJsonKey());
 
 	for (const auto & bonusJson : config["bonuses"].Struct())
 		providedBonuses.push_back(JsonUtils::parseBonus(bonusJson.second, context));

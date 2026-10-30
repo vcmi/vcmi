@@ -12,7 +12,7 @@
 
 #include "CVCMIServer.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/json/JsonUtils.h"
+#include "../lib/json/JsonValidator.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
@@ -187,7 +187,7 @@ void GlobalLobbyProcessor::sendChangeRoomDescription(const std::string & descrip
 
 void GlobalLobbyProcessor::sendMessage(const NetworkConnectionPtr & targetConnection, const JsonNode & toSend)
 {
-	assert(JsonUtils::validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
+	assert(JsonValidator().validate(toSend, "vcmi:lobbyProtocol/" + toSend["type"].String(), toSend["type"].String() + " pack"));
 	targetConnection->sendPacket(toSend.toBytes());
 }
 

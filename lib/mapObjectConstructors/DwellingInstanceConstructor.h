@@ -27,7 +27,7 @@ class DLL_LINKAGE DwellingInstanceConstructor : public CDefaultObjectTypeHandler
 protected:
 	bool objectFilter(const CGObjectInstance * obj, std::shared_ptr<const ObjectTemplate> tmpl) const override;
 	void initTypeData(LibraryLoadContext & context, const JsonNode & input) override;
-	void onTemplateAdded(const std::shared_ptr<const ObjectTemplate>) override;
+	void onTemplateAdded(LibraryLoadContext & context, const std::shared_ptr<const ObjectTemplate>) override;
 
 public:
 	bool hasNameTextID() const override;

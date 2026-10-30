@@ -11,12 +11,7 @@
 #include "StdInc.h"
 #include "JsonUtils.h"
 
-#include "JsonValidator.h"
-
 #include "../filesystem/Filesystem.h"
-
-
-static const JsonNode nullNode;
 
 static std::optional<int> getIndexSafe(const JsonNode & node, const std::string & keyName)
 {
@@ -110,100 +105,14 @@ static void maximizeNode(JsonNode & node, const JsonNode & schema)
 	eraseOptionalNodes(node, schema);
 }
 
-void JsonUtils::minimize(JsonNode & node, const std::string & schemaName)
+void JsonUtils::minimize(JsonNode & node, const JsonNode & schema)
 {
-	minimizeNode(node, getSchema(schemaName));
+	minimizeNode(node, schema);
 }
 
-void JsonUtils::maximize(JsonNode & node, const std::string & schemaName)
+void JsonUtils::maximize(JsonNode & node, const JsonNode & schema)
 {
-	maximizeNode(node, getSchema(schemaName));
-}
-
-bool JsonUtils::validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName)
-{
-	JsonValidator validator;
-	std::string log = validator.check(schemaName, node);
-	if (!log.empty())
-	{
-		logMod->warn("Data in %s is invalid!", dataName);
-		logMod->warn(log);
-		logMod->trace("%s json: %s", dataName, node.toCompactString());
-	}
-	return log.empty();
-}
-
-bool JsonUtils::validate(const JsonNode & node, const JsonNode & schema, const std::string & dataName)
-{
-	JsonValidator validator;
-	std::string log = validator.check(schema, node);
-	if (!log.empty())
-	{
-		logMod->warn("Data in %s is invalid!", dataName);
-		logMod->warn(log);
-		logMod->trace("%s json: %s", dataName, node.toCompactString());
-	}
-	return log.empty();
-}
-
-const JsonNode & getSchemaByName(const std::string & name)
-{
-	// cached schemas to avoid loading json data multiple times
-	static std::map<std::string, JsonNode> loadedSchemas;
-	static std::mutex loadedSchemasMutex;
-	std::lock_guard lock(loadedSchemasMutex);
-
-	if (vstd::contains(loadedSchemas, name))
-		return loadedSchemas[name];
-
-	auto filename = JsonPath::builtin("config/schemas/" + name);
-
-	if (CResourceHandler::get()->existsResource(filename))
-	{
-		loadedSchemas[name] = JsonNode(filename);
-		return loadedSchemas[name];
-	}
-
-	logMod->error("Error: missing schema with name %s!", name);
-	assert(0);
-	return nullNode;
-}
-
-const JsonNode & JsonUtils::getSchema(const std::string & URI)
-{
-	size_t posColon = URI.find(':');
-	size_t posHash  = URI.find('#');
-	std::string filename;
-	if(posColon == std::string::npos)
-	{
-		filename = URI.substr(0, posHash);
-	}
-	else
-	{
-		std::string protocolName = URI.substr(0, posColon);
-		filename = URI.substr(posColon + 1, posHash - posColon - 1) + ".json";
-		if(protocolName != "vcmi")
-		{
-			logMod->error("Error: unsupported URI protocol for schema: %s", URI);
-			return nullNode;
-		}
-	}
-
-	// check if json pointer if present (section after hash in string)
-	if(posHash == std::string::npos || posHash == URI.size() - 1)
-	{
-		auto const & result = getSchemaByName(filename);
-		if (result.isNull())
-			logMod->error("Error: missing schema %s", URI);
-		return result;
-	}
-	else
-	{
-		auto const & result = getSchemaByName(filename).resolvePointer(URI.substr(posHash + 1));
-		if (result.isNull())
-			logMod->error("Error: missing schema %s", URI);
-		return result;
-	}
+	maximizeNode(node, schema);
 }
 
 void JsonUtils::merge(JsonNode & dest, JsonNode & source, bool ignoreOverride, bool copyMeta)

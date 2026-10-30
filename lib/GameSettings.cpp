@@ -148,8 +148,6 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 
 void GameSettings::loadBase(const JsonNode & input)
 {
-	JsonUtils::validate(input, "vcmi:gameSettings", input.getModScope());
-
 	for(const auto & option : settingProperties)
 	{
 		const JsonNode & optionValue = input[option.group][option.key];

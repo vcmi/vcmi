@@ -57,6 +57,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/json/JsonNode.h"
+#include "../../lib/json/JsonValidator.h"
 
 #include <widgets/GraphicalPrimitiveCanvas.h>
 
@@ -1276,13 +1277,15 @@ std::vector<ResourcePath> SelectionTab::parseSaves(const std::unordered_set<Reso
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, filesVector.size()), [this, &filesVector, &isUnsupported, offset, loadMode](const tbb::blocked_range<size_t> & r)
 	{
+		// validator can not be shared between threads
+		JsonValidator validator;
 		for(auto i = r.begin(); i != r.end(); i++)
 		{
 			const auto & file = filesVector[i];
 			try
 			{
 				auto element = std::make_shared<ElementInfo>();
-				element->entry = ScenarioListEntry::fromSave(file);
+				element->entry = ScenarioListEntry::fromSave(file, validator);
 				element->fileURI = element->entry->fileURI;
 				element->lastWrite = element->entry->lastWrite;
 				SaveMetadata::verifyMods(element->entry->metadata);
@@ -1364,11 +1367,12 @@ std::optional<bool> SelectionTab::isFolderCompatible(
 		return lhs.getName() > rhs.getName();
 	});
 
+	JsonValidator validator;
 	for(const auto & file : candidates)
 	{
 		try
 		{
-			const auto entry = ScenarioListEntry::fromSave(file);
+			const auto entry = ScenarioListEntry::fromSave(file, validator);
 			SaveMetadata::verifyMods(entry.metadata);
 			return folderCompatibility[cacheKey] = isSaveCompatible(entry, loadMode);
 		}
