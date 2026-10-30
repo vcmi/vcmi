@@ -338,6 +338,12 @@ QStringList StartGameTab::stageUnreadableFiles(const QStringList & files)
 		modView->showExternalProgress(tr("Preparing selected files for import... %1/%2").arg(index + 1).arg(files.size()), index, files.size());
 		qApp->processEvents();
 
+		if(Helper::getRealPath(file).endsWith(".zip", Qt::CaseInsensitive))
+		{
+			preparedFiles << file;
+			continue;
+		}
+
 		QString importPath = file;
 		QFile sourceFile(file);
 		if(!sourceFile.open(QIODevice::ReadOnly))

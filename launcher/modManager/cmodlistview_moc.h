@@ -12,6 +12,8 @@
 #include "../StdInc.h"
 #include "../../lib/CConfigHandler.h"
 
+#include <QPointer>
+
 namespace Ui
 {
 class CModListView;
@@ -36,6 +38,8 @@ class CModListView : public QWidget
 	ModStateItemModel * modModel;
 	CModFilterModel * filterModel;
 	CDownloadManager * dlManager;
+	QPointer<QObject> importOperation;
+	std::shared_ptr<std::atomic<bool>> importCanceled;
 	JsonNode accumulatedRepositoryData;
 	QString activatingPreset;
 
@@ -60,6 +64,7 @@ class CModListView : public QWidget
 
 	bool askOverwriteDialog(const QString & windowTitle, const QString & message, int conflictCount, bool & applyToAll, bool & overwriteAll);
 
+	void installDownloadedFiles(QStringList files);
 	void installMods(QStringList archives, bool removeGithubSuffix);
 	void installMaps(QStringList maps);
 	void installSaves(QStringList saves);

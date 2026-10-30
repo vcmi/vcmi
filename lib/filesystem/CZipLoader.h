@@ -69,5 +69,5 @@ public:
 
 	std::vector<std::string> listFiles();
 	bool extract(const boost::filesystem::path & where, const std::vector<std::string> & what);
-	bool extract(const boost::filesystem::path & where, const std::string & what);
+	bool extract(const boost::filesystem::path & where, const std::string & what, const std::function<bool()> & isCanceled = {});
 };
