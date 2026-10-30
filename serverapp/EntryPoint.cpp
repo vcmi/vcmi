@@ -30,6 +30,7 @@
 #include "mapping/CMapService.h"
 #include "modding/ModDescription.h"
 #include "texts/CGeneralTextHandler.h"
+#include "texts/Languages.h"
 #include "texts/TextOperations.h"
 #include "../luascript/LuaModule.h"
 
@@ -49,10 +50,17 @@ static void exportLuaApiDocs(const boost::filesystem::path & outPath)
 	logGlobal->info("Generated files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory");
 }
 
+static std::unique_ptr<GameLibrary> loadLibrary()
+{
+	auto library = std::make_unique<GameLibrary>();
+	library->initializeFilesystem(false);
+	library->initializeLibrary();
+	return library;
+}
+
 static void generateTranslations(const std::string & modID)
 {
-	LIBRARY = new GameLibrary;
-	LIBRARY->loadFilesystem(false);
+	GameLibrary().loadFilesystem(false);
 	settings.init("config/settings.json", "vcmi:settings");
 
 	auto mods = std::make_unique<ModManager>();
@@ -83,10 +91,7 @@ static void generateTranslations(const std::string & modID)
 	std::map<std::string, ExportedStrings> textsByMod;
 	std::vector<std::string> modsWithOverrides;
 
-	delete LIBRARY;
-	LIBRARY = new GameLibrary;
-	LIBRARY->initializeFilesystem(false);
-	LIBRARY->initializeLibrary();
+	LIBRARY = loadLibrary().release();
 
 	{
 		CMapService mapService;
@@ -205,9 +210,7 @@ static void generateTranslations(const std::string & modID)
 
 	CResourceHandler::destroy();
 	delete LIBRARY;
-	LIBRARY = new GameLibrary;
-	LIBRARY->initializeFilesystem(false);
-	LIBRARY->initializeLibrary();
+	LIBRARY = loadLibrary().release();
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
 
 	for(const auto & modEntry : textsByMod)
@@ -222,7 +225,7 @@ static void generateTranslations(const std::string & modID)
 
 		if (!output.isNull())
 		{
-			std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
+			std::string preferredLanguage = Languages::getPreferredLanguage();
 			std::string filename = boost::replace_all_copy(modEntry.first, ".", "/Mods/");
 			const boost::filesystem::path dirPath = outPath / filename / "Content/translation/";
 			boost::filesystem::create_directories(dirPath);
@@ -353,18 +356,19 @@ int main(int argc, const char * argv[])
 
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
-	LIBRARY = new GameLibrary;
-	LIBRARY->initializeFilesystem(false);
+	auto library = std::make_unique<GameLibrary>();
+	library->initializeFilesystem(false);
 	logConfigurator.configure();
 
 	if(opts.count("export-config"))
 	{
-		LibraryLoadContext context(*LIBRARY);
-		LIBRARY->initializeLibrary(context);
+		LibraryLoadContext context(*library);
+		library->initializeLibrary(context);
 		exportConfiguration(context);
 	}
 	else
-		LIBRARY->initializeLibrary();
+		library->initializeLibrary();
+	LIBRARY = library.release();
 
 	if(opts.count("creature-values"))
 	{

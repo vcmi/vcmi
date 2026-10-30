@@ -39,7 +39,7 @@ CTownHandler::CTownHandler()
 	: buildingsLibrary(JsonPath::builtin("config/buildingsLibrary"))
 	, randomFaction(std::make_unique<CFaction>())
 {
-	randomFaction->town = std::make_unique<CTown>();
+	randomFaction->setTown(std::make_unique<CTown>());
 	randomFaction->town->faction = randomFaction.get();
 	randomFaction->identifier = "random";
 	randomFaction->modScope = "core";
@@ -702,7 +702,7 @@ void CTownHandler::loadTown(LibraryLoadContext & context, CTown * town, const Js
 
 		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "heroClass", node.first, [=, &context](si32 classID)
 		{
-			context.lib.heroclassesh->objects[classID]->selectionProbability[town->faction->getId()] = chance;
+			context.lib.heroclassesh->getObjectForLoading(HeroClassID(classID))->selectionProbability[town->faction->getId()] = chance;
 		});
 	}
 
@@ -712,7 +712,7 @@ void CTownHandler::loadTown(LibraryLoadContext & context, CTown * town, const Js
 
 		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "spell", node.first, [=, &context](si32 spellID)
 		{
-			context.lib.spellh->objects.at(spellID)->probabilities[town->faction->getId()] = chance;
+			context.lib.spellh->getObjectForLoading(SpellID(spellID))->probabilities[town->faction->getId()] = chance;
 		});
 	}
 
@@ -822,12 +822,10 @@ std::shared_ptr<CFaction> CTownHandler::loadFromJson(LibraryLoadContext & contex
 
 	if (!source["town"].isNull())
 	{
-		faction->town = std::make_unique<CTown>();
+		faction->setTown(std::make_unique<CTown>());
 		faction->town->faction = faction.get();
 		loadTown(context, faction->town.get(), source["town"]);
 	}
-	else
-		faction->town = nullptr;
 
 	if (!source["puzzleMap"].isNull())
 		loadPuzzle(context, *faction, source["puzzleMap"]);
@@ -1004,6 +1002,11 @@ std::set<FactionID> CTownHandler::getDefaultAllowed() const
 			allowedFactions.insert(town->getId());
 
 	return allowedFactions;
+}
+
+const CFaction * CTownHandler::getRandomFaction() const
+{
+	return randomFaction.get();
 }
 
 std::set<FactionID> CTownHandler::getAllowedFactions(bool withTown) const

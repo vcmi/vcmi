@@ -812,7 +812,7 @@ void CGameState::initStartingBonus(IGameRandomizer & gameRandomizer)
 			break;
 		case PlayerStartingBonus::RESOURCE:
 			{
-				auto res = (*LIBRARY->townh)[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
+				auto res = (*LIBRARY->townh)[scenarioOps->playerInfos[elem.first].castle]->getTown()->primaryRes;
 				if(res == EGameResID::WOOD_AND_ORE)
 				{
 					int amount = gameRandomizer.getDefault().nextInt(5, 10);
@@ -849,9 +849,9 @@ void CGameState::initTownNames(vstd::RNG & randomGenerator)
 	for(const auto & faction : LIBRARY->townh->getDefaultAllowed())
 	{
 		std::vector<int> potentialNames;
-		if(faction.toFaction()->town->getRandomNamesCount() > 0)
+		if(faction.toFaction()->getTown()->getRandomNamesCount() > 0)
 		{
-			for(int i = 0; i < faction.toFaction()->town->getRandomNamesCount(); ++i)
+			for(int i = 0; i < faction.toFaction()->getTown()->getRandomNamesCount(); ++i)
 				potentialNames.push_back(i);
 
 			availableNames[faction] = potentialNames;
@@ -879,7 +879,7 @@ void CGameState::initTownNames(vstd::RNG & randomGenerator)
 			faction = RandomGeneratorUtil::nextItem(availableNames, randomGenerator)->first;
 
 		auto nameIt = RandomGeneratorUtil::nextItem(availableNames[faction], randomGenerator);
-		vti->setNameTextId(faction.toFaction()->town->getRandomNameTextID(*nameIt));
+		vti->setNameTextId(faction.toFaction()->getTown()->getRandomNameTextID(*nameIt));
 
 		availableNames[faction].erase(nameIt);
 		if(availableNames[faction].empty())

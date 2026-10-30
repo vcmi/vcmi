@@ -363,7 +363,7 @@ void ClientCommandManager::handleObstaclesDebugCommand()
 
 	auto & obstacleController = battleInt->obstacleController;
 
-	for (const auto & obstacle : LIBRARY->obstacleHandler->objects)
+	for (const auto & obstacle : LIBRARY->obstacleHandler->getObjects())
 	{
 		if (obstacle->isAbsoluteObstacle)
 		{

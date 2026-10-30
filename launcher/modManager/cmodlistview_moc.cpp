@@ -34,7 +34,6 @@
 #include "../../lib/json/JsonUtils.h"
 #include "../../lib/modding/CModVersion.h"
 #include "../../lib/modding/ModDescription.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
 
 #include "../../vcmiqt/launcherdirs.h"
@@ -400,7 +399,7 @@ QString CModListView::genModInfoText(const ModState & mod)
 			result += lineTemplate.arg(tr("Supported VCMI versions"), tr("%1 - %2").arg(minStr, maxStr));
 	}
 
-	QString preferredLanguage = QString::fromStdString(CGeneralTextHandler::getPreferredLanguage());
+	QString preferredLanguage = QString::fromStdString(Languages::getPreferredLanguage());
 
 	if(!mod.isTranslation() && mod.getBaseLanguage() != preferredLanguage && mod.hasTranslation(preferredLanguage))
 	{
@@ -451,7 +450,7 @@ QString CModListView::genModInfoText(const ModState & mod)
 	if(mod.isValidationFailed())
 		notes += noteTemplate.arg(tr("This mod failed automatic validation and may not work correctly."));
 
-	if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString())
+	if (mod.isTranslation() && Languages::getPreferredLanguage() != mod.getBaseLanguage().toStdString())
 		notes += noteTemplate.arg(translationMismatch);
 
 	if(notes.size())
@@ -502,7 +501,7 @@ auto CModListView::buttonEnabledState(QString modName, ModState & mod)
 
 	QStringList notInstalledDependencies = getModsToInstall(modName);
 	QStringList unavailableDependencies = findUnavailableMods(notInstalledDependencies);
-	bool translationMismatch = mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
+	bool translationMismatch = mod.isTranslation() && Languages::getPreferredLanguage() != mod.getBaseLanguage().toStdString();
 	bool modIsBeingDownloaded = enqueuedModDownloads.contains(mod.getID());
 
 	res.disableVisible = modStateModel->isModInstalled(mod.getID()) && modStateModel->isModEnabled(mod.getID());

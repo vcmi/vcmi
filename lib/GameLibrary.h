@@ -46,6 +46,22 @@ class MapFormatSettings;
 class CampaignRegionsHandler;
 class MapLayerTypeHandler;
 
+/// Owning handler pointer that gives only const access through a const library
+template<typename T>
+class LibraryHandlerPtr
+{
+	std::unique_ptr<T> ptr;
+public:
+	LibraryHandlerPtr() = default;
+	LibraryHandlerPtr & operator=(std::unique_ptr<T> && other) { ptr = std::move(other); return *this; }
+	T * operator->() { return ptr.get(); }
+	const T * operator->() const { return ptr.get(); }
+	T & operator*() { return *ptr; }
+	const T & operator*() const { return *ptr; }
+	T * get() { return ptr.get(); }
+	const T * get() const { return ptr.get(); }
+};
+
 /// Loads and constructs several handlers
 class DLL_LINKAGE GameLibrary final : public Services
 {
@@ -80,34 +96,34 @@ public:
 	const IBonusTypeHandler * getBth() const;
 	const CIdentifierStorage * identifiers() const;
 
-	std::unique_ptr<CArtHandler> arth;
-	std::unique_ptr<CBonusTypeHandler> bth;
-	std::unique_ptr<CHeroHandler> heroh;
-	std::unique_ptr<CHeroClassHandler> heroclassesh;
-	std::unique_ptr<CCreatureHandler> creh;
-	std::unique_ptr<CSpellHandler> spellh;
-	std::unique_ptr<SpellSchoolHandler> spellSchoolHandler;
-	std::unique_ptr<ScriptHandler> scriptTypeHandler;
-	std::unique_ptr<CSkillHandler> skillh;
-	std::unique_ptr<CObjectClassesHandler> objtypeh;
-	std::unique_ptr<CTownHandler> townh;
-	std::unique_ptr<CGeneralTextHandler> generaltexth;
-	std::unique_ptr<CModHandler> modh;
-	std::unique_ptr<TerrainTypeHandler> terrainTypeHandler;
-	std::unique_ptr<ResourceTypeHandler> resourceTypeHandler;
-	std::unique_ptr<RoadTypeHandler> roadTypeHandler;
-	std::unique_ptr<RiverTypeHandler> riverTypeHandler;
-	std::unique_ptr<CIdentifierStorage> identifiersHandler;
-	std::unique_ptr<CTerrainViewPatternConfig> terviewh;
-	std::unique_ptr<CRmgTemplateStorage> tplh;
-	std::unique_ptr<BattleFieldHandler> battlefieldsHandler;
-	std::unique_ptr<ObstacleHandler> obstacleHandler;
-	std::unique_ptr<GameSettings> settingsHandler;
-	std::unique_ptr<ObstacleSetHandler> biomeHandler;
-	std::unique_ptr<MapFormatSettings> mapFormat;
-	std::unique_ptr<CampaignRegionsHandler> campaignRegions;
-	std::unique_ptr<MapLayerTypeHandler> mapLayerHandler;
-	std::unique_ptr<scripting::Service> scriptHandler;
+	LibraryHandlerPtr<CArtHandler> arth;
+	LibraryHandlerPtr<CBonusTypeHandler> bth;
+	LibraryHandlerPtr<CHeroHandler> heroh;
+	LibraryHandlerPtr<CHeroClassHandler> heroclassesh;
+	LibraryHandlerPtr<CCreatureHandler> creh;
+	LibraryHandlerPtr<CSpellHandler> spellh;
+	LibraryHandlerPtr<SpellSchoolHandler> spellSchoolHandler;
+	LibraryHandlerPtr<ScriptHandler> scriptTypeHandler;
+	LibraryHandlerPtr<CSkillHandler> skillh;
+	LibraryHandlerPtr<CObjectClassesHandler> objtypeh;
+	LibraryHandlerPtr<CTownHandler> townh;
+	LibraryHandlerPtr<CGeneralTextHandler> generaltexth;
+	LibraryHandlerPtr<CModHandler> modh;
+	LibraryHandlerPtr<TerrainTypeHandler> terrainTypeHandler;
+	LibraryHandlerPtr<ResourceTypeHandler> resourceTypeHandler;
+	LibraryHandlerPtr<RoadTypeHandler> roadTypeHandler;
+	LibraryHandlerPtr<RiverTypeHandler> riverTypeHandler;
+	LibraryHandlerPtr<CIdentifierStorage> identifiersHandler;
+	LibraryHandlerPtr<CTerrainViewPatternConfig> terviewh;
+	LibraryHandlerPtr<CRmgTemplateStorage> tplh;
+	LibraryHandlerPtr<BattleFieldHandler> battlefieldsHandler;
+	LibraryHandlerPtr<ObstacleHandler> obstacleHandler;
+	LibraryHandlerPtr<GameSettings> settingsHandler;
+	LibraryHandlerPtr<ObstacleSetHandler> biomeHandler;
+	LibraryHandlerPtr<MapFormatSettings> mapFormat;
+	LibraryHandlerPtr<CampaignRegionsHandler> campaignRegions;
+	LibraryHandlerPtr<MapLayerTypeHandler> mapLayerHandler;
+	LibraryHandlerPtr<scripting::Service> scriptHandler;
 
 	GameLibrary();
 	~GameLibrary();
@@ -138,4 +154,4 @@ public:
 	void loadModFilesystem(bool useTestPreset = false);
 };
 
-extern DLL_LINKAGE GameLibrary * LIBRARY;
+extern DLL_LINKAGE const GameLibrary * LIBRARY;

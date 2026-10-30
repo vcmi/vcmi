@@ -242,14 +242,14 @@ void CBonusSelection::createBonusesIcons()
 				auto [faction, buildID] = getBuildingID(bonusValue);
 				assert(faction.hasValue());
 
-				for (const auto & townStructure : faction.toFaction()->town->clientInfo.structures)
+				for (const auto & townStructure : faction.toFaction()->getTown()->clientInfo.structures)
 					if (townStructure->getBuilding() && townStructure->getBuilding()->bid == buildID)
 						picName = townStructure->campaignBonus.getOriginalName();
 
 				picNumber = -1;
 
-				if(vstd::contains(faction.toFaction()->town->buildings, buildID))
-					desc.appendTextID(faction.toFaction()->town->buildings.find(buildID)->second->getNameTextID());
+				if(vstd::contains(faction.toFaction()->getTown()->buildings, buildID))
+					desc.appendTextID(faction.toFaction()->getTown()->buildings.find(buildID)->second->getNameTextID());
 				break;
 			}
 			case CampaignBonusType::ARTIFACT:
@@ -458,8 +458,8 @@ void CBonusSelection::createBonusesIcons()
 						if(!faction.hasValue())
 							return;
 						
-						auto building = faction.toFaction()->town->buildings.find(buildID);
-						if(building != faction.toFaction()->town->buildings.end())
+						auto building = faction.toFaction()->getTown()->buildings.find(buildID);
+						if(building != faction.toFaction()->getTown()->buildings.end())
 						{
 							CRClickPopup::createAndPush(building->second->getDescriptionTranslated(), 
 								std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(faction, buildID)));

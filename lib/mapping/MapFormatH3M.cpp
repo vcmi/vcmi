@@ -818,7 +818,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	// ban combo artifacts
 	if(!features.levelSOD)
 	{
-		for(auto const & artifact : LIBRARY->arth->objects)
+		for(auto const & artifact : LIBRARY->arth->getObjects())
 			if(artifact->isCombined())
 				map->allowedArtifact.erase(artifact->getId());
 	}

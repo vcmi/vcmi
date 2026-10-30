@@ -235,7 +235,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & contex
 			art->warMachine = CreatureID(id);
 
 			//this assumes that creature object is stored before registration
-			context.lib.creh->objects.at(id)->warMachine = art->id;
+			context.lib.creh->getObjectForLoading(CreatureID(id))->warMachine = art->id;
 		});
 	}
 

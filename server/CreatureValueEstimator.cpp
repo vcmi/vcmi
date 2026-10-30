@@ -195,15 +195,15 @@ void CreatureValueEstimator::collectSubjects()
 {
 	std::vector<const CCreature *> modded;
 
-	for(const auto & creature : LIBRARY->creh->objects)
+	for(const auto & creature : LIBRARY->creh->getObjects())
 	{
 		if(creature->special)
 			continue;
 
 		if(creature->getModScope() == ModScope::scopeBuiltin())
-			subjects.push_back(creature.get());
+			subjects.push_back(creature);
 		else
-			modded.push_back(creature.get());
+			modded.push_back(creature);
 	}
 
 	baselineCount = subjects.size();

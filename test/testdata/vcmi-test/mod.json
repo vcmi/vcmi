@@ -9,7 +9,7 @@
 	"heroes" : [ "config/heroes.json" ],
 	"creatures" : [ "config/creatures.json" ],
 	"scripts" : [ "config/hotaScripts.json" ],
-	"skills" : [ "config/hotaSkills.json" ],
+	"skills" : [ "config/hotaSkills.json", "config/skills.json" ],
 	"spells" : [ "config/hotaSpells.json", "config/spells.json" ],
 	"bonuses" : [ "config/hotaBonuses.json" ],
 	"objects" : {

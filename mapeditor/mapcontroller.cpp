@@ -172,7 +172,7 @@ void MapController::repairMap(CMap * map)
 
 			map->allowedHeroes.insert(nih->getHeroTypeID());
 
-			auto const & type = LIBRARY->heroh->objects[nih->subID];
+			auto const & type = (*LIBRARY->heroh)[nih->subID];
 			assert(type->getHeroClass());
 
 			if(nih->ID == Obj::HERO) //not prison
@@ -208,7 +208,7 @@ void MapController::repairMap(CMap * map)
 			if(art->ID == Obj::SPELL_SCROLL && !art->getArtifactInstance())
 			{
 				std::vector<SpellID> out;
-				for(auto const & spell : LIBRARY->spellh->objects) //spellh size appears to be greater (?)
+				for(auto const & spell : LIBRARY->spellh->getObjects()) //spellh size appears to be greater (?)
 				{
 					//if(map->isAllowedSpell(spell->id))
 					{
@@ -273,7 +273,7 @@ void MapController::setMap(std::unique_ptr<CMap> cmap)
 
 void MapController::initObstaclePainters(CMap * map)
 {
-	for (auto const & terrain : LIBRARY->terrainTypeHandler->objects)
+	for (auto const & terrain : LIBRARY->terrainTypeHandler->getObjects())
 	{
 		auto terrainId = terrain->getId();
 		_obstaclePainters[terrainId] = std::make_unique<EditorObstaclePlacer>(map);

@@ -23,16 +23,6 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	/// consists of 196 values. Any higher levels require experience larger that TExpType can hold
 	std::vector<TExpType> expPerLevel;
 
-	struct SpecialtyToGenerate
-	{
-		HeroTypeID hero;
-		SecondarySkill skill;
-		int stepSize;
-	};
-
-	/// Helper field to generate specialties for heroes after loading is complete
-	mutable std::vector<SpecialtyToGenerate> skillSpecialtiesToGenerate;
-
 	/// All non-special heroes, filled in once loading is complete
 	std::set<HeroTypeID> defaultAllowed;
 

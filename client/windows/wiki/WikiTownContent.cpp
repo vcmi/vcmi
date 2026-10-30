@@ -196,7 +196,7 @@ static void addTownTitle(
 		}
 	}
 
-	auto townView = std::make_shared<WikiTownView>(faction->town.get(), W, curY);
+	auto townView = std::make_shared<WikiTownView>(faction->getTown(), W, curY);
 	curY += townView->height() + SECTION_GAP;
 	widgets.push_back(std::move(townView));
 
@@ -322,7 +322,7 @@ static void addCreaturesTable(
 		for(int ci = 0; ci < (int)town->creatures[tier].size(); ++ci)
 		{
 			const CCreature * cr =
-				LIBRARY->creh->objects[town->creatures[tier][ci]].get();
+				(*LIBRARY->creh)[town->creatures[tier][ci]];
 			if(cr)
 				crRows.push_back({cr, tier + 1, ci > 0});
 		}
@@ -450,11 +450,11 @@ static void addHeroesTable(
 	struct HeroData { const CHero * hero; std::string className; };
 	std::vector<HeroData> mightHeroes, magicHeroes;
 
-	for(const auto & h : LIBRARY->heroh->objects)
+	for(const auto & h : LIBRARY->heroh->getObjects())
 	{
 		if(!h || h->special || !h->getHeroClass()) continue;
 		if(h->getHeroClass()->faction != factionId) continue;
-		HeroData hd{h.get(), h->getHeroClass()->getNameTranslated()};
+		HeroData hd{h, h->getHeroClass()->getNameTranslated()};
 		if(h->getHeroClass()->affinity == CHeroClass::MAGIC)
 			magicHeroes.push_back(hd);
 		else
@@ -586,7 +586,7 @@ std::vector<std::shared_ptr<CIntObject>> buildTownContent(
 		throw std::runtime_error("buildTownContent: null faction");
 	if(!faction->hasTown())
 		throw std::runtime_error("buildTownContent: faction has no town");
-	if(!faction->town)
+	if(!faction->hasTown())
 		throw std::runtime_error("buildTownContent: faction->town is null");
 
 	std::vector<std::shared_ptr<CIntObject>> widgets;
@@ -599,10 +599,10 @@ std::vector<std::shared_ptr<CIntObject>> buildTownContent(
 	addTownTitle(widgets, faction, W, curY);
 
 	curY += SECTION_GAP;
-	addBuildingsTable(widgets, faction->town.get(), W, blueStyle, clipRect, curY);
+	addBuildingsTable(widgets, faction->getTown(), W, blueStyle, clipRect, curY);
 
 	curY += SECTION_GAP;
-	addCreaturesTable(widgets, faction->town.get(), W, blueStyle, clipRect, navigateCallback, curY);
+	addCreaturesTable(widgets, faction->getTown(), W, blueStyle, clipRect, navigateCallback, curY);
 
 	curY += SECTION_GAP;
 	addHeroesTable(widgets, faction, W, blueStyle, clipRect, navigateCallback, curY);

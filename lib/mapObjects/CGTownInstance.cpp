@@ -1158,9 +1158,9 @@ const CFaction * CGTownInstance::getFaction() const
 const CTown * CGTownInstance::getTown() const
 {
 	if(ID == Obj::RANDOM_TOWN)
-		return LIBRARY->townh->randomFaction->town.get();
+		return LIBRARY->townh->getRandomFaction()->getTown();
 
-	return getFaction()->town.get();
+	return getFaction()->getTown();
 }
 
 FactionID CGTownInstance::getFactionID() const
@@ -1222,7 +1222,7 @@ GrowthInfo::Entry::Entry(int subID, const BuildingID & building, int _count): co
 {
 	MetaString formatter;
 	formatter.appendRawString("%s %+d");
-	formatter.replaceTextID(FactionID(subID).toFaction()->town->buildings.at(building)->getNameTextID());
+	formatter.replaceTextID(FactionID(subID).toFaction()->getTown()->buildings.at(building)->getNameTextID());
 	formatter.replacePositiveNumber(count);
 
 	description = formatter.toString(LIBRARY->staticTexts());

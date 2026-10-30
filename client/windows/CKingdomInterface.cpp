@@ -170,7 +170,7 @@ std::string InfoBoxAbstractHeroData::getNameText()
 	case HERO_EXPERIENCE:
 		return LIBRARY->generaltexth->translate("core.jktext.6");
 	case HERO_SPECIAL:
-		return LIBRARY->heroh->objects[getSubID()]->getSpecialtyNameTranslated();
+		return (*LIBRARY->heroh)[getSubID()]->getSpecialtyNameTranslated();
 	case HERO_SECONDARY_SKILL:
 		if (getValue())
 			return LIBRARY->skillh->getByIndex(getSubID())->getNameTranslated();
@@ -236,7 +236,7 @@ size_t InfoBoxAbstractHeroData::getImageIndex()
 	switch (type)
 	{
 	case HERO_SPECIAL:
-		return LIBRARY->heroh->objects[getSubID()]->imageIndex;
+		return (*LIBRARY->heroh)[getSubID()]->imageIndex;
 	case HERO_PRIMARY_SKILL:
 		return getSubID();
 	case HERO_MANA:
@@ -263,7 +263,7 @@ void InfoBoxAbstractHeroData::prepareMessage(std::string & text, std::shared_ptr
 	switch (type)
 	{
 	case HERO_SPECIAL:
-		text = LIBRARY->heroh->objects[getSubID()]->getSpecialtyDescriptionTranslated();
+		text = (*LIBRARY->heroh)[getSubID()]->getSpecialtyDescriptionTranslated();
 		break;
 	case HERO_PRIMARY_SKILL:
 		text = GAME->translator().translate("core.arraytxt", 2+getSubID());

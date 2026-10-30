@@ -75,13 +75,13 @@ void StartingBonus::initControls()
 		ui->comboBoxSecondarySkillRecipient->addItem(QString::fromStdString(hero.second), QVariant(hero.first));
 	}
 
-	for(auto const & objectPtr : LIBRARY->spellh->objects)
+	for(auto const & objectPtr : LIBRARY->spellh->getObjects())
 	{
 		ui->comboBoxSpellSpell->addItem(QString::fromStdString(objectPtr->getNameTranslated()), QVariant(objectPtr->getId()));
 		ui->comboBoxSpellScrollSpell->addItem(QString::fromStdString(objectPtr->getNameTranslated()), QVariant(objectPtr->getId()));
 	}
 
-	for(auto const & objectPtr : LIBRARY->creh->objects)
+	for(auto const & objectPtr : LIBRARY->creh->getObjects())
 		ui->comboBoxCreatureCreatureType->addItem(QString::fromStdString(objectPtr->getNameSingularTranslated()), QVariant(objectPtr->getId()));
 	
 	if(map->players[color].hasMainTown)
@@ -110,7 +110,7 @@ void StartingBonus::initControls()
 		ui->comboBoxBuildingBuilding->setEnabled(false);
 	}
 
-	for(auto const & objectPtr : LIBRARY->arth->objects)
+	for(auto const & objectPtr : LIBRARY->arth->getObjects())
 		if(!vstd::contains(std::vector<ArtifactID>({
 			ArtifactID::SPELL_SCROLL,
 			ArtifactID::SPELLBOOK,
@@ -122,7 +122,7 @@ void StartingBonus::initControls()
 		}), objectPtr->getId()))
 			ui->comboBoxArtifactArtifact->addItem(QString::fromStdString(objectPtr->getNameTranslated()), QVariant(objectPtr->getId()));
 
-	for(auto const & objectPtr : LIBRARY->skillh->objects)
+	for(auto const & objectPtr : LIBRARY->skillh->getObjects())
 		ui->comboBoxSecondarySkillSecondarySkill->addItem(QString::fromStdString(objectPtr->getNameTranslated()), QVariant(objectPtr->getId()));
 	
 	for(int i = 0; i < 3; i++) // Basic, Advanced, Expert
