@@ -1468,8 +1468,7 @@
 			"immunity" : {
 				"subtype" : "berserk",
 				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"addInfo" : 1
 			}
 		},
 		"index" : 100,
@@ -1481,8 +1480,7 @@
 			"immunity" : {
 				"subtype" : "blind",
 				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"addInfo" : 1
 			}
 		},
 		"index" : 101,
@@ -1494,8 +1492,7 @@
 			"immunity" : {
 				"subtype" : "curse",
 				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"addInfo" : 1
 			}
 		},
 		"index" : 102,
@@ -1506,9 +1503,8 @@
 		"bonuses" : {
 			"immunity" : {
 				"subtype" : "deathRipple",
-				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"type" : "SPELL_IMMUNITY",,
+				"addInfo" : 1
 			}
 		},
 		"index" : 103,
@@ -1521,8 +1517,7 @@
 				"limiters" : ["IS_UNDEAD"],
 				"subtype" : "destroyUndead",
 				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"addInfo" : 1
 			}
 		},
 		"index" : 104,
@@ -1534,8 +1529,7 @@
 			"immunity" : {
 				"subtype" : "hypnotize",
 				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"addInfo" : 1
 			}
 		},
 		"index" : 105,
@@ -1547,14 +1541,12 @@
 			"lightningBolt" : {
 				"subtype" : "lightningBolt",
 				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"addInfo" : 1
 			},
 			"chainLightning" : {
 				"subtype" : "chainLightning",
 				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"addInfo" : 1
 			}
 		},
 		"index" : 106,
@@ -1566,8 +1558,7 @@
 			"immunity" : {
 				"subtype" : "forgetfulness",
 				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"addInfo" : 1
 			}
 		},
 		"index" : 107,
@@ -1887,8 +1878,7 @@
 			"immnunity" : {
 				"subtype" : "armageddon",
 				"type" : "SPELL_IMMUNITY",
-				"val" : 0,
-				"valueType" : "BASE_NUMBER"
+				"addInfo" : 1
 			},
 			"attack" : {
 				"subtype" : "attack",
