@@ -981,7 +981,7 @@ void BattleOnlyModeTab::startBattle()
 	const auto fullPath = path / fileName;
 	CMapService mapService;
 	mapService.saveMap(map, fullPath);
-	CResourceHandler::get()->updateFilteredFiles([&](const std::string & mount) { return true; });
+	CResourceHandler::get()->updateFilteredFiles([&](const std::string & mount) { return boost::algorithm::starts_with(mount, "MAPS/"); });
 
 	auto mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->mapInit("Maps/BattleOnlyMode");

@@ -16,6 +16,19 @@
 				}
 			]
 		},
+		"author" : {
+			"description" : "Author of the mod, or list of authors. Can be nickname, real name or name of team",
+			"oneOf" : [
+				{
+					"type" : "string"
+				},
+				{
+					"type" : "array",
+					"minItems" : 1,
+					"items" : { "type" : "string" }
+				}
+			]
+		},
 		"localizable" : {
 			"type" : "object",
 			"additionalProperties" : false,
@@ -29,8 +42,7 @@
 					"description" : "More lengthy description of mod. No hard limit"
 				},
 				"author" : {
-					"type" : "string",
-					"description" : "Author of the mod. Can be nickname, real name or name of team"
+					"$ref" : "#/definitions/author"
 				},
 				"changelog" : {
 					"type" : "object",
@@ -39,6 +51,12 @@
 						"type" : "array",
 						"items" : { "type" : "string" }
 					}
+				},
+				"progress" : {
+					"type" : "number",
+					"minimum" : 0,
+					"maximum" : 100,
+					"description" : "Set by mod repository. Percentage of mod strings translated into this language"
 				},
 				"skipValidation" : {
 					"type" : "boolean",
@@ -72,12 +90,36 @@
 			"description" : "Type of mod, e.g. Town, Artifacts, Graphical."
 		},
 		"author" : {
-			"type" : "string",
-			"description" : "Author of the mod. Can be nickname, real name or name of team"
+			"$ref" : "#/definitions/author"
 		},
 		"downloadSize": {
 			"type" : "number",
 			"description" : "Approximate size of mod, compressed by zip algorithm, in Mb"
+		},
+		"mod" : {
+			"type" : "string",
+			"description" : "Set by mod repository. URL to mod.json of this mod"
+		},
+		"download" : {
+			"type" : "string",
+			"description" : "Set by mod repository. URL to zip archive with this mod"
+		},
+		"screenshots" : {
+			"type" : "array",
+			"description" : "Set by mod repository. List of URLs to screenshots of this mod",
+			"items" : { "type" : "string" }
+		},
+		"githubStars" : {
+			"type" : "number",
+			"description" : "Set by mod repository. Number of stars of mod repository on GitHub"
+		},
+		"updateDate" : {
+			"type" : "string",
+			"description" : "Set by mod repository. Time of latest mod release, in UTC ISO 8601 format"
+		},
+		"validated" : {
+			"type" : "boolean",
+			"description" : "Set by mod repository. Whether this mod passed automatic validation on its release"
 		},
 		"contact" : {
 			"type" : "string",

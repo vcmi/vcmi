@@ -53,6 +53,8 @@ private:
 	std::string mountPoint;
 	
 	size_t recursiveDepth;
+	/// If true, only files that are needed to discover mods and archives are listed
+	bool initial;
 
 	/** A list of files in the directory
 	 * key = ResourcePath for resource loader
