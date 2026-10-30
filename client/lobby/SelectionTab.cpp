@@ -629,9 +629,17 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 		std::string mapVersion;
 		const std::string fileDateTime = TextOperations::getFormattedDateTimeLocal(curItems[py]->lastWrite);
 		std::string authorContact;
+		std::string mapFile;
+		std::optional<CampaignScenarioID> campaignScenario;
 		if(tabType != ESelectionScreen::campaignList)
 		{
 			const ScenarioListEntry & entry = *curItems[py]->entry;
+			if(tabType == ESelectionScreen::newGame)
+				mapFile = entry.fileURI;
+			else
+				mapFile = entry.getMapFileInSave();
+			if(entry.isCampaignSave())
+				campaignScenario = CampaignScenarioID(entry.getCampaignScenarioInSave());
 			author = entry.getMapAuthor(&GAME->translator());
 			authorContact = entry.getMapAuthorContact(&GAME->translator());
 			mapVersion = entry.getMapVersion(&GAME->translator());
@@ -654,7 +662,8 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 			creationDateTime,
 			author,
 			mapVersion,
-			ResourcePath(curItems[py]->fileURI),
+			mapFile,
+			campaignScenario,
 			tabType
 		);
 	}
@@ -1289,6 +1298,10 @@ std::string SelectionTab::getFullFileURI(const ElementInfo & item) const
 		resType = EResType::CAMPAIGN;
 
 	const ResourcePath resource(item.fileURI, resType);
+
+	// the list comes from the server, which may have files that the client does not
+	if(!CResourceHandler::get()->existsResource(resource))
+		return item.entry ? item.entry->originalFileURI : item.fileURI;
 
 	return CResourceHandler::get()->getFullFileURI(resource);
 }

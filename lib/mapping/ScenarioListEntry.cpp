@@ -158,3 +158,13 @@ int ScenarioListEntry::getHumanPlayersInSave() const
 {
 	return metadata["game"]["humanPlayers"].Integer();
 }
+
+std::string ScenarioListEntry::getMapFileInSave() const
+{
+	return metadata["game"]["mapFile"].String();
+}
+
+int ScenarioListEntry::getCampaignScenarioInSave() const
+{
+	return metadata["game"]["campaignScenario"].Integer();
+}

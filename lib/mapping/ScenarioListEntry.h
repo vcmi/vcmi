@@ -59,6 +59,10 @@ public:
 	bool isCampaignSave() const;
 	bool isTutorialSave() const;
 	int getHumanPlayersInSave() const;
+	/// Returns map of the saved game, or campaign file for campaign saves; empty for random maps
+	std::string getMapFileInSave() const;
+	/// Returns current scenario of a campaign save
+	int getCampaignScenarioInSave() const;
 
 	template<typename Handler>
 	void serialize(Handler & h)
