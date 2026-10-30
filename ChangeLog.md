@@ -16,6 +16,7 @@
 * Added support for HotA scripting (Extended Event System)
 * Added support for Lithuanian and Norwegian languages
 * Added support for HotA Quest Gates, Seer Huts with multiple quests, and quests limited by game difficulty
+* Added support for HotA fixed hero levels, heroes not gaining experience, and heroes not receiving random skill on map start flags in map format
 * Implemented better save management logic - each playthrough now stores its saves, including autosaves, in its own dedicated directory
 * Added Scenario Event Journal, available from the Quest Log, that records all event messages the player has received since the start of the game
 
@@ -31,6 +32,12 @@
 * Fixed freeze when an Arrow Tower gets its turn while under `HP_REGENERATION` effect
 * Fixed possible crash if hero moves to the top-left corner of the map
 * Fixed possible crashes if the path to the game directory contains non-ASCII characters on some systems
+* Fixed crash on attempt to use modded Whirlpool or Subterranean Gate with no visitable tiles
+* Fixed crash on parsing of some user-made HotA maps that use hota scripting system
+* Fixed rare crash on user-made maps that have multiple towns on the same map tile
+* Fixed rare crash on rebalancing stacks when stack experience is active
+* Fixed possible crash if no units can act in the current round
+* Fixed possible memory corruption during sound playback
 
 ### Performance
 
@@ -42,6 +49,9 @@
 * Fixed slow initialization of a large map with a large number of monoliths
 * Slightly improved performance of saving and loading of games
 * Fixed unstable framerate, most notably on Android
+* Save games are now compressed, reducing their disk usage several times
+* Improved performance of generating shadow and overlay images
+* Improved performance of importing .zip archives in the Launcher
 
 ### Interface - General
 
@@ -57,6 +67,7 @@
 * Taskbar icon now blinks when the player's turn starts and the app is inactive or minimized
 * VCMI can now run in the background on Android, allowing a multiplayer session to be hosted even when focus is switched to another app
 * It is now possible to manage VCMI data with file managers on Android
+* Fixed inability to maximize the game window after leaving fullscreen mode
 
 ### Interface - Adventure Map
 
@@ -70,6 +81,7 @@
 * Added a hotkey to export the current in-game map, including any fog of war
 * Added support for scrolling the map with the keyboard, by default bound to Ctrl+arrow keys
 * Fixed text shown in a Pyramid if the hero already knows the spell
+* Fixed bug where Seer Huts would display incorrect portraits for heroes with custom portrait for "be a hero" mission
 
 ### Interface - Towns and Windows
 
@@ -84,6 +96,9 @@
 * Hover text on creature growth icons in the town window will now show both growth and available units
 * Fixed inability to switch between equipped, misc, and backpack artifact categories on the kingdom overview screen
 * Simplified text in town building requirements to bring it more in line with H3
+* Fixed ordering of animations played in the unit information window
+* Escape key now closes the Hero Exchange window
+* Escape key now closes the game statistics window
 
 ### Interface - Pregame
 
@@ -96,9 +111,11 @@
 * Clicking on a label in the random map and extra options windows now toggles its checkbox as well
 * Scalable main menu will now resize correctly on resolution change or phone orientation flip
 * Fixed bug where long list of spells added to hero in battle-only mode would cause dialog to overflow screen height
+* Fixed selection of banned starting heroes using mouse wheel scrolling in the lobby
 
 ### Interface - Combat
 
+* Implemented better control scheme for game controller usage
 * It is now possible to target units by clicking on them in the battle queue
 * Added hover text for quick spell buttons
 * Spellbook can now support unlimited custom spell schools with some UI overlap
@@ -112,6 +129,12 @@
 * Added hotkeys to toggle grid, mouse shadow, movement shadow, and stack info, with a corresponding toggle in settings
 * Added better control system for combat interface when using gamepad / controller as input
 * Fixed inability to click on the defending hero to open his or her spellbook
+* Fixed Sacrifice spell targeting
+* Movement sound playback in battle will now be paused while the unit information window is open
+* Game will now correctly estimate whether a petrified unit will retaliate
+* Fixed turn timers appearing corrupted in PvP battles until the first unit gets its turn
+* Shooting range preview for double-wide units now shows the same information for both hexes occupied by the unit
+* Active spell descriptions in the unit window now show the description for the correct mastery level instead of basic
 
 ### Interface - Spell Animations
 
@@ -146,6 +169,15 @@
 * Game will now correctly handle cases where the map loss condition is "hero is lost", but the hero only joins the player midway, when rescued from prison (H3 behavior)
 * Fixed handling of the daily cast limit for spells that only give bonuses to the player (modded spells only)
 * Added support for maps that have "Lose a hero" loss condition targeting a hero who starts the map in a prison
+* Conflux upgraded level 4 dwelling requires upgraded level 2 dwelling
+* Fixed spell scrolls corruption when artifact transfers to next scenario in campaign
+* Starting tutorial now gives correct amount of starting resources instead of inheriting difficulty of the last game
+* Special terrains now affect heroes on the adventure map, allowing effects like Cursed Ground or Magic Plains to affect adventure map spells
+* Factions from mods are now available as starting towns if the map bans less than half of all factions
+* Maps with the "build a Grail in a specific town" victory condition now block Grail construction in all other towns, in line with H3
+* Added support for random towns that exclude the faction of a specific player on HotA maps
+* Added support for town events that affect neutral towns on HotA maps
+* Added support for building or banning faction-specific buildings in towns on HotA maps
 
 ### Mechanics - Heroes and Artifacts
 
@@ -160,6 +192,12 @@
 * Equipping Titan's Thunder will now correctly grant a Spellbook in all situations
 * Artifacts increasing unit speed in combat no longer increase the hero's movement points limit
 * Implemented paid commander resurrection on town visit
+* Visiting allied hero standing in town gates now open exchange window instead of town window
+* Count Knowledge instead of Defense twice in campaign hero power comparison
+* Fixed several cases in which it was possible to perform illegal unit transfer such as take units from an ally during exchange
+* Random artifacts on maps that ban all artifacts of a specific class will now correctly roll an artifact of another class instead of the Grail
+* Added support for banning assembly of specific combined artifacts on HotA maps
+
 
 ### Mechanics - Adventure Map Objects
 
@@ -176,6 +214,13 @@
 * Fixed a bug where the initial number of creatures available in neutral towns was halved
 * Implemented wandering monster join percentage configuration on HotA .h3m maps
 * Fixed bug allowing to cast adventure map spells granted by artifacts without a spellbook
+* Seer Huts that grant mana points will now correctly grant it over the mana pool limit, in line with H3
+* List of hero classes accepted by "be a hero class" Seer Hut mission from HotA now correctly shown in quest description
+* Wagon gives 2-5 resources as in original H3
+* Fix amounts in resource piles: 5-10 wood/ore, 3-6 rare resources
+* Summon Boat prefers boat last used by the caster, then nearest by Manhattan distance, and ignores boats owned by other players as in original H3
+* Do not apply general hero speed specialties to adventure map movement
+* Added support for custom quest timeout messages on HotA maps
 
 ### Mechanics - Combat
 
@@ -192,6 +237,18 @@
 * Fixed a rare bug where a creature with a specialty effect could act in incorrect turn order
 * Surrender costs should now match H3
 * Dendroid Bind effect is now correctly removed as soon as binding unit dies or moves away
+* Berserked unit will no longer attempt to move towards invincible unit
+* Do not grant experience for destroyed war machines
+* Set Black Knight and Dread Knight curse chance to 25% as in original
+* Mage has no wall shooting penalty as in original H3
+* Faerie Dragon casts Magic Arrow with weight 10 as in original H3
+* Ogre Mage casts Bloodlust with power 6 as in original H3
+* Master Genie casts spells with power 6 as in original H3
+* Enchanter also casts Bloodlust and Cure, spells are selected with weights as in original H3
+* First Aid Tent heals random amount from 1 to maximum as in original H3
+* Do not place random Land Mine and Quicksand patches on hexes with dead units
+* Fixed a rare case where a double-wide unit standing in the moat could not attack an enemy
+* Commanders in creature banks have been moved to a different position to prevent overlaps with double-wide units
 
 ### Mechanics - Spells and Abilities
 
@@ -211,6 +268,10 @@
 * Mummy curse triggers with 25% chance instead of 50%, in line with H3
 * Magic Plains now raise spells cast by creatures to expert level, unlike battlefields of a specific magic school
 * Fixed bug where charged artifacts charges were not restored on restarting a combat
+* Pegasus and Mage abilities that modify spell cost now remain active even if the unit is dead
+* Creature abilities now correctly respect spell immunities and battlefield magic blocks, in line with H3
+* Fixed numerous issues with the Hypnotize spell, bringing it in line with H3
+* It is no longer possible to use the Pit Lord ability on a dead commander
 
 ### Random Maps Generator
 
@@ -245,12 +306,20 @@
 * Fixed a bug where AI could leave a scout with a suboptimal unit instead of picking the unit with the lowest AI value (if units are equal with regard to other relevant parameters)
 * Improved performance of the Nullkiller AI pathfinder
 * AI will now correctly upgrade units of the army garrisoned in a town
+* AI will now correctly account for presence of allied hero in town when planning town defense
+* Fixed AI getting stuck in whirlpool when attempting to chain heroes
+* If hero chain fails to complete, AI will now recover from it instead of treating movement as success
 * Fixed memory leak in NKAI
 * NKAI will no longer retreat with a scenario-critical hero or when the player owns no tavern
 * NKAI should no longer attempt to interact with other players during simultaneous turns
+* Fixed several cases where AI was unable to determine quest completion conditions
+* Fixed rare crash where AI could move hero out of town without clearing visitation state
+* Fixed several bugs where NKAI would make incorrect decision due to attempting to read information it has no access to
+
 
 ### Combat AI
 
+* Implemented new version of MMAI
 * Removed support for old versions of MMAI mod
 * Added support for additional, siege-only models for MMAI
 * Battle AI and MMAI can now use basic tactics logic
@@ -260,6 +329,11 @@
 * Fixed estimation of Resurrection cost by BattleAI
 * AI will now prefer cheaper spells if all damaging spells deal the same damage (e.g. if the entire stack is killed)
 * AI now correctly estimates the number of retaliations when computing the result of a duel where the attacker has multiple attacks
+* AI will no longer attempt to move towards invincible unit
+* Fixed several bugs where Battle AI would make incorrect decision due to attempting to read information it has no access to
+* BattleAI will now retreat from endless battles if it can't inflict losses for 30 rounds
+* BattleAI can now use the Earthquake spell to create a breach in the wall
+* Fixed AI attempting to use Ballista in melee after it runs out of ammo
 
 ### Launcher
 
@@ -273,6 +347,10 @@
 * Launcher will now correctly preserve state of submods and other mods during mod updates
 * Blocked uninstall of mods in read-only directories
 * Blocked uninstall of mods that are clone of git repository
+* Automatic detection of system proxy has been replaced with manual configuration
+* Fixed progress bar not progressing during mod repository checkout
+* Improved speed of mod repository checkout
+* Launcher now shows translation progress for mods that provide this information
 
 ### Map Editor
 
@@ -289,6 +367,10 @@
 * Victory condition "Capture all mines" can now be correctly configured in the editor
 * It is now possible to configure wandering monster properties added in HotA in the map editor
 * Map object rendering order should now match the client
+* It is now possible to open campaigns via command line, (or on Windows - by drag-and-drop of map onto VCMI Editor executable)
+* Fixed object image positions in preview and object browser
+* Fix time expired loss condition in map editor
+* Changed the object browser from a tree view to an icon grid, like in H3
 
 ### Modding - General
 
@@ -308,6 +390,9 @@
 * Added support for per-terrain rumors for hints on Grail location
 * It is now possible to translate bonus descriptions in configurable map objects
 * It is now possible to translate random map template descriptions
+* Added support for dedicated spell cast sound for creatures
+* Authors in mod.json can now be specified as a list
+* Fixed `anyOf` block in spell `targetCondition` always being satisfied
 
 ### Modding - Bonus System
 
@@ -316,6 +401,7 @@
 * Added `SURRENDER_MARKETPLACE_ACCESS` to allow opening the marketplace when the player doesn't have enough gold to pay to leave battle
 * Added `DIPLOMACY_ARMY_STRENGTH_MULTIPLIER` that provides an army strength modifier for the join-or-flee decision of neutral creatures
 * Added `COMBAT_EVENT_TRIGGER` bonus that allows attaching combat scripts to units
+* Added `GRANTS_SPELLBOOK` bonus that grants spellbook if artifact with such bonus is equipped by the hero
 * Added hero specialty shortcut `spellScalingPercentage` (with optional `spellScalingVal`) — a damage/heal spell specialty that scales with hero level per target creature level (for `SPECIAL_SPELL_LEV` -> `SPECIAL_SPELL_SCALING` specialties)
 * Added hero specialty shortcut `spellFixedAdditive` (with optional `spellFixedValues`) — a buff/debuff spell specialty with a fixed per-tier amount (for `SPECIAL_PECULIAR_ENCHANT`-like specialties)
 * `SPECIAL_PECULIAR_ENCHANT` can now specify an explicit per-creature-tier array of bonus values in `addInfo`, instead of only the standard 3/3/2/2/1/1/0 bracket
@@ -331,6 +417,7 @@
 * Added `BLOCK_CREATURE_MAGIC` and `BLOCK_NATIVE_TERRAIN_BONUS` bonus types to handle H3 magical terrains edge cases
 * `PERCENT_TO_TARGET_TYPE` now supports `targetSourceID` to only affect bonuses granted by a specific source
 * `SPECIAL_UPGRADE` can now configure an upgrade cost multiplier in its `val` field
+* `SPECIAL_UPGRADE` can now use limiters to specify affected creatures
 * `SPELL` bonus now supports `addInfo`. If set to true, spell granted by bonus will be possible to cast even without spellbook presence
 
 ### Modding - Scripting
