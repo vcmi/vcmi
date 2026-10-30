@@ -16,7 +16,6 @@
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonNode.h"
-#include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
 static std::string getModDirectory(const TModID & modName)
@@ -821,7 +820,7 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 	// Mod is resolved if it has no dependencies or all its dependencies are already resolved
 	auto isResolved = [&](const ModDescription & mod) -> ModResolveStatus
 	{
-		if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage())
+		if (mod.isTranslation() && Languages::getPreferredLanguage() != mod.getBaseLanguage())
 			return ModResolveStatus::BROKEN;
 
 		if(!mod.isCompatible())

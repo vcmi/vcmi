@@ -30,6 +30,7 @@
 #include "mapping/CMapService.h"
 #include "modding/ModDescription.h"
 #include "texts/CGeneralTextHandler.h"
+#include "texts/Languages.h"
 #include "texts/TextOperations.h"
 #include "../luascript/LuaModule.h"
 
@@ -222,7 +223,7 @@ static void generateTranslations(const std::string & modID)
 
 		if (!output.isNull())
 		{
-			std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
+			std::string preferredLanguage = Languages::getPreferredLanguage();
 			std::string filename = boost::replace_all_copy(modEntry.first, ".", "/Mods/");
 			const boost::filesystem::path dirPath = outPath / filename / "Content/translation/";
 			boost::filesystem::create_directories(dirPath);

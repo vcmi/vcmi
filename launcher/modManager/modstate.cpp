@@ -12,7 +12,6 @@
 
 #include "../../lib/modding/ModDescription.h"
 #include "../../lib/json/JsonNode.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
 #include "../../lib/texts/TextOperations.h"
 
@@ -257,7 +256,7 @@ bool ModState::isVisible() const
 bool ModState::isHidden() const
 {
 	if (isTranslation() && !isInstalled())
-		return impl.getBaseLanguage() != CGeneralTextHandler::getPreferredLanguage();
+		return impl.getBaseLanguage() != Languages::getPreferredLanguage();
 
 	return isCompatibility() || getID() == "vcmi" || getID() == "core";
 }

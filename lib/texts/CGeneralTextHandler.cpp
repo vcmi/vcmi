@@ -324,22 +324,10 @@ int32_t CGeneralTextHandler::pluralText(const int32_t textIndex, const int32_t c
 	return textIndex + 1;
 }
 
-std::string CGeneralTextHandler::getPreferredLanguage()
-{
-	assert(!settings["general"]["language"].String().empty());
-	return settings["general"]["language"].String();
-}
-
 std::string CGeneralTextHandler::getInstalledLanguage()
 {
 	assert(!settings["session"]["language"].String().empty());
 	return settings["session"]["language"].String();
-}
-
-std::string CGeneralTextHandler::getInstalledEncoding()
-{
-	assert(!settings["session"]["encoding"].String().empty());
-	return settings["session"]["encoding"].String();
 }
 
 LegacyTextContainer::LegacyTextContainer(CGeneralTextHandler & owner, std::string basePath):

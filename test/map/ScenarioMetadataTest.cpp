@@ -13,6 +13,7 @@
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/mapping/ScenarioMetadata.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/Languages.h"
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextLocalizationContainer.h"
 
@@ -52,7 +53,7 @@ TEST(ScenarioMetadataTest, modsAreGroupedByRootMod)
 
 TEST(ScenarioMetadataTest, textUsesPreferredLanguage)
 {
-	const std::string preferred = CGeneralTextHandler::getPreferredLanguage();
+	const std::string preferred = Languages::getPreferredLanguage();
 	const std::string other = preferred == "polish" ? "czech" : "polish";
 
 	JsonNode text;
@@ -80,6 +81,6 @@ TEST(ScenarioMetadataTest, textOfTranslationModIsPreferredOverTextOfMap)
 
 	JsonNode text;
 	MetaString::createFromTextID(textID.get()).jsonSerialize(text["text"]);
-	text["translations"][CGeneralTextHandler::getPreferredLanguage()].String() = "text of the map";
+	text["translations"][Languages::getPreferredLanguage()].String() = "text of the map";
 	EXPECT_EQ(ScenarioMetadata::textToString(text, LIBRARY->generaltexth.get()), "translated by mod");
 }

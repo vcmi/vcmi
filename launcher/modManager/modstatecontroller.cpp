@@ -20,7 +20,7 @@
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/json/JsonNode.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/Languages.h"
 
 #include "../../vcmiqt/jsonutils.h"
 #include "../../vcmiqt/launcherdirs.h"
@@ -266,7 +266,7 @@ bool ModStateController::canEnableMod(QString modname)
 	if(!mod.isCompatible())
 		return addError(modname, tr("Mod is not compatible, please update VCMI and check the latest mod revisions"));
 
-	if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString())
+	if (mod.isTranslation() && Languages::getPreferredLanguage() != mod.getBaseLanguage().toStdString())
 		return addError(modname, tr("Can not enable translation mod for a different language!"));
 
 	for(const auto & modEntry : mod.getDependencies())
