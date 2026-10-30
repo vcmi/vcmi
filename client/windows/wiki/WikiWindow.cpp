@@ -525,7 +525,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 			const auto iconFrame = (mapHero && mapHero->customPortraitSource.isValid())
 				? (size_t)mapHero->getPortraitSource().toHeroType()->getIconIndex()
 				: (size_t)hero->getIconIndex();
-			const std::string heroClassName = hero->heroClass ? hero->heroClass->getNameTranslated() : "";
+			const std::string heroClassName = hero->getHeroClass() ? hero->getHeroClass()->getNameTranslated() : "";
 			categoryEntries[iHero].push_back({
 				hero->getJsonKey(), name, "",
 				WikiIconInfo{ AnimationPath::builtin("PortraitsSmall"), iconFrame, 0 },

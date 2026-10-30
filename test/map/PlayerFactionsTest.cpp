@@ -22,7 +22,7 @@ class PlayerFactionsTest : public TinyMapGameTest
 protected:
 	const PlayerColor player = PlayerColor(0);
 
-	Services * gameServices() override { return LIBRARY; }
+	const Services * gameServices() override { return LIBRARY; }
 
 	const std::set<FactionID> & loadFactions(uint32_t mask)
 	{

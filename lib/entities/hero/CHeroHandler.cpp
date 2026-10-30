@@ -11,6 +11,7 @@
 #include "CHeroHandler.h"
 
 #include "CHero.h"
+#include "CHeroClassHandler.h"
 
 #include "../../GameLibrary.h"
 #include "../../constants/StringConstants.h"
@@ -71,9 +72,9 @@ std::shared_ptr<CHero> CHeroHandler::loadFromJson(LibraryLoadContext & context, 
 	loadHeroSpecialty(context, hero.get(), node);
 
 	context.resolver.requestIdentifier("heroClass", node["class"],
-	[=](si32 classID)
+	[hero, &context](si32 classID)
 	{
-		hero->heroClass = HeroClassID(classID).toHeroClass();
+		hero->heroClass = (*context.lib.heroclassesh)[classID];
 	});
 
 	return hero;
@@ -142,7 +143,7 @@ void CHeroHandler::loadHeroSkills(LibraryLoadContext & context, CHero * hero, co
 std::vector<std::shared_ptr<Bonus>> CHeroHandler::createCreatureSpecialty(LibraryLoadContext & context, CreatureID cid, int fixedLevel, int growthPerStep) const
 {
 	std::vector<std::shared_ptr<Bonus>> result;
-	const auto & specCreature = *cid.toCreature();
+	const auto & specCreature = *(*context.lib.creh)[cid];
 
 	if (fixedLevel == 0)
 		fixedLevel = specCreature.getLevel();

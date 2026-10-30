@@ -97,12 +97,12 @@ public:
 		{
 			if(!structure || structure->defName.empty())
 				continue;
-			if(!structure->building)
+			if(!structure->getBuilding())
 			{
 				toRender.push_back(structure.get());
 				continue;
 			}
-			groups[structure->building->getBase()].push_back(structure.get());
+			groups[structure->getBuilding()->getBase()].push_back(structure.get());
 		}
 
 		for(auto & [baseId, group] : groups)
@@ -115,8 +115,8 @@ public:
 				group,
 				[base](const CStructure * a, const CStructure * b)
 				{
-					return base->getDistance(a->building->bid)
-					     < base->getDistance(b->building->bid);
+					return base->getDistance(a->getBuilding()->bid)
+					     < base->getDistance(b->getBuilding()->bid);
 				});
 			toRender.push_back(best);
 		}
@@ -452,10 +452,10 @@ static void addHeroesTable(
 
 	for(const auto & h : LIBRARY->heroh->objects)
 	{
-		if(!h || h->special || !h->heroClass) continue;
-		if(h->heroClass->faction != factionId) continue;
-		HeroData hd{h.get(), h->heroClass->getNameTranslated()};
-		if(h->heroClass->affinity == CHeroClass::MAGIC)
+		if(!h || h->special || !h->getHeroClass()) continue;
+		if(h->getHeroClass()->faction != factionId) continue;
+		HeroData hd{h.get(), h->getHeroClass()->getNameTranslated()};
+		if(h->getHeroClass()->affinity == CHeroClass::MAGIC)
 			magicHeroes.push_back(hd);
 		else
 			mightHeroes.push_back(hd);

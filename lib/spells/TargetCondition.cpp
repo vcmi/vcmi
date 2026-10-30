@@ -20,7 +20,6 @@
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../GameLibrary.h"
 
 #include <vcmi/spells/Spell.h>
 
@@ -312,7 +311,14 @@ protected:
 
 class DefaultTargetConditionItemFactory : public TargetConditionItemFactory
 {
+	const CIdentifierStorage & identifiers;
+
 public:
+	explicit DefaultTargetConditionItemFactory(const CIdentifierStorage & identifiers)
+		: identifiers(identifiers)
+	{
+	}
+
 	Object createAbsoluteLevel() const override
 	{
 		static const auto antimagicCondition = std::make_shared<AbsoluteLevelCondition>();
@@ -353,7 +359,7 @@ public:
 	{
 		if(type == "bonus")
 		{
-			std::optional bonusID(LIBRARY->identifiers()->getIdentifier(scope, "bonus", identifier, true));
+			std::optional bonusID(identifiers.getIdentifier(scope, "bonus", identifier, true));
 			if (bonusID)
 				return std::make_shared<SelectorCondition>(Selector::type()(static_cast<BonusType>(*bonusID)));
 			else
@@ -361,7 +367,7 @@ public:
 		}
 		else if(type == "creature")
 		{
-			auto rawId = LIBRARY->identifiers()->getIdentifier(scope, type, identifier, true);
+			auto rawId = identifiers.getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<CreatureCondition>(CreatureID(rawId.value()));
@@ -370,7 +376,7 @@ public:
 		}
 		else if(type == "spell")
 		{
-			auto rawId = LIBRARY->identifiers()->getIdentifier(scope, type, identifier, true);
+			auto rawId = identifiers.getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<SpellEffectCondition>(SpellID(rawId.value()));
@@ -402,10 +408,9 @@ public:
 	}
 };
 
-const TargetConditionItemFactory * TargetConditionItemFactory::getDefault()
+std::unique_ptr<TargetConditionItemFactory> TargetConditionItemFactory::create(const CIdentifierStorage & identifiers)
 {
-	static const std::unique_ptr<TargetConditionItemFactory> singleton = std::make_unique<DefaultTargetConditionItemFactory>();
-	return singleton.get();
+	return std::make_unique<DefaultTargetConditionItemFactory>(identifiers);
 }
 
 bool TargetCondition::isReceptive(const Mechanics * m, const battle::Unit * target) const

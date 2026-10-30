@@ -279,7 +279,7 @@ TinyH3MBuilder & TinyH3MBuilder::hero(const int3 & pos, HeroTypeID type, PlayerC
 	// The HERO object template is keyed by hero *class* (Heroes.txt ships one row per
 	// class, subid 0..17). The hero's actual identity is written separately in the
 	// object body (writeHeroBody / CMapLoaderH3M::readHero) and is what the loader uses.
-	spec.subid         = MapObjectSubID(type.toHeroType()->heroClass->getIndex());
+	spec.subid         = MapObjectSubID(type.toHeroType()->getHeroClass()->getIndex());
 	spec.position      = pos;
 	spec.owner         = owner;
 	spec.heroType      = type;

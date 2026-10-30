@@ -500,7 +500,7 @@ void CInteractableTownTooltip::init(const CGTownInstance * town)
 		}
 	});
 	{
-		const std::string factionKey = town->getTown()->faction->getJsonKey();
+		const std::string factionKey = town->getTown()->getFaction()->getJsonKey();
 		fastWiki = std::make_shared<LRClickableArea>(Rect(3, 2, 58, 64), [factionKey]()
 		{
 			ENGINE->windows().createAndPushWindow<WikiWindow>(

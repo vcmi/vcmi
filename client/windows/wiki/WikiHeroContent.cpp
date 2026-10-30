@@ -83,13 +83,13 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 		// Gender: ♂/♀ Unicode glyphs if supported by font, else translatable fallback
 		const std::string genderSpan = wikiGenderSpan(hero->gender == EHeroGender::FEMALE);
 
-		const std::string className = hero->heroClass ? hero->heroClass->getNameTranslated() : "";
+		const std::string className = hero->getHeroClass() ? hero->getHeroClass()->getNameTranslated() : "";
 
 		// Alignment as colored inline span using {#RRGGBB|text} syntax
 		std::string alignSpan;
-		if(hero->heroClass)
+		if(hero->getHeroClass())
 		{
-			switch(hero->heroClass->getAlignment())
+			switch(hero->getHeroClass()->getAlignment())
 			{
 				case EAlignment::GOOD:    alignSpan = "{#00C800|" + LIBRARY->generaltexth->translate("vcmi.wiki.alignment.good")    + "}"; break;
 				case EAlignment::EVIL:    alignSpan = "{#DC3232|" + LIBRARY->generaltexth->translate("vcmi.wiki.alignment.evil")    + "}"; break;
@@ -159,7 +159,7 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 	}
 
 	// ── 3. Primary skills table ─────────────────────────────────────────
-	if(hero->heroClass)
+	if(hero->getHeroClass())
 	{
 		curY += 16;
 		const std::vector<std::string> psNames = {
@@ -182,8 +182,8 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 				MARGIN + CELL_L, ry + CELL_T,
 				FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE,
 				psNames[i]));
-			const int val = (i < (int)hero->heroClass->primarySkillInitial.size())
-				? hero->heroClass->primarySkillInitial[i] : 0;
+			const int val = (i < (int)hero->getHeroClass()->primarySkillInitial.size())
+				? hero->getHeroClass()->primarySkillInitial[i] : 0;
 			widgets.push_back(std::make_shared<CLabel>(
 				MARGIN + colLbl + CELL_L, ry + CELL_T,
 				FONT_SMALL, ETextAlignment::TOPLEFT, valCol,

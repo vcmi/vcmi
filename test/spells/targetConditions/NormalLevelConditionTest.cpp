@@ -11,6 +11,8 @@
 
 #include "TargetConditionItemFixture.h"
 
+#include "../../../lib/GameLibrary.h"
+
 namespace test
 {
 using namespace ::spells;
@@ -35,7 +37,7 @@ public:
 	{
 		TargetConditionItemTest::SetUp();
 
-		subject = TargetConditionItemFactory::getDefault()->createNormalLevel();
+		subject = TargetConditionItemFactory::create(*LIBRARY->identifiers())->createNormalLevel();
 	}
 };
 

@@ -92,7 +92,7 @@ void StartingBonus::initControls()
 
 			if(town->pos == map->players[color].posOfMainTown)
 			{
-				if(town->getTown()->faction->getId() == FactionID::NEUTRAL)
+				if(town->getTown()->getFaction()->getId() == FactionID::NEUTRAL)
 				{
 					ui->comboBoxBuildingBuilding->addItem(tr("Main town is of random faction"), QVariant(BuildingID::NONE));
 					ui->comboBoxBuildingBuilding->setEnabled(false);

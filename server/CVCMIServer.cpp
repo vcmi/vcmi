@@ -1087,7 +1087,7 @@ bool CVCMIServer::canUseThisHero(PlayerColor player, HeroTypeID ID)
 	if (ID.getNum() >= LIBRARY->heroh->size())
 		return false;
 
-	if (si->playerInfos[player].castle != ID.toHeroType()->heroClass->faction)
+	if (si->playerInfos[player].castle != ID.toHeroType()->getHeroClass()->faction)
 		return false;
 
 	if (vstd::contains(getUsedHeroes(), ID))

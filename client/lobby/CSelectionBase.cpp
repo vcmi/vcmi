@@ -552,7 +552,7 @@ void TownSelector::updateListItems()
 				townsEnabled[factionID] = !townsEnabled[factionID];
 				towns[factionID]->setFrame(getImageIndex(factionID, townsEnabled[factionID]));
 				redraw();
-			}, [factionID](){ CRClickPopup::createAndPush(factionID.toFaction()->town->faction->getNameTranslated()); });
+			}, [factionID](){ CRClickPopup::createAndPush(factionID.toFaction()->town->getFaction()->getNameTranslated()); });
 		}
 
 		if (x < 2)

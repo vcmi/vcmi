@@ -162,7 +162,7 @@ void Initializer::initialize(CGHeroInstance * o)
 	{
 		for(auto const & t : LIBRARY->heroh->objects)
 		{
-			if(t->heroClass->getId() == HeroClassID(o->subID))
+			if(t->getHeroClass()->getId() == HeroClassID(o->subID))
 			{
 				o->subID = t->getId();
 				break;
@@ -349,7 +349,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 		{
 			if(controller.map()->allowedHeroes.count(heroPtr->getId()) != 0)
 			{
-				if(o->ID == Obj::PRISON || heroPtr->heroClass->getIndex() == o->getHeroClassID())
+				if(o->ID == Obj::PRISON || heroPtr->getHeroClass()->getIndex() == o->getHeroClassID())
 				{
 					delegate->options.push_back({QObject::tr(heroPtr->getNameTranslated().c_str()), QVariant::fromValue(heroPtr->getIndex())});
 				}
@@ -815,7 +815,7 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 				o->subID = value.toInt();
 		}
 		o->gender = o->getHeroType()->gender;
-		o->randomizeArmy(o->getHeroType()->heroClass->faction);
+		o->randomizeArmy(o->getHeroType()->getHeroClass()->faction);
 		updateProperties(); //updating other properties after change
 	}
 

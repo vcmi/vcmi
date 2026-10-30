@@ -110,7 +110,7 @@ HeroTypeID CGameState::pickUnusedHeroTypeRandomly(vstd::RNG & randomGenerator, c
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
 	for(const HeroTypeID & hid : getUnusedAllowedHeroes())
 	{
-		if(hid.toHeroType()->heroClass->faction == ps.castle && isHeroAllowedForPlayer(hid, owner))
+		if(hid.toHeroType()->getHeroClass()->faction == ps.castle && isHeroAllowedForPlayer(hid, owner))
 			factionHeroes.push_back(hid);
 		else if (isHeroAllowedForPlayer(hid, owner))
 			otherHeroes.push_back(hid);
@@ -182,7 +182,7 @@ void CGameState::setSaveDirectory(const std::string & value)
 		initialOpts->campState->setSaveDirectory(value);
 }
 
-void CGameState::preInit(Services * newServices)
+void CGameState::preInit(const Services * newServices)
 {
 	services = newServices;
 }
@@ -661,7 +661,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 
 	if (!hero)
 	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
+		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->getHeroClass()->getIndex());
 		auto object = handler->create(this, handler->getTemplates().front());
 		hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
 		hero->ID = Obj::HERO;

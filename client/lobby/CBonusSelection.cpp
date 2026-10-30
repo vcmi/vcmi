@@ -243,7 +243,7 @@ void CBonusSelection::createBonusesIcons()
 				assert(faction.hasValue());
 
 				for (const auto & townStructure : faction.toFaction()->town->clientInfo.structures)
-					if (townStructure->building && townStructure->building->bid == buildID)
+					if (townStructure->getBuilding() && townStructure->getBuilding()->bid == buildID)
 						picName = townStructure->campaignBonus.getOriginalName();
 
 				picNumber = -1;

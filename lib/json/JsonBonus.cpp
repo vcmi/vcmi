@@ -20,7 +20,6 @@
 #include "../bonuses/Updaters.h"
 #include "../bonuses/BonusMigration.h"
 #include "../bonuses/BonusParameters.h"
-#include "../CBonusTypeHandler.h"
 #include "../constants/StringConstants.h"
 #include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
@@ -58,7 +57,7 @@ const T parseByMapN(const std::map<std::string, T> & map, const JsonNode * val, 
 		return parseByMap<T>(map, val, err);
 }
 
-static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const JsonNode & node, IIdentifierResolver & resolver)
+static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const std::string & typeName, const JsonNode & node, IIdentifierResolver & resolver)
 {
 	if (node.isNull())
 	{
@@ -84,7 +83,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 
 	if(entityType == EntityTypeEnum::NONE)
 	{
-		logMod->warn("Bonus type %s does not supports subtypes!", LIBRARY->bth->bonusToString(type));
+		logMod->warn("Bonus type %s does not support subtypes! (%s)", typeName, node.getModScope());
 		subtype = BonusSubtypeID();
 		return;
 	}
@@ -99,7 +98,7 @@ static void loadBonusSubtype(BonusSubtypeID & subtype, BonusType type, const Jso
 
 static std::shared_ptr<Bonus> parseBonusOrNone(const JsonNode & ability, IIdentifierResolver & resolver, LibraryLoadContext * context, const TextIdentifier & descriptionID);
 
-static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & value, IIdentifierResolver & resolver, LibraryLoadContext * context)
+static TBonusParametersPtr loadBonusAddInfo(BonusType type, const std::string & typeName, const JsonNode & value, IIdentifierResolver & resolver, LibraryLoadContext * context)
 {
 	const auto & getFirstValue = [](const JsonNode & jsonNode) -> const JsonNode &
 	{
@@ -249,7 +248,7 @@ static TBonusParametersPtr loadBonusAddInfo(BonusType type, const JsonNode & val
 			break;
 		}
 		default:
-			logMod->warn("Bonus type %s does not supports addInfo!", LIBRARY->bth->bonusToString(type) );
+			logMod->warn("Bonus type %s does not support addInfo! (%s)", typeName, value.getModScope());
 	}
 
 	return result;
@@ -508,10 +507,10 @@ std::shared_ptr<Bonus> JsonUtils::parseBonus(const JsonVector & ability_vec, Lib
 	const JsonNode & typeNode = ability_vec[0];
 	const JsonNode & subtypeNode = ability_vec[2];
 
-	context.resolver.requestIdentifier("bonus", typeNode, [b, subtypeNode, &context](si32 bonusID)
+	context.resolver.requestIdentifier("bonus", typeNode, [b, typeName = typeNode.String(), subtypeNode, &context](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);
-		loadBonusSubtype(b->subtype, b->type, subtypeNode, context.resolver);
+		loadBonusSubtype(b->subtype, b->type, typeName, subtypeNode, context.resolver);
 	});
 	b->val = static_cast<si32>(ability_vec[1].Float());
 	b->parameters = std::make_shared<BonusParameters>(static_cast<si32>(ability_vec[3].Integer()));
@@ -605,12 +604,12 @@ static std::shared_ptr<const ILimiter> parseHasAnotherBonusLimiter(const JsonNod
 
 	if (!jsonType.isNull())
 	{
-		resolver.requestIdentifier("bonus", jsonType, [bonusLimiter, jsonSubtype, &resolver](si32 bonusID)
+		resolver.requestIdentifier("bonus", jsonType, [bonusLimiter, typeName = jsonType.String(), jsonSubtype, &resolver](si32 bonusID)
 		{
 			bonusLimiter->type = static_cast<BonusType>(bonusID);
 			if (!jsonSubtype.isNull())
 			{
-				loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, jsonSubtype, resolver);
+				loadBonusSubtype(bonusLimiter->subtype, bonusLimiter->type, typeName, jsonSubtype, resolver);
 				bonusLimiter->isSubtypeRelevant = true;
 			}
 		});
@@ -833,11 +832,11 @@ static bool parseBonusImpl(const JsonNode & ability, Bonus * b, IIdentifierResol
 
 	BonusMigration::warnIfRetired(ability, descriptionID);
 
-	resolver.requestIdentifier("bonus", ability["type"], [b, subtypeNode, addinfoNode, descriptionID, &resolver, context](si32 bonusID)
+	resolver.requestIdentifier("bonus", ability["type"], [b, typeName = ability["type"].String(), subtypeNode, addinfoNode, descriptionID, &resolver, context](si32 bonusID)
 	{
 		b->type = static_cast<BonusType>(bonusID);
-		loadBonusSubtype(b->subtype, b->type, subtypeNode, resolver);
-		b->parameters = loadBonusAddInfo(b->type, addinfoNode, resolver, context);
+		loadBonusSubtype(b->subtype, b->type, typeName, subtypeNode, resolver);
+		b->parameters = loadBonusAddInfo(b->type, typeName, addinfoNode, resolver, context);
 
 		if (b->type == BonusType::COMBAT_EVENT_TRIGGER)
 			prepareCombatScriptParameters(b, subtypeNode, resolver, context, descriptionID);

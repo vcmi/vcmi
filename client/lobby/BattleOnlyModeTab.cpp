@@ -487,10 +487,10 @@ void BattleOnlyModeHeroSelector::selectHero()
 	std::sort(heroes.begin(), heroes.end(), [](auto a, auto b) {
 		auto heroA = a.toHeroType();
 		auto heroB = b.toHeroType();
-		if(heroA->heroClass->faction != heroB->heroClass->faction)
-			return heroA->heroClass->faction < heroB->heroClass->faction;
-		if(heroA->heroClass->getId() != heroB->heroClass->getId())
-			return heroA->heroClass->getId() < heroB->heroClass->getId();
+		if(heroA->getHeroClass()->faction != heroB->getHeroClass()->faction)
+			return heroA->getHeroClass()->faction < heroB->getHeroClass()->faction;
+		if(heroA->getHeroClass()->getId() != heroB->getHeroClass()->getId())
+			return heroA->getHeroClass()->getId() < heroB->getHeroClass()->getId();
 		return heroA->getNameTranslated() < heroB->getNameTranslated();
 	});
 
@@ -523,7 +523,7 @@ void BattleOnlyModeHeroSelector::selectHero()
 		owner.startInfo->selectedHero[id] = heroes[index];
 
 		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-			owner.startInfo->primSkillLevel[id][i] = heroes[index].toHeroType()->heroClass->primarySkillInitial[i];
+			owner.startInfo->primSkillLevel[id][i] = heroes[index].toHeroType()->getHeroClass()->primarySkillInitial[i];
 
 		for(size_t i=0; i<8; i++)
 			if(heroes[index].toHeroType()->secSkillsInit.size() > i)
@@ -908,7 +908,7 @@ void BattleOnlyModeTab::startBattle()
 
 	auto addHero = [&, this](int sel, PlayerColor color, const int3 & position)
 	{
-		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, startInfo->selectedHero[sel].toHeroType()->heroClass->getId());
+		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, startInfo->selectedHero[sel].toHeroType()->getHeroClass()->getId());
 		auto templates = factory->getTemplates();
 		auto obj = std::dynamic_pointer_cast<CGHeroInstance>(factory->create(cb.get(), templates.front()));
 		obj->setHeroType(startInfo->selectedHero[sel]);

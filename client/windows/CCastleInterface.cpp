@@ -218,7 +218,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 
 	// special animation frame manipulation for castle shipyard with and without ship
 	// done due to .def used in special way, not to animate building - first image is for shipyard without citadel moat, 2nd image is for including moat
-	if(Town->getFactionID() == FactionID::CASTLE && Str->building && (Str->building->bid == BuildingID::SHIPYARD || Str->building->bid == BuildingID::SHIP))
+	if(Town->getFactionID() == FactionID::CASTLE && Str->getBuilding() && (Str->getBuilding()->bid == BuildingID::SHIPYARD || Str->getBuilding()->bid == BuildingID::SHIP))
 	{
 		if(Town->hasBuilt(BuildingID::CITADEL))
 		{
@@ -231,7 +231,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 
 	// special animation frame manipulation for dungeon Mana Vortex with and without Mage Guild 5
 	// done due to .def used in special way, not to animate building - first image is for shipyard without citadel moat, 2nd image is for including moat
-	if(Town->getFactionID() == FactionID::DUNGEON && Str->building && Str->building->bid == BuildingID::SPECIAL_2)
+	if(Town->getFactionID() == FactionID::DUNGEON && Str->getBuilding() && Str->getBuilding()->bid == BuildingID::SPECIAL_2)
 	{
 		if(Town->hasBuilt(BuildingID::MAGES_GUILD_5))
 		{
@@ -251,13 +251,13 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance * Town
 
 const CBuilding * CBuildingRect::getBuilding()
 {
-	if (!str->building)
+	if (!str->getBuilding())
 		return nullptr;
 
 	if (str->hiddenUpgrade) // hidden upgrades, e.g. hordes - return base (dwelling for hordes)
-		return town->getTown()->buildings.at(str->building->getBase()).get();
+		return town->getTown()->buildings.at(str->getBuilding()->getBase()).get();
 
-	return str->building;
+	return str->getBuilding();
 }
 
 bool CBuildingRect::operator<(const CBuildingRect & p2) const
@@ -308,7 +308,7 @@ void CBuildingRect::showPopupWindow(const Point & cursorPosition)
 	if (!bid.isDwelling())
 	{
 		CRClickPopup::createAndPush(CInfoWindow::genText(bld->getNameTranslated(), bld->getDescriptionTranslated()),
-									std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(bld->town->faction->getId(), bld->bid)));
+									std::make_shared<CComponent>(ComponentType::BUILDING, bld->getUniqueTypeID()));
 	}
 	else
 	{
@@ -770,14 +770,14 @@ void CCastleBuildings::recreate()
 
 	for(const auto & structure : town->getTown()->clientInfo.structures)
 	{
-		if(!structure->building)
+		if(!structure->getBuilding())
 		{
 			buildings.push_back(std::make_shared<CBuildingRect>(this, town, structure.get()));
 			continue;
 		}
-		if(vstd::contains(buildingsCopy, structure->building->bid))
+		if(vstd::contains(buildingsCopy, structure->getBuilding()->bid))
 		{
-			groups[structure->building->getBase()].push_back(structure.get());
+			groups[structure->getBuilding()->getBase()].push_back(structure.get());
 		}
 	}
 
@@ -787,7 +787,7 @@ void CCastleBuildings::recreate()
 
 		const CStructure * toAdd = *std::ranges::max_element(entry.second, [=](const CStructure * a, const CStructure * b)
 		{
-			return build->getDistance(a->building->bid) < build->getDistance(b->building->bid);
+			return build->getDistance(a->getBuilding()->bid) < build->getDistance(b->getBuilding()->bid);
 		});
 
 		buildings.push_back(std::make_shared<CBuildingRect>(this, town, toAdd));
@@ -1513,7 +1513,7 @@ void CTownInfo::showPopupWindow(const Point & cursorPosition)
 {
 	if(building)
 	{
-		auto c =  std::make_shared<CComponent>(ComponentType::BUILDING, BuildingTypeUniqueID(building->town->faction->getId(), building->bid));
+		auto c =  std::make_shared<CComponent>(ComponentType::BUILDING, building->getUniqueTypeID());
 		CRClickPopup::createAndPush(CInfoWindow::genText(building->getNameTranslated(), building->getDescriptionTranslated()), c);
 	}
 }
@@ -1736,7 +1736,7 @@ void CCastleInterface::recreateIcons()
 
 	fastMarket = std::make_shared<LRClickableArea>(Rect(163, 410, 64, 42), [this]() { builds->enterAnyMarket(); });
 	{
-		const std::string factionKey = town->getTown()->faction->getJsonKey();
+		const std::string factionKey = town->getTown()->getFaction()->getJsonKey();
 		fastWiki = std::make_shared<LRClickableArea>(Rect(15, 387, 58, 64), [factionKey]()
 		{
 			ENGINE->windows().createAndPushWindow<WikiWindow>(
@@ -1843,7 +1843,7 @@ void CCastleInterface::keyPressed(EShortcut key)
 	case EShortcut::ADVENTURE_OPEN_WIKI:
 		ENGINE->windows().createAndPushWindow<WikiWindow>(
 			WikiWindow::Style::BROWN,
-			WikiEntryKey{WikiCategory::TOWN, town->getTown()->faction->getJsonKey()});
+			WikiEntryKey{WikiCategory::TOWN, town->getTown()->getFaction()->getJsonKey()});
 		break;
 	default:
 		break;

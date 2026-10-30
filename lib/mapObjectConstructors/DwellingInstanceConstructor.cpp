@@ -43,9 +43,9 @@ void DwellingInstanceConstructor::initTypeData(LibraryLoadContext & context, con
 
 		for(int currentCreature = 0; currentCreature < creaturesNumber; currentCreature++)
 		{
-			context.resolver.requestIdentifier("creature", creaturesOnLevel[currentCreature], [this, currentLevel, currentCreature] (si32 index)
+			context.resolver.requestIdentifier("creature", creaturesOnLevel[currentCreature], [this, &context, currentLevel, currentCreature] (si32 index)
 			{
-				availableCreatures.at(currentLevel).at(currentCreature) = CreatureID(index).toCreature();
+				availableCreatures.at(currentLevel).at(currentCreature) = (*context.lib.creh)[index];
 			});
 		}
 		assert(!availableCreatures[currentLevel].empty());

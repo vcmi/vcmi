@@ -351,7 +351,7 @@ std::string CComponent::getSubtitle() const
 				const auto & building = (*LIBRARY->townh)[index.getFaction()]->town->buildings[index.getBuilding()];
 				if(!building)
 				{
-					logGlobal->error("Town of faction %s has no building #%d", (*LIBRARY->townh)[index.getFaction()]->town->faction->getNameTranslated(), index.getBuilding().getNum());
+					logGlobal->error("Town of faction %s has no building #%d", (*LIBRARY->townh)[index.getFaction()]->town->getFaction()->getNameTranslated(), index.getBuilding().getNum());
 					return (boost::format("Missing building #%d") % index.getBuilding().getNum()).str();
 				}
 				return building->getNameTranslated();

@@ -261,7 +261,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 	case HERO:
 	{
 		if(playerSettings.hero.isValid())
-			return getName() + " - " + (*LIBRARY->heroh)[heroIndex]->heroClass->getNameTranslated();
+			return getName() + " - " + (*LIBRARY->heroh)[heroIndex]->getHeroClass()->getNameTranslated();
 		return getName();
 	}
 
@@ -481,7 +481,7 @@ std::tuple<int, int> OptionsTab::SelectionWindow::calcLines(FactionID faction)
 	for(auto & elemh : allowedHeroes)
 	{
 		const CHero * type = elemh.toHeroType();
-		if(type->heroClass->faction != faction)
+		if(type->getHeroClass()->faction != faction)
 			continue;
 
 		count++;
@@ -657,7 +657,7 @@ void OptionsTab::SelectionWindow::genContentHeroes()
 	{
 		const CHero * type = elem.toHeroType();
 
-		if(type->heroClass->faction != selectedFaction)
+		if(type->getHeroClass()->faction != selectedFaction)
 			continue;
 
 		int x = i % elementsPerLine;

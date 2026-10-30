@@ -96,7 +96,7 @@ private:
 
 	static void placeHero(CMap & map, IGameInfoCallback * cb, const PlayerColor & owner, const HeroTypeID & type, const int3 & position)
 	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, type.toHeroType()->heroClass->getIndex());
+		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, type.toHeroType()->getHeroClass()->getIndex());
 		auto hero = std::dynamic_pointer_cast<CGHeroInstance>(handler->create(cb, handler->getTemplates().front()));
 
 		hero->ID = Obj::HERO;
