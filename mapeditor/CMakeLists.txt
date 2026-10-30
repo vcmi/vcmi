@@ -37,7 +37,7 @@ set(editor_SRCS
 		inspector/armywidget.cpp
 		inspector/messagewidget.cpp
 		inspector/rewardswidget.cpp
-		inspector/questwidget.cpp
+		inspector/questsourcewidget.cpp
 		inspector/questguardwidget.cpp
 		inspector/heroartifactswidget.cpp
 		inspector/artifactwidget.cpp
@@ -50,6 +50,7 @@ set(editor_SRCS
 		inspector/scholarwidget.cpp
 		inspector/shrinewidget.cpp
 		inspector/segments/rewardwidget.cpp
+		inspector/segments/questwidget.cpp
 		resourceExtractor/ResourceConverter.cpp
 		helper.cpp
 		campaigneditor/campaigneditor.cpp
@@ -116,7 +117,7 @@ set(editor_HEADERS
 		inspector/armywidget.h
 		inspector/messagewidget.h
 		inspector/rewardswidget.h
-		inspector/questwidget.h
+		inspector/questsourcewidget.h
 		inspector/questguardwidget.h
 		inspector/heroartifactswidget.h
 		inspector/artifactwidget.h
@@ -131,6 +132,7 @@ set(editor_HEADERS
 		inspector/shrinewidget.h
 		inspector/WidgetInitializationException.h
 		inspector/segments/rewardwidget.h
+		inspector/segments/questwidget.h
 		resourceExtractor/ResourceConverter.h
 		mapeditorroles.h
 		maplayerselectiondialog.h
@@ -185,7 +187,7 @@ set(editor_FORMS
 		inspector/armywidget.ui
 		inspector/messagewidget.ui
 		inspector/rewardswidget.ui
-		inspector/questwidget.ui
+		inspector/questsourcewidget.ui
 		inspector/questguardwidget.ui
 		inspector/heroartifactswidget.ui
 		inspector/artifactwidget.ui
@@ -196,6 +198,7 @@ set(editor_FORMS
 		inspector/scholarwidget.ui
 		inspector/shrinewidget.ui
 		inspector/segments/rewardwidget.ui
+		inspector/segments/questwidget.ui
 		campaigneditor/campaigneditor.ui
 		campaigneditor/campaignproperties.ui
 		campaigneditor/scenarioproperties.ui
