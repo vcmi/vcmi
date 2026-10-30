@@ -154,7 +154,6 @@ set(lib_MAIN_SRCS
 	gameState/InfoAboutArmy.cpp
 	gameState/QuestInfo.cpp
 	gameState/ReplayLog.cpp
-	gameState/RumorState.cpp
 	gameState/SaveMetadata.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp

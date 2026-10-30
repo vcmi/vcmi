@@ -645,34 +645,14 @@ EPlayerStatus CGameInfoCallback::getPlayerStatus(PlayerColor player) const
 
 std::string CGameInfoCallback::getTavernRumor(const CGObjectInstance * townOrTavern, const ITranslator * translator) const
 {
+	const MetaString & rumor = gameState().currentRumor.text;
+	if(rumor.empty())
+		return {};
+
+	// rumor may contain map-defined texts, so only the caller's translator can resolve it
 	MetaString text;
 	text.appendTextID("core.genrltxt.216");
-
-	std::string extraText;
-	if(gameState().currentRumor.type == RumorState::TYPE_NONE)
-		return text.toString(translator);
-
-	auto rumor = gameState().currentRumor.last.at(gameState().currentRumor.type);
-	switch(gameState().currentRumor.type)
-	{
-	case RumorState::TYPE_SPECIAL:
-		text.replaceLocalString(EMetaText::GENERAL_TXT, rumor.first);
-		if(rumor.first == RumorState::RUMOR_GRAIL)
-			text.replaceTextID(TerrainId(rumor.second).toEntity(LIBRARY)->grailRumorTextID);
-		else
-			text.replaceTextID("core.plcolors", rumor.second);
-
-		break;
-	case RumorState::TYPE_MAP:
-		// rumor text is map-defined, so only the caller's translator can resolve it
-		text.replaceRawString(gameState().getMap().rumors[rumor.first].text.toString(translator));
-		break;
-
-	case RumorState::TYPE_RAND:
-		text.replaceTextID("core.randtvrn", rumor.first);
-		break;
-	}
-
+	text.replaceRawString(rumor.toString(translator));
 	return text.toString(translator);
 }
 
