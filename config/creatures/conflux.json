@@ -86,6 +86,12 @@
 				"subtype" : "lightningBolt",
 				"val" : 100
 			},
+			"titanBoltVulnerability" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "titanBolt",
+				"val" : 100
+			},
 			"chainLightingVulnerablity" :
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
@@ -173,6 +179,12 @@
 			{
 				"type" : "MORE_DAMAGE_FROM_SPELL",
 				"subtype" : "lightningBolt",
+				"val" : 100
+			},
+			"titanBoltVulnerability" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "titanBolt",
 				"val" : 100
 			},
 			"chainLightingVulnerablity" :
@@ -577,6 +589,11 @@
 				"type" : "SPELL_IMMUNITY",
 				"subtype" : "lightningBolt"
 			},
+			"titanBoltImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "titanBolt"
+			},
 			"chainLightingImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
@@ -657,6 +674,11 @@
 			{
 				"type" : "SPELL_IMMUNITY",
 				"subtype" : "lightningBolt"
+			},
+			"titanBoltImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "titanBolt"
 			},
 			"chainLightingImmunity" :
 			{

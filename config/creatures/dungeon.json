@@ -9,7 +9,8 @@
 			"blindImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "blind"
+				"subtype" : "blind",
+				"addInfo" : 1
 			},
 			"petrifyImmunity" :
 			{
@@ -44,7 +45,8 @@
 			"blindImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "blind"
+				"subtype" : "blind",
+				"addInfo" : 1
 			},
 			"petrifyImmunity" :
 			{
