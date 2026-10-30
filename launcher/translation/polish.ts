@@ -186,7 +186,7 @@
     <message>
         <location filename="../modManager/cdownloadmanager_moc.cpp" line="171"/>
         <source>Failed to copy file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie udało się skopiować pliku %1</translation>
     </message>
 </context>
 <context>
@@ -429,10 +429,10 @@
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
         <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Pobieranie %n mod. %p% (%v MB z %m MB) ukończono</numerusform>
+            <numerusform>Pobieranie %n modów. %p% (%v MB z %m MB) ukończono</numerusform>
+            <numerusform>Pobieranie %n modów. %p% (%v MB z %m MB) ukończono</numerusform>
         </translation>
     </message>
     <message>
@@ -554,14 +554,16 @@ Powód: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
         <source>Mods disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Mody wyłączone</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Następujące mody zostały wyłączone ze względu na zmiany w zainstalowanych modach:
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
@@ -634,12 +636,18 @@ This usually happens on older systems, such as Windows 7, that are missing recen
 However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. In that case, downloaded files could be replaced with harmful ones.
 
 Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the &quot;Ignore SSL errors&quot; option.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI nie zdołało potwierdzić, że łączy się z prawdziwym serwerem pobierania.
+
+Ten problem zwykle pojawia się w starszych systemach, takich jak Windows 7, na których brakuje najnowszych poprawek bezpieczeństwa.
+
+Może jednak również oznaczać, że ktoś manipuluje Twoim połączeniem internetowym, na przykład w publicznej sieci Wi-Fi. W takim przypadku pobierane pliki mogą zostać zastąpione szkodliwymi.
+
+Czy chcesz wyłączyć to sprawdzanie i spróbować ponownie? Możesz je włączyć z powrotem w dowolnym momencie w ustawieniach launchera, korzystając z opcji „Ignore SSL errors” (Ignoruj błędy SSL).</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
         <source>Unable to verify download server</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zweryfikować serwera pobierania</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
@@ -911,17 +919,17 @@ Tryb pełnoekranowy - gra zajmie cały ekran i będzie korzystać z wybranej roz
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="819"/>
         <source>HTTP proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP proxy</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="826"/>
         <source>Open help</source>
-        <translation type="unfinished"></translation>
+        <translation>Wyświetl pomoc</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="833"/>
         <source>Proxy server used for downloads, for example http://host:port or socks5h://host:port. If empty, proxy from environment variables is used</source>
-        <translation type="unfinished"></translation>
+        <translation>Serwer proxy służący do pobierania plików, np. http://host:port lub socks5h://host:port. Jeśli to pole pozostanie puste, zostanie użyte proxy zdefiniowane w zmiennych środowiskowych</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
@@ -2047,12 +2055,12 @@ Bin (%n bajtów):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="223"/>
         <source>Mod is not located in user data directory and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod nie jest zlokalizowany w katalogu danych użytkownika, dlatego nie może być zarządzany przez launcher</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="227"/>
         <source>Mod directory is a git repository and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Katalog modów to repozytorium Git, więc launcher nie może nim zarządzać</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="245"/>
@@ -2098,12 +2106,12 @@ Bin (%n bajtów):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="317"/>
         <source>Failed to remove directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Usunięcie katalogu %1 nie powiodło się</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="320"/>
         <source>Failed to create directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Utworzenie katalogu %1 nie powiodło się</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="352"/>
@@ -2113,7 +2121,7 @@ Bin (%n bajtów):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="359"/>
         <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zastąpienie katalogu %1 nie powiodło się. Zamknij wszystkie aplikacje, które mogą z niego korzystać, takie jak Eksplorator plików, a następnie spróbuj ponownie.</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="386"/>
