@@ -626,6 +626,16 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack
 		logNetwork->error("Rejecting deletion of files before any list was requested");
 		result = false;
 	}
+
+	for(const auto & file : pack.files)
+	{
+		const auto type = file.getType();
+		if(type != EResType::SAVEGAME && type != EResType::DIRECTORY && type != EResType::MAP)
+		{
+			logNetwork->error("Rejecting deletion of '%s' of type %d", file.getOriginalName(), static_cast<int>(type));
+			result = false;
+		}
+	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack)
@@ -700,11 +710,10 @@ void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioInfo(LobbyRequestScen
 	result = false;
 }
 
-static void deleteFile(LobbyDelete::EType type, const std::string & fileName)
+static void deleteFile(const ResourcePath & res)
 {
-	if(type == LobbyDelete::EType::SAVEGAME || type == LobbyDelete::EType::RANDOMMAP)
+	if(res.getType() == EResType::SAVEGAME || res.getType() == EResType::MAP)
 	{
-		auto res = ResourcePath(fileName, type == LobbyDelete::EType::SAVEGAME ? EResType::SAVEGAME : EResType::MAP);
 		auto name = CResourceHandler::get()->getResourceName(res);
 		if (!name)
 		{
@@ -714,7 +723,7 @@ static void deleteFile(LobbyDelete::EType type, const std::string & fileName)
 
 		boost::system::error_code ec;
 		auto file = boost::filesystem::canonical(*name, ec);
-		const auto directory = type == LobbyDelete::EType::SAVEGAME ? VCMIDirs::get().userSavePath() : VCMIDirs::get().userDataPath() / "Maps" / "RandomMaps";
+		const auto directory = res.getType() == EResType::SAVEGAME ? VCMIDirs::get().userSavePath() : VCMIDirs::get().userDataPath() / "Maps" / "RandomMaps";
 
 		if (ec)
 		{
@@ -731,9 +740,8 @@ static void deleteFile(LobbyDelete::EType type, const std::string & fileName)
 				boost::filesystem::remove(file.parent_path());
 		}
 	}
-	else if(type == LobbyDelete::EType::SAVEGAME_FOLDER)
+	else if(res.getType() == EResType::DIRECTORY)
 	{
-		auto res = ResourcePath("Saves/" + fileName, EResType::DIRECTORY);
 		auto name = CResourceHandler::get()->getResourceName(res);
 		if (!name)
 		{
@@ -760,8 +768,8 @@ static void deleteFile(LobbyDelete::EType type, const std::string & fileName)
 
 void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 {
-	for(const auto & name : pack.names)
-		deleteFile(pack.type, name);
+	for(const auto & file : pack.files)
+		deleteFile(file);
 
 	LobbyScenarioList reply;
 	reply.list = ScenarioListBuilder(srv.lastScenarioListRequest->type, srv.lastScenarioListRequest->loadMode).build(srv.lastScenarioListRequest->folder);

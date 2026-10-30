@@ -529,20 +529,15 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 				return;
 			}
 
-			if(!curItems[py]->isFolder)
-				CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.lobby.deleteFile") + "\n\n" + getFullFileURI(*curItems[py]), std::vector<std::shared_ptr<CComponent>>(), [this, py](){
-					LobbyDelete ld;
-					ld.type = tabType == ESelectionScreen::newGame ? LobbyDelete::EType::RANDOMMAP : LobbyDelete::EType::SAVEGAME;
-					ld.names.push_back(curItems[py]->fileURI);
-					sendDelete(ld);
-				}, nullptr);
-			else
-				CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->translate("vcmi.lobby.deleteFolder") + "\n\n" + curFolder + curItems[py]->folderName, std::vector<std::shared_ptr<CComponent>>(), [this, py](){
-					LobbyDelete ld;
-					ld.type = LobbyDelete::EType::SAVEGAME_FOLDER;
-					ld.names.push_back(curFolder + curItems[py]->folderName);
-					sendDelete(ld);
-				}, nullptr);
+			const auto resource = curItems[py]->isFolder
+				? ResourcePath("Saves/" + curFolder + curItems[py]->folderName, EResType::DIRECTORY)
+				: ResourcePath(curItems[py]->entry->originalFileURI, tabType == ESelectionScreen::newGame ? EResType::MAP : EResType::SAVEGAME);
+			const std::string message = curItems[py]->isFolder ? "vcmi.lobby.deleteFolder" : "vcmi.lobby.deleteFile";
+			CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->translate(message) + "\n\n" + resource.getOriginalName(), std::vector<std::shared_ptr<CComponent>>(), [this, resource](){
+				LobbyDelete ld;
+				ld.files.push_back(resource);
+				sendDelete(ld);
+			}, nullptr);
 		}
 	}
 #ifdef VCMI_MOBILE
@@ -1231,8 +1226,8 @@ void SelectionTab::handleUnsupportedSavegames(const std::vector<std::string> & f
 		text.replaceNumber(files.size());
 		CInfoWindow::showYesNoDialog(text.toString(&GAME->translator()), std::vector<std::shared_ptr<CComponent>>(), [this, files](){
 			LobbyDelete ld;
-			ld.type = LobbyDelete::EType::SAVEGAME;
-			ld.names = files;
+			for(const auto & file : files)
+				ld.files.emplace_back(file, EResType::SAVEGAME);
 			sendDelete(ld);
 		}, nullptr);
 	}

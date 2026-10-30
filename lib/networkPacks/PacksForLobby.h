@@ -517,20 +517,15 @@ struct DLL_LINKAGE LobbyPvPAction : public CLobbyPackToServer
 	}
 };
 
+/// Sent by host to delete saved games, save folders or random maps
 struct DLL_LINKAGE LobbyDelete : public CLobbyPackToServer
 {
-	enum class EType : ui8 {
-		SAVEGAME, SAVEGAME_FOLDER, RANDOMMAP
-	};
-
-	EType type = EType::SAVEGAME;
-	std::vector<std::string> names;
+	std::vector<ResourcePath> files; ///< of type SAVEGAME, DIRECTORY under Saves/, or MAP under Maps/RandomMaps/
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & type;
-		h & names;
+		h & files;
 	}
 };
