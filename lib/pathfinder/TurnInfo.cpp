@@ -91,6 +91,7 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 	: target(target)
 	, noterrainPenalty(LIBRARY->terrainTypeHandler->size())
 {
+	isCurrentTurn = (Turn == 0);
 	CSelector daySelector = Selector::days(Turn);
 
 	int lowestSpeed;
@@ -232,4 +233,20 @@ int TurnInfo::getMaxMovePoints(const EPathfindingLayer & layer) const
 		return getMovePointsLimitAir();
 	else
 		return getMovePointsLimitLand();
+}
+
+int TurnInfo::getMovementConversionLimit(const EPathfindingLayer & layer) const
+{
+	if(layer != EPathfindingLayer::LAND && layer != EPathfindingLayer::SAIL)
+		return 0;
+
+	// Keep the day's conversion ratio stable despite mid-turn changes to movement bonuses.
+	if(isCurrentTurn && target->cb->getSettings().getBoolean(EGameSettings::HEROES_PREVENT_LAND_SEA_MOVEMENT_EXPLOIT))
+	{
+		const int savedLimit = target->getMovementConversionLimit(layer);
+		if(savedLimit > 0)
+			return savedLimit;
+	}
+
+	return getMaxMovePoints(layer);
 }

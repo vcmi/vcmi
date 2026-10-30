@@ -63,6 +63,7 @@
 #include "../networkPacks/NetPacksBase.h"
 #include "../pathfinder/CPathfinder.h"
 #include "../pathfinder/PathfinderOptions.h"
+#include "../pathfinder/TurnInfo.h"
 #include "../rmg/CMapGenerator.h"
 #include "../serializer/CMemorySerializer.h"
 #include "../spells/CSpell.h"
@@ -1751,6 +1752,18 @@ void CGameState::restoreBonusSystemTree()
 		campaign->setGamestate(this);
 
 	rebuildObjectControlHistory();
+}
+
+void CGameState::initializeLegacyMovementConversionLimits()
+{
+	for(auto * hero : map->getObjects<CGHeroInstance>())
+		hero->setMovementConversionLimits(*hero->getTurnInfo(0));
+
+	for(const auto & heroID : map->getHeroesInPool())
+	{
+		if(auto * hero = map->tryGetFromHeroPool(heroID))
+			hero->setMovementConversionLimits(*hero->getTurnInfo(0));
+	}
 }
 
 void CGameState::buildGlobalTeamPlayerTree()
