@@ -1503,7 +1503,7 @@
 		"bonuses" : {
 			"immunity" : {
 				"subtype" : "deathRipple",
-				"type" : "SPELL_IMMUNITY",,
+				"type" : "SPELL_IMMUNITY",
 				"addInfo" : 1
 			}
 		},
