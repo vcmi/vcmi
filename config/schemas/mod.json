@@ -394,6 +394,10 @@
 			"description" : "List of configuration files for map layers",
 			"$ref" : "#/definitions/fileListOrObject"
 		},
+		"rumors" : {
+			"description" : "List of configuration files for tavern rumors",
+			"$ref" : "#/definitions/fileListOrObject"
+		},
 		"templates" : {
 			"description" : "List of configuration files for RMG templates",
 			"$ref" : "#/definitions/fileListOrObject"

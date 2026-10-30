@@ -134,6 +134,7 @@ set(lib_MAIN_SRCS
 	entities/hero/CHeroClassHandler.cpp
 	entities/hero/CHeroHandler.cpp
 	entities/ResourceTypeHandler.cpp
+	entities/RumorTypeHandler.cpp
 
 	events/ApplyDamage.cpp
 	events/GameResumed.cpp
@@ -586,6 +587,7 @@ set(lib_MAIN_HEADERS
 	entities/hero/CHeroHandler.h
 	entities/hero/EHeroGender.h
 	entities/ResourceTypeHandler.h
+	entities/RumorTypeHandler.h
 
 	events/ApplyDamage.h
 	events/GameResumed.h

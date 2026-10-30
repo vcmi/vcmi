@@ -1,0 +1,23 @@
+{
+	"type" : "object",
+	"$schema" : "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI rumor format",
+	"description" : "Format used to define new tavern rumors in VCMI",
+	"required" : [ "text" ],
+	"additionalProperties" : false,
+	"properties" : {
+		"text" : {
+			"type" : "string",
+			"description" : "Text of the rumor, or identifier of existing text prefixed with '@'"
+		},
+		"faction" : {
+			"type" : "string",
+			"description" : "Rumor can only be told if a town of this faction is present on the map"
+		},
+		"weight" : {
+			"type" : "number",
+			"minimum" : 1,
+			"description" : "Relative frequency of this rumor. Currently unused"
+		}
+	}
+}
