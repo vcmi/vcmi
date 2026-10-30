@@ -183,19 +183,27 @@ std::vector<std::shared_ptr<Bonus>> CHeroHandler::createCreatureSpecialty(Librar
 std::vector<std::shared_ptr<Bonus>> CHeroHandler::createSecondarySkillSpecialty(LibraryLoadContext & context, SecondarySkill skillID, int growthPerStep) const
 {
 	std::vector<std::shared_ptr<Bonus>> result;
-	const auto & skillPtr = (*context.lib.skillh)[skillID.getNum()];
+	const auto * skill = (*context.lib.skillh)[skillID];
 
-	if (skillPtr->specialtyTargetBonuses.empty())
-		logMod->warn("Skill '%s' does not supports generic specialties!", skillPtr->getJsonKey());
+	if (skill->specialtyTargetBonuses.empty())
+		logMod->warn("Skill '%s' does not supports generic specialties!", skill->getJsonKey());
 
 	if (growthPerStep == 0)
 		growthPerStep = context.lib.engineSettings()->getInteger(EGameSettings::HEROES_SPECIALTY_SECONDARY_SKILL_GROWTH);
 
-	for (const auto & bonus : skillPtr->specialtyTargetBonuses)
+	// parsed for each hero instead of copied from the skill: identifiers of a parsed bonus are resolved later and would be missing from a copy
+	for (const auto & bonusNode : skill->specialtyTargetBonuses)
 	{
-		auto bonusCopy = std::make_shared<Bonus>(*bonus);
-		bonusCopy->val = growthPerStep;
-		result.push_back(bonusCopy);
+		auto bonus = JsonUtils::parseBonus(bonusNode, context);
+		bonus->val = growthPerStep;
+		if (bonus->propagator != nullptr)
+			bonus->addPropagationUpdater(std::make_shared<TimesHeroLevelUpdater>());
+		else
+			bonus->addUpdater(std::make_shared<TimesHeroLevelUpdater>());
+		bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
+		bonus->targetSourceType = BonusSource::SECONDARY_SKILL;
+		bonus->targetSourceID = skill->getId(); //only amplify bonuses granted by this skill
+		result.push_back(bonus);
 	}
 
 	return result;
@@ -286,9 +294,10 @@ void CHeroHandler::loadHeroSpecialty(LibraryLoadContext & context, CHero * hero,
 		const JsonNode & skillNode = specialtyNode["secondary"];
 		int stepSize = specialtyNode["stepSize"].Integer();
 
-		context.resolver.requestIdentifier("secondarySkill", skillNode, [this, hero, stepSize](si32 skill)
+		context.resolver.requestIdentifier("secondarySkill", skillNode, [&context, this, hero, prepSpec, stepSize](si32 skill)
 		{
-			skillSpecialtiesToGenerate.push_back({hero->ID, SecondarySkill(skill), stepSize});
+			for (const auto & bonus : createSecondarySkillSpecialty(context, SecondarySkill(skill), stepSize))
+				hero->specialty.push_back(prepSpec(bonus));
 		});
 	}
 
@@ -471,23 +480,4 @@ void CHeroHandler::afterLoadFinalization(LibraryLoadContext & context)
 	for(const auto & hero : objects)
 		if (hero && !hero->special)
 			defaultAllowed.insert(hero->getId());
-
-	auto prepSpec = [](HeroTypeID hero, std::shared_ptr<Bonus> bonus)
-	{
-		bonus->duration = BonusDuration::PERMANENT;
-		bonus->source = BonusSource::HERO_SPECIAL;
-		bonus->sid = BonusSourceID(hero);
-		return bonus;
-	};
-
-	// Workaround for loading order issue
-	// To load secondary skill specialty, bonus ID's must be loaded first
-	// However, identifier request only guarantee that requested object itself is loaded
-	// Meaning, it is possible for skill ID to be resolved before bonus ID is resolved,
-	// leading to createSecondarySkillSpecialty creating copy of incomplete bonus
-	for (const auto & specialty : skillSpecialtiesToGenerate)
-	{
-		for (const auto & bonus : createSecondarySkillSpecialty(context, specialty.skill, specialty.stepSize))
-			objects.at(specialty.hero.getNum())->specialty.push_back(prepSpec(specialty.hero, bonus));
-	}
 }

@@ -14,7 +14,6 @@
 #include <cctype>
 
 #include "GameLibrary.h"
-#include "bonuses/Updaters.h"
 #include "constants/StringConstants.h"
 #include "entities/hero/CHeroClassHandler.h"
 #include "filesystem/Filesystem.h"
@@ -307,18 +306,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(LibraryLoadContext & context
 		const auto & bonusNode = json["basic"]["effects"][b.String()];
 
 		if (bonusNode.isStruct())
-		{
-			auto bonus = JsonUtils::parseBonus(bonusNode, context);
-			bonus->val = 0; // set by HeroHandler on specialty load
-			if (bonus->propagator != nullptr)
-				bonus->addPropagationUpdater(std::make_shared<TimesHeroLevelUpdater>());
-			else
-				bonus->addUpdater(std::make_shared<TimesHeroLevelUpdater>());
-			bonus->valType = BonusValueType::PERCENT_TO_TARGET_TYPE;
-			bonus->targetSourceType = BonusSource::SECONDARY_SKILL;
-			bonus->targetSourceID = skill->id; //only amplify bonuses granted by this skill
-			skill->specialtyTargetBonuses.push_back(bonus);
-		}
+			skill->specialtyTargetBonuses.push_back(bonusNode);
 		else
 			logMod->warn("Failed to load speciality bonus '%s' for skill '%s'", b.String(), identifier);
 	}
