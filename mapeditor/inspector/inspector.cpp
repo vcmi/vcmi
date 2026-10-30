@@ -160,7 +160,7 @@ void Initializer::initialize(CGHeroInstance * o)
 
 	if(o->ID == Obj::HERO)
 	{
-		for(auto const & t : LIBRARY->heroh->objects)
+		for(auto const & t : LIBRARY->heroh->getObjects())
 		{
 			if(t->getHeroClass()->getId() == HeroClassID(o->subID))
 			{
@@ -206,7 +206,7 @@ void Initializer::initialize(CGArtifact * o)
 	if(o->ID == Obj::SPELL_SCROLL)
 	{
 		std::vector<SpellID> out;
-		for(auto const & spell : LIBRARY->spellh->objects) //spellh size appears to be greater (?)
+		for(auto const & spell : LIBRARY->spellh->getObjects()) //spellh size appears to be greater (?)
 		{
 			if(LIBRARY->spellh->getDefaultAllowed().count(spell->id) != 0)
 			{
@@ -311,9 +311,9 @@ void Inspector::updateProperties(CGHeroPlaceholder * o)
 
 	{
 		auto * delegate = new InspectorDelegate;
-		for(int i = 0; i < LIBRARY->heroh->objects.size(); ++i)
+		for(int i = 0; i < LIBRARY->heroh->size(); ++i)
 		{
-			delegate->options.push_back({QObject::tr(LIBRARY->heroh->objects[i]->getNameTranslated().c_str()), QVariant::fromValue(LIBRARY->heroh->objects[i]->getId().getNum())});
+			delegate->options.push_back({QObject::tr((*LIBRARY->heroh)[i]->getNameTranslated().c_str()), QVariant::fromValue((*LIBRARY->heroh)[i]->getId().getNum())});
 		}
 		addProperty(QObject::tr("Hero type"), o->heroType.has_value() ? LIBRARY->heroh->getById(o->heroType.value())->getNameTranslated() : "", delegate, !type);
 	}
@@ -345,7 +345,7 @@ void Inspector::updateProperties(CGHeroInstance * o)
 	if(o->getHeroTypeID().hasValue() || o->ID == Obj::PRISON)
 	{ //Hero type
 		auto * delegate = new InspectorDelegate;
-		for(const auto & heroPtr : LIBRARY->heroh->objects)
+		for(const auto & heroPtr : LIBRARY->heroh->getObjects())
 		{
 			if(controller.map()->allowedHeroes.count(heroPtr->getId()) != 0)
 			{
@@ -404,7 +404,7 @@ void Inspector::updateProperties(CGArtifact * o)
 		if(spellId != SpellID::NONE)
 		{
 			auto * delegate = new InspectorDelegate;
-			for(auto const & spell : LIBRARY->spellh->objects)
+			for(auto const & spell : LIBRARY->spellh->getObjects())
 			{
 				if(controller.map()->allowedSpells.count(spell->id) != 0)
 					delegate->options.push_back({QObject::tr(spell->getNameTranslated().c_str()), QVariant::fromValue(int(spell->getId()))});
@@ -809,7 +809,7 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 
 	if(key == QObject::tr("Hero type"))
 	{
-		for(auto const & t : LIBRARY->heroh->objects)
+		for(auto const & t : LIBRARY->heroh->getObjects())
 		{
 			if(t->getId() == value.toInt())
 				o->subID = value.toInt();

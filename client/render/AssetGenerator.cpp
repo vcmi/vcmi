@@ -540,7 +540,7 @@ void AssetGenerator::createPaletteShiftedSprites()
 {
 	paletteShiftedFrames.clear();
 
-	for(auto entity : LIBRARY->terrainTypeHandler->objects)
+	for(auto entity : LIBRARY->terrainTypeHandler->getObjects())
 	{
 		if(entity->paletteAnimation.empty())
 			continue;
@@ -552,7 +552,7 @@ void AssetGenerator::createPaletteShiftedSprites()
 		generatePaletteShiftedAnimation(entity->tilesFilename, paletteShifts);
 
 	}
-	for(auto entity : LIBRARY->riverTypeHandler->objects)
+	for(auto entity : LIBRARY->riverTypeHandler->getObjects())
 	{
 		if(entity->paletteAnimation.empty())
 			continue;

@@ -94,7 +94,7 @@ void BattleOnlyMap::write(const BattleOnlyModeStartInfo & startInfo)
 			if(artifact.second != ArtifactID::NONE)
 				obj->putArtifact(artifact.first, map->createArtifact(artifact.second));
 
-		for(const auto & skill : LIBRARY->skillh->objects) // reset all standard skills
+		for(const auto & skill : LIBRARY->skillh->getObjects()) // reset all standard skills
 			obj->setSecSkillLevel(SecondarySkill(skill->getId()), MasteryLevel::NONE, ChangeValueMode::ABSOLUTE);
 		for(int skillSlot = 0; skillSlot < 8; skillSlot++)
 			obj->setSecSkillLevel(startInfo.secSkillLevel[sel][skillSlot].first, startInfo.secSkillLevel[sel][skillSlot].second, ChangeValueMode::ABSOLUTE);

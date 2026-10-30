@@ -487,15 +487,15 @@ void PlayerMessageProcessor::cheatGiveArtifacts(PlayerColor player, const CGHero
 		for (auto const & word : words)
 		{
 			auto artID = LIBRARY->identifiers()->getIdentifierCaseInsensitive(ModScope::scopeGame(), "artifact", word, false);
-			if(artID &&  LIBRARY->arth->objects[*artID])
+			if(artID &&  (*LIBRARY->arth)[*artID])
 				gameHandler->giveHeroNewArtifact(hero, ArtifactID(*artID), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
 	else
 	{
-		for(int g = 3; g < LIBRARY->arth->objects.size(); ++g)
+		for(int g = 3; g < LIBRARY->arth->size(); ++g)
 		{
-			if(LIBRARY->arth->objects[g]->canBePutAt(hero) && !LIBRARY->arth->objects[g]->getWarMachine().hasValue())
+			if((*LIBRARY->arth)[g]->canBePutAt(hero) && !(*LIBRARY->arth)[g]->getWarMachine().hasValue())
 				gameHandler->giveHeroNewArtifact(hero, ArtifactID(g), ArtifactPosition::FIRST_AVAILABLE);
 		}
 	}
@@ -506,7 +506,7 @@ void PlayerMessageProcessor::cheatGiveScrolls(PlayerColor player, const CGHeroIn
 	if(!hero)
 		return;
 
-	for(const auto & spell : LIBRARY->spellh->objects)
+	for(const auto & spell : LIBRARY->spellh->getObjects())
 		if(gameHandler->gameState().isAllowed(spell->getId()) && !spell->isSpecial())
 		{
 			gameHandler->giveHeroNewScroll(hero, spell->getId(), ArtifactPosition::FIRST_AVAILABLE);
@@ -786,7 +786,7 @@ void PlayerMessageProcessor::cheatSkill(PlayerColor player, const CGHeroInstance
 
 	if(identifier == "every")
 	{
-		for(const auto & skill : LIBRARY->skillh->objects)
+		for(const auto & skill : LIBRARY->skillh->getObjects())
 			gameHandler->changeSecSkill(hero, SecondarySkill(skill->getId()), mastery, ChangeValueMode::ABSOLUTE);
 		return;
 	}

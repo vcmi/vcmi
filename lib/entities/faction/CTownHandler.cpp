@@ -702,7 +702,7 @@ void CTownHandler::loadTown(LibraryLoadContext & context, CTown * town, const Js
 
 		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "heroClass", node.first, [=, &context](si32 classID)
 		{
-			context.lib.heroclassesh->objects[classID]->selectionProbability[town->faction->getId()] = chance;
+			context.lib.heroclassesh->getObjectForLoading(HeroClassID(classID))->selectionProbability[town->faction->getId()] = chance;
 		});
 	}
 
@@ -712,7 +712,7 @@ void CTownHandler::loadTown(LibraryLoadContext & context, CTown * town, const Js
 
 		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "spell", node.first, [=, &context](si32 spellID)
 		{
-			context.lib.spellh->objects.at(spellID)->probabilities[town->faction->getId()] = chance;
+			context.lib.spellh->getObjectForLoading(SpellID(spellID))->probabilities[town->faction->getId()] = chance;
 		});
 	}
 

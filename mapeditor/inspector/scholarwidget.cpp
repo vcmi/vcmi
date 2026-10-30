@@ -46,14 +46,14 @@ void ScholarWidget::loadData()
 		ui->pSkills->setItemData(i, QString::fromUtf8(NPrimarySkill::names[i]));
 	}
 	int ssi = 0;
-	for(const auto & skill : LIBRARY->skillh->objects)
+	for(const auto & skill : LIBRARY->skillh->getObjects())
 	{
 		ui->sSkills->insertItem(ssi, QString::fromStdString(skill->getNameTranslated()));
 		ui->sSkills->setItemData(ssi, QString::fromStdString(skill->getJsonKey()));
 		ssi++;
 	}
 	int spi = 0;
-	for(const auto & spell : LIBRARY->spellh->objects)
+	for(const auto & spell : LIBRARY->spellh->getObjects())
 	{
 		if(spell->isCommonHeroSpell())
 		{

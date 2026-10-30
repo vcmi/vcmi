@@ -265,7 +265,7 @@ CMapFormatJson::CMapFormatJson():
 
 TerrainId CMapFormatJson::getTerrainByCode(const std::string & code)
 {
-	for(const auto & object : LIBRARY->terrainTypeHandler->objects)
+	for(const auto & object : LIBRARY->terrainTypeHandler->getObjects())
 	{
 		if(object->shortIdentifier == code)
 			return object->getId();
@@ -275,7 +275,7 @@ TerrainId CMapFormatJson::getTerrainByCode(const std::string & code)
 
 RiverId CMapFormatJson::getRiverByCode(const std::string & code)
 {
-	for(const auto & object : LIBRARY->riverTypeHandler->objects)
+	for(const auto & object : LIBRARY->riverTypeHandler->getObjects())
 	{
 		if (object->shortIdentifier == code)
 			return object->getId();
@@ -285,7 +285,7 @@ RiverId CMapFormatJson::getRiverByCode(const std::string & code)
 
 RoadId CMapFormatJson::getRoadByCode(const std::string & code)
 {
-	for(const auto & object : LIBRARY->roadTypeHandler->objects)
+	for(const auto & object : LIBRARY->roadTypeHandler->getObjects())
 	{
 		if (object->shortIdentifier == code)
 			return object->getId();

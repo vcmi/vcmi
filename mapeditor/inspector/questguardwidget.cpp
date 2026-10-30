@@ -59,7 +59,7 @@ QuestGuardWidget::QuestGuardWidget(MapController & _controller, Quest & _sh, QWi
 	}
 	
 	//fill artifacts
-	for(const auto & artifactPtr : LIBRARY->arth->objects)
+	for(const auto & artifactPtr : LIBRARY->arth->getObjects())
 	{
 		auto artifactIndex = artifactPtr->getIndex();
 		auto * item = new QListWidgetItem(QString::fromStdString(artifactPtr->getNameTranslated()));
@@ -71,7 +71,7 @@ QuestGuardWidget::QuestGuardWidget(MapController & _controller, Quest & _sh, QWi
 	}
 	
 	//fill spells
-	for(const auto & spellPtr : LIBRARY->spellh->objects)
+	for(const auto & spellPtr : LIBRARY->spellh->getObjects())
 	{
 		auto spellIndex = spellPtr->getIndex();
 		auto * item = new QListWidgetItem(QString::fromStdString(spellPtr->getNameTranslated()));
@@ -83,8 +83,8 @@ QuestGuardWidget::QuestGuardWidget(MapController & _controller, Quest & _sh, QWi
 	}
 	
 	//fill skills
-	ui->lSkills->setRowCount(LIBRARY->skillh->objects.size());
-	for(const auto & skillPtr : LIBRARY->skillh->objects)
+	ui->lSkills->setRowCount(LIBRARY->skillh->size());
+	for(const auto & skillPtr : LIBRARY->skillh->getObjects())
 	{
 		auto skillIndex = skillPtr->getIndex();
 		auto * item = new QTableWidgetItem(QString::fromStdString(skillPtr->getNameTranslated()));
@@ -104,7 +104,7 @@ QuestGuardWidget::QuestGuardWidget(MapController & _controller, Quest & _sh, QWi
 	}
 	
 	//fill creatures
-	for(auto & creature : LIBRARY->creh->objects)
+	for(const auto * creature : LIBRARY->creh->getObjects())
 	{
 		ui->lCreatureId->addItem(QString::fromStdString(creature->getNameSingularTranslated()));
 		ui->lCreatureId->setItemData(ui->lCreatureId->count() - 1, creature->getIndex());

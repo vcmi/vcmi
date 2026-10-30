@@ -122,7 +122,7 @@ RewardsWidget::RewardsWidget(CMap & m, CRewardableObject & p, QWidget *parent) :
 	}
 	
 	//fill creatures
-	for(auto & creature : LIBRARY->creh->objects)
+	for(const auto * creature : LIBRARY->creh->getObjects())
 	{
 		ui->lCreatureId->addItem(QString::fromStdString(creature->getNameSingularTranslated()));
 		ui->lCreatureId->setItemData(ui->lCreatureId->count() - 1, creature->getIndex());

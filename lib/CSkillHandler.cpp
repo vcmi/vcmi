@@ -264,7 +264,7 @@ std::shared_ptr<CSkill> CSkillHandler::loadFromJson(LibraryLoadContext & context
 
 		context.resolver.requestIdentifierIfFound(skillPair.second.getModScope(), "heroClass", skillPair.first, [&context, skill, probability](si32 classID)
 		{
-			context.lib.heroclassesh->objects[classID]->secSkillProbability[skill->id] = probability;
+			context.lib.heroclassesh->getObjectForLoading(HeroClassID(classID))->secSkillProbability[skill->id] = probability;
 		});
 	}
 

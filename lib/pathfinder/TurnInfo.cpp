@@ -188,7 +188,7 @@ TurnInfo::TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, i
 			return true;
 		};
 
-		for (const auto & terrain : LIBRARY->terrainTypeHandler->objects)
+		for (const auto & terrain : LIBRARY->terrainTypeHandler->getObjects())
 		{
 			auto terrainId = terrain->getId();
 			if (allStacksNativeForTerrain(terrainId))

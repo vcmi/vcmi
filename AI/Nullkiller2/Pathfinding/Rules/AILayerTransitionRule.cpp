@@ -114,19 +114,19 @@ namespace AIPathfinding
 	{
 		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
 		{
-			for(const auto & spell : LIBRARY->spellh->objects)
+			for(const auto & spell : LIBRARY->spellh->getObjects())
 			{
 				if(!spell || !spell->isAdventure())
 					continue;
 
-				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::WATER_WALKING) && hero->canCastThisSpell(spell.get())
-				   && hero->mana >= hero->getSpellCost(spell.get()))
+				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::WATER_WALKING) && hero->canCastThisSpell(spell)
+				   && hero->mana >= hero->getSpellCost(spell))
 				{
 					waterWalkingActions[hero] = std::make_shared<WaterWalkingAction>(hero, spell->id);
 				}
 
-				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::FLYING_MOVEMENT) && hero->canCastThisSpell(spell.get())
-				   && hero->mana >= hero->getSpellCost(spell.get()))
+				if(spell->getAdventureMechanics().givesBonus(hero, BonusType::FLYING_MOVEMENT) && hero->canCastThisSpell(spell)
+				   && hero->mana >= hero->getSpellCost(spell))
 				{
 					airWalkingActions[hero] = std::make_shared<AirWalkingAction>(hero, spell->id);
 				}
@@ -175,14 +175,14 @@ namespace AIPathfinding
 
 		for(const CGHeroInstance * hero : nodeStorage->getAllHeroes())
 		{
-			for(const auto & spell : LIBRARY->spellh->objects)
+			for(const CSpell * spell : LIBRARY->spellh->getObjects())
 			{
 				if(!spell || !spell->isAdventure())
 					continue;
 
 				auto effect = spell->getAdventureMechanics().getEffectAs<SummonBoatEffect>(hero);
 
-				if(!effect || !hero->canCastThisSpell(spell.get()))
+				if(!effect || !hero->canCastThisSpell(spell))
 					continue;
 
 				if(effect->canCreateNewBoat() && effect->getSuccessChance(hero) == 100)

@@ -415,7 +415,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 
 			auto upgradeBtn = std::make_shared<CButton>(Point(upgradeButtonX, 5), AnimationPath::builtin("stackWindow/upgradeButton"), LIBRARY->generaltexth->zelp[446], onClick);
 
-			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), LIBRARY->creh->objects[upgradeInfo.info.getAvailableUpgrades()[buttonIndex]]->getIconIndex()));
+			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*LIBRARY->creh)[upgradeInfo.info.getAvailableUpgrades()[buttonIndex]]->getIconIndex()));
 
 			if(buttonsToCreate == 1) // single upgrade available
 				upgradeBtn->assignedKey = EShortcut::RECRUITMENT_UPGRADE;

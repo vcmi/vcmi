@@ -304,9 +304,9 @@ CombatValue::CombatValue(const GameLibrary & library)
 
 	std::vector<const CCreature *> builtinCreatures;
 
-	for(const auto & creature : library.creh->objects)
+	for(const auto & creature : library.creh->getObjects())
 		if(!creature->special && creature->getModScope() == ModScope::scopeBuiltin())
-			builtinCreatures.push_back(creature.get());
+			builtinCreatures.push_back(creature);
 
 	weighCombatScripts(library);
 	buildCurves(library, builtinCreatures);
@@ -316,10 +316,10 @@ CombatValue::CombatValue(const GameLibrary & library)
 
 void CombatValue::tabulateCreatures(const GameLibrary & library)
 {
-	creatureValues.resize(library.creh->objects.size());
+	creatureValues.resize(library.creh->size());
 
-	for(const auto & creature : library.creh->objects)
-		creatureValues.at(creature->getIndex()) = getAIValue(*creature, creature.get());
+	for(const auto & creature : library.creh->getObjects())
+		creatureValues.at(creature->getIndex()) = getAIValue(*creature, creature);
 }
 
 void CombatValue::buildCurves(const GameLibrary & library, const std::vector<const CCreature *> & builtinCreatures)

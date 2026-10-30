@@ -25,7 +25,7 @@ void forEachDimensionDoorSpell(const CGHeroInstance * hero, Function function)
 	if(!hero)
 		return;
 
-	for(const auto & spell : LIBRARY->spellh->objects)
+	for(const CSpell * spell : LIBRARY->spellh->getObjects())
 	{
 		if(!spell || !spell->isAdventure())
 			continue;
@@ -36,7 +36,7 @@ void forEachDimensionDoorSpell(const CGHeroInstance * hero, Function function)
 		if(!effect)
 			continue;
 
-		function(spell.get(), mechanics, effect);
+		function(spell, mechanics, effect);
 	}
 }
 
