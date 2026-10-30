@@ -1142,8 +1142,8 @@
 		"targetCondition" : {
 			"noneOf" : {
 				"bonus.MIND_IMMUNITY" : "normal",
-				"bonus.NON_LIVING" : "normal",
-				"bonus.MECHANICAL" : "normal",
+				"bonus.NON_LIVING" : "absolute",
+				"bonus.MECHANICAL" : "absolute",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
@@ -1212,8 +1212,8 @@
 		"targetCondition" : {
 			"noneOf" : {
 				"bonus.MIND_IMMUNITY" : "normal",
-				"bonus.NON_LIVING" : "normal",
-				"bonus.MECHANICAL" : "normal",
+				"bonus.NON_LIVING" : "absolute",
+				"bonus.MECHANICAL" : "absolute",
 				"bonus.SIEGE_WEAPON" : "absolute",
 				"bonus.UNDEAD" : "absolute"
 			}
@@ -1635,11 +1635,14 @@
 		},
 		"targetCondition" : {
 			"noneOf" : {
-				"bonus.MIND_IMMUNITY" : "absolute",
-				"bonus.NON_LIVING" : "absolute",
-				"bonus.MECHANICAL" : "absolute",
-				"bonus.SIEGE_WEAPON" : "absolute",
-				"bonus.UNDEAD" : "absolute"
+				"bonus.MIND_IMMUNITY" : "normal",
+				"bonus.NON_LIVING" : "normal",
+				"bonus.MECHANICAL" : "normal",
+				"bonus.UNDEAD" : "normal",
+				"core:creature.ballista" : "normal",
+				"core:creature.firstAidTent" : "absolute",
+				"core:creature.ammoCart" : "absolute",
+				"core:creature.catapult" : "absolute"
 			}
 		}
 	},
