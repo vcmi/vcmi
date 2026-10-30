@@ -445,7 +445,7 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 		case 3: { //EventCondition::HAVE_BUILDING
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
-			const auto * ctown = LIBRARY->townh->getRandomFaction()->town.get();
+			const auto * ctown = LIBRARY->townh->getRandomFaction()->getTown();
 			for(int bId : ctown->getAllBuildings())
 				victoryTypeWidget->addItem(QString::fromStdString(defaultBuildingIdConversion(BuildingID(bId))), QVariant::fromValue(bId));
 

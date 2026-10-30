@@ -34,9 +34,9 @@ protected:
 TEST_F(CFactionTest, HasTown)
 {
 	EXPECT_FALSE(subject->hasTown());
-	subject->town = std::make_unique<CTown>();
+	subject->setTown(std::make_unique<CTown>());
 	EXPECT_TRUE(subject->hasTown());
-	subject->town.reset();
+	subject->setTown(nullptr);
 	EXPECT_FALSE(subject->hasTown());
 }
 
@@ -56,9 +56,9 @@ TEST_F(CFactionTest, RegistersIcons)
 		registarCb(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2), std::forward<decltype(PH3)>(PH3), std::forward<decltype(PH4)>(PH4));
 	};
 
-	subject->town = std::make_unique<CTown>();
+	auto town = std::make_unique<CTown>();
 
-	CTown::ClientInfo & info = subject->town->clientInfo;
+	CTown::ClientInfo & info = town->clientInfo;
 
 	info.icons[0][0] = 10;
 	info.icons[0][1] = 11;
@@ -76,6 +76,8 @@ TEST_F(CFactionTest, RegistersIcons)
 	info.iconSmall[1][1] = "Test40";
 	info.towerIconSmall = "Test5";
 	info.towerIconLarge = "Test6";
+
+	subject->setTown(std::move(town));
 
 
 	EXPECT_CALL(*this, registarCb(Eq(10), Eq(0), "ITPT", "Test1"));
