@@ -181,6 +181,8 @@ public:
 	virtual void visitLobbyUpdateMapInfo(LobbyUpdateMapInfo & pack) {}
 	virtual void visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack) {}
 	virtual void visitLobbyScenarioList(LobbyScenarioList & pack) {}
+	virtual void visitLobbyRequestScenarioInfo(LobbyRequestScenarioInfo & pack) {}
+	virtual void visitLobbyScenarioInfo(LobbyScenarioInfo & pack) {}
 	virtual void visitLobbySetMap(LobbySetMap & pack) {}
 	virtual void visitLobbySetCampaign(LobbySetCampaign & pack) {}
 	virtual void visitLobbySetCampaignMap(LobbySetCampaignMap & pack) {}

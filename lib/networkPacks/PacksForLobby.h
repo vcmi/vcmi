@@ -253,6 +253,36 @@ struct DLL_LINKAGE LobbyScenarioList : public CPackForLobby
 	}
 };
 
+/// Sent by host to request map info of a saved game without selecting it, for the in-game save screen
+struct DLL_LINKAGE LobbyRequestScenarioInfo : public CLobbyPackToServer
+{
+	ScenarioSelection selection;
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & selection;
+	}
+};
+
+/// Server response to LobbyRequestScenarioInfo, sent only to the requesting client
+struct DLL_LINKAGE LobbyScenarioInfo : public CPackForLobby
+{
+	ScenarioSelection selection;
+	std::shared_ptr<CMapInfo> mapInfo; ///< null if the file could not be loaded
+	std::string error; ///< reason why the file could not be loaded
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & selection;
+		h & mapInfo;
+		h & error;
+	}
+};
+
 /// Sent by host to select a map, saved game or campaign; the server loads its own copy and sends it in LobbyUpdateMapInfo
 struct DLL_LINKAGE LobbySetMap : public CLobbyPackToServer
 {

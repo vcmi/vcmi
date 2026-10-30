@@ -597,6 +597,37 @@ void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScen
 	result = false;
 }
 
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyRequestScenarioInfo(LobbyRequestScenarioInfo & pack)
+{
+	result = srv.isClientHost(connection->connectionID);
+
+	if(pack.selection.type != ScenarioSelection::EType::SAVE || !boost::algorithm::istarts_with(pack.selection.fileURI, "Saves/"))
+	{
+		logNetwork->error("Rejecting scenario info request for '%s' of type %d", pack.selection.fileURI, static_cast<int>(pack.selection.type));
+		result = false;
+	}
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioInfo(LobbyRequestScenarioInfo & pack)
+{
+	LobbyScenarioInfo reply;
+	reply.selection = pack.selection;
+	try
+	{
+		auto mapInfo = std::make_shared<CMapInfo>();
+		mapInfo->saveInit(ResourcePath(pack.selection.fileURI, EResType::SAVEGAME));
+		reply.mapInfo = mapInfo;
+	}
+	catch(const std::exception & e)
+	{
+		// list entry is built from metadata, so the rest of the file may still be invalid
+		logGlobal->error("Failed to load %s: %s", pack.selection.fileURI, e.what());
+		reply.error = e.what();
+	}
+	connection->sendPack(reply);
+	result = false;
+}
+
 static void deleteFile(LobbyDelete::EType type, const std::string & fileName)
 {
 	if(type == LobbyDelete::EType::SAVEGAME || type == LobbyDelete::EType::RANDOMMAP)

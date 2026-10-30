@@ -12,6 +12,7 @@
 #include "LobbyClientNetPackVisitors.h"
 #include "lobby/CSelectionBase.h"
 #include "lobby/CLobbyScreen.h"
+#include "lobby/CSavingScreen.h"
 
 #include "lobby/OptionsTab.h"
 #include "lobby/RandomMapTab.h"
@@ -287,6 +288,13 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyScenarioList(LobbyScenarioList 
 	auto * screen = dynamic_cast<CSelectionBase *>(SEL);
 	if(screen && screen->tabSel)
 		screen->tabSel->onScenarioListReceived(pack);
+}
+
+void ApplyOnLobbyScreenNetPackVisitor::visitLobbyScenarioInfo(LobbyScenarioInfo & pack)
+{
+	auto * screen = dynamic_cast<CSavingScreen *>(SEL);
+	if(screen)
+		screen->onScenarioInfoReceived(pack);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & pack)

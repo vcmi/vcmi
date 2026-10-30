@@ -831,6 +831,16 @@ void LobbyScenarioList::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyScenarioList(*this);
 }
 
+void LobbyRequestScenarioInfo::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyRequestScenarioInfo(*this);
+}
+
+void LobbyScenarioInfo::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyScenarioInfo(*this);
+}
+
 void LobbySetMap::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbySetMap(*this);

@@ -15,6 +15,7 @@
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
+#include "../CServerHandler.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
@@ -23,11 +24,11 @@
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
-#include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/SavegamePath.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/networkPacks/PacksForLobby.h"
 
 CSavingScreen::CSavingScreen()
 	: CSelectionBase(ESelectionScreen::saveGame)
@@ -74,27 +75,34 @@ void CSavingScreen::changeSelection(const std::shared_ptr<ElementInfo> & element
 
 	if(element)
 	{
-		try
-		{
-			auto mapInfo = std::make_shared<CMapInfo>();
-			mapInfo->saveInit(ResourcePath(element->fileURI, EResType::SAVEGAME));
-			localTextOverlay.emplace(mapInfo->mapHeader->texts);
-			localMi = mapInfo;
-		}
-		catch(const std::exception & e)
-		{
-			// list entry is built from metadata, so the rest of the file may still be invalid
-			logGlobal->error("Failed to load %s: %s", element->fileURI, e.what());
-
-			MetaString message;
-			message.appendTextID("vcmi.client.errors.invalidMap");
-			message.replaceRawString(e.what());
-			CInfoWindow::showInfoDialog(message.toString(&GAME->translator()), {});
-		}
+		LobbyRequestScenarioInfo request;
+		request.selection = {ScenarioSelection::EType::SAVE, element->fileURI};
+		GAME->server().sendLobbyPack(request);
 	}
 
 	card->changeSelection();
 	card->redraw();
+}
+
+void CSavingScreen::onScenarioInfoReceived(const LobbyScenarioInfo & pack)
+{
+	if(!selectedElement || pack.selection.fileURI != selectedElement->fileURI)
+		return;
+
+	if(pack.mapInfo)
+	{
+		localTextOverlay.emplace(pack.mapInfo->mapHeader->texts);
+		localMi = pack.mapInfo;
+		card->changeSelection();
+		card->redraw();
+	}
+	else
+	{
+		MetaString message;
+		message.appendTextID("vcmi.client.errors.invalidMap");
+		message.replaceRawString(pack.error);
+		CInfoWindow::showInfoDialog(message.toString(&GAME->translator()), {});
+	}
 }
 
 void CSavingScreen::close()
@@ -118,7 +126,11 @@ void CSavingScreen::saveGame()
 
 	auto confirmOverwrite = [this, path, overWrite]()
 	{
-		if(CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
+		const bool exists = std::ranges::any_of(tabSel->allItems, [&path](const auto & item)
+		{
+			return !item->isFolder && boost::algorithm::iequals(item->fileURI, path);
+		});
+		if(exists)
 		{
 			MetaString hlp = MetaString::createFromTextID("core.genrltxt.493"); //%s exists. Overwrite?
 			hlp.replaceRawString(tabSel->inputName->getText());

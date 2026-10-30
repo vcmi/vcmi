@@ -15,13 +15,14 @@
 struct StartInfo;
 class CMapInfo;
 class ElementInfo;
+struct LobbyScenarioInfo;
 
 class CSelectionBase;
 
 class CSavingScreen : public CSelectionBase
 {
 	std::shared_ptr<ElementInfo> selectedElement;
-	/// Texts of the selected save, read from the local file since the server does not send map info during the game
+	/// Texts of the selected save, from the map info received for it
 	std::optional<TranslatorOverlay> localTextOverlay;
 
 public:
@@ -30,6 +31,8 @@ public:
 	CSavingScreen();
 
 	void changeSelection(const std::shared_ptr<ElementInfo> & element);
+	/// Shows map info of the selected save; replies for a save that is no longer selected are ignored
+	void onScenarioInfoReceived(const LobbyScenarioInfo & pack);
 	void saveGame();
 
 	const CMapInfo * getMapInfo() override;

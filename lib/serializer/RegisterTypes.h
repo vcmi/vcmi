@@ -320,4 +320,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbyUpdateMapInfo>(273);
 	s.template registerType<LobbyRequestScenarioList>(274);
 	s.template registerType<LobbyScenarioList>(275);
+	s.template registerType<LobbyRequestScenarioInfo>(276);
+	s.template registerType<LobbyScenarioInfo>(277);
 }

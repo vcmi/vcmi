@@ -62,5 +62,6 @@ public:
 	void visitLobbyUpdateState(LobbyUpdateState & pack) override;
 	void visitLobbyShowMessage(LobbyShowMessage & pack) override;
 	void visitLobbyScenarioList(LobbyScenarioList & pack) override;
+	void visitLobbyScenarioInfo(LobbyScenarioInfo & pack) override;
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };
