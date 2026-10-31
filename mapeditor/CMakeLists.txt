@@ -190,6 +190,7 @@ set(editor_FORMS
 		inspector/heroartifactswidget.ui
 		inspector/artifactwidget.ui
 		inspector/heroskillswidget.ui
+		inspector/herospellwidget.ui
 		inspector/portraitwidget.ui
 		inspector/playerselectionwidget.ui
 		inspector/abilitieswidget.ui
@@ -284,7 +285,6 @@ endif()
 assign_source_group(${editor_SRCS} ${editor_HEADERS} ${editor_RESOURCES} ${editor_TS} ${editor_ICON})
 
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 if(POLICY CMP0071)
@@ -294,6 +294,8 @@ endif()
 # As moc files are generated in the binary dir, tell CMake
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+qt_wrap_ui(vcmieditor editor_FORMS ${editor_FORMS})
 
 if(ENABLE_SINGLE_APP_BUILD OR ANDROID)
 	add_library(vcmieditor OBJECT ${editor_QM})
@@ -386,3 +388,6 @@ if(NOT WIN32 AND NOT APPLE)
 	endforeach()
 	install(FILES "vcmieditor.desktop" DESTINATION share/applications)
 endif()
+
+set(CMAKE_AUTOMOC OFF)
+set(CMAKE_AUTORCC OFF)

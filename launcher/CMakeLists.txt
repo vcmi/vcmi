@@ -340,3 +340,7 @@ else()
 		install(FILES "${CMAKE_CURRENT_BINARY_DIR}/eu.vcmi.VCMI.metainfo.xml" DESTINATION share/metainfo)
 	endif()
 endif()
+
+set(CMAKE_AUTOMOC OFF)
+set(CMAKE_AUTOUIC OFF)
+set(CMAKE_AUTORCC OFF)
