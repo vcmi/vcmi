@@ -36,11 +36,14 @@ public:
 	std::string getNameTranslated() const override;
 	TerrainId getDefaultTerrain() const { return defaultTerrain; }
 	std::string getIcon() const { return icon; }
+	/// Text of tavern rumor about region of this layer that contains the Grail, empty if layer has no such rumor
+	std::string getGrailRumorTextID() const { return grailRumorTextID; }
 
 	MapLayerType();
 
 private:
 	std::string icon;
+	std::string grailRumorTextID;
 };
 
 class MapLayerTypeService : public EntityServiceT<MapLayerId, MapLayerType>

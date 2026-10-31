@@ -37,6 +37,20 @@ std::shared_ptr<MapLayerType> MapLayerTypeHandler::loadFromJson(LibraryLoadConte
 
 	context.lib.generaltexth->registerString(scope, info->getNameTextID(), json["text"]);
 
+	const JsonNode & grailRumor = json["grailRumor"];
+	if (!grailRumor.String().empty())
+	{
+		if (grailRumor.String()[0] == '@')
+		{
+			info->grailRumorTextID = grailRumor.String().substr(1);
+		}
+		else
+		{
+			info->grailRumorTextID = TextIdentifier("mapLayer", scope, identifier, "grailRumor").get();
+			context.lib.generaltexth->registerString(scope, info->grailRumorTextID, grailRumor);
+		}
+	}
+
 	context.resolver.requestIdentifierIfNotNull("terrain", json["defaultTerrain"], [info](int32_t terrainIndex)
 	{
 		info->defaultTerrain = TerrainId(terrainIndex);
