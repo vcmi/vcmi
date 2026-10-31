@@ -287,21 +287,20 @@
         <translation>Annulla</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>Installed version</source>
         <translation>Versione installata</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="356"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>Latest version</source>
         <translation>Ultima versione</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="367"/>
         <source>Size</source>
-        <translation>Dimensione</translation>
+        <translation type="vanished">Dimensione</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="370"/>
@@ -324,90 +323,81 @@
         <translation>Contatto</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
         <source>Compatibility</source>
         <translation>Compatibilità</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
         <source>Required VCMI version</source>
         <translation>Versione VCMI richiesta</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>Supported VCMI version</source>
-        <translation>Versione VCMI supportata</translation>
+        <translation type="vanished">Versione VCMI supportata</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>please upgrade mod</source>
-        <translation>Aggiorna il mod</translation>
+        <translation type="vanished">Aggiorna il mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="217"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1183"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1188"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1201"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1206"/>
         <source>mods repository index</source>
         <translation>Indice repository mod</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
         <source>Git-Repository</source>
-        <translation type="unfinished">Repository Git</translation>
+        <translation type="obsolete">Repository Git</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>GitHub-Stars</source>
-        <translation type="unfinished">Stelle GitHub</translation>
+        <translation type="obsolete">Stelle GitHub</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
         <source>or newer</source>
-        <translation>o più recente</translation>
+        <translation type="vanished">o più recente</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="406"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
         <source>Supported VCMI versions</source>
         <translation>Versioni VCMI supportate</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="422"/>
         <source>Languages</source>
-        <translation>Lingue</translation>
+        <translation type="vanished">Lingue</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Required mods</source>
         <translation>Mod richiesti</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="431"/>
         <source>Conflicting mods</source>
         <translation>Mod in conflitto</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="437"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation>Questo mod non può essere abilitato perché traduce in una lingua diversa.</translation>
+        <translation type="vanished">Questo mod non può essere abilitato perché traduce in una lingua diversa.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="438"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation>Questo mod non può essere abilitato perché le seguenti dipendenze non sono presenti</translation>
+        <translation type="vanished">Questo mod non può essere abilitato perché le seguenti dipendenze non sono presenti</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="439"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation>Questo mod non può essere installato perché le seguenti dipendenze non sono presenti</translation>
+        <translation type="vanished">Questo mod non può essere installato perché le seguenti dipendenze non sono presenti</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="440"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
-        <translation>Questo è un sottomod e non può essere installato o disinstallato separatamente dal suo mod principale</translation>
+        <translation type="vanished">Questo è un sottomod e non può essere installato o disinstallato separatamente dal suo mod principale</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="458"/>
         <source>Notes</source>
         <translation>Note</translation>
     </message>
@@ -468,121 +458,121 @@ Install successfully downloaded?</source>
 Installazione scaricata con successo?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1284"/>
         <source>Installing Heroes Chronicles</source>
         <translation>Installazione di Heroes Chronicles</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1291"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
         <source>Extracting error!</source>
         <translation type="unfinished">Errore durante l&apos;estrazione!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
         <source>Invalid file selected</source>
         <translation type="unfinished">File selezionato non valido</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
         <translation type="unfinished">Devi selezionare un file di installazione di Heroes Chronicles!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1425"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1450"/>
         <source>Save exists</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1426"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1451"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
         <source>Success</source>
         <translation type="unfinished">Successo</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
         <source>Imported %1 save files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1499"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1522"/>
         <source>Installing mod %1</source>
         <translation>Installazione del mod %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1530"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1553"/>
         <source>%1 requires: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1533"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1556"/>
         <source>Failed to enable mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1534"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1557"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
         <source>Mods disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1572"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
         <source>Map exists</source>
         <translation type="unfinished">La mappa esiste</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation type="unfinished">La mappa &apos;%1&apos; esiste già. Vuoi sovrascriverla?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1062"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1072"/>
         <source>Yes to All</source>
         <translation type="unfinished">Sì a tutto</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1063"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1073"/>
         <source>No to All</source>
         <translation type="unfinished">No a tutto</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
         <source>Import complete</source>
         <translation type="unfinished">Importazione completata</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
         <source>%n map(s) successfully imported.</source>
         <translation type="unfinished">
             <numerusform>%n mappa(e) importata(e) con successo.</numerusform>
@@ -590,21 +580,106 @@ Reason: %2</source>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
         <source>Uninstall mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
         <source>Import failed</source>
         <translation type="unfinished">Importazione non riuscita</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="364"/>
+        <source>Last updated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="367"/>
+        <source>Installed size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
+        <source>GitHub repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
+        <source>GitHub stars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
+        <source>Not compatible with this VCMI version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <source>%1 or newer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
+        <source>up to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <source>%1 - %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="412"/>
+        <source>%1, complete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="414"/>
+        <source>%1, %2% translated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="416"/>
+        <source>%1, available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="418"/>
+        <source>Translation</source>
+        <translation type="unfinished">Traduzione</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
+        <source>This translation cannot be enabled because it is for a different language than the one selected in settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
+        <source>This mod cannot be enabled because these required mods are missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
+        <source>This mod cannot be installed because these required mods are missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="436"/>
+        <source>This is a submod. It cannot be installed or uninstalled separately from its parent mod.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="452"/>
+        <source>This mod failed automatic validation and may not work correctly.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="932"/>
@@ -614,7 +689,7 @@ Process successfully downloaded files?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1000"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1010"/>
         <source>VCMI could not confirm that it is connected to the real download server.
 
 This usually happens on older systems, such as Windows 7, that are missing recent security updates.
@@ -625,42 +700,41 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1017"/>
         <source>Unable to verify download server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation type="unfinished">Impossibile importare le seguenti mappe:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1696"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1713"/>
         <source>Operation failed</source>
         <translation>Operazione fallita</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1697"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1714"/>
         <source>Encountered errors:
 </source>
         <translation>Errori riscontrati:</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1749"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1766"/>
         <source>screenshots</source>
         <translation>screenshot</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1755"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1772"/>
         <source>Screenshot %1</source>
         <translation>Screenshot %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
         <source>Mod is incompatible</source>
-        <translation>Il mod è incompatibile</translation>
+        <translation type="vanished">Il mod è incompatibile</translation>
     </message>
 </context>
 <context>
@@ -1242,7 +1316,7 @@ Modalità Schermo Intero Esclusiva - il gioco coprirà l&apos;intero schermo e u
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/modstate.cpp" line="159"/>
+        <location filename="../modManager/modstate.cpp" line="176"/>
         <location filename="../modManager/modstatemodel.cpp" line="106"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
@@ -1968,17 +2042,22 @@ Bin (%n byte):
         <translation>Mod</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="53"/>
+        <location filename="../mainwindow_moc.cpp" line="54"/>
         <source>Error starting executable</source>
         <translation>Errore nell&apos;avvio dell&apos;eseguibile</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="465"/>
+        <location filename="../mainwindow_moc.cpp" line="456"/>
+        <source>mod archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow_moc.cpp" line="467"/>
         <source>Replace config file?</source>
         <translation>Sostituire il file di configurazione?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="465"/>
+        <location filename="../mainwindow_moc.cpp" line="467"/>
         <source>Do you want to replace %1?</source>
         <translation>Vuoi sostituire %1?</translation>
     </message>
@@ -2007,93 +2086,93 @@ Bin (%n byte):
         <translation type="vanished">Il mod è già installato</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="207"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="222"/>
         <source>Can not uninstall submod</source>
         <translation>Impossibile disinstallare il sotto-mod</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="210"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="225"/>
         <source>Mod is not installed</source>
         <translation>Il mod non è installato</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="223"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="238"/>
         <source>Mod is not located in user data directory and can not be managed by launcher</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="227"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="242"/>
         <source>Mod directory is a git repository and can not be managed by launcher</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="245"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is already enabled</source>
         <translation>Il mod è già abilitato</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="248"/>
-        <location filename="../modManager/modstatecontroller.cpp" line="274"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="263"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="289"/>
         <source>Mod must be installed first</source>
         <translation>Il mod deve essere installato prima</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="252"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="267"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
         <translation>Il mod non è compatibile, aggiorna VCMI e controlla le ultime versioni del mod</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="255"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="270"/>
         <source>Can not enable translation mod for a different language!</source>
         <translation>Impossibile abilitare il mod di traduzione per una lingua diversa!</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="275"/>
         <source>Required mod %1 is missing</source>
         <translation>Il mod richiesto %1 è mancante</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="271"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="286"/>
         <source>Mod is already disabled</source>
         <translation>Il mod è già disabilitato</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="304"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="319"/>
         <source>Mod archive is missing</source>
         <translation>Archivio del mod mancante</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="309"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="324"/>
         <source>Mod archive is invalid or corrupted</source>
         <translation>L&apos;archivio del mod non è valido o è corrotto</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="317"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="332"/>
         <source>Failed to remove directory %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="320"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="335"/>
         <source>Failed to create directory %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="352"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="367"/>
         <source>Failed to extract mod data</source>
         <translation>Impossibile estrarre i dati del mod</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="359"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="374"/>
         <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="386"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="401"/>
         <source>Mod data was not found</source>
         <translation>Dati del mod non trovati</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="390"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="405"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
         <translation>Il mod si trova in una directory protetta, rimuovilo manualmente:</translation>
@@ -2233,18 +2312,18 @@ Reason: %2</source>
 Motivo: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
         <source>Import failed</source>
         <translation type="unfinished">Importazione non riuscita</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
         <source>Failed to import save %1 from %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
         <source>Failed to import save file %1</source>
         <translation type="unfinished"></translation>
     </message>

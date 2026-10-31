@@ -287,21 +287,20 @@
         <translation>终止</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>Installed version</source>
         <translation>已安装的版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="356"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>Latest version</source>
         <translation>最新版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="367"/>
         <source>Size</source>
-        <translation>大小</translation>
+        <translation type="vanished">大小</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="370"/>
@@ -324,90 +323,81 @@
         <translation>联系方式</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
         <source>Compatibility</source>
         <translation>兼容性</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
         <source>Required VCMI version</source>
         <translation>需要VCMI版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>Supported VCMI version</source>
-        <translation>支持的VCMI版本</translation>
+        <translation type="vanished">支持的VCMI版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>please upgrade mod</source>
-        <translation>请更新模组</translation>
+        <translation type="vanished">请更新模组</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="217"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1183"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1188"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1201"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1206"/>
         <source>mods repository index</source>
         <translation>模组源索引</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
         <source>Git-Repository</source>
-        <translation>Git源</translation>
+        <translation type="vanished">Git源</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>GitHub-Stars</source>
-        <translation>GitHub星标</translation>
+        <translation type="vanished">GitHub星标</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
         <source>or newer</source>
-        <translation>或更新的版本</translation>
+        <translation type="vanished">或更新的版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="406"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
         <source>Supported VCMI versions</source>
         <translation>支持的VCMI版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="422"/>
         <source>Languages</source>
-        <translation>语言</translation>
+        <translation type="vanished">语言</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Required mods</source>
         <translation>前置模组</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="431"/>
         <source>Conflicting mods</source>
         <translation>冲突的模组</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="437"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation>这个模组无法被启用，因为它被翻译成其他语言。</translation>
+        <translation type="vanished">这个模组无法被启用，因为它被翻译成其他语言。</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="438"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation>这个模组无法被启用，因为下列依赖不满足</translation>
+        <translation type="vanished">这个模组无法被启用，因为下列依赖不满足</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="439"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation>这个模组无法被安装，因为下列依赖不满足</translation>
+        <translation type="vanished">这个模组无法被安装，因为下列依赖不满足</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="440"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
-        <translation>这是一个子模组，无法脱离所属模组单独安装或卸载</translation>
+        <translation type="vanished">这是一个子模组，无法脱离所属模组单独安装或卸载</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="458"/>
         <source>Notes</source>
         <translation>注释</translation>
     </message>
@@ -470,7 +460,7 @@ Install successfully downloaded?</source>
 安装下载成功的部分？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
@@ -479,69 +469,69 @@ Please report this issue to developers</source>
 请将这个问题反馈给开发者</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1284"/>
         <source>Installing Heroes Chronicles</source>
         <translation>安装历代记</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1291"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
         <source>Extracting error!</source>
         <translation>提取错误！</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
         <source>Invalid file selected</source>
         <translation>所选的文件无效</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
         <translation>您必须选择一个历代记安装文件！</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1425"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1450"/>
         <source>Save exists</source>
         <translation>存档已存在</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1426"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1451"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>存档“ %1”已存在，你要覆盖它吗？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
         <translation>从%1导入存档失败。
 原因：%2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
         <source>Success</source>
         <translation>成功</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
         <source>Imported %1 save files</source>
         <translation>已导入 %1 个存档文件</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1499"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1522"/>
         <source>Installing mod %1</source>
         <translation>正在安装模组 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1530"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1553"/>
         <source>%1 requires: %2</source>
         <translation>%1 需求：%2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1533"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1556"/>
         <source>Failed to enable mod</source>
         <translation>启用模组失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1534"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1557"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
@@ -550,12 +540,12 @@ Reason: %2</source>
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
         <source>Mods disabled</source>
         <translation>模组已关闭</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1572"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
@@ -564,55 +554,140 @@ Reason: %2</source>
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
         <source>Map exists</source>
         <translation>地图已存在</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>地图 &apos;%1&apos; 已存在。要覆盖吗？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1062"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1072"/>
         <source>Yes to All</source>
         <translation>全部是</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1063"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1073"/>
         <source>No to All</source>
         <translation>全部否</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
         <source>Import complete</source>
         <translation>导入完成</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>已成功导入 %1 张地图。</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
         <source>Uninstall mod</source>
         <translation>卸载模组</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation>你确定要卸载%1？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
         <source>Import failed</source>
         <translation>导入失败</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="364"/>
+        <source>Last updated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="367"/>
+        <source>Installed size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
+        <source>GitHub repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
+        <source>GitHub stars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
+        <source>Not compatible with this VCMI version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <source>%1 or newer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
+        <source>up to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <source>%1 - %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="412"/>
+        <source>%1, complete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="414"/>
+        <source>%1, %2% translated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="416"/>
+        <source>%1, available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="418"/>
+        <source>Translation</source>
+        <translation type="unfinished">本地化</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
+        <source>This translation cannot be enabled because it is for a different language than the one selected in settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
+        <source>This mod cannot be enabled because these required mods are missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
+        <source>This mod cannot be installed because these required mods are missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="436"/>
+        <source>This is a submod. It cannot be installed or uninstalled separately from its parent mod.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="452"/>
+        <source>This mod failed automatic validation and may not work correctly.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="932"/>
@@ -624,7 +699,7 @@ Process successfully downloaded files?</source>
 是否处理已成功下载的文件？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1000"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1010"/>
         <source>VCMI could not confirm that it is connected to the real download server.
 
 This usually happens on older systems, such as Windows 7, that are missing recent security updates.
@@ -641,43 +716,42 @@ Do you want to turn off this check and try again? You can turn it back on at any
 是否要关闭此项检查并重试？你可以随时在启动器设置中通过关闭“忽略SSL错误”选项重新启用此项检查。</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1017"/>
         <source>Unable to verify download server</source>
         <translation>无法验证下载服务器</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>无法导入以下地图：
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1696"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1713"/>
         <source>Operation failed</source>
         <translation>操作失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1697"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1714"/>
         <source>Encountered errors:
 </source>
         <translation>遇到问题：
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1749"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1766"/>
         <source>screenshots</source>
         <translation>截图</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1755"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1772"/>
         <source>Screenshot %1</source>
         <translation>截图 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
         <source>Mod is incompatible</source>
-        <translation>模组不兼容</translation>
+        <translation type="vanished">模组不兼容</translation>
     </message>
 </context>
 <context>
@@ -1259,7 +1333,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/modstate.cpp" line="159"/>
+        <location filename="../modManager/modstate.cpp" line="176"/>
         <location filename="../modManager/modstatemodel.cpp" line="106"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
@@ -1988,17 +2062,22 @@ Bin (%n字节):
         <translation>模组</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="53"/>
+        <location filename="../mainwindow_moc.cpp" line="54"/>
         <source>Error starting executable</source>
         <translation>启动可执行文件时出错</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="465"/>
+        <location filename="../mainwindow_moc.cpp" line="456"/>
+        <source>mod archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow_moc.cpp" line="467"/>
         <source>Replace config file?</source>
         <translation>替换配置文件？</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="465"/>
+        <location filename="../mainwindow_moc.cpp" line="467"/>
         <source>Do you want to replace %1?</source>
         <translation>您想要替换%1吗？</translation>
     </message>
@@ -2027,93 +2106,93 @@ Bin (%n字节):
         <translation type="vanished">模组已安装</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="207"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="222"/>
         <source>Can not uninstall submod</source>
         <translation>无法卸载子模组</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="210"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="225"/>
         <source>Mod is not installed</source>
         <translation>模组未安装</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="223"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="238"/>
         <source>Mod is not located in user data directory and can not be managed by launcher</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="227"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="242"/>
         <source>Mod directory is a git repository and can not be managed by launcher</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="245"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is already enabled</source>
         <translation>模组已启用</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="248"/>
-        <location filename="../modManager/modstatecontroller.cpp" line="274"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="263"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="289"/>
         <source>Mod must be installed first</source>
         <translation>需要先安装模组</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="252"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="267"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
         <translation>模组不兼容，请更新VCMI并获取模组最新版本</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="255"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="270"/>
         <source>Can not enable translation mod for a different language!</source>
         <translation>无法启用不同语言的模组！</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="275"/>
         <source>Required mod %1 is missing</source>
         <translation>需要的模组%1未找到</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="271"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="286"/>
         <source>Mod is already disabled</source>
         <translation>模组已禁用</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="304"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="319"/>
         <source>Mod archive is missing</source>
         <translation>模组归档文件未找到</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="309"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="324"/>
         <source>Mod archive is invalid or corrupted</source>
         <translation>模组归档文件无效或损坏</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="317"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="332"/>
         <source>Failed to remove directory %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="320"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="335"/>
         <source>Failed to create directory %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="352"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="367"/>
         <source>Failed to extract mod data</source>
         <translation>提取模组数据失败</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="359"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="374"/>
         <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="386"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="401"/>
         <source>Mod data was not found</source>
         <translation>未找到模组数据</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="390"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="405"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
         <translation>模组位于受保护的目录，请手动删除它:
@@ -2254,18 +2333,18 @@ Reason: %2</source>
 原因：%2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
         <source>Import failed</source>
         <translation>导入失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
         <source>Failed to import save %1 from %2</source>
         <translation>从%2导入存档%1失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
         <source>Failed to import save file %1</source>
         <translation>导入存档文件%1失败</translation>
     </message>

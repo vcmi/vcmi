@@ -287,21 +287,20 @@
         <translation>İptal</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="355"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>Installed version</source>
         <translation>Yüklü sürüm</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="356"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>Latest version</source>
         <translation>En son sürüm</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="367"/>
         <source>Size</source>
-        <translation>Boyut</translation>
+        <translation type="vanished">Boyut</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="370"/>
@@ -324,90 +323,81 @@
         <translation>İletişim</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
         <source>Compatibility</source>
         <translation>Uyumluluk</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
         <source>Required VCMI version</source>
         <translation>Gerekli VCMI sürümü</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>Supported VCMI version</source>
-        <translation>Desteklenen VCMI sürümü</translation>
+        <translation type="vanished">Desteklenen VCMI sürümü</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="401"/>
         <source>please upgrade mod</source>
-        <translation>lütfen modu güncelleyin</translation>
+        <translation type="vanished">lütfen modu güncelleyin</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="217"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1183"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1188"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1201"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1206"/>
         <source>mods repository index</source>
         <translation>mod deposu dizini</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
         <source>Git-Repository</source>
-        <translation>Git Deposu</translation>
+        <translation type="vanished">Git Deposu</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>GitHub-Stars</source>
-        <translation>GitHub Yıldızları</translation>
+        <translation type="vanished">GitHub Yıldızları</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="403"/>
         <source>or newer</source>
-        <translation>veya daha yeni</translation>
+        <translation type="vanished">veya daha yeni</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="406"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
         <source>Supported VCMI versions</source>
         <translation>Desteklenen VCMI sürümleri</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="422"/>
         <source>Languages</source>
-        <translation>Diller</translation>
+        <translation type="vanished">Diller</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Required mods</source>
         <translation>Gerekli modlar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="431"/>
         <source>Conflicting mods</source>
         <translation>Çakışan modlar</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="437"/>
         <source>This mod cannot be enabled because it translates into a different language.</source>
-        <translation>Bu mod, farklı bir dile çeviri yaptığı için etkinleştirilemez.</translation>
+        <translation type="vanished">Bu mod, farklı bir dile çeviri yaptığı için etkinleştirilemez.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="438"/>
         <source>This mod can not be enabled because the following dependencies are not present</source>
-        <translation>Bu mod, aşağıdaki bağımlılıklar mevcut olmadığı için etkinleştirilemez</translation>
+        <translation type="vanished">Bu mod, aşağıdaki bağımlılıklar mevcut olmadığı için etkinleştirilemez</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="439"/>
         <source>This mod can not be installed because the following dependencies are not present</source>
-        <translation>Bu mod, aşağıdaki bağımlılıklar mevcut olmadığı için yüklenemez</translation>
+        <translation type="vanished">Bu mod, aşağıdaki bağımlılıklar mevcut olmadığı için yüklenemez</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="440"/>
         <source>This is a submod and it cannot be installed or uninstalled separately from its parent mod</source>
-        <translation>Bu bir alt moddur ve ana moddan bağımsız olarak yüklenemez veya kaldırılamaz</translation>
+        <translation type="vanished">Bu bir alt moddur ve ana moddan bağımsız olarak yüklenemez veya kaldırılamaz</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="458"/>
         <source>Notes</source>
         <translation>Notlar</translation>
     </message>
@@ -470,7 +460,7 @@ Install successfully downloaded?</source>
 İndirme işlemi başarıyla tamamlandı mı?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
@@ -479,136 +469,221 @@ Sebep: %2.
 Bu sorunu geliştiricilere bildiriniz</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1259"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1284"/>
         <source>Installing Heroes Chronicles</source>
         <translation>Heroes Chronicles yükleniyor</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1291"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
         <source>Extracting error!</source>
         <translation>Çıkarma sırasında hata oluştu!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
         <source>Invalid file selected</source>
         <translation>Geçersiz dosya seçildi</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1293"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
         <translation>Bir Heroes Chronicles yükleyici dosyası seçmelisiniz!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1425"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1450"/>
         <source>Save exists</source>
         <translation>Kayıt zaten mevcut</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1426"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1451"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>&apos;%1&apos; adlı kayıt zaten mevcut. Üzerine yazmak istiyor musunuz?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
         <translation>Kayıtlar %1 konumundan içe aktarılamadı.
 Neden: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
         <source>Success</source>
         <translation>Başarılı</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1459"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
         <source>Imported %1 save files</source>
         <translation>%1 kayıt dosyası içe aktarıldı</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1499"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1522"/>
         <source>Installing mod %1</source>
         <translation>%1 modu yükleniyor</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1530"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1553"/>
         <source>%1 requires: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1533"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1556"/>
         <source>Failed to enable mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1534"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1557"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
         <source>Mods disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1572"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
         <source>Map exists</source>
         <translation>Harita mevcut</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1644"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>Harita &apos;%1&apos; zaten mevcut. Üzerine yazmak ister misiniz?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1062"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1072"/>
         <source>Yes to All</source>
         <translation>Tümüne Evet</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1063"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1073"/>
         <source>No to All</source>
         <translation>Tümüne Hayır</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
         <source>Import complete</source>
         <translation>İçe aktarma tamamlandı</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1663"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>%n harita başarıyla içe aktarıldı.</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
         <source>Uninstall mod</source>
         <translation>Modu kaldır</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1799"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation>%1 kaldırmak istediğinizden emin misiniz?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1156"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1446"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
         <source>Import failed</source>
         <translation>İçe aktarma başarısız</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="364"/>
+        <source>Last updated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="367"/>
+        <source>Installed size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
+        <source>GitHub repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
+        <source>GitHub stars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
+        <source>Not compatible with this VCMI version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <source>%1 or newer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
+        <source>up to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <source>%1 - %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="412"/>
+        <source>%1, complete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="414"/>
+        <source>%1, %2% translated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="416"/>
+        <source>%1, available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="418"/>
+        <source>Translation</source>
+        <translation type="unfinished">Çeviri</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
+        <source>This translation cannot be enabled because it is for a different language than the one selected in settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
+        <source>This mod cannot be enabled because these required mods are missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
+        <source>This mod cannot be installed because these required mods are missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="436"/>
+        <source>This is a submod. It cannot be installed or uninstalled separately from its parent mod.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="452"/>
+        <source>This mod failed automatic validation and may not work correctly.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="932"/>
@@ -620,7 +695,7 @@ Process successfully downloaded files?</source>
 İndirilen dosyalar işlensin mi?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1000"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1010"/>
         <source>VCMI could not confirm that it is connected to the real download server.
 
 This usually happens on older systems, such as Windows 7, that are missing recent security updates.
@@ -631,43 +706,42 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1017"/>
         <source>Unable to verify download server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>Aşağıdaki haritalar içe aktarılamadı:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1696"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1713"/>
         <source>Operation failed</source>
         <translation>İşlem başarısız</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1697"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1714"/>
         <source>Encountered errors:
 </source>
         <translation>Karşılaşılan hatalar:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1749"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1766"/>
         <source>screenshots</source>
         <translation>ekran görüntüleri</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1755"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1772"/>
         <source>Screenshot %1</source>
         <translation>Ekran görüntüsü %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="338"/>
         <source>Mod is incompatible</source>
-        <translation>Mod uyumlu değil</translation>
+        <translation type="vanished">Mod uyumlu değil</translation>
     </message>
 </context>
 <context>
@@ -1249,7 +1323,7 @@ Pencereli - oyun, ekranınızın bir kısmını kaplayan bir pencerede çalış�
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/modstate.cpp" line="159"/>
+        <location filename="../modManager/modstate.cpp" line="176"/>
         <location filename="../modManager/modstatemodel.cpp" line="106"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
@@ -1978,17 +2052,22 @@ Bin (%n Bayt):
         <translation>Modlar</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="53"/>
+        <location filename="../mainwindow_moc.cpp" line="54"/>
         <source>Error starting executable</source>
         <translation>Çalıştırılabilir dosya başlatılamadı</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="465"/>
+        <location filename="../mainwindow_moc.cpp" line="456"/>
+        <source>mod archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow_moc.cpp" line="467"/>
         <source>Replace config file?</source>
         <translation>Yapılandırma dosyası değiştirilsin mi?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="465"/>
+        <location filename="../mainwindow_moc.cpp" line="467"/>
         <source>Do you want to replace %1?</source>
         <translation>%1 değiştirmek istiyor musunuz?</translation>
     </message>
@@ -2017,93 +2096,93 @@ Bin (%n Bayt):
         <translation type="vanished">Mod zaten yüklü</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="207"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="222"/>
         <source>Can not uninstall submod</source>
         <translation>Alt mod kaldırılamaz</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="210"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="225"/>
         <source>Mod is not installed</source>
         <translation>Mod yüklü değil</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="223"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="238"/>
         <source>Mod is not located in user data directory and can not be managed by launcher</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="227"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="242"/>
         <source>Mod directory is a git repository and can not be managed by launcher</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="245"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is already enabled</source>
         <translation>Mod zaten etkin</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="248"/>
-        <location filename="../modManager/modstatecontroller.cpp" line="274"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="263"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="289"/>
         <source>Mod must be installed first</source>
         <translation>Önce mod yüklenmelidir</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="252"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="267"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
         <translation>Mod uyumlu değil, lütfen VCMI&apos;yi güncelleyin ve en son mod revizyonlarını kontrol edin</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="255"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="270"/>
         <source>Can not enable translation mod for a different language!</source>
         <translation>Farklı bir dil için olan çeviri modu etkinleştirilemez!</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="260"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="275"/>
         <source>Required mod %1 is missing</source>
         <translation>Gerekli %1 modu eksik</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="271"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="286"/>
         <source>Mod is already disabled</source>
         <translation>Mod zaten devre dışı</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="304"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="319"/>
         <source>Mod archive is missing</source>
         <translation>Mod arşivi eksik</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="309"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="324"/>
         <source>Mod archive is invalid or corrupted</source>
         <translation>Mod arşivi geçersiz veya bozuk</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="317"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="332"/>
         <source>Failed to remove directory %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="320"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="335"/>
         <source>Failed to create directory %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="352"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="367"/>
         <source>Failed to extract mod data</source>
         <translation>Mod verileri çıkarılamadı</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="359"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="374"/>
         <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="386"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="401"/>
         <source>Mod data was not found</source>
         <translation>Mod verileri bulunamadı</translation>
     </message>
     <message>
-        <location filename="../modManager/modstatecontroller.cpp" line="390"/>
+        <location filename="../modManager/modstatecontroller.cpp" line="405"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
         <translation>Mod korumalı bir dizinde bulunuyor, lütfen elle kaldırın:
@@ -2244,18 +2323,18 @@ Reason: %2</source>
 Neden: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
         <source>Import failed</source>
         <translation>İçe aktarma başarısız</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1378"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
         <source>Failed to import save %1 from %2</source>
         <translation>%1 kaydı %2 konumundan içe aktarılamadı</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
         <source>Failed to import save file %1</source>
         <translation>%1 kayıt dosyası içe aktarılamadı</translation>
     </message>
