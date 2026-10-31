@@ -32,6 +32,8 @@ public:
 	void createTreasures(ObjectManager & manager);
 	void addObjectToRandomPool(const ObjectInfo& oi);
 	void setBasicProperties(ObjectInfo & oi, CompoundMapObjectID objid) const;
+	/// Values a random dwelling of a given level like a native dwelling of the zone's faction, unless the template set a value
+	void setRandomDwellingValue(ObjectInfo & oi) const;
 
 	// TODO: Can be defaulted to addAllPossibleObjects, but then each object will need to be configured
 	void addCommonObjects();
