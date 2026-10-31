@@ -2089,69 +2089,69 @@ Do you want to do that now ?</source>
         <translation type="unfinished">Другасныя ўменні:</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1027"/>
+        <location filename="../inspector/inspector.cpp" line="1040"/>
         <source>Compliant</source>
         <translation type="unfinished">Паслухмяны</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1028"/>
+        <location filename="../inspector/inspector.cpp" line="1041"/>
         <source>Friendly</source>
         <translation type="unfinished">Дабразычлівы</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1029"/>
+        <location filename="../inspector/inspector.cpp" line="1042"/>
         <source>Aggressive</source>
         <translation type="unfinished">Агрэсіўны</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1030"/>
+        <location filename="../inspector/inspector.cpp" line="1043"/>
         <source>Hostile</source>
         <translation type="unfinished">Варожы</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1031"/>
+        <location filename="../inspector/inspector.cpp" line="1044"/>
         <source>Savage</source>
         <translation type="unfinished">Дзікі</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="362"/>
-        <location filename="../inspector/inspector.cpp" line="365"/>
+        <location filename="../inspector/inspector.cpp" line="363"/>
+        <location filename="../inspector/inspector.cpp" line="366"/>
         <source>No patrol</source>
         <translation type="unfinished">Без патруля</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="305"/>
+        <location filename="../inspector/inspector.cpp" line="306"/>
         <source>POWER RANK</source>
         <translation type="unfinished">РАНГ СІЛЫ</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="305"/>
+        <location filename="../inspector/inspector.cpp" line="306"/>
         <source>HERO TYPE</source>
         <translation type="unfinished">ТЫП ГЕРОЯ</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="328"/>
+        <location filename="../inspector/inspector.cpp" line="329"/>
         <source>Hero class</source>
         <translation type="unfinished">Клас героя</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="337"/>
+        <location filename="../inspector/inspector.cpp" line="338"/>
         <source>Portrait</source>
         <translation type="unfinished">Партрэт</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="340"/>
+        <location filename="../inspector/inspector.cpp" line="341"/>
         <source>Skills</source>
         <translation type="unfinished">Уменні</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="342"/>
+        <location filename="../inspector/inspector.cpp" line="343"/>
         <source>Artifacts</source>
         <translation type="unfinished">Артыфакты</translation>
     </message>
     <message numerus="yes">
-        <location filename="../inspector/inspector.cpp" line="364"/>
         <location filename="../inspector/inspector.cpp" line="365"/>
+        <location filename="../inspector/inspector.cpp" line="366"/>
         <source>%n tile(s)</source>
         <translation type="unfinished">
             <numerusform>%n плітка(і)</numerusform>
@@ -2160,248 +2160,248 @@ Do you want to do that now ?</source>
         </translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="377"/>
+        <location filename="../inspector/inspector.cpp" line="378"/>
         <source>Buildings</source>
         <translation type="unfinished">Будынкі</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="379"/>
+        <location filename="../inspector/inspector.cpp" line="380"/>
         <source>Events</source>
         <translation type="unfinished">Падзеі</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="419"/>
+        <location filename="../inspector/inspector.cpp" line="420"/>
         <source>Resource</source>
         <translation type="unfinished">Рэсурс</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="452"/>
-        <location filename="../inspector/inspector.cpp" line="839"/>
+        <location filename="../inspector/inspector.cpp" line="453"/>
+        <location filename="../inspector/inspector.cpp" line="852"/>
         <source>Aggression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="453"/>
-        <location filename="../inspector/inspector.cpp" line="841"/>
+        <location filename="../inspector/inspector.cpp" line="454"/>
+        <location filename="../inspector/inspector.cpp" line="854"/>
         <source>Join only for money</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="454"/>
-        <location filename="../inspector/inspector.cpp" line="843"/>
+        <location filename="../inspector/inspector.cpp" line="455"/>
+        <location filename="../inspector/inspector.cpp" line="856"/>
         <source>Joining percentage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="458"/>
-        <location filename="../inspector/inspector.cpp" line="845"/>
+        <location filename="../inspector/inspector.cpp" line="459"/>
+        <location filename="../inspector/inspector.cpp" line="858"/>
         <source>Upgraded stack</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="460"/>
-        <location filename="../inspector/inspector.cpp" line="847"/>
+        <location filename="../inspector/inspector.cpp" line="461"/>
+        <location filename="../inspector/inspector.cpp" line="860"/>
         <source>Stacks count</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="461"/>
+        <location filename="../inspector/inspector.cpp" line="462"/>
         <source>Artifact reward</source>
         <translation type="unfinished">Узнагарода: артыфакт</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="522"/>
+        <location filename="../inspector/inspector.cpp" line="545"/>
         <source>Quest</source>
         <translation type="unfinished">Заданне</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="540"/>
+        <location filename="../inspector/inspector.cpp" line="554"/>
         <source>Identifier</source>
         <translation type="unfinished">Ідэнтыфікатар</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="541"/>
+        <location filename="../inspector/inspector.cpp" line="555"/>
         <source>ID</source>
         <translation type="unfinished">ID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="542"/>
+        <location filename="../inspector/inspector.cpp" line="556"/>
         <source>SubID</source>
         <translation type="unfinished">SubID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="543"/>
+        <location filename="../inspector/inspector.cpp" line="557"/>
         <source>InstanceName</source>
         <translation type="unfinished">Назва інстанцыі</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="548"/>
+        <location filename="../inspector/inspector.cpp" line="562"/>
         <source>IsStatic</source>
         <translation type="unfinished">Статычны</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="935"/>
-        <location filename="../inspector/inspector.cpp" line="1089"/>
+        <location filename="../inspector/inspector.cpp" line="948"/>
+        <location filename="../inspector/inspector.cpp" line="1102"/>
         <source>neutral</source>
         <translation type="unfinished">нейтральны</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1038"/>
+        <location filename="../inspector/inspector.cpp" line="1051"/>
         <source>Never</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1039"/>
+        <location filename="../inspector/inspector.cpp" line="1052"/>
         <source>Always</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="253"/>
-        <location filename="../inspector/inspector.cpp" line="462"/>
+        <location filename="../inspector/inspector.cpp" line="254"/>
+        <location filename="../inspector/inspector.cpp" line="463"/>
         <source>Army</source>
         <translation type="unfinished">Армія</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="260"/>
-        <location filename="../inspector/inspector.cpp" line="273"/>
-        <location filename="../inspector/inspector.cpp" line="280"/>
-        <location filename="../inspector/inspector.cpp" line="288"/>
-        <location filename="../inspector/inspector.cpp" line="295"/>
-        <location filename="../inspector/inspector.cpp" line="326"/>
-        <location filename="../inspector/inspector.cpp" line="417"/>
-        <location filename="../inspector/inspector.cpp" line="551"/>
-        <location filename="../inspector/inspector.cpp" line="598"/>
+        <location filename="../inspector/inspector.cpp" line="261"/>
+        <location filename="../inspector/inspector.cpp" line="274"/>
+        <location filename="../inspector/inspector.cpp" line="281"/>
+        <location filename="../inspector/inspector.cpp" line="289"/>
+        <location filename="../inspector/inspector.cpp" line="296"/>
+        <location filename="../inspector/inspector.cpp" line="327"/>
+        <location filename="../inspector/inspector.cpp" line="418"/>
+        <location filename="../inspector/inspector.cpp" line="565"/>
+        <location filename="../inspector/inspector.cpp" line="611"/>
         <source>Owner</source>
         <translation type="unfinished">Уладальнік</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="265"/>
-        <location filename="../inspector/inspector.cpp" line="723"/>
+        <location filename="../inspector/inspector.cpp" line="266"/>
+        <location filename="../inspector/inspector.cpp" line="736"/>
         <source>Same as town</source>
         <translation type="unfinished">Як у горада</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="281"/>
-        <location filename="../inspector/inspector.cpp" line="738"/>
+        <location filename="../inspector/inspector.cpp" line="282"/>
+        <location filename="../inspector/inspector.cpp" line="751"/>
         <source>Removable units</source>
         <translation type="unfinished">Падраздзяленні, якія можна выдаліць</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="306"/>
-        <location filename="../inspector/inspector.cpp" line="746"/>
+        <location filename="../inspector/inspector.cpp" line="307"/>
+        <location filename="../inspector/inspector.cpp" line="759"/>
         <source>Placeholder type</source>
         <translation type="unfinished">Тып заглушкі</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="309"/>
-        <location filename="../inspector/inspector.cpp" line="764"/>
+        <location filename="../inspector/inspector.cpp" line="310"/>
+        <location filename="../inspector/inspector.cpp" line="777"/>
         <source>Power rank</source>
         <translation type="unfinished">Ранг сілы</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="317"/>
-        <location filename="../inspector/inspector.cpp" line="357"/>
-        <location filename="../inspector/inspector.cpp" line="767"/>
-        <location filename="../inspector/inspector.cpp" line="791"/>
+        <location filename="../inspector/inspector.cpp" line="318"/>
+        <location filename="../inspector/inspector.cpp" line="358"/>
+        <location filename="../inspector/inspector.cpp" line="780"/>
+        <location filename="../inspector/inspector.cpp" line="804"/>
         <source>Hero type</source>
         <translation type="unfinished">Тып героя</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="327"/>
-        <location filename="../inspector/inspector.cpp" line="788"/>
+        <location filename="../inspector/inspector.cpp" line="328"/>
+        <location filename="../inspector/inspector.cpp" line="801"/>
         <source>Experience</source>
         <translation type="unfinished">Досвед</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="332"/>
         <location filename="../inspector/inspector.cpp" line="333"/>
+        <location filename="../inspector/inspector.cpp" line="334"/>
         <source>MALE</source>
         <translation type="unfinished">МУЖЧЫНА</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="332"/>
         <location filename="../inspector/inspector.cpp" line="333"/>
+        <location filename="../inspector/inspector.cpp" line="334"/>
         <source>FEMALE</source>
         <translation type="unfinished">ЖАНЧЫНА</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="333"/>
-        <location filename="../inspector/inspector.cpp" line="777"/>
+        <location filename="../inspector/inspector.cpp" line="334"/>
+        <location filename="../inspector/inspector.cpp" line="790"/>
         <source>Gender</source>
         <translation type="unfinished">Пол</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="335"/>
-        <location filename="../inspector/inspector.cpp" line="780"/>
+        <location filename="../inspector/inspector.cpp" line="336"/>
+        <location filename="../inspector/inspector.cpp" line="793"/>
         <source>Name</source>
         <translation type="unfinished">Імя</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="336"/>
-        <location filename="../inspector/inspector.cpp" line="784"/>
+        <location filename="../inspector/inspector.cpp" line="337"/>
+        <location filename="../inspector/inspector.cpp" line="797"/>
         <source>Biography</source>
         <translation type="unfinished">Біяграфія</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="341"/>
-        <location filename="../inspector/inspector.cpp" line="378"/>
+        <location filename="../inspector/inspector.cpp" line="342"/>
+        <location filename="../inspector/inspector.cpp" line="379"/>
         <source>Spells</source>
         <translation type="unfinished">Заклёнствы</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="366"/>
-        <location filename="../inspector/inspector.cpp" line="803"/>
+        <location filename="../inspector/inspector.cpp" line="367"/>
+        <location filename="../inspector/inspector.cpp" line="816"/>
         <source>Patrol radius</source>
         <translation type="unfinished">Радыус патруля</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="374"/>
-        <location filename="../inspector/inspector.cpp" line="680"/>
+        <location filename="../inspector/inspector.cpp" line="375"/>
+        <location filename="../inspector/inspector.cpp" line="693"/>
         <source>Town name</source>
         <translation type="unfinished">Назва горада</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="381"/>
-        <location filename="../inspector/inspector.cpp" line="684"/>
+        <location filename="../inspector/inspector.cpp" line="382"/>
+        <location filename="../inspector/inspector.cpp" line="697"/>
         <source>Same as player</source>
         <translation type="unfinished">Як у гульца</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="388"/>
-        <location filename="../inspector/inspector.cpp" line="428"/>
-        <location filename="../inspector/inspector.cpp" line="435"/>
-        <location filename="../inspector/inspector.cpp" line="442"/>
-        <location filename="../inspector/inspector.cpp" line="503"/>
-        <location filename="../inspector/inspector.cpp" line="640"/>
-        <location filename="../inspector/inspector.cpp" line="692"/>
-        <location filename="../inspector/inspector.cpp" line="709"/>
-        <location filename="../inspector/inspector.cpp" line="828"/>
+        <location filename="../inspector/inspector.cpp" line="389"/>
+        <location filename="../inspector/inspector.cpp" line="429"/>
+        <location filename="../inspector/inspector.cpp" line="436"/>
+        <location filename="../inspector/inspector.cpp" line="443"/>
+        <location filename="../inspector/inspector.cpp" line="510"/>
+        <location filename="../inspector/inspector.cpp" line="653"/>
+        <location filename="../inspector/inspector.cpp" line="705"/>
+        <location filename="../inspector/inspector.cpp" line="722"/>
+        <location filename="../inspector/inspector.cpp" line="841"/>
         <source>Message</source>
         <translation type="unfinished">Паведамленне</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="408"/>
-        <location filename="../inspector/inspector.cpp" line="713"/>
+        <location filename="../inspector/inspector.cpp" line="409"/>
+        <location filename="../inspector/inspector.cpp" line="726"/>
         <source>Spell</source>
         <translation type="unfinished">Заклён</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="420"/>
-        <location filename="../inspector/inspector.cpp" line="701"/>
+        <location filename="../inspector/inspector.cpp" line="421"/>
+        <location filename="../inspector/inspector.cpp" line="714"/>
         <source>Productivity</source>
         <translation type="unfinished">Прадуктыўнасць</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="427"/>
-        <location filename="../inspector/inspector.cpp" line="463"/>
-        <location filename="../inspector/inspector.cpp" line="820"/>
-        <location filename="../inspector/inspector.cpp" line="837"/>
+        <location filename="../inspector/inspector.cpp" line="428"/>
+        <location filename="../inspector/inspector.cpp" line="464"/>
+        <location filename="../inspector/inspector.cpp" line="833"/>
+        <location filename="../inspector/inspector.cpp" line="850"/>
         <source>Amount</source>
         <translation type="unfinished">Колькасць</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="446"/>
-        <location filename="../inspector/inspector.cpp" line="831"/>
+        <location filename="../inspector/inspector.cpp" line="447"/>
+        <location filename="../inspector/inspector.cpp" line="844"/>
         <source>Character</source>
         <translation type="unfinished">Персанаж</translation>
     </message>
@@ -2410,56 +2410,55 @@ Do you want to do that now ?</source>
         <translation type="obsolete">Здольнасці</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="514"/>
-        <location filename="../inspector/inspector.cpp" line="658"/>
+        <location filename="../inspector/inspector.cpp" line="521"/>
+        <location filename="../inspector/inspector.cpp" line="671"/>
         <source>Available for</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="996"/>
+        <location filename="../inspector/inspector.cpp" line="1009"/>
         <source>Select town</source>
         <translation type="unfinished">Абраць горад</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1007"/>
+        <location filename="../inspector/inspector.cpp" line="1020"/>
         <location filename="../inspector/playerselectionwidget.cpp" line="104"/>
         <source>Available for:
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="448"/>
-        <location filename="../inspector/inspector.cpp" line="833"/>
+        <location filename="../inspector/inspector.cpp" line="449"/>
+        <location filename="../inspector/inspector.cpp" line="846"/>
         <source>Never flees</source>
         <translation type="unfinished">Ніколі не ўцякае</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="449"/>
-        <location filename="../inspector/inspector.cpp" line="835"/>
+        <location filename="../inspector/inspector.cpp" line="450"/>
+        <location filename="../inspector/inspector.cpp" line="848"/>
         <source>Not growing</source>
         <translation type="unfinished">Не расце</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="496"/>
-        <location filename="../inspector/inspector.cpp" line="530"/>
+        <location filename="../inspector/inspector.cpp" line="503"/>
         <source>Reward</source>
         <translation type="unfinished">Узнагарода</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="510"/>
-        <location filename="../inspector/inspector.cpp" line="649"/>
+        <location filename="../inspector/inspector.cpp" line="517"/>
+        <location filename="../inspector/inspector.cpp" line="662"/>
         <source>Remove after</source>
         <translation type="unfinished">Выдаліць пасля</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="511"/>
-        <location filename="../inspector/inspector.cpp" line="652"/>
+        <location filename="../inspector/inspector.cpp" line="518"/>
+        <location filename="../inspector/inspector.cpp" line="665"/>
         <source>Human trigger</source>
         <translation type="unfinished">Трыгер чалавека</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="512"/>
-        <location filename="../inspector/inspector.cpp" line="655"/>
+        <location filename="../inspector/inspector.cpp" line="519"/>
+        <location filename="../inspector/inspector.cpp" line="668"/>
         <source>Cpu trigger</source>
         <translation type="unfinished">Трыгер ШІ</translation>
     </message>
@@ -2476,16 +2475,15 @@ Do you want to do that now ?</source>
         <translation type="obsolete">Тэкст пасля выканання</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="531"/>
         <source>Repeat quest</source>
-        <translation type="unfinished">Паўтараць заданне</translation>
+        <translation type="obsolete">Паўтараць заданне</translation>
     </message>
     <message>
         <source>Time limit</source>
         <translation type="obsolete">Абмежаванне па часе</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="933"/>
+        <location filename="../inspector/inspector.cpp" line="946"/>
         <source>UNFLAGGABLE</source>
         <translation type="unfinished">НЕМАГЧЫМА ПАЗНАЧЫЦЬ</translation>
     </message>
@@ -2533,116 +2531,160 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="218"/>
-        <location filename="../inspector/inspector.cpp" line="1033"/>
+        <location filename="../inspector/inspector.cpp" line="1046"/>
         <source>Custom</source>
         <translation type="unfinished">Карыстальніцкае</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="675"/>
+        <location filename="../inspector/questguardwidget.cpp" line="452"/>
         <source>Quest:</source>
         <translation type="unfinished">Заданне:</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="453"/>
+        <location filename="../inspector/questwidget.cpp" line="523"/>
         <source>Day of Week: %1</source>
-        <translation type="obsolete">Дзень тыдня: %1</translation>
+        <translation type="unfinished">Дзень тыдня: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="454"/>
+        <location filename="../inspector/questwidget.cpp" line="525"/>
         <source>Days Passed: %1</source>
-        <translation type="obsolete">Мінула дзён: %1</translation>
+        <translation type="unfinished">Мінула дзён: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="795"/>
+        <location filename="../inspector/questguardwidget.cpp" line="455"/>
+        <location filename="../inspector/questwidget.cpp" line="527"/>
+        <location filename="../inspector/rewardswidget.cpp" line="574"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="420"/>
         <source>Hero Level: %1</source>
         <translation type="unfinished">Узровень героя: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="796"/>
+        <location filename="../inspector/questguardwidget.cpp" line="456"/>
+        <location filename="../inspector/questwidget.cpp" line="529"/>
+        <location filename="../inspector/rewardswidget.cpp" line="575"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="422"/>
         <source>Hero Experience: %1</source>
         <translation type="unfinished">Досвед героя: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="457"/>
+        <location filename="../inspector/questwidget.cpp" line="531"/>
         <source>Mana Points: %1</source>
-        <translation type="obsolete">Ачкі маны: %1</translation>
+        <translation type="unfinished">Ачкі маны: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="798"/>
+        <location filename="../inspector/questguardwidget.cpp" line="458"/>
+        <location filename="../inspector/questwidget.cpp" line="533"/>
+        <location filename="../inspector/rewardswidget.cpp" line="577"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="426"/>
         <source>Mana Percentage: %1</source>
         <translation type="unfinished">Працэнт маны: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="801"/>
+        <location filename="../inspector/questguardwidget.cpp" line="459"/>
+        <location filename="../inspector/questwidget.cpp" line="535"/>
+        <location filename="../inspector/rewardswidget.cpp" line="580"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="432"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
         <translation type="unfinished">Асноўныя навыкі: %1/%2/%3/%4</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="811"/>
+        <location filename="../inspector/questguardwidget.cpp" line="470"/>
+        <location filename="../inspector/questwidget.cpp" line="546"/>
+        <location filename="../inspector/rewardswidget.cpp" line="590"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="443"/>
         <source>Resources: %1</source>
         <translation type="unfinished">Рэсурсы: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="817"/>
+        <location filename="../inspector/questguardwidget.cpp" line="477"/>
+        <location filename="../inspector/questwidget.cpp" line="555"/>
+        <location filename="../inspector/rewardswidget.cpp" line="596"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="450"/>
         <source>Artifacts: %1</source>
         <translation type="unfinished">Артыфакты: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="823"/>
+        <location filename="../inspector/questguardwidget.cpp" line="484"/>
+        <location filename="../inspector/questwidget.cpp" line="565"/>
+        <location filename="../inspector/rewardswidget.cpp" line="602"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="458"/>
         <source>Spells: %1</source>
         <translation type="unfinished">Заклёнствы: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="829"/>
+        <location filename="../inspector/questguardwidget.cpp" line="491"/>
+        <location filename="../inspector/questwidget.cpp" line="575"/>
+        <location filename="../inspector/rewardswidget.cpp" line="608"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="467"/>
         <source>Secondary Skills: %1</source>
         <translation type="unfinished">Другасныя навыкі: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="835"/>
+        <location filename="../inspector/questguardwidget.cpp" line="498"/>
+        <location filename="../inspector/questwidget.cpp" line="585"/>
+        <location filename="../inspector/rewardswidget.cpp" line="614"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="476"/>
         <source>Creatures: %1</source>
         <translation type="unfinished">Стварэнні: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="505"/>
+        <location filename="../inspector/questwidget.cpp" line="595"/>
         <source>Heroes: %1</source>
-        <translation type="obsolete">Героі: %1</translation>
+        <translation type="unfinished">Героі: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="512"/>
+        <location filename="../inspector/questwidget.cpp" line="605"/>
         <source>Hero Classes: %1</source>
-        <translation type="obsolete">Класы герояў: %1</translation>
+        <translation type="unfinished">Класы герояў: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="521"/>
+        <location filename="../inspector/questwidget.cpp" line="617"/>
         <source>Players: %1</source>
-        <translation type="obsolete">Гульцы: %1</translation>
+        <translation type="unfinished">Гульцы: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="791"/>
+        <location filename="../inspector/rewardswidget.cpp" line="570"/>
         <source>Rewards:</source>
         <translation type="unfinished">Узнагароды:</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="794"/>
+        <location filename="../inspector/rewardswidget.cpp" line="573"/>
         <source>Reward Message: %1</source>
         <translation type="unfinished">Паведамленне пра ўзнагароду: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="797"/>
+        <location filename="../inspector/rewardswidget.cpp" line="576"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="424"/>
         <source>Mana Diff: %1</source>
         <translation type="unfinished">Розніца маны: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="799"/>
+        <location filename="../inspector/rewardswidget.cpp" line="578"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="428"/>
         <source>Move Points: %1</source>
         <translation type="unfinished">Ачкі перамяшчэння: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="800"/>
+        <location filename="../inspector/rewardswidget.cpp" line="579"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="430"/>
         <source>Move Percentage: %1</source>
         <translation type="unfinished">Працэнт перамяшчэння: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="838"/>
+        <location filename="../inspector/rewardswidget.cpp" line="617"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="480"/>
         <source>Spell Cast: %1 (%2)</source>
         <translation type="unfinished">Заклён выкарыстаны: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="846"/>
+        <location filename="../inspector/rewardswidget.cpp" line="625"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="491"/>
         <source>Bonuses: %1</source>
         <translation type="unfinished">Бонусы: %1</translation>
     </message>
@@ -2714,7 +2756,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1037"/>
+        <location filename="../inspector/inspector.cpp" line="1050"/>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
         <translation type="unfinished"></translation>
@@ -2734,174 +2776,509 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <source>Month</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="623"/>
+        <source>Empty Quest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="497"/>
+        <source>Empty Reward</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
-    <name>QuestWidget</name>
+    <name>QuestGuardWidget</name>
     <message>
-        <location filename="../inspector/questwidget.ui" line="17"/>
+        <location filename="../inspector/questguardwidget.ui" line="17"/>
         <source>Mission goal</source>
         <translation type="unfinished">Мэта місіі</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="37"/>
-        <source>Delete</source>
-        <translation type="unfinished">Выдаліць</translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="66"/>
-        <source>First Visit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="94"/>
-        <source>Next Visit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="116"/>
-        <source>Completed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="148"/>
-        <source>Repeatable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="158"/>
-        <source>Set Deadline</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../inspector/questwidget.ui" line="179"/>
+        <location filename="../inspector/questguardwidget.ui" line="28"/>
         <source>Day of week</source>
         <translation type="unfinished">Дзень тыдня</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="196"/>
+        <location filename="../inspector/questguardwidget.ui" line="45"/>
         <source>Days passed</source>
         <translation type="unfinished">Мінула дзён</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="230"/>
+        <location filename="../inspector/questguardwidget.ui" line="79"/>
         <source>Hero level</source>
         <translation type="unfinished">Узровень героя</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="247"/>
+        <location filename="../inspector/questguardwidget.ui" line="96"/>
         <source>Hero experience</source>
         <translation type="unfinished">Досвед героя</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="287"/>
+        <location filename="../inspector/questguardwidget.ui" line="136"/>
         <source>Spell points</source>
         <translation type="unfinished">Ачкі заклёнаў</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="307"/>
+        <location filename="../inspector/questguardwidget.ui" line="156"/>
         <source>%</source>
         <translation type="unfinished">%</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="334"/>
+        <location filename="../inspector/questguardwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
         <translation type="unfinished">Забіць героя/монстра</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="348"/>
+        <location filename="../inspector/questguardwidget.ui" line="197"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="357"/>
+        <location filename="../inspector/questguardwidget.ui" line="206"/>
         <source>Primary skills</source>
         <translation type="unfinished">Асноўныя навыкі</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="372"/>
+        <location filename="../inspector/questguardwidget.ui" line="221"/>
         <source>Attack</source>
         <translation type="unfinished">Атака</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="382"/>
+        <location filename="../inspector/questguardwidget.ui" line="231"/>
         <source>Defence</source>
         <translation type="unfinished">Абарона</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="392"/>
+        <location filename="../inspector/questguardwidget.ui" line="241"/>
         <source>Spell power</source>
         <translation type="unfinished">Сіла заклёнаў</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="402"/>
+        <location filename="../inspector/questguardwidget.ui" line="251"/>
         <source>Knowledge</source>
         <translation type="unfinished">Веданне</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="440"/>
+        <location filename="../inspector/questguardwidget.ui" line="289"/>
         <source>Resources</source>
         <translation type="unfinished">Рэсурсы</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="489"/>
+        <location filename="../inspector/questguardwidget.ui" line="338"/>
         <source>Artifacts</source>
         <translation type="unfinished">Артыфакты</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="521"/>
+        <location filename="../inspector/questguardwidget.ui" line="370"/>
         <source>Spells</source>
         <translation type="unfinished">Заклёнствы</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="553"/>
+        <location filename="../inspector/questguardwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation type="unfinished">Навыкі</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="593"/>
+        <location filename="../inspector/questguardwidget.ui" line="442"/>
         <source>Creatures</source>
         <translation type="unfinished">Стварэнні</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="30"/>
-        <location filename="../inspector/questwidget.ui" line="642"/>
+        <location filename="../inspector/questguardwidget.ui" line="491"/>
         <source>Add</source>
         <translation type="unfinished">Дадаць</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="649"/>
+        <location filename="../inspector/questguardwidget.ui" line="498"/>
         <source>Remove</source>
         <translation type="unfinished">Выдаліць</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="689"/>
+        <location filename="../inspector/questguardwidget.ui" line="538"/>
         <source>Heroes</source>
         <translation type="unfinished">Героі</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="721"/>
+        <location filename="../inspector/questguardwidget.ui" line="570"/>
         <source>Hero classes</source>
         <translation type="unfinished">Класы герояў</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="753"/>
+        <location filename="../inspector/questguardwidget.ui" line="602"/>
         <source>Players</source>
         <translation type="unfinished">Гульцы</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="43"/>
+        <location filename="../inspector/questguardwidget.cpp" line="43"/>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.cpp" line="45"/>
+        <source>Day %1</source>
+        <translation type="unfinished">Дзень %1</translation>
+    </message>
+</context>
+<context>
+    <name>QuestWidget</name>
+    <message>
+        <source>Mission goal</source>
+        <translation type="obsolete">Мэта місіі</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="obsolete">Выдаліць</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="17"/>
+        <source>Missions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="35"/>
+        <source>Reward</source>
+        <translation type="unfinished">Узнагарода</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="52"/>
+        <source>Add Reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="59"/>
+        <source>Add Quest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="66"/>
+        <source>Delete Quest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="93"/>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="100"/>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="113"/>
+        <source>First Visit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="141"/>
+        <source>Next Visit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="163"/>
+        <source>Completed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="199"/>
+        <source>Quest</source>
+        <translation type="unfinished">Заданне</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="214"/>
+        <source>Repeatable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="224"/>
+        <source>Set Deadline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="245"/>
+        <source>Day of week</source>
+        <translation type="unfinished">Дзень тыдня</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="262"/>
+        <source>Days passed</source>
+        <translation type="unfinished">Мінула дзён</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="296"/>
+        <source>Hero level</source>
+        <translation type="unfinished">Узровень героя</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="313"/>
+        <source>Hero experience</source>
+        <translation type="unfinished">Досвед героя</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="353"/>
+        <source>Spell points</source>
+        <translation type="unfinished">Ачкі заклёнаў</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="373"/>
+        <source>%</source>
+        <translation type="unfinished">%</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="400"/>
+        <source>Kill hero/monster</source>
+        <translation type="unfinished">Забіць героя/монстра</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="414"/>
+        <source>...</source>
+        <translation type="unfinished">...</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="423"/>
+        <source>Primary skills</source>
+        <translation type="unfinished">Асноўныя навыкі</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="438"/>
+        <source>Attack</source>
+        <translation type="unfinished">Атака</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="448"/>
+        <source>Defence</source>
+        <translation type="unfinished">Абарона</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="458"/>
+        <source>Spell power</source>
+        <translation type="unfinished">Сіла заклёнаў</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="468"/>
+        <source>Knowledge</source>
+        <translation type="unfinished">Веданне</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="506"/>
+        <source>Resources</source>
+        <translation type="unfinished">Рэсурсы</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="555"/>
+        <source>Artifacts</source>
+        <translation type="unfinished">Артыфакты</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="587"/>
+        <source>Spells</source>
+        <translation type="unfinished">Заклёнствы</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="619"/>
+        <source>Skills</source>
+        <translation type="unfinished">Навыкі</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="659"/>
+        <source>Creatures</source>
+        <translation type="unfinished">Стварэнні</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="708"/>
+        <source>Add</source>
+        <translation type="unfinished">Дадаць</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="715"/>
+        <source>Remove</source>
+        <translation type="unfinished">Выдаліць</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="755"/>
+        <source>Heroes</source>
+        <translation type="unfinished">Героі</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="787"/>
+        <source>Hero classes</source>
+        <translation type="unfinished">Класы герояў</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="819"/>
+        <source>Players</source>
+        <translation type="unfinished">Гульцы</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="45"/>
         <source>None</source>
         <translation type="unfinished">Няма</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="45"/>
+        <location filename="../inspector/questwidget.cpp" line="47"/>
         <source>Day %1</source>
         <translation type="unfinished">Дзень %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="303"/>
+        <location filename="../inspector/questwidget.cpp" line="324"/>
         <source>%1 quest on position %2</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="516"/>
+        <source>Add reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="516"/>
+        <source>Remove reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>RewardWidget</name>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="19"/>
+        <source>Hero level</source>
+        <translation type="unfinished">Узровень героя</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="36"/>
+        <source>Hero experience</source>
+        <translation type="unfinished">Досвед героя</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="76"/>
+        <source>Spell points</source>
+        <translation type="unfinished">Ачкі заклёнаў</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="99"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="119"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="153"/>
+        <source>%</source>
+        <translation type="unfinished">%</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="112"/>
+        <source>Overflow</source>
+        <translation type="unfinished">Перапаўненне</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="136"/>
+        <source>Movement</source>
+        <translation type="unfinished">Перамяшчэнне</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="179"/>
+        <source>Remove object</source>
+        <translation type="unfinished">Выдаліць аб’ект</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="188"/>
+        <source>Primary skills</source>
+        <translation type="unfinished">Асноўныя навыкі</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="203"/>
+        <source>Attack</source>
+        <translation type="unfinished">Атака</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="217"/>
+        <source>Defence</source>
+        <translation type="unfinished">Абарона</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="231"/>
+        <source>Spell power</source>
+        <translation type="unfinished">Сіла заклёнаў</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="245"/>
+        <source>Knowledge</source>
+        <translation type="unfinished">Веданне</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="275"/>
+        <source>Resources</source>
+        <translation type="unfinished">Рэсурсы</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="324"/>
+        <source>Artifacts</source>
+        <translation type="unfinished">Артыфакты</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="356"/>
+        <source>Spells</source>
+        <translation type="unfinished">Заклёнствы</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="388"/>
+        <source>Skills</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="428"/>
+        <source>Creatures</source>
+        <translation type="unfinished">Стварэнні</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="477"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="606"/>
+        <source>Add</source>
+        <translation type="unfinished">Дадаць</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="484"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="613"/>
+        <source>Remove</source>
+        <translation type="unfinished">Выдаліць</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="521"/>
+        <source>Bonuses</source>
+        <translation type="unfinished">Бонусы</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="538"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="644"/>
+        <source>Duration</source>
+        <translation type="unfinished">Працягласць</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="555"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="649"/>
+        <source>Type</source>
+        <translation type="unfinished">Тып</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="572"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="654"/>
+        <source>Value</source>
+        <translation type="unfinished">Значэнне</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="663"/>
+        <source>Cast</source>
+        <translation type="unfinished">Накласці</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="669"/>
+        <source>Cast an adventure map spell</source>
+        <translation type="unfinished">Накласці заклён на мапе прыгод</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="678"/>
+        <source>Spell</source>
+        <translation type="unfinished">Заклён</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="699"/>
+        <source>Magic school level</source>
+        <translation type="unfinished">Узровень школы магіі</translation>
     </message>
 </context>
 <context>
@@ -2913,17 +3290,13 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="33"/>
-        <location filename="../inspector/rewardswidget.ui" line="726"/>
-        <location filename="../inspector/rewardswidget.ui" line="841"/>
-        <location filename="../inspector/rewardswidget.ui" line="1430"/>
+        <location filename="../inspector/rewardswidget.ui" line="716"/>
         <source>Add</source>
         <translation type="unfinished">Дадаць</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="43"/>
-        <location filename="../inspector/rewardswidget.ui" line="733"/>
-        <location filename="../inspector/rewardswidget.ui" line="848"/>
-        <location filename="../inspector/rewardswidget.ui" line="1437"/>
+        <location filename="../inspector/rewardswidget.ui" line="723"/>
         <source>Remove</source>
         <translation type="unfinished">Выдаліць</translation>
     </message>
@@ -3003,192 +3376,162 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <translation type="unfinished">Узнагарода</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="268"/>
-        <location filename="../inspector/rewardswidget.ui" line="1055"/>
+        <location filename="../inspector/rewardswidget.ui" line="341"/>
         <source>Hero level</source>
         <translation type="unfinished">Узровень героя</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="285"/>
-        <location filename="../inspector/rewardswidget.ui" line="1072"/>
+        <location filename="../inspector/rewardswidget.ui" line="358"/>
         <source>Hero experience</source>
         <translation type="unfinished">Досвед героя</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="325"/>
-        <location filename="../inspector/rewardswidget.ui" line="1112"/>
+        <location filename="../inspector/rewardswidget.ui" line="398"/>
         <source>Spell points</source>
         <translation type="unfinished">Ачкі заклёнаў</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="348"/>
-        <location filename="../inspector/rewardswidget.ui" line="368"/>
-        <location filename="../inspector/rewardswidget.ui" line="402"/>
-        <location filename="../inspector/rewardswidget.ui" line="1132"/>
+        <location filename="../inspector/rewardswidget.ui" line="418"/>
         <source>%</source>
         <translation type="unfinished">%</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="361"/>
         <source>Overflow</source>
-        <translation type="unfinished">Перапаўненне</translation>
+        <translation type="obsolete">Перапаўненне</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="385"/>
         <source>Movement</source>
-        <translation type="unfinished">Перамяшчэнне</translation>
+        <translation type="obsolete">Перамяшчэнне</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="428"/>
         <source>Remove object</source>
-        <translation type="unfinished">Выдаліць аб’ект</translation>
+        <translation type="obsolete">Выдаліць аб’ект</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="437"/>
-        <location filename="../inspector/rewardswidget.ui" line="1157"/>
+        <location filename="../inspector/rewardswidget.ui" line="443"/>
         <source>Primary skills</source>
         <translation type="unfinished">Асноўныя навыкі</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="452"/>
-        <location filename="../inspector/rewardswidget.ui" line="1172"/>
+        <location filename="../inspector/rewardswidget.ui" line="458"/>
         <source>Attack</source>
         <translation type="unfinished">Атака</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="466"/>
-        <location filename="../inspector/rewardswidget.ui" line="1182"/>
+        <location filename="../inspector/rewardswidget.ui" line="468"/>
         <source>Defence</source>
         <translation type="unfinished">Абарона</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="480"/>
-        <location filename="../inspector/rewardswidget.ui" line="1192"/>
+        <location filename="../inspector/rewardswidget.ui" line="478"/>
         <source>Spell power</source>
         <translation type="unfinished">Сіла заклёнаў</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="494"/>
-        <location filename="../inspector/rewardswidget.ui" line="1202"/>
+        <location filename="../inspector/rewardswidget.ui" line="488"/>
         <source>Knowledge</source>
         <translation type="unfinished">Веданне</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="524"/>
-        <location filename="../inspector/rewardswidget.ui" line="1228"/>
+        <location filename="../inspector/rewardswidget.ui" line="514"/>
         <source>Resources</source>
         <translation type="unfinished">Рэсурсы</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="573"/>
-        <location filename="../inspector/rewardswidget.ui" line="1277"/>
+        <location filename="../inspector/rewardswidget.ui" line="563"/>
         <source>Artifacts</source>
         <translation type="unfinished">Артыфакты</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="605"/>
-        <location filename="../inspector/rewardswidget.ui" line="1309"/>
+        <location filename="../inspector/rewardswidget.ui" line="595"/>
         <source>Spells</source>
         <translation type="unfinished">Заклёнствы</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="637"/>
-        <location filename="../inspector/rewardswidget.ui" line="1341"/>
+        <location filename="../inspector/rewardswidget.ui" line="627"/>
         <source>Skills</source>
         <translation type="unfinished">Навыкі</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="677"/>
-        <location filename="../inspector/rewardswidget.ui" line="1381"/>
+        <location filename="../inspector/rewardswidget.ui" line="667"/>
         <source>Creatures</source>
         <translation type="unfinished">Стварэнні</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="770"/>
         <source>Bonuses</source>
-        <translation type="unfinished">Бонусы</translation>
+        <translation type="obsolete">Бонусы</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="787"/>
-        <location filename="../inspector/rewardswidget.ui" line="879"/>
         <source>Duration</source>
-        <translation type="unfinished">Працягласць</translation>
+        <translation type="obsolete">Працягласць</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="797"/>
-        <location filename="../inspector/rewardswidget.ui" line="884"/>
         <source>Type</source>
-        <translation type="unfinished">Тып</translation>
+        <translation type="obsolete">Тып</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="807"/>
-        <location filename="../inspector/rewardswidget.ui" line="889"/>
         <source>Value</source>
-        <translation type="unfinished">Значэнне</translation>
+        <translation type="obsolete">Значэнне</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="898"/>
         <source>Cast</source>
-        <translation type="unfinished">Накласці</translation>
+        <translation type="obsolete">Накласці</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="904"/>
         <source>Cast an adventure map spell</source>
-        <translation type="unfinished">Накласці заклён на мапе прыгод</translation>
+        <translation type="obsolete">Накласці заклён на мапе прыгод</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="913"/>
         <source>Spell</source>
-        <translation type="unfinished">Заклён</translation>
+        <translation type="obsolete">Заклён</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="934"/>
         <source>Magic school level</source>
-        <translation type="unfinished">Узровень школы магіі</translation>
+        <translation type="obsolete">Узровень школы магіі</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="984"/>
+        <location filename="../inspector/rewardswidget.ui" line="270"/>
         <source>Limiter</source>
         <translation type="unfinished">Абмежавальнік</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1004"/>
+        <location filename="../inspector/rewardswidget.ui" line="290"/>
         <source>Day of week</source>
         <translation type="unfinished">Дзень тыдня</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1021"/>
+        <location filename="../inspector/rewardswidget.ui" line="307"/>
         <source>Days passed</source>
         <translation type="unfinished">Мінула дзён</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1477"/>
+        <location filename="../inspector/rewardswidget.ui" line="763"/>
         <source>Heroes</source>
         <translation type="unfinished">Героі</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1509"/>
+        <location filename="../inspector/rewardswidget.ui" line="795"/>
         <source>Hero classes</source>
         <translation type="unfinished">Класы герояў</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1541"/>
+        <location filename="../inspector/rewardswidget.ui" line="827"/>
         <source>Players</source>
         <translation type="unfinished">Гульцы</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="57"/>
+        <location filename="../inspector/rewardswidget.cpp" line="59"/>
         <source>None</source>
         <translation type="unfinished">Няма</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="59"/>
+        <location filename="../inspector/rewardswidget.cpp" line="61"/>
         <source>Day %1</source>
         <translation type="unfinished">Дзень %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="252"/>
-        <location filename="../inspector/rewardswidget.cpp" line="625"/>
+        <location filename="../inspector/rewardswidget.cpp" line="219"/>
+        <location filename="../inspector/rewardswidget.cpp" line="450"/>
         <source>Reward %1</source>
         <translation type="unfinished">Узнагарода %1</translation>
     </message>

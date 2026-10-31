@@ -2092,69 +2092,69 @@ Voulez-vous le faire maintenant&#x202f;?</translation>
         <translation>Compétences secondaires :</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1027"/>
+        <location filename="../inspector/inspector.cpp" line="1040"/>
         <source>Compliant</source>
         <translation>Compérhensif</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1028"/>
+        <location filename="../inspector/inspector.cpp" line="1041"/>
         <source>Friendly</source>
         <translation>Amical</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1029"/>
+        <location filename="../inspector/inspector.cpp" line="1042"/>
         <source>Aggressive</source>
         <translation>Aggressif</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1030"/>
+        <location filename="../inspector/inspector.cpp" line="1043"/>
         <source>Hostile</source>
         <translation>Hostile</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1031"/>
+        <location filename="../inspector/inspector.cpp" line="1044"/>
         <source>Savage</source>
         <translation>Sauvage</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="362"/>
-        <location filename="../inspector/inspector.cpp" line="365"/>
+        <location filename="../inspector/inspector.cpp" line="363"/>
+        <location filename="../inspector/inspector.cpp" line="366"/>
         <source>No patrol</source>
         <translation>Pas de patrouille</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="305"/>
+        <location filename="../inspector/inspector.cpp" line="306"/>
         <source>POWER RANK</source>
         <translation>NIVEAU DE PUISSANCE</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="305"/>
+        <location filename="../inspector/inspector.cpp" line="306"/>
         <source>HERO TYPE</source>
         <translation>TYPE DE HÉROS</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="328"/>
+        <location filename="../inspector/inspector.cpp" line="329"/>
         <source>Hero class</source>
         <translation>Classe de héros</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="337"/>
+        <location filename="../inspector/inspector.cpp" line="338"/>
         <source>Portrait</source>
         <translation>Portrait</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="340"/>
+        <location filename="../inspector/inspector.cpp" line="341"/>
         <source>Skills</source>
         <translation>Compétences</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="342"/>
+        <location filename="../inspector/inspector.cpp" line="343"/>
         <source>Artifacts</source>
         <translation>Artefacts</translation>
     </message>
     <message numerus="yes">
-        <location filename="../inspector/inspector.cpp" line="364"/>
         <location filename="../inspector/inspector.cpp" line="365"/>
+        <location filename="../inspector/inspector.cpp" line="366"/>
         <source>%n tile(s)</source>
         <translation>
             <numerusform>%n case</numerusform>
@@ -2162,248 +2162,248 @@ Voulez-vous le faire maintenant&#x202f;?</translation>
         </translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="377"/>
+        <location filename="../inspector/inspector.cpp" line="378"/>
         <source>Buildings</source>
         <translation>Bâtiments</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="379"/>
+        <location filename="../inspector/inspector.cpp" line="380"/>
         <source>Events</source>
         <translation>Événements</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="419"/>
+        <location filename="../inspector/inspector.cpp" line="420"/>
         <source>Resource</source>
         <translation>Ressource</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="452"/>
-        <location filename="../inspector/inspector.cpp" line="839"/>
+        <location filename="../inspector/inspector.cpp" line="453"/>
+        <location filename="../inspector/inspector.cpp" line="852"/>
         <source>Aggression</source>
         <translation>Agression</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="453"/>
-        <location filename="../inspector/inspector.cpp" line="841"/>
+        <location filename="../inspector/inspector.cpp" line="454"/>
+        <location filename="../inspector/inspector.cpp" line="854"/>
         <source>Join only for money</source>
         <translation>Ne rejoindre que pour l&apos;argent.</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="454"/>
-        <location filename="../inspector/inspector.cpp" line="843"/>
+        <location filename="../inspector/inspector.cpp" line="455"/>
+        <location filename="../inspector/inspector.cpp" line="856"/>
         <source>Joining percentage</source>
         <translation>Pourcentage d&apos;adhésion</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="458"/>
-        <location filename="../inspector/inspector.cpp" line="845"/>
+        <location filename="../inspector/inspector.cpp" line="459"/>
+        <location filename="../inspector/inspector.cpp" line="858"/>
         <source>Upgraded stack</source>
         <translation>Pile améliorée</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="460"/>
-        <location filename="../inspector/inspector.cpp" line="847"/>
+        <location filename="../inspector/inspector.cpp" line="461"/>
+        <location filename="../inspector/inspector.cpp" line="860"/>
         <source>Stacks count</source>
         <translation>Nombre de piles</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="461"/>
+        <location filename="../inspector/inspector.cpp" line="462"/>
         <source>Artifact reward</source>
         <translation>Récompense d&apos;artefact</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="522"/>
+        <location filename="../inspector/inspector.cpp" line="545"/>
         <source>Quest</source>
         <translation>Quête</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="540"/>
+        <location filename="../inspector/inspector.cpp" line="554"/>
         <source>Identifier</source>
         <translation>Identifiant</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="541"/>
+        <location filename="../inspector/inspector.cpp" line="555"/>
         <source>ID</source>
         <translation>IDENTIFIANT</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="542"/>
+        <location filename="../inspector/inspector.cpp" line="556"/>
         <source>SubID</source>
         <translation>Sous-ID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="543"/>
+        <location filename="../inspector/inspector.cpp" line="557"/>
         <source>InstanceName</source>
         <translation>Nom de l&apos;instance</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="548"/>
+        <location filename="../inspector/inspector.cpp" line="562"/>
         <source>IsStatic</source>
         <translation>EstStatique</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="935"/>
-        <location filename="../inspector/inspector.cpp" line="1089"/>
+        <location filename="../inspector/inspector.cpp" line="948"/>
+        <location filename="../inspector/inspector.cpp" line="1102"/>
         <source>neutral</source>
         <translation>neutre</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1038"/>
+        <location filename="../inspector/inspector.cpp" line="1051"/>
         <source>Never</source>
         <translation>Jamais</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1039"/>
+        <location filename="../inspector/inspector.cpp" line="1052"/>
         <source>Always</source>
         <translation>Toujours</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="253"/>
-        <location filename="../inspector/inspector.cpp" line="462"/>
+        <location filename="../inspector/inspector.cpp" line="254"/>
+        <location filename="../inspector/inspector.cpp" line="463"/>
         <source>Army</source>
         <translation>Armée</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="260"/>
-        <location filename="../inspector/inspector.cpp" line="273"/>
-        <location filename="../inspector/inspector.cpp" line="280"/>
-        <location filename="../inspector/inspector.cpp" line="288"/>
-        <location filename="../inspector/inspector.cpp" line="295"/>
-        <location filename="../inspector/inspector.cpp" line="326"/>
-        <location filename="../inspector/inspector.cpp" line="417"/>
-        <location filename="../inspector/inspector.cpp" line="551"/>
-        <location filename="../inspector/inspector.cpp" line="598"/>
+        <location filename="../inspector/inspector.cpp" line="261"/>
+        <location filename="../inspector/inspector.cpp" line="274"/>
+        <location filename="../inspector/inspector.cpp" line="281"/>
+        <location filename="../inspector/inspector.cpp" line="289"/>
+        <location filename="../inspector/inspector.cpp" line="296"/>
+        <location filename="../inspector/inspector.cpp" line="327"/>
+        <location filename="../inspector/inspector.cpp" line="418"/>
+        <location filename="../inspector/inspector.cpp" line="565"/>
+        <location filename="../inspector/inspector.cpp" line="611"/>
         <source>Owner</source>
         <translation>Propriétaire</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="265"/>
-        <location filename="../inspector/inspector.cpp" line="723"/>
+        <location filename="../inspector/inspector.cpp" line="266"/>
+        <location filename="../inspector/inspector.cpp" line="736"/>
         <source>Same as town</source>
         <translation>Identique à la ville</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="281"/>
-        <location filename="../inspector/inspector.cpp" line="738"/>
+        <location filename="../inspector/inspector.cpp" line="282"/>
+        <location filename="../inspector/inspector.cpp" line="751"/>
         <source>Removable units</source>
         <translation>Unités amovibles</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="306"/>
-        <location filename="../inspector/inspector.cpp" line="746"/>
+        <location filename="../inspector/inspector.cpp" line="307"/>
+        <location filename="../inspector/inspector.cpp" line="759"/>
         <source>Placeholder type</source>
         <translation>Type d&apos;espace réservé</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="309"/>
-        <location filename="../inspector/inspector.cpp" line="764"/>
+        <location filename="../inspector/inspector.cpp" line="310"/>
+        <location filename="../inspector/inspector.cpp" line="777"/>
         <source>Power rank</source>
         <translation>Niveau de puissance</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="317"/>
-        <location filename="../inspector/inspector.cpp" line="357"/>
-        <location filename="../inspector/inspector.cpp" line="767"/>
-        <location filename="../inspector/inspector.cpp" line="791"/>
+        <location filename="../inspector/inspector.cpp" line="318"/>
+        <location filename="../inspector/inspector.cpp" line="358"/>
+        <location filename="../inspector/inspector.cpp" line="780"/>
+        <location filename="../inspector/inspector.cpp" line="804"/>
         <source>Hero type</source>
         <translation>Type de héros</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="327"/>
-        <location filename="../inspector/inspector.cpp" line="788"/>
+        <location filename="../inspector/inspector.cpp" line="328"/>
+        <location filename="../inspector/inspector.cpp" line="801"/>
         <source>Experience</source>
         <translation>Expérience</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="332"/>
         <location filename="../inspector/inspector.cpp" line="333"/>
+        <location filename="../inspector/inspector.cpp" line="334"/>
         <source>MALE</source>
         <translation>HOMME</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="332"/>
         <location filename="../inspector/inspector.cpp" line="333"/>
+        <location filename="../inspector/inspector.cpp" line="334"/>
         <source>FEMALE</source>
         <translation>FEMME</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="333"/>
-        <location filename="../inspector/inspector.cpp" line="777"/>
+        <location filename="../inspector/inspector.cpp" line="334"/>
+        <location filename="../inspector/inspector.cpp" line="790"/>
         <source>Gender</source>
         <translation>Genre</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="335"/>
-        <location filename="../inspector/inspector.cpp" line="780"/>
+        <location filename="../inspector/inspector.cpp" line="336"/>
+        <location filename="../inspector/inspector.cpp" line="793"/>
         <source>Name</source>
         <translation>Nom</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="336"/>
-        <location filename="../inspector/inspector.cpp" line="784"/>
+        <location filename="../inspector/inspector.cpp" line="337"/>
+        <location filename="../inspector/inspector.cpp" line="797"/>
         <source>Biography</source>
         <translation>Biographie</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="341"/>
-        <location filename="../inspector/inspector.cpp" line="378"/>
+        <location filename="../inspector/inspector.cpp" line="342"/>
+        <location filename="../inspector/inspector.cpp" line="379"/>
         <source>Spells</source>
         <translation>Sorts</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="366"/>
-        <location filename="../inspector/inspector.cpp" line="803"/>
+        <location filename="../inspector/inspector.cpp" line="367"/>
+        <location filename="../inspector/inspector.cpp" line="816"/>
         <source>Patrol radius</source>
         <translation>Rayon de patrouille</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="374"/>
-        <location filename="../inspector/inspector.cpp" line="680"/>
+        <location filename="../inspector/inspector.cpp" line="375"/>
+        <location filename="../inspector/inspector.cpp" line="693"/>
         <source>Town name</source>
         <translation>Nom de la ville</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="381"/>
-        <location filename="../inspector/inspector.cpp" line="684"/>
+        <location filename="../inspector/inspector.cpp" line="382"/>
+        <location filename="../inspector/inspector.cpp" line="697"/>
         <source>Same as player</source>
         <translation>Identique au joueur</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="388"/>
-        <location filename="../inspector/inspector.cpp" line="428"/>
-        <location filename="../inspector/inspector.cpp" line="435"/>
-        <location filename="../inspector/inspector.cpp" line="442"/>
-        <location filename="../inspector/inspector.cpp" line="503"/>
-        <location filename="../inspector/inspector.cpp" line="640"/>
-        <location filename="../inspector/inspector.cpp" line="692"/>
-        <location filename="../inspector/inspector.cpp" line="709"/>
-        <location filename="../inspector/inspector.cpp" line="828"/>
+        <location filename="../inspector/inspector.cpp" line="389"/>
+        <location filename="../inspector/inspector.cpp" line="429"/>
+        <location filename="../inspector/inspector.cpp" line="436"/>
+        <location filename="../inspector/inspector.cpp" line="443"/>
+        <location filename="../inspector/inspector.cpp" line="510"/>
+        <location filename="../inspector/inspector.cpp" line="653"/>
+        <location filename="../inspector/inspector.cpp" line="705"/>
+        <location filename="../inspector/inspector.cpp" line="722"/>
+        <location filename="../inspector/inspector.cpp" line="841"/>
         <source>Message</source>
         <translation>Message</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="408"/>
-        <location filename="../inspector/inspector.cpp" line="713"/>
+        <location filename="../inspector/inspector.cpp" line="409"/>
+        <location filename="../inspector/inspector.cpp" line="726"/>
         <source>Spell</source>
         <translation>Sort</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="420"/>
-        <location filename="../inspector/inspector.cpp" line="701"/>
+        <location filename="../inspector/inspector.cpp" line="421"/>
+        <location filename="../inspector/inspector.cpp" line="714"/>
         <source>Productivity</source>
         <translation>Productivité</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="427"/>
-        <location filename="../inspector/inspector.cpp" line="463"/>
-        <location filename="../inspector/inspector.cpp" line="820"/>
-        <location filename="../inspector/inspector.cpp" line="837"/>
+        <location filename="../inspector/inspector.cpp" line="428"/>
+        <location filename="../inspector/inspector.cpp" line="464"/>
+        <location filename="../inspector/inspector.cpp" line="833"/>
+        <location filename="../inspector/inspector.cpp" line="850"/>
         <source>Amount</source>
         <translation>Quantité</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="446"/>
-        <location filename="../inspector/inspector.cpp" line="831"/>
+        <location filename="../inspector/inspector.cpp" line="447"/>
+        <location filename="../inspector/inspector.cpp" line="844"/>
         <source>Character</source>
         <translation>Personnage</translation>
     </message>
@@ -2412,56 +2412,55 @@ Voulez-vous le faire maintenant&#x202f;?</translation>
         <translation type="obsolete">Capacités</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="514"/>
-        <location filename="../inspector/inspector.cpp" line="658"/>
+        <location filename="../inspector/inspector.cpp" line="521"/>
+        <location filename="../inspector/inspector.cpp" line="671"/>
         <source>Available for</source>
         <translation>Disponible pour</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="996"/>
+        <location filename="../inspector/inspector.cpp" line="1009"/>
         <source>Select town</source>
         <translation>Sélectionner une ville</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1007"/>
+        <location filename="../inspector/inspector.cpp" line="1020"/>
         <location filename="../inspector/playerselectionwidget.cpp" line="104"/>
         <source>Available for:
 </source>
         <translation>Disponible pour :</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="448"/>
-        <location filename="../inspector/inspector.cpp" line="833"/>
+        <location filename="../inspector/inspector.cpp" line="449"/>
+        <location filename="../inspector/inspector.cpp" line="846"/>
         <source>Never flees</source>
         <translation>Ne fuit jamais</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="449"/>
-        <location filename="../inspector/inspector.cpp" line="835"/>
+        <location filename="../inspector/inspector.cpp" line="450"/>
+        <location filename="../inspector/inspector.cpp" line="848"/>
         <source>Not growing</source>
         <translation>Aucune croissance</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="496"/>
-        <location filename="../inspector/inspector.cpp" line="530"/>
+        <location filename="../inspector/inspector.cpp" line="503"/>
         <source>Reward</source>
         <translation>Récompense</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="510"/>
-        <location filename="../inspector/inspector.cpp" line="649"/>
+        <location filename="../inspector/inspector.cpp" line="517"/>
+        <location filename="../inspector/inspector.cpp" line="662"/>
         <source>Remove after</source>
         <translation>Supprimer après</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="511"/>
-        <location filename="../inspector/inspector.cpp" line="652"/>
+        <location filename="../inspector/inspector.cpp" line="518"/>
+        <location filename="../inspector/inspector.cpp" line="665"/>
         <source>Human trigger</source>
         <translation>Déclencheur humain</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="512"/>
-        <location filename="../inspector/inspector.cpp" line="655"/>
+        <location filename="../inspector/inspector.cpp" line="519"/>
+        <location filename="../inspector/inspector.cpp" line="668"/>
         <source>Cpu trigger</source>
         <translation>Déclencheur IA</translation>
     </message>
@@ -2478,16 +2477,15 @@ Voulez-vous le faire maintenant&#x202f;?</translation>
         <translation type="obsolete">Texte de complétion</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="531"/>
         <source>Repeat quest</source>
-        <translation>Répéter la quête</translation>
+        <translation type="vanished">Répéter la quête</translation>
     </message>
     <message>
         <source>Time limit</source>
         <translation type="obsolete">Limite de temps</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="933"/>
+        <location filename="../inspector/inspector.cpp" line="946"/>
         <source>UNFLAGGABLE</source>
         <translation>INCLASSABLE</translation>
     </message>
@@ -2535,116 +2533,160 @@ Ajoutez-le aux mods requis dans Carte → Général.</translation>
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="218"/>
-        <location filename="../inspector/inspector.cpp" line="1033"/>
+        <location filename="../inspector/inspector.cpp" line="1046"/>
         <source>Custom</source>
         <translation>Personnalisé</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="675"/>
+        <location filename="../inspector/questguardwidget.cpp" line="452"/>
         <source>Quest:</source>
         <translation>Quête :</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="453"/>
+        <location filename="../inspector/questwidget.cpp" line="523"/>
         <source>Day of Week: %1</source>
-        <translation type="obsolete">Jour de la semaine : %1</translation>
+        <translation type="unfinished">Jour de la semaine : %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="454"/>
+        <location filename="../inspector/questwidget.cpp" line="525"/>
         <source>Days Passed: %1</source>
-        <translation type="obsolete">Jours écoulés : %1</translation>
+        <translation type="unfinished">Jours écoulés : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="795"/>
+        <location filename="../inspector/questguardwidget.cpp" line="455"/>
+        <location filename="../inspector/questwidget.cpp" line="527"/>
+        <location filename="../inspector/rewardswidget.cpp" line="574"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="420"/>
         <source>Hero Level: %1</source>
         <translation>Niveau du Héros : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="796"/>
+        <location filename="../inspector/questguardwidget.cpp" line="456"/>
+        <location filename="../inspector/questwidget.cpp" line="529"/>
+        <location filename="../inspector/rewardswidget.cpp" line="575"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="422"/>
         <source>Hero Experience: %1</source>
         <translation>Expérience du Héros : %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="457"/>
+        <location filename="../inspector/questwidget.cpp" line="531"/>
         <source>Mana Points: %1</source>
-        <translation type="obsolete">Points de Mana : %1</translation>
+        <translation type="unfinished">Points de Mana : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="798"/>
+        <location filename="../inspector/questguardwidget.cpp" line="458"/>
+        <location filename="../inspector/questwidget.cpp" line="533"/>
+        <location filename="../inspector/rewardswidget.cpp" line="577"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="426"/>
         <source>Mana Percentage: %1</source>
         <translation>Pourcentage de Mana : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="801"/>
+        <location filename="../inspector/questguardwidget.cpp" line="459"/>
+        <location filename="../inspector/questwidget.cpp" line="535"/>
+        <location filename="../inspector/rewardswidget.cpp" line="580"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="432"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
         <translation>Compétences Principales : %1/%2/%3/%4</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="811"/>
+        <location filename="../inspector/questguardwidget.cpp" line="470"/>
+        <location filename="../inspector/questwidget.cpp" line="546"/>
+        <location filename="../inspector/rewardswidget.cpp" line="590"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="443"/>
         <source>Resources: %1</source>
         <translation>Ressources : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="817"/>
+        <location filename="../inspector/questguardwidget.cpp" line="477"/>
+        <location filename="../inspector/questwidget.cpp" line="555"/>
+        <location filename="../inspector/rewardswidget.cpp" line="596"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="450"/>
         <source>Artifacts: %1</source>
         <translation>Artefacts : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="823"/>
+        <location filename="../inspector/questguardwidget.cpp" line="484"/>
+        <location filename="../inspector/questwidget.cpp" line="565"/>
+        <location filename="../inspector/rewardswidget.cpp" line="602"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="458"/>
         <source>Spells: %1</source>
         <translation>Sorts : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="829"/>
+        <location filename="../inspector/questguardwidget.cpp" line="491"/>
+        <location filename="../inspector/questwidget.cpp" line="575"/>
+        <location filename="../inspector/rewardswidget.cpp" line="608"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="467"/>
         <source>Secondary Skills: %1</source>
         <translation>Compétences Secondaires : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="835"/>
+        <location filename="../inspector/questguardwidget.cpp" line="498"/>
+        <location filename="../inspector/questwidget.cpp" line="585"/>
+        <location filename="../inspector/rewardswidget.cpp" line="614"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="476"/>
         <source>Creatures: %1</source>
         <translation>Créatures : %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="505"/>
+        <location filename="../inspector/questwidget.cpp" line="595"/>
         <source>Heroes: %1</source>
-        <translation type="obsolete">Héros : %1</translation>
+        <translation type="unfinished">Héros : %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="512"/>
+        <location filename="../inspector/questwidget.cpp" line="605"/>
         <source>Hero Classes: %1</source>
-        <translation type="obsolete">Classes de héros : %1</translation>
+        <translation type="unfinished">Classes de héros : %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="521"/>
+        <location filename="../inspector/questwidget.cpp" line="617"/>
         <source>Players: %1</source>
-        <translation type="obsolete">Joueurs : %1</translation>
+        <translation type="unfinished">Joueurs : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="791"/>
+        <location filename="../inspector/rewardswidget.cpp" line="570"/>
         <source>Rewards:</source>
         <translation>Récompenses :</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="794"/>
+        <location filename="../inspector/rewardswidget.cpp" line="573"/>
         <source>Reward Message: %1</source>
         <translation>Message de Récompense : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="797"/>
+        <location filename="../inspector/rewardswidget.cpp" line="576"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="424"/>
         <source>Mana Diff: %1</source>
         <translation>Différence de Mana : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="799"/>
+        <location filename="../inspector/rewardswidget.cpp" line="578"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="428"/>
         <source>Move Points: %1</source>
         <translation>Points de Déplacement : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="800"/>
+        <location filename="../inspector/rewardswidget.cpp" line="579"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="430"/>
         <source>Move Percentage: %1</source>
         <translation>Pourcentage de Déplacement : %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="838"/>
+        <location filename="../inspector/rewardswidget.cpp" line="617"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="480"/>
         <source>Spell Cast: %1 (%2)</source>
         <translation>Sort Lancé : %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="846"/>
+        <location filename="../inspector/rewardswidget.cpp" line="625"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="491"/>
         <source>Bonuses: %1</source>
         <translation>Bonus : 1 %</translation>
     </message>
@@ -2716,7 +2758,7 @@ Ajoutez-le aux mods requis dans Carte → Général.</translation>
         <translation>Emplacement réservé pour le héros (rang de puissance %1)</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1037"/>
+        <location filename="../inspector/inspector.cpp" line="1050"/>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
         <translation>Aléatoire</translation>
@@ -2736,174 +2778,509 @@ Ajoutez-le aux mods requis dans Carte → Général.</translation>
         <source>Month</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="623"/>
+        <source>Empty Quest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="497"/>
+        <source>Empty Reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuestGuardWidget</name>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="17"/>
+        <source>Mission goal</source>
+        <translation type="unfinished">Objectif de la mission</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="28"/>
+        <source>Day of week</source>
+        <translation type="unfinished">Jour de la semaine</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="45"/>
+        <source>Days passed</source>
+        <translation type="unfinished">Jours passés</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="79"/>
+        <source>Hero level</source>
+        <translation type="unfinished">Niveau du héro</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="96"/>
+        <source>Hero experience</source>
+        <translation type="unfinished">Expérience du héro</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="136"/>
+        <source>Spell points</source>
+        <translation type="unfinished">Points de sort</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="156"/>
+        <source>%</source>
+        <translation type="unfinished">%</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="183"/>
+        <source>Kill hero/monster</source>
+        <translation type="unfinished">Tuer héro/monstre</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="197"/>
+        <source>...</source>
+        <translation type="unfinished">...</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="206"/>
+        <source>Primary skills</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="221"/>
+        <source>Attack</source>
+        <translation type="unfinished">Attaque</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="231"/>
+        <source>Defence</source>
+        <translation type="unfinished">Défense</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="241"/>
+        <source>Spell power</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="251"/>
+        <source>Knowledge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="289"/>
+        <source>Resources</source>
+        <translation type="unfinished">Ressources</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="338"/>
+        <source>Artifacts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="370"/>
+        <source>Spells</source>
+        <translation type="unfinished">Sorts</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="402"/>
+        <source>Skills</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="442"/>
+        <source>Creatures</source>
+        <translation type="unfinished">Créatures</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="491"/>
+        <source>Add</source>
+        <translation type="unfinished">Ajouter</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="498"/>
+        <source>Remove</source>
+        <translation type="unfinished">Supprimer</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="538"/>
+        <source>Heroes</source>
+        <translation type="unfinished">Héros</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="570"/>
+        <source>Hero classes</source>
+        <translation type="unfinished">Classe du héro</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="602"/>
+        <source>Players</source>
+        <translation type="unfinished">Joueurs</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.cpp" line="43"/>
+        <source>None</source>
+        <translation type="unfinished">Aucune</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.cpp" line="45"/>
+        <source>Day %1</source>
+        <translation type="unfinished">Jour %1</translation>
+    </message>
 </context>
 <context>
     <name>QuestWidget</name>
     <message>
-        <location filename="../inspector/questwidget.ui" line="17"/>
         <source>Mission goal</source>
-        <translation>Objectif de la mission</translation>
+        <translation type="vanished">Objectif de la mission</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="37"/>
         <source>Delete</source>
-        <translation>Supprimer</translation>
+        <translation type="vanished">Supprimer</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="17"/>
+        <source>Missions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="35"/>
+        <source>Reward</source>
+        <translation type="unfinished">Récompense</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="52"/>
+        <source>Add Reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="59"/>
+        <source>Add Quest</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
+        <source>Delete Quest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="93"/>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="100"/>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="113"/>
         <source>First Visit</source>
         <translation>Première visite</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="94"/>
+        <location filename="../inspector/questwidget.ui" line="141"/>
         <source>Next Visit</source>
         <translation>Prochaine visite</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="116"/>
+        <location filename="../inspector/questwidget.ui" line="163"/>
         <source>Completed</source>
         <translation>Complété(e)</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="148"/>
+        <location filename="../inspector/questwidget.ui" line="199"/>
+        <source>Quest</source>
+        <translation type="unfinished">Quête</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="214"/>
         <source>Repeatable</source>
         <translation>Reproductible</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="158"/>
+        <location filename="../inspector/questwidget.ui" line="224"/>
         <source>Set Deadline</source>
         <translation>Définir une Date butoir</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="179"/>
+        <location filename="../inspector/questwidget.ui" line="245"/>
         <source>Day of week</source>
         <translation>Jour de la semaine</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="196"/>
+        <location filename="../inspector/questwidget.ui" line="262"/>
         <source>Days passed</source>
         <translation>Jours passés</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="230"/>
+        <location filename="../inspector/questwidget.ui" line="296"/>
         <source>Hero level</source>
         <translation>Niveau du héro</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="247"/>
+        <location filename="../inspector/questwidget.ui" line="313"/>
         <source>Hero experience</source>
         <translation>Expérience du héro</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="287"/>
+        <location filename="../inspector/questwidget.ui" line="353"/>
         <source>Spell points</source>
         <translation>Points de sort</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="307"/>
+        <location filename="../inspector/questwidget.ui" line="373"/>
         <source>%</source>
         <translation>%</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="334"/>
+        <location filename="../inspector/questwidget.ui" line="400"/>
         <source>Kill hero/monster</source>
         <translation>Tuer héro/monstre</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="348"/>
+        <location filename="../inspector/questwidget.ui" line="414"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="357"/>
+        <location filename="../inspector/questwidget.ui" line="423"/>
         <source>Primary skills</source>
         <translation>Compétance principale</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="372"/>
+        <location filename="../inspector/questwidget.ui" line="438"/>
         <source>Attack</source>
         <translation>Attaque</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="382"/>
+        <location filename="../inspector/questwidget.ui" line="448"/>
         <source>Defence</source>
         <translation>Défense</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="392"/>
+        <location filename="../inspector/questwidget.ui" line="458"/>
         <source>Spell power</source>
         <translation>Puissance du sort</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="402"/>
+        <location filename="../inspector/questwidget.ui" line="468"/>
         <source>Knowledge</source>
         <translation>Conaissance</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="440"/>
+        <location filename="../inspector/questwidget.ui" line="506"/>
         <source>Resources</source>
         <translation>Ressources</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="489"/>
+        <location filename="../inspector/questwidget.ui" line="555"/>
         <source>Artifacts</source>
         <translation>Artéfacts</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="521"/>
+        <location filename="../inspector/questwidget.ui" line="587"/>
         <source>Spells</source>
         <translation>Sorts</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="553"/>
+        <location filename="../inspector/questwidget.ui" line="619"/>
         <source>Skills</source>
         <translation>Compérances</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="593"/>
+        <location filename="../inspector/questwidget.ui" line="659"/>
         <source>Creatures</source>
         <translation>Créatures</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="30"/>
-        <location filename="../inspector/questwidget.ui" line="642"/>
+        <location filename="../inspector/questwidget.ui" line="708"/>
         <source>Add</source>
         <translation>Ajouter</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="649"/>
+        <location filename="../inspector/questwidget.ui" line="715"/>
         <source>Remove</source>
         <translation>Supprimer</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="689"/>
+        <location filename="../inspector/questwidget.ui" line="755"/>
         <source>Heroes</source>
         <translation>Héros</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="721"/>
+        <location filename="../inspector/questwidget.ui" line="787"/>
         <source>Hero classes</source>
         <translation>Classe du héro</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="753"/>
+        <location filename="../inspector/questwidget.ui" line="819"/>
         <source>Players</source>
         <translation>Joueurs</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="43"/>
+        <location filename="../inspector/questwidget.cpp" line="45"/>
         <source>None</source>
         <translation>Aucune</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="45"/>
+        <location filename="../inspector/questwidget.cpp" line="47"/>
         <source>Day %1</source>
         <translation>Jour %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="303"/>
+        <location filename="../inspector/questwidget.cpp" line="324"/>
         <source>%1 quest on position %2</source>
         <translation>Quête %1 à la position %2</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="516"/>
+        <source>Add reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="516"/>
+        <source>Remove reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>RewardWidget</name>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="19"/>
+        <source>Hero level</source>
+        <translation type="unfinished">Niveau du héro</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="36"/>
+        <source>Hero experience</source>
+        <translation type="unfinished">Expérience du héro</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="76"/>
+        <source>Spell points</source>
+        <translation type="unfinished">Points de sort</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="99"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="119"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="153"/>
+        <source>%</source>
+        <translation type="unfinished">%</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="112"/>
+        <source>Overflow</source>
+        <translation type="unfinished">Surcharge</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="136"/>
+        <source>Movement</source>
+        <translation type="unfinished">Mouvement</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="179"/>
+        <source>Remove object</source>
+        <translation type="unfinished">Supprimer les objets</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="188"/>
+        <source>Primary skills</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="203"/>
+        <source>Attack</source>
+        <translation type="unfinished">Attaque</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="217"/>
+        <source>Defence</source>
+        <translation type="unfinished">Défense</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="231"/>
+        <source>Spell power</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="245"/>
+        <source>Knowledge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="275"/>
+        <source>Resources</source>
+        <translation type="unfinished">Ressources</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="324"/>
+        <source>Artifacts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="356"/>
+        <source>Spells</source>
+        <translation type="unfinished">Sorts</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="388"/>
+        <source>Skills</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="428"/>
+        <source>Creatures</source>
+        <translation type="unfinished">Créatures</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="477"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="606"/>
+        <source>Add</source>
+        <translation type="unfinished">Ajouter</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="484"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="613"/>
+        <source>Remove</source>
+        <translation type="unfinished">Supprimer</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="521"/>
+        <source>Bonuses</source>
+        <translation type="unfinished">Bonus</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="538"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="644"/>
+        <source>Duration</source>
+        <translation type="unfinished">Durée</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="555"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="649"/>
+        <source>Type</source>
+        <translation type="unfinished">Type</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="572"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="654"/>
+        <source>Value</source>
+        <translation type="unfinished">Valeur</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="663"/>
+        <source>Cast</source>
+        <translation type="unfinished">Lancer un sort</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="669"/>
+        <source>Cast an adventure map spell</source>
+        <translation type="unfinished">Lancer un sort d&apos;aventure de carte</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="678"/>
+        <source>Spell</source>
+        <translation type="unfinished">Sort</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="699"/>
+        <source>Magic school level</source>
+        <translation type="unfinished">Niveau d&apos;école de magie</translation>
     </message>
 </context>
 <context>
@@ -2915,17 +3292,13 @@ Ajoutez-le aux mods requis dans Carte → Général.</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="33"/>
-        <location filename="../inspector/rewardswidget.ui" line="726"/>
-        <location filename="../inspector/rewardswidget.ui" line="841"/>
-        <location filename="../inspector/rewardswidget.ui" line="1430"/>
+        <location filename="../inspector/rewardswidget.ui" line="716"/>
         <source>Add</source>
         <translation>Ajouter</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="43"/>
-        <location filename="../inspector/rewardswidget.ui" line="733"/>
-        <location filename="../inspector/rewardswidget.ui" line="848"/>
-        <location filename="../inspector/rewardswidget.ui" line="1437"/>
+        <location filename="../inspector/rewardswidget.ui" line="723"/>
         <source>Remove</source>
         <translation>Supprimer</translation>
     </message>
@@ -3005,192 +3378,162 @@ Ajoutez-le aux mods requis dans Carte → Général.</translation>
         <translation>Récompense</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="268"/>
-        <location filename="../inspector/rewardswidget.ui" line="1055"/>
+        <location filename="../inspector/rewardswidget.ui" line="341"/>
         <source>Hero level</source>
         <translation>Niveau du héro</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="285"/>
-        <location filename="../inspector/rewardswidget.ui" line="1072"/>
+        <location filename="../inspector/rewardswidget.ui" line="358"/>
         <source>Hero experience</source>
         <translation>Expérience du héro</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="325"/>
-        <location filename="../inspector/rewardswidget.ui" line="1112"/>
+        <location filename="../inspector/rewardswidget.ui" line="398"/>
         <source>Spell points</source>
         <translation>Points de sort</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="348"/>
-        <location filename="../inspector/rewardswidget.ui" line="368"/>
-        <location filename="../inspector/rewardswidget.ui" line="402"/>
-        <location filename="../inspector/rewardswidget.ui" line="1132"/>
+        <location filename="../inspector/rewardswidget.ui" line="418"/>
         <source>%</source>
         <translation>%</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="361"/>
         <source>Overflow</source>
-        <translation>Surcharge</translation>
+        <translation type="vanished">Surcharge</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="385"/>
         <source>Movement</source>
-        <translation>Mouvement</translation>
+        <translation type="vanished">Mouvement</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="428"/>
         <source>Remove object</source>
-        <translation>Supprimer les objets</translation>
+        <translation type="vanished">Supprimer les objets</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="437"/>
-        <location filename="../inspector/rewardswidget.ui" line="1157"/>
+        <location filename="../inspector/rewardswidget.ui" line="443"/>
         <source>Primary skills</source>
         <translation>Compétances principles</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="452"/>
-        <location filename="../inspector/rewardswidget.ui" line="1172"/>
+        <location filename="../inspector/rewardswidget.ui" line="458"/>
         <source>Attack</source>
         <translation>Attaque</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="466"/>
-        <location filename="../inspector/rewardswidget.ui" line="1182"/>
+        <location filename="../inspector/rewardswidget.ui" line="468"/>
         <source>Defence</source>
         <translation>Défense</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="480"/>
-        <location filename="../inspector/rewardswidget.ui" line="1192"/>
+        <location filename="../inspector/rewardswidget.ui" line="478"/>
         <source>Spell power</source>
         <translation>Puissance du sort</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="494"/>
-        <location filename="../inspector/rewardswidget.ui" line="1202"/>
+        <location filename="../inspector/rewardswidget.ui" line="488"/>
         <source>Knowledge</source>
         <translation>Conaissance</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="524"/>
-        <location filename="../inspector/rewardswidget.ui" line="1228"/>
+        <location filename="../inspector/rewardswidget.ui" line="514"/>
         <source>Resources</source>
         <translation>Ressources</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="573"/>
-        <location filename="../inspector/rewardswidget.ui" line="1277"/>
+        <location filename="../inspector/rewardswidget.ui" line="563"/>
         <source>Artifacts</source>
         <translation>Artéfacts</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="605"/>
-        <location filename="../inspector/rewardswidget.ui" line="1309"/>
+        <location filename="../inspector/rewardswidget.ui" line="595"/>
         <source>Spells</source>
         <translation>Sorts</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="637"/>
-        <location filename="../inspector/rewardswidget.ui" line="1341"/>
+        <location filename="../inspector/rewardswidget.ui" line="627"/>
         <source>Skills</source>
         <translation>Compétances</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="677"/>
-        <location filename="../inspector/rewardswidget.ui" line="1381"/>
+        <location filename="../inspector/rewardswidget.ui" line="667"/>
         <source>Creatures</source>
         <translation>Créatures</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="770"/>
         <source>Bonuses</source>
-        <translation>Bonus</translation>
+        <translation type="vanished">Bonus</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="787"/>
-        <location filename="../inspector/rewardswidget.ui" line="879"/>
         <source>Duration</source>
-        <translation>Durée</translation>
+        <translation type="vanished">Durée</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="797"/>
-        <location filename="../inspector/rewardswidget.ui" line="884"/>
         <source>Type</source>
-        <translation>Type</translation>
+        <translation type="vanished">Type</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="807"/>
-        <location filename="../inspector/rewardswidget.ui" line="889"/>
         <source>Value</source>
-        <translation>Valeur</translation>
+        <translation type="vanished">Valeur</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="898"/>
         <source>Cast</source>
-        <translation>Lancer un sort</translation>
+        <translation type="vanished">Lancer un sort</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="904"/>
         <source>Cast an adventure map spell</source>
-        <translation>Lancer un sort d&apos;aventure de carte</translation>
+        <translation type="vanished">Lancer un sort d&apos;aventure de carte</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="913"/>
         <source>Spell</source>
-        <translation>Sort</translation>
+        <translation type="vanished">Sort</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="934"/>
         <source>Magic school level</source>
-        <translation>Niveau d&apos;école de magie</translation>
+        <translation type="vanished">Niveau d&apos;école de magie</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="984"/>
+        <location filename="../inspector/rewardswidget.ui" line="270"/>
         <source>Limiter</source>
         <translation>Limitateur</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1004"/>
+        <location filename="../inspector/rewardswidget.ui" line="290"/>
         <source>Day of week</source>
         <translation>Jour de la semaine</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1021"/>
+        <location filename="../inspector/rewardswidget.ui" line="307"/>
         <source>Days passed</source>
         <translation>Jours passés</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1477"/>
+        <location filename="../inspector/rewardswidget.ui" line="763"/>
         <source>Heroes</source>
         <translation>Héros</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1509"/>
+        <location filename="../inspector/rewardswidget.ui" line="795"/>
         <source>Hero classes</source>
         <translation>Classe du héro</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1541"/>
+        <location filename="../inspector/rewardswidget.ui" line="827"/>
         <source>Players</source>
         <translation>Joueurs</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="57"/>
+        <location filename="../inspector/rewardswidget.cpp" line="59"/>
         <source>None</source>
         <translation>Aucune</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="59"/>
+        <location filename="../inspector/rewardswidget.cpp" line="61"/>
         <source>Day %1</source>
         <translation>Jour %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="252"/>
-        <location filename="../inspector/rewardswidget.cpp" line="625"/>
+        <location filename="../inspector/rewardswidget.cpp" line="219"/>
+        <location filename="../inspector/rewardswidget.cpp" line="450"/>
         <source>Reward %1</source>
         <translation>Récompense %1</translation>
     </message>
