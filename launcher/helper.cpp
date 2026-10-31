@@ -470,22 +470,19 @@ QString findSteamGameInstallDir(const QString & appId, const QString & fallbackI
 	return {};
 }
 
-bool isInstalledFromGooglePlay()
+#ifdef VCMI_ANDROID
+QString getInstallerPackageName()
 {
-#if defined(VCMI_ANDROID)
 	if(!QtAndroid::androidContext().isValid())
-		return false;
+		return {};
 
-	const jboolean installedFromGooglePlay = QAndroidJniObject::callStaticMethod<jboolean>(
+	return QAndroidJniObject::callStaticObjectMethod(
 		"eu/vcmi/vcmi/util/FileUtil",
-		"isInstalledFromGooglePlay",
-		"(Landroid/content/Context;)Z",
+		"getInstallerPackageName",
+		"(Landroid/content/Context;)Ljava/lang/String;",
 		QtAndroid::androidContext().object()
-	);
-	return installedFromGooglePlay;
-#else
-	return false;
-#endif
+	).toString();
 }
+#endif
 
 }

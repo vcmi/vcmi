@@ -15,6 +15,7 @@
 #include "configeditordialog_moc.h"
 
 #include "../modManager/cmodlistview_moc.h"
+#include "../updates/UpdateChecker.h"
 #include "../helper.h"
 #include "../../vcmiqt/jsonutils.h"
 #include "../languages.h"
@@ -189,6 +190,9 @@ void CSettingsView::fillValidAILibraries()
 
 void CSettingsView::loadSettings()
 {
+	ui->labelUpdateOnStartup->setVisible(UpdateChecker::isEnabled());
+	ui->buttonUpdateOnStartup->setVisible(UpdateChecker::isEnabled());
+
 #ifdef VCMI_MOBILE
 	ui->comboBoxFullScreen->hide();
 	ui->labelFullScreen->hide();
@@ -302,6 +306,7 @@ void CSettingsView::loadToggleButtonSettings()
 	setCheckbuttonState(ui->buttonShowIntro, settings["video"]["showIntro"].Bool());
 	setCheckbuttonState(ui->buttonAllowPortrait, settings["video"]["allowPortrait"].Bool());
 	setCheckbuttonState(ui->buttonAutoCheck, settings["launcher"]["autoCheckRepositories"].Bool());
+	setCheckbuttonState(ui->buttonUpdateOnStartup, settings["launcher"]["updateOnStartup"].Bool());
 	setCheckbuttonState(ui->buttonFullModExtraction, settings["launcher"]["fullModExtraction"].Bool());
 
 	setCheckbuttonState(ui->buttonRepositoryDefault, settings["launcher"]["defaultRepositoryEnabled"].Bool());
@@ -607,6 +612,13 @@ void CSettingsView::on_buttonAutoCheck_toggled(bool value)
 	Settings node = settings.write["launcher"]["autoCheckRepositories"];
 	node->Bool() = value;
 	updateCheckbuttonText(ui->buttonAutoCheck);
+}
+
+void CSettingsView::on_buttonUpdateOnStartup_toggled(bool value)
+{
+	Settings node = settings.write["launcher"]["updateOnStartup"];
+	node->Bool() = value;
+	updateCheckbuttonText(ui->buttonUpdateOnStartup);
 }
 
 void CSettingsView::on_buttonFullModExtraction_toggled(bool value)

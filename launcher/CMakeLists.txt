@@ -29,7 +29,8 @@ set(launcher_SRCS
 		innoextract.cpp
 		mainwindow_moc.cpp
 		languages.cpp
-		updatedialog_moc.cpp
+		updates/UpdateChecker.cpp
+		updates/UpdateView.cpp
 		prepare.cpp
 )
 if(IOS)
@@ -67,7 +68,8 @@ set(launcher_HEADERS
 		firstLaunch/progressoverlay.h
 		mainwindow_moc.h
 		languages.h
-		updatedialog_moc.h
+		updates/UpdateChecker.h
+		updates/UpdateView.h
 		demo.h
 		main.h
 		helper.h
@@ -91,7 +93,7 @@ set(launcher_FORMS
 		firstLaunch/firstlaunch_moc.ui
 		mainwindow_moc.ui
 		startGame/StartGameTab.ui
-		updatedialog_moc.ui
+		updates/UpdateView.ui
 )
 
 set(launcher_RESOURCES
@@ -275,6 +277,10 @@ target_link_libraries(vcmilauncher vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )
+target_compile_definitions(vcmilauncher PRIVATE VCMI_UPDATE_CHANNEL="${VCMI_UPDATE_CHANNEL}")
+if(VCMI_FLATPAK)
+	target_compile_definitions(vcmilauncher PRIVATE VCMI_FLATPAK)
+endif()
 vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
 

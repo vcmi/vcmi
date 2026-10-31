@@ -165,6 +165,10 @@ HttpDownloadID HttpDownloader::start(const std::string & url, const boost::files
 	setOption(handle, CURLOPT_NOSIGNAL, 1L);
 	setOption(handle, CURLOPT_FOLLOWLOCATION, 1L);
 	setOption(handle, CURLOPT_MAXREDIRS, 10L);
+	// without timeouts a stalled connection never finishes and is never reported as failed
+	setOption(handle, CURLOPT_CONNECTTIMEOUT, 30L);
+	setOption(handle, CURLOPT_LOW_SPEED_LIMIT, 1L);
+	setOption(handle, CURLOPT_LOW_SPEED_TIME, 60L);
 	// redirects may only lead to encrypted connections
 #if LIBCURL_VERSION_NUM >= 0x075500
 	setOption(handle, CURLOPT_PROTOCOLS_STR, "http,https");
