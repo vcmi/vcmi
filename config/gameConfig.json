@@ -540,6 +540,8 @@
 			"movementPointsLand" : [ 1300, 1360, 1430, 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 ],
 			/// movement points hero can get on start of the turn when on sea, depending on speed of slowest creature (0-based list)
 			"movementPointsSea" : [ 1500 ],
+			/// Prevent movement point exploits during land/sea transitions. Can be disabled to restore legacy behavior.
+			"preventLandSeaMovementExploit": true,
 
 			/// maximal secondary skills per hero
 			"skillPerHero" : 8,

@@ -84,6 +84,10 @@ private:
 	BattleField specialTerrain = BattleField::NONE;
 
 	ui32 movement; //remaining movement points
+
+	int32_t movementPointLandLimit = 0;
+	int32_t movementPointSeaLimit = 0;
+
 	bool inTownGarrison; // if hero is in town garrison
 
 	std::optional<MapHeroLevel> mapLevel; ///< applied and cleared by initHero
@@ -229,6 +233,7 @@ public:
 	void levelUp();
 
 	void setMovementPoints(int points);
+	void replenishMovementPoints();
 	int movementPointsRemaining() const;
 	int movementPointsLimit() const;
 	//cached version is much faster, TurnInfo construction is costly
@@ -237,6 +242,9 @@ public:
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark, const TurnInfo * ti) const;
 
 	std::unique_ptr<TurnInfo> getTurnInfo(int days) const;
+
+	void setMovementConversionLimits(const TurnInfo & ti);
+	int getMovementConversionLimit(const EPathfindingLayer & layer) const;
 
 	double getFightingStrength() const; // takes attack / defense skill into account
 	double getMagicStrength() const; // takes knowledge / spell power skill but also current mana, whether the hero owns a spell-book and whether that books contains anything into account
@@ -395,6 +403,18 @@ public:
 		if (h.hasFeature(Handler::Version::SECONDARY_SKILL_OFFER_COOLDOWN))
 			h & secSkillsGainedAtLevel;
 		h & movement;
+
+		if(h.hasFeature(Handler::Version::HERO_MOVEMENT_CONVERSION_LIMITS))
+		{
+			h & movementPointLandLimit;
+			h & movementPointSeaLimit;
+		}
+		else if(!h.saving)
+		{
+			movementPointLandLimit = 0;
+			movementPointSeaLimit = 0;
+		}
+
 		h & gender;
 		h & inTownGarrison;
 		h & spells;

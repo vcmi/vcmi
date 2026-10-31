@@ -75,12 +75,13 @@ enum class ESerializationVersion : int32_t
 	NEUTRAL_TOWN_EVENTS, // town events can affect neutral towns
 	LOBBY_MAP_INFO_PACK, // lobby sends map info in its own pack instead of lobby state; client and server reject each other below this version
 	SPELL_ID_WITH_MASTERY, // spell id is combined with spell mastery level
+	HERO_MOVEMENT_CONVERSION_LIMITS, // Persist daily land/sea movement conversion limits
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = SPELL_ID_WITH_MASTERY,
+	CURRENT = HERO_MOVEMENT_CONVERSION_LIMITS,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
