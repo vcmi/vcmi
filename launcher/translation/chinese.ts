@@ -186,7 +186,7 @@
     <message>
         <location filename="../modManager/cdownloadmanager_moc.cpp" line="171"/>
         <source>Failed to copy file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>复制文件 %1 失败</translation>
     </message>
 </context>
 <context>
@@ -429,8 +429,8 @@
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
         <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>正在下载 %n 个模组，已完成 %p%（%v MB / %m MB）</numerusform>
         </translation>
     </message>
     <message>
@@ -533,31 +533,35 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1530"/>
         <source>%1 requires: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 需求：%2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1533"/>
         <source>Failed to enable mod</source>
-        <translation type="unfinished"></translation>
+        <translation>启用模组失败</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1534"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>一个或多个已安装的模组无法启用：
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1548"/>
         <source>Mods disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>模组已关闭</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1549"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>由于已安装的模组发生变化，以下模组已被禁用：
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1616"/>
@@ -628,12 +632,18 @@ This usually happens on older systems, such as Windows 7, that are missing recen
 However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. In that case, downloaded files could be replaced with harmful ones.
 
 Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the &quot;Ignore SSL errors&quot; option.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI无法确认当前连接的是真正的下载服务器。
+
+这种情况通常发生在未获得最新安全更新的旧版系统上，例如Windows 7。
+
+但这也可能意味着有人正在篡改你的网络连接，例如在公共Wi-Fi网络中。在这种情况下，下载的文件可能被替换为恶意文件。
+
+是否要关闭此项检查并重试？你可以随时在启动器设置中通过关闭“忽略SSL错误”选项重新启用此项检查。</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1007"/>
         <source>Unable to verify download server</source>
-        <translation type="unfinished"></translation>
+        <translation>无法验证下载服务器</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1666"/>
@@ -875,22 +885,22 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
         <source>Sharpening strength for the xBRZ + Sharpen upscaling filters</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ + 锐化缩放滤镜的锐化强度</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="535"/>
         <source>xBRZ x2 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2 + 锐化</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="545"/>
         <source>xBRZ x3 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3 + 锐化</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="555"/>
         <source>xBRZ x4 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4 + 锐化</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="630"/>
@@ -905,22 +915,22 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="819"/>
         <source>HTTP proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP代理</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="826"/>
         <source>Open help</source>
-        <translation type="unfinished"></translation>
+        <translation>打开帮助</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="833"/>
         <source>Proxy server used for downloads, for example http://host:port or socks5h://host:port. If empty, proxy from environment variables is used</source>
-        <translation type="unfinished"></translation>
+        <translation>用于下载的代理服务器，例如 http://host:port 或 socks5h://host:port。如果留空，则使用环境变量中配置的代理</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
         <source>Autosaves per game (0 = unlimited)</source>
-        <translation type="unfinished"></translation>
+        <translation>每局游戏的自动存档数（0 = 无限制）</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1264"/>
@@ -1634,7 +1644,7 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
-        <translation type="unfinished"></translation>
+        <translation>添加多项界面和游戏体验的改进，包括优化随机地图界面、为冒险地图添加重新访问和搜索按钮、英雄快速交换、技能与免疫法术的图标，以及战斗指令功能</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="809"/>

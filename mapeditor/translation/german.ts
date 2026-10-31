@@ -2748,7 +2748,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/questwidget.ui" line="37"/>
         <source>Delete</source>
-        <translation type="unfinished">Entfernen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
