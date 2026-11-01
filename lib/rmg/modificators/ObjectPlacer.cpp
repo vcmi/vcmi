@@ -11,6 +11,7 @@
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "ObjectManager.h"
 #include "RoadPlacer.h"
+#include "../Functions.h"
 
 #include <vstd/RNG.h>
 
@@ -58,6 +59,14 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 
 			assert(handler);
 			ui32 guardStrength = info.second.has_value() ? info.second.value() : handler->getRMGInfo().value;
+			// Random dwelling of given level becomes a dwelling of the zone's faction (see ObjectManager::placeObject).
+			// Without a guard from the template, guard it according to the value of that native dwelling
+			if(!info.second.has_value() && objid.primaryID == Obj::RANDOM_DWELLING_LVL)
+			{
+				ui32 nativeValue = getRandomDwellingValue(map, zone.getTownType(), secondaryID); // objectLvl1 has index 0
+				if(nativeValue)
+					guardStrength = nativeValue;
+			}
 			
 			auto object = handler->create(map.mapInstance->cb, nullptr);
 			if (object->asOwnable() && object->tempOwner == PlayerColor::UNFLAGGABLE)

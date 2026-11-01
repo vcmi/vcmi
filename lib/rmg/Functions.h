@@ -17,6 +17,7 @@ class RmgMap;
 class ObjectManager;
 class ObjectTemplate;
 class CMapGenerator;
+class CCreature;
 
 class rmgException : public std::exception
 {
@@ -38,3 +39,11 @@ rmg::Tileset collectDistantTiles(const Zone & zone, int distance);
 
 int chooseRandomAppearance(vstd::RNG & generator, si32 ObjID, TerrainId terrain);
 
+/// Multiplier for the value of a dwelling of given faction, increases with the number of zones of that faction
+float getNativeDwellingValueModifier(RmgMap & map, FactionID faction);
+
+/// Value of a dwelling producing given creature, placed in a zone of its own faction, as in SoD
+ui32 getNativeDwellingValue(RmgMap & map, const CCreature * creature);
+
+/// Value of a random dwelling of given level (0-based) that becomes a dwelling of given faction, 0 if it can't be determined
+ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level);
