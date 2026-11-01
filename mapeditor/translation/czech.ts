@@ -471,12 +471,12 @@
     <message>
         <location filename="../mainwindow.ui" line="346"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Hledat</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="356"/>
         <source>Show as list</source>
-        <translation type="unfinished"></translation>
+        <translation>Zobrazit jako seznam</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="394"/>
@@ -669,7 +669,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1181"/>
         <source>Players settings</source>
-        <translation>Hráči</translation>
+        <translation>Nastavení hráčů</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1184"/>
@@ -2185,7 +2185,7 @@ Chcete to udělat nyní?</translation>
         <location filename="../inspector/inspector.cpp" line="384"/>
         <location filename="../inspector/inspector.cpp" line="703"/>
         <source>Exclude player&apos;s faction</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyloučit frakci hráče</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="423"/>
@@ -2798,12 +2798,12 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/questwidget.cpp" line="623"/>
         <source>Empty Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Prázdný úkol</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.cpp" line="497"/>
         <source>Empty Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Prázdná odměna</translation>
     </message>
 </context>
 <context>
@@ -2811,132 +2811,132 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/questguardwidget.ui" line="17"/>
         <source>Mission goal</source>
-        <translation type="unfinished">Cíl mise</translation>
+        <translation>Cíl mise</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="28"/>
         <source>Day of week</source>
-        <translation type="unfinished">Den týdne</translation>
+        <translation>Den týdne</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="45"/>
         <source>Days passed</source>
-        <translation type="unfinished">Uběhlých dní</translation>
+        <translation>Uběhlých dní</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="79"/>
         <source>Hero level</source>
-        <translation type="unfinished">Úroveň hrdiny</translation>
+        <translation>Úroveň hrdiny</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="96"/>
         <source>Hero experience</source>
-        <translation type="unfinished">Zkušenosti hrdiny</translation>
+        <translation>Zkušenosti hrdiny</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="136"/>
         <source>Spell points</source>
-        <translation type="unfinished">Magická energie</translation>
+        <translation>Magická energie</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="156"/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
-        <translation type="unfinished">Zabít hrdinu/příšeru</translation>
+        <translation>Zabít hrdinu/příšeru</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="197"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Základní schopnosti</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="221"/>
         <source>Attack</source>
-        <translation type="unfinished">Útok</translation>
+        <translation>Útok</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="231"/>
         <source>Defence</source>
-        <translation type="unfinished">Obrana</translation>
+        <translation>Obrana</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation type="unfinished">Síla kouzel</translation>
+        <translation>Síla kouzel</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="251"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Znalosti</translation>
+        <translation>Znalosti</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translation>Zdroje</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="338"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakty</translation>
+        <translation>Artefakty</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="370"/>
         <source>Spells</source>
-        <translation type="unfinished">Kouzla</translation>
+        <translation>Kouzla</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation type="unfinished">Dovednosti</translation>
+        <translation>Dovednosti</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="442"/>
         <source>Creatures</source>
-        <translation type="unfinished">Jednotky</translation>
+        <translation>Jednotky</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="491"/>
         <source>Add</source>
-        <translation type="unfinished">Přidat</translation>
+        <translation>Přidat</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="498"/>
         <source>Remove</source>
-        <translation type="unfinished">Odebrat</translation>
+        <translation>Odebrat</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="538"/>
         <source>Heroes</source>
-        <translation type="unfinished">Hrdinové</translation>
+        <translation>Hrdinové</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation type="unfinished">Třídy hrdinů</translation>
+        <translation>Třídy hrdinů</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="602"/>
         <source>Players</source>
-        <translation type="unfinished">Hráči</translation>
+        <translation>Hráči</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.cpp" line="43"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Žádný</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.cpp" line="45"/>
         <source>Day %1</source>
-        <translation type="unfinished">Den %1</translation>
+        <translation>Den %1</translation>
     </message>
 </context>
 <context>
@@ -2952,37 +2952,37 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/questwidget.ui" line="17"/>
         <source>Missions</source>
-        <translation type="unfinished"></translation>
+        <translation>Mise</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="35"/>
         <source>Reward</source>
-        <translation type="unfinished">Odměna</translation>
+        <translation>Odměna</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="52"/>
         <source>Add Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Přidat odměnu</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="59"/>
         <source>Add Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Přidat úkol</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
         <source>Delete Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Smazat úkol</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="93"/>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>Posunout nahoru</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="100"/>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>Posunout dolů</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="113"/>
@@ -3002,7 +3002,7 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/questwidget.ui" line="199"/>
         <source>Quest</source>
-        <translation type="unfinished">Úkol</translation>
+        <translation>Úkol</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="214"/>
@@ -3147,12 +3147,12 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/questwidget.cpp" line="516"/>
         <source>Add reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Přidat odměnu</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="516"/>
         <source>Remove reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Odebrat odměnu</translation>
     </message>
 </context>
 <context>
@@ -3160,144 +3160,144 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="19"/>
         <source>Hero level</source>
-        <translation type="unfinished">Úroveň hrdiny</translation>
+        <translation>Úroveň hrdiny</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="36"/>
         <source>Hero experience</source>
-        <translation type="unfinished">Zkušenosti hrdiny</translation>
+        <translation>Zkušenosti hrdiny</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="76"/>
         <source>Spell points</source>
-        <translation type="unfinished">Magická energie</translation>
+        <translation>Magická energie</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="99"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="119"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="153"/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="112"/>
         <source>Overflow</source>
-        <translation type="unfinished">Přetečení</translation>
+        <translation>Přetečení</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="136"/>
         <source>Movement</source>
-        <translation type="unfinished">Pohyb</translation>
+        <translation>Pohyb</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="179"/>
         <source>Remove object</source>
-        <translation type="unfinished">Odstranit objekt</translation>
+        <translation>Odstranit objekt</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="188"/>
         <source>Primary skills</source>
-        <translation type="unfinished"></translation>
+        <translation>Hlavní dovednosti</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="203"/>
         <source>Attack</source>
-        <translation type="unfinished">Útok</translation>
+        <translation>Útok</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="217"/>
         <source>Defence</source>
-        <translation type="unfinished">Obrana</translation>
+        <translation>Obrana</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="231"/>
         <source>Spell power</source>
-        <translation type="unfinished">Síla kouzel</translation>
+        <translation>Síla kouzel</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="245"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Znalosti</translation>
+        <translation>Znalosti</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="275"/>
         <source>Resources</source>
-        <translation type="unfinished"></translation>
+        <translation>Suroviny</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="324"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakty</translation>
+        <translation>Artefakty</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="356"/>
         <source>Spells</source>
-        <translation type="unfinished">Kouzla</translation>
+        <translation>Kouzla</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="388"/>
         <source>Skills</source>
-        <translation type="unfinished">Dovednosti</translation>
+        <translation>Dovednosti</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="428"/>
         <source>Creatures</source>
-        <translation type="unfinished">Jednotky</translation>
+        <translation>Jednotky</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="477"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="606"/>
         <source>Add</source>
-        <translation type="unfinished">Přidat</translation>
+        <translation>Přidat</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="484"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="613"/>
         <source>Remove</source>
-        <translation type="unfinished">Odebrat</translation>
+        <translation>Odebrat</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="521"/>
         <source>Bonuses</source>
-        <translation type="unfinished">Bonusy</translation>
+        <translation>Bonusy</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="538"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="644"/>
         <source>Duration</source>
-        <translation type="unfinished">Délka</translation>
+        <translation>Délka</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="555"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="649"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Druh</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="572"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="654"/>
         <source>Value</source>
-        <translation type="unfinished">Hodnota</translation>
+        <translation>Hodnota</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="663"/>
         <source>Cast</source>
-        <translation type="unfinished">Seslat kouzlo</translation>
+        <translation>Seslat kouzlo</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="669"/>
         <source>Cast an adventure map spell</source>
-        <translation type="unfinished">Seslat kouzlo mapy světa</translation>
+        <translation>Seslat kouzlo mapy světa</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="678"/>
         <source>Spell</source>
-        <translation type="unfinished">Kouzlo</translation>
+        <translation>Kouzlo</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="699"/>
         <source>Magic school level</source>
-        <translation type="unfinished">Úroveň školy magie</translation>
+        <translation>Úroveň školy magie</translation>
     </message>
 </context>
 <context>
@@ -5016,7 +5016,7 @@ Stráž: %3</translation>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="164"/>
         <source>affects neutral town</source>
-        <translation type="unfinished"></translation>
+        <translation>ovlivňuje neutrální město</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="173"/>
