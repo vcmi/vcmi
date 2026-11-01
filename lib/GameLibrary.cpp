@@ -18,6 +18,7 @@
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
 #include "MapLayerHandler.h"
+#include "entities/RumorTypeHandler.h"
 #include "spells/SpellSchoolHandler.h"
 #include "CSkillHandler.h"
 #include "../luascript/LuaModule.h"
@@ -249,6 +250,7 @@ void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 	createHandler(battlefieldsHandler);
 	createHandler(obstacleHandler);
 	createHandler(mapLayerHandler);
+	createHandler(rumorHandler);
 
 	scriptHandler = std::make_unique<scripting::LuaModule>();
 	scriptHandler->installScripting(*scriptTypeHandler);

@@ -76,13 +76,14 @@ enum class ESerializationVersion : int32_t
 	LOBBY_MAP_INFO_PACK, // lobby sends map info in its own pack instead of lobby state
 	SPELL_ID_WITH_MASTERY, // spell id is combined with spell mastery level
 	LOBBY_SCENARIO_LIST, // lobby lists maps and saved games of the server and selects them by name
+	RUMOR_REWORK, // rumor state stores typed rumor and rumors told since their pool was exhausted
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
 	MINIMAL_LOBBY = LOBBY_SCENARIO_LIST, // client and server of lobby reject each other below this version
-	CURRENT = LOBBY_SCENARIO_LIST,
+	CURRENT = RUMOR_REWORK,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

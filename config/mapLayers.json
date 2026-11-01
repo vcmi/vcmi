@@ -2,12 +2,14 @@
     "surface":
     {
         "index": 0,
-        "text" : "Surface"
+        "text" : "Surface",
+        "grailRumor" : "@core.genrltxt.263"
     },
     "underground":
     {
         "index": 1,
         "text" : "Underground",
+        "grailRumor" : "@core.genrltxt.264",
         "defaultTerrain" : "rock"
     },
     "unknown":

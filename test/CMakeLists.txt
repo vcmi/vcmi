@@ -145,6 +145,7 @@ set(test_SRCS
 		server/activities/ActivityProcessorTest.cpp
 		server/ArmyManagementTest.cpp
 		server/NeutralTownEventsTest.cpp
+		server/TavernRumorsTest.cpp
 
 		texts/TextOperationsTest.cpp
 

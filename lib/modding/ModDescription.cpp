@@ -252,6 +252,7 @@ bool ModDescription::affectsGameplay() const
 		"mapLayers",
 		"rivers",
 		"roads",
+		"rumors",
 		"settings",
 		"skills",
 		"spells",

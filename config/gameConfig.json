@@ -144,6 +144,10 @@
 	[
 		"config/mapLayers.json"
 	],
+	"rumors":
+	[
+		"config/rumors.json"
+	],
 
 	"settings":
 	{

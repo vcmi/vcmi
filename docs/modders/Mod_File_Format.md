@@ -192,6 +192,12 @@ These are fields that are present only in local mod.json file
 		"config/mapLayers.json"
 	],
 
+	// List of configuration files for tavern rumors
+	"rumors" :
+	[
+		"config/rumors.json"
+	],
+
 	// List of RMG templates defined in this mod
 	"templates" :
 	[
