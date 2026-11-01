@@ -337,7 +337,7 @@
 		},
 		
 		"visitMode": {
-			"enum" : [ "unlimited", "once", "hero", "bonus", "limiter", "player", "playerGlobal" ],
+			"enum" : [ "unlimited", "once", "hero", "bonus", "limiter", "player", "playerGlobal", "teamGlobal" ],
 			"type" : "string"
 		},
 		

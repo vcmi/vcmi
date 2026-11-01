@@ -56,6 +56,7 @@ set(test_SRCS
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
 		map/CGArtifactRegressionTest.cpp
+		map/CRewardableObjectTest.cpp
 		map/MapScriptTest.cpp
 		map/MapObjectDrawOrderTest.cpp
 		map/PlayerFactionsTest.cpp
@@ -221,6 +222,7 @@ if(ENABLE_NULLKILLER2_AI)
 		nullkiller2/Behaviors/OneWayPortalBehaviorTest.cpp
 		nullkiller2/Behaviors/RecruitHeroBehaviorTest.cpp
 		nullkiller2/Behaviors/WaterExplorationBehaviorTest.cpp
+		nullkiller2/Engine/FuzzyHelperTest.cpp
 		nullkiller2/Engine/PriorityEvaluatorTest.cpp
 		nullkiller2/Engine/ResourceTradingTurnTest.cpp
 		nullkiller2/Engine/TaskFailureTest.cpp
