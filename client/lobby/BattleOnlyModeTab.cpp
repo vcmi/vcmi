@@ -36,13 +36,12 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/GameLibrary.h"
-#include "../../lib/gameState/CGameState.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/StartInfo.h"
-#include "../../lib/VCMIDirs.h"
-#include "../../lib/CRandomGenerator.h"
+#include "../../lib/CCreatureHandler.h"
 #include "../../lib/CSkillHandler.h"
-#include "../../lib/callback/EditorCallback.h"
+#include "../../lib/TerrainHandler.h"
+#include "../../lib/mapping/MapEditUtils.h"
 #include "../../lib/entities/hero/CHero.h"
 #include "../../lib/entities/hero/CHeroClass.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
@@ -50,14 +49,6 @@
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/entities/artifact/CArtifact.h"
 #include "../../lib/entities/artifact/CArtHandler.h"
-#include "../../lib/mapObjects/CGHeroInstance.h"
-#include "../../lib/mapObjects/CGTownInstance.h"
-#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
-#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
-#include "../../lib/mapping/CMap.h"
-#include "../../lib/mapping/CMapInfo.h"
-#include "../../lib/mapping/CMapEditManager.h"
-#include "../../lib/mapping/CMapService.h"
 #include "../../lib/mapping/MapFormat.h"
 #include "../../lib/spells/SpellSchoolHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
@@ -94,8 +85,6 @@ BattleOnlyModeTab::BattleOnlyModeTab()
 	{
 		logGlobal->error("Error loading saved battleModeSettings, received exception: %s", e.what());
 	}
-
-	init();
 
 	backgroundImage = std::make_shared<CPicture>(ImagePath::builtin("AdventureOptionsBackgroundClear"), 0, 6);
 	title = std::make_shared<CLabel>(220, 35, FONT_BIG, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.lobby.battleOnlyMode"));
@@ -190,21 +179,6 @@ void BattleOnlyModeTab::selectTerrain()
 		}
 		onChange();
 	}, (startInfo->selectedTerrain != TerrainId::NONE ? static_cast<int>(startInfo->selectedTerrain) : static_cast<int>(startInfo->selectedTown + terrains.size())), images, true, true);
-}
-
-void BattleOnlyModeTab::init()
-{
-	map = std::make_unique<CMap>(nullptr);
-	map->version = EMapFormat::VCMI;
-	map->creationDateTime = std::time(nullptr);
-	map->width = 10;
-	map->height = 10;
-	map->mapLayers = {MapLayerId::SURFACE};
-	map->battleOnly = true;
-	map->name = MetaString::createFromTextID("vcmi.lobby.battleOnlyMode");
-
-	cb = std::make_unique<EditorCallback>(map.get());
-	map->cb = cb.get();
 }
 
 void BattleOnlyModeTab::onChange()
@@ -892,100 +866,7 @@ void BattleOnlyModeHeroSelector::setArtifactIcons()
 
 void BattleOnlyModeTab::startBattle()
 {
-	auto rng = &CRandomGenerator::getDefault();
-	
-	map->initTerrain();
-	map->getEditManager()->clearTerrain(rng);
-
-	map->getEditManager()->getTerrainSelection().selectAll();
-	map->getEditManager()->drawTerrain(startInfo->selectedTerrain == TerrainId::NONE ? TerrainId::DIRT : startInfo->selectedTerrain, 0, rng);
-
-	map->players[0].canComputerPlay = true;
-	map->players[0].canHumanPlay = true;
-	map->players[1] = map->players[0];
-
-	auto knownHeroes = LIBRARY->objtypeh->knownSubObjects(Obj::HERO);
-
-	auto addHero = [&, this](int sel, PlayerColor color, const int3 & position)
-	{
-		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, startInfo->selectedHero[sel].toHeroType()->getHeroClass()->getId());
-		auto templates = factory->getTemplates();
-		auto obj = std::dynamic_pointer_cast<CGHeroInstance>(factory->create(cb.get(), templates.front()));
-		obj->setHeroType(startInfo->selectedHero[sel]);
-
-		obj->setOwner(color);
-		obj->pos = position;
-		for(size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
-			obj->pushPrimSkill(PrimarySkill(i), startInfo->primSkillLevel[sel][i]);
-		obj->clearSlots();
-		for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
-			if(startInfo->selectedArmy[sel][slot].getId() != CreatureID::NONE && startInfo->selectedArmy[sel][slot].getCount() > 0)
-				obj->setCreature(SlotID(slot), startInfo->selectedArmy[sel][slot].getId(), startInfo->selectedArmy[sel][slot].getCount());
-
-		// give spellbook
-		if(!obj->getArt(ArtifactPosition::SPELLBOOK) && startInfo->spellBook[sel])
-			obj->putArtifact(ArtifactPosition::SPELLBOOK, map->createArtifact(ArtifactID::SPELLBOOK));
-		else if(obj->getArt(ArtifactPosition::SPELLBOOK) && !startInfo->spellBook[sel])
-			obj->removeArtifact(ArtifactPosition::SPELLBOOK);
-		
-		if(startInfo->warMachines[sel])
-		{
-			obj->putArtifact(ArtifactPosition::MACH1, map->createArtifact(ArtifactID::BALLISTA));
-			obj->putArtifact(ArtifactPosition::MACH2, map->createArtifact(ArtifactID::AMMO_CART));
-			obj->putArtifact(ArtifactPosition::MACH3, map->createArtifact(ArtifactID::FIRST_AID_TENT));
-		}
-		
-		for(const auto & spell : startInfo->spells[sel])
-			obj->addSpellToSpellbook(spell);
-
-		for(auto & artifact : startInfo->artifacts[sel])
-			if(artifact.second != ArtifactID::NONE)
-				obj->putArtifact(artifact.first, map->createArtifact(artifact.second));
-
-		for(const auto & skill : LIBRARY->skillh->objects) // reset all standard skills
-			obj->setSecSkillLevel(SecondarySkill(skill->getId()), MasteryLevel::NONE, ChangeValueMode::ABSOLUTE);
-		for(int skillSlot = 0; skillSlot < 8; skillSlot++)
-			obj->setSecSkillLevel(startInfo->secSkillLevel[sel][skillSlot].first, startInfo->secSkillLevel[sel][skillSlot].second, ChangeValueMode::ABSOLUTE);
-
-		map->getEditManager()->insertObject(obj);
-	};
-
-	addHero(0, PlayerColor(0), int3(5, 6, 0));
-	if(startInfo->selectedTown == FactionID::ANY)
-		addHero(1, PlayerColor(1), int3(5, 5, 0));
-	else
-	{
-		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, startInfo->selectedTown);
-		auto templates = factory->getTemplates();
-		auto obj = factory->create(cb.get(), templates.front());
-		auto townObj = std::dynamic_pointer_cast<CGTownInstance>(obj);
-		obj->setOwner(PlayerColor(1));
-		obj->pos = int3(5, 5, 0);
-		for (const auto & building : townObj->getTown()->getAllBuildings())
-			townObj->addBuilding(building);
-		if(startInfo->selectedHero[1] == HeroTypeID::NONE)
-		{
-			for(int slot = 0; slot < GameConstants::ARMY_SIZE; slot++)
-				if(startInfo->selectedArmy[1][slot].getId() != CreatureID::NONE && startInfo->selectedArmy[1][slot].getCount() > 0)
-					townObj->getArmy()->setCreature(SlotID(slot), startInfo->selectedArmy[1][slot].getId(), startInfo->selectedArmy[1][slot].getCount());
-		}
-		else
-			addHero(1, PlayerColor(1), int3(5, 5, 0));
-
-		map->getEditManager()->insertObject(townObj);
-	}
-
-	auto path = VCMIDirs::get().userDataPath() / "Maps";
-	boost::filesystem::create_directories(path);
-	const std::string fileName = "BattleOnlyMode.vmap";
-	const auto fullPath = path / fileName;
-	CMapService mapService;
-	mapService.saveMap(map, fullPath);
-	CResourceHandler::get()->updateFilteredFiles([&](const std::string & mount) { return boost::algorithm::starts_with(mount, "MAPS/"); });
-
-	auto mapInfo = std::make_shared<CMapInfo>();
-	mapInfo->mapInit("Maps/BattleOnlyMode");
-	GAME->server().setMapInfo(mapInfo);
+	GAME->server().selectScenario(ScenarioSelection{ScenarioSelection::EType::BATTLE_ONLY, ""});
 	ExtraOptionsInfo extraOptions;
 	extraOptions.unlimitedReplay = true;
 	GAME->server().setExtraOptionsInfo(extraOptions);

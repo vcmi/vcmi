@@ -11,7 +11,7 @@
 
 class CMap;
 #include "CWindowObject.h"
-#include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/constants/EntityIdentifiers.h"
 #include "../gui/InterfaceObjectConfigurable.h"
 
 class CSlider;
@@ -34,7 +34,8 @@ class CMapOverviewWidget : public InterfaceObjectConfigurable
 	std::vector<std::shared_ptr<CanvasImage>> minimaps;
 
 	std::shared_ptr<CanvasImage> createMinimapForLayer(std::unique_ptr<CMap> & map, int layer) const;
-	std::vector<std::shared_ptr<CanvasImage>> createMinimaps(const ResourcePath & resource) const;
+	/// Returns no minimaps if the client does not have the map or campaign file
+	std::vector<std::shared_ptr<CanvasImage>> createMinimaps() const;
 	std::vector<std::shared_ptr<CanvasImage>> createMinimaps(std::unique_ptr<CMap> & map) const;
 
 	void resizeMinimaps(int size) const;
@@ -48,13 +49,14 @@ class CMapOverview : public CWindowObject
 	std::shared_ptr<CMapOverviewWidget> widget;
 
 public:
-	const ResourcePath resource;
 	const std::string mapName;
 	const std::string fileName;
 	const std::string date;
 	const std::string author;
 	const std::string version;
+	const std::string mapFile; ///< map or campaign to draw the minimap from, empty if there is none
+	const std::optional<CampaignScenarioID> campaignScenario; ///< scenario of the campaign in mapFile
 	const ESelectionScreen tabType;
 
-	CMapOverview(const std::string & mapName, const std::string & fileName, const std::string & date, const std::string & author, const std::string & version, const ResourcePath & resource, ESelectionScreen tabType);
+	CMapOverview(const std::string & mapName, const std::string & fileName, const std::string & date, const std::string & author, const std::string & version, const std::string & mapFile, std::optional<CampaignScenarioID> campaignScenario, ESelectionScreen tabType);
 };

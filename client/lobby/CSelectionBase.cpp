@@ -148,8 +148,7 @@ void CSelectionBase::toggleTab(std::shared_ptr<CIntObject> tab)
 	if(tabSel->showRandom && tab != tabOpt)
 	{
 		tabSel->showRandom = false;
-		tabSel->setCurrentFolder("");
-		tabSel->filter(0, true);
+		tabSel->openFolder("", [this](){ tabSel->filter(0, true); });
 	}
 
 	ENGINE->windows().totalRedraw();

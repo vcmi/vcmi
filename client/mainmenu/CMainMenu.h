@@ -31,10 +31,7 @@ enum class ESelectionScreen : ui8 {
 	unknown = 0, newGame, loadGame, saveGame, scenarioInfo, campaignList
 };
 
-enum class ELoadMode : ui8
-{
-	NONE = 0, SINGLE, MULTI, CAMPAIGN, TUTORIAL
-};
+enum class ELoadMode : ui8;
 
 /// The main menu screens listed in the EState enum
 class CMenuScreen : public CWindowObject

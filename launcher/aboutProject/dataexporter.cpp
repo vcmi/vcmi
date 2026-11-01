@@ -23,8 +23,8 @@ namespace
 {
 void addLastSaveToArchiveIfAvailable(CZipSaver & saver)
 {
-	const auto json = JsonUtils::assembleFromFiles("config/settings.json");
-	const auto lastSavePath = json["general"]["lastSave"].String();
+	const auto json = JsonUtils::assembleFromFiles("config/serverSettings.json");
+	const auto lastSavePath = json["lastSaves"]["newest"].String();
 	if (lastSavePath.empty())
 		return;
 	const auto rsave = ResourcePath(lastSavePath, EResType::SAVEGAME);

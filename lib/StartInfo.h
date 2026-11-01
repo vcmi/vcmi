@@ -127,6 +127,11 @@ enum class EStartMode : int32_t
 	INVALID = 255
 };
 
+enum class ELoadMode : ui8
+{
+	NONE = 0, SINGLE, MULTI, CAMPAIGN, TUTORIAL
+};
+
 /// Struct which describes the difficulty, the turn time,.. of a heroes match.
 struct DLL_LINKAGE StartInfo : public Serializeable
 {

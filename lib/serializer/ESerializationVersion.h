@@ -73,14 +73,16 @@ enum class ESerializationVersion : int32_t
 	QUEST_HINT_COMPONENTS, // HotA scripted quests store components shown with their hint
 	TOWN_ALIGNMENT_EXCLUSION, // random town can be set to not match faction of a player
 	NEUTRAL_TOWN_EVENTS, // town events can affect neutral towns
-	LOBBY_MAP_INFO_PACK, // lobby sends map info in its own pack instead of lobby state; client and server reject each other below this version
+	LOBBY_MAP_INFO_PACK, // lobby sends map info in its own pack instead of lobby state
 	SPELL_ID_WITH_MASTERY, // spell id is combined with spell mastery level
+	LOBBY_SCENARIO_LIST, // lobby lists maps and saved games of the server and selects them by name
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	CURRENT = SPELL_ID_WITH_MASTERY,
+	MINIMAL_LOBBY = LOBBY_SCENARIO_LIST, // client and server of lobby reject each other below this version
+	CURRENT = LOBBY_SCENARIO_LIST,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");
