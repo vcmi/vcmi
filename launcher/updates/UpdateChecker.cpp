@@ -78,9 +78,9 @@ static bool isInstalledByInstaller()
 	const QString launcherDirectory = QDir(QCoreApplication::applicationDirPath()).canonicalPath();
 
 	// the installer runs in 32-bit mode, so machine-wide installs are registered in the 32-bit registry view
-	for(const QString & root : {QString("HKEY_CURRENT_USER"), QString("HKEY_LOCAL_MACHINE")})
+	for(const auto root : {QLatin1String("HKEY_CURRENT_USER"), QLatin1String("HKEY_LOCAL_MACHINE")})
 	{
-		QSettings uninstallKeys(root + "\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall", QSettings::Registry32Format);
+		QSettings uninstallKeys(root + QLatin1String(R"(\Software\Microsoft\Windows\CurrentVersion\Uninstall)"), QSettings::Registry32Format);
 		for(const QString & application : uninstallKeys.childGroups())
 		{
 			// suffix of all applications installed by Inno Setup

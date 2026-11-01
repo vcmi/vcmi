@@ -16,6 +16,7 @@
 #include "../mainwindow_moc.h"
 
 #include "../../lib/GameConstants.h"
+#include "../../lib/VCMIDirs.h"
 
 UpdateView::UpdateView(QWidget * parent)
 	: QWidget(parent)
@@ -66,7 +67,7 @@ void UpdateView::refresh()
 #elif defined(VCMI_ANDROID)
 			instructions = tr("Your browser will download the update as an APK file. Open it to install the update over the current version. Android may ask you to allow your browser to install apps.");
 #elif defined(VCMI_MAC)
-			instructions = tr("Your browser will download a disk image. Close VCMI, open the downloaded file and drag VCMI into the Applications folder, replacing the old version.");
+			instructions = tr("Your browser will download a disk image. Close VCMI, open it and replace your current VCMI app with the one inside.");
 #else
 			instructions = tr("Your browser will download the update as an AppImage. Allow it to run as a program, for example with 'chmod +x', and start it.");
 #endif
@@ -79,23 +80,24 @@ void UpdateView::refresh()
 			{
 				case EUpdateDistribution::GOOGLE_PLAY:
 					instructions = tr("Update VCMI in Google Play. Google Play releases updates gradually, so the new version may take a few days to appear there.");
-					actionUrl = QUrl("market://details?id=is.xyz.vcmi");
-					actionFallbackUrl = QUrl("https://play.google.com/store/apps/details?id=is.xyz.vcmi");
+					actionUrl = QUrl(QString::fromStdString("market://details?id=" + VCMIDirs::appIdentifier()));
+					actionFallbackUrl = QUrl(QString::fromStdString("https://play.google.com/store/apps/details?id=" + VCMIDirs::appIdentifier()));
 					break;
 				case EUpdateDistribution::FDROID:
 					instructions = tr("Update VCMI in your F-Droid app. F-Droid builds new versions itself, so the update may take a few days to appear there.");
-					actionUrl = QUrl("https://f-droid.org/packages/is.xyz.vcmi/");
+					actionUrl = QUrl(QString::fromStdString("https://f-droid.org/packages/" + VCMIDirs::appIdentifier() + "/"));
 					break;
 				case EUpdateDistribution::TESTFLIGHT:
 					instructions = tr("Update VCMI in the TestFlight app. New versions may take a few days to appear there.");
-					actionUrl = QUrl("https://testflight.apple.com/join/pJWHSbmu");
+					actionUrl = QUrl("itms-beta://");
+					actionFallbackUrl = QUrl("https://testflight.apple.com/join/pJWHSbmu");
 					break;
 				case EUpdateDistribution::FLATPAK:
 					instructions = tr("Update VCMI in your software center or with 'flatpak update eu.vcmi.VCMI'. New versions may take a few days to appear on Flathub.");
 					actionUrl = QUrl("https://flathub.org/apps/eu.vcmi.VCMI");
 					break;
 				default:
-#if defined(Q_OS_LINUX) && !defined(VCMI_ANDROID)
+#if defined(VCMI_XDG) && !defined(VCMI_ANDROID)
 					instructions = tr("Update VCMI with the package manager of your distribution. Some distributions take a long time to ship new versions.");
 #else
 					instructions = tr("Update VCMI the same way you installed it.");

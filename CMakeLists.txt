@@ -51,6 +51,7 @@ option(ENABLE_MINIMAL_LIB "Build only core parts of vcmi library that are requir
 option(ENABLE_GOLDMASTER "Build in public release mode in which some debug routines are disabled" OFF)
 set(VCMI_UPDATE_CHANNEL "stable" CACHE STRING "Update channel the launcher checks for new versions: stable, beta, develop or none")
 set_property(CACHE VCMI_UPDATE_CHANNEL PROPERTY STRINGS stable beta develop none)
+mark_as_advanced(VCMI_UPDATE_CHANNEL)
 
 # AI libraries. Empty AI is always on
 

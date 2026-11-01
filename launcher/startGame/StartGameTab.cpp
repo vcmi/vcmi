@@ -283,13 +283,14 @@ void StartGameTab::on_buttonUpdateAvailable_clicked()
 
 void StartGameTab::on_buttonUpdateStatusHelp_clicked()
 {
-	QString message = tr(
-		"VCMI could not contact the update server. "
-		"Make sure that you are connected to the internet and try again later.\n\n"
-		"Error details:\n%1"
-		).arg(Helper::getMainWindow()->getUpdateChecker()->getErrorMessage());
-
-	MessageBoxCustom::information(this, ui->labelUpdateStatus->text(), message);
+	MessageBoxCustom::showDialog(this, [this]()
+	{
+		QMessageBox box(QMessageBox::Information, ui->labelUpdateStatus->text(),
+			tr("VCMI could not contact the update server. Make sure that you are connected to the internet and try again later."),
+			QMessageBox::Ok, this);
+		box.setDetailedText(Helper::getMainWindow()->getUpdateChecker()->getErrorMessage());
+		box.exec();
+	});
 }
 
 void StartGameTab::on_buttonGameEditor_clicked()

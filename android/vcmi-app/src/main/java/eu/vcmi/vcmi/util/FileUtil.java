@@ -165,6 +165,7 @@ public class FileUtil
 	}
 
 	@Keep
+	@Nullable
 	@SuppressWarnings(Const.JNI_METHOD_SUPPRESS)
 	public static String getInstallerPackageName(Context context)
 	{
