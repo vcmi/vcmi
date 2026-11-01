@@ -1555,7 +1555,7 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 {
 	if(!ti->hasFreeShipBoarding())
 		return 0; // take all MPs by default
-	
+
 	auto boatLayer = inBoat() ? getBoat()->layer : EPathfindingLayer::SAIL;
 
 	if(boatLayer == EPathfindingLayer::AVIATE)
@@ -1565,7 +1565,7 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 	const int mp2 = ti->getMovementConversionLimit(disembark ? boatLayer : EPathfindingLayer::LAND);
 
 	if(mp1 <= 0 || mp2 <= 0)
-		return 0;
+		throw std::runtime_error("Invalid movement conversion limits: " + std::to_string(mp1) + ", " + std::to_string(mp2));
 
 	int ret = static_cast<int>((MPsBefore - basicCost) * static_cast<double>(mp1) / mp2);
 	return ret;
