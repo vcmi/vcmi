@@ -775,7 +775,7 @@
 				},
 				"updateConfigUrl" : {
 					"type" : "string",
-					"default" : "https://raw.githubusercontent.com/vcmi/vcmi-updates/master/vcmi-updates.json"
+					"default" : "https://updates.vcmi.eu/autoupdate.json"
 				},
 				"trackClipboardState" : {
 					"type" : "boolean",

@@ -8,7 +8,9 @@ if(ENABLE_GITVERSION)
 endif()
 
 if(GIT_SHA1)
-	set(VCMI_VERSION_FULL "${VCMI_VERSION_STRING}.${GIT_SHA1}")
+	# same length as the commit in names of CI builds
+	string(SUBSTRING "${GIT_SHA1}" 0 7 GIT_SHA1_SHORT)
+	set(VCMI_VERSION_FULL "${VCMI_VERSION_STRING}.${GIT_SHA1_SHORT}")
 else()
 	set(VCMI_VERSION_FULL "${VCMI_VERSION_STRING}")
 endif()

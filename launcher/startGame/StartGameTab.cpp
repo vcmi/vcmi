@@ -14,7 +14,7 @@
 #include "../helper.h"
 #include "../mainwindow_moc.h"
 #include "../main.h"
-#include "../updatedialog_moc.h"
+#include "../updates/UpdateChecker.h"
 #ifdef VCMI_IOS
 #include "../../ios/iOS_utils.h"
 #endif
@@ -65,6 +65,8 @@ StartGameTab::StartGameTab(QWidget * parent)
 		auto clipboard = QGuiApplication::clipboard();
 		connect(clipboard, SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 	}
+
+	connect(Helper::getMainWindow()->getUpdateChecker(), &UpdateChecker::stateChanged, this, &StartGameTab::refreshUpdateStatus);
 }
 
 void StartGameTab::clipboardDataChanged()
@@ -104,7 +106,7 @@ void StartGameTab::refreshState()
 	bool demoActive = CModListView::isDemoDataPresent();
 
 	refreshGameData();
-	refreshUpdateStatus(EGameUpdateStatus::NOT_CHECKED);//TODO - follow automatic check on startup setting
+	refreshUpdateStatus();
 
 	if (!demoActive)
 	{
@@ -226,19 +228,41 @@ void StartGameTab::refreshMods()
 	ui->buttonInstallHdEditionHelp->setVisible(canInstallHD);
 }
 
-void StartGameTab::refreshUpdateStatus(EGameUpdateStatus status)
+void StartGameTab::refreshUpdateStatus()
 {
-	QString availableVersion; // TODO
+	const UpdateChecker * checker = Helper::getMainWindow()->getUpdateChecker();
 
 	ui->labelTitleEngine->setText(QString(GameConstants::VCMI_PROJECT_NAME_VERSIONED));
-	ui->buttonUpdateCheck->setVisible(status == EGameUpdateStatus::NOT_CHECKED);
-	ui->labelUpdateNotFound->setVisible(status == EGameUpdateStatus::NO_UPDATE);
-	ui->labelUpdateAvailable->setVisible(status == EGameUpdateStatus::UPDATE_AVAILABLE);
-	ui->buttonOpenChangelog->setVisible(status == EGameUpdateStatus::UPDATE_AVAILABLE);
-	ui->buttonOpenDownloads->setVisible(status == EGameUpdateStatus::UPDATE_AVAILABLE);
+	ui->buttonUpdateCheck->setVisible(checker->getState() != EUpdateCheckState::DISABLED);
+	ui->buttonUpdateCheck->setEnabled(checker->getState() != EUpdateCheckState::CHECKING);
+	ui->buttonUpdateAvailable->setVisible(checker->getState() == EUpdateCheckState::UPDATE_AVAILABLE);
+	ui->labelUpdateStatus->hide();
+	ui->buttonUpdateStatusHelp->setVisible(checker->getState() == EUpdateCheckState::FAILED);
 
-	if (status == EGameUpdateStatus::UPDATE_AVAILABLE)
-		ui->labelUpdateAvailable->setText(tr("Update to %1 available").arg(availableVersion));
+	switch(checker->getState())
+	{
+		case EUpdateCheckState::DISABLED:
+		case EUpdateCheckState::NOT_CHECKED:
+			ui->buttonUpdateCheck->setText(tr("Check for Updates"));
+			break;
+		case EUpdateCheckState::CHECKING:
+			ui->buttonUpdateCheck->setText(tr("Checking for Updates..."));
+			break;
+		case EUpdateCheckState::FAILED:
+			ui->buttonUpdateCheck->setText(tr("Check for Updates"));
+			ui->labelUpdateStatus->setText(tr("Could not check for updates"));
+			ui->labelUpdateStatus->show();
+			break;
+		case EUpdateCheckState::NO_UPDATE:
+			ui->buttonUpdateCheck->setText(tr("Check for Updates"));
+			ui->labelUpdateStatus->setText(tr("You are using the latest version"));
+			ui->labelUpdateStatus->show();
+			break;
+		case EUpdateCheckState::UPDATE_AVAILABLE:
+			ui->buttonUpdateCheck->setText(tr("Check for Updates"));
+			ui->buttonUpdateAvailable->setText(tr("Update to %1 Available").arg(checker->getUpdate().version));
+			break;
+	}
 }
 
 void StartGameTab::on_buttonGameStart_clicked()
@@ -247,19 +271,26 @@ void StartGameTab::on_buttonGameStart_clicked()
 	startGame({});
 }
 
-void StartGameTab::on_buttonOpenChangelog_clicked()
-{
-	QDesktopServices::openUrl(QUrl("https://vcmi.eu/ChangeLog/"));
-}
-
-void StartGameTab::on_buttonOpenDownloads_clicked()
-{
-	QDesktopServices::openUrl(QUrl("https://vcmi.eu/download/"));
-}
-
 void StartGameTab::on_buttonUpdateCheck_clicked()
 {
-	UpdateDialog::showUpdateDialog(true);
+	Helper::getMainWindow()->getUpdateChecker()->check();
+}
+
+void StartGameTab::on_buttonUpdateAvailable_clicked()
+{
+	Helper::getMainWindow()->switchToUpdateTab();
+}
+
+void StartGameTab::on_buttonUpdateStatusHelp_clicked()
+{
+	MessageBoxCustom::showDialog(this, [this]()
+	{
+		QMessageBox box(QMessageBox::Information, ui->labelUpdateStatus->text(),
+			tr("VCMI could not contact the update server. Make sure that you are connected to the internet and try again later."),
+			QMessageBox::Ok, this);
+		box.setDetailedText(Helper::getMainWindow()->getUpdateChecker()->getErrorMessage());
+		box.exec();
+	});
 }
 
 void StartGameTab::on_buttonGameEditor_clicked()
