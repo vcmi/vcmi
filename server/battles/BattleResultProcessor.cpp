@@ -476,6 +476,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 			{
 				const auto spell = spellId.toEntity(LIBRARY->spells());
 				if(spell
+					&& spell->isCommonHeroSpell()
 					&& spell->getLevel() <= spellLevelLimit
 					&& !winnerHero->spellbookContainsSpell(spell->getId())
 					&& gameHandler->getRandomGenerator().nextInt(99) < winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE))

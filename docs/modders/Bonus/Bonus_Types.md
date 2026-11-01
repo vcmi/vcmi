@@ -340,10 +340,15 @@ Defines percentage of mana points that hero gains per each point of knowledge (I
 
 ### HERO_GRANTS_ATTACKS
 
-Gives additional attacks to specific creatures in affected army (Artillery)
+DEPRECATED. Configs and saves convert this bonus to [ADDITIONAL_ATTACK](#additional_attack) limited to the creature from its subtype during loading. Use `ADDITIONAL_ATTACK` in new content.
 
-- subtype: creature to give additional attacks
-- val: number of attacks
+```json
+{
+	"type" : "ADDITIONAL_ATTACK",
+	"val" : 1,
+	"limiters" : [ { "type" : "CREATURE_TYPE_LIMITER", "creature" : "ballista" } ]
+}
+```
 
 ### BONUS_DAMAGE_CHANCE
 

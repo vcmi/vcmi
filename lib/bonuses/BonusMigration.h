@@ -26,6 +26,9 @@ bool migrateBonus(const JsonNode & ability, JsonNode & migrated);
 /// Same conversion, for a bonus restored from a save predating the ability becoming a script.
 bool migrateCombatAbility(Bonus & bonus);
 
+/// Converts a saved HERO_GRANTS_ATTACKS into ADDITIONAL_ATTACK limited to the creature it named.
+void migrateHeroGrantedAttacks(Bonus & bonus);
+
 /// Logs a warning for abilities that were retired without a conversion, so that content still
 /// declaring them fails loudly rather than by quietly doing nothing.
 void warnIfRetired(const JsonNode & ability, const TextIdentifier & descriptionID);

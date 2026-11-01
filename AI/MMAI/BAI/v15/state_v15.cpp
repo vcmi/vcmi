@@ -537,11 +537,7 @@ namespace
 		// Stolen from BattleActionProcessor::doAttackAction
 		auto getAdditionalAttacks = [&attacker, isRangedAttack]
 		{
-			int totalAttacks = attacker.getTotalAttacks(isRangedAttack);
-			if(const auto * attackingHero = attacker.getMyHero())
-				totalAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, BonusSubtypeID(attacker.creatureId()));
-
-			return totalAttacks - 1;
+			return attacker.getTotalAttacks(isRangedAttack) - 1;
 		};
 
 		// Stolen from BattleActionProcessor::doAttackAction
