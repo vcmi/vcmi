@@ -637,11 +637,6 @@
 					"type" : "BONUS_DAMAGE_CHANCE",
 					"valueType" : "BASE_NUMBER"
 				},
-				"val2" : {
-					"subtype" : "ballista",
-					"type" : "HERO_GRANTS_ATTACKS",
-					"valueType" : "BASE_NUMBER"
-				},
 				"ctrl" : {
 					"subtype" : "ballista",
 					"type" : "MANUAL_CONTROL",
@@ -659,13 +654,18 @@
 					"type" : "BONUS_DAMAGE_PERCENTAGE",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
+				},
+				"val2" : {
+					"type" : "ADDITIONAL_ATTACK",
+					"valueType" : "BASE_NUMBER",
+					"limiters" : [ { "type" : "CREATURE_TYPE_LIMITER", "creature" : "ballista" } ]
 				}
 			}
 		},
 		"basic" : {
 			"effects" : {
 				"main" : { "val" : 50 },
-				"val2" : { "val" : 0 }
+				"val2" : { "val" : 0, "hidden" : true }
 			}
 		},
 		"advanced" : {

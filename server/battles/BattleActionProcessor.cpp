@@ -59,13 +59,6 @@ void BattleActionProcessor::performAttackSequence(const CBattleInfoCallback & ba
 {
 	int totalAttacks = attacker->getTotalAttacks(false);
 
-	//TODO: move to CUnitState
-	const auto * attackingHero = battle.battleGetFightingHero(attacker->unitSide());
-	if(attackingHero)
-	{
-		totalAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, BonusSubtypeID(attacker->creatureId()));
-	}
-
 	static const auto firstStrikeSelector = Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeAll).Or(Selector::typeSubtype(BonusType::FIRST_STRIKE, BonusCustomSubtype::damageTypeMelee));
 	const bool firstStrike = defender->hasBonus(firstStrikeSelector) && !defender->hasBonusOfType(BonusType::NOT_ACTIVE);
 
@@ -171,13 +164,6 @@ void BattleActionProcessor::makeRangedAttack(const CBattleInfoCallback & battle,
 		makeAttack(battle, destinationStack, stack, {.targetHex = stack->getPosition(), .first = true, .ranged = true, .counter = true});
 	}
 	int totalRangedAttacks = stack->getTotalAttacks(true);
-
-	//TODO: move to CUnitState
-	const auto * attackingHero = battle.battleGetFightingHero(stack->unitSide());
-	if(attackingHero)
-	{
-		totalRangedAttacks += attackingHero->valOfBonuses(BonusType::HERO_GRANTS_ATTACKS, BonusSubtypeID(stack->creatureId()));
-	}
 
 	for(int i = firstStrike ? 0:1; i < totalRangedAttacks; ++i)
 	{

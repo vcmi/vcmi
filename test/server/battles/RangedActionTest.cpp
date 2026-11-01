@@ -326,3 +326,25 @@ TEST_F(RangedActionTest, healPreviewShowsWoundedStack)
 	EXPECT_EQ(shown.cursor, "combatHeal");
 	EXPECT_THAT(textIDsOf(shown.statusText), ::testing::IsSupersetOf(std::vector<std::string>{"core.genrltxt.419", pluralNameOf(CreatureID(pikeman))}));
 }
+
+TEST_F(RangedActionTest, ballistaShootsTwiceOnlyFromAdvancedArtillery)
+{
+	startGame();
+	startBattle();
+
+	for(const auto & [level, expectedShots] : { std::pair{1, 1}, std::pair{2, 2}, std::pair{3, 2} })
+	{
+		attackerSideHero->setSecSkillLevel(SecondarySkill::ARTILLERY, level, ChangeValueMode::ABSOLUTE);
+
+		CStack * ballista = addStack(BattleSide::ATTACKER, CreatureID::BALLISTA, shooterHex, 1);
+		CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, 1000);
+
+		const auto shotsBefore = ballista->shots.available();
+
+		ASSERT_TRUE(act(BattleAction::makeShotAttack(ballista, target))) << "artillery level " << level;
+		EXPECT_EQ(shotsBefore - ballista->shots.available(), expectedShots) << "artillery level " << level;
+
+		injure(ballista, ballista->getAvailableHealth());
+		injure(target, target->getAvailableHealth());
+	}
+}
