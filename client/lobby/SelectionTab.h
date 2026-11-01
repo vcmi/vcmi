@@ -89,7 +89,7 @@ class SelectionTab : public CIntObject
 	/// Returns true if campaign is listed in one of campaign sets
 	bool isInCampaignSet(const ScenarioListEntry & entry) const;
 
-	void notifySelection(const std::shared_ptr<ElementInfo> & element);
+	void notifySelection(const std::shared_ptr<ElementInfo> & element) const;
 
 	/// Called once the reply to the request sent to the server is applied, empty if no request is sent
 	std::function<void(const LobbyScenarioList &)> onListReceived;
