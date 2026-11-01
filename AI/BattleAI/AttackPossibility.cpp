@@ -429,6 +429,10 @@ AttackPossibility AttackPossibility::evaluate(
 			if(!ap.attackerState->alive() || !defenderStates[defender->unitId()]->alive())
 				break;
 
+			// as on the server, each shot of a multi-shot attack needs its own ammo
+			if(attackInfo.shooting && !ap.attackerState->shots.canUse())
+				break;
+
 			for(auto u : defenderUnits)
 			{
 				auto defenderState = defenderStates.at(u->unitId());
@@ -444,7 +448,6 @@ AttackPossibility AttackPossibility::evaluate(
 				vstd::amin(damageDealt, defenderState->getAvailableHealth());
 
 				defenderDamageReduce = calculateDamageReduce(u, damageDealt, damageCache);
-				ap.attackerState->afterAttack(attackInfo.shooting, false);
 
 				//FIXME: use ranged retaliation
 				attackerDamageReduce = 0;
@@ -510,6 +513,9 @@ AttackPossibility AttackPossibility::evaluate(
 					ap.defenderDead = !defenderState->alive();
 				}
 			}
+
+			// one attack uses one shot, however many units it hits
+			ap.attackerState->afterAttack(attackInfo.shooting, false);
 		}
 
 #if BATTLE_TRACE_LEVEL>=2

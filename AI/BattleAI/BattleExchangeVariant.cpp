@@ -857,6 +857,10 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 			{
 				for(int i = 0; i < totalAttacks; i++)
 				{
+					// as on the server, each shot of a multi-shot attack needs its own ammo
+					if(shooting && !attacker->shots.canUse())
+						break;
+
 					v.trackAttack(attacker, defender, shooting, isOur, damageCache, exchangeBattle,
 						i == 0 ? BattleExchangeVariant::AttackMode::FIRST_STRIKE : BattleExchangeVariant::AttackMode::FOLLOWUP_STRIKE);
 
