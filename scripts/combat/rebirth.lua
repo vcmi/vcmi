@@ -64,7 +64,8 @@ function Script:onDeath(server, battle, unit, other, payload)
 		sourceID   = unit:getCreature():getJsonKey()
 	}, false)
 
-	server:showBattleAnimation(battle, { { unit = unit } }, ANIMATION, SOUND, 0.5, true)
+	-- not deferred, so that the client plays the death of the stack before it is resurrected
+	server:showBattleAnimation(battle, { { unit = unit } }, ANIMATION, SOUND, 0.5)
 	local _, resurrected = server:healUnit(battle, unit, count * unit:getMaxHealth(), ENUM.HealLevel.resurrect, ENUM.HealPower.permanent)
 
 	if resurrected > 0 then
