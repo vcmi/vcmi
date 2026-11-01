@@ -479,7 +479,11 @@ AttackPossibility AttackPossibility::evaluate(
 						
 					}
 
-					defenderState->afterAttack(attackInfo.shooting, true);
+					// a defender that can retaliate only once the attack removes bonuses such as petrification
+					// keeps them in this state, so its retaliation is counted by the exchange instead
+					ap.defenderRetaliated = true;
+					if(defenderState->ableToRetaliate())
+						defenderState->afterAttack(false, true);
 				}
 
 				bool isEnemy = state->battleMatchOwner(attacker, u);
