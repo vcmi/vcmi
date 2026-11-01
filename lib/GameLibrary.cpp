@@ -51,7 +51,7 @@
 
 #include <vcmi/scripting/Service.h>
 
-GameLibrary * LIBRARY = nullptr;
+const GameLibrary * LIBRARY = nullptr;
 
 
 
@@ -170,7 +170,7 @@ void GameLibrary::loadModFilesystem(bool useTestPreset)
 }
 
 template <class Handler>
-void createHandler(std::unique_ptr<Handler> & handler)
+void createHandler(LibraryHandlerPtr<Handler> & handler)
 {
 	handler = std::make_unique<Handler>();
 }

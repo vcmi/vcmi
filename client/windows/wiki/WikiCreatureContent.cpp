@@ -86,7 +86,7 @@ std::vector<std::shared_ptr<CIntObject>> buildCreatureContent( // NOSONAR (compl
 			nullptr,
 			[crId](){
 				ENGINE->windows().createAndPushWindow<CStackWindow>(
-					LIBRARY->creh->objects[crId.getNum()].get(), true);
+					(*LIBRARY->creh)[crId.getNum()], true);
 			},
 			blueStyle, clipRect));
 
@@ -208,20 +208,20 @@ std::vector<std::shared_ptr<CIntObject>> buildCreatureContent( // NOSONAR (compl
 		std::vector<const CCreature *> upgrades;
 		for(const CreatureID uid : creature->upgrades)
 		{
-			if(uid.getNum() >= 0 && uid.getNum() < static_cast<int>(LIBRARY->creh->objects.size()))
+			if(uid.getNum() >= 0 && uid.getNum() < static_cast<int>(LIBRARY->creh->size()))
 			{
-				if(const auto & up = LIBRARY->creh->objects[uid.getNum()])
-					upgrades.push_back(up.get());
+				if(const auto & up = (*LIBRARY->creh)[uid.getNum()])
+					upgrades.push_back(up);
 			}
 		}
 
 		std::vector<const CCreature *> bases;
-		for(const auto & cr : LIBRARY->creh->objects)
+		for(const auto & cr : LIBRARY->creh->getObjects())
 		{
-			if(cr && cr.get() != creature
+			if(cr && cr != creature
 				&& cr->upgrades.count(CreatureID(creature->getIndex())) > 0)
 			{
-				bases.push_back(cr.get());
+				bases.push_back(cr);
 			}
 		}
 
@@ -269,7 +269,7 @@ std::vector<std::shared_ptr<CIntObject>> buildCreatureContent( // NOSONAR (compl
 					std::move(lclick),
 					[relId](){
 						ENGINE->windows().createAndPushWindow<CStackWindow>(
-							LIBRARY->creh->objects[relId.getNum()].get(), true);
+							(*LIBRARY->creh)[relId.getNum()], true);
 					},
 					blueStyle, clipRect));
 

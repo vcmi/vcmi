@@ -172,7 +172,7 @@ std::vector<AnimationPath> CComponent::getFileName() const
 		case ComponentType::LUCK:
 			return gen(luckArr);
 		case ComponentType::BUILDING:
-			return std::vector<AnimationPath>(4, (*LIBRARY->townh)[data.subType.as<BuildingTypeUniqueID>().getFaction()]->town->clientInfo.buildingsIcons);
+			return std::vector<AnimationPath>(4, (*LIBRARY->townh)[data.subType.as<BuildingTypeUniqueID>().getFaction()]->getTown()->clientInfo.buildingsIcons);
 		case ComponentType::HERO_PORTRAIT:
 			return gen(heroArr);
 		case ComponentType::FLAG:
@@ -260,7 +260,7 @@ std::string CComponent::getDescription() const
 		case ComponentType::BUILDING:
 		{
 			auto index = data.subType.as<BuildingTypeUniqueID>();
-			return (*LIBRARY->townh)[index.getFaction()]->town->buildings[index.getBuilding()]->getDescriptionTranslated();
+			return (*LIBRARY->townh)[index.getFaction()]->getTown()->buildings.at(index.getBuilding())->getDescriptionTranslated();
 		}
 		case ComponentType::HERO_PORTRAIT:
 			return "";
@@ -348,13 +348,14 @@ std::string CComponent::getSubtitle() const
 		case ComponentType::BUILDING:
 			{
 				auto index = data.subType.as<BuildingTypeUniqueID>();
-				const auto & building = (*LIBRARY->townh)[index.getFaction()]->town->buildings[index.getBuilding()];
-				if(!building)
+				const auto * town = (*LIBRARY->townh)[index.getFaction()]->getTown();
+				const auto building = town->buildings.find(index.getBuilding());
+				if(building == town->buildings.end())
 				{
-					logGlobal->error("Town of faction %s has no building #%d", (*LIBRARY->townh)[index.getFaction()]->town->getFaction()->getNameTranslated(), index.getBuilding().getNum());
+					logGlobal->error("Town of faction %s has no building #%d", town->getFaction()->getNameTranslated(), index.getBuilding().getNum());
 					return (boost::format("Missing building #%d") % index.getBuilding().getNum()).str();
 				}
-				return building->getNameTranslated();
+				return building->second->getNameTranslated();
 			}
 		case ComponentType::FLAG:
 			return GAME->translator().translate("vcmi.capitalColors", data.subType.as<PlayerColor>().getNum());

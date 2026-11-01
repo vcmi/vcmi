@@ -26,7 +26,6 @@
 #include "../../../lib/spells/Problem.h"
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/GameLibrary.h"
-#include "../../../lib/texts/CGeneralTextHandler.h"
 #include "../../../lib/texts/Languages.h"
 
 #include <vcmi/spells/Service.h>
@@ -42,7 +41,7 @@ bool MechanicsProxy::ownerMatchesUnit(const Mechanics & m, const battle::Unit & 
 
 std::string MechanicsProxy::getPluralFormTextID(const spells::Mechanics & m, const std::string & baseTextID, int32_t count)
 {
-	std::string lang = LIBRARY->generaltexth->getPreferredLanguage();
+	std::string lang = Languages::getPreferredLanguage();
 	return Languages::getPluralFormTextID(lang, count, baseTextID);
 }
 

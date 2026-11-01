@@ -244,7 +244,7 @@ std::vector<std::shared_ptr<CIntObject>> buildArtifactContent(
 		widgets.push_back(std::make_shared<WikiClickable>(
 			Rect(MARGIN, curY, tableW, rowH),
 			std::move(lclick),
-			[artId](){ CRClickPopup::createAndPush(LIBRARY->arth->objects[artId.getNum()]->getDescriptionTranslated()); },
+			[artId](){ CRClickPopup::createAndPush((*LIBRARY->arth)[artId.getNum()]->getDescriptionTranslated()); },
 			blueStyle, clipRect));
 		curY += rowH;
 	};

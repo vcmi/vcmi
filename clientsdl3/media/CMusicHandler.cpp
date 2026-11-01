@@ -85,18 +85,18 @@ Sint64 CMusicHandler::fadeFrames(int fade_ms) const
 
 void CMusicHandler::loadTerrainMusicThemes()
 {
-	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
+	for(const auto & terrain : LIBRARY->terrainTypeHandler->getObjects())
 	{
 		for(const auto & filename : terrain->musicFilename)
 			addEntryToSet("terrain_" + terrain->getJsonKey(), filename);
 	}
 
-	for(const auto & faction : LIBRARY->townh->objects)
+	for(const auto & faction : LIBRARY->townh->getObjects())
 	{
 		if (!faction || !faction->hasTown())
 			continue;
 
-		for(const auto & filename : faction->town->clientInfo.musicTheme)
+		for(const auto & filename : faction->getTown()->clientInfo.musicTheme)
 			addEntryToSet("faction_" + faction->getJsonKey(), filename);
 	}
 }

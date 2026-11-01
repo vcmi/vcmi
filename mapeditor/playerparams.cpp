@@ -50,7 +50,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	//load factions
 	for(auto idx : LIBRARY->townh->getAllowedFactions())
 	{
-		const auto & faction = LIBRARY->townh->objects.at(idx);
+		const auto & faction = (*LIBRARY->townh)[idx];
 		auto * item = new QListWidgetItem(QString::fromStdString(faction->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(idx.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);

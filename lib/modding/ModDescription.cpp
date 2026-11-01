@@ -14,7 +14,6 @@
 #include "ModVerificationInfo.h"
 
 #include "../json/JsonNode.h"
-#include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
 void ModDescription::mergeModDescriptions(JsonNode & modConfig, const std::string & fullDescription)
@@ -135,7 +134,7 @@ const JsonNode & ModDescription::getLocalConfig() const
 
 const JsonNode & ModDescription::getLocalizedValue(const std::string & keyName) const
 {
-	const std::string language = CGeneralTextHandler::getPreferredLanguage();
+	const std::string language = Languages::getPreferredLanguage();
 	const JsonNode & languageNode = getValue(language);
 	const JsonNode & baseValue = getValue(keyName);
 	const JsonNode & localizedValue = languageNode[keyName];
@@ -148,7 +147,7 @@ const JsonNode & ModDescription::getLocalizedValue(const std::string & keyName) 
 
 const JsonNode & ModDescription::getLocalizedDescription() const
 {
-	const std::string language = CGeneralTextHandler::getPreferredLanguage();
+	const std::string language = Languages::getPreferredLanguage();
 	const JsonNode & localizedValue = getValue(language)["description"];
 	const JsonNode & englishValue = getValue("english")["description"];
 	const JsonNode & baseValue = getValue("description");

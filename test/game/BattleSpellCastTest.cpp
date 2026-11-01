@@ -934,7 +934,7 @@ TEST_P(SpellMagnitudeSpecialty, matchesBaseline)
 	// Reproduce the specialty factor from config using the H3-correct floor formula.
 	const SpellID spell(c.spellIndex);
 	std::shared_ptr<Bonus> spec;
-	for(const auto & b : LIBRARY->heroh->objects.at(c.specialistHero)->specialty)
+	for(const auto & b : (*LIBRARY->heroh)[c.specialistHero]->specialty)
 		if(b->subtype == BonusSubtypeID(spell))
 			spec = b;
 	ASSERT_NE(spec, nullptr) << c.name << ": hero has no specialty for this spell";
@@ -1034,7 +1034,7 @@ TEST_P(EnchantSpecialty, matchesBaseline)
 	// Read the specialty (type + parameter) straight from config, plus target tier
 	// and spell polarity, to reproduce the shift scripts/timed.lua applies.
 	std::shared_ptr<Bonus> specialtyBonus;
-	for(const auto & b : LIBRARY->heroh->objects.at(c.hero)->specialty)
+	for(const auto & b : (*LIBRARY->heroh)[c.hero]->specialty)
 		if(b->subtype == BonusSubtypeID(spell))
 			specialtyBonus = b;
 	ASSERT_NE(specialtyBonus, nullptr) << c.name << ": hero has no specialty for this spell";
@@ -1274,7 +1274,7 @@ TEST_P(SpellScalingSpecialty, matchesBaseline)
 	const SpellID spell(SpellID::decode(c.spellIdent));
 
 	std::shared_ptr<Bonus> spec;
-	for(const auto & b : LIBRARY->heroh->objects.at(HeroTypeID::decode(c.heroIdent))->specialty)
+	for(const auto & b : (*LIBRARY->heroh)[HeroTypeID::decode(c.heroIdent)]->specialty)
 		if(b->type == BonusType::SPECIAL_SPELL_SCALING && b->subtype == BonusSubtypeID(spell))
 			spec = b;
 	ASSERT_NE(spec, nullptr) << c.name << ": hero has no spell-scaling specialty for this spell";

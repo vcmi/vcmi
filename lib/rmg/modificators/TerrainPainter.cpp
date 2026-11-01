@@ -48,7 +48,7 @@ void TerrainPainter::initTerrainType()
 	{
 		//collect all water terrain types
 		std::vector<TerrainId> waterTerrains;
-		for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
+		for(const auto & terrain : LIBRARY->terrainTypeHandler->getObjects())
 			if(terrain->isWater())
 				waterTerrains.push_back(terrain->getId());
 
@@ -100,7 +100,7 @@ void TerrainPainter::initTerrainType()
 			{
 				//Fill with all terain types by default
 				{
-					for (const auto & terrain : LIBRARY->terrainTypeHandler->objects)
+					for (const auto & terrain : LIBRARY->terrainTypeHandler->getObjects())
 					{
 						if (terrain->isLand() && terrain->isPassable())
 						{

@@ -407,15 +407,15 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			for(int i = 0; i < controller->map()->allowedArtifact.size(); ++i)
-				victoryTypeWidget->addItem(QString::fromStdString(LIBRARY->arth->objects[i]->getNameTranslated()), QVariant::fromValue(i));
+				victoryTypeWidget->addItem(QString::fromStdString((*LIBRARY->arth)[i]->getNameTranslated()), QVariant::fromValue(i));
 			break;
 		}
 
 		case 1: { //EventCondition::HAVE_CREATURES
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
-			for(int i = 0; i < LIBRARY->creh->objects.size(); ++i)
-				victoryTypeWidget->addItem(QString::fromStdString(LIBRARY->creh->objects[i]->getNamePluralTranslated()), QVariant::fromValue(i));
+			for(int i = 0; i < LIBRARY->creh->size(); ++i)
+				victoryTypeWidget->addItem(QString::fromStdString((*LIBRARY->creh)[i]->getNamePluralTranslated()), QVariant::fromValue(i));
 
 			victoryValueWidget = new QLineEdit;
 			ui->victoryParamsLayout->addWidget(victoryValueWidget);
@@ -445,7 +445,7 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 		case 3: { //EventCondition::HAVE_BUILDING
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
-			auto * ctown = LIBRARY->townh->randomFaction->town.get();
+			const auto * ctown = LIBRARY->townh->getRandomFaction()->getTown();
 			for(int bId : ctown->getAllBuildings())
 				victoryTypeWidget->addItem(QString::fromStdString(defaultBuildingIdConversion(BuildingID(bId))), QVariant::fromValue(bId));
 
@@ -487,7 +487,7 @@ void VictoryConditions::on_victoryComboBox_currentIndexChanged(int index)
 			victoryTypeWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victoryTypeWidget);
 			for(int i = 0; i < controller->map()->allowedArtifact.size(); ++i)
-				victoryTypeWidget->addItem(QString::fromStdString(LIBRARY->arth->objects[i]->getNameTranslated()), QVariant::fromValue(i));
+				victoryTypeWidget->addItem(QString::fromStdString((*LIBRARY->arth)[i]->getNameTranslated()), QVariant::fromValue(i));
 
 			victorySelectWidget = new QComboBox;
 			ui->victoryParamsLayout->addWidget(victorySelectWidget);

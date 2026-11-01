@@ -15,6 +15,7 @@
 #include "bonuses/Bonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
+#include "json/JsonNode.h"
 
 class JsonSerializeFormat;
 
@@ -76,8 +77,8 @@ public:
 	std::array<si32, 2> gainChance; // gainChance[0/1] = default gain chance on level-up for might/magic heroes
 	int offerCooldown = 0;
 
-	/// Bonuses that should be given to hero that specializes in this skill
-	std::vector<std::shared_ptr<const Bonus>> specialtyTargetBonuses;
+	/// Bonuses that should be given to hero that specializes in this skill, parsed separately for each hero
+	std::vector<JsonNode> specialtyTargetBonuses;
 
 	friend class CSkillHandler;
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill);

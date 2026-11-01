@@ -33,7 +33,7 @@ void HeroesSettings::initialize(MapController & c)
 {
 	AbstractSettings::initialize(c);
 
-	for(const auto & objectPtr : LIBRARY->heroh->objects)
+	for(const auto & objectPtr : LIBRARY->heroh->getObjects())
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		QVariantList data;

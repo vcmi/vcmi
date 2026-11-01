@@ -35,6 +35,7 @@ set(lib_SRCS
 	network/NetworkHandler.cpp
 	network/NetworkServer.cpp
 
+	texts/Languages.cpp
 	texts/TextOperations.cpp
 
 	vstd/DateUtils.cpp

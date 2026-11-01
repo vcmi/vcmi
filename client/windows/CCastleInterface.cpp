@@ -393,7 +393,7 @@ std::string CBuildingRect::getSubtitle()//hover text for building
 		if(availableCreatures.size())
 		{
 			int creaID = availableCreatures.back();//taking last of available creatures
-			return LIBRARY->generaltexth->allTexts[16] + " " + LIBRARY->creh->objects.at(creaID)->getNamePluralTranslated();
+			return LIBRARY->generaltexth->allTexts[16] + " " + (*LIBRARY->creh)[creaID]->getNamePluralTranslated();
 		}
 		else
 		{

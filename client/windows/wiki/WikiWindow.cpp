@@ -491,7 +491,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 	// Towns – playable factions that have a town (skip neutral / special)
 	{
 		const int iTown = static_cast<int>(WikiCategory::TOWN);
-		for(const auto & faction : LIBRARY->townh->objects)
+		for(const auto & faction : LIBRARY->townh->getObjects())
 		{
 			if(!faction || !faction->hasTown() || faction->special) continue;
 			std::string alignStr;
@@ -504,7 +504,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 			}
 			categoryEntries[iTown].push_back({
 				faction->getJsonKey(), faction->getNameTranslated(), "",
-				WikiIconInfo{ AnimationPath::builtin("ITPA"), static_cast<size_t>(faction->town->clientInfo.icons[1][0]) + 2, 0 },
+				WikiIconInfo{ AnimationPath::builtin("ITPA"), static_cast<size_t>(faction->getTown()->clientInfo.icons[1][0]) + 2, 0 },
 				coreExpansion(faction->getModScope(), faction->getId().getNum(), featROE.factionsCount, featAB.factionsCount, featSOD.factionsCount),
 				alignStr
 			});
@@ -516,7 +516,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 	// Hero types – skip portrait only heroes
 	{
 		const int iHero = static_cast<int>(WikiCategory::HERO);
-		for(const auto & hero : LIBRARY->heroh->objects)
+		for(const auto & hero : LIBRARY->heroh->getObjects())
 		{
 			if(!hero || hero->getNameTranslated().empty()) continue;
 			const auto * mapHero = findMapHero(hero->getId());
@@ -539,27 +539,27 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 
 	// Build war-machine creature set so we can include them under Creatures
 	std::set<CreatureID> warMachineCreatures;
-	for(const auto & art : LIBRARY->arth->objects)
+	for(const auto & art : LIBRARY->arth->getObjects())
 		if(art && art->getWarMachine() != CreatureID::NONE)
 			warMachineCreatures.insert(art->getWarMachine());
 
 	// Build commander creature set - commanders are special creatures, but still deserve a wiki entry
 	std::set<CreatureID> commanderCreatures;
 	if(LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_COMMANDERS))
-		for(const auto & heroClass : LIBRARY->heroclassesh->objects)
+		for(const auto & heroClass : LIBRARY->heroclassesh->getObjects())
 			if(heroClass && heroClass->commander.hasValue())
 				commanderCreatures.insert(heroClass->commander);
 
 	// Build faction name lookup for creature subtitles
 	std::map<FactionID, std::string> factionNameById;
-	for(const auto & faction : LIBRARY->townh->objects)
+	for(const auto & faction : LIBRARY->townh->getObjects())
 		if(faction)
 			factionNameById[faction->getId()] = faction->getNameTranslated();
 
 	// Creatures – normal creatures plus war machines and enabled commanders
 	{
 		const int iCreature = static_cast<int>(WikiCategory::CREATURE);
-		for(const auto & creature : LIBRARY->creh->objects)
+		for(const auto & creature : LIBRARY->creh->getObjects())
 		{
 			if(!creature) continue;
 			const bool isWM = warMachineCreatures.count(CreatureID(creature->getIndex())) > 0;
@@ -583,7 +583,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 	// Artifacts
 	{
 		const int iArtifact = static_cast<int>(WikiCategory::ARTIFACT);
-		for(const auto & artifact : LIBRARY->arth->objects)
+		for(const auto & artifact : LIBRARY->arth->getObjects())
 			if(artifact)
 				categoryEntries[iArtifact].push_back({
 					artifact->getJsonKey(),
@@ -599,7 +599,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 	// Spells – exclude hero specials and creature abilities
 	{
 		const int iSpell = static_cast<int>(WikiCategory::SPELL);
-		for(const auto & spell : LIBRARY->spellh->objects)
+		for(const auto & spell : LIBRARY->spellh->getObjects())
 			if(spell && !spell->isSpecial() && !spell->isCreatureAbility())
 			{
 				// Build multi-level description (Basic / Advanced / Expert)
@@ -642,7 +642,7 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 	// Secondary skills
 	{
 		const int iSkill = static_cast<int>(WikiCategory::SKILL);
-		for(const auto & skill : LIBRARY->skillh->objects)
+		for(const auto & skill : LIBRARY->skillh->getObjects())
 			if(skill)
 			{
 				// Build multi-level description (Basic / Advanced / Expert)
@@ -670,14 +670,14 @@ WikiWindow::WikiWindow(WikiWindow::Style style_, std::optional<WikiEntryKey> ini
 	// Terrain types – tile image (or minimap colour fallback) as icon, list native towns as description
 	{
 		const int iTerrain = static_cast<int>(WikiCategory::TERRAIN);
-		for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
+		for(const auto & terrain : LIBRARY->terrainTypeHandler->getObjects())
 			if(terrain)
 			{
-				WikiIconInfo colorIcon = terrainIconInfo(terrain.get());
+				WikiIconInfo colorIcon = terrainIconInfo(terrain);
 
 				// List towns whose native terrain this is
 				std::string nativeTowns;
-				for(const auto & faction : LIBRARY->townh->objects)
+				for(const auto & faction : LIBRARY->townh->getObjects())
 				{
 					if(faction && faction->hasTown() && !faction->special && faction->isNativeTerrain(terrain->getId()))
 					{
@@ -1237,11 +1237,11 @@ void WikiWindow::rebuildTownViewport(const std::string & factionIdentifier)
 
 	// Look up the faction by JSON key
 	const CFaction * faction = nullptr;
-	for(const auto & f : LIBRARY->townh->objects)
+	for(const auto & f : LIBRARY->townh->getObjects())
 	{
 		if(f && f->hasTown() && !f->special && f->getJsonKey() == factionIdentifier)
 		{
-			faction = f.get();
+			faction = f;
 			break;
 		}
 	}
@@ -1286,11 +1286,11 @@ void WikiWindow::rebuildCreatureViewport(const std::string & creatureIdentifier)
 
 	// Look up the creature by JSON key
 	const CCreature * creature = nullptr;
-	for(const auto & c : LIBRARY->creh->objects)
+	for(const auto & c : LIBRARY->creh->getObjects())
 	{
 		if(c && c->getJsonKey() == creatureIdentifier)
 		{
-			creature = c.get();
+			creature = c;
 			break;
 		}
 	}
@@ -1337,11 +1337,11 @@ void WikiWindow::rebuildHeroViewport(const std::string & heroIdentifier)
 
 	// Look up the hero by JSON key
 	const CHero * hero = nullptr;
-	for(const auto & h : LIBRARY->heroh->objects)
+	for(const auto & h : LIBRARY->heroh->getObjects())
 	{
 		if(h && h->getJsonKey() == heroIdentifier)
 		{
-			hero = h.get();
+			hero = h;
 			break;
 		}
 	}
@@ -1386,11 +1386,11 @@ void WikiWindow::rebuildArtifactViewport(const std::string & artKey)
 
 	// Look up artifact by JSON key
 	const CArtifact * art = nullptr;
-	for(const auto & a : LIBRARY->arth->objects)
+	for(const auto & a : LIBRARY->arth->getObjects())
 	{
 		if(a && a->getJsonKey() == artKey)
 		{
-			art = a.get();
+			art = a;
 			break;
 		}
 	}

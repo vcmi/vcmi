@@ -114,7 +114,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 		if (playerSettings.castle == FactionID::RANDOM)
 			return TOWN_RANDOM;
 
-		return (*LIBRARY->townh)[factionIndex]->town->clientInfo.icons[true][false] + (big ? 0 : 2);
+		return (*LIBRARY->townh)[factionIndex]->getTown()->clientInfo.icons[true][false] + (big ? 0 : 2);
 	}
 
 	case HERO:
@@ -144,7 +144,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex(bool big)
 			return GOLD;
 		case PlayerStartingBonus::RESOURCE:
 		{
-			switch((*LIBRARY->townh)[factionIndex]->town->primaryRes.toEnum())
+			switch((*LIBRARY->townh)[factionIndex]->getTown()->primaryRes.toEnum())
 			{
 			case EGameResID::WOOD_AND_ORE:
 				return WOOD_ORE;
@@ -273,7 +273,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 			return LIBRARY->generaltexth->allTexts[87]; //500-1000
 		case PlayerStartingBonus::RESOURCE:
 		{
-			switch((*LIBRARY->townh)[factionIndex]->town->primaryRes.toEnum())
+			switch((*LIBRARY->townh)[factionIndex]->getTown()->primaryRes.toEnum())
 			{
 			case EGameResID::MERCURY:
 				return LIBRARY->generaltexth->allTexts[694];
@@ -315,7 +315,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getDescription()
 			return LIBRARY->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
 		case PlayerStartingBonus::RESOURCE:
 		{
-			switch((*LIBRARY->townh)[factionIndex]->town->primaryRes.toEnum())
+			switch((*LIBRARY->townh)[factionIndex]->getTown()->primaryRes.toEnum())
 			{
 			case EGameResID::MERCURY:
 				return LIBRARY->generaltexth->allTexts[690];
@@ -377,7 +377,7 @@ void OptionsTab::CPlayerOptionTooltipBox::genTownWindow()
 	genHeader();
 	labelAssociatedCreatures = std::make_shared<CLabel>(pos.w / 2 + 8, 122, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, LIBRARY->generaltexth->allTexts[79]);
 	std::vector<std::shared_ptr<CComponent>> components;
-	const CTown * town = (*LIBRARY->townh)[factionIndex]->town.get();
+	const CTown * town = (*LIBRARY->townh)[factionIndex]->getTown();
 
 	for(auto & elem : town->creatures)
 	{

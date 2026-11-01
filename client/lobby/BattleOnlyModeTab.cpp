@@ -138,8 +138,8 @@ void BattleOnlyModeTab::selectTerrain()
 	std::vector<std::string> texts;
 	std::vector<std::shared_ptr<IImage>> images;
 
-	std::vector<std::shared_ptr<TerrainType>> terrains;
-	std::copy_if(LIBRARY->terrainTypeHandler->objects.begin(), LIBRARY->terrainTypeHandler->objects.end(), std::back_inserter(terrains), [](auto terrain) { return terrain->isPassable(); });
+	std::vector<const TerrainType *> terrains;
+	std::ranges::copy_if(LIBRARY->terrainTypeHandler->getObjects(), std::back_inserter(terrains), [](auto terrain) { return terrain->isPassable(); });
 	for (const auto & terrain : terrains)
 	{
 		texts.push_back(terrain->getNameTranslated());
@@ -159,7 +159,7 @@ void BattleOnlyModeTab::selectTerrain()
 	{
 		texts.push_back(faction.toFaction()->getNameTranslated());
 
-		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("ITPA"), faction.toFaction()->town->clientInfo.icons[true][false] + 2, 0, EImageBlitMode::OPAQUE);
+		auto image = ENGINE->renderHandler().loadImage(AnimationPath::builtin("ITPA"), faction.toFaction()->getTown()->clientInfo.icons[true][false] + 2, 0, EImageBlitMode::OPAQUE);
 		image->scaleTo(Point(35, 23), EScalingAlgorithm::NEAREST);
 		images.push_back(image);
 	}
@@ -624,7 +624,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 		{
 			auto unit = owner.startInfo->selectedArmy[id][i];
 			auto creatureID = unit.getId();
-			creatureImage[i] = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"), EImageBlitMode::COLORKEY)->getImage(LIBRARY->creh->objects.at(creatureID)->getIconIndex()), Point(6 + i * 36, 78));
+			creatureImage[i] = std::make_shared<CPicture>(ENGINE->renderHandler().loadAnimation(AnimationPath::builtin("CPRSMALL"), EImageBlitMode::COLORKEY)->getImage((*LIBRARY->creh)[creatureID]->getIconIndex()), Point(6 + i * 36, 78));
 			selectedArmyInput[i]->setText(TextOperations::formatMetric(unit.getCount(), 3));
 			selectedArmyInput[i]->enable();
 		}
@@ -635,7 +635,7 @@ void BattleOnlyModeHeroSelector::setCreatureIcons()
 			if(owner.startInfo->selectedArmy[id][i].getId() == CreatureID::NONE)
 				return;
 			
-			ENGINE->windows().createAndPushWindow<CStackWindow>(LIBRARY->creh->objects.at(owner.startInfo->selectedArmy[id][i].getId()).get(), true);
+			ENGINE->windows().createAndPushWindow<CStackWindow>((*LIBRARY->creh)[owner.startInfo->selectedArmy[id][i].getId()], true);
 		});
 	}
 }
