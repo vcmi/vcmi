@@ -238,6 +238,20 @@ TEST(QuestLimiterJsonTest, AllowedDifficultiesRoundTrips)
 	EXPECT_EQ(dst.allowedDifficulties, src.allowedDifficulties);
 }
 
+// Limiters written without primary skills, e.g. empty quests of old maps, require no primary skills
+TEST(QuestLimiterJsonTest, MissingPrimarySkillsLoadAsZero)
+{
+	JsonNode node;
+	node.Struct();
+
+	Rewardable::Limiter dst;
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer deser(nullptr, resolver, node);
+	dst.serializeJson(deser);
+
+	EXPECT_EQ(dst.primary, std::vector<si32>(GameConstants::PRIMARY_SKILLS, 0));
+}
+
 // The unrestricted default writes no field (avoids "[]" on every limiter).
 TEST(QuestLimiterJsonTest, AllowedDifficultiesDefaultOmitted)
 {
