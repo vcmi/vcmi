@@ -222,6 +222,8 @@ void ModStateItemModel::reloadViewModel()
 void ModStateItemModel::modChanged(QString modID)
 {
 	int index = modNameToID.indexOf(modID);
+	if(index == -1)
+		throw std::runtime_error("Attempt to update unknown mod '" + modID.toStdString() + "'");
 	QModelIndex parent = this->parent(createIndex(0, 0, index));
 	int row = modIndex[modIndexToName(parent)].indexOf(modID);
 	dataChanged(createIndex(row, 0, index), createIndex(row, 4, index));
