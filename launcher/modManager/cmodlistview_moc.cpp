@@ -920,9 +920,6 @@ void CModListView::onDownloadFileFinished(QString fileName)
 
 void CModListView::extractionProgress(qint64 current, qint64 max)
 {
-	if(importProgress && importProgress->canceled)
-		return;
-
 	// display progress, in extracted files
 	ui->progressBar->setVisible(true);
 	ui->progressBar->setMaximum(max);
@@ -1093,14 +1090,18 @@ bool CModListView::askOverwriteDialog(const QString & windowTitle, const QString
 	return false;
 }
 
+bool CModListView::isImportInProgress() const
+{
+	return !importOperation.isNull();
+}
+
 void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 {
 	if(importOperation)
 	{
-		connect(importOperation, &QObject::destroyed, this, [this, files, removeGithubSuffix, progress = importProgress]()
+		connect(importOperation, &QObject::destroyed, this, [this, files, removeGithubSuffix]()
 		{
-			if(!progress->canceled)
-				installFiles(files, removeGithubSuffix);
+			installFiles(files, removeGithubSuffix);
 		}, Qt::QueuedConnection);
 		return;
 	}
@@ -1111,19 +1112,20 @@ void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 		ui->abortButton->setEnabled(true);
 		Helper::keepScreenOn(dlManager != nullptr);
 		hideProgressBar();
+		emit importStateChanged();
 	});
-	std::unique_ptr<QObject> operation;
+	auto operation = std::make_unique<QObject>();
+	importOperation = operation.get();
+	ui->abortButton->setEnabled(false);
+	emit importStateChanged();
 	if(std::any_of(files.begin(), files.end(), [](const QString & file)
 	{
 		return Helper::getRealPath(file).endsWith(".zip", Qt::CaseInsensitive);
 	}))
 	{
 		importProgress = std::make_shared<ModStateController::ArchiveImportProgress>();
-		operation = std::make_unique<QObject>();
-		importOperation = operation.get();
 		Helper::getMainWindow()->switchToModsTab();
 		ui->progressWidget->setVisible(true);
-		ui->abortButton->setEnabled(true);
 		ui->progressBar->setFormat(tr("Inspecting archive..."));
 		ui->progressBar->setRange(0, 0);
 		Helper::keepScreenOn(true);
@@ -1224,8 +1226,6 @@ void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 		installMods(mods, removeGithubSuffix);
 		logGlobal->info("Installing mods: ended");
 	}
-	if(importProgress && importProgress->canceled)
-		return;
 
 	if(!maps.empty())
 	{
@@ -1519,8 +1519,6 @@ void CModListView::installMods(QStringList archives, bool removeGithubSuffix)
 	QVector<ArchiveImportOutcome> outcomes;
 	for(const auto & archive : archives)
 	{
-		if(progress->canceled)
-			break;
 		const QString hint = ModStateController::modIdFromArchivePath(Helper::getRealPath(archive), removeGithubSuffix);
 		progress->setCurrentMod({});
 		auto futureImport = std::async(std::launch::async, [archive, hint, progress, fullModExtraction, protectedMods]()
@@ -1529,26 +1527,23 @@ void CModListView::installMods(QStringList archives, bool removeGithubSuffix)
 		});
 		while(futureImport.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
 		{
-			if(!progress->canceled)
+			const int totalMods = progress->totalMods.load();
+			if(totalMods == 0)
 			{
-				const int totalMods = progress->totalMods.load();
-				if(totalMods == 0)
-				{
-					ui->progressBar->setRange(0, 0);
-					ui->progressBar->setFormat(tr("Inspecting archive..."));
-				}
-				else
-				{
-					const QString currentMod = progress->getCurrentMod();
-					const int completedMods = std::min(progress->completedMods.load(), totalMods);
-					const quint64 totalBytes = progress->totalBytes.load();
-					const quint64 completedBytes = std::min(progress->completedBytes.load(), totalBytes);
-					ui->progressBar->setFormat(tr("Installing mods %1 (%2/%3)... %p%").arg(currentMod).arg(completedMods).arg(totalMods));
-					ui->progressBar->setRange(0, 1000);
-					ui->progressBar->setValue(totalBytes > 0
-						? static_cast<int>(1000 * completedBytes / totalBytes)
-						: 1000 * completedMods / totalMods);
-				}
+				ui->progressBar->setRange(0, 0);
+				ui->progressBar->setFormat(tr("Inspecting archive..."));
+			}
+			else
+			{
+				const QString currentMod = progress->getCurrentMod();
+				const int completedMods = std::min(progress->completedMods.load(), totalMods);
+				const quint64 totalBytes = progress->totalBytes.load();
+				const quint64 completedBytes = std::min(progress->completedBytes.load(), totalBytes);
+				ui->progressBar->setFormat(tr("Installing mods %1 (%2/%3)... %p%").arg(currentMod).arg(completedMods).arg(totalMods));
+				ui->progressBar->setRange(0, 1000);
+				ui->progressBar->setValue(totalBytes > 0
+					? static_cast<int>(1000 * completedBytes / totalBytes)
+					: 1000 * completedMods / totalMods);
 			}
 			qApp->processEvents();
 		}
@@ -1564,7 +1559,7 @@ void CModListView::installMods(QStringList archives, bool removeGithubSuffix)
 		installedMods += outcome.result.installedMods;
 		errors += outcome.result.errors;
 
-		if(!progress->canceled && outcome.result.mapArchive)
+		if(outcome.result.mapArchive)
 		{
 			try
 			{
@@ -1575,7 +1570,7 @@ void CModListView::installMods(QStringList archives, bool removeGithubSuffix)
 				errors.push_back(tr("Failed to import %1: %2").arg(outcome.sourcePath, QString::fromUtf8(exception.what())));
 			}
 		}
-		else if(!progress->canceled && outcome.result.saveArchive)
+		else if(outcome.result.saveArchive)
 		{
 			try
 			{
@@ -1800,14 +1795,8 @@ void CModListView::on_refreshButton_clicked()
 
 void CModListView::on_abortButton_clicked()
 {
-	if(importProgress)
-	{
-		importProgress->canceled = true;
-		ui->abortButton->setEnabled(false);
-		ui->progressBar->setFormat(tr("Cancelling..."));
-		ui->progressBar->setRange(0, 0);
+	if(importOperation)
 		return;
-	}
 
 	delete dlManager;
 	dlManager = nullptr;

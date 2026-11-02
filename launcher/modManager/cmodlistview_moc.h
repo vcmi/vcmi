@@ -159,9 +159,13 @@ public:
 	void downloadMod(const ModState & mod);
 	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
 	void installFiles(QStringList mods, bool removeGithubSuffix = false);
+	bool isImportInProgress() const;
 
 	void showExternalProgress(const QString & format, int current, int max);
 	void hideExternalProgress();
+
+signals:
+	void importStateChanged();
 
 public slots:
 	void enableModByName(QString modName);

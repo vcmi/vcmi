@@ -26,7 +26,6 @@ public:
 	{
 		QStringList installedMods;
 		QStringList errors;
-		bool canceled = false;
 		bool mapArchive = false;
 		bool saveArchive = false;
 	};
@@ -37,7 +36,6 @@ public:
 		std::atomic<quint64> totalBytes{0};
 		std::atomic<int> completedMods{0};
 		std::atomic<int> totalMods{0};
-		std::atomic<bool> canceled{false};
 
 		void setCurrentMod(const QString & name)
 		{

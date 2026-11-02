@@ -62,9 +62,6 @@ bool extractContentArchives(const QString & modPath, ModStateController::Archive
 
 	for(const QString & archivePath : archives)
 	{
-		if(progress.canceled)
-			return false;
-
 		const QFileInfo archiveInfo(archivePath);
 		const QString contentDirPath = archiveInfo.dir().filePath("content");
 
@@ -83,13 +80,9 @@ bool extractContentArchives(const QString & modPath, ModStateController::Archive
 
 			for(size_t index = 0; index < entries.size(); ++index)
 			{
-				if(progress.canceled)
-					return false;
-
 				const auto progressCallback = [&progress](uint64_t amount)
 				{
 					progress.completedBytes += amount;
-					return !progress.canceled.load();
 				};
 				if(!archive.extractTo(qstringToPath(contentDirPath), index, entries[index].name, progressCallback))
 				{
@@ -511,12 +504,6 @@ ModStateController::ArchiveImportResult ModStateController::installArchive(const
 
 	for(const auto & plan : plans)
 	{
-		if(progress.canceled)
-		{
-			result.canceled = true;
-			return result;
-		}
-
 		if(protectedMods.contains(plan.id, Qt::CaseInsensitive) && !findModDirectory(plan.id).isEmpty())
 		{
 			result.errors.push_back(importTranslate("Mod %1 can not be managed by launcher").arg(plan.id));
@@ -550,38 +537,17 @@ ModStateController::ArchiveImportResult ModStateController::installArchive(const
 
 			for(const size_t index : plan.entries)
 			{
-				if(progress.canceled)
-				{
-					result.canceled = true;
-					return result;
-				}
-
 				const auto progressCallback = [&progress](uint64_t amount)
 				{
 					progress.completedBytes += amount;
-					return !progress.canceled.load();
 				};
 				const std::string relative = relativeToRoot(normalizedNames[index], plan.root);
 				if(!archive->extractTo(qstringToPath(stagingPath), index, relative, progressCallback))
-				{
-					if(progress.canceled)
-					{
-						result.canceled = true;
-						return result;
-					}
 					throw std::runtime_error(importTranslate("Failed to extract archive entry: %1").arg(QString::fromStdString(relative)).toStdString());
-				}
 			}
 
 			if(fullModExtraction && !extractContentArchives(stagingPath, progress))
-			{
-				if(progress.canceled)
-				{
-					result.canceled = true;
-					return result;
-				}
 				throw std::runtime_error(importTranslate("Failed to extract mod data").toStdString());
-			}
 
 			QDir githubDir(stagingPath + "/.github");
 			if(githubDir.exists())
@@ -610,15 +576,10 @@ ModStateController::ArchiveImportResult ModStateController::installArchive(const
 		}
 		catch(const std::exception & exception)
 		{
-			if(progress.canceled)
-				result.canceled = true;
-			else
-				result.errors.push_back(QStringLiteral("%1: %2").arg(plan.id, QString::fromUtf8(exception.what())));
+			result.errors.push_back(QStringLiteral("%1: %2").arg(plan.id, QString::fromUtf8(exception.what())));
 		}
 
 		++progress.completedMods;
-		if(result.canceled)
-			return result;
 	}
 
 	return result;

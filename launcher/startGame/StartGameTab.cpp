@@ -49,6 +49,8 @@ StartGameTab::StartGameTab(QWidget * parent)
 	ui->buttonGameStart->setIcon(QIcon{":/icons/menu-game.png"});
 	ui->buttonGameEditor->setIcon(QIcon{":/icons/menu-editor.png"});
 
+	connect(Helper::getMainWindow()->getModView(), &CModListView::importStateChanged, this, &StartGameTab::refreshGameData);
+
 	refreshState();
 
 	ui->buttonGameResume->setVisible(false); // TODO: implement
@@ -132,10 +134,12 @@ void StartGameTab::refreshPresets()
 void StartGameTab::refreshGameData()
 {
 	bool demoDataPresent = CModListView::isDemoDataPresent();
+	const bool importing = Helper::getMainWindow()->getModView()->isImportInProgress();
 
+	ui->buttonGameStart->setEnabled(!importing);
 	ui->buttonInstallGame->setVisible(demoDataPresent);
 #ifdef ENABLE_EDITOR
-	ui->buttonGameEditor->setEnabled(!demoDataPresent);
+	ui->buttonGameEditor->setEnabled(!demoDataPresent && !importing);
 #endif
 
 	if (demoDataPresent)

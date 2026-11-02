@@ -325,8 +325,8 @@ bool ZipArchive::extractTo(const boost::filesystem::path & where, size_t entryIn
 			output.write(buffer.data(), count);
 			if(!output.good())
 				return false;
-			if(progress && !progress(static_cast<uint64_t>(count)))
-				return false;
+			if(progress)
+				progress(static_cast<uint64_t>(count));
 		}
 
 		const int closeResult = unzCloseCurrentFile(archive);
