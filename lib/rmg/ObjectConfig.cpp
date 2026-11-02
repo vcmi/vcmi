@@ -12,7 +12,6 @@
 #include "ObjectInfo.h"
 #include "ObjectConfig.h"
 
-#include "../GameLibrary.h"
 #include "../modding/IdentifierResolver.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -27,11 +26,11 @@ void ObjectConfig::addBannedObject(const CompoundMapObjectID & objid)
 	logGlobal->debug("Banned object of type %d.%d", objid.primaryID, objid.secondaryID);
 }
 
-void ObjectConfig::addCustomObject(const ObjectInfo & object)
+void ObjectConfig::addCustomObject(const ObjectInfo & object, const CObjectClassesHandler & objects)
 {
 	customObjects.push_back(object);
 	auto & lastObject = customObjects.back();
-	lastObject.setAllTemplates(object.primaryID, object.secondaryID);
+	lastObject.setAllTemplates(objects, object.primaryID, object.secondaryID);
 
 	// also ban object to prevent default configuration from being used in this zone
 	bannedObjects.push_back(CompoundMapObjectID(object.primaryID, object.secondaryID));
@@ -59,7 +58,7 @@ void ObjectConfig::clearRequiredObjects()
 	requiredObjects.clear();
 }
 
-void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
+void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects)
 {
 	static const std::map<std::string, EObjectCategory> OBJECT_CATEGORY_STRINGS = {
 		{ "other", EObjectCategory::OTHER},
@@ -123,7 +122,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 		
 		for(const auto & [primaryID, secondaryIDs] : groupedBanned)
 		{
-			const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+			const std::string jsonKey = objects.getJsonKey(primaryID);
 			
 			if(secondaryIDs.size() == 1 && *secondaryIDs.begin() == -1)
 			{
@@ -139,7 +138,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 				{
 					if(secondaryID != -1)
 					{
-						auto objectHandler = LIBRARY->objtypeh->getHandlerFor(MapObjectID(primaryID), MapObjectSubID(secondaryID));
+						auto objectHandler = objects.getHandlerFor(MapObjectID(primaryID), MapObjectSubID(secondaryID));
 						const std::string subtypeKey = objectHandler->getSubTypeName();
 						bool banned = true;
 						objStruct->serializeBool(subtypeKey, banned);
@@ -156,7 +155,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 
 		for(const auto & node : configBannedObjects.Struct())
 		{
-			resolver.requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, &resolver](int primaryID)
+			resolver.requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, &resolver, &objects](int primaryID)
 			{
 				if (node.second.isBool())
 				{
@@ -167,7 +166,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 				{
 					for (const auto & subNode : node.second.Struct())
 					{
-						const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+						const std::string jsonKey = objects.getJsonKey(primaryID);
 
 						resolver.requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
 						{
@@ -191,10 +190,10 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 			const auto & object = customObjects[i];
 			
 			// Serialize object type/subtype
-			std::string objectType = LIBRARY->objtypeh->getJsonKey(object.primaryID);
+			std::string objectType = objects.getJsonKey(object.primaryID);
 			objectStruct->serializeString("type", objectType);
 			
-			auto handler = LIBRARY->objtypeh->getHandlerFor(MapObjectID(object.primaryID), MapObjectSubID(object.secondaryID));
+			auto handler = objects.getHandlerFor(MapObjectID(object.primaryID), MapObjectSubID(object.secondaryID));
 			std::string subtypeName = handler->getSubTypeName();
 			objectStruct->serializeString("subtype", subtypeName);
 			
@@ -230,25 +229,25 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 			if (object.maxPerZone == 0)
 				object.maxPerZone = std::numeric_limits<int>::max();
 
-			resolver.requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig, &resolver](int primaryID)
+			resolver.requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig, &resolver, &objects](int primaryID)
 			{
 				if (objectConfig["subtype"].isNull())
 				{
 					auto objectWithID = object;
 					objectWithID.primaryID = primaryID;
 					objectWithID.secondaryID = 0;
-					addCustomObject(objectWithID);
+					addCustomObject(objectWithID, objects);
 				}
 				else
 				{
-					const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+					const std::string jsonKey = objects.getJsonKey(primaryID);
 
-					resolver.requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object](int secondaryID)
+					resolver.requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object, &objects](int secondaryID)
 					{
 						auto objectWithID = object;
 						objectWithID.primaryID = primaryID;
 						objectWithID.secondaryID = secondaryID;
-						addCustomObject(objectWithID);
+						addCustomObject(objectWithID, objects);
 					});
 				}
 			});
@@ -263,9 +262,9 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 			auto requiredObjectsStruct = handler.enterStruct("requiredObjects");
 			for(const auto & [objId, info] : requiredObjects)
 			{
-				std::string jsonKey = LIBRARY->objtypeh->getJsonKey(objId.primaryID);
+				std::string jsonKey = objects.getJsonKey(objId.primaryID);
 				auto entryStruct = requiredObjectsStruct->enterStruct(jsonKey);
-				auto objHandler = LIBRARY->objtypeh->getHandlerFor(objId);
+				auto objHandler = objects.getHandlerFor(objId);
 				std::string jsonSubKey = objHandler->getJsonKey();
 				auto subEntryStruct = requiredObjectsStruct->enterStruct(jsonSubKey);
 
@@ -296,7 +295,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 
 		for(const auto & node : configRequiredObjects.Struct())
 		{
-			resolver.requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, getInfo, &resolver](int primaryID)
+			resolver.requestIdentifierIfFound(node.second.getModScope(), "object", node.first, [this, node, getInfo, &resolver, &objects](int primaryID)
 			{
 				if (node.second.isNumber())
 				{
@@ -313,7 +312,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 						// secondary ID specified
 						for (const auto & subNode : node.second.Struct())
 						{
-							std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
+							std::string jsonKey = objects.getJsonKey(primaryID);
 							if(node.first == "artifact" || node.first == "core:artifact")
 								//FIXME: core:artifact is not resolved properly by requestIdentifierIfFound
 								jsonKey = "artifact";

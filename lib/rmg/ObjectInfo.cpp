@@ -57,9 +57,9 @@ ObjectInfo & ObjectInfo::operator=(const ObjectInfo & other)
 	return *this;
 }
 
-void ObjectInfo::setAllTemplates(MapObjectID type, MapObjectSubID subtype)
+void ObjectInfo::setAllTemplates(const CObjectClassesHandler & objects, MapObjectID type, MapObjectSubID subtype)
 {
-	auto templHandler = LIBRARY->objtypeh->getHandlerFor(type, subtype);
+	auto templHandler = objects.getHandlerFor(type, subtype);
 	if(!templHandler)
 		return;
 	

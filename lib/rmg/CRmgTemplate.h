@@ -242,7 +242,7 @@ public:
 	// Set road option for a specific connection by ID
 	void setRoadOption(int connectionId, rmg::ERoadOption roadOption);
 
-	void serializeJson(JsonSerializeFormat & handler);
+	void serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects);
 	
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	
@@ -373,7 +373,7 @@ public:
 
 	void validate() const; /// Tests template on validity and throws exception on failure
 
-	void serializeJson(JsonSerializeFormat & handler);
+	void serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects);
 	void afterLoad(const GameLibrary & library);
 
 private:
