@@ -143,7 +143,7 @@
 					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
 				},
-				"message" : "core.genrltxt.763"
+				"message" : "core.genrltxt.713"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
@@ -1848,6 +1848,14 @@
 				},
 				"message" : "core.genrltxt.253"
 			},
+			"standardVictory" : {
+				"condition" : [ "standardWin" ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.659"
+			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
 				"effect" : {
@@ -1855,23 +1863,10 @@
 					"type" : "defeat"
 				},
 				"message" : "core.genrltxt.7"
-			},
-			"specialVictory" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "standardWin" ],
-					[ "haveArtifact", { "type" : "artifact.angelicAlliance" } ]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
-					"type" : "victory"
-				},
-				"message" : "vcmi.map.victoryCondition.angelicAlliance.toSelf"
 			}
 		},
 		"victoryIconIndex" : 11,
-		"victoryString" : "vcmi.map.victoryCondition.angelicAlliance.message"
+		"victoryString" : "core.vcdesc.0"
 	},
 	"data/final:11" : { // Fall of Sandro
 		"defeatIconIndex" : 2,
@@ -2173,7 +2168,11 @@
 				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
-				"condition" : [ "haveArtifact", { "type" : "artifact.ringOfVitality" } ],
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "haveArtifact", { "type" : "artifact.ringOfVitality" } ]
+				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
@@ -2211,7 +2210,11 @@
 				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
-				"condition" : [ "haveArtifact", { "type" : "artifact.ringOfLife" } ],
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "haveArtifact", { "type" : "artifact.ringOfLife" } ]
+				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
@@ -2249,7 +2252,11 @@
 				"message" : "core.genrltxt.253"
 			},
 			"specialVictory" : {
-				"condition" : [ "haveArtifact", { "type" : "artifact.vialOfLifeblood" } ],
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "haveArtifact", { "type" : "artifact.elixirOfLife" } ]
+				],
 				"effect" : {
 					"messageToSend" : "core.genrltxt.281",
 					"type" : "victory"
