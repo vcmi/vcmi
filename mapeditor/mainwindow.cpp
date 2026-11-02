@@ -193,6 +193,7 @@ void EditorMainWindow::loadUserSettings()
 	lastSavingDir = s.value(lastDirectorySetting).toString();
 	if(lastSavingDir.isEmpty())
 		lastSavingDir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
+	ui->objectView->setGridIconSize(s.value(objectBrowserIconSizeSetting, ui->objectView->gridIconSize()).toInt());
 	ui->viewModeButton->setChecked(s.value(objectBrowserListSetting).toBool());
 }
 
@@ -203,6 +204,7 @@ void EditorMainWindow::saveUserSettings()
 	s.setValue(mainWindowPositionSetting, pos());
 	s.setValue(lastDirectorySetting, lastSavingDir);
 	s.setValue(objectBrowserListSetting, ui->viewModeButton->isChecked());
+	s.setValue(objectBrowserIconSizeSetting, ui->objectView->gridIconSize());
 }
 
 void EditorMainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
@@ -1010,6 +1012,8 @@ void EditorMainWindow::loadObjectsTree()
 	ui->objectView->setSelectionMode(QAbstractItemView::SingleSelection);
 	connect(ui->objectView->selectionModel(), &QItemSelectionModel::currentChanged, this, &EditorMainWindow::objectBrowserSelected);
 	ui->viewModeButton->setIcon(style()->standardIcon(QStyle::SP_FileDialogListView));
+	ui->zoomOutButton->setIcon(QIcon{":/icons/zoom_minus.png"});
+	ui->zoomInButton->setIcon(QIcon{":/icons/zoom_plus.png"});
 
 	//groups
 	enum GroupCat { TOWNS, OBJECTS, HEROES, ARTIFACTS, RESOURCES, BANKS, DWELLINGS, GROUNDS, TELEPORTS, MINES, TRIGGERS, MONSTERS, QUESTS, WOG_OBJECTS, OBSTACLES, OTHER };
@@ -1323,6 +1327,18 @@ void EditorMainWindow::on_filter_textChanged(const QString &arg1)
 void EditorMainWindow::on_viewModeButton_toggled(bool checked)
 {
 	ui->objectView->setGridMode(!checked);
+	ui->zoomOutButton->setEnabled(!checked);
+	ui->zoomInButton->setEnabled(!checked);
+}
+
+void EditorMainWindow::on_zoomOutButton_clicked()
+{
+	ui->objectView->setGridIconSize(ui->objectView->gridIconSize() - 16);
+}
+
+void EditorMainWindow::on_zoomInButton_clicked()
+{
+	ui->objectView->setGridIconSize(ui->objectView->gridIconSize() + 16);
 }
 
 
