@@ -820,7 +820,7 @@ void PlayerMessageProcessor::cheatTeleport(PlayerColor player, const CGHeroInsta
 		return;
 
 	auto destTile = gameHandler->gameState().getMap().getTile(pos);
-	auto heroTile = gameHandler->gameState().getMap().getTile(hero->pos);
+	auto heroTile = gameHandler->gameState().getMap().getTile(hero->visitablePos());
 	if(!destTile.isClear(&heroTile))
 		return;
 
