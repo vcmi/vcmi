@@ -334,6 +334,28 @@ ReachabilityInfo getReachabilityWithEnemyBypass(
 	return state->getReachability(params);
 }
 
+static void advanceTowards(const std::shared_ptr<StackWithBonuses> & unit, const ReachabilityInfo & reachability, BattleHex destination, uint32_t range)
+{
+	if(unit->hasBonusOfType(BonusType::FLYING))
+	{
+		auto best = unit->getPosition();
+		for(int i = 0; i < GameConstants::BFIELD_SIZE; ++i)
+		{
+			const BattleHex hex(i);
+			if(reachability.isReachable(hex) && reachability.distances.at(i) <= range
+				&& BattleHex::getDistance(hex, destination) < BattleHex::getDistance(best, destination))
+				best = hex;
+		}
+		unit->setPosition(best);
+	}
+	else
+	{
+		while(reachability.distances.at(destination.toInt()) > range)
+			destination = reachability.predecessors.at(destination.toInt());
+		unit->setPosition(destination);
+	}
+}
+
 MoveTarget BattleExchangeEvaluator::findMoveTowardsUnreachable(
 	const battle::Unit * activeStack,
 	PotentialTargets & targets,
@@ -553,6 +575,28 @@ ReachabilityData BattleExchangeEvaluator::getExchangeUnits(
 			}
 		}
 	}
+	if(turn > 0 && !ap.attack.shooting)
+	{
+		auto approach = std::make_shared<HypotheticBattle>(env.get(), hb);
+		auto mover = approach->getForUpdate(ap.attack.attacker->unitId());
+		for(int movementTurn = 0; movementTurn < turn; ++movementTurn)
+		{
+			const auto reachability = approach->getReachability(mover.get());
+			const auto range = mover->getMovementRange(movementTurn);
+			if(!reachability.isReachable(ap.from) || reachability.distances.at(ap.from.toInt()) <= range || range == 0)
+				break;
+			const auto previous = mover->getPosition();
+			advanceTowards(mover, reachability, ap.from, range);
+			if(mover->getPosition() == previous)
+				break;
+			for(const auto & hex : mover->getHexes())
+			{
+				for(const auto * unit : getOneTurnReachableUnits(0, hex))
+					if(hb->battleMatchOwner(ap.attack.attacker, unit))
+						allReachableUnits.push_back(unit);
+			}
+		}
+	}
 
 	vstd::removeDuplicates(allReachableUnits);
 
@@ -719,6 +763,9 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 		? simulationTurnsCount
 		: turn + turnOrder.size();
 
+	// Future reachability does not imply an interception during earlier movement turns.
+	std::map<uint32_t, uint32_t> distanceToAttacker;
+	std::map<uint32_t, uint64_t> movementBudget;
 	for(int exchangeTurn = 0; exchangeTurn < simulationTurnsCount; exchangeTurn++)
 	{
 		int queueTurn = exchangeTurn >= exchangeUnits.units.size()
@@ -732,7 +779,8 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 			auto activeUnit = queue.at(index++);
 			if(vstd::contains(acted, activeUnit->unitId()))
 				continue;
-			const bool isMovingTurm = exchangeTurn < turn;
+			bool isMovingTurm = canUseAp && exchangeTurn < turn;
+			BattleHex attackFrom = ap.from;
 			bool isOur = exchangeBattle->battleMatchOwner(ap.attack.attacker, activeUnit, true);
 			battle::Units & attackerQueue = isOur ? ourStacks : enemyStacks;
 			battle::Units & oppositeQueue = isOur ? enemyStacks : ourStacks;
@@ -752,8 +800,107 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 			acted.insert(activeUnit->unitId());
 			index = 0;
 
-			if(isMovingTurm && !shooting
-				&& !vstd::contains(exchangeUnits.enemyUnitsReachingAttacker, attacker->unitId()))
+			if(canUseAp && activeUnit->unitId() == ap.attack.attacker->unitId() && !ap.attack.shooting)
+			{
+				const auto reachability = exchangeBattle->getReachability(attacker.get());
+				const auto target = exchangeBattle->getForUpdate(ap.attack.defender->unitId());
+				if(!target->alive())
+				{
+					canUseAp = false;
+					isMovingTurm = false;
+				}
+				else
+				{
+					if(!exchangeBattle->isMeleeAttackPossible(attacker.get(), target.get(), attackFrom) || !reachability.isReachable(attackFrom))
+					{
+						attackFrom = BattleHex::INVALID;
+						for(const auto & hex : target->getAttackableHexes(attacker.get()))
+							if(reachability.isReachable(hex) && (!attackFrom.isValid() || reachability.distances.at(hex.toInt()) < reachability.distances.at(attackFrom.toInt())))
+								attackFrom = hex;
+					}
+					if(!attackFrom.isValid())
+						continue;
+					const auto range = attacker->getMovementRange(exchangeTurn);
+					if(reachability.distances.at(attackFrom.toInt()) <= range)
+						isMovingTurm = false;
+					else
+					{
+						advanceTowards(attacker, reachability, attackFrom, range);
+						continue;
+					}
+				}
+			}
+
+			if(isMovingTurm && !isOur && !shooting)
+			{
+				const auto reachability = exchangeBattle->getReachability(attacker.get());
+				const auto range = attacker->getMovementRange(exchangeTurn);
+				std::shared_ptr<StackWithBonuses> bestTarget;
+				BattleHex bestHex = BattleHex::INVALID;
+				float bestScore = -std::numeric_limits<float>::infinity();
+				for(const auto * candidate : oppositeQueue)
+				{
+					auto target = exchangeBattle->getForUpdate(candidate->unitId());
+					if(!target->alive() || !target->getPosition().isValid())
+						continue;
+					BattleHex attackHex = BattleHex::INVALID;
+					for(const auto & hex : target->getAttackableHexes(attacker.get()))
+						if(reachability.isReachable(hex) && reachability.distances.at(hex.toInt()) <= range
+							&& (!attackHex.isValid() || reachability.distances.at(hex.toInt()) < reachability.distances.at(attackHex.toInt())))
+							attackHex = hex;
+					if(!attackHex.isValid())
+						continue;
+					const auto score = v.trackAttack(attacker, target, false, false, damageCache, exchangeBattle, BattleExchangeVariant::AttackMode::ESTIMATE);
+					if(score > bestScore)
+					{
+						bestScore = score;
+						bestTarget = target;
+						bestHex = attackHex;
+					}
+				}
+				if(bestTarget)
+				{
+					attacker->setPosition(bestHex);
+					for(int i = 0; i < attacker->getTotalAttacks(false); ++i)
+					{
+						v.trackAttack(attacker, bestTarget, false, false, damageCache, exchangeBattle,
+							i == 0 ? BattleExchangeVariant::AttackMode::FIRST_STRIKE : BattleExchangeVariant::AttackMode::FOLLOWUP_STRIKE);
+						if(!attacker->alive() || !bestTarget->alive())
+							break;
+					}
+					vstd::erase_if(attackerQueue, [&](const battle::Unit * unit) { return !exchangeBattle->battleGetUnitByID(unit->unitId())->alive(); });
+					vstd::erase_if(oppositeQueue, [&](const battle::Unit * unit) { return !exchangeBattle->battleGetUnitByID(unit->unitId())->alive(); });
+				}
+				else
+				{
+					const auto mover = exchangeBattle->getForUpdate(ap.attack.attacker->unitId());
+					if(!mover->alive())
+						continue;
+					BattleHex destination = BattleHex::INVALID;
+					for(const auto & hex : mover->getAttackableHexes(attacker.get()))
+						if(reachability.isReachable(hex) && (!destination.isValid() || reachability.distances.at(hex.toInt()) < reachability.distances.at(destination.toInt())))
+							destination = hex;
+					if(destination.isValid())
+					{
+						advanceTowards(attacker, reachability, destination, range);
+					}
+				}
+				continue;
+			}
+
+			const bool mayReachAttacker = vstd::contains(exchangeUnits.enemyUnitsReachingAttacker, attacker->unitId());
+			bool enemyReachesAttacker = mayReachAttacker && shooting;
+			if(mayReachAttacker && !shooting && (isMovingTurm || exchangeTurn == 0))
+			{
+				const auto [it, inserted] = distanceToAttacker.try_emplace(attacker->unitId(), 0);
+				if(inserted)
+					it->second = hb->getReachability(activeUnit).distToNearestNeighbour(activeUnit, ap.attack.attacker);
+				auto budget = movementBudget.try_emplace(attacker->unitId(), 0).first;
+				budget->second += activeUnit->getMovementRange(exchangeTurn);
+				enemyReachesAttacker = it->second <= budget->second;
+			}
+
+			if(isMovingTurm && !shooting && !enemyReachesAttacker)
 			{
 #if BATTLE_TRACE_LEVEL>=1
 				logAi->trace("Attacker is moving");
@@ -829,7 +976,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 				if(!isOur
 					&& exchangeTurn == 0
 					&& exchangeUnits.units.at(exchangeTurn).at(0)->unitId() != ap.attack.attacker->unitId()
-					&& !vstd::contains(exchangeUnits.enemyUnitsReachingAttacker, attacker->unitId()))
+					&& !enemyReachesAttacker)
 				{
 					vstd::erase_if(unitsInOppositeQueueExceptInaccessible, [&](const battle::Unit * u) -> bool
 						{
@@ -887,7 +1034,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 				auto currentAttack = ap.attack;
 				currentAttack.attacker = attacker.get();
 				currentAttack.defender = defender.get();
-				auto current = AttackPossibility::evaluate(currentAttack, ap.from, damageCache, exchangeBattle, ap.returnAfterAttack);
+				auto current = AttackPossibility::evaluate(currentAttack, attackFrom, damageCache, exchangeBattle, ap.returnAfterAttack);
 				v.trackAttack(current, exchangeBattle, damageCache);
 				canUseAp = false;
 			}

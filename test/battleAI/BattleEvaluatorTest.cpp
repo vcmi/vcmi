@@ -92,6 +92,16 @@ public:
 	}
 
 
+	float scoreApproach(const CStack * attacker, const CStack * target, std::shared_ptr<HypotheticBattle> state, int turns = 2)
+	{
+		DamageCache cache;
+		cache.buildDamageCache(state, BattleSide::DEFENDER);
+		PotentialTargets targets(attacker, cache, state);
+		vstd::erase_if(targets.unreachableEnemies, [target](const battle::Unit * unit) { return unit->unitId() != target->unitId(); });
+		BattleExchangeEvaluator evaluator(callback->getBattle(BattleID(0)), gameHandler, 1.0f, turns);
+		return evaluator.findMoveTowardsUnreachable(attacker, targets, cache, state).score;
+	}
+
 	void checkMoraleShotProtectsAlly(const std::string & creature, int enemyCount, int randomSeed)
 	{
 		auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(1, 5), enemyCount);
@@ -786,6 +796,276 @@ TEST_F(BattleEvaluatorTest, ReturningHarpyAllowsShooterResponseInExchange)
 	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(shooter->unitSide()),
 		BattleAction::makeShotAttack(shooter, ally)));
 	EXPECT_LT(ally->getAvailableHealth(), healthBefore);
+}
+
+TEST_F(BattleEvaluatorTest, ApproachAccountsForReachableInterceptor)
+{
+	auto * target = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(2, 5), 1000);
+	auto * interceptor = addStack(BattleSide::ATTACKER, creatureByName("core:griffin"), BattleHex(10, 5), 50);
+	auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(14, 5), 30);
+	target->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACKS_SPEED, BonusSource::OTHER, -3, BonusSourceID()));
+	blockRetaliation(interceptor);
+	battle()->obstacles.clear();
+	evaluateAsDefender();
+	auto scoreApproach = [&](std::shared_ptr<HypotheticBattle> state) { return this->scoreApproach(swordsmen, target, state); };
+	auto withInterceptor = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	auto withoutInterceptor = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	withoutInterceptor->removeUnit(interceptor->unitId());
+	EXPECT_LT(scoreApproach(withInterceptor), scoreApproach(withoutInterceptor));
+
+	BattleHex attackFrom = BattleHex::INVALID;
+	for(const auto & hex : battle()->battleGetAvailableHexes(interceptor, false))
+	{
+		if(battle()->isMeleeAttackPossible(interceptor, swordsmen, hex))
+		{
+			attackFrom = hex;
+			break;
+		}
+	}
+	ASSERT_TRUE(attackFrom.isValid());
+	const auto health = swordsmen->getAvailableHealth();
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(interceptor, swordsmen, attackFrom)));
+	EXPECT_LT(swordsmen->getAvailableHealth(), health);
+}
+
+TEST_F(BattleEvaluatorTest, ApproachAccountsForDelayedInterceptor)
+{
+	auto * target = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(2, 5), 1000);
+	auto * interceptor = addStack(BattleSide::ATTACKER, creatureByName("core:griffin"), BattleHex(6, 5), 50);
+	auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(14, 5), 30);
+	target->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACKS_SPEED, BonusSource::OTHER, -3, BonusSourceID()));
+	blockRetaliation(interceptor);
+	for(auto * unit : {target, interceptor, swordsmen})
+		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	battle()->obstacles.clear();
+	evaluateAsDefender();
+	auto scoreApproach = [&](std::shared_ptr<HypotheticBattle> state) { return this->scoreApproach(swordsmen, target, state); };
+	auto withoutInterceptor = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	withoutInterceptor->removeUnit(interceptor->unitId());
+	EXPECT_LT(scoreApproach(hypotheticalBattle), scoreApproach(withoutInterceptor));
+
+	for(const auto & hex : battle()->battleGetAvailableHexes(interceptor, false))
+		ASSERT_FALSE(battle()->isMeleeAttackPossible(interceptor, swordsmen, hex));
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), interceptor);
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(interceptor->unitSide()), BattleAction::makeMove(interceptor, BattleHex(10, 5))));
+	while(battle()->battleActiveUnit() != interceptor)
+	{
+		const auto * active = battle()->battleActiveUnit();
+		ASSERT_NE(active, nullptr);
+		ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(active->unitSide()), BattleAction::makeDefend(active)));
+	}
+	BattleHex attackFrom = BattleHex::INVALID;
+	for(const auto & hex : battle()->battleGetAvailableHexes(interceptor, false))
+		if(battle()->isMeleeAttackPossible(interceptor, swordsmen, hex))
+		{
+			attackFrom = hex;
+			break;
+		}
+	ASSERT_TRUE(attackFrom.isValid());
+	const auto health = swordsmen->getAvailableHealth();
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(interceptor->unitSide()), BattleAction::makeMeleeAttack(interceptor, swordsmen, attackFrom)));
+	EXPECT_LT(swordsmen->getAvailableHealth(), health);
+}
+
+TEST_F(BattleEvaluatorTest, AdvancingUnitCanBeInterceptedBeforeEnemyReachesItsStart)
+{
+	auto * target = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(2, 5), 1000);
+	auto * interceptor = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(6, 5), 300);
+	auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(14, 5), 100);
+	target->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACKS_SPEED, BonusSource::OTHER, -3, BonusSourceID()));
+	blockRetaliation(interceptor);
+	for(auto * unit : {target, interceptor, swordsmen})
+		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	battle()->obstacles.clear();
+	ASSERT_EQ(swordsmen->getMovementRange(), 5);
+	ASSERT_EQ(interceptor->getMovementRange(), 3);
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), swordsmen);
+	evaluateAsDefender();
+	auto score = [&](std::shared_ptr<HypotheticBattle> state) { return this->scoreApproach(swordsmen, target, state); };
+	auto withoutInterceptor = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	withoutInterceptor->removeUnit(interceptor->unitId());
+	EXPECT_LT(score(hypotheticalBattle), score(withoutInterceptor));
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(swordsmen->unitSide()),
+		BattleAction::makeMove(swordsmen, BattleHex(9, 5))));
+	while(battle()->battleActiveUnit() != interceptor)
+	{
+		const auto * active = battle()->battleActiveUnit();
+		ASSERT_NE(active, nullptr);
+		ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(active->unitSide()), BattleAction::makeDefend(active)));
+	}
+	const auto health = swordsmen->getAvailableHealth();
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(interceptor->unitSide()),
+		BattleAction::makeMeleeAttack(interceptor, swordsmen, BattleHex(8, 5))));
+	EXPECT_LT(swordsmen->getAvailableHealth(), health);
+}
+
+TEST_F(BattleEvaluatorTest, ApproachingExchangeIncludesAttackOnAdjacentAlly)
+{
+	auto * target = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(2, 5), 1000);
+	auto * interceptor = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(6, 5), 300);
+	auto * ally = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(7, 5), 1000);
+	auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(14, 5), 100);
+	blockRetaliation(interceptor);
+	interceptor->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACKS_SPEED, BonusSource::OTHER, 3, BonusSourceID()));
+	for(auto * unit : {target, interceptor, ally, swordsmen})
+		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	battle()->obstacles.clear();
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), interceptor);
+	evaluateAsDefender();
+	auto score = [&](std::shared_ptr<HypotheticBattle> state) { return this->scoreApproach(swordsmen, target, state, 1); };
+	auto withoutInterceptor = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	withoutInterceptor->removeUnit(interceptor->unitId());
+	EXPECT_LT(score(hypotheticalBattle), score(withoutInterceptor));
+	const auto health = ally->getAvailableHealth();
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(interceptor->unitSide()),
+		BattleAction::makeMeleeAttack(interceptor, ally, interceptor->getPosition())));
+	EXPECT_LT(ally->getAvailableHealth(), health);
+}
+
+TEST_F(BattleEvaluatorTest, ApproachingUnitIsNotHitBeforeInterceptorCanReachIt)
+{
+	auto * target = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(2, 5), 1000);
+	auto * interceptor = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(6, 5), 300);
+	auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(14, 5), 100);
+	target->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACKS_SPEED, BonusSource::OTHER, -3, BonusSourceID()));
+	interceptor->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACKS_SPEED, BonusSource::OTHER, -2, BonusSourceID()));
+	for(auto * unit : {target, interceptor, swordsmen})
+		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	battle()->obstacles.clear();
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), swordsmen);
+	evaluateAsDefender();
+	PotentialTargets candidates(swordsmen, damageCache, hypotheticalBattle);
+	BattleExchangeEvaluator evaluator(callback->getBattle(BattleID(0)), gameHandler, 1.0f, 1);
+	evaluator.updateReachabilityMap(hypotheticalBattle);
+	const auto attack = AttackPossibility::evaluate(BattleAttackInfo(swordsmen, target, 0, false), BattleHex(3, 5), damageCache, hypotheticalBattle);
+	const auto route = hypotheticalBattle->getReachability(swordsmen);
+	BattleHex firstStop(3, 5);
+	while(route.distances.at(firstStop.toInt()) > swordsmen->getMovementRange())
+		firstStop = route.predecessors.at(firstStop.toInt());
+	ASSERT_EQ(firstStop, BattleHex(9, 4));
+	auto projected = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	projected->getForUpdate(swordsmen->unitId())->setPosition(firstStop);
+	const auto distance = projected->getReachability(interceptor).distToNearestNeighbour(interceptor, projected->battleGetUnitByID(swordsmen->unitId()));
+	ASSERT_EQ(distance, 3);
+	const auto exchange = evaluator.getExchangeUnits(attack, 2, candidates, hypotheticalBattle);
+	ASSERT_TRUE(std::any_of(exchange.units.begin(), exchange.units.end(), [interceptor](const auto & turn)
+	{
+		return std::any_of(turn.second.begin(), turn.second.end(), [interceptor](const battle::Unit * unit) { return unit->unitId() == interceptor->unitId(); });
+	}));
+	auto score = [&](std::shared_ptr<HypotheticBattle> state)
+	{
+		DamageCache cache;
+		cache.buildDamageCache(state, BattleSide::DEFENDER);
+		PotentialTargets targets(swordsmen, cache, state);
+		vstd::erase_if(targets.unreachableEnemies, [target](const battle::Unit * unit) { return unit->unitId() != target->unitId(); });
+		BattleExchangeEvaluator evaluator(callback->getBattle(BattleID(0)), gameHandler, 1.0f, 1);
+		evaluator.updateReachabilityMap(state);
+		const auto attack = AttackPossibility::evaluate(BattleAttackInfo(swordsmen, target, 0, false), BattleHex(3, 5), cache, state);
+		return evaluator.evaluateExchange(attack, 2, targets, cache, state);
+	};
+	auto withoutInterceptor = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	withoutInterceptor->removeUnit(interceptor->unitId());
+	EXPECT_FLOAT_EQ(score(hypotheticalBattle), score(withoutInterceptor));
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(swordsmen->unitSide()),
+		BattleAction::makeMove(swordsmen, firstStop)));
+	ASSERT_EQ(battle()->battleActiveUnit(), interceptor);
+	for(const auto & hex : battle()->battleGetAvailableHexes(interceptor, false))
+		EXPECT_FALSE(battle()->isMeleeAttackPossible(interceptor, swordsmen, hex));
+	const auto health = swordsmen->getAvailableHealth();
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(interceptor->unitSide()),
+		BattleAction::makeMove(interceptor, BattleHex(7, 5))));
+	EXPECT_EQ(swordsmen->getAvailableHealth(), health);
+}
+
+TEST_F(BattleEvaluatorTest, MoraleMovementContinuesAroundDiagonalObstacle)
+{
+	auto * topEnemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(2, 0), 300);
+	auto * bottomEnemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(2, 9), 300);
+	auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(14, 9), 30);
+	for(auto * enemy : {topEnemy, bottomEnemy})
+		enemy->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	swordsmen->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::OTHER, 3, BonusSourceID()));
+	battle()->obstacles.clear();
+	auto obstacle = std::make_shared<CObstacleInstance>();
+	obstacle->ID = LIBRARY->obstacles()->getByName("core:115")->obstacle.getNum();
+	obstacle->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
+	obstacle->uniqueID = 0;
+	battle()->obstacles.push_back(obstacle);
+	gameHandler->randomizer->setSeed(5);
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), swordsmen);
+	evaluateAsDefender();
+	BattleEvaluator initial(gameHandler, callback, hypotheticalBattle, damageCache, swordsmen,
+		defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+	const auto wait = initial.selectStackAction(swordsmen);
+	ASSERT_EQ(wait.actionType, EActionType::WAIT);
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(swordsmen->unitSide()), wait));
+	while(battle()->battleActiveUnit() != swordsmen)
+	{
+		const auto * active = battle()->battleActiveUnit();
+		ASSERT_NE(active, nullptr);
+		ASSERT_EQ(active->unitSide(), BattleSide::ATTACKER);
+		ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(active->unitSide()), BattleAction::makeDefend(active)));
+	}
+	const auto start = swordsmen->getPosition();
+	damageCache = DamageCache();
+	evaluateAsDefender();
+	BattleEvaluator first(gameHandler, callback, hypotheticalBattle, damageCache, swordsmen,
+		defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+	const auto movement = first.selectStackAction(swordsmen);
+	ASSERT_EQ(movement.actionType, EActionType::WALK);
+	const auto firstPath = battle()->getPath(start, movement.target.at(0).hexValue, swordsmen).first;
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(swordsmen->unitSide()), movement));
+	ASSERT_TRUE(swordsmen->hadMorale);
+	ASSERT_EQ(battle()->battleActiveUnit(), swordsmen);
+	damageCache = DamageCache();
+	evaluateAsDefender();
+	BattleEvaluator morale(gameHandler, callback, hypotheticalBattle, damageCache, swordsmen,
+		defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+	auto next = morale.selectStackAction(swordsmen);
+	if(next.actionType == EActionType::WAIT)
+	{
+		ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(swordsmen->unitSide()), next));
+		ASSERT_EQ(battle()->battleActiveUnit(), swordsmen);
+		damageCache = DamageCache();
+		evaluateAsDefender();
+		BattleEvaluator afterWait(gameHandler, callback, hypotheticalBattle, damageCache, swordsmen,
+			defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+		next = afterWait.selectStackAction(swordsmen);
+	}
+	ASSERT_EQ(next.actionType, EActionType::WALK);
+	const auto secondPath = battle()->getPath(swordsmen->getPosition(), next.target.at(0).hexValue, swordsmen).first;
+	for(const auto & hex : secondPath)
+		EXPECT_TRUE(hex != start && !firstPath.contains(hex)) << "morale movement retraced the first route";
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(swordsmen->unitSide()), next));
+	const auto reachability = battle()->getReachability(swordsmen);
+	EXPECT_LE(std::min(reachability.distToNearestNeighbour(swordsmen, topEnemy), reachability.distToNearestNeighbour(swordsmen, bottomEnemy)), swordsmen->getMovementRange(0));
+	bool attacked = false;
+	for(int step = 0; step < 6 && !attacked; ++step)
+	{
+		const auto * active = battle()->battleActiveUnit();
+		ASSERT_NE(active, nullptr);
+		auto action = BattleAction::makeDefend(active);
+		if(active == swordsmen)
+		{
+			damageCache = DamageCache();
+			evaluateAsDefender();
+			BattleEvaluator evaluator(gameHandler, callback, hypotheticalBattle, damageCache, swordsmen,
+				defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+			action = evaluator.selectStackAction(swordsmen);
+			attacked = action.actionType == EActionType::WALK_AND_ATTACK;
+			if(attacked)
+			{
+				EXPECT_EQ(battle()->getRound(), 2);
+			}
+		}
+		ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(active->unitSide()), action));
+	}
+	EXPECT_TRUE(attacked) << "the detour delayed the attack beyond the next round";
 }
 
 TEST_F(BattleEvaluatorTest, HarpiesReturnAfterKillingShooter)
