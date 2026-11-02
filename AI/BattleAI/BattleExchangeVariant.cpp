@@ -260,7 +260,8 @@ EvaluationResult BattleExchangeEvaluator::findBestTarget(
 
 	updateReachabilityMap(hb);
 
-	if(result.bestAttack.attack.shooting
+	if(result.wait
+		&& result.bestAttack.attack.shooting
 		&& !result.bestAttack.defenderDead
 		&& !activeStack->waited()
 		&& hb->battleHasShootingPenalty(activeStack, result.bestAttack.dest))

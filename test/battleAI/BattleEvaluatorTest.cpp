@@ -15,10 +15,13 @@
 #include "lib/GameLibrary.h"
 #include "lib/ObstacleHandler.h"
 #include "lib/battle/BattleAction.h"
+#include "lib/battle/BattleUnitTurnReason.h"
 #include "lib/battle/CObstacleInstance.h"
 #include "lib/battle/CPlayerBattleCallback.h"
 #include "lib/callback/CBattleCallback.h"
+#include "lib/callback/GameRandomizer.h"
 #include "server/CGameHandler.h"
+#include "server/battles/BattleProcessor.h"
 
 namespace test
 {
@@ -67,6 +70,38 @@ public:
 		return AttackPossibility::evaluate(BattleAttackInfo(attacker, defender, 0, false), from, damageCache, hypotheticalBattle);
 	}
 
+	void checkMoraleShotProtectsAlly(const std::string & creature, int enemyCount, int randomSeed)
+	{
+		auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(1, 5), enemyCount);
+		auto * ally = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(2, 5), enemyCount * 2);
+		auto * shooter = addStack(BattleSide::DEFENDER, creatureByName(creature), BattleHex(15, 5), 50);
+		blockRetaliation(enemy);
+		shooter->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::MORALE, BonusSource::OTHER, 3, BonusSourceID()));
+		gameHandler->randomizer->setSeed(randomSeed);
+		beginCombat();
+		ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+		ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(shooter->unitSide()),
+			BattleAction::makeShotAttack(shooter, enemy)));
+		ASSERT_TRUE(shooter->hadMorale);
+		ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+		ASSERT_TRUE(battle()->battleHasShootingPenalty(shooter, enemy->getPosition()));
+		const auto enemyHealthBefore = enemy->getAvailableHealth();
+		const auto allyHealthBefore = ally->getAvailableHealth();
+
+		evaluateAsDefender();
+		BattleEvaluator evaluator(gameHandler, callback, hypotheticalBattle, damageCache, shooter,
+			defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+		const auto action = evaluator.selectStackAction(shooter);
+		ASSERT_EQ(action.actionType, EActionType::SHOOT) << "morale activation discarded a profitable shot";
+		ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(shooter->unitSide()), action));
+		ASSERT_TRUE(enemy->alive());
+		ASSERT_LT(enemy->getAvailableHealth(), enemyHealthBefore);
+		ASSERT_EQ(battle()->battleActiveUnit(), enemy);
+		ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(enemy->unitSide()),
+			BattleAction::makeMeleeAttack(enemy, ally, enemy->getPosition())));
+		EXPECT_LT(allyHealthBefore - ally->getAvailableHealth(), enemyHealthBefore);
+	}
+
 	void addObstacle()
 	{
 		const auto * obstacleInfo = LIBRARY->obstacles()->getByName("core:12");
@@ -102,6 +137,69 @@ TEST_F(BattleEvaluatorTest, HypnotizedUnitGoesForItsFormerAllies)
 
 	ASSERT_EQ(action.actionType, EActionType::WALK_AND_ATTACK);
 	EXPECT_EQ(action.target[1].hexValue, elf->getPosition());
+}
+
+TEST_F(BattleEvaluatorTest, MarksmanMoraleShotProtectsAlly)
+{
+	checkMoraleShotProtectsAlly("core:marksman", 500, 9);
+}
+
+TEST_F(BattleEvaluatorTest, MonkMoraleShotProtectsAlly)
+{
+	checkMoraleShotProtectsAlly("core:monk", 2000, 24);
+}
+
+TEST_F(BattleEvaluatorTest, WaitingShooterCanShootAfterEnemyAdvances)
+{
+	auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(1, 5), 500);
+	auto * shooter = addStack(BattleSide::DEFENDER, creatureByName("core:marksman"), BattleHex(15, 5), 50);
+	enemy->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	evaluateAsDefender();
+	BattleEvaluator before(gameHandler, callback, hypotheticalBattle, damageCache, shooter,
+		defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+	const auto wait = before.selectStackAction(shooter);
+	ASSERT_EQ(wait.actionType, EActionType::WAIT);
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(shooter->unitSide()), wait));
+	ASSERT_EQ(battle()->battleActiveUnit(), enemy);
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(enemy->unitSide()),
+		BattleAction::makeMove(enemy, BattleHex(4, 5))));
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	ASSERT_TRUE(shooter->waited());
+	damageCache = DamageCache();
+	evaluateAsDefender();
+	BattleEvaluator after(gameHandler, callback, hypotheticalBattle, damageCache, shooter,
+		defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+	const auto shot = after.selectStackAction(shooter);
+	ASSERT_EQ(shot.actionType, EActionType::SHOOT);
+	const auto health = enemy->getAvailableHealth();
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(shooter->unitSide()), shot));
+	EXPECT_LT(enemy->getAvailableHealth(), health);
+}
+
+TEST_F(BattleEvaluatorTest, MoraleAttackCanSwitchToSurvivingEnemy)
+{
+	const auto * first = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(7, 5), 1);
+	const auto * second = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(8, 4), 1);
+	auto * active = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(8, 5), 20);
+	evaluateAsDefender();
+	BattleEvaluator before(gameHandler, callback, hypotheticalBattle, damageCache, active,
+		defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+	const auto initial = before.selectStackAction(active);
+	ASSERT_EQ(initial.actionType, EActionType::WALK_AND_ATTACK);
+	ASSERT_TRUE(act(initial));
+	ASSERT_NE(first->alive(), second->alive());
+	const auto * survivor = first->alive() ? first : second;
+	active->afterGetsTurn(BattleUnitTurnReason::MORALE);
+	damageCache = DamageCache();
+	evaluateAsDefender();
+	BattleEvaluator after(gameHandler, callback, hypotheticalBattle, damageCache, active,
+		defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+	const auto next = after.selectStackAction(active);
+	ASSERT_EQ(next.actionType, EActionType::WALK_AND_ATTACK);
+	ASSERT_EQ(next.target.size(), 2);
+	EXPECT_EQ(next.target[1].hexValue, survivor->getPosition());
 }
 
 TEST_F(BattleEvaluatorTest, AttacksSuitableTargetOnWayToMovementWaypoint)
