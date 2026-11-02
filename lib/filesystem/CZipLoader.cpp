@@ -297,7 +297,14 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::strin
 	const boost::filesystem::path fullName = where / relativeName;
 	const boost::filesystem::path fullPath = fullName.parent_path();
 
-	boost::filesystem::create_directories(fullPath);
+	boost::system::error_code error;
+	boost::filesystem::create_directories(fullPath, error);
+	if (error)
+	{
+		logGlobal->error("Failed to create directory '%s'. Reason: %s", TextOperations::filesystemPathToUtf8(fullPath), error.message());
+		return false;
+	}
+
 	// directory. No file to extract
 	// TODO: better way to detect directory? Probably check return value of unzOpenCurrentFile?
 	if (boost::algorithm::ends_with(file, "/"))
