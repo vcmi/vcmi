@@ -75,16 +75,26 @@ void OptionsTab::recreate()
 	for (auto heroOverview : ENGINE->windows().findWindows<CHeroOverview>())
 		heroOverview->close();
 
+	const bool mapSelected = SEL->getMapInfo() && SEL->getMapInfo()->mapHeader;
+
 	for (auto selectionWindow : ENGINE->windows().findWindows<SelectionWindow>())
-		selectionWindow->reopen();
+	{
+		if (mapSelected)
+			selectionWindow->reopen();
+		else
+			selectionWindow->close();
+	}
 
 	OBJECT_CONSTRUCTION;
-	for(auto & pInfo : SEL->getStartInfo()->playerInfos)
+	if (mapSelected)
 	{
-		if(pInfo.second.isControlledByHuman())
-			humanPlayers++;
+		for(auto & pInfo : SEL->getStartInfo()->playerInfos)
+		{
+			if(pInfo.second.isControlledByHuman())
+				humanPlayers++;
 
-		entries.insert(std::make_pair(pInfo.first, std::make_shared<PlayerOptionsEntry>(pInfo.second, * this)));
+			entries.insert(std::make_pair(pInfo.first, std::make_shared<PlayerOptionsEntry>(pInfo.second, * this)));
+		}
 	}
 
 	OptionsTabBase::recreate();

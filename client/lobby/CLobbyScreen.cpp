@@ -375,9 +375,11 @@ void CLobbyScreen::toggleMode(bool host)
 	if (buttonExtraOptions)
 		buttonExtraOptions->block(!host);
 
+	if (tabOpt)
+		tabOpt->recreate();
+
 	if(GAME->server().mi)
 	{
-		tabOpt->recreate();
 		tabTurnOptions->recreate();
 		tabExtraOptions->recreate();
 	}
@@ -440,10 +442,11 @@ void CLobbyScreen::updateAfterStateChange()
 			GAME->server().setExtraOptionsInfo(info);
 	}
 
+	if (tabOpt)
+		tabOpt->recreate();
+
 	if(GAME->server().mi)
 	{
-		if (tabOpt)
-			tabOpt->recreate();
 		if (tabTurnOptions)
 			tabTurnOptions->recreate();
 		if (tabExtraOptions)
