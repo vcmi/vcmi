@@ -175,10 +175,32 @@ bool CGHeroInstance::canLearnSkill() const
 
 bool CGHeroInstance::canLearnSkill(const SecondarySkill & which) const
 {
-	if ( !canLearnSkill())
-		return false;
+	return cb->isAllowed(which) && canLearnSkillIgnoringBans(which);
+}
 
-	if (!cb->isAllowed(which))
+bool CGHeroInstance::canLearnSkillOnLevelUp(const SecondarySkill & which) const
+{
+	// Birth of a Barbarian replaces the map's ban list with a fixed one for Yog's level-ups
+	if (isCampaignYog())
+		return !isSkillBannedOnLevelUp(which) && canLearnSkillIgnoringBans(which);
+	return canLearnSkill(which);
+}
+
+bool CGHeroInstance::isSkillBannedOnLevelUp(const SecondarySkill & which) const
+{
+	static const std::set<SecondarySkill> yogBannedSkills = {
+		SecondarySkill::LEADERSHIP, SecondarySkill::WISDOM, SecondarySkill::BALLISTICS,
+		SecondarySkill::EAGLE_EYE, SecondarySkill::ESTATES, SecondarySkill::FIRE_MAGIC,
+		SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC,
+		SecondarySkill::ARMORER, SecondarySkill::INTELLIGENCE
+	};
+
+	return isCampaignYog() && yogBannedSkills.count(which);
+}
+
+bool CGHeroInstance::canLearnSkillIgnoringBans(const SecondarySkill & which) const
+{
+	if ( !canLearnSkill())
 		return false;
 
 	if (getSecSkillLevel(which) > 0)
