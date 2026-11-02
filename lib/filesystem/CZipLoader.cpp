@@ -192,7 +192,7 @@ std::time_t CZipLoader::getLastWriteTime(const ResourcePath& resourceName) const
 }
 
 /// extracts currently selected file from zip into stream "where"
-static bool extractCurrent(unzFile file, std::ostream & where, const std::function<bool()> & isCanceled)
+static bool extractCurrent(unzFile file, std::ostream & where)
 {
 	std::array<char, 8 * 1024> buffer{};
 
@@ -200,9 +200,6 @@ static bool extractCurrent(unzFile file, std::ostream & where, const std::functi
 
 	while(true)
 	{
-		if(isCanceled && isCanceled())
-			break;
-
 		int readSize = unzReadCurrentFile(file, buffer.data(), static_cast<unsigned int>(buffer.size()));
 
 		if (readSize < 0) // error
@@ -284,11 +281,8 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::vecto
 	return true;
 }
 
-bool ZipArchive::extract(const boost::filesystem::path & where, const std::string & file, const std::function<bool()> & isCanceled)
+bool ZipArchive::extract(const boost::filesystem::path & where, const std::string & file)
 {
-	if(isCanceled && isCanceled())
-		return false;
-
 	const auto found = filePositions.find(file);
 	if(found == filePositions.end() || unzGoToFilePos64(archive, &found->second) != UNZ_OK)
 		return false;
@@ -324,7 +318,7 @@ bool ZipArchive::extract(const boost::filesystem::path & where, const std::strin
 		return false;
 	}
 
-	if (!extractCurrent(archive, destFile, isCanceled))
+	if (!extractCurrent(archive, destFile))
 		return false;
 	return true;
 }
