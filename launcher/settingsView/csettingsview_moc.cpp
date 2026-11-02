@@ -770,7 +770,6 @@ void CSettingsView::loadTranslation()
 	ui->labelTranslation->setVisible(showTranslation);
 	ui->labelTranslationStatus->setVisible(showTranslation);
 	ui->pushButtonTranslation->setVisible(showTranslation);
-	ui->pushButtonTranslation->setVisible(translationStatus != ETranslationStatus::ACTIVE);
 
 	if (translationStatus == ETranslationStatus::ACTIVE)
 	{

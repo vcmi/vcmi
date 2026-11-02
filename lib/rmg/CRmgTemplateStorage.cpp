@@ -42,7 +42,7 @@ void CRmgTemplateStorage::loadObject(LibraryLoadContext & context, const std::st
 		auto fullKey = scope + ":" + name; //actually it's not used
 		templates[fullKey] = std::make_shared<CRmgTemplate>();
 		templates[fullKey]->setId(fullKey);
-		templates[fullKey]->serializeJson(handler);
+		templates[fullKey]->serializeJson(handler, *context.lib.objtypeh);
 		templates[fullKey]->setName(name);
 
 		if (!templates[fullKey]->getDescription().empty())

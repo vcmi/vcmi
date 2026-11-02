@@ -68,4 +68,18 @@ TEST_F(FilesystemTest, DoesNotCreateResourceOutsideOfDirectory)
 	EXPECT_TRUE(boost::filesystem::exists(loaderDirectory / "folder" / "example.txt"));
 }
 
+TEST_F(FilesystemTest, FindsFileWithRepeatedExtensionByItsName)
+{
+	CFilesystemLoader loader("Test/", getDirectory());
+	ASSERT_TRUE(loader.createResource("Test/example.h3m.h3m"));
+
+	const ResourcePath storedName(ResourcePath("Test/example.h3m.h3m").getOriginalName(), EResType::MAP);
+	EXPECT_TRUE(loader.existsResource(storedName));
+}
+
+TEST(ResourcePathTest, KeepsExtensionOfDifferentType)
+{
+	EXPECT_EQ(ResourcePath("Fonts/CALLI10R.FNT.txt").getName(), "FONTS/CALLI10R.FNT");
+}
+
 }

@@ -460,12 +460,18 @@ void GlobalLobbyClient::onDisconnected(const std::shared_ptr<INetworkConnection>
 		ENGINE->windows().popWindows(1);
 	}
 
+	// invite window is opened from game room and not from global lobby window
+	while (!ENGINE->windows().findWindows<GlobalLobbyInviteWindow>().empty())
+		ENGINE->windows().popWindows(1);
+
 	CInfoWindow::showInfoDialog(LIBRARY->generaltexth->translate("vcmi.lobby.login.connectionLost"), {});
 }
 
 void GlobalLobbyClient::sendMessage(const JsonNode & data)
 {
 	assert(JsonValidator().validate(data, "vcmi:lobbyProtocol/" + data["type"].String(), data["type"].String() + " pack"));
+	if (!networkConnection)
+		throw std::runtime_error("Attempt to send lobby message " + data["type"].String() + " without connection to lobby!");
 	networkConnection->sendPacket(data.toBytes());
 }
 

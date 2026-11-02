@@ -461,7 +461,7 @@ void ZoneOptions::setBannedTownTypes(const std::set<FactionID> & value)
 	bannedTownTypes = value;
 }
 
-void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
+void ZoneOptions::serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects)
 {
 	static const std::vector<std::string> zoneTypes =
 	{
@@ -549,7 +549,10 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeIdMap<GameResID, ui16>("mines", mines);
 	}
 
-	handler.serializeStruct("customObjects", objectConfig);
+	{
+		auto guard = handler.enterStruct("customObjects");
+		objectConfig.serializeJson(handler, objects);
+	}
 	handler.serializeInt("visiblePositionX", visiblePosition.x);
 	handler.serializeInt("visiblePositionY", visiblePosition.y);
 	handler.serializeFloat("visibleSize", visibleSize);
@@ -904,7 +907,7 @@ int CRmgTemplate::CPlayerCountRange::minValue() const
 	return *std::ranges::min_element(numbers);
 }
 
-void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
+void CRmgTemplate::serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects)
 {
 	handler.serializeString("name", name);
 	handler.serializeString("description", description);
@@ -975,7 +978,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 			for(auto & idAndZone : zones)
 			{
 				auto guard = handler.enterStruct(encodeZoneId(idAndZone.first));
-				idAndZone.second->serializeJson(handler);
+				idAndZone.second->serializeJson(handler, objects);
 			}
 		}
 		else
@@ -985,7 +988,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 				auto guard = handler.enterStruct(idAndZone.first);
 				auto zone = std::make_shared<ZoneOptions>();
 				zone->setId(decodeZoneId(idAndZone.first));
-				zone->serializeJson(handler);
+				zone->serializeJson(handler, objects);
 				zones[zone->getId()] = zone;
 			}
 		}

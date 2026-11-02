@@ -2735,7 +2735,12 @@
 					"movePercentage": 0,
 					"movePoints": 0,
 					"noneOf": [],
-					"primary": [],
+					"primary": [
+						0,
+						0,
+						0,
+						0
+					],
 					"secondary": []
 				},
 				"nextVisitText": {
@@ -2797,7 +2802,12 @@
 					"movePercentage": 0,
 					"movePoints": 0,
 					"noneOf": [],
-					"primary": [],
+					"primary": [
+						0,
+						0,
+						0,
+						0
+					],
 					"resources": {
 						"crystal": 5,
 						"gems": 6,
@@ -2948,7 +2958,12 @@
 					"movePercentage": 0,
 					"movePoints": 0,
 					"noneOf": [],
-					"primary": [],
+					"primary": [
+						0,
+						0,
+						0,
+						0
+					],
 					"secondary": []
 				},
 				"nextVisitText": {
@@ -3012,7 +3027,12 @@
 					"movePercentage": 0,
 					"movePoints": 0,
 					"noneOf": [],
-					"primary": [],
+					"primary": [
+						0,
+						0,
+						0,
+						0
+					],
 					"secondary": []
 				},
 				"nextVisitText": {
@@ -3075,7 +3095,12 @@
 					"movePercentage": 0,
 					"movePoints": 0,
 					"noneOf": [],
-					"primary": [],
+					"primary": [
+						0,
+						0,
+						0,
+						0
+					],
 					"secondary": []
 				},
 				"nextVisitText": {
@@ -3140,7 +3165,12 @@
 					"movePercentage": 0,
 					"movePoints": 0,
 					"noneOf": [],
-					"primary": [],
+					"primary": [
+						0,
+						0,
+						0,
+						0
+					],
 					"secondary": []
 				},
 				"nextVisitText": {
@@ -3207,7 +3237,12 @@
 					"movePercentage": 0,
 					"movePoints": 0,
 					"noneOf": [],
-					"primary": [],
+					"primary": [
+						0,
+						0,
+						0,
+						0
+					],
 					"secondary": []
 				},
 				"nextVisitText": {
@@ -3272,7 +3307,12 @@
 					"movePercentage": 0,
 					"movePoints": 0,
 					"noneOf": [],
-					"primary": [],
+					"primary": [
+						0,
+						0,
+						0,
+						0
+					],
 					"secondary": []
 				},
 				"nextVisitText": {
@@ -3337,7 +3377,12 @@
 					"movePercentage": 0,
 					"movePoints": 0,
 					"noneOf": [],
-					"primary": [],
+					"primary": [
+						0,
+						0,
+						0,
+						0
+					],
 					"secondary": []
 				},
 				"nextVisitText": {
@@ -6288,7 +6333,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -6372,7 +6422,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -6455,7 +6510,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -6549,7 +6609,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -6697,7 +6762,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -6979,7 +7049,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -7118,7 +7193,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -7259,7 +7339,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -7405,7 +7490,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -7543,7 +7633,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"resources": {
 							"crystal": 50,
 							"gems": 60,
@@ -7698,7 +7793,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -7842,7 +7942,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -7993,7 +8098,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {
@@ -8165,7 +8275,12 @@
 						"movePercentage": 0,
 						"movePoints": 0,
 						"noneOf": [],
-						"primary": [],
+						"primary": [
+							0,
+							0,
+							0,
+							0
+						],
 						"secondary": []
 					},
 					"nextVisitText": {

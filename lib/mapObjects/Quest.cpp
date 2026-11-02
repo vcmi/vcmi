@@ -929,6 +929,7 @@ void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 	switch(version)
 	{
 		case 0:
+			readReward17(handler);
 			readLegacyReward(handler);
 			break;
 		case 1:

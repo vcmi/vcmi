@@ -1256,9 +1256,9 @@ void CCastleBuildings::enterTownHall()
 		}
 		else
 		{
-			GAME->interface()->showInfoDialog(LIBRARY->generaltexth->allTexts[673]);
-			assert(ENGINE->windows().topWindow<CInfoWindow>() != nullptr);
-			ENGINE->windows().topWindow<CInfoWindow>()->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
+			auto infoWindow = CInfoWindow::create(LIBRARY->generaltexth->allTexts[673], GAME->interface()->playerID);
+			infoWindow->buttons[0]->addCallback(std::bind(&CCastleBuildings::openTownHall, this));
+			ENGINE->windows().pushWindow(infoWindow);
 		}
 	}
 	else
