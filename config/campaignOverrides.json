@@ -165,7 +165,6 @@
 		]
 	},
 	"DATA/FINAL" : { // Unholy Alliance
-		"heroGemSorceress" : "gem", // Gem (Sorceress class)
 		"scenarios": [
 			{ "voiceProlog": "H3x2UAa" }, //Final A.h3m
 			{ "voiceProlog": "H3x2UAb" }, //Final B.h3m
