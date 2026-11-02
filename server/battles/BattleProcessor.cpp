@@ -183,7 +183,7 @@ void BattleProcessor::tryLearnEnemySpellsPreBattle(const BattleInfo * battle, Ba
 	for(const auto spellID : enemy->getSpellsInSpellbook())
 	{
 		const auto * spell = spellID.toSpell();
-		if(!spell)
+		if(!spell || !spell->isCommonHeroSpell())
 			continue;
 
 		if(spell->getLevel() <= spellLevelLimit && !learner->spellbookContainsSpell(spell->getId()) && gameHandler->getRandomGenerator().nextInt(99) < eagleEyeChance)

@@ -62,6 +62,10 @@ void RecruitHero::accept(AIGateway * aiGw)
 	if(!heroToHire)
 		throw cannotFulfillGoalException("No hero to hire!");
 
+	// gold may have been spent by another task planned in the same pass
+	if(aiGw->cc->getResourceAmount(EGameResID::GOLD) < GameConstants::HERO_GOLD_COST)
+		throw cannotFulfillGoalException("Not enough gold to recruit hero in " + t->nodeName());
+
 	if(t->getVisitingHero())
 	{
 		aiGw->cc->swapGarrisonHero(t);

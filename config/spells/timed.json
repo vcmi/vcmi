@@ -630,6 +630,8 @@
 				"battleEffects" : {
 					"curse" : {
 						"type" : "timed",
+						"battleLogSingular" : "@core.genrltxt.557",
+						"battleLogPlural" : "@core.genrltxt.557",
 						"bonus" : {
 							"alwaysMinimumDamage" : {
 								"val" : 0,
@@ -1926,8 +1928,8 @@
 				"battleEffects" : {
 					"blind" : {
 						"type" : "timed",
-						//"battleLogSingular" : "@core.genrltxt.556",
-						//"battleLogPlural" : "@core.genrltxt.556",
+						"battleLogSingular" : "@core.genrltxt.556",
+						"battleLogPlural" : "@core.genrltxt.556",
 						"bonus" : {
 							"notActive" : {
 								"val" : 0,

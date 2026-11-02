@@ -464,7 +464,8 @@ bool BattleActionsController::creatureSpellcastingModeActive() const
 {
 	auto spellcastModePredicate = [](const std::shared_ptr<const IBattleActionEntry> & entry)
 	{
-		return entry->getSpell() != SpellID::NONE || isLibAction(*entry, EActionType::SHOOT); //for hotkey-eligible SPELL_LIKE_ATTACK creature should have only SHOOT action
+		// shoot mode of SPELL_LIKE_ATTACK creatures is not included, so right click still inspects units in it
+		return entry->getSpell() != SpellID::NONE;
 	};
 
 	return !possibleActions.empty() && std::all_of(possibleActions.begin(), possibleActions.end(), spellcastModePredicate);

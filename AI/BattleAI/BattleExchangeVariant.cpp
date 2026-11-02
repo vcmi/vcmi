@@ -59,6 +59,10 @@ float BattleExchangeVariant::trackAttack(
 			unitToUpdate->damage(damageDealt);
 		}
 
+		// removed before the retaliation is counted, since a petrified defender retaliates only once they are gone
+		if(damageDealt > 0)
+			unitToUpdate->removeUnitBonus(Bonus::UntilBeingAttacked);
+
 		if(unitToUpdate->unitSide() == attacker->unitSide())
 		{
 			if(unitToUpdate->unitId() == attacker->unitId())
@@ -88,9 +92,10 @@ float BattleExchangeVariant::trackAttack(
 		{
 			if(unitToUpdate->unitId() == ap.attack.defender->unitId())
 			{
-				if(unitToUpdate->ableToRetaliate() && !affectedUnit->ableToRetaliate())
+				// retaliation is always simulated as melee
+				if(ap.defenderRetaliated && unitToUpdate->ableToRetaliate())
 				{
-					unitToUpdate->afterAttack(ap.attack.shooting, true);
+					unitToUpdate->afterAttack(false, true);
 				}
 
 #if BATTLE_TRACE_LEVEL>=1
@@ -165,9 +170,14 @@ float BattleExchangeVariant::trackAttack(
 
 		defender->damage(attackDamage);
 		attacker->afterAttack(shooting, false);
+
+		// as on the server, damage removes bonuses such as petrification before the defender retaliates
+		if(attackDamage > 0)
+			defender->removeUnitBonus(Bonus::UntilBeingAttacked);
 	}
 
-	if(mode == AttackMode::FIRST_STRIKE && defender->alive() && defender->ableToRetaliateAfterBeingAttacked() && !counterAttacksBlocked && !shooting)
+	// the attack is already applied, so the defender is checked as the server checks it
+	if(mode == AttackMode::FIRST_STRIKE && defender->alive() && defender->ableToRetaliate() && !counterAttacksBlocked && !shooting)
 	{
 		auto retaliationDamage = damageCache.getDamage(defender.get(), attacker.get(), hb);
 		attackerDamageReduce = AttackPossibility::calculateDamageReduce(attacker.get(), retaliationDamage, damageCache);
@@ -194,6 +204,9 @@ float BattleExchangeVariant::trackAttack(
 
 		attacker->damage(retaliationDamage);
 		defender->afterAttack(false, true);
+
+		if(retaliationDamage > 0)
+			attacker->removeUnitBonus(Bonus::UntilBeingAttacked);
 	}
 
 	auto score = defenderDamageReduce - attackerDamageReduce;
@@ -844,6 +857,10 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 			{
 				for(int i = 0; i < totalAttacks; i++)
 				{
+					// as on the server, each shot of a multi-shot attack needs its own ammo
+					if(shooting && !attacker->shots.canUse())
+						break;
+
 					v.trackAttack(attacker, defender, shooting, isOur, damageCache, exchangeBattle,
 						i == 0 ? BattleExchangeVariant::AttackMode::FIRST_STRIKE : BattleExchangeVariant::AttackMode::FOLLOWUP_STRIKE);
 

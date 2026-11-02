@@ -64,8 +64,18 @@ function Script:onDeath(server, battle, unit, other, payload)
 		sourceID   = unit:getCreature():getJsonKey()
 	}, false)
 
-	server:showBattleAnimation(battle, { { unit = unit } }, ANIMATION, SOUND, 0.5, true)
-	server:healUnit(battle, unit, count * unit:getMaxHealth(), ENUM.HealLevel.resurrect, ENUM.HealPower.permanent)
+	-- not deferred, so that the client plays the death of the stack before it is resurrected
+	server:showBattleAnimation(battle, { { unit = unit } }, ANIMATION, SOUND, 0.5)
+	local _, resurrected = server:healUnit(battle, unit, count * unit:getMaxHealth(), ENUM.HealLevel.resurrect, ENUM.HealPower.permanent)
+
+	if resurrected > 0 then
+		-- 116 and 117 are the plural and singular forms of the same message
+		server:appendLog(battle, {
+			append         = { resurrected == 1 and "core.genrltxt.117" or "core.genrltxt.116" },
+			replaceStrings = { unit:getCreature():getNameTextID(resurrected) },
+			replaceNumbers = { resurrected }
+		})
+	end
 
 	self:spendAnswer(server, battle, unit)
 end

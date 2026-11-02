@@ -34,7 +34,10 @@ InputSourceMouse::InputSourceMouse()
 	,wheelAccumulatedX(.0f)
 	,wheelAccumulatedY(.0f)
 {
+#ifndef VCMI_MAC
+	// macOS apps do not pass the click that activates a window to that window
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+#endif
 }
 
 void InputSourceMouse::convertToRenderCoordinates(SDL_Event & event)
