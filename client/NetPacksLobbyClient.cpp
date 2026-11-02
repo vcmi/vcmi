@@ -133,6 +133,14 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientDisconnected(LobbyClientD
 {
 	if(pack.clientId == handler.logicConnection->connectionID)
 	{
+		if(!ENGINE->windows().findWindows<CLobbyScreen>().empty())
+		{
+			// pop lobby screen together with all dialogs and loading screen on top of it
+			while(!ENGINE->windows().findWindows<CLobbyScreen>().empty())
+				ENGINE->windows().popWindows(1);
+			return;
+		}
+
 		if(auto w = ENGINE->windows().topWindow<CLoadingScreen>())
 			ENGINE->windows().popWindow(w);
 		
