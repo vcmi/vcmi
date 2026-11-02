@@ -610,7 +610,8 @@ void CGameStateCampaign::initHeroes()
 	if (campaignState->getYogWizardID().hasValue() && boost::starts_with(campaignState->getFilename(), "DATA/YOG") && campaignState->currentScenario()->getNum() == 2)
 	{
 		auto * yog = gameState->getUsedHero(campaignState->getYogWizardID());
-		assert(yog);
+		if(!yog)
+			throw std::runtime_error("Failed to find Yog to give him the Angelic Alliance!");
 		assert(yog->isCampaignYog());
 		gameState->giveHeroArtifact(yog, ArtifactID::ANGELIC_ALLIANCE);
 	}
