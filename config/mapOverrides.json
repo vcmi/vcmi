@@ -115,46 +115,6 @@
 		"victoryIconIndex" : 10,
 		"victoryString" : "core.vcdesc.11"
 	},
-	"data/secret1:0" : { // The Grail
-		"defeatIconIndex" : 2,
-		"defeatString" : "core.lcdesc.3",
-		"triggeredEvents" : {
-			"specialDefeat" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "daysPassed", { "value" : 56 } ]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.254"
-			},
-			"specialVictory" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "haveArtifact", { "type" : "artifact.grail" } ]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.281",
-					"type" : "victory"
-				},
-				"message" : "core.genrltxt.280"
-			},
-			"standardDefeat" : {
-				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.8",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.7"
-			}
-		},
-		"victoryIconIndex" : 0,
-		"victoryString" : "core.vcdesc.1"
-	},
 	"data/ab:1" : { // Seeking Armageddon
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
@@ -384,6 +344,14 @@
 					"type" : "victory"
 				},
 				"message" : "core.genrltxt.292"
+			},
+			"standardVictory" : {
+				"condition" : [ "standardWin" ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.659"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
@@ -1207,166 +1175,6 @@
 		"victoryIconIndex" : 10,
 		"victoryString" : "core.vcdesc.11"
 	},
-	"data/crag:0" : { // Bashing Skulls
-		"defeatIconIndex" : 1,
-		"defeatString" : "core.lcdesc.2",
-		"triggeredEvents" : {
-			"heroMustSurvive" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 58, 70, 0 ], "type" : "hero" } ] ]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.253"
-			},
-			"specialVictory" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "haveArtifact", { "type" : "artifact.skullHelmet" } ]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.281",
-					"type" : "victory"
-				},
-				"message" : "core.genrltxt.280"
-			},
-			"standardDefeat" : {
-				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.8",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.7"
-			}
-		},
-		"victoryIconIndex" : 0,
-		"victoryString" : "core.vcdesc.1"
-	},
-	"data/crag:1" : { // Black Sheep
-		"defeatIconIndex" : 1,
-		"defeatString" : "core.lcdesc.2",
-		"triggeredEvents" : {
-			"heroMustSurvive" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 69, 2, 0 ], "type" : "hero" } ] ]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.253"
-			},
-			"specialVictory" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "haveArtifact", { "type" : "artifact.blackshardOfTheDeadKnight" } ]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.281",
-					"type" : "victory"
-				},
-				"message" : "core.genrltxt.280"
-			},
-			"standardDefeat" : {
-				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.8",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.7"
-			}
-		},
-		"victoryIconIndex" : 0,
-		"victoryString" : "core.vcdesc.1"
-	},
-	"data/crag:2" : { // A Cage in the Hand
-		"defeatIconIndex" : 1,
-		"defeatString" : "core.lcdesc.2",
-		"triggeredEvents" : {
-			"heroMustSurvive" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 2, 1, 0 ], "type" : "hero" } ] ]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.253"
-			},
-			"specialVictory" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "haveArtifact", { "type" : "artifact.ribCage" } ]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.281",
-					"type" : "victory"
-				},
-				"message" : "core.genrltxt.280"
-			},
-			"standardDefeat" : {
-				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.8",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.7"
-			}
-		},
-		"victoryIconIndex" : 0,
-		"victoryString" : "core.vcdesc.1"
-	},
-	"data/crag:3" : { // Grave Robber
-		"defeatIconIndex" : 1,
-		"defeatString" : "core.lcdesc.2",
-		"triggeredEvents" : {
-			"heroMustSurvive" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf", [ "control", { "position" : [ 10, 11, 0 ], "type" : "hero" } ] ]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.253"
-			},
-			"specialVictory" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "haveArtifact", { "type" : "artifact.shieldOfTheYawningDead" } ]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.281",
-					"type" : "victory"
-				},
-				"message" : "core.genrltxt.280"
-			},
-			"standardDefeat" : {
-				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.8",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.7"
-			}
-		},
-		"victoryIconIndex" : 0,
-		"victoryString" : "core.vcdesc.1"
-	},
 	"data/sandro:2" : { // Finneas Vilmar
 		"defeatIconIndex" : 1,
 		"defeatString" : "core.lcdesc.2",
@@ -1777,6 +1585,14 @@
 					"type" : "victory"
 				},
 				"message" : "core.genrltxt.252"
+			},
+			"standardVictory" : {
+				"condition" : [ "standardWin" ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.659"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
@@ -2322,6 +2138,14 @@
 					"type" : "victory"
 				},
 				"message" : "core.genrltxt.252"
+			},
+			"standardVictory" : {
+				"condition" : [ "standardWin" ],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "victory"
+				},
+				"message" : "core.genrltxt.659"
 			},
 			"standardDefeat" : {
 				"condition" : [ "daysWithoutTown", { "value" : 7 } ],
