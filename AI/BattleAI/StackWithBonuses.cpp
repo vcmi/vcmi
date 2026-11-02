@@ -18,22 +18,6 @@
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
 
-void actualizeEffect(TBonusListPtr target, const Bonus & ef)
-{
-	for(auto & bonus : *target) //TODO: optimize
-	{
-		if(bonus->source == BonusSource::SPELL_EFFECT && bonus->type == ef.type && bonus->subtype == ef.subtype)
-		{
-			if(bonus->turnsRemain < ef.turnsRemain)
-			{
-				bonus.reset(new Bonus(*bonus));
-
-				bonus->turnsRemain = ef.turnsRemain;
-			}
-		}
-	}
-}
-
 StackWithBonuses::StackWithBonuses(const HypotheticBattle * Owner, const battle::CUnitState * Stack)
 	: battle::CUnitState(),
 	origBearer(Stack->getBonusBearer()),
@@ -139,27 +123,40 @@ TConstBonusListPtr StackWithBonuses::getAllBonuses(const CSelector & selector, c
 	});
 
 
-	for(const Bonus & bonus : bonusesToUpdate)
+	for(const auto & updated : bonusesToUpdate)
 	{
+		const Bonus & bonus = *updated;
 		if(selector(&bonus))
 		{
 			if(ret->getFirst(Selector::source(BonusSource::SPELL_EFFECT, bonus.sid).And(Selector::typeSubtype(bonus.type, bonus.subtype))))
 			{
-				actualizeEffect(ret, bonus);
+				for(auto & existing : *ret)
+				{
+					if(existing->source != BonusSource::SPELL_EFFECT || existing->type != bonus.type
+						|| existing->subtype != bonus.subtype || existing->turnsRemain >= bonus.turnsRemain)
+						continue;
+					std::lock_guard lock(updatedBonusMutex);
+					const auto key = std::make_pair(existing, bonus.turnsRemain);
+					auto & extended = updatedBonusCache[key];
+					if(!extended)
+					{
+						extended = std::make_shared<Bonus>(*existing);
+						extended->turnsRemain = bonus.turnsRemain;
+					}
+					existing = extended;
+				}
 			}
 			else
 			{
-				auto b = std::make_shared<Bonus>(bonus);
-				ret->push_back(b);
+				ret->push_back(updated);
 			}
 		}
 	}
 
-	for(auto & bonus : bonusesToAdd)
+	for(const auto & bonus : bonusesToAdd)
 	{
-		auto b = std::make_shared<Bonus>(bonus);
-		if(selector(b.get()))
-			ret->push_back(b);
+		if(selector(bonus.get()))
+			ret->push_back(bonus);
 	}
 	//TODO limiters?
 	return ret;
@@ -177,7 +174,8 @@ int32_t StackWithBonuses::getTreeVersion() const
 
 void StackWithBonuses::addUnitBonus(const std::vector<Bonus> & bonus)
 {
-	vstd::concatenate(bonusesToAdd, bonus);
+	for(const auto & item : bonus)
+		bonusesToAdd.push_back(std::make_shared<Bonus>(item));
 	treeVersionLocal++;
 }
 
@@ -185,7 +183,8 @@ void StackWithBonuses::updateUnitBonus(const std::vector<Bonus> & bonus)
 {
 	//TODO: optimize, actualize to last value
 
-	vstd::concatenate(bonusesToUpdate, bonus);
+	for(const auto & item : bonus)
+		bonusesToUpdate.push_back(std::make_shared<Bonus>(item));
 	treeVersionLocal++;
 }
 
@@ -217,8 +216,8 @@ void StackWithBonuses::removeUnitBonus(const CSelector & selector)
 	for(auto b : *toRemove)
 		bonusesToRemove.insert(b);
 
-	vstd::erase_if(bonusesToAdd, [&](const Bonus & b){return selector(&b);});
-	vstd::erase_if(bonusesToUpdate, [&](const Bonus & b){return selector(&b);});
+	vstd::erase_if(bonusesToAdd, [&](const std::shared_ptr<Bonus> & b){return selector(b.get());});
+	vstd::erase_if(bonusesToUpdate, [&](const std::shared_ptr<Bonus> & b){return selector(b.get());});
 
 	treeVersionLocal++;
 }
@@ -325,7 +324,21 @@ void HypotheticBattle::nextRound()
 	for(auto unit : battleAliveUnits())
 	{
 		auto forUpdate = getForUpdate(unit->unitId());
-		//TODO: update Bonus::NTurns effects
+		const auto timed = forUpdate->getBonuses(Bonus::NTurns);
+		std::vector<Bonus> remaining;
+		for(const auto & bonus : *timed)
+		{
+			if(bonus->turnsRemain > 1)
+			{
+				remaining.push_back(*bonus);
+				--remaining.back().turnsRemain;
+			}
+		}
+		if(!timed->empty())
+		{
+			forUpdate->removeUnitBonus(Bonus::NTurns);
+			forUpdate->addUnitBonus(remaining);
+		}
 		forUpdate->afterNewRound();
 	}
 }

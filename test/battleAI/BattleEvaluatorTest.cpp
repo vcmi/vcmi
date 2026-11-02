@@ -20,6 +20,9 @@
 #include "lib/battle/CPlayerBattleCallback.h"
 #include "lib/callback/CBattleCallback.h"
 #include "lib/callback/GameRandomizer.h"
+#include "lib/bonuses/BonusCustomTypes.h"
+#include "lib/spells/CSpell.h"
+#include "lib/spells/ISpellMechanics.h"
 #include "server/CGameHandler.h"
 #include "server/battles/BattleProcessor.h"
 
@@ -34,6 +37,16 @@ public:
 		startGame();
 		startBattle();
 		battle()->stacks.clear();
+	}
+
+	static void prepareDamageComparison(std::initializer_list<CStack *> units)
+	{
+		for(auto * unit : units)
+		{
+			unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+			blockRetaliation(unit);
+			forceMaximumDamage(unit);
+		}
 	}
 
 	/// Snapshots the battle as BattleAI of the defending player sees it
@@ -69,6 +82,15 @@ public:
 		evaluateAsDefender();
 		return AttackPossibility::evaluate(BattleAttackInfo(attacker, defender, 0, false), from, damageCache, hypotheticalBattle);
 	}
+
+	CStack * addPetrifyingBasilisks()
+	{
+		auto * basilisks = addStack(BattleSide::ATTACKER, creatureByName("core:basilisk"), BattleHex(8, 5), 400);
+		basilisks->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL_AFTER_ATTACK,
+			BonusSource::OTHER, 80, BonusSourceID(), BonusSubtypeID(SpellID(SpellID::STONE_GAZE))));
+		return basilisks;
+	}
+
 
 	void checkMoraleShotProtectsAlly(const std::string & creature, int enemyCount, int randomSeed)
 	{
@@ -178,6 +200,224 @@ TEST_F(BattleEvaluatorTest, WaitingShooterCanShootAfterEnemyAdvances)
 	EXPECT_LT(enemy->getAvailableHealth(), health);
 }
 
+TEST_F(BattleEvaluatorTest, WaitedAttackAccountsForCasualties)
+{
+	auto * zombies = addStack(BattleSide::ATTACKER, creatureByName("core:zombie"), BattleHex(7, 5), 40);
+	auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(8, 5), 40);
+	prepareDamageComparison({zombies, swordsmen});
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), swordsmen);
+	evaluateAsDefender();
+	PotentialTargets targets(swordsmen, damageCache, hypotheticalBattle);
+	const auto attack = AttackPossibility::evaluate(BattleAttackInfo(swordsmen, zombies, 0, false), swordsmen->getPosition(), damageCache, hypotheticalBattle);
+	auto waited = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	waited->makeWait(swordsmen);
+	BattleExchangeEvaluator evaluator(callback->getBattle(BattleID(0)), gameHandler, 1.0f, 1);
+	evaluator.updateReachabilityMap(waited);
+	const auto score = evaluator.evaluateExchange(attack, 0, targets, damageCache, waited);
+	const auto initialSwordsmen = swordsmen->acquireState();
+	const auto initialZombies = zombies->acquireState();
+	ASSERT_TRUE(act(BattleAction::makeWait(swordsmen)));
+	ASSERT_EQ(battle()->battleActiveUnit(), zombies);
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(zombies, swordsmen, zombies->getPosition())));
+	ASSERT_TRUE(swordsmen->alive());
+	ASSERT_LT(swordsmen->getCount(), initialSwordsmen->getCount());
+	ASSERT_EQ(battle()->battleActiveUnit(), swordsmen);
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(swordsmen, zombies, swordsmen->getPosition())));
+	const auto dealt = initialZombies->getAvailableHealth() - zombies->getAvailableHealth();
+	const auto received = initialSwordsmen->getAvailableHealth() - swordsmen->getAvailableHealth();
+	const auto expected = AttackPossibility::calculateDamageReduce(initialZombies.get(), dealt, damageCache)
+		- AttackPossibility::calculateDamageReduce(initialSwordsmen.get(), received, damageCache);
+	EXPECT_NEAR(score * 2, expected, 0.01f);
+}
+
+TEST_F(BattleEvaluatorTest, WaitedShooterAttacksBlockerInsteadOfDistantTarget)
+{
+	auto * target = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(1, 5), 1000);
+	auto * blocker = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(10, 5), 1000);
+	auto * shooter = addStack(BattleSide::DEFENDER, creatureByName("core:marksman"), BattleHex(14, 5), 100);
+	blocker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACKS_SPEED, BonusSource::OTHER, 1, BonusSourceID()));
+	for(auto * unit : {target, blocker, shooter})
+		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	blockRetaliation(shooter);
+	forceMaximumDamage(shooter);
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	evaluateAsDefender();
+	const auto shot = AttackPossibility::evaluate(BattleAttackInfo(shooter, target, 0, true), shooter->getPosition(), damageCache, hypotheticalBattle);
+	ASSERT_TRUE(act(BattleAction::makeWait(shooter)));
+	ASSERT_EQ(battle()->battleActiveUnit(), blocker);
+	ASSERT_TRUE(act(BattleAction::makeMove(blocker, BattleHex(13, 5))));
+	ASSERT_EQ(battle()->battleActiveUnit(), target);
+	ASSERT_TRUE(act(BattleAction::makeDefend(target)));
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	ASSERT_FALSE(battle()->battleCanShoot(shooter));
+	evaluateAsDefender();
+	PotentialTargets targets(shooter, damageCache, hypotheticalBattle);
+	BattleExchangeEvaluator evaluator(callback->getBattle(BattleID(0)), gameHandler, 1.0f, 1);
+	evaluator.updateReachabilityMap(hypotheticalBattle);
+	const auto score = evaluator.evaluateExchange(shot, 0, targets, damageCache, hypotheticalBattle);
+	const auto original = blocker->acquireState();
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(shooter, blocker, shooter->getPosition())));
+	const auto dealt = original->getAvailableHealth() - blocker->getAvailableHealth();
+	ASSERT_GT(dealt, 0);
+	EXPECT_NEAR(score * 2, AttackPossibility::calculateDamageReduce(original.get(), dealt, damageCache), 0.01f);
+}
+
+TEST_F(BattleEvaluatorTest, WaitedShooterUsesMeleeDamageAfterBlockingAttack)
+{
+	auto * blocker = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(11, 5), 300);
+	auto * shooter = addStack(BattleSide::DEFENDER, creatureByName("core:marksman"), BattleHex(14, 5), 30);
+	shooter->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::OTHER, 20, BonusSourceID()));
+	prepareDamageComparison({blocker, shooter});
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	evaluateAsDefender();
+	PotentialTargets targets(shooter, damageCache, hypotheticalBattle);
+	const auto shot = AttackPossibility::evaluate(BattleAttackInfo(shooter, blocker, 0, true), shooter->getPosition(), damageCache, hypotheticalBattle);
+	auto waited = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	waited->makeWait(shooter);
+	BattleExchangeEvaluator evaluator(callback->getBattle(BattleID(0)), gameHandler, 1.0f, 2);
+	evaluator.updateReachabilityMap(waited);
+	const auto score = evaluator.evaluateExchange(shot, 0, targets, damageCache, waited);
+	const auto originalShooter = shooter->acquireState();
+	const auto originalBlocker = blocker->acquireState();
+	ASSERT_TRUE(act(BattleAction::makeWait(shooter)));
+	ASSERT_EQ(battle()->battleActiveUnit(), blocker);
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(blocker, shooter, BattleHex(13, 5))));
+	ASSERT_TRUE(shooter->alive());
+	ASSERT_TRUE(blocker->alive());
+	ASSERT_FALSE(battle()->battleCanShoot(shooter));
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(shooter, blocker, shooter->getPosition())));
+	const auto dealt = originalBlocker->getAvailableHealth() - blocker->getAvailableHealth();
+	const auto received = originalShooter->getAvailableHealth() - shooter->getAvailableHealth();
+	ASSERT_GT(dealt, 0);
+	float expected = AttackPossibility::calculateDamageReduce(originalBlocker.get(), dealt, damageCache)
+		- AttackPossibility::calculateDamageReduce(originalShooter.get(), received, damageCache);
+	ASSERT_TRUE(blocker->alive());
+	ASSERT_TRUE(shooter->alive());
+	ASSERT_FALSE(battle()->battleCanShoot(shooter));
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	const auto secondBlocker = blocker->acquireState();
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(shooter, blocker, shooter->getPosition())));
+	ASSERT_TRUE(blocker->alive());
+	expected += AttackPossibility::calculateDamageReduce(secondBlocker.get(), secondBlocker->getAvailableHealth() - blocker->getAvailableHealth(), damageCache);
+	ASSERT_EQ(battle()->battleActiveUnit(), blocker);
+	const auto secondShooter = shooter->acquireState();
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(blocker, shooter, blocker->getPosition())));
+	ASSERT_TRUE(shooter->alive());
+	expected -= AttackPossibility::calculateDamageReduce(secondShooter.get(), secondShooter->getAvailableHealth() - shooter->getAvailableHealth(), damageCache);
+	EXPECT_NEAR(score, expected, 0.01f);
+}
+
+TEST_F(BattleEvaluatorTest, WaitingShooterRetargetsAfterAllyKillsOriginalTarget)
+{
+	auto * target = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(5, 5), 1);
+	auto * survivor = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(1, 5), 500);
+	auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(4, 5), 100);
+	auto * shooter = addStack(BattleSide::DEFENDER, creatureByName("core:marksman"), BattleHex(15, 5), 30);
+	prepareDamageComparison({target, survivor, swordsmen, shooter});
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	evaluateAsDefender();
+	PotentialTargets targets(shooter, damageCache, hypotheticalBattle);
+	const auto shot = AttackPossibility::evaluate(BattleAttackInfo(shooter, target, 0, true), shooter->getPosition(), damageCache, hypotheticalBattle);
+	auto waited = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	waited->makeWait(shooter);
+	BattleExchangeEvaluator evaluator(callback->getBattle(BattleID(0)), gameHandler, 1.0f, 1);
+	evaluator.updateReachabilityMap(waited);
+	const auto score = evaluator.evaluateExchange(shot, 0, targets, damageCache, waited);
+	const auto initialTarget = target->acquireState();
+	const auto initialSurvivor = survivor->acquireState();
+	const auto initialSwordsmen = swordsmen->acquireState();
+	ASSERT_TRUE(act(BattleAction::makeWait(shooter)));
+	ASSERT_EQ(battle()->battleActiveUnit(), swordsmen);
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(swordsmen, target, swordsmen->getPosition())));
+	ASSERT_FALSE(target->alive());
+	ASSERT_EQ(battle()->battleActiveUnit(), survivor);
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(survivor, swordsmen, BattleHex(3, 5))));
+	ASSERT_TRUE(swordsmen->alive());
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	ASSERT_TRUE(battle()->battleCanShoot(shooter, survivor->getPosition()));
+	ASSERT_GT(battle()->getReachability(shooter).distToNearestNeighbour(shooter, survivor), shooter->getMovementRange());
+	ASSERT_TRUE(act(BattleAction::makeShotAttack(shooter, survivor)));
+	ASSERT_TRUE(survivor->alive());
+	const auto expected = AttackPossibility::calculateDamageReduce(initialTarget.get(), initialTarget->getAvailableHealth(), damageCache)
+		+ AttackPossibility::calculateDamageReduce(initialSurvivor.get(), initialSurvivor->getAvailableHealth() - survivor->getAvailableHealth(), damageCache)
+		- AttackPossibility::calculateDamageReduce(initialSwordsmen.get(), initialSwordsmen->getAvailableHealth() - swordsmen->getAvailableHealth(), damageCache);
+	EXPECT_NEAR(score * 2, expected, 0.01f);
+}
+
+TEST_F(BattleEvaluatorTest, BlockedWaitingShooterRetargetsReachableEnemyAfterTargetDies)
+{
+	auto * target = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(5, 5), 1);
+	auto * blocker = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(12, 5), 1);
+	auto * distant = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(1, 5), 500);
+	auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(4, 5), 100);
+	auto * shooter = addStack(BattleSide::DEFENDER, creatureByName("core:marksman"), BattleHex(15, 5), 30);
+	blocker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACKS_SPEED, BonusSource::OTHER, 1, BonusSourceID()));
+	prepareDamageComparison({target, blocker, distant, swordsmen, shooter});
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	evaluateAsDefender();
+	const auto shot = AttackPossibility::evaluate(BattleAttackInfo(shooter, target, 0, true), shooter->getPosition(), damageCache, hypotheticalBattle);
+	ASSERT_TRUE(act(BattleAction::makeWait(shooter)));
+	ASSERT_EQ(battle()->battleActiveUnit(), swordsmen);
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(swordsmen, target, swordsmen->getPosition())));
+	ASSERT_FALSE(target->alive());
+	ASSERT_EQ(battle()->battleActiveUnit(), blocker);
+	ASSERT_TRUE(act(BattleAction::makeMove(blocker, BattleHex(14, 5))));
+	ASSERT_EQ(battle()->battleActiveUnit(), distant);
+	ASSERT_TRUE(act(BattleAction::makeDefend(distant)));
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	ASSERT_FALSE(battle()->battleCanShoot(shooter));
+	ASSERT_TRUE(battle()->isMeleeAttackPossible(shooter, blocker, shooter->getPosition()));
+	ASSERT_GT(battle()->getReachability(shooter).distToNearestNeighbour(shooter, distant), shooter->getMovementRange());
+	auto state = std::make_shared<HypotheticBattle>(gameHandler.get(), callback->getBattle(BattleID(0)));
+	PotentialTargets targets(shooter, damageCache, state);
+	BattleExchangeEvaluator evaluator(callback->getBattle(BattleID(0)), gameHandler, 1.0f, 1);
+	evaluator.updateReachabilityMap(state);
+	const auto score = evaluator.evaluateExchange(shot, 0, targets, damageCache, state);
+	const auto originalBlocker = blocker->acquireState();
+	const auto distantHealth = distant->getAvailableHealth();
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(shooter, blocker, shooter->getPosition())));
+	ASSERT_FALSE(blocker->alive());
+	EXPECT_EQ(distant->getAvailableHealth(), distantHealth);
+	EXPECT_NEAR(score * 2, AttackPossibility::calculateDamageReduce(originalBlocker.get(), originalBlocker->getAvailableHealth(), damageCache), 0.01f);
+}
+
+TEST_F(BattleEvaluatorTest, RestrictedFreeShooterUsesMeleeAgainstAdjacentTarget)
+{
+	auto * archers = addStack(BattleSide::ATTACKER, creatureByName("core:archer"), BattleHex(7, 5), 100);
+	auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(8, 5), 20);
+	archers->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::FREE_SHOOTING, BonusSource::OTHER,
+		0, BonusSourceID(), BonusSubtypeID(BonusCustomSubtype::freeShootingExceptAdjacent)));
+	prepareDamageComparison({archers, swordsmen});
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), swordsmen);
+	ASSERT_TRUE(battle()->battleCanShoot(archers));
+	ASSERT_FALSE(battle()->battleCanShoot(archers, swordsmen->getPosition()));
+	evaluateAsDefender();
+	PotentialTargets targets(swordsmen, damageCache, hypotheticalBattle);
+	BattleExchangeEvaluator evaluator(callback->getBattle(BattleID(0)), gameHandler, 1.0f, 1);
+	evaluator.updateReachabilityMap(hypotheticalBattle);
+	const auto attack = AttackPossibility::evaluate(BattleAttackInfo(swordsmen, archers, 0, false), swordsmen->getPosition(), damageCache, hypotheticalBattle);
+	const auto score = evaluator.evaluateExchange(attack, 0, targets, damageCache, hypotheticalBattle);
+	const auto originalArchers = archers->acquireState();
+	const auto originalSwordsmen = swordsmen->acquireState();
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(swordsmen, archers, swordsmen->getPosition())));
+	ASSERT_TRUE(archers->alive());
+	ASSERT_EQ(battle()->battleActiveUnit(), archers);
+	ASSERT_FALSE(battle()->battleCanShoot(archers, swordsmen->getPosition()));
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(archers, swordsmen, archers->getPosition())));
+	ASSERT_TRUE(swordsmen->alive());
+	const auto expected = AttackPossibility::calculateDamageReduce(originalArchers.get(), originalArchers->getAvailableHealth() - archers->getAvailableHealth(), damageCache)
+		- AttackPossibility::calculateDamageReduce(originalSwordsmen.get(), originalSwordsmen->getAvailableHealth() - swordsmen->getAvailableHealth(), damageCache)
+		+ attack.shootersBlockedDmg;
+	EXPECT_NEAR(score * 2, expected, 0.01f);
+}
+
 TEST_F(BattleEvaluatorTest, MoraleAttackCanSwitchToSurvivingEnemy)
 {
 	const auto * first = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(7, 5), 1);
@@ -200,6 +440,405 @@ TEST_F(BattleEvaluatorTest, MoraleAttackCanSwitchToSurvivingEnemy)
 	ASSERT_EQ(next.actionType, EActionType::WALK_AND_ATTACK);
 	ASSERT_EQ(next.target.size(), 2);
 	EXPECT_EQ(next.target[1].hexValue, survivor->getPosition());
+}
+
+TEST_F(BattleEvaluatorTest, ReturningHarpyLeavesShooterUnblocked)
+{
+	const auto * shooter = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(7, 5), 50);
+	const auto * fodder = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(8, 4), 1);
+	const auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpyHag"), BattleHex(12, 5), 10);
+	const BattleHex attackFrom(8, 5);
+	const auto attack = evaluateMelee(harpies, fodder, attackFrom);
+	const auto predictedPosition = attack.attackerState->getPosition();
+
+	ASSERT_TRUE(this->attackFrom(harpies, fodder->getPosition(), attackFrom));
+	ASSERT_TRUE(harpies->alive());
+	ASSERT_TRUE(battle()->battleCanShoot(shooter));
+	EXPECT_EQ(predictedPosition, harpies->getPosition()) << "returning Harpy prediction differs from server position";
+	EXPECT_EQ(attack.shootersBlockedDmg, 0) << "returning Harpy cannot block the shooter from its attack hex";
+}
+
+TEST_F(BattleEvaluatorTest, RetaliationBindPreventsHarpyReturnInExchange)
+{
+	const auto * dendroids = addStack(BattleSide::ATTACKER, creatureByName("core:dendroidGuard"), BattleHex(8, 5), 100);
+	const auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpy"), BattleHex(3, 5), 1000);
+	const BattleHex attackFrom(7, 5);
+	const auto attack = evaluateMelee(harpies, dendroids, attackFrom);
+	BattleExchangeVariant exchange;
+	exchange.trackAttack(attack, hypotheticalBattle, damageCache);
+	const auto * predicted = hypotheticalBattle->battleGetUnitByID(harpies->unitId());
+	EXPECT_TRUE(predicted->hasBonusOfType(BonusType::BIND_EFFECT));
+
+	ASSERT_TRUE(this->attackFrom(harpies, dendroids->getPosition(), attackFrom));
+	ASSERT_TRUE(harpies->alive());
+	ASSERT_TRUE(dendroids->alive());
+	ASSERT_TRUE(harpies->hasBonusOfType(BonusType::BIND_EFFECT));
+	ASSERT_EQ(harpies->getPosition(), attackFrom);
+	EXPECT_EQ(attack.attackerState->getPosition(), harpies->getPosition());
+	EXPECT_EQ(predicted->getPosition(), harpies->getPosition());
+}
+
+TEST_F(BattleEvaluatorTest, HarpyReturnsWhenBindRetaliationIsBlocked)
+{
+	const auto * dendroids = addStack(BattleSide::ATTACKER, creatureByName("core:dendroidGuard"), BattleHex(8, 5), 100);
+	auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpy"), BattleHex(3, 5), 1000);
+	blockRetaliation(harpies);
+	const BattleHex start = harpies->getPosition();
+	const BattleHex attackFrom(7, 5);
+	const auto attack = evaluateMelee(harpies, dendroids, attackFrom);
+
+	ASSERT_TRUE(this->attackFrom(harpies, dendroids->getPosition(), attackFrom));
+	ASSERT_TRUE(harpies->alive());
+	EXPECT_FALSE(harpies->hasBonusOfType(BonusType::BIND_EFFECT));
+	ASSERT_EQ(harpies->getPosition(), start);
+	EXPECT_EQ(attack.attackerState->getPosition(), harpies->getPosition());
+}
+
+TEST_F(BattleEvaluatorTest, DestroyedCloneCannotBindReturningHarpy)
+{
+	addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(1, 8), 1);
+	auto * dendroids = addStack(BattleSide::ATTACKER, creatureByName("core:dendroidGuard"), BattleHex(8, 5), 1000);
+	const auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpy"), BattleHex(3, 5), 10);
+	makeClone(dendroids);
+	const auto health = dendroids->getAvailableHealth();
+	const BattleHex start = harpies->getPosition();
+	const BattleHex from(7, 5);
+	const auto attack = evaluateMelee(harpies, dendroids, from);
+	BattleExchangeVariant exchange;
+	exchange.trackAttack(attack, hypotheticalBattle, damageCache);
+	EXPECT_FALSE(hypotheticalBattle->battleGetUnitByID(harpies->unitId())->hasBonusOfType(BonusType::BIND_EFFECT));
+	const auto damage = battle()->battleEstimateDamage(BattleAttackInfo(harpies, dendroids, 0, false)).damage;
+	ASSERT_GT(damage.min, 0);
+	ASSERT_LT(damage.max, health);
+	ASSERT_TRUE(this->attackFrom(harpies, dendroids->getPosition(), from));
+	ASSERT_FALSE(dendroids->alive());
+	ASSERT_FALSE(harpies->hasBonusOfType(BonusType::BIND_EFFECT));
+	ASSERT_EQ(harpies->getPosition(), start);
+	EXPECT_EQ(attack.attackerState->getPosition(), harpies->getPosition());
+}
+
+TEST_F(BattleEvaluatorTest, RetaliationPetrificationPreventsHarpyReturnInExchange)
+{
+	auto * basilisks = addPetrifyingBasilisks();
+	const auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpy"), BattleHex(12, 5), 1000);
+	const BattleHex attackFrom(9, 5);
+	const auto attack = evaluateMelee(harpies, basilisks, attackFrom);
+	BattleExchangeVariant exchange;
+	exchange.trackAttack(attack, hypotheticalBattle, damageCache);
+	const auto * predicted = hypotheticalBattle->battleGetUnitByID(harpies->unitId());
+	EXPECT_TRUE(predicted->hasBonusOfType(BonusType::NOT_ACTIVE));
+
+	ASSERT_TRUE(this->attackFrom(harpies, basilisks->getPosition(), attackFrom));
+	ASSERT_TRUE(harpies->alive());
+	ASSERT_TRUE(basilisks->alive());
+	ASSERT_TRUE(harpies->hasBonusOfType(BonusType::NOT_ACTIVE));
+	ASSERT_EQ(harpies->getPosition(), attackFrom);
+	EXPECT_EQ(attack.attackerState->getPosition(), harpies->getPosition());
+	EXPECT_EQ(predicted->getPosition(), harpies->getPosition());
+}
+
+TEST_F(BattleEvaluatorTest, PetrifiedHarpyDoesNotAttackOnNextTurn)
+{
+	const auto * reserve = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(1, 8), 1);
+	auto * basilisks = addPetrifyingBasilisks();
+	auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpy"), BattleHex(12, 5), 500);
+	harpies->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::STACK_HEALTH, BonusSource::OTHER, 100, BonusSourceID()));
+	for(auto * unit : {basilisks, harpies})
+		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), harpies);
+	ASSERT_TRUE(act(BattleAction::makeWait(harpies)));
+	ASSERT_EQ(battle()->battleActiveUnit(), basilisks);
+	ASSERT_TRUE(act(BattleAction::makeDefend(basilisks)));
+	ASSERT_EQ(battle()->battleActiveUnit(), reserve);
+	ASSERT_TRUE(act(BattleAction::makeDefend(reserve)));
+	ASSERT_EQ(battle()->battleActiveUnit(), harpies);
+	evaluateAsDefender();
+	hypotheticalBattle->removeUnit(reserve->unitId());
+	PotentialTargets targets(harpies, damageCache, hypotheticalBattle);
+	BattleExchangeEvaluator evaluator(callback->getBattle(BattleID(0)), gameHandler, 1.0f, 2);
+	evaluator.updateReachabilityMap(hypotheticalBattle);
+	const BattleHex from(9, 5);
+	const auto attack = AttackPossibility::evaluate(BattleAttackInfo(harpies, basilisks, 0, false), from, damageCache, hypotheticalBattle);
+	const auto score = evaluator.evaluateExchange(attack, 0, targets, damageCache, hypotheticalBattle);
+	auto expectedState = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	BattleExchangeVariant expected;
+	expected.trackAttack(attack, expectedState, damageCache);
+	expectedState->nextRound();
+	expected.trackAttack(expectedState->getForUpdate(basilisks->unitId()), expectedState->getForUpdate(harpies->unitId()), false, false,
+		damageCache, expectedState, BattleExchangeVariant::AttackMode::FIRST_STRIKE);
+	EXPECT_FALSE(expectedState->battleGetUnitByID(harpies->unitId())->hasBonusOfType(BonusType::NOT_ACTIVE));
+	ASSERT_TRUE(expectedState->battleGetUnitByID(basilisks->unitId())->alive());
+	expected.trackAttack(expectedState->getForUpdate(harpies->unitId()), expectedState->getForUpdate(basilisks->unitId()), false, true,
+		damageCache, expectedState, BattleExchangeVariant::AttackMode::FIRST_STRIKE);
+	EXPECT_NEAR(score, expected.getScore().enemyDamageReduce - expected.getScore().ourDamageReduce, 0.01f);
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(harpies, basilisks->getPosition(), from)));
+	ASSERT_TRUE(harpies->hasBonusOfType(BonusType::NOT_ACTIVE));
+	ASSERT_EQ(battle()->battleActiveUnit(), basilisks);
+	basilisks->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL_AFTER_ATTACK,
+		BonusSource::OTHER, -100, BonusSourceID(), BonusSubtypeID(SpellID(SpellID::STONE_GAZE))));
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(basilisks, harpies, basilisks->getPosition())));
+	ASSERT_FALSE(harpies->hasBonusOfType(BonusType::NOT_ACTIVE));
+	ASSERT_TRUE(basilisks->alive());
+	ASSERT_EQ(battle()->battleActiveUnit(), harpies);
+	const auto health = basilisks->getAvailableHealth();
+	ASSERT_TRUE(act(BattleAction::makeMeleeAttack(harpies, basilisks, harpies->getPosition())));
+	EXPECT_LT(basilisks->getAvailableHealth(), health);
+}
+
+TEST_F(BattleEvaluatorTest, RetaliationSlowRemovesHasteInExchange)
+{
+	auto * swordsmen = addStack(BattleSide::ATTACKER, creatureByName("core:swordsman"), BattleHex(8, 5), 1000);
+	const auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpy"), BattleHex(3, 5), 1000);
+	swordsmen->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::SPELL_AFTER_ATTACK,
+		BonusSource::OTHER, 100, BonusSourceID(), BonusSubtypeID(SpellID(SpellID::SLOW))));
+	const int baseSpeed = harpies->getMovementRange();
+	teachSpell(defenderSideHero, SpellID::HASTE);
+	ASSERT_TRUE(castOn(defenderSideHero, SpellID::HASTE, harpies));
+	ASSERT_GT(harpies->getMovementRange(), baseSpeed);
+	const BattleHex attackFrom(7, 5);
+	const auto attack = evaluateMelee(harpies, swordsmen, attackFrom);
+	BattleExchangeVariant exchange;
+	exchange.trackAttack(attack, hypotheticalBattle, damageCache);
+	const auto * predicted = hypotheticalBattle->battleGetUnitByID(harpies->unitId());
+	const int predictedSpeed = predicted->getMovementRange();
+
+	ASSERT_TRUE(this->attackFrom(harpies, swordsmen->getPosition(), attackFrom));
+	ASSERT_TRUE(harpies->alive());
+	ASSERT_TRUE(swordsmen->alive());
+	ASSERT_LT(harpies->getMovementRange(), baseSpeed);
+	EXPECT_EQ(predictedSpeed, harpies->getMovementRange());
+	EXPECT_EQ(attack.attackerState->getPosition(), harpies->getPosition());
+}
+
+TEST_F(BattleEvaluatorTest, RetaliationDispelsHypotheticalHasteBeforeReturn)
+{
+	const auto * flies = addStack(BattleSide::ATTACKER, creatureByName("core:serpentFly"), BattleHex(12, 5), 1000);
+	const auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpy"), BattleHex(3, 5), 1000);
+	teachSpell(defenderSideHero, SpellID::HASTE);
+	evaluateAsDefender();
+	spells::BattleCast cast(hypotheticalBattle.get(), defenderSideHero, spells::Mode::HERO, SpellID(SpellID::HASTE).toSpell());
+	cast.castEval(hypotheticalBattle->getServerCallback(), spells::Target{spells::Destination(hypotheticalBattle->battleGetUnitByID(harpies->unitId()))});
+	const auto * hasted = hypotheticalBattle->battleGetUnitByID(harpies->unitId());
+	ASSERT_GT(hasted->getMovementRange(), harpies->getMovementRange());
+	const BattleHex from(11, 5);
+	const auto attack = AttackPossibility::evaluate(BattleAttackInfo(hasted, flies, 0, false), from, damageCache, hypotheticalBattle);
+	BattleExchangeVariant exchange;
+	exchange.trackAttack(attack, hypotheticalBattle, damageCache);
+	const auto * predicted = hypotheticalBattle->battleGetUnitByID(harpies->unitId());
+	ASSERT_TRUE(castOn(defenderSideHero, SpellID::HASTE, harpies));
+	ASSERT_TRUE(this->attackFrom(harpies, flies->getPosition(), from));
+	ASSERT_TRUE(harpies->alive());
+	ASSERT_TRUE(flies->alive());
+	EXPECT_EQ(predicted->getMovementRange(), harpies->getMovementRange());
+	EXPECT_EQ(predicted->getPosition(), harpies->getPosition());
+}
+
+TEST_F(BattleEvaluatorTest, NestedBattleCanRemoveExtendedSpell)
+{
+	addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(12, 5), 100);
+	const auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpy"), BattleHex(3, 5), 10);
+	teachSpell(defenderSideHero, SpellID::HASTE);
+	ASSERT_TRUE(castOn(defenderSideHero, SpellID::HASTE, harpies));
+	evaluateAsDefender();
+	const auto haste = harpies->getBonus(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::HASTE))));
+	ASSERT_NE(haste, nullptr);
+	Bonus extended = *haste;
+	++extended.turnsRemain;
+	hypotheticalBattle->updateUnitBonus(harpies->unitId(), {extended});
+	auto child = std::make_shared<HypotheticBattle>(gameHandler.get(), hypotheticalBattle);
+	child->removeUnitBonus(harpies->unitId(), {extended});
+	EXPECT_FALSE(child->battleGetUnitByID(harpies->unitId())->hasBonus(Selector::sourceType()(BonusSource::SPELL_EFFECT)));
+}
+
+TEST_F(BattleEvaluatorTest, HypotheticalRoundsExpireTimedEffects)
+{
+	addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(12, 5), 100);
+	auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpy"), BattleHex(3, 5), 10);
+	auto effect = std::make_shared<Bonus>(BonusDuration::N_TURNS, BonusType::NOT_ACTIVE, BonusSource::OTHER, 0, BonusSourceID());
+	effect->turnsRemain = 2;
+	harpies->addNewBonus(effect);
+	beginCombat();
+	evaluateAsDefender();
+	for(int round = 0; round < 2; ++round)
+	{
+		hypotheticalBattle->nextRound();
+		battle()->nextRound();
+		EXPECT_EQ(hypotheticalBattle->battleGetUnitByID(harpies->unitId())->canMove(), harpies->canMove());
+	}
+	EXPECT_TRUE(harpies->canMove());
+}
+
+TEST_F(BattleEvaluatorTest, ReturningHarpyWithLostSpeedUsesServerDestination)
+{
+	addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(1, 8), 10);
+	const auto * fodder = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(5, 5), 1);
+	auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpyHag"), BattleHex(14, 5), 10);
+	harpies->addNewBonus(std::make_shared<Bonus>(BonusDuration::UNTIL_OWN_ATTACK, BonusType::STACKS_SPEED, BonusSource::OTHER, 2, BonusSourceID()));
+	const BattleHex start = harpies->getPosition();
+	const BattleHex attackFrom(6, 5);
+	const auto attack = evaluateMelee(harpies, fodder, attackFrom);
+	const auto predictedPosition = attack.attackerState->getPosition();
+
+	ASSERT_TRUE(this->attackFrom(harpies, fodder->getPosition(), attackFrom));
+	ASSERT_TRUE(harpies->alive());
+	ASSERT_NE(harpies->getPosition(), start);
+	EXPECT_EQ(predictedPosition, harpies->getPosition()) << "speed loss should shorten the predicted return";
+}
+
+TEST_F(BattleEvaluatorTest, ReturningGroundUnitWithLostSpeedStopsPartway)
+{
+	addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(1, 8), 10);
+	const auto * fodder = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(5, 5), 1);
+	auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(10, 5), 10);
+	swordsmen->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::RETURN_AFTER_STRIKE, BonusSource::OTHER, 0, BonusSourceID()));
+	swordsmen->addNewBonus(std::make_shared<Bonus>(BonusDuration::UNTIL_OWN_ATTACK, BonusType::STACKS_SPEED, BonusSource::OTHER, 2, BonusSourceID()));
+	const BattleHex start = swordsmen->getPosition();
+	const BattleHex attackFrom(6, 5);
+	const auto attack = evaluateMelee(swordsmen, fodder, attackFrom);
+	const auto predictedPosition = attack.attackerState->getPosition();
+
+	ASSERT_TRUE(this->attackFrom(swordsmen, fodder->getPosition(), attackFrom));
+	ASSERT_TRUE(swordsmen->alive());
+	ASSERT_NE(swordsmen->getPosition(), start);
+	ASSERT_NE(swordsmen->getPosition(), attackFrom);
+	EXPECT_EQ(predictedPosition, swordsmen->getPosition());
+}
+
+TEST_F(BattleEvaluatorTest, MeleeAttackReleasesShooterBlockInExchange)
+{
+	const auto * shooter = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(7, 5), 50);
+	const auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(8, 4), 100);
+	const auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(8, 5), 10);
+	const BattleHex attackFrom(9, 4);
+	ASSERT_FALSE(battle()->battleCanShoot(shooter));
+	evaluateAsDefender();
+	const auto attack = AttackPossibility::evaluate(BattleAttackInfo(swordsmen, enemy, 0, false), attackFrom, damageCache, hypotheticalBattle);
+	BattleExchangeVariant exchange;
+	exchange.trackAttack(attack, hypotheticalBattle, damageCache);
+	const auto * predictedSwordsmen = hypotheticalBattle->battleGetUnitByID(swordsmen->unitId());
+	const auto * predictedShooter = hypotheticalBattle->battleGetUnitByID(shooter->unitId());
+
+	ASSERT_TRUE(this->attackFrom(swordsmen, enemy->getPosition(), attackFrom));
+	ASSERT_TRUE(swordsmen->alive());
+	ASSERT_TRUE(battle()->battleCanShoot(shooter));
+	EXPECT_EQ(predictedSwordsmen->getPosition(), swordsmen->getPosition());
+	EXPECT_TRUE(hypotheticalBattle->battleCanShoot(predictedShooter)) << "moving attacker should release the shooter in the exchange";
+}
+
+TEST_F(BattleEvaluatorTest, HarpiesCanStayToBlockAnEnemyShooter)
+{
+	auto * shooter = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(7, 5), 50);
+	auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpyHag"), BattleHex(12, 5), 10);
+	auto * ally = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(14, 5), 500);
+	for(auto * unit : {shooter, harpies})
+		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), harpies);
+	evaluateAsDefender();
+	BattleEvaluator evaluator(gameHandler, callback, hypotheticalBattle, damageCache, harpies,
+		defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+	const auto action = evaluator.selectStackAction(harpies);
+	ASSERT_EQ(action.actionType, EActionType::WALK_AND_ATTACK_NO_RETURN) << "Harpies should stay to prevent the Marksmen from shooting";
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(harpies->unitSide()), action));
+	ASSERT_TRUE(harpies->alive());
+	ASSERT_FALSE(battle()->battleCanShoot(shooter));
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	const auto enemyCallback = std::make_shared<CBattleCallback>(attackerSideHero->getOwner(), nullptr);
+	enemyCallback->onBattleStarted(battle());
+	BattleEvaluator opponent(gameHandler, enemyCallback, shooter, attackerSideHero->getOwner(), BattleID(0), BattleSide::ATTACKER, 1.0f, 2);
+	const auto response = opponent.selectStackAction(shooter);
+	ASSERT_NE(response.actionType, EActionType::SHOOT);
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(shooter->unitSide()), response));
+	EXPECT_TRUE(harpies->alive());
+	EXPECT_TRUE(ally->alive());
+}
+
+TEST_F(BattleEvaluatorTest, ReturningHarpyAllowsShooterResponseInExchange)
+{
+	auto * shooter = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(7, 5), 50);
+	auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpyHag"), BattleHex(12, 5), 10);
+	auto * ally = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(14, 5), 500);
+	for(auto * unit : {shooter, harpies, ally})
+		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), harpies);
+	evaluateAsDefender();
+	PotentialTargets targets(harpies, damageCache, hypotheticalBattle);
+	BattleExchangeEvaluator evaluator(callback->getBattle(BattleID(0)), gameHandler, 1.0f, 1);
+	evaluator.updateReachabilityMap(hypotheticalBattle);
+	const BattleHex from(8, 5);
+	const BattleAttackInfo info(harpies, shooter, 0, false);
+	auto returning = AttackPossibility::evaluate(info, from, damageCache, hypotheticalBattle, true);
+	auto staying = AttackPossibility::evaluate(info, from, damageCache, hypotheticalBattle, false);
+	returning.shootersBlockedDmg = 0;
+	staying.shootersBlockedDmg = 0;
+	const auto returningScore = evaluator.evaluateExchange(returning, 0, targets, damageCache, hypotheticalBattle);
+	const auto stayingScore = evaluator.evaluateExchange(staying, 0, targets, damageCache, hypotheticalBattle);
+	EXPECT_GT(stayingScore, returningScore);
+
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(harpies->unitSide()),
+		BattleAction::makeMeleeAttack(harpies, shooter->getPosition(), from, true)));
+	ASSERT_TRUE(shooter->alive());
+	ASSERT_EQ(battle()->battleActiveUnit(), shooter);
+	ASSERT_TRUE(battle()->battleCanShoot(shooter));
+	const auto healthBefore = ally->getAvailableHealth();
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(shooter->unitSide()),
+		BattleAction::makeShotAttack(shooter, ally)));
+	EXPECT_LT(ally->getAvailableHealth(), healthBefore);
+}
+
+TEST_F(BattleEvaluatorTest, HarpiesReturnAfterKillingShooter)
+{
+	auto * distantShooter = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(1, 8), 10);
+	auto * target = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(7, 7), 20);
+	auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpyHag"), BattleHex(12, 5), 100);
+	for(auto * unit : {distantShooter, target, harpies})
+		unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), harpies);
+	const auto start = harpies->getPosition();
+	evaluateAsDefender();
+	BattleEvaluator evaluator(gameHandler, callback, hypotheticalBattle, damageCache, harpies,
+		defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+	const auto action = evaluator.selectStackAction(harpies);
+	ASSERT_EQ(action.actionType, EActionType::WALK_AND_ATTACK) << "a killed shooter cannot justify staying within the other shooter's full range";
+	ASSERT_EQ(action.target.size(), 2);
+	ASSERT_EQ(action.target[1].hexValue, target->getPosition());
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(harpies->unitSide()), action));
+	ASSERT_FALSE(target->alive());
+	ASSERT_EQ(harpies->getPosition(), start);
+	ASSERT_TRUE(battle()->battleHasShootingPenalty(distantShooter, harpies->getPosition()));
+	ASSERT_EQ(battle()->battleActiveUnit(), distantShooter);
+	const auto enemyCallback = std::make_shared<CBattleCallback>(attackerSideHero->getOwner(), nullptr);
+	enemyCallback->onBattleStarted(battle());
+	BattleEvaluator opponent(gameHandler, enemyCallback, distantShooter, attackerSideHero->getOwner(), BattleID(0), BattleSide::ATTACKER, 1.0f, 2);
+	const auto response = opponent.selectStackAction(distantShooter);
+	ASSERT_EQ(response.actionType, EActionType::SHOOT);
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(distantShooter->unitSide()), response));
+	EXPECT_GE(harpies->getCount(), 99);
+}
+
+TEST_F(BattleEvaluatorTest, HarpiesReturnWhenStayingExposesThemToMelee)
+{
+	auto * enemy = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(7, 5), 100);
+	auto * harpies = addStack(BattleSide::DEFENDER, creatureByName("core:harpyHag"), BattleHex(12, 5), 10);
+	harpies->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	beginCombat();
+	ASSERT_EQ(battle()->battleActiveUnit(), harpies);
+	const auto start = harpies->getPosition();
+	evaluateAsDefender();
+	BattleEvaluator evaluator(gameHandler, callback, hypotheticalBattle, damageCache, harpies,
+		defenderSideHero->getOwner(), BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+	const auto action = evaluator.selectStackAction(harpies);
+	ASSERT_EQ(action.actionType, EActionType::WALK_AND_ATTACK);
+	ASSERT_EQ(action.target.size(), 2);
+	EXPECT_EQ(BattleHex::getDistance(enemy->getPosition(), action.target[0].hexValue), 1);
+	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), battle()->sideToPlayer(harpies->unitSide()), action));
+	ASSERT_TRUE(enemy->alive());
+	EXPECT_EQ(harpies->getPosition(), start);
+	for(const auto & hex : battle()->battleGetAvailableHexes(enemy, false))
+		EXPECT_FALSE(battle()->isMeleeAttackPossible(enemy, harpies, hex));
 }
 
 TEST_F(BattleEvaluatorTest, AttacksSuitableTargetOnWayToMovementWaypoint)

@@ -18,6 +18,7 @@ class DamageCache
 {
 private:
 	std::unordered_map<uint32_t, std::unordered_map<uint32_t, float>> damageCache;
+	std::unordered_map<uint32_t, std::unordered_map<uint32_t, bool>> damageIsShooting;
 	std::unordered_map<uint32_t, float> unitValues;
 	std::map<BattleHex, std::unordered_map<uint32_t, int64_t>> obstacleDamage;
 	DamageCache * parent;
@@ -33,6 +34,7 @@ public:
 
 	void cacheDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
 	int64_t getDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
+	int64_t getDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb, bool shooting);
 	int64_t getObstacleDamage(const BattleHex & hex, const battle::Unit * defender);
 	int64_t getOriginalDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb);
     /// Value of a single creature of this unit, as it was when the cache was built
@@ -54,12 +56,16 @@ public:
 	std::shared_ptr<battle::CUnitState> attackerState;
 
 	std::vector<std::shared_ptr<battle::CUnitState>> affectedUnits;
+	std::vector<Bonus> attackerBonusesAdded;
+	std::vector<Bonus> attackerBonusesUpdated;
+	std::vector<Bonus> attackerBonusesRemoved;
 
 	float defenderDamageReduce = 0;
 	float attackerDamageReduce = 0; //usually by counter-attack
 	float collateralDamageReduce = 0; // friendly fire (usually by two-hex attacks)
 	int64_t shootersBlockedDmg = 0;
 	bool defenderDead = false;
+	bool returnAfterAttack = true;
 
 	AttackPossibility(const BattleHex & from, const BattleHex & dest, const BattleAttackInfo & attack_);
 
@@ -71,7 +77,8 @@ public:
 		const BattleAttackInfo & attackInfo,
 		BattleHex hex,
 		DamageCache & damageCache,
-		std::shared_ptr<CBattleInfoCallback> state);
+		std::shared_ptr<HypotheticBattle> state,
+		bool returnAfterAttack = true);
 
 	static float calculateDamageReduce(
 		const battle::Unit * defender,
@@ -80,8 +87,7 @@ public:
 
 private:
 	static int64_t evaluateBlockedShootersDmg(
-		const BattleAttackInfo & attackInfo,
-		BattleHex hex,
+		const AttackPossibility & attack,
 		DamageCache & damageCache,
 		std::shared_ptr<CBattleInfoCallback> state);
 };
