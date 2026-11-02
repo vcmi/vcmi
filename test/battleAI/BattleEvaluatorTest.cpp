@@ -17,6 +17,7 @@
 #include "lib/battle/BattleAction.h"
 #include "lib/battle/CObstacleInstance.h"
 #include "lib/battle/CPlayerBattleCallback.h"
+#include "lib/bonuses/Bonus.h"
 #include "lib/callback/CBattleCallback.h"
 #include "server/CGameHandler.h"
 
@@ -181,13 +182,106 @@ TEST_F(BattleEvaluatorTest, DoubleAttackReceivesOnlyOneRetaliation)
 	ASSERT_TRUE(griffins->hasBonusOfType(BonusType::UNLIMITED_RETALIATIONS));
 
 	DamageEstimation retaliation;
-	battle()->battleEstimateDamage(BattleAttackInfo(crusaders, griffins, 0, false), &retaliation);
-	const int64_t retaliationDamage = (retaliation.damage.min + retaliation.damage.max) / 2;
+	auto firstEstimate = battle()->battleEstimateDamage(BattleAttackInfo(crusaders, griffins, 0, false), &retaliation);
+	int64_t firstDamage = (firstEstimate.damage.min + firstEstimate.damage.max) / 2;
+	int64_t retaliationDamage = (retaliation.damage.min + retaliation.damage.max) / 2;
 	ASSERT_GT(retaliationDamage, 0);
+
+	auto survivingAttacker = crusaders->acquireState();
+	auto survivingDefender = griffins->acquireState();
+	survivingAttacker->damage(retaliationDamage);
+	survivingDefender->damage(firstDamage);
+	ASSERT_LT(survivingAttacker->getCount(), crusaders->getCount());
+	ASSERT_TRUE(survivingDefender->alive());
+	auto secondEstimate = battle()->battleEstimateDamage(
+		BattleAttackInfo(survivingAttacker.get(), survivingDefender.get(), 0, false));
+	const int64_t secondDamage = (secondEstimate.damage.min + secondEstimate.damage.max) / 2;
 
 	auto attack = evaluateMelee(crusaders, griffins, crusaders->getPosition());
 
 	EXPECT_EQ(attack.attackerState->getAvailableHealth(), crusaders->getAvailableHealth() - retaliationDamage);
+	auto evaluatedDefender = std::ranges::find_if(attack.affectedUnits,
+		[griffins](const auto & unit) { return unit->unitId() == griffins->unitId(); });
+	ASSERT_NE(evaluatedDefender, attack.affectedUnits.end());
+	EXPECT_EQ((*evaluatedDefender)->getAvailableHealth(), griffins->getAvailableHealth() - firstDamage - secondDamage);
+}
+
+TEST_F(BattleEvaluatorTest, KillingShooterDoesNotEarnBlockingBonus)
+{
+	const auto * marksman = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(8, 5), 1);
+	const auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(12, 5), 100);
+
+	auto attack = evaluateMelee(swordsmen, marksman, BattleHex(9, 5));
+
+	ASSERT_TRUE(attack.defenderDead);
+	EXPECT_EQ(attack.shootersBlockedDmg, 0);
+}
+
+TEST_F(BattleEvaluatorTest, DeadAttackerDoesNotEarnBlockingBonus)
+{
+	const auto * marksmen = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(8, 5), 50);
+	const auto * peasant = addStack(BattleSide::DEFENDER, creatureByName("core:peasant"), BattleHex(12, 5), 1);
+
+	auto attack = evaluateMelee(peasant, marksmen, BattleHex(9, 5));
+
+	ASSERT_FALSE(attack.attackerState->alive());
+	EXPECT_EQ(attack.shootersBlockedDmg, 0);
+}
+
+TEST_F(BattleEvaluatorTest, SurvivingAttackerEarnsBlockingBonus)
+{
+	const auto * marksmen = addStack(BattleSide::ATTACKER, creatureByName("core:marksman"), BattleHex(8, 5), 50);
+	const auto * swordsmen = addStack(BattleSide::DEFENDER, creatureByName("core:swordsman"), BattleHex(12, 5), 10);
+
+	auto attack = evaluateMelee(swordsmen, marksmen, BattleHex(9, 5));
+
+	ASSERT_TRUE(attack.attackerState->alive());
+	ASSERT_FALSE(attack.defenderDead);
+	EXPECT_GT(attack.shootersBlockedDmg, 0);
+}
+
+TEST_F(BattleEvaluatorTest, DragonBreathUsesCollateralVictimsDefence)
+{
+	const auto * titans = addStack(BattleSide::ATTACKER, creatureByName("core:titan"), BattleHex(6, 5), 10);
+	const auto * peasants = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(7, 5), 100);
+	const auto * dragons = addStack(BattleSide::DEFENDER, creatureByName("core:blackDragon"), BattleHex(8, 5), 3);
+
+	auto attack = evaluateMelee(dragons, peasants, dragons->getPosition());
+	auto secondary = std::ranges::find_if(attack.affectedUnits, [titans](const auto & unit) { return unit->unitId() == titans->unitId(); });
+	ASSERT_NE(secondary, attack.affectedUnits.end());
+
+	auto estimate = battle()->battleEstimateDamage(BattleAttackInfo(dragons, titans, 0, false));
+	const int64_t expectedDamage = (estimate.damage.min + estimate.damage.max) / 2;
+	ASSERT_GT(expectedDamage, 0);
+	EXPECT_EQ((*secondary)->getAvailableHealth(), titans->getAvailableHealth() - expectedDamage);
+}
+
+TEST_F(BattleEvaluatorTest, RepeatedAreaAttackValuesEachCollateralKillOnce)
+{
+	const auto * dwarves = addStack(BattleSide::ATTACKER, creatureByName("core:dwarf"), BattleHex(7, 5), 100);
+	const auto * peasant = addStack(BattleSide::ATTACKER, creatureByName("core:peasant"), BattleHex(8, 4), 1);
+	auto * hydras = addStack(BattleSide::DEFENDER, creatureByName("core:hydra"), BattleHex(8, 5), 3);
+	hydras->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT,
+		BonusType::ADDITIONAL_ATTACK, BonusSource::OTHER, 1, BonusSourceID()));
+	ASSERT_EQ(hydras->getTotalAttacks(false), 2);
+
+	evaluateAsDefender();
+	auto attack = AttackPossibility::evaluate(BattleAttackInfo(hydras, dwarves, 0, false),
+		hydras->getPosition(), damageCache, hypotheticalBattle);
+	auto survivingDwarves = std::ranges::find_if(attack.affectedUnits,
+		[dwarves](const auto & unit) { return unit->unitId() == dwarves->unitId(); });
+	auto deadPeasant = std::ranges::find_if(attack.affectedUnits,
+		[peasant](const auto & unit) { return unit->unitId() == peasant->unitId(); });
+	ASSERT_NE(survivingDwarves, attack.affectedUnits.end());
+	ASSERT_NE(deadPeasant, attack.affectedUnits.end());
+	ASSERT_TRUE((*survivingDwarves)->alive());
+	ASSERT_FALSE((*deadPeasant)->alive());
+
+	const auto dwarfDamage = dwarves->getAvailableHealth() - (*survivingDwarves)->getAvailableHealth();
+	const auto expected = AttackPossibility::calculateDamageReduce(dwarves, dwarfDamage, damageCache)
+		+ AttackPossibility::calculateDamageReduce(peasant, peasant->getAvailableHealth(), damageCache);
+	EXPECT_NEAR(attack.defenderDamageReduce, expected, 0.01f);
+	EXPECT_EQ(AttackPossibility::calculateDamageReduce(deadPeasant->get(), 0, damageCache), 0);
 }
 
 /// Drives the whole hero-spell decision of BattleAI and reports what it chose to cast. Spells are

@@ -80,8 +80,7 @@ public:
 
 private:
 	static int64_t evaluateBlockedShootersDmg(
-		const BattleAttackInfo & attackInfo,
-		BattleHex hex,
+		const AttackPossibility & attack,
 		DamageCache & damageCache,
 		std::shared_ptr<CBattleInfoCallback> state);
 };
