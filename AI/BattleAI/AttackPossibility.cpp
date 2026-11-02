@@ -13,6 +13,9 @@
                               // Eventually only IBattleInfoCallback and battle::Unit should be used, 
                               // CUnitState should be private and CStack should be removed completely
 #include "../../lib/spells/ISpellMechanics.h"
+#include "../../lib/spells/AbilityCaster.h"
+#include "../../lib/spells/CSpell.h"
+#include "../../lib/bonuses/BonusParameters.h"
 #include "../../lib/spells/ObstacleCasterProxy.h"
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/CombatValue.h"
@@ -22,6 +25,21 @@
 
 #include <vcmi/spells/Service.h>
 #include <vcmi/spells/Spell.h>
+
+namespace
+{
+class AbilityBattleView final : public HypotheticBattle
+{
+public:
+	using HypotheticBattle::HypotheticBattle;
+	std::optional<PlayerColor> getPlayerID() const override { return std::nullopt; }
+	const CGHeroInstance * getSideHero(BattleSide side) const override
+	{
+		const auto perspective = subject->battleGetMySide();
+		return perspective == BattleSide::ALL_KNOWING || perspective == side ? subject->getBattle()->getSideHero(side) : nullptr;
+	}
+};
+}
 
 
 uint64_t averageDmg(const DamageRange & range)
@@ -34,6 +52,7 @@ void DamageCache::cacheDamage(const battle::Unit * attacker, const battle::Unit 
 	auto damage = averageDmg(hb->battleEstimateDamage(attacker, defender, 0).damage);
 
 	damageCache[attacker->unitId()][defender->unitId()] = static_cast<float>(damage) / attacker->getCount();
+	damageIsShooting[attacker->unitId()][defender->unitId()] = hb->battleCanShoot(attacker, defender->getPosition());
 }
 
 void DamageCache::buildObstacleDamageCache(std::shared_ptr<HypotheticBattle> hb, BattleSide side)
@@ -158,6 +177,15 @@ int64_t DamageCache::getDamage(const battle::Unit * attacker, const battle::Unit
 		cacheDamage(attacker, defender, hb);
 
 	return damageCache[attacker->unitId()][defender->unitId()] * attacker->getCount();
+}
+
+int64_t DamageCache::getDamage(const battle::Unit * attacker, const battle::Unit * defender, std::shared_ptr<CBattleInfoCallback> hb, bool shooting)
+{
+	const auto cached = getDamage(attacker, defender, hb);
+	if(damageIsShooting.at(attacker->unitId()).at(defender->unitId()) == shooting)
+		return cached;
+	const auto estimate = hb->battleEstimateDamage(BattleAttackInfo(attacker, defender, 0, shooting));
+	return (estimate.damage.min + estimate.damage.max) / 2;
 }
 
 int64_t DamageCache::getObstacleDamage(const BattleHex & hex, const battle::Unit * defender)
@@ -288,19 +316,19 @@ float AttackPossibility::calculateDamageReduce(
 }
 
 int64_t AttackPossibility::evaluateBlockedShootersDmg(
-	const BattleAttackInfo & attackInfo,
-	BattleHex hex,
+	const AttackPossibility & attack,
 	DamageCache & damageCache,
 	std::shared_ptr<CBattleInfoCallback> state)
 {
 	int64_t res = 0;
 
-	if(attackInfo.shooting)
+	if(attack.attack.shooting)
 		return 0;
 
 	std::set<uint32_t> checkedUnits;
 
-	auto attacker = attackInfo.attacker;
+	auto attacker = attack.attack.attacker;
+	const auto hex = attack.attackerState->getPosition();
 	const auto & hexes = attacker->getSurroundingHexes(hex);
 	for(const BattleHex & tile : hexes)
 	{
@@ -312,19 +340,31 @@ int64_t AttackPossibility::evaluateBlockedShootersDmg(
 		if(!state->battleCanShoot(st))
 			continue;
 
+		const battle::Unit * shooter = st;
+		for(const auto & affected : attack.affectedUnits)
+		{
+			if(affected->unitId() == st->unitId())
+			{
+				shooter = affected.get();
+				break;
+			}
+		}
+		if(!shooter->alive())
+			continue;
+
 		checkedUnits.insert(st->unitId());
 
 		// FIXME: provide distance info for Jousting bonus
-		BattleAttackInfo rangeAttackInfo(st, attacker, 0, true);
+		BattleAttackInfo rangeAttackInfo(shooter, attacker, 0, true);
 		rangeAttackInfo.defenderPos = hex;
 
-		BattleAttackInfo meleeAttackInfo(st, attacker, 0, false);
+		BattleAttackInfo meleeAttackInfo(shooter, attacker, 0, false);
 		meleeAttackInfo.defenderPos = hex;
 
 		auto rangeDmg = state->battleEstimateDamage(rangeAttackInfo);
 		auto meleeDmg = state->battleEstimateDamage(meleeAttackInfo);
 		// blocking a shooter denies a fraction of its combat value, scored on the same scale as a kill
-		const int64_t shooterValue = damageCache.getOriginalValue(st) * CombatValue::stackScale(*st);
+		const int64_t shooterValue = damageCache.getOriginalValue(shooter) * CombatValue::stackScale(*shooter);
 		const int64_t rangeDamage = averageDmg(rangeDmg.damage);
 		const int64_t gain = rangeDamage - static_cast<int64_t>(averageDmg(meleeDmg.damage)) + 1;
 
@@ -338,7 +378,8 @@ AttackPossibility AttackPossibility::evaluate(
 	const BattleAttackInfo & attackInfo,
 	BattleHex hex,
 	DamageCache & damageCache,
-	std::shared_ptr<CBattleInfoCallback> state)
+	std::shared_ptr<HypotheticBattle> state,
+	bool returnAfterAttack)
 {
 	auto attacker = attackInfo.attacker;
 	auto defender = attackInfo.defender;
@@ -361,6 +402,7 @@ AttackPossibility AttackPossibility::evaluate(
 			continue;
 
 		AttackPossibility ap(hex, defHex, attackInfo);
+		ap.returnAfterAttack = returnAfterAttack;
 		ap.attackerState = attacker->acquireState();
 		ap.shootersBlockedDmg = bestAp.shootersBlockedDmg;
 
@@ -412,6 +454,7 @@ AttackPossibility AttackPossibility::evaluate(
 #endif
 
 		std::map<uint32_t, std::shared_ptr<battle::CUnitState>> defenderStates;
+		bool retaliated = false;
 
 		for(auto u : affectedUnits)
 		{
@@ -445,12 +488,14 @@ AttackPossibility AttackPossibility::evaluate(
 
 				defenderDamageReduce = calculateDamageReduce(u, damageDealt, damageCache);
 				ap.attackerState->afterAttack(attackInfo.shooting, false);
+				defenderState->damage(damageDealt);
 
 				//FIXME: use ranged retaliation
 				attackerDamageReduce = 0;
 
-				if(i == 0 && !attackInfo.shooting && u->unitId() == defender->unitId() && defenderState->ableToRetaliateAfterBeingAttacked() && !counterAttacksBlocked)
+				if(i == 0 && !attackInfo.shooting && u->unitId() == defender->unitId() && defenderState->alive() && defenderState->ableToRetaliateAfterBeingAttacked() && !counterAttacksBlocked)
 				{
+					retaliated = true;
 					for(auto retaliated : retaliatedUnits)
 					{
 						if(retaliated->unitId() == attacker->unitId())
@@ -499,12 +544,98 @@ AttackPossibility AttackPossibility::evaluate(
 					ap.attackerDamageReduce += attackerDamageReduce;
 				}
 
-				defenderState->damage(damageDealt);
-
 				if(u->unitId() == defender->unitId())
 				{
 					ap.defenderDead = !defenderState->alive();
 				}
+			}
+		}
+
+
+		if(!attackInfo.shooting && ap.attackerState->alive() && attacker->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
+		{
+			auto postAttack = std::make_shared<AbilityBattleView>(state->env, state);
+			auto returning = postAttack->getForUpdate(attacker->unitId());
+			*returning = *ap.attackerState;
+			for(const auto & affected : ap.affectedUnits)
+				*postAttack->getForUpdate(affected->unitId()) = *affected;
+			returning->removeUnitBonus(Bonus::UntilAttack);
+			returning->removeUnitBonus(Bonus::UntilOwnAttack);
+			returning->removeUnitBonus(Bonus::untilAfterAttackSequence);
+			if(ap.attackerState->getAvailableHealth() < attacker->getAvailableHealth())
+				returning->removeUnitBonus(Bonus::UntilBeingAttacked);
+
+			if(retaliated && returning->alive())
+			{
+				auto counterattacker = postAttack->getForUpdate(defender->unitId());
+				std::set<SpellID> spells;
+				std::map<int, std::vector<SpellID>> layeredSpells;
+				const auto attackSpells = counterattacker->getBonuses(Selector::type()(BonusType::SPELL_AFTER_ATTACK));
+				for(const auto & bonus : *attackSpells)
+				{
+					const auto parameters = bonus->parameters ? bonus->parameters->toVector() : std::vector<int32_t>{};
+					const int layer = parameters.empty() ? -1 : std::max(-1, parameters.at(2));
+					layeredSpells[layer].push_back(bonus->subtype.as<SpellID>());
+				}
+				const auto activeSpells = returning->getBonuses(Selector::sourceType()(BonusSource::SPELL_EFFECT));
+				for(const auto & [layer, layerSpells] : layeredSpells)
+				{
+					const bool allActive = std::all_of(layerSpells.begin(), layerSpells.end(), [&](SpellID id)
+					{
+						return std::any_of(activeSpells->begin(), activeSpells->end(), [id](const std::shared_ptr<Bonus> & active) { return active->type != BonusType::NONE && active->sid.as<SpellWithMasteryID>().getSpellID() == id; });
+					});
+					if(layer == -1 || !allActive || layer == layeredSpells.rbegin()->first)
+						spells.insert(layerSpells.begin(), layerSpells.end());
+					if(layer != -1 && (!allActive || layer == layeredSpells.rbegin()->first))
+						break;
+				}
+				for(const auto & spellID : spells)
+				{
+					const auto selector = Selector::typeSubtype(BonusType::SPELL_AFTER_ATTACK, BonusSubtypeID(spellID));
+					if(counterattacker->valOfBonuses(selector) < 100)
+						continue;
+					int level = 0;
+					bool melee = false;
+					const auto matchingSpells = counterattacker->getBonuses(selector);
+					for(const auto & bonus : *matchingSpells)
+					{
+						const auto parameters = bonus->parameters ? bonus->parameters->toVector() : std::vector<int32_t>{};
+						if(parameters.empty())
+							melee = true;
+						else
+						{
+							level = std::max(level, parameters.at(0));
+							melee |= parameters.at(1) != 1;
+						}
+					}
+					if(!melee || spellID == SpellID())
+						continue;
+					const auto * spell = spellID.toSpell();
+					spells::AbilityCaster caster(counterattacker.get(), level);
+					spells::BattleCast cast(postAttack.get(), &caster, spells::Mode::PASSIVE, spell);
+					spells::Target target{spells::Destination(returning.get())};
+					if(spell->battleMechanics(&cast)->canBeCastAt(target))
+						cast.castEval(postAttack->getServerCallback(), target);
+				}
+				for(const auto & bonus : returning->bonusesToAdd)
+					ap.attackerBonusesAdded.push_back(*bonus);
+				for(const auto & bonus : returning->bonusesToUpdate)
+					ap.attackerBonusesUpdated.push_back(*bonus);
+				for(const auto & bonus : returning->bonusesToRemove)
+					ap.attackerBonusesRemoved.push_back(*bonus);
+			}
+
+			if(returnAfterAttack && returning->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE)
+				&& !returning->hasBonusOfType(BonusType::NOT_ACTIVE)
+				&& !returning->hasBonusOfType(BonusType::BIND_EFFECT)
+				&& hex != attacker->getPosition())
+			{
+				const auto path = postAttack->getPath(hex, attacker->getPosition(), returning.get()).first;
+				const int speedBefore = attacker->getMovementRange(0);
+				const int speedAfter = returning->getMovementRange(0);
+				const size_t index = std::max(0, speedBefore - speedAfter);
+				if(index < path.size())
+					ap.attackerState->setPosition(path.at(index));
 			}
 		}
 
@@ -521,7 +652,9 @@ AttackPossibility AttackPossibility::evaluate(
 	}
 
 	// check how much damage we gain from blocking enemy shooters on this hex
-	bestAp.shootersBlockedDmg = evaluateBlockedShootersDmg(attackInfo, hex, damageCache, state);
+	bestAp.shootersBlockedDmg = bestAp.attackerState->alive()
+		? evaluateBlockedShootersDmg(bestAp, damageCache, state)
+		: 0;
 
 #if BATTLE_TRACE_LEVEL>=1
 	logAi->trace("BattleAI best AP: %s -> %s at %d from %d, affects %d units: d:%lld a:%lld c:%lld s:%lld",

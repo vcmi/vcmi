@@ -38,12 +38,12 @@ PotentialTargets::PotentialTargets(
 		if(!isBerserk && !state->battleMatchOwner(attackerInfo, defender))
 			continue;
 
-		auto GenerateAttackInfo = [&](bool shooting, const BattleHex & hex) -> AttackPossibility
+		auto GenerateAttackInfo = [&](bool shooting, const BattleHex & hex, bool returnAfterAttack = true) -> AttackPossibility
 		{
 			int distance = hex.isValid() ? reachability.distances[hex.toInt()] : 0;
 			auto bai = BattleAttackInfo(attackerInfo, defender, distance, shooting);
 
-			return AttackPossibility::evaluate(bai, hex, damageCache, state);
+			return AttackPossibility::evaluate(bai, hex, damageCache, state, returnAfterAttack);
 		};
 
 		if(isBerserk)
@@ -74,7 +74,11 @@ PotentialTargets::PotentialTargets(
 
 				auto bai = GenerateAttackInfo(false, hex);
 				if(!bai.affectedUnits.empty())
+				{
 					possibleAttacks.push_back(bai);
+					if(attackerInfo->hasBonusOfType(BonusType::RETURN_AFTER_STRIKE) && bai.attackerState->getPosition() != hex)
+						possibleAttacks.push_back(GenerateAttackInfo(false, hex, false));
+				}
 			}
 
 			if(!vstd::contains_if(possibleAttacks, [=](const AttackPossibility & pa) { return pa.attack.defender->unitId() == defender->unitId(); }))

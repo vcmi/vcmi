@@ -64,8 +64,8 @@ public:
 class StackWithBonuses : public battle::CUnitState, public virtual IBonusBearer
 {
 public:
-	std::vector<Bonus> bonusesToAdd;
-	std::vector<Bonus> bonusesToUpdate;
+	std::vector<std::shared_ptr<Bonus>> bonusesToAdd;
+	std::vector<std::shared_ptr<Bonus>> bonusesToUpdate;
 	std::set<std::shared_ptr<Bonus>> bonusesToRemove;
 	int treeVersionLocal;
 
@@ -104,6 +104,8 @@ public:
 	std::string getDescription() const override;
 
 private:
+	mutable std::mutex updatedBonusMutex;
+	mutable std::map<std::pair<std::shared_ptr<Bonus>, int>, std::shared_ptr<Bonus>> updatedBonusCache;
 	const IBonusBearer * origBearer;
 	const HypotheticBattle * owner;
 
@@ -115,7 +117,7 @@ private:
 	SlotID slot;
 };
 
-class HypotheticBattle final : public BattleProxy, public battle::IUnitEnvironment
+class HypotheticBattle : public BattleProxy, public battle::IUnitEnvironment
 {
 public:
 	std::map<uint32_t, std::shared_ptr<StackWithBonuses>> stackStates;
