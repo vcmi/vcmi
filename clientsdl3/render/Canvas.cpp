@@ -40,6 +40,13 @@ static void logGpuIssueOnce(const std::string & message)
 		logGlobal->error("GPU render path: %s", message);
 }
 
+// Replace the destination with premultiplied RGBA; source-over would not erase old pixels.
+static SDL_BlendMode premultipliedCopyMode()
+{
+	return SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_SRC_ALPHA, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD,
+		SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ZERO, SDL_BLENDOPERATION_ADD);
+}
+
 Canvas::Canvas(SDL_Surface * surface, CanvasScalingPolicy scalingPolicy):
 	scalingPolicy(scalingPolicy),
 	surface(surface),
@@ -191,7 +198,7 @@ void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint3
 		if(shared)
 			source = CSDL_Ext::toSDLFloat(Rect(Point(0, 0), image.renderArea.dimensions()));
 
-		SDL_SetTextureBlendMode(uploaded, static_cast<SDL_BlendMode>(blendMode));
+		SDL_SetTextureBlendMode(uploaded, blendMode == SDL_BLENDMODE_NONE ? premultipliedCopyMode() : static_cast<SDL_BlendMode>(blendMode));
 		SDL_SetTextureAlphaMod(uploaded, alpha);
 		SDL_SetTextureScaleMode(uploaded, SDL_SCALEMODE_NEAREST);
 
@@ -204,7 +211,8 @@ void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint3
 		return;
 	}
 
-	SDL_SetTextureBlendMode(image.renderTarget, static_cast<SDL_BlendMode>(blendMode));
+	SDL_SetTextureBlendMode(image.renderTarget, blendMode == SDL_BLENDMODE_BLEND ? SDL_BLENDMODE_BLEND_PREMULTIPLIED : static_cast<SDL_BlendMode>(blendMode));
+	SDL_SetTextureColorMod(image.renderTarget, alpha, alpha, alpha);
 	SDL_SetTextureAlphaMod(image.renderTarget, alpha);
 	// matches SDL_BlitSurfaceScaled on the surface path; see the note in SDLImageShared
 	SDL_SetTextureScaleMode(image.renderTarget, SDL_SCALEMODE_NEAREST);
@@ -213,6 +221,7 @@ void Canvas::copyFromCanvas(const Canvas & image, const Rect & targetArea, uint3
 		logGpuIssueOnce(std::string("SDL_RenderTexture failed: ") + SDL_GetError());
 
 	SDL_SetTextureAlphaMod(image.renderTarget, SDL_ALPHA_OPAQUE);
+	SDL_SetTextureColorMod(image.renderTarget, 255, 255, 255);
 }
 
 void Canvas::applyTransparency(bool on)
@@ -250,8 +259,8 @@ void Canvas::drawViaScratchSurface(const Point & pos, const Point & size, const 
 	Canvas scratch(size, scalingPolicy);
 	render(scratch.surface);
 
-	// copyFromCanvas uploads a surface-backed source for us
-	copyFromCanvas(scratch, Rect(transformPos(pos), scratch.renderArea.dimensions()), SDL_BLENDMODE_BLEND, SDL_ALPHA_OPAQUE);
+	// Software drawing on this transparent scratch surface produces premultiplied or opaque pixels.
+	copyFromCanvas(scratch, Rect(transformPos(pos), scratch.renderArea.dimensions()), SDL_BLENDMODE_BLEND_PREMULTIPLIED, SDL_ALPHA_OPAQUE);
 }
 
 void Canvas::draw(IVideoInstance & video, const Point & pos)
@@ -323,7 +332,10 @@ void Canvas::draw(const Canvas & image, const Point & pos)
 {
 	if(renderTarget)
 	{
-		copyFromCanvas(image, Rect(transformPos(pos), image.renderArea.dimensions()), SDL_BLENDMODE_NONE, SDL_ALPHA_OPAQUE);
+		SDL_BlendMode blendMode = SDL_BLENDMODE_NONE;
+		if(!image.renderTarget)
+			SDL_GetSurfaceBlendMode(image.surface, &blendMode);
+		copyFromCanvas(image, Rect(transformPos(pos), image.renderArea.dimensions()), blendMode, SDL_ALPHA_OPAQUE);
 		return;
 	}
 
@@ -355,7 +367,10 @@ void Canvas::drawScaled(const Canvas & image, const Point & pos, const Point & t
 
 	if(renderTarget)
 	{
-		copyFromCanvas(image, targetArea, SDL_BLENDMODE_NONE, SDL_ALPHA_OPAQUE);
+		SDL_BlendMode blendMode = SDL_BLENDMODE_NONE;
+		if(!image.renderTarget)
+			SDL_GetSurfaceBlendMode(image.surface, &blendMode);
+		copyFromCanvas(image, targetArea, blendMode, SDL_ALPHA_OPAQUE);
 		return;
 	}
 
@@ -556,7 +571,7 @@ void Canvas::drawColor(const Rect & target, const ColorRGBA & color)
 	{
 		bindRenderTarget();
 		SDL_FRect rect = CSDL_Ext::toSDLFloat(realTarget);
-		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+		SDL_SetRenderDrawBlendMode(renderer, premultipliedCopyMode());
 		SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 		SDL_RenderFillRect(renderer, &rect);
 		return;

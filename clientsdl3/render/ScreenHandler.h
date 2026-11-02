@@ -47,6 +47,7 @@ enum class EUpscalingFilter
 /// This class is responsible for management of game window and its main rendering surface
 class ScreenHandler final : public IScreenHandler
 {
+	friend class ScreenHandlerTest;
 	SDL_Window * mainWindow = nullptr;
 	SDL_Texture * screenTexture = nullptr;
 
