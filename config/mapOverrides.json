@@ -565,48 +565,6 @@
 		"defeatIconIndex" : 2,
 		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
-			"heroesMustSurvive1" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf",
-						[ "control", { "position" : [ 10, 59, 0 ], "type" : "hero" } ]
-					]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.253"
-			},
-			"heroesMustSurvive2" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf",
-						[ "control", { "position" : [  4, 63, 0 ], "type" : "hero" } ]
-					]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.253"
-			},
-			"heroesMustSurvive3" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf",
-						[ "control", { "position" : [ 15, 63, 0 ], "type" : "hero" } ]
-					]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.253"
-			},
 			"heroesMustSurvive4" : {
 				"condition" : [
 					"allOf",
@@ -926,6 +884,20 @@
 		"defeatIconIndex" : 2,
 		"defeatString" : "core.lcdesc.3",
 		"triggeredEvents" : {
+			"heroMustSurvive" : {
+				"condition" : [
+					"allOf",
+					[ "isHuman", { "value" : 1 } ],
+					[ "noneOf",
+						[ "control", { "position" : [ 12, 101, 0 ], "type" : "hero" } ] // Adrienne
+					]
+				],
+				"effect" : {
+					"messageToSend" : "core.genrltxt.5",
+					"type" : "defeat"
+				},
+				"message" : "core.genrltxt.253"
+			},
 			"specialVictory" : {
 				"condition" : [
 					"allOf",
@@ -1086,7 +1058,7 @@
 					"allOf",
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
-						[ "control", { "position" : [ 25, 30, 0 ], "type" : "hero" } ]
+						[ "control", { "position" : [ 27, 30, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
@@ -1552,20 +1524,6 @@
 					[ "isHuman", { "value" : 1 } ],
 					[ "noneOf",
 						[ "control", { "position" : [ 57, 12, 0 ], "type" : "hero" } ]
-					]
-				],
-				"effect" : {
-					"messageToSend" : "core.genrltxt.5",
-					"type" : "defeat"
-				},
-				"message" : "core.genrltxt.253"
-			},
-			"heroesMustSurvive2" : {
-				"condition" : [
-					"allOf",
-					[ "isHuman", { "value" : 1 } ],
-					[ "noneOf",
-						[ "control", { "position" : [ 25, 11, 0 ], "type" : "hero" } ]
 					]
 				],
 				"effect" : {
