@@ -288,3 +288,27 @@ TEST_F(QuestJsonRewardTest, SeerRewardSurvivesVmapRoundTrip)
 	ASSERT_TRUE(loaded.getQuest().reward.has_value());
 	EXPECT_EQ(loaded.getQuest().reward->reward.heroExperience, 100);
 }
+
+TEST_F(QuestJsonRewardTest, SeerFromOldestVmapFormatHasQuestWithReward)
+{
+	struct SeerProbe : public SeerHut
+	{
+		using SeerHut::SeerHut;
+		using SeerHut::serializeJsonOptions;
+	};
+
+	auto s = seerLevel();
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
+
+	JsonNode options;
+	options["quest"].Struct();
+	options["reward"]["experience"].Integer() = 5000;
+
+	SeerProbe loaded(gameState().get());
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer loader(nullptr, resolver, options);
+	loaded.serializeJsonOptions(loader);
+	ASSERT_EQ(loaded.allQuests().size(), 1u);
+	ASSERT_TRUE(loaded.getQuest().reward.has_value());
+	EXPECT_EQ(loaded.getQuest().reward->reward.heroExperience, 5000);
+}
