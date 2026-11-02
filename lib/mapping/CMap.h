@@ -266,6 +266,9 @@ public:
 	/// Returns ID's of all towns present on map
 	const std::vector<ObjectInstanceID> & getAllTowns() const;
 
+	/// Returns hero or random hero standing at entrance of specified town, if any
+	const CGObjectInstance * getHeroAtTownEntrance(const CGTownInstance & town) const;
+
 	/// Sets the victory/loss condition objectives ??
 	void resolveHeroPlaceholderObjectives();
 	void checkForObjectives();

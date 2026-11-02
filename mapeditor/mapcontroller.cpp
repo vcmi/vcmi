@@ -606,6 +606,9 @@ bool MapController::canPlaceObject(const CGObjectInstance * newObj, QString & er
 {	
 	if(newObj->ID == Obj::GRAIL) //special case for grail
 		return canPlaceGrail(newObj, error);
+
+	if((newObj->ID == Obj::HERO || newObj->ID == Obj::RANDOM_HERO) && !canPlaceHeroAtPosition(newObj, error))
+		return false;
 	
 	if(defaultPlayer == PlayerColor::NEUTRAL && (newObj->ID == Obj::HERO || newObj->ID == Obj::RANDOM_HERO))
 		return canPlaceHero(newObj, error);
@@ -649,6 +652,24 @@ bool MapController::canPlaceHero(const CGObjectInstance * heroObj, QString & err
 	
 	error = tr("Hero %1 cannot be created as NEUTRAL.").arg(QString::fromStdString(heroObj->instanceName));
 	return false;
+}
+
+bool MapController::canPlaceHeroAtPosition(const CGObjectInstance * heroObj, QString & error) const
+{
+	for(const auto & townID : _map->getAllTowns())
+	{
+		const auto * town = _map->getObject(townID);
+		if(town->visitablePos() != heroObj->visitablePos() || !town->getOwner().isValidPlayer())
+			continue;
+
+		const auto & playerInfo = _map->players.at(town->getOwner().getNum());
+		if(playerInfo.hasMainTown && playerInfo.generateHeroAtMainTown && playerInfo.posOfMainTown == town->pos)
+		{
+			error = tr("Hero cannot be placed at the entrance of this town, because it is the main town of its owner and a hero is generated there on game start. Disable \"Generate hero at main\" in player settings first.");
+			return false;
+		}
+	}
+	return true;
 }
 
 bool MapController::checkRequiredMods(const CGObjectInstance * obj, QString & error) const

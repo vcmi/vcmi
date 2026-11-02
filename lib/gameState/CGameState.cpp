@@ -688,6 +688,23 @@ void CGameState::placeStartingHeroes(vstd::RNG & randomGenerator)
 			if (campaign && campaign->playerHasStartingHero(playerColor))
 				continue;
 
+			bool townHasHero = false;
+			for (const auto & townID : map->getAllTowns())
+			{
+				const auto * town = getTown(townID);
+				if (town->anchorPos() != playerInfo.posOfMainTown)
+					continue;
+
+				if (const auto * heroInTown = map->getHeroAtTownEntrance(*town))
+				{
+					logGlobal->warn("Main town of player %s already has hero '%s' at its entrance, starting hero will not be generated", playerColor.toString(), heroInTown->instanceName);
+					townHasHero = true;
+				}
+			}
+
+			if (townHasHero)
+				continue;
+
 			HeroTypeID heroTypeId = pickNextHeroType(randomGenerator, playerColor);
 			if(playerSettingPair.second.hero == HeroTypeID::NONE || playerSettingPair.second.hero == HeroTypeID::RANDOM)
 				playerSettingPair.second.hero = heroTypeId;

@@ -109,6 +109,14 @@ std::set<Validator::Issue> Validator::validate(const CMap * map)
 			if(auto * ins = dynamic_cast<CGTownInstance *>(o.get()))
 			{
 					++amountOfTowns[ins->getOwner()];
+
+					if(ins->getOwner().isValidPlayer())
+					{
+						const auto & playerInfo = map->players.at(ins->getOwner().getNum());
+						const auto * heroInTown = map->getHeroAtTownEntrance(*ins);
+						if(heroInTown && playerInfo.hasMainTown && playerInfo.generateHeroAtMainTown && playerInfo.posOfMainTown == ins->pos)
+							issues.insert({ tr("Hero %1 is placed in main town of player %2, which is set to generate hero at main town. Starting hero will not be generated").arg(heroInTown->instanceName.c_str(), ins->getOwner().toString().c_str()), false });
+					}
 			}
 			//checking and counting heroes and prisons
 			if(auto * ins = dynamic_cast<CGHeroInstance *>(o.get()))

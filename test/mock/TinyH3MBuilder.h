@@ -128,6 +128,8 @@ public:
 	TinyH3MBuilder & playerActive(PlayerColor color);
 	/// Bitmask of factions the player may pick, in map format order. Default allows all factions
 	TinyH3MBuilder & playerFactions(PlayerColor color, uint32_t mask);
+	/// Set main town of the player, located at anchor position of a town placed by town()
+	TinyH3MBuilder & playerMainTown(PlayerColor color, const int3 & townPos, bool generateHero);
 
 	/// Append a fixed-faction Town object owned by `owner`.
 	/// `specialBuildings` is the raw HotA 1.7 table of faction-specific buildings, 4 entries per faction.
@@ -415,6 +417,12 @@ private:
 
 	std::array<bool, 8> playerEnabled{};
 	std::array<uint32_t, 8> playerFactionMask = {~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u, ~0u};
+	struct MainTown
+	{
+		int3 pos;
+		bool generateHero;
+	};
+	std::array<std::optional<MainTown>, 8> playerMainTowns{};
 	std::map<int3, TerrainId> terrainOverrides;
 	std::vector<std::pair<MapObjectID, MapObjectSubID>> templates;
 	std::vector<ObjectSpec>                              objects;
