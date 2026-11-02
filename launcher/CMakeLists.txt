@@ -162,10 +162,6 @@ endif()
 
 assign_source_group(${launcher_SRCS} ${launcher_HEADERS} ${launcher_RESOURCES} ${launcher_TS} ${launcher_ICON})
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
-
 if(POLICY CMP0071)
 	cmake_policy(SET CMP0071 NEW)
 endif()
@@ -183,6 +179,9 @@ else()
 		vcmi_deploy_qt_runtime(vcmilauncher)
 	endif()
 endif()
+
+set_target_properties(vcmilauncher PROPERTIES AUTOMOC ON)
+set_target_properties(vcmilauncher PROPERTIES AUTORCC ON)
 
 if(ENABLE_TRANSLATIONS)
 	if(TARGET Qt6::Core)
@@ -222,6 +221,8 @@ if(ANDROID)
 	generate_binary_resource("scripts" "${CMAKE_SOURCE_DIR}/scripts")
 	list(APPEND launcher_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/scripts.qrc")
 endif()
+
+qt_wrap_ui(vcmilauncher launcher_FORMS ${launcher_FORMS})
 
 target_sources(vcmilauncher PRIVATE
 	${launcher_SRCS}
