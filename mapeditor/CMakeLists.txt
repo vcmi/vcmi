@@ -190,6 +190,7 @@ set(editor_FORMS
 		inspector/heroartifactswidget.ui
 		inspector/artifactwidget.ui
 		inspector/heroskillswidget.ui
+		inspector/herospellwidget.ui
 		inspector/portraitwidget.ui
 		inspector/playerselectionwidget.ui
 		inspector/abilitieswidget.ui
@@ -283,10 +284,6 @@ endif()
 
 assign_source_group(${editor_SRCS} ${editor_HEADERS} ${editor_RESOURCES} ${editor_TS} ${editor_ICON})
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
-
 if(POLICY CMP0071)
 	cmake_policy(SET CMP0071 NEW)
 endif()
@@ -305,6 +302,9 @@ else()
 	endif()
 endif()
 
+set_target_properties(vcmieditor PROPERTIES AUTOMOC ON)
+set_target_properties(vcmieditor PROPERTIES AUTORCC ON)
+
 if(ENABLE_TRANSLATIONS)
 	if(TARGET Qt6::Core)
 		set(_editor_res_prefix "/editor/${translationsDir}")
@@ -315,6 +315,8 @@ if(ENABLE_TRANSLATIONS)
 				${CMAKE_CURRENT_BINARY_DIR})
 	endif()
 endif()
+
+qt_wrap_ui(vcmieditor editor_FORMS ${editor_FORMS})
 
 target_sources(vcmieditor PRIVATE
 	${editor_SRCS}
