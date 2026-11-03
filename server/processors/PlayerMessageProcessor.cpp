@@ -421,7 +421,7 @@ void PlayerMessageProcessor::cheatBuildTown(PlayerColor player, const CGTownInst
 
 		if (build.first == BuildingID::GRAIL && LIBRARY->engineSettings()->getBoolean(EGameSettings::CHEATS_BUILD_WITHOUT_GRAIL))
 			continue;
-		
+
 		gameHandler->buildStructure(town->id, build.first, true);
 	}
 }
@@ -739,7 +739,7 @@ void PlayerMessageProcessor::cheatFly(PlayerColor player, const CGHeroInstance *
 {
 	if (!hero)
 		return;
-		
+
 	GiveBonus gb;
 	gb.bonus = Bonus(BonusDuration::PERMANENT, BonusType::FLYING_MOVEMENT, BonusSource::OTHER, 0, BonusSourceID(Obj(Obj::NO_OBJ)));
 	gb.id = hero->id;
@@ -751,7 +751,7 @@ void PlayerMessageProcessor::cheatMaxMorale(PlayerColor player, const CGHeroInst
 {
 	if (!hero)
 		return;
-		
+
 	GiveBonus gb;
 	gb.bonus = Bonus(BonusDuration::PERMANENT, BonusType::MAX_MORALE, BonusSource::OTHER, 0, BonusSourceID(Obj(Obj::NO_OBJ)));
 	gb.id = hero->id;
@@ -794,7 +794,7 @@ void PlayerMessageProcessor::cheatSkill(PlayerColor player, const CGHeroInstance
 	std::optional<int32_t> skillId = LIBRARY->identifiers()->getIdentifierCaseInsensitive(ModScope::scopeGame(), "skill", identifier, false);
 	if(!skillId.has_value())
 		return;
-	
+
 	auto skill = SecondarySkill(skillId.value());
 	gameHandler->changeSecSkill(hero, skill, mastery, ChangeValueMode::ABSOLUTE);
 }
@@ -820,11 +820,11 @@ void PlayerMessageProcessor::cheatTeleport(PlayerColor player, const CGHeroInsta
 		return;
 
 	auto destTile = gameHandler->gameState().getMap().getTile(pos);
-	auto heroTile = gameHandler->gameState().getMap().getTile(hero->pos);
+	auto heroTile = gameHandler->gameState().getMap().getTile(hero->visitablePos());
 	if(!destTile.isClear(&heroTile))
 		return;
 
-	gameHandler->moveHero(hero->id, pos, EMovementMode::DIMENSION_DOOR);
+	gameHandler->moveHero(hero->id, hero->convertFromVisitablePos(pos), EMovementMode::DIMENSION_DOOR);
 }
 
 void PlayerMessageProcessor::cheatGiveGrail(PlayerColor player, const CGHeroInstance * hero)
@@ -914,10 +914,10 @@ bool PlayerMessageProcessor::handleCheatCode(const std::string & cheat, PlayerCo
 	PlayerCheated pc;
 	pc.player = player;
 	gameHandler->sendAndApply(pc);
-	
+
 	if (!playerTargetedCheat)
 		executeCheatCode(cheatName, player, currObj, words);
-	
+
 	return true;
 }
 
