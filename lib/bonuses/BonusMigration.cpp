@@ -122,9 +122,7 @@ std::string jsonKeyOf(const Entity * entity)
 constexpr std::array<NameMapping, 5> softDeprecated = {{
 	{ "ON_COMBAT_EVENT",           "COMBAT_EVENT_TRIGGER with a combat script" },
 	{ "SPECIAL_SPELL_LEV",         "SPECIAL_SPELL_SCALING, or the spellScalingPercentage hero specialty" },
-	{ "SPECIAL_ADD_VALUE_ENCHANT", "SPECIAL_PECULIAR_ENCHANT with per-tier values, or the spellFixedAdditive hero specialty" },
-	{ "VULNERABLE_FROM_BACK",      "a bonus of your own, read by a damage calculator patch like damage/vulnerableFromBack" },
-	{ "HATES_TRAIT",               "a bonus of your own, read by a damage calculator patch like damage/hatesTrait" },
+	{ "SPECIAL_ADD_VALUE_ENCHANT", "SPECIAL_PECULIAR_ENCHANT with per-tier values, or the spellFixedAdditive hero specialty" }
 }};
 
 /// Reports once per mod and bonus type - bonuses built by scripts are parsed on every cast,
@@ -233,9 +231,7 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 	}
 	else if(script == "enchanted")
 	{
-		// enchanted packs a mastery level and a flag rather than a magnitude, so val is unused
 		parameters["spell"] = ability["subtype"];
-		parameters["level"].Integer() = enchantedLevel(value);
 		parameters["massive"].Bool() = enchantedIsMassive(value);
 	}
 
@@ -244,8 +240,9 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 	migrated["type"].String() = "COMBAT_EVENT_TRIGGER";
 	migrated["subtype"].String() = std::string(script);
 
+	// mastery level stays in val, so stack experience can still raise it rank by rank
 	if(script == "enchanted")
-		migrated.Struct().erase("val");
+		migrated["val"].Integer() = enchantedLevel(value);
 
 	// the script lives in whichever mod provides it, not in the mod being migrated
 	migrated["subtype"].setModScope(ModScope::scopeGame());
@@ -338,9 +335,8 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 		case BonusType::UNUSED_ENCHANTED:
 			scriptName = "enchanted";
 			parameters["spell"].String() = jsonKeyOf(bonus.subtype.as<SpellID>().toEntity(LIBRARY));
-			parameters["level"].Integer() = enchantedLevel(bonus.val);
 			parameters["massive"].Bool() = enchantedIsMassive(bonus.val);
-			bonus.val = 0; // enchanted has no magnitude, its old value was a packed level
+			bonus.val = enchantedLevel(bonus.val);
 			break;
 
 		default:

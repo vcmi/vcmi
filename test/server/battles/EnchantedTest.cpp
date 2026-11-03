@@ -19,6 +19,8 @@ constexpr int32_t stackCount = 10;
 constexpr int32_t baseAttack = 10;
 /// What bloodlust adds at the mastery the fixture creatures cast it at.
 constexpr int32_t bloodlustAttack = 3;
+/// What bloodlust adds at advanced mastery.
+constexpr int32_t advancedBloodlustAttack = 6;
 
 }
 
@@ -91,4 +93,16 @@ TEST_F(EnchantedTest, HypnotizedMassEnchanterEnchantsUnitsOfItsController)
 	EXPECT_EQ(enchanter->getAttack(false), baseAttack + bloodlustAttack);
 	EXPECT_EQ(controllerUnit->getAttack(false), baseAttack + bloodlustAttack);
 	EXPECT_EQ(formerAlly->getAttack(false), baseAttack);
+}
+
+TEST_F(EnchantedTest, ValueOfBonusIsMasteryLevel)
+{
+	startGame();
+	startBattle();
+
+	CStack * enchanter = addStack(BattleSide::ATTACKER, creatureByName("vcmi-test:testAdvancedEnchanter"), BattleHex(leftHex), stackCount);
+
+	beginCombat();
+
+	EXPECT_EQ(enchanter->getAttack(false), baseAttack + advancedBloodlustAttack);
 }

@@ -1245,11 +1245,23 @@ DEPRECATED. Configs and saves declaring it are converted to the [enchanted](../L
 {
 	"type" : "COMBAT_EVENT_TRIGGER",
 	"subtype" : "enchanted",
-	"addInfo" : { "spell" : "core:bless", "level" : 2, "massive" : true }
+	"val" : 2,
+	"addInfo" : { "spell" : "core:bless", "massive" : true }
 }
 ```
 
-`spell` replaces the old subtype, while `level` and `massive` replace the single `val` that packed both - this script has no magnitude, so it leaves `val` unused. Several such bonuses for the same spell each apply at their own level, where the bonus took the highest level of the group for all of them.
+`spell` replaces the old subtype. `val` is still the mastery level, but no longer packs the mass effect: old values above 3 become `val - 3` with `massive` set to true. Several such bonuses for the same spell each apply at their own level, where the bonus took the highest level of the group for all of them.
+
+Since mastery stays in `val`, stack experience can raise it by rank as before:
+
+```json
+"stackExperience" : [
+	{
+		"bonus" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "enchanted", "addInfo" : { "spell" : "core:shield" } },
+		"values" : [ 0, 0, 1, 1, 1, 2, 2, 2, 3, 3 ]
+	}
+]
+```
 
 ## Spell immunities
 
@@ -1312,7 +1324,8 @@ Unit affected by poison will lose 10% of max health every combat turn, up to `va
 
 Affected unit will deal increased damage to creatures with KING bonus
 
-- val: skill mastery of Slayer spell, only creatures with lower or equal value of KING bonus are affected
+- val: attack bonus against affected creatures
+- addInfo: skill mastery of Slayer spell, only creatures with lower or equal value of KING bonus are affected
 
 ### FORGETFULL
 

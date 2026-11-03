@@ -161,7 +161,7 @@
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
 				"subtype" : "enchanted",
-				"addInfo" : { "spell" : "core:bloodlust", "level" : 0, "massive" : false }
+				"addInfo" : { "spell" : "core:bloodlust", "massive" : false }
 			}
 		}
 	},
@@ -184,7 +184,31 @@
 			{
 				"type" : "COMBAT_EVENT_TRIGGER",
 				"subtype" : "enchanted",
-				"addInfo" : { "spell" : "core:bloodlust", "level" : 0, "massive" : true }
+				"addInfo" : { "spell" : "core:bloodlust", "massive" : true }
+			}
+		}
+	},
+
+	"testAdvancedEnchanter" :
+	{
+		"faction" : "neutral",
+		"level" : 1,
+		"special" : true,
+		"name" : { "singular" : "Test Advanced Enchanter", "plural" : "Test Advanced Enchanters" },
+		"attack" : 10, "defense" : 10, "hitPoints" : 100, "speed" : 10,
+		"damage" : { "min" : 10, "max" : 10 },
+		"cost" : { "gold" : 100 },
+		"fightValue" : 100, "aiValue" : 100,
+		"graphics" : { "animation" : "CPKMAN.DEF", "animationTime" : { "attack" : 1.0, "walk" : 1.0, "idle" : 1.0 }, "timeBetweenFidgets" : 1 },
+		"sound" : {},
+		"abilities" :
+		{
+			"enchanted" :
+			{
+				"type" : "COMBAT_EVENT_TRIGGER",
+				"subtype" : "enchanted",
+				"val" : 2,
+				"addInfo" : { "spell" : "core:bloodlust", "massive" : false }
 			}
 		}
 	},
