@@ -246,8 +246,10 @@
 
 		// Configure individual common objects. 
 		// Any object in this list will be excluded from regular placement rules, similarly to bannedObjects
-		// A randomDwellingLvl entry without rmg.value is valued like a native dwelling of the zone's faction
-		// (creature AI value x growth, increased by the number of zones of that faction), as in SoD
+		// A randomDwellingLvl entry becomes a dwelling of the zone's faction and replaces the native dwelling of that level,
+		// other native dwellings keep spawning as usual. Without rmg.value it is valued like that native dwelling
+		// (creature AI value x growth, increased by the number of zones of that faction), as in SoD.
+		// Without rmg.rarity it is as common as native dwellings (40)
 		"commonObjects":
 		[
 			{
@@ -275,6 +277,15 @@
 				"rmg" : {
 					"value"		: 2000,
 					"rarity"	: 100,
+					"zoneLimit" : 2
+				}
+			},
+			{
+				// level 7 dwelling of the zone's faction with custom value, at most 2 per zone
+				"type" : "randomDwellingLvl",
+				"subtype" : "objectLvl7",
+				"rmg" : {
+					"value"		: 15000,
 					"zoneLimit" : 2
 				}
 			}

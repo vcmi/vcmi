@@ -228,6 +228,14 @@ void TreasurePlacer::addDwellings()
 	if(zone.getType() == ETemplateZoneType::WATER)
 		return;
 
+	// randomDwellingLvl common objects replace native dwellings of the same level
+	std::set<const CCreature *> replacedCreatures;
+	for(const auto & object : zone.getConfiguredObjects())
+	{
+		if(object.primaryID == Obj::RANDOM_DWELLING_LVL)
+			replacedCreatures.insert(getRandomDwellingCreature(zone.getTownType(), object.secondaryID));
+	}
+
 	//dwellings
 	auto dwellingTypes = {Obj::CREATURE_GENERATOR1, Obj::CREATURE_GENERATOR4};
 	
@@ -251,7 +259,7 @@ void TreasurePlacer::addDwellings()
 				continue;
 
 			const auto * cre = creatures.front();
-			if(cre->getFactionID() == zone.getTownType())
+			if(cre->getFactionID() == zone.getTownType() && !replacedCreatures.count(cre))
 			{
 				float valueModifier = getNativeDwellingValueModifier(map, cre->getFactionID());
 				ObjectInfo oi(dwellingType, secondaryID);
@@ -272,7 +280,7 @@ void TreasurePlacer::addDwellings()
 				else
 				{
 					oi.value = getNativeDwellingValue(map, cre);
-					oi.probability = 40;
+					oi.probability = ObjectConfig::NATIVE_DWELLING_RARITY;
 				}
 				if(!oi.templates.empty())
 					addObjectToRandomPool(oi);

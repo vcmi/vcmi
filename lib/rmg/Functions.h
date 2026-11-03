@@ -45,5 +45,8 @@ float getNativeDwellingValueModifier(RmgMap & map, FactionID faction);
 /// Value of a dwelling producing given creature, placed in a zone of its own faction, as in SoD
 ui32 getNativeDwellingValue(RmgMap & map, const CCreature * creature);
 
+/// Creature of a random dwelling of given level (0-based) that becomes a dwelling of given faction, nullptr if there is none
+const CCreature * getRandomDwellingCreature(FactionID faction, int level);
+
 /// Value of a random dwelling of given level (0-based) that becomes a dwelling of given faction, 0 if it can't be determined
 ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level);

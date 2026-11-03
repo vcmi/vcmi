@@ -93,20 +93,25 @@ ui32 getNativeDwellingValue(RmgMap & map, const CCreature * creature)
 	return static_cast<ui32>(creature->getAIValue() * creature->getGrowth() * getNativeDwellingValueModifier(map, creature->getFactionID()));
 }
 
-ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level)
+const CCreature * getRandomDwellingCreature(FactionID faction, int level)
 {
 	if(faction == FactionID::NEUTRAL || level < 0)
-		return 0;
+		return nullptr;
 
 	const auto * factionPtr = faction.toFaction();
 	if(!factionPtr || !factionPtr->town)
-		return 0;
+		return nullptr;
 
 	const auto & tiers = factionPtr->town->creatures;
 	if(static_cast<size_t>(level) >= tiers.size() || tiers[level].empty())
-		return 0;
+		return nullptr;
 
-	const auto * creature = tiers[level].front().toCreature();
+	return tiers[level].front().toCreature();
+}
+
+ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level)
+{
+	const auto * creature = getRandomDwellingCreature(faction, level);
 	if(!creature)
 		return 0;
 

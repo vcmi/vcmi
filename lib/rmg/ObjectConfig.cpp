@@ -244,27 +244,36 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 			if (object.maxPerZone == 0)
 				object.maxPerZone = std::numeric_limits<int>::max();
 
+			const bool hasRarity = !rmg["rarity"].isNull();
+			auto addObject = [this, hasRarity](ObjectInfo objectWithID)
+			{
+				// random dwellings replace native ones, so by default they are as common
+				if (!hasRarity && objectWithID.primaryID == Obj::RANDOM_DWELLING_LVL)
+					objectWithID.probability = NATIVE_DWELLING_RARITY;
+				addCustomObject(objectWithID);
+			};
+
 			if (objectConfig["id"].isNull())
 			{
-				LIBRARY->identifiers()->requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig](int primaryID)
+				LIBRARY->identifiers()->requestIdentifierIfFound("object", objectConfig["type"], [addObject, object, objectConfig](int primaryID)
 				{
 					if (objectConfig["subtype"].isNull())
 					{
 						auto objectWithID = object;
 						objectWithID.primaryID = primaryID;
 						objectWithID.secondaryID = 0;
-						addCustomObject(objectWithID);
+						addObject(objectWithID);
 					}
 					else
 					{
 						const std::string jsonKey = LIBRARY->objtypeh->getJsonKey(primaryID);
 
-						LIBRARY->identifiers()->requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object](int secondaryID)
+						LIBRARY->identifiers()->requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [addObject, primaryID, object](int secondaryID)
 						{
 							auto objectWithID = object;
 							objectWithID.primaryID = primaryID;
 							objectWithID.secondaryID = secondaryID;
-							addCustomObject(objectWithID);
+							addObject(objectWithID);
 						});
 					}
 				});
@@ -274,14 +283,14 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler)
 				// MOD COMPATIBILITY - 1.6 format
 				auto objectName = objectConfig["id"].String();
 
-				LIBRARY->objtypeh->resolveObjectCompoundId(objectName, [this, object](CompoundMapObjectID objid)
+				LIBRARY->objtypeh->resolveObjectCompoundId(objectName, [addObject, object](CompoundMapObjectID objid)
 				{
 					auto objectWithID = object;
 					objectWithID.primaryID = objid.primaryID;
 					objectWithID.secondaryID = objid.secondaryID;
 					if (objectWithID.secondaryID == -1)
 						objectWithID.secondaryID = 0;
-					addCustomObject(objectWithID);
+					addObject(objectWithID);
 				});
 			}
 		}
