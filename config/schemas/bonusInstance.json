@@ -53,7 +53,7 @@
 							"bonusSubtype" : { "type" : "string" },
 							"bonusSourceType" : { "type" : "string" },
 							"bonusSourceID" : { "type" : "string" },
-							"bonusSourceSecondaryID" : { "type" : "string" },
+							"bonusSourceSecondaryID" : { "anyOf" : [ { "enum" : [ "NONE", "BASIC", "ADVANCED", "EXPERT" ] }, { "type" : "number" } ] },
 							"bonusMinValue" : { "type" : "number" },
 							"bonusMaxValue" : { "type" : "number" }
 						}
@@ -333,15 +333,68 @@
 	"allOf" : [
 		{
 			"if" : {
+				"required" : [ "type" ],
+				"properties" : { "type" : { "const" : "BATTLE_NO_FLEEING" } }
+			},
+			"then" : {
+				"properties" : { "type" : { "deprecated" : "Use BATTLE_CAN_FLEE with value -100 instead of BATTLE_NO_FLEEING. See also BATTLE_CAN_SURRENDER" } }
+			}
+		},
+		{
+			"if" : {
+				"required" : [ "type" ],
+				"properties" : { "type" : { "const" : "NONEVIL_ALIGNMENT_MIX" } }
+			},
+			"then" : {
+				"properties" : { "type" : { "deprecated" : "Use two ALIGNMENT_MIX bonuses with subtypes alignmentGood and alignmentNeutral instead of NONEVIL_ALIGNMENT_MIX" } }
+			}
+		},
+		{
+			"if" : {
+				"required" : [ "type" ],
+				"properties" : { "type" : { "enum" : [ "LIFE_DRAIN", "REBIRTH", "SOUL_STEAL", "TRANSMUTATION", "SUMMON_GUARDIANS", "ENCHANTED", "FIRE_SHIELD", "DESTRUCTION", "DEATH_STARE" ] } }
+			},
+			"then" : {
+				"properties" : { "type" : { "deprecated" : "This ability is now a combat script. Use COMBAT_EVENT_TRIGGER bonus with script name as subtype, see Bonus_Types.md for conversion of subtype and addInfo" } }
+			}
+		},
+		{
+			"if" : {
+				"required" : [ "type" ],
+				"properties" : { "type" : { "const" : "ACID_BREATH" } }
+			},
+			"then" : {
+				"properties" : { "type" : { "deprecated" : "ACID_BREATH has been removed and does nothing. Use SPELL_AFTER_ATTACK with damage spell, and SPECIFIC_SPELL_POWER for its damage" } }
+			}
+		},
+		{
+			"if" : {
+				"required" : [ "type", "subtype" ],
+				"properties" : { "type" : { "const" : "SPECIAL_UPGRADE" } }
+			},
+			"then" : {
+				"properties" : { "subtype" : { "deprecated" : "Use limiters, such as CREATURE_TYPE_LIMITER, instead of subtype to select creatures that receive SPECIAL_UPGRADE" } }
+			}
+		},
+		{
+			"if" : {
+				"required" : [ "type" ],
+				"properties" : { "type" : { "const" : "SLAYER" } },
+				"not" : { "required" : [ "addInfo" ] }
+			},
+			"then" : {
+				"properties" : { "type" : { "deprecated" : "SLAYER needs spell mastery in addInfo, otherwise it never affects units with KING bonus. Value of bonus is now attack bonus, not mastery" } }
+			}
+		},
+		{
+			"if" : {
 				"properties" : {
 					"type" : {
 						"enum" : [
 							"IMPROVED_NECROMANCY", 
 							"SPECIAL_ADD_VALUE_ENCHANT", 
 							"SPECIAL_FIXED_VALUE_ENCHANT",
-							"DESTRUCTION", 
 							"LIMITED_SHOOTING_RANGE", 
-							"ACID_BREATH", 
 							"BIND_EFFECT", 
 							"SPELLCASTER", 
 							"FEROCITY", 
@@ -416,8 +469,8 @@
 				"properties" : {
 					"addInfo" : {
 						"anyOf" : [
-							{ "type" : "number" },
-							{ "type" : "array", "items" : { "type" : "number" } }
+							{ "type" : "array", "items" : { "type" : "number" } },
+							{ "type" : "number", "deprecated" : "Single number in addInfo of SPECIAL_PECULIAR_ENCHANT is ignored. Use per-tier array, e.g. [ 4, 3, 2, 1, 0, 0, 0 ] for old Slayer specialty, or omit addInfo for the standard bracket" }
 						]
 					}
 				}
@@ -443,7 +496,7 @@
 		{
 			"if" : {
 				"properties" : {
-					"type" : { "enum" : [ "SPECIAL_UPGRADE",  "TRANSMUTATION",  "DEATH_STARE" ] }
+					"type" : { "enum" : [ "SPECIAL_UPGRADE" ] }
 				}
 			},
 			"then" : {
@@ -567,8 +620,8 @@
 			"description" : "sourceID"
 		},
 		"sourceSecondaryID" : {
-			"type" : "string",
-			"description" : "Optional. In case of some bonuses provides additonal information (example: mastery level for spell effect)"
+			"anyOf" : [ { "enum" : [ "NONE", "BASIC", "ADVANCED", "EXPERT" ] }, { "type" : "number" } ],
+			"description" : "Optional. In case of some bonuses provides additional information (example: mastery level for spell effect)"
 		},
 		"sourceType" : {
 			"type" : "string",

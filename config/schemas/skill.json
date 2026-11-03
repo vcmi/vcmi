@@ -66,6 +66,10 @@
 			"type" : "number",
 			"description" : "Internal, numeric id of skill, required for existing skills"
 		},
+		"obligatoryMajor" : { "deprecated" : "Use \"tags\" : { \"wisdom\" : true } instead" },
+		"obligatoryMinor" : { "deprecated" : "Use \"tags\" : { \"spellSchool\" : true } instead" },
+		"special" : { "deprecated" : "Use \"tags\" : { \"special\" : true } instead" },
+		"onlyOnWaterMap" : { "deprecated" : "Use \"tags\" : { \"onlyOnWaterMap\" : true } instead" },
 		"specialty" : {
 			"type" : "array",
 			"description" : "List of bonuses that are affected by hero specialty",
