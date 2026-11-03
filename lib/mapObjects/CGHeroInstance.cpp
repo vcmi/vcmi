@@ -554,14 +554,16 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 	auto stacksCountChances = cb->getSettings().getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
 	int stacksCountInitRandomNumber = rand.nextInt(1, 100);
 
-	size_t maxStacksCount = std::min(stacksCountChances.size(), getHeroType()->initialArmy.size());
+	// campaign Yog is a wizard hero type, but his army comes from the original barbarian Yog
+	const CHero * armyTemplate = isCampaignYog() ? HeroTypeID(HeroTypeID::decode("yog")).toHeroType() : getHeroType();
+	size_t maxStacksCount = std::min(stacksCountChances.size(), armyTemplate->initialArmy.size());
 
 	for(int stackNo=0; stackNo < maxStacksCount; stackNo++)
 	{
 		if (stacksCountInitRandomNumber > stacksCountChances[stackNo])
 			continue;
 
-		auto & stack = getHeroType()->initialArmy[stackNo];
+		auto & stack = armyTemplate->initialArmy[stackNo];
 
 		int count = rand.nextInt(stack.minAmount, stack.maxAmount);
 
