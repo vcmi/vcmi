@@ -189,7 +189,7 @@ These are just a couple of examples of what can be done in VCMI. See vcmi config
 	"mode" : "auto",
 	
 	// Buildings which bonuses should be overridden with bonuses of the current building
-	"overrides" : [ "anotherBuilding ]
+	"overrides" : [ "anotherBuilding" ]
 	
 	// Bonuses provided by this special building if this building or any of its upgrades are constructed in town
 	"bonuses" : [ BONUS_FORMAT ]
