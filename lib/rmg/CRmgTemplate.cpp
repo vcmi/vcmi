@@ -794,7 +794,37 @@ const std::vector<ZoneConnection> & CRmgTemplate::getConnectedZoneIds() const
 
 void CRmgTemplate::validate() const
 {
-	//TODO add some validation checks, throw on failure
+	const auto checkZoneLink = [this](const std::string & field, TRmgTemplateZoneId target)
+	{
+		if(target != rmg::ZoneOptions::NO_ZONE && !zones.count(target))
+			throw std::runtime_error(boost::str(boost::format("'%s' refers to zone %d that does not exist") % field % target));
+	};
+
+	for(const auto & [id, zone] : zones)
+	{
+		const std::string zonePath = "zones/" + std::to_string(id) + "/";
+
+		checkZoneLink(zonePath + "townsLikeZone", zone->getTownsLikeZone());
+		checkZoneLink(zonePath + "minesLikeZone", zone->getMinesLikeZone());
+		checkZoneLink(zonePath + "terrainTypeLikeZone", zone->getTerrainTypeLikeZone());
+		checkZoneLink(zonePath + "treasureLikeZone", zone->getTreasureLikeZone());
+		checkZoneLink(zonePath + "customObjectsLikeZone", zone->getCustomObjectsLikeZone());
+
+		for(const auto & hint : zone->getTownHints())
+		{
+			checkZoneLink(zonePath + "townHints/likeZone", hint.likeZone);
+			for(const auto & notLikeZone : hint.notLikeZone)
+				checkZoneLink(zonePath + "townHints/notLikeZone", notLikeZone);
+			checkZoneLink(zonePath + "townHints/relatedToZoneTerrain", hint.relatedToZoneTerrain);
+		}
+	}
+
+	for(const auto & connection : connections)
+	{
+		const std::string connectionPath = "connections/" + std::to_string(connection.getId()) + "/";
+		checkZoneLink(connectionPath + "a", connection.getZoneA());
+		checkZoneLink(connectionPath + "b", connection.getZoneB());
+	}
 }
 
 std::pair<int3, int3> CRmgTemplate::getMapSizes() const

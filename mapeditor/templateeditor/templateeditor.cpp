@@ -750,6 +750,16 @@ bool TemplateEditor::validate()
 				}
 			}
 		}
+
+		try
+		{
+			tpl.second->validate();
+		}
+		catch(const std::exception & e)
+		{
+			QMessageBox::critical(this, vf, QString::fromStdString(e.what()));
+			return false;
+		}
 	}
 
 	return true;
@@ -788,7 +798,15 @@ void TemplateEditor::on_actionOpen_triggered()
 	if(filenameSelect.isEmpty())
 		return;
 
-	templates = Helper::openTemplateInternal(filenameSelect);
+	try
+	{
+		templates = Helper::openTemplateInternal(filenameSelect);
+	}
+	catch(const std::exception & e)
+	{
+		QMessageBox::critical(this, tr("Failed to open template"), QString::fromStdString(e.what()));
+		return;
+	}
 
 	initContent();
 	loadContent();

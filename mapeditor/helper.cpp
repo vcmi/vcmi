@@ -173,7 +173,6 @@ std::map<std::string, std::shared_ptr<CRmgTemplate>> Helper::openTemplateInterna
 		JsonDeserializer handler(nullptr, resolver, node.second);
 		auto rmg = std::make_shared<CRmgTemplate>();
 		rmg->serializeJson(handler, *LIBRARY->objtypeh);
-		rmg->validate();
 		templates[node.first] = rmg;
 	}
 	

@@ -40,19 +40,20 @@ void CRmgTemplateStorage::loadObject(LibraryLoadContext & context, const std::st
 	{
 		JsonDeserializer handler(nullptr, context.resolver, data);
 		auto fullKey = scope + ":" + name; //actually it's not used
-		templates[fullKey] = std::make_shared<CRmgTemplate>();
-		templates[fullKey]->setId(fullKey);
-		templates[fullKey]->serializeJson(handler, *context.lib.objtypeh);
-		templates[fullKey]->setName(name);
+		auto loadedTemplate = std::make_shared<CRmgTemplate>();
+		loadedTemplate->setId(fullKey);
+		loadedTemplate->serializeJson(handler, *context.lib.objtypeh);
+		loadedTemplate->setName(name);
+		loadedTemplate->validate();
 
-		if (!templates[fullKey]->getDescription().empty())
-			context.lib.generaltexth->registerString(scope, templates[fullKey]->getDescriptionTextID(), data["description"]);
+		if (!loadedTemplate->getDescription().empty())
+			context.lib.generaltexth->registerString(scope, loadedTemplate->getDescriptionTextID(), data["description"]);
 
-		templates[fullKey]->validate();
+		templates[fullKey] = loadedTemplate;
 	}
 	catch(const std::exception & e)
 	{
-		logGlobal->error("Template %s has errors. Message: %s.", name, std::string(e.what()));
+		logMod->error("Mod '%s': random map template '%s' is invalid and will not be loaded: %s", scope, name, e.what());
 	}
 }
 
