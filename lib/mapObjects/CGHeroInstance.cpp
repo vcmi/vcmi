@@ -2034,6 +2034,16 @@ bool CGHeroInstance::isCampaignGem() const
 	return si && si->campState &&si->campState->getGemSorceressID() == getHeroTypeID();
 }
 
+bool CGHeroInstance::canEquipArmageddonsBlade() const
+{
+	const StartInfo *si = cb->getStartInfo();
+	if(!si || !si->campState || !si->campState->currentScenario())
+		return true;
+
+	HeroTypeID bearer = si->campState->scenario(*si->campState->currentScenario()).armageddonsBladeBearer;
+	return !bearer.hasValue() || bearer == getHeroTypeID();
+}
+
 ResourceSet CGHeroInstance::dailyIncome() const
 {
 	ResourceSet income;

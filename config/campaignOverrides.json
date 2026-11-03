@@ -75,7 +75,7 @@
 			{ "voiceProlog": "ABvoAB5" }, //E- Return of the King.h3m
 			{ "voiceProlog": "ABvoAB6" }, //F- A Blade in the Back.h3m
 			{ "voiceProlog": "ABvoAB7" }, //G- To Kill a Hero.h3m
-			{ "voiceProlog": "ABvoAB8", "voiceEpilog": "ABvoAB9" } //H- Oblivion's Edge.h3m
+			{ "voiceProlog": "ABvoAB8", "voiceEpilog": "ABvoAB9", "heroArmageddonsBladeBearer": "gelu" } //H- Oblivion's Edge.h3m
 		]
 	},
 	"DATA/BLOOD" : { // Dragon's Blood

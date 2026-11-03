@@ -365,6 +365,7 @@ public:
 
 	bool isCampaignYog() const;
 	bool isCampaignGem() const;
+	bool canEquipArmageddonsBlade() const;
 
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;//synchr

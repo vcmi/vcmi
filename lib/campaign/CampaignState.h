@@ -188,6 +188,9 @@ struct CampaignScenario
 
 	CampaignTravel travelOptions;
 
+	/// if set, only this hero can equip Armageddon's Blade in this scenario
+	HeroTypeID armageddonsBladeBearer;
+
 	void loadPreconditionRegions(ui32 regions);
 	bool isNotVoid() const;
 
@@ -202,6 +205,9 @@ struct CampaignScenario
 		h & prolog;
 		h & epilog;
 		h & travelOptions;
+
+		if(h.hasFeature(Handler::Version::ARMAGEDDONS_BLADE_BEARER))
+			h & armageddonsBladeBearer;
 	}
 };
 

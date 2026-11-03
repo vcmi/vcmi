@@ -47,7 +47,8 @@ const CGameState & EditorCallback::gameState() const
 
 const StartInfo * EditorCallback::getStartInfo() const
 {
-	THROW_EDITOR_UNSUPPORTED;
+	// hero and artifact checks run in the editor too, and treat a missing start info as "not a campaign"
+	return nullptr;
 }
 
 Calendar EditorCallback::getCalendar() const
