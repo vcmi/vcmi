@@ -45,6 +45,7 @@ set(test_SRCS
 		game/HeroRecruitmentTest.cpp
 		game/HeroMovementTest.cpp
 		game/HeroSecondarySkillsTest.cpp
+		game/StartingHeroTest.cpp
 		game/MovementCostTest.cpp
 		game/SaveGameTest.cpp
 		game/VictoryLossTest.cpp
@@ -59,7 +60,10 @@ set(test_SRCS
 		map/MapScriptTest.cpp
 		map/MapObjectDrawOrderTest.cpp
 		map/PlayerFactionsTest.cpp
+		map/ScenarioMetadataTest.cpp
 		map/TinyH3MBuilderTest.cpp
+
+		modding/ModDescriptionTest.cpp
 
 		quest/QuestTest.cpp
 		quest/QuestAssertions.cpp
@@ -109,6 +113,7 @@ set(test_SRCS
  		spells/targetConditions/SpellEffectConditionTest.cpp
  		spells/targetConditions/TargetConditionItemFixture.cpp
 
+		server/lobby/ScenarioListBuilderTest.cpp
 		server/battles/AcidBreathTest.cpp
 		server/battles/ActionOptionsTest.cpp
 		server/battles/AttackSequenceTest.cpp
@@ -140,6 +145,8 @@ set(test_SRCS
 		server/battles/WalkActionTest.cpp
 		server/activities/ActivityProcessorTest.cpp
 		server/ArmyManagementTest.cpp
+		server/NeutralTownEventsTest.cpp
+		server/TavernRumorsTest.cpp
 
 		texts/TextOperationsTest.cpp
 

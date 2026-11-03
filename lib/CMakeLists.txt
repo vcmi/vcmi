@@ -35,6 +35,7 @@ set(lib_SRCS
 	network/NetworkHandler.cpp
 	network/NetworkServer.cpp
 
+	texts/Languages.cpp
 	texts/TextOperations.cpp
 
 	vstd/DateUtils.cpp
@@ -134,6 +135,7 @@ set(lib_MAIN_SRCS
 	entities/hero/CHeroClassHandler.cpp
 	entities/hero/CHeroHandler.cpp
 	entities/ResourceTypeHandler.cpp
+	entities/RumorTypeHandler.cpp
 
 	events/ApplyDamage.cpp
 	events/GameResumed.cpp
@@ -153,7 +155,6 @@ set(lib_MAIN_SRCS
 	gameState/InfoAboutArmy.cpp
 	gameState/QuestInfo.cpp
 	gameState/ReplayLog.cpp
-	gameState/RumorState.cpp
 	gameState/SaveMetadata.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp
@@ -201,6 +202,8 @@ set(lib_MAIN_SRCS
 	mapping/CMapInfo.cpp
 	mapping/CMapOperation.cpp
 	mapping/CMapService.cpp
+	mapping/ScenarioListEntry.cpp
+	mapping/ScenarioMetadata.cpp
 	mapping/HotaScriptConverter.cpp
 	mapping/MapEditUtils.cpp
 	mapping/MapIdentifiersH3M.cpp
@@ -215,6 +218,8 @@ set(lib_MAIN_SRCS
 	modding/CModHandler.cpp
 	modding/CModVersion.cpp
 	modding/ContentTypeHandler.cpp
+	modding/IdentifierResolver.cpp
+	modding/LibraryLoadContext.cpp
 	modding/IdentifierStorage.cpp
 	modding/ModDescription.cpp
 	modding/ModIncompatibility.cpp
@@ -286,7 +291,6 @@ set(lib_MAIN_SRCS
 	serializer/JsonDeserializer.cpp
 	serializer/JsonSerializeFormat.cpp
 	serializer/JsonSerializer.cpp
-	serializer/JsonUpdater.cpp
 	serializer/SerializerReflection.cpp
 
 	scripting/ScriptVariablesStorage.cpp
@@ -583,6 +587,7 @@ set(lib_MAIN_HEADERS
 	entities/hero/CHeroHandler.h
 	entities/hero/EHeroGender.h
 	entities/ResourceTypeHandler.h
+	entities/RumorTypeHandler.h
 
 	events/ApplyDamage.h
 	events/GameResumed.h
@@ -664,6 +669,9 @@ set(lib_MAIN_HEADERS
 	mapping/CMapInfo.h
 	mapping/CMapOperation.h
 	mapping/CMapService.h
+	mapping/ScenarioList.h
+	mapping/ScenarioListEntry.h
+	mapping/ScenarioMetadata.h
 	mapping/MapDifficulty.h
 	mapping/HotaScriptConverter.h
 	mapping/MapEditUtils.h
@@ -682,6 +690,8 @@ set(lib_MAIN_HEADERS
 	modding/CModHandler.h
 	modding/CModVersion.h
 	modding/ContentTypeHandler.h
+	modding/IdentifierResolver.h
+	modding/LibraryLoadContext.h
 	modding/IdentifierStorage.h
 	modding/ModDescription.h
 	modding/ModIncompatibility.h
@@ -782,7 +792,6 @@ set(lib_MAIN_HEADERS
 	serializer/JsonDeserializer.h
 	serializer/JsonSerializeFormat.h
 	serializer/JsonSerializer.h
-	serializer/JsonUpdater.h
 	serializer/ESerializationVersion.h
 	serializer/PlayerConnectionID.h
 	serializer/RegisterTypes.h

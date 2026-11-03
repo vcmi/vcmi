@@ -18,7 +18,8 @@
 CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem::path baseDirectory, size_t depth, bool initial):
 	baseDirectory(std::move(baseDirectory)),
 	mountPoint(std::move(_mountPoint)),
-	recursiveDepth(depth)
+	recursiveDepth(depth),
+	initial(initial)
 {
 	try {
 		fileList = listFiles(mountPoint, depth, initial);
@@ -65,7 +66,7 @@ bool CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string
 		return false;
 
 	std::lock_guard lock(fileListGuard);
-	auto newFileList = listFiles(mountPoint, recursiveDepth, false);
+	auto newFileList = listFiles(mountPoint, recursiveDepth, initial);
 	bool changed = newFileList != fileList;
 	fileList = std::move(newFileList);
 	return changed;
@@ -101,6 +102,12 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 
 	filename = filename.substr(mountPoint.size());
 	boost::filesystem::path filePath = TextOperations::Utf8TofilesystemPath(filename);
+
+	if (filePath.has_root_path() || std::any_of(filePath.begin(), filePath.end(), [](const boost::filesystem::path & part){ return part == ".."; }))
+	{
+		logGlobal->error("Can't create file outside of mount point %s: %s", mountPoint, requestedFilename);
+		return false;
+	}
 
 	if (!update)
 	{
@@ -142,6 +149,7 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 	static const EResType initArray[] = {
 		EResType::DIRECTORY,
 		EResType::JSON,
+		EResType::TEXT, // mod descriptions
 		EResType::ARCHIVE_LOD,
 		EResType::ARCHIVE_VID,
 		EResType::ARCHIVE_SND,

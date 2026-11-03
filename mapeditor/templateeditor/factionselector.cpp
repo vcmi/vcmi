@@ -27,7 +27,7 @@ FactionSelector::FactionSelector(std::set<FactionID> & factions) :
 	
 	setWindowModality(Qt::ApplicationModal);
 
-	for(auto const & objectPtr : LIBRARY->townh->objects)
+	for(auto const & objectPtr : LIBRARY->townh->getObjects())
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));

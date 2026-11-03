@@ -117,7 +117,7 @@ void BattleTestFixture::TearDown()
 	TinyMapGameTest::TearDown();
 }
 
-Services * BattleTestFixture::gameServices()
+const Services * BattleTestFixture::gameServices()
 {
 	return LIBRARY;
 }

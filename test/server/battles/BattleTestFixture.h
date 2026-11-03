@@ -179,7 +179,7 @@ public:
 
 protected:
 	/// A battle runs real game logic, which the mocked services cannot answer.
-	Services * gameServices() override;
+	const Services * gameServices() override;
 
 private:
 	static void makeNeutral(CGHeroInstance * hero);

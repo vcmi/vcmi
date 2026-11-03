@@ -99,10 +99,10 @@ const CCreature * getRandomDwellingCreature(FactionID faction, int level)
 		return nullptr;
 
 	const auto * factionPtr = faction.toFaction();
-	if(!factionPtr || !factionPtr->town)
+	if(!factionPtr || !factionPtr->getTown())
 		return nullptr;
 
-	const auto & tiers = factionPtr->town->creatures;
+	const auto & tiers = factionPtr->getTown()->creatures;
 	if(static_cast<size_t>(level) >= tiers.size() || tiers[level].empty())
 		return nullptr;
 

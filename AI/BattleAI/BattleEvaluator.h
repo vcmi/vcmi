@@ -33,6 +33,7 @@ class DLL_EXPORT BattleEvaluator
 	std::shared_ptr<CBattleCallback> cb;
 	std::shared_ptr<Environment> env;
 	bool activeActionMade = false;
+	std::atomic<bool> breachCastFound = false;
 	CachedAttack cachedAttack;
 	PlayerColor playerID;
 	BattleID battleID;
@@ -53,6 +54,12 @@ public:
 		const BattleHexArray & finalDestinationHexes);
 	std::vector<BattleHex> getBrokenWallMoatHexes() const;
 	bool hasWorkingTowers() const;
+	/// Whether town walls or gate already have a passage for attacking units
+	static bool wallsBreached(const CBattleInfoCallback & battle);
+	/// Value of the first damage to unbreached walls, as share of enemy army that our walking units could reach
+	float breachValue() const;
+	/// Whether last attemptCastingSpell found a cast that opens walls our walking units need opened
+	bool canBreachWalls() const { return breachCastFound; }
 	void evaluateCreatureSpellcast(const CStack * stack, PossibleSpellcast & ps);
 	/// Value that bonuses of a simulated cast add to our army and take away from the enemy. Health that
 	/// the same cast changed is scored separately, so only what the bonuses are worth is counted here

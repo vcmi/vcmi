@@ -20,4 +20,6 @@ enum MapEditorRoles
 	ObjectInstanceIDRole,
 	ArtifactIDRole,
 	ArtifactSlotRole,
+	ObjectGroupRole,
+	TerrainIDRole,
 };

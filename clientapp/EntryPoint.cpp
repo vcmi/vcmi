@@ -35,7 +35,6 @@
 #include "../lib/ExceptionsCommon.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
-#include "../lib/modding/IdentifierStorage.h"
 #include "../lib/texts/TextOperations.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
@@ -84,12 +83,12 @@ namespace po_style = boost::program_options::command_line_style;
 
 static std::optional<std::string> criticalInitializationError;
 
-static void init()
+static void init(GameLibrary & library)
 {
 	try
 	{
 		CStopWatch tmh;
-		LIBRARY->initializeLibrary();
+		library.initializeLibrary();
 		logGlobal->info("Initializing VCMI_Lib: %d ms", tmh.getDiff());
 	}
 	catch (const DataLoadingException & e)
@@ -105,7 +104,7 @@ static void init()
 
 static void checkForModLoadingFailure()
 {
-	const auto & brokenMods = LIBRARY->identifiersHandler->getModsWithFailedRequests();
+	const auto & brokenMods = LIBRARY->modh->getModsWithFailedRequests();
 	if (!brokenMods.empty())
 	{
 		MetaString messageText;
@@ -254,12 +253,17 @@ int main(int argc, char * argv[])
 	logGlobal->info("Starting client of '%s'", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
 	logGlobal->info("Creating console and configuring logger: %d ms", pomtime.getDiff());
 	logGlobal->info("The log file will be saved to %s", TextOperations::filesystemPathToUtf8(logPath));
+#ifdef VCMI_SDL3
+	logGlobal->info("Media backend: SDL3");
+#else
+	logGlobal->warn("Media backend: SDL2 - deprecated, slower and does not support all features");
+#endif
 
 	// Init filesystem and settings
+	auto library = std::make_unique<GameLibrary>();
 	try
 	{
-		LIBRARY = new GameLibrary;
-		LIBRARY->initializeFilesystem(false);
+		library->initializeFilesystem(false);
 	}
 	catch (const DataLoadingException & e)
 	{
@@ -328,7 +332,7 @@ int main(int argc, char * argv[])
 
 		if(!settings["session"]["headless"].Bool())
 		{
-			if(LIBRARY->getGameDataMode() == GameLibrary::GameDataMode::ROE)
+			if(library->getGameDataMode() == GameLibrary::GameDataMode::ROE)
 				handleFatalError("Heroes III: Restoration of Erathia (including HD Edition) data files are not supported!", false);
 
 			ENGINE = std::make_unique<GameEngine>();
@@ -341,13 +345,13 @@ int main(int argc, char * argv[])
 	
 #ifndef VCMI_NO_THREADED_LOAD
 		//we can properly play intro only in the main thread, so we have to move loading to the separate thread
-		std::thread loading([]()
+		std::thread loading([&library]()
 		{
 			setThreadName("initialize");
-			init();
+			init(*library);
 		});
 #else
-		init();
+		init(*library);
 #endif
 
 #ifndef VCMI_NO_THREADED_LOAD
@@ -367,6 +371,8 @@ int main(int argc, char * argv[])
 		{
 			handleFatalError(criticalInitializationError.value(), false);
 		}
+
+		LIBRARY = library.release();
 
 		if (ENGINE)
 		{

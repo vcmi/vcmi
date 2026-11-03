@@ -17,11 +17,9 @@
 #include "../battle/Unit.h"
 #include "../bonuses/BonusList.h"
 #include "../bonuses/BonusParameters.h"
-#include "../json/JsonBonus.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
 #include "../serializer/JsonSerializeFormat.h"
-#include "../GameLibrary.h"
 
 #include <vcmi/spells/Spell.h>
 
@@ -67,31 +65,25 @@ public:
 		sel(csel)
 	{
 	}
-	SelectorCondition(const CSelector & csel, si32 minVal, si32 maxVal):
-		sel(csel),
-		minVal(minVal),
-		maxVal(maxVal)
-	{
-	}
 
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		if(target->hasBonus(sel)) {
-			auto b = target->valOfBonuses(sel,"");
-			return b >= minVal && b <= maxVal;
-		}
-		return false;
+		return target->hasBonus(sel);
 	}
 
 private:
 	CSelector sel;
-	si32 minVal = std::numeric_limits<si32>::min();
-	si32 maxVal = std::numeric_limits<si32>::max();
 };
 
 class ResistanceCondition : public TargetConditionItemBase
 {
+public:
+	ResistanceCondition()
+	{
+		exclusive = true;
+	}
+
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
@@ -325,7 +317,14 @@ protected:
 
 class DefaultTargetConditionItemFactory : public TargetConditionItemFactory
 {
+	const CIdentifierStorage & identifiers;
+
 public:
+	explicit DefaultTargetConditionItemFactory(const CIdentifierStorage & identifiers)
+		: identifiers(identifiers)
+	{
+	}
+
 	Object createAbsoluteLevel() const override
 	{
 		static const auto antimagicCondition = std::make_shared<AbsoluteLevelCondition>();
@@ -366,7 +365,7 @@ public:
 	{
 		if(type == "bonus")
 		{
-			std::optional bonusID(LIBRARY->identifiers()->getIdentifier(scope, "bonus", identifier, true));
+			std::optional bonusID(identifiers.getIdentifier(scope, "bonus", identifier, true));
 			if (bonusID)
 				return std::make_shared<SelectorCondition>(Selector::type()(static_cast<BonusType>(*bonusID)));
 			else
@@ -374,7 +373,7 @@ public:
 		}
 		else if(type == "creature")
 		{
-			auto rawId = LIBRARY->identifiers()->getIdentifier(scope, type, identifier, true);
+			auto rawId = identifiers.getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<CreatureCondition>(CreatureID(rawId.value()));
@@ -383,7 +382,7 @@ public:
 		}
 		else if(type == "spell")
 		{
-			auto rawId = LIBRARY->identifiers()->getIdentifier(scope, type, identifier, true);
+			auto rawId = identifiers.getIdentifier(scope, type, identifier, true);
 
 			if(rawId)
 				return std::make_shared<SpellEffectCondition>(SpellID(rawId.value()));
@@ -402,26 +401,6 @@ public:
 		return Object();
 	}
 
-	Object createFromJsonStruct(const JsonNode & jsonStruct) const override
-	{
-		auto type = jsonStruct["type"].String();
-		auto parameters = jsonStruct["parameters"];
-		if(type == "selector")
-		{
-			auto minVal = std::numeric_limits<si32>::min();
-			auto maxVal = std::numeric_limits<si32>::max();
-			if(parameters["minVal"].isNumber())
-				minVal = parameters["minVal"].Integer();
-			if(parameters["maxVal"].isNumber())
-				maxVal = parameters["maxVal"].Integer();
-			auto sel = JsonUtils::parseSelector(parameters);
-			return std::make_shared<SelectorCondition>(sel, minVal, maxVal);
-		}
-
-		logMod->error("Invalid type %s in spell target condition.", type);
-		return Object();
-	}
-
 	Object createReceptiveFeature() const override
 	{
 		static const auto condition = std::make_shared<ReceptiveFeatureCondition>();
@@ -435,10 +414,9 @@ public:
 	}
 };
 
-const TargetConditionItemFactory * TargetConditionItemFactory::getDefault()
+std::unique_ptr<TargetConditionItemFactory> TargetConditionItemFactory::create(const CIdentifierStorage & identifiers)
 {
-	static const std::unique_ptr<TargetConditionItemFactory> singleton = std::make_unique<DefaultTargetConditionItemFactory>();
-	return singleton.get();
+	return std::make_unique<DefaultTargetConditionItemFactory>(identifiers);
 }
 
 bool TargetCondition::isReceptive(const Mechanics * m, const battle::Unit * target) const
@@ -528,24 +506,16 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 			isAbsolute = true;
 		else if(value.String() == "normal")
 			isAbsolute = false;
-		else if(value.isStruct()) //assume conditions have a new struct format
-			isAbsolute = value["absolute"].Bool();
 		else
 			continue;
 
-		std::shared_ptr<TargetConditionItem> item;
-		if(value.isStruct())
-			item = itemFactory->createFromJsonStruct(value);
-		else
-		{
-			std::string scope;
-			std::string type;
-			std::string identifier;
+		std::string scope;
+		std::string type;
+		std::string identifier;
 
-			ModUtility::parseIdentifier(keyValue.first, scope, type, identifier);
+		ModUtility::parseIdentifier(keyValue.first, scope, type, identifier);
 
-			item = itemFactory->createConfigurable(keyValue.second.getModScope(), type, identifier);
-		}
+		std::shared_ptr<TargetConditionItem> item = itemFactory->createConfigurable(keyValue.second.getModScope(), type, identifier);
 
 		if(item)
 		{

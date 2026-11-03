@@ -128,7 +128,7 @@ public:
 				return "Attack Stack(" + stackstr(target) + ") from " + endhex->name();
 			case S15::ActionType::SHOOT:
 				ASSERT(target != nullptr, "SHOOT with no valid targets");
-				return "Attack Stack(" + stackstr(target) + ") from " + endhex->name();
+				return "Shoot Stack(" + stackstr(target) + ") from " + endhex->name();
 			default:
 				throwf("Unexpected action type: %1%", EI(actionType));
 		}

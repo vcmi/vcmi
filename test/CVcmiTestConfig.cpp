@@ -15,13 +15,14 @@
 
 void CVcmiTestConfig::SetUp()
 {
-	LIBRARY = new GameLibrary;
+	auto library = std::make_unique<GameLibrary>();
 	// useTestPreset activates the core+vcmi+vcmi-test preset (config/testModSettings.json),
 	// so tests are independent of the developer's active mods and never overwrite the real
 	// modSettings.json. The vcmi-test mod supplies all fixtures and flips on the HOTA map
 	// format needed by TinyH3MBuilder.
-	LIBRARY->initializeFilesystem(false, /*useTestPreset*/ true);
-	LIBRARY->initializeLibrary();
+	library->initializeFilesystem(false, /*useTestPreset*/ true);
+	library->initializeLibrary();
+	LIBRARY = library.release();
 }
 
 void CVcmiTestConfig::TearDown()

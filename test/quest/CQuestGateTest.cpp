@@ -16,6 +16,7 @@
 #include "../../lib/mapObjects/CGHeroInstance.h"
 #include "../../lib/mapObjects/Quest.h"
 #include "../../lib/pathfinder/CGPathNode.h"
+#include "../../lib/texts/CGeneralTextHandler.h"
 
 // Quest Gate semantics. A Quest Gate stays on the map and is
 // passable once its limiter is satisfied; a "toll" gate (consumable limiter)
@@ -209,6 +210,20 @@ TEST_F(QuestGateTest, GateWithExpiredQuestNeverOpens)
 	visit(hero, gate);
 	EXPECT_FALSE(gameEvents().infoWindows.empty()) << "the hero is told the gate is shut";
 	EXPECT_EQ(gameEvents().addedQuests.size(), addQuestsBefore) << "nothing to do - nothing to log";
+}
+
+TEST_F(QuestGateTest, GateWithExpiredQuestShowsCustomTimeoutMessage)
+{
+	auto s = gateScenario(B::missionLevel(1).withLastDay(3));
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s)));
+
+	auto * gate = expectAt<QuestGate>(kGatePos);
+	gate->getQuest().timeoutTextID = "core.genrltxt.1";
+	advanceDays(5);
+
+	visit(findHeroAt(kHeroPos), gate);
+	ASSERT_FALSE(gameEvents().infoWindows.empty());
+	EXPECT_EQ(gameEvents().infoWindows.back().text.toString(LIBRARY->staticTexts()), LIBRARY->generaltexth->translate("core.genrltxt.1"));
 }
 
 TEST_F(QuestGateTest, GateWithQuestForOtherDifficultyNeverOpens)

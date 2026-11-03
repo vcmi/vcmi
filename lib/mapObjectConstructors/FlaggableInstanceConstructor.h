@@ -27,7 +27,7 @@ class FlaggableInstanceConstructor final : public CDefaultObjectTypeHandler<Flag
 	ResourceSet dailyIncome;
 
 protected:
-	void initTypeData(const JsonNode & config) override;
+	void initTypeData(LibraryLoadContext & context, const JsonNode & config) override;
 	void initializeObject(FlaggableMapObject * object) const override;
 
 public:

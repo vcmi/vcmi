@@ -70,7 +70,7 @@ void CHeroOverview::genControls()
 	r = Rect(64 + borderOffset, borderOffset + yOffset, 220, 64);
 	backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
 	labelHeroName = std::make_shared<CLabel>(r.x + 110, r.y + 20, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, (*LIBRARY->heroh)[heroIdx]->getNameTranslated());
-	labelHeroClass = std::make_shared<CLabel>(r.x + 110, r.y + 45, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, (*LIBRARY->heroh)[heroIdx]->heroClass->getNameTranslated());
+	labelHeroClass = std::make_shared<CLabel>(r.x + 110, r.y + 45, FONT_MEDIUM, ETextAlignment::CENTER, Colors::WHITE, (*LIBRARY->heroh)[heroIdx]->getHeroClass()->getNameTranslated());
 
 	// vertical line
 	backgroundLines.push_back(std::make_shared<SimpleLine>(Point(295, borderOffset + yOffset - 1), Point(295, borderOffset + yOffset - 2 + 439), borderColor));
@@ -96,7 +96,7 @@ void CHeroOverview::genControls()
 	for(int i = 0; i < 4; i++)
 	{
 		r = Rect((284 / 4) * i + 42, r.y, r.w, r.h);
-		labelSkillFooter.push_back(std::make_shared<CLabel>(r.x, r.y + 10, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string((*LIBRARY->heroh)[heroIdx]->heroClass->primarySkillInitial[i])));
+		labelSkillFooter.push_back(std::make_shared<CLabel>(r.x, r.y + 10, FONT_SMALL, ETextAlignment::CENTER, Colors::WHITE, std::to_string((*LIBRARY->heroh)[heroIdx]->getHeroClass()->primarySkillInitial[i])));
 	}
 
 	// hero biography

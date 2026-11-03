@@ -1,0 +1,4 @@
+updates/vcmi_updates/*.py usr/lib/python3/dist-packages/vcmi_updates
+updates/bin/vcmi-updates-server usr/bin
+updates/bin/vcmi-updates-release usr/bin
+updates/vcmi-updates.conf etc

@@ -240,6 +240,8 @@ void LuaStack::get(int position, CreatureID & value)
 void LuaStack::get(int position, JsonNode & value)
 {
 	auto type = lua_type(L, position);
+	// Intentionally "game" instead of the scope of the script's mod: a script of mod A may convert JSON of mod B,
+	// and the result keeps identifiers of mod B. Known drawback: an identifier defined by several mods is ambiguous here
 	value.setModScope("game");
 
 	switch(type)

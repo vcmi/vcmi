@@ -147,6 +147,7 @@ public:
 	void updateUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 	void removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus) override;
 
+	EWallState getWallState(EWallPart partOfWall) const override;
 	void setWallState(EWallPart partOfWall, EWallState state) override;
 
 	void addObstacle(const ObstacleChanges & changes) override;
@@ -173,6 +174,7 @@ public:
 	const scripting::Pool & getScriptContextPool() const override;
 
 private:
+	std::map<EWallPart, EWallState> wallStates;
 
 	class HypotheticServerCallback : public ServerCallback
 	{

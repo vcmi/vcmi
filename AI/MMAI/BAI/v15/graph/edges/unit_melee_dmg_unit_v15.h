@@ -37,7 +37,10 @@ public:
 		const int hpdiffDefender;
 		const int battlefieldValue;
 		const int battlefieldHp;
+		const bool isIndirect;
 	};
+
+	const bool isIndirect;
 
 	static std::shared_ptr<const Unit_MeleeDmg_Unit>
 	Create(const std::shared_ptr<const Nodes::Unit> & srcNode, const std::shared_ptr<const Nodes::Unit> & dstNode, const Args & args)

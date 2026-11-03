@@ -28,6 +28,7 @@ struct Bonus;
 namespace BonusMigration
 {
 bool migrateCombatAbility(Bonus & bonus);
+void migrateHeroGrantedAttacks(Bonus & bonus);
 }
 
 using TBonusListPtr = std::shared_ptr<BonusList>;
@@ -116,6 +117,10 @@ struct DLL_LINKAGE Bonus : public std::enable_shared_from_this<Bonus>, public Se
 		// Rebirth was retired after COMBAT_ABILITY_SCRIPTS without changing the serialized layout.
 		if(!h.saving && (type == BonusType::UNUSED_REBIRTH || !h.hasFeature(Handler::Version::COMBAT_ABILITY_SCRIPTS)))
 			BonusMigration::migrateCombatAbility(*this);
+
+		// HERO_GRANTS_ATTACKS was retired without changing the serialized layout
+		if(!h.saving && type == BonusType::UNUSED_HERO_GRANTS_ATTACKS)
+			BonusMigration::migrateHeroGrantedAttacks(*this);
 	}
 
 	void convertAddInfo(const std::vector<int> & oldAddInfo);

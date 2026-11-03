@@ -19,6 +19,10 @@ set(vcmiservercommon_SRCS
 		processors/PlayerMessageProcessor.cpp
 		processors/TurnOrderProcessor.cpp
 
+		lobby/BattleOnlyMap.cpp
+		lobby/LastScenarios.cpp
+		lobby/ScenarioListBuilder.cpp
+
 		CGameHandler.cpp
 		CreatureValueEstimator.cpp
 		GlobalLobbyProcessor.cpp
@@ -49,6 +53,10 @@ set(vcmiservercommon_HEADERS
 		processors/NewTurnProcessor.h
 		processors/PlayerMessageProcessor.h
 		processors/TurnOrderProcessor.h
+
+		lobby/BattleOnlyMap.h
+		lobby/LastScenarios.h
+		lobby/ScenarioListBuilder.h
 
 		CGameHandler.h
 		CreatureValueEstimator.h

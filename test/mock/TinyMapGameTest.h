@@ -99,7 +99,7 @@ protected:
 	virtual void onMapStarted() {}
 	/// Services the game state is initialized with. The mock covers map-level tests; a test that
 	/// runs real game logic overrides this with the game library.
-	virtual Services * gameServices() { return &services; }
+	virtual const Services * gameServices() { return &services; }
 	/// Applied to every player of the scenario, for tests that need a specific starting setup.
 	virtual void configurePlayer(PlayerSettings & settings) const {}
 

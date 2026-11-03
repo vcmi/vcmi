@@ -109,16 +109,22 @@ std::shared_ptr<MMAI::Schema::IModel> CreateNNModel(const std::string & path, fl
 }
 
 // Factory method for versioned derived BAI (e.g. BAI::V1)
-std::shared_ptr<CBattleGameInterface>
-CreateBAI(Schema::IModel * model, const std::shared_ptr<Environment> & env, const std::shared_ptr<CBattleCallback> & cb, bool enableSpells, bool enableTactics)
+std::shared_ptr<CBattleGameInterface> CreateBAI(
+	Schema::IModel * model,
+	const std::shared_ptr<Environment> & env,
+	const std::shared_ptr<CBattleCallback> & cb,
+	bool useCreatureSpells,
+	bool useHeroSpells,
+	bool enableTactics
+)
 {
 	std::shared_ptr<CBattleGameInterface> res;
 	auto version = model->getVersion();
 
 	if(version == 13)
-		return std::make_shared<V13::BAI>(model, version, env, cb, enableSpells);
+		return std::make_shared<V13::BAI>(model, version, env, cb, useHeroSpells);
 	else if(version == 15)
-		return std::make_shared<V15::BAI>(model, version, env, cb, enableSpells, enableTactics);
+		return std::make_shared<V15::BAI>(model, version, env, cb, useCreatureSpells, useHeroSpells, enableTactics);
 	else
 		throw std::runtime_error("CreateBAI: unsupported schema version: " + std::to_string(version));
 

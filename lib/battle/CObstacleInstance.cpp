@@ -169,7 +169,8 @@ void SpellCreatedObstacle::fromInfo(const ObstacleChanges & info)
 	if(info.operation != ObstacleChanges::EOperation::ADD && info.operation != ObstacleChanges::EOperation::UPDATE)
 		logGlobal->error("ADD or UPDATE operation expected");
 
-	JsonDeserializer deser(nullptr, info.data);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer deser(nullptr, resolver, info.data);
 	deser.serializeStruct("obstacle", *this);
 }
 

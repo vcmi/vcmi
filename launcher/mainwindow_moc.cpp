@@ -21,9 +21,10 @@
 #include "../lib/texts/Languages.h"
 #include "../lib/ExceptionsCommon.h"
 
-#include "updatedialog_moc.h"
+#include "updates/UpdateChecker.h"
 #include "main.h"
 #include "helper.h"
+#include "modManager/modstatecontroller.h"
 #ifndef VCMI_MOBILE
 #include "gamepadHandler.h"
 #endif
@@ -82,6 +83,9 @@ MainWindow::MainWindow(QWidget * parent)
 	: QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	load(); // load FS before UI
+
+	// tabs access the checker while they are created
+	updateChecker = new UpdateChecker(this);
 
 	bool setupCompleted = settings["launcher"]["setupCompleted"].Bool();
 
@@ -146,7 +150,7 @@ MainWindow::MainWindow(QWidget * parent)
 #endif
 
 	if(settings["launcher"]["updateOnStartup"].Bool())
-		UpdateDialog::showUpdateDialog(false);
+		updateChecker->check();
 }
 
 void MainWindow::setGamepadStartAllowed(bool allowed)
@@ -359,6 +363,12 @@ void MainWindow::switchToStartTab()
 		startGameTabWidget->refreshState();
 }
 
+void MainWindow::switchToUpdateTab()
+{
+	ui->startGameButton->setEnabled(true);
+	ui->tabListWidget->setCurrentIndex(TabRows::UPDATE);
+}
+
 void MainWindow::switchToModsTab()
 {
 	ui->startGameButton->setEnabled(true);
@@ -395,6 +405,11 @@ CModListView * MainWindow::getModView()
 CSettingsView * MainWindow::getSettingsView()
 {
 	return ui->settingsView;
+}
+
+UpdateChecker * MainWindow::getUpdateChecker()
+{
+	return updateChecker;
 }
 
 void MainWindow::on_modslistButton_clicked()
@@ -448,13 +463,14 @@ void MainWindow::manualInstallFile(QString filePath)
 	QString fileName = QFileInfo{filePath}.fileName();
 	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive))
 	{
-		QString filenameClean = fileName.toLower()
-			// mod name currently comes from zip file -> remove suffixes from github zip download
-			.replace(QRegularExpression("-[0-9a-f]{40}"), "")
-			.replace(QRegularExpression("-vcmi-.+\\.zip"), ".zip")
-			.replace("-main.zip", ".zip");
-
-		getModView()->downloadFile(filenameClean, QUrl::fromLocalFile(filePath), "mods");
+		if(filePath.startsWith("content://", Qt::CaseInsensitive) || !QFileInfo(filePath).isFile())
+		{
+			// URI sources need a local copy before minizip can open them.
+			const QString archiveName = ModStateController::modIdFromArchivePath(realFilePath, true) + ".zip";
+			getModView()->downloadFile(archiveName, QUrl::fromLocalFile(filePath), tr("mod archive"));
+		}
+		else
+			getModView()->installFiles(QStringList{filePath}, true);
 	}
 	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
 	{

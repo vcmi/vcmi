@@ -56,6 +56,37 @@ constexpr std::underlying_type_t<E> EU(E value) noexcept
 	return static_cast<std::underlying_type_t<E>>(value);
 }
 
+inline std::unordered_set<std::string_view> MMAIGraphDebugFlags()
+{
+	static const std::unordered_set<std::string_view> value = []
+	{
+		const char * envvar = std::getenv("MMAI_GRAPH_DEBUG_FLAGS");
+		auto res = std::unordered_set<std::string_view>{};
+		if(envvar == nullptr)
+			return res;
+
+		auto csv = std::string_view{envvar};
+		while(!csv.empty())
+		{
+			auto pos = csv.find(',');
+			res.insert(csv.substr(0, pos));
+
+			if(pos == std::string_view::npos)
+				break;
+
+			csv.remove_prefix(pos + 1);
+		}
+
+		return res;
+	}();
+	return value;
+}
+
+inline bool isMMAIGraphDebug(const std::string_view flag)
+{
+	return MMAIGraphDebugFlags().contains(flag) || MMAIGraphDebugFlags().contains("all");
+}
+
 inline bool isMMAIVerbose()
 {
 	static const bool value = []

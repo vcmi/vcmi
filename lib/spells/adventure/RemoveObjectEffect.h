@@ -20,7 +20,7 @@ class RemoveObjectEffect final : public AdventureSpellRangedEffect
 	std::string cursor;
 
 public:
-	RemoveObjectEffect(const CSpell * s, const JsonNode & config);
+	RemoveObjectEffect(LibraryLoadContext & context, const CSpell * s, const JsonNode & config);
 
 private:
 	bool canBeCastAtImpl(spells::Problem & problem, const IGameInfoCallback * cb, const spells::Caster * caster, const int3 & pos) const final;

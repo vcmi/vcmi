@@ -38,8 +38,9 @@ protected:
 		subject->setId(id);
 
 		{
-			JsonDeserializer handler(nullptr, config);
-			subject->serializeJson(handler);
+			InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+			JsonDeserializer handler(nullptr, resolver, config);
+			subject->serializeJson(handler, *LIBRARY->objtypeh);
 		}
 
 		EXPECT_FALSE(subject->getName().empty());
@@ -91,7 +92,7 @@ protected:
 
 		{
 			JsonSerializer handler(nullptr, actual);
-			subject->serializeJson(handler);
+			subject->serializeJson(handler, *LIBRARY->objtypeh);
 		}
 
 		JsonComparer cmp(false);

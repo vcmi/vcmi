@@ -717,11 +717,11 @@ namespace
 			const auto & blocker = edge->dstNode->cstack;
 
 			expect(blocked.canShoot(), "EDGE_UNIT_BLOCKS_UNIT: blocked unit cannot shoot");
-			expect(!blocked.canShootBlocked(), "EDGE_UNIT_BLOCKS_UNIT: blocked unit can shoot while blocked");
+			expect(!blocked.canShootBlocked(), "EDGE_UNIT_BLOCKS_UNIT: blocked unit can shoot while blocked" + edge->srcNode->name());
 			expect(!blocked.hasBonusOfType(BonusType::SIEGE_WEAPON), "EDGE_UNIT_BLOCKS_UNIT: war machine cannot be blocked");
 			expect(
 				blocker.unitSide() != blocked.unitSide() || blocked.hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE),
-				"EDGE_UNIT_BLOCKS_UNIT: friendly unit blocks non-berserk shooter"
+				"EDGE_UNIT_BLOCKS_UNIT: friendly unit blocks non-berserk shooter: " + blocker.getDescription() + " <> " + blocked.getDescription()
 			);
 
 			const auto surroundingHexes = blocked.getSurroundingHexes();
@@ -749,8 +749,8 @@ namespace
 			expect(!blocked.canShootBlocked(), "ACTION_BLOCKS_UNIT: blocked unit can shoot while blocked");
 			expect(!blocked.hasBonusOfType(BonusType::SIEGE_WEAPON), "ACTION_BLOCKS_UNIT: war machine cannot be blocked");
 			expect(
-				blocker.unitSide() != blocked.unitSide() || blocked.hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE),
-				"ACTION_BLOCKS_UNIT: friendly unit blocks non-berserk shooter"
+				blocker.unitId() == blocked.unitId() || blocker.unitSide() != blocked.unitSide() || blocked.hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE),
+				"ACTION_BLOCKS_UNIT: friendly unit blocks non-berserk shooter: " + blocker.getDescription() + " <> " + blocked.getDescription()
 			);
 
 			const auto surroundingHexes = blocked.getSurroundingHexes();
@@ -785,9 +785,12 @@ namespace
 			const bool unblockable = blocked.canShootBlocked() || blocked.hasBonusOfType(BonusType::SIEGE_WEAPON);
 			expect(!unblockable, "EDGE_UNIT_BLOCKED_BY_ACTION: blocked unit is unblockable");
 
-			const auto & attackHexes = ctx.battle.meleeAttackHexes(&actor, &blocked, action->endsAt.at(0)->bhex, blocked.getPosition());
+			// NOTE: this will be incorrect if either stack is berserk OR if the stack blocks itself by moving near an enemy
+			if(actor.hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE) || blocked.hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE)
+			   || actor.unitId() == blocked.unitId())
+				return;
 
-			// NOTE: this will be incorrect if either stack is berserk
+			const auto & attackHexes = ctx.battle.meleeAttackHexes(&actor, &blocked, action->endsAt.at(0)->bhex, blocked.getPosition());
 			expect(
 				!attackHexes.empty(),
 				"EDGE_UNIT_BLOCKED_BY_ACTION: actor will not block the unit: " + action->name() + " :: " + action->by->name() + "::" + edge->srcNode->name()

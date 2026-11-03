@@ -14,19 +14,19 @@
 #include "../json/JsonRandom.h"
 #include "../mapObjects/CRewardableObject.h"
 #include "../texts/CGeneralTextHandler.h"
-#include "../CConfigHandler.h"
 #include "../GameLibrary.h"
+#include "../modding/LibraryLoadContext.h"
 
-void CRewardableConstructor::initTypeData(const JsonNode & config)
+void CRewardableConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & config)
 {
-	objectInfo.init(config, getBaseTextID());
+	objectInfo.init(context, config, getBaseTextID());
 	blockVisit = config["blockedVisitable"].Bool();
 
 	if (!config["name"].isNull())
-		LIBRARY->generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"]);
+		context.lib.generaltexth->registerString( config.getModScope(), getNameTextID(), config["name"]);
 
-	if (settings["mods"]["validation"].String() != "off")
-		JsonUtils::validate(config, "vcmi:rewardable", getJsonKey());
+	if (context.validation != EContentValidation::OFF)
+		context.validator.validate(config, "vcmi:rewardable", getJsonKey());
 	
 }
 

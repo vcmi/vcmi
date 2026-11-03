@@ -17,20 +17,19 @@
 #include "../mapObjects/army/CStackInstance.h"
 #include "../mapObjects/CGDwelling.h"
 #include "../mapObjects/ObjectTemplate.h"
-#include "../modding/IdentifierStorage.h"
-#include "../CConfigHandler.h"
+#include "../modding/LibraryLoadContext.h"
 
 bool DwellingInstanceConstructor::hasNameTextID() const
 {
 	return true;
 }
 
-void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
+void DwellingInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
 	if (input.Struct().count("name") == 0)
 		logMod->warn("Dwelling %s missing name!", getJsonKey());
 
-	LIBRARY->generaltexth->registerString( input.getModScope(), getNameTextID(), input["name"]);
+	context.lib.generaltexth->registerString( input.getModScope(), getNameTextID(), input["name"]);
 
 	const JsonVector & levels = input["creatures"].Vector();
 	const auto totalLevels = levels.size();
@@ -44,9 +43,9 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 
 		for(int currentCreature = 0; currentCreature < creaturesNumber; currentCreature++)
 		{
-			LIBRARY->identifiers()->requestIdentifier("creature", creaturesOnLevel[currentCreature], [this, currentLevel, currentCreature] (si32 index)
+			context.resolver.requestIdentifier("creature", creaturesOnLevel[currentCreature], [this, &context, currentLevel, currentCreature] (si32 index)
 			{
-				availableCreatures.at(currentLevel).at(currentCreature) = CreatureID(index).toCreature();
+				availableCreatures.at(currentLevel).at(currentCreature) = (*context.lib.creh)[index];
 			});
 		}
 		assert(!availableCreatures[currentLevel].empty());
@@ -56,12 +55,12 @@ void DwellingInstanceConstructor::initTypeData(const JsonNode & input)
 	kingdomOverviewImage = AnimationPath::fromJson(input["kingdomOverviewImage"]);
 
 	for (const auto & mapTemplate : getTemplates())
-		onTemplateAdded(mapTemplate);
+		onTemplateAdded(context, mapTemplate);
 }
 
-void DwellingInstanceConstructor::onTemplateAdded(const std::shared_ptr<const ObjectTemplate> mapTemplate)
+void DwellingInstanceConstructor::onTemplateAdded(LibraryLoadContext & context, const std::shared_ptr<const ObjectTemplate> mapTemplate)
 {
-	if (bannedForRandomDwelling || settings["mods"]["validation"].String() == "off")
+	if (bannedForRandomDwelling || context.validation == EContentValidation::OFF)
 		return;
 
 	bool invalidForRandomDwelling = false;

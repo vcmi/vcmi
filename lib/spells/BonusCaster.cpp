@@ -38,7 +38,7 @@ std::string BonusCaster::getCasterNameTextID() const
 		case BonusSource::ARTIFACT:
 			return bonus->sid.as<ArtifactID>().toEntity(LIBRARY)->getNameTextID();
 		case BonusSource::SPELL_EFFECT:
-			return bonus->sid.as<SpellID>().toEntity(LIBRARY)->getNameTextID();
+			return bonus->sid.as<SpellWithMasteryID>().getSpellID().toEntity(LIBRARY)->getNameTextID();
 		case BonusSource::CREATURE_ABILITY:
 			return bonus->sid.as<CreatureID>().toEntity(LIBRARY)->getNamePluralTextID();
 		case BonusSource::SECONDARY_SKILL:

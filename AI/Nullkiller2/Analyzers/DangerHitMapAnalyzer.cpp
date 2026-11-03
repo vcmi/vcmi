@@ -316,14 +316,14 @@ const std::vector<HitMapInfo> & DangerHitMapAnalyzer::getTownThreats(const CGTow
 
 PlayerColor DangerHitMapAnalyzer::getTileOwner(const int3 & tile) const
 {
-	const auto *town = hitMap[tile.x][tile.y][tile.z].closestTown;
+	const auto *town = getClosestTown(tile);
 
 	return town ? town->getOwner() : PlayerColor::NEUTRAL;
 }
 
 const CGTownInstance * DangerHitMapAnalyzer::getClosestTown(const int3 & tile) const
 {
-	return hitMap[tile.x][tile.y][tile.z].closestTown;
+	return getTileThreat(tile).closestTown;
 }
 
 uint64_t DangerHitMapAnalyzer::enemyCanKillOurHeroesAlongThePath(const AIPath & path) const
@@ -345,6 +345,12 @@ const HitMapNode & DangerHitMapAnalyzer::getObjectThreat(const CGObjectInstance 
 
 const HitMapNode & DangerHitMapAnalyzer::getTileThreat(const int3 & tile) const
 {
+	if(tile.x < 0 || tile.y < 0 || tile.z < 0
+		|| tile.x >= static_cast<int>(hitMap.shape()[0])
+		|| tile.y >= static_cast<int>(hitMap.shape()[1])
+		|| tile.z >= static_cast<int>(hitMap.shape()[2]))
+		throw std::out_of_range("Danger hit map has no tile " + tile.toString());
+
 	return hitMap[tile.x][tile.y][tile.z];
 }
 

@@ -15,17 +15,17 @@
 #include "../json/JsonBonus.h"
 #include "../json/JsonUtils.h"
 #include "../GameLibrary.h"
-#include "../modding/IdentifierStorage.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../texts/CLegacyConfigParser.h"
 #include "../texts/CGeneralTextHandler.h"
 
 static constexpr std::array LEVEL_NAMES = {"none", "basic", "advanced", "expert"};
 
-std::vector<JsonNode> CSpellHandler::loadLegacyData()
+std::vector<JsonNode> CSpellHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	std::vector<JsonNode> legacyData;
 
-	CLegacyConfigParser parser(TextPath::builtin("DATA/SPTRAITS.TXT"));
+	CLegacyConfigParser parser(TextPath::builtin("DATA/SPTRAITS.TXT"), *context.lib.modh);
 
 	auto readSchool = [&](JsonMap & schools, const std::string & name)
 	{
@@ -196,7 +196,7 @@ std::vector<int> CSpellHandler::spellRangeInHexes(std::string input) const
 	return result;
 }
 
-std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 	assert(!scope.empty());
@@ -221,15 +221,15 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		spell->combat = type == "combat";
 	}
 
-	LIBRARY->generaltexth->registerString(scope, spell->getNameTextID(), json["name"]);
+	context.lib.generaltexth->registerString(scope, spell->getNameTextID(), json["name"]);
 
-	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->getNameTranslated());
+	logMod->trace("%s: loading spell %s", __FUNCTION__, spell->getJsonKey());
 
 	for(const auto & schoolJson : json["school"].Struct())
 	{
 		if (schoolJson.second.Bool())
 		{
-			LIBRARY->identifiers()->requestIdentifier(schoolJson.second.getModScope(), "spellSchool", schoolJson.first, [spell](si32 schoolID)
+			context.resolver.requestIdentifier(schoolJson.second.getModScope(), "spellSchool", schoolJson.first, [spell](si32 schoolID)
 			{
 				spell->schools.emplace(schoolID);
 			});
@@ -248,7 +248,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		const int chance = static_cast<int>(node.second.Integer());
 
-		LIBRARY->identifiers()->requestIdentifierIfFound(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
+		context.resolver.requestIdentifierIfFound(node.second.getModScope(), "faction", node.first, [=](si32 factionID)
 		{
 			spell->probabilities[FactionID(factionID)] = chance;
 		});
@@ -265,13 +265,13 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	else if(targetType == "LOCATION")
 		spell->targetType = spells::AimType::LOCATION;
 	else
-		logMod->warn("Spell %s: target type %s - assumed NO_TARGET.", spell->getNameTranslated(), (targetType.empty() ? "empty" : "unknown ("+targetType+")"));
+		logMod->warn("Spell %s: target type %s - assumed NO_TARGET.", spell->getJsonKey(), (targetType.empty() ? "empty" : "unknown ("+targetType+")"));
 
 	for(const auto & counteredSpell: json["counters"].Struct())
 	{
 		if(counteredSpell.second.Bool())
 		{
-			LIBRARY->identifiers()->requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
+			context.resolver.requestIdentifier(counteredSpell.second.getModScope(), "spell", counteredSpell.first, [=](si32 id)
 			{
 				spell->counteredSpells.emplace_back(id);
 			});
@@ -319,7 +319,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 	{
 		spell->positive = false; //duplicates constructor but, just in case
 		spell->negative = false;
-		logMod->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->getNameTranslated());
+		logMod->error("Spell %s: no positiveness specified, assumed NEUTRAL.", spell->getJsonKey());
 	}
 
 	spell->special = flags["special"].Bool();
@@ -333,7 +333,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 			if(!bonusData.second.Bool())
 				continue;
 
-			LIBRARY->identifiers()->requestIdentifier(bonusData.second.getModScope(), "bonus", bonusData.first, [&vec](si32 bonusID)
+			context.resolver.requestIdentifier(bonusData.second.getModScope(), "bonus", bonusData.first, [&vec](si32 bonusID)
 			{
 				vec.push_back(static_cast<BonusType>(bonusID));
 			});
@@ -354,7 +354,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 
 		if(!(immunities.empty() && absoluteImmunities.empty() && limiters.empty() && absoluteLimiters.empty()))
 		{
-			logMod->warn("Spell %s has old target condition format. Expected configuration: ", spell->getNameTranslated());
+			logMod->warn("Spell %s has old target condition format. Expected configuration: ", spell->getJsonKey());
 			spell->targetCondition = spell->convertTargetCondition(immunities, absoluteImmunities, limiters, absoluteLimiters);
 			logMod->warn("\n\"targetCondition\" : %s", spell->targetCondition.toString());
 		}
@@ -365,13 +365,13 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 
 		//TODO: could this be safely merged instead of discarding?
 		if(!json["immunity"].isNull())
-			logMod->warn("Spell %s 'immunity' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
+			logMod->warn("Spell %s 'immunity' field mixed with 'targetCondition' discarded", spell->getJsonKey());
 		if(!json["absoluteImmunity"].isNull())
-			logMod->warn("Spell %s 'absoluteImmunity' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
+			logMod->warn("Spell %s 'absoluteImmunity' field mixed with 'targetCondition' discarded", spell->getJsonKey());
 		if(!json["limit"].isNull())
-			logMod->warn("Spell %s 'limit' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
+			logMod->warn("Spell %s 'limit' field mixed with 'targetCondition' discarded", spell->getJsonKey());
 		if(!json["absoluteLimit"].isNull())
-			logMod->warn("Spell %s 'absoluteLimit' field mixed with 'targetCondition' discarded", spell->getNameTranslated());
+			logMod->warn("Spell %s 'absoluteLimit' field mixed with 'targetCondition' discarded", spell->getJsonKey());
 	}
 
 	const JsonNode & graphicsNode = json["graphics"];
@@ -454,7 +454,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 		CSpell::LevelInfo & levelObject = spell->levels[levelIndex];
 
 		if (!levelNode["description"].String().empty())
-			LIBRARY->generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
+			context.lib.generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
 
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
 		levelObject.smartTarget   = levelNode["targetModifier"]["smart"].Bool();
@@ -472,7 +472,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 			{
 				const std::string & value = levelObject.adventureEffect[field].String();
 				if(!value.empty() && value.front() != '@')
-					LIBRARY->generaltexth->registerString(scope, spell->getAdventureEffectTextID("reinforcements", field), levelObject.adventureEffect[field]);
+					context.lib.generaltexth->registerString(scope, spell->getAdventureEffectTextID("reinforcements", field), levelObject.adventureEffect[field]);
 			};
 
 			registerField("casterInTown");
@@ -486,17 +486,17 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(const std::string & scope, c
 			levelObject.battleEffects = levelNode["battleEffects"];
 
 			if(!levelObject.cumulativeEffects.Struct().empty() || !levelObject.effects.Struct().empty() || spell->isOffensive())
-				logGlobal->error("Mixing %s special effects with old format effects gives unpredictable result", spell->getNameTranslated());
+				logGlobal->error("Mixing %s special effects with old format effects gives unpredictable result", spell->getJsonKey());
 		}
 	}
 	return spell;
 }
 
-void CSpellHandler::afterLoadFinalization()
+void CSpellHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for(auto & spell : objects)
 	{
-		spell->setupMechanics();
+		spell->setupMechanics(context);
 	}
 }
 

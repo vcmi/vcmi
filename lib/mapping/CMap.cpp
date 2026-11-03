@@ -166,6 +166,7 @@ void CMapEvent::serializeJson(JsonSerializeFormat & handler)
 void CCastleEvent::serializeJson(JsonSerializeFormat & handler)
 {
 	CMapEvent::serializeJson(handler);
+	handler.serializeBool("neutralAffected", neutralAffected, false);
 
 	// TODO: handler.serializeIdArray("buildings", buildings);
 	{
@@ -469,6 +470,17 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 	}
 
 	return int3(-1, -1, -1);
+}
+
+const CGObjectInstance * CMap::getHeroAtTownEntrance(const CGTownInstance & town) const
+{
+	for(const auto & objectID : getTile(town.visitablePos()).visitableObjects)
+	{
+		const auto * object = getObject(objectID);
+		if(object->ID == Obj::HERO || object->ID == Obj::RANDOM_HERO)
+			return object;
+	}
+	return nullptr;
 }
 
 const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type)

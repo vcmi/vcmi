@@ -15,6 +15,11 @@
 #include "../building/CBuilding.h"
 #include "../../texts/TextIdentifier.h"
 
+const CBuilding * CStructure::getBuilding() const
+{
+	return building;
+}
+
 CTown::CTown()
 	: faction(nullptr), mageLevel(0), primaryRes(0), defaultTavernChance(0)
 {
@@ -30,6 +35,11 @@ std::string CTown::getRandomNameTextID(size_t index) const
 size_t CTown::getRandomNamesCount() const
 {
 	return namesCount;
+}
+
+const CFaction * CTown::getFaction() const
+{
+	return faction;
 }
 
 std::string CTown::getBuildingScope() const

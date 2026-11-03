@@ -17,6 +17,7 @@ class MetaString;
 class IGameInfoCallback;
 class IGameRandomizer;
 class TextIdentifier;
+class LibraryLoadContext;
 
 namespace Rewardable
 {
@@ -67,7 +68,7 @@ public:
 
 	void configureObject(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb) const;
 
-	void init(const JsonNode & objectConfig, const std::string & objectTextID);
+	void init(LibraryLoadContext & context, const JsonNode & objectConfig, const std::string & objectTextID);
 
 	template <typename Handler> void serialize(Handler &h)
 	{

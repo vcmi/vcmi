@@ -11,7 +11,7 @@
 #include "CModHandler.h"
 
 #include "ContentTypeHandler.h"
-#include "IdentifierStorage.h"
+#include "LibraryLoadContext.h"
 #include "ModDescription.h"
 #include "ModManager.h"
 #include "ModScope.h"
@@ -22,6 +22,7 @@
 #include "../GameLibrary.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonUtils.h"
+#include "../json/JsonValidator.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
@@ -30,12 +31,16 @@
 #include <zlib.h>
 
 CModHandler::CModHandler(bool useTestPreset)
-	: content(std::make_shared<CContentHandler>())
-	, modManager(std::make_unique<ModManager>(JsonNode(), useTestPreset))
+	: modManager(std::make_unique<ModManager>(JsonNode(), useTestPreset))
 {
 }
 
 CModHandler::~CModHandler() = default;
+
+const std::vector<TModID> & CModHandler::getModsWithFailedRequests() const
+{
+	return modsWithFailedRequests;
+}
 
 std::vector<std::string> CModHandler::getAllMods() const
 {
@@ -244,7 +249,7 @@ std::string CModHandler::getResourceEncoding(const ResourcePath & resource, cons
 		// in this case, this file may be in user-preferred language, and not in same language as the rest of H3 data
 		// however at the moment we have no way to detect that for sure - file can be either in English or in user-preferred language
 		// but since all known H3 encodings (Win125X or GBK) are supersets of ASCII, we can safely load English data using encoding of user-preferred language
-		std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
+		std::string preferredLanguage = Languages::getPreferredLanguage();
 		std::string fileEncoding = Languages::getLanguageOptions(preferredLanguage).encoding;
 		return fileEncoding;
 	}
@@ -258,11 +263,11 @@ std::string CModHandler::getResourceEncoding(const ResourcePath & resource, cons
 std::string CModHandler::getModLanguage(const TModID& modId) const
 {
 	if(modId == "core")
-		return LIBRARY->generaltexth->getInstalledLanguage();
+		return CGeneralTextHandler::getInstalledLanguage();
 	if(modId == "map")
-		return LIBRARY->generaltexth->getPreferredLanguage();
+		return Languages::getPreferredLanguage();
 	if(modId == "mapEditor")
-		return LIBRARY->generaltexth->getPreferredLanguage();
+		return Languages::getPreferredLanguage();
 	return getModInfo(modId).getBaseLanguage();
 }
 
@@ -284,6 +289,100 @@ const std::set<TModID> & CModHandler::getModDependencies(const TModID & modId, b
 	return noDependencies;
 }
 
+static bool testFilePresence(const CModHandler & modHandler, const std::string & scope, const ResourcePath & resource)
+{
+	std::set<std::string> allowedScopes = { scope }; // mods can use their own files
+	if(scope != ModScope::scopeBuiltin())
+	{
+		//NOTE: recursive dependencies are not allowed at the moment - update code if this changes
+		bool found = false;
+		const auto & dependencies = modHandler.getModDependencies(scope, found);
+		if(!found)
+			throw std::runtime_error("Failed to test presence of file '" + resource.getOriginalName() + "': '" + scope + "' is not an active mod");
+
+		allowedScopes.insert(dependencies.begin(), dependencies.end());
+		allowedScopes.insert(ModScope::scopeBuiltin()); // all mods can use H3 files
+	}
+
+	for(const auto & entry : allowedScopes)
+	{
+		try
+		{
+			if (CResourceHandler::get(entry)->existsResource(resource))
+				return true;
+		}
+		catch (const std::out_of_range &)
+		{
+			throw std::out_of_range("Failed to find filesystem of mod '" + entry + "' when testing file '" + resource.getOriginalName() + "' for mod '" + scope + "'");
+		}
+	}
+
+	return false;
+}
+
+#define TEST_FILE(scope, prefix, file, type) \
+	if (testFilePresence(modHandler, scope, ResourcePath(prefix + file, type))) \
+	return ""
+
+static std::string testAnimation(const CModHandler & modHandler, const std::string & path, const std::string & scope)
+{
+	TEST_FILE(scope, "Sprites/", path, EResType::ANIMATION);
+	TEST_FILE(scope, "Sprites/", path, EResType::JSON);
+	return "Animation file \"" + path + "\" was not found";
+}
+
+static std::string textFile(const CModHandler & modHandler, const JsonNode & node)
+{
+	TEST_FILE(node.getModScope(), "", node.String(), EResType::JSON);
+	return "Text file \"" + node.String() + "\" was not found";
+}
+
+static std::string musicFile(const CModHandler & modHandler, const JsonNode & node)
+{
+	TEST_FILE(node.getModScope(), "Music/", node.String(), EResType::SOUND);
+	TEST_FILE(node.getModScope(), "", node.String(), EResType::SOUND);
+	return "Music file \"" + node.String() + "\" was not found";
+}
+
+static std::string soundFile(const CModHandler & modHandler, const JsonNode & node)
+{
+	TEST_FILE(node.getModScope(), "Sounds/", node.String(), EResType::SOUND);
+	return "Sound file \"" + node.String() + "\" was not found";
+}
+
+static std::string animationFile(const CModHandler & modHandler, const JsonNode & node)
+{
+	return testAnimation(modHandler, node.String(), node.getModScope());
+}
+
+static std::string imageFile(const CModHandler & modHandler, const JsonNode & node)
+{
+	TEST_FILE(node.getModScope(), "Data/", node.String(), EResType::IMAGE);
+	TEST_FILE(node.getModScope(), "Sprites/", node.String(), EResType::IMAGE);
+	if (node.String().find(':') != std::string::npos)
+		return testAnimation(modHandler, node.String().substr(0, node.String().find(':')), node.getModScope());
+	return "Image file \"" + node.String() + "\" was not found";
+}
+
+static std::string videoFile(const CModHandler & modHandler, const JsonNode & node)
+{
+	TEST_FILE(node.getModScope(), "Video/", node.String(), EResType::VIDEO);
+	TEST_FILE(node.getModScope(), "Video/", node.String(), EResType::VIDEO_LOW_QUALITY);
+	return "Video file \"" + node.String() + "\" was not found";
+}
+#undef TEST_FILE
+
+
+void CModHandler::addFileFormats(JsonValidator & validator) const
+{
+	validator.addFormat("textFile", [this](const JsonNode & node){ return textFile(*this, node); });
+	validator.addFormat("musicFile", [this](const JsonNode & node){ return musicFile(*this, node); });
+	validator.addFormat("soundFile", [this](const JsonNode & node){ return soundFile(*this, node); });
+	validator.addFormat("animationFile", [this](const JsonNode & node){ return animationFile(*this, node); });
+	validator.addFormat("imageFile", [this](const JsonNode & node){ return imageFile(*this, node); });
+	validator.addFormat("videoFile", [this](const JsonNode & node){ return videoFile(*this, node); });
+}
+
 std::set<TModID> CModHandler::getModSoftDependencies(const TModID & modId) const
 {
 	return modManager->getModDescription(modId).getSoftDependencies();
@@ -298,13 +397,17 @@ std::set<TModID> CModHandler::getModEnabledSoftDependencies(const TModID & modId
 	return softDependencies;
 }
 
-void CModHandler::initializeConfig()
+void CModHandler::initializeConfig(LibraryLoadContext & context)
 {
 	for(const TModID & modName : getActiveMods())
 	{
 		const auto & mod = getModInfo(modName);
-		if (!mod.getLocalConfig()["settings"].isNull())
-			LIBRARY->settingsHandler->loadBase(mod.getLocalConfig()["settings"]);
+		const JsonNode & modSettings = mod.getLocalConfig()["settings"];
+		if (!modSettings.isNull())
+		{
+			context.validator.validate(modSettings, "vcmi:gameSettings", modName);
+			context.lib.settingsHandler->loadBase(modSettings);
+		}
 	}
 }
 
@@ -385,11 +488,11 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 	return result;
 }
 
-void CModHandler::loadModContent()
+void CModHandler::loadModContent(LibraryLoadContext & context) const
 {
 	const auto & activeMods = getActiveMods();
-	const std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
-	const std::vector<std::string> contentTypes = content->getContentTypeNames();
+	const std::string preferredLanguage = Languages::getPreferredLanguage();
+	const std::vector<std::string> contentTypes = context.content.getContentTypeNames();
 
 	std::vector<JsonNode> loadedContent(activeMods.size());
 	std::vector<uint32_t> checksums(activeMods.size());
@@ -411,39 +514,39 @@ void CModHandler::loadModContent()
 
 	for (size_t i = 0; i < activeMods.size(); ++i)
 	{
-		modContent[activeMods[i]] = std::move(loadedContent[i]);
-		modChecksums[activeMods[i]] = checksums[i];
+		context.modContent[activeMods[i]] = std::move(loadedContent[i]);
+		context.modChecksums[activeMods[i]] = checksums[i];
 		if (validity[i] == 0)
-			modsWithMissingFiles.insert(activeMods[i]);
+			context.modsWithMissingFiles.insert(activeMods[i]);
 	}
 }
 
-void CModHandler::loadTranslation(const TModID & modName)
+void CModHandler::loadTranslation(LibraryLoadContext & context, const TModID & modName)
 {
-	const JsonNode & translations = modContent.at(modName);
+	const JsonNode & translations = context.modContent.at(modName);
 
-	LIBRARY->generaltexth->loadTranslationOverrides(modName, getModInfo(modName).getBaseLanguage(), translations["translations"]);
-	LIBRARY->generaltexth->loadTranslationOverrides(modName, LIBRARY->generaltexth->getPreferredLanguage(), translations[LIBRARY->generaltexth->getPreferredLanguage()]["translations"]);
+	context.lib.generaltexth->loadTranslationOverrides(modName, getModInfo(modName).getBaseLanguage(), translations["translations"]);
+	context.lib.generaltexth->loadTranslationOverrides(modName, Languages::getPreferredLanguage(), translations[Languages::getPreferredLanguage()]["translations"]);
 }
 
-void CModHandler::load()
+void CModHandler::load(LibraryLoadContext & context)
 {
 	logMod->info("\tInitializing content handler");
 
-	content->init();
+	context.content.init();
 
 	const auto & activeMods = getActiveMods();
 
-	validationPassed.insert(activeMods.begin(), activeMods.end());
+	context.validationPassed.insert(activeMods.begin(), activeMods.end());
 
-	loadModContent();
+	loadModContent(context);
 
 	for(const TModID & modName : activeMods)
 	{
 		const auto & modInfo = getModInfo(modName);
-		bool isValid = content->preloadData(modInfo, modContent.at(modName), isModValidationNeeded(modInfo));
+		bool isValid = context.content.preloadData(modInfo, context.modContent.at(modName), isModValidationNeeded(context, modInfo));
 
-		if (modsWithMissingFiles.count(modName))
+		if (context.modsWithMissingFiles.count(modName))
 			isValid = false;
 
 		if (isValid)
@@ -452,47 +555,48 @@ void CModHandler::load()
 			logGlobal->warn("\t\tParsing mod: Issues found! (%s)", modInfo.getID());
 
 		if (!isValid)
-			validationPassed.erase(modName);
+			context.validationPassed.erase(modName);
 	}
 	logMod->info("\tParsing mod data");
 
 	for(const TModID & modName : activeMods)
 	{
 		const auto & modInfo = getModInfo(modName);
-		bool isValid = content->load(getModInfo(modName), isModValidationNeeded(getModInfo(modName)));
+		bool isValid = context.content.load(getModInfo(modName), isModValidationNeeded(context, getModInfo(modName)));
 		if (isValid)
 			logGlobal->info("\t\tLoading mod: OK (%s)", modInfo.getID());
 		else
 			logGlobal->warn("\t\tLoading mod: Issues found! (%s)", modInfo.getID());
 
 		if (!isValid)
-			validationPassed.erase(modName);
+			context.validationPassed.erase(modName);
 	}
 
-	content->loadCustom();
+	context.content.loadCustom();
 
 	logMod->info("\tLoading mod data");
-	LIBRARY->creh->loadCrExpMod();
-	LIBRARY->identifiersHandler->finalize();
+	context.lib.creh->loadCrExpMod(context);
+	context.resolver.finalize();
 	logMod->info("\tResolving identifiers");
 
-	content->afterLoadFinalization();
+	context.content.afterLoadFinalization();
 	for(const TModID & modName : activeMods)
-		loadTranslation(modName);
+		loadTranslation(context, modName);
 
-	modContent.clear();
+	context.modContent.clear();
+	modsWithFailedRequests = context.resolver.getModsWithFailedRequests();
 
 	logMod->info("\tHandlers post-load finalization");
 	logMod->info("\tAll game content loaded");
 }
 
-void CModHandler::afterLoad()
+void CModHandler::afterLoad(const LibraryLoadContext & context)
 {
 	JsonNode modSettings;
 	for (const auto & modEntry : getActiveMods())
 	{
-		if (validationPassed.count(modEntry))
-			modManager->setValidatedChecksum(modEntry, modChecksums.at(modEntry));
+		if (context.validationPassed.count(modEntry))
+			modManager->setValidatedChecksum(modEntry, context.modChecksums.at(modEntry));
 		else
 			modManager->setValidatedChecksum(modEntry, std::nullopt);
 	}
@@ -500,15 +604,15 @@ void CModHandler::afterLoad()
 	modManager->saveConfigurationState();
 }
 
-bool CModHandler::isModValidationNeeded(const ModDescription & mod) const
+bool CModHandler::isModValidationNeeded(const LibraryLoadContext & context, const ModDescription & mod) const
 {
-	if (settings["mods"]["validation"].String() == "full")
+	if (context.validation == EContentValidation::FULL)
 		return true;
 
-	if (modManager->getValidatedChecksum(mod.getID()) == modChecksums.at(mod.getID()))
+	if (modManager->getValidatedChecksum(mod.getID()) == context.modChecksums.at(mod.getID()))
 		return false;
 
-	if (settings["mods"]["validation"].String() == "off")
+	if (context.validation == EContentValidation::OFF)
 		return false;
 
 	return true;

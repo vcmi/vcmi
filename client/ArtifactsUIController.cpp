@@ -60,7 +60,7 @@ bool ArtifactsUIController::askToAssemble(const CGHeroInstance * hero, const Art
 
 	if(numOfArtsAskAssembleSession != 0)
 		numOfArtsAskAssembleSession--;
-	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(hero, art->getTypeId(), onlyEquipped);
+	auto assemblyPossibilities = ArtifactUtils::assemblyPossibilities(GAME->interface()->cb->getSettings(), hero, art->getTypeId(), onlyEquipped);
 	if(!assemblyPossibilities.empty())
 	{
 		auto askThread = new std::thread([this, hero, slot, assemblyPossibilities, checkIgnored]() -> void
@@ -113,7 +113,7 @@ bool ArtifactsUIController::askToDisassemble(const CGHeroInstance * hero, const 
 	if(hero->tempOwner != GAME->interface()->playerID)
 		return false;
 
-	if(art->hasParts())
+	if(art->hasParts() && !ArtifactUtils::isCombinationDisabled(GAME->interface()->cb->getSettings(), art->getTypeId()))
 	{
 		if(ArtifactUtils::isSlotBackpack(slot) && !ArtifactUtils::isBackpackFreeSlots(hero, art->getType()->getConstituents().size() - 1))
 			return false;

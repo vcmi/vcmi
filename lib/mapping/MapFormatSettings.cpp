@@ -16,25 +16,26 @@
 #include "../GameLibrary.h"
 #include "../IGameSettings.h"
 #include "../json/JsonUtils.h"
+#include "../json/JsonValidator.h"
 #include "../modding/ModScope.h"
 
-MapIdentifiersH3M MapFormatSettings::generateMapping(EMapFormat format)
+MapIdentifiersH3M MapFormatSettings::generateMapping(const GameLibrary & library, EMapFormat format)
 {
 	auto features = MapFormatFeaturesH3M::find(format, 0);
 	MapIdentifiersH3M identifierMapper;
 
 	if(features.levelROE)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
+		identifierMapper.loadMapping(library, library.engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA));
 	if(features.levelAB)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
+		identifierMapper.loadMapping(library, library.engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE));
 	if(features.levelSOD)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
+		identifierMapper.loadMapping(library, library.engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH));
 	if(features.levelCHR)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES));
+		identifierMapper.loadMapping(library, library.engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES));
 	if(features.levelWOG)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
+		identifierMapper.loadMapping(library, library.engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS));
 	if(features.levelHOTA0)
-		identifierMapper.loadMapping(LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
+		identifierMapper.loadMapping(library, library.engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS));
 
 	return identifierMapper;
 }
@@ -51,14 +52,14 @@ std::map<CampaignVersion, EMapFormat> MapFormatSettings::generateCampaignMapping
 	};
 }
 
-std::map<EMapFormat, MapIdentifiersH3M> MapFormatSettings::generateMappings()
+std::map<EMapFormat, MapIdentifiersH3M> MapFormatSettings::generateMappings(const GameLibrary & library)
 {
 	std::map<EMapFormat, MapIdentifiersH3M> result;
-	auto addMapping = [&result](EMapFormat format)
+	auto addMapping = [&result, &library](EMapFormat format)
 	{
 		try
 		{
-			result[format] = generateMapping(format);
+			result[format] = generateMapping(library, format);
 			logMod->trace("Loaded map format support for %d", static_cast<int>(format));
 		}
 		catch(const std::runtime_error &)
@@ -78,14 +79,15 @@ std::map<EMapFormat, MapIdentifiersH3M> MapFormatSettings::generateMappings()
 	return result;
 }
 
-MapFormatSettings::MapFormatSettings()
-	: mapping(generateMappings())
+MapFormatSettings::MapFormatSettings(const GameLibrary & library)
+	: mapping(generateMappings(library))
 	, campaignToMap(generateCampaignMapping())
 	, campaignOverridesConfig(JsonUtils::assembleFromFiles("config/campaignOverrides.json"))
 	, mapOverridesConfig(JsonUtils::assembleFromFiles("config/mapOverrides.json"))
 {
+	JsonValidator validator;
 	for (auto & entry : mapOverridesConfig.Struct())
-		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
+		validator.validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
 
 	campaignOverridesConfig.setModScope(ModScope::scopeMap());
 	mapOverridesConfig.setModScope(ModScope::scopeMap());

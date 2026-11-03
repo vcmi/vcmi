@@ -117,8 +117,14 @@ void BattleEffectsController::battleTriggerEffect(const BattleTriggerEffect & bt
 			displayEffect(EBattleEffect::POISON, AudioPath::builtin("POISON"), stack->getPosition());
 			break;
 		case BonusType::FEARFUL:
+		{
+			// unused core.genrltxt.728 "Fear of the %s causes the %s to freeze." needs the name of the creature causing the fear
+			MetaString hlp = MetaString::createFromTextID(stack->getCount() == 1 ? "core.genrltxt.710" : "core.genrltxt.711");
+			hlp.replaceName(stack->unitType()->getId(), stack->getCount());
 			displayEffect(EBattleEffect::FEAR, AudioPath::builtin("FEAR"), stack->getPosition(), 0.5);
+			owner.appendBattleLog(hlp.toString(&GAME->translator()));
 			break;
+		}
 		case BonusType::MORALE:
 		{
 			MetaString hlp = MetaString::createFromTextID("core.genrltxt.33");
@@ -142,7 +148,9 @@ void BattleEffectsController::startAction(const BattleAction & action)
 	if(action.actionType == EActionType::BAD_MORALE)
 	{
 		displayEffect(EBattleEffect::BAD_MORALE, AudioPath::builtin("BADMRLE"), stack->getPosition());
-		owner.stacksController->addNewAnim(new HittedAnimation(owner, stack)); // H3: unit flinches when it fails morale
+		auto * flinch = new HittedAnimation(owner, stack); // H3: unit flinches when it fails morale
+		flinch->setSound({}); // but without its wince sound, BADMRLE already plays
+		owner.stacksController->addNewAnim(flinch);
 	}
 
 	owner.waitForAnimations();

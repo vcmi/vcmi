@@ -25,6 +25,7 @@ Cron-driven helpers (run by `cron` every minute as root):
 - `on_cron_update.sh` - moves builds that finished upload from `/home/uploader/uploads` to `/home/downloader/tmp`, then runs `ensure_free_space.sh` and `sort_builds.sh` as user `downloader`.
 - `ensure_free_space.sh` - automatically removes oldest builds from `/home/downloader/www/`, except for releases in `/home/downloader/www/branch/master`.
 - `sort_builds.sh` - renames and moves builds from `/home/downloader/tmp` to various directories in `/home/downloader/www/`.
+- Each CI run also uploads a build manifest (`*.json`) listing the builds of that run with their sizes and hashes. `sort_builds.sh` moves it to `/home/downloader/www/branch/<branch>/metadata/`, after the builds. The update service reads these manifests.
 
 ## Setup
 

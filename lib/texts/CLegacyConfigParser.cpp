@@ -13,7 +13,6 @@
 #include "TextOperations.h"
 #include "Languages.h"
 
-#include "../GameLibrary.h"
 #include "filesystem/Filesystem.h"
 #include "../modding/CModHandler.h"
 
@@ -27,10 +26,10 @@ protected:
 	}
 };
 
-CLegacyConfigParser::CLegacyConfigParser(const TextPath & resource)
+CLegacyConfigParser::CLegacyConfigParser(const TextPath & resource, const CModHandler & modHandler)
 {
 	auto input = CResourceHandler::get()->load(resource);
-	fileEncoding = LIBRARY->modh->findResourceEncoding(resource);
+	fileEncoding = modHandler.findResourceEncoding(resource);
 
 	data.reset(new char[input->getSize()]);
 	input->read(reinterpret_cast<uint8_t*>(data.get()), input->getSize());

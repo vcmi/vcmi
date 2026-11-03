@@ -23,29 +23,19 @@ class DLL_LINKAGE CHeroHandler : public CHandlerBase<HeroTypeID, HeroType, CHero
 	/// consists of 196 values. Any higher levels require experience larger that TExpType can hold
 	std::vector<TExpType> expPerLevel;
 
-	struct SpecialtyToGenerate
-	{
-		HeroTypeID hero;
-		SecondarySkill skill;
-		int stepSize;
-	};
-
-	/// Helper field to generate specialties for heroes after loading is complete
-	mutable std::vector<SpecialtyToGenerate> skillSpecialtiesToGenerate;
-
 	/// All non-special heroes, filled in once loading is complete
 	std::set<HeroTypeID> defaultAllowed;
 
 	/// helpers for loading to avoid huge load functions
-	void loadHeroArmy(CHero * hero, const JsonNode & node) const;
-	void loadHeroSkills(CHero * hero, const JsonNode & node) const;
-	void loadHeroSpecialty(CHero * hero, const JsonNode & node) const;
+	void loadHeroArmy(LibraryLoadContext & context, CHero * hero, const JsonNode & node) const;
+	void loadHeroSkills(LibraryLoadContext & context, CHero * hero, const JsonNode & node) const;
+	void loadHeroSpecialty(LibraryLoadContext & context, CHero * hero, const JsonNode & node) const;
 
 	void loadExperience();
 
-	std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(CreatureID cid, int fixedLevel, int growthPerStep) const;
-	std::vector<std::shared_ptr<Bonus>> createSecondarySkillSpecialty(SecondarySkill skillID, int growthPerStep) const;
-	std::vector<std::shared_ptr<Bonus>> createSpellScalingSpecialty(SpellID spellID, int growthPerStep) const;
+	std::vector<std::shared_ptr<Bonus>> createCreatureSpecialty(LibraryLoadContext & context, CreatureID cid, int fixedLevel, int growthPerStep) const;
+	std::vector<std::shared_ptr<Bonus>> createSecondarySkillSpecialty(LibraryLoadContext & context, SecondarySkill skillID, int growthPerStep) const;
+	std::vector<std::shared_ptr<Bonus>> createSpellScalingSpecialty(LibraryLoadContext & context, SpellID spellID, int growthPerStep) const;
 	std::vector<std::shared_ptr<Bonus>> createSpellFixedSpecialty(SpellID spellID, const std::vector<int32_t> & values) const;
 
 public:
@@ -53,12 +43,12 @@ public:
 	TExpType reqExp(ui32 level) const; //calculates experience required for given level
 	ui32 maxSupportedLevel() const;
 
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
 	void beforeValidate(JsonNode & object) override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
-	void afterLoadFinalization() override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 
 	CHeroHandler();
 	~CHeroHandler();
@@ -67,5 +57,5 @@ public:
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	std::shared_ptr<CHero> loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CHero> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 };

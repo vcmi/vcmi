@@ -23,6 +23,7 @@ class TemplateEditor;
 #endif
 
 class JsonSerializeFormat;
+class GameLibrary;
 struct CompoundMapObjectID;
 
 enum class ETemplateZoneType
@@ -198,8 +199,9 @@ public:
 	std::optional<int> getOwner() const;
 
 	std::set<TerrainId> getTerrainTypes() const;
+	std::set<TerrainId> getTerrainTypes(const GameLibrary & library) const;
 	void setTerrainTypes(const std::set<TerrainId> & value);
-	std::set<TerrainId> getDefaultTerrainTypes() const;
+	std::set<TerrainId> getDefaultTerrainTypes(const GameLibrary & library) const;
 
 	const CTownInfo & getPlayerTowns() const;
 	void setPlayerTowns(const CTownInfo & value);
@@ -240,7 +242,7 @@ public:
 	// Set road option for a specific connection by ID
 	void setRoadOption(int connectionId, rmg::ERoadOption roadOption);
 
-	void serializeJson(JsonSerializeFormat & handler);
+	void serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects);
 	
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	
@@ -371,8 +373,8 @@ public:
 
 	void validate() const; /// Tests template on validity and throws exception on failure
 
-	void serializeJson(JsonSerializeFormat & handler);
-	void afterLoad();
+	void serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects);
+	void afterLoad(const GameLibrary & library);
 
 private:
 	std::string id;
@@ -406,9 +408,9 @@ private:
 	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);
 	void serializePlayers(JsonSerializeFormat & handler, CPlayerCountRange & value, const std::string & fieldName);
 
-	template<typename T>
+	template<typename T, typename Getter>
 	T inheritZoneProperty(std::shared_ptr<rmg::ZoneOptions> zone, 
-						  T (rmg::ZoneOptions::*getter)() const,
+						  Getter getter,
 						  void (rmg::ZoneOptions::*setter)(const T&),
 						  TRmgTemplateZoneId (rmg::ZoneOptions::*inheritFrom)() const,
 						  const std::string& propertyString,

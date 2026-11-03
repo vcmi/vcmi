@@ -13,6 +13,8 @@
 #include "Effect.h"
 #include "../../GameConstants.h"
 
+class LibraryLoadContext;
+
 namespace spells
 {
 namespace effects
@@ -38,7 +40,7 @@ public:
 	EffectsToApply prepare(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const;
 
 	/// Builds the effects map for a single spell level from its JSON config.
-	static EffectsMap loadJson(const JsonNode & effectMap, const std::string & spellScope, const std::string & spellIdentifier);
+	static EffectsMap loadJson(LibraryLoadContext & context, const JsonNode & effectMap, const std::string & spellScope, const std::string & spellIdentifier);
 };
 
 

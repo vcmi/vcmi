@@ -13,6 +13,7 @@
 
 #include "Bonus.h"
 #include "BonusParameters.h"
+#include "Limiters.h"
 #include "../GameLibrary.h"
 #include "../constants/NumericConstants.h"
 #include "../json/JsonNode.h"
@@ -132,6 +133,27 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 		return true;
 	}
 
+	// HERO_GRANTS_ATTACKS is deprecated in 1.8 - it was ADDITIONAL_ATTACK applied only to the creature in its subtype
+	if(withoutScope(ability["type"].String()) == "HERO_GRANTS_ATTACKS")
+	{
+		logMod->warn("Bonus HERO_GRANTS_ATTACKS is deprecated. Use ADDITIONAL_ATTACK with CREATURE_TYPE_LIMITER instead");
+
+		JsonNode creatureLimiter;
+		creatureLimiter["type"].String() = "CREATURE_TYPE_LIMITER";
+		creatureLimiter["creature"] = ability["subtype"];
+
+		migrated = ability;
+		migrated["type"].String() = "ADDITIONAL_ATTACK";
+		migrated.Struct().erase("subtype");
+
+		JsonNode limiters;
+		if(!ability["limiters"].isNull())
+			limiters.Vector().push_back(ability["limiters"]);
+		limiters.Vector().push_back(creatureLimiter);
+		migrated["limiters"] = limiters;
+		return true;
+	}
+
 	// NOTE: NONEVIL_ALIGNMENT_MIX is also deprecated, but can not be converted here - it maps to two
 	// ALIGNMENT_MIX bonuses. It is handled by CArmedInstance instead
 
@@ -211,6 +233,20 @@ void BonusMigration::warnIfRetired(const JsonNode & ability, const TextIdentifie
 
 	if(!replacement.empty())
 		logMod->warn("Bonus %s no longer does anything and was not converted - declare %s instead. Description: '%s'", ability["type"].String(), replacement, descriptionID.get());
+}
+
+void BonusMigration::migrateHeroGrantedAttacks(Bonus & bonus)
+{
+	auto creatureLimiter = std::make_shared<CCreatureTypeLimiter>();
+	creatureLimiter->setCreature(bonus.subtype.as<CreatureID>());
+
+	bonus.type = BonusType::ADDITIONAL_ATTACK;
+	bonus.subtype = BonusSubtypeID();
+
+	if(bonus.limiter)
+		bonus.limiter = std::make_shared<AllOfLimiter>(std::vector<TLimiterPtr>{bonus.limiter, creatureLimiter});
+	else
+		bonus.limiter = creatureLimiter;
 }
 
 bool BonusMigration::migrateCombatAbility(Bonus & bonus)

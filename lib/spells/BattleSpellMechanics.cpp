@@ -179,7 +179,7 @@ void BattleSpellMechanics::applyEffects(ServerCallback * server, const Target & 
 bool BattleSpellMechanics::canBeCast(Problem & problem) const
 {
 	auto genProblem = battle()->battleCanCastSpell(caster, mode);
-	// Orb of Inhibition (BLOCK_ALL_MAGIC) must not block level-0 creature abilities (stone gaze, death stare, ...)
+	// Orb of Inhibition (BLOCK_ALL_MAGIC) must not block level-0 creature abilities (death stare, acid breath, ...)
 	if(genProblem == ESpellCastProblem::MAGIC_IS_BLOCKED && getSpellLevel() <= 0)
 		genProblem = ESpellCastProblem::OK;
 	if(genProblem != ESpellCastProblem::OK)
@@ -228,8 +228,8 @@ bool BattleSpellMechanics::canBeCast(Problem & problem) const
 
 	//effect like Recanter's Cloak. Blocks also passive casting.
 	//TODO: check any possible caster
-
-	if(battle()->battleMaxSpellLevel(side) < getSpellLevel() || battle()->battleMinSpellLevel(side) > getSpellLevel())
+	//like Orb of Inhibition, spell level limits never block level-0 creature abilities
+	if(getSpellLevel() > 0 && (battle()->battleMaxSpellLevel(side) < getSpellLevel() || battle()->battleMinSpellLevel(side) > getSpellLevel()))
 		return adaptProblem(ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED, problem);
 
 	return effects->applicable(problem, this);
@@ -645,7 +645,7 @@ bool BattleSpellMechanics::counteringSelector(const Bonus * bonus) const
 
 	for(const SpellID & id : owner->counteredSpells)
 	{
-		if(bonus->sid.as<SpellID>() == id)
+		if(bonus->sid.as<SpellWithMasteryID>().getSpellID() == id)
 			return true;
 	}
 

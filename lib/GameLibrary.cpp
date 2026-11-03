@@ -18,6 +18,7 @@
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
 #include "MapLayerHandler.h"
+#include "entities/RumorTypeHandler.h"
 #include "spells/SpellSchoolHandler.h"
 #include "CSkillHandler.h"
 #include "../luascript/LuaModule.h"
@@ -31,6 +32,7 @@
 #include "mapping/MapFormatSettings.h"
 #include "modding/CModHandler.h"
 #include "modding/IdentifierStorage.h"
+#include "modding/LibraryLoadContext.h"
 #include "modding/CModVersion.h"
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
@@ -49,7 +51,7 @@
 
 #include <vcmi/scripting/Service.h>
 
-GameLibrary * LIBRARY = nullptr;
+const GameLibrary * LIBRARY = nullptr;
 
 
 
@@ -160,7 +162,7 @@ void GameLibrary::loadModFilesystem(bool useTestPreset)
 		dynamic_cast<CFilesystemList*>(CResourceHandler::get("initial"))->addLoader(std::move(loader), false);
 	}
 	modh = std::make_unique<CModHandler>(useTestPreset);
-	identifiersHandler = std::make_unique<CIdentifierStorage>();
+	identifiersHandler = std::make_unique<CIdentifierStorage>(*modh);
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
 
 	modh->loadModFilesystems();
@@ -168,7 +170,7 @@ void GameLibrary::loadModFilesystem(bool useTestPreset)
 }
 
 template <class Handler>
-void createHandler(std::unique_ptr<Handler> & handler)
+void createHandler(LibraryHandlerPtr<Handler> & handler)
 {
 	handler = std::make_unique<Handler>();
 }
@@ -216,19 +218,25 @@ bool GameLibrary::isDemoData() const
 
 void GameLibrary::initializeLibrary()
 {
-	createHandler(settingsHandler);
-	modh->initializeConfig();
+	LibraryLoadContext context(*this);
+	initializeLibrary(context);
+}
 
-	createHandler(generaltexth);
-	createHandler(bth);
+void GameLibrary::initializeLibrary(LibraryLoadContext & context)
+{
+	createHandler(settingsHandler);
+	modh->initializeConfig(context);
+
+	generaltexth = std::make_unique<CGeneralTextHandler>(*modh);
+	bth = std::make_unique<CBonusTypeHandler>(context);
 	createHandler(resourceTypeHandler);
-	createHandler(roadTypeHandler);
-	createHandler(riverTypeHandler);
+	roadTypeHandler = std::make_unique<RoadTypeHandler>(context);
+	riverTypeHandler = std::make_unique<RiverTypeHandler>(context);
 	createHandler(terrainTypeHandler);
 	createHandler(heroh);
 	createHandler(heroclassesh);
 	createHandler(arth);
-	createHandler(creh);
+	creh = std::make_unique<CCreatureHandler>(context);
 	createHandler(townh);
 	createHandler(biomeHandler);
 	createHandler(objtypeh);
@@ -242,15 +250,16 @@ void GameLibrary::initializeLibrary()
 	createHandler(battlefieldsHandler);
 	createHandler(obstacleHandler);
 	createHandler(mapLayerHandler);
+	createHandler(rumorHandler);
 
 	scriptHandler = std::make_unique<scripting::LuaModule>();
 	scriptHandler->installScripting(*scriptTypeHandler);
-	modh->load();
-	modh->afterLoad();
+	modh->load(context);
+	modh->afterLoad(context);
 
-	createHandler(mapFormat);
+	mapFormat = std::make_unique<MapFormatSettings>(*this);
 
-	creh->buildCombatValues();
+	creh->buildCombatValues(*this);
 }
 
 GameLibrary::GameLibrary() = default;

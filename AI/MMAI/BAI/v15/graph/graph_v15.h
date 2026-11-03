@@ -154,6 +154,10 @@ public:
 	void add(std::shared_ptr<const T> elem)
 	{
 		assert(elem);
+
+		if(isMMAIGraphDebug(T::encoding_traits::name))
+			std::cout << "+ " << elem->name() << "\n";
+
 		getMutableStore<T>().add(std::move(elem));
 	}
 

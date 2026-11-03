@@ -110,7 +110,6 @@ EntityTypeEnum bonusSubtypeEntityType(BonusType type)
 			return EntityTypeEnum::PRIMARY_SKILL;
 
 		case BonusType::IMPROVED_NECROMANCY:
-		case BonusType::HERO_GRANTS_ATTACKS:
 		case BonusType::BONUS_DAMAGE_CHANCE:
 		case BonusType::BONUS_DAMAGE_PERCENTAGE:
 		case BonusType::SPECIAL_UPGRADE:

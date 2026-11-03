@@ -13,12 +13,12 @@
 #include "BattleFieldHandler.h"
 #include "GameLibrary.h"
 #include "json/JsonBonus.h"
-#include "modding/IdentifierStorage.h"
+#include "modding/LibraryLoadContext.h"
 #include "CRandomGenerator.h"
 
 #include <vstd/RNG.h>
 
-std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
+std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index)
 {
 	assert(identifier.find(':') == std::string::npos);
 
@@ -30,7 +30,7 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 	info->name = json["name"].String();
 	for(const auto & b : json["bonuses"].Vector())
 	{
-		auto bonus = JsonUtils::parseBonus(b);
+		auto bonus = JsonUtils::parseBonus(b, context);
 
 		bonus->source = BonusSource::TERRAIN_OVERLAY;
 		bonus->sid = BonusSourceID(info->getId());
@@ -43,7 +43,7 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 	info->limitToLayers.resize(json["limitToLayers"].Vector().size());
 	for(int i = 0; i < info->limitToLayers.size(); i++)
 	{
-		LIBRARY->identifiers()->requestIdentifier("mapLayer", json["limitToLayers"].Vector()[i], [i, info](int32_t idx)
+		context.resolver.requestIdentifier("mapLayer", json["limitToLayers"].Vector()[i], [i, info](int32_t idx)
 		{
 			info->limitToLayers.at(i) = MapLayerId(idx);
 		});
@@ -57,7 +57,7 @@ std::shared_ptr<BattleFieldInfo> BattleFieldHandler::loadFromJson(const std::str
 	return info;
 }
 
-std::vector<JsonNode> BattleFieldHandler::loadLegacyData()
+std::vector<JsonNode> BattleFieldHandler::loadLegacyData(LibraryLoadContext & context)
 {
 	return std::vector<JsonNode>();
 }

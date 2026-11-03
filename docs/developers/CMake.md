@@ -19,3 +19,5 @@
   * Speeds up recompilation
 * `-G Ninja`
   * Use Ninja build system instead of Make, which speeds up the build and doesn't require a `-j` flag
+* `-D VCMI_UPDATE_CHANNEL=none`
+  * Update channel of the build: `stable` (default), `beta`, `develop` or `none`. The launcher checks for updates only in `stable` builds. CI sets it from the branch; `none` disables the check

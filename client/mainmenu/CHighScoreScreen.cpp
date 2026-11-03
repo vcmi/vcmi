@@ -72,7 +72,8 @@ void CHighScoreScreen::clickPressed(const Point & cursorPosition)
 		if(node["statistic"].isNull())
 			return;
 		
-		JsonDeserializer ser(nullptr, node);
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer ser(nullptr, resolver, node);
 		StatisticDataSet stat;
 		ser.serializeStruct("statistic", stat);
 		ENGINE->windows().createAndPushWindow<CStatisticScreen>(stat);

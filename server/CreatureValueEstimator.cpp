@@ -96,7 +96,7 @@ private:
 
 	static void placeHero(CMap & map, IGameInfoCallback * cb, const PlayerColor & owner, const HeroTypeID & type, const int3 & position)
 	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, type.toHeroType()->heroClass->getIndex());
+		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, type.toHeroType()->getHeroClass()->getIndex());
 		auto hero = std::dynamic_pointer_cast<CGHeroInstance>(handler->create(cb, handler->getTemplates().front()));
 
 		hero->ID = Obj::HERO;
@@ -195,15 +195,15 @@ void CreatureValueEstimator::collectSubjects()
 {
 	std::vector<const CCreature *> modded;
 
-	for(const auto & creature : LIBRARY->creh->objects)
+	for(const auto & creature : LIBRARY->creh->getObjects())
 	{
 		if(creature->special)
 			continue;
 
 		if(creature->getModScope() == ModScope::scopeBuiltin())
-			subjects.push_back(creature.get());
+			subjects.push_back(creature);
 		else
-			modded.push_back(creature.get());
+			modded.push_back(creature);
 	}
 
 	baselineCount = subjects.size();
@@ -319,12 +319,12 @@ void CreatureValueEstimator::deriveValues()
 		const double retaliations = sum(retaliatedBySubject[subject]) / baselineCount * CombatValue::retaliationsPerRound(*unit);
 
 		rawOutput[subject] = std::max(ownTurn + retaliations, 1e-6);
-		survival[subject] = CombatValue::survivalMultiplier(*unit) * CombatValue::situationalSurvival(*unit, values.averageBattle());
+		survival[subject] = values.survivalMultiplier(*unit) * CombatValue::situationalSurvival(*unit, values.averageBattle());
 
 		Entry & entry = entries[subject];
 		entry.creature = subjects[subject];
 		entry.baseline = subject < baselineCount;
-		entry.output = rawOutput[subject] * CombatValue::offenseMultiplier(*unit) * CombatValue::situationalOffense(*unit, values.averageBattle());
+		entry.output = rawOutput[subject] * values.offenseMultiplier(*unit) * CombatValue::situationalOffense(*unit, values.averageBattle());
 		entry.uptime = CombatValue::uptimeOf(*unit);
 
 		removeStack(unit);

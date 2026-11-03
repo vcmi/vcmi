@@ -40,7 +40,7 @@ HeroSkillsWidget::HeroSkillsWidget(CGHeroInstance & h, QWidget *parent) :
 	ui->labelKnowledge->setText(QString::fromUtf8(NPrimarySkill::names[3]));
 	
 	auto * delegate = new InspectorDelegate;
-	for(auto const & s : LIBRARY->skillh->objects)
+	for(auto const & s : LIBRARY->skillh->getObjects())
 		delegate->options.push_back({QString::fromStdString(s->getNameTranslated()), QVariant::fromValue(s->getId().getNum())});
 	ui->skills->setItemDelegateForColumn(0, delegate);
 	

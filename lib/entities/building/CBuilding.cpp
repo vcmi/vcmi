@@ -25,7 +25,7 @@ const std::map<std::string, CBuilding::EBuildMode> CBuilding::MODES =
 
 BuildingTypeUniqueID CBuilding::getUniqueTypeID() const
 {
-	return BuildingTypeUniqueID(town->faction->getId(), bid);
+	return BuildingTypeUniqueID(town->getFaction()->getId(), bid);
 }
 
 std::string CBuilding::getJsonKey() const
@@ -45,7 +45,7 @@ std::string CBuilding::getDescriptionTranslated() const
 
 std::string CBuilding::getBaseTextID() const
 {
-	return TextIdentifier("building", modScope, town->faction->identifier, identifier).get();
+	return TextIdentifier("building", modScope, town->getFaction()->identifier, identifier).get();
 }
 
 std::string CBuilding::getNameTextID() const

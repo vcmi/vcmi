@@ -57,6 +57,7 @@
 #include "../mapping/CMap.h"
 #include "../mapping/CMapEditManager.h"
 #include "../mapping/CMapService.h"
+#include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../networkPacks/NetPacksBase.h"
@@ -109,7 +110,7 @@ HeroTypeID CGameState::pickUnusedHeroTypeRandomly(vstd::RNG & randomGenerator, c
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
 	for(const HeroTypeID & hid : getUnusedAllowedHeroes())
 	{
-		if(hid.toHeroType()->heroClass->faction == ps.castle && isHeroAllowedForPlayer(hid, owner))
+		if(hid.toHeroType()->getHeroClass()->faction == ps.castle && isHeroAllowedForPlayer(hid, owner))
 			factionHeroes.push_back(hid);
 		else if (isHeroAllowedForPlayer(hid, owner))
 			otherHeroes.push_back(hid);
@@ -181,7 +182,7 @@ void CGameState::setSaveDirectory(const std::string & value)
 		initialOpts->campState->setSaveDirectory(value);
 }
 
-void CGameState::preInit(Services * newServices)
+void CGameState::preInit(const Services * newServices)
 {
 	services = newServices;
 }
@@ -459,9 +460,10 @@ void CGameState::initGlobalBonuses()
 {
 	const JsonNode & baseBonuses = getSettings().getValue(EGameSettings::BONUSES_GLOBAL);
 	logGlobal->debug("\tLoading global bonuses");
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
 	for(const auto & b : baseBonuses.Struct())
 	{
-		auto bonus = JsonUtils::parseBonus(b.second);
+		auto bonus = JsonUtils::parseBonus(b.second, resolver);
 		bonus->source = BonusSource::GLOBAL;//for all
 		bonus->sid = BonusSourceID(); //there is one global object
 		globalEffects.addNewBonus(bonus);
@@ -480,11 +482,13 @@ void CGameState::initDifficulty()
 
 	auto setDifficulty = [this, &config, isTutorialScenario](PlayerState & state, const JsonNode & json)
 	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+
 		//set starting resources
 		if (isTutorialScenario && state.human)
-			state.resources.resolveFromJson(config["tutorial"]["resources"]);
+			state.resources.resolveFromJson(config["tutorial"]["resources"], resolver);
 		else
-			state.resources.resolveFromJson(json["resources"]);
+			state.resources.resolveFromJson(json["resources"], resolver);
 
 		//handicap
 		const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(state.color);
@@ -492,12 +496,12 @@ void CGameState::initDifficulty()
 
 		//set global bonuses
 		for(auto & jsonBonus : json["globalBonuses"].Vector())
-			if(auto bonus = JsonUtils::parseBonus(jsonBonus))
+			if(auto bonus = JsonUtils::parseBonus(jsonBonus, resolver))
 				state.addNewBonus(bonus);
 
 		//set battle bonuses
 		for(auto & jsonBonus : json["battleBonuses"].Vector())
-			if(auto bonus = JsonUtils::parseBonus(jsonBonus))
+			if(auto bonus = JsonUtils::parseBonus(jsonBonus, resolver))
 				state.battleBonuses.push_back(*bonus);
 
 	};
@@ -657,7 +661,7 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 
 	if (!hero)
 	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->heroClass->getIndex());
+		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->getHeroClass()->getIndex());
 		auto object = handler->create(this, handler->getTemplates().front());
 		hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
 		hero->ID = Obj::HERO;
@@ -682,6 +686,23 @@ void CGameState::placeStartingHeroes(vstd::RNG & randomGenerator)
 		{
 			// Do not place a starting hero if the hero was already placed due to a campaign bonus
 			if (campaign && campaign->playerHasStartingHero(playerColor))
+				continue;
+
+			bool townHasHero = false;
+			for (const auto & townID : map->getAllTowns())
+			{
+				const auto * town = getTown(townID);
+				if (town->anchorPos() != playerInfo.posOfMainTown)
+					continue;
+
+				if (const auto * heroInTown = map->getHeroAtTownEntrance(*town))
+				{
+					logGlobal->warn("Main town of player %s already has hero '%s' at its entrance, starting hero will not be generated", playerColor.toString(), heroInTown->instanceName);
+					townHasHero = true;
+				}
+			}
+
+			if (townHasHero)
 				continue;
 
 			HeroTypeID heroTypeId = pickNextHeroType(randomGenerator, playerColor);
@@ -808,7 +829,7 @@ void CGameState::initStartingBonus(IGameRandomizer & gameRandomizer)
 			break;
 		case PlayerStartingBonus::RESOURCE:
 			{
-				auto res = (*LIBRARY->townh)[scenarioOps->playerInfos[elem.first].castle]->town->primaryRes;
+				auto res = (*LIBRARY->townh)[scenarioOps->playerInfos[elem.first].castle]->getTown()->primaryRes;
 				if(res == EGameResID::WOOD_AND_ORE)
 				{
 					int amount = gameRandomizer.getDefault().nextInt(5, 10);
@@ -845,9 +866,9 @@ void CGameState::initTownNames(vstd::RNG & randomGenerator)
 	for(const auto & faction : LIBRARY->townh->getDefaultAllowed())
 	{
 		std::vector<int> potentialNames;
-		if(faction.toFaction()->town->getRandomNamesCount() > 0)
+		if(faction.toFaction()->getTown()->getRandomNamesCount() > 0)
 		{
-			for(int i = 0; i < faction.toFaction()->town->getRandomNamesCount(); ++i)
+			for(int i = 0; i < faction.toFaction()->getTown()->getRandomNamesCount(); ++i)
 				potentialNames.push_back(i);
 
 			availableNames[faction] = potentialNames;
@@ -875,7 +896,7 @@ void CGameState::initTownNames(vstd::RNG & randomGenerator)
 			faction = RandomGeneratorUtil::nextItem(availableNames, randomGenerator)->first;
 
 		auto nameIt = RandomGeneratorUtil::nextItem(availableNames[faction], randomGenerator);
-		vti->setNameTextId(faction.toFaction()->town->getRandomNameTextID(*nameIt));
+		vti->setNameTextId(faction.toFaction()->getTown()->getRandomNameTextID(*nameIt));
 
 		availableNames[faction].erase(nameIt);
 		if(availableNames[faction].empty())

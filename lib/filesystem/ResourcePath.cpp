@@ -26,18 +26,25 @@ static inline EResType readType(const std::string& name)
 
 static inline std::string readName(std::string name, bool uppercase)
 {
-	const auto dotPos = name.find_last_of('.');
-
 	//do not cut "extension" of directory name
 	auto delimPos = name.find_last_of('/');
 	if(delimPos == std::string::npos)
 		delimPos = name.find_last_of('\\');
 
-	if((delimPos == std::string::npos || delimPos < dotPos) && dotPos != std::string::npos)
+	// repeated extensions of same type, e.g. "map.h3m.h3m", are all removed, otherwise such name would lose another extension on every conversion from string
+	std::optional<EResType> strippedType;
+	for(;;)
 	{
+		const auto dotPos = name.find_last_of('.');
+		if(dotPos == std::string::npos || (delimPos != std::string::npos && delimPos > dotPos))
+			break;
+
 		auto type = EResTypeHelper::getTypeFromExtension(name.substr(dotPos));
-		if(type != EResType::OTHER)
-			name.resize(dotPos);
+		if(type == EResType::OTHER || (strippedType && *strippedType != type))
+			break;
+
+		strippedType = type;
+		name.resize(dotPos);
 	}
 
 	if(uppercase)

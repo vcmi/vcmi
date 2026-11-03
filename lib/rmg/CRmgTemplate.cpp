@@ -196,9 +196,14 @@ std::optional<int> ZoneOptions::getOwner() const
 
 std::set<TerrainId> ZoneOptions::getTerrainTypes() const
 {
+	return getTerrainTypes(*LIBRARY);
+}
+
+std::set<TerrainId> ZoneOptions::getTerrainTypes(const GameLibrary & library) const
+{
 	if (terrainTypes.empty())
 	{
-		return vstd::difference(getDefaultTerrainTypes(), bannedTerrains);
+		return vstd::difference(getDefaultTerrainTypes(library), bannedTerrains);
 	}
 	else
 	{
@@ -211,10 +216,10 @@ void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 	terrainTypes = value;
 }
 
-std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes() const
+std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes(const GameLibrary & library) const
 {
 	std::set<TerrainId> terrains;
-	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
+	for(const auto & terrain : library.terrainTypeHandler->getObjects())
 	{
 		if (terrain->isLand() && terrain->isPassable())
 		{
@@ -456,7 +461,7 @@ void ZoneOptions::setBannedTownTypes(const std::set<FactionID> & value)
 	bannedTownTypes = value;
 }
 
-void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
+void ZoneOptions::serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects)
 {
 	static const std::vector<std::string> zoneTypes =
 	{
@@ -544,7 +549,10 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeIdMap<GameResID, ui16>("mines", mines);
 	}
 
-	handler.serializeStruct("customObjects", objectConfig);
+	{
+		auto guard = handler.enterStruct("customObjects");
+		objectConfig.serializeJson(handler, objects);
+	}
 	handler.serializeInt("visiblePositionX", visiblePosition.x);
 	handler.serializeInt("visiblePositionY", visiblePosition.y);
 	handler.serializeFloat("visibleSize", visibleSize);
@@ -899,7 +907,7 @@ int CRmgTemplate::CPlayerCountRange::minValue() const
 	return *std::ranges::min_element(numbers);
 }
 
-void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
+void CRmgTemplate::serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects)
 {
 	handler.serializeString("name", name);
 	handler.serializeString("description", description);
@@ -970,7 +978,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 			for(auto & idAndZone : zones)
 			{
 				auto guard = handler.enterStruct(encodeZoneId(idAndZone.first));
-				idAndZone.second->serializeJson(handler);
+				idAndZone.second->serializeJson(handler, objects);
 			}
 		}
 		else
@@ -980,7 +988,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 				auto guard = handler.enterStruct(idAndZone.first);
 				auto zone = std::make_shared<ZoneOptions>();
 				zone->setId(decodeZoneId(idAndZone.first));
-				zone->serializeJson(handler);
+				zone->serializeJson(handler, objects);
 				zones[zone->getId()] = zone;
 			}
 		}
@@ -992,9 +1000,9 @@ const JsonNode & CRmgTemplate::getMapSettings() const
 	return *mapSettings;
 }
 
-template<typename T>
+template<typename T, typename Getter>
 T CRmgTemplate::inheritZoneProperty(std::shared_ptr<rmg::ZoneOptions> zone, 
-									T (rmg::ZoneOptions::*getter)() const,
+									Getter getter,
 									void (rmg::ZoneOptions::*setter)(const T&),
 									TRmgTemplateZoneId (rmg::ZoneOptions::*inheritFrom)() const,
 									const std::string& propertyString,
@@ -1014,10 +1022,10 @@ T CRmgTemplate::inheritZoneProperty(std::shared_ptr<rmg::ZoneOptions> zone,
 		((*zone).*setter)(inheritedValue);
 	}
 	
-	return ((*zone).*getter)();
+	return std::invoke(getter, *zone);
 }
 
-void CRmgTemplate::afterLoad()
+void CRmgTemplate::afterLoad(const GameLibrary & library)
 {
 	for(auto & idAndZone : zones)
 	{
@@ -1027,7 +1035,7 @@ void CRmgTemplate::afterLoad()
 		inheritTownProperties(zone);
 
 		inheritZoneProperty(zone, 
-							&rmg::ZoneOptions::getTerrainTypes, 
+							[&library](const rmg::ZoneOptions & options){ return options.getTerrainTypes(library); },
 							&rmg::ZoneOptions::setTerrainTypes, 
 							&rmg::ZoneOptions::getTerrainTypeLikeZone,
 							"terrain types");
@@ -1054,7 +1062,7 @@ void CRmgTemplate::afterLoad()
 		auto monsterTypes = zone->getMonsterTypes();
 		if (monsterTypes.empty())
 		{
-			zone->setMonsterTypes(LIBRARY->townh->getAllowedFactions(false));
+			zone->setMonsterTypes(library.townh->getAllowedFactions(false));
 		}
 	}
 

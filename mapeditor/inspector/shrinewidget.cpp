@@ -43,7 +43,7 @@ void ShrineWidget::loadData()
 {
 	int i = 0;
 	si64 spellLevel = getSpellLevel();
-	for(const auto & spell : LIBRARY->spellh->objects)
+	for(const auto & spell : LIBRARY->spellh->getObjects())
 	{
 		if(spell->isCommonHeroSpell() && spell->getLevel() == spellLevel)
 		{

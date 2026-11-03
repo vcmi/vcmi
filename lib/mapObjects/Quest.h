@@ -278,6 +278,10 @@ protected:
 	bool isEmpty() const;
 	/// Offerable now: not expired by deadline or difficulty, not a consumed one-shot.
 	bool isQuestAvailable(const Quest & q) const;
+	/// True once the deadline of the quest has passed.
+	bool isQuestExpired(const Quest & q) const;
+	/// Map-defined message of the active quest if its deadline has passed without completion, empty otherwise.
+	std::string getTimeoutTextID() const;
 	/// Move the active quest to the next offerable one (loops within repeatables).
 	void advanceToNextQuest();
 	/// True when some quest other than the active one can be offered - advancing would

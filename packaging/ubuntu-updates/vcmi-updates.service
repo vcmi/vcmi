@@ -1,0 +1,18 @@
+[Unit]
+Description=VCMI update service
+After=network.target
+
+[Service]
+User=vcmi-updates
+Group=vcmi-updates
+ExecStart=/usr/bin/vcmi-updates-server
+StateDirectory=vcmi-updates
+Restart=on-failure
+RestartSec=10
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

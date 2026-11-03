@@ -11,6 +11,8 @@
 
 #include "TargetConditionItemFixture.h"
 
+#include "../../../lib/GameLibrary.h"
+
 //FIXME: Orb of vulnerability mechanics is not such trivial (mantis issue 1791)
 //TODO: NEGATE_ALL_NATURAL_IMMUNITIES special cases: dispel, chain lightning
 //Tests are incomplete and only covers actual implementation for now
@@ -40,7 +42,7 @@ protected:
 	void SetUp() override
 	{
 		TargetConditionItemTest::SetUp();
-		subject = TargetConditionItemFactory::getDefault()->createImmunityNegation();
+		subject = TargetConditionItemFactory::create(*LIBRARY->identifiers())->createImmunityNegation();
 		GTEST_ASSERT_NE(subject, nullptr);
 	}
 };

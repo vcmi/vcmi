@@ -14,6 +14,7 @@
 #include "../../lib/gameState/RumorState.h"
 
 class CGTownInstance;
+class CCastleEvent;
 class ResourceSet;
 struct SetAvailableCreatures;
 struct SetMovePoints;
@@ -32,13 +33,19 @@ class NewTurnProcessor : boost::noncopyable
 
 	ResourceSet generatePlayerIncome(PlayerColor playerID, bool newWeek);
 	SetAvailableCreatures generateTownGrowth(const CGTownInstance * town, EWeekType weekType, CreatureID creatureWeek, bool firstDay, int additionalGrowth);
-	RumorState pickNewRumor();
+	RumorState pickNewRumor(bool firstTurn);
+	bool pickGenericRumor(RumorState & rumor);
+	bool pickMapRumor(RumorState & rumor);
+	bool pickStatisticRumor(RumorState & rumor);
+	bool pickGrailRumor(RumorState & rumor);
 	InfoWindow createInfoWindow(EWeekType weekType, CreatureID creatureWeek, bool newMonth, int additionalGrowth);
 	std::tuple<EWeekType, CreatureID, int> pickWeekType(bool newMonth);
 
 	NewTurn generateNewTurnPack();
 	void handleTimeEvents(PlayerColor player);
 	void handleTownEvents(const CGTownInstance *town);
+	/// Constructs buildings and adds creatures of a town event; components go to `iw` if it is set
+	void applyTownEventEffects(const CGTownInstance * town, const CCastleEvent & event, InfoWindow * iw);
 
 	void updateNeutralTownGarrison(const CGTownInstance * t, int currentWeek) const;
 

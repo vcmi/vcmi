@@ -16,12 +16,14 @@
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/IGameSettings.h"
+#include "../../lib/MapLayerHandler.h"
 #include "../../lib/StartInfo.h"
 #include "../../lib/callback/GameRandomizer.h"
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/entities/faction/CTownHandler.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
+#include "../../lib/entities/RumorTypeHandler.h"
 #include "../../lib/gameState/CGameState.h"
 
 #include <vcmi/scripting/MapEventDispatcher.h>
@@ -101,6 +103,13 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 			continue;
 
 		PlayerColor player = town->getOwner();
+		if (!player.isValidPlayer())
+		{
+			if (event.neutralAffected)
+				applyTownEventEffects(town, event, nullptr);
+			continue;
+		}
+
 		if (!event.affectsPlayer(player, gameHandler->gameInfo().getPlayerState(player)->isHuman()))
 			continue;
 
@@ -126,37 +135,44 @@ void NewTurnProcessor::handleTownEvents(const CGTownInstance * town)
 					iw.components.emplace_back(ComponentType::RESOURCE, i, event.resources[i]);
 		}
 
-		for (auto & i : event.buildings)
-		{
-			// Only perform action if:
-			// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
-			// 2. Building was not built yet
-			// othervice, silently ignore / skip it
-			if (town->getTown()->buildings.count(i) && !town->hasBuilt(i))
-			{
-				gameHandler->buildStructure(town->id, i, true);
-				iw.components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFactionID(), i));
-			}
-		}
-
-		if (!event.creatures.empty())
-		{
-			SetAvailableCreatures sac;
-			sac.tid = town->id;
-			sac.creatures = town->creatures;
-
-			for (si32 i=0;i<event.creatures.size();i++) //creature growths
-			{
-				if (i < town->creatures.size() && !town->creatures.at(i).second.empty() && event.creatures.at(i) > 0)//there is dwelling
-				{
-					sac.creatures[i].first += event.creatures.at(i);
-					iw.components.emplace_back(ComponentType::CREATURE, town->creatures.at(i).second.back(), event.creatures.at(i));
-				}
-			}
-
-			gameHandler->sendAndApply(sac); //show dialog
-		}
+		applyTownEventEffects(town, event, &iw);
 		gameHandler->sendAndApply(iw); //show dialog
+	}
+}
+
+void NewTurnProcessor::applyTownEventEffects(const CGTownInstance * town, const CCastleEvent & event, InfoWindow * iw)
+{
+	for (auto & i : event.buildings)
+	{
+		// Only perform action if:
+		// 1. Building exists in town (don't attempt to build Lvl 5 guild in Fortress
+		// 2. Building was not built yet
+		// othervice, silently ignore / skip it
+		if (town->getTown()->buildings.count(i) && !town->hasBuilt(i))
+		{
+			gameHandler->buildStructure(town->id, i, true);
+			if (iw)
+				iw->components.emplace_back(ComponentType::BUILDING, BuildingTypeUniqueID(town->getFactionID(), i));
+		}
+	}
+
+	if (!event.creatures.empty())
+	{
+		SetAvailableCreatures sac;
+		sac.tid = town->id;
+		sac.creatures = town->creatures;
+
+		for (si32 i=0;i<event.creatures.size();i++) //creature growths
+		{
+			if (i < town->creatures.size() && !town->creatures.at(i).second.empty() && event.creatures.at(i) > 0)//there is dwelling
+			{
+				sac.creatures[i].first += event.creatures.at(i);
+				if (iw)
+					iw->components.emplace_back(ComponentType::CREATURE, town->creatures.at(i).second.back(), event.creatures.at(i));
+			}
+		}
+
+		gameHandler->sendAndApply(sac);
 	}
 }
 
@@ -447,84 +463,155 @@ void NewTurnProcessor::updateNeutralTownGarrison(const CGTownInstance * t, int c
 		gameHandler->changeStackType(StackLocation(t->id, slotID), upgradedCreature);
 }
 
-RumorState NewTurnProcessor::pickNewRumor()
+/// Picks a random item from eligible items that were not used since the pool was last exhausted
+template<typename T>
+static T pickUnusedItem(const std::vector<T> & eligible, std::set<T> & used, vstd::RNG & rand)
 {
-	RumorState newRumor;
+	std::vector<T> available;
+	for(const auto & item : eligible)
+		if(!used.count(item))
+			available.push_back(item);
 
-	static const std::vector<RumorState::ERumorType> rumorTypes = {RumorState::TYPE_MAP, RumorState::TYPE_SPECIAL, RumorState::TYPE_RAND, RumorState::TYPE_RAND};
-	std::vector<RumorState::ERumorTypeSpecial> sRumorTypes = {
-															  RumorState::RUMOR_OBELISKS, RumorState::RUMOR_ARTIFACTS, RumorState::RUMOR_ARMY, RumorState::RUMOR_INCOME};
-	const int3 & grailPos = gameHandler->gameState().getMap().grailPos;
-	if(grailPos.isValid()) // Grail should always be on map, but I had related crash I didn't manage to reproduce
+	if(available.empty())
 	{
-		// terrains from mods may have no text for this rumor
-		if (!gameHandler->gameState().getTile(grailPos)->getTerrain()->grailRumorTextID.empty())
-			sRumorTypes.push_back(RumorState::RUMOR_GRAIL);
+		for(const auto & item : eligible)
+			used.erase(item);
+		available = eligible;
 	}
 
-	int rumorId = -1;
-	int rumorExtra = -1;
-	auto & rand = gameHandler->getRandomGenerator();
-	newRumor.type = *RandomGeneratorUtil::nextItem(rumorTypes, rand);
+	T result = *RandomGeneratorUtil::nextItem(available, rand);
+	used.insert(result);
+	return result;
+}
 
-	do
+bool NewTurnProcessor::pickGenericRumor(RumorState & rumor)
+{
+	std::set<FactionID> factionsOnMap;
+	for(const auto & townID : gameHandler->gameState().getMap().getAllTowns())
+		factionsOnMap.insert(gameHandler->gameState().getTown(townID)->getFactionID());
+
+	std::vector<RumorId> eligible;
+	for(const auto & rumorID : LIBRARY->rumorHandler->getAllObjects())
 	{
-		switch(newRumor.type)
-		{
-			case RumorState::TYPE_SPECIAL:
-			{
-				SThievesGuildInfo tgi;
-				gameHandler->gameState().obtainPlayersStats(tgi, 20);
-				rumorId = *RandomGeneratorUtil::nextItem(sRumorTypes, rand);
-				if(rumorId == RumorState::RUMOR_GRAIL)
-				{
-					rumorExtra = gameHandler->gameState().getTile(gameHandler->gameState().getMap().grailPos)->getTerrainID().getNum();
-					break;
-				}
-
-				std::vector<PlayerColor> players = {};
-				switch(rumorId)
-				{
-					case RumorState::RUMOR_OBELISKS:
-						players = tgi.obelisks[0];
-						break;
-
-					case RumorState::RUMOR_ARTIFACTS:
-						players = tgi.artifacts[0];
-						break;
-
-					case RumorState::RUMOR_ARMY:
-						players = tgi.army[0];
-						break;
-
-					case RumorState::RUMOR_INCOME:
-						players = tgi.income[0];
-						break;
-				}
-				rumorExtra = RandomGeneratorUtil::nextItem(players, rand)->getNum();
-
-				break;
-			}
-			case RumorState::TYPE_MAP:
-				// Makes sure that map rumors only used if there enough rumors too choose from
-				if(!gameHandler->gameState().getMap().rumors.empty() && (gameHandler->gameState().getMap().rumors.size() > 1 || !gameHandler->gameState().currentRumor.last.count(RumorState::TYPE_MAP)))
-				{
-					rumorId = rand.nextInt(gameHandler->gameState().getMap().rumors.size() - 1);
-					break;
-				}
-				else
-					newRumor.type = RumorState::TYPE_RAND;
-				[[fallthrough]];
-
-			case RumorState::TYPE_RAND:
-				rumorId = rand.nextInt(GameConstants::RANDOM_RUMORS - 1);
-
-				break;
-		}
+		FactionID faction = rumorID.toEntity(LIBRARY)->getFaction();
+		if(faction == FactionID::NONE || factionsOnMap.count(faction))
+			eligible.push_back(rumorID);
 	}
-	while(!newRumor.update(rumorId, rumorExtra));
 
-	return newRumor;
+	if(eligible.empty())
+		return false;
+
+	RumorId picked = pickUnusedItem(eligible, rumor.usedRumors, gameHandler->getRandomGenerator());
+	rumor.text = MetaString::createFromTextID(picked.toEntity(LIBRARY)->getNameTextID());
+	return true;
+}
+
+bool NewTurnProcessor::pickMapRumor(RumorState & rumor)
+{
+	const auto & mapRumors = gameHandler->gameState().getMap().rumors;
+	std::vector<int32_t> eligible(mapRumors.size());
+	std::iota(eligible.begin(), eligible.end(), 0);
+
+	if(eligible.empty())
+		return false;
+
+	int32_t picked = pickUnusedItem(eligible, rumor.usedMapRumors, gameHandler->getRandomGenerator());
+	rumor.text = mapRumors.at(picked).text;
+	return true;
+}
+
+bool NewTurnProcessor::pickStatisticRumor(RumorState & rumor)
+{
+	SThievesGuildInfo tgi;
+	gameHandler->gameState().obtainPlayersStats(tgi, 20);
+
+	std::vector<MetaString> candidates;
+	auto addLeader = [&candidates](const std::string & textID, const std::vector<std::vector<PlayerColor>> & ranking)
+	{
+		// tied players have no leader to tell about
+		if(ranking.empty() || ranking.front().size() != 1)
+			return;
+
+		MetaString text = MetaString::createFromTextID(textID);
+		text.replaceTextID("core.plcolors", ranking.front().front().getNum());
+		candidates.push_back(text);
+	};
+
+	addLeader("core.genrltxt.208", tgi.obelisks);
+	addLeader("core.genrltxt.209", tgi.artifacts);
+	addLeader("core.genrltxt.210", tgi.army);
+	addLeader("core.genrltxt.211", tgi.income);
+
+	if(candidates.empty())
+		return false;
+
+	rumor.text = *RandomGeneratorUtil::nextItem(candidates, gameHandler->getRandomGenerator());
+	return true;
+}
+
+bool NewTurnProcessor::pickGrailRumor(RumorState & rumor)
+{
+	// core.arraytxt.148-156 name regions of the map split into 3x3 grid, listed here in row-major order
+	static const std::array<int, 9> regionTexts = {
+		155, 148, 149,
+		154, 156, 150,
+		153, 152, 151
+	};
+
+	const auto & map = gameHandler->gameState().getMap();
+	if(!map.grailPos.isValid() || map.isHoleAt(map.grailPos))
+		return false;
+
+	// terrains and map layers from mods may have no text for this rumor
+	std::vector<MetaString> candidates;
+
+	const std::string & terrainTextID = map.getTile(map.grailPos).getTerrain()->grailRumorTextID;
+	if(!terrainTextID.empty())
+	{
+		MetaString text = MetaString::createFromTextID("core.genrltxt.212");
+		text.replaceTextID(terrainTextID);
+		candidates.push_back(text);
+	}
+
+	std::string layerTextID = map.mapLayers.at(map.grailPos.z).toEntity(LIBRARY)->getGrailRumorTextID();
+	if(!layerTextID.empty())
+	{
+		int column = map.grailPos.x * 3 / map.width;
+		int row = map.grailPos.y * 3 / map.height;
+		MetaString text = MetaString::createFromTextID(layerTextID);
+		text.replaceTextID("core.arraytxt", regionTexts.at(row * 3 + column));
+		candidates.push_back(text);
+	}
+
+	if(candidates.empty())
+		return false;
+
+	rumor.text = *RandomGeneratorUtil::nextItem(candidates, gameHandler->getRandomGenerator());
+	return true;
+}
+
+RumorState NewTurnProcessor::pickNewRumor(bool firstTurn)
+{
+	RumorState rumor = gameHandler->gameState().currentRumor;
+
+	// generic 32%, map 32%, statistic 30%, grail 6%
+	int roll = gameHandler->getRandomGenerator().nextInt(99);
+	bool picked = false;
+
+	if(roll >= 64 && roll < 94 && !firstTurn)
+		picked = pickStatisticRumor(rumor);
+	else if(roll >= 64) // statistics of the first turn are the same for all players, grail rumor is told instead
+		picked = pickGrailRumor(rumor);
+	else if(roll >= 32)
+		picked = pickMapRumor(rumor);
+
+	if(!picked)
+		picked = pickGenericRumor(rumor);
+
+	if(!picked)
+		rumor.text.clear();
+
+	return rumor;
 }
 
 std::tuple<EWeekType, CreatureID, int> NewTurnProcessor::pickWeekType(bool newMonth)
@@ -595,7 +682,7 @@ std::tuple<EWeekType, CreatureID, int> NewTurnProcessor::pickWeekType(bool newMo
 			do
 			{
 				newMonster.second = gameHandler->randomizer->rollCreature();
-			} while (newMonster.second.toEntity(LIBRARY)->getFactionID().toFaction()->town == nullptr); // find first non neutral creature
+			} while (!newMonster.second.toEntity(LIBRARY)->getFactionID().toFaction()->hasTown()); // find first non neutral creature
 
 			return { EWeekType::BONUS_GROWTH, newMonster.second, gameHandler->gameInfo().getSettings().getInteger(EGameSettings::CREATURES_ADDITIONAL_WEEKLY_GROWTH_SPECIAL_WEEK)};
 		}
@@ -729,7 +816,7 @@ NewTurn NewTurnProcessor::generateNewTurnPack()
 			n.availableCreatures.push_back(generateTownGrowth(t, n.specialWeek, n.creatureid, firstTurn, additionalGrowth));
 		}
 
-		n.newRumor = pickNewRumor();
+		n.newRumor = pickNewRumor(firstTurn);
 
 		//new week info popup
 		if (n.specialWeek != EWeekType::FIRST_WEEK)
@@ -749,6 +836,14 @@ void NewTurnProcessor::onNewTurn()
 	bool newMonth = calendar.nextDay().getDayOfMonth() == 1;
 
 	gameHandler->sendAndApply(n);
+
+	// neutral towns have no turn of their own, so their events occur as soon as the day starts
+	for (const auto & townID : gameHandler->gameState().getMap().getAllTowns())
+	{
+		const auto * t = gameHandler->gameState().getTown(townID);
+		if (!t->getOwner().isValidPlayer())
+			handleTownEvents(t);
+	}
 
 	if (newWeek)
 	{

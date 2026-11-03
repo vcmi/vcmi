@@ -11,6 +11,8 @@
 
 #include "TargetConditionItemFixture.h"
 
+#include "../../../lib/GameLibrary.h"
+
 #include "../../../lib/bonuses/BonusParameters.h"
 
 namespace test
@@ -39,7 +41,7 @@ public:
 		immuneSpell = ::testing::get<0>(GetParam());
 		castSpell = ::testing::get<1>(GetParam());
 
-		subject = TargetConditionItemFactory::getDefault()->createNormalSpell();
+		subject = TargetConditionItemFactory::create(*LIBRARY->identifiers())->createNormalSpell();
 	}
 };
 

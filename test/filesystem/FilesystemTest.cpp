@@ -53,4 +53,33 @@ TEST_F(FilesystemTest, RemovesResourceAndUpdatesIndex)
 	EXPECT_FALSE(boost::filesystem::exists(getDirectory() / "example.txt"));
 }
 
+TEST_F(FilesystemTest, DoesNotCreateResourceOutsideOfDirectory)
+{
+	const auto loaderDirectory = getDirectory() / "loader";
+	ASSERT_TRUE(boost::filesystem::create_directory(loaderDirectory));
+	CFilesystemLoader loader("Test/", loaderDirectory);
+
+	EXPECT_FALSE(loader.createResource("Test/../example.txt"));
+	EXPECT_FALSE(loader.createResource("Test/folder/../../example.txt"));
+	EXPECT_FALSE(loader.createResource("Test/" + (getDirectory() / "example.txt").string()));
+	EXPECT_FALSE(boost::filesystem::exists(getDirectory() / "example.txt"));
+
+	EXPECT_TRUE(loader.createResource("Test/folder/example.txt"));
+	EXPECT_TRUE(boost::filesystem::exists(loaderDirectory / "folder" / "example.txt"));
+}
+
+TEST_F(FilesystemTest, FindsFileWithRepeatedExtensionByItsName)
+{
+	CFilesystemLoader loader("Test/", getDirectory());
+	ASSERT_TRUE(loader.createResource("Test/example.h3m.h3m"));
+
+	const ResourcePath storedName(ResourcePath("Test/example.h3m.h3m").getOriginalName(), EResType::MAP);
+	EXPECT_TRUE(loader.existsResource(storedName));
+}
+
+TEST(ResourcePathTest, KeepsExtensionOfDifferentType)
+{
+	EXPECT_EQ(ResourcePath("Fonts/CALLI10R.FNT.txt").getName(), "FONTS/CALLI10R.FNT");
+}
+
 }

@@ -94,6 +94,7 @@ Notes:
 | [vcmi.eu](https://vcmi.eu) | Main page redirect | CNAME | No content, redirects to [real main page](https://vcmi.github.io/) |
 | [download.vcmi.eu](https://download.vcmi.eu) | Public downloads & daily builds | `vcmi-web` | - |
 | [upload.vcmi.eu](https://upload.vcmi.eu) | Domain name for uploading daily builds from Github | `vcmi-web` | No http services |
+| [updates.vcmi.eu](https://updates.vcmi.eu/autoupdate.json) | Update information for VCMI launchers | `vcmi-web` | nginx acts as proxy to provide https wrapper for http-only update service |
 | [beholder.vcmi.eu](https://beholder.vcmi.eu) | Multiplayer lobby | `vcmi-lobby` | No http services. Used for VCMI 1.7.3 lobby and older. Deprecated in favor of `lobby` |
 | [lobby.vcmi.eu](https://lobby.vcmi.eu) | Multiplayer lobby | `vcmi-lobby` | No http services |
 | [api.vcmi.eu](https://api.vcmi.eu) | Multiplayer lobby API endpoint | `vcmi-lobby` | nginx acts as proxy to provide https wrapper for http-only REST API |
@@ -112,6 +113,7 @@ Currently we have following services deployed:
 - [Discourse](Discourse.md)
 - [Multiplayer lobby](Multiplayer_Lobby.md)
 - [Downloads & daily builds](Daily_Builds.md)
+- [Update service](Update_Service.md)
 - [Weblate](Weblate.md)
 
 Potential addition for the future:

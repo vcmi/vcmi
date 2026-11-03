@@ -13,11 +13,11 @@
 #include "CModHandler.h"
 #include "ModDescription.h"
 #include "ModManager.h"
+#include "LibraryLoadContext.h"
 #include "ModScope.h"
 
 #include "../BattleFieldHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CConfigHandler.h"
 #include "../campaign/CampaignRegionsHandler.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/faction/CTownHandler.h"
@@ -37,6 +37,7 @@
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../MapLayerHandler.h"
+#include "../entities/RumorTypeHandler.h"
 #include "../json/JsonUtils.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../rmg/CRmgTemplateStorage.h"
@@ -45,10 +46,11 @@
 #include "../scripting/ScriptHandler.h"
 #include "../GameLibrary.h"
 
-ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, const std::string & entityName):
+ContentTypeHandler::ContentTypeHandler(LibraryLoadContext & context, IHandlerBase * handler, const std::string & entityName):
+	context(context),
 	handler(handler),
 	entityName(entityName),
-	originalData(handler->loadLegacyData())
+	originalData(handler->loadLegacyData(context))
 {
 	for(auto & node : originalData)
 	{
@@ -92,7 +94,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	auto performValidate = [&,this](JsonNode & data, const std::string & name){
 		handler->beforeValidate(data);
 		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + entityName, name);
+			result &= context.validator.validate(data, "vcmi:" + entityName, name);
 	};
 
 	// apply patches
@@ -100,7 +102,14 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	{
 		for (auto & objectPatch : objectPatches)
 		{
-			if (settings["mods"]["validation"].String() != "off" && !modInfo.modData[objectName].isNull())
+			const JsonNode & target = modInfo.modData[objectName];
+			if (objectPatch.isNull() && target.isStruct() && vstd::contains(target.Struct(), "index"))
+			{
+				logMod->error("Mod '%s' attempts to remove object '%s' of type '%s' from mod '%s', but objects from original game can not be removed!", objectPatch.getModScope(), objectName, entityName, modName);
+				continue;
+			}
+
+			if (context.validation != EContentValidation::OFF && !modInfo.modData[objectName].isNull())
 				JsonUtils::detectConflicts(conflictList, modInfo.modData[objectName], objectPatch, objectName);
 
 			JsonUtils::merge(modInfo.modData[objectName], objectPatch);
@@ -124,6 +133,10 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 			continue;
 		}
 
+		// object was removed by a patch that set it to null
+		if (data.isNull())
+			continue;
+
 		bool hasIndex = vstd::contains(data.Struct(), "index") && !data["index"].isNull();
 
 		if (hasIndex && modName != "core")
@@ -146,14 +159,14 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 				logMod->trace("no original data in loadMod(%s) at index %d", name, index);
 			}
 			performValidate(data, name);
-			handler->loadObject(modName, name, data, index);
+			handler->loadObject(context, modName, name, data, index);
 		}
 		else
 		{
 			// normal new object
 			logMod->trace("no index in loadMod(%s)", name);
 			performValidate(data, name);
-			handler->loadObject(modName, name, data);
+			handler->loadObject(context, modName, name, data);
 		}
 	}
 	return result;
@@ -161,12 +174,12 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 
 void ContentTypeHandler::loadCustom()
 {
-	handler->loadCustom();
+	handler->loadCustom(context);
 }
 
 void ContentTypeHandler::afterLoadFinalization()
 {
-	if (settings["mods"]["validation"].String() != "off")
+	if (context.validation != EContentValidation::OFF)
 	{
 		for (auto const & data : modData)
 		{
@@ -179,7 +192,7 @@ void ContentTypeHandler::afterLoadFinalization()
 		}
 
 		// comparing objects of every mod against objects of every other mod is too slow for a normal game start
-		if (settings["mods"]["validation"].String() == "full")
+		if (context.validation == EContentValidation::FULL)
 		{
 			for (auto const & data : modData)
 			{
@@ -213,9 +226,9 @@ void ContentTypeHandler::afterLoadFinalization()
 
 			for (auto const & modID : conflictingMods)
 			{
-				const auto & dependencies = LIBRARY->modh->getModDependencies(modID);
+				const auto & dependencies = context.lib.modh->getModDependencies(modID);
 				resolvedConflicts.insert(dependencies.begin(), dependencies.end());
-				resolvedConflicts.merge(LIBRARY->modh->getModEnabledSoftDependencies(modID));
+				resolvedConflicts.merge(context.lib.modh->getModEnabledSoftDependencies(modID));
 			}
 
 			vstd::erase_if(conflictingMods, [&resolvedConflicts](const std::string & entry){ return resolvedConflicts.count(entry);});
@@ -244,32 +257,38 @@ void ContentTypeHandler::afterLoadFinalization()
 		}
 	}
 
-	handler->afterLoadFinalization();
+	handler->afterLoadFinalization(context);
+}
+
+CContentHandler::CContentHandler(LibraryLoadContext & context):
+	context(context)
+{
 }
 
 void CContentHandler::init()
 {
-	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(LIBRARY->heroclassesh.get(), "heroClass")));
-	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(LIBRARY->arth.get(), "artifact")));
-	handlers.insert(std::make_pair("bonuses", ContentTypeHandler(LIBRARY->bth.get(), "bonus")));
-	handlers.insert(std::make_pair("creatures", ContentTypeHandler(LIBRARY->creh.get(), "creature")));
-	handlers.insert(std::make_pair("campaignRegions", ContentTypeHandler(LIBRARY->campaignRegions.get(), "campaignRegion")));
-	handlers.insert(std::make_pair("factions", ContentTypeHandler(LIBRARY->townh.get(), "faction")));
-	handlers.insert(std::make_pair("objects", ContentTypeHandler(LIBRARY->objtypeh.get(), "object")));
-	handlers.insert(std::make_pair("heroes", ContentTypeHandler(LIBRARY->heroh.get(), "hero")));
-	handlers.insert(std::make_pair("spells", ContentTypeHandler(LIBRARY->spellh.get(), "spell")));
-	handlers.insert(std::make_pair("scripts", ContentTypeHandler(LIBRARY->scriptTypeHandler.get(), "script")));
-	handlers.insert(std::make_pair("spellSchools", ContentTypeHandler(LIBRARY->spellSchoolHandler.get(), "spellSchool")));
-	handlers.insert(std::make_pair("skills", ContentTypeHandler(LIBRARY->skillh.get(), "skill")));
-	handlers.insert(std::make_pair("templates", ContentTypeHandler(LIBRARY->tplh.get(), "template")));
-	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(LIBRARY->battlefieldsHandler.get(), "battlefield")));
-	handlers.insert(std::make_pair("terrains", ContentTypeHandler(LIBRARY->terrainTypeHandler.get(), "terrain")));
-	handlers.insert(std::make_pair("rivers", ContentTypeHandler(LIBRARY->riverTypeHandler.get(), "river")));
-	handlers.insert(std::make_pair("roads", ContentTypeHandler(LIBRARY->roadTypeHandler.get(), "road")));
-	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(LIBRARY->obstacleHandler.get(), "obstacle")));
-	handlers.insert(std::make_pair("biomes", ContentTypeHandler(LIBRARY->biomeHandler.get(), "biome")));
-	handlers.insert(std::make_pair("resources", ContentTypeHandler(LIBRARY->resourceTypeHandler.get(), "resources")));
-	handlers.insert(std::make_pair("mapLayers", ContentTypeHandler(LIBRARY->mapLayerHandler.get(), "mapLayer")));
+	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(context, context.lib.heroclassesh.get(), "heroClass")));
+	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(context, context.lib.arth.get(), "artifact")));
+	handlers.insert(std::make_pair("bonuses", ContentTypeHandler(context, context.lib.bth.get(), "bonus")));
+	handlers.insert(std::make_pair("creatures", ContentTypeHandler(context, context.lib.creh.get(), "creature")));
+	handlers.insert(std::make_pair("campaignRegions", ContentTypeHandler(context, context.lib.campaignRegions.get(), "campaignRegion")));
+	handlers.insert(std::make_pair("factions", ContentTypeHandler(context, context.lib.townh.get(), "faction")));
+	handlers.insert(std::make_pair("objects", ContentTypeHandler(context, context.lib.objtypeh.get(), "object")));
+	handlers.insert(std::make_pair("heroes", ContentTypeHandler(context, context.lib.heroh.get(), "hero")));
+	handlers.insert(std::make_pair("spells", ContentTypeHandler(context, context.lib.spellh.get(), "spell")));
+	handlers.insert(std::make_pair("scripts", ContentTypeHandler(context, context.lib.scriptTypeHandler.get(), "script")));
+	handlers.insert(std::make_pair("spellSchools", ContentTypeHandler(context, context.lib.spellSchoolHandler.get(), "spellSchool")));
+	handlers.insert(std::make_pair("skills", ContentTypeHandler(context, context.lib.skillh.get(), "skill")));
+	handlers.insert(std::make_pair("templates", ContentTypeHandler(context, context.lib.tplh.get(), "template")));
+	handlers.insert(std::make_pair("battlefields", ContentTypeHandler(context, context.lib.battlefieldsHandler.get(), "battlefield")));
+	handlers.insert(std::make_pair("terrains", ContentTypeHandler(context, context.lib.terrainTypeHandler.get(), "terrain")));
+	handlers.insert(std::make_pair("rivers", ContentTypeHandler(context, context.lib.riverTypeHandler.get(), "river")));
+	handlers.insert(std::make_pair("roads", ContentTypeHandler(context, context.lib.roadTypeHandler.get(), "road")));
+	handlers.insert(std::make_pair("obstacles", ContentTypeHandler(context, context.lib.obstacleHandler.get(), "obstacle")));
+	handlers.insert(std::make_pair("biomes", ContentTypeHandler(context, context.lib.biomeHandler.get(), "biome")));
+	handlers.insert(std::make_pair("resources", ContentTypeHandler(context, context.lib.resourceTypeHandler.get(), "resources")));
+	handlers.insert(std::make_pair("mapLayers", ContentTypeHandler(context, context.lib.mapLayerHandler.get(), "mapLayer")));
+	handlers.insert(std::make_pair("rumors", ContentTypeHandler(context, context.lib.rumorHandler.get(), "rumor")));
 }
 
 std::vector<std::string> CContentHandler::getContentTypeNames() const
@@ -288,7 +307,7 @@ bool CContentHandler::preloadData(const ModDescription & mod, JsonNode & modCont
 	bool result = true;
 
 	// mod.json is part of mod checksum, so it only needs validation together with the rest of mod data
-	if (validate && !JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
+	if (validate && !context.validator.validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
 		result = false;
 
 	for(auto & handler : handlers)

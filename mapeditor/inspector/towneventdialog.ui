@@ -158,6 +158,13 @@
           </item>
          </layout>
         </item>
+        <item>
+         <widget class="QCheckBox" name="eventAffectsNeutral">
+          <property name="text">
+           <string>affects neutral town</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </widget>

@@ -16,6 +16,7 @@
 #include "../../lib/constants/StringConstants.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/entities/ResourceTypeHandler.h"
+#include "../../lib/modding/IdentifierResolver.h"
 #include "../../lib/modding/ModScope.h"
 #include "../translator.h"
 
@@ -57,7 +58,8 @@ TResources resourcesFromVariant(const QVariant & v)
 		vJson[r.toStdString()].Integer() = v.toMap().value(r).toInt();
 	vJson.setModScope(ModScope::scopeMap());
 	ResourceSet res;
-	res.resolveFromJson(vJson);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	res.resolveFromJson(vJson, resolver);
 	return res;
 }
 

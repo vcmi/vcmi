@@ -15,6 +15,7 @@
 #include "bonuses/Bonus.h"
 #include "GameConstants.h"
 #include "IHandlerBase.h"
+#include "json/JsonNode.h"
 
 class JsonSerializeFormat;
 
@@ -76,8 +77,8 @@ public:
 	std::array<si32, 2> gainChance; // gainChance[0/1] = default gain chance on level-up for might/magic heroes
 	int offerCooldown = 0;
 
-	/// Bonuses that should be given to hero that specializes in this skill
-	std::vector<std::shared_ptr<const Bonus>> specialtyTargetBonuses;
+	/// Bonuses that should be given to hero that specializes in this skill, parsed separately for each hero
+	std::vector<JsonNode> specialtyTargetBonuses;
 
 	friend class CSkillHandler;
 	friend DLL_LINKAGE std::ostream & operator<<(std::ostream & out, const CSkill & skill);
@@ -90,13 +91,13 @@ class DLL_LINKAGE CSkillHandler: public CHandlerBase<SecondarySkill, Skill, CSki
 {
 public:
 	///IHandler base
-	std::vector<JsonNode> loadLegacyData() override;
-	void afterLoadFinalization() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 	void beforeValidate(JsonNode & object) override;
 
 	std::set<SecondarySkill> getDefaultAllowed() const;
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	std::shared_ptr<CSkill> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CSkill> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
 };

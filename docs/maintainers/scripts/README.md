@@ -11,6 +11,7 @@ target server and run the scripts from there.
 | `weblate/` | Weblate translation server | `vcmi-web` |
 | `discourse/` | Forum | `vcmi-forum` |
 | `builds/` | Daily builds upload/download + nginx | `vcmi-web` |
+| `updates/` | Update service for launchers and AltStore (`updates.vcmi.eu`) | `vcmi-web` |
 | `web/` | Redirect vhosts (`wiki.vcmi.eu`, `slack.vcmi.eu`, `bugs.vcmi.eu`) | `vcmi-web` |
 
 ## Per-service scripts

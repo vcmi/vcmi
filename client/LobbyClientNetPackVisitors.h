@@ -31,6 +31,7 @@ public:
 	bool getResult() const { return result; }
 
 	void visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack) override;
+	void visitLobbyQuickLoadInfo(LobbyQuickLoadInfo & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
@@ -38,6 +39,7 @@ public:
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
 	void visitLobbyModsCheck(LobbyModsCheck & pack) override;
 	void visitLobbyUpdateState(LobbyUpdateState & pack) override;
+	void visitLobbyUpdateMapInfo(LobbyUpdateMapInfo & pack) override;
 };
 
 class ApplyOnLobbyScreenNetPackVisitor : public ::ICPackVisitor
@@ -60,5 +62,7 @@ public:
 	void visitLobbyLoadProgress(LobbyLoadProgress & pack) override;
 	void visitLobbyUpdateState(LobbyUpdateState & pack) override;
 	void visitLobbyShowMessage(LobbyShowMessage & pack) override;
+	void visitLobbyScenarioList(LobbyScenarioList & pack) override;
+	void visitLobbyScenarioInfo(LobbyScenarioInfo & pack) override;
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 };

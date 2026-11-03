@@ -19,7 +19,7 @@ class SummonBoatEffect final : public IAdventureSpellEffect
 	bool useExistingBoat;
 
 public:
-	SummonBoatEffect(const CSpell * s, const JsonNode & config);
+	SummonBoatEffect(LibraryLoadContext & context, const CSpell * s, const JsonNode & config);
 
 	bool canCreateNewBoat() const;
 	int getSuccessChance(const spells::Caster * caster) const;

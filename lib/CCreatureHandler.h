@@ -29,6 +29,7 @@ class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 class CombatValue;
+class GameLibrary;
 class JsonSerializeFormat;
 
 class DLL_LINKAGE CCreature : public Creature, public CBonusSystemNode
@@ -189,16 +190,16 @@ class DLL_LINKAGE CCreatureHandler : public CHandlerBase<CreatureID, Creature, C
 {
 private:
 	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics) const;
-	void loadStackExperience(CCreature * creature, const JsonNode & input) const;
-	void loadCreatureJson(CCreature * creature, const JsonNode & config) const;
+	void loadStackExperience(LibraryLoadContext & context, CCreature * creature, const JsonNode & input) const;
+	void loadCreatureJson(LibraryLoadContext & context, CCreature * creature, const JsonNode & config) const;
 
 	/// load all creatures from H3 files
 	void load();
-	void loadCommanders();
+	void loadCommanders(LibraryLoadContext & context);
 	/// load creature from json structure
 	void load(std::string creatureID, const JsonNode & node);
 	/// read cranim.txt file from H3
-	void loadAnimationInfo(std::vector<JsonNode> & h3Data) const;
+	void loadAnimationInfo(LibraryLoadContext & context, std::vector<JsonNode> & h3Data) const;
 	/// read one line from cranim.txt
 	void loadUnitAnimInfo(JsonNode & unit, CLegacyConfigParser & parser) const;
 
@@ -206,7 +207,7 @@ private:
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	std::shared_ptr<CCreature> loadFromJson(const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CCreature> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & node, const std::string & identifier, size_t index) override;
 
 public:
 	std::set<CreatureID> doubledCreatures; //they get double week
@@ -223,24 +224,24 @@ public:
 	std::vector <std::pair <std::vector<std::shared_ptr<Bonus> >, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
 
-	CCreatureHandler();
+	explicit CCreatureHandler(LibraryLoadContext & context);
 	~CCreatureHandler();
 
 	/// load all stack modifier bonuses from H3 files. TODO: move this to json
-	void loadCrExpMod();
+	void loadCrExpMod(LibraryLoadContext & context);
 
 	const ResourceSet & getCommanderResurrectionPrice(const CCreature * commander) const;
 
 	/// Builds the combat value model. Reads creature stats and resolves script identifiers,
 	/// so it can only be called once all mods are loaded
-	void buildCombatValues();
+	void buildCombatValues(const GameLibrary & library);
 
 	/// Estimates combat value of a creature or a battle unit
 	const CombatValue & getCombatValue() const;
 
-	void afterLoadFinalization() override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
 	std::set<CreatureID> getDefaultAllowed() const;
 

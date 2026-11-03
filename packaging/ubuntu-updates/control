@@ -1,0 +1,14 @@
+Source: vcmi-updates
+Section: net
+Priority: optional
+Maintainer: Ivan Savenko <saven.ivan@gmail.com>
+Build-Depends: debhelper-compat (= 13), dh-sequence-installsysusers, python3
+Standards-Version: 4.6.2
+Homepage: https://vcmi.eu
+
+Package: vcmi-updates
+Architecture: all
+Depends: ${misc:Depends}, python3 (>= 3.12)
+Description: Update service for the VCMI launcher
+ Serves https://updates.vcmi.eu/autoupdate.json to VCMI launchers and
+ provides vcmi-updates-release for managing release records.

@@ -31,6 +31,7 @@ class EditorMainWindow : public QMainWindow
 	const QString mainWindowPositionSetting = "MainWindow/Position";
 	const QString lastDirectorySetting = "MainWindow/Directory";
 	const QString recentlyOpenedFilesSetting = "MainWindow/RecentlyOpenedFiles";
+	const QString objectBrowserListSetting = "MainWindow/ObjectBrowserList";
 
 #ifdef ENABLE_QT_TRANSLATIONS
 #endif
@@ -98,9 +99,9 @@ private slots:
 	void roadOrRiverButtonClicked(ui8 type, bool isRoad);
 	void currentCoordinatesChanged(int x, int y);
 
-	void on_terrainFilterCombo_currentIndexChanged(int index);
-
 	void on_filter_textChanged(const QString &arg1);
+
+	void on_viewModeButton_toggled(bool checked);
 
 	void on_actionFill_triggered();
 
@@ -163,7 +164,7 @@ private slots:
 
 public slots:
 
-	void treeViewSelected(const QModelIndex &selected, const QModelIndex &deselected);
+	void objectBrowserSelected(const QModelIndex &selected);
 	void loadInspector(CGObjectInstance * obj, bool switchTab);
 	void mapChanged();
 	void enableUndo(bool enable);

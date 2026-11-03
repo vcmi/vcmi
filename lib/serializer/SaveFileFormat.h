@@ -19,6 +19,14 @@ public:
 	~SaveTooOldException() override;
 };
 
+/// Thrown if saved game was created by a newer version of VCMI. Its metadata can still be read by CLoadFile::readMetadata
+class DLL_LINKAGE SaveTooNewException : public std::runtime_error
+{
+public:
+	using std::runtime_error::runtime_error;
+	~SaveTooNewException() override;
+};
+
 /// Layout of a saved game: file magic, serialization version, then chunks listed in CHUNK_ORDER.
 /// Every chunk consists of its ID, compressed size, uncompressed size and zlib-compressed data.
 /// All integers are stored as little-endian
@@ -28,7 +36,8 @@ using ChunkID = std::array<char, 4>;
 
 constexpr ChunkID FILE_MAGIC = {'V', 'C', 'M', 'I'};
 
-/// Json with information on the save that can be read without loading mods used by the save
+/// Json with information on the save that can be read without loading mods used by the save.
+/// First chunk in saves of every version, so that saves of newer versions can be listed
 constexpr ChunkID CHUNK_METADATA = {'M', 'E', 'T', 'A'};
 /// Map header and start info, required to select the save in lobby
 constexpr ChunkID CHUNK_HEADER = {'H', 'E', 'A', 'D'};

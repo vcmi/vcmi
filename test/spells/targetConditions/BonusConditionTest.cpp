@@ -11,6 +11,8 @@
 
 #include "TargetConditionItemFixture.h"
 
+#include "../../../lib/GameLibrary.h"
+
 namespace test
 {
 using namespace ::spells;
@@ -28,7 +30,7 @@ public:
 	void SetUp() override
 	{
 		TargetConditionItemTest::SetUp();
-		subject = TargetConditionItemFactory::getDefault()->createConfigurable("game", "bonus", "UNDEAD");
+		subject = TargetConditionItemFactory::create(*LIBRARY->identifiers())->createConfigurable("game", "bonus", "UNDEAD");
 		GTEST_ASSERT_NE(subject, nullptr);
 	}
 };

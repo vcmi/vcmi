@@ -1,9 +1,9 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"title" : "VCMI saved game metadata",
-	"description" : "Information on a saved game that can be read without loading mods used by the save",
-	"required" : [ "vcmiVersion", "saveTime", "map", "game", "mods" ],
+	"title" : "VCMI saved game or map metadata",
+	"description" : "Information on a saved game or a map that can be read without loading mods used by it. Also read from saves of newer versions, which may add new fields",
+	"required" : [ "map", "mods" ],
 
 	"definitions" : {
 		"text" : {
@@ -27,21 +27,24 @@
 	"properties" : {
 		"vcmiVersion" : {
 			"type" : "string",
-			"description" : "Version of VCMI that created the save, only for display to the player"
+			"description" : "Version of VCMI that created the save, only for display to the player. Present only for saved games, missing for saves in legacy format"
 		},
 		"saveTime" : {
 			"type" : "number",
-			"description" : "Time when the save was created, in seconds since Unix epoch"
+			"description" : "Time when the save was created, in seconds since Unix epoch. Present only for saved games, missing for saves in legacy format"
 		},
 		"map" : {
 			"type" : "object",
-			"required" : [ "name", "description", "author", "authorContact", "mapVersion", "format", "width", "height", "levels", "difficulty", "victoryIcon", "defeatIcon", "players", "humanPlayers" ],
+			"required" : [ "name", "author", "authorContact", "mapVersion", "format", "width", "height", "levels", "difficulty", "victoryIcon", "defeatIcon", "players", "humanPlayers" ],
 			"properties" : {
 				"name" : { "$ref" : "#/definitions/text" },
-				"description" : { "$ref" : "#/definitions/text" },
 				"author" : { "$ref" : "#/definitions/text" },
 				"authorContact" : { "$ref" : "#/definitions/text" },
 				"mapVersion" : { "$ref" : "#/definitions/text" },
+				"creationDateTime" : {
+					"type" : "number",
+					"description" : "Time when the map was created, in seconds since Unix epoch, 0 or missing if unknown"
+				},
 				"format" : {
 					"type" : "number",
 					"description" : "Format of the original map, value of EMapFormat"
@@ -67,16 +70,21 @@
 		},
 		"game" : {
 			"type" : "object",
-			"required" : [ "mode", "mapFile", "difficulty", "humanPlayers", "saveDirectory", "day" ],
+			"description" : "State of the game, present only for saved games",
+			"required" : [ "mode", "mapFile", "difficulty", "humanPlayers", "saveDirectory" ],
 			"properties" : {
 				"mode" : {
 					"type" : "string",
 					"enum" : [ "single", "campaign", "tutorial" ]
 				},
 				"campaignName" : { "$ref" : "#/definitions/text" },
+				"campaignScenario" : {
+					"type" : "number",
+					"description" : "Index of the current scenario in the campaign, only for campaigns"
+				},
 				"mapFile" : {
 					"type" : "string",
-					"description" : "Name of the map file, empty for random maps"
+					"description" : "Name of the map file, or of the campaign file for campaigns, empty for random maps"
 				},
 				"difficulty" : {
 					"type" : "number",
@@ -92,13 +100,13 @@
 				},
 				"day" : {
 					"type" : "number",
-					"description" : "Total number of days passed in the game"
+					"description" : "Total number of days passed in the game, missing for saves in legacy format"
 				}
 			}
 		},
 		"mods" : {
 			"type" : "object",
-			"description" : "Active mods that affect gameplay, root mod identifier -> mod",
+			"description" : "Mods that affect gameplay: active mods for saved games, mods required by the map for maps. Root mod identifier -> mod",
 			"additionalProperties" : {
 				"type" : "object",
 				"required" : [ "name", "version", "submods" ],

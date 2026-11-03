@@ -24,6 +24,7 @@ class CBattleInfoCallback;
 class AdventureSpellCastParameters;
 class SpellCastEnvironment;
 class JsonSerializeFormat;
+class LibraryLoadContext;
 
 namespace test
 {
@@ -237,7 +238,7 @@ private:
 	JsonNode convertTargetCondition(const BTVector & immunity, const BTVector & absImmunity, const BTVector & limit, const BTVector & absLimit) const;
 
 	//call this after load or deserialization. cant be done in constructor.
-	void setupMechanics();
+	void setupMechanics(LibraryLoadContext & context);
 
 private:
 	si32 defaultProbability;

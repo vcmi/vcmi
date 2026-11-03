@@ -72,6 +72,11 @@ protected:
 	ResourcePath(const JsonNode & name, EResType type);
 
 public:
+	/// Constructs empty resource path of type OTHER, for deserialization
+	ResourcePath()
+		:ResourcePath("", EResType::OTHER)
+	{}
+
 	/// Constructs resource path based on full name including extension
 	explicit ResourcePath(const std::string & fullName);
 

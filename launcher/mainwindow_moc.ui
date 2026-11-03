@@ -258,6 +258,7 @@
       <widget class="FirstLaunchView" name="setupView"/>
       <widget class="AboutProjectView" name="aboutView"/>
       <widget class="StartGameTab" name="startGameView"/>
+      <widget class="UpdateView" name="updateView"/>
      </widget>
     </item>
    </layout>
@@ -293,6 +294,12 @@
    <class>StartGameTab</class>
    <extends>QWidget</extends>
    <header>startGame/StartGameTab.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>UpdateView</class>
+   <extends>QWidget</extends>
+   <header>updates/UpdateView.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

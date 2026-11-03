@@ -13,6 +13,7 @@
 #include "CGameHandler.h"
 #include "GlobalLobbyProcessor.h"
 #include "LobbyNetPackVisitors.h"
+#include "lobby/LastScenarios.h"
 #include "processors/PlayerMessageProcessor.h"
 
 #include "../lib/CThreadHelper.h"
@@ -23,9 +24,11 @@
 #include "../lib/entities/hero/CHeroClass.h"
 #include "../lib/entities/ResourceTypeHandler.h"
 #include "../lib/gameState/CGameState.h"
+#include "../lib/json/JsonValidator.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/texts/CompositeTranslator.h"
 #include "../lib/mapping/CMapHeader.h"
+#include "../lib/mapping/ScenarioListEntry.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
 #include "../lib/modding/ModIncompatibility.h"
@@ -479,22 +482,6 @@ void CVCMIServer::announceTxt(const std::string & txt, const std::string & playe
 	announceTxt(str, playerName);
 }
 
-bool CVCMIServer::passHost(GameConnectionID toConnectionId)
-{
-	for(auto activeConnection : activeConnections)
-	{
-		if(isClientHost(activeConnection->connectionID))
-			continue;
-		if(activeConnection->connectionID != toConnectionId)
-			continue;
-
-		hostClientId = activeConnection->connectionID;
-		announceTxt(boost::str(boost::format("Pass host to connection %d") % static_cast<int>(toConnectionId)));
-		return true;
-	}
-	return false;
-}
-
 void CVCMIServer::clientConnected(std::shared_ptr<GameConnection> c, const std::vector<std::string> & names, const std::string & uuid, EStartMode mode)
 {
 	assert(getState() == EServerState::LOBBY);
@@ -714,6 +701,14 @@ void CVCMIServer::updateAndPropagateLobbyState()
 				si->mapGenOptions->setPlayerTypeForStandardPlayer(pset.color, EPlayerType::AI);
 			}
 		}
+	}
+
+	if(mi != announcedMapInfo)
+	{
+		LobbyUpdateMapInfo lumi;
+		lumi.mapInfo = mi;
+		announcePack(lumi);
+		announcedMapInfo = mi;
 	}
 
 	LobbyUpdateState lus;
@@ -1079,7 +1074,7 @@ bool CVCMIServer::canUseThisHero(PlayerColor player, HeroTypeID ID)
 	if (ID.getNum() >= LIBRARY->heroh->size())
 		return false;
 
-	if (si->playerInfos[player].castle != ID.toHeroType()->heroClass->faction)
+	if (si->playerInfos[player].castle != ID.toHeroType()->getHeroClass()->faction)
 		return false;
 
 	if (vstd::contains(getUsedHeroes(), ID))
@@ -1203,6 +1198,8 @@ bool CVCMIServer::loadSavedGame(CGameHandler & handler, const StartInfo & info)
 	try
 	{
 		handler.load(info);
+		JsonValidator validator;
+		LastScenarios::rememberSave(ScenarioListEntry::fromSave(ResourcePath(info.mapname, EResType::SAVEGAME), validator));
 	}
 	catch(const ModIncompatibility & e)
 	{

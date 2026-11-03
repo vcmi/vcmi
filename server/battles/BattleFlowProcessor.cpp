@@ -73,8 +73,6 @@ void BattleFlowProcessor::onBattleStarted(const CBattleInfoCallback & battle)
 
 	tryPlaceMoats(battle);
 
-	gameHandler->turnTimerHandler->onBattleStart(battle.getBattle()->getBattleID());
-
 	if (battle.battleGetTacticDist() == 0)
 		onTacticsEnded(battle);
 }

@@ -229,9 +229,10 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 
 	//spell effects
 	int printed=0; //how many effect pics have been printed
-	std::vector<SpellID> spells = battleStack->activeSpells();
-	for(SpellID effect : spells)
+	std::vector<SpellWithMasteryID> spells = battleStack->activeSpells();
+	for(SpellWithMasteryID spellWithMastery : spells)
 	{
+		SpellID effect = spellWithMastery.getSpellID();
 		const spells::Spell * spell = LIBRARY->spells()->getById(effect);
 
 		//not all effects have graphics (for eg. Acid Breath)
@@ -240,15 +241,15 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 
 		if (hasGraphics)
 		{
-			auto spellBonuses = battleStack->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(effect)));
+			auto spellBonuses = battleStack->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spellWithMastery)));
 			if (spellBonuses->empty())
 				throw std::runtime_error("Failed to find effects for spell " + effect.toSpell()->getJsonKey());
 
 			int duration = spellBonuses->front()->turnsRemain;
-			std::string preferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
+			std::string preferredLanguage = Languages::getPreferredLanguage();
 
 			MetaString spellText;
-			spellText.appendTextID(spell->getDescriptionTextID(0)); // TODO: select correct mastery level?
+			spellText.appendTextID(spell->getDescriptionTextID(spellWithMastery.getMastery()));
 			spellText.appendRawString("\n");
 			spellText.appendTextID(Languages::getPluralFormTextID( preferredLanguage, duration, "vcmi.battleResultsWindow.spellDurationRemaining"));
 			spellText.replaceNumber(duration);
@@ -414,7 +415,7 @@ CStackWindow::ButtonsSection::ButtonsSection(CStackWindow * owner, int yOffset)
 
 			auto upgradeBtn = std::make_shared<CButton>(Point(upgradeButtonX, 5), AnimationPath::builtin("stackWindow/upgradeButton"), LIBRARY->generaltexth->zelp[446], onClick);
 
-			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), LIBRARY->creh->objects[upgradeInfo.info.getAvailableUpgrades()[buttonIndex]]->getIconIndex()));
+			upgradeBtn->setOverlay(std::make_shared<CAnimImage>(AnimationPath::builtin("CPRSMALL"), (*LIBRARY->creh)[upgradeInfo.info.getAvailableUpgrades()[buttonIndex]]->getIconIndex()));
 
 			if(buttonsToCreate == 1) // single upgrade available
 				upgradeBtn->assignedKey = EShortcut::RECRUITMENT_UPGRADE;

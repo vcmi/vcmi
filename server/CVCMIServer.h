@@ -12,6 +12,7 @@
 #include "IGameServer.h"
 
 #include "../lib/network/NetworkInterface.h"
+#include "../lib/networkPacks/PacksForLobby.h"
 #include "../lib/StartInfo.h"
 
 class CMapInfo;
@@ -53,6 +54,9 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 
 	std::shared_ptr<IServerDiscoveryListener> discoveryListener;
 
+	/// Map info last sent to clients in LobbyUpdateMapInfo
+	std::shared_ptr<CMapInfo> announcedMapInfo;
+
 	bool loadSavedGame(CGameHandler & handler, const StartInfo & info);
 public:
 	uint16_t getPort() const override
@@ -73,6 +77,12 @@ public:
 
 	/// List of all active connections
 	std::vector<std::shared_ptr<GameConnection>> activeConnections;
+
+	/// Last list requested by the host, sent again after files are deleted
+	std::optional<LobbyRequestScenarioList> lastScenarioListRequest;
+
+	/// Heroes and battlefield of battle-only mode, last sent by a client
+	std::shared_ptr<BattleOnlyModeStartInfo> battleOnlyModeStartInfo;
 
 	uint16_t prepare(bool connectToLobby, bool listenForConnections);
 
@@ -98,7 +108,6 @@ public:
 	void threadHandleClient(std::shared_ptr<GameConnection> c);
 
 	void announcePack(CPackForLobby & pack);
-	bool passHost(GameConnectionID toConnectionId);
 
 	void announceTxt(const MetaString & txt, const std::string & playerName = "System");
 	void announceTxt(const std::string & txt, const std::string & playerName = "System");

@@ -17,6 +17,7 @@ using TResourceCap = int64_t; //to avoid overflow when adding integers. Signed v
 
 class JsonNode;
 class JsonSerializeFormat;
+class IIdentifierResolver;
 
 /// Amounts of resources, sorted by resource. Resources that are not stored in the set have amount of 0
 class ResourceSet
@@ -24,7 +25,7 @@ class ResourceSet
 private:
 	boost::container::flat_map<GameResID, TResource> container;
 public:
-	DLL_LINKAGE void resolveFromJson(const JsonNode & node);
+	DLL_LINKAGE void resolveFromJson(const JsonNode & node, IIdentifierResolver & resolver);
 
 #define scalarOperator(OPSIGN)									\
 	ResourceSet& operator OPSIGN ## =(const TResource &rhs) \

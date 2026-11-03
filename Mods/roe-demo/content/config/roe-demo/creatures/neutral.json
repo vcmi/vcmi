@@ -1,17 +1,17 @@
 {
 	"core:goldGolem" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	},
 	"core:diamondGolem" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	},
 	"core:azureDragon" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{
@@ -25,7 +25,7 @@
 	},
 	"core:crystalDragon" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{
@@ -39,7 +39,7 @@
 	},
 	"core:fairieDragon" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{
@@ -53,7 +53,7 @@
 	},
 	"core:rustDragon" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{
@@ -67,7 +67,7 @@
 	},
 	"core:enchanter" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{
@@ -81,12 +81,12 @@
 	},
 	"core:sharpshooter" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null
 	},
 	"core:troll" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{
@@ -100,7 +100,7 @@
 	},
 	"core:boar" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{
@@ -114,7 +114,7 @@
 	},
 	"core:halfling" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{
@@ -128,7 +128,7 @@
 	},
 	"core:mummy" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{
@@ -142,7 +142,7 @@
 	},
 	"core:nomad" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{
@@ -156,7 +156,7 @@
 	},
 	"core:peasant" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{
@@ -170,7 +170,7 @@
 	},
 	"core:rogue" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"graphics" : null,
 		"sound" :
 		{

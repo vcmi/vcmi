@@ -53,6 +53,7 @@
 							"bonusSubtype" : { "type" : "string" },
 							"bonusSourceType" : { "type" : "string" },
 							"bonusSourceID" : { "type" : "string" },
+							"bonusSourceSecondaryID" : { "type" : "string" },
 							"bonusMinValue" : { "type" : "number" },
 							"bonusMaxValue" : { "type" : "number" }
 						}
@@ -564,6 +565,10 @@
 		"sourceID" : {
 			"type" : "string",
 			"description" : "sourceID"
+		},
+		"sourceSecondaryID" : {
+			"type" : "string",
+			"description" : "Optional. In case of some bonuses provides additonal information (example: mastery level for spell effect)"
 		},
 		"sourceType" : {
 			"type" : "string",

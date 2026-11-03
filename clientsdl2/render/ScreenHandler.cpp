@@ -331,6 +331,7 @@ void ScreenHandler::updateWindowState()
 		{
 			Point resolution = getPreferredWindowResolution();
 			SDL_SetWindowFullscreen(mainWindow, 0);
+			SDL_SetWindowResizable(mainWindow, SDL_TRUE);
 			SDL_SetWindowSize(mainWindow, resolution.x, resolution.y);
 			return;
 		}

@@ -115,7 +115,8 @@ bool WindowNewMap::loadUserSettings()
 	{
 		auto node = JsonUtils::toJson(settings);
 		node.setModScope(ModScope::scopeMap());
-		JsonDeserializer handler(nullptr, node);
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, node);
 		handler.serializeStruct("lastSettings", mapGenOptions);
 		templ = mapGenOptions.getMapTemplate(); // Remember for later
 

@@ -39,7 +39,7 @@ MapLayerSelectionDialog::MapLayerSelectionDialog(int levelCount, const std::vect
 	connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
 	// Build combo boxes for each level
-	auto & layers = LIBRARY->mapLayerHandler->objects;
+	const auto layers = LIBRARY->mapLayerHandler->getObjects();
 
 	for (int i = 0; i < levelCount; i++)
 	{
@@ -54,7 +54,7 @@ MapLayerSelectionDialog::MapLayerSelectionDialog(int levelCount, const std::vect
 
 		for (size_t j = 0; j < layers.size(); j++)
 		{
-			const auto *layer = layers[j].get();
+			const auto *layer = layers[j];
 			combo->addItem(QString::fromStdString(layer->getNameTranslated()), QVariant(static_cast<int>(j)));
 		}
 

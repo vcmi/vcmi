@@ -331,7 +331,9 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 		if (winnerHero)
 		{
 			gameHandler->giveExperienceWithoutLevelUp(winnerHero, battleResult->exp[finishingBattle->winnerSide]);
-			levellingHero = winnerHero->id;
+			// the game ends right after a battle-only battle, nobody would use the new level
+			if(!gameHandler->gameState().getMap().battleOnly)
+				levellingHero = winnerHero->id;
 		}
 	}
 
@@ -474,6 +476,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 			{
 				const auto spell = spellId.toEntity(LIBRARY->spells());
 				if(spell
+					&& spell->isCommonHeroSpell()
 					&& spell->getLevel() <= spellLevelLimit
 					&& !winnerHero->spellbookContainsSpell(spell->getId())
 					&& gameHandler->getRandomGenerator().nextInt(99) < winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_CHANCE))
@@ -521,7 +524,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	}
 
 	// Moving artifacts handling
-	if(result.result == EBattleResult::NORMAL && winnerHero && winnerHasUnitsLeft)
+	if(result.result == EBattleResult::NORMAL && winnerHero && winnerHasUnitsLeft && !gameHandler->gameState().getMap().battleOnly)
 	{
 		CArtifactFittingSet artFittingSet(*winnerHero);
 		const auto addArtifactToTransfer = [this, &artFittingSet, &dyingArtifacts, winnerHero](BulkMoveArtifacts & pack, const ArtifactPosition & srcSlot, const CArtifactInstance * art)

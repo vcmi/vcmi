@@ -19,7 +19,10 @@ public:
 	CCastleEvent() = default;
 
 	std::set<BuildingID> buildings;
+	/// Faction-specific buildings for event of random town, merged into buildings once faction is picked. Not serialized - only used before game start
+	std::map<FactionID, std::set<BuildingID>> randomTownBuildings;
 	std::vector<si32> creatures;
+	bool neutralAffected = false; ///< event also occurs while the town is neutral, without resources and message
 
 	template<typename Handler>
 	void serialize(Handler & h)
@@ -27,6 +30,8 @@ public:
 		h & static_cast<CMapEvent &>(*this);
 		h & buildings;
 		h & creatures;
+		if(h.hasFeature(Handler::Version::NEUTRAL_TOWN_EVENTS))
+			h & neutralAffected;
 	}
 
 	void serializeJson(JsonSerializeFormat & handler) override;

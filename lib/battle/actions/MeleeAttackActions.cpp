@@ -176,7 +176,7 @@ bool MeleeAttackAction::validate(const IGameInfoCallback & game, const CBattleIn
 
 	if(!canAttackDefender)
 	{
-		problem.add(MetaString::createFromRawString("Unit can not attack this target: " + defender->getDescription()));
+		problem.add(MetaString::createFromRawString("Unit " + attacker->getDescription() + " can not attack this target: " + defender->getDescription()));
 		return false;
 	}
 

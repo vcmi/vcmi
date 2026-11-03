@@ -12,8 +12,25 @@
 #include "JsonNode.h"
 
 /// Class for Json validation. Mostly compliant with json-schema v6 draf
-struct JsonValidator
+struct DLL_LINKAGE JsonValidator
 {
+	using TFormatValidator = std::function<std::string(const JsonNode &)>;
+	using TFormatMap = std::unordered_map<std::string, TFormatValidator>;
+	using TFieldValidator = std::function<std::string(JsonValidator &, const JsonNode &, const JsonNode &, const JsonNode &)>;
+	using TValidatorMap = std::unordered_map<std::string, TFieldValidator>;
+
+private:
+	/// Schemas loaded by this validator, by name of their file
+	std::map<std::string, JsonNode> loadedSchemas;
+
+	/// Checks of string values by "format" of their schema
+	TFormatMap knownFormats;
+
+	const JsonNode & getSchemaByName(const std::string & name);
+
+public:
+	JsonValidator();
+
 	/// path from root node to current one.
 	/// JsonNode is used as variant - either string (name of node) or as float (index in list)
 	std::vector<JsonNode> currentPath;
@@ -25,15 +42,20 @@ struct JsonValidator
 	/// generates error message
 	std::string makeErrorMessage(const std::string &message);
 
-	using TFormatValidator = std::function<std::string(const JsonNode &)>;
-	using TFormatMap = std::unordered_map<std::string, TFormatValidator>;
-	using TFieldValidator = std::function<std::string(JsonValidator &, const JsonNode &, const JsonNode &, const JsonNode &)>;
-	using TValidatorMap = std::unordered_map<std::string, TFieldValidator>;
-
 	/// map of known fields in schema
 	const TValidatorMap & getKnownFieldsFor(JsonNode::JsonType type);
-	const TFormatMap & getKnownFormats();
+	const TFormatMap & getKnownFormats() const;
+	/// Adds check of string values with provided "format", replacing existing check of this format
+	void addFormat(const std::string & name, TFormatValidator checker);
+
+	/// Returns schema by json URI: vcmi:<name of file in schemas directory>#<entry in file, optional>
+	const JsonNode & getSchema(const std::string & URI);
 
 	std::string check(const std::string & schemaName, const JsonNode & data);
 	std::string check(const JsonNode & schema, const JsonNode & data);
+
+	/// Validates node against schema with provided URI and logs all found errors, with dataName identifying the node
+	bool validate(const JsonNode & node, const std::string & schemaName, const std::string & dataName);
+	/// Validates node against provided inline schema and logs all found errors, with dataName identifying the node
+	bool validate(const JsonNode & node, const JsonNode & schema, const std::string & dataName);
 };

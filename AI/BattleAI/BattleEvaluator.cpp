@@ -157,6 +157,17 @@ float BattleEvaluator::scoreBonusEffects(const battle::Units & units, const Dama
 	return result;
 }
 
+static constexpr int minTurnsToSkipRecast = 2;
+
+static bool hasLongerLastingEffect(const battle::Unit * unit, const CSpell * spell)
+{
+	const auto effects = unit->getBonuses(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(spell->id)));
+	return std::any_of(effects->begin(), effects->end(), [](const auto & bonus)
+	{
+		return (bonus->duration & BonusDuration::N_TURNS) && bonus->turnsRemain >= minTurnsToSkipRecast;
+	});
+}
+
 std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CStack * stack)
 {
 	if(!stack->canCast())
@@ -187,6 +198,11 @@ std::optional<PossibleSpellcast> BattleEvaluator::findBestCreatureSpell(const CS
 		spells::BattleCast temp(cb->getBattle(battleID).get(), stack, spells::Mode::CREATURE_ACTIVE, spell);
 		for(const auto & target : SpellTargetEvaluator::getViableTargets(spell->battleMechanics(&temp).get()))
 		{
+			// refreshing a spell that still has turns left only wastes the action
+			const auto * targetUnit = !target.empty() ? cb->getBattle(battleID)->battleGetUnitByPos(target.front().hexValue, true) : nullptr;
+			if(targetUnit && hasLongerLastingEffect(targetUnit, spell))
+				continue;
+
 			PossibleSpellcast ps;
 			ps.dest = target;
 			ps.spell = spell;
@@ -228,7 +244,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		&& hasWorkingTowers()
 		&& !enemyMellee.empty();
 
-	if(targets->possibleAttacks.empty() && bestSpellcast.has_value())
+	if(targets->possibleAttacks.empty() && bestSpellcast.has_value() && bestSpellcast->value > moveTarget.score)
 	{
 		activeActionMade = true;
 		return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
@@ -605,6 +621,49 @@ BattleAction BattleEvaluator::goTowardsNearest(
 	return BattleAction::makeDefend(stack);
 }
 
+static constexpr std::array<EWallPart, 5> passableWallParts = {
+	EWallPart::BOTTOM_WALL, EWallPart::BELOW_GATE, EWallPart::OVER_GATE, EWallPart::UPPER_WALL, EWallPart::GATE
+};
+
+/// Whether any of wall parts that block the way into town is in a different state in the two battles
+static bool wallsChanged(const CBattleInfoCallback & before, const CBattleInfoCallback & after)
+{
+	return std::ranges::any_of(passableWallParts, [&](EWallPart part){ return before.battleGetWallState(part) != after.battleGetWallState(part); });
+}
+
+bool BattleEvaluator::wallsBreached(const CBattleInfoCallback & battle)
+{
+	return std::ranges::any_of(passableWallParts, [&](EWallPart part){ return battle.battleGetWallState(part) == EWallState::DESTROYED; });
+}
+
+float BattleEvaluator::breachValue() const
+{
+	const auto battle = cb->getBattle(battleID);
+
+	if(side != BattleSide::ATTACKER || battle->getAttackableWallParts().empty() || wallsBreached(*battle))
+		return 0;
+
+	uint64_t ourArmy = 0;
+	uint64_t walkers = 0;
+	float enemyArmy = 0;
+
+	for(const auto * unit : battle->battleGetUnitsIf([](const battle::Unit * u){ return u->alive() && !u->hasBonusOfType(BonusType::SIEGE_WEAPON); }))
+	{
+		if(unit->unitSide() != side)
+		{
+			enemyArmy += AttackPossibility::calculateDamageReduce(unit, unit->getAvailableHealth(), damageCache);
+			continue;
+		}
+
+		const auto value = unit->estimateCombatValue();
+		ourArmy += value;
+		if(!unit->isShooter() && !unit->hasBonusOfType(BonusType::FLYING))
+			walkers += value;
+	}
+
+	return ourArmy == 0 ? 0 : enemyArmy * walkers / ourArmy;
+}
+
 bool BattleEvaluator::canCastSpell()
 {
 	auto hero = cb->getBattle(battleID)->battleGetMyHero();
@@ -624,9 +683,9 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;
 
-	for (auto const & s : LIBRARY->spellh->objects)
+	for (auto const & s : LIBRARY->spellh->getObjects())
 		if (s->canBeCast(cb->getBattle(battleID).get(), spells::Mode::HERO, hero))
-			possibleSpells.push_back(s.get());
+			possibleSpells.push_back(s);
 
 	LOGFL("I can cast %d spells.", possibleSpells.size());
 
@@ -765,6 +824,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	LOGFL("I have %d turns left in this round", ourRemainingTurns);
 
 	const bool castNow = ourRemainingTurns <= 1;
+	const float breachScore = breachValue();
 
 	if(castNow)
 		print("I should try to cast a spell now");
@@ -965,6 +1025,13 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 				else
 				{
 					ps.value = stackActionScore + damageToFriendliesScore + damageToHostilesScore + bonusEffectsScore;
+				}
+
+				// simulation is too short to see walking units getting through, so value the breach itself
+				if(breachScore > 0 && wallsChanged(*cb->getBattle(battleID), *state))
+				{
+					ps.value += breachScore;
+					breachCastFound = true;
 				}
 
 #if BATTLE_TRACE_LEVEL >= 1

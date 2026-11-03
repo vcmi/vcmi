@@ -9,12 +9,14 @@
 			"blindImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "blind"
+				"subtype" : "blind",
+				"addInfo" : 1
 			},
 			"petrifyImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "stoneGaze"
+				"subtype" : "stoneGaze",
+				"addInfo" : 1
 			}
 		},
 		"upgrades": ["infernalTroglodyte"],
@@ -44,12 +46,14 @@
 			"blindImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "blind"
+				"subtype" : "blind",
+				"addInfo" : 1
 			},
 			"petrifyImmunity" :
 			{
 				"type" : "SPELL_IMMUNITY",
-				"subtype" : "stoneGaze"
+				"subtype" : "stoneGaze",
+				"addInfo" : 1
 			}
 		},
 		"graphics" :

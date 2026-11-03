@@ -163,8 +163,8 @@ CSpellWindow::CSpellWindow(const CGHeroInstance * _myHero, CPlayerInterface * _m
 	std::vector<SpellSchool> sortedSchools = LIBRARY->spellSchoolHandler->getAllObjects();
 	std::ranges::sort(sortedSchools, [&](SpellSchool a, SpellSchool b) {
 		auto cnt = [&](SpellSchool s) {
-			return std::ranges::count_if(LIBRARY->spellh->objects, [&](auto const & sp) {
-				return myHero->canCastThisSpell(sp.get()) && sp->schools.count(s);
+			return std::ranges::count_if(LIBRARY->spellh->getObjects(), [&](auto const & sp) {
+				return myHero->canCastThisSpell(sp) && sp->schools.count(s);
 			});
 		};
 		return cnt(a) > cnt(b);
@@ -325,27 +325,27 @@ void CSpellWindow::processSpells()
 	sitesPerTabBattle.clear();
 
 	//initializing castable spells
-	mySpells.reserve(LIBRARY->spellh->objects.size());
-	for(auto const & spell : LIBRARY->spellh->objects)
+	mySpells.reserve(LIBRARY->spellh->size());
+	for(auto const & spell : LIBRARY->spellh->getObjects())
 	{
 		bool searchTextFound = !searchBox || TextOperations::isFuzzyMatch(searchBox->getText(), spell->getNameTranslated());
 
 		if(onSpellSelect)
 		{
-			bool spellAvailable = myHero->canCastThisSpell(spell.get()) || (showAllSpells->isSelected() && !spell->isSpecial());
+			bool spellAvailable = myHero->canCastThisSpell(spell) || (showAllSpells->isSelected() && !spell->isSpecial());
 
 			if(spell->isCombat() == openOnBattleSpells
 				&& !spell->isCreatureAbility()
 				&& searchTextFound
 				&& spellAvailable)
 			{
-				mySpells.push_back(spell.get());
+				mySpells.push_back(spell);
 			}
 			continue;
 		}
 
-		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell.get()) && searchTextFound)
-			mySpells.push_back(spell.get());
+		if(!spell->isCreatureAbility() && myHero->canCastThisSpell(spell) && searchTextFound)
+			mySpells.push_back(spell);
 	}
 
 	SpellbookSpellSorter spellsorter;

@@ -43,16 +43,16 @@ class DLL_LINKAGE CBonusTypeHandler : public IBonusTypeHandler
 {
 	std::vector<std::string> builtinBonusNames;
 public:
-	CBonusTypeHandler();
+	explicit CBonusTypeHandler(LibraryLoadContext & context);
 	virtual ~CBonusTypeHandler();
 
 	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, const IBonusBearer * bearer) const override;
 	std::string bonusToString(const std::shared_ptr<Bonus> & bonus) const;
 	ImagePath bonusToGraphics(const std::shared_ptr<Bonus> & bonus) const override;
 
-	std::vector<JsonNode> loadLegacyData() override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data) override;
-	void loadObject(const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data) override;
+	void loadObject(LibraryLoadContext & context, const std::string & scope, const std::string & name, const JsonNode & data, size_t index) override;
 
 	const std::string & bonusToString(BonusType bonus) const;
 
@@ -64,7 +64,7 @@ private:
 	std::string bonusToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const;
 	std::string combatScriptToString(const std::shared_ptr<Bonus> & bonus, int bonusValue) const;
 	std::string describeParameter(const JsonNode & value, const std::string & entityType) const;
-	void loadItem(const JsonNode & source, CBonusType & dest, const std::string & name) const;
+	void loadItem(LibraryLoadContext & context, const JsonNode & source, CBonusType & dest, const std::string & name) const;
 
 	std::vector<std::shared_ptr<CBonusType> > bonusTypes; //index = BonusType
 };

@@ -36,11 +36,14 @@ public:
 	std::string getNameTranslated() const override;
 	TerrainId getDefaultTerrain() const { return defaultTerrain; }
 	std::string getIcon() const { return icon; }
+	/// Text of tavern rumor about region of this layer that contains the Grail, empty if layer has no such rumor
+	std::string getGrailRumorTextID() const { return grailRumorTextID; }
 
 	MapLayerType();
 
 private:
 	std::string icon;
+	std::string grailRumorTextID;
 };
 
 class MapLayerTypeService : public EntityServiceT<MapLayerId, MapLayerType>
@@ -50,8 +53,7 @@ class MapLayerTypeService : public EntityServiceT<MapLayerId, MapLayerType>
 class MapLayerTypeHandler : public CHandlerBase<MapLayerId, MapLayerType, MapLayerType, MapLayerTypeService>
 {
 public:
-	std::shared_ptr<MapLayerType> loadFromJson(
-		const std::string & scope,
+	std::shared_ptr<MapLayerType> loadFromJson(LibraryLoadContext & context, const std::string & scope,
 		const JsonNode & json,
 		const std::string & identifier,
 		size_t index) override;
@@ -59,5 +61,5 @@ public:
 	MapLayerTypeHandler();
 
 	const std::vector<std::string> & getTypeNames() const override;
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 };

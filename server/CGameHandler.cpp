@@ -15,6 +15,7 @@
 #include "ServerNetPackVisitors.h"
 #include "ServerSpellCastEnvironment.h"
 #include "battles/BattleProcessor.h"
+#include "lobby/LastScenarios.h"
 #include "processors/HeroPoolProcessor.h"
 #include "processors/NewTurnProcessor.h"
 #include "processors/PlayerMessageProcessor.h"
@@ -58,12 +59,14 @@
 #include <vcmi/scripting/MapEventDispatcher.h>
 #include "../lib/gameState/QuestInfo.h"
 #include "../lib/gameState/SaveMetadata.h"
+#include "../lib/json/JsonValidator.h"
 #include "../lib/gameState/UpgradeInfo.h"
 
 #include "../lib/mapping/CCastleEvent.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/mapping/HotaScriptConverter.h"
+#include "../lib/mapping/ScenarioListEntry.h"
 
 #include "../lib/mapObjects/CGCreature.h"
 #include "../lib/mapObjects/CGMarket.h"
@@ -76,6 +79,7 @@
 #include "../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../lib/mapObjectConstructors/CObjectClassesHandler.h"
 
+#include "../lib/modding/IdentifierResolver.h"
 #include "../lib/modding/ModIncompatibility.h"
 
 #include "../lib/networkPacks/StackLocation.h"
@@ -1812,7 +1816,6 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 	logGlobal->info("Saving to %s", filename);
 	ResourcePath savePath(filename, EResType::SAVEGAME);
 	const auto savefname = savePath.getOriginalName() + ".vsgm1";
-	CResourceHandler::get("local")->createResource(savefname);
 
 	std::string filenameWithoutPath;
 	auto pos = filename.find_last_of("/\\");
@@ -1825,6 +1828,9 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 
 	try
 	{
+		if(!CResourceHandler::get("local")->createResource(savefname))
+			throw std::runtime_error("Failed to create save file " + savefname);
+
 		CMemorySerializer header;
 		gameState().saveHeader(header.oser);
 
@@ -1833,14 +1839,21 @@ void CGameHandler::save(const std::string & filename, PlayerColor playerToNotify
 		logGlobal->info("Saving server state");
 		game.oser & *this;
 
+		ScenarioListEntry entry;
+		entry.type = ScenarioListEntry::EType::SAVE;
+		entry.fileURI = savePath.getName();
+		entry.originalFileURI = savePath.getOriginalName();
+		entry.metadata = SaveMetadata::create(gameState());
+
 		CSaveFile save;
-		save.addChunk(SaveFileFormat::CHUNK_METADATA, SaveMetadata::create(gameState()).toBytes());
+		save.addChunk(SaveFileFormat::CHUNK_METADATA, entry.metadata.toBytes());
 		save.addChunk(SaveFileFormat::CHUNK_HEADER, header.extractBuffer());
 		save.addChunk(SaveFileFormat::CHUNK_GAMESTATE, game.extractBuffer());
 		const auto saveFile = *CResourceHandler::get("local")->getResourceName(savePath);
 		save.write(saveFile);
 
 		pruneAutosaves(savePath, autosaveCountLimit);
+		LastScenarios::rememberSave(entry);
 
 		if(playerToNotifyOnSuccess.isValidPlayer())
 		{
@@ -1885,7 +1898,8 @@ void CGameHandler::load(const StartInfo &info)
 	else
 	{
 		CLoadFile lf(saveFile);
-		SaveMetadata::verifyMods(SaveMetadata::parse(lf.readChunk(SaveFileFormat::CHUNK_METADATA), info.mapname));
+		JsonValidator validator;
+		SaveMetadata::verifyMods(SaveMetadata::parse(lf.readChunk(SaveFileFormat::CHUNK_METADATA), info.mapname, validator));
 
 		auto game = lf.openChunk(SaveFileFormat::CHUNK_GAMESTATE, gs.get());
 		gs->loadGame(game->iser);
@@ -2503,7 +2517,9 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	};
 
 	// now when everything is built - reveal tiles for lookout tower
-	changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
+	// town may be neutral if building was built by a town event that affects neutral towns
+	if(t->getOwner().isValidPlayer())
+		changeFogOfWar(t->getSightCenter(), t->getSightRadius(), t->getOwner(), ETileVisibility::REVEALED);
 
 	if (!force)
 	{
@@ -2593,7 +2609,8 @@ bool CGameHandler::spellResearch(ObjectInstanceID tid, SpellID spellAtSlot, bool
 		return false;
 
 	ResourceSet costBase;
-	costBase.resolveFromJson(gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level]);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	costBase.resolveFromJson(gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST).Vector()[level], resolver);
 	double pastResearchesCostMultiplier = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_RESEARCH).Vector()[level].Float();
 	double pastRerollsCostMultiplier = gameInfo().getSettings().getValue(EGameSettings::TOWNS_SPELL_RESEARCH_COST_MULTIPLIER_PER_REROLL).Vector()[level].Float();
 	double pastResearchesCurrentMultiplier = std::pow(pastResearchesCostMultiplier, t->spellResearchAcceptedCounter);
@@ -3226,7 +3243,7 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 		const CArtifact * combinedArt = assembleTo.toArtifact();
 		if(!combinedArt->isCombined())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to assemble is not a combined artifacts!");
-		if(!vstd::contains(ArtifactUtils::assemblyPossibilities(hero, destArtifact->getTypeId()), combinedArt))
+		if(!vstd::contains(ArtifactUtils::assemblyPossibilities(gameInfo().getSettings(), hero, destArtifact->getTypeId()), combinedArt))
 		{
 			COMPLAIN_RET("assembleArtifacts: It's impossible to assemble requested artifact!");
 		}
@@ -3251,6 +3268,9 @@ bool CGameHandler::assembleArtifacts(ObjectInstanceID heroID, ArtifactPosition a
 
 		if(!destArtifact->hasParts())
 			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble is fused combined artifact!");
+
+		if(ArtifactUtils::isCombinationDisabled(gameInfo().getSettings(), destArtifact->getTypeId()))
+			COMPLAIN_RET("assembleArtifacts: Artifact being attempted to disassemble can not be assembled back on this map!");
 
 		if(ArtifactUtils::isSlotBackpack(artifactSlot)
 			&& !ArtifactUtils::isBackpackFreeSlots(hero, destArtifact->getType()->getConstituents().size() - 1))

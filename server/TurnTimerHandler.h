@@ -31,6 +31,7 @@ class TurnTimerHandler
 	
 	bool timerCountDown(int & timerToApply, int initialTimer, PlayerColor player, int waitTime);
 	bool isPvpBattle(const BattleID & battleID) const;
+	bool isPvpBattle(PlayerColor attacker, PlayerColor defender) const;
 	void sendTimerUpdate(PlayerColor player);
 	
 public:
@@ -38,7 +39,7 @@ public:
 	
 	void onGameplayStart(PlayerColor player);
 	void onPlayerGetTurn(PlayerColor player);
-	void onBattleStart(const BattleID & battle);
+	void onBattleStart(PlayerColor attacker, PlayerColor defender);
 	void onBattleNextStack(const BattleID & battle, const CStack & stack);
 	void onBattleEnd(const BattleID & battleID);
 	void update(int waitTimeMs);

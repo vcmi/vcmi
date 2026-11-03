@@ -336,20 +336,34 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QComboBox" name="terrainFilterCombo">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
+          <widget class="ObjectCategoryList" name="categoryList"/>
          </item>
          <item>
-          <widget class="QLineEdit" name="filter"/>
+          <layout class="QHBoxLayout" name="filterLayout">
+           <item>
+            <widget class="QLineEdit" name="filter">
+             <property name="placeholderText">
+              <string>Search</string>
+             </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="viewModeButton">
+             <property name="toolTip">
+              <string>Show as list</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
-          <widget class="ObjectBrowser" name="treeView">
+          <widget class="ObjectBrowser" name="objectView">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -370,24 +384,6 @@
            </property>
            <property name="dragDropMode">
             <enum>QAbstractItemView::DragOnly</enum>
-           </property>
-           <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectItems</enum>
-           </property>
-           <property name="iconSize">
-            <size>
-             <width>32</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="indentation">
-            <number>12</number>
-           </property>
-           <property name="sortingEnabled">
-            <bool>true</bool>
-           </property>
-           <property name="headerHidden">
-            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -1487,7 +1483,12 @@
   </customwidget>
   <customwidget>
    <class>ObjectBrowser</class>
-   <extends>QTreeView</extends>
+   <extends>QListView</extends>
+   <header>objectbrowser.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ObjectCategoryList</class>
+   <extends>QListWidget</extends>
    <header>objectbrowser.h</header>
   </customwidget>
  </customwidgets>

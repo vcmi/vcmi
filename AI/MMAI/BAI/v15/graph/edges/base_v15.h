@@ -45,7 +45,7 @@ public:
 	{
 		std::stringstream ss;
 		// ss << Base_Base::name() << "[" << srcNode->name() << "/" << srcNode.get() << "->" << dstNode->name() << "/" <<dstNode.get() <<"]";
-		ss << Base_Base::name() << "[" << srcNode->name() << "->" << dstNode->name() << "]";
+		ss << Base_Base::name() << "[" << srcNode->name() << " -> " << dstNode->name() << "]";
 		return ss.str();
 	}
 

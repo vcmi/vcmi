@@ -23,8 +23,14 @@ class CBuilding;
 /// Should be moved from lib to client
 struct DLL_LINKAGE CStructure
 {
+private:
+	friend class CTownHandler;
+
 	const CBuilding * building;  // base building. If null - this structure will be always present on screen
 	const CBuilding * buildable; // building that will be used to determine built building and visible cost. Usually same as "building"
+
+public:
+	const CBuilding * getBuilding() const;
 
 	int3 pos;
 	AnimationPath defName;
@@ -40,6 +46,7 @@ class DLL_LINKAGE CTown : boost::noncopyable
 {
 	friend class CTownHandler;
 	size_t namesCount = 0;
+	CFaction * faction;
 
 public:
 	CTown();
@@ -52,8 +59,7 @@ public:
 
 	std::string getRandomNameTextID(size_t index) const;
 	size_t getRandomNamesCount() const;
-
-	CFaction * faction;
+	const CFaction * getFaction() const;
 
 	/// level -> list of creatures on this tier
 	std::vector<std::vector<CreatureID> > creatures;

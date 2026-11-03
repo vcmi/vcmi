@@ -42,6 +42,11 @@ HeroTypeID CHero::getId() const
 	return ID;
 }
 
+const CHeroClass * CHero::getHeroClass() const
+{
+	return heroClass;
+}
+
 std::string CHero::getNameTranslated() const
 {
 	return LIBRARY->generaltexth->translate(getNameTextID());

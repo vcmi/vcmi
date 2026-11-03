@@ -65,11 +65,11 @@ public:
 class ObstacleHandler: public CHandlerBase<Obstacle, ObstacleInfo, ObstacleInfo, ObstacleService>
 {
 public:
-	std::shared_ptr<ObstacleInfo> loadFromJson(const std::string & scope,
+	std::shared_ptr<ObstacleInfo> loadFromJson(LibraryLoadContext & context, const std::string & scope,
 										const JsonNode & json,
 										const std::string & identifier,
 										size_t index) override;
 	
 	const std::vector<std::string> & getTypeNames() const override;
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 };

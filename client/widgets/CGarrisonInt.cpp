@@ -503,6 +503,10 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt * Owner, int x, int y, SlotID IID, EGa
 
 	stackCount = std::make_shared<CLabel>(labelPosW, labelPosH, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, labelAlignment, Colors::WHITE);
 
+	// slot frames in the info bar background are drawn around the icon, so clicks on the frame should hit the slot
+	if(Owner->layout == CGarrisonInt::ESlotsLayout::REVERSED_TWO_ROWS)
+		pos = Rect(pos.x - 1, pos.y - 1, pos.w + 3, pos.h + 3);
+
 	update();
 }
 

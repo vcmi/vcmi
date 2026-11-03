@@ -97,12 +97,12 @@ public:
 		{
 			if(!structure || structure->defName.empty())
 				continue;
-			if(!structure->building)
+			if(!structure->getBuilding())
 			{
 				toRender.push_back(structure.get());
 				continue;
 			}
-			groups[structure->building->getBase()].push_back(structure.get());
+			groups[structure->getBuilding()->getBase()].push_back(structure.get());
 		}
 
 		for(auto & [baseId, group] : groups)
@@ -115,8 +115,8 @@ public:
 				group,
 				[base](const CStructure * a, const CStructure * b)
 				{
-					return base->getDistance(a->building->bid)
-					     < base->getDistance(b->building->bid);
+					return base->getDistance(a->getBuilding()->bid)
+					     < base->getDistance(b->getBuilding()->bid);
 				});
 			toRender.push_back(best);
 		}
@@ -196,7 +196,7 @@ static void addTownTitle(
 		}
 	}
 
-	auto townView = std::make_shared<WikiTownView>(faction->town.get(), W, curY);
+	auto townView = std::make_shared<WikiTownView>(faction->getTown(), W, curY);
 	curY += townView->height() + SECTION_GAP;
 	widgets.push_back(std::move(townView));
 
@@ -322,7 +322,7 @@ static void addCreaturesTable(
 		for(int ci = 0; ci < (int)town->creatures[tier].size(); ++ci)
 		{
 			const CCreature * cr =
-				LIBRARY->creh->objects[town->creatures[tier][ci]].get();
+				(*LIBRARY->creh)[town->creatures[tier][ci]];
 			if(cr)
 				crRows.push_back({cr, tier + 1, ci > 0});
 		}
@@ -450,12 +450,12 @@ static void addHeroesTable(
 	struct HeroData { const CHero * hero; std::string className; };
 	std::vector<HeroData> mightHeroes, magicHeroes;
 
-	for(const auto & h : LIBRARY->heroh->objects)
+	for(const auto & h : LIBRARY->heroh->getObjects())
 	{
-		if(!h || h->special || !h->heroClass) continue;
-		if(h->heroClass->faction != factionId) continue;
-		HeroData hd{h.get(), h->heroClass->getNameTranslated()};
-		if(h->heroClass->affinity == CHeroClass::MAGIC)
+		if(!h || h->special || !h->getHeroClass()) continue;
+		if(h->getHeroClass()->faction != factionId) continue;
+		HeroData hd{h, h->getHeroClass()->getNameTranslated()};
+		if(h->getHeroClass()->affinity == CHeroClass::MAGIC)
 			magicHeroes.push_back(hd);
 		else
 			mightHeroes.push_back(hd);
@@ -586,7 +586,7 @@ std::vector<std::shared_ptr<CIntObject>> buildTownContent(
 		throw std::runtime_error("buildTownContent: null faction");
 	if(!faction->hasTown())
 		throw std::runtime_error("buildTownContent: faction has no town");
-	if(!faction->town)
+	if(!faction->hasTown())
 		throw std::runtime_error("buildTownContent: faction->town is null");
 
 	std::vector<std::shared_ptr<CIntObject>> widgets;
@@ -599,10 +599,10 @@ std::vector<std::shared_ptr<CIntObject>> buildTownContent(
 	addTownTitle(widgets, faction, W, curY);
 
 	curY += SECTION_GAP;
-	addBuildingsTable(widgets, faction->town.get(), W, blueStyle, clipRect, curY);
+	addBuildingsTable(widgets, faction->getTown(), W, blueStyle, clipRect, curY);
 
 	curY += SECTION_GAP;
-	addCreaturesTable(widgets, faction->town.get(), W, blueStyle, clipRect, navigateCallback, curY);
+	addCreaturesTable(widgets, faction->getTown(), W, blueStyle, clipRect, navigateCallback, curY);
 
 	curY += SECTION_GAP;
 	addHeroesTable(widgets, faction, W, blueStyle, clipRect, navigateCallback, curY);

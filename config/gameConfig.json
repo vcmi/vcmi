@@ -144,6 +144,10 @@
 	[
 		"config/mapLayers.json"
 	],
+	"rumors":
+	[
+		"config/rumors.json"
+	],
 
 	"settings":
 	{
@@ -506,6 +510,12 @@
 			"inTheWakeOfGods" : {
 				"supported" : false
 			}
+		},
+
+		"artifacts" :
+		{
+			// combined artifacts that can not be assembled from their parts
+			"disabledCombinations" : []
 		},
 
 		"heroes" :

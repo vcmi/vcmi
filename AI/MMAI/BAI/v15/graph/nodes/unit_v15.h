@@ -17,6 +17,7 @@
 
 #include "BAI/v15/fastbfs_v15.h"
 #include "BAI/v15/graph/nodes/base_v15.h"
+#include "BAI/v15/graph/nodes/hex_v15.h"
 #include "schema/v15/constants.h"
 #include "schema/v15/graph.h"
 
@@ -65,6 +66,7 @@ public:
 
 	std::string name() const override
 	{
+		const auto [x, y] = Hex::CalcXY(cstack.getPosition());
 		std::stringstream ss;
 		ss << detail::Unit_Base::name();
 		ss << "(isActive=" << isActive;
@@ -72,6 +74,8 @@ public:
 		ss << ",slot=" << cstack.unitSlot();
 		ss << ",count=" << cstack.getCount();
 		ss << ",type=" << cstack.unitType()->getJsonKey();
+		ss << ",y=" << y;
+		ss << ",x=" << x;
 		ss << ")";
 
 		return ss.str();

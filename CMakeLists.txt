@@ -49,6 +49,9 @@ option(ENABLE_VIDEO "Enable video support using ffmpeg" ON)
 option(ENABLE_TRANSLATIONS "Enable generation of translations for launcher and editor" ON)
 option(ENABLE_MINIMAL_LIB "Build only core parts of vcmi library that are required for game lobby" OFF)
 option(ENABLE_GOLDMASTER "Build in public release mode in which some debug routines are disabled" OFF)
+set(VCMI_UPDATE_CHANNEL "stable" CACHE STRING "Update channel the launcher checks for new versions: stable, beta, develop or none")
+set_property(CACHE VCMI_UPDATE_CHANNEL PROPERTY STRINGS stable beta develop none)
+mark_as_advanced(VCMI_UPDATE_CHANNEL)
 
 # AI libraries. Empty AI is always on
 
@@ -413,6 +416,14 @@ if(ENABLE_GOLDMASTER)
 	add_definitions(-DENABLE_GOLDMASTER)
 endif()
 
+# CMake presets pass an empty value when not built by CI
+if(VCMI_UPDATE_CHANNEL STREQUAL "")
+	set(VCMI_UPDATE_CHANNEL "stable")
+endif()
+if(NOT VCMI_UPDATE_CHANNEL MATCHES "^(stable|beta|develop|none)$")
+	message(FATAL_ERROR "Invalid VCMI_UPDATE_CHANNEL '${VCMI_UPDATE_CHANNEL}', expected stable, beta, develop or none")
+endif()
+
 if(ENABLE_NULLKILLER2_AI)
 	add_definitions(-DENABLE_NULLKILLER2_AI)
 endif()
@@ -649,6 +660,7 @@ if (ENABLE_CLIENT)
 		set(VCMI_MEDIA_BACKEND vcmisdl3)
 	else()
 		set(VCMI_MEDIA_BACKEND vcmisdl2)
+		message(WARNING "The SDL2 media backend is deprecated, slower and does not support all features. Enable the SDL3 backend with -DENABLE_SDL3=ON (requires SDL3, SDL3_image, SDL3_mixer and SDL3_ttf).")
 	endif()
 	message(STATUS "Media backend: ${VCMI_MEDIA_BACKEND} (SDL3 available: ${SDL3_BACKEND_AVAILABLE})")
 endif()

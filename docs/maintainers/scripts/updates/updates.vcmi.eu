@@ -1,0 +1,30 @@
+# Request statistics without client addresses
+log_format updates '$time_iso8601 $arg_version $arg_os $arg_arch $arg_dist $arg_channel';
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name updates.vcmi.eu;
+    access_log off;
+
+    ssl_certificate /etc/nginx/certs/dot.vcmi.eu.pem;
+    ssl_certificate_key /etc/nginx/certs/dot.vcmi.eu.key;
+    ssl_client_certificate /etc/nginx/certs/cloudflare-client.crt;
+    ssl_verify_client on;
+
+    location = /autoupdate.json {
+        access_log /var/log/nginx/updates.access.log updates;
+        proxy_pass http://127.0.0.1:3040;
+        proxy_set_header Host $host;
+    }
+
+    location = /altstore.json {
+        proxy_pass http://127.0.0.1:3040;
+        proxy_set_header Host $host;
+    }
+
+    location / {
+        return 404;
+    }
+}

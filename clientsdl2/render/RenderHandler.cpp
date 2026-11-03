@@ -577,14 +577,14 @@ static void detectOverlappingBuildings(RenderHandler * renderHandler, const Fact
 
 	auto faction = dynamic_cast<const CFaction*>(factionBase);
 
-	for (const auto & left : faction->town->clientInfo.structures)
+	for (const auto & left : faction->getTown()->clientInfo.structures)
 	{
-		for (const auto & right : faction->town->clientInfo.structures)
+		for (const auto & right : faction->getTown()->clientInfo.structures)
 		{
 			if (left->identifier <= right->identifier)
 				continue; // only a<->b comparison is needed, not a<->a or b<->a
 
-			if (left->building && right->building && left->building->getBase() == right->building->getBase())
+			if (left->getBuilding() && right->getBuilding() && left->getBuilding()->getBase() == right->getBuilding()->getBase())
 			{
 				if (left->pos.z != right->pos.z)
 					logMod->warn("Town %s: Upgrades of same building have different z-index: '%s' and '%s'", faction->getJsonKey(), left->identifier, right->identifier);

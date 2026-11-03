@@ -138,7 +138,7 @@ Serializer classes provide iostream-like interface with operator `<<` for serial
 
 `CSaveFile` and `CLoadFile` write and read saved games. A saved game starts with the `VCMI` magic and the serialization version, followed by chunks in fixed order. Each chunk consists of a 4-byte identifier, compressed size, uncompressed size and zlib-compressed data. All integers are little-endian.
 
-- `META` - json with information on the save: map name, players, list of mods. Can be read without loading mods used by the save. Format is described by `config/schemas/saveMetadata.json`
+- `META` - json with information on the save: map name, players, list of mods. Can be read without loading mods used by the save. Format is described by `config/schemas/scenarioMetadata.json`. `META` stays the first chunk in every version, and `CLoadFile::readMetadata` reads it from saves of newer versions as well, so new fields may be added to it, but fields required by the schema must not be removed or changed
 - `HEAD` - map header and start info, used by lobby when the save is selected
 - `GAME` - game state and server state
 

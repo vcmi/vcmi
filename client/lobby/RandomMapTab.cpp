@@ -35,9 +35,7 @@
 #include "render/IFont.h"
 
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
-#include "../../lib/mapping/MapFormat.h"
 #include "../../lib/rmg/CMapGenOptions.h"
 #include "../../lib/rmg/CRmgTemplateStorage.h"
 #include "../../lib/MapLayerHandler.h"
@@ -135,7 +133,7 @@ RandomMapTab::RandomMapTab():
 		ENGINE->windows().createAndPushWindow<TeamAlignments>(*this);
 	});
 
-	for(const auto & road : LIBRARY->roadTypeHandler->objects)
+	for(const auto & road : LIBRARY->roadTypeHandler->getObjects())
 	{
 		std::string cbRoadType = "selectRoad_" + road->getJsonKey();
 		addCallback(cbRoadType, [&, roadID = road->getId()](bool on)
@@ -156,8 +154,7 @@ RandomMapTab::RandomMapTab():
 			(static_cast<CLobbyScreen *>(parent))->toggleTab((static_cast<CLobbyScreen *>(parent))->tabSel);
 			auto selectionTab = (static_cast<CLobbyScreen *>(parent))->tabSel;
 			selectionTab->showRandom = true;
-			selectionTab->setCurrentFolder("RandomMaps/");
-			selectionTab->filter(0, true);
+			selectionTab->openFolder("RandomMaps/", [tab = selectionTab.get()](){ tab->filter(0, true); });
 		});
 	}
 
@@ -231,7 +228,7 @@ RandomMapTab::RandomMapTab():
 
 void RandomMapTab::extendRoadButtonHitAreas()
 {
-	for(const auto & road : LIBRARY->roadTypeHandler->objects)
+	for(const auto & road : LIBRARY->roadTypeHandler->getObjects())
 	{
 		const auto widgetName = getRoadWidgetName(road->getJsonKey());
 		extendButtonHitArea(widget<CToggleButton>(widgetName), widget<CIntObject>(widgetName + "Preview"));
@@ -292,75 +289,7 @@ void RandomMapTab::updateMapInfoByHost()
 	if(GAME->server().isGuest())
 		return;
 
-	// Generate header info
-	mapInfo = std::make_shared<CMapInfo>();
-	mapInfo->isRandomMap = true;
-	mapInfo->mapHeader = std::make_unique<CMapHeader>();
-	mapInfo->mapHeader->version = EMapFormat::VCMI;
-	mapInfo->mapHeader->name = mapGenOptions->getMapName();
-	mapInfo->mapHeader->description.appendTextID("core.genrltxt.741");
-
-	if(mapGenOptions->getWaterContent() != EWaterContent::RANDOM)
-		mapInfo->mapHeader->banWaterHeroes(mapGenOptions->getWaterContent() != EWaterContent::NONE);
-
-	const auto * temp = mapGenOptions->getMapTemplate();
-	if (temp)
-	{
-		auto randomTemplateDescription = temp->getDescriptionTranslated();
-		if (!randomTemplateDescription.empty())
-		{
-			auto description = std::string("\n\n") + randomTemplateDescription;
-			mapInfo->mapHeader->description.appendRawString(description);
-		}
-
-		for (const auto & hero : temp->getBannedHeroes())
-			mapInfo->mapHeader->allowedHeroes.erase(hero);
-
-		for (const auto & hero : temp->getEnabledHeroes())
-			mapInfo->mapHeader->allowedHeroes.insert(hero);
-	}
-
-	mapInfo->mapHeader->difficulty = EMapDifficulty::NORMAL;
-	mapInfo->mapHeader->height = mapGenOptions->getHeight();
-	mapInfo->mapHeader->width = mapGenOptions->getWidth();
-	mapInfo->mapHeader->mapLayers = mapGenOptions->getLevelMapLayers();
-
-	// Generate player information
-	int playersToGen = mapGenOptions->getMaxPlayersCount();
-
-	mapInfo->mapHeader->howManyTeams = playersToGen;
-
-	//TODO: Assign all human-controlled colors in first place
-
-	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
-	{
-		mapInfo->mapHeader->players[i].canComputerPlay = false;
-		mapInfo->mapHeader->players[i].canHumanPlay = false;
-	}
-
-	std::vector<PlayerColor> availableColors;
-	for (ui8 color = 0; color < PlayerColor::PLAYER_LIMIT_I; color++)
-	{
-		availableColors.push_back(PlayerColor(color));
-	}
-
-	//First restore known players
-	for (auto& player : mapGenOptions->getPlayersSettings())
-	{
-		PlayerInfo playerInfo;
-		playerInfo.isFactionRandom = (player.second.getStartingTown() == FactionID::RANDOM);
-		playerInfo.canComputerPlay = (player.second.getPlayerType() != EPlayerType::HUMAN);
-		playerInfo.canHumanPlay = (player.second.getPlayerType() != EPlayerType::COMP_ONLY);
-
-		auto team = player.second.getTeam();
-		playerInfo.team = team;
-		playerInfo.hasMainTown = true;
-		playerInfo.generateHeroAtMainTown = true;
-		mapInfo->mapHeader->players[player.first.getNum()] = playerInfo;
-		vstd::erase(availableColors, player.first);
-	}
-
-	mapInfoChanged(mapInfo, mapGenOptions);
+	mapGenOptionsChanged(mapGenOptions);
 }
 
 void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
@@ -527,7 +456,7 @@ void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
 		else
 			w->setTextOverlay(readText(variables["randomTemplate"]), EFonts::FONT_SMALL, Colors::WHITE);
 	}
-	for(const auto & r : LIBRARY->roadTypeHandler->objects)
+	for(const auto & r : LIBRARY->roadTypeHandler->getObjects())
 	{
 		// Workaround for vcmi-extras bug
 		if(auto w = widget<CToggleButton>(getRoadWidgetName(r->getJsonKey())))
@@ -777,7 +706,8 @@ void RandomMapTab::loadOptions()
 	{
 		rmgSettings.setModScope(ModScope::scopeGame());
 		mapGenOptions.reset(new CMapGenOptions());
-		JsonDeserializer handler(nullptr, rmgSettings);
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, rmgSettings);
 		handler.serializeStruct("lastSettings", *mapGenOptions);
 
 		// Will check template and set other options as well
@@ -900,7 +830,7 @@ MapLayerSelection::MapLayerSelection(RandomMapTab & randomMapTab, int initialLev
 	selectedLayers.reserve(levels);
 	for(int i = static_cast<int>(selectedLayers.size()); i < levels; i++)
 		selectedLayers.push_back(CMapGenOptions::getDefaultLayerForLevel(i));
-	const auto & layerTypes = LIBRARY->mapLayerHandler->objects;
+	const auto & layerTypes = LIBRARY->mapLayerHandler->getObjects();
 	int layerTypeCount = static_cast<int>(layerTypes.size());
 
 	constexpr int winW = 220;
@@ -942,11 +872,11 @@ MapLayerSelection::MapLayerSelection(RandomMapTab & randomMapTab, int initialLev
 
 		prevButtons.push_back(std::make_shared<CButton>(Point(btnPrevX, yPos), AnimationPath::builtin("SCNRBLF.DEF"), CButton::tooltip(), [this, i, layerTypeCount](){
 			selectedLayers[i] = MapLayerId((selectedLayers[i].getNum() + layerTypeCount - 1) % layerTypeCount);
-			layerLabels[i]->setText(LIBRARY->mapLayerHandler->objects[selectedLayers[i].getNum()]->getNameTranslated());
+			layerLabels[i]->setText((*LIBRARY->mapLayerHandler)[selectedLayers[i].getNum()]->getNameTranslated());
 		}));
 		nextButtons.push_back(std::make_shared<CButton>(Point(btnNextX, yPos), AnimationPath::builtin("SCNRBRT.DEF"), CButton::tooltip(), [this, i, layerTypeCount](){
 			selectedLayers[i] = MapLayerId((selectedLayers[i].getNum() + 1) % layerTypeCount);
-			layerLabels[i]->setText(LIBRARY->mapLayerHandler->objects[selectedLayers[i].getNum()]->getNameTranslated());
+			layerLabels[i]->setText((*LIBRARY->mapLayerHandler)[selectedLayers[i].getNum()]->getNameTranslated());
 		}));
 	}
 }

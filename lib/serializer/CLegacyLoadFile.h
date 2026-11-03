@@ -11,6 +11,8 @@
 
 #include "BinaryDeserializer.h"
 
+#include "../modding/ModVerificationInfo.h"
+
 class CMapHeader;
 struct StartInfo;
 
@@ -28,6 +30,9 @@ public:
 
 	/// Loads map header and start info located at the start of the file
 	void loadHeader(CMapHeader & mapHeader, StartInfo & startInfo);
+
+	/// Loads list of active mods located after map header and start info, without checking it
+	ModCompatibilityInfo loadMods();
 
 	/// Skips data located before game state and returns deserializer of game state.
 	/// Throws ModIncompatibility if mods of the save do not match active mods

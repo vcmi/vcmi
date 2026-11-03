@@ -40,7 +40,7 @@ void fillListWidgetFromHandler(QListWidget* listWidget, const HandlerType* handl
 {
     listWidget->clear();
 
-    for (auto const& objectPtr : handler->objects)
+    for (auto const& objectPtr : handler->getObjects())
     {
         auto* item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
         item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));

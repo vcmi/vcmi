@@ -43,7 +43,7 @@ public:
 	bool isCustomMapSizeMode() const { return customMapSizeMode; }
 	size_t getCustomMapSizeIconFrame() const;
 
-	CFunctionList<void(std::shared_ptr<CMapInfo>, std::shared_ptr<CMapGenOptions>)> mapInfoChanged;
+	CFunctionList<void(std::shared_ptr<CMapGenOptions>)> mapGenOptionsChanged;
 
 private:
 	void deactivateButtonsFrom(CToggleGroup & group, const std::set<int> & allowed);
@@ -53,7 +53,6 @@ private:
 	void onToggleMapSize(int btnId);
 	void extendRoadButtonHitAreas();
 
-	std::shared_ptr<CMapInfo> mapInfo;
 	std::shared_ptr<CMapGenOptions> mapGenOptions;
 	
 	//options allowed - need to store as impact each other

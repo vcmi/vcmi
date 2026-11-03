@@ -14,6 +14,7 @@
 
 class JsonNode;
 class JsonSerializeFormat;
+class CIdentifierStorage;
 
 namespace battle
 {
@@ -39,7 +40,7 @@ class TargetConditionItemFactory
 public:
 	using Object = std::shared_ptr<TargetConditionItem>;
 
-	static const TargetConditionItemFactory * getDefault();
+	static std::unique_ptr<TargetConditionItemFactory> create(const CIdentifierStorage & identifiers);
 	virtual ~TargetConditionItemFactory() = default;
 
 	virtual Object createAbsoluteLevel() const = 0;
@@ -50,7 +51,6 @@ public:
 	virtual Object createResistance() const = 0;
 
 	virtual Object createConfigurable(std::string scope, std::string type, std::string identifier) const = 0;
-	virtual Object createFromJsonStruct(const JsonNode & jsonStruct) const = 0;
 
 	virtual Object createReceptiveFeature() const = 0;
 	virtual Object createImmunityNegation() const = 0;

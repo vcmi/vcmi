@@ -10,16 +10,16 @@
 #include "StdInc.h"
 #include "IdentifierStorage.h"
 
+#include "IdentifierResolver.h"
+
 #include "CModHandler.h"
 #include "ModScope.h"
 
-#include "../GameLibrary.h"
 #include "../constants/StringConstants.h"
 #include "../json/JsonNode.h"
 
-#include <vstd/StringUtils.h>
-
-CIdentifierStorage::CIdentifierStorage()
+CIdentifierStorage::CIdentifierStorage(const CModHandler & modHandler_):
+	modHandler(modHandler_)
 {
 	registerObject(ModScope::scopeBuiltin(), "spellSchool", "any", SpellSchool::ANY.getNum());
 
@@ -88,158 +88,38 @@ void CIdentifierStorage::checkIdentifier(const std::string & ID)
 		logMod->error("BIG WARNING: identifier %s seems to be broken!", ID);
 }
 
-void CIdentifierStorage::requestIdentifier(const ObjectCallback & callback) const
-{
-	checkIdentifier(callback.type);
-	checkIdentifier(callback.name);
-
-	assert(!callback.localScope.empty());
-
-	if (state != ELoadingState::FINISHED) // enqueue request if loading is still in progress
-		scheduledRequests.push_back(callback);
-	else // execute immediately for "late" requests
-		resolveIdentifier(callback);
-}
-
-CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameWithType(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback, bool optional, bool caseSensitive)
-{
-	assert(!scope.empty());
-
-	auto scopeAndFullName = vstd::splitStringToPair(fullName, ':');
-	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
-
-	if (scope == scopeAndFullName.first)
-		logMod->debug("Target scope for identifier '%s' is redundant! Identifier already defined in mod '%s'", fullName, scope);
-
-	ObjectCallback result;
-	result.localScope = scope;
-	result.remoteScope = scopeAndFullName.first;
-	result.type = typeAndName.first;
-	result.name = typeAndName.second;
-	result.callback = callback;
-	result.optional = optional;
-	result.dynamicType = true;
-	result.caseSensitive = caseSensitive;
-	return result;
-}
-
-CIdentifierStorage::ObjectCallback CIdentifierStorage::ObjectCallback::fromNameAndType(const std::string & scope, const std::string & type, const std::string & fullName, const std::function<void(si32)> & callback, bool optional, bool bypassDependenciesCheck, bool caseSensitive)
-{
-	assert(!scope.empty());
-
-	auto scopeAndFullName = vstd::splitStringToPair(fullName, ':');
-	auto typeAndName = vstd::splitStringToPair(scopeAndFullName.second, '.');
-
-	if(!typeAndName.first.empty())
-	{
-		if (typeAndName.first != type)
-			logMod->warn("Identifier '%s' from mod '%s' requested with different type! Type '%s' expected!", fullName, scope, type);
-		else
-			logMod->debug("Target type for identifier '%s' defined in mod '%s' is redundant!", fullName, scope);
-	}
-
-	if (scope == scopeAndFullName.first)
-		logMod->debug("Target scope for identifier '%s' is redundant! Identifier already defined in mod '%s'", fullName, scope);
-
-	ObjectCallback result;
-	result.localScope = boost::to_lower_copy(scope);
-	result.remoteScope = boost::to_lower_copy(scopeAndFullName.first);
-	result.type = type;
-	result.name = typeAndName.second;
-	result.callback = callback;
-	result.optional = optional;
-	result.bypassDependenciesCheck = bypassDependenciesCheck;
-	result.dynamicType = false;
-	result.caseSensitive = caseSensitive;
-	return result;
-}
-
-void CIdentifierStorage::requestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback) const
-{
-	requestIdentifier(ObjectCallback::fromNameAndType(scope, type, name, callback, false, false, true));
-}
-
-void CIdentifierStorage::requestIdentifier(const std::string & scope, const std::string & fullName, const std::function<void(si32)> & callback) const
-{
-	requestIdentifier(ObjectCallback::fromNameWithType(scope, fullName, callback, false, true));
-}
-
-void CIdentifierStorage::requestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const
-{
-	requestIdentifier(ObjectCallback::fromNameAndType(name.getModScope(), type, name.String(), callback, false, false, true));
-}
-
-void CIdentifierStorage::requestIdentifier(const JsonNode & name, const std::function<void(si32)> & callback) const
-{
-	requestIdentifier(ObjectCallback::fromNameWithType(name.getModScope(), name.String(), callback, false, true));
-}
-
-void CIdentifierStorage::requestIdentifierIfNotNull(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const
-{
-	if (!name.isNull())
-		requestIdentifier(type, name, callback);
-}
-
-void CIdentifierStorage::requestIdentifierIfFound(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const
-{
-	requestIdentifier(ObjectCallback::fromNameAndType(name.getModScope(), type, name.String(), callback, false, true, true));
-}
-
-void CIdentifierStorage::requestIdentifierIfFound(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback) const
-{
-	requestIdentifier(ObjectCallback::fromNameAndType(scope, type, name, callback, false, true, true));
-}
-
-void CIdentifierStorage::tryRequestIdentifier(const std::string & scope, const std::string & type, const std::string & name, const std::function<void(si32)> & callback) const
-{
-	requestIdentifier(ObjectCallback::fromNameAndType(scope, type, name, callback, true, false, true));
-}
-
-void CIdentifierStorage::tryRequestIdentifier(const std::string & type, const JsonNode & name, const std::function<void(si32)> & callback) const
-{
-	requestIdentifier(ObjectCallback::fromNameAndType(name.getModScope(), type, name.String(), callback, true, false, true));
-}
-
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & type, const std::string & name, bool silent) const
 {
-	//assert(state != ELoadingState::LOADING);
-
-	auto options = ObjectCallback::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent, false, true);
+	auto options = IdentifierRequest::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent, false, true);
 	return getIdentifierImpl(options, silent);
 }
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & type, const JsonNode & name, bool silent) const
 {
-	assert(state != ELoadingState::LOADING);
-
-	auto options = ObjectCallback::fromNameAndType(name.getModScope(), type, name.String(), std::function<void(si32)>(), silent, false, true);
+	auto options = IdentifierRequest::fromNameAndType(name.getModScope(), type, name.String(), std::function<void(si32)>(), silent, false, true);
 
 	return getIdentifierImpl(options, silent);
 }
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const JsonNode & name, bool silent) const
 {
-	assert(state != ELoadingState::LOADING);
-
-	auto options = ObjectCallback::fromNameWithType(name.getModScope(), name.String(), std::function<void(si32)>(), silent, true);
+	auto options = IdentifierRequest::fromNameWithType(name.getModScope(), name.String(), std::function<void(si32)>(), silent, true);
 	return getIdentifierImpl(options, silent);
 }
 
 std::optional<si32> CIdentifierStorage::getIdentifier(const std::string & scope, const std::string & fullName, bool silent) const
 {
-	assert(state != ELoadingState::LOADING);
-
-	auto options = ObjectCallback::fromNameWithType(scope, fullName, std::function<void(si32)>(), silent, true);
+	auto options = IdentifierRequest::fromNameWithType(scope, fullName, std::function<void(si32)>(), silent, true);
 	return getIdentifierImpl(options, silent);
 }
 
 std::optional<si32> CIdentifierStorage::getIdentifierCaseInsensitive(const std::string & scope, const std::string & type, const std::string & name, bool silent) const
 {
-	auto options = ObjectCallback::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent, false, false);
+	auto options = IdentifierRequest::fromNameAndType(scope, type, name, std::function<void(si32)>(), silent, false, false);
 	return getIdentifierImpl(options, silent);
 }
 
-std::optional<si32> CIdentifierStorage::getIdentifierImpl(const ObjectCallback & options, bool silent) const
+std::optional<si32> CIdentifierStorage::getIdentifierImpl(const IdentifierRequest & options, bool silent) const
 {
 	auto idList = getPossibleIdentifiers(options);
 
@@ -250,7 +130,7 @@ std::optional<si32> CIdentifierStorage::getIdentifierImpl(const ObjectCallback &
 	return std::optional<si32>();
 }
 
-void CIdentifierStorage::showIdentifierResolutionErrorDetails(const ObjectCallback & options) const
+void CIdentifierStorage::showIdentifierResolutionErrorDetails(const IdentifierRequest & options) const
 {
 	auto idList = getPossibleIdentifiers(options);
 
@@ -276,7 +156,7 @@ void CIdentifierStorage::showIdentifierResolutionErrorDetails(const ObjectCallba
 	if (idList.empty())
 	{
 		// check whether identifier is unavailable due to a missing dependency on a mod
-		ObjectCallback testOptions = options;
+		IdentifierRequest testOptions = options;
 		testOptions.localScope = ModScope::scopeGame();
 		testOptions.remoteScope = {};
 
@@ -292,7 +172,7 @@ void CIdentifierStorage::showIdentifierResolutionErrorDetails(const ObjectCallba
 			{
 				// attempt to access identifier from mods that is not dependency
 				bool isValidScope = true;
-				const auto & dependencies = LIBRARY->modh->getModDependencies(options.localScope, isValidScope);
+				const auto & dependencies = modHandler.getModDependencies(options.localScope, isValidScope);
 				if (!vstd::contains(dependencies, testOption.scope))
 				{
 					logMod->error("Identifier '%s' exists in mod %s", options.name, testOption.scope);
@@ -331,8 +211,6 @@ void CIdentifierStorage::showIdentifierResolutionErrorDetails(const ObjectCallba
 
 void CIdentifierStorage::registerObject(const std::string & scope, const std::string & type, const std::string & name, si32 identifier)
 {
-	assert(state != ELoadingState::FINISHED);
-
 	ObjectData data;
 	data.scope = scope;
 	data.id = identifier;
@@ -353,7 +231,7 @@ void CIdentifierStorage::registerObject(const std::string & scope, const std::st
 	}
 }
 
-std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdentifiers(const ObjectCallback & request) const
+std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdentifiers(const IdentifierRequest & request) const
 {
 	std::set<std::string> allowedScopes;
 	// dependencies of requesting mod, which are also allowed scopes. Kept separately to avoid copying dependencies on every request
@@ -366,14 +244,14 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		// special scope that should have access to all in-game objects
 		if (request.localScope == ModScope::scopeGame())
 		{
-			for(const auto & modName : LIBRARY->modh->getActiveMods())
+			for(const auto & modName : modHandler.getActiveMods())
 				allowedScopes.insert(modName);
 		}
 
 		// normally ID's from all required mods, own mod and virtual built-in mod are allowed
 		else if(request.localScope != ModScope::scopeBuiltin() && !request.localScope.empty())
 		{
-			allowedDependencies = &LIBRARY->modh->getModDependencies(request.localScope, isValidScope);
+			allowedDependencies = &modHandler.getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
 				return std::vector<ObjectData>();
@@ -410,7 +288,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 		else
 		{
 			// allow access only if mod is in our dependencies
-			const auto & myDeps = LIBRARY->modh->getModDependencies(request.localScope, isValidScope);
+			const auto & myDeps = modHandler.getModDependencies(request.localScope, isValidScope);
 
 			if(!isValidScope)
 				return std::vector<ObjectData>();
@@ -442,7 +320,7 @@ std::vector<CIdentifierStorage::ObjectData> CIdentifierStorage::getPossibleIdent
 	return std::vector<ObjectData>();
 }
 
-bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request) const
+bool CIdentifierStorage::resolveIdentifier(const IdentifierRequest & request) const
 {
 	auto identifiers = getPossibleIdentifiers(request);
 	if (identifiers.size() == 1) // normally resolved ID
@@ -458,7 +336,7 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request) const
 
 	if (request.bypassDependenciesCheck && !request.remoteScope.empty())
 	{
-		if (!vstd::contains(LIBRARY->modh->getActiveMods(), request.remoteScope))
+		if (!vstd::contains(modHandler.getActiveMods(), request.remoteScope))
 		{
 			logMod->debug("Mod '%s' requested identifier '%s' from not loaded mod '%s'. Ignoring.", request.localScope, request.name, request.remoteScope);
 			return true; // mod was not loaded - ignore
@@ -466,26 +344,8 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request) const
 	}
 
 	// error found. Try to generate some debug info
-	failedRequests.push_back(request);
 	showIdentifierResolutionErrorDetails(request);
 	return false;
-}
-
-void CIdentifierStorage::finalize()
-{
-	assert(state == ELoadingState::LOADING);
-
-	state = ELoadingState::FINALIZING;
-
-	while ( !scheduledRequests.empty() )
-	{
-		// Use local copy since new requests may appear during resolving, invalidating any iterators
-		auto request = scheduledRequests.back();
-		scheduledRequests.pop_back();
-		resolveIdentifier(request);
-	}
-
-	state = ELoadingState::FINISHED;
 }
 
 void CIdentifierStorage::debugDumpIdentifiers()
@@ -517,15 +377,4 @@ void CIdentifierStorage::debugDumpIdentifiers()
 		for(const auto & entry : category.second)
 			logMod->trace("- " + entry);
 	}
-}
-
-std::vector<std::string> CIdentifierStorage::getModsWithFailedRequests() const
-{
-	std::vector<std::string> result;
-
-	for (const auto & request : failedRequests)
-		if (!vstd::contains(result, request.localScope) && !ModScope::isScopeReserved(request.localScope))
-			result.push_back(request.localScope);
-
-	return result;
 }

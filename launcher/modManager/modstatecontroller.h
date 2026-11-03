@@ -43,6 +43,9 @@ public:
 
 	QStringList getErrors();
 
+	/// Derives the mod ID from the archive filename, optionally removing GitHub zip suffixes.
+	static QString modIdFromArchivePath(const QString & archivePath, bool removeGithubSuffix = false);
+
 	/// mod management functions. Return true if operation was successful
 
 	/// installs mod from zip archive located at archivePath, replacing installed version of the mod, if any. On failure, installed version remains unchanged

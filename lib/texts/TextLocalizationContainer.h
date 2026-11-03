@@ -55,8 +55,6 @@ protected:
 	/// add selected string to internal storage as high-priority strings
 	void registerStringOverride(const std::string & modContext, const TextIdentifier & UID, const std::string & localized, const std::string & language);
 
-	std::string getModLanguage(const std::string & modContext) const;
-
 public:
 	/// returns true if identifier with such name was registered, even if not translated to current language
 	bool identifierExists(const TextIdentifier & UID) const;

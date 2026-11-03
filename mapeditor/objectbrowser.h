@@ -25,17 +25,32 @@ public:
 
 	TerrainId terrain;
 	QString filter;
+	QString category;
 
 protected:
 	bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
 	bool filterAcceptsRowText(int source_row, const QModelIndex &source_parent) const;
+	bool lessThan(const QModelIndex & left, const QModelIndex & right) const override;
 };
 
-class ObjectBrowser : public QTreeView
+class ObjectBrowser : public QListView
 {
 public:
 	ObjectBrowser(QWidget * parent);
+
+	void setGridMode(bool grid);
 	
 protected:
 	void startDrag(Qt::DropActions supportedActions) override;
+};
+
+class ObjectCategoryList : public QListWidget
+{
+public:
+	ObjectCategoryList(QWidget * parent);
+
+	void fitHeight();
+
+protected:
+	void resizeEvent(QResizeEvent * event) override;
 };

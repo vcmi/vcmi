@@ -16,6 +16,7 @@ struct StartInfo;
 class CMapHeader;
 class ITranslator;
 class Campaign;
+class CMapGenOptions;
 class ResourcePath;
 
 /**
@@ -32,9 +33,6 @@ public:
 	std::string originalFileURI; // no need to serialize
 	std::time_t lastWrite; // no need to serialize
 	std::string date;
-	int amountOfPlayersOnMap;
-	int amountOfHumanControllablePlayers;
-	int amountOfHumanPlayersInSave;
 	bool isRandomMap;
 
 	CMapInfo();
@@ -49,14 +47,12 @@ public:
 	void mapInit(const std::string & fname);
 	void saveInit(const ResourcePath & file);
 	void campaignInit();
-	void countPlayers();
+	/// Builds header of a map that is generated from these options on game start
+	void randomMapInit(const CMapGenOptions & options);
 	
 	std::string getNameTranslated(const ITranslator * translator) const;
-	std::string getNameForList(const ITranslator * translator) const;
 	std::string getDescriptionTranslated(const ITranslator * translator) const;
 	int getMapSizeIconId() const;
-	int getMapSizeFormatIconId() const;
-	std::string getMapSizeName() const;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -65,9 +61,6 @@ public:
 		h & scenarioOptionsOfSave;
 		h & fileURI;
 		h & date;
-		h & amountOfPlayersOnMap;
-		h & amountOfHumanControllablePlayers;
-		h & amountOfHumanPlayersInSave;
 		h & isRandomMap;
 	}
 };

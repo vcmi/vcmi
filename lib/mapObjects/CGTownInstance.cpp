@@ -398,7 +398,7 @@ MetaString CGTownInstance::getObjectName() const
 
 	MetaString result = MetaString::createFromTextID(getNameTextID());
 	result.appendRawString(", ");
-	result.appendTextID(getTown()->faction->getNameTextID());
+	result.appendTextID(getTown()->getFaction()->getNameTextID());
 	return result;
 }
 
@@ -431,13 +431,17 @@ FactionID CGTownInstance::randomizeFaction(vstd::RNG & rand)
 	if(getOwner().isValidPlayer())
 		return cb->getStartInfo()->getIthPlayersSettings(getOwner()).castle;
 
-	if(alignmentToPlayer.isValidPlayer())
+	if(alignmentToPlayer.isValidPlayer() && !alignmentExcludesPlayer)
 		return cb->getStartInfo()->getIthPlayersSettings(alignmentToPlayer).castle;
+
+	FactionID excludedFaction = FactionID::NONE;
+	if(alignmentToPlayer.isValidPlayer())
+		excludedFaction = cb->getStartInfo()->getIthPlayersSettings(alignmentToPlayer).castle;
 
 	std::vector<FactionID> potentialPicks;
 
 	for (FactionID faction(0); faction < FactionID(LIBRARY->townh->size()); ++faction)
-		if (LIBRARY->factions()->getById(faction)->hasTown())
+		if (LIBRARY->factions()->getById(faction)->hasTown() && faction != excludedFaction)
 			potentialPicks.push_back(faction);
 
 	assert(!potentialPicks.empty());
@@ -451,6 +455,11 @@ void CGTownInstance::pickRandomObject(IGameRandomizer & gameRandomizer)
 	{
 		ID = MapObjectID::TOWN;
 		subID = randomizeFaction(gameRandomizer.getDefault());
+
+		builtBuildings.merge(randomTownBuildings[getFactionID()]);
+		forbiddenBuildings.merge(randomTownForbiddenBuildings[getFactionID()]);
+		for (auto & event : events)
+			event.buildings.merge(event.randomTownBuildings[getFactionID()]);
 	}
 
 	assert(ID == Obj::TOWN); // just in case
@@ -642,7 +651,7 @@ void CGTownInstance::clearArmy(IGameEventCallback & gameEvents) const
 
 BoatId CGTownInstance::getBoatType() const
 {
-	return getTown()->faction->boatType;
+	return getTown()->getFaction()->boatType;
 }
 
 int CGTownInstance::getMarketEfficiency() const
@@ -1138,6 +1147,7 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		eventsHandler.serializeStruct(events);
 	}
 	handler.serializeId("alignmentToPlayer", alignmentToPlayer, PlayerColor::NEUTRAL);
+	handler.serializeBool("alignmentExcludesPlayer", alignmentExcludesPlayer, false);
 }
 
 const CFaction * CGTownInstance::getFaction() const
@@ -1148,9 +1158,9 @@ const CFaction * CGTownInstance::getFaction() const
 const CTown * CGTownInstance::getTown() const
 {
 	if(ID == Obj::RANDOM_TOWN)
-		return LIBRARY->townh->randomFaction->town.get();
+		return LIBRARY->townh->getRandomFaction()->getTown();
 
-	return getFaction()->town.get();
+	return getFaction()->getTown();
 }
 
 FactionID CGTownInstance::getFactionID() const
@@ -1160,13 +1170,13 @@ FactionID CGTownInstance::getFactionID() const
 
 bool CGTownInstance::isNativeTerrain(TerrainId terrain) const
 {
-	return getTown()->faction->isNativeTerrain(terrain);
+	return getTown()->getFaction()->isNativeTerrain(terrain);
 }
 
 TerrainId CGTownInstance::getBattleTerrain() const
 {
 	// a siege takes place on the town's native terrain; NONE falls back to the map tile terrain
-	const auto & nativeTerrains = getTown()->faction->nativeTerrains;
+	const auto & nativeTerrains = getTown()->getFaction()->nativeTerrains;
 	if(nativeTerrains.empty())
 		return TerrainId::NONE;
 
@@ -1212,7 +1222,7 @@ GrowthInfo::Entry::Entry(int subID, const BuildingID & building, int _count): co
 {
 	MetaString formatter;
 	formatter.appendRawString("%s %+d");
-	formatter.replaceTextID(FactionID(subID).toFaction()->town->buildings.at(building)->getNameTextID());
+	formatter.replaceTextID(FactionID(subID).toFaction()->getTown()->buildings.at(building)->getNameTextID());
 	formatter.replacePositiveNumber(count);
 
 	description = formatter.toString(LIBRARY->staticTexts());

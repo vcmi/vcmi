@@ -43,7 +43,6 @@ public:
 	MOCK_CONST_METHOD0(createResistance, Object());
 	MOCK_CONST_METHOD0(createNormalLevel, Object());
 	MOCK_CONST_METHOD0(createNormalSpell, Object());
-	MOCK_CONST_METHOD1(createFromJsonStruct, Object(const JsonNode &));
 	MOCK_CONST_METHOD3(createConfigurable, Object(std::string, std::string, std::string));
 	MOCK_CONST_METHOD0(createReceptiveFeature, Object());
 	MOCK_CONST_METHOD0(createImmunityNegation, Object());
@@ -60,7 +59,8 @@ public:
 
 	void setupSubject(const JsonNode & configuration)
 	{
-		JsonDeserializer handler(nullptr, configuration);
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, configuration);
 
 		subject.serializeJson(handler, &factoryMock);
 	}

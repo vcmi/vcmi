@@ -17,6 +17,7 @@
 #include "../../constants/StringConstants.h"
 #include "../../gameState/CGameState.h"
 #include "../../mapping/CMap.h"
+#include "../../modding/IdentifierStorage.h"
 #include "../../serializer/JsonSerializeFormat.h"
 
 	const CArtifactInstance * CArtifactSet::getArt(const ArtifactPosition & pos, bool excludeLocked) const
@@ -391,15 +392,13 @@ CArtifactInstance * CArtifactSet::deserializeJsonArtifact(const JsonNode & json,
 
 	if(!type.String().empty())
 	{
-		LIBRARY->identifiers()->requestIdentifier(ArtifactID::entityType(), type, [&artifactID](int32_t index){
-			artifactID = ArtifactID(index);
-		});
+		if(auto index = LIBRARY->identifiers()->getIdentifier(ArtifactID::entityType(), type))
+			artifactID = ArtifactID(*index);
 	}
 	if(json.isStruct() && !json["spell"].String().empty())
 	{
-		LIBRARY->identifiers()->requestIdentifier(SpellID::entityType(), json["spell"], [&spellID](int32_t index){
-			spellID = SpellID(index);
-		});
+		if(auto index = LIBRARY->identifiers()->getIdentifier(SpellID::entityType(), json["spell"]))
+			spellID = SpellID(*index);
 	}
 
 	if(artifactID == ArtifactID::NONE)

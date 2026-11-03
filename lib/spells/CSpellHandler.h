@@ -27,8 +27,8 @@ class DLL_LINKAGE CSpellHandler: public CHandlerBase<SpellID, spells::Spell, CSp
 
 public:
 	///IHandler base
-	std::vector<JsonNode> loadLegacyData() override;
-	void afterLoadFinalization() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
+	void afterLoadFinalization(LibraryLoadContext & context) override;
 	void beforeValidate(JsonNode & object) override;
 
 	/**
@@ -39,5 +39,5 @@ public:
 
 protected:
 	const std::vector<std::string> & getTypeNames() const override;
-	std::shared_ptr<CSpell> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
+	std::shared_ptr<CSpell> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
 };

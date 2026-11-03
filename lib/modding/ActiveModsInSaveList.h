@@ -15,9 +15,12 @@
 /// List of mods stored in saved games created before ESerializationVersion::SAVE_CHUNKS, newer saves store it in save metadata
 class ActiveModsInSaveList
 {
-	/// Checks whether provided mod list is compatible with current LIBRARY and throws on failure
-	void verifyActiveMods(const std::map<TModID, ModVerificationInfo> & modList);
 public:
+	ModCompatibilityInfo mods;
+
+	/// Throws ModIncompatibility if mods are not compatible with current LIBRARY
+	void verifyActiveMods() const;
+
 	template <typename Handler> void serialize(Handler &h)
 	{
 		static_assert(!Handler::saving, "Mods of a saved game are written as part of save metadata");
@@ -25,10 +28,7 @@ public:
 		std::vector<TModID> saveActiveMods;
 		h & saveActiveMods;
 
-		std::map<TModID, ModVerificationInfo> saveModInfos;
-		for(int i = 0; i < saveActiveMods.size(); ++i)
-			h & saveModInfos[saveActiveMods[i]];
-
-		verifyActiveMods(saveModInfos);
+		for(const auto & modID : saveActiveMods)
+			h & mods[modID];
 	}
 };

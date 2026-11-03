@@ -231,10 +231,25 @@ TEST(QuestLimiterJsonTest, AllowedDifficultiesRoundTrips)
 	src.serializeJson(ser);
 
 	Rewardable::Limiter dst;
-	JsonDeserializer deser(nullptr, node);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer deser(nullptr, resolver, node);
 	dst.serializeJson(deser);
 
 	EXPECT_EQ(dst.allowedDifficulties, src.allowedDifficulties);
+}
+
+// Limiters written without primary skills, e.g. empty quests of old maps, require no primary skills
+TEST(QuestLimiterJsonTest, MissingPrimarySkillsLoadAsZero)
+{
+	JsonNode node;
+	node.Struct();
+
+	Rewardable::Limiter dst;
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer deser(nullptr, resolver, node);
+	dst.serializeJson(deser);
+
+	EXPECT_EQ(dst.primary, std::vector<si32>(GameConstants::PRIMARY_SKILLS, 0));
 }
 
 // The unrestricted default writes no field (avoids "[]" on every limiter).
@@ -280,9 +295,34 @@ TEST_F(QuestJsonRewardTest, SeerRewardSurvivesVmapRoundTrip)
 
 	// load it back
 	SeerProbe loaded(gameState().get());
-	JsonDeserializer loader(nullptr, written);
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer loader(nullptr, resolver, written);
 	loaded.serializeJsonOptions(loader);
 	ASSERT_EQ(loaded.allQuests().size(), 1u);
 	ASSERT_TRUE(loaded.getQuest().reward.has_value());
 	EXPECT_EQ(loaded.getQuest().reward->reward.heroExperience, 100);
+}
+
+TEST_F(QuestJsonRewardTest, SeerFromOldestVmapFormatHasQuestWithReward)
+{
+	struct SeerProbe : public SeerHut
+	{
+		using SeerHut::SeerHut;
+		using SeerHut::serializeJsonOptions;
+	};
+
+	auto s = seerLevel();
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
+
+	JsonNode options;
+	options["quest"].Struct();
+	options["reward"]["experience"].Integer() = 5000;
+
+	SeerProbe loaded(gameState().get());
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer loader(nullptr, resolver, options);
+	loaded.serializeJsonOptions(loader);
+	ASSERT_EQ(loaded.allQuests().size(), 1u);
+	ASSERT_TRUE(loaded.getQuest().reward.has_value());
+	EXPECT_EQ(loaded.getQuest().reward->reward.heroExperience, 5000);
 }

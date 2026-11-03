@@ -14,7 +14,7 @@
 class DLL_LINKAGE JsonDeserializer: public JsonTreeSerializer<const JsonNode *>
 {
 public:
-	JsonDeserializer(const IInstanceResolver * instanceResolver_, const JsonNode & root_);
+	JsonDeserializer(const IInstanceResolver * instanceResolver_, IIdentifierResolver & identifierResolver_, const JsonNode & root_);
 
 	void serializeLIC(const std::string & fieldName, const TDecoder & decoder, const TEncoder & encoder, const std::set<int32_t> & standard, std::set<int32_t> & value) override;
 	void serializeLIC(const std::string & fieldName, LICSet & value) override;

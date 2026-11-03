@@ -66,11 +66,11 @@ public:
 class SpellSchoolHandler : public CHandlerBase<SpellSchool, spells::SpellSchoolType, spells::SpellSchoolType, spells::SchoolService>
 {
 public:
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
 	std::vector<SpellSchool> getAllObjects() const override;
 
 protected:
-	std::shared_ptr<spells::SpellSchoolType> loadFromJson(const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
+	std::shared_ptr<spells::SpellSchoolType> loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) override;
 	const std::vector<std::string> & getTypeNames() const override;
 };

@@ -100,7 +100,7 @@ public:
 	CGameState & gameState() final { return *this; }
 	const CGameState & gameState() const final { return *this; }
 
-	void preInit(Services * services);
+	void preInit(const Services * services);
 
 	void init(const IMapService * mapService, StartInfo * si, IGameRandomizer & gameRandomizer, Load::ProgressAccumulator &, bool allowSavingRandomMap = true);
 	void updateOnLoad(const StartInfo & si);
@@ -299,7 +299,7 @@ private:
 	bool isHeroAllowedForPlayer(const HeroTypeID & hid, const PlayerColor & owner);
 
 	// ---- data -----
-	Services * services;
+	const Services * services;
 
 	/// Pointer to campaign state manager. Nullptr for single scenarios
 	std::unique_ptr<CGameStateCampaign> campaign;

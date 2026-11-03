@@ -66,14 +66,13 @@ public:
 class BattleFieldHandler : public CHandlerBase<BattleField, BattleFieldInfo, BattleFieldInfo, BattleFieldService>
 {
 public:
-	std::shared_ptr<BattleFieldInfo> loadFromJson(
-		const std::string & scope,
+	std::shared_ptr<BattleFieldInfo> loadFromJson(LibraryLoadContext & context, const std::string & scope,
 		const JsonNode & json,
 		const std::string & identifier,
 		size_t index) override;
 
 	const std::vector<std::string> & getTypeNames() const override;
-	std::vector<JsonNode> loadLegacyData() override;
+	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;
 
 	static BattleField selectRandomBattlefield(const std::vector<BattleField> & battleFields, MapLayerId currentLayer, vstd::RNG & randomGenerator);
 };

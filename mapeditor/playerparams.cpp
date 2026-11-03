@@ -50,7 +50,7 @@ PlayerParams::PlayerParams(MapController & ctrl, int playerId, QWidget *parent) 
 	//load factions
 	for(auto idx : LIBRARY->townh->getAllowedFactions())
 	{
-		const auto & faction = LIBRARY->townh->objects.at(idx);
+		const auto & faction = (*LIBRARY->townh)[idx];
 		auto * item = new QListWidgetItem(QString::fromStdString(faction->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(idx.getNum()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -160,10 +160,20 @@ void PlayerParams::on_mainTown_currentIndexChanged(int index)
 	}
 	else
 	{
-		ui->generateHero->setEnabled(true);
 		auto town = controller.map()->objects.at(ui->mainTown->currentData().toInt());
 		playerInfo.hasMainTown = true;
 		playerInfo.posOfMainTown = town->pos;
+
+		// game can not place generated hero into a town that already has a visiting hero
+		const auto * heroInTown = controller.map()->getHeroAtTownEntrance(dynamic_cast<const CGTownInstance &>(*town));
+		ui->generateHero->setEnabled(heroInTown == nullptr);
+		if(heroInTown)
+		{
+			ui->generateHero->setChecked(false);
+			ui->generateHero->setToolTip(tr("Hero %1 is already placed at the entrance of this town").arg(QString::fromStdString(heroInTown->instanceName)));
+		}
+		else
+			ui->generateHero->setToolTip(QString());
 	}
 }
 

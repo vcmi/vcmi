@@ -11,6 +11,11 @@
 			"type" : "string",
 			"description" : "Human-readable name of the layer"
 		},
+		"grailRumor" :
+		{
+			"type" : "string",
+			"description" : "Tavern rumor about region of this layer that contains the Grail. Use %s as placeholder for name of the region"
+		},
 		"index" :
 		{
 			"type" : "number",

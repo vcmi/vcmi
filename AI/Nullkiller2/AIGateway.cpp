@@ -533,6 +533,9 @@ std::optional<BattleAction> AIGateway::makeSurrenderRetreatDecision(const Battle
 {
 	LOG_TRACE(logAi);
 
+	if(battleState.canFlee && battleState.isStalemate())
+		return BattleAction::makeRetreat(battleState.ourSide);
+
 	if(battleState.ourHero && battleState.ourHero->patrol.patrolling)
 	{
 		return std::nullopt;

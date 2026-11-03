@@ -31,6 +31,7 @@
 #include "../gameState/CGameState.h"
 #include "../mapObjects/IObjectInterface.h"
 #include "../mapObjects/army/CStackBasicDescriptor.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModScope.h"
 #include "../spells/CSpellHandler.h"
@@ -156,7 +157,7 @@ std::vector<si32> JsonRandom::loadPrimaries(const JsonNode & value, const Variab
 SecondarySkill JsonRandom::loadSecondary(const JsonNode & value, const Variables & variables)
 {
 	std::set<SecondarySkill> defaultSkills;
-	for(const auto & skill : LIBRARY->skillh->objects)
+	for(const auto & skill : LIBRARY->skillh->getObjects())
 		if(cb->isAllowed(skill->getId()) && !skill->isSpecial())
 			defaultSkills.insert(skill->getId());
 
@@ -178,7 +179,7 @@ std::map<SecondarySkill, si32> JsonRandom::loadSecondaries(const JsonNode & valu
 	if(value.isVector())
 	{
 		std::set<SecondarySkill> defaultSkills;
-		for(const auto & skill : LIBRARY->skillh->objects)
+		for(const auto & skill : LIBRARY->skillh->getObjects())
 			if(cb->isAllowed(skill->getId()) && !skill->isSpecial())
 				defaultSkills.insert(skill->getId());
 
@@ -197,7 +198,7 @@ std::map<SecondarySkill, si32> JsonRandom::loadSecondaries(const JsonNode & valu
 ArtifactID JsonRandom::loadArtifact(const JsonNode & value, const Variables & variables)
 {
 	std::set<ArtifactID> allowedArts;
-	for(const auto & artifact : LIBRARY->arth->objects)
+	for(const auto & artifact : LIBRARY->arth->getObjects())
 		if(cb->isAllowed(artifact->getId()) && LIBRARY->arth->legalArtifact(artifact->getId()))
 			allowedArts.insert(artifact->getId());
 
@@ -234,7 +235,7 @@ std::vector<ArtifactPosition> JsonRandom::loadArtifactSlots(const JsonNode & val
 SpellID JsonRandom::loadSpell(const JsonNode & value, const Variables & variables)
 {
 	std::set<SpellID> defaultSpells;
-	for(const auto & spell : LIBRARY->spellh->objects)
+	for(const auto & spell : LIBRARY->spellh->getObjects())
 		if(cb->isAllowed(spell->getId()) && !spell->isSpecial())
 			defaultSpells.insert(spell->getId());
 
@@ -297,7 +298,7 @@ std::vector<HeroClassID> JsonRandom::loadHeroClasses(const JsonNode & value)
 CreatureID JsonRandom::loadCreatureType(const JsonNode & value, const Variables & variables)
 {
 	std::set<CreatureID> defaultCreatures;
-	for(const auto & creature : LIBRARY->creh->objects)
+	for(const auto & creature : LIBRARY->creh->getObjects())
 		if(!creature->special)
 			defaultCreatures.insert(creature->getId());
 
@@ -369,12 +370,12 @@ std::vector<JsonRandom::RandomStackInfo> JsonRandom::evaluateCreatures(const Jso
 	return ret;
 }
 
-std::vector<std::shared_ptr<Bonus>> JsonRandom::loadBonuses(const JsonNode & value)
+std::vector<std::shared_ptr<Bonus>> JsonRandom::loadBonuses(const JsonNode & value, LibraryLoadContext & context)
 {
 	std::vector<std::shared_ptr<Bonus>> ret;
 	for(const JsonNode & entry : value.Vector())
 	{
-		if(auto bonus = JsonUtils::parseBonus(entry))
+		if(auto bonus = JsonUtils::parseBonus(entry, context))
 			ret.push_back(bonus);
 	}
 	return ret;

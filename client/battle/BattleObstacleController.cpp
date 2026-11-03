@@ -72,7 +72,8 @@ void BattleObstacleController::obstacleRemoved(const ObstacleChanges & oi)
 	if (obstacle.isStruct())
 	{
 		AnimationPath animationPath;
-		JsonDeserializer ser(nullptr, obstacle);
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer ser(nullptr, resolver, obstacle);
 		ser.serializeStruct("removalAnimation", animationPath);
 		if(animationPath.empty()) // magical obstacles without a dedicated removal effect reuse their appear animation
 			ser.serializeStruct("appearAnimation", animationPath);

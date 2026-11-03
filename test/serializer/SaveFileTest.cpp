@@ -112,16 +112,17 @@ TEST_F(SaveFileTest, unsupportedVersionsAreReported)
 
 	content[6] = 1;
 	writeSaveFile(content);
-	try
-	{
-		CLoadFile::readVersion(saveFile);
-		FAIL() << "Save from a newer version must be rejected";
-	}
-	catch(const SaveTooOldException &)
-	{
-		FAIL() << "Save from a newer version must not be reported as too old";
-	}
-	catch(const std::runtime_error &)
-	{
-	}
+	EXPECT_THROW(CLoadFile::readVersion(saveFile), SaveTooNewException);
+	EXPECT_THROW(CLoadFile loader(saveFile), SaveTooNewException);
+}
+
+TEST_F(SaveFileTest, metadataOfNewerSaveIsReadable)
+{
+	auto content = readSaveFile();
+	content[6] = 1;
+	// newer versions may change all chunks after metadata
+	content.resize(content.size() + 100);
+	writeSaveFile(content);
+
+	EXPECT_EQ(CLoadFile::readMetadata(saveFile), metadata);
 }

@@ -801,9 +801,14 @@ void LobbyQuickLoadGame::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyQuickLoadGame(*this);
 }
 
-void LobbyChangeHost::visitTyped(ICPackVisitor & visitor)
+void LobbyRequestQuickLoadInfo::visitTyped(ICPackVisitor & visitor)
 {
-	visitor.visitLobbyChangeHost(*this);
+	visitor.visitLobbyRequestQuickLoadInfo(*this);
+}
+
+void LobbyQuickLoadInfo::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyQuickLoadInfo(*this);
 }
 
 void LobbyQueryState::visitTyped(ICPackVisitor & visitor)
@@ -819,6 +824,31 @@ void LobbyModsCheck::visitTyped(ICPackVisitor & visitor)
 void LobbyUpdateState::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbyUpdateState(*this);
+}
+
+void LobbyUpdateMapInfo::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyUpdateMapInfo(*this);
+}
+
+void LobbyRequestScenarioList::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyRequestScenarioList(*this);
+}
+
+void LobbyScenarioList::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyScenarioList(*this);
+}
+
+void LobbyRequestScenarioInfo::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyRequestScenarioInfo(*this);
+}
+
+void LobbyScenarioInfo::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyScenarioInfo(*this);
 }
 
 void LobbySetMap::visitTyped(ICPackVisitor & visitor)

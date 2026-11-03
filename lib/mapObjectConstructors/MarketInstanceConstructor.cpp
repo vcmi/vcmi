@@ -10,19 +10,18 @@
 #include "StdInc.h"
 #include "MarketInstanceConstructor.h"
 
-#include "../CConfigHandler.h"
 #include "../GameLibrary.h"
 #include "../constants/StringConstants.h"
 #include "../json/JsonRandom.h"
 #include "../json/JsonUtils.h"
-#include "../modding/IdentifierStorage.h"
+#include "../modding/LibraryLoadContext.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextIdentifier.h"
 
-void MarketInstanceConstructor::initTypeData(const JsonNode & input)
+void MarketInstanceConstructor::initTypeData(LibraryLoadContext & context, const JsonNode & input)
 {
-	if (settings["mods"]["validation"].String() != "off")
-		JsonUtils::validate(input, "vcmi:market", getJsonKey());
+	if (context.validation != EContentValidation::OFF)
+		context.validator.validate(input, "vcmi:market", getJsonKey());
 
 	if (!input["description"].isNull())
 	{
@@ -34,7 +33,7 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 		else
 		{
 			descriptionTextID = TextIdentifier(getBaseTextID(), "description").get();
-			LIBRARY->generaltexth->registerString( input.getModScope(), descriptionTextID, input["description"]);
+			context.lib.generaltexth->registerString( input.getModScope(), descriptionTextID, input["description"]);
 		}
 	}
 
@@ -48,7 +47,7 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 		else
 		{
 			speechTextID = TextIdentifier(getBaseTextID(), "speech").get();
-			LIBRARY->generaltexth->registerString( input.getModScope(), speechTextID, input["speech"]);
+			context.lib.generaltexth->registerString( input.getModScope(), speechTextID, input["speech"]);
 		}
 	}
 
@@ -64,7 +63,7 @@ void MarketInstanceConstructor::initTypeData(const JsonNode & input)
 
 	for(const auto & element : input["resources"].Vector())
 	{
-		LIBRARY->identifiers()->requestIdentifier("resource", element, [this](si32 identifier)
+		context.resolver.requestIdentifier("resource", element, [this](si32 identifier)
 		{
 			tradeableResources.emplace_back(identifier);
 		});
@@ -110,8 +109,11 @@ void MarketInstanceConstructor::randomizeObject(CGMarket * object, IGameRandomiz
 
 	if(auto * university = dynamic_cast<CGUniversity *>(object))
 	{
-		for(auto skill : randomizer.loadSecondaries(predefinedOffer, emptyVariables))
-			university->skills.push_back(skill.first);
+		for (auto skillConfig : predefinedOffer.Vector())
+		{
+			const auto & skill = randomizer.loadSecondary(skillConfig, emptyVariables);
+			university->skills.push_back(skill);
+		}
 	}
 }
 
