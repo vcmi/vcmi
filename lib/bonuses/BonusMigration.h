@@ -32,4 +32,7 @@ void migrateHeroGrantedAttacks(Bonus & bonus);
 /// Logs a warning for abilities that were retired without a conversion, so that content still
 /// declaring them fails loudly rather than by quietly doing nothing.
 void warnIfRetired(const JsonNode & ability, const TextIdentifier & descriptionID);
+
+/// Logs a warning, once per mod, for bonus types that still work but have a better replacement.
+void warnIfDeprecated(const JsonNode & ability);
 }

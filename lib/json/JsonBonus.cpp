@@ -831,6 +831,7 @@ static bool parseBonusImpl(const JsonNode & ability, Bonus * b, IIdentifierResol
 		return parseBonusImpl(migrated, b, resolver, context, descriptionID);
 
 	BonusMigration::warnIfRetired(ability, descriptionID);
+	BonusMigration::warnIfDeprecated(ability);
 
 	resolver.requestIdentifier("bonus", ability["type"], [b, typeName = ability["type"].String(), subtypeNode, addinfoNode, descriptionID, &resolver, context](si32 bonusID)
 	{
