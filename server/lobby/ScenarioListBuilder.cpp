@@ -36,7 +36,19 @@ ScenarioListBuilder::ScenarioListBuilder(ScenarioListEntry::EType type, ELoadMod
 		return ident.getType() == resourceType && boost::algorithm::starts_with(ident.getName(), directory);
 	});
 
-	files.assign(found.begin(), found.end());
+	for(const auto & file : found)
+	{
+		// file may be removed after the scan, for example an autosave pruned by another running game
+		try
+		{
+			lastWriteTimes[file] = CResourceHandler::get()->getLastWriteTime(file);
+			files.push_back(file);
+		}
+		catch(const boost::filesystem::filesystem_error & e)
+		{
+			logGlobal->warn("Skipping %s, failed to get its modification time: %s", file.getOriginalName(), e.what());
+		}
+	}
 
 	if(type == ScenarioListEntry::EType::MAP)
 	{
@@ -87,7 +99,7 @@ ScenarioList ScenarioListBuilder::build(const std::string & folder) const
 		ScenarioListFolder entry;
 		entry.name = name;
 		for(const auto & file : subfolder)
-			entry.lastWrite = std::max(entry.lastWrite, CResourceHandler::get()->getLastWriteTime(file));
+			entry.lastWrite = std::max(entry.lastWrite, lastWriteTimes.at(file));
 		if(type == ScenarioListEntry::EType::SAVE)
 			entry.compatible = isFolderCompatible(subfolder);
 		result.subfolders.push_back(entry);
@@ -269,15 +281,15 @@ std::vector<ScenarioListEntry> ScenarioListBuilder::parseSaves(const std::vector
 std::optional<bool> ScenarioListBuilder::isFolderCompatible(std::vector<ResourcePath> folderFiles) const
 {
 	// Autosaves always stay in their game's directory, unlike stray manual saves.
-	std::ranges::sort(folderFiles, [](const ResourcePath & lhs, const ResourcePath & rhs)
+	std::ranges::sort(folderFiles, [this](const ResourcePath & lhs, const ResourcePath & rhs)
 	{
 		const bool lhsAutosave = SavegamePath::isAutosaveName(lhs.getOriginalName());
 		const bool rhsAutosave = SavegamePath::isAutosaveName(rhs.getOriginalName());
 		if(lhsAutosave != rhsAutosave)
 			return lhsAutosave;
 
-		const auto lhsTime = CResourceHandler::get()->getLastWriteTime(lhs);
-		const auto rhsTime = CResourceHandler::get()->getLastWriteTime(rhs);
+		const auto lhsTime = lastWriteTimes.at(lhs);
+		const auto rhsTime = lastWriteTimes.at(rhs);
 		if(lhsTime != rhsTime)
 			return lhsTime > rhsTime;
 		return lhs.getName() > rhs.getName();
