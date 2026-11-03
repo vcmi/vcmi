@@ -289,6 +289,7 @@
 			// Versions can be specified with optional guard information
 			"creatureGeneratorCommon" : { "unicornGlade" : { "count" : 3, "guard" : 10000 } },
 			// Random dwellings become a dwelling of the zone's faction (randomDwellingLvl: of the given level)
+			// Without "guard", a randomDwellingLvl entry is guarded according to the value of that native dwelling (see commonObjects)
 			"randomDwellingLvl" : { "objectLvl7" : { "count" : 1, "guard" : 30000 } },
 			// Artifacts can be specified
 			"artifact" : { "headOfLegion" : 1, "armsOfLegion" : 1, "torsoOfLegion" : 1, "loinsOfLegion" : 1, "legsOfLegion" : 1 },

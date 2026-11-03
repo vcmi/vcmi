@@ -253,9 +253,7 @@ void TreasurePlacer::addDwellings()
 			const auto * cre = creatures.front();
 			if(cre->getFactionID() == zone.getTownType())
 			{
-				float nativeZonesCount = static_cast<float>(map.getZoneCount(cre->getFactionID()));
-				// value increases, if there are more native zones for the faction
-				float valueModifier = 1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2);
+				float valueModifier = getNativeDwellingValueModifier(map, cre->getFactionID());
 				ObjectInfo oi(dwellingType, secondaryID);
 				setBasicProperties(oi, CompoundMapObjectID(dwellingType, secondaryID));
 
@@ -273,7 +271,7 @@ void TreasurePlacer::addDwellings()
 				}
 				else
 				{
-					oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * valueModifier);
+					oi.value = getNativeDwellingValue(map, cre);
 					oi.probability = 40;
 				}
 				if(!oi.templates.empty())
@@ -290,26 +288,7 @@ void TreasurePlacer::setRandomDwellingValue(ObjectInfo & oi) const
 	if(oi.primaryID != Obj::RANDOM_DWELLING_LVL || oi.value != 0)
 		return;
 
-	const FactionID factionID = zone.getTownType();
-	if(factionID == FactionID::NEUTRAL)
-		return;
-
-	const auto * faction = factionID.toFaction();
-	if(!faction || !faction->town)
-		return;
-
-	const auto & tiers = faction->town->creatures;
-	const auto level = static_cast<size_t>(oi.secondaryID); // objectLvl1 has index 0
-	if(level >= tiers.size() || tiers[level].empty())
-		return;
-
-	const auto * cre = tiers[level].front().toCreature();
-	if(!cre)
-		return;
-
-	float nativeZonesCount = static_cast<float>(map.getZoneCount(factionID));
-	float valueModifier = 1 + (nativeZonesCount / map.getTotalZoneCount()) + (nativeZonesCount / 2);
-	oi.value = static_cast<ui32>(cre->getAIValue() * cre->getGrowth() * valueModifier);
+	oi.value = getRandomDwellingValue(map, zone.getTownType(), oi.secondaryID); // objectLvl1 has index 0
 }
 
 void TreasurePlacer::addScrolls()
