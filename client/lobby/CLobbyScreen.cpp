@@ -32,7 +32,6 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/rmg/CMapGenOptions.h"
@@ -307,20 +306,7 @@ void CLobbyScreen::startCampaign()
 	if(!GAME->server().mi)
 		return;
 
-	try {
-		auto ourCampaign = CampaignHandler::getCampaign(GAME->server().mi->fileURI);
-		GAME->server().setCampaignState(ourCampaign);
-	}
-	catch (const std::runtime_error &e)
-	{
-		// handle possible exception on map loading. For example campaign that contains map in unsupported format
-		// for example, wog campaigns or hota campaigns without hota map support mod
-		MetaString message;
-		message.appendTextID("vcmi.client.errors.invalidMap");
-		message.replaceRawString(e.what());
-
-		CInfoWindow::showInfoDialog(message.toString(&GAME->translator()), {});
-	}
+	GAME->server().startCampaign(GAME->server().mi->fileURI, "");
 }
 
 void CLobbyScreen::startScenario(bool allowOnlyAI)
@@ -344,16 +330,9 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 
 void CLobbyScreen::toggleMode(bool host)
 {
-	// campaign started outside of the list goes straight to bonus selection, and leaving it closes the lobby
+	// hidden lobby goes straight to bonus selection, so the list is never shown
 	if(blackScreen)
-	{
-		if(GAME->server().campaignStateToSend)
-		{
-			GAME->server().setCampaignState(GAME->server().campaignStateToSend);
-			GAME->server().campaignStateToSend.reset();
-		}
 		return;
-	}
 
 	tabSel->toggleMode();
 	if(screenType == ESelectionScreen::campaignList)

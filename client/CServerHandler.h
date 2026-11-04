@@ -78,7 +78,7 @@ public:
 
 	virtual void sendClientConnecting() const = 0;
 	virtual void sendClientDisconnecting() = 0;
-	virtual void setCampaignState(std::shared_ptr<CampaignState> newCampaign) = 0;
+	virtual void startCampaign(const std::string & fileURI, const std::string & campaignSet) const = 0;
 	virtual void setCampaignMap(CampaignScenarioID mapId) const = 0;
 	virtual void setCampaignBonus(int bonusId) const = 0;
 	virtual void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const = 0;
@@ -160,8 +160,14 @@ public:
 	////////////////////
 	// FIXME: Bunch of crutches to glue it all together
 
-	// For starting non-custom campaign and continue to next mission
-	std::shared_ptr<CampaignState> campaignStateToSend;
+	/// Campaign started outside of the campaign list, for example from a campaign set
+	struct CampaignToStart
+	{
+		std::string fileURI;
+		std::string campaignSet;
+	};
+	/// Sent once connected, kept until the server selects it, or rejects it
+	std::optional<CampaignToStart> campaignToStart;
 
 	ESelectionScreen screenType; // To create lobby UI only after server is setup
 	EServerMode serverMode;
@@ -216,7 +222,7 @@ public:
 
 	void sendClientConnecting() const override;
 	void sendClientDisconnecting() override;
-	void setCampaignState(std::shared_ptr<CampaignState> newCampaign) override;
+	void startCampaign(const std::string & fileURI, const std::string & campaignSet) const override;
 	void setCampaignMap(CampaignScenarioID mapId) const override;
 	void setCampaignBonus(int bonusId) const override;
 	void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const override;

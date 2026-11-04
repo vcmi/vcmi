@@ -118,7 +118,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 				ENGINE->windows().popWindows(1);
 			}
 
-			ENGINE->windows().createAndPushWindow<CLobbyScreen>(handler.screenType, handler.campaignStateToSend != nullptr);
+			ENGINE->windows().createAndPushWindow<CLobbyScreen>(handler.screenType, handler.campaignToStart.has_value());
 		}
 		handler.setState(EClientState::LOBBY);
 	}
@@ -252,7 +252,10 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState &
 	pack.firstState = handler.hostClientId == GameConnectionID::INVALID;
 	static_cast<LobbyState &>(handler) = pack.state;
 	if(handler.getState() == EClientState::LOBBY && handler.si->mode == EStartMode::CAMPAIGN && handler.si->campState)
+	{
 		handler.setState(EClientState::LOBBY_CAMPAIGN);
+		handler.campaignToStart.reset();
+	}
 	// the campaign state the previous texts came from is gone now
 	handler.installLobbyTexts();
 	if(handler.scenarioToStart && handler.mi)
@@ -308,6 +311,9 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 
 	if(pack.firstState)
 		lobby->toggleMode(handler.isHost());
+
+	if(pack.firstState && handler.campaignToStart)
+		handler.startCampaign(handler.campaignToStart->fileURI, handler.campaignToStart->campaignSet);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyScenarioList(LobbyScenarioList & pack)
@@ -329,8 +335,17 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & 
 {
 	if(!lobby) //stub: ignore message for game mode
 		return;
-	
-	lobby->buttonStart->block(false);
+
+	if(handler.campaignToStart)
+	{
+		// campaign started outside of the list was rejected, and its lobby is hidden
+		handler.sendClientDisconnecting();
+		lobby->close();
+	}
+	else
+	{
+		lobby->buttonStart->block(false);
+	}
 	handler.showServerError(pack.message.toString(&GAME->translator()));
 }
 

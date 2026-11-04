@@ -125,7 +125,6 @@ CServerHandler::CServerHandler()
 	, threadNetwork(&CServerHandler::threadRunNetwork, this)
 	, state(EClientState::NONE)
 	, serverPort(0)
-	, campaignStateToSend(nullptr)
 	, screenType(ESelectionScreen::unknown)
 	, serverMode(EServerMode::NONE)
 	, loadMode(ELoadMode::NONE)
@@ -162,6 +161,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	serverMode = newServerMode;
 	loadMode = ELoadMode::NONE;
 	scenarioToStart.reset();
+	campaignToStart.reset();
 	// si is replaced below - texts of the previous lobby must not shadow those of the next one
 	lobbyTextOverlays.clear();
 	hotseatMode = false;
@@ -463,10 +463,11 @@ void CServerHandler::sendClientDisconnecting()
 	waitForServerShutdown();
 }
 
-void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
+void CServerHandler::startCampaign(const std::string & fileURI, const std::string & campaignSet) const
 {
 	LobbySetCampaign lsc;
-	lsc.ourCampaign = newCampaign;
+	lsc.fileURI = fileURI;
+	lsc.campaignSet = campaignSet;
 	sendLobbyPack(lsc);
 }
 
