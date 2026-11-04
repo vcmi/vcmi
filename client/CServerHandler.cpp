@@ -465,7 +465,6 @@ void CServerHandler::sendClientDisconnecting()
 
 void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
 {
-	setState(EClientState::LOBBY_CAMPAIGN);
 	LobbySetCampaign lsc;
 	lsc.ourCampaign = newCampaign;
 	sendLobbyPack(lsc);
@@ -757,7 +756,7 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 	}
 }
 
-void CServerHandler::endGameplay()
+void CServerHandler::stopGameplay()
 {
 	// a running replay holds the live session hostage - it has to be gone before anything is torn down.
 	// Every caller of this method owns the interface mutex, which the replay thread needs to finish.
@@ -783,15 +782,16 @@ void CServerHandler::endGameplay()
 
 	client->endNetwork();
 	client->finishGameplay();
+}
 
-	// Game is ending
-	// Tell the network thread to reach a stable state
-	sendClientDisconnecting();
-	logNetwork->info("Closed connection.");
-
+void CServerHandler::destroyGameplay()
+{
 	client->endGame();
 	client.reset();
+}
 
+void CServerHandler::showMainMenu()
+{
 	if (GAME->mainmenu())
 	{
 		GAME->mainmenu()->enable();
@@ -801,6 +801,28 @@ void CServerHandler::endGameplay()
 
 	if(ENGINE)
 		ENGINE->discord().setStatus("", "", {0, 0});
+}
+
+void CServerHandler::endGameplay()
+{
+	stopGameplay();
+
+	// Game is ending
+	// Tell the network thread to reach a stable state
+	sendClientDisconnecting();
+	logNetwork->info("Closed connection.");
+
+	destroyGameplay();
+	showMainMenu();
+}
+
+void CServerHandler::endCampaignScenario()
+{
+	// the connection stays open for the lobby of the next scenario
+	setState(EClientState::CAMPAIGN_SCENARIO_WON);
+	stopGameplay();
+	destroyGameplay();
+	showMainMenu();
 }
 
 bool CServerHandler::hasQuickSave() const
@@ -825,11 +847,31 @@ void CServerHandler::restartGameplay()
 {
 	// Before the windows are destroyed, so that they do not send actions for the game being discarded
 	setState(EClientState::LOBBY);
-	client->finishGameplay();
-	client->endGame();
-	client.reset();
+	stopGameplay();
+	destroyGameplay();
 
 	logicConnection->enterLobbyConnectionMode();
+}
+
+void CServerHandler::sendNextCampaignScenario() const
+{
+	LobbyNextCampaignScenario pack;
+	sendLobbyPack(pack);
+}
+
+void CServerHandler::openNextCampaignScenarioLobby()
+{
+	logicConnection->enterLobbyConnectionMode();
+
+	// the lobby of the next scenario is set up as for a client that has just connected
+	hostClientId = GameConnectionID::INVALID;
+	si = std::make_shared<StartInfo>();
+	mi.reset();
+	lobbyTextOverlays.clear();
+	setState(EClientState::LOBBY);
+
+	if(!settings["session"]["headless"].Bool())
+		ENGINE->windows().createAndPushWindow<CLobbyScreen>(ESelectionScreen::campaignList, true);
 }
 
 void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> ourCampaign, const StatisticDataSet & statistic)
@@ -840,7 +882,10 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> ourCam
 	for(auto & param : campaignScoreCalculator->parameters)
 		param.campaignName = ourCampaign->getNameTranslated(&GAME->translator());
 
-	endGameplay();
+	if(ourCampaign->isCampaignFinished())
+		endGameplay();
+	else
+		endCampaignScenario();
 
 	// the game just took its campaign texts down with it, but the epilogue still has to render
 	// them - this keeps them up until the transition hands over to the next lobby
@@ -856,7 +901,11 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> ourCam
 		}
 
 		if(!ourCampaign->isCampaignFinished())
-			GAME->mainmenu()->openCampaignLobby(ourCampaign);
+		{
+			// otherwise connection was lost during the epilogue, and the error is already shown
+			if(GAME->server().getState() == EClientState::CAMPAIGN_SCENARIO_WON)
+				GAME->server().sendNextCampaignScenario();
+		}
 		else
 		{
 			GAME->mainmenu()->openCampaignScreen(ourCampaign->campaignSet);
@@ -1010,7 +1059,13 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 
 	logNetwork->error("Lost connection to server! Connection has been closed");
 
-	if(client)
+	if(getState() == EClientState::CAMPAIGN_SCENARIO_WON)
+	{
+		// main menu is already shown under the epilogue
+		setState(EClientState::NONE);
+		showServerError(LIBRARY->generaltexth->translate("vcmi.server.errors.disconnected"));
+	}
+	else if(client)
 	{
 		endGameplay();
 		GAME->mainmenu()->menu->switchToTab("main");
@@ -1079,6 +1134,10 @@ void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 
 void CServerHandler::visitForClient(CPackForClient & clientPack)
 {
+	// the server still announces the end of the game to other players of a won campaign scenario
+	if(getState() == EClientState::CAMPAIGN_SCENARIO_WON)
+		return;
+
 	if(gameplayReplayer && gameplayReplayer->isActive())
 	{
 		// a replay has taken the client over, so the live gamestate is not there to receive this pack.

@@ -444,6 +444,34 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyRestartGame(LobbyRestar
 		connection->enterLobbyConnectionMode();
 }
 
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack)
+{
+	result = srv.isClientHost(connection->connectionID) && srv.getState() == EServerState::GAMEPLAY;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack)
+{
+	auto campaign = srv.gh->gs->getStartInfo()->campState;
+	if(!campaign || !campaign->currentScenario() || !campaign->isConquered(*campaign->currentScenario()) || campaign->isCampaignFinished())
+	{
+		logNetwork->error("Rejecting next campaign scenario: current scenario is not won or campaign is finished");
+		result = false;
+		return;
+	}
+
+	srv.prepareToRestart();
+	srv.si = std::make_shared<StartInfo>();
+	srv.mi.reset();
+	srv.setCampaign(campaign);
+	result = true;
+}
+
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack)
+{
+	for(const auto & connection : srv.activeConnections)
+		connection->enterLobbyConnectionMode();
+}
+
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)
 {
 	result = srv.isClientHost(connection->connectionID);

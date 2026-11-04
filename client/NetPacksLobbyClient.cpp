@@ -52,6 +52,14 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGa
 	handler.sendStartGame();
 }
 
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack)
+{
+	if(handler.getState() != EClientState::CAMPAIGN_SCENARIO_WON)
+		throw std::runtime_error("Received next campaign scenario while not in finished campaign scenario!");
+
+	handler.openNextCampaignScenarioLobby();
+}
+
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadInfo(LobbyQuickLoadInfo & pack)
 {
 	if(!pack.error.empty())
@@ -110,8 +118,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 				ENGINE->windows().popWindows(1);
 			}
 
-			bool hideScreen = handler.campaignStateToSend && (!handler.campaignStateToSend->campaignSet.empty() || handler.campaignStateToSend->lastScenario());
-			ENGINE->windows().createAndPushWindow<CLobbyScreen>(handler.screenType, hideScreen);
+			ENGINE->windows().createAndPushWindow<CLobbyScreen>(handler.screenType, handler.campaignStateToSend != nullptr);
 		}
 		handler.setState(EClientState::LOBBY);
 	}
@@ -244,6 +251,8 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState &
 {
 	pack.firstState = handler.hostClientId == GameConnectionID::INVALID;
 	static_cast<LobbyState &>(handler) = pack.state;
+	if(handler.getState() == EClientState::LOBBY && handler.si->mode == EStartMode::CAMPAIGN && handler.si->campState)
+		handler.setState(EClientState::LOBBY_CAMPAIGN);
 	// the campaign state the previous texts came from is gone now
 	handler.installLobbyTexts();
 	if(handler.scenarioToStart && handler.mi)
