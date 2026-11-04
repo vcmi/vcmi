@@ -57,16 +57,17 @@
 			"description" : "Faction alignment - good, neutral, evil, or none for factions that belong to no alignment and never mix with the others"
 		},
 		"nativeTerrain" : {
-			"oneOf" : [
-				{
-					"type" : "string"
-				},
+			"anyOf" : [
 				{
 					"type" : "array",
 					"items" : { "type" : "string" }
+				},
+				{
+					"type" : "string",
+					"deprecated" : "Native terrain must be an array, e.g. [ \"grass\" ], or empty array for a faction without native terrain"
 				}
 			],
-			"description" : "Native terrain for creatures. Creatures fighting on native terrain receive several bonuses"
+			"description" : "Native terrains for creatures. Creatures fighting on native terrain receive several bonuses"
 		},
 		"boat" : {
 			"type" : "string",

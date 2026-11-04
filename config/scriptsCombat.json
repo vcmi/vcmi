@@ -39,7 +39,7 @@
 			"required" : ["spell"],
 			"properties" : {
 				"spell" : { "type" : "string", "entity" : "spell", "description" : "spell whose effects are applied" },
-				"level" : { "type" : "number", "description" : "mastery level the effects are applied at" },
+				"level" : { "type" : "number", "description" : "mastery level the effects are applied at. Takes priority over value of the bonus" },
 				"massive" : { "type" : "boolean", "description" : "true to affect every allied unit instead of only the bearer" },
 				"duration" : { "type" : "number", "description" : "how many turns the effects last. Defaults to 50, long enough to accumulate rather than expire between rounds" }
 			},

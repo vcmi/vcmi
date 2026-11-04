@@ -23,6 +23,7 @@ set(test_SRCS
 		battle/CUnitStateMagicTest.cpp
 		battle/battle_UnitTest.cpp
 
+		bonus/BonusMigrationTest.cpp
 		bonus/BonusSystemTest.cpp
 
 		combatScripts/CombatScriptDescriptionTest.cpp

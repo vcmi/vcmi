@@ -118,6 +118,25 @@ std::string jsonKeyOf(const Entity * entity)
 	return entity ? entity->getJsonKey() : std::string();
 }
 
+/// Bonus types that still work, but have a replacement new content should use instead.
+constexpr std::array<NameMapping, 5> softDeprecated = {{
+	{ "ON_COMBAT_EVENT",           "COMBAT_EVENT_TRIGGER with a combat script" },
+	{ "SPECIAL_SPELL_LEV",         "SPECIAL_SPELL_SCALING, or the spellScalingPercentage hero specialty" },
+	{ "SPECIAL_ADD_VALUE_ENCHANT", "SPECIAL_PECULIAR_ENCHANT with per-tier values, or the spellFixedAdditive hero specialty" }
+}};
+
+/// Reports once per mod and bonus type - bonuses built by scripts are parsed on every cast,
+/// including the many casts battle AI simulates
+void warnOnce(const JsonNode & ability, const std::string & message)
+{
+	static std::mutex mutex;
+	static std::set<std::pair<std::string, std::string>> reported;
+
+	std::lock_guard lock(mutex);
+	if(reported.emplace(ability.getModScope(), ability["type"].String()).second)
+		logMod->warn("Mod '%s': %s", ability.getModScope(), message);
+}
+
 }
 
 bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
@@ -125,7 +144,7 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 	// BATTLE_NO_FLEEING is deprecated in 1.8 - it blocked retreating unconditionally, so its value is ignored
 	if(withoutScope(ability["type"].String()) == "BATTLE_NO_FLEEING")
 	{
-		logMod->warn("Bonus BATTLE_NO_FLEEING is deprecated. Use BATTLE_CAN_FLEE with negative value instead");
+		warnOnce(ability, "Bonus BATTLE_NO_FLEEING is deprecated. Use BATTLE_CAN_FLEE with negative value instead");
 
 		migrated = ability;
 		migrated["type"].String() = "BATTLE_CAN_FLEE";
@@ -154,13 +173,19 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 		return true;
 	}
 
-	// NOTE: NONEVIL_ALIGNMENT_MIX is also deprecated, but can not be converted here - it maps to two
-	// ALIGNMENT_MIX bonuses. It is handled by CArmedInstance instead
+	// NONEVIL_ALIGNMENT_MIX can not be converted here - it maps to two ALIGNMENT_MIX bonuses. It is handled by CArmedInstance instead
+	if(withoutScope(ability["type"].String()) == "NONEVIL_ALIGNMENT_MIX")
+	{
+		warnOnce(ability, "Bonus NONEVIL_ALIGNMENT_MIX is deprecated. Use two ALIGNMENT_MIX bonuses with subtypes alignmentGood and alignmentNeutral instead");
+		return false;
+	}
 
 	std::string_view script = lookup(retiredAbilities, withoutScope(ability["type"].String()));
 
 	if(script.empty())
 		return false;
+
+	warnOnce(ability, "Bonus " + ability["type"].String() + " is deprecated and was converted to COMBAT_EVENT_TRIGGER with combat script '" + std::string(script) + "'. See Bonus_Types.md for the new form");
 
 	int value = ability["val"].Integer();
 
@@ -206,9 +231,7 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 	}
 	else if(script == "enchanted")
 	{
-		// enchanted packs a mastery level and a flag rather than a magnitude, so val is unused
 		parameters["spell"] = ability["subtype"];
-		parameters["level"].Integer() = enchantedLevel(value);
 		parameters["massive"].Bool() = enchantedIsMassive(value);
 	}
 
@@ -217,8 +240,9 @@ bool BonusMigration::migrateBonus(const JsonNode & ability, JsonNode & migrated)
 	migrated["type"].String() = "COMBAT_EVENT_TRIGGER";
 	migrated["subtype"].String() = std::string(script);
 
+	// mastery level stays in val, so stack experience can still raise it rank by rank
 	if(script == "enchanted")
-		migrated.Struct().erase("val");
+		migrated["val"].Integer() = enchantedLevel(value);
 
 	// the script lives in whichever mod provides it, not in the mod being migrated
 	migrated["subtype"].setModScope(ModScope::scopeGame());
@@ -233,6 +257,14 @@ void BonusMigration::warnIfRetired(const JsonNode & ability, const TextIdentifie
 
 	if(!replacement.empty())
 		logMod->warn("Bonus %s no longer does anything and was not converted - declare %s instead. Description: '%s'", ability["type"].String(), replacement, descriptionID.get());
+}
+
+void BonusMigration::warnIfDeprecated(const JsonNode & ability)
+{
+	std::string_view replacement = lookup(softDeprecated, withoutScope(ability["type"].String()));
+
+	if(!replacement.empty())
+		warnOnce(ability, "Bonus " + ability["type"].String() + " still works, but is deprecated. New content should use " + std::string(replacement) + " instead");
 }
 
 void BonusMigration::migrateHeroGrantedAttacks(Bonus & bonus)
@@ -303,9 +335,8 @@ bool BonusMigration::migrateCombatAbility(Bonus & bonus)
 		case BonusType::UNUSED_ENCHANTED:
 			scriptName = "enchanted";
 			parameters["spell"].String() = jsonKeyOf(bonus.subtype.as<SpellID>().toEntity(LIBRARY));
-			parameters["level"].Integer() = enchantedLevel(bonus.val);
 			parameters["massive"].Bool() = enchantedIsMassive(bonus.val);
-			bonus.val = 0; // enchanted has no magnitude, its old value was a packed level
+			bonus.val = enchantedLevel(bonus.val);
 			break;
 
 		default:

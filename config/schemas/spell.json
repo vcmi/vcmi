@@ -225,18 +225,10 @@
 					"description" : "spell range description in SRSL"
 				},
 				"effects" : {
-					"type" : "object",
-					"description" : "Timed effects (updated by prolongation)",
-					"additionalProperties" : {
-						"$ref" : "bonusInstance.json"
-					}
+					"deprecated" : "Use \"battleEffects\" with \"core:timed\" effect, and move bonuses into its \"bonus\" field. Note that spells from original game no longer have \"effects\", so patches to them must use the new format too"
 				},
 				"cumulativeEffects" : {
-					"type" : "object",
-					"description" : "Timed effects (updated by unique bonus)",
-					"additionalProperties" : {
-						"$ref" : "bonusInstance.json"
-					}
+					"deprecated" : "Use \"battleEffects\" with \"core:timed\" effect that has \"cumulative\" set to true, and move bonuses into its \"bonus\" field"
 				},
 				"battleEffects" : {
 					"type" : "object",

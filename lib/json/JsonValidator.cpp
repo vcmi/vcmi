@@ -146,6 +146,12 @@ static std::string constCheck(JsonValidator & validator, const JsonNode & baseSc
 	return validator.makeErrorMessage("Key must have have constant value");
 }
 
+/// Non-standard keyword: rejects any value, with schema value explaining the replacement of an outdated format
+static std::string deprecatedCheck(JsonValidator & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
+{
+	return validator.makeErrorMessage("Outdated format! " + schema.String());
+}
+
 static std::string typeCheck(JsonValidator & validator, const JsonNode & baseSchema, const JsonNode & schema, const JsonNode & data)
 {
 	static const std::unordered_map<std::string, JsonNode::JsonType> stringToType =
@@ -495,6 +501,7 @@ JsonValidator::TValidatorMap createCommonFields()
 	ret["const"]  = constCheck;
 	ret["type"]  = typeCheck;
 	ret["not"]   = notCheck;
+	ret["deprecated"] = deprecatedCheck;
 	ret["$ref"]  = refCheck;
 	ret["if"]  = ifCheck;
 	ret["then"]  = emptyCheck; // implemented as part of "if check"
