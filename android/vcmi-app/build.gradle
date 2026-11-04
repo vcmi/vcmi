@@ -16,9 +16,11 @@ android {
 	 *******************************************************/
 
 	namespace = "eu.vcmi.vcmi"
+	ndkPath = androidNdkPath
 
+	// Qt generates these properties
 	buildToolsVersion = androidBuildToolsVersion
-	ndkVersion = androidNdkVersion // Qt generates this property
+	ndkVersion = androidNdkVersion
 
 	buildFeatures {
 		aidl = true
