@@ -23,7 +23,7 @@
 #include "../lib/modding/ModDescription.h"
 
 #include "../lib/CRandomGenerator.h"
-#include "../lib/campaign/CampaignState.h"
+#include "../lib/campaign/CampaignHandler.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/SavegamePath.h"
@@ -32,6 +32,12 @@
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/serializer/GameConnection.h"
+
+/// Campaigns are not limited to Maps/, campaign sets use campaigns from Data/
+static bool isCampaignResource(const std::string & fileURI)
+{
+	return CResourceHandler::get()->existsResource(ResourcePath(fileURI, EResType::CAMPAIGN));
+}
 
 /// Returns true if canonical path points to an entry inside directory, and not to directory itself
 static bool isInsideDirectory(const boost::filesystem::path & canonicalPath, const boost::filesystem::path & directory)
@@ -282,8 +288,10 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack
 			valid = true;
 			break;
 		case ScenarioSelection::EType::MAP:
-		case ScenarioSelection::EType::CAMPAIGN:
 			valid = boost::algorithm::istarts_with(selection.fileURI, "Maps/");
+			break;
+		case ScenarioSelection::EType::CAMPAIGN:
+			valid = isCampaignResource(selection.fileURI);
 			break;
 		case ScenarioSelection::EType::SAVE:
 			valid = boost::algorithm::istarts_with(selection.fileURI, "Saves/");
@@ -366,6 +374,13 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 	result = false;
 }
 
+void ClientPermissionsCheckerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
+{
+	result = srv.isClientHost(connection->connectionID) && isCampaignResource(pack.fileURI);
+	if(!result)
+		logNetwork->error("Rejecting campaign '%s'", pack.fileURI);
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 {
 	if(srv.getState() != EServerState::LOBBY)
@@ -375,7 +390,26 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 		return;
 	}
 
-	srv.setCampaign(pack.ourCampaign);
+	std::shared_ptr<CampaignState> campaign;
+	try
+	{
+		campaign = CampaignHandler::getCampaign(pack.fileURI);
+	}
+	catch(const std::exception & e)
+	{
+		// campaign header is listed without its maps, which may be in an unsupported format, for example HotA maps without HotA mod
+		logGlobal->error("Failed to load campaign %s: %s", pack.fileURI, e.what());
+
+		LobbyShowMessage message;
+		message.message.appendTextID("vcmi.client.errors.invalidMap");
+		message.message.replaceRawString(e.what());
+		connection->sendPack(message);
+		result = false;
+		return;
+	}
+
+	campaign->campaignSet = pack.campaignSet;
+	srv.setCampaign(campaign);
 	result = true;
 }
 

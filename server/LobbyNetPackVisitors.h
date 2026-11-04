@@ -52,6 +52,7 @@ public:
 	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 	void visitLobbySetMap(LobbySetMap & pack) override;
+	void visitLobbySetCampaign(LobbySetCampaign & pack) override;
 };
 
 class ApplyOnServerAfterAnnounceNetPackVisitor : public ::ICPackVisitor

@@ -19,7 +19,6 @@
 class CServerHandler;
 class CVCMIServer;
 
-class CampaignState;
 class CMapInfo;
 struct StartInfo;
 class CMapGenOptions;
@@ -329,15 +328,18 @@ struct DLL_LINKAGE LobbySetMap : public CLobbyPackToServer
 	}
 };
 
+/// Sent by host to start a campaign; the server loads its own copy of the campaign file
 struct DLL_LINKAGE LobbySetCampaign : public CLobbyPackToServer
 {
-	std::shared_ptr<CampaignState> ourCampaign;
+	std::string fileURI;
+	std::string campaignSet; ///< campaign set the campaign was started from, empty for the custom campaign list
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & ourCampaign;
+		h & fileURI;
+		h & campaignSet;
 	}
 };
 
