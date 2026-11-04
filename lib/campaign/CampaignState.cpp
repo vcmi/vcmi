@@ -460,6 +460,8 @@ void Campaign::overrideCampaignScenarios()
 				it->second.epilog.prologVoice = AudioPath::builtin(sc.at(i)["voiceEpilog"].String());
 			if(!sc.at(i)["heroArmageddonsBladeBearer"].isNull())
 				it->second.armageddonsBladeBearer = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", sc.at(i)["heroArmageddonsBladeBearer"]));
+			if(!sc.at(i)["heroCarriedOverFromEnemy"].isNull())
+				it->second.enemyHeroCarriedOver = HeroTypeID(*LIBRARY->identifiersHandler->getIdentifier("hero", sc.at(i)["heroCarriedOverFromEnemy"]));
 		}
 	}
 }

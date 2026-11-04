@@ -191,6 +191,9 @@ struct CampaignScenario
 	/// if set, only this hero can equip Armageddon's Blade in this scenario
 	HeroTypeID armageddonsBladeBearer;
 
+	/// if set, this hero is carried over from this scenario in the state he ended it, even if the player does not own him
+	HeroTypeID enemyHeroCarriedOver;
+
 	void loadPreconditionRegions(ui32 regions);
 	bool isNotVoid() const;
 
@@ -208,6 +211,9 @@ struct CampaignScenario
 
 		if(h.hasFeature(Handler::Version::ARMAGEDDONS_BLADE_BEARER))
 			h & armageddonsBladeBearer;
+
+		if(h.hasFeature(Handler::Version::CAMPAIGN_ENEMY_HERO_CARRIED_OVER))
+			h & enemyHeroCarriedOver;
 	}
 };
 
