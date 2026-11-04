@@ -368,39 +368,55 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 {
-	srv.si->mapname = pack.ourCampaign->getFilename();
-	srv.si->mode = EStartMode::CAMPAIGN;
-	srv.si->campState = pack.ourCampaign;
-	srv.si->turnTimerInfo = TurnTimerInfo{};
-
-	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
-
-	auto scenarios = pack.ourCampaign->allScenarios();
-	for(auto scenarioID : std::views::reverse(scenarios)) // reverse -> on multiple scenario selection set lowest id at the end
+	if(srv.getState() != EServerState::LOBBY)
 	{
-		if(pack.ourCampaign->isAvailable(scenarioID))
-		{
-			if(!isCurrentMapConquerable || (isCurrentMapConquerable && scenarioID == *pack.ourCampaign->currentScenario()))
-			{
-				srv.setCampaignMap(scenarioID);
-			}
-		}
+		logNetwork->error("Rejecting campaign selection outside of lobby");
+		result = false;
+		return;
 	}
-	
+
+	srv.setCampaign(pack.ourCampaign);
 	result = true;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaignMap(LobbySetCampaignMap & pack)
 {
-	srv.setCampaignMap(pack.mapId);
+	if(srv.getState() != EServerState::LOBBY || !srv.si->campState)
+	{
+		logNetwork->error("Rejecting campaign scenario selection without campaign in lobby");
+		result = false;
+		return;
+	}
 
+	if(!srv.si->campState->allScenarios().contains(pack.mapId) || !srv.si->campState->isAvailable(pack.mapId))
+	{
+		logNetwork->error("Rejecting selection of unavailable campaign scenario %d", pack.mapId.getNum());
+		result = false;
+		return;
+	}
+
+	srv.setCampaignMap(pack.mapId);
 	result = true;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack)
 {
-	srv.setCampaignBonus(pack.bonusId);
+	if(srv.getState() != EServerState::LOBBY || !srv.si->campState || srv.campaignMap == CampaignScenarioID::NONE)
+	{
+		logNetwork->error("Rejecting campaign bonus selection without campaign scenario in lobby");
+		result = false;
+		return;
+	}
 
+	const auto & bonuses = srv.si->campState->scenario(srv.campaignMap).travelOptions.bonusesToChoose;
+	if(pack.bonusId < 0 || pack.bonusId >= static_cast<int>(bonuses.size()))
+	{
+		logNetwork->error("Rejecting invalid campaign bonus %d", pack.bonusId);
+		result = false;
+		return;
+	}
+
+	srv.setCampaignBonus(pack.bonusId);
 	result = true;
 }
 

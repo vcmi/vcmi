@@ -931,6 +931,28 @@ void CVCMIServer::optionSetCastle(PlayerColor player, FactionID id)
 		s.bonus = PlayerStartingBonus::RANDOM;
 }
 
+void CVCMIServer::setCampaign(std::shared_ptr<CampaignState> campaign)
+{
+	si->mapname = campaign->getFilename();
+	si->mode = EStartMode::CAMPAIGN;
+	si->campState = campaign;
+	si->turnTimerInfo = TurnTimerInfo{};
+
+	bool isCurrentMapConquerable = campaign->currentScenario() && campaign->isAvailable(*campaign->currentScenario());
+
+	auto scenarios = campaign->allScenarios();
+	for(auto scenarioID : std::views::reverse(scenarios)) // reverse -> on multiple scenario selection set lowest id at the end
+	{
+		if(campaign->isAvailable(scenarioID))
+		{
+			if(!isCurrentMapConquerable || (isCurrentMapConquerable && scenarioID == *campaign->currentScenario()))
+			{
+				setCampaignMap(scenarioID);
+			}
+		}
+	}
+}
+
 void CVCMIServer::setCampaignMap(CampaignScenarioID mapId)
 {
 	campaignMap = mapId;
