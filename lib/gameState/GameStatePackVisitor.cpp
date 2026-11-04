@@ -11,6 +11,7 @@
 #include "GameStatePackVisitor.h"
 
 #include "CGameState.h"
+#include "HighScore.h"
 #include "TavernHeroesPool.h"
 
 #include "../CPlayerState.h"
@@ -401,6 +402,7 @@ void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 					crossoverHeroes.push_back(enemyHero);
 			}
 
+			campaign->highscoreParameters.push_back(HighScore::prepareHighScores(&gs, pack.player, true));
 			campaign->savePersistentVariables(gs.getMap());
 			campaign->setCurrentMapAsConquered(crossoverHeroes);
 		}
