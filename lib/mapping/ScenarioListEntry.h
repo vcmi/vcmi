@@ -16,14 +16,15 @@ class ResourcePath;
 struct JsonValidator;
 enum class EMapFormat : uint8_t;
 
-/// Entry of the list of maps or saved games, described by metadata instead of the map header
+/// Entry of the list of maps, saved games or campaigns, described by metadata instead of the map or campaign header
 class DLL_LINKAGE ScenarioListEntry
 {
 public:
 	enum class EType : uint8_t
 	{
 		MAP,
-		SAVE
+		SAVE,
+		CAMPAIGN
 	};
 
 	EType type = EType::MAP;
@@ -39,12 +40,16 @@ public:
 	/// std::runtime_error if the save is invalid
 	static ScenarioListEntry fromSave(const ResourcePath & file, JsonValidator & validator);
 
-	std::string getMapName(const ITranslator * translator) const;
-	std::string getMapAuthor(const ITranslator * translator) const;
-	std::string getMapAuthorContact(const ITranslator * translator) const;
-	std::string getMapVersion(const ITranslator * translator) const;
+	/// Reads only the campaign header; throws std::runtime_error if it can not be loaded
+	static ScenarioListEntry fromCampaign(const ResourcePath & file);
+
+	/// Name, author, contact, version and creation time are of the campaign for campaigns, of the map otherwise
+	std::string getName(const ITranslator * translator) const;
+	std::string getAuthor(const ITranslator * translator) const;
+	std::string getAuthorContact(const ITranslator * translator) const;
+	std::string getVersion(const ITranslator * translator) const;
 	/// Returns 0 if creation time is unknown
-	std::time_t getMapCreationTime() const;
+	std::time_t getCreationTime() const;
 	EMapFormat getMapFormat() const;
 	/// Returns settings of the map format from the engine settings, null node for unknown formats
 	const JsonNode & getMapFormatSettings() const;
@@ -63,6 +68,7 @@ public:
 	std::string getMapFileInSave() const;
 	/// Returns current scenario of a campaign save
 	int getCampaignScenarioInSave() const;
+	int getCampaignScenarios() const;
 
 	template<typename Handler>
 	void serialize(Handler & h)
@@ -73,4 +79,8 @@ public:
 		h & lastWrite;
 		h & metadata;
 	}
+
+private:
+	/// Section of metadata with name, author and version: "campaign" for campaigns, "map" otherwise
+	const JsonNode & getDescription() const;
 };

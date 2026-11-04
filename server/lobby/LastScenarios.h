@@ -12,7 +12,7 @@
 class ScenarioListEntry;
 enum class ELoadMode : ui8;
 
-/// Maps and saved games last selected, written or loaded by the server, stored in config/serverSettings.json
+/// Maps, campaigns and saved games last selected, written or loaded by the server, stored in config/serverSettings.json
 namespace LastScenarios
 {
 /// Remembers saved game for every load mode in which it can be loaded
@@ -26,4 +26,10 @@ void rememberMap(const std::string & name);
 
 /// Returns name of the map last selected in the list of maps
 std::string getMap();
+
+/// Remembers campaign selected in the list of campaigns
+void rememberCampaign(const std::string & name);
+
+/// Returns name of the campaign last selected in the list of campaigns, empty if there is none
+std::string getCampaign();
 }

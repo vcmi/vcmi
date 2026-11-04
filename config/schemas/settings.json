@@ -26,7 +26,6 @@
 				"language",
 				"gameDataLanguage",
 				"lastSettingsTab",
-				"lastCampaign",
 				"lastDifficulty",
 				"saveFrequency",
 				"notifications",
@@ -82,10 +81,6 @@
 				"lastSettingsTab" : {
 					"type" : "number",
 					"default" : 0
-				},
-				"lastCampaign" : {
-					"type" : "string",
-					"default" : ""
 				},
 				"lastDifficulty" : {
 					"type" : "number",

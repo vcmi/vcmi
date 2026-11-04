@@ -73,6 +73,21 @@ std::string CampaignHeader::getCampaignVersion(const ITranslator * translator) c
 	return campaignVersion.toString(translator);
 }
 
+const MetaString & CampaignHeader::getAuthorText() const
+{
+	return author;
+}
+
+const MetaString & CampaignHeader::getAuthorContactText() const
+{
+	return authorContact;
+}
+
+const MetaString & CampaignHeader::getCampaignVersionText() const
+{
+	return campaignVersion;
+}
+
 time_t CampaignHeader::getCreationDateTime() const
 {
 	return creationDateTime;
@@ -123,7 +138,7 @@ const CampaignRegions & CampaignHeader::getRegions() const
 	return campaignRegions;
 }
 
-const std::shared_ptr<TextLocalizationContainer> & CampaignHeader::getTexts()
+const std::shared_ptr<TextLocalizationContainer> & CampaignHeader::getTexts() const
 {
 	return textContainer;
 }

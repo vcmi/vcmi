@@ -10,8 +10,6 @@
 #pragma once
 
 #include "CSelectionBase.h"
-#include "../Translator.h"
-#include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/ScenarioList.h"
 #include "../../lib/filesystem/ResourcePath.h"
 
@@ -37,12 +35,8 @@ enum ESortBy
 class ElementInfo
 {
 public:
-	/// Map or saved game, empty for folders and campaigns
+	/// Map, saved game or campaign, empty for folders
 	std::optional<ScenarioListEntry> entry;
-	/// Campaign with its header, null for folders, maps and saved games
-	std::shared_ptr<CMapInfo> campaignInfo;
-	/// Campaign entries outlive the tab that listed them, so each one keeps its own texts installed
-	std::vector<TranslatorOverlay> textOverlays;
 	std::string fileURI;
 	std::time_t lastWrite = 0;
 	std::string folderName = "";
@@ -90,8 +84,10 @@ class SelectionTab : public CIntObject
 
 	JsonNode campaignSets;
 
-	/// Installs the text overlays of newly parsed campaigns and fills in display names of new entries
-	void installTexts(size_t offset);
+	/// Fills in display names of new entries
+	void updateNames(size_t offset);
+	/// Returns true if campaign is listed in one of campaign sets
+	bool isInCampaignSet(const ScenarioListEntry & entry) const;
 
 	void notifySelection(const std::shared_ptr<ElementInfo> & element);
 
@@ -155,14 +151,11 @@ public:
 	void updateListItems();
 	int getLine() const;
 	int getLine(const Point & position) const;
-	/// Opens folder of the file and selects it; selects the first file if it is not found
-	void selectFileName(const std::string & fname);
 	void selectNewestFile(bool skipAutosaves = false);
 	std::shared_ptr<ElementInfo> getSelectedElement() const;
 	/// Returns selected map, save or campaign in the form sent to the server
 	ScenarioSelection getSelection() const;
 	void setRequiredHumanPlayers(size_t players);
-	void rememberCurrentSelection();
 	void restoreLastSelection();
 	bool checkNameFilter(const std::string & fullstring) const;
 
@@ -185,15 +178,9 @@ private:
 
 	bool enableUiEnhancements;
 	std::shared_ptr<CButton> buttonCampaignSet;
-	/// Campaign files, other lists are received from the server
-	std::unordered_set<ResourcePath> resourceFiles;
 
-	auto checkSubfolder(std::string path);
 	size_t getRequiredHumanPlayers() const;
 	bool isMapCompatibleWithLobbyPlayerCount(const ElementInfo & info) const;
-	void parseCurrentFolder();
-	void parseCampaigns(const std::unordered_set<ResourcePath> & files);
-	std::unordered_set<ResourcePath> getFiles(std::string dirURI, EResType resType);
 	/// Absolute path of an entry, resolved on demand - too expensive to compute for every listed file
 	std::string getFullFileURI(const ElementInfo & item) const;
 
