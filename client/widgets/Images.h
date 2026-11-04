@@ -154,7 +154,8 @@ public:
 		VERTICAL_FLIP=4,   //TODO: will be displayed rotated
 		CREATURE_MODE=8,   // use alpha channel for images with palette. Required for creatures in battle
 		MAP_OBJECT_MODE=16,   // use alpha channel for images with palette. Required for map objects
-		PLAY_ONCE=32       //play animation only once and stop at last frame
+		PLAY_ONCE=32,       //play animation only once and stop at last frame
+		GRAYSCALE=64       //use grascale for images with palette
 	};
 protected:
 	std::shared_ptr<CAnimation> anim;

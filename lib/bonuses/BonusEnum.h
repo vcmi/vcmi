@@ -214,6 +214,7 @@ class JsonNode;
 	BONUS_NAME(BLOCK_CREATURE_MAGIC) /*blocks casting of magical spells and abilities by creatures, eg. Cursed Ground*/ \
 	BONUS_NAME(BLOCK_NATIVE_TERRAIN_BONUS) /*blocks bonuses of native terrain for creatures, eg. Cursed Ground*/ \
 	BONUS_NAME(GRANTS_SPELLBOOK) /*equipped artifact grants a Spell Book if hero does not already have one*/\
+	BONUS_NAME(SUPPRESSED_SPELL) /*a spell is temporary supressed (for example by a cast of the same spell with higher mastery)*/\
 
 	/* end of list */
 

@@ -611,6 +611,10 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 					int i = vstd::find_pos(accepted, bonus);
 					accepted.erase(i);
 				}
+				auto bonus = bonuses.front();
+				auto suppressedBonus = std::make_shared<Bonus>(bonus->duration, BonusType::SUPPRESSED_SPELL, bonus->source, 0, bonus->sid);
+				suppressedBonus->turnsRemain = bonus->turnsRemain;
+				accepted.push_back(suppressedBonus);
 			}
 		}
 	}
