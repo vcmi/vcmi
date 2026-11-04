@@ -112,9 +112,11 @@ endfunction()
 # Print Git commit hash
 function(vcmi_print_git_commit_hash)
 
-	message(STATUS "-- -- Start of Git information")
-	message(STATUS "GIT_SHA1: " ${GIT_SHA1})
-	message(STATUS "-- -- End of Git information")
+	if(GIT_SHA1)
+		message(STATUS "-- -- Start of Git information")
+		message(STATUS "GIT_SHA1: " ${GIT_SHA1})
+		message(STATUS "-- -- End of Git information")
+	endif()
 
 endfunction()
 

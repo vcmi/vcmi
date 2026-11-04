@@ -11,8 +11,8 @@
 
 namespace GameConstants
 {
-extern const char GIT_SHA1[] = "@GIT_SHA1@";
-extern const char VCMI_VERSION[] = "@VCMI_VERSION_FULL@";
-extern const char VCMI_PROJECT_NAME[] = "@VCMI_PROJECT_NAME@";
-extern const char VCMI_PROJECT_NAME_VERSIONED[] = "@VCMI_PROJECT_NAME_VERSIONED@";
+const char GIT_SHA1[] = "@GIT_SHA1@";
+const char VCMI_VERSION[] = "@VCMI_VERSION_FULL@";
+const char VCMI_PROJECT_NAME[] = "@VCMI_PROJECT_NAME@";
+const char VCMI_PROJECT_NAME_VERSIONED[] = "@VCMI_PROJECT_NAME_VERSIONED@";
 }
