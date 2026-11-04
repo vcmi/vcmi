@@ -31,6 +31,11 @@ if(POLICY CMP0177)
 	cmake_policy(SET CMP0177 NEW)
 endif()
 
+# file(CREATE_LINK) with COPY_ON_ERROR copies directory content.
+if(POLICY CMP0205)
+	cmake_policy(SET CMP0205 NEW)
+endif()
+
 ############################################
 #        User-provided options             #
 ############################################
