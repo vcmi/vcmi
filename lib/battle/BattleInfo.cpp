@@ -878,18 +878,29 @@ void BattleInfo::removeUnitBonus(uint32_t id, const std::vector<Bonus> & bonus)
 
 	for(const Bonus & one : bonus)
 	{
-		auto selector = [one](const Bonus * b)
+		std::function<bool(const Bonus *)> selector;
+		if (one.type == BonusType::SUPPRESSED_SPELL)
 		{
-			//compare everything but turnsRemain, limiter and propagator
-			return one.duration == b->duration
-			&& one.type == b->type
-			&& one.subtype == b->subtype
-			&& one.source == b->source
-			&& one.val == b->val
-			&& one.sid == b->sid
-			&& one.valType == b->valType
-			&& one.effectRange == b->effectRange;
-		};
+			selector = [one](const Bonus * b)
+			{
+				return one.sid == b->sid;
+			};
+		}
+		else
+		{
+			selector = [one](const Bonus * b)
+			{
+				//compare everything but turnsRemain, limiter and propagator
+				return one.duration == b->duration
+					&& one.type == b->type
+					&& one.subtype == b->subtype
+					&& one.source == b->source
+					&& one.val == b->val
+					&& one.sid == b->sid
+					&& one.valType == b->valType
+					&& one.effectRange == b->effectRange;
+			};
+		}
 		sta->removeBonusesRecursive(selector);
 	}
 }
