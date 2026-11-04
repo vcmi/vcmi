@@ -911,6 +911,21 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool stati
 	}
 }
 
+//mods can add templates to H3 object types, these are listed under the mod that provides their graphics
+static TModID templateModScope(const TModID & typeScope, const AnimationPath & animationFile)
+{
+	if(typeScope != ModScope::scopeBuiltin())
+		return typeScope;
+
+	AnimationPath animation = animationFile.addPrefix("SPRITES/");
+	ResourcePath sprite = CResourceHandler::get()->existsResource(animation) ? ResourcePath(animation) : animation.toType<EResType::JSON>();
+	//mods that replace H3 graphics would otherwise take over H3 objects, findResourceOrigin throws for missing graphics
+	if(CResourceHandler::get(ModScope::scopeBuiltin())->existsResource(sprite) || !CResourceHandler::get()->existsResource(sprite))
+		return ModScope::scopeBuiltin();
+
+	return LIBRARY->modh->findResourceOrigin(sprite);
+}
+
 void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCustomName, bool staticOnly, int ID)
 {
 	if (LIBRARY->objtypeh->knownObjects().count(ID) == 0)
@@ -967,7 +982,7 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 			auto * item = new QStandardItem(QIcon(preview), translated);
 			item->setData(data);
 			item->setData(groupName, ObjectGroupRole);
-			item->setData(QString::fromStdString(factory->getModScope()).section('.', 0, 0), ModIDRole);
+			item->setData(QString::fromStdString(templateModScope(factory->getModScope(), afile)).section('.', 0, 0), ModIDRole);
 			item->setToolTip(translated);
 			objectsModel.appendRow(item);
 		}
