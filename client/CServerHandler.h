@@ -57,6 +57,7 @@ enum class EClientState : ui8
 	STARTING, // Gameplay interfaces being created, we pause netpacks retrieving
 	GAMEPLAY, // In-game, used by some UI
 	DISCONNECTING, // We disconnecting, drop all netpacks
+	CAMPAIGN_SCENARIO_WON, // Campaign scenario is won and its game is destroyed, drop game netpacks until the lobby of the next scenario
 };
 
 enum class EServerMode : uint8_t
@@ -138,6 +139,14 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	void onTimer() override;
 
 	void applyPackOnLobbyScreen(CPackForLobby & pack);
+
+	/// Stops replay and interfaces of the running game, they still exist afterwards
+	void stopGameplay();
+	/// Destroys interfaces and game state of a stopped game
+	void destroyGameplay();
+	void showMainMenu();
+	/// Ends won scenario of an unfinished campaign, keeping the connection for the lobby of the next scenario
+	void endCampaignScenario();
 
 	std::string serverHostname;
 	ui16 serverPort;
@@ -237,6 +246,9 @@ public:
 	void endNetwork();
 	void endGameplay();
 	void restartGameplay();
+	/// Called once the server has returned to lobby with the next scenario of the campaign
+	void openNextCampaignScenarioLobby();
+	void sendNextCampaignScenario() const;
 	void startCampaignScenario(std::shared_ptr<CampaignState> ourCampaign, const StatisticDataSet & statistic);
 	void showServerError(const std::string & txt) const;
 

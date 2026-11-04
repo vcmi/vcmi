@@ -344,6 +344,17 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 
 void CLobbyScreen::toggleMode(bool host)
 {
+	// campaign started outside of the list goes straight to bonus selection, and leaving it closes the lobby
+	if(blackScreen)
+	{
+		if(GAME->server().campaignStateToSend)
+		{
+			GAME->server().setCampaignState(GAME->server().campaignStateToSend);
+			GAME->server().campaignStateToSend.reset();
+		}
+		return;
+	}
+
 	tabSel->toggleMode();
 	if(screenType == ESelectionScreen::campaignList)
 	{

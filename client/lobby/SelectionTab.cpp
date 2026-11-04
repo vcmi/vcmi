@@ -409,15 +409,8 @@ void SelectionTab::finishToggleMode(bool restoreSelection)
 		filter(0);
 	}
 
-	if(GAME->server().campaignStateToSend)
-	{
-		GAME->server().setCampaignState(GAME->server().campaignStateToSend);
-		GAME->server().campaignStateToSend.reset();
-	}
-	else if(restoreSelection)
-	{
+	if(restoreSelection)
 		restoreLastSelection();
-	}
 
 	slider->setAmount((int)curItems.size());
 	updateListItems();

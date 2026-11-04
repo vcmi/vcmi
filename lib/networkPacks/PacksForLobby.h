@@ -123,6 +123,16 @@ struct DLL_LINKAGE LobbyRestartGame : public CLobbyPackToPropagate
 	}
 };
 
+/// Sent by host after a won campaign scenario; the server returns to lobby with the next scenario of its campaign
+struct DLL_LINKAGE LobbyNextCampaignScenario : public CLobbyPackToPropagate
+{
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+	}
+};
+
 struct DLL_LINKAGE LobbyPrepareStartGame : public CLobbyPackToPropagate
 {
 	void visitTyped(ICPackVisitor & visitor) override;
