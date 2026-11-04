@@ -339,6 +339,9 @@
           <widget class="ObjectCategoryList" name="categoryList"/>
          </item>
          <item>
+          <widget class="QComboBox" name="modFilter"/>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="filterLayout">
            <item>
             <widget class="QLineEdit" name="filter">

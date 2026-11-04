@@ -38,7 +38,10 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
 #include "../lib/mapping/MapFormatJson.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModDescription.h"
 #include "../lib/modding/ModIncompatibility.h"
+#include "../lib/modding/ModScope.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/RiverHandler.h"
 #include "../lib/TerrainHandler.h"
@@ -964,6 +967,7 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 			auto * item = new QStandardItem(QIcon(preview), translated);
 			item->setData(data);
 			item->setData(groupName, ObjectGroupRole);
+			item->setData(QString::fromStdString(factory->getModScope()).section('.', 0, 0), ModIDRole);
 			item->setToolTip(translated);
 			objectsModel.appendRow(item);
 		}
@@ -1225,6 +1229,27 @@ void EditorMainWindow::loadObjectsTree()
 	});
 	ui->categoryList->setCurrentRow(0);
 	ui->categoryList->fitHeight();
+
+	//mod filter
+	const QString core = QString::fromStdString(ModScope::scopeBuiltin());
+	std::set<QString> mods;
+	for(int row = 0; row < objectsModel.rowCount(); ++row)
+		mods.insert(objectsModel.item(row)->data(ModIDRole).toString());
+	mods.erase(core);
+	for(const auto & mod : mods)
+		ui->modFilter->addItem(QString::fromStdString(LIBRARY->modh->getModInfo(mod.toStdString()).getName()), mod);
+	ui->modFilter->model()->sort(0);
+	ui->modFilter->insertItem(0, tr("All mods"));
+	ui->modFilter->insertItem(1, tr("Heroes III (core)"), core);
+	ui->modFilter->setCurrentIndex(0);
+	ui->modFilter->setVisible(!mods.empty());
+
+	connect(ui->modFilter, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]()
+	{
+		objectBrowser->mod = ui->modFilter->currentData().toString();
+		objectBrowser->invalidate();
+		objectBrowser->sort(0);
+	});
 }
 
 void EditorMainWindow::on_actionUndo_triggered()

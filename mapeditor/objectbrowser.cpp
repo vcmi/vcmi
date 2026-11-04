@@ -51,6 +51,9 @@ bool ObjectBrowserProxyModel::filterAcceptsRow(int source_row, const QModelIndex
 	if(!filterAcceptsRowText(source_row, source_parent))
 		return false;
 
+	if(!mod.isEmpty() && item->data(ModIDRole).toString() != mod)
+		return false;
+
 	if(!filter.isEmpty())
 		return true;
 

@@ -26,6 +26,7 @@ public:
 	TerrainId terrain;
 	QString filter;
 	QString category;
+	QString mod;
 
 protected:
 	bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
