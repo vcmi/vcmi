@@ -143,6 +143,8 @@ public:
 	void optionSetCastle(PlayerColor player, FactionID id);
 
 	// Campaigns
+	/// Selects campaign and its first available scenario, or its current scenario if it can still be played
+	void setCampaign(std::shared_ptr<CampaignState> campaign);
 	void setCampaignMap(CampaignScenarioID mapId);
 	void setCampaignBonus(int bonusId);
 
