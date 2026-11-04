@@ -706,6 +706,8 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 
 		set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/android" CACHE INTERNAL "")
 		set(QT_CREATOR_SKIP_CONAN_SETUP ON)
+		# needed only for Qt Creator < 21 to avoid "Product type is not an application, not building an APK"
+		set(ANDROID_DEPLOYMENT_SETTINGS_FILE "${CMAKE_BINARY_DIR}/android_deployment_settings.json" CACHE INTERNAL "")
 	endif()
 
 	# Widgets finds its own dependencies (QtGui and QtCore).
