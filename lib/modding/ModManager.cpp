@@ -49,6 +49,13 @@ static std::optional<TModID> getModIDFromDefinitionFile(const std::string & path
 		if(name.empty() || name.find('.') != std::string::npos || ModScope::isScopeReserved(name))
 			return std::nullopt;
 
+		const bool hasUnsupportedSymbols = std::ranges::any_of(name, [](char c)
+		{
+			return !((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '_' || c == ' ');
+		});
+		if(hasUnsupportedSymbols)
+			logMod->warn("Mod directory '%s' contains symbols other than latin letters, digits, '-', '_' and space. Such mods will not be loaded by future versions of VCMI", name);
+
 		if(!result.empty())
 			result += '.';
 		result += name;

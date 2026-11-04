@@ -1161,7 +1161,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	{
 		for (const auto & slot : Slots())
 		{
-			if (selectedCreature.toCreature()->isMyDirectOrIndirectUpgrade(slot.second->getCreature()))
+			if (slot.second->getCreature()->isUpgradeOf(selectedCreature))
 			{
 				selectedCreature = slot.second->getCreatureID();
 				break;

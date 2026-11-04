@@ -252,11 +252,11 @@ CMap::~CMap()
 {
 	// Workaround for destruction order - parts are not "aware" of their composite artifact
 	// As result, destruction of part of a composite artifact leads to a hanging pointer in combined artifact
-	// Force-detach everything before executing actual deletion
+	// Force-detach everything before executing actual deletion. Parts are attached only once loading
+	// has finished, so detach from actual parents instead of the parts listed in artifact
 	for (const auto & artifact : artInstances)
-		if (artifact)
-			for (const auto & part : artifact->getPartsInfo())
-				artifact->detachFromSource(*part.getArtifact());
+		if (artifact && artifact->hasParts())
+			artifact->detachFromAll();
 }
 
 bool CMap::isHoleAt(const int3 & pos) const

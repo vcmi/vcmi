@@ -20,6 +20,8 @@ class ScenarioListBuilder
 	ScenarioListEntry::EType type;
 	ELoadMode loadMode;
 	std::vector<ResourcePath> files;
+	/// Modification time of each file, read once during the scan
+	std::unordered_map<ResourcePath, std::time_t> lastWriteTimes;
 
 	std::vector<ScenarioListEntry> parseMaps(const std::vector<ResourcePath> & folderFiles) const;
 	std::vector<ScenarioListEntry> parseSaves(const std::vector<ResourcePath> & folderFiles, std::vector<std::string> & unsupportedSaves) const;

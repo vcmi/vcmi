@@ -117,5 +117,12 @@ public:
 		h & chapters;
 		h & recordEntireGame;
 		h & roundsKept;
+
+		// snapshots and packs can only be read with the serialization version they were written with
+		if(!h.saving && h.version != Handler::Version::CURRENT)
+		{
+			chapters.clear();
+			recordEntireGame = false;
+		}
 	}
 };

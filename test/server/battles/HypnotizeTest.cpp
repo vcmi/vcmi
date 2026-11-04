@@ -289,3 +289,17 @@ TEST_F(HypnotizeTest, DISABLED_HypnotizedUnitUsesSkillsOfItsController)
 
 	EXPECT_EQ(hypnotized->getAttack(false), baseAttack + 10);
 }
+
+TEST_F(HypnotizeTest, ControllerCanCheckMeleeAttackOfHypnotizedUnit)
+{
+	startGame();
+	startBattle();
+	CStack * hypnotized = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex), 10);
+	CStack * target = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testSoulStealer"), BattleHex(rightHex + 2 * GameConstants::BFIELD_WIDTH), 10);
+	hypnotize(hypnotized);
+	beginCombat();
+
+	CPlayerBattleCallback controller(battle(), battle()->sideToPlayer(BattleSide::ATTACKER));
+	const auto reachable = controller.battleGetAvailableHexes(hypnotized, false);
+	EXPECT_NO_THROW(controller.battleCanAttackHex(reachable, hypnotized, target->getPosition()));
+}
