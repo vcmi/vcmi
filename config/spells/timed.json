@@ -965,27 +965,41 @@
 				"targetModifier" : {
 					"smart" : true
 				},
-				"cumulativeEffects" : {
-					"primarySkill" : {
-						"type" : "PRIMARY_SKILL",
-						"subtype" : "defence",
-						"val" : -3,
-						"valueType" : "ADDITIVE_VALUE",
-						"duration" : "PERMANENT"
+				"battleEffects" : {
+					"disruptingRay" : {
+						"type" : "timed",
+						"cumulative" : true,
+						"bonus" : {
+							"primarySkill" : {
+								"type" : "PRIMARY_SKILL",
+								"subtype" : "defence",
+								"val" : -3,
+								"valueType" : "ADDITIVE_VALUE",
+								"duration" : "PERMANENT"
+							}
+						}
 					}
 				}
 			},
 			"advanced" : {
-				"cumulativeEffects" : {
-					"primarySkill" : {
-						"val" : -4
+				"battleEffects" : {
+					"disruptingRay" : {
+						"bonus" : {
+							"primarySkill" : {
+								"val" : -4
+							}
+						}
 					}
 				}
 			},
 			"expert" : {
-				"cumulativeEffects" : {
-					"primarySkill" : {
-						"val" : -5
+				"battleEffects" : {
+					"disruptingRay" : {
+						"bonus" : {
+							"primarySkill" : {
+								"val" : -5
+							}
+						}
 					}
 				}
 			}
@@ -1781,38 +1795,59 @@
 				"targetModifier" : {
 					"smart" : true
 				},
-				"effects" : {
-					"hypnotized" : {
-						"type" : "HYPNOTIZED",
-						"duration" : "N_TURNS"
+				"battleEffects" : {
+					"hypnotize" : {
+						"type" : "timed",
+						"bonus" : {
+							"hypnotized" : {
+								"type" : "HYPNOTIZED",
+								"duration" : "N_TURNS"
+							}
+						}
 					}
 				}
 			},
 			"none" : {
-				"effects" : {
-					"hypnotized" : {
-						"val" : 0
+				"battleEffects" : {
+					"hypnotize" : {
+						"bonus" : {
+							"hypnotized" : {
+								"val" : 0
+							}
+						}
 					}
 				}
 			},
 			"basic" : {
-				"effects" : {
-					"hypnotized" : {
-						"val" : 1
+				"battleEffects" : {
+					"hypnotize" : {
+						"bonus" : {
+							"hypnotized" : {
+								"val" : 1
+							}
+						}
 					}
 				}
 			},
 			"advanced" : {
-				"effects" : {
-					"hypnotized" : {
-						"val" : 2
+				"battleEffects" : {
+					"hypnotize" : {
+						"bonus" : {
+							"hypnotized" : {
+								"val" : 2
+							}
+						}
 					}
 				}
 			},
 			"expert" : {
-				"effects" : {
-					"hypnotized" : {
-						"val" : 3
+				"battleEffects" : {
+					"hypnotize" : {
+						"bonus" : {
+							"hypnotized" : {
+								"val" : 3
+							}
+						}
 					}
 				}
 			}
@@ -1830,7 +1865,7 @@
 				"bonus.UNDEAD" : "normal",
 				"bonus.NON_LIVING" : "normal",
 				"bonus.MECHANICAL" : "normal",
-				"spell.magicMirror" : "normal"
+				"spell.magicMirror" : "absolute"
 			}
 		},
 		"flags" : {
