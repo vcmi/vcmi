@@ -63,3 +63,14 @@ std::string LastScenarios::getMap()
 	const auto & lastMap = getStorage()["lastMap"];
 	return lastMap.isNull() ? "Maps/Arrogance" : lastMap.String();
 }
+
+void LastScenarios::rememberCampaign(const std::string & name)
+{
+	Settings lastCampaign = getStorage().write["lastCampaign"];
+	lastCampaign->String() = name;
+}
+
+std::string LastScenarios::getCampaign()
+{
+	return getStorage()["lastCampaign"].String();
+}

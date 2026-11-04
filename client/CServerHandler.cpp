@@ -675,6 +675,8 @@ void CServerHandler::installLobbyTexts()
 
 	if(mi && mi->mapHeader)
 		lobbyTextOverlays.emplace_back(mi->mapHeader->texts);
+	if(mi && mi->campaign)
+		lobbyTextOverlays.emplace_back(mi->campaign->getTexts());
 	if(si && si->campState)
 		lobbyTextOverlays.emplace_back(si->campState->getTexts());
 }

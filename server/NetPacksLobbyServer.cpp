@@ -364,8 +364,11 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 	}
 
 	// tutorial and debug start select maps without listing them
-	if(mapInfo && pack.selection.type == ScenarioSelection::EType::MAP && srv.lastScenarioListRequest && srv.lastScenarioListRequest->type == ScenarioListEntry::EType::MAP)
+	const auto & listRequest = srv.lastScenarioListRequest;
+	if(mapInfo && pack.selection.type == ScenarioSelection::EType::MAP && listRequest && listRequest->type == ScenarioListEntry::EType::MAP)
 		LastScenarios::rememberMap(pack.selection.fileURI);
+	if(mapInfo && pack.selection.type == ScenarioSelection::EType::CAMPAIGN && listRequest && listRequest->type == ScenarioListEntry::EType::CAMPAIGN)
+		LastScenarios::rememberCampaign(pack.selection.fileURI);
 
 	srv.updateStartInfoOnMapChange(mapInfo, pack.mapGenOpts);
 
@@ -724,7 +727,8 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyRequestScenarioList(Lobby
 	result = srv.isClientHost(connection->connectionID);
 
 	const bool validLoadMode = pack.loadMode == ELoadMode::SINGLE || pack.loadMode == ELoadMode::MULTI || pack.loadMode == ELoadMode::CAMPAIGN || pack.loadMode == ELoadMode::TUTORIAL;
-	if(pack.type != ScenarioListEntry::EType::MAP && (pack.type != ScenarioListEntry::EType::SAVE || !validLoadMode))
+	const bool validType = pack.type == ScenarioListEntry::EType::MAP || pack.type == ScenarioListEntry::EType::CAMPAIGN || (pack.type == ScenarioListEntry::EType::SAVE && validLoadMode);
+	if(!validType)
 	{
 		logNetwork->error("Rejecting scenario list request with invalid type %d or load mode %d", static_cast<int>(pack.type), static_cast<int>(pack.loadMode));
 		result = false;
@@ -747,7 +751,9 @@ void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScen
 	const ScenarioListBuilder builder(pack.type, pack.loadMode);
 	LobbyScenarioList reply;
 	if(pack.selectLast && pack.type == ScenarioListEntry::EType::MAP)
-		reply.list = builder.buildForMap(LastScenarios::getMap(), reply.selectedFile);
+		reply.list = builder.buildForFile(LastScenarios::getMap(), reply.selectedFile);
+	else if(pack.selectLast && pack.type == ScenarioListEntry::EType::CAMPAIGN)
+		reply.list = builder.buildForFile(LastScenarios::getCampaign(), reply.selectedFile);
 	else if(pack.selectLast)
 		reply.list = builder.buildForSave(LastScenarios::getSave(pack.loadMode), reply.selectedFile);
 	else

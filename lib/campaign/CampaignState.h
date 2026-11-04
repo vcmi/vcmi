@@ -82,9 +82,9 @@ public:
 	std::string getDescriptionTranslated(const ITranslator * translator) const;
 	const MetaString & getName() const;
 	std::string getNameTranslated(const ITranslator * translator) const;
-	std::string getAuthor(const ITranslator * translator) const;
-	std::string getAuthorContact(const ITranslator * translator) const;
-	std::string getCampaignVersion(const ITranslator * translator) const;
+	const MetaString & getAuthor() const;
+	const MetaString & getAuthorContact() const;
+	const MetaString & getCampaignVersion() const;
 	time_t getCreationDateTime() const;
 	std::string getFilename() const;
 	std::string getModName() const;
@@ -101,7 +101,7 @@ public:
 	bool restrictedGarrisonsForAI() const;
 
 	const CampaignRegions & getRegions() const;
-	const std::shared_ptr<TextLocalizationContainer> & getTexts();
+	const std::shared_ptr<TextLocalizationContainer> & getTexts() const;
 
 	template <typename Handler> void serialize(Handler &h)
 	{

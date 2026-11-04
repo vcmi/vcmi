@@ -19,12 +19,26 @@
 
 #include <tbb/parallel_for.h>
 
+static EResType getResourceType(ScenarioListEntry::EType type)
+{
+	switch(type)
+	{
+		case ScenarioListEntry::EType::MAP:
+			return EResType::MAP;
+		case ScenarioListEntry::EType::SAVE:
+			return EResType::SAVEGAME;
+		case ScenarioListEntry::EType::CAMPAIGN:
+			return EResType::CAMPAIGN;
+	}
+	throw std::runtime_error("Invalid scenario list type");
+}
+
 ScenarioListBuilder::ScenarioListBuilder(ScenarioListEntry::EType type, ELoadMode loadMode)
 	: type(type)
 	, loadMode(loadMode)
 {
-	const std::string directory = type == ScenarioListEntry::EType::MAP ? "MAPS/" : "SAVES/";
-	const EResType resourceType = type == ScenarioListEntry::EType::MAP ? EResType::MAP : EResType::SAVEGAME;
+	const std::string directory = type == ScenarioListEntry::EType::SAVE ? "SAVES/" : "MAPS/";
+	const EResType resourceType = getResourceType(type);
 
 	CResourceHandler::get()->updateFilteredFiles([&](const std::string & mount)
 	{
@@ -89,10 +103,10 @@ ScenarioList ScenarioListBuilder::build(const std::string & folder) const
 	result.type = type;
 	result.folder = folderFiles.folder;
 
-	if(type == ScenarioListEntry::EType::MAP)
-		result.entries = parseMaps(folderFiles.files);
-	else
+	if(type == ScenarioListEntry::EType::SAVE)
 		result.entries = parseSaves(folderFiles.files, result.unsupportedSaves);
+	else
+		result.entries = parseMapsOrCampaigns(folderFiles.files);
 
 	for(const auto & [name, subfolder] : folderFiles.subfolders)
 	{
@@ -129,7 +143,7 @@ std::optional<ScenarioList> ScenarioListBuilder::buildFolderOf(const std::string
 		return std::nullopt;
 
 	auto list = build(folder);
-	const ResourcePath file(fileName, type == ScenarioListEntry::EType::MAP ? EResType::MAP : EResType::SAVEGAME);
+	const ResourcePath file(fileName, getResourceType(type));
 	for(const auto & entry : list.entries)
 	{
 		if(boost::algorithm::iequals(entry.fileURI, file.getName()))
@@ -141,9 +155,9 @@ std::optional<ScenarioList> ScenarioListBuilder::buildFolderOf(const std::string
 	return std::nullopt;
 }
 
-ScenarioList ScenarioListBuilder::buildForMap(const std::string & mapName, std::string & selectedFile) const
+ScenarioList ScenarioListBuilder::buildForFile(const std::string & fileName, std::string & selectedFile) const
 {
-	if(auto list = buildFolderOf(mapName, selectedFile))
+	if(auto list = buildFolderOf(fileName, selectedFile))
 		return *list;
 	return build("");
 }
@@ -194,11 +208,11 @@ ScenarioList ScenarioListBuilder::buildForSave(const std::string & saveName, std
 	return root;
 }
 
-std::vector<ScenarioListEntry> ScenarioListBuilder::parseMaps(const std::vector<ResourcePath> & folderFiles) const
+std::vector<ScenarioListEntry> ScenarioListBuilder::parseMapsOrCampaigns(const std::vector<ResourcePath> & folderFiles) const
 {
 	auto timeStart = std::chrono::steady_clock::now();
 
-	// every entry is written by a single thread only, entries of failed maps stay empty
+	// every entry is written by a single thread only, entries of failed files stay empty
 	std::vector<std::optional<ScenarioListEntry>> entries(folderFiles.size());
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, folderFiles.size()), [&](const tbb::blocked_range<size_t> & r)
@@ -208,13 +222,19 @@ std::vector<ScenarioListEntry> ScenarioListBuilder::parseMaps(const std::vector<
 			const auto & file = folderFiles[i];
 			try
 			{
+				if(type == ScenarioListEntry::EType::CAMPAIGN)
+				{
+					entries[i] = ScenarioListEntry::fromCampaign(file);
+					continue;
+				}
+
 				auto entry = ScenarioListEntry::fromMap(file);
 				if(entry.getMapFormatSettings()["supported"].Bool())
 					entries[i] = std::move(entry);
 			}
 			catch(const std::exception & e)
 			{
-				logGlobal->error("Map %s is invalid. Message: %s", file.getName(), e.what());
+				logGlobal->error("File %s is invalid. Message: %s", file.getName(), e.what());
 			}
 		}
 	});
@@ -225,7 +245,7 @@ std::vector<ScenarioListEntry> ScenarioListBuilder::parseMaps(const std::vector<
 			result.push_back(std::move(*entry));
 
 	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
-	logGlobal->debug("Parsing %d maps took %d ms", folderFiles.size(), timeElapsed.count());
+	logGlobal->debug("Parsing %d maps or campaigns took %d ms", folderFiles.size(), timeElapsed.count());
 	return result;
 }
 

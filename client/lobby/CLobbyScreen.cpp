@@ -397,7 +397,6 @@ void CLobbyScreen::updateAfterStateChange()
 	const size_t requiredHumanPlayers = shouldFilterByPlayerCount ? std::max<size_t>(2, GAME->server().playerNames.size()) : 0;
 	if(!compatibilityFilterInitialized || (shouldFilterByPlayerCount && requiredHumanPlayers != lastRequiredHumanPlayers))
 	{
-		tabSel->rememberCurrentSelection();
 		tabSel->filter(-1, requiredHumanPlayers);
 		tabSel->restoreLastSelection();
 		updateCompatibilityNotice(requiredHumanPlayers);
