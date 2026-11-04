@@ -396,6 +396,15 @@ jobs:
 
     - name: Build
       run: cmake --build --preset ${{matrix.preset}}
+
+    - name: Build Android packages
+      if: ${{ startsWith(matrix.platform, 'android') }}
+      run: |
+        cmake --build out/build/${{ matrix.preset }} --target build_aab
+
+        OUTPUT_DIRECTORY="${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs"
+        mv "$OUTPUT_DIRECTORY/apk/release/vcmi-release.apk" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.apk"
+        mv "$OUTPUT_DIRECTORY/bundle/release/vcmi-release.aab" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab"
       env:
         ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -450,13 +459,6 @@ jobs:
           --wait \
           "$dmg"
         xcrun stapler staple "$dmg"
-
-    - name: Find Android package
-      if: ${{ startsWith(matrix.platform, 'android') }}
-      run: |
-        OUTPUT_DIRECTORY="${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs"
-        mv "$OUTPUT_DIRECTORY/apk/release/vcmi-release.apk" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.apk"
-        mv "$OUTPUT_DIRECTORY/bundle/release/vcmi-release.aab" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab"
 
     - name: Upload Artifact
       id: upload_artifact

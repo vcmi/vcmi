@@ -362,8 +362,7 @@
                 "default-release"
             ],
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-                "ANDROIDDEPLOYQT_OPTIONS" : "--aab"
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         },
         {
