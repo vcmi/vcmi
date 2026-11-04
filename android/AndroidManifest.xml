@@ -44,7 +44,7 @@
 		android:theme="@style/AppTheme"
 	>
 		<activity
-			android:name=".ActivityLauncher"
+			android:name="eu.vcmi.vcmi.ActivityLauncher"
 			android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
 			android:exported="true"
 			android:screenOrientation="sensorLandscape">
