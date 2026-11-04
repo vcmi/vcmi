@@ -172,7 +172,8 @@
 			"terrain" : "grass",
 			"objectType" : "crater"
 		},
-		"templates" : ["AVLct1g0", "AVLct2g0", "AVLct3g0", "AVLct4g0", "AVLct5g0", "AVLct6g0", "AVLctrg0"]
+		// non-blocking templates to be added once RMG supports them: "AVLct4g0", "AVLct6g0"
+		"templates" : ["AVLct1g0", "AVLct2g0", "AVLct3g0", "AVLct5g0", "AVLctrg0"]
 	},
 	"grassRedFlowers":{
 		"biome":{
