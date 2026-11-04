@@ -735,7 +735,9 @@ bool CBattleInfoCallback::battleCanAttackFromHex(const BattleHexArray & availabl
 	{
 		if (!attacker->hasBonusOfType(BonusType::FLYING))
 		{
-			const auto stoppers = getStoppers(attacker->unitSide());
+			// a unit whose side is hidden from us, such as one lost to Hypnotize, is judged by our own knowledge
+			const BattleSide perspective = battleDoWeKnowAbout(attacker->unitSide()) ? attacker->unitSide() : battleGetMySide();
+			const auto stoppers = getStoppers(perspective);
 			const bool oneHexMove = LIBRARY->engineSettings()->getBoolean(EGameSettings::COMBAT_ONE_HEX_TRIGGERS_OBSTACLES)
 				&& (fromHex == attacker->occupiedHex() || attacker->getPosition() == attacker->occupiedHex(fromHex));
 			// obstacles under the starting position do not stop the unit, matching server-side movement
