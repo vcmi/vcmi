@@ -78,8 +78,8 @@ option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" O
 # Platform-specific options
 
 if(ANDROID)
+	set(ANDROID_SDK "$ENV{ANDROID_HOME}" CACHE STRING "Path to Android SDK")
 	set(ANDROID_TARGET_SDK_VERSION "35" CACHE STRING "Android target SDK version")
-	set(ANDROIDDEPLOYQT_OPTIONS "" CACHE STRING "Additional androiddeployqt options separated by semi-colon")
 	set(ANDROID_GRADLE_PROPERTIES "" CACHE STRING "Additional Gradle properties separated by semi-colon")
 
 	set(ENABLE_STATIC_LIBS ON)
@@ -693,6 +693,21 @@ if(WIN32 AND USING_CONAN AND EXISTS "${CONAN_RUNTIME_LIBS_FILE}")
 endif()
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
+	if(ANDROID)
+		# required by Qt, see Qt5AndroidSupport.cmake
+		set(QT_ANDROID_APPLICATION_BINARY vcmiclient)
+
+		# proper way is to set ANDROID_SDK_PLATFORM, but Qt's CMake code has a bug:
+		# it sets 2 command line parameters in a single string, which we fix here
+		# there's the same bug with --jdk parameter, but it's used only in signAAB() and we sign manually via the Gradle project
+		set(android_deploy_qt_platform "--android-platform" "android-${ANDROID_TARGET_SDK_VERSION}")
+		# there's no way to provide custom params, so we'll do it through this variable as well
+		list(APPEND android_deploy_qt_platform "--verbose" $<$<NOT:$<CONFIG:Debug>>:--release>)
+
+		set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/android" CACHE INTERNAL "")
+		set(QT_CREATOR_SKIP_CONAN_SETUP ON)
+	endif()
+
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 
@@ -708,6 +723,12 @@ if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 		endif()
 	endif()
 	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS ${qtComponents})
+
+	if(ANDROID AND NOT TARGET apk)
+		# Conan doesn't include this file by default, https://github.com/conan-io/conan-center-index/pull/31171
+		# TODO: check in Qt 6
+		include("${QT_PACKAGE_DIR}/lib/cmake/Qt${QT_VERSION_MAJOR}Core/Qt${QT_VERSION_MAJOR}AndroidSupport.cmake")
+	endif()
 endif()
 
 if(NOT ENABLE_MINIMAL_LIB)
@@ -769,7 +790,6 @@ elseif(ANDROID)
 	string(JSON ANDROID_SYSROOT_LIB_SUBDIR GET "${ndkAbiInfo}" "${ANDROID_ABI}" "triple")
 
 	# required by Qt
-	set(androidPackageSourceDir "${CMAKE_SOURCE_DIR}/android")
 	set(androidQtBuildDir "${CMAKE_BINARY_DIR}/android-build")
 	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${androidQtBuildDir}/${LIB_DIR}")
 else()
@@ -806,8 +826,7 @@ endif()
 # common Qt paths
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	get_target_property(qmakePath Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
-	get_filename_component(qtDir "${qmakePath}/../../" ABSOLUTE)
-	set(qtBinDir "${qtDir}/bin")
+	get_filename_component(qtBinDir "${qmakePath}/../" ABSOLUTE)
 endif()
 
 #######################################
@@ -877,7 +896,7 @@ vcmi_install_conan_deps()
 
 if(ANDROID)
 	string(REPLACE ";" "\n" ANDROID_GRADLE_PROPERTIES_MULTILINE "${ANDROID_GRADLE_PROPERTIES}")
-	file(WRITE "${androidPackageSourceDir}/vcmi-app/gradle.properties"
+	file(WRITE "${ANDROID_PACKAGE_SOURCE_DIR}/vcmi-app/gradle.properties"
 "SDL_JAVA_SRC_DIR=${SDL_JAVA_SRC_DIR}
 signingRoot=${CMAKE_SOURCE_DIR}/CI/android
 ${ANDROID_GRADLE_PROPERTIES_MULTILINE}"
