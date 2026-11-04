@@ -875,7 +875,11 @@ vcmi_install_conan_deps()
 
 if(ANDROID)
 	string(REPLACE ";" "\n" ANDROID_GRADLE_PROPERTIES_MULTILINE "${ANDROID_GRADLE_PROPERTIES}")
-	file(WRITE "${androidPackageSourceDir}/vcmi-app/gradle.properties" "signingRoot=${CMAKE_SOURCE_DIR}/CI/android\n${ANDROID_GRADLE_PROPERTIES_MULTILINE}")
+	file(WRITE "${androidPackageSourceDir}/vcmi-app/gradle.properties"
+"SDL_JAVA_SRC_DIR=${SDL_JAVA_SRC_DIR}
+signingRoot=${CMAKE_SOURCE_DIR}/CI/android
+${ANDROID_GRADLE_PROPERTIES_MULTILINE}"
+	)
 
 	if(ANDROID_STL MATCHES "_shared$")
 		set(stlLibName "${CMAKE_SHARED_LIBRARY_PREFIX}${ANDROID_STL}${CMAKE_SHARED_LIBRARY_SUFFIX}")
