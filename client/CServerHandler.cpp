@@ -714,8 +714,6 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 		client->newGame(gameState);
 		break;
 	case EStartMode::CAMPAIGN:
-		if(si->campState->conqueredScenarios().empty())
-			si->campState->highscoreParameters.clear();
 		client->newGame(gameState);
 		break;
 	case EStartMode::LOAD_GAME:
@@ -742,16 +740,14 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 
 void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
 {
-	HighScoreParameter param = HighScore::prepareHighScores(&client->gameState(), player, victory);
-
 	if(victory && client->gameState().getStartInfo()->campState)
 	{
-		startCampaignScenario(param, client->gameState().getStartInfo()->campState, statistic);
+		startCampaignScenario(client->gameState().getStartInfo()->campState, statistic);
 	}
 	else
 	{
 		HighScoreCalculation scenarioHighScores;
-		scenarioHighScores.parameters.push_back(param);
+		scenarioHighScores.parameters.push_back(HighScore::prepareHighScores(&client->gameState(), player, victory));
 		scenarioHighScores.isCampaign = false;
 
 		endGameplay();
@@ -836,18 +832,13 @@ void CServerHandler::restartGameplay()
 	logicConnection->enterLobbyConnectionMode();
 }
 
-void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs, const StatisticDataSet & statistic)
+void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> ourCampaign, const StatisticDataSet & statistic)
 {
-	std::shared_ptr<CampaignState> ourCampaign = cs;
-
-	if (!cs)
-		ourCampaign = si->campState;
-
-	param.campaignName = cs->getNameTranslated(&GAME->translator());
-	cs->highscoreParameters.push_back(param);
 	auto campaignScoreCalculator = std::make_shared<HighScoreCalculation>();
 	campaignScoreCalculator->isCampaign = true;
-	campaignScoreCalculator->parameters = cs->highscoreParameters;
+	campaignScoreCalculator->parameters = ourCampaign->highscoreParameters;
+	for(auto & param : campaignScoreCalculator->parameters)
+		param.campaignName = ourCampaign->getNameTranslated(&GAME->translator());
 
 	endGameplay();
 

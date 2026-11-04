@@ -237,7 +237,7 @@ public:
 	void endNetwork();
 	void endGameplay();
 	void restartGameplay();
-	void startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs, const StatisticDataSet & statistic);
+	void startCampaignScenario(std::shared_ptr<CampaignState> ourCampaign, const StatisticDataSet & statistic);
 	void showServerError(const std::string & txt) const;
 
 	// TODO: LobbyState must be updated within game so we should always know how many player interfaces our client handle

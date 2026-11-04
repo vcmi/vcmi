@@ -11,6 +11,7 @@
 #include "GameStatePackVisitor.h"
 
 #include "CGameState.h"
+#include "HighScore.h"
 #include "TavernHeroesPool.h"
 
 #include "../CPlayerState.h"
@@ -385,6 +386,7 @@ void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 				if (hero->tempOwner == pack.player)
 					crossoverHeroes.push_back(hero);
 
+			gs.getStartInfo()->campState->highscoreParameters.push_back(HighScore::prepareHighScores(&gs, pack.player, true));
 			gs.getStartInfo()->campState->savePersistentVariables(gs.getMap());
 			gs.getStartInfo()->campState->setCurrentMapAsConquered(crossoverHeroes);
 		}
