@@ -190,8 +190,16 @@ void CGameState::preInit(const Services * newServices)
 void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRandomizer & gameRandomizer, Load::ProgressAccumulator & progressTracking, bool allowSavingRandomMap)
 {
 	assert(services);
-	scenarioOps = CMemorySerializer::deepCopy(*si);
-	initialOpts = CMemorySerializer::deepCopy(*si);
+	// campaign is shared instead of deep-copied, only scenarioOps records the conquest
+	StartInfo withoutCampaign = *si;
+	withoutCampaign.campState = nullptr;
+	scenarioOps = CMemorySerializer::deepCopy(withoutCampaign);
+	initialOpts = CMemorySerializer::deepCopy(withoutCampaign);
+	if(si->campState)
+	{
+		scenarioOps->campState = std::make_shared<CampaignState>(*si->campState);
+		initialOpts->campState = std::make_shared<CampaignState>(*si->campState);
+	}
 	si = nullptr;
 	auto & randomGenerator = gameRandomizer.getDefault();
 
@@ -1889,6 +1897,10 @@ void CGameState::loadGame(BinaryDeserializer & h)
 {
 	logGlobal->info("Loading game state...");
 	h & *this;
+
+	// older saves hold a separate copy of the campaign in each start info
+	if(!h.hasFeature(ESerializationVersion::CAMPAIGN_STATIC_DATA) && initialOpts->campState)
+		initialOpts->campState->setCampaign(scenarioOps->campState->getCampaignPtr());
 
 	// Runtime-only object, not serialized; rebuild from the loaded script source.
 	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this, false);
