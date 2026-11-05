@@ -270,7 +270,7 @@ int CGHeroInstance::getMovementConversionLimit(const EPathfindingLayer & layer) 
 	if(layer == EPathfindingLayer::SAIL)
 		return movementPointSeaLimit;
 
-	return 0;
+	throw std::runtime_error("Invalid movement conversion layer: " + std::to_string(static_cast<int>(layer)));
 }
 
 int CGHeroInstance::movementPointsLimitCached(const EPathfindingLayer & layer, const TurnInfo * ti) const
