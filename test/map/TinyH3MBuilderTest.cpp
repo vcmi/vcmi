@@ -315,8 +315,7 @@ TEST_F(HotaHeroLevelTest, CampaignCrossoverKeepsLevelAndExperienceLock)
 	auto * hero = startWithHero([](auto & builder) { builder.heroHotaLevel(10).heroHotaCannotGainXP(true); });
 	ASSERT_NE(hero, nullptr);
 
-	CampaignState campaign;
-	auto carried = campaign.crossoverDeserialize(campaign.crossoverSerialize(hero), map());
+	auto carried = CampaignState::crossoverDeserialize(CampaignState::crossoverSerialize(hero), map());
 	GameRandomizer randomizer(*gameState());
 	carried->initHero(randomizer);
 

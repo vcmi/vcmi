@@ -606,8 +606,8 @@ void CServerHandler::sendGuiAction(ui8 action) const
 
 void CServerHandler::sendRestartGame() const
 {
-	if(si->campState && !si->campState->getLoadingBackground().empty())
-		ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+	if(si->campState && !si->campState->getCampaign().getLoadingBackground().empty())
+		ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getCampaign().getLoadingBackground());
 	else
 		ENGINE->windows().createAndPushWindow<CLoadingScreen>();
 	
@@ -657,8 +657,8 @@ void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		if(si->campState && !si->campState->getLoadingBackground().empty())
-			ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+		if(si->campState && !si->campState->getCampaign().getLoadingBackground().empty())
+			ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getCampaign().getLoadingBackground());
 		else
 			ENGINE->windows().createAndPushWindow<CLoadingScreen>();
 	}
@@ -678,7 +678,7 @@ void CServerHandler::installLobbyTexts()
 	if(mi && mi->campaign)
 		lobbyTextOverlays.emplace_back(mi->campaign->getTexts());
 	if(si && si->campState)
-		lobbyTextOverlays.emplace_back(si->campState->getTexts());
+		lobbyTextOverlays.emplace_back(si->campState->getCampaign().getTexts());
 }
 
 void CServerHandler::enableLagCompensation(bool on)
@@ -700,7 +700,7 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 	gameplayTextOverlays.emplace_back(gameState->getMap().texts);
 	if(si->campState)
 	{
-		gameplayTextOverlays.emplace_back(si->campState->getTexts());
+		gameplayTextOverlays.emplace_back(si->campState->getCampaign().getTexts());
 		for(const auto & scenarioTexts : si->campState->getScenarioTexts())
 			gameplayTextOverlays.emplace_back(scenarioTexts.second);
 	}
@@ -883,7 +883,7 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> ourCam
 	campaignScoreCalculator->isCampaign = true;
 	campaignScoreCalculator->parameters = ourCampaign->highscoreParameters;
 	for(auto & param : campaignScoreCalculator->parameters)
-		param.campaignName = ourCampaign->getNameTranslated(&GAME->translator());
+		param.campaignName = ourCampaign->getCampaign().getNameTranslated(&GAME->translator());
 
 	if(ourCampaign->isCampaignFinished())
 		endGameplay();
@@ -892,14 +892,14 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> ourCam
 
 	// the game just took its campaign texts down with it, but the epilogue still has to render
 	// them - this keeps them up until the transition hands over to the next lobby
-	auto campaignTexts = std::make_shared<TranslatorOverlay>(ourCampaign->getTexts());
+	auto campaignTexts = std::make_shared<TranslatorOverlay>(ourCampaign->getCampaign().getTexts());
 
-	auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
+	auto & epilogue = ourCampaign->getCampaign().scenario(*ourCampaign->lastScenario()).epilog;
 	auto finisher = [ourCampaign, campaignScoreCalculator, statistic, campaignTexts]()
 	{
 		if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
 		{
-			Settings entry = persistentStorage.write["completedCampaigns"][ourCampaign->getFilename()];
+			Settings entry = persistentStorage.write["completedCampaigns"][ourCampaign->getCampaign().getFilename()];
 			entry->Bool() = true;
 		}
 
@@ -912,13 +912,13 @@ void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> ourCam
 		else
 		{
 			GAME->mainmenu()->openCampaignScreen(ourCampaign->campaignSet);
-			if(!ourCampaign->getOutroVideo().empty() && ENGINE->video().open(ourCampaign->getOutroVideo(), 1))
+			if(!ourCampaign->getCampaign().getOutroVideo().empty() && ENGINE->video().open(ourCampaign->getCampaign().getOutroVideo(), 1))
 			{
 				ENGINE->music().stopMusic();
-				auto rim = ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim();
-				if(ourCampaign->getVideoRim() == ImagePath::builtin("NONE"))
+				auto rim = ourCampaign->getCampaign().getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getCampaign().getVideoRim();
+				if(ourCampaign->getCampaign().getVideoRim() == ImagePath::builtin("NONE"))
 					rim = ImagePath();
-				ENGINE->windows().createAndPushWindow<VideoWindow>(ourCampaign->getOutroVideo(), rim, false, 1, [campaignScoreCalculator, statistic](bool skipped){
+				ENGINE->windows().createAndPushWindow<VideoWindow>(ourCampaign->getCampaign().getOutroVideo(), rim, false, 1, [campaignScoreCalculator, statistic](bool skipped){
 					ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 				});
 			}

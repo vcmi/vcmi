@@ -396,7 +396,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 	std::shared_ptr<CampaignState> campaign;
 	try
 	{
-		campaign = CampaignHandler::getCampaign(pack.fileURI);
+		campaign = std::make_shared<CampaignState>(CampaignHandler::getCampaign(pack.fileURI));
 	}
 	catch(const std::exception & e)
 	{
@@ -425,7 +425,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaignMap(LobbySetCampaignMap &
 		return;
 	}
 
-	if(!srv.si->campState->allScenarios().contains(pack.mapId) || !srv.si->campState->isAvailable(pack.mapId))
+	if(!srv.si->campState->getCampaign().allScenarios().contains(pack.mapId) || !srv.si->campState->isAvailable(pack.mapId))
 	{
 		logNetwork->error("Rejecting selection of unavailable campaign scenario %d", pack.mapId.getNum());
 		result = false;
@@ -445,7 +445,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetCampaignBonus(LobbySetCampaignBon
 		return;
 	}
 
-	const auto & bonuses = srv.si->campState->scenario(srv.campaignMap).travelOptions.bonusesToChoose;
+	const auto & bonuses = srv.si->campState->getCampaign().scenario(srv.campaignMap).travelOptions.bonusesToChoose;
 	if(pack.bonusId < 0 || pack.bonusId >= static_cast<int>(bonuses.size()))
 	{
 		logNetwork->error("Rejecting invalid campaign bonus %d", pack.bonusId);

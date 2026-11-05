@@ -83,15 +83,15 @@ PlayerSettings * StartInfo::getPlayersSettings(PlayerConnectionID connectedPlaye
 
 std::string StartInfo::getCampaignName(const ITranslator * translator) const
 {
-	if(!campState->getNameTranslated(translator).empty())
-		return campState->getNameTranslated(translator);
+	if(!campState->getCampaign().getNameTranslated(translator).empty())
+		return campState->getCampaign().getNameTranslated(translator);
 	else
 		return LIBRARY->generaltexth->allTexts[508];
 }
 
 bool StartInfo::restrictedGarrisonsForAI() const
 {
-	return campState && campState->restrictedGarrisonsForAI();
+	return campState && campState->getCampaign().restrictedGarrisonsForAI();
 }
 
 EMapDifficulty StartInfo::getDifficulty() const

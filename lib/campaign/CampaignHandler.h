@@ -41,7 +41,7 @@ class DLL_LINKAGE CampaignHandler
 public:
 	static std::unique_ptr<Campaign> getHeader( const std::string & name); //name - name of appropriate file
 
-	static std::shared_ptr<CampaignState> getCampaign(const std::string & name); //name - name of appropriate file
+	static std::shared_ptr<Campaign> getCampaign(const std::string & name); //name - name of appropriate file
 
 	//writer for VCMI campaigns (*.vcmp)
 	static JsonNode writeHeaderToJson(CampaignHeader & header, const ITranslator * translator);

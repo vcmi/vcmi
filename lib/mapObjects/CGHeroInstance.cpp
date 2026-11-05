@@ -1993,13 +1993,13 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 bool CGHeroInstance::isCampaignYog() const
 {
 	const StartInfo *si = cb->getStartInfo();
-	return si && si->campState &&si->campState->getYogWizardID() == getHeroTypeID();
+	return si && si->campState &&si->campState->getCampaign().getYogWizardID() == getHeroTypeID();
 }
 
 bool CGHeroInstance::isCampaignGem() const
 {
 	const StartInfo *si = cb->getStartInfo();
-	return si && si->campState &&si->campState->getGemSorceressID() == getHeroTypeID();
+	return si && si->campState &&si->campState->getCampaign().getGemSorceressID() == getHeroTypeID();
 }
 
 ResourceSet CGHeroInstance::dailyIncome() const

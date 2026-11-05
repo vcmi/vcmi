@@ -147,7 +147,7 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 		throw std::runtime_error("Corrupted map");
 }
 
-std::shared_ptr<CampaignState> Helper::openCampaignInternal(const QString & filenameSelect)
+std::shared_ptr<Campaign> Helper::openCampaignInternal(const QString & filenameSelect)
 {
 	auto resId = addFilesystemAndGetResource(filenameSelect, EResType::CAMPAIGN, "campaign");
 
@@ -180,18 +180,18 @@ std::map<std::string, std::shared_ptr<CRmgTemplate>> Helper::openTemplateInterna
 	return templates;
 }
 
-void Helper::saveCampaign(std::shared_ptr<CampaignState> campaignState, const QString & filename)
+void Helper::saveCampaign(std::shared_ptr<Campaign> campaign, const QString & filename)
 {
 	CompositeTranslator translator;
-	translator.install(campaignState->getTexts());
-	auto jsonCampaign = CampaignHandler::writeHeaderToJson(*campaignState, &translator);
+	translator.install(campaign->getTexts());
+	auto jsonCampaign = CampaignHandler::writeHeaderToJson(*campaign, &translator);
 	
 	auto io = std::make_shared<CDefaultIOApi>();
 	auto saver = std::make_shared<CZipSaver>(io, qstringToPath(filename));
-	for(auto & scenario : campaignState->allScenarios())
+	for(auto & scenario : campaign->allScenarios())
 	{
 		EditorCallback cb(nullptr);
-		auto map = campaignState->getMap(scenario, &cb);
+		auto map = campaign->getMap(scenario, &cb);
 		cb.setMap(map.get());
 		MapController::repairMap(map.get());
 		CMemoryBuffer serializeBuffer;
@@ -200,14 +200,14 @@ void Helper::saveCampaign(std::shared_ptr<CampaignState> campaignState, const QS
 			jsonSaver.saveMap(map);
 		}
 
-		auto mapName = boost::algorithm::to_lower_copy(campaignState->scenario(scenario).mapName);
+		auto mapName = boost::algorithm::to_lower_copy(campaign->scenario(scenario).mapName);
 		if(!boost::ends_with(mapName, ".vmap"))
 			mapName = boost::replace_all_copy(mapName, ".h3m", std::string("")) + ".vmap";
 
 		auto stream = saver->addFile(mapName);
 		stream->write(reinterpret_cast<const ui8 *>(serializeBuffer.getBuffer().data()), serializeBuffer.getSize());
 
-		jsonCampaign["scenarios"].Vector().push_back(CampaignHandler::writeScenarioToJson(campaignState->scenario(scenario), &translator));
+		jsonCampaign["scenarios"].Vector().push_back(CampaignHandler::writeScenarioToJson(campaign->scenario(scenario), &translator));
 		jsonCampaign["scenarios"].Vector().back()["map"].String() = mapName;
 	}
 
