@@ -242,6 +242,8 @@ public:
 	{
 		h & static_cast<CampaignHeader&>(*this);
 		h & scenarios;
+		if(h.hasFeature(Handler::Version::CAMPAIGN_STATIC_DATA))
+			h & mapPieces;
 	}
 };
 
@@ -278,6 +280,9 @@ public:
 	explicit CampaignState(std::shared_ptr<const Campaign> campaign);
 
 	const Campaign & getCampaign() const;
+	const std::shared_ptr<const Campaign> & getCampaignPtr() const;
+	/// Replaces the campaign with an identical one, so that start infos share a single copy
+	void setCampaign(std::shared_ptr<const Campaign> value);
 
 	/// Copies persist-flagged script variables of the given map into the campaign state.
 	void savePersistentVariables(const CMap & map);
@@ -358,19 +363,21 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		std::shared_ptr<Campaign> loadedCampaign;
-		Campaign * target = nullptr;
-		if(h.saving)
-			target = const_cast<Campaign *>(campaign.get());
+		if(h.hasFeature(Handler::Version::CAMPAIGN_STATIC_DATA))
+		{
+			h & campaign;
+			h & scenarioHeroPool;
+			h & globalHeroPool;
+		}
 		else
-			target = (loadedCampaign = std::make_shared<Campaign>()).get();
-
-		h & *target;
-		h & scenarioHeroPool;
-		h & globalHeroPool;
-		h & target->mapPieces;
-		if(!h.saving)
+		{
+			auto loadedCampaign = std::make_shared<Campaign>();
+			h & *loadedCampaign;
+			h & scenarioHeroPool;
+			h & globalHeroPool;
+			h & loadedCampaign->mapPieces;
 			campaign = loadedCampaign;
+		}
 		h & mapsConquered;
 		h & currentMap;
 		h & chosenCampaignBonuses;

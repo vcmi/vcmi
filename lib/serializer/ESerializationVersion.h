@@ -78,13 +78,14 @@ enum class ESerializationVersion : int32_t
 	LOBBY_SCENARIO_LIST, // lobby lists maps and saved games of the server and selects them by name
 	RUMOR_REWORK, // rumor state stores typed rumor and rumors told since their pool was exhausted
 	LOBBY_CAMPAIGN_ON_SERVER, // server loads campaigns by name and prepares their next scenario itself
+	CAMPAIGN_STATIC_DATA, // campaign state refers to its campaign by pointer, shared between start infos
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	MINIMAL_LOBBY = LOBBY_CAMPAIGN_ON_SERVER, // client and server of lobby reject each other below this version
-	CURRENT = LOBBY_CAMPAIGN_ON_SERVER,
+	MINIMAL_LOBBY = CAMPAIGN_STATIC_DATA, // client and server of lobby reject each other below this version
+	CURRENT = CAMPAIGN_STATIC_DATA,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

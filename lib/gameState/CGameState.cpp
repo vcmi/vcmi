@@ -192,6 +192,12 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	assert(services);
 	scenarioOps = CMemorySerializer::deepCopy(*si);
 	initialOpts = CMemorySerializer::deepCopy(*si);
+	if(si->campState)
+	{
+		// both have their own progress, only scenarioOps records the conquest - but the campaign itself is shared
+		scenarioOps->campState = std::make_shared<CampaignState>(*si->campState);
+		initialOpts->campState = std::make_shared<CampaignState>(*si->campState);
+	}
 	si = nullptr;
 	auto & randomGenerator = gameRandomizer.getDefault();
 
@@ -1889,6 +1895,10 @@ void CGameState::loadGame(BinaryDeserializer & h)
 {
 	logGlobal->info("Loading game state...");
 	h & *this;
+
+	// older saves hold a separate copy of the campaign in each start info
+	if(!h.hasFeature(ESerializationVersion::CAMPAIGN_STATIC_DATA) && initialOpts->campState)
+		initialOpts->campState->setCampaign(scenarioOps->campState->getCampaignPtr());
 
 	// Runtime-only object, not serialized; rebuild from the loaded script source.
 	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this, false);

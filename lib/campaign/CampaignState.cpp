@@ -153,6 +153,16 @@ const Campaign & CampaignState::getCampaign() const
 	return *campaign;
 }
 
+const std::shared_ptr<const Campaign> & CampaignState::getCampaignPtr() const
+{
+	return campaign;
+}
+
+void CampaignState::setCampaign(std::shared_ptr<const Campaign> value)
+{
+	campaign = std::move(value);
+}
+
 bool CampaignState::isConquered(CampaignScenarioID whichScenario) const
 {
 	return vstd::contains(mapsConquered, whichScenario);
