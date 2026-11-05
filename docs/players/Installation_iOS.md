@@ -6,7 +6,18 @@ You can run VCMI on iOS 12.0 and later, all devices are supported. If you wish t
 
 ### Via TestFlight
 
-We're on the road to publish VCMI on the AppStore and we have TestFlight now! Please join via [this link](https://testflight.apple.com/join/pJWHSbmu)
+We're on the road to publish VCMI on the AppStore and we have TestFlight now! Please join:
+
+- development version (the latest state of `develop` branch): <https://testflight.apple.com/join/nheXUXWA>
+- the latest release: <https://testflight.apple.com/join/pJWHSbmu>
+
+If you already have VCMI installed from TestFlight and want to switch dev/release versions:
+
+1. open TestFlight app
+2. select VCMI
+3. press Stop Testing in the bottom
+
+Note that when switching from development version to the latest release, it's heavily recommended to delete VCMI development app before installing the release as there are a lot of incompatibilities.
 
 ### Via AltStore Classic
 
