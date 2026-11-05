@@ -20,10 +20,10 @@
 #include "../../lib/json/JsonNode.h"
 #include "../translator.h"
 
-CampaignProperties::CampaignProperties(std::shared_ptr<CampaignState> campaignState):
+CampaignProperties::CampaignProperties(std::shared_ptr<Campaign> campaign):
 	ui(new Ui::CampaignProperties),
-	campaignState(campaignState),
-	regions(campaignState->campaignRegions)
+	campaign(campaign),
+	regions(campaign->campaignRegions)
 {
 	ui->setupUi(this);
 	Helper::decorateDialog(this);
@@ -31,20 +31,20 @@ CampaignProperties::CampaignProperties(std::shared_ptr<CampaignState> campaignSt
 	
 	setWindowModality(Qt::ApplicationModal);
 
-	ui->lineEditName->setText(QString::fromStdString(campaignState->name.toString(&Translator::instance())));
-	ui->textEditDescription->setText(QString::fromStdString(campaignState->description.toString(&Translator::instance())));
-	ui->lineEditAuthor->setText(QString::fromStdString(campaignState->author.toString(&Translator::instance())));
-	ui->lineEditAuthorContact->setText(QString::fromStdString(campaignState->authorContact.toString(&Translator::instance())));
-	ui->dateTimeEditCreationDateTime->setDateTime(QDateTime::fromSecsSinceEpoch(campaignState->creationDateTime));
-	ui->lineEditCampaignVersion->setText(QString::fromStdString(campaignState->campaignVersion.toString(&Translator::instance())));
-	ui->lineEditMusic->setText(QString::fromStdString(campaignState->music.getName()));
-	ui->checkBoxScenarioDifficulty->setChecked(campaignState->difficultyChosenByPlayer);
-	ui->lineEditLoadingBackground->setText(QString::fromStdString(campaignState->loadingBackground.getName()));
-	ui->checkBoxVideoRim->setChecked(campaignState->videoRim != ImagePath::builtin("NONE"));
-	ui->lineEditVideoRim->setText(QString::fromStdString(campaignState->videoRim.getName()));
+	ui->lineEditName->setText(QString::fromStdString(campaign->name.toString(&Translator::instance())));
+	ui->textEditDescription->setText(QString::fromStdString(campaign->description.toString(&Translator::instance())));
+	ui->lineEditAuthor->setText(QString::fromStdString(campaign->author.toString(&Translator::instance())));
+	ui->lineEditAuthorContact->setText(QString::fromStdString(campaign->authorContact.toString(&Translator::instance())));
+	ui->dateTimeEditCreationDateTime->setDateTime(QDateTime::fromSecsSinceEpoch(campaign->creationDateTime));
+	ui->lineEditCampaignVersion->setText(QString::fromStdString(campaign->campaignVersion.toString(&Translator::instance())));
+	ui->lineEditMusic->setText(QString::fromStdString(campaign->music.getName()));
+	ui->checkBoxScenarioDifficulty->setChecked(campaign->difficultyChosenByPlayer);
+	ui->lineEditLoadingBackground->setText(QString::fromStdString(campaign->loadingBackground.getName()));
+	ui->checkBoxVideoRim->setChecked(campaign->videoRim != ImagePath::builtin("NONE"));
+	ui->lineEditVideoRim->setText(QString::fromStdString(campaign->videoRim.getName()));
 	ui->lineEditVideoRim->setEnabled(ui->checkBoxVideoRim->isChecked());
-	ui->lineEditIntroVideo->setText(QString::fromStdString(campaignState->introVideo.getName()));
-	ui->lineEditOutroVideo->setText(QString::fromStdString(campaignState->outroVideo.getName()));
+	ui->lineEditIntroVideo->setText(QString::fromStdString(campaign->introVideo.getName()));
+	ui->lineEditOutroVideo->setText(QString::fromStdString(campaign->outroVideo.getName()));
 	
 	const JsonNode legacyRegionConfig(JsonPath::builtin("config/campaignRegions.json"));
 	auto legacyRegions = legacyRegionConfig.Struct();
@@ -69,12 +69,12 @@ CampaignProperties::~CampaignProperties()
 	delete ui;
 }
 
-bool CampaignProperties::showCampaignProperties(std::shared_ptr<CampaignState> campaignState)
+bool CampaignProperties::showCampaignProperties(std::shared_ptr<Campaign> campaign)
 {
-	if(!campaignState)
+	if(!campaign)
 		return false;
 
-	auto * dialog = new CampaignProperties(campaignState);
+	auto * dialog = new CampaignProperties(campaign);
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 
@@ -87,18 +87,18 @@ void CampaignProperties::on_buttonBox_clicked(QAbstractButton * button)
 	{
 		if(!saveRegion())
 			return;
-		campaignState->name = MetaString::createFromRawString(ui->lineEditName->text().toStdString());
-		campaignState->description = MetaString::createFromRawString(ui->textEditDescription->toPlainText().toStdString());
-		campaignState->author = MetaString::createFromRawString(ui->lineEditAuthor->text().toStdString());
-		campaignState->authorContact = MetaString::createFromRawString(ui->lineEditAuthorContact->text().toStdString());
-		campaignState->creationDateTime = ui->dateTimeEditCreationDateTime->dateTime().toSecsSinceEpoch();
-		campaignState->campaignVersion = MetaString::createFromRawString(ui->lineEditCampaignVersion->text().toStdString());
-		campaignState->music = AudioPath::builtin(ui->lineEditMusic->text().toStdString());
-		campaignState->difficultyChosenByPlayer = ui->checkBoxScenarioDifficulty->isChecked();
-		campaignState->loadingBackground = ImagePath::builtin(ui->lineEditLoadingBackground->text().toStdString());
-		campaignState->videoRim = ImagePath::builtin(ui->lineEditVideoRim->text().toStdString());
-		campaignState->introVideo = VideoPath::builtin(ui->lineEditIntroVideo->text().toStdString());
-		campaignState->outroVideo = VideoPath::builtin(ui->lineEditOutroVideo->text().toStdString());
+		campaign->name = MetaString::createFromRawString(ui->lineEditName->text().toStdString());
+		campaign->description = MetaString::createFromRawString(ui->textEditDescription->toPlainText().toStdString());
+		campaign->author = MetaString::createFromRawString(ui->lineEditAuthor->text().toStdString());
+		campaign->authorContact = MetaString::createFromRawString(ui->lineEditAuthorContact->text().toStdString());
+		campaign->creationDateTime = ui->dateTimeEditCreationDateTime->dateTime().toSecsSinceEpoch();
+		campaign->campaignVersion = MetaString::createFromRawString(ui->lineEditCampaignVersion->text().toStdString());
+		campaign->music = AudioPath::builtin(ui->lineEditMusic->text().toStdString());
+		campaign->difficultyChosenByPlayer = ui->checkBoxScenarioDifficulty->isChecked();
+		campaign->loadingBackground = ImagePath::builtin(ui->lineEditLoadingBackground->text().toStdString());
+		campaign->videoRim = ImagePath::builtin(ui->lineEditVideoRim->text().toStdString());
+		campaign->introVideo = VideoPath::builtin(ui->lineEditIntroVideo->text().toStdString());
+		campaign->outroVideo = VideoPath::builtin(ui->lineEditOutroVideo->text().toStdString());
 		accept();
 	}
 	close();
@@ -197,7 +197,7 @@ bool CampaignProperties::saveRegion()
 		regions.regions.push_back(rd);
 	}
 
-	if(campaignState->campaignRegions.regions.size() > regions.regions.size())
+	if(campaign->campaignRegions.regions.size() > regions.regions.size())
 	{
 		QMessageBox::StandardButton reply;
 		reply = QMessageBox::question(this, tr("Fewer Scenarios"), tr("New Region setup supports fewer scenarios than before. Some will removed. Continue?"), QMessageBox::Yes|QMessageBox::No);
@@ -205,15 +205,15 @@ bool CampaignProperties::saveRegion()
 			return false;
 	}
 
-	campaignState->campaignRegions = regions;
+	campaign->campaignRegions = regions;
 
-	while(campaignState->scenarios.size() < campaignState->campaignRegions.regions.size())
-		campaignState->scenarios.emplace(CampaignScenarioID(std::prev(campaignState->scenarios.end())->first + 1), CampaignScenario());
-	while(campaignState->scenarios.size() > campaignState->campaignRegions.regions.size())
+	while(campaign->scenarios.size() < campaign->campaignRegions.regions.size())
+		campaign->scenarios.emplace(CampaignScenarioID(std::prev(campaign->scenarios.end())->first + 1), CampaignScenario());
+	while(campaign->scenarios.size() > campaign->campaignRegions.regions.size())
 	{
-		auto elem = std::prev(campaignState->scenarios.end());
-		campaignState->mapPieces.erase(elem->first);
-		campaignState->scenarios.erase(elem);
+		auto elem = std::prev(campaign->scenarios.end());
+		campaign->mapPieces.erase(elem->first);
+		campaign->scenarios.erase(elem);
 	}
 		
 	

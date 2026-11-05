@@ -128,6 +128,16 @@ const std::shared_ptr<TextLocalizationContainer> & CampaignHeader::getTexts() co
 	return textContainer;
 }
 
+CampaignState::CampaignState(std::shared_ptr<const Campaign> campaign)
+	: campaign(std::move(campaign))
+{
+}
+
+const Campaign & CampaignState::getCampaign() const
+{
+	return *campaign;
+}
+
 bool CampaignState::isConquered(CampaignScenarioID whichScenario) const
 {
 	return vstd::contains(mapsConquered, whichScenario);
@@ -135,8 +145,10 @@ bool CampaignState::isConquered(CampaignScenarioID whichScenario) const
 
 bool CampaignState::isAvailable(CampaignScenarioID whichScenario) const
 {
+	const auto & whichScenarioData = campaign->scenario(whichScenario);
+
 	//check for void scenraio
-	if (!scenario(whichScenario).isNotVoid())
+	if (!whichScenarioData.isNotVoid())
 	{
 		return false;
 	}
@@ -146,7 +158,7 @@ bool CampaignState::isAvailable(CampaignScenarioID whichScenario) const
 		return false;
 	}
 	//check preconditioned regions
-	for (auto const & it : scenario(whichScenario).preconditionRegions)
+	for (auto const & it : whichScenarioData.preconditionRegions)
 	{
 		if (!vstd::contains(mapsConquered, it))
 			return false;
@@ -163,12 +175,12 @@ std::set<HeroTypeID> CampaignState::getReservedHeroes() const
 {
 	std::set<HeroTypeID> result;
 
-	for (auto const & scenarioID : allScenarios())
+	for (auto const & scenarioID : campaign->allScenarios())
 	{
 		if (isConquered(scenarioID))
 			continue;
 
-		auto header = getMapHeader(scenarioID);
+		auto header = campaign->getMapHeader(scenarioID);
 
 		result.insert(header->reservedCampaignHeroes.begin(), header->reservedCampaignHeroes.end());
 	}
@@ -184,7 +196,7 @@ std::shared_ptr<CGHeroInstance> CampaignState::strongestHero(CampaignScenarioID 
 		bool result = h->tempOwner == owner;
 		return result;
 	};
-	auto ownedHeroes = scenarioHeroPool.at(scenarioId) | std::views::filter(isOwned);
+	auto ownedHeroes = getHeroesByPower(scenarioId) | std::views::filter(isOwned);
 
 	if (ownedHeroes.empty())
 		return nullptr;
@@ -225,7 +237,7 @@ void CampaignState::setCurrentMapAsConquered(std::vector<CGHeroInstance *> heroe
 		return CGHeroInstance::compareCampaignValue(a, b);
 	});
 
-	logGlobal->info("Scenario %d of campaign %s has been completed", currentMap->getNum(), getFilename());
+	logGlobal->info("Scenario %d of campaign %s has been completed", currentMap->getNum(), campaign->getFilename());
 
 	mapsConquered.push_back(*currentMap);
 	auto reservedHeroes = getReservedHeroes();
@@ -263,8 +275,8 @@ void CampaignState::seedPersistentVariables(CMap & map) const
 
 std::optional<CampaignBonus> CampaignState::getBonus(CampaignScenarioID which) const
 {
-	auto bonuses = scenario(which).travelOptions.bonusesToChoose;
-	assert(chosenCampaignBonuses.count(*currentMap) || bonuses.empty());
+	auto bonuses = campaign->scenario(which).travelOptions.bonusesToChoose;
+	assert(chosenCampaignBonuses.count(which) || bonuses.empty());
 
 	if(bonuses.empty())
 		return std::optional<CampaignBonus>();
@@ -283,53 +295,53 @@ std::optional<ui8> CampaignState::getBonusID(CampaignScenarioID which) const
 	return chosenCampaignBonuses.at(which);
 }
 
-std::unique_ptr<CMap> CampaignState::getMap(CampaignScenarioID scenarioId, IGameInfoCallback * cb)
+std::string Campaign::getScenarioMapName(CampaignScenarioID scenarioId) const
 {
-	// FIXME: there is certainly better way to handle maps inside campaigns
-	if(scenarioId == CampaignScenarioID::NONE)
-		scenarioId = currentMap.value();
-
-	CMapService mapService;
 	std::string scenarioName = getFilename().substr(0, getFilename().find('.'));
 	boost::to_lower(scenarioName);
-	scenarioName += ':' + std::to_string(scenarioId.getNum());
+	return scenarioName + ':' + std::to_string(scenarioId.getNum());
+}
 
+std::unique_ptr<CMap> Campaign::getMap(CampaignScenarioID scenarioId, IGameInfoCallback * cb) const
+{
 	if(!mapPieces.count(scenarioId))
 		return nullptr;
 
-	const auto & mapContent = mapPieces.find(scenarioId)->second;
-	auto result = mapService.loadMap(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding(), cb);
-
-	// the loaded map is handed over to the caller, but its texts stay resolvable for the whole campaign
-	mapTranslations[scenarioId] = result->texts;
-	return result;
+	CMapService mapService;
+	const auto & mapContent = mapPieces.at(scenarioId);
+	return mapService.loadMap(mapContent.data(), mapContent.size(), getScenarioMapName(scenarioId), getModName(), getEncoding(), cb);
 }
 
-std::unique_ptr<CMapHeader> CampaignState::getMapHeader(CampaignScenarioID scenarioId) const
+std::unique_ptr<CMapHeader> Campaign::getMapHeader(CampaignScenarioID scenarioId) const
 {
-	if(scenarioId == CampaignScenarioID::NONE)
-		scenarioId = currentMap.value();
+	if(!mapPieces.count(scenarioId))
+		throw std::runtime_error("Campaign " + getFilename() + " has no map for scenario " + std::to_string(scenarioId.getNum()));
 
 	CMapService mapService;
-	std::string scenarioName = getFilename().substr(0, getFilename().find('.'));
-	boost::to_lower(scenarioName);
-	scenarioName += ':' + std::to_string(scenarioId.getNum());
-	const auto & mapContent = mapPieces.find(scenarioId)->second;
-	return mapService.loadMapHeader(mapContent.data(), mapContent.size(), scenarioName, getModName(), getEncoding());
+	const auto & mapContent = mapPieces.at(scenarioId);
+	return mapService.loadMapHeader(mapContent.data(), mapContent.size(), getScenarioMapName(scenarioId), getModName(), getEncoding());
 }
 
-std::shared_ptr<CMapInfo> CampaignState::getMapInfo(CampaignScenarioID scenarioId) const
+std::shared_ptr<CMapInfo> Campaign::getMapInfo(CampaignScenarioID scenarioId) const
 {
-	if(scenarioId == CampaignScenarioID::NONE)
-		scenarioId = currentMap.value();
-
 	auto mapInfo = std::make_shared<CMapInfo>();
 	mapInfo->fileURI = getFilename();
 	mapInfo->mapHeader = getMapHeader(scenarioId);
 	return mapInfo;
 }
 
-JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero) const
+std::unique_ptr<CMap> CampaignState::getCurrentMap(IGameInfoCallback * cb)
+{
+	auto result = campaign->getMap(currentMap.value(), cb);
+	if(!result)
+		throw std::runtime_error("Campaign " + campaign->getFilename() + " has no map for scenario " + std::to_string(currentMap->getNum()));
+
+	// the loaded map is handed over to the caller, but its texts stay resolvable for the whole campaign
+	mapTranslations[*currentMap] = result->texts;
+	return result;
+}
+
+JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero)
 {
 	JsonNode node;
 	JsonSerializer handler(nullptr, node);
@@ -339,7 +351,7 @@ JsonNode CampaignState::crossoverSerialize(CGHeroInstance * hero) const
 	return node;
 }
 
-std::shared_ptr<CGHeroInstance> CampaignState::crossoverDeserialize(const JsonNode & node, CMap * map) const
+std::shared_ptr<CGHeroInstance> CampaignState::crossoverDeserialize(const JsonNode & node, CMap * map)
 {
 	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
 	JsonDeserializer handler(nullptr, resolver, const_cast<JsonNode&>(node));
@@ -355,7 +367,7 @@ std::shared_ptr<CGHeroInstance> CampaignState::crossoverDeserialize(const JsonNo
 
 void CampaignState::setCurrentMap(CampaignScenarioID which)
 {
-	assert(scenario(which).isNotVoid());
+	assert(campaign->scenario(which).isNotVoid());
 
 	currentMap = which;
 }
@@ -481,7 +493,7 @@ const CampaignScenario & Campaign::scenario(CampaignScenarioID which) const
 
 bool CampaignState::isCampaignFinished() const
 {
-	return conqueredScenarios() == allScenarios();
+	return conqueredScenarios() == campaign->allScenarios();
 }
 
 HeroTypeID CampaignHeader::getYogWizardID() const

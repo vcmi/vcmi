@@ -391,7 +391,7 @@ void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 					crossoverHeroes.push_back(hero);
 
 			auto * campaign = gs.getStartInfo()->campState.get();
-			HeroTypeID enemyHeroType = campaign->scenario(*campaign->currentScenario()).enemyHeroCarriedOver;
+			HeroTypeID enemyHeroType = campaign->getCampaign().scenario(*campaign->currentScenario()).enemyHeroCarriedOver;
 			if (enemyHeroType.hasValue())
 			{
 				// a defeated hero is in the hero pool, stripped of artifacts unless he retreated or surrendered

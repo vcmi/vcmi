@@ -15,7 +15,7 @@
 #include "../StdInc.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 
-class CampaignState;
+class Campaign;
 class CMap;
 class EditorCallback;
 
@@ -36,7 +36,7 @@ public:
 
 	static void showCampaignEditor(QWidget *parent, EditorCallback * cb);
 	static void showCampaignEditor(QWidget *parent, const QString &campaignFile, EditorCallback * cb);
-	static std::unique_ptr<CMap> tryToOpenMap(QWidget* parent, std::shared_ptr<CampaignState> state, CampaignScenarioID scenario, EditorCallback * cb);
+	static std::unique_ptr<CMap> tryToOpenMap(QWidget* parent, std::shared_ptr<Campaign> state, CampaignScenarioID scenario, EditorCallback * cb);
 
 private slots:
 	void on_actionOpen_triggered();
@@ -56,7 +56,7 @@ private:
 	void saveCampaign();
 	void loadCampaignFile(const QString & filenameSelect);
 	/// Swaps in the campaign being edited, keeping its texts installed in the editor translator
-	void setCampaign(std::shared_ptr<CampaignState> newState);
+	void setCampaign(std::shared_ptr<Campaign> newState);
 
 	void closeEvent(QCloseEvent *event) override;
 	void changeEvent(QEvent *event) override;
@@ -70,6 +70,6 @@ private:
 	QString filename;
 	bool unsaved = false;
 	CampaignScenarioID selectedScenario;
-	std::shared_ptr<CampaignState> campaignState;
+	std::shared_ptr<Campaign> campaign;
 	EditorCallback * cb;
 };

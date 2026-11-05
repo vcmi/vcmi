@@ -34,7 +34,7 @@ class LRClickableArea;
 class CBonusSelection : public CWindowObject
 {
 public:
-	std::shared_ptr<CampaignState> getCampaign();
+	std::shared_ptr<CampaignState> getCampaignState();
 	CBonusSelection();
 
 	class CRegion

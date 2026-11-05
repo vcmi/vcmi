@@ -14,7 +14,7 @@
 #include "lib/campaign/CampaignState.h"
 
 class CMap;
-class CampaignState;
+class Campaign;
 class EditorCallback;
 
 
@@ -31,10 +31,10 @@ class ScenarioProperties : public QDialog
 	Q_OBJECT
 
 public:
-	explicit ScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario, EditorCallback * cb);
+	explicit ScenarioProperties(std::shared_ptr<Campaign> campaign, CampaignScenarioID scenario, EditorCallback * cb);
 	~ScenarioProperties();
 
-	static bool showScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario, EditorCallback * cb);
+	static bool showScenarioProperties(std::shared_ptr<Campaign> campaign, CampaignScenarioID scenario, EditorCallback * cb);
 	
 private slots:
 	void on_buttonBox_clicked(QAbstractButton * button);
@@ -57,7 +57,7 @@ private:
 	Ui::ScenarioProperties *ui;
 
 	std::shared_ptr<CMap> map;
-	std::shared_ptr<CampaignState> campaignState;
+	std::shared_ptr<Campaign> campaign;
 	CampaignScenarioID scenario;
 	EditorCallback * cb;
 	

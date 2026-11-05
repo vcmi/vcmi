@@ -221,6 +221,7 @@ struct CampaignScenario
 class DLL_LINKAGE Campaign : public CampaignHeader, public Serializeable
 {
 	friend class CampaignHandler;
+	friend class CampaignState;
 
 #ifdef ENABLE_EDITOR
 	friend class ::CampaignEditor;
@@ -229,11 +230,19 @@ class DLL_LINKAGE Campaign : public CampaignHeader, public Serializeable
 #endif
 
 	std::map<CampaignScenarioID, CampaignScenario> scenarios;
+	std::map<CampaignScenarioID, std::vector<uint8_t> > mapPieces; //binary h3ms, scenario number -> map data
+
+	std::string getScenarioMapName(CampaignScenarioID scenarioId) const;
 
 public:
 	const CampaignScenario & scenario(CampaignScenarioID which) const;
 	std::set<CampaignScenarioID> allScenarios() const;
 	int scenariosCount() const;
+
+	/// Returns null if the scenario has no map, for example a scenario just added in the map editor
+	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId, IGameInfoCallback * cb) const;
+	std::unique_ptr<CMapHeader> getMapHeader(CampaignScenarioID scenarioId) const;
+	std::shared_ptr<CMapInfo> getMapInfo(CampaignScenarioID scenarioId) const;
 
 	void overrideCampaign();
 	void overrideCampaignScenarios();
@@ -245,28 +254,20 @@ public:
 	}
 };
 
-/// Class that represent campaign that is being played at
-/// Contains campaign itself as well as current state of the campaign
-class DLL_LINKAGE CampaignState : public Campaign
+/// Progress of a campaign that is being played; the campaign itself is shared and never modified
+class DLL_LINKAGE CampaignState : public Serializeable
 {
-	friend class CampaignHandler;
-
-#ifdef ENABLE_EDITOR
-	friend class ::CampaignEditor;
-	friend class ::CampaignProperties;
-	friend class ::ScenarioProperties;
-#endif
-
 	using ScenarioPoolType = std::vector<JsonNode>;
 	using CampaignPoolType = std::map<CampaignScenarioID, ScenarioPoolType>;
 	using GlobalPoolType = std::map<HeroTypeID, JsonNode>;
+
+	std::shared_ptr<const Campaign> campaign;
 
 	/// List of all maps completed by player, in order of their completion
 	std::vector<CampaignScenarioID> mapsConquered;
 
 	std::map<CampaignScenarioID, std::shared_ptr<TextLocalizationContainer>> mapTranslations;
 
-	std::map<CampaignScenarioID, std::vector<uint8_t> > mapPieces; //binary h3ms, scenario number -> map data
 	std::map<CampaignScenarioID, ui8> chosenCampaignBonuses;
 	std::optional<CampaignScenarioID> currentMap;
 
@@ -283,6 +284,9 @@ class DLL_LINKAGE CampaignState : public Campaign
 
 public:
 	CampaignState() = default;
+	explicit CampaignState(std::shared_ptr<const Campaign> campaign);
+
+	const Campaign & getCampaign() const;
 
 	/// Copies persist-flagged script variables of the given map into the campaign state.
 	void savePersistentVariables(const CMap & map);
@@ -318,9 +322,8 @@ public:
 	/// Returns true if all available scenarios have been completed and campaign is finished
 	bool isCampaignFinished() const;
 
-	std::unique_ptr<CMap> getMap(CampaignScenarioID scenarioId, IGameInfoCallback * cb);
-	std::unique_ptr<CMapHeader> getMapHeader(CampaignScenarioID scenarioId) const;
-	std::shared_ptr<CMapInfo> getMapInfo(CampaignScenarioID scenarioId) const;
+	/// Loads the map of the current scenario; its texts stay resolvable for the rest of the campaign
+	std::unique_ptr<CMap> getCurrentMap(IGameInfoCallback * cb);
 
 	void setCurrentMap(CampaignScenarioID which);
 	void setCurrentMapBonus(ui8 which);
@@ -339,8 +342,8 @@ public:
 	/// May return empty JsonNode if such hero was not found
 	const JsonNode & getHeroByType(HeroTypeID heroID) const;
 
-	JsonNode crossoverSerialize(CGHeroInstance * hero) const;
-	std::shared_ptr<CGHeroInstance> crossoverDeserialize(const JsonNode & node, CMap * map) const;
+	static JsonNode crossoverSerialize(CGHeroInstance * hero);
+	static std::shared_ptr<CGHeroInstance> crossoverDeserialize(const JsonNode & node, CMap * map);
 
 	std::string campaignSet;
 
@@ -364,10 +367,19 @@ public:
 
 	template <typename Handler> void serialize(Handler &h)
 	{
-		h & static_cast<Campaign&>(*this);
+		std::shared_ptr<Campaign> loadedCampaign;
+		Campaign * target = nullptr;
+		if(h.saving)
+			target = const_cast<Campaign *>(campaign.get());
+		else
+			target = (loadedCampaign = std::make_shared<Campaign>()).get();
+
+		h & *target;
 		h & scenarioHeroPool;
 		h & globalHeroPool;
-		h & mapPieces;
+		h & target->mapPieces;
+		if(!h.saving)
+			campaign = loadedCampaign;
 		h & mapsConquered;
 		h & currentMap;
 		h & chosenCampaignBonuses;

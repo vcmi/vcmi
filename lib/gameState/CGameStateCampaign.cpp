@@ -72,7 +72,7 @@ std::optional<CampaignScenarioID> CGameStateCampaign::getHeroesSourceScenario() 
 
 void CGameStateCampaign::trimCrossoverHeroesParameters(vstd::RNG & randomGenerator, const CampaignState & campaignState)
 {
-	const CampaignTravel travelOptions = campaignState.scenario(*campaignState.currentScenario()).travelOptions;
+	const CampaignTravel travelOptions = campaignState.getCampaign().scenario(*campaignState.currentScenario()).travelOptions;
 	// TODO this logic (what should be kept) should be part of CScenarioTravel and be exposed via some clean set of methods
 	if(!travelOptions.whatHeroKeeps.experience)
 	{
@@ -180,7 +180,7 @@ void CGameStateCampaign::trimCrossoverHeroesParameters(vstd::RNG & randomGenerat
 	for(auto & hero : campaignHeroReplacements)
 	{
 		// a special case: only the second mission should allow transfering stacks, but the player can choose two alternative missions after the first
-		bool isThirdDragonSlayerMission = boost::starts_with(campaignState.getFilename(), "DATA/SLAYER") && campaignState.conqueredScenarios().size() == 2;
+		bool isThirdDragonSlayerMission = boost::starts_with(campaignState.getCampaign().getFilename(), "DATA/SLAYER") && campaignState.conqueredScenarios().size() == 2;
 		auto shouldSlotBeErased = [&](CStackInstance & j) -> bool		//here slots are erased
 		{
 			return isThirdDragonSlayerMission || !travelOptions.monstersKeptByHero.count(j.getCreatureID());
@@ -381,14 +381,14 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 void CGameStateCampaign::transformMutareIntoDrakeIfApplicable(CGHeroInstance & hero, const CampaignState & campaignState) const
 {
 	// Dragon's Blood scenario 4 ("Blood Thirsty") turns the crossed-over Mutare into Mutare Drake.
-	if (!campaignState.getMutareDrakeID().hasValue())
+	if (!campaignState.getCampaign().getMutareDrakeID().hasValue())
 		return;
-	if (!boost::starts_with(campaignState.getFilename(), "DATA/BLOOD") || campaignState.currentScenario()->getNum() != 3)
+	if (!boost::starts_with(campaignState.getCampaign().getFilename(), "DATA/BLOOD") || campaignState.currentScenario()->getNum() != 3)
 		return;
 	if (hero.getHeroTypeID() != HeroTypeID(HeroTypeID::decode("mutare")))
 		return;
 
-	hero.setHeroType(campaignState.getMutareDrakeID());
+	hero.setHeroType(campaignState.getCampaign().getMutareDrakeID());
 	hero.setPrimarySkill(PrimarySkill::ATTACK, 4, ChangeValueMode::RELATIVE);
 	hero.setPrimarySkill(PrimarySkill::DEFENSE, 4, ChangeValueMode::RELATIVE);
 }
@@ -502,7 +502,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 			continue;
 		}
 
-		auto hero = campaignState->crossoverDeserialize(node, gameState->map.get());
+		auto hero = CampaignState::crossoverDeserialize(node, gameState->map.get());
 
 		logGlobal->info("Hero crossover: Loading placeholder for %d (%s)", hero->getHeroType(), hero->getNameTextID());
 
@@ -537,7 +537,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 			if (!gameState->players.at(placeholder->getOwner()).isHuman())
 				continue;
 
-			auto hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
+			auto hero = CampaignState::crossoverDeserialize(*nodeListIter, gameState->map.get());
 			nodeListIter++;
 
 			logGlobal->info("Hero crossover: Loading placeholder as %d (%s)", hero->getHeroType(), hero->getNameTextID());
@@ -548,7 +548,7 @@ void CGameStateCampaign::generateCampaignHeroesToReplace()
 		// Add remaining heroes without placeholders - to transfer their artifacts to placed heroes
 		for (;nodeListIter != nodeList.end(); ++nodeListIter)
 		{
-			auto hero = campaignState->crossoverDeserialize(*nodeListIter, gameState->map.get());
+			auto hero = CampaignState::crossoverDeserialize(*nodeListIter, gameState->map.get());
 			campaignHeroReplacements.emplace_back(hero, ObjectInstanceID::NONE);
 		}
 	}
@@ -602,16 +602,16 @@ void CGameStateCampaign::initHeroes()
 	}
 
 	auto campaignState = gameState->scenarioOps->campState;
-	if (campaignState->getYogWizardID().hasValue() && boost::starts_with(campaignState->getFilename(), "DATA/YOG") && campaignState->currentScenario()->getNum() == 2)
+	if (campaignState->getCampaign().getYogWizardID().hasValue() && boost::starts_with(campaignState->getCampaign().getFilename(), "DATA/YOG") && campaignState->currentScenario()->getNum() == 2)
 	{
-		auto * yog = gameState->getUsedHero(campaignState->getYogWizardID());
+		auto * yog = gameState->getUsedHero(campaignState->getCampaign().getYogWizardID());
 		if(!yog)
 			throw std::runtime_error("Failed to find Yog to give him the Angelic Alliance!");
 		assert(yog->isCampaignYog());
 		gameState->giveHeroArtifact(yog, ArtifactID::ANGELIC_ALLIANCE);
 	}
 
-	transferMissingArtifacts(campaignState->scenario(*campaignState->currentScenario()).travelOptions);
+	transferMissingArtifacts(campaignState->getCampaign().scenario(*campaignState->currentScenario()).travelOptions);
 }
 
 void CGameStateCampaign::initStartingResources()
@@ -692,7 +692,7 @@ void CGameStateCampaign::initTowns()
 
 		if (bonusValue.buildingH3M.hasValue())
 		{
-			auto mapping = LIBRARY->mapFormat->getMapping(gameState->scenarioOps->campState->getFormat());
+			auto mapping = LIBRARY->mapFormat->getMapping(gameState->scenarioOps->campState->getCampaign().getFormat());
 			newBuilding = mapping.remapBuilding(town->getFactionID(), bonusValue.buildingH3M);
 		}
 
@@ -728,5 +728,5 @@ bool CGameStateCampaign::playerHasStartingHero(PlayerColor playerColor) const
 
 std::unique_ptr<CMap> CGameStateCampaign::getCurrentMap()
 {
-	return gameState->scenarioOps->campState->getMap(CampaignScenarioID::NONE, gameState);
+	return gameState->scenarioOps->campState->getCurrentMap(gameState);
 }

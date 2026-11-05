@@ -73,13 +73,13 @@ std::unique_ptr<Campaign> CampaignHandler::getHeader( const std::string & name)
 	return ret;
 }
 
-std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string & name )
+std::shared_ptr<Campaign> CampaignHandler::getCampaign( const std::string & name )
 {
 	ResourcePath resourceID(name, EResType::CAMPAIGN);
 	const std::string & modName = LIBRARY->modh->findResourceOrigin(resourceID);
 	const std::string & encoding = LIBRARY->modh->findResourceEncoding(resourceID);
 	
-	auto ret = std::make_unique<CampaignState>();
+	auto ret = std::make_shared<Campaign>();
 	
 	auto fileStream = CResourceHandler::get(modName)->load(resourceID);
 
@@ -88,18 +88,16 @@ std::shared_ptr<CampaignState> CampaignHandler::getCampaign( const std::string &
 	readCampaign(ret.get(), files[0], resourceID.getName(), modName, encoding);
 
 	//first entry is campaign header. start loop from 1
-	for(int scenarioIndex = 0, fileIndex = 1; fileIndex < files.size() && scenarioIndex < ret->numberOfScenarios; scenarioIndex++)
+	for(int scenarioIndex = 0, fileIndex = 1; scenarioIndex < ret->numberOfScenarios; scenarioIndex++)
 	{
 		auto scenarioID = static_cast<CampaignScenarioID>(scenarioIndex);
 
 		if(!ret->scenarios[scenarioID].isNotVoid()) //skip void scenarios
 			continue;
 
-		std::string scenarioName = resourceID.getName();
-		boost::to_lower(scenarioName);
-		scenarioName += ':' + std::to_string(fileIndex - 1);
+		if(fileIndex >= files.size())
+			throw std::runtime_error("Campaign " + name + " has no map for scenario " + std::to_string(scenarioIndex));
 
-		//set map piece appropriately, convert vector to string
 		ret->mapPieces[scenarioID] = files[fileIndex];
 
 		auto hdr = ret->getMapHeader(scenarioID);

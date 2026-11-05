@@ -18,7 +18,7 @@ class QToolButton;
 #include "../lib/filesystem/ResourcePath.h"
 
 class CMap;
-class CampaignState;
+class Campaign;
 class CRmgTemplate;
 class IGameInfoCallback;
 
@@ -43,8 +43,8 @@ namespace Helper
 {
 	void decorateDialog(QDialog * dialog);
 	std::unique_ptr<CMap> openMapInternal(const QString &, IGameInfoCallback *);
-	std::shared_ptr<CampaignState> openCampaignInternal(const QString &);
+	std::shared_ptr<Campaign> openCampaignInternal(const QString &);
 	std::map<std::string, std::shared_ptr<CRmgTemplate>> openTemplateInternal(const QString &);
-	void saveCampaign(std::shared_ptr<CampaignState> campaignState, const QString & filename);
+	void saveCampaign(std::shared_ptr<Campaign> campaign, const QString & filename);
 	void saveTemplate(std::map<std::string, std::shared_ptr<CRmgTemplate>> tpl, const QString & filename);
 }

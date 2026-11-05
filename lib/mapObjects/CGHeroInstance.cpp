@@ -2027,13 +2027,13 @@ void CGHeroInstance::fillUpgradeInfo(UpgradeInfo & info, const CStackInstance & 
 bool CGHeroInstance::isCampaignYog() const
 {
 	const StartInfo *si = cb->getStartInfo();
-	return si && si->campState &&si->campState->getYogWizardID() == getHeroTypeID();
+	return si && si->campState &&si->campState->getCampaign().getYogWizardID() == getHeroTypeID();
 }
 
 bool CGHeroInstance::isCampaignGem() const
 {
 	const StartInfo *si = cb->getStartInfo();
-	return si && si->campState &&si->campState->getGemSorceressID() == getHeroTypeID();
+	return si && si->campState &&si->campState->getCampaign().getGemSorceressID() == getHeroTypeID();
 }
 
 bool CGHeroInstance::canEquipArmageddonsBlade() const
@@ -2042,7 +2042,7 @@ bool CGHeroInstance::canEquipArmageddonsBlade() const
 	if(!si || !si->campState || !si->campState->currentScenario())
 		return true;
 
-	HeroTypeID bearer = si->campState->scenario(*si->campState->currentScenario()).armageddonsBladeBearer;
+	HeroTypeID bearer = si->campState->getCampaign().scenario(*si->campState->currentScenario()).armageddonsBladeBearer;
 	return !bearer.hasValue() || bearer == getHeroTypeID();
 }
 
