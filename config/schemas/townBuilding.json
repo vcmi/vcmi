@@ -1,6 +1,17 @@
 {
 	"type" : "object",
 	"additionalProperties" : false,
+	"allOf" : [
+		{
+			"if" : {
+				"required" : [ "type" ],
+				"properties" : { "type" : { "const" : "escapeTunnel" } }
+			},
+			"then" : {
+				"properties" : { "type" : { "deprecated" : "Building type escapeTunnel has been removed. Use \"bonuses\" : [ { \"type\" : \"BATTLE_CAN_FLEE\", \"val\" : 10 } ] instead" } }
+			}
+		}
+	],
 	"$schema" : "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI town building format",
 	"description" : "Format used to define town buildings in VCMI",

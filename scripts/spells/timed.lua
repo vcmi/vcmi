@@ -106,7 +106,7 @@ function Script:applyHeroSpecialty(mechanics, buffer, unit)
 	self:applyFixedValueEnchant(mechanics, hero, buffer, tier, spellKey)
 end
 
-function Script:describeEffect(server, battle, unit, bonuses)
+function Script:describeEffect(mechanics, server, battle, unit, bonuses)
 	-- Age spell: STACK_HEALTH bonus with negative val gets a custom message
 	for _, nb in pairs(bonuses) do
 		if nb.type == "STACK_HEALTH" and (nb.val or 0) < 0 then
@@ -124,6 +124,9 @@ function Script:describeEffect(server, battle, unit, bonuses)
 	end
 
 	if not self.battleLogPlural or self.battleLogPlural == "" then return end
+
+	-- a hero cast is already described by its cast line, as in H3
+	if mechanics:getHeroCaster() then return end
 
 	local textID = (self.battleLogSingular and self.battleLogSingular ~= "" and unit:getCount() == 1) and self.battleLogSingular or self.battleLogPlural
 	local nameTextID = unit:getCreature():getNameTextID(unit:getCount())
@@ -150,7 +153,7 @@ function Script:apply(mechanics, server, target)
 		self:applyHeroSpecialty(mechanics, buffer, unit)
 
 		if describe then
-			self:describeEffect(server, battle, unit, buffer)
+			self:describeEffect(mechanics, server, battle, unit, buffer)
 		end
 
 		for _, nb in pairs(buffer) do

@@ -15,6 +15,8 @@
 #include "MapFormat.h"
 #include "ScenarioMetadata.h"
 
+#include "../GameLibrary.h"
+#include "../IGameSettings.h"
 #include "../StartInfo.h"
 #include "../filesystem/Filesystem.h"
 #include "../gameState/SaveMetadata.h"
@@ -36,7 +38,7 @@ ScenarioListEntry ScenarioListEntry::fromMap(const ResourcePath & file)
 	return result;
 }
 
-ScenarioListEntry ScenarioListEntry::fromSave(const ResourcePath & file)
+ScenarioListEntry ScenarioListEntry::fromSave(const ResourcePath & file, JsonValidator & validator)
 {
 	const auto saveFile = CResourceHandler::get()->getResourceName(file);
 	if(!saveFile)
@@ -59,7 +61,7 @@ ScenarioListEntry ScenarioListEntry::fromSave(const ResourcePath & file)
 	else
 	{
 		CLoadFile loader(*saveFile);
-		result.metadata = SaveMetadata::parse(loader.readChunk(SaveFileFormat::CHUNK_METADATA), file.getOriginalName());
+		result.metadata = SaveMetadata::parse(loader.readChunk(SaveFileFormat::CHUNK_METADATA), file.getOriginalName(), validator);
 	}
 	return result;
 }
@@ -92,6 +94,29 @@ std::time_t ScenarioListEntry::getMapCreationTime() const
 EMapFormat ScenarioListEntry::getMapFormat() const
 {
 	return static_cast<EMapFormat>(metadata["map"]["format"].Integer());
+}
+
+const JsonNode & ScenarioListEntry::getMapFormatSettings() const
+{
+	switch(getMapFormat())
+	{
+		case EMapFormat::ROE:
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_RESTORATION_OF_ERATHIA);
+		case EMapFormat::AB:
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_ARMAGEDDONS_BLADE);
+		case EMapFormat::SOD:
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_SHADOW_OF_DEATH);
+		case EMapFormat::CHR:
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_CHRONICLES);
+		case EMapFormat::WOG:
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_IN_THE_WAKE_OF_GODS);
+		case EMapFormat::HOTA:
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_HORN_OF_THE_ABYSS);
+		case EMapFormat::VCMI:
+			return LIBRARY->engineSettings()->getValue(EGameSettings::MAP_FORMAT_JSON_VCMI);
+	}
+	static const JsonNode unknownFormat;
+	return unknownFormat;
 }
 
 int ScenarioListEntry::getMapWidth() const
@@ -132,4 +157,14 @@ bool ScenarioListEntry::isTutorialSave() const
 int ScenarioListEntry::getHumanPlayersInSave() const
 {
 	return metadata["game"]["humanPlayers"].Integer();
+}
+
+std::string ScenarioListEntry::getMapFileInSave() const
+{
+	return metadata["game"]["mapFile"].String();
+}
+
+int ScenarioListEntry::getCampaignScenarioInSave() const
+{
+	return metadata["game"]["campaignScenario"].Integer();
 }

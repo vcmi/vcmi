@@ -523,15 +523,15 @@ CPathfinderHelper::CPathfinderHelper(const IGameInfoCallback & gameInfo, const C
 
 	if (options.canUseCast)
 	{
-		for (const auto & spell : LIBRARY->spellh->objects)
+		for (const auto & spell : LIBRARY->spellh->getObjects())
 		{
 			if (!spell || !spell->isAdventure())
 				continue;
 
-			if(spell->getAdventureMechanics().givesBonus(hero, BonusType::WATER_WALKING) && hero->canCastThisSpell(spell.get()) && hero->mana >= hero->getSpellCost(spell.get()))
+			if(spell->getAdventureMechanics().givesBonus(hero, BonusType::WATER_WALKING) && hero->canCastThisSpell(spell) && hero->mana >= hero->getSpellCost(spell))
 				canCastWaterWalk = true;
 
-			if(spell->getAdventureMechanics().givesBonus(hero, BonusType::FLYING_MOVEMENT) && hero->canCastThisSpell(spell.get()) && hero->mana >= hero->getSpellCost(spell.get()))
+			if(spell->getAdventureMechanics().givesBonus(hero, BonusType::FLYING_MOVEMENT) && hero->canCastThisSpell(spell) && hero->mana >= hero->getSpellCost(spell))
 				canCastFly = true;
 		}
 	}

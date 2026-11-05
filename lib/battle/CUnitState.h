@@ -54,6 +54,9 @@ class DLL_LINKAGE CShots : public CAmmo
 public:
 	explicit CShots(const battle::Unit * Owner);
 
+	/// Copies state, but keeps bonus queries of this unit
+	CShots & operator=(const CShots & other);
+
 	bool isLimited() const override;
 	int32_t total() const override;
 
@@ -75,15 +78,22 @@ class CRetaliations : public CAmmo
 public:
 	explicit CRetaliations(const battle::Unit * Owner);
 
+	/// Copies state, but keeps bonus queries of this unit
+	CRetaliations & operator=(const CRetaliations & other);
+
 	bool isLimited() const override;
 	int32_t total() const override;
 	void reset() override;
+
+	/// Whether retaliation is possible once the incoming attack removes UNTIL_BEING_ATTACKED bonuses
+	bool canUseAfterBeingAttacked() const;
 
 	void serializeJson(JsonSerializeFormat & handler) override;
 private:
 	mutable int32_t totalCache;
 
 	BonusValueCache noRetaliation;
+	BonusValueCache noRetaliationPersistent;
 	BonusValueCache unlimited;
 };
 
@@ -183,6 +193,7 @@ public:
 	int32_t manaLimit() const override;
 
 	bool ableToRetaliate() const override;
+	bool ableToRetaliateAfterBeingAttacked() const override;
 	bool alive() const override;
 	bool isGhost() const override;
 	bool isFrozen() const override;

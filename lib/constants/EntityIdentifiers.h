@@ -34,6 +34,7 @@ class RoadType;
 class RiverType;
 class TerrainType;
 class MapLayerType;
+class RumorType;
 
 namespace spells
 {
@@ -698,6 +699,19 @@ public:
 	static const MapLayerId UNKNOWN;
 
 	const MapLayerType * toEntity(const Services * service) const;
+};
+
+class DLL_LINKAGE RumorId : public EntityIdentifier<RumorId>
+{
+public:
+	using EntityIdentifier<RumorId>::EntityIdentifier;
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
+
+	static const RumorId NONE;
+
+	const RumorType * toEntity(const Services * service) const;
 };
 
 class DLL_LINKAGE RoadId : public EntityIdentifier<RoadId>

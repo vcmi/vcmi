@@ -28,7 +28,7 @@ void CArmedInstance::randomizeArmy(FactionID type)
 		{
 			int level = elem.second->randomStack->level;
 			int upgrade = elem.second->randomStack->upgrade;
-			elem.second->setType((*LIBRARY->townh)[type]->town->creatures[level][upgrade]);
+			elem.second->setType((*LIBRARY->townh)[type]->getTown()->creatures[level][upgrade]);
 
 			elem.second->randomStack = std::nullopt;
 		}

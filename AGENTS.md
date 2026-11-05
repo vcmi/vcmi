@@ -101,7 +101,7 @@ Battle logic is split:
 - `server/battles/` - Server-side processing
 - `client/battle/` - Rendering and UI
 
-Changes to rules should go in `lib/battle/` (especially `BattleInfo.h`, `CBattleInfoCallback.h`, etc.), except for how much damage an attack deals - that is a Lua script, `scripts/damage/damageCalculator.lua`. See [`docs/developers/Battlefield.md`](docs/developers/Battlefield.md) for details on the battle system.
+Changes to rules should go in `lib/battle/` (especially `BattleInfo.h`, `CBattleInfoCallback.h`, etc.), except for how much damage an attack deals - that is a Lua script, `scripts/damage/damageCalculator.lua`. Spell effects (`battleEffects` types such as `core:catapult`, `core:damage`, `core:timed`) are also Lua scripts, in `scripts/spells/`; `lib/spells/effects/` only holds their C++ base classes. See [`docs/developers/Battlefield.md`](docs/developers/Battlefield.md) for details on the battle system.
 
 ### Working with Configuration Files
 

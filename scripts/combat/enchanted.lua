@@ -6,8 +6,9 @@ Script.__index = Script
 --- every round. Scripted equivalent of the ENCHANTED bonus.
 ---
 --- Parameters:
+---  val      - mastery level the effects are applied at
+---  level    - mastery level, takes priority over val
 ---  spell    - spell whose effects are applied
----  level    - mastery level the effects are applied at
 ---  massive  - true to affect every allied unit instead of only the bearer
 ---  duration - how many turns the effects last
 
@@ -36,8 +37,9 @@ function Script:applyEnchantment(server, battle, unit)
 	-- the unit is enchanted by its own ability, so immunities are ignored
 	local ignoreImmunity = true
 
+	-- TODO - decide on which format to support in long-term: mastery in val (works with stack experience) or in level
 	server:applySpellEffects(battle, unit, spell, self:targets(battle, unit),
-		self.level or 0, self.duration or DEFAULT_DURATION, ignoreImmunity)
+		self.level or self.val or 0, self.duration or DEFAULT_DURATION, ignoreImmunity)
 end
 
 function Script:onBattleStart(server, battle, unit, other)

@@ -11,7 +11,8 @@
 #include "aboutproject_moc.h"
 #include "ui_aboutproject_moc.h"
 
-#include "../updatedialog_moc.h"
+#include "../mainwindow_moc.h"
+#include "../updates/UpdateChecker.h"
 #include "../helper.h"
 
 #include "../../lib/GameConstants.h"
@@ -43,6 +44,7 @@ AboutProjectView::AboutProjectView(QWidget * parent)
 	ui->lineEditConfigDir->setText(pathToQString(VCMIDirs::get().userConfigPath()));
 	ui->lineEditBuildVersion->setText(QString(GameConstants::VCMI_VERSION));
 	ui->lineEditOperatingSystem->setText(QSysInfo::prettyProductName());
+	ui->updatesButton->setVisible(UpdateChecker::isEnabled());
 
 #ifdef VCMI_MOBILE
 	// On mobile platforms these directories are generally not accessible from phone itself, only via USB connection from PC
@@ -68,7 +70,9 @@ void AboutProjectView::changeEvent(QEvent *event)
 
 void AboutProjectView::on_updatesButton_clicked()
 {
-	UpdateDialog::showUpdateDialog(true);
+	// result of the check is shown in the start tab
+	Helper::getMainWindow()->getUpdateChecker()->check();
+	Helper::getMainWindow()->switchToStartTab();
 }
 
 void AboutProjectView::on_openGameDataDir_clicked()

@@ -61,7 +61,7 @@ protected:
 	/// initialization for classes that inherit this one
 	virtual void initTypeData(LibraryLoadContext & context, const JsonNode & input);
 
-	virtual void onTemplateAdded(const std::shared_ptr<const ObjectTemplate>) {}
+	virtual void onTemplateAdded(LibraryLoadContext & context, const std::shared_ptr<const ObjectTemplate>) {}
 public:
 
 	AObjectTypeHandler();
@@ -84,7 +84,7 @@ public:
 	/// Returns object-specific name, if set
 	SObjectSounds getSounds() const;
 
-	void addTemplate(const std::shared_ptr<const ObjectTemplate> & templ);
+	void addTemplate(LibraryLoadContext & context, const std::shared_ptr<const ObjectTemplate> & templ);
 	void addTemplate(LibraryLoadContext & context, JsonNode config);
 	void clearTemplates();
 

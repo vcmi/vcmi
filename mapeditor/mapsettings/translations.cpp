@@ -13,7 +13,6 @@
 #include "../helper.h"
 #include "ui_translations.h"
 #include "../../lib/texts/Languages.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/mapObjects/CGObjectInstance.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/mapping/MapFormatJson.h"
@@ -92,7 +91,7 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 		ui->languageSelect->setItemData(ui->languageSelect->count() - 1, QVariant(QString::fromStdString(language.identifier)));
 		if(mapHeader.translations.Struct().count(language.identifier) && !mapHeader.translations[language.identifier].Struct().empty())
 			indexFoundLang.insert(ui->languageSelect->count() - 1);
-		if(language.identifier == LIBRARY->generaltexth->getPreferredLanguage())
+		if(language.identifier == Languages::getPreferredLanguage())
 			foundLang = ui->languageSelect->count() - 1;
 	}
 	ui->languageSelect->blockSignals(false);
@@ -107,7 +106,7 @@ Translations::Translations(CMapHeader & mh, QWidget *parent) :
 		ui->languageSelect->setCurrentIndex(foundLang);
 	
 	if(mapPreferredLanguage.empty())
-		mapPreferredLanguage = LIBRARY->generaltexth->getPreferredLanguage();
+		mapPreferredLanguage = Languages::getPreferredLanguage();
 }
 
 Translations::~Translations()

@@ -361,7 +361,7 @@
 				"days" : { "type" : "number" },
 				"weeks" : { "type" : "number" },
 				"months" : { "type" : "number" },
-				"period" : { "type" : "number" } // deprecated alias for "days"
+				"period" : { "deprecated" : "Use \"days\", \"weeks\" or \"months\" instead of \"period\"" }
 			}
 		},
 		

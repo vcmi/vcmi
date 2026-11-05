@@ -140,13 +140,21 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 
 	result = evaluator.selectStackAction(stack);
 
-	if(autobattlePreferences.enableSpellsUsage && evaluator.canCastSpell())
+	// re-evaluating spells after each cast is slow when hero has many casts per turn (e.g. from cheats)
+	if(autobattlePreferences.enableSpellsUsage && heroCastBeforeUnit != stack->unitId() && evaluator.canCastSpell())
 	{
 		auto spelCasted = evaluator.attemptCastingSpell(stack);
 
+		// only known while hero can cast, so kept until the next chance to cast
+		heroCanBreachWalls = evaluator.canBreachWalls();
+
 		if(spelCasted)
+		{
+			heroCastBeforeUnit = stack->unitId();
 			return;
+		}
 	}
+	heroCastBeforeUnit.reset();
 
 	logAi->trace("Spellcast attempt completed in %lld", timeElapsed(start));
 
@@ -185,6 +193,10 @@ void CBattleAI::battleStart(const BattleID & battleID, const CCreatureSet *army1
 {
 	LOG_TRACE(logAi);
 	side = Side;
+	lastEnemyCreatureCount = std::numeric_limits<int>::max();
+	lastEnemyLossRound = 0;
+	heroCastBeforeUnit.reset();
+	heroCanBreachWalls = false;
 	auto tacticsSettings = TacticsHandler::Settings{.enabled = autobattlePreferences.enableTacticsUsage};
 	tacticsHandler = std::make_unique<TacticsHandler>(cb, battleID, tacticsSettings);
 }
@@ -203,6 +215,7 @@ std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering(const Battl
 	bs.ourSide = cb->getBattle(battleID)->battleGetMySide();
 	bs.ourHero = cb->getBattle(battleID)->battleGetMyHero();
 	bs.enemyHero = nullptr;
+	int enemyCreatureCount = 0;
 
 	for(auto stack : cb->getBattle(battleID)->battleGetAllStacks(false))
 	{
@@ -213,26 +226,33 @@ std::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering(const Battl
 			else
 			{
 				bs.enemyStacks.push_back(stack);
+				enemyCreatureCount += stack->getCount();
 				bs.enemyHero = cb->getBattle(battleID)->battleGetOwnerHero(stack);
 			}
 		}
 	}
 
+	int round = cb->getBattle(battleID)->battleGetRound();
+	if(enemyCreatureCount < lastEnemyCreatureCount)
+		lastEnemyLossRound = round;
+	lastEnemyCreatureCount = enemyCreatureCount;
+
+	// units wait behind intact walls while hero still has mana to breach them
+	if(heroCanBreachWalls)
+	{
+		movesSkippedByDefense = 0;
+		lastEnemyLossRound = round;
+	}
+
 	bs.turnsSkippedByDefense = movesSkippedByDefense / bs.ourStacks.size();
+	bs.turnsWithoutEnemyLosses = round - lastEnemyLossRound;
 
 	if(!bs.canFlee && !bs.canSurrender)
 	{
 		return std::nullopt;
 	}
 
-	auto result = cb->makeSurrenderRetreatDecision(battleID, bs);
-
-	if(!result && bs.canFlee && bs.turnsSkippedByDefense > 30)
-	{
-		return BattleAction::makeRetreat(bs.ourSide);
-	}
-
-	return result;
+	return cb->makeSurrenderRetreatDecision(battleID, bs);
 }
 
 

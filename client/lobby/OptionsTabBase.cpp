@@ -360,7 +360,7 @@ void OptionsTabBase::recreate(bool campaign)
 		}
 
 		MetaString message;
-		message.appendTextID(Languages::getPluralFormTextID( LIBRARY->generaltexth->getPreferredLanguage(), value, text));
+		message.appendTextID(Languages::getPluralFormTextID( Languages::getPreferredLanguage(), value, text));
 		message.replaceNumber(value);
 		return message.toString(&GAME->translator());
 	};

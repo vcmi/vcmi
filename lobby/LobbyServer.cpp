@@ -14,7 +14,6 @@
 
 #include "../lib/json/JsonFormatException.h"
 #include "../lib/json/JsonNode.h"
-#include "../lib/json/JsonUtils.h"
 #include "../lib/texts/Languages.h"
 #include "../lib/texts/TextOperations.h"
 
@@ -83,7 +82,7 @@ void LobbyServer::sendMessage(const NetworkConnectionPtr & target, const JsonNod
 {
 	logGlobal->info("Sending message of type %s", json["type"].String());
 
-	assert(JsonUtils::validate(json, "vcmi:lobbyProtocol/" + json["type"].String(), json["type"].String() + " pack"));
+	assert(validator.validate(json, "vcmi:lobbyProtocol/" + json["type"].String(), json["type"].String() + " pack"));
 	target->sendPacket(json.toBytes());
 }
 
@@ -182,7 +181,7 @@ void LobbyServer::broadcastActiveAccounts()
 	
 	const auto & bytes = reply.toBytes();
 	logGlobal->info("Sending message of type %s", reply["type"].String());
-	assert(JsonUtils::validate(reply, "vcmi:lobbyProtocol/" + reply["type"].String(), reply["type"].String() + " pack"));
+	assert(validator.validate(reply, "vcmi:lobbyProtocol/" + reply["type"].String(), reply["type"].String() + " pack"));
 
 	for(const auto & connection : activeAccounts)
 		connection.first->sendPacket(bytes);
@@ -221,7 +220,7 @@ void LobbyServer::broadcastActiveGameRooms()
 	const auto & reply = prepareActiveGameRooms();
 	const auto & bytes = reply.toBytes();
 	logGlobal->info("Sending message of type %s", reply["type"].String());
-	assert(JsonUtils::validate(reply, "vcmi:lobbyProtocol/" + reply["type"].String(), reply["type"].String() + " pack"));
+	assert(validator.validate(reply, "vcmi:lobbyProtocol/" + reply["type"].String(), reply["type"].String() + " pack"));
 
 	for(const auto & connection : activeAccounts)
 		connection.first->sendPacket(bytes);
@@ -236,7 +235,7 @@ void LobbyServer::broadcastGameRoomDescription(const std::string & gameRoomID)
 
 	const auto & bytes = reply.toBytes();
 	logGlobal->info("Sending message of type %s", reply["type"].String());
-	assert(JsonUtils::validate(reply, "vcmi:lobbyProtocol/" + reply["type"].String(), reply["type"].String() + " pack"));
+	assert(validator.validate(reply, "vcmi:lobbyProtocol/" + reply["type"].String(), reply["type"].String() + " pack"));
 
 	for(const auto & connection : activeAccounts)
 		connection.first->sendPacket(bytes);
@@ -323,7 +322,7 @@ void LobbyServer::onDisconnected(const NetworkConnectionPtr & connection, const 
 	broadcastActiveGameRooms();
 }
 
-JsonNode LobbyServer::parseAndValidateMessage(const std::vector<std::byte> & message) const
+JsonNode LobbyServer::parseAndValidateMessage(const std::vector<std::byte> & message)
 {
 	JsonParsingSettings parserSettings;
 	parserSettings.mode = JsonParsingSettings::JsonFormatMode::JSON;
@@ -352,7 +351,7 @@ JsonNode LobbyServer::parseAndValidateMessage(const std::vector<std::byte> & mes
 
 	std::string schemaName = "vcmi:lobbyProtocol/" + messageType;
 
-	if (!JsonUtils::validate(json, schemaName, messageType + " pack"))
+	if (!validator.validate(json, schemaName, messageType + " pack"))
 	{
 		logGlobal->info("Json validation error encountered!");
 		assert(0);

@@ -12,8 +12,8 @@
 
 #include "../../lib/modding/ModDescription.h"
 #include "../../lib/json/JsonNode.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/texts/Languages.h"
+#include "../../lib/texts/TextOperations.h"
 
 ModState::ModState(const ModDescription & impl)
 	: impl(impl)
@@ -93,19 +93,22 @@ QString ModState::getBaseLanguage() const
 	return QString::fromStdString(impl.getBaseLanguage());
 }
 
-QStringList ModState::getSupportedLanguages() const
+int ModState::getTranslationProgress(const QString & language) const
 {
-	QStringList result;
-	result.push_back(getBaseLanguage());
+	const JsonNode & progress = impl.getRepositoryValue(language.toStdString())["progress"];
+	return progress.isNumber() ? progress.Integer() : -1;
+}
 
-	for (const auto & language : Languages::getLanguageList())
-	{
-		QString languageID = QString::fromStdString(language.identifier);
+bool ModState::hasTranslation(const QString & language) const
+{
+	int progress = getTranslationProgress(language);
 
-		if (languageID != getBaseLanguage() && !impl.getValue(language.identifier).isNull())
-			result.push_back(languageID);
-	}
-	return result;
+	// mods released outside of mod repository workflow don't report progress
+	if (progress == -1)
+		return !impl.getValue(language.toStdString())["translations"].isNull();
+
+	// workflow may create language entry with zero progress just for translated mod name
+	return progress > 0;
 }
 
 QMap<QString, QStringList> ModState::getChangelog() const
@@ -139,6 +142,19 @@ QString ModState::getVersion() const
 	return QString::fromStdString(impl.getValue("version").String());
 }
 
+QString ModState::getUpdateDate() const
+{
+	// repository date describes repository version, which may differ from installed one
+	if (getRepositoryVersion() != getVersion())
+		return {};
+
+	QDateTime date = QDateTime::fromString(QString::fromStdString(impl.getRepositoryValue("updateDate").String()), Qt::ISODate);
+	if (!date.isValid())
+		return {};
+
+	return QString::fromStdString(TextOperations::getFormattedDateTimeLocal(date.toSecsSinceEpoch()));
+}
+
 int ModState::getGithubStars() const
 {
 	return impl.getRepositoryValue("githubStars").isNull() ? -1 : impl.getRepositoryValue("githubStars").Integer();
@@ -159,9 +175,17 @@ QString ModState::getDownloadSizeFormatted() const
 	return QCoreApplication::translate("File size", "%1 MiB").arg(QString::number(getDownloadSizeMegabytes(), 'f', 1));
 }
 
-QString ModState::getAuthors() const
+QStringList ModState::getAuthors() const
 {
-	return QString::fromStdString(impl.getLocalizedValue("author").String());
+	const JsonNode & author = impl.getLocalizedValue("author");
+
+	if (author.isVector())
+		return stringListStdToQt(author.convertTo<std::vector<std::string>>());
+
+	if (author.String().empty())
+		return {};
+
+	return { QString::fromStdString(author.String()) };
 }
 
 QString ModState::getContact() const
@@ -196,6 +220,14 @@ QPair<QString, QString> ModState::getCompatibleVersionRange() const
 	return { min, max};
 }
 
+bool ModState::isValidationFailed() const
+{
+	const JsonNode & validated = impl.getRepositoryValue("validated");
+
+	// repository result describes repository version, which may differ from installed one
+	return getRepositoryVersion() == getVersion() && validated.isBool() && !validated.Bool();
+}
+
 bool ModState::isSubmod() const
 {
 	return !getParentID().isEmpty();
@@ -224,7 +256,7 @@ bool ModState::isVisible() const
 bool ModState::isHidden() const
 {
 	if (isTranslation() && !isInstalled())
-		return impl.getBaseLanguage() != CGeneralTextHandler::getPreferredLanguage();
+		return impl.getBaseLanguage() != Languages::getPreferredLanguage();
 
 	return isCompatibility() || getID() == "vcmi" || getID() == "core";
 }

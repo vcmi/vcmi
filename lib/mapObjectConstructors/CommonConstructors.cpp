@@ -17,6 +17,7 @@
 #include "../callback/IGameInfoCallback.h"
 #include "../entities/faction/CTownHandler.h"
 #include "../entities/hero/CHeroClass.h"
+#include "../entities/hero/CHeroClassHandler.h"
 #include "../entities/ResourceTypeHandler.h"
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapObjects/CGTownInstance.h"
@@ -249,7 +250,7 @@ void CHeroInstanceConstructor::initTypeData(LibraryLoadContext & context, const 
 	context.resolver.requestIdentifier(
 		"heroClass",
 		input["heroClass"],
-		[&](si32 index) { heroClass = HeroClassID(index).toHeroClass(); });
+		[&](si32 index) { heroClass = (*context.lib.heroclassesh)[index]; });
 
 	for (const auto & [name, config] : input["filters"].Struct())
 	{

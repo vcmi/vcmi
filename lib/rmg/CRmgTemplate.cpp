@@ -219,7 +219,7 @@ void ZoneOptions::setTerrainTypes(const std::set<TerrainId> & value)
 std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes(const GameLibrary & library) const
 {
 	std::set<TerrainId> terrains;
-	for(const auto & terrain : library.terrainTypeHandler->objects)
+	for(const auto & terrain : library.terrainTypeHandler->getObjects())
 	{
 		if (terrain->isLand() && terrain->isPassable())
 		{
@@ -461,7 +461,7 @@ void ZoneOptions::setBannedTownTypes(const std::set<FactionID> & value)
 	bannedTownTypes = value;
 }
 
-void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
+void ZoneOptions::serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects)
 {
 	static const std::vector<std::string> zoneTypes =
 	{
@@ -549,7 +549,10 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeIdMap<GameResID, ui16>("mines", mines);
 	}
 
-	handler.serializeStruct("customObjects", objectConfig);
+	{
+		auto guard = handler.enterStruct("customObjects");
+		objectConfig.serializeJson(handler, objects);
+	}
 	handler.serializeInt("visiblePositionX", visiblePosition.x);
 	handler.serializeInt("visiblePositionY", visiblePosition.y);
 	handler.serializeFloat("visibleSize", visibleSize);
@@ -791,7 +794,37 @@ const std::vector<ZoneConnection> & CRmgTemplate::getConnectedZoneIds() const
 
 void CRmgTemplate::validate() const
 {
-	//TODO add some validation checks, throw on failure
+	const auto checkZoneLink = [this](const std::string & field, TRmgTemplateZoneId target)
+	{
+		if(target != rmg::ZoneOptions::NO_ZONE && !zones.count(target))
+			throw std::runtime_error(boost::str(boost::format("'%s' refers to zone %d that does not exist") % field % target));
+	};
+
+	for(const auto & [id, zone] : zones)
+	{
+		const std::string zonePath = "zones/" + std::to_string(id) + "/";
+
+		checkZoneLink(zonePath + "townsLikeZone", zone->getTownsLikeZone());
+		checkZoneLink(zonePath + "minesLikeZone", zone->getMinesLikeZone());
+		checkZoneLink(zonePath + "terrainTypeLikeZone", zone->getTerrainTypeLikeZone());
+		checkZoneLink(zonePath + "treasureLikeZone", zone->getTreasureLikeZone());
+		checkZoneLink(zonePath + "customObjectsLikeZone", zone->getCustomObjectsLikeZone());
+
+		for(const auto & hint : zone->getTownHints())
+		{
+			checkZoneLink(zonePath + "townHints/likeZone", hint.likeZone);
+			for(const auto & notLikeZone : hint.notLikeZone)
+				checkZoneLink(zonePath + "townHints/notLikeZone", notLikeZone);
+			checkZoneLink(zonePath + "townHints/relatedToZoneTerrain", hint.relatedToZoneTerrain);
+		}
+	}
+
+	for(const auto & connection : connections)
+	{
+		const std::string connectionPath = "connections/" + std::to_string(connection.getId()) + "/";
+		checkZoneLink(connectionPath + "a", connection.getZoneA());
+		checkZoneLink(connectionPath + "b", connection.getZoneB());
+	}
 }
 
 std::pair<int3, int3> CRmgTemplate::getMapSizes() const
@@ -904,7 +937,7 @@ int CRmgTemplate::CPlayerCountRange::minValue() const
 	return *std::ranges::min_element(numbers);
 }
 
-void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
+void CRmgTemplate::serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects)
 {
 	handler.serializeString("name", name);
 	handler.serializeString("description", description);
@@ -975,7 +1008,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 			for(auto & idAndZone : zones)
 			{
 				auto guard = handler.enterStruct(encodeZoneId(idAndZone.first));
-				idAndZone.second->serializeJson(handler);
+				idAndZone.second->serializeJson(handler, objects);
 			}
 		}
 		else
@@ -985,7 +1018,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler)
 				auto guard = handler.enterStruct(idAndZone.first);
 				auto zone = std::make_shared<ZoneOptions>();
 				zone->setId(decodeZoneId(idAndZone.first));
-				zone->serializeJson(handler);
+				zone->serializeJson(handler, objects);
 				zones[zone->getId()] = zone;
 			}
 		}

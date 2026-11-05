@@ -10,6 +10,7 @@
 #include "StdInc.h"
 
 #include "../../lib/battle/CBattleInfoCallback.h"
+#include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/CUnitState.h"
 
 #include <vstd/RNG.h>
@@ -420,6 +421,33 @@ TEST_F(AttackableHexesTest, LongWeaponCanAttackOverCorpseInMiddleHex)
 	availableHexes.insert(attacker.getPosition());
 
 	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
+}
+
+TEST_F(AttackableHexesTest, DoubleWideCanStepOffStoppingObstacleAndAttack)
+{
+	UnitFake & attacker = addRegularMelee(60, BattleSide::ATTACKER);
+	attacker.makeDoubleWide();
+	const BattleHex fromHex = attacker.getPosition().cloneInDirection(BattleHex::RIGHT);
+	UnitFake & defender = addRegularMelee(fromHex.cloneInDirection(BattleHex::RIGHT), BattleSide::DEFENDER);
+
+	auto trap = std::make_shared<SpellCreatedObstacle>();
+	trap->obstacleType = CObstacleInstance::SPELL_CREATED;
+	trap->trap = true;
+	trap->customSize.insert(attacker.getPosition());
+
+	startBattle();
+	redirectUnitsToFake();
+	ON_CALL(battleMock, getAllObstacles()).WillByDefault(Return(IBattleInfo::ObstacleCList{trap}));
+
+	BattleHexArray availableHexes;
+	availableHexes.insert(fromHex);
+
+	// rear hex ends on the obstacle the unit already stands on, which does not stop it
+	EXPECT_TRUE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
+
+	trap->customSize.clear();
+	trap->customSize.insert(fromHex);
+	EXPECT_FALSE(subject.battleCanAttackHex(availableHexes, &attacker, defender.getPosition(), BattleHex::LEFT));
 }
 
 TEST_F(AttackableHexesTest, LongWeaponDoubleWideCanAttackWithOneEmptyHexGap)

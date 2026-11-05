@@ -232,7 +232,7 @@ namespace
 	{
 		CreatureValues values;
 
-		for(const auto & creature : LIBRARY->creh->objects)
+		for(const auto & creature : LIBRARY->creh->getObjects())
 		{
 			if(!creature)
 				continue;
@@ -257,7 +257,7 @@ namespace
 			 * No need to multiply by 0.47, though (MMAI uses relative values).
 			 */
 
-			int v = isMMAILegacyValue() ? CalculateValue(creature.get()) : static_cast<int>(LIBRARY->creh->getCombatValue().getAIValue(creature.get()));
+			int v = isMMAILegacyValue() ? CalculateValue(creature) : static_cast<int>(LIBRARY->creh->getCombatValue().getAIValue(creature));
 
 			if(isMMAIVerbose())
 				std::cout << "MMAI_VERBOSE: " << v << " " << creature->getJsonKey() << "\n";

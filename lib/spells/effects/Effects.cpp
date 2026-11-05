@@ -16,6 +16,7 @@
 #include "../ISpellMechanics.h"
 
 #include "../../GameLibrary.h"
+#include "../../json/JsonBonus.h"
 #include "../../json/JsonNode.h"
 #include "../../modding/LibraryLoadContext.h"
 #include "../../modding/IdentifierStorage.h"
@@ -149,6 +150,13 @@ Effects::EffectsMap Effects::loadJson(LibraryLoadContext & context, const JsonNo
 
 		JsonNode data = raw;
 		context.lib.scriptTypes()->prepareParameters(effectID, data, context, TextIdentifier("spell", spellScope, spellIdentifier, name));
+
+		// effects build their bonuses only when the spell is cast, so this is the only chance to report
+		// bonuses that are broken or outdated while the mod loads. Spell effects are loaded after all
+		// identifiers are registered, so the parsed bonus is complete before it is discarded
+		if(data["bonus"].isStruct())
+			for(const auto & bonusNode : data["bonus"].Struct())
+				JsonUtils::parseBonus(bonusNode.second, context);
 
 		auto effect = context.lib.scriptTypes()->createSpellEffect(effectID);
 

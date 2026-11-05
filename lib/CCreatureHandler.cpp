@@ -288,11 +288,11 @@ bool CCreature::isDoubleWide() const
  */
 bool CCreature::isGood () const
 {
-	return LIBRARY->factions()->getById(faction)->getAlignment() == EAlignment::GOOD;
+	return alignment == EAlignment::GOOD;
 }
 EAlignment CCreature::getAlignment () const
 {
-	return LIBRARY->factions()->getById(faction)->getAlignment();
+	return alignment;
 }
 
 /**
@@ -301,7 +301,7 @@ EAlignment CCreature::getAlignment () const
  */
 bool CCreature::isEvil () const
 {
-	return LIBRARY->factions()->getById(faction)->getAlignment() == EAlignment::EVIL;
+	return alignment == EAlignment::EVIL;
 }
 
 si32 CCreature::maxAmount(const TResources &res) const //how many creatures can be bought
@@ -348,33 +348,9 @@ bool CCreature::isMyDirectUpgrade(const CCreature *anotherCre) const
 	return vstd::contains(upgrades, anotherCre->getId());
 }
 
-bool CCreature::isMyDirectOrIndirectUpgrade(const CCreature *anotherCre) const
+bool CCreature::isUpgradeOf(const CreatureID & base) const
 {
-	std::set<CreatureID> foundUpgrades;
-	std::vector<CreatureID> upgradesToTest;
-
-	upgradesToTest.push_back(getId());
-
-	while (!upgradesToTest.empty())
-	{
-		CreatureID testedID = upgradesToTest.back();
-		const CCreature * testedPtr = testedID.toCreature();
-
-		upgradesToTest.pop_back();
-
-		for (const auto & upgrade : testedPtr->upgrades)
-		{
-			if (upgrade == anotherCre->getId())
-				return true;
-
-			if (foundUpgrades.count(upgrade))
-				continue;
-
-			upgradesToTest.push_back(upgrade);
-			foundUpgrades.insert(upgrade);
-		}
-	}
-	return false;
+	return upgradedFrom.contains(base);
 }
 
 std::string CCreature::nodeName() const
@@ -989,6 +965,25 @@ const ResourceSet & CCreatureHandler::getCommanderResurrectionPrice(const CCreat
 
 void CCreatureHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
+	// limiters read these when bonuses are evaluated below, before the global library is assigned
+	for(auto & creature : objects)
+	{
+		if (!creature)
+			continue;
+
+		creature->alignment = context.lib.factions()->getById(creature->getFactionID())->getAlignment();
+
+		std::vector<CreatureID> upgradesToTest(creature->upgrades.begin(), creature->upgrades.end());
+		while(!upgradesToTest.empty())
+		{
+			const auto & upgrade = objects.at(upgradesToTest.back().getNum());
+			upgradesToTest.pop_back();
+
+			if(upgrade->upgradedFrom.insert(creature->getId()).second)
+				upgradesToTest.insert(upgradesToTest.end(), upgrade->upgrades.begin(), upgrade->upgrades.end());
+		}
+	}
+
 	for(auto & creature : objects)
 	{
 		if (!creature)

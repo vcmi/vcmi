@@ -34,19 +34,22 @@ public:
 	QStringList getScreenshots() const;
 
 	QString getBaseLanguage() const;
-	QStringList getSupportedLanguages() const;
+	/// Returns translation progress into specified language in percents, or -1 if unknown
+	int getTranslationProgress(const QString & language) const;
+	bool hasTranslation(const QString & language) const;
 
 	QMap<QString, QStringList> getChangelog() const;
 
 	QString getInstalledVersion() const;
 	QString getRepositoryVersion() const;
 	QString getVersion() const;
+	QString getUpdateDate() const;
 	int getGithubStars() const;
 
 	double getDownloadSizeMegabytes() const;
 	size_t getDownloadSizeBytes() const;
 	QString getDownloadSizeFormatted() const;
-	QString getAuthors() const;
+	QStringList getAuthors() const;
 	QString getContact() const;
 	QString getLicenseUrl() const;
 	QString getLicenseName() const;
@@ -55,6 +58,8 @@ public:
 
 	QPair<QString, QString> getCompatibleVersionRange() const;
 
+	/// Returns true if mod repository reported that this mod failed automatic validation
+	bool isValidationFailed() const;
 	bool isSubmod() const;
 	bool isCompatibility() const;
 	bool isTranslation() const;

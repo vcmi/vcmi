@@ -165,10 +165,10 @@ int MapTileStorage::groupCount(size_t fileIndex, size_t rotationIndex, size_t im
 }
 
 MapRendererTerrain::MapRendererTerrain()
-	: storage(LIBRARY->terrainTypeHandler->objects.size())
+	: storage(LIBRARY->terrainTypeHandler->size())
 {
 	logGlobal->debug("Loading map terrains");
-	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
+	for(const auto & terrain : LIBRARY->terrainTypeHandler->getObjects())
 		storage.load(terrain->getIndex(), AnimationPath::builtin(terrain->tilesFilename.getName() + (terrain->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::OPAQUE);
 	logGlobal->debug("Done loading map terrains");
 }
@@ -204,10 +204,10 @@ uint8_t MapRendererTerrain::checksum(IMapRendererContext & context, const int3 &
 }
 
 MapRendererRiver::MapRendererRiver()
-	: storage(LIBRARY->riverTypeHandler->objects.size())
+	: storage(LIBRARY->riverTypeHandler->size())
 {
 	logGlobal->debug("Loading map rivers");
-	for(const auto & river : LIBRARY->riverTypeHandler->objects)
+	for(const auto & river : LIBRARY->riverTypeHandler->getObjects())
 		storage.load(river->getIndex(), AnimationPath::builtin(river->tilesFilename.getName() + (river->paletteAnimation.size() ? "_Shifted": "")), EImageBlitMode::COLORKEY);
 	logGlobal->debug("Done loading map rivers");
 }
@@ -239,10 +239,10 @@ uint8_t MapRendererRiver::checksum(IMapRendererContext & context, const int3 & c
 }
 
 MapRendererRoad::MapRendererRoad()
-	: storage(LIBRARY->roadTypeHandler->objects.size())
+	: storage(LIBRARY->roadTypeHandler->size())
 {
 	logGlobal->debug("Loading map roads");
-	for(const auto & road : LIBRARY->roadTypeHandler->objects)
+	for(const auto & road : LIBRARY->roadTypeHandler->getObjects())
 		storage.load(road->getIndex(), road->tilesFilename, EImageBlitMode::COLORKEY);
 	logGlobal->debug("Done loading map roads");
 }
@@ -542,7 +542,7 @@ std::shared_ptr<IImage> MapRendererObjects::getImageToRender(const IMapRendererC
 	if(attackerPos != -1)
 	{
 		const auto * creature = dynamic_cast<const CArmedInstance *>(obj);
-		auto const & creatureType = LIBRARY->creh->objects[creature->appearance->subid];
+		auto const & creatureType = (*LIBRARY->creh)[creature->appearance->subid];
 		auto dir = std::vector<int>({1, 2, 7, 8});
 		ImagePath imgPath = std::count(dir.begin(), dir.end(), attackerPos) ? creatureType->mapAttackFromRight : creatureType->mapAttackFromLeft;
 		if(!imgPath.empty())

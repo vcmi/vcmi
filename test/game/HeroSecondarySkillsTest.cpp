@@ -12,7 +12,6 @@
 #include "GameStateTest.h"
 
 #include "../../lib/CPlayerState.h"
-#include "../../lib/CSkillHandler.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
@@ -23,21 +22,10 @@
 class HeroSecondarySkillsTest : public GameStateTest
 {
 protected:
-	void SetUp() override
+	/// Skill of the vcmi-test mod that is withheld from level-up offers for 1 level after it was gained
+	static SecondarySkill cooldownSkill()
 	{
-		GameStateTest::SetUp();
-		learningSkill().offerCooldown = 1; // library is shared between tests
-	}
-
-	void TearDown() override
-	{
-		learningSkill().offerCooldown = 0;
-		GameStateTest::TearDown();
-	}
-
-	static CSkill & learningSkill()
-	{
-		return *LIBRARY->skillh->objects.at(SecondarySkill::LEARNING);
+		return SecondarySkill(SecondarySkill::decode("vcmi-test:offerCooldownOne"));
 	}
 
 	/// First hero of first player with given skills at basic level
@@ -66,18 +54,18 @@ TEST_F(HeroSecondarySkillsTest, skillWithOfferCooldownIsWithheldOnFollowingLevel
 {
 	startTestGame();
 
-	const SecondarySkill learning(SecondarySkill::LEARNING);
+	const SecondarySkill cooldown = cooldownSkill();
 	const SecondarySkill wisdom(SecondarySkill::WISDOM);
 
-	auto * hero = prepareHeroWithSkills({learning, wisdom});
+	auto * hero = prepareHeroWithSkills({cooldown, wisdom});
 	ASSERT_NE(hero, nullptr);
-	hero->secSkillsGainedAtLevel[learning] = hero->level; // gained on the previous level-up
+	hero->secSkillsGainedAtLevel[cooldown] = hero->level; // gained on the previous level-up
 
 	GameRandomizer randomizer(*gameState);
 	for(int i = 0; i < 30; ++i)
 	{
 		const auto offered = rollLevelUpOffers(randomizer, hero);
-		EXPECT_FALSE(vstd::contains(offered, learning)) << "roll " << i;
+		EXPECT_FALSE(vstd::contains(offered, cooldown)) << "roll " << i;
 		EXPECT_TRUE(vstd::contains(offered, wisdom)) << "roll " << i;
 	}
 }
@@ -86,77 +74,76 @@ TEST_F(HeroSecondarySkillsTest, skillWithOfferCooldownIsOfferedAgainOnceCooldown
 {
 	startTestGame();
 
-	const SecondarySkill learning(SecondarySkill::LEARNING);
+	const SecondarySkill cooldown = cooldownSkill();
 	const SecondarySkill wisdom(SecondarySkill::WISDOM);
 
-	auto * hero = prepareHeroWithSkills({learning, wisdom});
+	auto * hero = prepareHeroWithSkills({cooldown, wisdom});
 	ASSERT_NE(hero, nullptr);
-	hero->secSkillsGainedAtLevel[learning] = hero->level - 1; // gained two level-ups ago, cooldown is 1
+	hero->secSkillsGainedAtLevel[cooldown] = hero->level - 1; // gained two level-ups ago, cooldown is 1
 
 	GameRandomizer randomizer(*gameState);
-	int learningOffers = 0;
+	int cooldownOffers = 0;
 	for(int i = 0; i < 40; ++i)
-		learningOffers += vstd::contains(rollLevelUpOffers(randomizer, hero), learning) ? 1 : 0;
+		cooldownOffers += vstd::contains(rollLevelUpOffers(randomizer, hero), cooldown) ? 1 : 0;
 
-	EXPECT_GT(learningOffers, 0);
+	EXPECT_GT(cooldownOffers, 0);
 }
 
 TEST_F(HeroSecondarySkillsTest, longerOfferCooldownWithholdsSkillForMoreLevelUps)
 {
 	startTestGame();
 
-	const SecondarySkill learning(SecondarySkill::LEARNING);
+	const SecondarySkill cooldown(SecondarySkill::decode("vcmi-test:offerCooldownTwo"));
 	const SecondarySkill wisdom(SecondarySkill::WISDOM);
 
-	auto * hero = prepareHeroWithSkills({learning, wisdom});
+	auto * hero = prepareHeroWithSkills({cooldown, wisdom});
 	ASSERT_NE(hero, nullptr);
-	learningSkill().offerCooldown = 2;
-	hero->secSkillsGainedAtLevel[learning] = hero->level - 1; // gained two level-ups ago, cooldown is 2
+	hero->secSkillsGainedAtLevel[cooldown] = hero->level - 1; // gained two level-ups ago, cooldown is 2
 
 	GameRandomizer randomizer(*gameState);
 	for(int i = 0; i < 30; ++i)
-		EXPECT_FALSE(vstd::contains(rollLevelUpOffers(randomizer, hero), learning)) << "roll " << i;
+		EXPECT_FALSE(vstd::contains(rollLevelUpOffers(randomizer, hero), cooldown)) << "roll " << i;
 }
 
 TEST_F(HeroSecondarySkillsTest, gainingSkillWithOfferCooldownRecordsHeroLevel)
 {
 	startTestGame();
 
-	const SecondarySkill learning(SecondarySkill::LEARNING);
+	const SecondarySkill cooldown = cooldownSkill();
 	const SecondarySkill wisdom(SecondarySkill::WISDOM);
 
 	auto * hero = prepareHeroWithSkills({});
 	ASSERT_NE(hero, nullptr);
 	hero->level = 5;
 
-	hero->setSecSkillLevel(learning, MasteryLevel::BASIC, ChangeValueMode::ABSOLUTE);
+	hero->setSecSkillLevel(cooldown, MasteryLevel::BASIC, ChangeValueMode::ABSOLUTE);
 	hero->setSecSkillLevel(wisdom, MasteryLevel::BASIC, ChangeValueMode::ABSOLUTE);
-	ASSERT_EQ(hero->secSkillsGainedAtLevel.count(learning), 1u);
-	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(learning), 5u);
+	ASSERT_EQ(hero->secSkillsGainedAtLevel.count(cooldown), 1u);
+	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(cooldown), 5u);
 	EXPECT_EQ(hero->secSkillsGainedAtLevel.count(wisdom), 0u) << "no cooldown, not tracked";
 
 	hero->level = 7;
-	hero->setSecSkillLevel(learning, MasteryLevel::ADVANCED, ChangeValueMode::ABSOLUTE);
-	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(learning), 7u) << "upgrade refreshes record";
+	hero->setSecSkillLevel(cooldown, MasteryLevel::ADVANCED, ChangeValueMode::ABSOLUTE);
+	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(cooldown), 7u) << "upgrade refreshes record";
 
 	hero->level = 9;
-	hero->setSecSkillLevel(learning, MasteryLevel::ADVANCED, ChangeValueMode::ABSOLUTE);
-	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(learning), 7u) << "same mastery is not a gain";
+	hero->setSecSkillLevel(cooldown, MasteryLevel::ADVANCED, ChangeValueMode::ABSOLUTE);
+	EXPECT_EQ(hero->secSkillsGainedAtLevel.at(cooldown), 7u) << "same mastery is not a gain";
 }
 
 TEST_F(HeroSecondarySkillsTest, skillWithOfferCooldownIsOfferedIfNothingElseCanBeUpgraded)
 {
 	startTestGame();
 
-	const SecondarySkill learning(SecondarySkill::LEARNING);
+	const SecondarySkill cooldown = cooldownSkill();
 
-	auto * hero = prepareHeroWithSkills({learning});
+	auto * hero = prepareHeroWithSkills({cooldown});
 	ASSERT_NE(hero, nullptr);
-	hero->secSkillsGainedAtLevel[learning] = hero->level;
+	hero->secSkillsGainedAtLevel[cooldown] = hero->level;
 
 	GameRandomizer randomizer(*gameState);
 	for(int i = 0; i < 10; ++i)
-		EXPECT_TRUE(vstd::contains(rollLevelUpOffers(randomizer, hero), learning)) << "roll " << i;
+		EXPECT_TRUE(vstd::contains(rollLevelUpOffers(randomizer, hero), cooldown)) << "roll " << i;
 }
 
 TEST_F(HeroSecondarySkillsTest, experienceToGainLevelsSpansWholeLevels)
@@ -179,18 +166,18 @@ TEST_F(HeroSecondarySkillsTest, startingSkillsRecordStartingLevel)
 {
 	startTestGame();
 
-	const SecondarySkill learning(SecondarySkill::LEARNING);
+	const SecondarySkill cooldown = cooldownSkill();
 
 	CGHeroInstance hero(gameState.get());
-	hero.secSkills = {{learning, MasteryLevel::EXPERT}}; // expert, so auto level-up can not upgrade it
+	hero.secSkills = {{cooldown, MasteryLevel::EXPERT}}; // expert, so auto level-up can not upgrade it
 	hero.exp = LIBRARY->heroh->reqExp(5);
 
 	GameRandomizer randomizer(*gameState);
 	hero.initHero(randomizer, HeroTypeID(0), true);
 
 	EXPECT_EQ(hero.level, 5u);
-	ASSERT_EQ(hero.secSkillsGainedAtLevel.count(learning), 1u);
-	EXPECT_EQ(hero.secSkillsGainedAtLevel.at(learning), 1u);
+	ASSERT_EQ(hero.secSkillsGainedAtLevel.count(cooldown), 1u);
+	EXPECT_EQ(hero.secSkillsGainedAtLevel.at(cooldown), 1u);
 }
 
 // Regression test for GitHub issue #7598.

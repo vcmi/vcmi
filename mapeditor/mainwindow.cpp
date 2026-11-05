@@ -326,8 +326,8 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	logGlobal->info("The log file will be saved to %s", TextOperations::filesystemPathToUtf8(logPath));
 
 	//init
-	LIBRARY = new GameLibrary();
-	LIBRARY->initializeFilesystem(extractionOptions.extractArchives);
+	auto library = std::make_unique<GameLibrary>();
+	library->initializeFilesystem(extractionOptions.extractArchives);
 
 	// Initialize logging based on settings
 	logConfig->configure();
@@ -453,7 +453,8 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	loadUserSettings(); //For example window size
 	setTitle();
 
-	LIBRARY->initializeLibrary();
+	library->initializeLibrary();
+	LIBRARY = library.release();
 
 	Settings config = settings.write["session"]["editor"];
 	config->Bool() = true;
@@ -971,7 +972,7 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 void EditorMainWindow::loadObjectsTree()
 {
 	//adding terrains
-	for(auto & terrain : LIBRARY->terrainTypeHandler->objects)
+	for(const auto * terrain : LIBRARY->terrainTypeHandler->getObjects())
 	{
 		auto *b = new QPushButton(QString::fromStdString(terrain->getNameTranslated()));
 		ui->terrainLayout->addWidget(b);
@@ -980,7 +981,7 @@ void EditorMainWindow::loadObjectsTree()
 	//add spacer to keep terrain button on the top
 	ui->terrainLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding roads
-	for(auto & road : LIBRARY->roadTypeHandler->objects)
+	for(const auto * road : LIBRARY->roadTypeHandler->getObjects())
 	{
 		auto *b = new QPushButton(QString::fromStdString(road->getNameTranslated()));
 		ui->roadLayout->addWidget(b);
@@ -989,7 +990,7 @@ void EditorMainWindow::loadObjectsTree()
 	//add spacer to keep terrain button on the top
 	ui->roadLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	//adding rivers
-	for(auto & river : LIBRARY->riverTypeHandler->objects)
+	for(const auto * river : LIBRARY->riverTypeHandler->getObjects())
 	{
 		auto *b = new QPushButton(QString::fromStdString(river->getNameTranslated()));
 		ui->riverLayout->addWidget(b);
@@ -1174,7 +1175,7 @@ void EditorMainWindow::loadObjectsTree()
 	ObjectBrowserProxyModel terrainFilter;
 	terrainFilter.setSourceModel(&objectsModel);
 	terrainFilter.category = groups[OBSTACLES];
-	for(auto & terrain : LIBRARY->terrainTypeHandler->objects)
+	for(const auto * terrain : LIBRARY->terrainTypeHandler->getObjects())
 	{
 		terrainFilter.terrain = terrain->getId();
 		terrainFilter.invalidate();
@@ -1573,7 +1574,7 @@ void EditorMainWindow::on_actionAddLevel_triggered()
 	}
 
 	QList<QPair<QString, MapLayerId>> layers;
-	for(const auto & layer : LIBRARY->mapLayerHandler->objects)
+	for(const auto & layer : LIBRARY->mapLayerHandler->getObjects())
 		layers.append(qMakePair(QString::fromStdString(layer->getNameTranslated()), layer->getId()));
 
 	QStringList layerNames;
@@ -1615,7 +1616,7 @@ void EditorMainWindow::on_actionMapLayer_triggered()
 	int currentPos = 0;
 
 	QList<QPair<QString, MapLayerId>> layers;
-	for(const auto & layer : LIBRARY->mapLayerHandler->objects)
+	for(const auto & layer : LIBRARY->mapLayerHandler->getObjects())
 	{
 		if(currentType == layer->getId())
 			currentPos = layers.size();

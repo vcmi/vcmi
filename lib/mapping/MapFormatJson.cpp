@@ -39,7 +39,6 @@
 #include "../spells/CSpellHandler.h"
 #include "../json/JsonUtils.h"
 #include "../texts/Languages.h"
-#include "../texts/CGeneralTextHandler.h"
 #include "../texts/TextOperations.h"
 
 class MapObjectResolver: public IInstanceResolver
@@ -266,7 +265,7 @@ CMapFormatJson::CMapFormatJson():
 
 TerrainId CMapFormatJson::getTerrainByCode(const std::string & code)
 {
-	for(const auto & object : LIBRARY->terrainTypeHandler->objects)
+	for(const auto & object : LIBRARY->terrainTypeHandler->getObjects())
 	{
 		if(object->shortIdentifier == code)
 			return object->getId();
@@ -276,7 +275,7 @@ TerrainId CMapFormatJson::getTerrainByCode(const std::string & code)
 
 RiverId CMapFormatJson::getRiverByCode(const std::string & code)
 {
-	for(const auto & object : LIBRARY->riverTypeHandler->objects)
+	for(const auto & object : LIBRARY->riverTypeHandler->getObjects())
 	{
 		if (object->shortIdentifier == code)
 			return object->getId();
@@ -286,7 +285,7 @@ RiverId CMapFormatJson::getRiverByCode(const std::string & code)
 
 RoadId CMapFormatJson::getRoadByCode(const std::string & code)
 {
-	for(const auto & object : LIBRARY->roadTypeHandler->objects)
+	for(const auto & object : LIBRARY->roadTypeHandler->getObjects())
 	{
 		if (object->shortIdentifier == code)
 			return object->getId();
@@ -936,7 +935,14 @@ void CMapLoaderJson::readHeader(const bool complete)
 	mapHeader->version = EMapFormat::VCMI;//todo: new version field
 
 	//loading mods
-	mapHeader->mods = ModVerificationInfo::jsonDeserializeList(header["mods"]);
+	if(header["mods"].isStruct())
+	{
+		// maps saved before 1.3 list only identifiers of required mods, without versions
+		for(const auto & modID : header["mods"]["allOf"].Vector())
+			mapHeader->mods[modID.String()].name = modID.String();
+	}
+	else
+		mapHeader->mods = ModVerificationInfo::jsonDeserializeList(header["mods"]);
 
 	auto getLevel = [](const std::string& name) -> int {
 		if (name == "surface")
@@ -1304,7 +1310,7 @@ void CMapLoaderJson::readTranslations()
 	{
 		std::string actualMapName = TextOperations::convertMapName(mapName);
 
-		std::string preferredLanguage = CGeneralTextHandler::getPreferredLanguage();
+		std::string preferredLanguage = Languages::getPreferredLanguage();
 		std::string baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
 
 		// Determine base language from translations with most strings

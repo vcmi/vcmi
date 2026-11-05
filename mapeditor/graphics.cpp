@@ -128,7 +128,7 @@ void Graphics::load()
 
 void Graphics::loadHeroAnimations()
 {
-	for(const auto & elem : LIBRARY->heroclassesh->objects)
+	for(const auto & elem : LIBRARY->heroclassesh->getObjects())
 	{
 		for(auto templ : LIBRARY->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
 		{

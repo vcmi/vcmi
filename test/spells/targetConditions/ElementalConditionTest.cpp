@@ -11,6 +11,8 @@
 
 #include "TargetConditionItemFixture.h"
 
+#include "../../../lib/GameLibrary.h"
+
 namespace test
 {
 using namespace ::spells;
@@ -40,7 +42,7 @@ public:
 	void SetUp() override
 	{
 		TargetConditionItemTest::SetUp();
-		subject = TargetConditionItemFactory::getDefault()->createElemental();
+		subject = TargetConditionItemFactory::create(*LIBRARY->identifiers())->createElemental();
 
 		isPositive = GetParam();
 	}

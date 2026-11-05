@@ -16,6 +16,7 @@ struct StartInfo;
 class CMapHeader;
 class ITranslator;
 class Campaign;
+class CMapGenOptions;
 class ResourcePath;
 
 /**
@@ -46,6 +47,8 @@ public:
 	void mapInit(const std::string & fname);
 	void saveInit(const ResourcePath & file);
 	void campaignInit();
+	/// Builds header of a map that is generated from these options on game start
+	void randomMapInit(const CMapGenOptions & options);
 	
 	std::string getNameTranslated(const ITranslator * translator) const;
 	std::string getDescriptionTranslated(const ITranslator * translator) const;

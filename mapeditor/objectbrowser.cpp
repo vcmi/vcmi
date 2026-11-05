@@ -31,7 +31,7 @@ static bool fitsAnyLand(const AObjectTypeHandler & factory, const std::shared_pt
 			return true;
 
 	//anyLandTerrain is false for templates that also allow water, such as Event; getTemplates(TerrainId) ignores the H3 masks of artifacts and monsters
-	for(const auto & terrain : LIBRARY->terrainTypeHandler->objects)
+	for(const auto & terrain : LIBRARY->terrainTypeHandler->getObjects())
 		if(terrain->isLand() && terrain->isPassable() && !vstd::contains(factory.getTemplates(terrain->getId()), templ))
 			return false;
 

@@ -28,7 +28,7 @@
 class HeroMovementTest : public TinyMapGameTest
 {
 protected:
-	Services * gameServices() override { return LIBRARY; }
+	const Services * gameServices() override { return LIBRARY; }
 };
 
 /// Two towns that share an entrance tile, as found on some SoD maps. The pathfinder only considers the top town.

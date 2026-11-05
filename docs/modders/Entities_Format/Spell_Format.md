@@ -740,13 +740,16 @@ Value of all bonuses can be affected by following bonuses:
 	// Optional, localizable battle log message displayed when this effect is applied.
 	// The text should contain a %s placeholder which will be replaced with the affected creature's name.
 	// Singular form is used for stacks with 1 creature, plural for stacks with multiple creatures.
+	// Plural form is also used for single creature if singular form is not set.
 	// Text IDs for translation are auto-generated as:
-	//   spell.<modName>.<spellName>.<effectName>.battleLogMessage.singular
-	//   spell.<modName>.<spellName>.<effectName>.battleLogMessage.plural
+	//   spell.<modName>.<spellName>.<effectName>.battleLogSingular
+	//   spell.<modName>.<spellName>.<effectName>.battleLogPlural
 	// Values starting with @ reference an existing text ID instead of registering a new string.
-	"battleLogMessage" : { "singular" : "The %s is frozen solid.", "plural" : "The %s are frozen solid." },
+	"battleLogSingular" : "The %s is frozen solid.",
+	"battleLogPlural" : "The %s are frozen solid.",
 	// OR referencing existing text IDs:
-	// "battleLogMessage" : { "singular" : "@core.genrltxt.558", "plural" : "@core.genrltxt.559" },
+	// "battleLogSingular" : "@core.genrltxt.558",
+	// "battleLogPlural" : "@core.genrltxt.559",
 	
 	// List of bonuses granted by this spell
 	"bonus" : {

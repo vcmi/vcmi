@@ -116,18 +116,19 @@ Other:
 - [Biome](Entities_Format/Biome_Format.md)
 - [Battlefield](Entities_Format/Battlefield_Format.md)
 - [Battle Obstacle](Entities_Format/Battle_Obstacle_Format.md)
+- [Rumor](Entities_Format/Rumor_Format.md)
 
 ## Game Identifiers system
 
 VCMI uses strings to reference objects. Examples:
 
-- Referencing H3 objects: `"nativeTerrain" : "sand"`. All mods can freely access any existing objects from H3 data.
+- Referencing H3 objects: `"nativeTerrain" : [ "sand" ]`. All mods can freely access any existing objects from H3 data.
 
-- Referencing object from another mod: `"nativeTerrain" : "asphalt"`. Mods can only reference object from mods that are marked as dependencies
+- Referencing object from another mod: `"nativeTerrain" : [ "asphalt" ]`. Mods can only reference object from mods that are marked as dependencies
 
 - Referencing objects in bonus system: `"subtype" : "creature.archer"`. Bonus system requires explicit definition of object type since different bonuses may require different identifier class.
 
-- Referencing object from specific mod: `"nativeTerrain" : "hota.cove:sorceress"`. In some cases, for example to resolve conflicts when multiple mods use same object name you might need to explicitly specify mod in which game needs to look up an identifier. Alternatively, you can use this form for clarity if you want to clearly specify that object comes from another mod.
+- Referencing object from specific mod: `"nativeTerrain" : [ "hota.cove:sorceress" ]`. In some cases, for example to resolve conflicts when multiple mods use same object name you might need to explicitly specify mod in which game needs to look up an identifier. Alternatively, you can use this form for clarity if you want to clearly specify that object comes from another mod.
 
 ### Modifying existing objects
 

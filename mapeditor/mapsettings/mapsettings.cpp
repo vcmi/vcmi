@@ -33,7 +33,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 	assert(controller.map());
 	controller.settingsDialog = this;
 
-	for(auto const & objectPtr : LIBRARY->skillh->objects)
+	for(auto const & objectPtr : LIBRARY->skillh->getObjects())
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
@@ -41,7 +41,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 		item->setCheckState(controller.map()->allowedAbilities.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listAbilities->addItem(item);
 	}
-	for(auto const & objectPtr : LIBRARY->spellh->objects)
+	for(auto const & objectPtr : LIBRARY->spellh->getObjects())
 	{
 		if(objectPtr->isCommonHeroSpell())
 		{
@@ -52,7 +52,7 @@ MapSettings::MapSettings(MapController & ctrl, QWidget *parent) :
 			ui->listSpells->addItem(item);
 		}
 	}
-	for(auto const & objectPtr : LIBRARY->arth->objects)
+	for(auto const & objectPtr : LIBRARY->arth->getObjects())
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));

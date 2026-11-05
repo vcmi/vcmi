@@ -13,6 +13,7 @@
 
 class ITranslator;
 class ResourcePath;
+struct JsonValidator;
 enum class EMapFormat : uint8_t;
 
 /// Entry of the list of maps or saved games, described by metadata instead of the map header
@@ -36,7 +37,7 @@ public:
 
 	/// Throws SaveTooOldException or SaveTooNewException if version of the save is not supported,
 	/// std::runtime_error if the save is invalid
-	static ScenarioListEntry fromSave(const ResourcePath & file);
+	static ScenarioListEntry fromSave(const ResourcePath & file, JsonValidator & validator);
 
 	std::string getMapName(const ITranslator * translator) const;
 	std::string getMapAuthor(const ITranslator * translator) const;
@@ -45,6 +46,8 @@ public:
 	/// Returns 0 if creation time is unknown
 	std::time_t getMapCreationTime() const;
 	EMapFormat getMapFormat() const;
+	/// Returns settings of the map format from the engine settings, null node for unknown formats
+	const JsonNode & getMapFormatSettings() const;
 	int getMapWidth() const;
 	int getVictoryIcon() const;
 	int getDefeatIcon() const;
@@ -56,4 +59,18 @@ public:
 	bool isCampaignSave() const;
 	bool isTutorialSave() const;
 	int getHumanPlayersInSave() const;
+	/// Returns map of the saved game, or campaign file for campaign saves; empty for random maps
+	std::string getMapFileInSave() const;
+	/// Returns current scenario of a campaign save
+	int getCampaignScenarioInSave() const;
+
+	template<typename Handler>
+	void serialize(Handler & h)
+	{
+		h & type;
+		h & fileURI;
+		h & originalFileURI;
+		h & lastWrite;
+		h & metadata;
+	}
 };

@@ -278,4 +278,35 @@ TEST_F(UnitStateTest, getMaxDamage)
 	EXPECT_EQ(subject.getMaxDamage(true), 10);
 }
 
+TEST_F(UnitStateTest, retaliationAfterBeingAttacked)
+{
+	setDefaultExpectations();
+	initUnit();
+
+	// petrification blocks retaliation only until the unit is attacked
+	auto petrified = std::make_shared<Bonus>(BonusDuration::UNTIL_BEING_ATTACKED | BonusDuration::N_TURNS, BonusType::NO_RETALIATION, BonusSource::SPELL_EFFECT, 0, BonusSourceID());
+	bonusMock.addNewBonus(petrified);
+
+	EXPECT_FALSE(subject.ableToRetaliate());
+	EXPECT_TRUE(subject.ableToRetaliateAfterBeingAttacked());
+
+	auto permanent = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_RETALIATION, BonusSource::CREATURE_ABILITY, 0, BonusSourceID());
+	bonusMock.addNewBonus(permanent);
+
+	EXPECT_FALSE(subject.ableToRetaliateAfterBeingAttacked());
+}
+
+TEST_F(UnitStateTest, noRetaliationAfterBeingAttackedWhenAlreadyUsed)
+{
+	setDefaultExpectations();
+	initUnit();
+
+	subject.counterAttacks.use();
+
+	auto petrified = std::make_shared<Bonus>(BonusDuration::UNTIL_BEING_ATTACKED | BonusDuration::N_TURNS, BonusType::NO_RETALIATION, BonusSource::SPELL_EFFECT, 0, BonusSourceID());
+	bonusMock.addNewBonus(petrified);
+
+	EXPECT_FALSE(subject.ableToRetaliateAfterBeingAttacked());
+}
+
 }

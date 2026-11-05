@@ -530,7 +530,8 @@ void CCreatureAnim::loopPreview(bool warMachine)
 
 void CCreatureAnim::addLast(ECreatureAnimType newType)
 {
-	auto currType = ECreatureAnimType(group);
+	// compare with the last queued animation, not the playing one, or repeated MOVING gets MOVE_START each time
+	auto currType = queue.empty() ? ECreatureAnimType(group) : queue.back();
 
 	if (currType != ECreatureAnimType::MOVING && newType == ECreatureAnimType::MOVING)//starting moving - play init sequence
 	{

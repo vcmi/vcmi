@@ -239,8 +239,9 @@ Reapplies a spell to the bearer or its side at the start of every round.
 
 Parameters:
 
+- `val` - mastery level the effects are applied at
 - `spell` - spell whose effects are applied
-- `level` - mastery level the effects are applied at
+- `level` - mastery level the effects are applied at, takes priority over `val` when set
 - `massive` - true to affect every allied unit instead of only the bearer
 - `duration` - how many turns the effects last. Defaults to 50, long enough for the effect to accumulate instead of expiring between rounds
 

@@ -83,13 +83,13 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 		// Gender: ♂/♀ Unicode glyphs if supported by font, else translatable fallback
 		const std::string genderSpan = wikiGenderSpan(hero->gender == EHeroGender::FEMALE);
 
-		const std::string className = hero->heroClass ? hero->heroClass->getNameTranslated() : "";
+		const std::string className = hero->getHeroClass() ? hero->getHeroClass()->getNameTranslated() : "";
 
 		// Alignment as colored inline span using {#RRGGBB|text} syntax
 		std::string alignSpan;
-		if(hero->heroClass)
+		if(hero->getHeroClass())
 		{
-			switch(hero->heroClass->getAlignment())
+			switch(hero->getHeroClass()->getAlignment())
 			{
 				case EAlignment::GOOD:    alignSpan = "{#00C800|" + LIBRARY->generaltexth->translate("vcmi.wiki.alignment.good")    + "}"; break;
 				case EAlignment::EVIL:    alignSpan = "{#DC3232|" + LIBRARY->generaltexth->translate("vcmi.wiki.alignment.evil")    + "}"; break;
@@ -159,7 +159,7 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 	}
 
 	// ── 3. Primary skills table ─────────────────────────────────────────
-	if(hero->heroClass)
+	if(hero->getHeroClass())
 	{
 		curY += 16;
 		const std::vector<std::string> psNames = {
@@ -182,8 +182,8 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 				MARGIN + CELL_L, ry + CELL_T,
 				FONT_SMALL, ETextAlignment::TOPLEFT, Colors::WHITE,
 				psNames[i]));
-			const int val = (i < (int)hero->heroClass->primarySkillInitial.size())
-				? hero->heroClass->primarySkillInitial[i] : 0;
+			const int val = (i < (int)hero->getHeroClass()->primarySkillInitial.size())
+				? hero->getHeroClass()->primarySkillInitial[i] : 0;
 			widgets.push_back(std::make_shared<CLabel>(
 				MARGIN + colLbl + CELL_L, ry + CELL_T,
 				FONT_SMALL, ETextAlignment::TOPLEFT, valCol,
@@ -253,11 +253,11 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 		std::vector<ArmyRow> armyRows;
 		for(const auto & stack : hero->initialArmy)
 		{
-			if(stack.creature.getNum() < 0 || stack.creature.getNum() >= (int)LIBRARY->creh->objects.size())
+			if(stack.creature.getNum() < 0 || stack.creature.getNum() >= (int)LIBRARY->creh->size())
 				continue;
-			const auto & cr = LIBRARY->creh->objects[stack.creature.getNum()];
+			const auto & cr = (*LIBRARY->creh)[stack.creature.getNum()];
 			if(cr && cr->warMachine == ArtifactID::NONE)
-				armyRows.push_back({cr.get(), stack.minAmount, stack.maxAmount});
+				armyRows.push_back({cr, stack.minAmount, stack.maxAmount});
 		}
 
 		if(!armyRows.empty())
@@ -311,7 +311,7 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 					std::move(lclick),
 					[crId](){
 						ENGINE->windows().createAndPushWindow<CStackWindow>(
-							LIBRARY->creh->objects[crId.getNum()].get(), true);
+							(*LIBRARY->creh)[crId.getNum()], true);
 					},
 					blueStyle, clipRect));
 				curY += rowH;
@@ -328,20 +328,20 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 
 		// Slot 0: catapult is always present
 		const CreatureID catapultId = CreatureID::CATAPULT;
-		if(catapultId.getNum() >= 0 && catapultId.getNum() < (int)LIBRARY->creh->objects.size())
+		if(catapultId.getNum() >= 0 && catapultId.getNum() < (int)LIBRARY->creh->size())
 		{
-			const auto & cr = LIBRARY->creh->objects[catapultId.getNum()];
-			if(cr) wmRows.push_back({cr.get()});
+			const auto & cr = (*LIBRARY->creh)[catapultId.getNum()];
+			if(cr) wmRows.push_back({cr});
 		}
 
 		// Additional war machines from hero's starting army
 		for(const auto & stack : hero->initialArmy)
 		{
-			if(stack.creature.getNum() < 0 || stack.creature.getNum() >= (int)LIBRARY->creh->objects.size())
+			if(stack.creature.getNum() < 0 || stack.creature.getNum() >= (int)LIBRARY->creh->size())
 				continue;
-			const auto & cr = LIBRARY->creh->objects[stack.creature.getNum()];
+			const auto & cr = (*LIBRARY->creh)[stack.creature.getNum()];
 			if(cr && cr->warMachine != ArtifactID::NONE)
-				wmRows.push_back({cr.get()});
+				wmRows.push_back({cr});
 		}
 
 		if(!wmRows.empty())
@@ -423,9 +423,9 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 
 		for(const auto & [skillId, level] : hero->secSkillsInit)
 		{
-			if(skillId.getNum() < 0 || skillId.getNum() >= (int)LIBRARY->skillh->objects.size())
+			if(skillId.getNum() < 0 || skillId.getNum() >= (int)LIBRARY->skillh->size())
 				{ curY += rowH; continue; }
-			const auto & sk = LIBRARY->skillh->objects[skillId.getNum()];
+			const auto & sk = (*LIBRARY->skillh)[skillId.getNum()];
 			if(!sk) { curY += rowH; continue; }
 
 			const size_t frame = static_cast<size_t>(sk->getIconIndex(static_cast<uint8_t>(level - 1)));
@@ -443,7 +443,7 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 				MARGIN + iconW + nameW + CELL_L, curY + rowH / 2 - 5,
 				FONT_SMALL, ETextAlignment::TOPLEFT, valCol, lvlStr));
 
-			const CSkill * skPtr = sk.get();
+			const CSkill * skPtr = sk;
 			const int skLvl = level;
 			widgets.push_back(std::make_shared<WikiClickable>(
 				Rect(MARGIN, curY, tableW, rowH),
@@ -482,9 +482,9 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 			std::vector<const CSpell *> validSpells;
 			for(const SpellID & sid : hero->spells)
 			{
-				if(sid.getNum() < 0 || sid.getNum() >= (int)LIBRARY->spellh->objects.size()) continue;
-				const auto & sp = LIBRARY->spellh->objects[sid.getNum()];
-				if(sp) validSpells.push_back(sp.get());
+				if(sid.getNum() < 0 || sid.getNum() >= (int)LIBRARY->spellh->size()) continue;
+				const auto & sp = (*LIBRARY->spellh)[sid.getNum()];
+				if(sp) validSpells.push_back(sp);
 			}
 
 			if(!validSpells.empty())

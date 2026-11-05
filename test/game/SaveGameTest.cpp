@@ -59,8 +59,9 @@ TEST_F(SaveGameTest, savedGameIsRestored)
 	}
 
 	CLoadFile loader(saveFile);
+	JsonValidator validator;
 
-	const JsonNode metadata = SaveMetadata::parse(loader.readChunk(SaveFileFormat::CHUNK_METADATA), "test");
+	const JsonNode metadata = SaveMetadata::parse(loader.readChunk(SaveFileFormat::CHUNK_METADATA), "test", validator);
 	EXPECT_EQ(metadata["map"]["width"].Integer(), map->width);
 	EXPECT_EQ(metadata["game"]["humanPlayers"].Integer(), gameState->getStartInfo()->playerInfos.size());
 	EXPECT_NO_THROW(SaveMetadata::verifyMods(metadata));
@@ -88,17 +89,18 @@ TEST_F(SaveGameTest, invalidMetadataIsRejected)
 {
 	startTestGame();
 
+	JsonValidator validator;
 	JsonNode metadata = SaveMetadata::create(*gameState);
 	metadata["mods"]["testMod"]["name"].String() = "mod without version";
-	EXPECT_THROW(SaveMetadata::parse(metadata.toBytes(), "test"), std::runtime_error);
+	EXPECT_THROW(SaveMetadata::parse(metadata.toBytes(), "test", validator), std::runtime_error);
 
 	metadata = SaveMetadata::create(*gameState);
 	metadata.Struct().erase("map");
-	EXPECT_THROW(SaveMetadata::parse(metadata.toBytes(), "test"), std::runtime_error);
+	EXPECT_THROW(SaveMetadata::parse(metadata.toBytes(), "test", validator), std::runtime_error);
 
 	metadata = SaveMetadata::create(*gameState);
 	metadata.Struct().erase("game");
-	EXPECT_THROW(SaveMetadata::parse(metadata.toBytes(), "test"), std::runtime_error);
+	EXPECT_THROW(SaveMetadata::parse(metadata.toBytes(), "test", validator), std::runtime_error);
 }
 
 TEST_F(SaveGameTest, legacyMetadataIsValid)

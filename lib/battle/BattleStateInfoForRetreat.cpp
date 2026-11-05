@@ -20,8 +20,15 @@ BattleStateInfoForRetreat::BattleStateInfoForRetreat():
 	isLastTurnBeforeDie(false),
 	ourHero(nullptr),
 	enemyHero(nullptr),
-	ourSide(BattleSide::NONE)
+	ourSide(BattleSide::NONE),
+	turnsSkippedByDefense(0),
+	turnsWithoutEnemyLosses(0)
 {
+}
+
+bool BattleStateInfoForRetreat::isStalemate() const
+{
+	return turnsSkippedByDefense > 30 || turnsWithoutEnemyLosses > 30;
 }
 
 uint64_t getFightingStrength(const battle::Units & stacks, const CGHeroInstance * hero = nullptr)

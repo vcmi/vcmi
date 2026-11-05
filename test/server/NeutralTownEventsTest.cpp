@@ -22,7 +22,7 @@
 class NeutralTownEventsTest : public TinyMapGameTest
 {
 protected:
-	Services * gameServices() override { return LIBRARY; }
+	const Services * gameServices() override { return LIBRARY; }
 
 	/// Starts a map with a neutral town that has an event building a mage guild on the next day
 	CGTownInstance * startWithTownEvent(bool neutralAffected)

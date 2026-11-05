@@ -222,16 +222,20 @@ public:
 
 	/// Runs one turn of our stack exactly as BattleAI would: pick the best action first, so that a
 	/// spell is only cast when it beats what the stack could do on its own, then offer the spell
+	bool canBreachWalls = false;
+
 	std::optional<BattleAction> decideSpell(const CStack * activeStack)
 	{
-		auto recorder = std::make_shared<DecisionRecorder>(defenderSideHero->getOwner(), nullptr);
+		const auto side = activeStack->unitSide();
+		const auto owner = (side == BattleSide::DEFENDER ? defenderSideHero : attackerSideHero)->getOwner();
+		auto recorder = std::make_shared<DecisionRecorder>(owner, nullptr);
 		recorder->onBattleStarted(battle());
 
-		BattleEvaluator evaluator(gameHandler, recorder, activeStack, defenderSideHero->getOwner(),
-			BattleID(0), BattleSide::DEFENDER, 1.0f, 2);
+		BattleEvaluator evaluator(gameHandler, recorder, activeStack, owner, BattleID(0), side, 1.0f, 2);
 
 		evaluator.selectStackAction(activeStack);
 		evaluator.attemptCastingSpell(activeStack);
+		canBreachWalls = evaluator.canBreachWalls();
 
 		return recorder->spellAction;
 	}
@@ -340,5 +344,53 @@ TEST_F(BattleEvaluatorSpellTest, PrefersCheaperSpellForAnEquivalentFinishingKill
 	auto action = decideSpell(ours);
 	ASSERT_TRUE(action.has_value());
 	EXPECT_EQ(action->spell, SpellID(SpellID::FIREBALL));
+}
+
+/// Attacker of a town whose catapult is already gone
+class BattleEvaluatorSiegeTest : public BattleEvaluatorSpellTest
+{
+public:
+	void SetUp() override
+	{
+		BattleTestFixture::SetUp();
+		startGame();
+		startSiege();
+		battle()->stacks.clear();
+		teachSpell(attackerSideHero, SpellID::EARTHQUAKE);
+	}
+
+};
+
+TEST_F(BattleEvaluatorSiegeTest, BreachesIntactWallsForWalkingUnits)
+{
+	auto * ours = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(3, 5), 30);
+	addStack(BattleSide::DEFENDER, creatureByName("core:archer"), BattleHex(14, 5), 20);
+
+	auto action = decideSpell(ours);
+	EXPECT_TRUE(canBreachWalls);
+	ASSERT_TRUE(action.has_value());
+	EXPECT_EQ(action->spell, SpellID(SpellID::EARTHQUAKE));
+}
+
+TEST_F(BattleEvaluatorSiegeTest, IgnoresWallsThatAlreadyHaveBreach)
+{
+	auto * ours = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(3, 5), 30);
+	addStack(BattleSide::DEFENDER, creatureByName("core:archer"), BattleHex(14, 5), 20);
+	battle()->setWallState(EWallPart::BOTTOM_WALL, EWallState::DESTROYED);
+
+	auto action = decideSpell(ours);
+	EXPECT_FALSE(canBreachWalls);
+	EXPECT_FALSE(action.has_value() && action->spell == SpellID(SpellID::EARTHQUAKE));
+}
+
+TEST_F(BattleEvaluatorSiegeTest, CannotBreachWallsUnderSpellLevelLimit)
+{
+	auto * ours = addStack(BattleSide::ATTACKER, creatureByName("core:pikeman"), BattleHex(3, 5), 30);
+	addStack(BattleSide::DEFENDER, creatureByName("core:archer"), BattleHex(14, 5), 20);
+	// Recanter's Cloak forbids Earthquake, a level 3 spell
+	attackerSideHero->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::BLOCK_MAGIC_ABOVE, BonusSource::OTHER, 2, BonusSourceID()));
+
+	decideSpell(ours);
+	EXPECT_FALSE(canBreachWalls);
 }
 }

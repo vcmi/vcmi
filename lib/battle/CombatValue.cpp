@@ -304,9 +304,9 @@ CombatValue::CombatValue(const GameLibrary & library)
 
 	std::vector<const CCreature *> builtinCreatures;
 
-	for(const auto & creature : library.creh->objects)
+	for(const auto & creature : library.creh->getObjects())
 		if(!creature->special && creature->getModScope() == ModScope::scopeBuiltin())
-			builtinCreatures.push_back(creature.get());
+			builtinCreatures.push_back(creature);
 
 	weighCombatScripts(library);
 	buildCurves(library, builtinCreatures);
@@ -316,10 +316,10 @@ CombatValue::CombatValue(const GameLibrary & library)
 
 void CombatValue::tabulateCreatures(const GameLibrary & library)
 {
-	creatureValues.resize(library.creh->objects.size());
+	creatureValues.resize(library.creh->size());
 
-	for(const auto & creature : library.creh->objects)
-		creatureValues.at(creature->getIndex()) = getAIValue(*creature, creature.get());
+	for(const auto & creature : library.creh->getObjects())
+		creatureValues.at(creature->getIndex()) = getAIValue(*creature, creature);
 }
 
 void CombatValue::buildCurves(const GameLibrary & library, const std::vector<const CCreature *> & builtinCreatures)
@@ -680,8 +680,8 @@ double CombatValue::offenseMultiplier(const ACreature & creature) const
 		result *= std::max(meleeFallback, shooting);
 	}
 
-	if(unit->hasBonusOfType(BonusType::HYPNOTIZED))
-		result *= 0.5;
+	// hypnotize usually lasts only a few turns
+	result *= 1.0 - 0.5 * lastingPresence(unit, BonusType::HYPNOTIZED);
 
 	// value gained by the source of fear is not counted - a propagated bonus is indistinguishable from it
 	result *= 1.0 - unit->valOfBonuses(BonusType::FEARFUL) / 100.0;

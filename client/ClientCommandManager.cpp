@@ -49,7 +49,11 @@
 
 void ClientCommandManager::handleQuitCommand()
 {
-		throw GameShutdownException();
+	// commands are executed on console threads, while shutdown request must be handled by main loop
+	if(ENGINE)
+		ENGINE->dispatchMainThread([](){ GAME->onShutdownRequested(false); });
+	else
+		GAME->onShutdownRequested(false);
 }
 
 void ClientCommandManager::handleSaveCommand(std::istringstream & singleWordBuffer)
@@ -363,7 +367,7 @@ void ClientCommandManager::handleObstaclesDebugCommand()
 
 	auto & obstacleController = battleInt->obstacleController;
 
-	for (const auto & obstacle : LIBRARY->obstacleHandler->objects)
+	for (const auto & obstacle : LIBRARY->obstacleHandler->getObjects())
 	{
 		if (obstacle->isAbsoluteObstacle)
 		{

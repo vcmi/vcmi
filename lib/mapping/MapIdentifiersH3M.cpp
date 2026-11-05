@@ -178,7 +178,7 @@ BuildingID MapIdentifiersH3M::remapBuilding(std::optional<FactionID> owner, Buil
 
 			if (hordeLevel != -1)
 			{
-				const auto & town = owner->toFaction()->town;
+				const auto * town = owner->toFaction()->getTown();
 				if (town->hordeLvl.at(0) == hordeLevel)
 					return BuildingID::HORDE_1;
 				if (town->hordeLvl.at(1) == hordeLevel)

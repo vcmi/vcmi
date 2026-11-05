@@ -315,14 +315,14 @@ PlayerColor CGHeroInstance::getOwner() const
 
 const CHeroClass * CGHeroInstance::getHeroClass() const
 {
-	return getHeroType()->heroClass;
+	return getHeroType()->getHeroClass();
 }
 
 HeroClassID CGHeroInstance::getHeroClassID() const
 {
 	auto heroType = getHeroTypeID();
 	if (heroType.hasValue())
-		return getHeroType()->heroClass->getId();
+		return getHeroType()->getHeroClass()->getId();
 	else
 		return HeroClassID();
 }
@@ -1185,7 +1185,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	{
 		for (const auto & slot : Slots())
 		{
-			if (selectedCreature.toCreature()->isMyDirectOrIndirectUpgrade(slot.second->getCreature()))
+			if (slot.second->getCreature()->isUpgradeOf(selectedCreature))
 			{
 				selectedCreature = slot.second->getCreatureID();
 				break;
@@ -1245,7 +1245,7 @@ si32 CGHeroInstance::getManaNewTurn() const
 //  */
 // void CGHeroInstance::giveArtifact (ui32 aid) //use only for fixed artifacts
 // {
-// 	CArtifact * const artifact = LIBRARY->arth->objects[aid]; //pointer to constant object
+// 	CArtifact * const artifact = (*LIBRARY->arth)[aid]; //pointer to constant object
 // 	CArtifactInstance *ai = CArtifactInstance::createNewArtifactInstance(artifact);
 // 	ai->putAt(this, ai->firstAvailableSlot(this));
 // }

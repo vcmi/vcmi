@@ -35,5 +35,6 @@ const char *bundleIdentifier();
 bool isOsVersionAtLeast(unsigned int osMajorVersion);
 void keepScreenOn(bool isEnabled);
 bool isIPad();
+bool isTestFlightBuild();
 }
 #pragma GCC visibility pop

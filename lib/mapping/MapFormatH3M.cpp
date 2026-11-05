@@ -818,7 +818,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
 	// ban combo artifacts
 	if(!features.levelSOD)
 	{
-		for(auto const & artifact : LIBRARY->arth->objects)
+		for(auto const & artifact : LIBRARY->arth->getObjects())
 			if(artifact->isCombined())
 				map->allowedArtifact.erase(artifact->getId());
 	}
@@ -888,7 +888,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 	const auto createPredefinedHero = [this](int heroID)
 	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, HeroTypeID(heroID).toHeroType()->heroClass->getIndex());
+		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, HeroTypeID(heroID).toHeroType()->getHeroClass()->getIndex());
 		auto object = handler->create(map->cb, handler->getTemplates().front());
 		auto hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
 		hero->subID = heroID;

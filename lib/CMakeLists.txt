@@ -35,6 +35,7 @@ set(lib_SRCS
 	network/NetworkHandler.cpp
 	network/NetworkServer.cpp
 
+	texts/Languages.cpp
 	texts/TextOperations.cpp
 
 	vstd/DateUtils.cpp
@@ -134,6 +135,7 @@ set(lib_MAIN_SRCS
 	entities/hero/CHeroClassHandler.cpp
 	entities/hero/CHeroHandler.cpp
 	entities/ResourceTypeHandler.cpp
+	entities/RumorTypeHandler.cpp
 
 	events/ApplyDamage.cpp
 	events/GameResumed.cpp
@@ -153,7 +155,6 @@ set(lib_MAIN_SRCS
 	gameState/InfoAboutArmy.cpp
 	gameState/QuestInfo.cpp
 	gameState/ReplayLog.cpp
-	gameState/RumorState.cpp
 	gameState/SaveMetadata.cpp
 	gameState/TavernHeroesPool.cpp
 	gameState/GameStatistics.cpp
@@ -586,6 +587,7 @@ set(lib_MAIN_HEADERS
 	entities/hero/CHeroHandler.h
 	entities/hero/EHeroGender.h
 	entities/ResourceTypeHandler.h
+	entities/RumorTypeHandler.h
 
 	events/ApplyDamage.h
 	events/GameResumed.h
@@ -667,6 +669,7 @@ set(lib_MAIN_HEADERS
 	mapping/CMapInfo.h
 	mapping/CMapOperation.h
 	mapping/CMapService.h
+	mapping/ScenarioList.h
 	mapping/ScenarioListEntry.h
 	mapping/ScenarioMetadata.h
 	mapping/MapDifficulty.h

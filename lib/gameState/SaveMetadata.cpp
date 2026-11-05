@@ -82,11 +82,10 @@ JsonNode SaveMetadata::createLegacy(const CMapHeader & mapHeader, const StartInf
 	return result;
 }
 
-JsonNode SaveMetadata::parse(const std::vector<std::byte> & data, const std::string & fileName)
+JsonNode SaveMetadata::parse(const std::vector<std::byte> & data, const std::string & fileName, JsonValidator & validator)
 {
 	JsonNode result(data.data(), data.size(), fileName);
 
-	JsonValidator validator;
 	const std::string errors = validator.check("vcmi:scenarioMetadata", result);
 	if(!errors.empty())
 		throw std::runtime_error("Error: metadata of saved game '" + fileName + "' is invalid: " + errors);

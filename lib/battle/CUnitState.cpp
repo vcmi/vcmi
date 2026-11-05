@@ -90,6 +90,13 @@ CShots::CShots(const battle::Unit * Owner)
 {
 }
 
+CShots & CShots::operator=(const CShots & other)
+{
+	CAmmo::operator=(other);
+	env = other.env;
+	return *this;
+}
+
 bool CShots::isLimited() const
 {
 	return !shooter.hasBonus() || !env->unitHasAmmoCart(owner);
@@ -119,8 +126,16 @@ CRetaliations::CRetaliations(const battle::Unit * Owner)
 	: CAmmo(Owner, Selector::type()(BonusType::ADDITIONAL_RETALIATION)),
 	totalCache(0),
 	noRetaliation(Owner, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::NO_RETALIATION))),
+	noRetaliationPersistent(Owner, Selector::type()(BonusType::SIEGE_WEAPON).Or(Selector::type()(BonusType::NO_RETALIATION)).And(CSelector(Bonus::UntilBeingAttacked).Not())),
 	unlimited(Owner, Selector::type()(BonusType::UNLIMITED_RETALIATIONS))
 {
+}
+
+CRetaliations & CRetaliations::operator=(const CRetaliations & other)
+{
+	CAmmo::operator=(other);
+	totalCache = other.totalCache;
+	return *this;
 }
 
 bool CRetaliations::isLimited() const
@@ -137,6 +152,14 @@ int32_t CRetaliations::total() const
 	int32_t val = 1 + totalProxy.getValue();
 	vstd::amax(totalCache, val);
 	return totalCache;
+}
+
+bool CRetaliations::canUseAfterBeingAttacked() const
+{
+	if(noRetaliationPersistent.hasBonus())
+		return false;
+
+	return unlimited.hasBonus() || std::max(totalCache, 1 + totalProxy.getValue()) > used;
 }
 
 void CRetaliations::reset()
@@ -481,6 +504,12 @@ bool CUnitState::ableToRetaliate() const
 {
 	return alive()
 		&& counterAttacks.canUse();
+}
+
+bool CUnitState::ableToRetaliateAfterBeingAttacked() const
+{
+	return alive()
+		&& counterAttacks.canUseAfterBeingAttacked();
 }
 
 bool CUnitState::alive() const

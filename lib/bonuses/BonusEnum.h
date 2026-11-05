@@ -162,7 +162,7 @@ class JsonNode;
 	BONUS_NAME(HERO_EXPERIENCE_GAIN_PERCENT) /*skill-agnostic learning, and we can use it as a global effect also*/\
 	BONUS_NAME(UNDEAD_RAISE_PERCENTAGE) /*Percentage of killed enemy creatures to be raised after battle as undead*/\
 	BONUS_NAME(MANA_PER_KNOWLEDGE_PERCENTAGE) /*Percentage rate of translating hero knowledge to 10 mana, used to intelligence and global bonus*/\
-	BONUS_NAME(HERO_GRANTS_ATTACKS) /*If hero can grant additional attacks to creature, value is number of attacks, subtype is creatureID*/\
+	BONUS_NAME(UNUSED_HERO_GRANTS_ATTACKS) /*DEPRECATED, kept so that old configs and saves still convert*/\
 	BONUS_NAME(BONUS_DAMAGE_PERCENTAGE) /*If hero can grant conditional damage to creature, value is percentage, subtype is creatureID*/\
 	BONUS_NAME(BONUS_DAMAGE_CHANCE) /*If hero can grant additional damage to creature, value is chance, subtype is creatureID*/\
 	BONUS_NAME(MAX_LEARNABLE_SPELL_LEVEL) /*This can work as wisdom before. val = max learnable spell level*/\

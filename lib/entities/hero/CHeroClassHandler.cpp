@@ -177,14 +177,14 @@ void CHeroClassHandler::afterLoadFinalization(LibraryLoadContext & context)
 	// for each pair <class, town> set selection probability if it was not set before in tavern entries
 	for(auto & heroClass : objects)
 	{
-		for(auto & faction : context.lib.townh->objects)
+		for(const auto * faction : context.lib.townh->getObjects())
 		{
-			if (!faction->town)
+			if (!faction->hasTown())
 				continue;
 			if (heroClass->selectionProbability.count(faction->getId()))
 				continue;
 
-			auto chance = static_cast<float>(heroClass->defaultTavernChance * faction->town->defaultTavernChance);
+			auto chance = static_cast<float>(heroClass->defaultTavernChance * faction->getTown()->defaultTavernChance);
 			heroClass->selectionProbability[faction->getId()] = static_cast<int>(sqrt(chance) + 0.5); //FIXME: replace with std::round once MVS supports it
 		}
 

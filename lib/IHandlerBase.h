@@ -48,7 +48,7 @@ public:
 template <class _ObjectID, class _ObjectBase, class _Object, class _ServiceBase>
 class CHandlerBase : public _ServiceBase, public IHandlerBase
 {
-	const _Object * getObjectImpl(const int32_t index) const
+	_Object * getObjectImpl(const int32_t index) const
 	{
 		try
 		{
@@ -128,6 +128,18 @@ public:
 		return objects.size();
 	}
 
+	/// Returns all objects of this handler, indexed by their numeric identifiers. Entries may be null
+	auto getObjects() const
+	{
+		return objects | std::views::transform([](const ObjectPtr & object) -> const _Object * { return object.get(); });
+	}
+
+	/// Returns modifiable object, for handlers that complete objects of other handlers during library loading
+	_Object * getObjectForLoading(const _ObjectID & id)
+	{
+		return getObjectImpl(id.getNum());
+	}
+
 protected:
 	virtual ObjectPtr loadFromJson(LibraryLoadContext & context, const std::string & scope, const JsonNode & json, const std::string & identifier, size_t index) = 0;
 	virtual const std::vector<std::string> & getTypeNames() const = 0;
@@ -145,6 +157,5 @@ protected:
 		}
 	}
 
-public: //todo: make private
 	std::vector<ObjectPtr> objects;
 };

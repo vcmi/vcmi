@@ -63,12 +63,6 @@ public:
 	/// Attempts to detect encoding & language of H3 files
 	static void detectInstallParameters();
 
-	/// Returns name of language preferred by user
-	static std::string getPreferredLanguage();
-
 	/// Returns name of language of Heroes III text files
 	static std::string getInstalledLanguage();
-
-	/// Returns name of encoding of Heroes III text files
-	static std::string getInstalledEncoding();
 };

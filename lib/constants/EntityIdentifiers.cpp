@@ -48,6 +48,7 @@
 #include "BattleFieldHandler.h"
 #include "ObstacleHandler.h"
 #include "MapLayerHandler.h"
+#include "entities/RumorTypeHandler.h"
 #include "mapObjectConstructors/CObjectClassesHandler.h"
 
 const CampaignScenarioID CampaignScenarioID::NONE(-1);
@@ -123,6 +124,7 @@ const MapLayerId MapLayerId::NONE(-1);
 const MapLayerId MapLayerId::SURFACE(0);
 const MapLayerId MapLayerId::UNDERGROUND(1);
 const MapLayerId MapLayerId::UNKNOWN(2);
+const RumorId RumorId::NONE(-1);
 
 int8_t MasteryLevel::decode(const std::string & identifier)
 {
@@ -671,6 +673,31 @@ std::string MapLayerId::entityType()
 const MapLayerType * MapLayerId::toEntity(const Services * services) const
 {
 	return LIBRARY->mapLayerHandler->getByIndex(num);
+}
+
+si32 RumorId::decode(const std::string & identifier)
+{
+	if (identifier.empty())
+		return RumorId::NONE.getNum();
+
+	return resolveIdentifier(entityType(), identifier);
+}
+
+std::string RumorId::encode(const si32 index)
+{
+	if (index == RumorId::NONE.getNum())
+		return "";
+	return LIBRARY->rumorHandler->getByIndex(index)->getJsonKey();
+}
+
+std::string RumorId::entityType()
+{
+	return "rumor";
+}
+
+const RumorType * RumorId::toEntity(const Services * services) const
+{
+	return LIBRARY->rumorHandler->getByIndex(num);
 }
 
 const TerrainType * TerrainId::toEntity(const Services * service) const

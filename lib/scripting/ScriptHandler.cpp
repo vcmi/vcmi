@@ -13,7 +13,7 @@
 
 #include "../GameLibrary.h"
 #include "../json/JsonNode.h"
-#include "../json/JsonUtils.h"
+#include "../json/JsonValidator.h"
 #include "../modding/IdentifierResolver.h"
 #include "../modding/LibraryLoadContext.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -133,10 +133,10 @@ void ScriptHandler::loadObject(LibraryLoadContext & context, const std::string &
 	throw std::runtime_error("Not supported");
 }
 
-void ScriptHandler::validateParameters(const ScriptTypeDescription & description, const JsonNode & parameters, IIdentifierResolver & resolver, const std::string & owner) const
+void ScriptHandler::validateParameters(const ScriptTypeDescription & description, const JsonNode & parameters, JsonValidator & validator, IIdentifierResolver & resolver, const std::string & owner) const
 {
 	if(!description.parametersSchema.isNull())
-		JsonUtils::validate(parameters, description.parametersSchema, owner);
+		validator.validate(parameters, description.parametersSchema, owner);
 
 	// a parameter naming an entity is resolved here purely to have it reported when it names
 	// nothing - otherwise a typo only shows up as a raw json key in the creature window
@@ -153,7 +153,8 @@ void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, 
 {
 	const ScriptTypeDescription & description = getById(scriptID);
 
-	validateParameters(description, parameters, resolver, "");
+	JsonValidator validator;
+	validateParameters(description, parameters, validator, resolver, "");
 
 	if(!description.stringRegistrations.empty())
 		logMod->warn("Script '%s' registers translatable strings, but is used by a source that provides no identifier for them!", description.scriptId);
@@ -163,7 +164,7 @@ void ScriptHandler::prepareParameters(ScriptID scriptID, JsonNode & parameters, 
 {
 	const ScriptTypeDescription & description = getById(scriptID);
 
-	validateParameters(description, parameters, context.resolver, owner.get());
+	validateParameters(description, parameters, context.validator, context.resolver, owner.get());
 
 	if(description.stringRegistrations.empty())
 		return;

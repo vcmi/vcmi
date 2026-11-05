@@ -14,6 +14,7 @@
 class CGameState;
 class CMapHeader;
 class JsonNode;
+struct JsonValidator;
 struct StartInfo;
 
 /// Information on a saved game that can be read without loading mods used by the save.
@@ -28,7 +29,7 @@ DLL_LINKAGE JsonNode create(const CGameState & gameState);
 DLL_LINKAGE JsonNode createLegacy(const CMapHeader & mapHeader, const StartInfo & startInfo, const ModCompatibilityInfo & mods);
 
 /// Parses metadata of a saved game; throws std::runtime_error if data does not match the schema or lacks fields required for saved games
-DLL_LINKAGE JsonNode parse(const std::vector<std::byte> & data, const std::string & fileName);
+DLL_LINKAGE JsonNode parse(const std::vector<std::byte> & data, const std::string & fileName, JsonValidator & validator);
 
 /// Throws ModIncompatibility if mods listed in metadata do not match active mods
 DLL_LINKAGE void verifyMods(const JsonNode & metadata);

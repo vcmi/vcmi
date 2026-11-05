@@ -18,7 +18,8 @@
 CFilesystemLoader::CFilesystemLoader(std::string _mountPoint, boost::filesystem::path baseDirectory, size_t depth, bool initial):
 	baseDirectory(std::move(baseDirectory)),
 	mountPoint(std::move(_mountPoint)),
-	recursiveDepth(depth)
+	recursiveDepth(depth),
+	initial(initial)
 {
 	try {
 		fileList = listFiles(mountPoint, depth, initial);
@@ -65,7 +66,7 @@ bool CFilesystemLoader::updateFilteredFiles(std::function<bool(const std::string
 		return false;
 
 	std::lock_guard lock(fileListGuard);
-	auto newFileList = listFiles(mountPoint, recursiveDepth, false);
+	auto newFileList = listFiles(mountPoint, recursiveDepth, initial);
 	bool changed = newFileList != fileList;
 	fileList = std::move(newFileList);
 	return changed;
@@ -101,6 +102,12 @@ bool CFilesystemLoader::createResource(const std::string & requestedFilename, bo
 
 	filename = filename.substr(mountPoint.size());
 	boost::filesystem::path filePath = TextOperations::Utf8TofilesystemPath(filename);
+
+	if (filePath.has_root_path() || std::any_of(filePath.begin(), filePath.end(), [](const boost::filesystem::path & part){ return part == ".."; }))
+	{
+		logGlobal->error("Can't create file outside of mount point %s: %s", mountPoint, requestedFilename);
+		return false;
+	}
 
 	if (!update)
 	{
@@ -142,6 +149,7 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 	static const EResType initArray[] = {
 		EResType::DIRECTORY,
 		EResType::JSON,
+		EResType::TEXT, // mod descriptions
 		EResType::ARCHIVE_LOD,
 		EResType::ARCHIVE_VID,
 		EResType::ARCHIVE_SND,
@@ -159,7 +167,7 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 
 	boost::filesystem::recursive_directory_iterator enddir;
 #if BOOST_VERSION >= 107200 // 1.72
-	boost::filesystem::recursive_directory_iterator it(baseDirectory, boost::filesystem::directory_options::follow_directory_symlink);
+	boost::filesystem::recursive_directory_iterator it(baseDirectory, boost::filesystem::directory_options::follow_directory_symlink | boost::filesystem::directory_options::skip_permission_denied);
 #else
 	boost::filesystem::recursive_directory_iterator it(baseDirectory, boost::filesystem::symlink_option::recurse);
 #endif
@@ -173,7 +181,21 @@ std::unordered_map<ResourcePath, boost::filesystem::path> CFilesystemLoader::lis
 		const auto currentDepth = it.level();
 #endif
 
-		if (boost::filesystem::is_directory(it->status()))
+		// entries can not always be accessed, for example due to permissions or symlink loops
+		boost::system::error_code statusError;
+		const auto status = it->status(statusError);
+		if (statusError)
+		{
+			logGlobal->warn("Skipping %s: %s", TextOperations::filesystemPathToUtf8(it->path()), statusError.message());
+#if BOOST_VERSION >= 107200
+			it.disable_recursion_pending();
+#else
+			it.no_push();
+#endif
+			continue;
+		}
+
+		if (boost::filesystem::is_directory(status))
 		{
 			path.resize(currentDepth + 1);
 			path.back() = it->path().filename();

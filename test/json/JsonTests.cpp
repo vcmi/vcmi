@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/json/JsonUtils.h"
+#include "../../lib/json/JsonValidator.h"
 
 TEST(JsonTest, conflictDetectionTestNoConflict)
 {
@@ -151,7 +152,8 @@ public:
 
 	static bool isValid(const std::string & text)
 	{
-		return JsonUtils::validate(scriptNode(text), "vcmi:script", "ScriptSchemaTest");
+		JsonValidator validator;
+		return validator.validate(scriptNode(text), "vcmi:script", "ScriptSchemaTest");
 	}
 };
 

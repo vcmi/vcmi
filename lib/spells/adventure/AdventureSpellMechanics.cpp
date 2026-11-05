@@ -198,12 +198,33 @@ bool AdventureSpellMechanics::adventureCast(SpellCastEnvironment * env, const Ad
 		return false;
 	}
 
+	// H3 ignores recast of a spell whose only effect is bonuses that are already active
+	if(dynamic_cast<const AdventureSpellEffect *>(getLevel(parameters.caster).effect.get()) && bonusesAlreadyActive(parameters.caster))
+		return true;
+
 	ESpellCastResult result = getLevel(parameters.caster).effect->beginCast(env, parameters, *this);
 
 	if(result == ESpellCastResult::OK)
 		performCast(env, parameters);
 
 	return result != ESpellCastResult::ERROR;
+}
+
+bool AdventureSpellMechanics::bonusesAlreadyActive(const spells::Caster * caster) const
+{
+	const auto * hero = caster->getHeroCaster();
+	if(!hero || getLevel(caster).bonuses.empty())
+		return false;
+
+	const auto casterMastery = static_cast<MasteryLevel::Type>(caster->getSpellSchoolLevel(owner));
+	const auto selector = Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(owner->id)).And(Selector::type()(BonusType::SPELL_CAST_COUNTER).Not());
+
+	// casting at higher mastery than the active one upgrades the effect
+	return std::ranges::any_of(*hero->getBonuses(selector), [casterMastery](const auto & bonus)
+	{
+		const auto mastery = bonus->sid.template as<SpellWithMasteryID>().getMastery();
+		return mastery != MasteryLevel::ANY && mastery >= casterMastery;
+	});
 }
 
 void AdventureSpellMechanics::giveBonuses(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const

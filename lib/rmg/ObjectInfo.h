@@ -15,6 +15,7 @@
 
 struct CompoundMapObjectID;
 class CGObjectInstance;
+class CObjectClassesHandler;
 
 struct DLL_LINKAGE ObjectInfo
 {
@@ -34,7 +35,7 @@ struct DLL_LINKAGE ObjectInfo
 	std::function<std::shared_ptr<CGObjectInstance>()> generateObject;
 	std::function<void(CGObjectInstance &)> destroyObject;
 	
-	void setAllTemplates(MapObjectID type, MapObjectSubID subtype);
+	void setAllTemplates(const CObjectClassesHandler & objects, MapObjectID type, MapObjectSubID subtype);
 	void setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrain);
 
 	CompoundMapObjectID getCompoundID() const;

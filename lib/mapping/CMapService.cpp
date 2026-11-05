@@ -115,7 +115,7 @@ ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
 		if(vstd::contains(activeMods, mapMod.first))
 		{
 			const auto & modInfo = LIBRARY->modh->getModInfo(mapMod.first);
-			if(modInfo.getVersion().compatible(mapMod.second.version))
+			if(mapMod.second.version.isNull() || modInfo.getVersion().compatible(mapMod.second.version))
 				continue;
 		}
 		missingMods[mapMod.first] = mapMod.second;

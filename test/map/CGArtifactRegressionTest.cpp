@@ -40,7 +40,7 @@ TEST(CGArtifactRegression, RandomArtifactInstanceLookupIsSafe)
 class ArtifactCombinationTest : public TinyMapGameTest
 {
 protected:
-	Services * gameServices() override { return LIBRARY; }
+	const Services * gameServices() override { return LIBRARY; }
 };
 
 // Cloak of the Undead King (130) is combined from Amulet of the Undertaker (54), Vampire's Cowl (55), Dead Man's Boots (56)

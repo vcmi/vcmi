@@ -76,19 +76,19 @@ std::vector<WikiEntry> collectModEntries()
 	// Build set of all entity mod-scopes that have content
 	auto collectScopes = [](std::set<std::string> & out)
 	{
-		for(const auto & f : LIBRARY->townh->objects)
+		for(const auto & f : LIBRARY->townh->getObjects())
 			if(f && f->hasTown() && !f->special) out.insert(f->getModScope());
-		for(const auto & h : LIBRARY->heroh->objects)
+		for(const auto & h : LIBRARY->heroh->getObjects())
 			if(h && !h->special) out.insert(h->getModScope());
-		for(const auto & c : LIBRARY->creh->objects)
+		for(const auto & c : LIBRARY->creh->getObjects())
 			if(c && !c->special) out.insert(c->getModScope());
-		for(const auto & a : LIBRARY->arth->objects)
+		for(const auto & a : LIBRARY->arth->getObjects())
 			if(a && a->aClass != EArtifactClass::ART_SPECIAL) out.insert(a->getModScope());
-		for(const auto & s : LIBRARY->spellh->objects)
+		for(const auto & s : LIBRARY->spellh->getObjects())
 			if(s && !s->isSpecial() && !s->isCreatureAbility()) out.insert(s->getModScope());
-		for(const auto & sk : LIBRARY->skillh->objects)
+		for(const auto & sk : LIBRARY->skillh->getObjects())
 			if(sk) out.insert(sk->getModScope());
-		for(const auto & t : LIBRARY->terrainTypeHandler->objects)
+		for(const auto & t : LIBRARY->terrainTypeHandler->getObjects())
 			if(t && t->getId().getNum() > 0) out.insert(t->getModScope());
 	};
 	std::set<std::string> contentScopes;
@@ -199,9 +199,9 @@ std::vector<std::shared_ptr<CIntObject>> buildModContent(
 	// ── Towns ─────────────────────────────────────────────────────────
 	{
 		std::vector<const CFaction *> entries;
-		for(const auto & obj : LIBRARY->townh->objects)
+		for(const auto & obj : LIBRARY->townh->getObjects())
 			if(obj && obj->hasTown() && !obj->special && isEntityOfMod(obj->getModScope(), modId))
-				entries.push_back(obj.get());
+				entries.push_back(obj);
 
 		if(!entries.empty())
 		{
@@ -219,7 +219,7 @@ std::vector<std::shared_ptr<CIntObject>> buildModContent(
 			for(const CFaction * f : entries)
 				addIconRow(
 					AnimationPath::builtin("ITPA"),
-					(size_t)(f->town->clientInfo.icons[1][0] + 2),
+					(size_t)(f->getTown()->clientInfo.icons[1][0] + 2),
 					iIconW, iRowH,
 					f->getNameTranslated(),
 					WikiCategory::TOWN, f->getJsonKey(), "");
@@ -230,9 +230,9 @@ std::vector<std::shared_ptr<CIntObject>> buildModContent(
 	// ── Heroes ────────────────────────────────────────────────────────
 	{
 		std::vector<const CHero *> entries;
-		for(const auto & obj : LIBRARY->heroh->objects)
+		for(const auto & obj : LIBRARY->heroh->getObjects())
 			if(obj && !obj->special && isEntityOfMod(obj->getModScope(), modId))
-				entries.push_back(obj.get());
+				entries.push_back(obj);
 
 		if(!entries.empty())
 		{
@@ -265,9 +265,9 @@ std::vector<std::shared_ptr<CIntObject>> buildModContent(
 	// ── Creatures ─────────────────────────────────────────────────────
 	{
 		std::vector<const CCreature *> entries;
-		for(const auto & obj : LIBRARY->creh->objects)
+		for(const auto & obj : LIBRARY->creh->getObjects())
 			if(obj && !obj->special && isEntityOfMod(obj->getModScope(), modId))
-				entries.push_back(obj.get());
+				entries.push_back(obj);
 
 		if(!entries.empty())
 		{
@@ -300,10 +300,10 @@ std::vector<std::shared_ptr<CIntObject>> buildModContent(
 	// ── Artifacts ─────────────────────────────────────────────────────
 	{
 		std::vector<const CArtifact *> entries;
-		for(const auto & obj : LIBRARY->arth->objects)
+		for(const auto & obj : LIBRARY->arth->getObjects())
 			if(obj && obj->aClass != EArtifactClass::ART_SPECIAL
 				&& isEntityOfMod(obj->getModScope(), modId))
-				entries.push_back(obj.get());
+				entries.push_back(obj);
 
 		if(!entries.empty())
 		{
@@ -333,10 +333,10 @@ std::vector<std::shared_ptr<CIntObject>> buildModContent(
 	// ── Spells ────────────────────────────────────────────────────────
 	{
 		std::vector<const CSpell *> entries;
-		for(const auto & obj : LIBRARY->spellh->objects)
+		for(const auto & obj : LIBRARY->spellh->getObjects())
 			if(obj && !obj->isSpecial() && !obj->isCreatureAbility()
 				&& isEntityOfMod(obj->getModScope(), modId))
-				entries.push_back(obj.get());
+				entries.push_back(obj);
 
 		if(!entries.empty())
 		{
@@ -366,9 +366,9 @@ std::vector<std::shared_ptr<CIntObject>> buildModContent(
 	// ── Skills ────────────────────────────────────────────────────────
 	{
 		std::vector<const CSkill *> entries;
-		for(const auto & obj : LIBRARY->skillh->objects)
+		for(const auto & obj : LIBRARY->skillh->getObjects())
 			if(obj && isEntityOfMod(obj->getModScope(), modId))
-				entries.push_back(obj.get());
+				entries.push_back(obj);
 
 		if(!entries.empty())
 		{
@@ -398,9 +398,9 @@ std::vector<std::shared_ptr<CIntObject>> buildModContent(
 	// ── Terrains (id > 0) ─────────────────────────────────────────────
 	{
 		std::vector<const TerrainType *> entries;
-		for(const auto & obj : LIBRARY->terrainTypeHandler->objects)
+		for(const auto & obj : LIBRARY->terrainTypeHandler->getObjects())
 			if(obj && obj->getId().getNum() > 0 && isEntityOfMod(obj->getModScope(), modId))
-				entries.push_back(obj.get());
+				entries.push_back(obj);
 
 		if(!entries.empty())
 		{

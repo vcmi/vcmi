@@ -18,7 +18,6 @@
 
 #include "../BattleFieldHandler.h"
 #include "../CCreatureHandler.h"
-#include "../CConfigHandler.h"
 #include "../campaign/CampaignRegionsHandler.h"
 #include "../entities/artifact/CArtHandler.h"
 #include "../entities/faction/CTownHandler.h"
@@ -38,6 +37,7 @@
 #include "../constants/StringConstants.h"
 #include "../TerrainHandler.h"
 #include "../MapLayerHandler.h"
+#include "../entities/RumorTypeHandler.h"
 #include "../json/JsonUtils.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../rmg/CRmgTemplateStorage.h"
@@ -94,7 +94,7 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	auto performValidate = [&,this](JsonNode & data, const std::string & name){
 		handler->beforeValidate(data);
 		if (validate)
-			result &= JsonUtils::validate(data, "vcmi:" + entityName, name);
+			result &= context.validator.validate(data, "vcmi:" + entityName, name);
 	};
 
 	// apply patches
@@ -102,7 +102,14 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 	{
 		for (auto & objectPatch : objectPatches)
 		{
-			if (settings["mods"]["validation"].String() != "off" && !modInfo.modData[objectName].isNull())
+			const JsonNode & target = modInfo.modData[objectName];
+			if (objectPatch.isNull() && target.isStruct() && vstd::contains(target.Struct(), "index"))
+			{
+				logMod->error("Mod '%s' attempts to remove object '%s' of type '%s' from mod '%s', but objects from original game can not be removed!", objectPatch.getModScope(), objectName, entityName, modName);
+				continue;
+			}
+
+			if (context.validation != EContentValidation::OFF && !modInfo.modData[objectName].isNull())
 				JsonUtils::detectConflicts(conflictList, modInfo.modData[objectName], objectPatch, objectName);
 
 			JsonUtils::merge(modInfo.modData[objectName], objectPatch);
@@ -125,6 +132,10 @@ bool ContentTypeHandler::loadMod(const std::string & modName, bool validate)
 			logMod->warn("Mod '%s' attempts to edit object '%s' of type '%s' from mod '%s' but no such object exist!", data.getModScope(), name, entityName, modName);
 			continue;
 		}
+
+		// object was removed by a patch that set it to null
+		if (data.isNull())
+			continue;
 
 		bool hasIndex = vstd::contains(data.Struct(), "index") && !data["index"].isNull();
 
@@ -168,7 +179,7 @@ void ContentTypeHandler::loadCustom()
 
 void ContentTypeHandler::afterLoadFinalization()
 {
-	if (settings["mods"]["validation"].String() != "off")
+	if (context.validation != EContentValidation::OFF)
 	{
 		for (auto const & data : modData)
 		{
@@ -181,7 +192,7 @@ void ContentTypeHandler::afterLoadFinalization()
 		}
 
 		// comparing objects of every mod against objects of every other mod is too slow for a normal game start
-		if (settings["mods"]["validation"].String() == "full")
+		if (context.validation == EContentValidation::FULL)
 		{
 			for (auto const & data : modData)
 			{
@@ -277,6 +288,7 @@ void CContentHandler::init()
 	handlers.insert(std::make_pair("biomes", ContentTypeHandler(context, context.lib.biomeHandler.get(), "biome")));
 	handlers.insert(std::make_pair("resources", ContentTypeHandler(context, context.lib.resourceTypeHandler.get(), "resources")));
 	handlers.insert(std::make_pair("mapLayers", ContentTypeHandler(context, context.lib.mapLayerHandler.get(), "mapLayer")));
+	handlers.insert(std::make_pair("rumors", ContentTypeHandler(context, context.lib.rumorHandler.get(), "rumor")));
 }
 
 std::vector<std::string> CContentHandler::getContentTypeNames() const
@@ -295,7 +307,7 @@ bool CContentHandler::preloadData(const ModDescription & mod, JsonNode & modCont
 	bool result = true;
 
 	// mod.json is part of mod checksum, so it only needs validation together with the rest of mod data
-	if (validate && !JsonUtils::validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
+	if (validate && !context.validator.validate(mod.getLocalConfig(), "vcmi:mod", mod.getID()))
 		result = false;
 
 	for(auto & handler : handlers)

@@ -28,6 +28,8 @@ class AdventureSpellMechanics final : public IAdventureSpellMechanics, boost::no
 
 	const LevelOptions & getLevel(const spells::Caster * caster) const;
 	void giveBonuses(SpellCastEnvironment * env, const AdventureSpellCastParameters & parameters) const;
+	/// true if hero already has bonuses of this spell at the same or higher mastery
+	bool bonusesAlreadyActive(const spells::Caster * caster) const;
 	std::unique_ptr<IAdventureSpellEffect> createAdventureEffect(LibraryLoadContext & context, const CSpell * s, const JsonNode & node);
 
 public:

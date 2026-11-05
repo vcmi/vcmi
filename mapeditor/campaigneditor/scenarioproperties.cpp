@@ -96,7 +96,7 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 	ui->radioButtonStartingOptionHeroCrossover->setChecked(campaignStartOption == CampaignStartOptions::HERO_CROSSOVER);
 	ui->radioButtonStartingOptionStartingHero->setChecked(campaignStartOption == CampaignStartOptions::HERO_OPTIONS);
 
-	for(auto const & objectPtr : LIBRARY->arth->objects)
+	for(auto const & objectPtr : LIBRARY->arth->getObjects())
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
@@ -105,7 +105,7 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 		ui->listWidgetCrossoverArtifacts->addItem(item);
 	}
 	
-	for(auto const & objectPtr : LIBRARY->creh->objects)
+	for(auto const & objectPtr : LIBRARY->creh->getObjects())
 	{
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameSingularTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));

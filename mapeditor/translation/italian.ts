@@ -413,7 +413,7 @@
     <name>EditorMainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="538"/>
+        <location filename="../mainwindow.cpp" line="564"/>
         <source>VCMI Map Editor</source>
         <translation>Editor di mappe VCMI</translation>
     </message>
@@ -424,7 +424,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="63"/>
-        <location filename="../mainwindow.ui" line="1044"/>
+        <location filename="../mainwindow.ui" line="1040"/>
         <source>Open Recent</source>
         <translation>Apri recenti</translation>
     </message>
@@ -469,788 +469,797 @@
         <translation>Browser</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="398"/>
+        <location filename="../mainwindow.ui" line="346"/>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="356"/>
+        <source>Show as list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="394"/>
         <source>Inspector</source>
         <translation>Ispettore</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="440"/>
+        <location filename="../mainwindow.ui" line="436"/>
         <source>Property</source>
         <translation>Proprietà</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="445"/>
+        <location filename="../mainwindow.ui" line="441"/>
         <source>Value</source>
         <translation>Valore</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="469"/>
+        <location filename="../mainwindow.ui" line="465"/>
         <source>Tools</source>
         <translation>Strumenti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="833"/>
+        <location filename="../mainwindow.ui" line="829"/>
         <source>Painting</source>
         <translation>Pittura</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="885"/>
+        <location filename="../mainwindow.ui" line="881"/>
         <source>Terrains</source>
         <translation>Terreni</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="928"/>
+        <location filename="../mainwindow.ui" line="924"/>
         <source>Roads</source>
         <translation>Strade</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="968"/>
+        <location filename="../mainwindow.ui" line="964"/>
         <source>Rivers</source>
         <translation>Fiumi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1002"/>
+        <location filename="../mainwindow.ui" line="998"/>
         <source>Preview</source>
         <translation>Anteprima</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1036"/>
+        <location filename="../mainwindow.ui" line="1032"/>
         <source>Open</source>
         <translation>Apri</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1039"/>
+        <location filename="../mainwindow.ui" line="1035"/>
         <source>Ctrl+O</source>
         <translation type="unfinished">Ctrl+O</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1049"/>
+        <location filename="../mainwindow.ui" line="1045"/>
         <source>More...</source>
         <translation>Altro...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1057"/>
+        <location filename="../mainwindow.ui" line="1053"/>
         <source>Save</source>
         <translation>Salva</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1060"/>
+        <location filename="../mainwindow.ui" line="1056"/>
         <source>Ctrl+S</source>
         <translation type="unfinished">Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1065"/>
+        <location filename="../mainwindow.ui" line="1061"/>
         <source>New</source>
         <translation>Nuovo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1068"/>
+        <location filename="../mainwindow.ui" line="1064"/>
         <source>Ctrl+N</source>
         <translation type="unfinished">Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1073"/>
+        <location filename="../mainwindow.ui" line="1069"/>
         <source>Save as...</source>
         <translation>Salva con nome...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1076"/>
+        <location filename="../mainwindow.ui" line="1072"/>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1081"/>
-        <location filename="../mainwindow.ui" line="1084"/>
+        <location filename="../mainwindow.ui" line="1077"/>
+        <location filename="../mainwindow.ui" line="1080"/>
         <source>Campaign editor</source>
         <translation type="unfinished">Editor campagna</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1089"/>
-        <location filename="../mainwindow.ui" line="1092"/>
+        <location filename="../mainwindow.ui" line="1085"/>
+        <location filename="../mainwindow.ui" line="1088"/>
         <source>Template editor</source>
         <translation type="unfinished">Editor dei template</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1100"/>
-        <location filename="../mainwindow.ui" line="1103"/>
+        <location filename="../mainwindow.ui" line="1096"/>
+        <location filename="../mainwindow.ui" line="1099"/>
         <source>View underground</source>
         <translation>Visualizza sottosuolo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1106"/>
+        <location filename="../mainwindow.ui" line="1102"/>
         <source>Ctrl+U</source>
         <translation type="unfinished">Ctrl+U</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1114"/>
+        <location filename="../mainwindow.ui" line="1110"/>
         <source>Pass</source>
         <translation>Passa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1117"/>
+        <location filename="../mainwindow.ui" line="1113"/>
         <source>Ctrl+Shift+P</source>
         <translation type="unfinished">Ctrl+Maiusc+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1122"/>
+        <location filename="../mainwindow.ui" line="1118"/>
         <source>Cut</source>
         <translation>Taglia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1125"/>
+        <location filename="../mainwindow.ui" line="1121"/>
         <source>Ctrl+X</source>
         <translation type="unfinished">Ctrl+X</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1130"/>
+        <location filename="../mainwindow.ui" line="1126"/>
         <source>Copy</source>
         <translation>Copia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1133"/>
+        <location filename="../mainwindow.ui" line="1129"/>
         <source>Ctrl+C</source>
         <translation type="unfinished">Ctrl+C</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1138"/>
+        <location filename="../mainwindow.ui" line="1134"/>
         <source>Paste</source>
         <translation>Incolla</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1141"/>
+        <location filename="../mainwindow.ui" line="1137"/>
         <source>Ctrl+V</source>
         <translation type="unfinished">Ctrl+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1146"/>
+        <location filename="../mainwindow.ui" line="1142"/>
         <source>Fill</source>
         <translation>Riempi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1149"/>
+        <location filename="../mainwindow.ui" line="1145"/>
         <source>Fills the selection with obstacles</source>
         <translation>Riempi la selezione con ostacoli</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1160"/>
+        <location filename="../mainwindow.ui" line="1156"/>
         <source>Grid</source>
         <translation>Griglia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1163"/>
+        <location filename="../mainwindow.ui" line="1159"/>
         <source>Ctrl+G</source>
         <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1171"/>
+        <location filename="../mainwindow.ui" line="1167"/>
         <source>General</source>
         <translation>Generale</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1174"/>
+        <location filename="../mainwindow.ui" line="1170"/>
         <source>Map title and description</source>
         <translation>Titolo e descrizione della mappa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1177"/>
+        <location filename="../mainwindow.ui" line="1173"/>
         <source>Ctrl+Enter</source>
         <translation type="unfinished">Ctrl+Invio</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1185"/>
+        <location filename="../mainwindow.ui" line="1181"/>
         <source>Players settings</source>
         <translation>Impostazioni giocatori</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1188"/>
+        <location filename="../mainwindow.ui" line="1184"/>
         <source>Ctrl+P</source>
         <translation type="unfinished">Ctrl+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1196"/>
-        <location filename="../mainwindow.ui" line="1199"/>
+        <location filename="../mainwindow.ui" line="1192"/>
+        <location filename="../mainwindow.ui" line="1195"/>
         <source>Undo</source>
         <translation>Annulla</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1202"/>
+        <location filename="../mainwindow.ui" line="1198"/>
         <source>Ctrl+Z</source>
         <translation type="unfinished">Ctrl+Z</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1213"/>
+        <location filename="../mainwindow.ui" line="1209"/>
         <source>Redo</source>
         <translation>Ripeti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1216"/>
+        <location filename="../mainwindow.ui" line="1212"/>
         <source>Ctrl+Y</source>
         <translation type="unfinished">Ctrl+Y</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1227"/>
+        <location filename="../mainwindow.ui" line="1223"/>
         <source>Erase</source>
         <translation>Cancella</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1230"/>
+        <location filename="../mainwindow.ui" line="1226"/>
         <source>Del</source>
         <translation type="unfinished">Canc</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1238"/>
+        <location filename="../mainwindow.ui" line="1234"/>
         <source>Neutral</source>
         <translation>Neutrale</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1241"/>
+        <location filename="../mainwindow.ui" line="1237"/>
         <source>Ctrl+0</source>
         <translation type="unfinished">Ctrl+0</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1246"/>
+        <location filename="../mainwindow.ui" line="1242"/>
         <source>Validate</source>
         <translation>Convalida</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1249"/>
+        <location filename="../mainwindow.ui" line="1245"/>
         <source>Ctrl+Shift+V</source>
         <translation type="unfinished">Ctrl+Maiusc+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1257"/>
-        <location filename="../mainwindow.cpp" line="1601"/>
+        <location filename="../mainwindow.ui" line="1253"/>
+        <location filename="../mainwindow.cpp" line="1631"/>
         <source>Select map layer type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1268"/>
-        <location filename="../mainwindow.cpp" line="1541"/>
-        <location filename="../mainwindow.cpp" line="1556"/>
+        <location filename="../mainwindow.ui" line="1264"/>
+        <location filename="../mainwindow.cpp" line="1571"/>
+        <location filename="../mainwindow.cpp" line="1586"/>
         <source>Add level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1276"/>
-        <location filename="../mainwindow.cpp" line="1450"/>
-        <location filename="../mainwindow.cpp" line="1454"/>
-        <location filename="../mainwindow.cpp" line="1512"/>
+        <location filename="../mainwindow.ui" line="1272"/>
+        <location filename="../mainwindow.cpp" line="1480"/>
+        <location filename="../mainwindow.cpp" line="1484"/>
+        <location filename="../mainwindow.cpp" line="1542"/>
         <source>Update appearance</source>
         <translation>Aggiorna aspetto</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1287"/>
+        <location filename="../mainwindow.ui" line="1283"/>
         <source>Recreate obstacles</source>
         <translation>Ricrea ostacoli</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1298"/>
+        <location filename="../mainwindow.ui" line="1294"/>
         <source>Player 1</source>
         <translation>Giocatore 1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1301"/>
+        <location filename="../mainwindow.ui" line="1297"/>
         <source>Ctrl+1</source>
         <translation type="unfinished">Ctrl+1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1309"/>
+        <location filename="../mainwindow.ui" line="1305"/>
         <source>Player 2</source>
         <translation>Giocatore 2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1312"/>
+        <location filename="../mainwindow.ui" line="1308"/>
         <source>Ctrl+2</source>
         <translation type="unfinished">Ctrl+2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1320"/>
+        <location filename="../mainwindow.ui" line="1316"/>
         <source>Player 3</source>
         <translation>Giocatore 3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1323"/>
+        <location filename="../mainwindow.ui" line="1319"/>
         <source>Ctrl+3</source>
         <translation type="unfinished">Ctrl+3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1331"/>
+        <location filename="../mainwindow.ui" line="1327"/>
         <source>Player 4</source>
         <translation>Giocatore 4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1334"/>
+        <location filename="../mainwindow.ui" line="1330"/>
         <source>Ctrl+4</source>
         <translation type="unfinished">Ctrl+4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1342"/>
+        <location filename="../mainwindow.ui" line="1338"/>
         <source>Player 5</source>
         <translation>Giocatore 5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1345"/>
+        <location filename="../mainwindow.ui" line="1341"/>
         <source>Ctrl+5</source>
         <translation type="unfinished">Ctrl+5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1353"/>
+        <location filename="../mainwindow.ui" line="1349"/>
         <source>Player 6</source>
         <translation>Giocatore 6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1356"/>
+        <location filename="../mainwindow.ui" line="1352"/>
         <source>Ctrl+6</source>
         <translation type="unfinished">Ctrl+6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1364"/>
+        <location filename="../mainwindow.ui" line="1360"/>
         <source>Player 7</source>
         <translation>Giocatore 7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1367"/>
+        <location filename="../mainwindow.ui" line="1363"/>
         <source>Ctrl+7</source>
         <translation type="unfinished">Ctrl+7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1375"/>
+        <location filename="../mainwindow.ui" line="1371"/>
         <source>Player 8</source>
         <translation>Giocatore 8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1378"/>
+        <location filename="../mainwindow.ui" line="1374"/>
         <source>Ctrl+8</source>
         <translation type="unfinished">Ctrl+8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1383"/>
+        <location filename="../mainwindow.ui" line="1379"/>
         <source>Export as...</source>
         <translation>Esporta come...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1386"/>
+        <location filename="../mainwindow.ui" line="1382"/>
         <source>Ctrl+E</source>
         <translation type="unfinished">Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1394"/>
+        <location filename="../mainwindow.ui" line="1390"/>
         <source>Translations</source>
         <translation>Traduzioni</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1397"/>
+        <location filename="../mainwindow.ui" line="1393"/>
         <source>Ctrl+T</source>
         <translation>Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1402"/>
-        <location filename="../mainwindow.ui" line="1405"/>
+        <location filename="../mainwindow.ui" line="1398"/>
+        <location filename="../mainwindow.ui" line="1401"/>
         <source>h3m converter</source>
         <translation>Convertitore h3m</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1408"/>
+        <location filename="../mainwindow.ui" line="1404"/>
         <source>Ctrl+Shift+M</source>
         <translation type="unfinished">Ctrl+Maiusc+M</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1413"/>
-        <location filename="../mainwindow.ui" line="1416"/>
+        <location filename="../mainwindow.ui" line="1409"/>
+        <location filename="../mainwindow.ui" line="1412"/>
         <source>h3c converter</source>
         <translation>Convertitore h3c</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1419"/>
+        <location filename="../mainwindow.ui" line="1415"/>
         <source>Ctrl+Shift+C</source>
         <translation type="unfinished">Ctrl+Maiusc+C</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1424"/>
+        <location filename="../mainwindow.ui" line="1420"/>
         <source>Exit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1427"/>
+        <location filename="../mainwindow.ui" line="1423"/>
         <source>Ctrl+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1432"/>
+        <location filename="../mainwindow.ui" line="1428"/>
         <source>Lock</source>
         <translation>Blocca</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1435"/>
+        <location filename="../mainwindow.ui" line="1431"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
         <translation>Blocca oggetti sulla mappa per evitare modifiche non necessarie</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1438"/>
+        <location filename="../mainwindow.ui" line="1434"/>
         <source>Ctrl+L</source>
         <translation>Ctrl+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1443"/>
+        <location filename="../mainwindow.ui" line="1439"/>
         <source>Unlock</source>
         <translation>Sblocca</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1446"/>
+        <location filename="../mainwindow.ui" line="1442"/>
         <source>Unlock all objects on the map</source>
         <translation>Sblocca tutti gli oggetti sulla mappa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1260"/>
-        <location filename="../mainwindow.ui" line="1449"/>
+        <location filename="../mainwindow.ui" line="1256"/>
+        <location filename="../mainwindow.ui" line="1445"/>
         <source>Ctrl+Shift+L</source>
         <translation>Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1454"/>
+        <location filename="../mainwindow.ui" line="1450"/>
         <source>Zoom in</source>
         <translation>Zoom avanti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1457"/>
+        <location filename="../mainwindow.ui" line="1453"/>
         <source>Ctrl++</source>
         <translation type="unfinished">Ctrl++</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1462"/>
+        <location filename="../mainwindow.ui" line="1458"/>
         <source>Zoom out</source>
         <translation>Zoom indietro</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1465"/>
+        <location filename="../mainwindow.ui" line="1461"/>
         <source>Ctrl+-</source>
         <translation>Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1470"/>
+        <location filename="../mainwindow.ui" line="1466"/>
         <source>Zoom reset</source>
         <translation>Reimposta zoom</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1473"/>
+        <location filename="../mainwindow.ui" line="1469"/>
         <source>Ctrl+Shift+=</source>
         <translation>Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="476"/>
+        <location filename="../mainwindow.cpp" line="502"/>
         <source>Mapeditor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="477"/>
+        <location filename="../mainwindow.cpp" line="503"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="504"/>
+        <location filename="../mainwindow.cpp" line="530"/>
         <source>Confirmation</source>
         <translation>Conferma</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="504"/>
+        <location filename="../mainwindow.cpp" line="530"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation>Le modifiche non salvate andranno perse, sei sicuro?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1529"/>
-        <location filename="../mainwindow.cpp" line="1618"/>
+        <location filename="../mainwindow.cpp" line="1559"/>
+        <location filename="../mainwindow.cpp" line="1648"/>
         <source>Level %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="597"/>
+        <location filename="../mainwindow.cpp" line="623"/>
         <source>Mods are required</source>
         <translation>Mod richiesti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="605"/>
-        <location filename="../mainwindow.cpp" line="611"/>
+        <location filename="../mainwindow.cpp" line="631"/>
+        <location filename="../mainwindow.cpp" line="637"/>
         <source>Failed to open map</source>
         <translation>Impossibile aprire la mappa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="642"/>
+        <location filename="../mainwindow.cpp" line="668"/>
         <source>Open map</source>
         <translation>Apri mappa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="644"/>
+        <location filename="../mainwindow.cpp" line="670"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation>Tutte le mappe supportate (*.vmap *.h3m);;Mappe VCMI(*.vmap);;Mappe HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="699"/>
+        <location filename="../mainwindow.cpp" line="725"/>
         <source>Recently Opened Files</source>
         <translation>File recenti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="752"/>
+        <location filename="../mainwindow.cpp" line="778"/>
         <source>Map validation</source>
         <translation>Validazione mappa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="754"/>
+        <location filename="../mainwindow.cpp" line="780"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation>La mappa ha problemi critici e probabilmente non sarà giocabile. Apri il Validatore dal menu Mappa per vedere i problemi rilevati</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="756"/>
+        <location filename="../mainwindow.cpp" line="782"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation>La mappa ha alcuni errori. Apri il Validatore dal menu Mappa per vedere i problemi rilevati</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="783"/>
+        <location filename="../mainwindow.cpp" line="809"/>
         <source>Failed to save map</source>
         <translation>Salvataggio della mappa fallito</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="796"/>
+        <location filename="../mainwindow.cpp" line="822"/>
         <source>Save map</source>
         <translation>Salva mappa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="797"/>
+        <location filename="../mainwindow.cpp" line="823"/>
         <source>VCMI maps (*.vmap)</source>
         <translation>Mappe VCMI (*.vmap)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1013"/>
         <source>Type</source>
-        <translation>Tipo</translation>
+        <translation type="vanished">Tipo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1026"/>
+        <location filename="../mainwindow.cpp" line="1016"/>
         <source>Towns</source>
         <translation>Città</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1027"/>
+        <location filename="../mainwindow.cpp" line="1017"/>
         <source>Objects</source>
         <translation>Oggetti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1028"/>
+        <location filename="../mainwindow.cpp" line="1018"/>
         <source>Heroes</source>
         <translation>Eroi</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1029"/>
+        <location filename="../mainwindow.cpp" line="1019"/>
         <source>Artifacts</source>
         <translation>Artefatti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1030"/>
+        <location filename="../mainwindow.cpp" line="1020"/>
         <source>Resources</source>
         <translation>Risorse</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1031"/>
+        <location filename="../mainwindow.cpp" line="1021"/>
         <source>Banks</source>
         <translation>Banche</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1032"/>
+        <location filename="../mainwindow.cpp" line="1022"/>
         <source>Dwellings</source>
         <translation>Dimore</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1033"/>
+        <location filename="../mainwindow.cpp" line="1023"/>
         <source>Grounds</source>
         <translation>Terreni</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1034"/>
+        <location filename="../mainwindow.cpp" line="1024"/>
         <source>Teleports</source>
         <translation>Teletrasporti</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1035"/>
+        <location filename="../mainwindow.cpp" line="1025"/>
         <source>Mines</source>
         <translation>Miniere</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1036"/>
+        <location filename="../mainwindow.cpp" line="1026"/>
         <source>Triggers</source>
         <translation>Trigger</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1037"/>
+        <location filename="../mainwindow.cpp" line="1027"/>
         <source>Monsters</source>
         <translation>Mostri</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1038"/>
+        <location filename="../mainwindow.cpp" line="1028"/>
         <source>Quests</source>
         <translation>Missioni</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1039"/>
+        <location filename="../mainwindow.cpp" line="1029"/>
         <source>Wog Objects</source>
         <translation>Oggetti Wog</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1030"/>
         <source>Obstacles</source>
         <translation>Ostacoli</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1041"/>
+        <location filename="../mainwindow.cpp" line="1031"/>
         <source>Other</source>
         <translation>Altro</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1178"/>
+        <location filename="../mainwindow.cpp" line="1170"/>
         <source>Mods loading problem</source>
         <translation>Problema nel caricamento dei mod</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1178"/>
+        <location filename="../mainwindow.cpp" line="1170"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation>Errore critico durante il caricamento dei mod. Disabilita i mod non validi e riavvia.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1184"/>
+        <location filename="../mainwindow.cpp" line="1227"/>
         <source>Undo clicked</source>
         <translation type="unfinished">Annulla premuto</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1195"/>
+        <location filename="../mainwindow.cpp" line="1238"/>
         <source>Redo clicked</source>
         <translation type="unfinished">Ripristina premuto</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1206"/>
+        <location filename="../mainwindow.cpp" line="1249"/>
         <source>Passability clicked</source>
         <translation type="unfinished">Passabilità cliccata</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1219"/>
+        <location filename="../mainwindow.cpp" line="1262"/>
         <source>Grid clicked</source>
         <translation type="unfinished">Griglia cliccata</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1300"/>
+        <location filename="../mainwindow.cpp" line="1330"/>
         <source>Fill clicked</source>
         <translation type="unfinished">Riempimento cliccato</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1450"/>
+        <location filename="../mainwindow.cpp" line="1480"/>
         <source>No objects selected</source>
         <translation>Nessun oggetto selezionato</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1454"/>
+        <location filename="../mainwindow.cpp" line="1484"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation>Questa operazione è irreversibile. Vuoi continuare?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1512"/>
+        <location filename="../mainwindow.cpp" line="1542"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation>Si sono verificati errori. %1 oggetti non sono stati aggiornati</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1541"/>
+        <location filename="../mainwindow.cpp" line="1571"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1557"/>
+        <location filename="../mainwindow.cpp" line="1587"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1602"/>
+        <location filename="../mainwindow.cpp" line="1632"/>
         <source>Type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1663"/>
+        <location filename="../mainwindow.cpp" line="1693"/>
         <source>Image format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1664"/>
+        <location filename="../mainwindow.cpp" line="1694"/>
         <source>Select image format:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1678"/>
-        <location filename="../mainwindow.cpp" line="1682"/>
+        <location filename="../mainwindow.cpp" line="1708"/>
+        <location filename="../mainwindow.cpp" line="1712"/>
         <source>Save to image</source>
         <translation>Salva come immagine</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1724"/>
+        <location filename="../mainwindow.cpp" line="1754"/>
         <source>Failed to save image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1724"/>
+        <location filename="../mainwindow.cpp" line="1754"/>
         <source>Cannot save image to %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1744"/>
+        <location filename="../mainwindow.cpp" line="1774"/>
         <source>Select maps to convert</source>
         <translation>Seleziona mappe da convertire</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1746"/>
+        <location filename="../mainwindow.cpp" line="1776"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation>Mappe HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1752"/>
-        <location filename="../mainwindow.cpp" line="1759"/>
+        <location filename="../mainwindow.cpp" line="1782"/>
+        <location filename="../mainwindow.cpp" line="1789"/>
         <source>Choose directory to save converted maps</source>
         <translation>Scegli la directory per salvare le mappe convertite</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1754"/>
+        <location filename="../mainwindow.cpp" line="1784"/>
         <source>Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1775"/>
+        <location filename="../mainwindow.cpp" line="1805"/>
         <source>Operation completed</source>
         <translation>Operazione completata</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1775"/>
+        <location filename="../mainwindow.cpp" line="1805"/>
         <source>Successfully converted %1 maps</source>
         <translation>Convertite con successo %1 mappe</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1779"/>
+        <location filename="../mainwindow.cpp" line="1809"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation>Impossibile convertire la mappa. Operazione annullata</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1787"/>
+        <location filename="../mainwindow.cpp" line="1817"/>
         <source>Select campaign to convert</source>
         <translation>Seleziona la campagna da convertire</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1788"/>
+        <location filename="../mainwindow.cpp" line="1818"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation>Campagne HoMM3 (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1794"/>
+        <location filename="../mainwindow.cpp" line="1824"/>
         <source>Select destination file</source>
         <translation>Seleziona il file di destinazione</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1795"/>
+        <location filename="../mainwindow.cpp" line="1825"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation>Campagne VCMI (*.vcmp)</translation>
     </message>
@@ -1287,7 +1296,7 @@ Warning: levels cannot be removed once added.</source>
         <translation>Rimuovi</translation>
     </message>
     <message>
-        <location filename="../mapsettings/eventsettings.cpp" line="153"/>
+        <location filename="../mapsettings/eventsettings.cpp" line="155"/>
         <source>New event</source>
         <translation>Nuovo evento</translation>
     </message>
@@ -2089,69 +2098,69 @@ Vuoi farlo ora?</translation>
         <translation>Abilità secondarie:</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1027"/>
+        <location filename="../inspector/inspector.cpp" line="1046"/>
         <source>Compliant</source>
         <translation>Docile</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1028"/>
+        <location filename="../inspector/inspector.cpp" line="1047"/>
         <source>Friendly</source>
         <translation>Amichevole</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1029"/>
+        <location filename="../inspector/inspector.cpp" line="1048"/>
         <source>Aggressive</source>
         <translation>Aggressivo</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1030"/>
+        <location filename="../inspector/inspector.cpp" line="1049"/>
         <source>Hostile</source>
         <translation>Ostile</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1031"/>
+        <location filename="../inspector/inspector.cpp" line="1050"/>
         <source>Savage</source>
         <translation>Feroce</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="362"/>
-        <location filename="../inspector/inspector.cpp" line="365"/>
+        <location filename="../inspector/inspector.cpp" line="363"/>
+        <location filename="../inspector/inspector.cpp" line="366"/>
         <source>No patrol</source>
         <translation>Nessuna pattuglia</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="305"/>
+        <location filename="../inspector/inspector.cpp" line="306"/>
         <source>POWER RANK</source>
         <translation>RANGO POTERE</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="305"/>
+        <location filename="../inspector/inspector.cpp" line="306"/>
         <source>HERO TYPE</source>
         <translation>TIPO EROE</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="328"/>
+        <location filename="../inspector/inspector.cpp" line="329"/>
         <source>Hero class</source>
         <translation>Classe eroe</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="337"/>
+        <location filename="../inspector/inspector.cpp" line="338"/>
         <source>Portrait</source>
         <translation>Ritratto</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="340"/>
+        <location filename="../inspector/inspector.cpp" line="341"/>
         <source>Skills</source>
         <translation>Abilità</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="342"/>
+        <location filename="../inspector/inspector.cpp" line="343"/>
         <source>Artifacts</source>
         <translation>Artefatti</translation>
     </message>
     <message numerus="yes">
-        <location filename="../inspector/inspector.cpp" line="364"/>
         <location filename="../inspector/inspector.cpp" line="365"/>
+        <location filename="../inspector/inspector.cpp" line="366"/>
         <source>%n tile(s)</source>
         <translation>
             <numerusform>%n casella</numerusform>
@@ -2159,248 +2168,254 @@ Vuoi farlo ora?</translation>
         </translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="377"/>
+        <location filename="../inspector/inspector.cpp" line="378"/>
         <source>Buildings</source>
         <translation>Edifici</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="379"/>
+        <location filename="../inspector/inspector.cpp" line="380"/>
         <source>Events</source>
         <translation>Eventi</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="419"/>
+        <location filename="../inspector/inspector.cpp" line="384"/>
+        <location filename="../inspector/inspector.cpp" line="703"/>
+        <source>Exclude player&apos;s faction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/inspector.cpp" line="423"/>
         <source>Resource</source>
         <translation>Risorsa</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="452"/>
-        <location filename="../inspector/inspector.cpp" line="839"/>
+        <location filename="../inspector/inspector.cpp" line="456"/>
+        <location filename="../inspector/inspector.cpp" line="858"/>
         <source>Aggression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="453"/>
-        <location filename="../inspector/inspector.cpp" line="841"/>
+        <location filename="../inspector/inspector.cpp" line="457"/>
+        <location filename="../inspector/inspector.cpp" line="860"/>
         <source>Join only for money</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="454"/>
-        <location filename="../inspector/inspector.cpp" line="843"/>
+        <location filename="../inspector/inspector.cpp" line="458"/>
+        <location filename="../inspector/inspector.cpp" line="862"/>
         <source>Joining percentage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="458"/>
-        <location filename="../inspector/inspector.cpp" line="845"/>
+        <location filename="../inspector/inspector.cpp" line="462"/>
+        <location filename="../inspector/inspector.cpp" line="864"/>
         <source>Upgraded stack</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="460"/>
-        <location filename="../inspector/inspector.cpp" line="847"/>
+        <location filename="../inspector/inspector.cpp" line="464"/>
+        <location filename="../inspector/inspector.cpp" line="866"/>
         <source>Stacks count</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="461"/>
+        <location filename="../inspector/inspector.cpp" line="465"/>
         <source>Artifact reward</source>
         <translation>Ricompensa artefatto</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="522"/>
+        <location filename="../inspector/inspector.cpp" line="548"/>
         <source>Quest</source>
         <translation>Missione</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="540"/>
+        <location filename="../inspector/inspector.cpp" line="557"/>
         <source>Identifier</source>
         <translation>Identificatore</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="541"/>
+        <location filename="../inspector/inspector.cpp" line="558"/>
         <source>ID</source>
         <translation>ID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="542"/>
+        <location filename="../inspector/inspector.cpp" line="559"/>
         <source>SubID</source>
         <translation>SubID</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="543"/>
+        <location filename="../inspector/inspector.cpp" line="560"/>
         <source>InstanceName</source>
         <translation>NomeIstanza</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="548"/>
+        <location filename="../inspector/inspector.cpp" line="565"/>
         <source>IsStatic</source>
         <translation>ÈStatico</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="935"/>
-        <location filename="../inspector/inspector.cpp" line="1089"/>
+        <location filename="../inspector/inspector.cpp" line="954"/>
+        <location filename="../inspector/inspector.cpp" line="1108"/>
         <source>neutral</source>
         <translation>neutrale</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1038"/>
+        <location filename="../inspector/inspector.cpp" line="1057"/>
         <source>Never</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1039"/>
+        <location filename="../inspector/inspector.cpp" line="1058"/>
         <source>Always</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="253"/>
-        <location filename="../inspector/inspector.cpp" line="462"/>
+        <location filename="../inspector/inspector.cpp" line="254"/>
+        <location filename="../inspector/inspector.cpp" line="466"/>
         <source>Army</source>
         <translation>Esercito</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="260"/>
-        <location filename="../inspector/inspector.cpp" line="273"/>
-        <location filename="../inspector/inspector.cpp" line="280"/>
-        <location filename="../inspector/inspector.cpp" line="288"/>
-        <location filename="../inspector/inspector.cpp" line="295"/>
-        <location filename="../inspector/inspector.cpp" line="326"/>
-        <location filename="../inspector/inspector.cpp" line="417"/>
-        <location filename="../inspector/inspector.cpp" line="551"/>
-        <location filename="../inspector/inspector.cpp" line="598"/>
+        <location filename="../inspector/inspector.cpp" line="261"/>
+        <location filename="../inspector/inspector.cpp" line="274"/>
+        <location filename="../inspector/inspector.cpp" line="281"/>
+        <location filename="../inspector/inspector.cpp" line="289"/>
+        <location filename="../inspector/inspector.cpp" line="296"/>
+        <location filename="../inspector/inspector.cpp" line="327"/>
+        <location filename="../inspector/inspector.cpp" line="421"/>
+        <location filename="../inspector/inspector.cpp" line="568"/>
+        <location filename="../inspector/inspector.cpp" line="614"/>
         <source>Owner</source>
         <translation>Proprietario</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="265"/>
-        <location filename="../inspector/inspector.cpp" line="723"/>
+        <location filename="../inspector/inspector.cpp" line="266"/>
+        <location filename="../inspector/inspector.cpp" line="742"/>
         <source>Same as town</source>
         <translation>Uguale alla città</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="281"/>
-        <location filename="../inspector/inspector.cpp" line="738"/>
+        <location filename="../inspector/inspector.cpp" line="282"/>
+        <location filename="../inspector/inspector.cpp" line="757"/>
         <source>Removable units</source>
         <translation>Unità rimovibili</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="306"/>
-        <location filename="../inspector/inspector.cpp" line="746"/>
+        <location filename="../inspector/inspector.cpp" line="307"/>
+        <location filename="../inspector/inspector.cpp" line="765"/>
         <source>Placeholder type</source>
         <translation>Tipo segnaposto</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="309"/>
-        <location filename="../inspector/inspector.cpp" line="764"/>
+        <location filename="../inspector/inspector.cpp" line="310"/>
+        <location filename="../inspector/inspector.cpp" line="783"/>
         <source>Power rank</source>
         <translation>Grado di potenza</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="317"/>
-        <location filename="../inspector/inspector.cpp" line="357"/>
-        <location filename="../inspector/inspector.cpp" line="767"/>
-        <location filename="../inspector/inspector.cpp" line="791"/>
+        <location filename="../inspector/inspector.cpp" line="318"/>
+        <location filename="../inspector/inspector.cpp" line="358"/>
+        <location filename="../inspector/inspector.cpp" line="786"/>
+        <location filename="../inspector/inspector.cpp" line="810"/>
         <source>Hero type</source>
         <translation>Tipo eroe</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="327"/>
-        <location filename="../inspector/inspector.cpp" line="788"/>
+        <location filename="../inspector/inspector.cpp" line="328"/>
+        <location filename="../inspector/inspector.cpp" line="807"/>
         <source>Experience</source>
         <translation>Esperienza</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="332"/>
         <location filename="../inspector/inspector.cpp" line="333"/>
+        <location filename="../inspector/inspector.cpp" line="334"/>
         <source>MALE</source>
         <translation>MASCHIO</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="332"/>
         <location filename="../inspector/inspector.cpp" line="333"/>
+        <location filename="../inspector/inspector.cpp" line="334"/>
         <source>FEMALE</source>
         <translation>FEMMINA</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="333"/>
-        <location filename="../inspector/inspector.cpp" line="777"/>
+        <location filename="../inspector/inspector.cpp" line="334"/>
+        <location filename="../inspector/inspector.cpp" line="796"/>
         <source>Gender</source>
         <translation>Genere</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="335"/>
-        <location filename="../inspector/inspector.cpp" line="780"/>
+        <location filename="../inspector/inspector.cpp" line="336"/>
+        <location filename="../inspector/inspector.cpp" line="799"/>
         <source>Name</source>
         <translation>Nome</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="336"/>
-        <location filename="../inspector/inspector.cpp" line="784"/>
+        <location filename="../inspector/inspector.cpp" line="337"/>
+        <location filename="../inspector/inspector.cpp" line="803"/>
         <source>Biography</source>
         <translation>Biografia</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="341"/>
-        <location filename="../inspector/inspector.cpp" line="378"/>
+        <location filename="../inspector/inspector.cpp" line="342"/>
+        <location filename="../inspector/inspector.cpp" line="379"/>
         <source>Spells</source>
         <translation>Incantesimi</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="366"/>
-        <location filename="../inspector/inspector.cpp" line="803"/>
+        <location filename="../inspector/inspector.cpp" line="367"/>
+        <location filename="../inspector/inspector.cpp" line="822"/>
         <source>Patrol radius</source>
         <translation>Raggio di pattuglia</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="374"/>
-        <location filename="../inspector/inspector.cpp" line="680"/>
+        <location filename="../inspector/inspector.cpp" line="375"/>
+        <location filename="../inspector/inspector.cpp" line="696"/>
         <source>Town name</source>
         <translation>Nome della città</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="381"/>
-        <location filename="../inspector/inspector.cpp" line="684"/>
+        <location filename="../inspector/inspector.cpp" line="383"/>
+        <location filename="../inspector/inspector.cpp" line="700"/>
         <source>Same as player</source>
         <translation>Uguale al giocatore</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="388"/>
-        <location filename="../inspector/inspector.cpp" line="428"/>
-        <location filename="../inspector/inspector.cpp" line="435"/>
-        <location filename="../inspector/inspector.cpp" line="442"/>
-        <location filename="../inspector/inspector.cpp" line="503"/>
-        <location filename="../inspector/inspector.cpp" line="640"/>
-        <location filename="../inspector/inspector.cpp" line="692"/>
-        <location filename="../inspector/inspector.cpp" line="709"/>
-        <location filename="../inspector/inspector.cpp" line="828"/>
+        <location filename="../inspector/inspector.cpp" line="392"/>
+        <location filename="../inspector/inspector.cpp" line="432"/>
+        <location filename="../inspector/inspector.cpp" line="439"/>
+        <location filename="../inspector/inspector.cpp" line="446"/>
+        <location filename="../inspector/inspector.cpp" line="513"/>
+        <location filename="../inspector/inspector.cpp" line="656"/>
+        <location filename="../inspector/inspector.cpp" line="711"/>
+        <location filename="../inspector/inspector.cpp" line="728"/>
+        <location filename="../inspector/inspector.cpp" line="847"/>
         <source>Message</source>
         <translation>Messaggio</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="408"/>
-        <location filename="../inspector/inspector.cpp" line="713"/>
+        <location filename="../inspector/inspector.cpp" line="412"/>
+        <location filename="../inspector/inspector.cpp" line="732"/>
         <source>Spell</source>
         <translation>Incantesimo</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="420"/>
-        <location filename="../inspector/inspector.cpp" line="701"/>
+        <location filename="../inspector/inspector.cpp" line="424"/>
+        <location filename="../inspector/inspector.cpp" line="720"/>
         <source>Productivity</source>
         <translation>Produttività</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="427"/>
-        <location filename="../inspector/inspector.cpp" line="463"/>
-        <location filename="../inspector/inspector.cpp" line="820"/>
-        <location filename="../inspector/inspector.cpp" line="837"/>
+        <location filename="../inspector/inspector.cpp" line="431"/>
+        <location filename="../inspector/inspector.cpp" line="467"/>
+        <location filename="../inspector/inspector.cpp" line="839"/>
+        <location filename="../inspector/inspector.cpp" line="856"/>
         <source>Amount</source>
         <translation>Quantità</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="446"/>
-        <location filename="../inspector/inspector.cpp" line="831"/>
+        <location filename="../inspector/inspector.cpp" line="450"/>
+        <location filename="../inspector/inspector.cpp" line="850"/>
         <source>Character</source>
         <translation>Carattere</translation>
     </message>
@@ -2409,56 +2424,55 @@ Vuoi farlo ora?</translation>
         <translation type="obsolete">Abilità</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="514"/>
-        <location filename="../inspector/inspector.cpp" line="658"/>
+        <location filename="../inspector/inspector.cpp" line="524"/>
+        <location filename="../inspector/inspector.cpp" line="674"/>
         <source>Available for</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="996"/>
+        <location filename="../inspector/inspector.cpp" line="1015"/>
         <source>Select town</source>
         <translation>Seleziona città</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1007"/>
+        <location filename="../inspector/inspector.cpp" line="1026"/>
         <location filename="../inspector/playerselectionwidget.cpp" line="104"/>
         <source>Available for:
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="448"/>
-        <location filename="../inspector/inspector.cpp" line="833"/>
+        <location filename="../inspector/inspector.cpp" line="452"/>
+        <location filename="../inspector/inspector.cpp" line="852"/>
         <source>Never flees</source>
         <translation>Non fugge mai</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="449"/>
-        <location filename="../inspector/inspector.cpp" line="835"/>
+        <location filename="../inspector/inspector.cpp" line="453"/>
+        <location filename="../inspector/inspector.cpp" line="854"/>
         <source>Not growing</source>
         <translation>Non cresce</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="496"/>
-        <location filename="../inspector/inspector.cpp" line="530"/>
+        <location filename="../inspector/inspector.cpp" line="506"/>
         <source>Reward</source>
         <translation>Ricompensa</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="510"/>
-        <location filename="../inspector/inspector.cpp" line="649"/>
+        <location filename="../inspector/inspector.cpp" line="520"/>
+        <location filename="../inspector/inspector.cpp" line="665"/>
         <source>Remove after</source>
         <translation>Rimuovi dopo</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="511"/>
-        <location filename="../inspector/inspector.cpp" line="652"/>
+        <location filename="../inspector/inspector.cpp" line="521"/>
+        <location filename="../inspector/inspector.cpp" line="668"/>
         <source>Human trigger</source>
         <translation>Attivazione umana</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="512"/>
-        <location filename="../inspector/inspector.cpp" line="655"/>
+        <location filename="../inspector/inspector.cpp" line="522"/>
+        <location filename="../inspector/inspector.cpp" line="671"/>
         <source>Cpu trigger</source>
         <translation>Attivazione AI</translation>
     </message>
@@ -2475,16 +2489,15 @@ Vuoi farlo ora?</translation>
         <translation type="vanished">Testo completamento</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="531"/>
         <source>Repeat quest</source>
-        <translation>Ripeti missione</translation>
+        <translation type="vanished">Ripeti missione</translation>
     </message>
     <message>
         <source>Time limit</source>
         <translation type="vanished">Limite di tempo</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="933"/>
+        <location filename="../inspector/inspector.cpp" line="952"/>
         <source>UNFLAGGABLE</source>
         <translation>NON FLAGGABILE</translation>
     </message>
@@ -2532,116 +2545,160 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="218"/>
-        <location filename="../inspector/inspector.cpp" line="1033"/>
+        <location filename="../inspector/inspector.cpp" line="1052"/>
         <source>Custom</source>
         <translation type="unfinished">Personalizzato</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="675"/>
+        <location filename="../inspector/questguardwidget.cpp" line="452"/>
         <source>Quest:</source>
         <translation>Missione:</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="453"/>
+        <location filename="../inspector/questwidget.cpp" line="523"/>
         <source>Day of Week: %1</source>
-        <translation type="vanished">Giorno della settimana: %1</translation>
+        <translation>Giorno della settimana: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="454"/>
+        <location filename="../inspector/questwidget.cpp" line="525"/>
         <source>Days Passed: %1</source>
-        <translation type="vanished">Giorni trascorsi: %1</translation>
+        <translation>Giorni trascorsi: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="795"/>
+        <location filename="../inspector/questguardwidget.cpp" line="455"/>
+        <location filename="../inspector/questwidget.cpp" line="527"/>
+        <location filename="../inspector/rewardswidget.cpp" line="574"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="420"/>
         <source>Hero Level: %1</source>
         <translation>Livello eroe: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="796"/>
+        <location filename="../inspector/questguardwidget.cpp" line="456"/>
+        <location filename="../inspector/questwidget.cpp" line="529"/>
+        <location filename="../inspector/rewardswidget.cpp" line="575"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="422"/>
         <source>Hero Experience: %1</source>
         <translation>Esperienza eroe: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="457"/>
+        <location filename="../inspector/questwidget.cpp" line="531"/>
         <source>Mana Points: %1</source>
-        <translation type="vanished">Punti mana: %1</translation>
+        <translation>Punti mana: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="798"/>
+        <location filename="../inspector/questguardwidget.cpp" line="458"/>
+        <location filename="../inspector/questwidget.cpp" line="533"/>
+        <location filename="../inspector/rewardswidget.cpp" line="577"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="426"/>
         <source>Mana Percentage: %1</source>
         <translation>Percentuale mana: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="801"/>
+        <location filename="../inspector/questguardwidget.cpp" line="459"/>
+        <location filename="../inspector/questwidget.cpp" line="535"/>
+        <location filename="../inspector/rewardswidget.cpp" line="580"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="432"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
         <translation>Abilità primarie: %1/%2/%3/%4</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="811"/>
+        <location filename="../inspector/questguardwidget.cpp" line="470"/>
+        <location filename="../inspector/questwidget.cpp" line="546"/>
+        <location filename="../inspector/rewardswidget.cpp" line="590"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="443"/>
         <source>Resources: %1</source>
         <translation>Risorse: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="817"/>
+        <location filename="../inspector/questguardwidget.cpp" line="477"/>
+        <location filename="../inspector/questwidget.cpp" line="555"/>
+        <location filename="../inspector/rewardswidget.cpp" line="596"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="450"/>
         <source>Artifacts: %1</source>
         <translation>Artefatti: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="823"/>
+        <location filename="../inspector/questguardwidget.cpp" line="484"/>
+        <location filename="../inspector/questwidget.cpp" line="565"/>
+        <location filename="../inspector/rewardswidget.cpp" line="602"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="458"/>
         <source>Spells: %1</source>
         <translation>Incantesimi: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="829"/>
+        <location filename="../inspector/questguardwidget.cpp" line="491"/>
+        <location filename="../inspector/questwidget.cpp" line="575"/>
+        <location filename="../inspector/rewardswidget.cpp" line="608"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="467"/>
         <source>Secondary Skills: %1</source>
         <translation>Abilità secondarie: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="835"/>
+        <location filename="../inspector/questguardwidget.cpp" line="498"/>
+        <location filename="../inspector/questwidget.cpp" line="585"/>
+        <location filename="../inspector/rewardswidget.cpp" line="614"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="476"/>
         <source>Creatures: %1</source>
         <translation>Creature: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="505"/>
+        <location filename="../inspector/questwidget.cpp" line="595"/>
         <source>Heroes: %1</source>
-        <translation type="vanished">Eroi: %1</translation>
+        <translation>Eroi: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="512"/>
+        <location filename="../inspector/questwidget.cpp" line="605"/>
         <source>Hero Classes: %1</source>
-        <translation type="vanished">Classi eroe: %1</translation>
+        <translation>Classi eroe: %1</translation>
     </message>
     <message>
+        <location filename="../inspector/questguardwidget.cpp" line="521"/>
+        <location filename="../inspector/questwidget.cpp" line="617"/>
         <source>Players: %1</source>
-        <translation type="vanished">Giocatori: %1</translation>
+        <translation>Giocatori: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="791"/>
+        <location filename="../inspector/rewardswidget.cpp" line="570"/>
         <source>Rewards:</source>
         <translation>Ricompense:</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="794"/>
+        <location filename="../inspector/rewardswidget.cpp" line="573"/>
         <source>Reward Message: %1</source>
         <translation>Messaggio ricompensa: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="797"/>
+        <location filename="../inspector/rewardswidget.cpp" line="576"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="424"/>
         <source>Mana Diff: %1</source>
         <translation>Differenza mana: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="799"/>
+        <location filename="../inspector/rewardswidget.cpp" line="578"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="428"/>
         <source>Move Points: %1</source>
         <translation>Punti movimento: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="800"/>
+        <location filename="../inspector/rewardswidget.cpp" line="579"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="430"/>
         <source>Move Percentage: %1</source>
         <translation>Percentuale movimento: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="838"/>
+        <location filename="../inspector/rewardswidget.cpp" line="617"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="480"/>
         <source>Spell Cast: %1 (%2)</source>
         <translation>Incantesimo lanciato: %1 (%2)</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="846"/>
+        <location filename="../inspector/rewardswidget.cpp" line="625"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="491"/>
         <source>Bonuses: %1</source>
         <translation>Bonus: %1</translation>
     </message>
@@ -2656,7 +2713,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <translation>Edifici proibiti:</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="186"/>
+        <location filename="../inspector/towneventswidget.cpp" line="188"/>
         <source>Town Events:</source>
         <translation>Eventi città:</translation>
     </message>
@@ -2713,7 +2770,7 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1037"/>
+        <location filename="../inspector/inspector.cpp" line="1056"/>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
         <translation type="unfinished">Casuale</translation>
@@ -2733,174 +2790,509 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <source>Month</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="623"/>
+        <source>Empty Quest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="497"/>
+        <source>Empty Reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QuestGuardWidget</name>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="17"/>
+        <source>Mission goal</source>
+        <translation type="unfinished">Obiettivo della missione</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="28"/>
+        <source>Day of week</source>
+        <translation type="unfinished">Giorno della settimana</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="45"/>
+        <source>Days passed</source>
+        <translation type="unfinished">Giorni trascorsi</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="79"/>
+        <source>Hero level</source>
+        <translation type="unfinished">Livello eroe</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="96"/>
+        <source>Hero experience</source>
+        <translation type="unfinished">Esperienza eroe</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="136"/>
+        <source>Spell points</source>
+        <translation type="unfinished">Punti incantesimo</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="156"/>
+        <source>%</source>
+        <translation type="unfinished">%</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="183"/>
+        <source>Kill hero/monster</source>
+        <translation type="unfinished">Uccidi eroe/mostro</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="197"/>
+        <source>...</source>
+        <translation type="unfinished">...</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="206"/>
+        <source>Primary skills</source>
+        <translation type="unfinished">Abilità primarie</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="221"/>
+        <source>Attack</source>
+        <translation type="unfinished">Attacco</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="231"/>
+        <source>Defence</source>
+        <translation type="unfinished">Difesa</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="241"/>
+        <source>Spell power</source>
+        <translation type="unfinished">Potere magico</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="251"/>
+        <source>Knowledge</source>
+        <translation type="unfinished">Conoscenza</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="289"/>
+        <source>Resources</source>
+        <translation type="unfinished">Risorse</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="338"/>
+        <source>Artifacts</source>
+        <translation type="unfinished">Artefatti</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="370"/>
+        <source>Spells</source>
+        <translation type="unfinished">Incantesimi</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="402"/>
+        <source>Skills</source>
+        <translation type="unfinished">Abilità</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="442"/>
+        <source>Creatures</source>
+        <translation type="unfinished">Creature</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="491"/>
+        <source>Add</source>
+        <translation type="unfinished">Aggiungi</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="498"/>
+        <source>Remove</source>
+        <translation type="unfinished">Rimuovi</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="538"/>
+        <source>Heroes</source>
+        <translation type="unfinished">Eroi</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="570"/>
+        <source>Hero classes</source>
+        <translation type="unfinished">Classi eroe</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="602"/>
+        <source>Players</source>
+        <translation type="unfinished">Giocatori</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.cpp" line="43"/>
+        <source>None</source>
+        <translation type="unfinished">Nessuno</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.cpp" line="45"/>
+        <source>Day %1</source>
+        <translation type="unfinished">Giorno %1</translation>
+    </message>
 </context>
 <context>
     <name>QuestWidget</name>
     <message>
-        <location filename="../inspector/questwidget.ui" line="17"/>
         <source>Mission goal</source>
-        <translation>Obiettivo della missione</translation>
+        <translation type="vanished">Obiettivo della missione</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="37"/>
         <source>Delete</source>
-        <translation type="unfinished">Elimina</translation>
+        <translation type="obsolete">Elimina</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="17"/>
+        <source>Missions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="35"/>
+        <source>Reward</source>
+        <translation type="unfinished">Ricompensa</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="52"/>
+        <source>Add Reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="59"/>
+        <source>Add Quest</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
+        <source>Delete Quest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="93"/>
+        <source>Move up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="100"/>
+        <source>Move down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="113"/>
         <source>First Visit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="94"/>
+        <location filename="../inspector/questwidget.ui" line="141"/>
         <source>Next Visit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="116"/>
+        <location filename="../inspector/questwidget.ui" line="163"/>
         <source>Completed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="148"/>
+        <location filename="../inspector/questwidget.ui" line="199"/>
+        <source>Quest</source>
+        <translation type="unfinished">Missione</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.ui" line="214"/>
         <source>Repeatable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="158"/>
+        <location filename="../inspector/questwidget.ui" line="224"/>
         <source>Set Deadline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="179"/>
+        <location filename="../inspector/questwidget.ui" line="245"/>
         <source>Day of week</source>
         <translation>Giorno della settimana</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="196"/>
+        <location filename="../inspector/questwidget.ui" line="262"/>
         <source>Days passed</source>
         <translation>Giorni trascorsi</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="230"/>
+        <location filename="../inspector/questwidget.ui" line="296"/>
         <source>Hero level</source>
         <translation>Livello eroe</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="247"/>
+        <location filename="../inspector/questwidget.ui" line="313"/>
         <source>Hero experience</source>
         <translation>Esperienza eroe</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="287"/>
+        <location filename="../inspector/questwidget.ui" line="353"/>
         <source>Spell points</source>
         <translation>Punti incantesimo</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="307"/>
+        <location filename="../inspector/questwidget.ui" line="373"/>
         <source>%</source>
         <translation>%</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="334"/>
+        <location filename="../inspector/questwidget.ui" line="400"/>
         <source>Kill hero/monster</source>
         <translation>Uccidi eroe/mostro</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="348"/>
+        <location filename="../inspector/questwidget.ui" line="414"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="357"/>
+        <location filename="../inspector/questwidget.ui" line="423"/>
         <source>Primary skills</source>
         <translation>Abilità primarie</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="372"/>
+        <location filename="../inspector/questwidget.ui" line="438"/>
         <source>Attack</source>
         <translation>Attacco</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="382"/>
+        <location filename="../inspector/questwidget.ui" line="448"/>
         <source>Defence</source>
         <translation>Difesa</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="392"/>
+        <location filename="../inspector/questwidget.ui" line="458"/>
         <source>Spell power</source>
         <translation>Potere magico</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="402"/>
+        <location filename="../inspector/questwidget.ui" line="468"/>
         <source>Knowledge</source>
         <translation>Conoscenza</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="440"/>
+        <location filename="../inspector/questwidget.ui" line="506"/>
         <source>Resources</source>
         <translation>Risorse</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="489"/>
+        <location filename="../inspector/questwidget.ui" line="555"/>
         <source>Artifacts</source>
         <translation>Artefatti</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="521"/>
+        <location filename="../inspector/questwidget.ui" line="587"/>
         <source>Spells</source>
         <translation>Incantesimi</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="553"/>
+        <location filename="../inspector/questwidget.ui" line="619"/>
         <source>Skills</source>
         <translation>Abilità</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="593"/>
+        <location filename="../inspector/questwidget.ui" line="659"/>
         <source>Creatures</source>
         <translation>Creature</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="30"/>
-        <location filename="../inspector/questwidget.ui" line="642"/>
+        <location filename="../inspector/questwidget.ui" line="708"/>
         <source>Add</source>
         <translation>Aggiungi</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="649"/>
+        <location filename="../inspector/questwidget.ui" line="715"/>
         <source>Remove</source>
         <translation>Rimuovi</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="689"/>
+        <location filename="../inspector/questwidget.ui" line="755"/>
         <source>Heroes</source>
         <translation>Eroi</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="721"/>
+        <location filename="../inspector/questwidget.ui" line="787"/>
         <source>Hero classes</source>
         <translation>Classi eroe</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="753"/>
+        <location filename="../inspector/questwidget.ui" line="819"/>
         <source>Players</source>
         <translation>Giocatori</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="43"/>
+        <location filename="../inspector/questwidget.cpp" line="45"/>
         <source>None</source>
         <translation>Nessuno</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="45"/>
+        <location filename="../inspector/questwidget.cpp" line="47"/>
         <source>Day %1</source>
         <translation>Giorno %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.cpp" line="303"/>
+        <location filename="../inspector/questwidget.cpp" line="324"/>
         <source>%1 quest on position %2</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="516"/>
+        <source>Add reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questwidget.cpp" line="516"/>
+        <source>Remove reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>RewardWidget</name>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="19"/>
+        <source>Hero level</source>
+        <translation type="unfinished">Livello eroe</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="36"/>
+        <source>Hero experience</source>
+        <translation type="unfinished">Esperienza eroe</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="76"/>
+        <source>Spell points</source>
+        <translation type="unfinished">Punti incantesimo</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="99"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="119"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="153"/>
+        <source>%</source>
+        <translation type="unfinished">%</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="112"/>
+        <source>Overflow</source>
+        <translation type="unfinished">Overflow</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="136"/>
+        <source>Movement</source>
+        <translation type="unfinished">Movimento</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="179"/>
+        <source>Remove object</source>
+        <translation type="unfinished">Rimuovi oggetto</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="188"/>
+        <source>Primary skills</source>
+        <translation type="unfinished">Abilità primarie</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="203"/>
+        <source>Attack</source>
+        <translation type="unfinished">Attacco</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="217"/>
+        <source>Defence</source>
+        <translation type="unfinished">Difesa</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="231"/>
+        <source>Spell power</source>
+        <translation type="unfinished">Potere magico</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="245"/>
+        <source>Knowledge</source>
+        <translation type="unfinished">Conoscenza</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="275"/>
+        <source>Resources</source>
+        <translation type="unfinished">Risorse</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="324"/>
+        <source>Artifacts</source>
+        <translation type="unfinished">Artefatti</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="356"/>
+        <source>Spells</source>
+        <translation type="unfinished">Incantesimi</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="388"/>
+        <source>Skills</source>
+        <translation type="unfinished">Abilità</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="428"/>
+        <source>Creatures</source>
+        <translation type="unfinished">Creature</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="477"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="606"/>
+        <source>Add</source>
+        <translation type="unfinished">Aggiungi</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="484"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="613"/>
+        <source>Remove</source>
+        <translation type="unfinished">Rimuovi</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="521"/>
+        <source>Bonuses</source>
+        <translation type="unfinished">Bonus</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="538"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="644"/>
+        <source>Duration</source>
+        <translation type="unfinished">Durata</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="555"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="649"/>
+        <source>Type</source>
+        <translation type="unfinished">Tipo</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="572"/>
+        <location filename="../inspector/segments/rewardwidget.ui" line="654"/>
+        <source>Value</source>
+        <translation type="unfinished">Valore</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="663"/>
+        <source>Cast</source>
+        <translation type="unfinished">Lancia</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="669"/>
+        <source>Cast an adventure map spell</source>
+        <translation type="unfinished">Lancia un incantesimo della mappa avventura</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="678"/>
+        <source>Spell</source>
+        <translation type="unfinished">Incantesimo</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/rewardwidget.ui" line="699"/>
+        <source>Magic school level</source>
+        <translation type="unfinished">Livello scuola magica</translation>
     </message>
 </context>
 <context>
@@ -2912,17 +3304,13 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="33"/>
-        <location filename="../inspector/rewardswidget.ui" line="726"/>
-        <location filename="../inspector/rewardswidget.ui" line="841"/>
-        <location filename="../inspector/rewardswidget.ui" line="1430"/>
+        <location filename="../inspector/rewardswidget.ui" line="716"/>
         <source>Add</source>
         <translation>Aggiungi</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="43"/>
-        <location filename="../inspector/rewardswidget.ui" line="733"/>
-        <location filename="../inspector/rewardswidget.ui" line="848"/>
-        <location filename="../inspector/rewardswidget.ui" line="1437"/>
+        <location filename="../inspector/rewardswidget.ui" line="723"/>
         <source>Remove</source>
         <translation>Rimuovi</translation>
     </message>
@@ -3002,192 +3390,162 @@ Aggiungila alle mod richieste della mappa in Mappa-&gt;Impostazioni generali.</t
         <translation>Ricompensa</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="268"/>
-        <location filename="../inspector/rewardswidget.ui" line="1055"/>
+        <location filename="../inspector/rewardswidget.ui" line="341"/>
         <source>Hero level</source>
         <translation>Livello eroe</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="285"/>
-        <location filename="../inspector/rewardswidget.ui" line="1072"/>
+        <location filename="../inspector/rewardswidget.ui" line="358"/>
         <source>Hero experience</source>
         <translation>Esperienza eroe</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="325"/>
-        <location filename="../inspector/rewardswidget.ui" line="1112"/>
+        <location filename="../inspector/rewardswidget.ui" line="398"/>
         <source>Spell points</source>
         <translation>Punti incantesimo</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="348"/>
-        <location filename="../inspector/rewardswidget.ui" line="368"/>
-        <location filename="../inspector/rewardswidget.ui" line="402"/>
-        <location filename="../inspector/rewardswidget.ui" line="1132"/>
+        <location filename="../inspector/rewardswidget.ui" line="418"/>
         <source>%</source>
         <translation>%</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="361"/>
         <source>Overflow</source>
-        <translation>Overflow</translation>
+        <translation type="vanished">Overflow</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="385"/>
         <source>Movement</source>
-        <translation>Movimento</translation>
+        <translation type="vanished">Movimento</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="428"/>
         <source>Remove object</source>
-        <translation>Rimuovi oggetto</translation>
+        <translation type="vanished">Rimuovi oggetto</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="437"/>
-        <location filename="../inspector/rewardswidget.ui" line="1157"/>
+        <location filename="../inspector/rewardswidget.ui" line="443"/>
         <source>Primary skills</source>
         <translation>Abilità primarie</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="452"/>
-        <location filename="../inspector/rewardswidget.ui" line="1172"/>
+        <location filename="../inspector/rewardswidget.ui" line="458"/>
         <source>Attack</source>
         <translation>Attacco</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="466"/>
-        <location filename="../inspector/rewardswidget.ui" line="1182"/>
+        <location filename="../inspector/rewardswidget.ui" line="468"/>
         <source>Defence</source>
         <translation>Difesa</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="480"/>
-        <location filename="../inspector/rewardswidget.ui" line="1192"/>
+        <location filename="../inspector/rewardswidget.ui" line="478"/>
         <source>Spell power</source>
         <translation>Potere magico</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="494"/>
-        <location filename="../inspector/rewardswidget.ui" line="1202"/>
+        <location filename="../inspector/rewardswidget.ui" line="488"/>
         <source>Knowledge</source>
         <translation>Conoscenza</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="524"/>
-        <location filename="../inspector/rewardswidget.ui" line="1228"/>
+        <location filename="../inspector/rewardswidget.ui" line="514"/>
         <source>Resources</source>
         <translation>Risorse</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="573"/>
-        <location filename="../inspector/rewardswidget.ui" line="1277"/>
+        <location filename="../inspector/rewardswidget.ui" line="563"/>
         <source>Artifacts</source>
         <translation>Artefatti</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="605"/>
-        <location filename="../inspector/rewardswidget.ui" line="1309"/>
+        <location filename="../inspector/rewardswidget.ui" line="595"/>
         <source>Spells</source>
         <translation>Incantesimi</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="637"/>
-        <location filename="../inspector/rewardswidget.ui" line="1341"/>
+        <location filename="../inspector/rewardswidget.ui" line="627"/>
         <source>Skills</source>
         <translation>Abilità</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="677"/>
-        <location filename="../inspector/rewardswidget.ui" line="1381"/>
+        <location filename="../inspector/rewardswidget.ui" line="667"/>
         <source>Creatures</source>
         <translation>Creature</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="770"/>
         <source>Bonuses</source>
-        <translation>Bonus</translation>
+        <translation type="vanished">Bonus</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="787"/>
-        <location filename="../inspector/rewardswidget.ui" line="879"/>
         <source>Duration</source>
-        <translation>Durata</translation>
+        <translation type="vanished">Durata</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="797"/>
-        <location filename="../inspector/rewardswidget.ui" line="884"/>
         <source>Type</source>
-        <translation>Tipo</translation>
+        <translation type="vanished">Tipo</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="807"/>
-        <location filename="../inspector/rewardswidget.ui" line="889"/>
         <source>Value</source>
-        <translation>Valore</translation>
+        <translation type="vanished">Valore</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="898"/>
         <source>Cast</source>
-        <translation>Lancia</translation>
+        <translation type="vanished">Lancia</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="904"/>
         <source>Cast an adventure map spell</source>
-        <translation>Lancia un incantesimo della mappa avventura</translation>
+        <translation type="vanished">Lancia un incantesimo della mappa avventura</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="913"/>
         <source>Spell</source>
-        <translation>Incantesimo</translation>
+        <translation type="vanished">Incantesimo</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="934"/>
         <source>Magic school level</source>
-        <translation>Livello scuola magica</translation>
+        <translation type="vanished">Livello scuola magica</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="984"/>
+        <location filename="../inspector/rewardswidget.ui" line="270"/>
         <source>Limiter</source>
         <translation>Limitatore</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1004"/>
+        <location filename="../inspector/rewardswidget.ui" line="290"/>
         <source>Day of week</source>
         <translation>Giorno della settimana</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1021"/>
+        <location filename="../inspector/rewardswidget.ui" line="307"/>
         <source>Days passed</source>
         <translation>Giorni trascorsi</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1477"/>
+        <location filename="../inspector/rewardswidget.ui" line="763"/>
         <source>Heroes</source>
         <translation>Eroi</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1509"/>
+        <location filename="../inspector/rewardswidget.ui" line="795"/>
         <source>Hero classes</source>
         <translation>Classi eroe</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.ui" line="1541"/>
+        <location filename="../inspector/rewardswidget.ui" line="827"/>
         <source>Players</source>
         <translation>Giocatori</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="57"/>
+        <location filename="../inspector/rewardswidget.cpp" line="59"/>
         <source>None</source>
         <translation>Nessuno</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="59"/>
+        <location filename="../inspector/rewardswidget.cpp" line="61"/>
         <source>Day %1</source>
         <translation>Giorno %1</translation>
     </message>
     <message>
-        <location filename="../inspector/rewardswidget.cpp" line="252"/>
-        <location filename="../inspector/rewardswidget.cpp" line="625"/>
+        <location filename="../inspector/rewardswidget.cpp" line="219"/>
+        <location filename="../inspector/rewardswidget.cpp" line="450"/>
         <source>Reward %1</source>
         <translation>Ricompensa %1</translation>
     </message>
@@ -4651,32 +5009,37 @@ Guardia: %3</translation>
         <translation>Influisce su AI</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.ui" line="166"/>
+        <location filename="../inspector/towneventdialog.ui" line="164"/>
+        <source>affects neutral town</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/towneventdialog.ui" line="173"/>
         <source>Resources</source>
         <translation>Risorse</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.ui" line="198"/>
+        <location filename="../inspector/towneventdialog.ui" line="205"/>
         <source>Buildings</source>
         <translation>Edifici</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.ui" line="219"/>
+        <location filename="../inspector/towneventdialog.ui" line="226"/>
         <source>Creatures</source>
         <translation>Creature</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.ui" line="258"/>
+        <location filename="../inspector/towneventdialog.ui" line="265"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="175"/>
+        <location filename="../inspector/towneventdialog.cpp" line="176"/>
         <source>Creature level %1 / Creature level %1 Upgrade</source>
         <translation>Livello creatura %1 / Aggiornamento livello creatura %1</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventdialog.cpp" line="217"/>
+        <location filename="../inspector/towneventdialog.cpp" line="219"/>
         <source>Day %1 - %2</source>
         <translation>Giorno %1 - %2</translation>
     </message>
@@ -4684,7 +5047,7 @@ Guardia: %3</translation>
 <context>
     <name>TownEventsDelegate</name>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="190"/>
+        <location filename="../inspector/towneventswidget.cpp" line="192"/>
         <source>Day %1 - %2</source>
         <translation>Giorno %1 - %2</translation>
     </message>
@@ -4712,12 +5075,12 @@ Guardia: %3</translation>
         <translation>Rimuovi</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="110"/>
+        <location filename="../inspector/towneventswidget.cpp" line="112"/>
         <source>Day %1 - %2</source>
         <translation>Giorno %1 - %2</translation>
     </message>
     <message>
-        <location filename="../inspector/towneventswidget.cpp" line="131"/>
+        <location filename="../inspector/towneventswidget.cpp" line="133"/>
         <source>New event</source>
         <translation>Nuovo evento</translation>
     </message>
@@ -5411,32 +5774,32 @@ Guardia: %3</translation>
         <translation>Annulla</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="310"/>
+        <location filename="../windownewmap.cpp" line="311"/>
         <source>No template</source>
         <translation>Nessun modello</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="310"/>
+        <location filename="../windownewmap.cpp" line="311"/>
         <source>No template for parameters specified. Random map cannot be generated.</source>
         <translation>Nessun modello per i parametri specificati. Impossibile generare una mappa casuale.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="332"/>
+        <location filename="../windownewmap.cpp" line="333"/>
         <source>RMG failure</source>
         <translation>Errore nella generazione della mappa casuale</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="360"/>
+        <location filename="../windownewmap.cpp" line="361"/>
         <source>Multilevel support</source>
         <translation type="unfinished">Supporto multilivello</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="360"/>
+        <location filename="../windownewmap.cpp" line="361"/>
         <source>Multilevel support is highly experimental yet. Expect issues.</source>
         <translation type="unfinished">Il supporto multilivello è ancora altamente sperimentale. Possibili problemi.</translation>
     </message>
     <message>
-        <location filename="../windownewmap.cpp" line="484"/>
+        <location filename="../windownewmap.cpp" line="485"/>
         <source>[default]</source>
         <translation>[predefinito]</translation>
     </message>
@@ -5444,27 +5807,27 @@ Guardia: %3</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="186"/>
+        <location filename="../mainwindow.cpp" line="212"/>
         <source>Filepath of the map to open.</source>
         <translation>Percorso file della mappa da aprire.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="189"/>
+        <location filename="../mainwindow.cpp" line="215"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation>Estrai gli archivi originali di H3 in una cartella separata.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="190"/>
+        <location filename="../mainwindow.cpp" line="216"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation>Da un archivio estratto, divide TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 e Un44 in PNG individuali.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="191"/>
+        <location filename="../mainwindow.cpp" line="217"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation>Da un archivio estratto, converte immagini singole (trovate nella cartella Images) da .pcx a .png.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="192"/>
+        <location filename="../mainwindow.cpp" line="218"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translation>Elimina i file originali per quelli divisi/convertiti.</translation>
     </message>

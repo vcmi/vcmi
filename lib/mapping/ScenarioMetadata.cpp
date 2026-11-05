@@ -62,7 +62,7 @@ std::string ScenarioMetadata::textToString(const JsonNode & text, const ITransla
 		return result.toString(translator);
 	}
 
-	const std::string preferred = CGeneralTextHandler::getPreferredLanguage();
+	const std::string preferred = Languages::getPreferredLanguage();
 	if(translations.contains(preferred))
 		return translations.at(preferred).String();
 

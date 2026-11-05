@@ -67,6 +67,7 @@
 		"types" : {
 			"randomResource" : {
 				"index" : 0,
+				"compatibilityIdentifiers" : [ "object" ],
 				"rmg" : {
 					"value"		: 1500,
 					"rarity"	: 2000

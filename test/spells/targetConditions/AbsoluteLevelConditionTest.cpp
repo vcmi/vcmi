@@ -11,6 +11,8 @@
 
 #include "TargetConditionItemFixture.h"
 
+#include "../../../lib/GameLibrary.h"
+
 #include "../../../lib/bonuses/BonusParameters.h"
 
 namespace test
@@ -34,7 +36,7 @@ public:
 	{
 		TargetConditionItemTest::SetUp();
 
-		subject = TargetConditionItemFactory::getDefault()->createAbsoluteLevel();
+		subject = TargetConditionItemFactory::create(*LIBRARY->identifiers())->createAbsoluteLevel();
 	}
 };
 

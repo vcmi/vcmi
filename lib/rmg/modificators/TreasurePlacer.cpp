@@ -47,11 +47,11 @@ void TreasurePlacer::process()
 
 	tierValues = generator.getConfig().pandoraCreatureValues;
 	// Add all native creatures
-	for(auto const & cre : LIBRARY->creh->objects)
+	for(auto const & cre : LIBRARY->creh->getObjects())
 	{
 		if(!cre->special && cre->getFactionID() == zone.getTownType())
 		{
-			creatures.push_back(cre.get());
+			creatures.push_back(cre);
 		}
 	}
 

@@ -15,18 +15,20 @@
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
 #include "../GameInstance.h"
+#include "../CServerHandler.h"
 #include "../gui/Shortcut.h"
 #include "../widgets/Buttons.h"
 #include "../widgets/CTextInput.h"
+#include "../windows/InfoWindows.h"
 
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 #include "../../lib/StartInfo.h"
-#include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/SavegamePath.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/networkPacks/PacksForLobby.h"
 
 CSavingScreen::CSavingScreen()
 	: CSelectionBase(ESelectionScreen::saveGame)
@@ -41,10 +43,11 @@ CSavingScreen::CSavingScreen()
 		*GAME->interface()->cb->getStartInfo(),
 		*GAME->interface()->cb->getMapHeader());
 	tabSel->callOnSelect = std::bind(&CSavingScreen::changeSelection, this, _1);
-	tabSel->toggleMode();
 	curTab = tabSel;
 		
 	buttonStart = std::make_shared<CButton>(Point(411, 535), AnimationPath::builtin("SCNRSAV.DEF"), LIBRARY->generaltexth->zelp[103], std::bind(&CSavingScreen::saveGame, this), EShortcut::LOBBY_SAVE_GAME);
+	// after all widgets are created, so that input of all of them is blocked until the list is received
+	tabSel->toggleMode();
 	
 	GAME->interface()->gamePause(true);
 }
@@ -61,14 +64,45 @@ const StartInfo * CSavingScreen::getStartInfo()
 	return GAME->interface()->cb->getStartInfo();
 }
 
-void CSavingScreen::changeSelection(std::shared_ptr<CMapInfo> to)
+void CSavingScreen::changeSelection(const std::shared_ptr<ElementInfo> & element)
 {
-	if(localMi == to)
+	if(element == selectedElement)
 		return;
 
-	localMi = to;
+	selectedElement = element;
+	localMi.reset();
+	localTextOverlay.reset();
+
+	if(element)
+	{
+		LobbyRequestScenarioInfo request;
+		request.selection = {ScenarioSelection::EType::SAVE, element->fileURI};
+		GAME->server().sendLobbyPack(request);
+	}
+
 	card->changeSelection();
 	card->redraw();
+}
+
+void CSavingScreen::onScenarioInfoReceived(const LobbyScenarioInfo & pack)
+{
+	if(!selectedElement || pack.selection.fileURI != selectedElement->fileURI)
+		return;
+
+	if(pack.mapInfo)
+	{
+		localTextOverlay.emplace(pack.mapInfo->mapHeader->texts);
+		localMi = pack.mapInfo;
+		card->changeSelection();
+		card->redraw();
+	}
+	else
+	{
+		MetaString message;
+		message.appendTextID("vcmi.client.errors.invalidMap");
+		message.replaceRawString(pack.error);
+		CInfoWindow::showInfoDialog(message.toString(&GAME->translator()), {});
+	}
 }
 
 void CSavingScreen::close()
@@ -86,14 +120,17 @@ void CSavingScreen::saveGame()
 
 	auto overWrite = [this, path]() -> void
 	{
-		tabSel->rememberSave(path);
 		GAME->interface()->cb->save(path, true);
 		close();
 	};
 
 	auto confirmOverwrite = [this, path, overWrite]()
 	{
-		if(CResourceHandler::get("local")->existsResource(ResourcePath(path, EResType::SAVEGAME)))
+		const bool exists = std::ranges::any_of(tabSel->allItems, [&path](const auto & item)
+		{
+			return !item->isFolder && boost::algorithm::iequals(item->fileURI, path);
+		});
+		if(exists)
 		{
 			MetaString hlp = MetaString::createFromTextID("core.genrltxt.493"); //%s exists. Overwrite?
 			hlp.replaceRawString(tabSel->inputName->getText());

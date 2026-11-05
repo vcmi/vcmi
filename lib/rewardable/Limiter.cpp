@@ -329,6 +329,8 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 	handler.serializeIdArray("spells", spells);
 	handler.enterArray("creatures").serializeStruct(creatures);
 	handler.enterArray("primary").serializeArray(primary);
+	if(!handler.saving)
+		primary.resize(GameConstants::PRIMARY_SKILLS, 0);
 	{
 		auto a = handler.enterArray("secondary");
 		std::vector<std::pair<SecondarySkill, si32>> fieldValue(secondary.begin(), secondary.end());

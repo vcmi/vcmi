@@ -11,6 +11,8 @@
 
 #include "TargetConditionItemFixture.h"
 
+#include "../../../lib/GameLibrary.h"
+
 namespace test
 {
 using namespace ::spells;
@@ -33,7 +35,7 @@ public:
 	{
 		TargetConditionItemTest::SetUp();
 
-		subject = TargetConditionItemFactory::getDefault()->createConfigurable("", "healthValueSpecial", "");
+		subject = TargetConditionItemFactory::create(*LIBRARY->identifiers())->createConfigurable("", "healthValueSpecial", "");
 		GTEST_ASSERT_NE(subject, nullptr);
 	}
 };

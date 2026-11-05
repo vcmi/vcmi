@@ -20,7 +20,7 @@
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/json/JsonNode.h"
-#include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/Languages.h"
 
 #include "../../vcmiqt/jsonutils.h"
 #include "../../vcmiqt/launcherdirs.h"
@@ -266,7 +266,7 @@ bool ModStateController::canEnableMod(QString modname)
 	if(!mod.isCompatible())
 		return addError(modname, tr("Mod is not compatible, please update VCMI and check the latest mod revisions"));
 
-	if (mod.isTranslation() && CGeneralTextHandler::getPreferredLanguage() != mod.getBaseLanguage().toStdString())
+	if (mod.isTranslation() && Languages::getPreferredLanguage() != mod.getBaseLanguage().toStdString())
 		return addError(modname, tr("Can not enable translation mod for a different language!"));
 
 	for(const auto & modEntry : mod.getDependencies())
@@ -409,21 +409,17 @@ bool ModStateController::doUninstallMod(QString modname)
 
 bool ModStateController::removeModDir(QString path)
 {
-	// issues 2673 and 2680 its why you do not recursively remove without sanity check
-	QDir checkDir(path);
-	QDir dir(path);
-	
-	if(!checkDir.cdUp() || QString::compare("Mods", checkDir.dirName(), Qt::CaseInsensitive))
-		return false;
-#ifndef VCMI_MOBILE // ios and android applications are stored in the isolated container
-	if(!checkDir.cdUp() || QString::compare("vcmi", checkDir.dirName(), Qt::CaseInsensitive))
+	// Only remove direct children of the configured Mods directory (issues 2673 and 2680).
+	const QDir dir(path);
+	const QString modsPath = QDir(CLauncherDirs::modsPath()).canonicalPath();
+	const QString targetPath = dir.canonicalPath();
+	if(modsPath.isEmpty() || targetPath.isEmpty() || QDir(modsPath).isRoot()
+		|| QFileInfo(dir.absolutePath()).isSymLink())
 		return false;
 
-	if(!dir.absolutePath().contains("vcmi", Qt::CaseInsensitive))
-		return false;
-#endif
-	if(!dir.absolutePath().contains("Mods", Qt::CaseInsensitive))
+	QDir parentDir(targetPath);
+	if(!parentDir.cdUp() || parentDir != QDir(modsPath))
 		return false;
 
-	return dir.removeRecursively();
+	return QDir(targetPath).removeRecursively();
 }

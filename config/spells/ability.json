@@ -1,6 +1,7 @@
 {
 	"stoneGaze" : {
 		"index" : 70,
+		"level" : 3,
 		"targetType": "NO_TARGET",
 		"animation":{
 			"affect":[ {
@@ -61,6 +62,9 @@
 	},
 	"poison" : {
 		"index" : 71,
+		// H3 poison has no level: dragon immunities block it as level 1, but Cape of Silence (HotA) does not
+		// (blocked here) and neither does Cursed Ground (blocked here by BLOCK_CREATURE_MAGIC)
+		"level" : 1,
 		"targetType": "NO_TARGET",
 
 		"animation":{
@@ -146,6 +150,7 @@
 	},
 	"disease" : {
 		"index" : 73,
+		"level" : 2,
 		"targetType": "NO_TARGET",
 
 		"animation":{
@@ -195,6 +200,7 @@
 	},
 	"paralyze" : {
 		"index" : 74,
+		"level" : 4,
 		"targetType": "NO_TARGET",
 
 		"animation":{
@@ -255,6 +261,7 @@
 	},
 	"age" : {
 		"index" : 75,
+		"level" : 5,
 		"targetType": "NO_TARGET",
 
 		"animation":{
@@ -334,6 +341,7 @@
 	},
 	"thunderbolt" : {
 		"index" : 77,
+		"level" : 2,
 		"targetType": "NO_TARGET",
 
 		"animation":{

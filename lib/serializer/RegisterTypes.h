@@ -270,7 +270,6 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbyRestartGame>(222);
 	s.template registerType<LobbyPrepareStartGame>(223);
 	s.template registerType<LobbyStartGame>(224);
-	s.template registerType<LobbyChangeHost>(225);
 	s.template registerType<LobbyUpdateState>(226);
 	s.template registerType<LobbyShowMessage>(227);
 	s.template registerType<LobbyChangePlayerOption>(228);
@@ -319,4 +318,10 @@ void registerTypes(Serializer &s)
 	s.template registerType<BattleTacticsEnded>(271);
 	s.template registerType<DisableMapEvent>(272);
 	s.template registerType<LobbyUpdateMapInfo>(273);
+	s.template registerType<LobbyRequestScenarioList>(274);
+	s.template registerType<LobbyScenarioList>(275);
+	s.template registerType<LobbyRequestScenarioInfo>(276);
+	s.template registerType<LobbyScenarioInfo>(277);
+	s.template registerType<LobbyRequestQuickLoadInfo>(278);
+	s.template registerType<LobbyQuickLoadInfo>(279);
 }

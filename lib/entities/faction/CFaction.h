@@ -37,6 +37,8 @@ class DLL_LINKAGE CFaction : public Faction
 
 	FactionID index = FactionID::NEUTRAL;
 
+	std::unique_ptr<CTown> town; //NOTE: can be null
+
 	FactionID getFactionID() const override; //This function should not be used
 
 public:
@@ -48,8 +50,6 @@ public:
 	/// Boat that will be used by town shipyard (if any)
 	/// and for placing heroes directly on boat (in map editor, water prisons & taverns)
 	BoatId boatType = BoatId::CASTLE;
-
-	std::unique_ptr<CTown> town; //NOTE: can be null
 
 	ImagePath creatureBg120;
 	ImagePath creatureBg130;
@@ -72,6 +72,9 @@ public:
 	std::string getDescriptionTextID() const;
 
 	bool hasTown() const override;
+	/// Returns town of this faction, null for factions without a town
+	const CTown * getTown() const;
+	void setTown(std::unique_ptr<CTown> newTown);
 	bool isNativeTerrain(TerrainId terrain) const override;
 	EAlignment getAlignment() const override;
 	BoatId getBoatType() const override;

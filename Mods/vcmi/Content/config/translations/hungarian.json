@@ -355,6 +355,7 @@
 	"vcmi.adventureOptions.smoothDragging.help": "{Térkép finom húzása}\n\nBekapcsolva a térkép húzása egy modern kifutási hatással bír.",
 	"vcmi.adventureOptions.smoothDragging.hover": "Térkép finom húzása",
 	"vcmi.artifact.charges": "Töltetek",
+	"vcmi.artifact.disabledCombination": "A hírek szerint máshol ez a varázstárgy más tárgyakkal kombinálva átalakítható ezzé: %s, de itt ilyesmire nincs lehetőség.",
 	"vcmi.battle.action.attack": "Közelharci támadás használata",
 	"vcmi.battle.action.attackLongWeapon": "Hosszúfegyveres támadás használata",
 	"vcmi.battle.action.genie": "Véletlenszerű tsegítőtóvarázslat elmondása",

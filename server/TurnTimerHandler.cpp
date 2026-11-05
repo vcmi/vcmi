@@ -181,9 +181,12 @@ void TurnTimerHandler::onPlayerMakingTurn(PlayerColor player, int waitTime)
 
 bool TurnTimerHandler::isPvpBattle(const BattleID & battleID) const
 {
-	const auto & gs = gameHandler.gameState();
-	auto attacker = gs.getBattle(battleID)->getSidePlayer(BattleSide::ATTACKER);
-	auto defender = gs.getBattle(battleID)->getSidePlayer(BattleSide::DEFENDER);
+	const auto * battle = gameHandler.gameState().getBattle(battleID);
+	return isPvpBattle(battle->getSidePlayer(BattleSide::ATTACKER), battle->getSidePlayer(BattleSide::DEFENDER));
+}
+
+bool TurnTimerHandler::isPvpBattle(PlayerColor attacker, PlayerColor defender) const
+{
 	if(attacker.isValidPlayer() && defender.isValidPlayer())
 	{
 		const auto * attackerState = gameHandler.gameInfo().tryGetPlayerState(attacker);
@@ -194,17 +197,13 @@ bool TurnTimerHandler::isPvpBattle(const BattleID & battleID) const
 	return false;
 }
 
-void TurnTimerHandler::onBattleStart(const BattleID & battleID)
+void TurnTimerHandler::onBattleStart(PlayerColor attacker, PlayerColor defender)
 {
-	const auto & gs = gameHandler.gameState();
 	const auto * si = gameHandler.gameInfo().getStartInfo();
 	if(!si)
 		return;
 
-	auto attacker = gs.getBattle(battleID)->getSidePlayer(BattleSide::ATTACKER);
-	auto defender = gs.getBattle(battleID)->getSidePlayer(BattleSide::DEFENDER);
-	
-	bool pvpBattle = isPvpBattle(battleID);
+	bool pvpBattle = isPvpBattle(attacker, defender);
 	
 	for(auto i : {attacker, defender})
 	{

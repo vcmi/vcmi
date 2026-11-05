@@ -28,6 +28,8 @@
 #include "lobby/CLobbyScreen.h"
 #include "lobby/CBonusSelection.h"
 
+#include "adventureMap/AdventureMapInterface.h"
+
 #include "netlag/NetworkLagCompensator.h"
 #include "replay/GameplayReplayer.h"
 
@@ -159,7 +161,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	setState(EClientState::NONE);
 	serverMode = newServerMode;
 	loadMode = ELoadMode::NONE;
-	mapToStart = nullptr;
+	scenarioToStart.reset();
 	// si is replaced below - texts of the previous lobby must not shadow those of the next one
 	lobbyTextOverlays.clear();
 	hotseatMode = false;
@@ -441,7 +443,7 @@ void CServerHandler::sendClientDisconnecting()
 	}
 
 	setState(EClientState::DISCONNECTING);
-	mapToStart = nullptr;
+	scenarioToStart.reset();
 	LobbyClientDisconnected lcd;
 	lcd.clientId = logicConnection->connectionID;
 	logNetwork->info("Connection has been requested to be closed.");
@@ -496,10 +498,10 @@ void CServerHandler::setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeSt
 	sendLobbyPack(lsbomsui);
 }
 
-void CServerHandler::setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts) const
+void CServerHandler::selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts) const
 {
 	LobbySetMap lsm;
-	lsm.mapInfo = to;
+	lsm.selection = selection;
 	lsm.mapGenOpts = mapGenOpts;
 	sendLobbyPack(lsm);
 }
@@ -570,18 +572,7 @@ void CServerHandler::sendMessage(const std::string & txt) const
 	readed.str(txt);
 	std::string command;
 	readed >> command;
-	if(command == "!passhost")
-	{
-		std::string id;
-		readed >> id;
-		if(id.length())
-		{
-			LobbyChangeHost lch;
-			lch.newHostConnectionId = static_cast<GameConnectionID>(std::stoi(id));
-			sendLobbyPack(lch);
-		}
-	}
-	else if(command == "!forcep")
+	if(command == "!forcep")
 	{
 		std::string connectedId;
 		std::string playerColorId;
@@ -673,9 +664,9 @@ void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 	}
 }
 
-void CServerHandler::startMapAfterConnection(std::shared_ptr<CMapInfo> to)
+void CServerHandler::startScenarioAfterConnection(const ScenarioSelection & selection)
 {
-	mapToStart = to;
+	scenarioToStart = selection;
 }
 
 void CServerHandler::installLobbyTexts()
@@ -739,6 +730,14 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 
 	// After everything initialized we can accept CPackToClient netpacks
 	setState(EClientState::GAMEPLAY);
+
+	// lobby packs are not sent while starting
+	quickSaveAvailable = false;
+	if(isHost())
+	{
+		LobbyRequestQuickLoadInfo request;
+		sendLobbyPack(request);
+	}
 }
 
 void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
@@ -808,51 +807,21 @@ void CServerHandler::endGameplay()
 		ENGINE->discord().setStatus("", "", {0, 0});
 }
 
-std::optional<std::string> CServerHandler::canQuickLoadGame(const std::string & path) const
+bool CServerHandler::hasQuickSave() const
 {
-	auto mapInfo = std::make_shared<CMapInfo>();
-	try
-	{
-		mapInfo->saveInit(ResourcePath(path, EResType::SAVEGAME));
-	}
-	catch(const IdentifierResolutionException & e)
-	{
-		return "Identifier not found.";
-	}
-	catch(const std::exception & e)
-	{
-		return "Generic error loading save.";
-	}
-
-	// initial start info from quick load slot
-	const auto * startInfo1 = mapInfo->scenarioOptionsOfSave.get();
-	// initial start info from game state (not current start info)
-	const auto * startInfo2 = client->gameState().getInitialStartInfo();
-
-	if (!startInfo1)
-		return "Missing quick load start info.";
-	if (!startInfo2)
-		return "Missing server start info.";
-	if (startInfo1->startTime != startInfo2->startTime)
-		return "Different initial start time.";
-	if (startInfo1->mapname != startInfo2->mapname)
-		return "Different map name.";
-	if (startInfo1->difficulty != startInfo2->difficulty)
-		return "Different difficulty.";
-	const auto & playerInfos1 = startInfo1->playerInfos;
-	const auto & playerInfos2 = startInfo2->playerInfos;
-	if (playerInfos1.size() != playerInfos2.size())
-		return "Different number of players.";
-	if (!std::equal(playerInfos1.begin(), playerInfos1.end(), playerInfos2.begin(), playerInfos2.end(),
-		[](const auto& p1, const auto& p2) { return p1.first == p2.first && p1.second.connectedPlayerIDs == p2.second.connectedPlayerIDs; }))
-		return "Different players.";
-	return std::nullopt;
+	return quickSaveAvailable;
 }
 
-void CServerHandler::quickLoadGame(const std::string & path)
+void CServerHandler::onQuickSaveWritten()
+{
+	quickSaveAvailable = true;
+	if(adventureInt)
+		adventureInt->updateActiveState();
+}
+
+void CServerHandler::quickLoadGame()
 {
 	LobbyQuickLoadGame pack;
-	pack.saveFilePath = path;
 	sendLobbyPack(pack);
 }
 
@@ -967,50 +936,24 @@ ELoadMode CServerHandler::getLoadMode()
 void CServerHandler::debugStartTest(std::string filename, bool save)
 {
 	logGlobal->info("Starting debug test with file: %s", filename);
-	auto mapInfo = std::make_shared<CMapInfo>();
+	ScenarioSelection selection;
+	selection.fileURI = filename;
 	if(save)
 	{
 		resetStateForLobby(EStartMode::LOAD_GAME, ESelectionScreen::loadGame, EServerMode::LOCAL, {});
-		mapInfo->saveInit(ResourcePath(filename, EResType::SAVEGAME));
+		selection.type = ScenarioSelection::EType::SAVE;
 	}
 	else
 	{
 		resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOCAL, {});
-		mapInfo->mapInit(filename);
+		selection.type = ScenarioSelection::EType::MAP;
 	}
+	startScenarioAfterConnection(selection);
+
 	if(settings["session"]["donotstartserver"].Bool())
 		connectToServer(getLocalHostname(), getLocalPort());
 	else
 		startLocalServerAndConnect(false);
-
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-	while(!settings["session"]["headless"].Bool() && !ENGINE->windows().topWindow<CLobbyScreen>())
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-	while(!mi || mapInfo->fileURI != mi->fileURI)
-	{
-		setMapInfo(mapInfo);
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-	}
-	// "Click" on color to remove us from it
-	setPlayer(myFirstColor());
-	while(myFirstColor() != PlayerColor::CANNOT_DETERMINE)
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-	while(true)
-	{
-		try
-		{
-			sendStartGame();
-			break;
-		}
-		catch(...)
-		{
-
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
-	}
 }
 
 class ServerHandlerCPackVisitor : public ::ICPackVisitor

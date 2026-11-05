@@ -3,7 +3,7 @@
 	{
 		"name" : "Neutral",
 		"index" : 9,
-		"nativeTerrain" : "none",
+		"nativeTerrain" : [],
 		// creatures of this faction belong to no alignment at all and never mix with the others
 		"alignment" : "none",
 		"boat" : "boatFortress",

@@ -17,7 +17,6 @@
 #include "../entities/hero/CHeroHandler.h"
 #include "../json/JsonUtils.h"
 #include "../modding/CModHandler.h"
-#include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 
 SHeroName::SHeroName() : heroId(-1)
@@ -175,15 +174,15 @@ void CMapHeader::registerMapStrings()
 	else
 		baseLanguage = *mapBaseLanguages.begin();
 
-	if(mapBaseLanguages.count(CGeneralTextHandler::getPreferredLanguage()))
+	if(mapBaseLanguages.count(Languages::getPreferredLanguage()))
 	{
-		language = CGeneralTextHandler::getPreferredLanguage(); //preferred language is base language - use it
+		language = Languages::getPreferredLanguage(); //preferred language is base language - use it
 		baseLanguage = language;
 	}
 	else
 	{
-		if(mapLanguages.count(CGeneralTextHandler::getPreferredLanguage()))
-			language = CGeneralTextHandler::getPreferredLanguage();
+		if(mapLanguages.count(Languages::getPreferredLanguage()))
+			language = Languages::getPreferredLanguage();
 		else
 			language = baseLanguage; //preferred language is not supported, use base language
 	}

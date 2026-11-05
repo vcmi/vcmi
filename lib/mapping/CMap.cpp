@@ -252,11 +252,11 @@ CMap::~CMap()
 {
 	// Workaround for destruction order - parts are not "aware" of their composite artifact
 	// As result, destruction of part of a composite artifact leads to a hanging pointer in combined artifact
-	// Force-detach everything before executing actual deletion
+	// Force-detach everything before executing actual deletion. Parts are attached only once loading
+	// has finished, so detach from actual parents instead of the parts listed in artifact
 	for (const auto & artifact : artInstances)
-		if (artifact)
-			for (const auto & part : artifact->getPartsInfo())
-				artifact->detachFromSource(*part.getArtifact());
+		if (artifact && artifact->hasParts())
+			artifact->detachFromAll();
 }
 
 bool CMap::isHoleAt(const int3 & pos) const
@@ -470,6 +470,17 @@ int3 CMap::guardingCreaturePosition (int3 pos) const
 	}
 
 	return int3(-1, -1, -1);
+}
+
+const CGObjectInstance * CMap::getHeroAtTownEntrance(const CGTownInstance & town) const
+{
+	for(const auto & objectID : getTile(town.visitablePos()).visitableObjects)
+	{
+		const auto * object = getObject(objectID);
+		if(object->ID == Obj::HERO || object->ID == Obj::RANDOM_HERO)
+			return object;
+	}
+	return nullptr;
 }
 
 const CGObjectInstance * CMap::getObjectiveObjectFrom(const int3 & pos, Obj type)

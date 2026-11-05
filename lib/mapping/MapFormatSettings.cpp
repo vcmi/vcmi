@@ -16,6 +16,7 @@
 #include "../GameLibrary.h"
 #include "../IGameSettings.h"
 #include "../json/JsonUtils.h"
+#include "../json/JsonValidator.h"
 #include "../modding/ModScope.h"
 
 MapIdentifiersH3M MapFormatSettings::generateMapping(const GameLibrary & library, EMapFormat format)
@@ -84,8 +85,9 @@ MapFormatSettings::MapFormatSettings(const GameLibrary & library)
 	, campaignOverridesConfig(JsonUtils::assembleFromFiles("config/campaignOverrides.json"))
 	, mapOverridesConfig(JsonUtils::assembleFromFiles("config/mapOverrides.json"))
 {
+	JsonValidator validator;
 	for (auto & entry : mapOverridesConfig.Struct())
-		JsonUtils::validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
+		validator.validate(entry.second, "vcmi:mapHeader", "patch for " + entry.first);
 
 	campaignOverridesConfig.setModScope(ModScope::scopeMap());
 	mapOverridesConfig.setModScope(ModScope::scopeMap());

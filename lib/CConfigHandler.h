@@ -34,7 +34,7 @@ class DLL_LINKAGE SettingsStorage
 	JsonNode config;
 
 	std::string dataFilename;
-	std::string schema;
+	JsonNode schema;
 
 	JsonNode & getNode(const std::vector<std::string> & path);
 
@@ -47,7 +47,7 @@ public:
 	// Initialize config structure
 	SettingsStorage();
 	~SettingsStorage();
-	void init(const std::string & dataFilename, const std::string & schema);
+	void init(const std::string & dataFilename, const std::string & schemaName);
 	
 	// Get write access to config node at path
 	const NodeAccessor<Settings> write;

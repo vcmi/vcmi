@@ -108,7 +108,7 @@ RewardWidget::RewardWidget(CMap & m, ObjectInstanceID id, QWidget *parent) :
 	}
 
 
-	for(auto & creature : LIBRARY->creh->objects)
+	for(const auto * creature : LIBRARY->creh->getObjects())
 	{
 
 		ui->creatureId->addItem(QString::fromStdString(creature->getNameSingularTranslated()));

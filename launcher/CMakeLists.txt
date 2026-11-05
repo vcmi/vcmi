@@ -29,7 +29,8 @@ set(launcher_SRCS
 		innoextract.cpp
 		mainwindow_moc.cpp
 		languages.cpp
-		updatedialog_moc.cpp
+		updates/UpdateChecker.cpp
+		updates/UpdateView.cpp
 		prepare.cpp
 )
 if(IOS)
@@ -67,7 +68,8 @@ set(launcher_HEADERS
 		firstLaunch/progressoverlay.h
 		mainwindow_moc.h
 		languages.h
-		updatedialog_moc.h
+		updates/UpdateChecker.h
+		updates/UpdateView.h
 		demo.h
 		main.h
 		helper.h
@@ -91,7 +93,7 @@ set(launcher_FORMS
 		firstLaunch/firstlaunch_moc.ui
 		mainwindow_moc.ui
 		startGame/StartGameTab.ui
-		updatedialog_moc.ui
+		updates/UpdateView.ui
 )
 
 set(launcher_RESOURCES
@@ -162,10 +164,6 @@ endif()
 
 assign_source_group(${launcher_SRCS} ${launcher_HEADERS} ${launcher_RESOURCES} ${launcher_TS} ${launcher_ICON})
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
-
 if(POLICY CMP0071)
 	cmake_policy(SET CMP0071 NEW)
 endif()
@@ -183,6 +181,9 @@ else()
 		vcmi_deploy_qt_runtime(vcmilauncher)
 	endif()
 endif()
+
+set_target_properties(vcmilauncher PROPERTIES AUTOMOC ON)
+set_target_properties(vcmilauncher PROPERTIES AUTORCC ON)
 
 if(ENABLE_TRANSLATIONS)
 	if(TARGET Qt6::Core)
@@ -222,6 +223,8 @@ if(ANDROID)
 	generate_binary_resource("scripts" "${CMAKE_SOURCE_DIR}/scripts")
 	list(APPEND launcher_RESOURCES "${CMAKE_CURRENT_BINARY_DIR}/scripts.qrc")
 endif()
+
+qt_wrap_ui(vcmilauncher launcher_FORMS ${launcher_FORMS})
 
 target_sources(vcmilauncher PRIVATE
 	${launcher_SRCS}
@@ -275,6 +278,10 @@ target_link_libraries(vcmilauncher vcmi vcmiqt Qt${QT_VERSION_MAJOR}::Widgets)
 target_include_directories(vcmilauncher
 	PUBLIC	${CMAKE_CURRENT_SOURCE_DIR}
 )
+target_compile_definitions(vcmilauncher PRIVATE VCMI_UPDATE_CHANNEL="${VCMI_UPDATE_CHANNEL}")
+if(VCMI_FLATPAK)
+	target_compile_definitions(vcmilauncher PRIVATE VCMI_FLATPAK)
+endif()
 vcmi_set_output_dir(vcmilauncher "")
 enable_pch(vcmilauncher)
 

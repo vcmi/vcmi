@@ -78,7 +78,7 @@ Component LuaComponent::toComponent() const
 		{
 			if(!faction)
 				throw LuaApiException("Component: building requires a faction");
-			const auto * town = FactionID(*faction).toFaction()->town.get();
+			const auto * town = FactionID(*faction).toFaction()->getTown();
 			if(!town || !town->buildings.count(BuildingID(subType)))
 				throw LuaApiException("Component: invalid building " + std::to_string(subType) + " of faction " + std::to_string(*faction));
 			result.subType = BuildingTypeUniqueID(FactionID(*faction), BuildingID(subType));

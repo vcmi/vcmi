@@ -94,6 +94,16 @@ bool CFaction::hasTown() const
 	return town != nullptr;
 }
 
+const CTown * CFaction::getTown() const
+{
+	return town.get();
+}
+
+void CFaction::setTown(std::unique_ptr<CTown> newTown)
+{
+	town = std::move(newTown);
+}
+
 EAlignment CFaction::getAlignment() const
 {
 	return alignment;

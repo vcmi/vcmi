@@ -18,6 +18,7 @@
 #include "RiverHandler.h"
 #include "TerrainHandler.h"
 #include "MapLayerHandler.h"
+#include "entities/RumorTypeHandler.h"
 #include "spells/SpellSchoolHandler.h"
 #include "CSkillHandler.h"
 #include "../luascript/LuaModule.h"
@@ -50,7 +51,7 @@
 
 #include <vcmi/scripting/Service.h>
 
-GameLibrary * LIBRARY = nullptr;
+const GameLibrary * LIBRARY = nullptr;
 
 
 
@@ -169,7 +170,7 @@ void GameLibrary::loadModFilesystem(bool useTestPreset)
 }
 
 template <class Handler>
-void createHandler(std::unique_ptr<Handler> & handler)
+void createHandler(LibraryHandlerPtr<Handler> & handler)
 {
 	handler = std::make_unique<Handler>();
 }
@@ -249,6 +250,7 @@ void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 	createHandler(battlefieldsHandler);
 	createHandler(obstacleHandler);
 	createHandler(mapLayerHandler);
+	createHandler(rumorHandler);
 
 	scriptHandler = std::make_unique<scripting::LuaModule>();
 	scriptHandler->installScripting(*scriptTypeHandler);

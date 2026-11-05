@@ -12,8 +12,12 @@
 
 #include "CVCMIServer.h"
 #include "CGameHandler.h"
+#include "lobby/BattleOnlyMap.h"
+#include "lobby/LastScenarios.h"
+#include "lobby/ScenarioListBuilder.h"
 
 #include "../lib/StartInfo.h"
+#include "../lib/VCMIDirs.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
@@ -22,10 +26,24 @@
 #include "../lib/campaign/CampaignState.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/filesystem/Filesystem.h"
+#include "../lib/filesystem/SavegamePath.h"
 #include "../lib/gameState/CGameState.h"
+#include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/serializer/GameConnection.h"
+
+/// Returns true if canonical path points to an entry inside directory, and not to directory itself
+static bool isInsideDirectory(const boost::filesystem::path & canonicalPath, const boost::filesystem::path & directory)
+{
+	boost::system::error_code ec;
+	const auto canonicalDirectory = boost::filesystem::canonical(directory, ec);
+	if(ec)
+		return false;
+
+	const auto [directoryEnd, pathEnd] = std::mismatch(canonicalDirectory.begin(), canonicalDirectory.end(), canonicalPath.begin(), canonicalPath.end());
+	return directoryEnd == canonicalDirectory.end() && pathEnd != canonicalPath.end();
+}
 
 void ClientPermissionsCheckerNetPackVisitor::visitForLobby(CPackForLobby & pack)
 {
@@ -77,7 +95,66 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQueryState(LobbyQuerySt
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
 {
 	// only host can load quicksave
-	result = srv.isClientHost(connection->connectionID);
+	result = srv.isClientHost(connection->connectionID) && srv.getState() == EServerState::GAMEPLAY;
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyRequestQuickLoadInfo(LobbyRequestQuickLoadInfo & pack)
+{
+	result = srv.isClientHost(connection->connectionID) && srv.getState() == EServerState::GAMEPLAY;
+}
+
+static std::string getQuickSavePath(const CGameState & gs)
+{
+	return SavegamePath::getPath(*gs.getStartInfo(), gs.getMap(), "Quicksave");
+}
+
+/// Returns reason why the quick save can not be loaded into the running game, or empty string if it can
+static std::string checkQuickSave(const CGameState & gs, const std::string & path)
+{
+	if(!CResourceHandler::get()->existsResource(ResourcePath(path, EResType::SAVEGAME)))
+		return "No quick save found at " + path;
+
+	CMapInfo mapInfo;
+	try
+	{
+		mapInfo.saveInit(ResourcePath(path, EResType::SAVEGAME));
+	}
+	catch(const std::exception & e)
+	{
+		return std::string("Failed to load quick save: ") + e.what();
+	}
+
+	// initial start info from quick load slot
+	const auto * startInfo1 = mapInfo.scenarioOptionsOfSave.get();
+	// initial start info from game state (not current start info)
+	const auto * startInfo2 = gs.getInitialStartInfo();
+
+	if(!startInfo1)
+		return "Missing quick load start info.";
+	if(!startInfo2)
+		return "Missing server start info.";
+	if(startInfo1->startTime != startInfo2->startTime)
+		return "Different initial start time.";
+	if(startInfo1->mapname != startInfo2->mapname)
+		return "Different map name.";
+	if(startInfo1->difficulty != startInfo2->difficulty)
+		return "Different difficulty.";
+	const auto & playerInfos1 = startInfo1->playerInfos;
+	const auto & playerInfos2 = startInfo2->playerInfos;
+	if(playerInfos1.size() != playerInfos2.size())
+		return "Different number of players.";
+	if(!std::equal(playerInfos1.begin(), playerInfos1.end(), playerInfos2.begin(), playerInfos2.end(),
+		[](const auto & p1, const auto & p2) { return p1.first == p2.first && p1.second.connectedPlayerIDs == p2.second.connectedPlayerIDs; }))
+		return "Different players.";
+	return {};
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyRequestQuickLoadInfo(LobbyRequestQuickLoadInfo & pack)
+{
+	LobbyQuickLoadInfo reply;
+	reply.error = checkQuickSave(*srv.gh->gs, getQuickSavePath(*srv.gh->gs));
+	connection->sendPack(reply);
+	result = false;
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
@@ -87,7 +164,7 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyClientConnected(LobbyClie
 
 void ApplyOnServerNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)
 {
-	if(pack.version < ESerializationVersion::LOBBY_MAP_INFO_PACK)
+	if(pack.version < ESerializationVersion::MINIMAL_LOBBY)
 	{
 		// client of an older version can not read packs of the current lobby protocol
 		logNetwork->error("Rejecting client with incompatible serialization version %d", static_cast<int>(pack.version));
@@ -168,11 +245,22 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyChatMessage(LobbyChatMess
 
 void ApplyOnServerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGame & pack)
 {
+	const std::string path = getQuickSavePath(*srv.gh->gs);
+	LobbyQuickLoadInfo info;
+	info.error = checkQuickSave(*srv.gh->gs, path);
+	if(!info.error.empty())
+	{
+		logNetwork->error("Rejecting quick load: %s", info.error);
+		connection->sendPack(info);
+		result = false;
+		return;
+	}
+
 	*srv.si = *srv.gh->gs->getStartInfo();
 	srv.prepareToRestart();
 	// modify StartInfo to load the quicksave
 	srv.si->mode = EStartMode::LOAD_GAME;
-	srv.si->mapname = pack.saveFilePath;
+	srv.si->mapname = path;
 	result = true;
 }
 
@@ -180,6 +268,67 @@ void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuic
 {
 	for(const auto & connection : srv.activeConnections)
 		connection->enterLobbyConnectionMode();
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
+{
+	result = srv.isClientHost(connection->connectionID);
+
+	const auto & selection = pack.selection;
+	bool valid = false;
+	switch(selection.type)
+	{
+		case ScenarioSelection::EType::NONE:
+			valid = true;
+			break;
+		case ScenarioSelection::EType::MAP:
+		case ScenarioSelection::EType::CAMPAIGN:
+			valid = boost::algorithm::istarts_with(selection.fileURI, "Maps/");
+			break;
+		case ScenarioSelection::EType::SAVE:
+			valid = boost::algorithm::istarts_with(selection.fileURI, "Saves/");
+			break;
+		case ScenarioSelection::EType::RANDOM_MAP:
+			valid = pack.mapGenOpts != nullptr;
+			break;
+		case ScenarioSelection::EType::BATTLE_ONLY:
+			valid = srv.battleOnlyModeStartInfo != nullptr;
+			break;
+	}
+
+	if(!valid)
+	{
+		logNetwork->error("Rejecting selection of '%s' with type %d", selection.fileURI, static_cast<int>(selection.type));
+		result = false;
+	}
+}
+
+static std::shared_ptr<CMapInfo> createMapInfo(const LobbySetMap & pack, const BattleOnlyModeStartInfo * battleOnlyModeStartInfo)
+{
+	auto mapInfo = std::make_shared<CMapInfo>();
+	switch(pack.selection.type)
+	{
+		case ScenarioSelection::EType::NONE:
+			return nullptr;
+		case ScenarioSelection::EType::MAP:
+			mapInfo->mapInit(pack.selection.fileURI);
+			break;
+		case ScenarioSelection::EType::SAVE:
+			mapInfo->saveInit(ResourcePath(pack.selection.fileURI, EResType::SAVEGAME));
+			break;
+		case ScenarioSelection::EType::CAMPAIGN:
+			mapInfo->fileURI = pack.selection.fileURI;
+			mapInfo->campaignInit();
+			break;
+		case ScenarioSelection::EType::RANDOM_MAP:
+			mapInfo->randomMapInit(*pack.mapGenOpts);
+			break;
+		case ScenarioSelection::EType::BATTLE_ONLY:
+			BattleOnlyMap::write(*battleOnlyModeStartInfo);
+			mapInfo->mapInit(BattleOnlyMap::fileURI);
+			break;
+	}
+	return mapInfo;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
@@ -190,9 +339,29 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 		return;
 	}
 
-	srv.updateStartInfoOnMapChange(pack.mapInfo, pack.mapGenOpts);
+	std::shared_ptr<CMapInfo> mapInfo;
+	try
+	{
+		mapInfo = createMapInfo(pack, srv.battleOnlyModeStartInfo.get());
+	}
+	catch(const std::exception & e)
+	{
+		// list entry is built from metadata, so the rest of the file may still be invalid
+		logGlobal->error("Failed to load %s: %s", pack.selection.fileURI, e.what());
 
-	// pack contains whole map header and clients receive it in LobbyUpdateMapInfo, so it is not announced
+		LobbyShowMessage message;
+		message.message.appendTextID("vcmi.client.errors.invalidMap");
+		message.message.replaceRawString(e.what());
+		connection->sendPack(message);
+	}
+
+	// tutorial and debug start select maps without listing them
+	if(mapInfo && pack.selection.type == ScenarioSelection::EType::MAP && srv.lastScenarioListRequest && srv.lastScenarioListRequest->type == ScenarioListEntry::EType::MAP)
+		LastScenarios::rememberMap(pack.selection.fileURI);
+
+	srv.updateStartInfoOnMapChange(mapInfo, pack.mapGenOpts);
+
+	// map info contains whole map header and clients receive it in LobbyUpdateMapInfo, so pack is not announced
 	srv.updateAndPropagateLobbyState();
 	result = false;
 }
@@ -296,26 +465,6 @@ void ApplyOnServerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
 	srv.startGameImmediately();
-}
-
-void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
-{
-	result = srv.isClientHost(connection->connectionID);
-}
-
-void ApplyOnServerNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
-{
-	result = true;
-}
-
-void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyChangeHost(LobbyChangeHost & pack)
-{
-	auto result = srv.passHost(pack.newHostConnectionId);
-	
-	if(!result)
-	{
-		logGlobal->error("passHost returned false. What does it mean?");
-	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack)
@@ -470,6 +619,35 @@ void ApplyOnServerNetPackVisitor::visitLobbyPvPAction(LobbyPvPAction & pack)
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 {
 	result = srv.isClientHost(connection->connectionID);
+
+	// list shown after deletion is the last one requested
+	if(!srv.lastScenarioListRequest)
+	{
+		logNetwork->error("Rejecting deletion of files before any list was requested");
+		result = false;
+	}
+
+	for(const auto & file : pack.files)
+	{
+		const auto type = file.getType();
+		if(type != EResType::SAVEGAME && type != EResType::DIRECTORY && type != EResType::MAP)
+		{
+			logNetwork->error("Rejecting deletion of '%s' of type %d", file.getOriginalName(), static_cast<int>(type));
+			result = false;
+		}
+	}
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack)
+{
+	result = srv.isClientHost(connection->connectionID);
+
+	const bool validLoadMode = pack.loadMode == ELoadMode::SINGLE || pack.loadMode == ELoadMode::MULTI || pack.loadMode == ELoadMode::CAMPAIGN || pack.loadMode == ELoadMode::TUTORIAL;
+	if(pack.type != ScenarioListEntry::EType::MAP && (pack.type != ScenarioListEntry::EType::SAVE || !validLoadMode))
+	{
+		logNetwork->error("Rejecting scenario list request with invalid type %d or load mode %d", static_cast<int>(pack.type), static_cast<int>(pack.loadMode));
+		result = false;
+	}
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
@@ -477,11 +655,65 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbySetBattleOnlyModeStartInf
 	result = true;
 }
 
-void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
+void ApplyOnServerNetPackVisitor::visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack)
 {
-	if(pack.type == LobbyDelete::EType::SAVEGAME || pack.type == LobbyDelete::EType::RANDOMMAP)
+	srv.battleOnlyModeStartInfo = pack.startInfo;
+	result = true;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScenarioList & pack)
+{
+	const ScenarioListBuilder builder(pack.type, pack.loadMode);
+	LobbyScenarioList reply;
+	if(pack.selectLast && pack.type == ScenarioListEntry::EType::MAP)
+		reply.list = builder.buildForMap(LastScenarios::getMap(), reply.selectedFile);
+	else if(pack.selectLast)
+		reply.list = builder.buildForSave(LastScenarios::getSave(pack.loadMode), reply.selectedFile);
+	else
+		reply.list = builder.build(pack.folder);
+	connection->sendPack(reply);
+
+	srv.lastScenarioListRequest = pack;
+	srv.lastScenarioListRequest->folder = reply.list.folder;
+	srv.lastScenarioListRequest->selectLast = false;
+	result = false;
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyRequestScenarioInfo(LobbyRequestScenarioInfo & pack)
+{
+	result = srv.isClientHost(connection->connectionID);
+
+	if(pack.selection.type != ScenarioSelection::EType::SAVE || !boost::algorithm::istarts_with(pack.selection.fileURI, "Saves/"))
 	{
-		auto res = ResourcePath(pack.name, pack.type == LobbyDelete::EType::SAVEGAME ? EResType::SAVEGAME : EResType::MAP);
+		logNetwork->error("Rejecting scenario info request for '%s' of type %d", pack.selection.fileURI, static_cast<int>(pack.selection.type));
+		result = false;
+	}
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioInfo(LobbyRequestScenarioInfo & pack)
+{
+	LobbyScenarioInfo reply;
+	reply.selection = pack.selection;
+	try
+	{
+		auto mapInfo = std::make_shared<CMapInfo>();
+		mapInfo->saveInit(ResourcePath(pack.selection.fileURI, EResType::SAVEGAME));
+		reply.mapInfo = mapInfo;
+	}
+	catch(const std::exception & e)
+	{
+		// list entry is built from metadata, so the rest of the file may still be invalid
+		logGlobal->error("Failed to load %s: %s", pack.selection.fileURI, e.what());
+		reply.error = e.what();
+	}
+	connection->sendPack(reply);
+	result = false;
+}
+
+static void deleteFile(const ResourcePath & res)
+{
+	if(res.getType() == EResType::SAVEGAME || res.getType() == EResType::MAP)
+	{
 		auto name = CResourceHandler::get()->getResourceName(res);
 		if (!name)
 		{
@@ -491,10 +723,15 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 
 		boost::system::error_code ec;
 		auto file = boost::filesystem::canonical(*name, ec);
+		const auto directory = res.getType() == EResType::SAVEGAME ? VCMIDirs::get().userSavePath() : VCMIDirs::get().userDataPath() / "Maps" / "RandomMaps";
 
 		if (ec)
 		{
 			logGlobal->error("Failed to delete file '%s'. Reason: %s", res.getOriginalName(), ec.message());
+		}
+		else if (!isInsideDirectory(file, directory))
+		{
+			logGlobal->error("Refusing to delete file '%s' outside of directory '%s'", res.getOriginalName(), directory.string());
 		}
 		else
 		{
@@ -503,9 +740,8 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 				boost::filesystem::remove(file.parent_path());
 		}
 	}
-	else if(pack.type == LobbyDelete::EType::SAVEGAME_FOLDER)
+	else if(res.getType() == EResType::DIRECTORY)
 	{
-		auto res = ResourcePath("Saves/" + pack.name, EResType::DIRECTORY);
 		auto name = CResourceHandler::get()->getResourceName(res);
 		if (!name)
 		{
@@ -514,19 +750,29 @@ void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
 		}
 
 		boost::system::error_code ec;
-		auto folder = boost::filesystem::canonical(*name);
+		auto folder = boost::filesystem::canonical(*name, ec);
 		if (ec)
 		{
 			logGlobal->error("Failed to delete folder '%s'. Reason: %s", res.getOriginalName(), ec.message());
+		}
+		else if (!isInsideDirectory(folder, VCMIDirs::get().userSavePath()))
+		{
+			logGlobal->error("Refusing to delete folder '%s' outside of directory '%s'", res.getOriginalName(), VCMIDirs::get().userSavePath().string());
 		}
 		else
 		{
 			boost::filesystem::remove_all(folder);
 		}
 	}
+}
 
-	LobbyUpdateState lus;
-	lus.state = *static_cast<LobbyState*>(&srv);
-	lus.refreshList = true;
-	srv.announcePack(lus);
+void ApplyOnServerNetPackVisitor::visitLobbyDelete(LobbyDelete & pack)
+{
+	for(const auto & file : pack.files)
+		deleteFile(file);
+
+	LobbyScenarioList reply;
+	reply.list = ScenarioListBuilder(srv.lastScenarioListRequest->type, srv.lastScenarioListRequest->loadMode).build(srv.lastScenarioListRequest->folder);
+	connection->sendPack(reply);
+	result = false;
 }

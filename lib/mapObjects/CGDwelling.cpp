@@ -142,7 +142,7 @@ void CGDwelling::pickRandomObject(IGameRandomizer & gameRandomizer)
 		assert(level >= 0 && level <= 6);
 		randomizationInfo.reset();
 
-		CreatureID cid = (*LIBRARY->townh)[faction]->town->creatures[level][0];
+		CreatureID cid = (*LIBRARY->townh)[faction]->getTown()->creatures[level][0];
 
 		//NOTE: this will pick last dwelling with this creature (Mantis #900)
 		//check for block map equality is better but more complex solution

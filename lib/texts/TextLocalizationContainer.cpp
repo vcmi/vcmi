@@ -10,7 +10,6 @@
 #include "StdInc.h"
 #include "TextLocalizationContainer.h"
 
-#include "texts/CGeneralTextHandler.h"
 #include "Languages.h"
 #include "TextOperations.h"
 
@@ -36,7 +35,7 @@ void TextLocalizationContainer::registerStringOverride(const std::string & modCo
 		}
 		else
 		{
-			if (language == CGeneralTextHandler::getPreferredLanguage())
+			if (language == Languages::getPreferredLanguage())
 				entry.overriden = true;
 		}
 	}

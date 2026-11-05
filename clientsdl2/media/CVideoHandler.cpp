@@ -23,7 +23,6 @@
 
 #include "lib/filesystem/CInputStream.h"
 #include "lib/filesystem/Filesystem.h"
-#include "lib/texts/CGeneralTextHandler.h"
 #include "lib/texts/Languages.h"
 #include "lib/GameLibrary.h"
 
@@ -543,7 +542,7 @@ int FFMpegStream::findAudioStream() const
 		}
 	}
 
-	std::string preferredLanguageName = LIBRARY->generaltexth->getPreferredLanguage();
+	std::string preferredLanguageName = Languages::getPreferredLanguage();
 	std::string preferredTag = Languages::getLanguageOptions(preferredLanguageName).tagISO2;
 
 	for (auto const & entry : streamToLanguage)

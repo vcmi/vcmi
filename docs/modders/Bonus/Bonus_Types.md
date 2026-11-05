@@ -340,10 +340,15 @@ Defines percentage of mana points that hero gains per each point of knowledge (I
 
 ### HERO_GRANTS_ATTACKS
 
-Gives additional attacks to specific creatures in affected army (Artillery)
+DEPRECATED. Configs and saves convert this bonus to [ADDITIONAL_ATTACK](#additional_attack) limited to the creature from its subtype during loading. Use `ADDITIONAL_ATTACK` in new content.
 
-- subtype: creature to give additional attacks
-- val: number of attacks
+```json
+{
+	"type" : "ADDITIONAL_ATTACK",
+	"val" : 1,
+	"limiters" : [ { "type" : "CREATURE_TYPE_LIMITER", "creature" : "ballista" } ]
+}
+```
 
 ### BONUS_DAMAGE_CHANCE
 
@@ -538,8 +543,8 @@ Controls whether affected hero can surrender. Works in the same way as `BATTLE_C
 Negates all natural immunities for affected stacks. (Orb of Vulnerability)
 
 - subtype:
-  - immunityBattleWide: Entire battle will be affected by bonus
-  - immunityEnemyHero: Only enemy hero will be affected by bonus
+  - immunityBattleWide: affected units lose natural immunities against spells cast by their enemies. Use with `BATTLE_WIDE` propagator
+  - immunityEnemyHero: affected units lose natural immunities against spells from any caster, including their own side
 
 ### OPENING_BATTLE_SPELL
 
@@ -1240,11 +1245,23 @@ DEPRECATED. Configs and saves declaring it are converted to the [enchanted](../L
 {
 	"type" : "COMBAT_EVENT_TRIGGER",
 	"subtype" : "enchanted",
-	"addInfo" : { "spell" : "core:bless", "level" : 2, "massive" : true }
+	"val" : 2,
+	"addInfo" : { "spell" : "core:bless", "massive" : true }
 }
 ```
 
-`spell` replaces the old subtype, while `level` and `massive` replace the single `val` that packed both - this script has no magnitude, so it leaves `val` unused. Several such bonuses for the same spell each apply at their own level, where the bonus took the highest level of the group for all of them.
+`spell` replaces the old subtype. `val` is still the mastery level, but no longer packs the mass effect: old values above 3 become `val - 3` with `massive` set to true. Several such bonuses for the same spell each apply at their own level, where the bonus took the highest level of the group for all of them.
+
+Since mastery stays in `val`, stack experience can raise it by rank as before:
+
+```json
+"stackExperience" : [
+	{
+		"bonus" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "enchanted", "addInfo" : { "spell" : "core:shield" } },
+		"values" : [ 0, 0, 1, 1, 1, 2, 2, 2, 3, 3 ]
+	}
+]
+```
 
 ## Spell immunities
 
@@ -1307,7 +1324,8 @@ Unit affected by poison will lose 10% of max health every combat turn, up to `va
 
 Affected unit will deal increased damage to creatures with KING bonus
 
-- val: skill mastery of Slayer spell, only creatures with lower or equal value of KING bonus are affected
+- val: attack bonus against affected creatures
+- addInfo: skill mastery of Slayer spell, only creatures with lower or equal value of KING bonus are affected
 
 ### FORGETFULL
 
