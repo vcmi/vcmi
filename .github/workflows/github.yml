@@ -177,6 +177,8 @@ jobs:
             update_platform: linux-arm64
 
     runs-on: ${{ matrix.os }}
+    env:
+      BUILD_DIR: ${{ github.workspace }}/out/build/${{ matrix.preset }}
 
     steps:
     - name: Checkout repository
@@ -400,11 +402,11 @@ jobs:
     - name: Build Android packages
       if: ${{ startsWith(matrix.platform, 'android') }}
       run: |
-        cmake --build out/build/${{ matrix.preset }} --target build_aab
+        cmake --build "$BUILD_DIR" --target build_aab
 
-        OUTPUT_DIRECTORY="${{ github.workspace }}/out/build/${{ matrix.preset }}/android-build/vcmi-app/build/outputs"
-        mv "$OUTPUT_DIRECTORY/apk/release/vcmi-release.apk" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.apk"
-        mv "$OUTPUT_DIRECTORY/bundle/release/vcmi-release.aab" "${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab"
+        OUTPUT_DIRECTORY="$BUILD_DIR/android-build/vcmi-app/build/outputs"
+        mv "$OUTPUT_DIRECTORY/apk/release/vcmi-release.apk" "$BUILD_DIR/${{ env.VCMI_PACKAGE_FILE_NAME }}.apk"
+        mv "$OUTPUT_DIRECTORY/bundle/release/vcmi-release.aab" "$BUILD_DIR/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab"
       env:
         ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
         ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -412,7 +414,6 @@ jobs:
     - name: Create AppImage
       if: ${{ matrix.platform == 'linux-appimage-x64' || matrix.platform == 'linux-appimage-arm64' }}
       env:
-        BUILD_DIR: ${{ github.workspace }}/out/build/${{ matrix.preset }}
         ARCH: ${{ matrix.artifact_platform }}
       run: |
         chmod +x CI/create_appimage.sh
@@ -430,7 +431,7 @@ jobs:
       id: cpack
       if: ${{ matrix.pack == 1 }}
       run: |
-        cd "${{github.workspace}}/out/build/${{matrix.preset}}"
+        cd "$BUILD_DIR"
         # macOS may fail due to hdiutil error, see https://github.com/actions/runner-images/issues/7522
         maxCounter=${{ startsWith(matrix.platform, 'mac-') && '10' || '0' }}
         counter=1
@@ -450,7 +451,7 @@ jobs:
           exit 0
         fi
 
-        dmg='${{ github.workspace }}/out/build/${{ matrix.preset }}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}'
+        dmg="$BUILD_DIR/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}"
         codesign --verbose=4 --force --sign "$MACOS_CODE_SIGN_IDENTITY" "$dmg"
         xcrun notarytool submit \
           --apple-id "$NOTARIZATION_APPLE_ID" \
@@ -466,7 +467,7 @@ jobs:
       with:
         archive: false
         path: |
-          ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
+          ${{ env.BUILD_DIR }}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}
 
     - name: Upload AAB Artifact
       id: upload_aab
@@ -475,7 +476,7 @@ jobs:
       with:
         archive: false
         path: |
-          ${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab
+          ${{ env.BUILD_DIR }}/${{ env.VCMI_PACKAGE_FILE_NAME }}.aab
 
     - name: Upload MSVC debug symbols
       id: upload_symbols
@@ -492,7 +493,7 @@ jobs:
       run: |
         IOS_APPSTORE_SYMBOLS_DIR='${{ github.workspace }}/Symbols'
         mkdir "$IOS_APPSTORE_SYMBOLS_DIR"
-        dsyms=$(find '${{ github.workspace }}/out/build/${{ matrix.preset }}' -name '*.dSYM')
+        dsyms=$(find "$BUILD_DIR" -name '*.dSYM')
         xcrun symbols -arch all -symbolsPackageDir "$IOS_APPSTORE_SYMBOLS_DIR" $dsyms
         echo IOS_APPSTORE_SYMBOLS_DIR="$IOS_APPSTORE_SYMBOLS_DIR" >> $GITHUB_ENV
     - name: Upload iOS AppStore debug symbols
@@ -509,7 +510,7 @@ jobs:
       if: ${{ matrix.upload == 1 && github.event.number == '' && env.BUILDS_UPLOADER_PRIVATE_KEY != '' }}
       run: |
         if [ -z '${{ env.ANDROID_APK_PATH }}' ] ; then
-          cd '${{github.workspace}}/out/build/${{matrix.preset}}'
+          cd "$BUILD_DIR"
         fi
         source '${{github.workspace}}/CI/upload_package.sh'
       env:
@@ -519,7 +520,7 @@ jobs:
     - name: Prepare update information
       if: ${{ steps.upload_build.outcome == 'success' }}
       run: |
-        python3 CI/build_manifest.py file '${{github.workspace}}/out/build/${{matrix.preset}}/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}' '${{ matrix.update_platform }}' package
+        python3 CI/build_manifest.py file "$BUILD_DIR/${{ env.VCMI_PACKAGE_FILE_NAME }}.${{ matrix.extension }}" '${{ matrix.update_platform }}' package
 
     - name: Upload update information
       if: ${{ steps.upload_build.outcome == 'success' }}
@@ -622,6 +623,8 @@ jobs:
             preset: linux-clang-test
 
     runs-on: ${{ matrix.os }}
+    env:
+      BUILD_DIR: ${{ github.workspace }}/out/build/${{ matrix.preset }}
 
     steps:
     - name: Checkout repository
@@ -699,7 +702,7 @@ jobs:
 
     - name: Validate library startup
       run: |
-        cd "${{github.workspace}}/out/build/${{matrix.preset}}/bin"
+        cd "$BUILD_DIR/bin"
         ./vcmiserver --dummy-run 2> >(tee error.log)
         if [ ! -s error.log ]; then
             echo "Validation OK!"
