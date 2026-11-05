@@ -290,7 +290,8 @@ public:
 
 	const Campaign & getCampaign() const;
 	const std::shared_ptr<const Campaign> & getCampaignPtr() const;
-	/// Replaces the campaign with an identical one, so that start infos share a single copy
+	/// Replaces the campaign with an identical one, so that start infos share a single copy.
+	/// Null only while the gamestate is written to or read from a replay snapshot
 	void setCampaign(std::shared_ptr<const Campaign> value);
 
 	/// Copies persist-flagged script variables of the given map into the campaign state.

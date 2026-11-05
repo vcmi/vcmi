@@ -1874,15 +1874,27 @@ std::vector<std::byte> CGameState::saveToMemory()
 	ReplayLog logBackup;
 	std::swap(logBackup, replayLog);
 
+	std::shared_ptr<const Campaign> campaignBackup = scenarioOps->campState ? scenarioOps->campState->getCampaignPtr() : nullptr;
+	setCampaign(nullptr);
+
 	CMemorySerializer serializer;
 	serializer.oser & *this;
 
+	setCampaign(campaignBackup);
 	std::swap(logBackup, replayLog);
 
 	return serializer.extractBuffer();
 }
 
-void CGameState::loadFromMemory(std::vector<std::byte> data)
+void CGameState::setCampaign(std::shared_ptr<const Campaign> campaign)
+{
+	if(scenarioOps->campState)
+		scenarioOps->campState->setCampaign(campaign);
+	if(initialOpts->campState)
+		initialOpts->campState->setCampaign(campaign);
+}
+
+void CGameState::loadFromMemory(std::vector<std::byte> data, std::shared_ptr<const Campaign> campaign)
 {
 	// battles are not part of serialize(), so leftovers of the discarded state have to go explicitly
 	currentBattles.clear();
@@ -1891,6 +1903,10 @@ void CGameState::loadFromMemory(std::vector<std::byte> data)
 	serializer.iser.loadingGamestate = true;
 	serializer.iser.cb = this;
 	serializer.iser & *this;
+
+	if(scenarioOps->campState && !campaign)
+		throw std::runtime_error("Snapshot of campaign " + scenarioOps->mapname + " is loaded without its campaign");
+	setCampaign(campaign);
 }
 
 void CGameState::loadGame(BinaryDeserializer & h)
