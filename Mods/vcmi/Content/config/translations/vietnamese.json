@@ -338,8 +338,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "Đặt tốc độ cuộn bản đồ sang rất nhanh.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Đặt tốc độ cuộn bản đồ sang tức thời.",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "Đặt tốc độ cuộn bản đồ sang tức thời.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Hiện biểu tượng tướng}\n\nHiển thị biểu tượng của các tướng trên bản đồ thu nhỏ, giúp bạn dễ dàng nhìn thấy chúng hơn trên bản đồ lớn.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Hiện biểu tượng tướng",
 	"vcmi.adventureOptions.numericQuantities.help": "{Hiện số lượng quân địch}\n\nHiện số lượng quân của đối thủ dưới dạng số A-B.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Hiện số lượng quân địch",
 	"vcmi.adventureOptions.replayShowBattles.help": "{Hiện phát lại trận đấu}\n\nHiển thị các trận đấu diễn ra trong lượt đang được phát lại. Nếu tắt tùy chọn này, các trận đấu đó sẽ bị bỏ qua.",

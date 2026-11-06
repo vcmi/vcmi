@@ -665,7 +665,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 
 	//if player has some modded boosts we want to show that as well
 	const auto * playerSettings = GAME->interface()->cb->getPlayerSettings(GAME->interface()->playerID);
-	const auto & towns = GAME->interface()->cb->getTownsInfo(true);
+	const auto & towns = GAME->interface()->cb->getTownsInfo();
 	totalIncome += GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->valOfBonuses(BonusType::RESOURCES_CONSTANT_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * playerSettings->handicap.percentIncome / 100;
 	totalIncome += GAME->interface()->cb->getPlayerState(GAME->interface()->playerID)->valOfBonuses(BonusType::RESOURCES_TOWN_MULTIPLYING_BOOST, BonusSubtypeID(GameResID(EGameResID::GOLD))) * towns.size() * playerSettings->handicap.percentIncome / 100;
 
@@ -910,7 +910,7 @@ CTownItem::CTownItem(const CGTownInstance * Town)
 
 	fastMarket = std::make_shared<LRClickableArea>(Rect(153, 6, 65, 64), []()
 	{
-		std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo(true);
+		std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo();
 		for(auto & town : towns)
 		{
 			if(town->hasBuilt(BuildingID::MARKETPLACE))

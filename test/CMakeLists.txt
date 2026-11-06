@@ -158,7 +158,6 @@ set(test_SRCS
  		mock/mock_MapService.cpp
  		mock/mock_MapServiceTinyH3M.cpp
  		mock/mock_BonusBearer.cpp
-		mock/mock_CPSICallback.cpp
 		mock/TinyMapGameTest.cpp
 		mock/TinyH3MWriter.cpp
 		mock/TinyH3MBuilder.cpp
@@ -261,7 +260,6 @@ set(mock_HEADERS
 		mock/mock_UnitEnvironment.h
 		mock/mock_UnitInfo.h
 		mock/mock_vstd_RNG.h
-		mock/mock_CPSICallback.h
 )
 
 if(MSVC)

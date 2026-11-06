@@ -335,8 +335,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "Régler la vitesse de défilement de la carte sur très rapide.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Régler la vitesse de défilement de la carte sur instantanément.",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "Régler la vitesse de défilement de la carte sur instantanément.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Affiche les héros sur la mini-carte}\n\nAffiche des icônes supplémentaires pour tous les héros sur la mini-carte, les rendant plus visibles sur une large carte.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Affiche les héros sur la mini-carte",
 	"vcmi.adventureOptions.numericQuantities.help": "{Dénombrement de créatures}\n\nAfficher une estimation du nombre de créatures ennemies au format numérique A-B.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Dénombrement de créatures",
 	"vcmi.adventureOptions.replayShowBattles.help": "{Affiche les combats pendant les relectures}\n\nChaque combat, prenant place pendant la relecture d'un tour, sera rejoué à l'écran. Si désactivé, ils seront ignorés.",

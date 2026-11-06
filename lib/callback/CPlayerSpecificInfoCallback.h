@@ -26,7 +26,8 @@ public:
 	virtual int howManyHeroes(bool includeGarrisoned = true) const;
 	virtual int3 getGrailPos(double *outKnownRatio);
 
-	virtual std::vector <const CGTownInstance *> getTownsInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
+	virtual std::vector <const CGTownInstance *> getTownsInfo() const; ///< towns owned by this player
+	virtual std::vector <const CGTownInstance *> getVisibleTowns() const; ///< all towns visible to this player, including neutral ones
 	virtual int getHeroSerial(const CGHeroInstance * hero, bool includeGarrisoned=true) const;
 	virtual const CGTownInstance* getTownBySerial(int serialId) const; // serial id is [0, number of towns)
 	virtual const CGHeroInstance* getHeroBySerial(int serialId, bool includeGarrisoned=true) const; // serial id is [0, number of heroes)

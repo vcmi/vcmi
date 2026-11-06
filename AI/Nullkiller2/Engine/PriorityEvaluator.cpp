@@ -130,7 +130,7 @@ int getVisibleEnemyTownCount(const CGTownInstance * town, const Nullkiller * aiN
 		return 0;
 
 	int result = 0;
-	for(const auto * visibleTown : aiNk->cc->getTownsInfo(false))
+	for(const auto * visibleTown : aiNk->cc->getVisibleTowns())
 	{
 		if(visibleTown->getOwner() == owner)
 			result++;

@@ -291,8 +291,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "マップのスクロール速度を非常に速く設定します。",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "マップのスクロール速度を瞬時に設定します。",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "マップのスクロール速度を瞬時に設定します。",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{ミニマップにヒーローを表示}\n\nミニマップ上に表示されているすべてのヒーローに追加アイコンを表示し、広大なマップ上でも見やすくします。",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "ミニマップにヒーローを表示",
 	"vcmi.adventureOptions.numericQuantities.help": "{クリーチャーの数を表示}\n\n敵クリーチャーのおおよその数量をA-B形式で表示します。",
 	"vcmi.adventureOptions.numericQuantities.hover": "クリーチャーの数を表示",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{右クリックドラッグ}\n\n有効にすると、右ボタンを押しながらマウスを動かすことで、冒険マップの表示がドラッグされます。",

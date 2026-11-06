@@ -1471,7 +1471,7 @@ void AINodeStorage::calculateTownPortal(
 	const std::vector<CGPathNode *> & initialNodes,
 	TVector & output)
 {
-	auto towns = aiNk->cc->getTownsInfo(false);
+	auto towns = aiNk->cc->getVisibleTowns();
 
 	vstd::erase_if(towns, [&](const CGTownInstance * t) -> bool
 		{
