@@ -42,6 +42,10 @@ Rewardable::Reward::Reward()
 {
 }
 
+Rewardable::Reward::Reward(const Reward &) = default;
+
+Rewardable::Reward & Rewardable::Reward::operator=(const Reward &) = default;
+
 Rewardable::Reward::~Reward() = default;
 
 void Rewardable::Reward::removeInvalidCreatures(const std::string & context)
@@ -113,7 +117,7 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 {
 	for (auto comp : extraComponents)
 		comps.push_back(comp);
-	
+
 	for (auto & bonus : heroBonuses)
 	{
 		if (bonus->type == BonusType::MORALE)
@@ -121,7 +125,7 @@ void Rewardable::Reward::loadComponents(std::vector<Component> & comps, const CG
 		if (bonus->type == BonusType::LUCK)
 			comps.emplace_back(ComponentType::LUCK, bonus->val);
 	}
-	
+
 	if (heroExperience)
 		comps.emplace_back(ComponentType::EXPERIENCE, static_cast<si32>(h ? h->calculateXp(heroExperience) : heroExperience));
 
@@ -215,7 +219,7 @@ void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
 		a.syncSize(fieldValue);
 		secondary = std::map<SecondarySkill, si32>(fieldValue.begin(), fieldValue.end());
 	}
-	
+
 	{
 		auto a = handler.enterArray("creaturesChange");
 		std::vector<std::pair<CreatureID, CreatureID>> fieldValue(creaturesChange.begin(), creaturesChange.end());
@@ -226,7 +230,7 @@ void Rewardable::Reward::serializeJson(JsonSerializeFormat & handler)
 		});
 		creaturesChange = std::map<CreatureID, CreatureID>(fieldValue.begin(), fieldValue.end());
 	}
-	
+
 	{
 		auto a = handler.enterStruct("spellCast");
 		a->serializeId("spell", spellCast.first, SpellID{});

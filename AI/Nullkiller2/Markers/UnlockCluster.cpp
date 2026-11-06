@@ -25,7 +25,7 @@ bool UnlockCluster::operator==(const UnlockCluster & other) const
 
 std::string UnlockCluster::toString() const
 {
-	return "Unlock Cluster " + cluster->blocker->getObjectNameTextID() + tile.toString();
+	return "Unlock Cluster " + cluster->blocker->getName() + tile.toString();
 }
 
 }

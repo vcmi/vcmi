@@ -18,7 +18,7 @@
 					"rarity" : 20
 				},
 				"compatibilityIdentifiers" : [ "water" ],
-				"visitMode" : "playerGlobal",
+				"visitMode" : "teamGlobal",
 				"canRefuse" : true,
 				"rewards" : [
 					{
@@ -44,7 +44,7 @@
 					"rarity" : 2
 				},
 				"compatibilityIdentifiers" : [ "land" ],
-				"visitMode" : "playerGlobal",
+				"visitMode" : "teamGlobal",
 				"canRefuse" : true,
 				"rewards" : [
 					{
@@ -72,7 +72,7 @@
 					"rarity" : 20
 				},
 				"compatibilityIdentifiers" : [ "subterra" ],
-				"visitMode" : "playerGlobal",
+				"visitMode" : "teamGlobal",
 				"canRefuse" : true,
 				"rewards" : [
 					{

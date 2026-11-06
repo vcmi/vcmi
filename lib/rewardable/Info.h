@@ -12,6 +12,7 @@
 
 #include "../json/JsonNode.h"
 #include "../mapObjectConstructors/IObjectInfo.h"
+#include "../mapObjects/army/CStackBasicDescriptor.h"
 
 class MetaString;
 class IGameInfoCallback;
@@ -47,6 +48,9 @@ class DLL_LINKAGE Info : public IObjectInfo
 	void configureReward(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb, Rewardable::Reward & info, const JsonNode & source, const TextIdentifier & textIdentifier) const;
 	void configureResetInfo(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, Rewardable::ResetInfo & info, const JsonNode & source) const;
 public:
+	using CreatureReward = std::vector<CStackBasicDescriptor>;
+	using CreatureRewardVariants = std::vector<CreatureReward>;
+
 	const JsonNode & getParameters() const;
 
 	bool givesResources() const override;
@@ -60,11 +64,24 @@ public:
 
 	bool givesArtifacts() const override;
 	bool givesCreatures() const override;
+	bool givesOnlyCreatures() const override;
+
+	/// Empty outer vector means possibilities cannot be determined.
+	/// Empty inner vector means this particular reward tier gives no creatures.
+	/// Non-empty inner vector contains creature stacks granted by that tier.
+	CreatureRewardVariants getPossibleCreatureRewards() const;
+	bool hasOnlyBuiltinCreatureRewards() const;
+	bool hasOnlyBuiltinRewards() const;
+
 	bool givesSpells() const override;
 
 	bool givesBonuses() const override;
 
 	bool hasGuards() const override;
+
+	/// Returns the minimum and maximum total guard strength across all configured reward tiers.
+	/// Returns std::nullopt when there are no guards or their range cannot be evaluated statically.
+	std::optional<std::pair<uint64_t, uint64_t>> getCreatureBankGuardRange() const;
 
 	void configureObject(Rewardable::Configuration & object, IGameRandomizer & gameRandomizer, IGameInfoCallback * cb) const;
 

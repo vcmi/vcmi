@@ -75,7 +75,7 @@ Task - simple thing which can be done right away in order to gain some reward. O
 * BuyArmy - buys specific amount of army in AIValue in specific town
 * DigAtTile - for grail, not implemented yet
 * DismissHero - sometimes we may want to get rid of some scout
-* ExchangeSwapTownHeroes - puts specifc hero in garrison or extracts hero from garrison. Also makes possible upgrades and buys army in town (used by defence and startup behaviors)
+* ExchangeSwapTownHeroes - puts specifc hero in garrison or extracts hero from garrison. Also makes possible upgrades and buys army in town
 * ExecuteHeroChain - moves hero accross some path (or a few heroes forming a chain in order to move army to the target hero), can bypass simple obstacles like monsters, garrisons
 * ExploreNeighborTile - after AI visits initial tile for exploration - makes a few sequential explorations of nearby tiles to save some performance
 * RecruitHero - recruits specific hero in specifc town
@@ -90,7 +90,6 @@ Behavior - a core game activity
 * BuyArmyBehavior - buys army in towns
 * GatherArmyBehavior - picks army from towns and brings it to main hero by scout, or main itslef goes for it
 * RecruitHeroBehavior - recruits hero it it is either stronger than any main or there is something to gather
-* StartupBehavior - scripted behavior which helps a bit on the first day. It keeps main hero in town garrison and accumulates army from initial heroes bought in tavern
 * StayAtTownBehavior - stay at town to gain mana from mage guild
 * DefenceBehavior - defend towns by eliminating treatening heroes or hiding in town garrison
 

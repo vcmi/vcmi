@@ -289,6 +289,37 @@ std::string CGObjectInstance::getObjectNameTextID() const
 	return LIBRARY->objtypeh->getObjectGroupNameTextID(ID);
 }
 
+std::string CGObjectInstance::getName() const
+{
+	return nameFromTextID(getObjectNameTextID());
+}
+
+std::string CGObjectInstance::nameFromTextID(std::string textID)
+{
+	const std::string_view suffix = textID.ends_with(".name.plural") ? ".name.plural" : ".name";
+	if(!textID.ends_with(suffix))
+		return textID;
+
+	std::string name = textID.substr(0, textID.size() - suffix.size());
+	const auto lastDot = name.rfind('.');
+	if(lastDot != std::string::npos)
+		name.erase(0, lastDot + 1);
+	size_t count = 0;
+	for(auto c : name)
+	{
+		if(std::isdigit(static_cast<unsigned char>(c)))
+			count++;
+		else
+			break;
+	}
+	name.erase(0, count);
+	if(name.empty())
+		return textID;
+	if(name[0] >= 'a' && name[0] <= 'z')
+		name[0] = static_cast<char>(name[0] - 'a' + 'A');
+	return name;
+}
+
 MetaString CGObjectInstance::getObjectName() const
 {
 	return MetaString::createFromTextID(getObjectNameTextID());

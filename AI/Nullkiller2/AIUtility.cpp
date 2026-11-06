@@ -51,6 +51,18 @@ uint64_t getHeroFightingStrength(const CGHeroInstance * hero, const CCreatureSet
 	return static_cast<uint64_t>(getNormalizedHeroStrength(hero) * army->estimateCombatValue());
 }
 
+bool isCreatureBankLossAcceptable(const Nullkiller * nullkiller, const CCreatureSet * army, uint64_t predictedLoss)
+{
+	const auto armyPowerRatio = evaluateArmyPowerRatio(*nullkiller->armyManager, army);
+	const auto maxArmyLoss = evaluateMaxArmyLossRatio(
+		nullkiller->settings->getMaxArmyLossTarget(),
+		armyPowerRatio,
+		nullkiller->cc->getPlayerState(nullkiller->playerID)->daysWithoutCastle.has_value());
+	const auto allowedArmyLoss = std::min(maxArmyLoss, CREATURE_BANK_MAX_ARMY_LOSS_RATIO);
+	const auto armyLossRatio = static_cast<float>(predictedLoss) / std::max<uint64_t>(1, army->estimateCombatValue());
+	return armyLossRatio <= allowedArmyLoss;
+}
+
 const CGObjectInstance * ObjectIdRef::operator->() const
 {
 	return cpsic->tryGetObj(id);
@@ -168,6 +180,23 @@ bool isSafeToVisit(const CGHeroInstance * h, const CCreatureSet * heroArmy, uint
 bool isSafeToVisit(const CGHeroInstance * h, uint64_t dangerStrength, float safeAttackRatio)
 {
 	return isSafeToVisit(h, h, dangerStrength, safeAttackRatio);
+}
+
+SlotID getWeakestTransferableStack(const CCreatureSet * source, const CCreatureSet * destination)
+{
+	SlotID result;
+	uint64_t weakestCombatValue = std::numeric_limits<uint64_t>::max();
+	for(const auto & slot : source->Slots())
+	{
+		if(destination->getSlotFor(slot.second->getCreatureID()).validSlot()
+			&& slot.second->estimateCombatValue() < weakestCombatValue)
+		{
+			result = slot.first;
+			weakestCombatValue = slot.second->estimateCombatValue();
+		}
+	}
+
+	return result;
 }
 
 bool isObjectRemovable(const CGObjectInstance * obj)
@@ -783,14 +812,8 @@ bool shouldVisit(const Nullkiller * aiNk, const CGHeroInstance * hero, const CGO
 	if(obj->wasVisited(hero))
 		return false;
 
-	auto rewardable = dynamic_cast<const Rewardable::Interface *>(obj);
-
-	if(rewardable && rewardable->getAvailableRewards(hero, Rewardable::EEventType::EVENT_FIRST_VISIT).empty())
-	{
-		return false;
-	}
-
-	return true;
+	const auto rewardableObjInfo = aiNk->cc->getRewardableObjectInfo(obj, hero);
+	return !rewardableObjInfo || !rewardableObjInfo->scouted || rewardableObjInfo->rewardAvailable != false;
 }
 
 bool townHasFreeTavern(const CGTownInstance * town)

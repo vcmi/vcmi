@@ -27,18 +27,18 @@ bool HeroExchange::operator==(const HeroExchange & other) const
 
 std::string HeroExchange::toString() const
 {
-	return "Hero exchange for " +hero->getNameTextID() + " by " + exchangePath.toString();
+	return "Hero exchange for " + hero->getName() + " by " + exchangePath.toString();
 }
 
 uint64_t HeroExchange::getReinforcementArmyStrength(const Nullkiller * aiNk) const
 {
 	assert(exchangePath.targetHero && exchangePath.heroArmy);
 
-	return aiNk->armyManager->howManyReinforcementsCanGet(
+	return aiNk->armyManager->getBestArmyInfo(
 		hero,
 		hero,
 		exchangePath.heroArmy,
-		aiNk->cc->getTile(exchangePath.targetTile())->getTerrainID());
+		aiNk->cc->getTile(exchangePath.targetTile())->getTerrainID()).strengthGain;
 }
 
 }

@@ -10,7 +10,9 @@
 #pragma once
 
 #include "../AIUtility.h"
-#include "../../../lib/mapObjects/MapObjects.h"
+#include "mapObjects/MiscObjects.h"
+
+struct TeleportChannel;
 
 class JsonNode;
 

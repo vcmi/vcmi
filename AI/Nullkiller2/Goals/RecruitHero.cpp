@@ -22,9 +22,9 @@ using namespace Goals;
 std::string RecruitHero::toString() const
 {
 	if(heroToBuy)
-		return "Recruit " + heroToBuy->getNameTextID() + " at " + town->getNameTextID();
+		return "Recruit " + heroToBuy->getName() + " at " + town->getName();
 	else
-		return "Recruit hero at " + town->getNameTextID();
+		return "Recruit hero at " + town->getName();
 }
 
 void RecruitHero::accept(AIGateway * aiGw)
@@ -36,7 +36,7 @@ void RecruitHero::accept(AIGateway * aiGw)
 		throw cannotFulfillGoalException("No town to recruit hero!");
 	}
 
-	logAi->debug("Trying to recruit a hero in %s at %s", t->getNameTextID(), t->visitablePos().toString());
+	logAi->debug("Trying to recruit a hero in %s at %s", t->getName(), t->visitablePos().toString());
 
 	const auto heroes = aiGw->cc->getAvailableHeroes(t);
 	if(!heroes.size())
@@ -48,7 +48,7 @@ void RecruitHero::accept(AIGateway * aiGw)
 
 	// hero may have been hired by another task planned in the same pass
 	if(heroToHire && !vstd::contains(heroes, heroToHire))
-		throw cannotFulfillGoalException("Hero " + heroToHire->getNameTextID() + " is no longer available in " + t->nodeName());
+		throw cannotFulfillGoalException("Hero " + heroToHire->getName() + " is no longer available in " + t->nodeName());
 
 	if(!heroToHire)
 	{
