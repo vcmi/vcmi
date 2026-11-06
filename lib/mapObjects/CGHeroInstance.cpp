@@ -189,10 +189,10 @@ bool CGHeroInstance::canLearnSkillOnLevelUp(const SecondarySkill & which) const
 bool CGHeroInstance::isSkillBannedOnLevelUp(const SecondarySkill & which) const
 {
 	static const std::set<SecondarySkill> yogBannedSkills = {
-		SecondarySkill::LEADERSHIP, SecondarySkill::WISDOM, SecondarySkill::BALLISTICS,
-		SecondarySkill::EAGLE_EYE, SecondarySkill::ESTATES, SecondarySkill::FIRE_MAGIC,
+		SecondarySkill::WISDOM, SecondarySkill::MYSTICISM,
+		SecondarySkill::EAGLE_EYE, SecondarySkill::NECROMANCY, SecondarySkill::FIRE_MAGIC,
 		SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC,
-		SecondarySkill::ARMORER, SecondarySkill::INTELLIGENCE
+		SecondarySkill::SCHOLAR, SecondarySkill::INTELLIGENCE, SecondarySkill::SORCERY
 	};
 
 	return isCampaignYog() && yogBannedSkills.count(which);
