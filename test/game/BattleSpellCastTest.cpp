@@ -565,7 +565,7 @@ TEST_F(BattleSpellCastTest, issue2765)
 	}
 }
 
-TEST_F(BattleSpellCastTest, advancedSpellsOverrideBasicOnes)
+TEST_F(BattleSpellCastTest, advancedSpellsSupressesBasicOnes)
 {
 	const int BLOODLUST_BASIC_VALUE = 3;
 	const int BLOODLUST_ADV_VALUE = 6;
@@ -642,6 +642,77 @@ TEST_F(BattleSpellCastTest, advancedSpellsOverrideBasicOnes)
 	}
 	gameEventCallback->sendAndApply(bnr);
 	ASSERT_EQ(unit->getBonuses(sel)->totalValue(), 0);
+}
+
+TEST_F(BattleSpellCastTest, dispelRemovesSupressedSpells)
+{
+	const int BLOODLUST_ADV_VALUE = 6;
+	startTestGame();
+
+	auto attacker = getHeroByOwner(PlayerColor(0));
+	auto defender = getHeroByOwner(PlayerColor(1));
+
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
+	ASSERT_NE(attacker->tempOwner, defender->tempOwner);
+
+	attacker->addSpellToSpellbook(SpellID::BLOODLUST);
+	attacker->addSpellToSpellbook(SpellID::DISPEL);
+	attacker->setPrimarySkill(PrimarySkill::SPELL_POWER, 10, ChangeValueMode::ABSOLUTE);
+	attacker->setPrimarySkill(PrimarySkill::KNOWLEDGE, 20, ChangeValueMode::ABSOLUTE);
+	attacker->mana = attacker->manaLimit();
+
+	{
+		NewArtifact na;
+		na.artHolder = attacker->id;
+		na.artId = ArtifactID::SPELLBOOK;
+		na.pos = ArtifactPosition::SPELLBOOK;
+		gameEventCallback->sendAndApply(na);
+	}
+
+	startTestBattle(attacker, defender);
+	addStack(BattleSide::DEFENDER, CreatureID(13), 10);
+
+	CStack * unit = addStack(BattleSide::ATTACKER, CreatureID(90), 10);
+	CStack * casterStack = addStack(BattleSide::ATTACKER, CreatureID(91), 10); //ogreMagi
+
+	ASSERT_NE(unit, nullptr);
+
+	{
+		using namespace ::testing;
+
+		spells::ProblemMock problemMock;
+		EXPECT_CALL(problemMock, add(_)).Times(AnyNumber()); //todo: do smth with problems of optional effects
+
+		const CSpell * spell = SpellID(SpellID::BLOODLUST).toSpell();
+		ASSERT_NE(spell, nullptr);
+
+		const CSpell * dispell = SpellID(SpellID::DISPEL).toSpell();
+		ASSERT_NE(dispell, nullptr);
+
+		spells::BattleCast heroCast(gameState->currentBattles.front().get(), attacker, spells::Mode::HERO, spell);
+		spells::BattleCast heroDispellCast(gameState->currentBattles.front().get(), attacker, spells::Mode::HERO, dispell);
+		spells::BattleCast stackCast(gameState->currentBattles.front().get(), casterStack, spells::Mode::CREATURE_ACTIVE, spell);
+
+		spells::Target target;
+		target.emplace_back(unit);
+
+		spell->battleMechanics(&heroCast);
+		dispell->battleMechanics(&heroDispellCast);
+		spell->battleMechanics(&stackCast);
+
+		auto sel = Selector::typeSubtype(BonusType::PRIMARY_SKILL, PrimarySkill::ATTACK)
+					   .And(Selector::source(BonusSource::SPELL_EFFECT, BonusSourceID(SpellID(SpellID::BLOODLUST))));
+
+		heroCast.cast(this, target);
+		stackCast.cast(this, target);
+
+		ASSERT_EQ(unit->getBonuses(sel)->totalValue(), BLOODLUST_ADV_VALUE);
+
+		heroDispellCast.cast(this, target);
+
+		ASSERT_EQ(unit->getBonuses(sel)->totalValue(), 0);
+	}
 }
 
 TEST_F(BattleSpellCastTest, battleResurrection)
