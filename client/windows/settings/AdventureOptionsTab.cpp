@@ -152,9 +152,9 @@ AdventureOptionsTab::AdventureOptionsTab()
 	{
 		return setBoolSetting("adventure", "hideBackground", value);
 	});
-	addCallback("minimapShowHeroesChanged", [](bool value)
+	addCallback("minimapShowIconsChanged", [](bool value)
 	{
-		setBoolSetting("adventure", "minimapShowHeroes", value);
+		setBoolSetting("adventure", "minimapShowIcons", value);
 		ENGINE->windows().totalRedraw();
 	});
 	addCallback("replayShowBattlesChanged", [](bool value)
@@ -226,8 +226,8 @@ AdventureOptionsTab::AdventureOptionsTab()
 	std::shared_ptr<CToggleButton> hideBackgroundCheckbox = widget<CToggleButton>("hideBackgroundCheckbox");
 	hideBackgroundCheckbox->setSelected(settings["adventure"]["hideBackground"].Bool());
 
-	std::shared_ptr<CToggleButton> minimapShowHeroesCheckbox = widget<CToggleButton>("minimapShowHeroesCheckbox");
-	minimapShowHeroesCheckbox->setSelected(settings["adventure"]["minimapShowHeroes"].Bool());
+	std::shared_ptr<CToggleButton> minimapShowIconsCheckbox = widget<CToggleButton>("minimapShowIconsCheckbox");
+	minimapShowIconsCheckbox->setSelected(settings["adventure"]["minimapShowIcons"].Bool());
 
 	std::shared_ptr<CToggleButton> showMovePathCheckbox = widget<CToggleButton>("showMovePathCheckbox");
 	showMovePathCheckbox->setSelected(settings["adventure"]["showMovePath"].Bool());

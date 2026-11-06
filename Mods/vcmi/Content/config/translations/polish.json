@@ -339,8 +339,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "Ustaw prędkość przewijania mapy na bardzo szybką.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Ustaw szybkość przesuwania mapy na błyskawiczną.",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "Ustaw prędkość przewijania mapy na natychmiastową.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Bohaterowie na minimapie}\n\nPokaż ikony na minimapie wskazujące pozycję wszystkich bohaterów, dzięki czemu będą łatwiejsi do znalezienia na dużych mapach.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Bohaterowie na minimapie",
 	"vcmi.adventureOptions.numericQuantities.help": "{Liczbowe ilości stworzeń}\n\n Pokazuje przybliżone ilości wrogów w liczbowym formacie A-B.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Liczbowe ilości stworzeń",
 	"vcmi.adventureOptions.replayShowBattles.help": "{Pokazuj walki w powtórkach}\n\nKażda walka, która miała miejsce podczas odtwarzanej tury, zostanie pokazana na ekranie. Jeśli opcja jest wyłączona, walki te będą pomijane.",

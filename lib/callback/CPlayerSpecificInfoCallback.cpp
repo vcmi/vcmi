@@ -27,19 +27,23 @@ int CPlayerSpecificInfoCallback::howManyTowns() const
 	return CGameInfoCallback::howManyTowns(getPlayerID().value());
 }
 
-std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(bool onlyOur) const
+std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo() const
 {
-	auto ret = std::vector < const CGTownInstance *>();
-	for(const auto & i : gameState().players)
+	if(!getPlayerID())
+		return {};
+	return gameState().getPlayerState(*getPlayerID())->getTowns();
+}
+
+std::vector<const CGTownInstance *> CPlayerSpecificInfoCallback::getVisibleTowns() const
+{
+	std::vector<const CGTownInstance *> ret;
+	for(const auto & townID : gameState().getMap().getAllTowns())
 	{
-		for(const auto & town : i.second.getTowns())
-		{
-			if(i.first == getPlayerID() || (!onlyOur && isVisibleFor(town, getPlayerID().value())))
-			{
-				ret.push_back(town);
-			}
-		}
-	} //	for ( std::map<int, PlayerState>::iterator i=gameState().players.begin() ; i!=gameState().players.end();i++)
+		// getTown returns null for towns hidden from this player
+		const auto * town = getTown(townID);
+		if(town)
+			ret.push_back(town);
+	}
 	return ret;
 }
 std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo() const

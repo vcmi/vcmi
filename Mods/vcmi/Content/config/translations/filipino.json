@@ -273,8 +273,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Itakda ang bilis ng pag-scroll ng mapa sa napakabagal.",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Itakda ang bilis ng pag-scroll ng mapa sa napakabilis.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Itakda ang bilis ng pag-scroll ng mapa sa instantaneous.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Ipakita ang mga Bayani sa Minimap}\n\nIpakita ang icon ng karagdagan para sa lahat ng mga bayaning nakikita sa minimap, na ginagawang mas madali silang makita sa malalaking mapa",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Ipakita ang mga Bayani sa Minimap",
 	"vcmi.adventureOptions.numericQuantities.help": "{Mga Dami ng Nilalang na Numerikal}\n\nIpakita ang tinatayang dami ng mga nilalang na kalaban sa numerikong format na A-B.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Mga Dami ng Nilalang na Numerikal",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{Kaladkarin ang I-right Click}\n\nKapag pinagana, ang paggalaw ng mouse habang pinindot ang kanang buton ay magda-drag sa view ng mapa ng pakikipagsapalaran.",

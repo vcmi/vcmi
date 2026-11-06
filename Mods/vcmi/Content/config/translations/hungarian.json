@@ -340,8 +340,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "Térkép görgetési sebességének beállítása nagyon gyorsra.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Térkép görgetési sebességének beállítása azonnalira.",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "Térkép görgetési sebességének beállítása azonnalira.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Hősök megjelenítése a minitérképen}\n\nKiegészítő ikon megjelenítése a minitérképen látható összes hős számára, így könnyebben észrevehetők a nagy térképeken.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Hősök megjelenítése a minitérképen",
 	"vcmi.adventureOptions.numericQuantities.help": "{Lények mennyiségének számszerűsítése}\n\nMegjeleníti az ellenséges lények hozzávetőleges számát számszerű A-B formátumban.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Lények mennyiségének számszerűsítése",
 	"vcmi.adventureOptions.replayShowBattles.help": "{Harcok megjelenítése a visszajátszásokban}\n\nA visszajátszott körben lezajlott összes harc megjelenik a képernyőn. Ha le van tiltva, az ilyen harcok kimaradnak.",

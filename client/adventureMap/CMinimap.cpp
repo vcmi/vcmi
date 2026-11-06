@@ -30,10 +30,11 @@
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/TerrainTile.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-ColorRGBA CMinimapInstance::getTileColor(const int3 & pos, bool minimapShowHeroes) const
+ColorRGBA CMinimapInstance::getTileColor(const int3 & pos, bool minimapShowIcons) const
 {
 	const TerrainTile * tile = GAME->interface()->cb->tryGetTile(pos);
 
@@ -48,12 +49,13 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos, bool minimapShowHeroe
 
 		if (obj)
 		{
+			// these are drawn as icons on top of the minimap instead
+			if (minimapShowIcons && (obj->ID == MapObjectID::HERO || obj->ID == MapObjectID::TOWN))
+				continue;
+
 			PlayerColor player = obj->getOwner();
 			if(player == PlayerColor::NEUTRAL)
 				return graphics->neutralColor;
-
-			if (minimapShowHeroes && obj->ID == MapObjectID::HERO)
-				continue;
 
 			if (player.isValidPlayer())
 				return graphics->playerColors[player.getNum()];
@@ -66,20 +68,20 @@ ColorRGBA CMinimapInstance::getTileColor(const int3 & pos, bool minimapShowHeroe
 		return tile->getTerrain()->minimapUnblocked;
 }
 
-void CMinimapInstance::refreshTile(const int3 &tile, bool minimapShowHeroes)
+void CMinimapInstance::refreshTile(const int3 &tile, bool minimapShowIcons)
 {
 	if (level == tile.z)
-		minimap->drawPoint(Point(tile.x, tile.y), getTileColor(tile, minimapShowHeroes));
+		minimap->drawPoint(Point(tile.x, tile.y), getTileColor(tile, minimapShowIcons));
 }
 
 void CMinimapInstance::redrawMinimap()
 {
 	int3 mapSizes = GAME->interface()->cb->getMapSize();
-	const bool minimapShowHeroes = settings["adventure"]["minimapShowHeroes"].Bool();
+	const bool minimapShowIcons = settings["adventure"]["minimapShowIcons"].Bool();
 
 	for (int y = 0; y < mapSizes.y; ++y)
 		for (int x = 0; x < mapSizes.x; ++x)
-			minimap->drawPoint(Point(x, y), getTileColor(int3(x, y, level), minimapShowHeroes));
+			minimap->drawPoint(Point(x, y), getTileColor(int3(x, y, level), minimapShowIcons));
 }
 
 CMinimapInstance::CMinimapInstance(const Point & position, const Point & dimensions, int Level):
@@ -102,6 +104,7 @@ void CMinimapInstance::showAll(Canvas & to)
 CMinimap::CMinimap(const Rect & position)
 	: CIntObject(LCLICK | SHOW_POPUP | DRAG | MOVE | GESTURE, position.topLeft())
 	, heroIcon(ENGINE->renderHandler().loadImage(ImagePath::builtin("minimapIcons/hero"), EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR))
+	, townIcon(ENGINE->renderHandler().loadImage(ImagePath::builtin("minimapIcons/town"), EImageBlitMode::WITH_SHADOW_AND_FLAG_COLOR))
 	, level(0)
 {
 	OBJECT_CONSTRUCTION;
@@ -207,8 +210,30 @@ void CMinimap::showAll(Canvas & to)
 
 		Canvas clippedTarget(to, pos);
 
-		if (settings["adventure"]["minimapShowHeroes"].Bool())
+		if (settings["adventure"]["minimapShowIcons"].Bool())
 		{
+			for (const auto * town : GAME->interface()->cb->getVisibleTowns())
+			{
+				if (town->anchorPos().z != level)
+					continue;
+
+				// align to the town footprint, not to its anchor or entrance
+				int3 topLeft = town->visitablePos();
+				int3 bottomRight = topLeft;
+				for (const auto & tile : town->getBlockedPos())
+				{
+					topLeft = int3(std::min(topLeft.x, tile.x), std::min(topLeft.y, tile.y), level);
+					bottomRight = int3(std::max(bottomRight.x, tile.x), std::max(bottomRight.y, tile.y), level);
+				}
+
+				PlayerColor owner = town->getOwner();
+				townIcon->setOverlayColor(owner.isValidPlayer() ? graphics->playerColors[owner.getNum()] : graphics->neutralColor);
+				// centered horizontally, standing on the bottom edge of the footprint
+				int iconX = pos.w * (topLeft.x + bottomRight.x + 1) / (2 * mapSizes.x) - townIcon->width() / 2;
+				int iconY = pos.h * (bottomRight.y + 1) / mapSizes.y - townIcon->height();
+				clippedTarget.draw(townIcon, Point(iconX, iconY));
+			}
+
 			const auto & visibleHeroes = getVisibleHeroes();
 
 			for (const auto objectID : visibleHeroes)
@@ -296,10 +321,10 @@ void CMinimap::updateTiles(const FowTilesType & positions)
 {
 	if(minimap)
 	{
-		const bool minimapShowHeroes = settings["adventure"]["minimapShowHeroes"].Bool();
+		const bool minimapShowIcons = settings["adventure"]["minimapShowIcons"].Bool();
 
 		for (auto const & tile : positions)
-			minimap->refreshTile(tile, minimapShowHeroes);
+			minimap->refreshTile(tile, minimapShowIcons);
 	}
 
 	redraw();

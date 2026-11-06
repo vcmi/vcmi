@@ -339,8 +339,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "Define a velocidade de rolagem do mapa como muito rápida.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Define a velocidade de rolagem do mapa como instantânea.",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "Define a velocidade de rolagem do mapa como instantânea.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Mostrar Heróis no Minimapa}\n\nMostra um ícone adicional para todos os heróis visíveis no minimapa, facilitando a visualização deles em mapas grandes.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Mostrar Heróis no Minimapa",
 	"vcmi.adventureOptions.numericQuantities.help": "{Quantidades de Criaturas}\n\nMostra as quantidades aproximadas de criaturas inimigas no formato numérico A-B.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Quantidades de Criaturas",
 	"vcmi.adventureOptions.replayShowBattles.help": "{Mostrar Combates nas Repetições}\n\nTodo combate ocorrido durante o turno repetido é exibido na tela. Se desativado, esses combates são pulados.",

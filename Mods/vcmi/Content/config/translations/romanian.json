@@ -267,8 +267,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Setează viteza de derulare a hărții la foarte lent.",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Setează viteza de derulare a hărții la foarte rapid.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Setează viteza de derulare a hărții instantaneu.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Arată eroi pe mini-hartă}\n\nAfișează un icon pentru toți eroii vizibili pe mini-hartă, făcându-i mai ușor de observat pe hărțile mari",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Arată eroi pe mini-hartă",
 	"vcmi.adventureOptions.numericQuantities.help": "{Cantități numerice de creaturi}\n\nAfișează cantitățile aproximative ale creaturilor inamicii în formatul numeric A-B.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Cantități numerice de creaturi",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{Misca cu click-drept}\n\nCând este activat, mișcarea mouse-ului cu butonul drept apăsat va trage vizualizarea hărții de aventură.",

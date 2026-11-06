@@ -288,7 +288,7 @@ Goals::TGoalVec CaptureObjectsBehavior::decompose(const Nullkiller * aiNk) const
 
 void CaptureObjectsBehavior::addVisibleEnemyTowns(std::vector<const CGObjectInstance *> & objects, const Nullkiller * aiNk) const
 {
-	for(const auto * visibleTown : aiNk->cc->getTownsInfo(false))
+	for(const auto * visibleTown : aiNk->cc->getVisibleTowns())
 	{
 		const auto owner = visibleTown->getOwner();
 		if(!owner.isValidPlayer())
