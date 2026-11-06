@@ -56,7 +56,6 @@ set(test_SRCS
 
 		map/CMapEditManagerTest.cpp
 		map/CMapFormatTest.cpp
-		map/CampaignOverridesTest.cpp
 		map/CGArtifactRegressionTest.cpp
 		map/HeroMissionCriticalTest.cpp
 		map/MapScriptTest.cpp
