@@ -1580,13 +1580,14 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 
 CCastleInterface::~CCastleInterface()
 {
-	// resume map audio if:
-	// adventureInt exists (may happen on exiting client with open castle interface)
-	// castleInt has not been replaced (happens on switching between towns inside castle interface)
-	if (adventureInt && GAME->interface()->castleInt == this)
-		adventureInt->onAudioResumed();
 	if(GAME->interface()->castleInt == this)
 		GAME->interface()->castleInt = nullptr;
+
+	// resume map audio if:
+	// adventureInt exists (may happen on exiting client with open castle interface)
+	// no other castle interface has been opened (happens on switching between towns inside castle interface)
+	if (adventureInt && GAME->interface()->castleInt == nullptr)
+		adventureInt->onAudioResumed();
 }
 
 void CCastleInterface::updateArtifacts()
@@ -1620,6 +1621,9 @@ void CCastleInterface::close()
 		else
 			GAME->interface()->localState->setSelection(town);
 	}
+	// closed window is only destroyed at the end of the frame, so castleInt must stop pointing to it right away
+	if(GAME->interface()->castleInt == this)
+		GAME->interface()->castleInt = nullptr;
 	CWindowObject::close();
 }
 
