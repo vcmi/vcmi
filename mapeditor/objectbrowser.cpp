@@ -51,6 +51,9 @@ bool ObjectBrowserProxyModel::filterAcceptsRow(int source_row, const QModelIndex
 	if(!filterAcceptsRowText(source_row, source_parent))
 		return false;
 
+	if(!mod.isEmpty() && item->data(ModIDRole).toString() != mod)
+		return false;
+
 	if(!filter.isEmpty())
 		return true;
 
@@ -159,12 +162,23 @@ void ObjectBrowser::setGridMode(bool grid)
 	setViewMode(grid ? IconMode : ListMode);
 	setFlow(grid ? LeftToRight : TopToBottom);
 	setWrapping(grid);
-	setIconSize(grid ? QSize(64, 64) : QSize(32, 32));
-	setGridSize(grid ? QSize(68, 68) : QSize());
+	setIconSize(grid ? QSize(iconSizeInGrid, iconSizeInGrid) : QSize(32, 32));
+	setGridSize(grid ? QSize(iconSizeInGrid + 4, iconSizeInGrid + 4) : QSize());
 	verticalScrollBar()->setSingleStep(grid ? gridSize().height() : 1); //in IconMode the automatic step from Qt scrolls only a few pixels per wheel notch
 	setMovement(Static); //IconMode defaults to Free, which lets items be dragged around inside the view
 	setResizeMode(Adjust);
 	setDragDropMode(DragOnly); //setMovement(Static) disables dragging, objects are dragged out onto the map
+}
+
+void ObjectBrowser::setGridIconSize(int size)
+{
+	iconSizeInGrid = std::clamp(size, 32, 128); //previews are rendered at 128x128
+	setGridMode(true);
+}
+
+int ObjectBrowser::gridIconSize() const
+{
+	return iconSizeInGrid;
 }
 
 void ObjectBrowser::startDrag(Qt::DropActions supportedActions)

@@ -26,6 +26,7 @@ public:
 	TerrainId terrain;
 	QString filter;
 	QString category;
+	QString mod;
 
 protected:
 	bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
@@ -39,9 +40,14 @@ public:
 	ObjectBrowser(QWidget * parent);
 
 	void setGridMode(bool grid);
+	void setGridIconSize(int size);
+	int gridIconSize() const;
 	
 protected:
 	void startDrag(Qt::DropActions supportedActions) override;
+
+private:
+	int iconSizeInGrid = 64;
 };
 
 class ObjectCategoryList : public QListWidget

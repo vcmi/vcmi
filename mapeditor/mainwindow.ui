@@ -339,6 +339,9 @@
           <widget class="ObjectCategoryList" name="categoryList"/>
          </item>
          <item>
+          <widget class="QComboBox" name="modFilter"/>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="filterLayout">
            <item>
             <widget class="QLineEdit" name="filter">
@@ -347,6 +350,20 @@
              </property>
              <property name="clearButtonEnabled">
               <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="zoomOutButton">
+             <property name="toolTip">
+              <string>Smaller icons</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="zoomInButton">
+             <property name="toolTip">
+              <string>Larger icons</string>
              </property>
             </widget>
            </item>

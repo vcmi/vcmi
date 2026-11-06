@@ -38,7 +38,10 @@
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
 #include "../lib/mapping/MapFormatJson.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModDescription.h"
 #include "../lib/modding/ModIncompatibility.h"
+#include "../lib/modding/ModScope.h"
 #include "../lib/RoadHandler.h"
 #include "../lib/RiverHandler.h"
 #include "../lib/TerrainHandler.h"
@@ -193,6 +196,7 @@ void EditorMainWindow::loadUserSettings()
 	lastSavingDir = s.value(lastDirectorySetting).toString();
 	if(lastSavingDir.isEmpty())
 		lastSavingDir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
+	ui->objectView->setGridIconSize(s.value(objectBrowserIconSizeSetting, ui->objectView->gridIconSize()).toInt());
 	ui->viewModeButton->setChecked(s.value(objectBrowserListSetting).toBool());
 }
 
@@ -203,6 +207,7 @@ void EditorMainWindow::saveUserSettings()
 	s.setValue(mainWindowPositionSetting, pos());
 	s.setValue(lastDirectorySetting, lastSavingDir);
 	s.setValue(objectBrowserListSetting, ui->viewModeButton->isChecked());
+	s.setValue(objectBrowserIconSizeSetting, ui->objectView->gridIconSize());
 }
 
 void EditorMainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
@@ -906,6 +911,21 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool stati
 	}
 }
 
+//mods can add templates to H3 object types, these are listed under the mod that provides their graphics
+static TModID templateModScope(const TModID & typeScope, const AnimationPath & animationFile)
+{
+	if(typeScope != ModScope::scopeBuiltin())
+		return typeScope;
+
+	AnimationPath animation = animationFile.addPrefix("SPRITES/");
+	ResourcePath sprite = CResourceHandler::get()->existsResource(animation) ? ResourcePath(animation) : animation.toType<EResType::JSON>();
+	//mods that replace H3 graphics would otherwise take over H3 objects, findResourceOrigin throws for missing graphics
+	if(CResourceHandler::get(ModScope::scopeBuiltin())->existsResource(sprite) || !CResourceHandler::get()->existsResource(sprite))
+		return ModScope::scopeBuiltin();
+
+	return LIBRARY->modh->findResourceOrigin(sprite);
+}
+
 void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCustomName, bool staticOnly, int ID)
 {
 	if (LIBRARY->objtypeh->knownObjects().count(ID) == 0)
@@ -962,6 +982,7 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 			auto * item = new QStandardItem(QIcon(preview), translated);
 			item->setData(data);
 			item->setData(groupName, ObjectGroupRole);
+			item->setData(QString::fromStdString(templateModScope(factory->getModScope(), afile)).section('.', 0, 0), ModIDRole);
 			item->setToolTip(translated);
 			objectsModel.appendRow(item);
 		}
@@ -1010,6 +1031,8 @@ void EditorMainWindow::loadObjectsTree()
 	ui->objectView->setSelectionMode(QAbstractItemView::SingleSelection);
 	connect(ui->objectView->selectionModel(), &QItemSelectionModel::currentChanged, this, &EditorMainWindow::objectBrowserSelected);
 	ui->viewModeButton->setIcon(style()->standardIcon(QStyle::SP_FileDialogListView));
+	ui->zoomOutButton->setIcon(QIcon{":/icons/zoom_minus.png"});
+	ui->zoomInButton->setIcon(QIcon{":/icons/zoom_plus.png"});
 
 	//groups
 	enum GroupCat { TOWNS, OBJECTS, HEROES, ARTIFACTS, RESOURCES, BANKS, DWELLINGS, GROUNDS, TELEPORTS, MINES, TRIGGERS, MONSTERS, QUESTS, WOG_OBJECTS, OBSTACLES, OTHER };
@@ -1221,6 +1244,27 @@ void EditorMainWindow::loadObjectsTree()
 	});
 	ui->categoryList->setCurrentRow(0);
 	ui->categoryList->fitHeight();
+
+	//mod filter
+	const QString core = QString::fromStdString(ModScope::scopeBuiltin());
+	std::set<QString> mods;
+	for(int row = 0; row < objectsModel.rowCount(); ++row)
+		mods.insert(objectsModel.item(row)->data(ModIDRole).toString());
+	mods.erase(core);
+	for(const auto & mod : mods)
+		ui->modFilter->addItem(QString::fromStdString(LIBRARY->modh->getModInfo(mod.toStdString()).getName()), mod);
+	ui->modFilter->model()->sort(0);
+	ui->modFilter->insertItem(0, tr("All mods"));
+	ui->modFilter->insertItem(1, tr("Heroes III (core)"), core);
+	ui->modFilter->setCurrentIndex(0);
+	ui->modFilter->setVisible(!mods.empty());
+
+	connect(ui->modFilter, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this]()
+	{
+		objectBrowser->mod = ui->modFilter->currentData().toString();
+		objectBrowser->invalidate();
+		objectBrowser->sort(0);
+	});
 }
 
 void EditorMainWindow::on_actionUndo_triggered()
@@ -1323,6 +1367,18 @@ void EditorMainWindow::on_filter_textChanged(const QString &arg1)
 void EditorMainWindow::on_viewModeButton_toggled(bool checked)
 {
 	ui->objectView->setGridMode(!checked);
+	ui->zoomOutButton->setEnabled(!checked);
+	ui->zoomInButton->setEnabled(!checked);
+}
+
+void EditorMainWindow::on_zoomOutButton_clicked()
+{
+	ui->objectView->setGridIconSize(ui->objectView->gridIconSize() - 16);
+}
+
+void EditorMainWindow::on_zoomInButton_clicked()
+{
+	ui->objectView->setGridIconSize(ui->objectView->gridIconSize() + 16);
 }
 
 
