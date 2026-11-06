@@ -139,6 +139,27 @@
 				"monthPlagueProbability" :            { "type" : "number" },
 				"weekSpecialProbability" :            { "type" : "number" },
 				"dailyStackExperience" :              { "type" : "number" },
+				"stackExperienceRanks" : {
+					"type" : "array",
+					"minItems" : 1,
+					"items" : {
+						"type" : "array",
+						"minItems" : 10,
+						"maxItems" : 10,
+						"items" : { "type" : "number", "minimum" : 0 }
+					}
+				},
+				"stackExperienceLimit" : {
+					"type" : "array",
+					"minItems" : 1,
+					"items" : { "type" : "number", "minimum" : 0 }
+				},
+				"stackExperiencePerBattle" : {
+					"type" : "array",
+					"minItems" : 1,
+					"items" : { "type" : "number", "minimum" : 0 }
+				},
+				"stackExperienceAfterUpgrade" :       { "type" : "number", "minimum" : 0, "maximum" : 100 },
 				"allowRandomSpecialWeeks" :           { "type" : "boolean" },
 				"allowAllForDoubleMonth" :            { "type" : "boolean" },
 				"allowJoiningForFree" :               { "type" : "boolean" },

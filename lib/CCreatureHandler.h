@@ -214,11 +214,6 @@ protected:
 public:
 	std::set<CreatureID> doubledCreatures; //they get double week
 
-	//stack exp
-	std::vector<std::vector<ui32> > expRanks; // stack experience needed for certain rank, index 0 for other tiers (?)
-	std::vector<ui32> maxExpPerBattle; //%, tiers same as above
-	si8 expAfterUpgrade;//multiplier in %
-
 	//Commanders
 	ResourceSet commanderResurrectionPrice; // fallback resources paid to resurrect a commander in town
 	BonusList commanderLevelPremy; //bonus values added with each level-up
@@ -228,9 +223,6 @@ public:
 
 	explicit CCreatureHandler(LibraryLoadContext & context);
 	~CCreatureHandler();
-
-	/// load all stack modifier bonuses from H3 files. TODO: move this to json
-	void loadCrExpMod(LibraryLoadContext & context);
 
 	const ResourceSet & getCommanderResurrectionPrice(const CCreature * commander) const;
 

@@ -32,6 +32,7 @@
 #include "../../lib/CBonusTypeHandler.h"
 #include "../../lib/CStack.h"
 #include "../../lib/GameLibrary.h"
+#include "../../lib/IGameSettings.h"
 #include "../../lib/bonuses/Propagators.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/entities/hero/CHeroHandler.h"
@@ -40,48 +41,15 @@
 
 namespace
 {
-int getPreviewExperienceForRank(const std::vector<ui32> & rankThresholds, int rank)
-{
-	if(rank <= 0 || rankThresholds.empty())
-		return 0;
-
-	const int thresholdIndex = std::min(rank - 1, static_cast<int>(rankThresholds.size()) - 1);
-	return static_cast<int>(rankThresholds[thresholdIndex]) + 1;
-}
-
-int getPreviewExperienceForBonusColumn(const std::vector<ui32> & rankThresholds, int column)
+int getPreviewExperienceForBonusColumn(const CStackInstance & stack, int column)
 {
 	// Table columns are 0..10. Bonus values are defined for ranks 1..10.
 	// Column 0 is baseline; columns 1..10 map to bonus ranks 1..10.
-	const int maxBonusRank = std::max(0, std::min(10, static_cast<int>(rankThresholds.size()) - 1));
-	const int bonusRank = std::clamp(column, 0, maxBonusRank);
-	return getPreviewExperienceForRank(rankThresholds, bonusRank);
+	if(column <= 0)
+		return 0;
+	return static_cast<int>(stack.getExperienceForRank(std::min(column, 10))) + 1;
 }
 
-}
-
-int CStackWindow::StackExperienceDetailsWindow::getStackExperienceTierFromCreatureLevel(int creatureLevel)
-{
-	const int maxTier = static_cast<int>(LIBRARY->creh->expRanks.size()) - 1;
-	if(maxTier <= 0)
-	{
-		static bool warningPrinted = false;
-		if(!warningPrinted)
-		{
-			logGlobal->warn("StackExperienceDetailsWindow: no valid stack experience tiers loaded, defaulting to tier 0");
-			warningPrinted = true;
-		}
-		return 0;
-	}
-
-	// Creature level/tier selects which exp-rank threshold table is used.
-	// Stack experience rank itself is separate (0..10 columns in the dialog).
-	// Keep mapping consistent with CStackInstance::getExpRank():
-	// creature levels outside 1..7 use fallback tier 0.
-	if(!vstd::iswithin(creatureLevel, 1, 7))
-		return 0;
-
-	return std::clamp(creatureLevel, 1, std::min(7, maxTier));
 }
 
 int CStackWindow::StackExperienceDetailsWindow::calculateDynamicTableRowCount(const CStackInstance * stack, const CCreature * creature)
@@ -102,14 +70,12 @@ int CStackWindow::StackExperienceDetailsWindow::calculateDynamicTableRowCount(co
 		}
 	};
 
-	int tier = StackExperienceDetailsWindow::getStackExperienceTierFromCreatureLevel(creature->getLevel());
-	const auto & rankThresholds = LIBRARY->creh->expRanks[tier];
 	auto gameCallback = GAME->interface()->cb.get();
 
 	std::set<BonusKey> uniqueBonuses;
 	for(int column = 0; column < MAX_RANKS; ++column)
 	{
-		const int previewExperience = getPreviewExperienceForBonusColumn(rankThresholds, column);
+		const int previewExperience = getPreviewExperienceForBonusColumn(*stack, column);
 		CStackInstance preview(gameCallback, creature->getId(), std::max(1, stack->getCount()), true);
 		const TExpType totalExperience = static_cast<TExpType>(previewExperience) * static_cast<TExpType>(preview.getCount());
 		preview.giveTotalStackExperience(totalExperience);
@@ -148,20 +114,16 @@ CStackWindow::StackExperienceDetailsWindow::StackExperienceDetailsWindow(const C
 
 	title = std::make_shared<CLabel>(pos.w / 2, headerTop, FONT_BIG, ETextAlignment::TOPCENTER, Colors::YELLOW, LIBRARY->generaltexth->translate("vcmi.stackExperience.windowTitle"));
 
-	int tier = getStackExperienceTierFromCreatureLevel(this->creature->getLevel());
-	const auto & rankThresholds = LIBRARY->creh->expRanks[tier];
-
-	const int expMax = static_cast<int>(rankThresholds.back());
 	const int currentRank = std::clamp(sourceStack->getExpRank(), 0, MAX_RANKS - 1);
-	const int maxExpPerBattle = static_cast<int>(LIBRARY->creh->maxExpPerBattle[tier]) * expMax / 100;
-	const int nextRankExp = (currentRank < MAX_RANKS - 1 && currentRank < static_cast<int>(rankThresholds.size()))
-		? std::max(0, static_cast<int>(rankThresholds[currentRank] - sourceStack->getAverageExperience()))
+	const int maxExpPerBattle = static_cast<int>(sourceStack->getMaxExperiencePerBattle());
+	const int nextRankExp = currentRank < MAX_RANKS - 1
+		? std::max(0, static_cast<int>(sourceStack->getExperienceForRank(currentRank + 1) - sourceStack->getAverageExperience()))
 		: 0;
-	int expMin = std::max(LIBRARY->creh->expRanks[tier][std::max(currentRank - 1, 0)], static_cast<ui32>(1));
+	int expMin = std::max(static_cast<int>(sourceStack->getExperienceForRank(std::max(currentRank, 1))), 1);
 	const int maxNewRecruits = std::max(0, static_cast<int>(sourceStack->getTotalExperience() / expMin - sourceStack->getCount()));
-	const int upgradeMultiplier = static_cast<int>(LIBRARY->creh->expAfterUpgrade);
-	expMin = LIBRARY->creh->expRanks[tier][9];
-	const int expAfterRank10 = static_cast<int>(LIBRARY->creh->expRanks[tier][10] - expMin);
+	const int upgradeMultiplier = static_cast<int>(GAME->interface()->cb->getSettings().getInteger(EGameSettings::CREATURES_STACK_EXPERIENCE_AFTER_UPGRADE));
+	expMin = std::max(static_cast<int>(sourceStack->getExperienceForRank(MAX_RANKS - 1)), 1);
+	const int expAfterRank10 = static_cast<int>(sourceStack->getMaxExperiencePerUnit()) - expMin;
 	const int maxRecruitsAtRank10 = std::max(0, static_cast<int>((sourceStack->getCount() * expAfterRank10) / expMin));
 
 	const std::string unitHeader = this->creature->getNamePluralTranslated();
@@ -232,10 +194,10 @@ CStackWindow::StackExperienceDetailsWindow::StackExperienceDetailsWindow(const C
 	const auto [experienceTooltip, experiencePopup] = makeTooltipAndPopupText(LIBRARY->generaltexth->translate("vcmi.stackExperience.desc.experience"));
 
 	std::vector<NumericRow> rows = {
-		{LIBRARY->generaltexth->translate("vcmi.stackExperience.table.experience"), [&rankThresholds](const CStackInstance & stackInst)
+		{LIBRARY->generaltexth->translate("vcmi.stackExperience.table.experience"), [](const CStackInstance & stackInst)
 			{
 				const int rank = std::clamp(stackInst.getExpRank(), 0, MAX_RANKS - 1);
-				return static_cast<int>(rankThresholds[std::min(rank, static_cast<int>(rankThresholds.size()) - 1)]);
+				return static_cast<int>(rank < MAX_RANKS - 1 ? stackInst.getExperienceForRank(rank + 1) : stackInst.getMaxExperiencePerUnit());
 		},
 		[](const CStackInstance &){ return true; },
 		ImagePath::builtin("stackExperienceIconExperience"), true, -1, experienceTooltip, experiencePopup, false, false, false, false, true},
@@ -271,7 +233,7 @@ CStackWindow::StackExperienceDetailsWindow::StackExperienceDetailsWindow(const C
 	for(int column = 0; column < MAX_RANKS; ++column)
 	{
 		auto gameCallback = GAME->interface() ? GAME->interface()->cb.get() : nullptr;
-		const int previewExperience = getPreviewExperienceForBonusColumn(rankThresholds, column);
+		const int previewExperience = getPreviewExperienceForBonusColumn(*sourceStack, column);
 		CStackInstance preview(gameCallback, this->creature->getId(), std::max(1, sourceStack->getCount()), true);
 		const TExpType totalExperience = static_cast<TExpType>(previewExperience) * static_cast<TExpType>(preview.getCount());
 		preview.giveTotalStackExperience(totalExperience);
@@ -480,11 +442,11 @@ CStackWindow::StackExperienceDetailsWindow::StackExperienceDetailsWindow(const C
 			bool isActive = false;
 			if(row.icon == ImagePath::builtin("stackExperienceIconExperience"))
 			{
-				value = column == 0 ? 0 : static_cast<int>(rankThresholds[std::min(column - 1, static_cast<int>(rankThresholds.size()) - 1)]);
+				value = column == 0 ? 0 : static_cast<int>(sourceStack->getExperienceForRank(std::min(column, MAX_RANKS - 1)));
 			}
 			else
 			{
-				const int previewExperience = getPreviewExperienceForBonusColumn(rankThresholds, column);
+				const int previewExperience = getPreviewExperienceForBonusColumn(*sourceStack, column);
 				auto gameCallback = GAME->interface() ? GAME->interface()->cb.get() : nullptr;
 				CStackInstance preview(gameCallback, this->creature->getId(), std::max(1, sourceStack->getCount()), true);
 				const TExpType totalExperience = static_cast<TExpType>(previewExperience) * static_cast<TExpType>(preview.getCount());

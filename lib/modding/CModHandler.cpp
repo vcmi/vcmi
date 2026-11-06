@@ -584,7 +584,6 @@ void CModHandler::load(LibraryLoadContext & context)
 	context.content.loadCustom();
 
 	logMod->info("\tLoading mod data");
-	context.lib.creh->loadCrExpMod(context);
 	context.resolver.finalize();
 	logMod->info("\tResolving identifiers");
 

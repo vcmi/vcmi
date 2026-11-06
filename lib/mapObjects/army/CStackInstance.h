@@ -40,6 +40,9 @@ class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDe
 	}
 
 	TExpType totalExperience; //commander needs same amount of exp as hero
+
+	/// Row of stack experience settings that is used by this stack
+	int getExperienceTableRow() const;
 public:
 	struct RandomStackInfo
 	{
@@ -56,6 +59,13 @@ public:
 	TExpType getTotalExperience() const;
 	TExpType getAverageExperience() const;
 	virtual bool canGainExperience() const;
+
+	/// Experience per unit required to reach specified rank, starting from 1
+	TExpType getExperienceForRank(int rank) const;
+	/// Maximal experience per unit this stack can have
+	TExpType getMaxExperiencePerUnit() const;
+	/// Maximal experience per unit this stack can gain in a single battle
+	TExpType getMaxExperiencePerBattle() const;
 
 	template<typename Handler>
 	void serialize(Handler & h)

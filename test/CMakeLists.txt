@@ -31,6 +31,7 @@ set(test_SRCS
 		entity/CArtifactTest.cpp
 		entity/CCreatureTest.cpp
 		entity/StackExperienceBonusesTest.cpp
+		entity/StackExperienceRanksTest.cpp
 		entity/CFactionTest.cpp
 		entity/CHeroClassTest.cpp
 		entity/CHeroTest.cpp
