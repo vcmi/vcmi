@@ -3941,7 +3941,9 @@ void CGameHandler::checkVictoryLossConditionsForPlayer(PlayerColor player)
 				}
 			}
 
-			if(p->human)
+			// server of an unfinished campaign waits for the host to request the next scenario
+			const auto & campaign = gameState().getStartInfo()->campState;
+			if(p->human && (!campaign || campaign->isCampaignFinished()))
 			{
 				gameServer().setState(EServerState::SHUTDOWN);
 			}

@@ -23,7 +23,7 @@
 #include "../lib/modding/ModDescription.h"
 
 #include "../lib/CRandomGenerator.h"
-#include "../lib/campaign/CampaignState.h"
+#include "../lib/campaign/CampaignHandler.h"
 #include "../lib/entities/faction/CTownHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/SavegamePath.h"
@@ -32,6 +32,12 @@
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/serializer/GameConnection.h"
+
+/// Campaigns are not limited to Maps/, campaign sets use campaigns from Data/
+static bool isCampaignResource(const std::string & fileURI)
+{
+	return CResourceHandler::get()->existsResource(ResourcePath(fileURI, EResType::CAMPAIGN));
+}
 
 /// Returns true if canonical path points to an entry inside directory, and not to directory itself
 static bool isInsideDirectory(const boost::filesystem::path & canonicalPath, const boost::filesystem::path & directory)
@@ -282,8 +288,10 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack
 			valid = true;
 			break;
 		case ScenarioSelection::EType::MAP:
-		case ScenarioSelection::EType::CAMPAIGN:
 			valid = boost::algorithm::istarts_with(selection.fileURI, "Maps/");
+			break;
+		case ScenarioSelection::EType::CAMPAIGN:
+			valid = isCampaignResource(selection.fileURI);
 			break;
 		case ScenarioSelection::EType::SAVE:
 			valid = boost::algorithm::istarts_with(selection.fileURI, "Saves/");
@@ -356,8 +364,11 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 	}
 
 	// tutorial and debug start select maps without listing them
-	if(mapInfo && pack.selection.type == ScenarioSelection::EType::MAP && srv.lastScenarioListRequest && srv.lastScenarioListRequest->type == ScenarioListEntry::EType::MAP)
+	const auto & listRequest = srv.lastScenarioListRequest;
+	if(mapInfo && pack.selection.type == ScenarioSelection::EType::MAP && listRequest && listRequest->type == ScenarioListEntry::EType::MAP)
 		LastScenarios::rememberMap(pack.selection.fileURI);
+	if(mapInfo && pack.selection.type == ScenarioSelection::EType::CAMPAIGN && listRequest && listRequest->type == ScenarioListEntry::EType::CAMPAIGN)
+		LastScenarios::rememberCampaign(pack.selection.fileURI);
 
 	srv.updateStartInfoOnMapChange(mapInfo, pack.mapGenOpts);
 
@@ -366,41 +377,83 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 	result = false;
 }
 
+void ClientPermissionsCheckerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
+{
+	result = srv.isClientHost(connection->connectionID) && isCampaignResource(pack.fileURI);
+	if(!result)
+		logNetwork->error("Rejecting campaign '%s'", pack.fileURI);
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaign(LobbySetCampaign & pack)
 {
-	srv.si->mapname = pack.ourCampaign->getFilename();
-	srv.si->mode = EStartMode::CAMPAIGN;
-	srv.si->campState = pack.ourCampaign;
-	srv.si->turnTimerInfo = TurnTimerInfo{};
-
-	bool isCurrentMapConquerable = pack.ourCampaign->currentScenario() && pack.ourCampaign->isAvailable(*pack.ourCampaign->currentScenario());
-
-	auto scenarios = pack.ourCampaign->allScenarios();
-	for(auto scenarioID : std::views::reverse(scenarios)) // reverse -> on multiple scenario selection set lowest id at the end
+	if(srv.getState() != EServerState::LOBBY)
 	{
-		if(pack.ourCampaign->isAvailable(scenarioID))
-		{
-			if(!isCurrentMapConquerable || (isCurrentMapConquerable && scenarioID == *pack.ourCampaign->currentScenario()))
-			{
-				srv.setCampaignMap(scenarioID);
-			}
-		}
+		logNetwork->error("Rejecting campaign selection outside of lobby");
+		result = false;
+		return;
 	}
-	
+
+	std::shared_ptr<CampaignState> campaign;
+	try
+	{
+		campaign = std::make_shared<CampaignState>(CampaignHandler::getCampaign(pack.fileURI));
+	}
+	catch(const std::exception & e)
+	{
+		// campaign header is listed without its maps, which may be in an unsupported format, for example HotA maps without HotA mod
+		logGlobal->error("Failed to load campaign %s: %s", pack.fileURI, e.what());
+
+		LobbyShowMessage message;
+		message.message.appendTextID("vcmi.client.errors.invalidMap");
+		message.message.replaceRawString(e.what());
+		connection->sendPack(message);
+		result = false;
+		return;
+	}
+
+	campaign->campaignSet = pack.campaignSet;
+	srv.setCampaign(campaign);
 	result = true;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaignMap(LobbySetCampaignMap & pack)
 {
-	srv.setCampaignMap(pack.mapId);
+	if(srv.getState() != EServerState::LOBBY || !srv.si->campState)
+	{
+		logNetwork->error("Rejecting campaign scenario selection without campaign in lobby");
+		result = false;
+		return;
+	}
 
+	if(!srv.si->campState->getCampaign().allScenarios().contains(pack.mapId) || !srv.si->campState->isAvailable(pack.mapId))
+	{
+		logNetwork->error("Rejecting selection of unavailable campaign scenario %d", pack.mapId.getNum());
+		result = false;
+		return;
+	}
+
+	srv.setCampaignMap(pack.mapId);
 	result = true;
 }
 
 void ApplyOnServerNetPackVisitor::visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack)
 {
-	srv.setCampaignBonus(pack.bonusId);
+	if(srv.getState() != EServerState::LOBBY || !srv.si->campState || srv.campaignMap == CampaignScenarioID::NONE)
+	{
+		logNetwork->error("Rejecting campaign bonus selection without campaign scenario in lobby");
+		result = false;
+		return;
+	}
 
+	const auto & bonuses = srv.si->campState->getCampaign().scenario(srv.campaignMap).travelOptions.bonusesToChoose;
+	if(pack.bonusId < 0 || pack.bonusId >= static_cast<int>(bonuses.size()))
+	{
+		logNetwork->error("Rejecting invalid campaign bonus %d", pack.bonusId);
+		result = false;
+		return;
+	}
+
+	srv.setCampaignBonus(pack.bonusId);
 	result = true;
 }
 
@@ -423,6 +476,34 @@ void ApplyOnServerNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
 }
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyRestartGame(LobbyRestartGame & pack)
+{
+	for(const auto & connection : srv.activeConnections)
+		connection->enterLobbyConnectionMode();
+}
+
+void ClientPermissionsCheckerNetPackVisitor::visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack)
+{
+	result = srv.isClientHost(connection->connectionID) && srv.getState() == EServerState::GAMEPLAY;
+}
+
+void ApplyOnServerNetPackVisitor::visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack)
+{
+	auto campaign = srv.gh->gs->getStartInfo()->campState;
+	if(!campaign || !campaign->currentScenario() || !campaign->isConquered(*campaign->currentScenario()) || campaign->isCampaignFinished())
+	{
+		logNetwork->error("Rejecting next campaign scenario: current scenario is not won or campaign is finished");
+		result = false;
+		return;
+	}
+
+	srv.prepareToRestart();
+	srv.si = std::make_shared<StartInfo>();
+	srv.mi.reset();
+	srv.setCampaign(campaign);
+	result = true;
+}
+
+void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack)
 {
 	for(const auto & connection : srv.activeConnections)
 		connection->enterLobbyConnectionMode();
@@ -643,7 +724,8 @@ void ClientPermissionsCheckerNetPackVisitor::visitLobbyRequestScenarioList(Lobby
 	result = srv.isClientHost(connection->connectionID);
 
 	const bool validLoadMode = pack.loadMode == ELoadMode::SINGLE || pack.loadMode == ELoadMode::MULTI || pack.loadMode == ELoadMode::CAMPAIGN || pack.loadMode == ELoadMode::TUTORIAL;
-	if(pack.type != ScenarioListEntry::EType::MAP && (pack.type != ScenarioListEntry::EType::SAVE || !validLoadMode))
+	const bool validType = pack.type == ScenarioListEntry::EType::MAP || pack.type == ScenarioListEntry::EType::CAMPAIGN || (pack.type == ScenarioListEntry::EType::SAVE && validLoadMode);
+	if(!validType)
 	{
 		logNetwork->error("Rejecting scenario list request with invalid type %d or load mode %d", static_cast<int>(pack.type), static_cast<int>(pack.loadMode));
 		result = false;
@@ -666,7 +748,9 @@ void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScen
 	const ScenarioListBuilder builder(pack.type, pack.loadMode);
 	LobbyScenarioList reply;
 	if(pack.selectLast && pack.type == ScenarioListEntry::EType::MAP)
-		reply.list = builder.buildForMap(LastScenarios::getMap(), reply.selectedFile);
+		reply.list = builder.buildForFile(LastScenarios::getMap(), reply.selectedFile);
+	else if(pack.selectLast && pack.type == ScenarioListEntry::EType::CAMPAIGN)
+		reply.list = builder.buildForFile(LastScenarios::getCampaign(), reply.selectedFile);
 	else if(pack.selectLast)
 		reply.list = builder.buildForSave(LastScenarios::getSave(pack.loadMode), reply.selectedFile);
 	else

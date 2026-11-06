@@ -38,6 +38,7 @@ public:
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
+	void visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack) override;
 	void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
 	void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
@@ -51,6 +52,7 @@ public:
 	void visitLobbyQueryState(LobbyQueryState & pack) override;
 	void visitLobbySetBattleOnlyModeStartInfo(LobbySetBattleOnlyModeStartInfo & pack) override;
 	void visitLobbySetMap(LobbySetMap & pack) override;
+	void visitLobbySetCampaign(LobbySetCampaign & pack) override;
 };
 
 class ApplyOnServerAfterAnnounceNetPackVisitor : public ::ICPackVisitor
@@ -69,6 +71,7 @@ public:
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
+	void visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
 	void visitLobbyQueryState(LobbyQueryState & pack) override;
 };
@@ -101,6 +104,7 @@ public:
 	void visitLobbySetCampaignMap(LobbySetCampaignMap & pack) override;
 	void visitLobbySetCampaignBonus(LobbySetCampaignBonus & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
+	void visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack) override;
 	void visitLobbyStartGame(LobbyStartGame & pack) override;
 	void visitLobbyChangePlayerOption(LobbyChangePlayerOption & pack) override;
 	void visitLobbySetPlayer(LobbySetPlayer & pack) override;

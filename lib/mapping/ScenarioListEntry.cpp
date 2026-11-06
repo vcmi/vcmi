@@ -18,6 +18,7 @@
 #include "../GameLibrary.h"
 #include "../IGameSettings.h"
 #include "../StartInfo.h"
+#include "../campaign/CampaignHandler.h"
 #include "../filesystem/Filesystem.h"
 #include "../gameState/SaveMetadata.h"
 #include "../serializer/CLegacyLoadFile.h"
@@ -35,6 +36,21 @@ ScenarioListEntry ScenarioListEntry::fromMap(const ResourcePath & file)
 	result.lastWrite = CResourceHandler::get()->getLastWriteTime(file);
 	result.metadata["map"] = ScenarioMetadata::mapToJson(*header);
 	result.metadata["mods"] = ScenarioMetadata::modsToJson(header->mods);
+	return result;
+}
+
+ScenarioListEntry ScenarioListEntry::fromCampaign(const ResourcePath & file)
+{
+	const auto campaign = CampaignHandler::getHeader(file.getOriginalName());
+
+	ScenarioListEntry result;
+	result.type = EType::CAMPAIGN;
+	result.fileURI = file.getOriginalName();
+	result.originalFileURI = file.getOriginalName();
+	result.lastWrite = CResourceHandler::get()->getLastWriteTime(file);
+	result.metadata["campaign"] = ScenarioMetadata::campaignToJson(*campaign);
+	// campaign maps are not parsed for the list, so mods required by them are unknown
+	result.metadata["mods"].Struct();
 	return result;
 }
 
@@ -66,29 +82,34 @@ ScenarioListEntry ScenarioListEntry::fromSave(const ResourcePath & file, JsonVal
 	return result;
 }
 
-std::string ScenarioListEntry::getMapName(const ITranslator * translator) const
+const JsonNode & ScenarioListEntry::getDescription() const
 {
-	return ScenarioMetadata::textToString(metadata["map"]["name"], translator);
+	return metadata[type == EType::CAMPAIGN ? "campaign" : "map"];
 }
 
-std::string ScenarioListEntry::getMapAuthor(const ITranslator * translator) const
+std::string ScenarioListEntry::getName(const ITranslator * translator) const
 {
-	return ScenarioMetadata::textToString(metadata["map"]["author"], translator);
+	return ScenarioMetadata::textToString(getDescription()["name"], translator);
 }
 
-std::string ScenarioListEntry::getMapAuthorContact(const ITranslator * translator) const
+std::string ScenarioListEntry::getAuthor(const ITranslator * translator) const
 {
-	return ScenarioMetadata::textToString(metadata["map"]["authorContact"], translator);
+	return ScenarioMetadata::textToString(getDescription()["author"], translator);
 }
 
-std::string ScenarioListEntry::getMapVersion(const ITranslator * translator) const
+std::string ScenarioListEntry::getAuthorContact(const ITranslator * translator) const
 {
-	return ScenarioMetadata::textToString(metadata["map"]["mapVersion"], translator);
+	return ScenarioMetadata::textToString(getDescription()["authorContact"], translator);
 }
 
-std::time_t ScenarioListEntry::getMapCreationTime() const
+std::string ScenarioListEntry::getVersion(const ITranslator * translator) const
 {
-	return metadata["map"]["creationDateTime"].Integer();
+	return ScenarioMetadata::textToString(getDescription()[type == EType::CAMPAIGN ? "campaignVersion" : "mapVersion"], translator);
+}
+
+std::time_t ScenarioListEntry::getCreationTime() const
+{
+	return getDescription()["creationDateTime"].Integer();
 }
 
 EMapFormat ScenarioListEntry::getMapFormat() const
@@ -167,4 +188,9 @@ std::string ScenarioListEntry::getMapFileInSave() const
 int ScenarioListEntry::getCampaignScenarioInSave() const
 {
 	return metadata["game"]["campaignScenario"].Integer();
+}
+
+int ScenarioListEntry::getCampaignScenarios() const
+{
+	return metadata["campaign"]["scenarios"].Integer();
 }

@@ -175,6 +175,7 @@ public:
 	virtual void visitLobbyGuiAction(LobbyGuiAction & pack) {}
 	virtual void visitLobbyLoadProgress(LobbyLoadProgress & pack) {}
 	virtual void visitLobbyRestartGame(LobbyRestartGame & pack) {}
+	virtual void visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack) {}
 	virtual void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) {}
 	virtual void visitLobbyStartGame(LobbyStartGame & pack) {}
 	virtual void visitLobbyQueryState(LobbyQueryState & pack) {}

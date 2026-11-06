@@ -192,6 +192,12 @@ void CGameState::init(const IMapService * mapService, StartInfo * si, IGameRando
 	assert(services);
 	scenarioOps = CMemorySerializer::deepCopy(*si);
 	initialOpts = CMemorySerializer::deepCopy(*si);
+	if(si->campState)
+	{
+		// both have their own progress, only scenarioOps records the conquest - but the campaign itself is shared
+		scenarioOps->campState = std::make_shared<CampaignState>(*si->campState);
+		initialOpts->campState = std::make_shared<CampaignState>(*si->campState);
+	}
 	si = nullptr;
 	auto & randomGenerator = gameRandomizer.getDefault();
 
@@ -1866,15 +1872,27 @@ std::vector<std::byte> CGameState::saveToMemory()
 	ReplayLog logBackup;
 	std::swap(logBackup, replayLog);
 
+	std::shared_ptr<const Campaign> campaignBackup = scenarioOps->campState ? scenarioOps->campState->getCampaignPtr() : nullptr;
+	setCampaign(nullptr);
+
 	CMemorySerializer serializer;
 	serializer.oser & *this;
 
+	setCampaign(campaignBackup);
 	std::swap(logBackup, replayLog);
 
 	return serializer.extractBuffer();
 }
 
-void CGameState::loadFromMemory(std::vector<std::byte> data)
+void CGameState::setCampaign(std::shared_ptr<const Campaign> campaign)
+{
+	if(scenarioOps->campState)
+		scenarioOps->campState->setCampaign(campaign);
+	if(initialOpts->campState)
+		initialOpts->campState->setCampaign(campaign);
+}
+
+void CGameState::loadFromMemory(std::vector<std::byte> data, std::shared_ptr<const Campaign> campaign)
 {
 	// battles are not part of serialize(), so leftovers of the discarded state have to go explicitly
 	currentBattles.clear();
@@ -1883,12 +1901,20 @@ void CGameState::loadFromMemory(std::vector<std::byte> data)
 	serializer.iser.loadingGamestate = true;
 	serializer.iser.cb = this;
 	serializer.iser & *this;
+
+	if(scenarioOps->campState && !campaign)
+		throw std::runtime_error("Snapshot of campaign " + scenarioOps->mapname + " is loaded without its campaign");
+	setCampaign(campaign);
 }
 
 void CGameState::loadGame(BinaryDeserializer & h)
 {
 	logGlobal->info("Loading game state...");
 	h & *this;
+
+	// older saves hold a separate copy of the campaign in each start info
+	if(!h.hasFeature(ESerializationVersion::CAMPAIGN_STATIC_DATA) && initialOpts->campState)
+		initialOpts->campState->setCampaign(scenarioOps->campState->getCampaignPtr());
 
 	// Runtime-only object, not serialized; rebuild from the loaded script source.
 	mapEventDispatcher = LIBRARY->scripts()->createMapScriptDispatcher(*this, false);

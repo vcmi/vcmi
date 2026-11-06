@@ -13,7 +13,9 @@
 #include "CMapHeader.h"
 
 #include "../GameLibrary.h"
+#include "../campaign/CampaignState.h"
 #include "../json/JsonNode.h"
+#include "../modding/CModHandler.h"
 #include "../modding/ModScope.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
@@ -105,6 +107,22 @@ JsonNode ScenarioMetadata::mapToJson(const CMapHeader & header)
 	result["defeatIcon"].Integer() = header.defeatIconIndex;
 	result["players"].Integer() = players;
 	result["humanPlayers"].Integer() = humanPlayers;
+	return result;
+}
+
+JsonNode ScenarioMetadata::campaignToJson(const Campaign & campaign)
+{
+	const std::map<std::string, TextLocalizationContainer> translators = {
+		{ LIBRARY->modh->getModLanguage(campaign.getModName()), *campaign.getTexts() }
+	};
+
+	JsonNode result;
+	result["name"] = textToJson(campaign.getName(), translators);
+	result["author"] = textToJson(campaign.getAuthorText(), translators);
+	result["authorContact"] = textToJson(campaign.getAuthorContactText(), translators);
+	result["campaignVersion"] = textToJson(campaign.getCampaignVersionText(), translators);
+	result["creationDateTime"].Integer() = campaign.getCreationDateTime();
+	result["scenarios"].Integer() = campaign.scenariosCount();
 	return result;
 }
 

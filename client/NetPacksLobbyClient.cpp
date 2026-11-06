@@ -52,6 +52,14 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadGame(LobbyQuickLoadGa
 	handler.sendStartGame();
 }
 
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack)
+{
+	if(handler.getState() != EClientState::CAMPAIGN_SCENARIO_WON)
+		throw std::runtime_error("Received next campaign scenario while not in finished campaign scenario!");
+
+	handler.openNextCampaignScenarioLobby();
+}
+
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyQuickLoadInfo(LobbyQuickLoadInfo & pack)
 {
 	if(!pack.error.empty())
@@ -110,8 +118,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 				ENGINE->windows().popWindows(1);
 			}
 
-			bool hideScreen = handler.campaignStateToSend && (!handler.campaignStateToSend->campaignSet.empty() || handler.campaignStateToSend->lastScenario());
-			ENGINE->windows().createAndPushWindow<CLobbyScreen>(handler.screenType, hideScreen);
+			ENGINE->windows().createAndPushWindow<CLobbyScreen>(handler.screenType, handler.campaignToStart.has_value());
 		}
 		handler.setState(EClientState::LOBBY);
 	}
@@ -244,6 +251,11 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState &
 {
 	pack.firstState = handler.hostClientId == GameConnectionID::INVALID;
 	static_cast<LobbyState &>(handler) = pack.state;
+	if(handler.getState() == EClientState::LOBBY && handler.si->mode == EStartMode::CAMPAIGN && handler.si->campState)
+	{
+		handler.setState(EClientState::LOBBY_CAMPAIGN);
+		handler.campaignToStart.reset();
+	}
 	// the campaign state the previous texts came from is gone now
 	handler.installLobbyTexts();
 	if(handler.scenarioToStart && handler.mi)
@@ -276,15 +288,15 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & 
 	{
 		auto bonusSel = std::make_shared<CBonusSelection>();
 		lobby->bonusSel = bonusSel;
-		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getIntroVideo().empty() && ENGINE->video().open(handler.si->campState->getIntroVideo(), 1))
+		if(!handler.si->campState->conqueredScenarios().size() && !handler.si->campState->getCampaign().getIntroVideo().empty() && ENGINE->video().open(handler.si->campState->getCampaign().getIntroVideo(), 1))
 		{
 			ENGINE->music().stopMusic();
-			auto rim = handler.si->campState->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getVideoRim();
-			if(handler.si->campState->getVideoRim() == ImagePath::builtin("NONE"))
+			auto rim = handler.si->campState->getCampaign().getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : handler.si->campState->getCampaign().getVideoRim();
+			if(handler.si->campState->getCampaign().getVideoRim() == ImagePath::builtin("NONE"))
 				rim = ImagePath();
-			ENGINE->windows().createAndPushWindow<VideoWindow>(handler.si->campState->getIntroVideo(), rim, false, 1, [bonusSel](bool skipped){
-				if(!GAME->server().si->campState->getMusic().empty())
-					ENGINE->music().playMusic(GAME->server().si->campState->getMusic(), true, false);
+			ENGINE->windows().createAndPushWindow<VideoWindow>(handler.si->campState->getCampaign().getIntroVideo(), rim, false, 1, [bonusSel](bool skipped){
+				if(!GAME->server().si->campState->getCampaign().getMusic().empty())
+					ENGINE->music().playMusic(GAME->server().si->campState->getCampaign().getMusic(), true, false);
 				ENGINE->windows().pushWindow(bonusSel);
 			});
 		}
@@ -320,8 +332,17 @@ void ApplyOnLobbyScreenNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & 
 {
 	if(!lobby) //stub: ignore message for game mode
 		return;
-	
-	lobby->buttonStart->block(false);
+
+	if(handler.campaignToStart)
+	{
+		// campaign started outside of the list was rejected, and its lobby is hidden
+		handler.sendClientDisconnecting();
+		lobby->close();
+	}
+	else
+	{
+		lobby->buttonStart->block(false);
+	}
 	handler.showServerError(pack.message.toString(&GAME->translator()));
 }
 

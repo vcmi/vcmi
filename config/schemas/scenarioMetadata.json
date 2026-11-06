@@ -1,9 +1,13 @@
 {
 	"type" : "object",
 	"$schema" : "http://json-schema.org/draft-04/schema",
-	"title" : "VCMI saved game or map metadata",
-	"description" : "Information on a saved game or a map that can be read without loading mods used by it. Also read from saves of newer versions, which may add new fields",
-	"required" : [ "map", "mods" ],
+	"title" : "VCMI saved game, map or campaign metadata",
+	"description" : "Information on a saved game, a map or a campaign that can be read without loading mods used by it. Also read from saves of newer versions, which may add new fields",
+	"required" : [ "mods" ],
+	"anyOf" : [
+		{ "required" : [ "map" ] },
+		{ "required" : [ "campaign" ] }
+	],
 
 	"definitions" : {
 		"text" : {
@@ -35,6 +39,7 @@
 		},
 		"map" : {
 			"type" : "object",
+			"description" : "Map, present for maps and saved games",
 			"required" : [ "name", "author", "authorContact", "mapVersion", "format", "width", "height", "levels", "difficulty", "victoryIcon", "defeatIcon", "players", "humanPlayers" ],
 			"properties" : {
 				"name" : { "$ref" : "#/definitions/text" },
@@ -65,6 +70,25 @@
 				"humanPlayers" : {
 					"type" : "number",
 					"description" : "Number of players on the map that can be controlled by a human"
+				}
+			}
+		},
+		"campaign" : {
+			"type" : "object",
+			"description" : "Campaign, present only for entries of the campaign list",
+			"required" : [ "name", "author", "authorContact", "campaignVersion", "scenarios" ],
+			"properties" : {
+				"name" : { "$ref" : "#/definitions/text" },
+				"author" : { "$ref" : "#/definitions/text" },
+				"authorContact" : { "$ref" : "#/definitions/text" },
+				"campaignVersion" : { "$ref" : "#/definitions/text" },
+				"creationDateTime" : {
+					"type" : "number",
+					"description" : "Time when the campaign was created, in seconds since Unix epoch, 0 or missing if unknown"
+				},
+				"scenarios" : {
+					"type" : "number",
+					"description" : "Number of scenarios in the campaign"
 				}
 			}
 		},
@@ -106,7 +130,7 @@
 		},
 		"mods" : {
 			"type" : "object",
-			"description" : "Mods that affect gameplay: active mods for saved games, mods required by the map for maps. Root mod identifier -> mod",
+			"description" : "Mods that affect gameplay: active mods for saved games, mods required by the map for maps, empty for campaigns. Root mod identifier -> mod",
 			"additionalProperties" : {
 				"type" : "object",
 				"required" : [ "name", "version", "submods" ],

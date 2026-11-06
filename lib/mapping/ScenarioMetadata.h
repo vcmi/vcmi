@@ -11,6 +11,7 @@
 
 #include "../modding/ModVerificationInfo.h"
 
+class Campaign;
 class CMapHeader;
 class ITranslator;
 class JsonNode;
@@ -30,6 +31,9 @@ DLL_LINKAGE std::string textToString(const JsonNode & text, const ITranslator * 
 
 /// Describes map with provided header, as "map" section of metadata
 DLL_LINKAGE JsonNode mapToJson(const CMapHeader & header);
+
+/// Describes campaign with provided header, as "campaign" section of metadata
+DLL_LINKAGE JsonNode campaignToJson(const Campaign & campaign);
 
 /// Describes mods from provided list that affect gameplay, as "mods" section of metadata
 DLL_LINKAGE JsonNode modsToJson(const ModCompatibilityInfo & mods);

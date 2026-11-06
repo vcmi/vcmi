@@ -12,7 +12,7 @@
 
 #include "../../lib/campaign/CampaignState.h"
 
-class CampaignState;
+class Campaign;
 
 
 class QAbstractButton;
@@ -26,10 +26,10 @@ class CampaignProperties : public QDialog
 	Q_OBJECT
 
 public:
-	explicit CampaignProperties(std::shared_ptr<CampaignState> campaignState);
+	explicit CampaignProperties(std::shared_ptr<Campaign> campaign);
 	~CampaignProperties();
 
-	static bool showCampaignProperties(std::shared_ptr<CampaignState> campaignState);
+	static bool showCampaignProperties(std::shared_ptr<Campaign> campaign);
 	
 private slots:
 	void on_buttonBox_clicked(QAbstractButton * button);
@@ -41,7 +41,7 @@ private slots:
 private:
 	Ui::CampaignProperties *ui;
 
-	std::shared_ptr<CampaignState> campaignState;
+	std::shared_ptr<Campaign> campaign;
 	CampaignRegions regions;
 
 	void loadRegion();
