@@ -609,87 +609,87 @@ Orsak: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="364"/>
         <source>Last updated</source>
-        <translation type="unfinished"></translation>
+        <translation>Senast uppdaterad</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="367"/>
         <source>Installed size</source>
-        <translation type="unfinished"></translation>
+        <translation>Installationsstorlek</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
         <source>GitHub repository</source>
-        <translation type="unfinished"></translation>
+        <translation>GitHub-förråd (repo)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
         <source>GitHub stars</source>
-        <translation type="unfinished"></translation>
+        <translation>GitHub-stjärnor</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
         <source>Not compatible with this VCMI version</source>
-        <translation type="unfinished"></translation>
+        <translation>Inte kompatibel med denna VCMI-version</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
         <source>%1 or newer</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 eller nyare</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
         <source>up to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>upp till %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
         <source>%1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="412"/>
         <source>%1, complete</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, färdigt</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="414"/>
         <source>%1, %2% translated</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, %2% översatt</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="416"/>
         <source>%1, available</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, tillgängligt</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="418"/>
         <source>Translation</source>
-        <translation type="unfinished">Översättning</translation>
+        <translation>Översättning</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
         <source>This translation cannot be enabled because it is for a different language than the one selected in settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Den här översättningen kan inte aktiveras eftersom den är för ett annat språk än det som valts i inställningarna.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
         <source>This mod cannot be enabled because these required mods are missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Den här modden kan inte aktiveras eftersom de nödvändiga moddarna saknas</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
         <source>This mod cannot be installed because these required mods are missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Den här modden kan inte installeras eftersom de nödvändiga moddarna saknas</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="436"/>
         <source>This is a submod. It cannot be installed or uninstalled separately from its parent mod.</source>
-        <translation type="unfinished"></translation>
+        <translation>Detta är en undermodd/submodd. Den kan inte installeras eller avinstalleras separat från sin huvudmodd.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="452"/>
         <source>This mod failed automatic validation and may not work correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Denna modd klarade inte den automatiska valideringen och fungerar kanske inte som den ska.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="932"/>
@@ -2077,7 +2077,7 @@ Bin-filer (%n byte):
     <message>
         <location filename="../mainwindow_moc.cpp" line="456"/>
         <source>mod archive</source>
-        <translation type="unfinished"></translation>
+        <translation>modd-arkiv</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="467"/>

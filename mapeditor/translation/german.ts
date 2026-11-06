@@ -471,12 +471,12 @@
     <message>
         <location filename="../mainwindow.ui" line="346"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="356"/>
         <source>Show as list</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Liste anzeigen</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="394"/>
@@ -1441,7 +1441,7 @@ Warnung: Einmal hinzugefügte Level können nicht mehr entfernt werden.</transla
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="153"/>
         <source>Skill</source>
-        <translation>Fähigkeiten</translation>
+        <translation>Fähigkeit</translation>
     </message>
     <message>
         <location filename="../inspector/heroskillswidget.ui" line="158"/>
@@ -1894,7 +1894,7 @@ Möchten Sie das jetzt tun?</translation>
         <location filename="../templateeditor/objectselector.cpp" line="264"/>
         <location filename="../templateeditor/objectselector.cpp" line="348"/>
         <source>Delete</source>
-        <translation>Entfernen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="142"/>
@@ -2184,7 +2184,7 @@ Möchten Sie das jetzt tun?</translation>
         <location filename="../inspector/inspector.cpp" line="384"/>
         <location filename="../inspector/inspector.cpp" line="703"/>
         <source>Exclude player&apos;s faction</source>
-        <translation type="unfinished"></translation>
+        <translation>Fraktion des Spielers ausschließen</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="423"/>
@@ -2207,7 +2207,7 @@ Möchten Sie das jetzt tun?</translation>
         <location filename="../inspector/inspector.cpp" line="458"/>
         <location filename="../inspector/inspector.cpp" line="862"/>
         <source>Joining percentage</source>
-        <translation type="unfinished">Anschließen prozentual</translation>
+        <translation type="unfinished">Anschlussquote</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="462"/>
@@ -2518,7 +2518,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../mapcontroller.cpp" line="687"/>
         <source> (submod of %1)</source>
-        <translation> (Submodul von %1)</translation>
+        <translation> (Submod von %1)</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="689"/>
@@ -2797,12 +2797,12 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/questwidget.cpp" line="623"/>
         <source>Empty Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Leere Aufgabe</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.cpp" line="497"/>
         <source>Empty Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Leere Belohnung</translation>
     </message>
 </context>
 <context>
@@ -2810,132 +2810,132 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/questguardwidget.ui" line="17"/>
         <source>Mission goal</source>
-        <translation type="unfinished">Missionsziel</translation>
+        <translation>Missionsziel</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="28"/>
         <source>Day of week</source>
-        <translation type="unfinished">Tag der Woche</translation>
+        <translation>Tag der Woche</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="45"/>
         <source>Days passed</source>
-        <translation type="unfinished">Verstrichene Tage</translation>
+        <translation>Verstrichene Tage</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="79"/>
         <source>Hero level</source>
-        <translation type="unfinished">Heldenstufe</translation>
+        <translation>Heldenstufe</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="96"/>
         <source>Hero experience</source>
-        <translation type="unfinished">Heldenerfahrung</translation>
+        <translation>Heldenerfahrung</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="136"/>
         <source>Spell points</source>
-        <translation type="unfinished">Zauberpunkte</translation>
+        <translation>Zauberpunkte</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="156"/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
-        <translation type="unfinished">Held/Monster töten</translation>
+        <translation>Held/Monster töten</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="197"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation type="unfinished">Primärfähigkeiten</translation>
+        <translation>Primärfähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="221"/>
         <source>Attack</source>
-        <translation type="unfinished">Angriff</translation>
+        <translation>Angriff</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="231"/>
         <source>Defence</source>
-        <translation type="unfinished">Verteidigung</translation>
+        <translation>Verteidigung</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation type="unfinished">Zauberkraft</translation>
+        <translation>Zauberkraft</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="251"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Wissen</translation>
+        <translation>Wissen</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation type="unfinished">Ressourcen</translation>
+        <translation>Ressourcen</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="338"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakte</translation>
+        <translation>Artefakte</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="370"/>
         <source>Spells</source>
-        <translation type="unfinished">Zaubersprüche</translation>
+        <translation>Zaubersprüche</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation type="unfinished">Fähigkeiten</translation>
+        <translation>Fähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="442"/>
         <source>Creatures</source>
-        <translation type="unfinished">Kreaturen</translation>
+        <translation>Kreaturen</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="491"/>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="498"/>
         <source>Remove</source>
-        <translation type="unfinished">Entfernen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="538"/>
         <source>Heroes</source>
-        <translation type="unfinished">Helden</translation>
+        <translation>Helden</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation type="unfinished">Heldenklassen</translation>
+        <translation>Heldenklassen</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="602"/>
         <source>Players</source>
-        <translation type="unfinished">Spieler</translation>
+        <translation>Spieler</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.cpp" line="43"/>
         <source>None</source>
-        <translation type="unfinished">Keine</translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.cpp" line="45"/>
         <source>Day %1</source>
-        <translation type="unfinished">Tag %1</translation>
+        <translation>Tag %1</translation>
     </message>
 </context>
 <context>
@@ -2951,37 +2951,37 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/questwidget.ui" line="17"/>
         <source>Missions</source>
-        <translation type="unfinished"></translation>
+        <translation>Missionen</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="35"/>
         <source>Reward</source>
-        <translation type="unfinished">Belohnung</translation>
+        <translation>Belohnung</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="52"/>
         <source>Add Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Belohnung hinzufügen</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="59"/>
         <source>Add Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufgabe hinzufügen</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
         <source>Delete Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufgabe löschen</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="93"/>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach oben gehen</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="100"/>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach unten gehen</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="113"/>
@@ -3001,7 +3001,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/questwidget.ui" line="199"/>
         <source>Quest</source>
-        <translation type="unfinished">Aufgabe</translation>
+        <translation>Aufgabe</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="214"/>
@@ -3146,12 +3146,12 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/questwidget.cpp" line="516"/>
         <source>Add reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Belohnung hinzufügen</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="516"/>
         <source>Remove reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Belohnung entfernen</translation>
     </message>
 </context>
 <context>
@@ -3159,24 +3159,24 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="19"/>
         <source>Hero level</source>
-        <translation type="unfinished">Heldenstufe</translation>
+        <translation>Heldenstufe</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="36"/>
         <source>Hero experience</source>
-        <translation type="unfinished">Heldenerfahrung</translation>
+        <translation>Heldenerfahrung</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="76"/>
         <source>Spell points</source>
-        <translation type="unfinished">Zauberpunkte</translation>
+        <translation>Zauberpunkte</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="99"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="119"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="153"/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="112"/>
@@ -3186,117 +3186,117 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="136"/>
         <source>Movement</source>
-        <translation type="unfinished">Bewegung</translation>
+        <translation>Bewegungspunkte</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="179"/>
         <source>Remove object</source>
-        <translation type="unfinished">Objekt entfernen</translation>
+        <translation>Objekt entfernen</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="188"/>
         <source>Primary skills</source>
-        <translation type="unfinished">Primärfähigkeiten</translation>
+        <translation>Primärfähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="203"/>
         <source>Attack</source>
-        <translation type="unfinished">Angriff</translation>
+        <translation>Angriff</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="217"/>
         <source>Defence</source>
-        <translation type="unfinished">Verteidigung</translation>
+        <translation>Verteidigung</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="231"/>
         <source>Spell power</source>
-        <translation type="unfinished">Zauberkraft</translation>
+        <translation>Zauberkraft</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="245"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Wissen</translation>
+        <translation>Wissen</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="275"/>
         <source>Resources</source>
-        <translation type="unfinished">Ressourcen</translation>
+        <translation>Ressourcen</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="324"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakte</translation>
+        <translation>Artefakte</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="356"/>
         <source>Spells</source>
-        <translation type="unfinished">Zaubersprüche</translation>
+        <translation>Zaubersprüche</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="388"/>
         <source>Skills</source>
-        <translation type="unfinished">Fähigkeiten</translation>
+        <translation>Fähigkeiten</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="428"/>
         <source>Creatures</source>
-        <translation type="unfinished">Kreaturen</translation>
+        <translation>Kreaturen</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="477"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="606"/>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="484"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="613"/>
         <source>Remove</source>
-        <translation type="unfinished">Entfernen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="521"/>
         <source>Bonuses</source>
-        <translation type="unfinished">Boni</translation>
+        <translation>Boni</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="538"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="644"/>
         <source>Duration</source>
-        <translation type="unfinished">Dauer</translation>
+        <translation>Dauer</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="555"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="649"/>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="572"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="654"/>
         <source>Value</source>
-        <translation type="unfinished">Wert</translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="663"/>
         <source>Cast</source>
-        <translation type="unfinished">Wirken</translation>
+        <translation>Zauber wirken</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="669"/>
         <source>Cast an adventure map spell</source>
-        <translation type="unfinished">Einen Abenteuerkarten-Zauber wirken</translation>
+        <translation>Einen Abenteuerkarten-Zauber wirken</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="678"/>
         <source>Spell</source>
-        <translation type="unfinished">Zauberspruch</translation>
+        <translation>Zauberspruch</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="699"/>
         <source>Magic school level</source>
-        <translation type="unfinished">Stufe der Zauberschule</translation>
+        <translation>Stufe der Zauberschule</translation>
     </message>
 </context>
 <context>
@@ -4604,7 +4604,7 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <location filename="../templateeditor/templateeditor.cpp" line="272"/>
         <location filename="../templateeditor/templateeditor.cpp" line="487"/>
         <source>Delete</source>
-        <translation>Entfernen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="311"/>
@@ -4904,7 +4904,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="211"/>
         <source>Objects to delete</source>
-        <translation>Objekte zum löschen</translation>
+        <translation>Zu löschende Objekte</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="218"/>
@@ -5015,7 +5015,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="164"/>
         <source>affects neutral town</source>
-        <translation type="unfinished"></translation>
+        <translation>betrifft neutrale Stadt</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="173"/>
@@ -5139,7 +5139,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="61"/>
         <source>Delete</source>
-        <translation>Entfernen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <location filename="../templateeditor/townhintselector.cpp" line="100"/>
@@ -5283,7 +5283,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="51"/>
         <source>Delete</source>
-        <translation>Entfernen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <location filename="../templateeditor/treasureselector.cpp" line="66"/>

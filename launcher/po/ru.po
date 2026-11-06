@@ -7,8 +7,9 @@ msgstr ""
 "Project-Id-Version: VCMI 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-14 20:10+0200\n"
-"PO-Revision-Date: 2026-08-17 20:45+0000\n"
-"Last-Translator: Anonymous <noreply@weblate.org>\n"
+"PO-Revision-Date: 2026-11-05 18:26+0000\n"
+"Last-Translator: Andrey Mivrenik "
+"<bright.mug@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/vcmi/linux/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
@@ -16,19 +17,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 2026.9.dev0\n"
+"X-Generator: Weblate 2026.11.2.dev0\n"
 
 #: eu.vcmi.VCMI.metainfo.xml:4 vcmilauncher.desktop:4
 msgid "VCMI"
-msgstr ""
+msgstr "VCMI"
 
 #: eu.vcmi.VCMI.metainfo.xml:5
 msgid "Open-source game engine for Heroes of Might and Magic III"
-msgstr ""
+msgstr "Игровой движок игры «Герои Меча и Магии III» с открытым исходным кодом"
 
 #: eu.vcmi.VCMI.metainfo.xml:7
 msgid "VCMI Team"
-msgstr ""
+msgstr "Команда VCMI"
 
 #: eu.vcmi.VCMI.metainfo.xml:12
 msgid ""
@@ -36,65 +37,78 @@ msgid ""
 "possibilities. Years of intensive work resulted in an impressive amount of "
 "features. Among the current features are:"
 msgstr ""
+"VCMI это игровой движок игры «Герои Меча и Магии III» с открытым исходным "
+"кодом и новыми возможностями. Многолетняя интенсивная работа привела к "
+"появлению внушительного набора функций:"
 
 #: eu.vcmi.VCMI.metainfo.xml:14
 msgid "Complete gameplay mechanics"
-msgstr ""
+msgstr "Полный набор игровых механик"
 
 #: eu.vcmi.VCMI.metainfo.xml:15
 msgid "Almost all objects, abilities, spells and other content"
-msgstr ""
+msgstr "Практически все предметы, способности, заклинания и прочий контент"
 
 #: eu.vcmi.VCMI.metainfo.xml:16
 msgid "Basic battle AI and adventure AI"
-msgstr ""
+msgstr "Базовый ИИ для боя и приключений"
 
 #: eu.vcmi.VCMI.metainfo.xml:17
 msgid "Many GUI improvements: high resolutions, stack queue, creature window"
 msgstr ""
+"Многочисленные улучшения графического интерфейса: поддержка высоких "
+"разрешений, очередь заданий, окно существ"
 
 #: eu.vcmi.VCMI.metainfo.xml:18
 msgid ""
 "Advanced and easy mod support - add new towns, creatures, heroes, artifacts "
 "and spells without limits or conflicts"
 msgstr ""
+"Расширенная и удобная поддержка модификаций — добавляйте новые города, "
+"существ, героев, артефакты и заклинания без ограничений и конфликтов"
 
 #: eu.vcmi.VCMI.metainfo.xml:19
 msgid ""
 "Launcher for easy configuration - download mods from our server and install "
 "them immediately!"
 msgstr ""
+"Лаунчер для удобной настройки — скачивайте и устанавливайте моды с нашего "
+"сервера!"
 
 #: eu.vcmi.VCMI.metainfo.xml:20
 msgid "Random map generator that supports objects added by mods"
-msgstr ""
+msgstr "Генератор случайных карт, поддерживающий объекты, добавленные модами"
 
 #: eu.vcmi.VCMI.metainfo.xml:22
 msgid ""
 "Note: In order to play the game using VCMI you need to own data files for "
 "Heroes of Might and Magic III: The Shadow of Death."
 msgstr ""
+"Примечание: для запуска игры через VCMI вам потребуются файлы данных «Heroes "
+"of Might and Magic III: The Shadow of Death»."
 
 #: eu.vcmi.VCMI.metainfo.xml:23
 msgid "If you want help, please check our forum, bug tracker or GitHub page."
 msgstr ""
+"Если вам нужна помощь, пожалуйста, загляните на наш форум, в баг-трекер или "
+"на страницу в GitHub."
 
 #: eu.vcmi.VCMI.metainfo.xml:127
 msgid "heroes3"
-msgstr ""
+msgstr "heroes3"
 
 #: eu.vcmi.VCMI.metainfo.xml:128
 msgid "homm3"
-msgstr ""
+msgstr "homm3"
 
 #: vcmilauncher.desktop:5
 msgid "Strategy Game"
-msgstr ""
+msgstr "Стратегическая игра"
 
 #: vcmilauncher.desktop:6
 msgid "Open-source recreation of Heroes of Might & Magic III"
-msgstr ""
+msgstr "Ремейк игры «Герои Меча и Магии III» с открытым исходным кодом"
 
 #: vcmilauncher.desktop:11
 msgid "heroes of might and magic;heroes;homm;homm3;strategy;"
-msgstr ""
+msgstr "heroes of might and magic;heroes;homm;homm3;strategy;"
