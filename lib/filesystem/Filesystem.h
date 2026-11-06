@@ -29,7 +29,6 @@ class CFilesystemGenerator : boost::noncopyable
 	void loadArchive(const std::string & mountPoint, const JsonNode & config);
 	void loadDirectory(const std::string & mountPoint, const JsonNode & config);
 	void loadZipArchive(const std::string & mountPoint, const JsonNode & config);
-	void loadJsonMap(const std::string & mountPoint, const JsonNode & config);
 
 	TLoadFunctorMap genFunctorMap();
 public:

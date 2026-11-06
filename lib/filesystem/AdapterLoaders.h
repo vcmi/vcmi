@@ -13,45 +13,6 @@
 #include "ResourcePath.h"
 
 class CInputStream;
-class JsonNode;
-
-/**
- * Class that implements file mapping (aka *nix symbolic links)
- * Uses json file as input, content is map:
- * "fileA.txt" : "fileB.txt"
- * Note that extension is necessary, but used only to determine type
- *
- * fileA - file which will be replaced
- * fileB - file which will be used as replacement
- */
-class CMappedFileLoader : public ISimpleResourceLoader
-{
-public:
-	/**
-	 * Ctor.
-	 *
-	 * @param config Specifies filesystem configuration
-	 */
-	explicit CMappedFileLoader(const std::string &mountPoint, const JsonNode & config);
-
-	/// Interface implementation
-	/// @see ISimpleResourceLoader
-	std::unique_ptr<CInputStream> load(const ResourcePath & resourceName) const override;
-	bool existsResource(const ResourcePath & resourceName) const override;
-	std::string getMountPoint() const override;
-	std::optional<boost::filesystem::path> getResourceName(const ResourcePath & resourceName) const override;
-	bool updateFilteredFiles(std::function<bool(const std::string &)> filter) override { return false; }
-	std::unordered_set<ResourcePath> getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const override;
-	std::string getFullFileURI(const ResourcePath& resourceName) const override;
-	std::time_t getLastWriteTime(const ResourcePath& resourceName) const override;
-
-private:
-	/** A list of files in this map
-	 * key = ResourcePath for resource loader
-	 * value = ResourcePath to which file this request will be redirected
-	*/
-	std::unordered_map<ResourcePath, ResourcePath> fileList;
-};
 
 class CFilesystemList : public ISimpleResourceLoader
 {

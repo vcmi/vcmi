@@ -36,7 +36,6 @@ CFilesystemGenerator::~CFilesystemGenerator() = default;
 CFilesystemGenerator::TLoadFunctorMap CFilesystemGenerator::genFunctorMap()
 {
 	TLoadFunctorMap map;
-	map["map"] = std::bind(&CFilesystemGenerator::loadJsonMap, this, _1, _2);
 	map["dir"] = std::bind(&CFilesystemGenerator::loadDirectory, this, _1, _2);
 	map["lod"] = std::bind(&CFilesystemGenerator::loadArchive<EResType::ARCHIVE_LOD>, this, _1, _2);
 	map["snd"] = std::bind(&CFilesystemGenerator::loadArchive<EResType::ARCHIVE_SND>, this, _1, _2);
@@ -65,7 +64,7 @@ void CFilesystemGenerator::loadConfig(const JsonNode & config)
 			}
 			else
 			{
-				logGlobal->error("Unknown filesystem format: %s", typeName);
+				logMod->error("Unknown filesystem format '%s' of data source %s%s", typeName, prefix, entry["path"].String());
 			}
 		}
 	}
@@ -117,18 +116,6 @@ void CFilesystemGenerator::loadArchive(const std::string &mountPoint, const Json
 	auto filename = CResourceHandler::get("initial")->getResourceName(ResourcePath(URI, archiveType));
 	if (filename)
 		loaders.push_back(std::make_unique<CArchiveLoader>(mountPoint, *filename, extractArchives));
-}
-
-void CFilesystemGenerator::loadJsonMap(const std::string &mountPoint, const JsonNode & config)
-{
-	std::string URI = prefix + config["path"].String();
-	auto filename = CResourceHandler::get("initial")->getResourceName(JsonPath::builtin(URI));
-	if (filename)
-	{
-		auto configData = CResourceHandler::get("initial")->load(JsonPath::builtin(URI))->readAll();
-		const JsonNode configInitial(reinterpret_cast<std::byte *>(configData.first.get()), configData.second, URI);
-		loaders.push_back(std::make_unique<CMappedFileLoader>(mountPoint, configInitial));
-	}
 }
 
 std::unique_ptr<ISimpleResourceLoader> CResourceHandler::createInitial()
