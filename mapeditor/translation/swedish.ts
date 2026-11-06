@@ -471,12 +471,12 @@
     <message>
         <location filename="../mainwindow.ui" line="346"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Sök</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="356"/>
         <source>Show as list</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa som lista</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="394"/>
@@ -700,7 +700,7 @@
     <message>
         <location filename="../mainwindow.ui" line="1223"/>
         <source>Erase</source>
-        <translation>Radera</translation>
+        <translation>Sudda</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1226"/>
@@ -1099,7 +1099,7 @@ För bästa upplevelse rekommenderar vi att du använder kartredigeraren på en 
     <message>
         <location filename="../mainwindow.cpp" line="1028"/>
         <source>Quests</source>
-        <translation>Uppdrag</translation>
+        <translation>Äventyr</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1029"/>
@@ -1881,7 +1881,7 @@ Vill du göra det nu ?</translation>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="114"/>
         <source>Quest artifact</source>
-        <translation>Uppdragsartefakt</translation>
+        <translation>Äventyrsartefakt</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="115"/>
@@ -2184,7 +2184,7 @@ Vill du göra det nu ?</translation>
         <location filename="../inspector/inspector.cpp" line="384"/>
         <location filename="../inspector/inspector.cpp" line="703"/>
         <source>Exclude player&apos;s faction</source>
-        <translation type="unfinished"></translation>
+        <translation>Uteslut spelarens faktion</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="423"/>
@@ -2229,7 +2229,7 @@ Vill du göra det nu ?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="548"/>
         <source>Quest</source>
-        <translation>Uppdrag</translation>
+        <translation>Äventyr</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="557"/>
@@ -2556,7 +2556,7 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/questguardwidget.cpp" line="452"/>
         <source>Quest:</source>
-        <translation>Uppdrag:</translation>
+        <translation>Äventyr:</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.cpp" line="453"/>
@@ -2797,12 +2797,12 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/questwidget.cpp" line="623"/>
         <source>Empty Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Inget äventyr</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.cpp" line="497"/>
         <source>Empty Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Tom Belöning</translation>
     </message>
 </context>
 <context>
@@ -2810,132 +2810,132 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/questguardwidget.ui" line="17"/>
         <source>Mission goal</source>
-        <translation type="unfinished">Uppdragsmål</translation>
+        <translation>Uppdragets mål</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="28"/>
         <source>Day of week</source>
-        <translation type="unfinished">Veckodag</translation>
+        <translation>Veckodag</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="45"/>
         <source>Days passed</source>
-        <translation type="unfinished">Dagar passerade</translation>
+        <translation>Dagar passerade</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="79"/>
         <source>Hero level</source>
-        <translation type="unfinished">Hjältenivå</translation>
+        <translation>Hjältenivå</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="96"/>
         <source>Hero experience</source>
-        <translation type="unfinished">Hjälteerfarenhet</translation>
+        <translation>Hjälteerfarenhet</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="136"/>
         <source>Spell points</source>
-        <translation type="unfinished">Trollformelspoäng</translation>
+        <translation>Trollformelpoäng</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="156"/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
-        <translation type="unfinished">Besegra hjälte/monster</translation>
+        <translation>Besegra hjälte/monster</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="197"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation type="unfinished">Primärförmågor</translation>
+        <translation>Primära förmågor</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="221"/>
         <source>Attack</source>
-        <translation type="unfinished">Attack</translation>
+        <translation>Attack</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="231"/>
         <source>Defence</source>
-        <translation type="unfinished">Försvar</translation>
+        <translation>Försvar</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation type="unfinished"></translation>
+        <translation>Trolleri</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="251"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Kunskap</translation>
+        <translation>Kunskap</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation type="unfinished">Resurser</translation>
+        <translation>Resurser</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="338"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakter</translation>
+        <translation>Artefakter</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="370"/>
         <source>Spells</source>
-        <translation type="unfinished">Trollformler</translation>
+        <translation>Trollformler</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation type="unfinished">Färdigheter</translation>
+        <translation>Färdigheter</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="442"/>
         <source>Creatures</source>
-        <translation type="unfinished">Varelser</translation>
+        <translation>Varelser</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="491"/>
         <source>Add</source>
-        <translation type="unfinished">Lägg till</translation>
+        <translation>Lägg till</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="498"/>
         <source>Remove</source>
-        <translation type="unfinished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="538"/>
         <source>Heroes</source>
-        <translation type="unfinished">Hjältar</translation>
+        <translation>Hjältar</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation type="unfinished">Hjälteklasser</translation>
+        <translation>Hjälteklasser</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="602"/>
         <source>Players</source>
-        <translation type="unfinished">Spelare</translation>
+        <translation>Spelare</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.cpp" line="43"/>
         <source>None</source>
-        <translation type="unfinished">Ingen</translation>
+        <translation>Ingen</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.cpp" line="45"/>
         <source>Day %1</source>
-        <translation type="unfinished">Dag %1</translation>
+        <translation>Dag %1</translation>
     </message>
 </context>
 <context>
@@ -2951,37 +2951,37 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/questwidget.ui" line="17"/>
         <source>Missions</source>
-        <translation type="unfinished"></translation>
+        <translation>Uppdrag</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="35"/>
         <source>Reward</source>
-        <translation type="unfinished">Belöning</translation>
+        <translation>Belöning</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="52"/>
         <source>Add Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till belöning</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="59"/>
         <source>Add Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till äventyr</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
         <source>Delete Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Radera äventyr</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="93"/>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytta uppåt</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="100"/>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>Flytta neråt</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="113"/>
@@ -3001,7 +3001,7 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/questwidget.ui" line="199"/>
         <source>Quest</source>
-        <translation type="unfinished">Uppdrag</translation>
+        <translation>Äventyr</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="214"/>
@@ -3036,7 +3036,7 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/questwidget.ui" line="353"/>
         <source>Spell points</source>
-        <translation>Trollformelspoäng</translation>
+        <translation>Trollformelpoäng</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="373"/>
@@ -3071,7 +3071,7 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/questwidget.ui" line="458"/>
         <source>Spell power</source>
-        <translation>Trollformelskraft</translation>
+        <translation>Trolleri</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="468"/>
@@ -3141,17 +3141,17 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/questwidget.cpp" line="324"/>
         <source>%1 quest on position %2</source>
-        <translation>%1 uppdrag på position %2</translation>
+        <translation>%1 äventyr på position %2</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="516"/>
         <source>Add reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till belöning</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="516"/>
         <source>Remove reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort belöning</translation>
     </message>
 </context>
 <context>
@@ -3159,144 +3159,144 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="19"/>
         <source>Hero level</source>
-        <translation type="unfinished">Hjältenivå</translation>
+        <translation>Hjältenivå</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="36"/>
         <source>Hero experience</source>
-        <translation type="unfinished">Hjälteerfarenhet</translation>
+        <translation>Hjälteerfarenhet</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="76"/>
         <source>Spell points</source>
-        <translation type="unfinished">Trollformelspoäng</translation>
+        <translation>Trollformelpoäng</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="99"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="119"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="153"/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="112"/>
         <source>Overflow</source>
-        <translation type="unfinished">Överflöd</translation>
+        <translation>Överflöde</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="136"/>
         <source>Movement</source>
-        <translation type="unfinished">Färd</translation>
+        <translation>Förflyttning</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="179"/>
         <source>Remove object</source>
-        <translation type="unfinished">Ta bort objekt</translation>
+        <translation>Ta bort objekt</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="188"/>
         <source>Primary skills</source>
-        <translation type="unfinished">Primärförmågor</translation>
+        <translation>Primära förmågor</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="203"/>
         <source>Attack</source>
-        <translation type="unfinished">Attack</translation>
+        <translation>Attack</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="217"/>
         <source>Defence</source>
-        <translation type="unfinished">Försvar</translation>
+        <translation>Försvar</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="231"/>
         <source>Spell power</source>
-        <translation type="unfinished"></translation>
+        <translation>Trolleri</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="245"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Kunskap</translation>
+        <translation>Kunskap</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="275"/>
         <source>Resources</source>
-        <translation type="unfinished">Resurser</translation>
+        <translation>Resurser</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="324"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Artefakter</translation>
+        <translation>Artefakter</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="356"/>
         <source>Spells</source>
-        <translation type="unfinished">Trollformler</translation>
+        <translation>Trollformler</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="388"/>
         <source>Skills</source>
-        <translation type="unfinished">Färdigheter</translation>
+        <translation>Färdigheter</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="428"/>
         <source>Creatures</source>
-        <translation type="unfinished">Varelser</translation>
+        <translation>Varelser</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="477"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="606"/>
         <source>Add</source>
-        <translation type="unfinished">Lägg till</translation>
+        <translation>Lägg till</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="484"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="613"/>
         <source>Remove</source>
-        <translation type="unfinished">Ta bort</translation>
+        <translation>Ta bort</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="521"/>
         <source>Bonuses</source>
-        <translation type="unfinished">Bonusar</translation>
+        <translation>Bonusar</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="538"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="644"/>
         <source>Duration</source>
-        <translation type="unfinished">Varaktighet</translation>
+        <translation>Varaktighet</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="555"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="649"/>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="572"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="654"/>
         <source>Value</source>
-        <translation type="unfinished">Värde</translation>
+        <translation>Värde</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="663"/>
         <source>Cast</source>
-        <translation type="unfinished">Kasta</translation>
+        <translation>Kasta</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="669"/>
         <source>Cast an adventure map spell</source>
-        <translation type="unfinished">Kasta en trollformel på äventyrskartan</translation>
+        <translation>Kasta en äventyrskart-trollformel</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="678"/>
         <source>Spell</source>
-        <translation type="unfinished">Trollformel</translation>
+        <translation>Trollformel</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="699"/>
         <source>Magic school level</source>
-        <translation type="unfinished">Magiskolenivå</translation>
+        <translation>Magiskolenivå</translation>
     </message>
 </context>
 <context>
@@ -3406,7 +3406,7 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/rewardswidget.ui" line="398"/>
         <source>Spell points</source>
-        <translation>Trollformelspoäng</translation>
+        <translation>Trollformelpoäng</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="418"/>
@@ -3443,7 +3443,7 @@ Lägg till den i kartans obligatoriska moddar i Karta-&gt;Allmänna inställning
     <message>
         <location filename="../inspector/rewardswidget.ui" line="478"/>
         <source>Spell power</source>
-        <translation>Trollformelskraft</translation>
+        <translation>Trolleri</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="488"/>
@@ -5015,7 +5015,7 @@ Vakt: %3</translation>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="164"/>
         <source>affects neutral town</source>
-        <translation type="unfinished"></translation>
+        <translation>påverkar neutrala städer</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="173"/>
