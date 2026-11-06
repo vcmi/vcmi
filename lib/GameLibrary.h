@@ -130,8 +130,8 @@ public:
 	GameLibrary();
 	~GameLibrary();
 
-	/// initializes settings and filesystem
-	void initializeFilesystem(bool extractArchives, bool useTestPreset = false);
+	/// Mounts filesystems of active mods. Requires initializeBaseFilesystem
+	void initializeFilesystem(bool useTestPreset = false);
 
 	/// Loads all game entities
 	void initializeLibrary();
@@ -149,11 +149,12 @@ public:
 	bool isDemoData() const;
 
 	GameDataMode gameDataMode = GameDataMode::SOD;
-	// basic initialization. should be called before init(). Can also extract original H3 archives
-	void loadFilesystem(bool extractArchives);
 
 	// loads filesystems of all mods
 	void loadModFilesystem(bool useTestPreset = false);
 };
+
+/// Mounts game data, user directories and process-wide settings. Called once per process, before any library is created. Can also extract original H3 archives
+DLL_LINKAGE void initializeBaseFilesystem(bool extractArchives, bool useTestPreset = false);
 
 extern DLL_LINKAGE const GameLibrary * LIBRARY;

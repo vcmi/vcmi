@@ -53,15 +53,14 @@ static void exportLuaApiDocs(const boost::filesystem::path & outPath)
 static std::unique_ptr<GameLibrary> loadLibrary()
 {
 	auto library = std::make_unique<GameLibrary>();
-	library->initializeFilesystem(false);
+	library->initializeFilesystem();
 	library->initializeLibrary();
 	return library;
 }
 
 static void generateTranslations(const std::string & modID)
 {
-	GameLibrary().loadFilesystem(false);
-	settings.init("config/settings.json", "vcmi:settings");
+	initializeBaseFilesystem(false);
 
 	auto mods = std::make_unique<ModManager>();
 
@@ -209,6 +208,7 @@ static void generateTranslations(const std::string & modID)
 
 
 	CResourceHandler::destroy();
+	initializeBaseFilesystem(false);
 	delete LIBRARY;
 	LIBRARY = loadLibrary().release();
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
@@ -356,8 +356,9 @@ int main(int argc, const char * argv[])
 
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
+	initializeBaseFilesystem(false);
 	auto library = std::make_unique<GameLibrary>();
-	library->initializeFilesystem(false);
+	library->initializeFilesystem();
 	logConfigurator.configure();
 
 	if(opts.count("export-config"))

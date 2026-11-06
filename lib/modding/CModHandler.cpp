@@ -149,8 +149,6 @@ static std::unique_ptr<ISimpleResourceLoader> genModFilesystem(const std::string
 
 void CModHandler::loadModFilesystems()
 {
-	CGeneralTextHandler::detectInstallParameters();
-
 	const auto & activeMods = modManager->getActiveMods();
 
 	// mod filesystems are independent from each other, and their creation is dominated by reading of archive indexes

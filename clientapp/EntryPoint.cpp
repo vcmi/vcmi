@@ -263,7 +263,8 @@ int main(int argc, char * argv[])
 	auto library = std::make_unique<GameLibrary>();
 	try
 	{
-		library->initializeFilesystem(false);
+		initializeBaseFilesystem(false);
+		library->initializeFilesystem();
 	}
 	catch (const DataLoadingException & e)
 	{
