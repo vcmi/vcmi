@@ -16,7 +16,7 @@ class CInputStream;
 
 class CFilesystemList : public ISimpleResourceLoader
 {
-	std::vector<std::unique_ptr<ISimpleResourceLoader> > loaders;
+	std::vector<std::shared_ptr<ISimpleResourceLoader>> loaders;
 
 	std::set<ISimpleResourceLoader *> writeableLoaders;
 
@@ -56,16 +56,15 @@ public:
 
 	/**
 	 * Adds a resource loader to the loaders list
-	 * Passes loader ownership to this object
+	 * Loader can be shared with other lists
 	 *
 	 * @param loader The simple resource loader object to add
 	 * @param writeable - resource shall be treated as writeable
 	 */
-	void addLoader(std::unique_ptr<ISimpleResourceLoader> loader, bool writeable);
+	void addLoader(std::shared_ptr<ISimpleResourceLoader> loader, bool writeable);
 
 	/**
 	 * Removes loader from the loader list
-	 * Take care about memory deallocation
 	 *
 	 * @param loader The simple resource loader object to remove
 	 *
