@@ -181,11 +181,19 @@ void VideoWidgetBase::tick(uint32_t msPassed)
 
 		if(videoInstance->videoEnded())
 		{
-			videoInstance.reset();
 			stopAudio();
 			if(playBackFinishedCallback)
 				playBackFinishedCallback();
 
+			// reopening is the fallback, since a reopened Smacker video with ring frame restarts from its lower quality first frame
+			if(loopsCurrentVideo() && videoInstance->rewind())
+			{
+				if(isActive())
+					startAudio();
+				return;
+			}
+
+			videoInstance.reset();
 			onPlaybackFinished();
 			// WARNING: onPlaybackFinished call may destoy `this`. Make sure that this is the very last operation in this method!
 		}
@@ -200,18 +208,26 @@ void VideoWidgetBase::setPlaybackFinishedCallback(const std::function<void()> & 
 VideoWidget::VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped, bool playAudio)
 	: VideoWidgetBase(position, prologue, playAudio)
 	, loopedVideo(looped)
+	, playingLoopedVideo(false)
 {
 }
 
 VideoWidget::VideoWidget(const Point & position, const VideoPath & looped, bool playAudio)
 	: VideoWidgetBase(position, looped, playAudio)
 	, loopedVideo(looped)
+	, playingLoopedVideo(true)
 {
 }
 
 void VideoWidget::onPlaybackFinished()
 {
+	playingLoopedVideo = true;
 	playVideo(loopedVideo);
+}
+
+bool VideoWidget::loopsCurrentVideo() const
+{
+	return playingLoopedVideo;
 }
 
 VideoWidgetOnce::VideoWidgetOnce(const Point & position, const VideoPath & video, bool playAudio, IVideoHolder * owner)

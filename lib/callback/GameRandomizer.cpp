@@ -260,11 +260,15 @@ PrimarySkill GameRandomizer::rollPrimarySkillForLevelup(const CGHeroInstance * h
 	if(!heroSkillSeed.count(hero->getHeroTypeID()))
 		heroSkillSeed.try_emplace(hero->getHeroTypeID(), getDefault().nextInt());
 
+	// Yog is a Wizard-class hero, but Birth of a Barbarian levels him up with Barbarian odds
+	const bool isYog = hero->isCampaignYog();
+	const auto * heroClass = isYog ? HeroClassID(HeroClassID::decode("barbarian")).toHeroClass() : hero->getHeroClass();
+
 	const bool isLowLevelHero = hero->level < GameConstants::HERO_HIGH_LEVEL;
-	const auto & skillChances = isLowLevelHero ? hero->getHeroClass()->primarySkillLowLevel : hero->getHeroClass()->primarySkillHighLevel;
+	const auto & skillChances = isLowLevelHero ? heroClass->primarySkillLowLevel : heroClass->primarySkillHighLevel;
 	auto & heroRng = heroSkillSeed.at(hero->getHeroTypeID());
 
-	if(hero->isCampaignYog())
+	if(isYog)
 	{
 		// Yog can only receive Attack or Defence on level-up
 		std::vector<int> yogChances = {skillChances[0], skillChances[1]};
@@ -315,7 +319,7 @@ SecondarySkill GameRandomizer::rollSecondarySkillForLevelup(const CGHeroInstance
 	for(const auto & possible : actualCandidates)
 	{
 		skills.push_back(possible);
-		if(hero->getHeroClass()->secSkillProbability.count(possible) != 0)
+		if(hero->getHeroClass()->secSkillProbability.count(possible) != 0 && !hero->isSkillBannedOnLevelUp(possible))
 		{
 			int weight = hero->getHeroClass()->secSkillProbability.at(possible);
 			weights.push_back(std::max(1, weight));
@@ -350,7 +354,7 @@ std::vector<SecondarySkill> GameRandomizer::rollSecondarySkills(const CGHeroInst
 	if (hero->canLearnSkill())
 	{
 		for(int i = 0; i < LIBRARY->skillh->size(); i++)
-			if (hero->canLearnSkill(SecondarySkill(i)))
+			if (hero->canLearnSkillOnLevelUp(SecondarySkill(i)))
 				none.insert(SecondarySkill(i));
 	}
 

@@ -222,6 +222,10 @@ public:
 	/// Returns true if hero has free secondary skill slot.
 	bool canLearnSkill() const;
 	bool canLearnSkill(const SecondarySkill & which) const;
+	/// Returns true if skill can be offered to hero as a new skill on level-up
+	bool canLearnSkillOnLevelUp(const SecondarySkill & which) const;
+	/// Returns true if campaign rules ban this skill from level-up offers of this hero
+	bool isSkillBannedOnLevelUp(const SecondarySkill & which) const;
 
 	void setExperience(si64 value, ChangeValueMode mode);
 	void setPrimarySkill(PrimarySkill primarySkill, si64 value, ChangeValueMode mode);
@@ -361,6 +365,7 @@ public:
 
 	bool isCampaignYog() const;
 	bool isCampaignGem() const;
+	bool canEquipArmageddonsBlade() const;
 
 protected:
 	void setPropertyDer(ObjProperty what, ObjPropertyID identifier) override;//synchr
@@ -370,6 +375,7 @@ protected:
 	void serializeJsonOptions(JsonSerializeFormat & handler) override;
 
 private:
+	bool canLearnSkillIgnoringBans(const SecondarySkill & which) const;
 	void levelUpAutomaticallyOnce(IGameRandomizer & gameRandomizer);
 	void levelUpAutomatically(IGameRandomizer & gameRandomizer);
 	void initializeMapSpecifiedLevel(IGameRandomizer & gameRandomizer);

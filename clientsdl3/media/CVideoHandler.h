@@ -39,6 +39,9 @@ class FFMpegStream : boost::noncopyable
 
 	AVFrame * frame = nullptr;
 
+	/// Smacker video whose last frame turns the picture back into the first frame
+	bool hasRingFrame = false;
+
 protected:
 	bool openContext();
 	void openCodec(int streamIndex);
@@ -50,6 +53,7 @@ protected:
 	const AVCodecContext * getCodecContext() const;
 	void decodeNextFrame();
 	void endStream(); // release current frame so the stream reports as ended
+	bool seekToStart();
 	const AVFrame * getCurrentFrame() const;
 	double getCurrentFrameEndTime() const;
 	double getCurrentFrameDuration() const;
@@ -106,6 +110,7 @@ public:
 	void tick(uint32_t msPassed) final;
 	void activate() final;
 	void deactivate() final;
+	bool rewind() final;
 };
 
 class CVideoPlayer final : public IVideoPlayer

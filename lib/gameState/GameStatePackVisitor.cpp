@@ -385,8 +385,20 @@ void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 				if (hero->tempOwner == pack.player)
 					crossoverHeroes.push_back(hero);
 
-			gs.getStartInfo()->campState->savePersistentVariables(gs.getMap());
-			gs.getStartInfo()->campState->setCurrentMapAsConquered(crossoverHeroes);
+			auto * campaign = gs.getStartInfo()->campState.get();
+			HeroTypeID enemyHeroType = campaign->scenario(*campaign->currentScenario()).enemyHeroCarriedOver;
+			if (enemyHeroType.hasValue())
+			{
+				// a defeated hero is in the hero pool, stripped of artifacts unless he retreated or surrendered
+				CGHeroInstance * enemyHero = gs.getMap().getHero(enemyHeroType);
+				if (!enemyHero)
+					enemyHero = gs.getMap().tryGetFromHeroPool(enemyHeroType);
+				if (enemyHero)
+					crossoverHeroes.push_back(enemyHero);
+			}
+
+			campaign->savePersistentVariables(gs.getMap());
+			campaign->setCurrentMapAsConquered(crossoverHeroes);
 		}
 	}
 	else
