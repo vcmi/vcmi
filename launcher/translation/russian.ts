@@ -6,32 +6,32 @@
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="22"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished">VCMI в Discord</translation>
+        <translation>VCMI в Discord</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="29"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation type="unfinished">Есть вопрос? Нашли ошибку? Хотите помочь? Присоединяйтесь!</translation>
+        <translation>Есть вопрос? Нашли ошибку? Хотите помочь? Присоединяйтесь!</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="36"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished">VCMI в Github</translation>
+        <translation>VCMI в Github</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="54"/>
         <source>Our Community</source>
-        <translation type="unfinished">Наше сообщество</translation>
+        <translation>Наше сообщество</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="220"/>
         <source>Build Information</source>
-        <translation type="unfinished">Сведения о сборке</translation>
+        <translation>Сведения о сборке</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="182"/>
         <source>User data directory</source>
-        <translation type="unfinished">Данные пользователя</translation>
+        <translation>Каталог данных пользователя</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="88"/>
@@ -39,52 +39,52 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="161"/>
         <location filename="../aboutProject/aboutproject_moc.ui" line="247"/>
         <source>Open</source>
-        <translation type="unfinished">Открыть</translation>
+        <translation>Открыть</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="121"/>
         <source>Check for updates</source>
-        <translation type="unfinished">Проверить обновления</translation>
+        <translation>Проверить обновления</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="189"/>
         <source>Game version</source>
-        <translation type="unfinished">Версия игры</translation>
+        <translation>Версия игры</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="114"/>
         <source>Log files directory</source>
-        <translation type="unfinished">Журналы</translation>
+        <translation>Каталог для логов</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="107"/>
         <source>Data Directories</source>
-        <translation type="unfinished">Директории данных</translation>
+        <translation>Каталоги данных</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="168"/>
         <source>Game data directory</source>
-        <translation type="unfinished">Каталог игровых данных</translation>
+        <translation>Каталог игровых данных</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="175"/>
         <source>Operating System</source>
-        <translation type="unfinished">Операционная система</translation>
+        <translation>Операционная система</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="227"/>
         <source>Configuration files directory</source>
-        <translation type="unfinished">Каталог конфигурационных файлов</translation>
+        <translation>Каталог файлов настроек</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="290"/>
         <source>Project homepage</source>
-        <translation type="unfinished">Домашняя страница проекта</translation>
+        <translation>Домашняя страница проекта</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="303"/>
         <source>Report a bug</source>
-        <translation type="unfinished">Сообщить об ошибке</translation>
+        <translation>Сообщить об ошибке</translation>
     </message>
     <message>
         <location filename="../aboutProject/aboutproject_moc.ui" line="316"/>
@@ -95,7 +95,7 @@
         <location filename="../aboutProject/aboutproject_moc.ui" line="329"/>
         <location filename="../aboutProject/dataexporter.cpp" line="311"/>
         <source>Export saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать сохранения</translation>
     </message>
     <message>
         <source>Save logs</source>
@@ -104,61 +104,61 @@
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="311"/>
         <source>Zip archives (*.zip)</source>
-        <translation type="unfinished">ZIP-архивы (*.zip)</translation>
+        <translation>Zip-архивы (*.zip)</translation>
     </message>
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="284"/>
         <location filename="../aboutProject/dataexporter.cpp" line="401"/>
         <source>Error</source>
-        <translation type="unfinished">Ошибка</translation>
+        <translation>Ошибка</translation>
     </message>
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="280"/>
         <location filename="../aboutProject/dataexporter.cpp" line="317"/>
         <source>Saves exported to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранения экспортированы в %1</translation>
     </message>
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="284"/>
         <source>Failed to save archive to selected destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось сохранить архив в выбранное место</translation>
     </message>
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="302"/>
         <location filename="../aboutProject/dataexporter.cpp" line="304"/>
         <source>Select destination file</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать путь файла</translation>
     </message>
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="302"/>
         <source>Please select destination file and save the archive as vcmi-saves.zip.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите путь файла и сохраните архив как vcmi-saves.zip.</translation>
     </message>
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="304"/>
         <source>Zip archives (*.zip);;All files (*.*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zip-архивы (*.zip);;Все файлы (*.*)</translation>
     </message>
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="333"/>
         <location filename="../aboutProject/dataexporter.cpp" line="334"/>
         <source>Exporting logs...</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспорт логов…</translation>
     </message>
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="333"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Отменить</translation>
     </message>
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="334"/>
         <source>Log export</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспорт логов</translation>
     </message>
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="401"/>
         <source>Failed to create archive: %1</source>
-        <translation type="unfinished">Не удалось создать архив: %1</translation>
+        <translation>Не удалось создать архив: %1</translation>
     </message>
     <message>
         <source>Send logs</source>
@@ -173,12 +173,12 @@
         <location filename="../aboutProject/dataexporter.cpp" line="317"/>
         <location filename="../aboutProject/dataexporter.cpp" line="410"/>
         <source>Success</source>
-        <translation type="unfinished">Успех</translation>
+        <translation>Успех</translation>
     </message>
     <message>
         <location filename="../aboutProject/dataexporter.cpp" line="410"/>
         <source>Logs saved to %1, please send them to the developers</source>
-        <translation type="unfinished">Логи сохранены в %1, пожалуйста, отправьте их разработчикам</translation>
+        <translation>Файлы логов сохранены в %1, пожалуйста, отправьте их разработчикам</translation>
     </message>
 </context>
 <context>
@@ -186,7 +186,7 @@
     <message>
         <location filename="../modManager/cdownloadmanager_moc.cpp" line="171"/>
         <source>Failed to copy file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось скопировать файл %1</translation>
     </message>
 </context>
 <context>
@@ -194,109 +194,109 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="43"/>
         <source>Filter</source>
-        <translation type="unfinished">Фильтр</translation>
+        <translation>Фильтр</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="69"/>
         <source>All mods</source>
-        <translation type="unfinished">Все моды</translation>
+        <translation>Все моды</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="74"/>
         <source>Downloadable</source>
-        <translation type="unfinished">Доступные</translation>
+        <translation>Доступные</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="79"/>
         <source>Installed</source>
-        <translation type="unfinished">Установленные</translation>
+        <translation>Установленные</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="84"/>
         <source>Updatable</source>
-        <translation type="unfinished">Обновления</translation>
+        <translation>Обновления</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="89"/>
         <source>Active</source>
-        <translation type="unfinished">Активны</translation>
+        <translation>Активны</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="94"/>
         <source>Inactive</source>
-        <translation type="unfinished">Неактивны</translation>
+        <translation>Неактивны</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="166"/>
         <source>Description</source>
-        <translation type="unfinished">Описание</translation>
+        <translation>Описание</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="214"/>
         <source>Changelog</source>
-        <translation type="unfinished">Изменения</translation>
+        <translation>Изменения</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="236"/>
         <source>Screenshots</source>
-        <translation type="unfinished">Скриншоты</translation>
+        <translation>Скриншоты</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="574"/>
         <source>Uninstall</source>
-        <translation type="unfinished">Удалить</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="564"/>
         <source>Enable</source>
-        <translation type="unfinished">Включить</translation>
+        <translation>Активировать</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="559"/>
         <source>Disable</source>
-        <translation type="unfinished">Отключить</translation>
+        <translation>Деактивировать</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="579"/>
         <source>Update</source>
-        <translation type="unfinished">Обновить</translation>
+        <translation>Обновить</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="569"/>
         <source>Install</source>
-        <translation type="unfinished">Установить</translation>
+        <translation>Установить</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="335"/>
         <source> %p% (%v KB out of %m KB)</source>
-        <translation type="unfinished"> %p% (%v КБ з %m КБ)</translation>
+        <translation> %p% (%v КБ из %m КБ)</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="108"/>
         <source>Reload repositories</source>
-        <translation type="unfinished">Перезагрузить репозитории</translation>
+        <translation>Обновить репозитории</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="348"/>
         <source>Abort</source>
-        <translation type="unfinished">Отмена</translation>
+        <translation>Отмена</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
         <source>Installed version</source>
-        <translation type="unfinished">Установленная версия</translation>
+        <translation>Установленная версия</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
         <source>Latest version</source>
-        <translation type="unfinished">Последняя версия</translation>
+        <translation>Последняя версия</translation>
     </message>
     <message>
         <source>Size</source>
@@ -305,33 +305,33 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="370"/>
         <source>Download size</source>
-        <translation type="unfinished">Размер загрузки</translation>
+        <translation>Размер загрузки</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="372"/>
         <source>Authors</source>
-        <translation type="unfinished">Авторы</translation>
+        <translation>Авторы</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="375"/>
         <source>License</source>
-        <translation type="unfinished">Лицензия</translation>
+        <translation>Лицензия</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="378"/>
         <source>Contact</source>
-        <translation type="unfinished">Контакты</translation>
+        <translation>Контакты</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
         <source>Compatibility</source>
-        <translation type="unfinished">Совместимость</translation>
+        <translation>Совместимость</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
         <source>Required VCMI version</source>
-        <translation type="unfinished">Требуемая версия VCMI</translation>
+        <translation>Требуемая версия VCMI</translation>
     </message>
     <message>
         <source>Supported VCMI version</source>
@@ -346,7 +346,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="1201"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1206"/>
         <source>mods repository index</source>
-        <translation type="unfinished">индекс репозитория модов</translation>
+        <translation>каталог модов</translation>
     </message>
     <message>
         <source>Git-Repository</source>
@@ -364,7 +364,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
         <source>Supported VCMI versions</source>
-        <translation type="unfinished">Поддерживаемые версии VCMI</translation>
+        <translation>Поддерживаемые версии VCMI</translation>
     </message>
     <message>
         <source>Languages</source>
@@ -373,12 +373,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Required mods</source>
-        <translation type="unfinished">Зависимости</translation>
+        <translation>Необходимые моды</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="431"/>
         <source>Conflicting mods</source>
-        <translation type="unfinished">Конфликтующие моды</translation>
+        <translation>Конфликтующие моды</translation>
     </message>
     <message>
         <source>This mod cannot be enabled because it translates into a different language.</source>
@@ -399,46 +399,46 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="458"/>
         <source>Notes</source>
-        <translation type="unfinished">Замечания</translation>
+        <translation>Заметки</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="541"/>
         <source>Context menu</source>
-        <translation type="unfinished">Контекстное меню</translation>
+        <translation>Контекстное меню</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="584"/>
         <source>Open directory</source>
-        <translation type="unfinished">Открыть каталог</translation>
+        <translation>Открыть каталог</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="589"/>
         <source>Open repository</source>
-        <translation type="unfinished">Открыть репозиторий</translation>
+        <translation>Открыть репозиторий</translation>
     </message>
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
         <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Загружается %n мод. %p% (%v МБ из %m МБ) завершено</numerusform>
+            <numerusform>Загружается %n мода. %p% (%v МБ из %m МБ) завершено</numerusform>
+            <numerusform>Загружается %n модов. %p% (%v МБ из %m МБ) завершено</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="888"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished">Загрузка %1. %p% (%v MB из %m MB) завершено</translation>
+        <translation>Загрузка %1. %p% (%v MB из %m MB) завершено</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="923"/>
         <source>Extracting content.zip (%1/%2) for %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Распаковывается content.zip (%1/%2), %3</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
         <source>Download failed</source>
-        <translation type="unfinished">Ошибка загрузки</translation>
+        <translation>Ошибка загрузки</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
@@ -447,7 +447,7 @@
 Encountered errors:
 
 </source>
-        <translation type="unfinished">Не удалось загрузить все файлы.
+        <translation>Не удалось загрузить все файлы.
 
 Возникли ошибки:
 
@@ -466,232 +466,241 @@ Install successfully downloaded?</source>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось установить файл %1.
+Причина: %2.
+Пожалуйста, сообщите об этой проблеме разработчикам</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1284"/>
         <source>Installing Heroes Chronicles</source>
-        <translation type="unfinished">Установка Heroes Chronicles</translation>
+        <translation>Устанавливаются Хроники Героев</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Ошибка распаковки!</translation>
+        <translation>Ошибка распаковки!</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Выбран неверный файл</translation>
+        <translation>Выбран неверный файл</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
-        <translation type="unfinished">Необходимо выбрать установочный файл Heroes Chronicles!</translation>
+        <translation>Необходимо выбрать установочный файл Хроники Героев!</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1450"/>
         <source>Save exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранение существует</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1451"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранение &apos;%1&apos; уже существует. Хотите его перезаписать?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось импортировать сохранения из %1.
+Причина: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
         <source>Success</source>
-        <translation type="unfinished">Успех</translation>
+        <translation>Успех</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
         <source>Imported %1 save files</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортировано %1 файлов сохранения</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1522"/>
         <source>Installing mod %1</source>
-        <translation type="unfinished">Установка мода %1</translation>
+        <translation>Установка мода %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1553"/>
         <source>%1 requires: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 требует: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1556"/>
         <source>Failed to enable mod</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось активировать мод</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1557"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось активировать один или несколько модов:
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
         <source>Mods disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Моды деактивированы</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1572"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Следующие моды были деактивированы из-за изменений в установленных модах:
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
         <source>Map exists</source>
-        <translation type="unfinished">Карта существует</translation>
+        <translation>Карта существует</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
-        <translation type="unfinished">Карта &apos;%1&apos; уже существует. Перезаписать?</translation>
+        <translation>Карта &apos;%1&apos; уже существует. Хотите её перезаписать?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1072"/>
         <source>Yes to All</source>
-        <translation type="unfinished">Да для всех</translation>
+        <translation>Да для всех</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1073"/>
         <source>No to All</source>
-        <translation type="unfinished">Нет для всех</translation>
+        <translation>Нет для всех</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
         <source>Import complete</source>
-        <translation type="unfinished">Импорт завершён</translation>
+        <translation>Импорт завершён</translation>
     </message>
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
         <source>%n map(s) successfully imported.</source>
-        <translation type="unfinished">
-            <numerusform>%n карт(ы) успешно импортировано.</numerusform>
-            <numerusform>%n карт(ы) успешно импортировано.</numerusform>
-            <numerusform>%n карт(ы) успешно импортировано.</numerusform>
+        <translation>
+            <numerusform>%n карта успешно импортирована.</numerusform>
+            <numerusform>%n карты успешно импортированы.</numerusform>
+            <numerusform>%n карт успешно импортировано.</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
         <source>Uninstall mod</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить мод</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
         <source>Are you sure you want to uninstall %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Действительно хотите удалить %1?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
         <source>Import failed</source>
-        <translation type="unfinished">Сбой импорта</translation>
+        <translation>Сбой импорта</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="364"/>
         <source>Last updated</source>
-        <translation type="unfinished"></translation>
+        <translation>Последнее обновление</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="367"/>
         <source>Installed size</source>
-        <translation type="unfinished"></translation>
+        <translation>Размер после установки</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
         <source>GitHub repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Репозиторий на GitHub</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
         <source>GitHub stars</source>
-        <translation type="unfinished"></translation>
+        <translation>Звёзды на GitHub</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
         <source>Not compatible with this VCMI version</source>
-        <translation type="unfinished"></translation>
+        <translation>Несовместимо с этой версией VCMI</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
         <source>%1 or newer</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 или новее</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
         <source>up to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>до %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
         <source>%1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="412"/>
         <source>%1, complete</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, завершено</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="414"/>
         <source>%1, %2% translated</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, %2% переведено</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="416"/>
         <source>%1, available</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, доступно</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="418"/>
         <source>Translation</source>
-        <translation type="unfinished">Перевод</translation>
+        <translation>Перевод</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
         <source>This translation cannot be enabled because it is for a different language than the one selected in settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Этот перевод невозможно включить, поскольку он предназначен для другого языка — не того, что выбран в настройках.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
         <source>This mod cannot be enabled because these required mods are missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Этот мод невозможно активировать, так как отсутствуют необходимые для него моды</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
         <source>This mod cannot be installed because these required mods are missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Этот мод невозможно установить, так как отсутствуют необходимые для него моды</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="436"/>
         <source>This is a submod. It cannot be installed or uninstalled separately from its parent mod.</source>
-        <translation type="unfinished"></translation>
+        <translation>Это подмод. Его нельзя установить или удалить отдельно от основного мода.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="452"/>
         <source>This mod failed automatic validation and may not work correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Этот мод не прошел автоматическую проверку и может работать некорректно.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="932"/>
         <source>
 
 Process successfully downloaded files?</source>
-        <translation type="unfinished"></translation>
+        <translation>
+
+Обработать успешно загруженные файлы?</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1010"/>
@@ -702,41 +711,47 @@ This usually happens on older systems, such as Windows 7, that are missing recen
 However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. In that case, downloaded files could be replaced with harmful ones.
 
 Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the &quot;Ignore SSL errors&quot; option.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI не удалось проверить безопасность соединение с официальным сервером загрузки.
+
+Обычно это происходит в устаревших операционных системах (например, Windows 7), в которых отсутствуют актуальные обновления безопасности.
+
+Однако это также может означать, что кто-то вмешивается в ваше интернет-соединение — например, если вы используете общедоступную сеть Wi-Fi. В таком случае загружаемые файлы могут быть подменены на вредоносные.
+
+Хотите отключить эту проверку и повторить попытку? Вы в любой момент сможете снова включить её в настройках, воспользовавшись опцией «Игнорировать ошибки SSL».</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1017"/>
         <source>Unable to verify download server</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось проверить сервер загрузки</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
         <source>Failed to import the following maps:
 %1</source>
-        <translation type="unfinished">Не удалось импортировать следующие карты:
+        <translation>Не удалось импортировать следующие карты:
 %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1713"/>
         <source>Operation failed</source>
-        <translation type="unfinished">Операция не удалась</translation>
+        <translation>Операция не удалась</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1714"/>
         <source>Encountered errors:
 </source>
-        <translation type="unfinished">Возникли ошибки:
+        <translation>Возникли ошибки:
 </translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1766"/>
         <source>screenshots</source>
-        <translation type="unfinished">скриншоты</translation>
+        <translation>скриншоты</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1772"/>
         <source>Screenshot %1</source>
-        <translation type="unfinished">Скриншот %1</translation>
+        <translation>Скриншот %1</translation>
     </message>
     <message>
         <source>Mod is incompatible</source>
@@ -748,240 +763,240 @@ Do you want to turn off this check and try again? You can turn it back on at any
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="589"/>
         <source>Interface Scaling</source>
-        <translation type="unfinished">Масштабирование интерфейса</translation>
+        <translation>Масштабирование интерфейса</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
         <location filename="../settingsView/csettingsview_moc.cpp" line="129"/>
         <source>Off</source>
-        <translation type="unfinished">Отключено</translation>
+        <translation>Выкл.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
         <source>On</source>
-        <translation type="unfinished">Включено</translation>
+        <translation>Вкл.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1362"/>
         <source>Neutral AI in battles</source>
-        <translation type="unfinished">Нейтральный ИИ в битвах</translation>
+        <translation>Нейтральный ИИ в битвах</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="938"/>
         <source>Enemy AI in battles</source>
-        <translation type="unfinished">Вражеский ИИ в битвах</translation>
+        <translation>Вражеский ИИ в битвах</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="975"/>
         <source>Additional repository</source>
-        <translation type="unfinished">Дополнительный репозиторий</translation>
+        <translation>Дополнительный репозиторий</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="197"/>
         <source>Check on startup</source>
-        <translation type="unfinished">Проверять при запуске</translation>
+        <translation>Проверять при запуске</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1220"/>
         <source>Fullscreen</source>
-        <translation type="unfinished">Полноэкранный режим</translation>
+        <translation>Полноэкранный режим</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="296"/>
         <source>General</source>
-        <translation type="unfinished">Общее</translation>
+        <translation>Общее</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="226"/>
         <source>VCMI Language</source>
-        <translation type="unfinished">Язык VCMI</translation>
+        <translation>Язык VCMI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="420"/>
         <source>Artificial Intelligence</source>
-        <translation type="unfinished">Искусственный интеллект</translation>
+        <translation>Искусственный интеллект</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="437"/>
         <source>Full mod extraction</source>
-        <translation type="unfinished"></translation>
+        <translation>Полное извлечение мода</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="476"/>
         <source>Adventure Map Allies</source>
-        <translation type="unfinished">Союзники на карте приключений</translation>
+        <translation>Союзники на карте приключений</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="490"/>
         <source>Refresh now</source>
-        <translation type="unfinished">Обновить сейчас</translation>
+        <translation>Обновить сейчас</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
         <source>Sharpening strength for the xBRZ + Sharpen upscaling filters</source>
-        <translation type="unfinished"></translation>
+        <translation>Интенсивность повышения резкости для фильтров масштабирования xBRZ + Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="535"/>
         <source>xBRZ x2 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x2 + Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="545"/>
         <source>xBRZ x3 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x3 + Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="555"/>
         <source>xBRZ x4 + Sharpen</source>
-        <translation type="unfinished"></translation>
+        <translation>xBRZ x4 + Sharpen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="630"/>
         <source>Show Status in Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать статус в Discord</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="819"/>
         <source>HTTP proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP-прокси</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="826"/>
         <source>Open help</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть справку</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="833"/>
         <source>Proxy server used for downloads, for example http://host:port or socks5h://host:port. If empty, proxy from environment variables is used</source>
-        <translation type="unfinished"></translation>
+        <translation>Прокси-сервер, используемый для загрузок, например: http://host:port или socks5h://host:port. Если поле не заполнено, используются настройки прокси из переменных окружения</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="856"/>
         <source>Adventure Map Enemies</source>
-        <translation type="unfinished">Враги на карте приключений</translation>
+        <translation>Враги на карте приключений</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
         <source>Autosaves per game (0 = unlimited)</source>
-        <translation type="unfinished"></translation>
+        <translation>Лимит автосохранений (0 = выкл)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1577"/>
         <source>Save Before Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранять игру перед визитом объекта</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="252"/>
         <source>Online Lobby port</source>
-        <translation type="unfinished">Порт онлайн-лобби</translation>
+        <translation>Порт онлайн-лобби</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1227"/>
         <source>Autocombat AI in battles</source>
-        <translation type="unfinished">ИИ автобоя в битвах</translation>
+        <translation>ИИ автобоя в битвах</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="348"/>
         <source>Sticks Sensitivity</source>
-        <translation type="unfinished">Чувствительность стиков</translation>
+        <translation>Чувствительность стиков</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1274"/>
         <source>Automatic (Linear)</source>
-        <translation type="unfinished">Автоматически (линейный)</translation>
+        <translation>Автоматически (линейный)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="754"/>
         <source>Haptic Feedback</source>
-        <translation type="unfinished">Тактильная отдача</translation>
+        <translation>Тактильная отдача</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="909"/>
         <source>Software Cursor</source>
-        <translation type="unfinished">Программный курсор</translation>
+        <translation>Программный курсор</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="520"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="675"/>
         <location filename="../settingsView/csettingsview_moc.ui" line="922"/>
         <source>Automatic</source>
-        <translation type="unfinished">Автоматически</translation>
+        <translation>Автоматически</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
         <source>Mods Validation</source>
-        <translation type="unfinished">Валидация модов</translation>
+        <translation>Проверка модов</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
         <source>Config editor</source>
-        <translation type="unfinished">Редактор конфигурации</translation>
+        <translation>Редактор настроек</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="466"/>
         <source>Open editor</source>
-        <translation type="unfinished">Открыть редактор</translation>
+        <translation>Открыть редактор</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="525"/>
         <source>None</source>
-        <translation type="unfinished">Нет</translation>
+        <translation>Нет</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="530"/>
         <source>xBRZ x2</source>
-        <translation type="unfinished">xBRZ x2</translation>
+        <translation>xBRZ x2</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="540"/>
         <source>xBRZ x3</source>
-        <translation type="unfinished">xBRZ x3</translation>
+        <translation>xBRZ x3</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="550"/>
         <source>xBRZ x4</source>
-        <translation type="unfinished">xBRZ x4</translation>
+        <translation>xBRZ x4</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="68"/>
         <source>Full</source>
-        <translation type="unfinished">Полный</translation>
+        <translation>Полный</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="945"/>
         <source>Allow portrait mode</source>
-        <translation type="unfinished">Разрешить портретный режим</translation>
+        <translation>Разрешить портретный режим</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1066"/>
         <source>Use scalable fonts</source>
-        <translation type="unfinished">Использовать масштабируемые шрифты</translation>
+        <translation>Использовать масштабируемые шрифты</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1369"/>
         <source>Online Lobby address</source>
-        <translation type="unfinished">Адрес онлайн-лобби</translation>
+        <translation>Адрес онлайн-лобби</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="699"/>
         <source>Handle back as right mouse button</source>
-        <translation type="unfinished">Обрабатывать кнопку «Назад» как правую кнопку мыши</translation>
+        <translation>Обрабатывать кнопку «Назад» как правую кнопку мыши</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="259"/>
         <source>Cursor Scaling</source>
-        <translation type="unfinished">Масштабирование курсора</translation>
+        <translation>Масштабирование курсора</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="988"/>
         <source>Scalable</source>
-        <translation type="unfinished">Масштабируемый</translation>
+        <translation>Масштабируемый</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="620"/>
         <source>Miscellaneous</source>
-        <translation type="unfinished">Разное</translation>
+        <translation>Разное</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1470"/>
@@ -992,153 +1007,153 @@ Windowed - the game will run inside a window that covers part of your screen.
 Borderless Windowed Mode - the game will run in a full-screen window, matching your screen&apos;s resolution.
 
 Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</source>
-        <translation type="unfinished">Выберите режим отображения для игры
+        <translation>Выберите режим отображения для игры
 
-Оконный режим - игра будет запущена в окне, которое занимает часть экрана.
+Оконный режим — игра будет запущена в окне, которое занимает часть экрана.
 
-Оконный режим без рамок - игра будет запущена в полноэкранном окне, соответствующем разрешению экрана.
+Оконный режим без рамок — игра будет запущена в полноэкранном окне, соответствующем разрешению экрана.
 
-Эксклюзивный полноэкранный режим - игра займет весь экран и будет использовать выбранное разрешение.</translation>
+Эксклюзивный полноэкранный режим — игра займет весь экран и будет использовать выбранное разрешение.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
         <source>Font Scaling (experimental)</source>
-        <translation type="unfinished">Масштабирование шрифтов (экспериментально)</translation>
+        <translation>Масштабирование шрифтов (экспериментально)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1047"/>
         <source>Original</source>
-        <translation type="unfinished">Оригинал</translation>
+        <translation>Оригинал</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="744"/>
         <source>Upscaling Filter</source>
-        <translation type="unfinished">Фильтр увеличения</translation>
+        <translation>Фильтр увеличения</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="141"/>
         <source>Basic</source>
-        <translation type="unfinished">Базовый</translation>
+        <translation>Базовый</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="385"/>
         <source>Ignore mute switch</source>
-        <translation type="unfinished">Игнорировать переключатель без звука</translation>
+        <translation>Игнорировать бесшумный режим</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="706"/>
         <source>Use Relative Pointer Mode</source>
-        <translation type="unfinished">Использовать режим относительного указателя</translation>
+        <translation>Использовать режим относительного указателя</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="112"/>
         <source>VSync</source>
-        <translation type="unfinished">Вертикальная синхронизация</translation>
+        <translation>Вертикальная синхронизация</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1264"/>
         <source>Nearest</source>
-        <translation type="unfinished">Ближайший</translation>
+        <translation>Ближайший</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1269"/>
         <source>Linear</source>
-        <translation type="unfinished">Линейный</translation>
+        <translation>Линейный</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1309"/>
         <source>Input - Touchscreen</source>
-        <translation type="unfinished">Ввод - сенсорный экран</translation>
+        <translation>Ввод - сенсорный экран</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="187"/>
         <source>Network</source>
-        <translation type="unfinished">Сеть</translation>
+        <translation>Сеть</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="692"/>
         <source>Downscaling Filter</source>
-        <translation type="unfinished">Фильтр уменьшения</translation>
+        <translation>Фильтр уменьшения</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="362"/>
         <source>Show Tutorial again</source>
-        <translation type="unfinished">Показать Обучение снова</translation>
+        <translation>Показать обучение снова</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="355"/>
         <source>Reset</source>
-        <translation type="unfinished">Сброс</translation>
+        <translation>Сброс</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1016"/>
         <source>Audio</source>
-        <translation type="unfinished">Аудио</translation>
+        <translation>Звук</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1463"/>
         <source>Relative Pointer Speed</source>
-        <translation type="unfinished">Скорость относительного указателя</translation>
+        <translation>Скорость относительного указателя</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="968"/>
         <source>Music Volume</source>
-        <translation type="unfinished">Громкость музыки</translation>
+        <translation>Громкость музыки</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
         <source>Ignore SSL errors</source>
-        <translation type="unfinished">Игнорировать ошибки SSL</translation>
+        <translation>Игнорировать ошибки SSL</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1294"/>
         <source>Input - Mouse</source>
-        <translation type="unfinished">Ввод - мышь</translation>
+        <translation>Ввод - мышь</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="313"/>
         <source>Long Touch Duration</source>
-        <translation type="unfinished">Длительность долгого нажатия</translation>
+        <translation>Длительность долгого нажатия</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1405"/>
         <source>Controller Click Tolerance</source>
-        <translation type="unfinished">Допуск клика контроллера</translation>
+        <translation>Допуск клика контроллера</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="685"/>
         <source>Touch Tap Tolerance</source>
-        <translation type="unfinished">Допуск сенсорного нажатия</translation>
+        <translation>Допуск сенсорного нажатия</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1239"/>
         <source>Input - Controller</source>
-        <translation type="unfinished">Ввод - контроллер</translation>
+        <translation>Ввод - контроллер</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
         <source>Sound Volume</source>
-        <translation type="unfinished">Громкость звука</translation>
+        <translation>Громкость звука</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1483"/>
         <source>Windowed</source>
-        <translation type="unfinished">Оконный</translation>
+        <translation>Оконный</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1488"/>
         <source>Borderless fullscreen</source>
-        <translation type="unfinished">Полноэкранный без рамок</translation>
+        <translation>Полноэкранный без рамок</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1493"/>
         <source>Exclusive fullscreen</source>
-        <translation type="unfinished">Эксклюзивный полноэкранный</translation>
+        <translation>Эксклюзивный полноэкранный</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1282"/>
         <source>Reserved screen area</source>
-        <translation type="unfinished">Зарезервированная область экрана</translation>
+        <translation>Зарезервированная область экрана</translation>
     </message>
     <message>
         <source>Autosave limit (0 = off)</source>
@@ -1147,7 +1162,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="320"/>
         <source>Framerate Limit</source>
-        <translation type="unfinished">Ограничение кадров</translation>
+        <translation>Ограничение кадров</translation>
     </message>
     <message>
         <source>Autosave prefix</source>
@@ -1156,12 +1171,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="761"/>
         <source>Mouse Click Tolerance</source>
-        <translation type="unfinished">Допуск клика мыши</translation>
+        <translation>Допуск клика мыши</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1163"/>
         <source>Sticks Acceleration</source>
-        <translation type="unfinished">Ускорение стиков</translation>
+        <translation>Ускорение стиков</translation>
     </message>
     <message>
         <source>empty = map name prefix</source>
@@ -1170,62 +1185,62 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="483"/>
         <source>Default repository</source>
-        <translation type="unfinished">Репозиторий по умолчанию</translation>
+        <translation>Репозиторий по умолчанию</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
         <source>Renderer</source>
-        <translation type="unfinished">Рендерер</translation>
+        <translation>Рендерер</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="392"/>
         <source>Heroes III Translation</source>
-        <translation type="unfinished">Перевод Героев III</translation>
+        <translation>Перевод Героев III</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="879"/>
         <source>Resolution</source>
-        <translation type="unfinished">Разрешение экрана</translation>
+        <translation>Разрешение экрана</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="430"/>
         <source>Autosave</source>
-        <translation type="unfinished">Автосохранение</translation>
+        <translation>Автосохранение</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="886"/>
         <source>Display index</source>
-        <translation type="unfinished">Дисплей</translation>
+        <translation>Дисплей</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="306"/>
         <source>Network port</source>
-        <translation type="unfinished">Сетевой порт</translation>
+        <translation>Сетевой порт</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1031"/>
         <source>Video</source>
-        <translation type="unfinished">Графика</translation>
+        <translation>Графика</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1004"/>
         <source>Show intro</source>
-        <translation type="unfinished">Вступление</translation>
+        <translation>Показать вступление</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="138"/>
         <source>StupidAI (deprecated)</source>
-        <translation type="unfinished">StupidAI (устаревшая)</translation>
+        <translation>StupidAI (устаревшая)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
         <source>BattleAI (default, recommended)</source>
-        <translation type="unfinished">BattleAI (по умолчанию, рекомендуется)</translation>
+        <translation>BattleAI (по умолчанию, рекомендуется)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
         <source>MMAI (experimental)</source>
-        <translation type="unfinished">MMAI (экспериментальная)</translation>
+        <translation>MMAI (экспериментальная)</translation>
     </message>
     <message>
         <source>Nullkiller (superseded by Nullkiller2)</source>
@@ -1234,37 +1249,37 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="159"/>
         <source>Nullkiller2 (default, recommended)</source>
-        <translation type="unfinished">Nullkiller2 (по умолчанию, рекомендуется)</translation>
+        <translation>Nullkiller2 (по умолчанию, рекомендуется)</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="169"/>
         <source>EmptyAI - No valid AI libraries found!</source>
-        <translation type="unfinished">EmptyAI — Не найдены подходящие библиотеки ИИ!</translation>
+        <translation>EmptyAI — Не найдены подходящие библиотеки ИИ!</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="765"/>
         <source>Active</source>
-        <translation type="unfinished">Активен</translation>
+        <translation>Активен</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="770"/>
         <source>Disabled</source>
-        <translation type="unfinished">Отключен</translation>
+        <translation>Отключен</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="771"/>
         <source>Enable</source>
-        <translation type="unfinished">Включить</translation>
+        <translation>Включить</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="776"/>
         <source>Not Installed</source>
-        <translation type="unfinished">Не установлен</translation>
+        <translation>Не установлен</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.cpp" line="777"/>
         <source>Install</source>
-        <translation type="unfinished">Установить</translation>
+        <translation>Установить</translation>
     </message>
 </context>
 <context>
@@ -1273,12 +1288,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <location filename="../modManager/chroniclesextractor.cpp" line="100"/>
         <location filename="../modManager/chroniclesextractor.cpp" line="101"/>
         <source>Heroes Chronicles</source>
-        <translation type="unfinished">Heroes Chronicles</translation>
+        <translation>Хроники Героев</translation>
     </message>
     <message>
         <location filename="../modManager/chroniclesextractor.cpp" line="149"/>
         <source>Heroes Chronicles %1 - %2</source>
-        <translation type="unfinished">Heroes Chronicles %1 - %2</translation>
+        <translation>Хроники Героев %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -1286,37 +1301,37 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="50"/>
         <source>Save</source>
-        <translation type="unfinished">Сохранить</translation>
+        <translation>Сохранить</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="73"/>
         <source>File:</source>
-        <translation type="unfinished">Файл:</translation>
+        <translation>Файл:</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.ui" line="86"/>
         <source>Close</source>
-        <translation type="unfinished">Закрыть</translation>
+        <translation>Закрыть</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="27"/>
         <source>Config editor</source>
-        <translation type="unfinished">Редактор конфигурации</translation>
+        <translation>Редактор настроек</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
         <source>Unsaved changes</source>
-        <translation type="unfinished">Несохранённые изменения</translation>
+        <translation>Несохранённые изменения</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="69"/>
         <source>Do you want to discard changes?</source>
-        <translation type="unfinished">Отменить внесённые изменения?</translation>
+        <translation>Отменить внесённые изменения?</translation>
     </message>
     <message>
         <location filename="../settingsView/configeditordialog_moc.cpp" line="123"/>
         <source>JSON file is not valid!</source>
-        <translation type="unfinished">Файл JSON недействителен!</translation>
+        <translation>Файл JSON недействителен!</translation>
     </message>
 </context>
 <context>
@@ -1325,7 +1340,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <location filename="../modManager/modstate.cpp" line="176"/>
         <location filename="../modManager/modstatemodel.cpp" line="106"/>
         <source>%1 MiB</source>
-        <translation type="unfinished">%1 MiB</translation>
+        <translation>%1 МиБ</translation>
     </message>
 </context>
 <context>
@@ -1333,92 +1348,92 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="28"/>
         <source>Language</source>
-        <translation type="unfinished">Язык</translation>
+        <translation>Язык</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="53"/>
         <source>Heroes III Data</source>
-        <translation type="unfinished">Данные Героев III</translation>
+        <translation>Данные Героев III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation type="unfinished">Типичные моды</translation>
+        <translation>Профили модов</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="127"/>
         <source>Select your language</source>
-        <translation type="unfinished">Выберите ваш язык</translation>
+        <translation>Выберите язык</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="173"/>
         <source>Have a question? Found a bug? Want to help? Join us!</source>
-        <translation type="unfinished">Есть вопрос? Нашли ошибку? Хотите помочь? Присоединяйтесь!</translation>
+        <translation>Есть вопрос? Нашли ошибку? Хотите помочь? Присоединяйтесь!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="253"/>
         <source>Locate Heroes III data files</source>
-        <translation type="unfinished">Поиск файлов данных Героев 3</translation>
+        <translation>Поиск файлов данных Героев III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="305"/>
         <source>Use offline installer from gog.com</source>
-        <translation type="unfinished">Использовать оффлайн установщик с gog.com</translation>
+        <translation>Использовать офлайн-установщик с gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="318"/>
         <source>You can manually copy Maps, Data, and Mp3 folders from the original game directory to the VCMI data directory shown below</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы можете вручную скопировать каталоги Maps, Data и Mp3 из каталога оригинальной игры в каталог данных VCMI, указанный ниже</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="337"/>
         <source>Install gog.com files</source>
-        <translation type="unfinished">Установить файлы gog.com</translation>
+        <translation>Установить файлы gog.com</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="482"/>
         <source>No Heroes III data? Download the free demo to try VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет данных игры Героев III? Скачайте бесплатную демоверсию, чтобы попробовать VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="498"/>
         <source>Download Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Скачать демоверсию</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="527"/>
         <source>Your Heroes III data files have been successfully found.</source>
-        <translation type="unfinished">Данные Героев III были успешно найдены.</translation>
+        <translation>Данные Героев III были успешно найдены.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="739"/>
         <source>Install a translation of Heroes III in your preferred language</source>
-        <translation type="unfinished">Установить перевод Героев III на выбранный вами язык</translation>
+        <translation>Установить перевод Героев III на выбранный вами язык</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="396"/>
         <source>Installing... %p%</source>
-        <translation type="unfinished">Установка... %p%</translation>
+        <translation>Установка... %p%</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="425"/>
         <source>If you already have Heroes III files on your device, you can select this directory and VCMI will copy the existing data automatically.</source>
-        <translation type="unfinished">Если у вас уже есть файлы Heroes III на устройстве, выберите этот каталог, и VCMI автоматически скопирует существующие данные.</translation>
+        <translation>Если на вашем устройстве уже есть файлы игры «Герои III», вы можете выбрать этот каталог — VCMI автоматически скопирует имеющиеся данные.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="469"/>
         <source>Copy existing files</source>
-        <translation type="unfinished">Скопировать существующие файлы</translation>
+        <translation>Скопировать существующие файлы</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="634"/>
         <source>Install recommended VCMI Mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Установить рекомендованные моды VCMI</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="681"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
-        <translation type="unfinished">Вы можете установить дополнительные моды по вашему выбору сейчас или в любой момент позже (с использованием VCMI Launcher)</translation>
+        <translation>При желании, вы можете установить дополнительные моды сейчас. Либо позже в любой момент</translation>
     </message>
     <message>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
@@ -1427,7 +1442,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="802"/>
         <source>VCMI Extras</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI Extras</translation>
     </message>
     <message>
         <source>Install compatible version of &quot;In The Wake of Gods&quot;, a fan-made Heroes III expansion</source>
@@ -1436,12 +1451,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="819"/>
         <source>A feature-rich expansion that expands gameplay with one alternative unit for each of the 9 standard towns, plus new neutral creatures, creature banks, skills and spells</source>
-        <translation type="unfinished"></translation>
+        <translation>Обширное дополнение, расширяющее игровой процесс: для каждого из 9 стандартных городов добавлено альтернативное существо, а также появились новые нейтральные существа, хранилища существ, навыки и заклинания</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="824"/>
         <source>Descend into the underground realm and uncover Casemate — a new faction where mushrooms, stone and rune magic thrive in the dark, created for VCMI</source>
-        <translation type="unfinished"></translation>
+        <translation>Спуститесь в подземный мир и откройте для себя «Каземат» (Casemate) — новую фракцию, созданную для VCMI, где в темноте процветают грибы, камень и рунная магия</translation>
     </message>
     <message>
         <source>Install mod that provides various interface improvements, such as a better interface for random maps and selectable actions in battles</source>
@@ -1450,27 +1465,27 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="818"/>
         <source>Tides of War</source>
-        <translation type="unfinished"></translation>
+        <translation>Волны Войны</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="823"/>
         <source>Fallen of the Depth</source>
-        <translation type="unfinished"></translation>
+        <translation>Павший из Глубин</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="788"/>
         <source>Finish</source>
-        <translation type="unfinished">Завершить</translation>
+        <translation>Завершить</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="159"/>
         <source>VCMI on Github</source>
-        <translation type="unfinished">VCMI в Github</translation>
+        <translation>VCMI в Github</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="166"/>
         <source>VCMI on Discord</source>
-        <translation type="unfinished">VCMI в Discord</translation>
+        <translation>VCMI в Discord</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="182"/>
@@ -1481,244 +1496,245 @@ Before you can start playing, there are a few more steps to complete.
 Please remember that to use VCMI, you must own the original data files for Heroes® of Might and Magic® III: Complete or The Shadow of Death.
 
 Heroes® of Might and Magic® III HD is currently not supported!</source>
-        <translation type="unfinished">Благодарим вас за установку VCMI!
+        <translation>Благодарим вас за установку VCMI!
 
 Перед началом игры необходимо выполнить ещё несколько шагов.
 
-Помните, что для использования VCMI необходимо владеть оригинальными файлами Heroes® of Might and Magic® III: Complete или The Shadow of Death.
+Помните, что для использования VCMI необходимы оригинальные файлы игры «Герои меча и магии III» (Heroes® of Might and Magic® III: Complete) или «Дыхание смерти» (The Shadow of Death).
 
-Heroes® of Might and Magic® III HD в настоящее время не поддерживается!</translation>
+«Heroes of Might and Magic III: HD Edition» в настоящее время не поддерживается!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="216"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="603"/>
         <source>Next</source>
-        <translation type="unfinished">Далее</translation>
+        <translation>Далее</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="355"/>
         <source>Manual Installation</source>
-        <translation type="unfinished">Ручная установка</translation>
+        <translation>Установка вручную</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="368"/>
         <source>Search again</source>
-        <translation type="unfinished">Повторить поиск</translation>
+        <translation>Повторить поиск</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="450"/>
         <source>Heroes III data files</source>
-        <translation type="unfinished">Файлы данных Героев III</translation>
+        <translation>Файлы данных «Герои III»</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="287"/>
         <source>Copy existing data</source>
-        <translation type="unfinished">Скопировать данные</translation>
+        <translation>Скопировать существующие данные</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="543"/>
         <source>If you own Heroes III on gog.com, you can download a backup offline installer from gog.com. VCMI will then import Heroes III data using the offline installer. 
 Offline installer consists of two files: &quot;.exe&quot; and &quot;.bin&quot; - you must download both.</source>
-        <translation type="unfinished">Если у вас есть Heroes III на gog.com, вы можете скачать оффлайн установочный файл с gog.com. VCMI затем импортирует данные Heroes III с помощью этого установщика.
-Оффлайн установщик состоит из двух файлов: &quot;.exe&quot; и &quot;.bin&quot; — необходимо скачать оба.</translation>
+        <translation>Если у вас куплена игра «Герои III» на gog.com, вы можете скачать офлайн-установщик. VCMI затем импортирует данные игры с помощью этого установщика.
+Офлайн-установщик состоит из двух файлов: «.exe» и «.bin» — необходимо скачать оба.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="596"/>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="781"/>
         <source>Back</source>
-        <translation type="unfinished">Назад</translation>
+        <translation>Назад</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="808"/>
         <source>Horn of the Abyss</source>
-        <translation type="unfinished">Рог Бездны</translation>
+        <translation>Рог Бездны</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="709"/>
         <source>Heroes III Translation</source>
-        <translation type="unfinished">Перевод Героев III</translation>
+        <translation>Перевод «Герои III»</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="813"/>
         <source>In The Wake of Gods</source>
-        <translation type="unfinished">Во Имя Богов</translation>
+        <translation>Во Имя Богов</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="220"/>
         <source>Heroes III installation found!</source>
-        <translation type="unfinished">Установленная Heroes III обнаружена!</translation>
+        <translation>Не обнаружена установка игры «Герои III»!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="220"/>
         <source>Copy data to VCMI folder?</source>
-        <translation type="unfinished">Скопировать данные в папку VCMI?</translation>
+        <translation>Скопировать данные в каталог VCMI?</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="460"/>
         <source>GOG file (*.*)</source>
-        <translation type="unfinished">Файл GOG (*.*)</translation>
+        <translation>Файл GOG (*.*)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="461"/>
         <source>File selection</source>
-        <translation type="unfinished">Выбор файла</translation>
+        <translation>Выбор файла</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="472"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="681"/>
         <source>GOG installer</source>
-        <translation type="unfinished">Установщик GOG</translation>
+        <translation>Установщик GOG</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="565"/>
         <source>Heroes III: HD Edition files are not supported by VCMI.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">Файлы Heroes III: HD Edition не поддерживаются VCMI.
-Пожалуйста, выберите каталог с Heroes III: Complete Edition или Heroes III: Shadow of Death.</translation>
+        <translation>Файлы «Heroes III: HD Edition» не поддерживаются в VCMI.
+Пожалуйста, выберите каталог с «Герои меча и магии III» (Heroes of Might and Magic III: Complete) или «Дыхание смерти» (The Shadow of Death).</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="567"/>
         <source>Unknown or unsupported Heroes III version found.
 Please select the directory with Heroes III: Complete Edition or Heroes III: Shadow of Death.</source>
-        <translation type="unfinished">Обнаружена неизвестная или неподдерживаемая версия Heroes III.
-Пожалуйста, выберите каталог с Heroes III: Complete Edition или Heroes III: Shadow of Death.</translation>
+        <translation>Обнаружена неизвестная или неподдерживаемая версия игры «Герои III».
+Пожалуйста, выберите каталог с «Герои меча и магии III» (Heroes of Might and Magic III: Complete) или «Дыхание смерти» (The Shadow of Death).</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="488"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="694"/>
         <source>GOG data</source>
-        <translation type="unfinished">Данные GOG</translation>
+        <translation>Данные GOG</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="154"/>
         <source>Downloading Heroes III Demo...</source>
-        <translation type="unfinished"></translation>
+        <translation>Загрузка демоверсии «Герои III»…</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="404"/>
         <source>Failed to open file: %1</source>
-        <translation type="unfinished">Не удалось открыть файл: %1</translation>
+        <translation>Не удалось открыть файл: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="424"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="450"/>
         <source>You need to select a %1 file!</source>
         <comment>param is file extension</comment>
-        <translation type="unfinished"></translation>
+        <translation>Необходимо выбрать файл: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="432"/>
         <source>Unknown installer selected.
 You need to select the offline GOG installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбран неизвестный установщик.
+Вам нужен офлайн-установщик от GOG.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="444"/>
         <source>You selected a GOG Galaxy installer. This file does not contain the game. Please download the offline backup game installer instead.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вы выбрали установщик GOG Galaxy. Этот файл не содержит самой игры. Пожалуйста, скачайте офлайн-установщик игры.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="473"/>
         <source>Select the offline GOG installer (.exe)</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать офлайн-установщик GOG (.exe)</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="482"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="684"/>
         <source>Invalid file selected</source>
-        <translation type="unfinished">Выбран неверный файл</translation>
+        <translation>Выбран неверный файл</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="489"/>
         <source>Select the offline GOG installer data file: %1</source>
         <comment>param is file name</comment>
-        <translation type="unfinished"></translation>
+        <translation>Выберите файл данных офлайн-установщика GOG: %1</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="509"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="697"/>
         <source>Invalid data file</source>
-        <translation type="unfinished"></translation>
+        <translation>Неверный файл данных</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="604"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="759"/>
         <source>Importing Heroes III data...</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортирование данных «Герои III»…</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="643"/>
         <source>Preparing installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Подготовка установщика…</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="706"/>
         <source>Extracting installer...</source>
-        <translation type="unfinished"></translation>
+        <translation>Распаковка установщика…</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="743"/>
         <source>Extracting error!</source>
-        <translation type="unfinished">Ошибка распаковки!</translation>
+        <translation>Ошибка распаковки!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="747"/>
         <source>Hash error!</source>
-        <translation type="unfinished">Ошибка хэша!</translation>
+        <translation>Ошибка контрольной суммы!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="751"/>
         <source>No Heroes III data!</source>
-        <translation type="unfinished">Нет данных Heroes III!</translation>
+        <translation>Нет данных «Герои III»!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="751"/>
         <source>Selected files do not contain Heroes III data!</source>
-        <translation type="unfinished">Выбранные файлы не содержат данных Heroes III!</translation>
+        <translation>Выбранные файлы не содержат данных «Герои III»!</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="776"/>
         <source>Scanning selected folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Сканирование выбранного каталога…</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавляет улучшения интерфейса и игрового процесса, такие как более удобный интерфейс для случайных карт, кнопки повторного посещения и поиска на карте приключений, возможность быстрого обмена между героями, отображение значков бонусов и иммунитетов, а также дополнительные действия в бою</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="809"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Доработанное фанатами дополнение, добавляющее 3 новых города, новые кампании, героев, артефакты, объекты на карте, навыки, исправления баланса и новые ландшафты</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="814"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Делает «Герои III» глубже за счёт введения командиров, системы опыта и артефактов для отдельных отрядов, множества новых артефактов для героев и командиров, дополнительных механизмов развития, а также интерактивных объектов на карте приключений</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="828"/>
         <source>Tears of Ashan</source>
-        <translation type="unfinished"></translation>
+        <translation>Слёзы Ашана</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="829"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Дополнение, вдохновлённое 5-й частью игры («Герои V»), добавляет в «Герои III» альтернативные улучшения существ, Светлую и Тёмную магию, механику «Врат», более высокий максимальный уровень второстепенного навыка и переработанный геймплей</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="529"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="562"/>
         <source>Failed to detect valid Heroes III data in chosen directory.
 Please select the directory with installed Heroes III data.</source>
-        <translation type="unfinished">Не удалось обнаружить корректные данные Heroes III в выбранном каталоге.
-Пожалуйста, выберите каталог с установленными данными Heroes III.</translation>
+        <translation>Не удалось обнаружить корректные данные «Герои III» в выбранном каталоге.
+Пожалуйста, выберите каталог с установленными данными игры.</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="529"/>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="573"/>
         <source>Heroes III data not found!</source>
-        <translation type="unfinished">Данные Heroes III не найдены!</translation>
+        <translation>Данные «Герои III» не найдены!</translation>
     </message>
 </context>
 <context>
@@ -1726,37 +1742,37 @@ Please select the directory with installed Heroes III data.</source>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>HD Edition installation found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Найдена установка «HD Edition»!</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>Heroes III HD Edition installation was found. Install HD graphics mod using this installation?</source>
-        <translation type="unfinished"></translation>
+        <translation>Обнаружена установка «Heroes III HD Edition». Установить мод HD-графики, используя эту установку?</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="49"/>
         <source>Select Directory with HD Edition (Steam folder)</source>
-        <translation type="unfinished">Выберите каталог с HD Edition (папка Steam)</translation>
+        <translation>Выберите каталог с HD Edition (Steam)</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="58"/>
         <source>Invalid folder</source>
-        <translation type="unfinished">Неверная папка</translation>
+        <translation>Неверный каталог</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="58"/>
         <source>The selected folder does not contain HOMM3 2.0.exe! Please select the HD Edition installation folder.</source>
-        <translation type="unfinished">В выбранной папке нет HOMM3 2.0.exe! Пожалуйста, выберите папку установки HD Edition.</translation>
+        <translation>В выбранном каталоге нет файла «HOMM3 2.0.exe»! Пожалуйста, выберите каталог установки «HD Edition».</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="110"/>
         <source>Extraction error</source>
-        <translation type="unfinished">Ошибка распаковки</translation>
+        <translation>Ошибка распаковки</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="110"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
-        <translation type="unfinished">Пожалуйста, удалите мод и попробуйте снова! Не удалось скопировать файл %1 в %2</translation>
+        <translation>Пожалуйста, удалите мод и попробуйте снова! Не удалось скопировать файл %1 в %2</translation>
     </message>
 </context>
 <context>
@@ -1764,7 +1780,7 @@ Please select the directory with installed Heroes III data.</source>
     <message>
         <location filename="../modManager/imageviewer_moc.ui" line="20"/>
         <source>Image Viewer</source>
-        <translation type="unfinished">Просмотр изображений</translation>
+        <translation>Просмотр изображений</translation>
     </message>
 </context>
 <context>
@@ -1773,18 +1789,18 @@ Please select the directory with installed Heroes III data.</source>
         <location filename="../innoextract.cpp" line="42"/>
         <source>Stream error while extracting files!
 error reason: </source>
-        <translation type="unfinished">Ошибка потока при распаковке файлов!
-Причина ошибки: </translation>
+        <translation>Ошибка потока при распаковке файлов!
+Причина: </translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="55"/>
         <source>Not a supported Inno Setup installer!</source>
-        <translation type="unfinished">Неподдерживаемый установщик Inno Setup!</translation>
+        <translation>Неподдерживаемый установщик «Inno Setup»!</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="58"/>
         <source>VCMI was compiled without innoextract support, which is needed to extract exe files!</source>
-        <translation type="unfinished">VCMI была скомпилирована без поддержки innoextract, необходимой для распаковки exe-файлов!</translation>
+        <translation>VCMI была собрана без поддержки «innoextract», необходимой для распаковки exe-файлов!</translation>
     </message>
     <message numerus="yes">
         <location filename="../innoextract.cpp" line="143"/>
@@ -1792,15 +1808,15 @@ error reason: </source>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Хеш SHA1 предоставленных файлов:
 Exe (%n байт):
 %1</numerusform>
             <numerusform>Хеш SHA1 предоставленных файлов:
-Exe (%n байт):
+Exe (%n байта):
 %1</numerusform>
             <numerusform>Хеш SHA1 предоставленных файлов:
-Exe (%n байт):
+Exe (%n байтов):
 %1</numerusform>
         </translation>
     </message>
@@ -1810,18 +1826,15 @@ Exe (%n байт):
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
+        <translation>
             <numerusform>
-
 Bin (%n байт):
 %1</numerusform>
             <numerusform>
-
-Bin (%n байт):
+Bin (%n байта):
 %1</numerusform>
             <numerusform>
-
-Bin (%n байт):
+Bin (%n байтов):
 %1</numerusform>
         </translation>
     </message>
@@ -1830,19 +1843,19 @@ Bin (%n байт):
         <source>Internal copy process failed. Enough space on device?
 
 %1</source>
-        <translation type="unfinished">Внутренний процесс копирования не удался. Достаточно ли места на устройстве?
+        <translation>Внутренний процесс копирования не удался. Проверьте, достаточно ли свободного места на устройстве.
 
 %1</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
         <source>Exe</source>
-        <translation type="unfinished">Exe</translation>
+        <translation>Exe</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="157"/>
         <source>Bin</source>
-        <translation type="unfinished">Bin</translation>
+        <translation>Bin</translation>
     </message>
     <message>
         <location filename="../innoextract.cpp" line="166"/>
@@ -1850,7 +1863,7 @@ Bin (%n байт):
 %1
 
 %2</source>
-        <translation type="unfinished">Несоответствие языков!
+        <translation>Несоответствие языков!
 %1
 
 %2</translation>
@@ -1861,7 +1874,7 @@ Bin (%n байт):
 %1
 
 %2</source>
-        <translation type="unfinished">Обнаружен только один файл! Возможно, файлы повреждены? Пожалуйста, скачайте их снова.
+        <translation>Только один файл прошёл проверку! Файлы могут быть повреждены. Пожалуйста, скачайте их снова.
 %1
 
 %2</translation>
@@ -1871,7 +1884,7 @@ Bin (%n байт):
         <source>Unknown files! Maybe files are corrupted? Please download again.
 
 %1</source>
-        <translation type="unfinished">Неизвестные файлы! Возможно, файлы повреждены? Пожалуйста, скачайте их снова.
+        <translation>Неизвестные файлы! Файлы могут быть повреждены. Пожалуйста, скачайте их снова.
 
 %1</translation>
     </message>
@@ -1881,152 +1894,152 @@ Bin (%n байт):
     <message>
         <location filename="../languages.cpp" line="23"/>
         <source>Belarusian</source>
-        <translation type="unfinished">Белорусский</translation>
+        <translation>Белорусский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="24"/>
         <source>Bulgarian</source>
-        <translation type="unfinished">Болгарский</translation>
+        <translation>Болгарский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="25"/>
         <source>Czech</source>
-        <translation type="unfinished">Чешский</translation>
+        <translation>Чешский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="26"/>
         <source>Simplified Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Упрощенный китайский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="27"/>
         <source>Traditional Chinese</source>
-        <translation type="unfinished"></translation>
+        <translation>Традиционный китайский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>Dutch</source>
-        <translation type="unfinished"></translation>
+        <translation>Голландский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
         <source>English</source>
-        <translation type="unfinished">Английский (English)</translation>
+        <translation>Английский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
         <source>Filipino</source>
-        <translation type="unfinished"></translation>
+        <translation>Филиппинский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="31"/>
         <source>Finnish</source>
-        <translation type="unfinished">Финский</translation>
+        <translation>Финский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="32"/>
         <source>French</source>
-        <translation type="unfinished">Французский (French)</translation>
+        <translation>Французский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="33"/>
         <source>German</source>
-        <translation type="unfinished">Немецкий (German)</translation>
+        <translation>Немецкий</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="34"/>
         <source>Greek</source>
-        <translation type="unfinished">Греческий</translation>
+        <translation>Греческий</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="35"/>
         <source>Hungarian</source>
-        <translation type="unfinished">Венгерский</translation>
+        <translation>Венгерский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="36"/>
         <source>Italian</source>
-        <translation type="unfinished">Итальянский</translation>
+        <translation>Итальянский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="37"/>
         <source>Japanese</source>
-        <translation type="unfinished">Японский</translation>
+        <translation>Японский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="38"/>
         <source>Korean</source>
-        <translation type="unfinished">Корейский (Korean)</translation>
+        <translation>Корейский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Latvian</source>
-        <translation type="unfinished"></translation>
+        <translation>Латышский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Lithuanian</source>
-        <translation type="unfinished"></translation>
+        <translation>Литовский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
         <source>Norwegian</source>
-        <translation type="unfinished">Норвежский</translation>
+        <translation>Норвежский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="42"/>
         <source>Polish</source>
-        <translation type="unfinished">Польский (Polish)</translation>
+        <translation>Польский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="43"/>
         <source>Portuguese</source>
-        <translation type="unfinished">Португальский</translation>
+        <translation>Португальский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="44"/>
         <source>Romanian</source>
-        <translation type="unfinished">Румынский</translation>
+        <translation>Румынский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="45"/>
         <source>Russian</source>
-        <translation type="unfinished">Русский (Russian)</translation>
+        <translation>Русский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="46"/>
         <source>Serbian</source>
-        <translation type="unfinished"></translation>
+        <translation>Сербский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="47"/>
         <source>Spanish</source>
-        <translation type="unfinished">Испанский (Spanish)</translation>
+        <translation>Испанский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="48"/>
         <source>Swedish</source>
-        <translation type="unfinished">Шведский</translation>
+        <translation>Шведский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="49"/>
         <source>Turkish</source>
-        <translation type="unfinished">Турецкий</translation>
+        <translation>Турецкий</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="50"/>
         <source>Ukrainian</source>
-        <translation type="unfinished">Украинский (Ukrainian)</translation>
+        <translation>Украинский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="51"/>
         <source>Vietnamese</source>
-        <translation type="unfinished">Вьетнамский</translation>
+        <translation>Вьетнамский</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="73"/>
         <source>Auto (%1)</source>
-        <translation type="unfinished">Авто (%1)</translation>
+        <translation>Авто (%1)</translation>
     </message>
 </context>
 <context>
@@ -2034,47 +2047,47 @@ Bin (%n байт):
     <message>
         <location filename="../mainwindow_moc.ui" line="20"/>
         <source>VCMI Launcher</source>
-        <translation type="unfinished">Запуск VCMI</translation>
+        <translation>Лаунчер VCMI</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="153"/>
         <source>Settings</source>
-        <translation type="unfinished">Параметры</translation>
+        <translation>Настройки</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="199"/>
         <source>Help</source>
-        <translation type="unfinished">Помощь</translation>
+        <translation>Помощь</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="61"/>
         <source>Game</source>
-        <translation type="unfinished">Игра</translation>
+        <translation>Игра</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.ui" line="107"/>
         <source>Mods</source>
-        <translation type="unfinished">Моды</translation>
+        <translation>Моды</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="54"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">Ошибка запуска исполняемого файла</translation>
+        <translation>Ошибка запуска исполняемого файла</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="456"/>
         <source>mod archive</source>
-        <translation type="unfinished"></translation>
+        <translation>архив модов</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="467"/>
         <source>Replace config file?</source>
-        <translation type="unfinished">Заменить конфигурационный файл?</translation>
+        <translation>Заменить файл настроек?</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="467"/>
         <source>Do you want to replace %1?</source>
-        <translation type="unfinished">Вы хотите заменить %1?</translation>
+        <translation>Вы хотите заменить %1?</translation>
     </message>
 </context>
 <context>
@@ -2082,12 +2095,12 @@ Bin (%n байт):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="196"/>
         <source>Name</source>
-        <translation type="unfinished">Название</translation>
+        <translation>Название</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="199"/>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation>Тип</translation>
     </message>
 </context>
 <context>
@@ -2103,94 +2116,94 @@ Bin (%n байт):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="222"/>
         <source>Can not uninstall submod</source>
-        <translation type="unfinished">Невозможно удалить подмод</translation>
+        <translation>Невозможно удалить подмод</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="225"/>
         <source>Mod is not installed</source>
-        <translation type="unfinished">Мод не установлен</translation>
+        <translation>Мод не установлен</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="238"/>
         <source>Mod is not located in user data directory and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Лаунчер не может управлять этим модом т.к. он находится не в каталоге данных пользователя</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="242"/>
         <source>Mod directory is a git repository and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Лаунчер не может управлять этим модом т.к. каталог является Git-репозиторием</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is already enabled</source>
-        <translation type="unfinished">Мод уже включен</translation>
+        <translation>Мод уже активирован</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="263"/>
         <location filename="../modManager/modstatecontroller.cpp" line="289"/>
         <source>Mod must be installed first</source>
-        <translation type="unfinished">Сначала необходимо установить мод</translation>
+        <translation>Сначала необходимо установить мод</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="267"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
-        <translation type="unfinished">Мод несовместим, пожалуйста, обновите VCMI и проверьте последние версии модов</translation>
+        <translation>Мод несовместим; пожалуйста, обновите VCMI и проверьте наличие последних версий мода</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="270"/>
         <source>Can not enable translation mod for a different language!</source>
-        <translation type="unfinished">Невозможно включить перевод мода для другого языка!</translation>
+        <translation>Невозможно включить перевод мода для другого языка!</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="275"/>
         <source>Required mod %1 is missing</source>
-        <translation type="unfinished">Отсутствует требуемый мод %1</translation>
+        <translation>Отсутствует требуемый мод: %1</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="286"/>
         <source>Mod is already disabled</source>
-        <translation type="unfinished">Мод уже отключен</translation>
+        <translation>Мод уже деактивирован</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="319"/>
         <source>Mod archive is missing</source>
-        <translation type="unfinished">Архив мода отсутствует</translation>
+        <translation>Архив мода отсутствует</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="324"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation type="unfinished">Архив мода недействителен или повреждён</translation>
+        <translation>Архив мода недействителен или повреждён</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="332"/>
         <source>Failed to remove directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось удалить каталог %1</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="335"/>
         <source>Failed to create directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось создать каталог %1</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="367"/>
         <source>Failed to extract mod data</source>
-        <translation type="unfinished">Не удалось распаковать данные мода</translation>
+        <translation>Не удалось распаковать данные мода</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="374"/>
         <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось перезаписать каталог %1. Закройте все приложения, которые могут его использовать (например, «Проводник» в Windows), и попробуйте снова.</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="401"/>
         <source>Mod data was not found</source>
-        <translation type="unfinished">Данные мода не найдены</translation>
+        <translation>Данные мода не найдены</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="405"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-        <translation type="unfinished">Мод находится в защищённом каталоге, пожалуйста, удалите его вручную:
+        <translation>Мод находится в защищённом каталоге, пожалуйста, удалите его вручную:
 </translation>
     </message>
 </context>
@@ -2199,118 +2212,118 @@ Bin (%n байт):
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="37"/>
         <source>Translation</source>
-        <translation type="unfinished">Перевод</translation>
+        <translation>Перевод</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="38"/>
         <source>Town</source>
-        <translation type="unfinished">Город</translation>
+        <translation>Город</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="39"/>
         <source>Test</source>
-        <translation type="unfinished">Тест</translation>
+        <translation>Тест</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="40"/>
         <source>Templates</source>
-        <translation type="unfinished">Шаблоны карт</translation>
+        <translation>Шаблоны</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="41"/>
         <source>Spells</source>
-        <translation type="unfinished">Заклинания</translation>
+        <translation>Заклинания</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="42"/>
         <source>Music</source>
-        <translation type="unfinished">Музыка</translation>
+        <translation>Музыка</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="43"/>
         <source>Maps</source>
-        <translation type="unfinished">Карты</translation>
+        <translation>Карты</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="44"/>
         <source>Sounds</source>
-        <translation type="unfinished">Звуки</translation>
+        <translation>Звуки</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="45"/>
         <source>Skills</source>
-        <translation type="unfinished">Навыки</translation>
+        <translation>Навыки</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="46"/>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="64"/>
         <source>Other</source>
-        <translation type="unfinished">Иное</translation>
+        <translation>Другое</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="47"/>
         <source>Objects</source>
-        <translation type="unfinished">Объекты</translation>
+        <translation>Объекты</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="48"/>
         <source>Mechanics</source>
-        <translation type="unfinished">Механика</translation>
+        <translation>Механика</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="49"/>
         <source>Interface</source>
-        <translation type="unfinished">Интерфейс</translation>
+        <translation>Интерфейс</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="50"/>
         <source>Heroes</source>
-        <translation type="unfinished">Герои</translation>
+        <translation>Герои</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="51"/>
         <source>Graphical</source>
-        <translation type="unfinished">Графика</translation>
+        <translation>Графика</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="52"/>
         <source>Expansion</source>
-        <translation type="unfinished">Дополнение</translation>
+        <translation>Дополнение</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="53"/>
         <source>Creatures</source>
-        <translation type="unfinished">Существа</translation>
+        <translation>Существа</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="54"/>
         <source>Compatibility</source>
-        <translation type="unfinished">Совместимость</translation>
+        <translation>Совместимость</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="55"/>
         <source>Campaigns</source>
-        <translation type="unfinished">Кампании</translation>
+        <translation>Кампании</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="56"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Артефакты</translation>
+        <translation>Артефакты</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="57"/>
         <source>AI</source>
-        <translation type="unfinished">ИИ</translation>
+        <translation>ИИ</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="58"/>
         <source>Resources</source>
-        <translation type="unfinished">Ресурсы</translation>
+        <translation>Ресурсы</translation>
     </message>
     <message>
         <location filename="../modManager/modstateitemmodel_moc.cpp" line="59"/>
         <source>Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Демоверсия</translation>
     </message>
 </context>
 <context>
@@ -2318,30 +2331,30 @@ Bin (%n байт):
     <message>
         <location filename="../main.cpp" line="148"/>
         <source>Error starting executable</source>
-        <translation type="unfinished">Ошибка запуска исполняемого файла</translation>
+        <translation>Ошибка запуска исполняемого файла</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="149"/>
         <source>Failed to start %1
 Reason: %2</source>
-        <translation type="unfinished">Не удалось запустить %1
+        <translation>Не удалось запустить %1
 Причина: %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
         <source>Import failed</source>
-        <translation type="unfinished">Сбой импорта</translation>
+        <translation>Сбой импорта</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
         <source>Failed to import save %1 from %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось импортировать сохранение %1 из %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
         <source>Failed to import save file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось импортировать сохранение %1</translation>
     </message>
 </context>
 <context>
@@ -2349,32 +2362,32 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="655"/>
         <source>Import from Clipboard</source>
-        <translation type="unfinished">Импорт из буфера обмена</translation>
+        <translation>Импорт из буфера обмена</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="674"/>
         <source>Rename Current Preset</source>
-        <translation type="unfinished">Переименовать текущую предустановку</translation>
+        <translation>Переименовать текущий профиль</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="588"/>
         <source>Create New Preset</source>
-        <translation type="unfinished">Создать новую предустановку</translation>
+        <translation>Создать новый профиль</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="569"/>
         <source>Export to Clipboard</source>
-        <translation type="unfinished">Экспорт в буфер обмена</translation>
+        <translation>Экспорт в буфер обмена</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="623"/>
         <source>Delete Current Preset</source>
-        <translation type="unfinished">Удалить текущую предустановку</translation>
+        <translation>Удалить текущий профиль</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="119"/>
         <source>Unsupported or corrupted game data detected!</source>
-        <translation type="unfinished">Обнаружены неподдерживаемые или повреждённые игровые данные!</translation>
+        <translation>Обнаружены неподдерживаемые или повреждённые игровые данные!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="141"/>
@@ -2388,97 +2401,97 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.ui" line="509"/>
         <location filename="../startGame/StartGameTab.ui" line="528"/>
         <source>?</source>
-        <translation type="unfinished">?</translation>
+        <translation>?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="239"/>
         <source>Install Translation</source>
-        <translation type="unfinished">Установить перевод</translation>
+        <translation>Установить перевод</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="449"/>
         <source>No soundtrack detected!</source>
-        <translation type="unfinished">Саундтрек не обнаружен!</translation>
+        <translation>Звуковая дорожка не обнаружена!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="258"/>
         <source>Armaggedon&apos;s Blade campaigns are missing!</source>
-        <translation type="unfinished">Кампании Armaggedon&apos;s Blade отсутствуют!</translation>
+        <translation>Кампании «Клинок Армагеддона» отсутствуют!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="351"/>
         <source>No video files detected!</source>
-        <translation type="unfinished">Видеофайлы не обнаружены!</translation>
+        <translation>Видеофайлы не обнаружены!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="490"/>
         <source>Activate Translation</source>
-        <translation type="unfinished">Активировать перевод</translation>
+        <translation>Активировать перевод</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="373"/>
         <source>Import files</source>
-        <translation type="unfinished">Импорт файлов</translation>
+        <translation>Импорт файлов</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="759"/>
         <source>Check For Updates</source>
-        <translation type="unfinished">Проверить обновления</translation>
+        <translation>Проверить обновления</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="778"/>
         <source>Go to Downloads Page</source>
-        <translation type="unfinished">Перейти на страницу загрузок</translation>
+        <translation>Перейти на страницу загрузок</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="797"/>
         <source>Go to Changelog Page</source>
-        <translation type="unfinished">Перейти на страницу изменений</translation>
+        <translation>Перейти на страницу журнала изменений</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="715"/>
         <source>You are using the latest version</source>
-        <translation type="unfinished">У вас установлена последняя версия</translation>
+        <translation>У вас установлена последняя версия</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="37"/>
         <source>Game Data Files</source>
-        <translation type="unfinished">Файлы игровых данных</translation>
+        <translation>Файлы игровых данных</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="55"/>
         <source>Mod Preset</source>
-        <translation type="unfinished">Предустановка модов</translation>
+        <translation>Профили модов</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="280"/>
         <source>Install HD Edition (Steam)</source>
-        <translation type="unfinished">Установить HD Edition (Steam)</translation>
+        <translation>Установить «HD Edition» (Steam)</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="318"/>
         <source>Install game</source>
-        <translation type="unfinished"></translation>
+        <translation>Установить игру</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="831"/>
         <source>Resume</source>
-        <translation type="unfinished">Продолжить</translation>
+        <translation>Продолжить</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="892"/>
         <source>Play</source>
-        <translation type="unfinished">Играть</translation>
+        <translation>Играть</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="859"/>
         <source>Editor</source>
-        <translation type="unfinished">Редактор</translation>
+        <translation>Редактор</translation>
     </message>
     <message numerus="yes">
         <location filename="../startGame/StartGameTab.cpp" line="212"/>
         <source>Update %n mods</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Обновить %n мод</numerusform>
             <numerusform>Обновить %n мода</numerusform>
             <numerusform>Обновить %n модов</numerusform>
@@ -2488,7 +2501,7 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.cpp" line="216"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>Heroes Chronicles:
 %n/%1 установлен</numerusform>
             <numerusform>Heroes Chronicles:
@@ -2500,62 +2513,62 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="241"/>
         <source>Update to %1 available</source>
-        <translation type="unfinished">Доступно обновление до %1</translation>
+        <translation>Доступно обновление: %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите файлы (настройки, моды, сохранения, карты, кампании, gog-файлы) для установки…</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="298"/>
         <source>Install Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Установить «Герои III»</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="299"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Все данные демоверсии, включая карты, видео и звуковые дорожки, будут удалены. Уверены?</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="276"/>
         <source>All supported files</source>
-        <translation type="unfinished">Все поддерживаемые файлы</translation>
+        <translation>Все поддерживаемые файлы</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="277"/>
         <source>Maps</source>
-        <translation type="unfinished">Карты</translation>
+        <translation>Карты</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="278"/>
         <source>Campaigns</source>
-        <translation type="unfinished">Кампании</translation>
+        <translation>Кампании</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="279"/>
         <source>Saves</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранения</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="280"/>
         <source>Configs</source>
-        <translation type="unfinished">Конфигурации</translation>
+        <translation>Настройки</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="281"/>
         <source>Mods</source>
-        <translation type="unfinished">Моды</translation>
+        <translation>Моды</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="282"/>
         <source>Gog files</source>
-        <translation type="unfinished">Файлы GOG</translation>
+        <translation>Файлы GOG</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="285"/>
         <source>All files (*.*)</source>
-        <translation type="unfinished">Все файлы (*.*)</translation>
+        <translation>Все файлы (*.*)</translation>
     </message>
     <message>
         <source>Select files (configs, mods, maps, campaigns, gog files) to install...</source>
@@ -2583,22 +2596,22 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.cpp" line="333"/>
         <location filename="../startGame/StartGameTab.cpp" line="368"/>
         <source>Preparing selected files for import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Подготовка к импортированию выбранных файлов…</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="338"/>
         <source>Preparing selected files for import... %1/%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Подготовка к импортированию выбранных файлов… %1/%2</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Import failed</source>
-        <translation type="unfinished">Сбой импорта</translation>
+        <translation>Сбой импорта</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="359"/>
         <source>Failed to prepare file for import: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось подготовить файл к импорту: %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="427"/>
@@ -2612,89 +2625,109 @@ Reason: %2</source>
  - VCMI save files (.vsgm1)
  - VCMI configuration files (.json)
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Позволяет импортировать дополнительные файлы с данными в VCMI. Поддерживаемые форматы:
+
+ - Карты «Герои III» (.h3m или .vmap).
+ - Кампании «Герои III» (.h3c или .vcmp).
+ - Хроники «Герои III», используя оффлайн-установщик из GOG.com (.exe).
+ - Моды VCMI в архиве (.zip)
+ - Сохранения VCMI в архиве (.zip)
+ - Сохранения VCMI (.vsgm1)
+ - Файлы настроек VCMI (.json)
+</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="444"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
-        <translation type="unfinished">Ваша версия Heroes III использует другой язык. VCMI предоставляет переводы игры на различные языки. Используйте эту опцию для автоматической установки перевода на ваш язык.</translation>
+        <translation>Ваша версия «Герои III» использует другой язык. VCMI предоставляет переводы игры на различные языки. Используйте эту опцию для автоматической установки перевода на ваш язык.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="454"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
-        <translation type="unfinished">Перевод Heroes III на ваш язык установлен, но был отключен. Используйте эту опцию, чтобы включить его.</translation>
+        <translation>Перевод «Герои III» на ваш язык установлен, но был отключен. Используйте эту опцию, чтобы включить его.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="464"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation type="unfinished">В репозитории модов доступна новая версия некоторых установленных модов. Используйте эту опцию для автоматического обновления всех ваших модов до последних версий.
+        <translation>В репозитории модов доступна новая версия некоторых установленных модов. Используйте эту опцию для автоматического обновления всех ваших модов до последних версий.
 
-ВНИМАНИЕ: В некоторых случаях обновлённые версии модов могут быть несовместимы с вашими сохранениями. Возможно, стоит отложить обновление модов до завершения текущих игр.</translation>
+ВНИМАНИЕ: В некоторых случаях обновлённые версии модов могут быть несовместимы с вашими сохранениями. Рекомендуем закончить все незавершённые игры перед обновлением чтобы не потерять их.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="476"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
-        <translation type="unfinished"></translation>
+        <translation>Если вы приобрели «Хроники Героев» на gog.com, вы можете воспользоваться офлайн-установщиком, чтобы импортировать данные игры в VCMI как пользовательские кампании.
+Чтобы импортировать «Хроники Героев», загрузите резервный офлайн-установщик каждой хроники, которую вы хотите установить, выберите опцию «Импортировать файлы» и укажите загруженные файлы. Это создаст и установит модификацию для VCMI, содержащую импортируемые хроники.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="489"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI обнаружил, что в вашей установке отсутствуют музыкальные файлы игры. VCMI будет работать, но музыка в игре будет отсутствовать.
+
+Чтобы решить эту проблему, пожалуйста, вручную скопируйте недостающие mp3-файлы из «Герои III» в каталог данных VCMI либо переустановите VCMI и заново импортируйте файлы данных игры.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="500"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI обнаружил, что в вашей установке отсутствуют видеофайлы игры. VCMI будет работать, но внутриигровые кат-сцены будут отсутствовать.
+
+Чтобы решить эту проблему, пожалуйста, вручную скопируйте VIDEO.VID файл из «Герои III» в каталог данных VCMI либо переустановите VCMI и заново импортируйте файлы данных игры.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="511"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI обнаружил, что в вашей установке отсутствуют некоторые файлы игры. Игра может работать нестабильно.
+
+Чтобы решить эту проблему, пожалуйста, переустановите игру и повторно импортируйте файлы данных, используя поддерживаемую версию «Герои III». Для работы VCMI необходима игра «Heroes III: Shadow of Death» или «Complete Edition»; приобрести её можно, например, на сайте gog.com.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="522"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI обнаружил, что в вашей установке отсутствуют некоторые файлы данных из «Heroes III: Armageddon&apos;s Blade». VCMI будет работать, но кампании из «Armageddon&apos;s Blade» будут недоступны.
+
+Чтобы решить эту проблему, скопируйте недостающие файлы данных из «Герои III» в каталог с файлами данных VCMI вручную либо переустановите VCMI и заново импортируйте файлы данных игры.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="533"/>
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
-        <translation type="unfinished"></translation>
+        <translation>Чтобы улучшить качество графики в VCMI, можно установить файлы из официальной версии «Heroes III HD», доступной в Steam. Выберите каталог «Heroes HD» из Steam.
+
+После установки необходимо задать для фильтра масштабирования значение «x2» или выше — только так можно будет увидеть графику в высоком разрешении.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="572"/>
         <location filename="../startGame/StartGameTab.cpp" line="581"/>
         <source>Preset import failed</source>
-        <translation type="unfinished">Сбой импорта пресета</translation>
+        <translation>Сбой импорта профиля</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="572"/>
         <location filename="../startGame/StartGameTab.cpp" line="581"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
-        <translation type="unfinished">Не удалось импортировать пресет — данные в буфере обмена не похожи на пресет мода!</translation>
+        <translation>Не удалось импортировать профиль — данные в буфере обмена не похожи на профиль мода!</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="597"/>
         <source>Enter preset name:</source>
-        <translation type="unfinished">Введите имя предустановки:</translation>
+        <translation>Введите имя профиля:</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="640"/>
         <source>Rename preset &apos;%1&apos; to:</source>
-        <translation type="unfinished">Переименовать предустановку &apos;%1&apos; на:</translation>
+        <translation>Переименовать профиль &apos;%1&apos; на:</translation>
     </message>
 </context>
 <context>
@@ -2702,27 +2735,27 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
     <message>
         <location filename="../updatedialog_moc.ui" line="71"/>
         <source>You have the latest version</source>
-        <translation type="unfinished">У вас установлена последняя версия</translation>
+        <translation>У вас установлена последняя версия</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="94"/>
         <source>Close</source>
-        <translation type="unfinished">Закрыть</translation>
+        <translation>Закрыть</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.ui" line="101"/>
         <source>Check for updates on startup</source>
-        <translation type="unfinished">Проверять обновления при запуске</translation>
+        <translation>Проверять обновления при запуске</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.cpp" line="71"/>
         <source>Network error</source>
-        <translation type="unfinished">Ошибка сети</translation>
+        <translation>Ошибка сети</translation>
     </message>
     <message>
         <location filename="../updatedialog_moc.cpp" line="100"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation type="unfinished">Не удается прочитать JSON с URL или некорректные JSON-данные</translation>
+        <translation>Не удается прочитать JSON из URL, либо JSON-данные некорректны</translation>
     </message>
 </context>
 </TS>
