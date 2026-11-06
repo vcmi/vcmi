@@ -531,12 +531,12 @@
     <message>
         <location filename="../mainwindow.ui" line="346"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Tìm kiếm</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="356"/>
         <source>Show as list</source>
-        <translation type="unfinished"></translation>
+        <translation>Hiển thị danh sách</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="829"/>
@@ -1841,7 +1841,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="106"/>
         <source>Creature bank</source>
-        <translation type="unfinished">Ngân hàng sinh vật</translation>
+        <translation>Kho quân</translation>
     </message>
     <message>
         <location filename="../templateeditor/objectselector.cpp" line="107"/>
@@ -2183,7 +2183,7 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
         <location filename="../inspector/inspector.cpp" line="384"/>
         <location filename="../inspector/inspector.cpp" line="703"/>
         <source>Exclude player&apos;s faction</source>
-        <translation type="unfinished"></translation>
+        <translation>Loại bỏ phe của người chơi</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="423"/>
@@ -2194,31 +2194,31 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
         <location filename="../inspector/inspector.cpp" line="456"/>
         <location filename="../inspector/inspector.cpp" line="858"/>
         <source>Aggression</source>
-        <translation type="unfinished"></translation>
+        <translation>Mức độ thù địch</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="457"/>
         <location filename="../inspector/inspector.cpp" line="860"/>
         <source>Join only for money</source>
-        <translation type="unfinished"></translation>
+        <translation>Chỉ gia nhập khi trả phí</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="458"/>
         <location filename="../inspector/inspector.cpp" line="862"/>
         <source>Joining percentage</source>
-        <translation type="unfinished"></translation>
+        <translation>Tỷ lệ gia nhập</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="462"/>
         <location filename="../inspector/inspector.cpp" line="864"/>
         <source>Upgraded stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Đạo quân đã nâng cấp</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="464"/>
         <location filename="../inspector/inspector.cpp" line="866"/>
         <source>Stacks count</source>
-        <translation type="unfinished"></translation>
+        <translation>Số lượng đạo quân</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="465"/>
@@ -2264,12 +2264,12 @@ Bạn có muốn làm điều đó ngay bây giờ không?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="1057"/>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>Không</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1058"/>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>Luôn luôn</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="254"/>
@@ -2645,7 +2645,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
         <location filename="../inspector/rewardswidget.cpp" line="614"/>
         <location filename="../inspector/segments/rewardwidget.cpp" line="476"/>
         <source>Creatures: %1</source>
-        <translation type="unfinished">Sinh vật: %1</translation>
+        <translation>Quân: %1</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.cpp" line="505"/>
@@ -2781,27 +2781,27 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="293"/>
         <source>Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Ngày</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="298"/>
         <source>Week</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuần</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="303"/>
         <source>Month</source>
-        <translation type="unfinished"></translation>
+        <translation>Tháng</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="623"/>
         <source>Empty Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Chưa có nhiệm vụ</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.cpp" line="497"/>
         <source>Empty Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Chưa có phần thưởng</translation>
     </message>
 </context>
 <context>
@@ -2834,7 +2834,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questguardwidget.ui" line="136"/>
         <source>Spell points</source>
-        <translation type="unfinished">Điểm phép thuật</translation>
+        <translation>Năng lượng</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="156"/>
@@ -2869,7 +2869,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questguardwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation type="unfinished">Sức mạnh phép thuật</translation>
+        <translation>Lực phép</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="251"/>
@@ -2899,7 +2899,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questguardwidget.ui" line="442"/>
         <source>Creatures</source>
-        <translation type="unfinished"></translation>
+        <translation>Quân</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="491"/>
@@ -2950,7 +2950,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.ui" line="17"/>
         <source>Missions</source>
-        <translation type="unfinished"></translation>
+        <translation>Nhiệm vụ</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="35"/>
@@ -2960,42 +2960,42 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.ui" line="52"/>
         <source>Add Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Thêm phần thưởng</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="59"/>
         <source>Add Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Thêm nhiệm vụ</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
         <source>Delete Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>Xóa nhiệm vụ</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="93"/>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>Di chuyển lên</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="100"/>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>Di chuyển xuống</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="113"/>
         <source>First Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Ghé thăm lần đầu</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="141"/>
         <source>Next Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>Ghé thăm lần sau</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="163"/>
         <source>Completed</source>
-        <translation type="unfinished"></translation>
+        <translation>Đã hoàn thành</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="199"/>
@@ -3005,12 +3005,12 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.ui" line="214"/>
         <source>Repeatable</source>
-        <translation type="unfinished"></translation>
+        <translation>Có thể lặp lại</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="224"/>
         <source>Set Deadline</source>
-        <translation type="unfinished"></translation>
+        <translation>Đặt thời hạn</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="245"/>
@@ -3035,7 +3035,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.ui" line="353"/>
         <source>Spell points</source>
-        <translation type="unfinished">Điểm phép thuật</translation>
+        <translation>Năng lượng</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="373"/>
@@ -3070,7 +3070,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.ui" line="458"/>
         <source>Spell power</source>
-        <translation type="unfinished">Sức mạnh phép thuật</translation>
+        <translation>Lực phép</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="468"/>
@@ -3100,7 +3100,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.ui" line="659"/>
         <source>Creatures</source>
-        <translation type="unfinished">Sinh vật</translation>
+        <translation>Quân</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="708"/>
@@ -3140,17 +3140,17 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/questwidget.cpp" line="324"/>
         <source>%1 quest on position %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nhiệm vụ ở vị trí %2</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="516"/>
         <source>Add reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Thêm phần thưởng</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="516"/>
         <source>Remove reward</source>
-        <translation type="unfinished"></translation>
+        <translation>Xóa phần thưởng</translation>
     </message>
 </context>
 <context>
@@ -3168,7 +3168,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="76"/>
         <source>Spell points</source>
-        <translation type="unfinished">Điểm phép thuật</translation>
+        <translation>Năng lượng</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="99"/>
@@ -3210,7 +3210,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="231"/>
         <source>Spell power</source>
-        <translation type="unfinished">Sức mạnh phép thuật</translation>
+        <translation>Lực phép</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="245"/>
@@ -3240,7 +3240,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="428"/>
         <source>Creatures</source>
-        <translation type="unfinished"></translation>
+        <translation>Quân</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="477"/>
@@ -3405,7 +3405,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/rewardswidget.ui" line="398"/>
         <source>Spell points</source>
-        <translation type="unfinished">Điểm phép thuật</translation>
+        <translation>Năng lượng</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="418"/>
@@ -3442,7 +3442,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/rewardswidget.ui" line="478"/>
         <source>Spell power</source>
-        <translation type="unfinished">Sức mạnh phép thuật</translation>
+        <translation>Lực phép</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.ui" line="488"/>
@@ -3472,7 +3472,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../inspector/rewardswidget.ui" line="667"/>
         <source>Creatures</source>
-        <translation type="unfinished">Sinh vật</translation>
+        <translation>Quân</translation>
     </message>
     <message>
         <source>Bonuses</source>
@@ -3966,7 +3966,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
         <location filename="../campaigneditor/startingbonus.ui" line="34"/>
         <location filename="../campaigneditor/startingbonus.ui" line="134"/>
         <source>Creature</source>
-        <translation type="unfinished">Sinh vật</translation>
+        <translation>Quân</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="41"/>
@@ -4023,7 +4023,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="150"/>
         <source>Creature type</source>
-        <translation type="unfinished">Loại sinh vật</translation>
+        <translation>Loại quân</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="160"/>
@@ -4044,7 +4044,7 @@ Thêm nó vào danh sách mod yêu cầu trong Bản đồ → Thiết lập chu
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="330"/>
         <source>Spell power</source>
-        <translation type="unfinished">Sức mạnh phép thuật</translation>
+        <translation>Lực phép</translation>
     </message>
     <message>
         <location filename="../campaigneditor/startingbonus.ui" line="340"/>
@@ -5014,7 +5014,7 @@ Lính gác: %3</translation>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="164"/>
         <source>affects neutral town</source>
-        <translation type="unfinished"></translation>
+        <translation>ảnh hưởng đến thành trung lập</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="173"/>
