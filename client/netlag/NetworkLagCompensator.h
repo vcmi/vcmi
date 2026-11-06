@@ -29,6 +29,9 @@ class NetworkLagCompensator final : public IGameServer, public INetworkConnectio
 	static constexpr uint32_t invalidPackageID = std::numeric_limits<uint32_t>::max();
 	uint32_t currentPackageID = invalidPackageID;
 
+	/// Reverts all unconfirmed predictions, newest first, so packs received from server can be applied on top of confirmed state
+	void rollbackAllPredictions();
+
 	// IGameServer impl
 	void setState(EServerState value) override;
 	EServerState getState() const override;
@@ -46,5 +49,5 @@ public:
 	~NetworkLagCompensator();
 
 	void tryPredictReply(const CPackForServer & request);
-	bool verifyReply(const CPackForClient & reply);
+	bool verifyReply(CPackForClient & reply);
 };

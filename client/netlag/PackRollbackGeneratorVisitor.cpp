@@ -72,14 +72,6 @@ void PackRollbackGeneratorVisitor::visitRebalanceStacks(RebalanceStacks & pack)
 	success = true;
 }
 
-void PackRollbackGeneratorVisitor::visitBulkRebalanceStacks(BulkRebalanceStacks & pack)
-{
-	for(auto & subpack : pack.moves)
-		visitRebalanceStacks(subpack);
-
-	success = true;
-}
-
 void PackRollbackGeneratorVisitor::visitHeroVisitCastle(HeroVisitCastle & pack)
 {
 	auto rollbackVisit = std::make_unique<HeroVisitCastle>();

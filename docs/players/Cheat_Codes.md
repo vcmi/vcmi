@@ -187,7 +187,6 @@ Game objects data is exported by the server instead: run `vcmiserver --export-co
 - `showVisitable` - show visitable tiles on map
 - `showInvisible` - show invisible tiles (events, grail) on map
 - `hideSystemMessages` - suppress server messages in chat
-- `antilag` - toggles network lag compensation in multiplayer on or off
 
 `showBlocked`, `showVisitable` and `showInvisible` only works if cheats are enabled.
 
