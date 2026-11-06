@@ -14,6 +14,7 @@
 #include "../GameLibrary.h"
 #include "../json/JsonNode.h"
 #include "../json/JsonValidator.h"
+#include "../modding/CModHandler.h"
 #include "../modding/IdentifierResolver.h"
 #include "../modding/LibraryLoadContext.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -96,7 +97,7 @@ void ScriptHandler::loadObject(LibraryLoadContext & context, const std::string &
 		context.lib.generaltexth->registerString(scope, description.descriptionTextID, data["description"]);
 	}
 
-	factory->initialize(description);
+	factory->initialize(description, context.lib.modh->getFilesystem());
 
 	// a stateless script is shared, so it is created once here rather than on every event
 	if(description.kind == ScriptKind::COMBAT_EVENT)

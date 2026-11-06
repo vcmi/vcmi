@@ -79,7 +79,7 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(LibraryLoadContext & context)
 
 	JsonNode roeMapping;
 	if(isRoe)
-		roeMapping = JsonNode(JsonPath::builtin("config/roeStringMapping.json"));
+		roeMapping = JsonNode(JsonPath::builtin("config/roeStringMapping.json"), context.filesystem);
 	const JsonVector & artNewLines = roeMapping["newLines"]["DATA/ARTRAITS.TXT"].Vector();
 
 	for (size_t i = 0; i < dataSize; i++)

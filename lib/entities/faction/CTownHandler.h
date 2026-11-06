@@ -63,7 +63,7 @@ class DLL_LINKAGE CTownHandler : public CHandlerBase<FactionID, Faction, CFactio
 	std::unique_ptr<CFaction> randomFaction;
 
 public:
-	CTownHandler();
+	explicit CTownHandler(LibraryLoadContext & context);
 	~CTownHandler();
 
 	std::vector<JsonNode> loadLegacyData(LibraryLoadContext & context) override;

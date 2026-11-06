@@ -15,6 +15,7 @@
 
 class CGObjectInstance;
 class CMap;
+class ISimpleResourceLoader;
 
 /// Represents a map rectangle.
 struct MapRect
@@ -217,7 +218,7 @@ class DLL_LINKAGE CTerrainViewPatternConfig : public boost::noncopyable
 public:
 	using TVPVector = std::vector<TerrainViewPattern>;
 
-	CTerrainViewPatternConfig();
+	explicit CTerrainViewPatternConfig(const ISimpleResourceLoader & filesystem);
 
 	const std::vector<TVPVector> & getTerrainViewPatterns(TerrainId terrain) const;
 	std::optional<const std::reference_wrapper<const TerrainViewPattern>> getTerrainViewPatternById(const std::string & patternId, const std::string & id) const;

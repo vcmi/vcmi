@@ -19,6 +19,7 @@ class CBinaryReader;
 class CLegacyConfigParser;
 class JsonNode;
 class IIdentifierResolver;
+class ISimpleResourceLoader;
 class int3;
 
 class DLL_LINKAGE ObjectTemplate : public Serializeable
@@ -133,8 +134,8 @@ public:
 
 	ObjectTemplate();
 
-	void readTxt(CLegacyConfigParser & parser);
-	void readMsk();
+	void readTxt(CLegacyConfigParser & parser, const ISimpleResourceLoader & filesystem);
+	void readMsk(const ISimpleResourceLoader & filesystem);
 	void readMap(CBinaryReader & reader);
 	void readJson(const JsonNode & node, IIdentifierResolver & resolver, bool withTerrain = true);
 	void writeJson(JsonNode & node, bool withTerrain = true) const;

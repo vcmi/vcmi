@@ -15,6 +15,7 @@
 #include "../lib/filesystem/ResourcePath.h"
 
 class JsonNode;
+class CResourceHandler;
 class JsonSerializeFormat;
 class Services;
 
@@ -39,7 +40,7 @@ public:
 	/// Builds the chain from resource files: layer[0] is the base, layer[1..] are patches in declared order.
 	/// patches entries are (modScope, sourcePath) pairs.
 	/// Failed-to-load patch layers are skipped with a logged error; failed base load leaves layers empty.
-	LuaScriptInstance(const LuaModule & host,
+	LuaScriptInstance(const LuaModule & host, const CResourceHandler & filesystem,
 		const std::string & baseScope, const ScriptPath & basePath,
 		const std::vector<std::pair<std::string, std::string>> & patches);
 
@@ -61,7 +62,7 @@ public:
 private:
 	std::string baseModScope;
 	std::string baseSourcePath;
-	void loadLayer(const std::string & modScope, const ScriptPath & sourcePath);
-	void loadLayer(const std::string & modScope, const std::string & sourcePath);
+	void loadLayer(const CResourceHandler & filesystem, const std::string & modScope, const ScriptPath & sourcePath);
+	void loadLayer(const CResourceHandler & filesystem, const std::string & modScope, const std::string & sourcePath);
 };
 }

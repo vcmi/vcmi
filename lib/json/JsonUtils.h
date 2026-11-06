@@ -38,8 +38,10 @@ namespace JsonUtils
 	*/
 	DLL_LINKAGE void inherit(JsonNode & descendant, const JsonNode & base);
 
-	/// Generates one Json structure from all files with specified name, including those overridden by mods
+	/// Generates one Json structure from all files with specified name in current filesystem, including those overridden by mods
 	DLL_LINKAGE JsonNode assembleFromFiles(const std::string & filename);
+	/// Generates one Json structure from all files with specified name in provided filesystem, including those overridden by mods
+	DLL_LINKAGE JsonNode assembleFromFiles(const ISimpleResourceLoader & filesystem, const std::string & filename);
 
 	/**
 	 * @brief removes all nodes that are identical to default entry in schema

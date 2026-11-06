@@ -116,7 +116,7 @@ public:
 	static void setCurrent(const CResourceHandler * filesystem);
 
 	/// Returns filesystem accessed by get()
-	static const CResourceHandler * getCurrent();
+	static const CResourceHandler & getCurrent();
 
 	/// Returns loader with provided name from this filesystem, or from base filesystem if this filesystem does not have it
 	ISimpleResourceLoader * getLoader(const std::string & identifier) const;

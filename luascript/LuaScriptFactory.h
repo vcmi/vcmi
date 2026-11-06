@@ -27,7 +27,7 @@ public:
 	LuaScriptStore(LuaModule & host);
 	~LuaScriptStore();
 
-	void load(const ScriptTypeDescription & description);
+	void load(const ScriptTypeDescription & description, const CResourceHandler & filesystem);
 
 	const LuaScriptInstance * get(const std::string & scriptId) const;
 
@@ -45,7 +45,7 @@ class LuaScriptFactory final : public IScriptFactory
 public:
 	LuaScriptFactory(LuaScriptStore & store);
 
-	void initialize(const ScriptTypeDescription & description) override;
+	void initialize(const ScriptTypeDescription & description, const CResourceHandler & filesystem) override;
 
 	std::shared_ptr<ICombatEventScript> createCombatEventScript(const std::string & scriptId) const override;
 	std::shared_ptr<IDamageCalculatorScript> createDamageCalculatorScript(const std::string & scriptId) const override;

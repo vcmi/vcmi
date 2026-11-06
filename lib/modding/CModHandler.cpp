@@ -37,7 +37,7 @@ CModHandler::CModHandler(bool useTestPreset)
 
 CModHandler::~CModHandler()
 {
-	if (CResourceHandler::getCurrent() == filesystem.get())
+	if (&CResourceHandler::getCurrent() == filesystem.get())
 		CResourceHandler::setCurrent(nullptr);
 }
 

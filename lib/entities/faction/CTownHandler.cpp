@@ -35,8 +35,8 @@
 
 const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
 
-CTownHandler::CTownHandler()
-	: buildingsLibrary(JsonPath::builtin("config/buildingsLibrary"))
+CTownHandler::CTownHandler(LibraryLoadContext & context)
+	: buildingsLibrary(JsonPath::builtin("config/buildingsLibrary"), context.filesystem)
 	, randomFaction(std::make_unique<CFaction>())
 {
 	randomFaction->setTown(std::make_unique<CTown>());
@@ -905,7 +905,7 @@ void CTownHandler::loadObject(LibraryLoadContext & context, const std::string & 
 
 void CTownHandler::loadRandomFaction(LibraryLoadContext & context)
 {
-	JsonNode randomFactionJson(JsonPath::builtin("config/factions/random.json"));
+	JsonNode randomFactionJson(JsonPath::builtin("config/factions/random.json"), context.filesystem);
 	randomFactionJson.setModScope(ModScope::scopeBuiltin(), true);
 	loadBuildings(context, randomFaction->town.get(), randomFactionJson["random"]["town"]["buildings"]);
 }

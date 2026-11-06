@@ -118,7 +118,7 @@ std::vector<JsonNode> CObjectClassesHandler::loadLegacyData(LibraryLoadContext &
 	{
 		auto tmpl = std::make_shared<ObjectTemplate>();
 
-		tmpl->readTxt(parser);
+		tmpl->readTxt(parser, context.filesystem);
 		parser.endLine();
 
 		std::pair key(tmpl->id, tmpl->subid);

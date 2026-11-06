@@ -17,6 +17,7 @@
 #include "../IGameSettings.h"
 #include "../json/JsonUtils.h"
 #include "../json/JsonValidator.h"
+#include "../modding/CModHandler.h"
 #include "../modding/ModScope.h"
 
 MapIdentifiersH3M MapFormatSettings::generateMapping(const GameLibrary & library, EMapFormat format)
@@ -82,8 +83,8 @@ std::map<EMapFormat, MapIdentifiersH3M> MapFormatSettings::generateMappings(cons
 MapFormatSettings::MapFormatSettings(const GameLibrary & library)
 	: mapping(generateMappings(library))
 	, campaignToMap(generateCampaignMapping())
-	, campaignOverridesConfig(JsonUtils::assembleFromFiles("config/campaignOverrides.json"))
-	, mapOverridesConfig(JsonUtils::assembleFromFiles("config/mapOverrides.json"))
+	, campaignOverridesConfig(JsonUtils::assembleFromFiles(library.modh->getRootFilesystem(), "config/campaignOverrides.json"))
+	, mapOverridesConfig(JsonUtils::assembleFromFiles(library.modh->getRootFilesystem(), "config/mapOverrides.json"))
 {
 	JsonValidator validator;
 	for (auto & entry : mapOverridesConfig.Struct())

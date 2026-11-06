@@ -113,33 +113,16 @@ JsonNode::JsonNode(const char * stringData, size_t dataSize, const JsonParsingSe
 }
 
 JsonNode::JsonNode(const JsonPath & fileURI)
-	:JsonNode(fileURI, JsonParsingSettings())
+	:JsonNode(fileURI, *CResourceHandler::get())
 {
 }
 
-JsonNode::JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings)
+JsonNode::JsonNode(const JsonPath & fileURI, const ISimpleResourceLoader & filesystem)
 {
-	auto file = CResourceHandler::get()->load(fileURI)->readAll();
-
-	JsonParser parser(reinterpret_cast<std::byte *>(file.first.get()), file.second, parserSettings);
-	*this = parser.parse(fileURI.getName());
-}
-
-JsonNode::JsonNode(const JsonPath & fileURI, const std::string & modName)
-{
-	auto file = CResourceHandler::get(modName)->load(fileURI)->readAll();
+	auto file = filesystem.load(fileURI)->readAll();
 
 	JsonParser parser(reinterpret_cast<std::byte *>(file.first.get()), file.second, JsonParsingSettings());
 	*this = parser.parse(fileURI.getName());
-}
-
-JsonNode::JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings, const std::string & modName, bool & isValidSyntax)
-{
-	auto file = CResourceHandler::get(modName)->load(fileURI)->readAll();
-
-	JsonParser parser(reinterpret_cast<std::byte *>(file.first.get()), file.second, parserSettings);
-	*this = parser.parse(fileURI.getName());
-	isValidSyntax = parser.isValid();
 }
 
 bool JsonNode::operator==(const JsonNode & other) const

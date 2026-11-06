@@ -205,7 +205,7 @@ ISimpleResourceLoader * CResourceHandler::get()
 
 ISimpleResourceLoader * CResourceHandler::get(const std::string & identifier)
 {
-	return (currentFilesystem ? *currentFilesystem : baseFilesystem).getLoader(identifier);
+	return getCurrent().getLoader(identifier);
 }
 
 ISimpleResourceLoader * CResourceHandler::getLoader(const std::string & identifier) const
@@ -223,9 +223,9 @@ void CResourceHandler::setCurrent(const CResourceHandler * filesystem)
 	currentFilesystem = filesystem;
 }
 
-const CResourceHandler * CResourceHandler::getCurrent()
+const CResourceHandler & CResourceHandler::getCurrent()
 {
-	return currentFilesystem;
+	return currentFilesystem ? *currentFilesystem : baseFilesystem;
 }
 
 std::unique_ptr<CResourceHandler> CResourceHandler::createLibraryFilesystem(const std::vector<std::pair<std::string, std::shared_ptr<ISimpleResourceLoader>>> & modFilesystems)

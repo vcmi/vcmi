@@ -20,6 +20,7 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjects/ObjectTemplate.h"
+#include "../modding/CModHandler.h"
 #include "../modding/IdentifierStorage.h"
 
 template<typename IdentifierID>
@@ -36,6 +37,8 @@ void MapIdentifiersH3M::loadMapping(const GameLibrary & library, std::map<Identi
 
 void MapIdentifiersH3M::loadMapping(const GameLibrary & library, const JsonNode & mapping)
 {
+	const auto & filesystem = library.modh->getRootFilesystem();
+
 	if (!mapping["supported"].Bool())
 		throw std::runtime_error("Unsupported map format!");
 
@@ -62,8 +65,8 @@ void MapIdentifiersH3M::loadMapping(const GameLibrary & library, const JsonNode 
 		AnimationPath h3mName = AnimationPath::builtinTODO(entryTemplate.second.String());
 		AnimationPath vcmiName = AnimationPath::builtinTODO(entryTemplate.first);
 
-		if (!CResourceHandler::get()->existsResource(vcmiName.addPrefix("SPRITES/")) &&
-		   !CResourceHandler::get()->existsResource(vcmiName.addPrefix("SPRITES/").toType<EResType::JSON>()))
+		if (!filesystem.existsResource(vcmiName.addPrefix("SPRITES/")) &&
+		   !filesystem.existsResource(vcmiName.addPrefix("SPRITES/").toType<EResType::JSON>()))
 			logMod->warn("Template animation file %s was not found!", vcmiName.getOriginalName());
 
 		mappingObjectTemplate[h3mName] = vcmiName;

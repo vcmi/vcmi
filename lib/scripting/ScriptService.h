@@ -20,6 +20,7 @@ class JsonNode;
 class TextIdentifier;
 class IIdentifierResolver;
 class LibraryLoadContext;
+class CResourceHandler;
 
 namespace spells::effects
 {
@@ -33,8 +34,8 @@ class DLL_LINKAGE IScriptFactory
 public:
 	virtual ~IScriptFactory() = default;
 
-	/// Loads the base source and any patch layers, keeping them under description.scriptId.
-	virtual void initialize(const ScriptTypeDescription & description) = 0;
+	/// Loads the base source and any patch layers from provided filesystem, keeping them under description.scriptId.
+	virtual void initialize(const ScriptTypeDescription & description, const CResourceHandler & filesystem) = 0;
 
 	/// One creator per script kind. Returning null is a load error, which the handler reports
 	/// rather than passing on.

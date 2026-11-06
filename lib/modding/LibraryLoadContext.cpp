@@ -28,6 +28,7 @@ static EContentValidation readValidationSetting()
 
 LibraryLoadContext::LibraryLoadContext(GameLibrary & lib)
 	: lib(lib)
+	, filesystem(lib.modh->getRootFilesystem())
 	, validation(readValidationSetting())
 	, resolver(*lib.identifiersHandler)
 	, content(*this)

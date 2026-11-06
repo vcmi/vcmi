@@ -186,15 +186,16 @@ void GameLibrary::initializeFilesystem(bool useTestPreset)
 	loadModFilesystem(useTestPreset);
 
 	// Detect game data mode after filesystem is loaded
+	const bool hasDemoMap = modh->getRootFilesystem().existsResource(ResourcePath("MAPS/H3DEMO.H3M"));
 	gameDataMode = GameDataMode::SOD;
 	if(CGeneralTextHandler::isRoEData())
 	{
-		if(CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M")))
+		if(hasDemoMap)
 			gameDataMode = GameDataMode::DEMO_ROE;
 		else
 			gameDataMode = GameDataMode::ROE;
 	}
-	else if(CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M")))
+	else if(hasDemoMap)
 		gameDataMode = GameDataMode::DEMO_SOD;
 
 	if(gameDataMode == GameDataMode::DEMO_ROE || gameDataMode == GameDataMode::DEMO_SOD)
@@ -239,14 +240,14 @@ void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 	createHandler(heroclassesh);
 	createHandler(arth);
 	creh = std::make_unique<CCreatureHandler>(context);
-	createHandler(townh);
+	townh = std::make_unique<CTownHandler>(context);
 	createHandler(biomeHandler);
 	createHandler(objtypeh);
 	createHandler(spellSchoolHandler);
 	createHandler(spellh);
 	createHandler(scriptTypeHandler);
 	createHandler(skillh);
-	createHandler(terviewh);
+	terviewh = std::make_unique<CTerrainViewPatternConfig>(context.filesystem);
 	createHandler(campaignRegions);
 	createHandler(tplh); //templates need already resolved identifiers (refactor?)
 	createHandler(battlefieldsHandler);
