@@ -164,6 +164,14 @@ void initializeBaseFilesystem(bool extractArchives, bool useTestPreset)
 	CGeneralTextHandler::detectInstallParameters();
 }
 
+void setGameLibrary(std::unique_ptr<GameLibrary> library)
+{
+	const GameLibrary * previous = LIBRARY;
+	CResourceHandler::setCurrent(library ? &library->modh->getFilesystem() : nullptr);
+	LIBRARY = library.release();
+	delete previous;
+}
+
 void GameLibrary::loadModFilesystem(bool useTestPreset)
 {
 	CStopWatch loadTime;

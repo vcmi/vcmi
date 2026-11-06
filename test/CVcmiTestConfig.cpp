@@ -23,7 +23,7 @@ void CVcmiTestConfig::SetUp()
 	auto library = std::make_unique<GameLibrary>();
 	library->initializeFilesystem(/*useTestPreset*/ true);
 	library->initializeLibrary();
-	LIBRARY = library.release();
+	setGameLibrary(std::move(library));
 }
 
 void CVcmiTestConfig::TearDown()

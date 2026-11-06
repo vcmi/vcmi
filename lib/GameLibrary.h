@@ -157,4 +157,7 @@ public:
 /// Mounts game data, user directories and process-wide settings. Called once per process, before any library is created. Can also extract original H3 archives
 DLL_LINKAGE void initializeBaseFilesystem(bool extractArchives, bool useTestPreset = false);
 
+/// Makes provided library and its filesystem current, then destroys previous library. Null leaves no library, with base filesystem current
+DLL_LINKAGE void setGameLibrary(std::unique_ptr<GameLibrary> library);
+
 extern DLL_LINKAGE const GameLibrary * LIBRARY;

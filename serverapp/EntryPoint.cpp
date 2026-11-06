@@ -90,7 +90,7 @@ static void generateTranslations(const std::string & modID)
 	std::map<std::string, ExportedStrings> textsByMod;
 	std::vector<std::string> modsWithOverrides;
 
-	LIBRARY = loadLibrary().release();
+	setGameLibrary(loadLibrary());
 
 	{
 		CMapService mapService;
@@ -207,8 +207,7 @@ static void generateTranslations(const std::string & modID)
 	}
 
 
-	delete LIBRARY;
-	LIBRARY = loadLibrary().release();
+	setGameLibrary(loadLibrary());
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
 
 	for(const auto & modEntry : textsByMod)
@@ -367,7 +366,7 @@ int main(int argc, const char * argv[])
 	}
 	else
 		library->initializeLibrary();
-	LIBRARY = library.release();
+	setGameLibrary(std::move(library));
 
 	if(opts.count("creature-values"))
 	{
@@ -389,6 +388,6 @@ int main(int argc, const char * argv[])
 
 	logConfigurator.deconfigure();
 
-	delete LIBRARY;
+	setGameLibrary(nullptr);
 	return 0;
 }

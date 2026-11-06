@@ -127,6 +127,9 @@ public:
 	GameEngine();
 	~GameEngine();
 
+	/// Creates sound and music players. They read game data on creation, so the game library must be loaded
+	void initAudio();
+
 	/// Performs main game loop till game shutdown
 	/// This method never returns, to abort main loop throw GameShutdownException
 	[[noreturn]] void mainLoop();

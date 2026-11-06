@@ -35,11 +35,7 @@ CModHandler::CModHandler(bool useTestPreset)
 {
 }
 
-CModHandler::~CModHandler()
-{
-	if (&CResourceHandler::getCurrent() == filesystem.get())
-		CResourceHandler::setCurrent(nullptr);
-}
+CModHandler::~CModHandler() = default;
 
 const CResourceHandler & CModHandler::getFilesystem() const
 {
@@ -183,7 +179,6 @@ void CModHandler::loadModFilesystems()
 		checkModFilesystemsConflicts(modFilesystems);
 
 	filesystem = CResourceHandler::createLibraryFilesystem(modFilesystems);
-	CResourceHandler::setCurrent(filesystem.get());
 }
 
 void CModHandler::checkModFilesystemsConflicts(const TModFilesystems & modFilesystems)

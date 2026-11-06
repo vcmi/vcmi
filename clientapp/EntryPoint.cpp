@@ -319,9 +319,9 @@ int main(int argc, char * argv[])
 	try
 	{
 		// Some basic data validation to produce better error messages in cases of incorrect install
-		auto testFile = [](const std::string & filename, const std::string & message)
+		auto testFile = [&library](const std::string & filename, const std::string & message)
 		{
-			if (!CResourceHandler::get()->existsResource(ResourcePath(filename)))
+			if (!library->modh->getRootFilesystem().existsResource(ResourcePath(filename)))
 				handleFatalError(message, false);
 		};
 
@@ -373,11 +373,12 @@ int main(int argc, char * argv[])
 			handleFatalError(criticalInitializationError.value(), false);
 		}
 
-		LIBRARY = library.release();
+		setGameLibrary(std::move(library));
 
 		if (ENGINE)
 		{
 			pomtime.getDiff();
+			ENGINE->initAudio();
 			graphics = new Graphics(); // should be before curh
 			ENGINE->renderHandler().onLibraryLoadingFinished(LIBRARY);
 
@@ -485,8 +486,7 @@ int main(int argc, char * argv[])
 				ENGINE.reset();
 			}
 
-			delete LIBRARY;
-			LIBRARY = nullptr;
+			setGameLibrary(nullptr);
 			logConfigurator.deconfigure();
 
 			std::cout << "Ending...\n";

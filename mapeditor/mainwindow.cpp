@@ -460,7 +460,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	setTitle();
 
 	library->initializeLibrary();
-	LIBRARY = library.release();
+	setGameLibrary(std::move(library));
 
 	Settings config = settings.write["session"]["editor"];
 	config->Bool() = true;
