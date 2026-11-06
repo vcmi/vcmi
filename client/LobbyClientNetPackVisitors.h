@@ -40,6 +40,7 @@ public:
 	void visitLobbyModsCheck(LobbyModsCheck & pack) override;
 	void visitLobbyUpdateState(LobbyUpdateState & pack) override;
 	void visitLobbyUpdateMapInfo(LobbyUpdateMapInfo & pack) override;
+	void visitLobbyShowMessage(LobbyShowMessage & pack) override;
 };
 
 class ApplyOnLobbyScreenNetPackVisitor : public ::ICPackVisitor

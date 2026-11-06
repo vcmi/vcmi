@@ -212,25 +212,19 @@ void CModHandler::checkModFilesystemsConflicts(const TModFilesystems & modFilesy
 
 TModID CModHandler::findResourceOrigin(const ResourcePath & name) const
 {
-	try
+	const auto & activeMode = modManager->getActiveMods();
+	for(const auto & modID : std::views::reverse(activeMode))
 	{
-		const auto & activeMode = modManager->getActiveMods();
-		for(const auto & modID : std::views::reverse(activeMode))
-		{
-			if(filesystem->getLoader(modID)->existsResource(name))
-				return modID;
-		}
-
-		if(filesystem->getLoader(ModScope::scopeBuiltin())->existsResource(name))
-			return "core";
-
-		if(filesystem->getLoader("mapEditor")->existsResource(name))
-			return "mapEditor"; // Workaround for loading maps via map editor
+		if(filesystem->getLoader(modID)->existsResource(name))
+			return modID;
 	}
-	catch( const std::out_of_range & e)
-	{
-		// no-op
-	}
+
+	if(filesystem->getLoader(ModScope::scopeBuiltin())->existsResource(name))
+		return "core";
+
+	if(filesystem->hasLoader("mapEditor") && filesystem->getLoader("mapEditor")->existsResource(name))
+		return "mapEditor"; // Workaround for loading maps via map editor
+
 	throw std::runtime_error("Resource with name " + name.getName() + " and type " + EResTypeHelper::getEResTypeAsString(name.getType()) + " wasn't found.");
 }
 
