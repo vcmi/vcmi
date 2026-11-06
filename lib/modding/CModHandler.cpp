@@ -35,7 +35,22 @@ CModHandler::CModHandler(bool useTestPreset)
 {
 }
 
-CModHandler::~CModHandler() = default;
+CModHandler::~CModHandler()
+{
+	if (CResourceHandler::getCurrent() == filesystem.get())
+		CResourceHandler::setCurrent(nullptr);
+}
+
+const CResourceHandler & CModHandler::getFilesystem() const
+{
+	assert(filesystem);
+	return *filesystem;
+}
+
+const ISimpleResourceLoader & CModHandler::getRootFilesystem() const
+{
+	return *getFilesystem().getLoader("root");
+}
 
 const std::vector<TModID> & CModHandler::getModsWithFailedRequests() const
 {
@@ -91,7 +106,7 @@ struct ModFiles
 };
 
 /// Reads all files from provided list and merges them into a single node, in the order in which mod.json lists them
-static ModFiles assembleModFiles(const TModID & modName, const JsonNode & fileList)
+static ModFiles assembleModFiles(const ISimpleResourceLoader & modFilesystem, const JsonNode & fileList)
 {
 	ModFiles result;
 
@@ -110,14 +125,14 @@ static ModFiles assembleModFiles(const TModID & modName, const JsonNode & fileLi
 	{
 		JsonPath path = JsonPath::builtinTODO(fileNames[i]);
 
-		if (!CResourceHandler::get(modName)->existsResource(path))
+		if (!modFilesystem.existsResource(path))
 		{
 			logMod->error("Failed to find file %s", fileNames[i]);
 			result.valid = false;
 			continue;
 		}
 
-		fileContents[i] = CResourceHandler::get(modName)->load(path)->readAll();
+		fileContents[i] = modFilesystem.load(path)->readAll();
 		checksum = crc32(checksum, fileContents[i].first.get(), static_cast<uInt>(fileContents[i].second));
 	}
 
@@ -149,29 +164,29 @@ static std::unique_ptr<ISimpleResourceLoader> genModFilesystem(const std::string
 
 void CModHandler::loadModFilesystems()
 {
-	const auto & activeMods = modManager->getActiveMods();
+	// virtual mod 'core' has no filesystem on its own - shared with base install
+	std::vector<TModID> mods;
+	std::ranges::copy_if(modManager->getActiveMods(), std::back_inserter(mods), [](const TModID & modName){ return modName != ModScope::scopeBuiltin(); });
 
 	// mod filesystems are independent from each other, and their creation is dominated by reading of archive indexes
-	std::vector<std::unique_ptr<ISimpleResourceLoader>> loadedFilesystems(activeMods.size());
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, activeMods.size()), [this, &activeMods, &loadedFilesystems](const tbb::blocked_range<size_t> & range)
+	TModFilesystems modFilesystems(mods.size());
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, mods.size()), [&](const tbb::blocked_range<size_t> & range)
 	{
 		for(size_t i = range.begin(); i != range.end(); ++i)
-			loadedFilesystems[i] = genModFilesystem(activeMods[i], getModInfo(activeMods[i]).getFilesystemConfig());
+		{
+			const TModID & modName = mods[i];
+			modFilesystems[i] = {modName, genModFilesystem(modName, getModInfo(modName).getFilesystemConfig())};
+		}
 	});
-
-	std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> modFilesystems;
-	for(size_t i = 0; i < activeMods.size(); ++i)
-		modFilesystems[activeMods[i]] = std::move(loadedFilesystems[i]);
 
 	if (settings["mods"]["validation"].String() == "full")
 		checkModFilesystemsConflicts(modFilesystems);
 
-	for(const TModID & modName : activeMods)
-		if (modName != "core") // virtual mod 'core' has no filesystem on its own - shared with base install
-			CResourceHandler::addFilesystem("data", modName, std::move(modFilesystems[modName]));
+	filesystem = CResourceHandler::createLibraryFilesystem(modFilesystems);
+	CResourceHandler::setCurrent(filesystem.get());
 }
 
-void CModHandler::checkModFilesystemsConflicts(const std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> & modFilesystems)
+void CModHandler::checkModFilesystemsConflicts(const TModFilesystems & modFilesystems)
 {
 	for(const auto & [leftName, leftFilesystem] : modFilesystems)
 	{
@@ -207,14 +222,14 @@ TModID CModHandler::findResourceOrigin(const ResourcePath & name) const
 		const auto & activeMode = modManager->getActiveMods();
 		for(const auto & modID : std::views::reverse(activeMode))
 		{
-			if(CResourceHandler::get(modID)->existsResource(name))
+			if(filesystem->getLoader(modID)->existsResource(name))
 				return modID;
 		}
 
-		if(CResourceHandler::get("core")->existsResource(name))
+		if(filesystem->getLoader(ModScope::scopeBuiltin())->existsResource(name))
 			return "core";
 
-		if(CResourceHandler::get("mapEditor")->existsResource(name))
+		if(filesystem->getLoader("mapEditor")->existsResource(name))
 			return "mapEditor"; // Workaround for loading maps via map editor
 	}
 	catch( const std::out_of_range & e)
@@ -306,7 +321,7 @@ static bool testFilePresence(const CModHandler & modHandler, const std::string &
 	{
 		try
 		{
-			if (CResourceHandler::get(entry)->existsResource(resource))
+			if (modHandler.getFilesystem().getLoader(entry)->existsResource(resource))
 				return true;
 		}
 		catch (const std::out_of_range &)
@@ -414,13 +429,14 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 	const auto & mod = getModInfo(modName);
 	const JsonNode & modConfig = mod.getLocalConfig();
 	const std::string & modBaseLanguage = mod.getBaseLanguage();
+	const ISimpleResourceLoader & modFilesystem = *filesystem->getLoader(modName);
 
 	// content of one type does not depend on content of any other type, so all types can be loaded in parallel
 	std::vector<ModFiles> contentFiles(contentTypes.size());
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, contentTypes.size()), [&](const tbb::blocked_range<size_t> & range)
 	{
 		for (size_t i = range.begin(); i != range.end(); ++i)
-			contentFiles[i] = assembleModFiles(modName, modConfig[contentTypes[i]]);
+			contentFiles[i] = assembleModFiles(modFilesystem, modConfig[contentTypes[i]]);
 	});
 
 	// translations are usually the largest files that a mod provides, so load all languages at once
@@ -429,11 +445,11 @@ JsonNode CModHandler::loadModContent(const TModID & modName, const std::vector<s
 	ModFiles fallbackTranslation;
 
 	tbb::parallel_invoke(
-		[&]{ baseTranslation = assembleModFiles(modName, modConfig["translations"]); },
-		[&]{ extraTranslation = assembleModFiles(modName, modConfig[preferredLanguage]["translations"]); },
+		[&]{ baseTranslation = assembleModFiles(modFilesystem, modConfig["translations"]); },
+		[&]{ extraTranslation = assembleModFiles(modFilesystem, modConfig[preferredLanguage]["translations"]); },
 		[&]{
 			if (preferredLanguage != modBaseLanguage)
-				fallbackTranslation = assembleModFiles(modName, modConfig[modBaseLanguage]["translations"]);
+				fallbackTranslation = assembleModFiles(modFilesystem, modConfig[modBaseLanguage]["translations"]);
 		});
 
 	uLong modChecksum = 0;

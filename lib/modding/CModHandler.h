@@ -16,14 +16,19 @@ class ModDescription;
 class ResourcePath;
 class ModManager;
 class ISimpleResourceLoader;
+class CResourceHandler;
 class LibraryLoadContext;
 struct JsonValidator;
 
 using TModID = std::string;
+using TModFilesystems = std::vector<std::pair<TModID, std::shared_ptr<ISimpleResourceLoader>>>;
 
 class DLL_LINKAGE CModHandler final : boost::noncopyable
 {
 	std::unique_ptr<ModManager> modManager;
+
+	/// Filesystem with active mods mounted, created by loadModFilesystems
+	std::unique_ptr<CResourceHandler> filesystem;
 
 	/// Mods from which at least one identifier request has failed to resolve while loading library content
 	std::vector<TModID> modsWithFailedRequests;
@@ -33,7 +38,7 @@ class DLL_LINKAGE CModHandler final : boost::noncopyable
 	JsonNode loadModContent(const TModID & modName, const std::vector<std::string> & contentTypes, const std::string & preferredLanguage, uint32_t & checksum, bool & isValid) const;
 
 	void loadTranslation(LibraryLoadContext & context, const TModID & modName);
-	void checkModFilesystemsConflicts(const std::map<TModID, std::unique_ptr<ISimpleResourceLoader>> & modFilesystems);
+	void checkModFilesystemsConflicts(const TModFilesystems & modFilesystems);
 
 	bool isModValidationNeeded(const LibraryLoadContext & context, const ModDescription & mod) const;
 
@@ -41,6 +46,12 @@ public:
 	/// receives list of available mods and trying to load mod.json from all of them
 	void initializeConfig(LibraryLoadContext & context);
 	void loadModFilesystems();
+
+	/// Filesystem with all active mods mounted
+	const CResourceHandler & getFilesystem() const;
+
+	/// Root loader of the filesystem with all active mods mounted
+	const ISimpleResourceLoader & getRootFilesystem() const;
 
 	/// returns ID of mod that provides selected file resource
 	TModID findResourceOrigin(const ResourcePath & name) const;

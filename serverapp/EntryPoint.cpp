@@ -207,8 +207,6 @@ static void generateTranslations(const std::string & modID)
 	}
 
 
-	CResourceHandler::destroy();
-	initializeBaseFilesystem(false);
 	delete LIBRARY;
 	LIBRARY = loadLibrary().release();
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);

@@ -22,8 +22,8 @@
 #include "../json/JsonNode.h"
 #include "../modding/ModScope.h"
 
-std::map<std::string, ISimpleResourceLoader*> CResourceHandler::knownLoaders = std::map<std::string, ISimpleResourceLoader*>();
-CResourceHandler CResourceHandler::globalResourceHandler;
+CResourceHandler CResourceHandler::baseFilesystem;
+const CResourceHandler * CResourceHandler::currentFilesystem = nullptr;
 
 CFilesystemGenerator::CFilesystemGenerator(std::string prefix, bool extractArchives):
 	prefix(std::move(prefix)),
@@ -163,29 +163,28 @@ void CResourceHandler::initialize()
 	// |
 	// |- data
 	// |  |-core
-	// |  |-mod1
+	// |  |-mod1 (only in filesystems of game libraries)
 	// |  |-modN
 	// |
 	// |- local
 	//    |-saves
 	//    |-config
 
-	// when built as single process, server can be started multiple times
-	if (globalResourceHandler.rootLoader)
+	// launcher and client may share the process (e.g. on iOS), so base filesystem may already be initialized
+	if (baseFilesystem.knownLoaders.contains("root"))
 		return;
 
-	auto savesLoader = std::make_unique<CFilesystemLoader>("SAVES/", VCMIDirs::get().userSavePath());
-	auto configLoader = std::make_unique<CFilesystemLoader>("CONFIG/", VCMIDirs::get().userConfigPath());
+	auto savesLoader = std::make_shared<CFilesystemLoader>("SAVES/", VCMIDirs::get().userSavePath());
+	auto configLoader = std::make_shared<CFilesystemLoader>("CONFIG/", VCMIDirs::get().userConfigPath());
 
-	globalResourceHandler.rootLoader = std::make_unique<CFilesystemList>();
-	globalResourceHandler.emptyLoader = std::make_unique<CFilesystemList>();
-	knownLoaders["root"] = globalResourceHandler.rootLoader.get();
-	knownLoaders["saves"] = savesLoader.get();
-	knownLoaders["config"] = configLoader.get();
+	baseFilesystem.emptyLoader = std::make_shared<CFilesystemList>();
+	baseFilesystem.knownLoaders["root"] = std::make_shared<CFilesystemList>();
+	baseFilesystem.knownLoaders["saves"] = savesLoader;
+	baseFilesystem.knownLoaders["config"] = configLoader;
 
 	auto localFS = std::make_unique<CFilesystemList>();
-	localFS->addLoader(std::move(savesLoader), true);
-	localFS->addLoader(std::move(configLoader), true);
+	localFS->addLoader(savesLoader, true);
+	localFS->addLoader(configLoader, true);
 
 	addFilesystem("root", "initial", createInitial());
 	addFilesystem("root", "data", std::make_unique<CFilesystemList>());
@@ -194,9 +193,9 @@ void CResourceHandler::initialize()
 
 void CResourceHandler::destroy()
 {
-	knownLoaders.clear();
-	globalResourceHandler.rootLoader.reset();
-	globalResourceHandler.emptyLoader.reset();
+	assert(currentFilesystem == nullptr);
+	baseFilesystem.knownLoaders.clear();
+	baseFilesystem.emptyLoader.reset();
 }
 
 ISimpleResourceLoader * CResourceHandler::get()
@@ -206,8 +205,55 @@ ISimpleResourceLoader * CResourceHandler::get()
 
 ISimpleResourceLoader * CResourceHandler::get(const std::string & identifier)
 {
-	assert(knownLoaders.count(identifier));
-	return knownLoaders.at(identifier);
+	return (currentFilesystem ? *currentFilesystem : baseFilesystem).getLoader(identifier);
+}
+
+ISimpleResourceLoader * CResourceHandler::getLoader(const std::string & identifier) const
+{
+	auto it = knownLoaders.find(identifier);
+	if (it != knownLoaders.end())
+		return it->second.get();
+
+	assert(baseFilesystem.knownLoaders.count(identifier));
+	return baseFilesystem.knownLoaders.at(identifier).get();
+}
+
+void CResourceHandler::setCurrent(const CResourceHandler * filesystem)
+{
+	currentFilesystem = filesystem;
+}
+
+const CResourceHandler * CResourceHandler::getCurrent()
+{
+	return currentFilesystem;
+}
+
+std::unique_ptr<CResourceHandler> CResourceHandler::createLibraryFilesystem(const std::vector<std::pair<std::string, std::shared_ptr<ISimpleResourceLoader>>> & modFilesystems)
+{
+	const auto & base = baseFilesystem.knownLoaders;
+	std::unique_ptr<CResourceHandler> result(new CResourceHandler());
+
+	auto data = std::make_shared<CFilesystemList>();
+	data->addLoader(base.at(ModScope::scopeBuiltin()), false);
+	for (const auto & [modName, modFilesystem] : modFilesystems)
+	{
+		if (modFilesystem)
+		{
+			data->addLoader(modFilesystem, false);
+			result->knownLoaders[modName] = modFilesystem;
+		}
+		else
+			result->knownLoaders[modName] = baseFilesystem.emptyLoader;
+	}
+
+	auto root = std::make_shared<CFilesystemList>();
+	root->addLoader(base.at("initial"), false);
+	root->addLoader(data, false);
+	root->addLoader(base.at("local"), false);
+
+	result->knownLoaders["root"] = root;
+	result->knownLoaders["data"] = data;
+	return result;
 }
 
 void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives)
@@ -221,6 +267,8 @@ void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives
 
 void CResourceHandler::addFilesystem(const std::string & parent, const std::string & identifier, std::unique_ptr<ISimpleResourceLoader> loader)
 {
+	auto & knownLoaders = baseFilesystem.knownLoaders;
+
 	if(knownLoaders.count(identifier) != 0)
 	{
 		logMod->error("[CRITICAL] Virtual filesystem %s already loaded!", identifier);
@@ -235,27 +283,29 @@ void CResourceHandler::addFilesystem(const std::string & parent, const std::stri
 
 	if (!loader)
 	{
-		knownLoaders[identifier] = globalResourceHandler.emptyLoader.get();
+		knownLoaders[identifier] = baseFilesystem.emptyLoader;
 		return;
 	}
 
-	auto * list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent));
+	auto * list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent).get());
 	assert(list);
-	knownLoaders[identifier] = loader.get();
-	list->addLoader(std::move(loader), false);
+	knownLoaders[identifier] = std::move(loader);
+	list->addLoader(knownLoaders[identifier], false);
 }
 
 bool CResourceHandler::removeFilesystem(const std::string & parent, const std::string & identifier)
 {
+	auto & knownLoaders = baseFilesystem.knownLoaders;
+
 	if(knownLoaders.count(identifier) == 0)
 		return false;
-	
+
 	if(knownLoaders.count(parent) == 0)
 		return false;
 
-	auto * list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent));
+	auto * list = dynamic_cast<CFilesystemList *>(knownLoaders.at(parent).get());
 	assert(list);
-	list->removeLoader(knownLoaders[identifier]);
+	list->removeLoader(knownLoaders[identifier].get());
 	knownLoaders.erase(identifier);
 	return true;
 }
