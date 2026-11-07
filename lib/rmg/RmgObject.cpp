@@ -133,6 +133,8 @@ void Object::Instance::setTemplate(TerrainId terrain, vstd::RNG & rng)
 	}
 	
 	dObject->appearance = *RandomGeneratorUtil::nextItem(templates, rng);
+	if(auto app = dObject->getObjectHandler()->getOverride(terrain, dObject.get()))
+		dObject->appearance = app;
 	dAccessibleAreaCache.clear();
 	setPosition(getPosition(false));
 }

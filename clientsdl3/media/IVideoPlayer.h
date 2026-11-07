@@ -41,6 +41,9 @@ public:
 	virtual void activate() = 0;
 	virtual void deactivate() = 0;
 
+	/// Restarts ended video without reopening it. Returns false if the video does not support seeking
+	virtual bool rewind() = 0;
+
 	virtual ~IVideoInstance() = default;
 };
 

@@ -697,6 +697,9 @@ void Inspector::setProperty(CGTownInstance * o, const QString & key, const QVari
 		o->setNameTextId(mapRegisterLocalizedString("map", *controller.map(),
 			TextIdentifier("town", o->instanceName, "name"), value.toString().toStdString()));
 
+	if(key == QObject::tr("Buildings"))
+		o->updateAppearance();
+
 	if(key == QObject::tr("Same as player"))
 		o->alignmentToPlayer = PlayerColor(value.toInt());
 
@@ -825,6 +828,9 @@ void Inspector::setProperty(CGHeroInstance * o, const QString & key, const QVari
 		o->patrol.patrolRadius = radius;
 		o->patrol.patrolling = radius != CGHeroInstance::NO_PATROLLING;
 	}
+
+	if(o->ID == Obj::HERO && (key == QObject::tr("Gender") || key == QObject::tr("Hero type")))
+		o->updateAppearance();
 }
 
 void Inspector::setProperty(CGShipyard * o, const QString & key, const QVariant & value)

@@ -364,13 +364,8 @@ void CGameStateCampaign::giveCampaignBonusToHero(CGHeroInstance * hero)
 			const auto & bonusValue = curBonus->getValue<CampaignBonusPrimarySkill>();
 			for(auto skill : PrimarySkill::ALL_SKILLS())
 			{
-				int val = bonusValue.amounts[skill.getNum()];
-				if(val == 0)
-					continue;
-
-				auto currentScenario = *gameState->scenarioOps->campState->currentScenario();
-				auto bb = std::make_shared<Bonus>( BonusDuration::PERMANENT, BonusType::PRIMARY_SKILL, BonusSource::CAMPAIGN_BONUS, val, BonusSourceID(currentScenario), BonusSubtypeID(skill) );
-				hero->addNewBonus(bb);
+				// added to base skill, since only base skills are carried over to next scenario
+				hero->setPrimarySkill(skill, bonusValue.amounts[skill.getNum()], ChangeValueMode::RELATIVE);
 			}
 			break;
 		}
@@ -610,7 +605,8 @@ void CGameStateCampaign::initHeroes()
 	if (campaignState->getYogWizardID().hasValue() && boost::starts_with(campaignState->getFilename(), "DATA/YOG") && campaignState->currentScenario()->getNum() == 2)
 	{
 		auto * yog = gameState->getUsedHero(campaignState->getYogWizardID());
-		assert(yog);
+		if(!yog)
+			throw std::runtime_error("Failed to find Yog to give him the Angelic Alliance!");
 		assert(yog->isCampaignYog());
 		gameState->giveHeroArtifact(yog, ArtifactID::ANGELIC_ALLIANCE);
 	}

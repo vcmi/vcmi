@@ -107,6 +107,12 @@ bool FFMpegStream::openInput(const VideoPath & videoToOpen)
 bool FFMpegStream::openContext()
 {
 	static const int BUFFER_SIZE = 4096;
+
+	std::array<ui8, 0x18> header = {};
+	input->seek(0);
+	if(input->read(header.data(), header.size()) == header.size())
+		hasRingFrame = header[0] == 'S' && header[1] == 'M' && header[2] == 'K' && (header[0x14] & 1);
+
 	input->seek(0);
 
 	auto * buffer = static_cast<unsigned char *>(av_malloc(BUFFER_SIZE)); // will be freed by ffmpeg
@@ -190,6 +196,31 @@ void FFMpegStream::endStream()
 {
 	av_frame_free(&frame);
 	frame = nullptr;
+}
+
+bool FFMpegStream::seekToStart()
+{
+	if(av_seek_frame(formatContext, streamIndex, 0, AVSEEK_FLAG_BACKWARD) < 0)
+		return false;
+
+	if(hasRingFrame)
+	{
+		// Decoder is not flushed: the ring frame left the first frame in its picture buffer, in better quality than the first frame itself.
+		// Packet of the first frame is still read, since it restores the palette that the seek has reset
+		AVPacket packet;
+		while(av_read_frame(formatContext, &packet) >= 0)
+		{
+			bool isVideoPacket = packet.stream_index == streamIndex;
+			av_packet_unref(&packet);
+			if(isVideoPacket)
+				break;
+		}
+	}
+	else
+		avcodec_flush_buffers(codecContext);
+
+	frame = av_frame_alloc();
+	return true;
 }
 
 bool CVideoInstance::openVideo()
@@ -469,6 +500,18 @@ void CVideoInstance::deactivate()
 {
 	deactivationStartTime = std::chrono::steady_clock::now();
 	deactivationStartTimeHandling = true;
+}
+
+bool CVideoInstance::rewind()
+{
+	if(!seekToStart() || !loadNextFrame())
+		return false;
+
+	// after a ring frame playback continues from the second frame, so the clock starts where the loaded frame does
+	auto frameStart = std::chrono::duration<double>(getCurrentFrameEndTime() - getCurrentFrameDuration());
+	startTime = std::chrono::steady_clock::now() - std::chrono::duration_cast<std::chrono::steady_clock::duration>(frameStart);
+	startTimeInitialized = true;
+	return true;
 }
 
 struct FFMpegFormatDescription

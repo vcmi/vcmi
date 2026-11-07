@@ -22,4 +22,5 @@ enum MapEditorRoles
 	ArtifactSlotRole,
 	ObjectGroupRole,
 	TerrainIDRole,
+	ModIDRole,
 };

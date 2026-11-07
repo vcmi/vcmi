@@ -28,6 +28,7 @@
 #include "../gameState/CGameState.h"
 #include "../gameState/UpgradeInfo.h"
 #include "../CCreatureHandler.h"
+#include "../CPlayerState.h"
 #include "../mapping/CMap.h"
 #include "../StartInfo.h"
 #include "../GameSettings.h"
@@ -174,10 +175,32 @@ bool CGHeroInstance::canLearnSkill() const
 
 bool CGHeroInstance::canLearnSkill(const SecondarySkill & which) const
 {
-	if ( !canLearnSkill())
-		return false;
+	return cb->isAllowed(which) && canLearnSkillIgnoringBans(which);
+}
 
-	if (!cb->isAllowed(which))
+bool CGHeroInstance::canLearnSkillOnLevelUp(const SecondarySkill & which) const
+{
+	// Birth of a Barbarian replaces the map's ban list with a fixed one for Yog's level-ups
+	if (isCampaignYog())
+		return !isSkillBannedOnLevelUp(which) && canLearnSkillIgnoringBans(which);
+	return canLearnSkill(which);
+}
+
+bool CGHeroInstance::isSkillBannedOnLevelUp(const SecondarySkill & which) const
+{
+	static const std::set<SecondarySkill> yogBannedSkills = {
+		SecondarySkill::WISDOM, SecondarySkill::MYSTICISM,
+		SecondarySkill::EAGLE_EYE, SecondarySkill::NECROMANCY, SecondarySkill::FIRE_MAGIC,
+		SecondarySkill::AIR_MAGIC, SecondarySkill::WATER_MAGIC, SecondarySkill::EARTH_MAGIC,
+		SecondarySkill::SCHOLAR, SecondarySkill::INTELLIGENCE, SecondarySkill::SORCERY
+	};
+
+	return isCampaignYog() && yogBannedSkills.count(which);
+}
+
+bool CGHeroInstance::canLearnSkillIgnoringBans(const SecondarySkill & which) const
+{
+	if ( !canLearnSkill())
 		return false;
 
 	if (getSecSkillLevel(which) > 0)
@@ -555,14 +578,16 @@ void CGHeroInstance::initArmy(vstd::RNG & rand, IArmyDescriptor * dst)
 	auto stacksCountChances = cb->getSettings().getVector(EGameSettings::HEROES_STARTING_STACKS_CHANCES);
 	int stacksCountInitRandomNumber = rand.nextInt(1, 100);
 
-	size_t maxStacksCount = std::min(stacksCountChances.size(), getHeroType()->initialArmy.size());
+	// campaign Yog is a wizard hero type, but his army comes from the original barbarian Yog
+	const CHero * armyTemplate = isCampaignYog() ? HeroTypeID(HeroTypeID::decode("yog")).toHeroType() : getHeroType();
+	size_t maxStacksCount = std::min(stacksCountChances.size(), armyTemplate->initialArmy.size());
 
 	for(int stackNo=0; stackNo < maxStacksCount; stackNo++)
 	{
 		if (stacksCountInitRandomNumber > stacksCountChances[stackNo])
 			continue;
 
-		auto & stack = getHeroType()->initialArmy[stackNo];
+		auto & stack = armyTemplate->initialArmy[stackNo];
 
 		int count = rand.nextInt(stack.minAmount, stack.maxAmount);
 
@@ -1973,29 +1998,38 @@ void CGHeroInstance::serializeJsonDefinition(JsonSerializeFormat & handler)
 
 bool CGHeroInstance::isMissionCritical() const
 {
+	const PlayerState * owner = cb->tryGetPlayerState(getOwner());
+
+	// approximate value of a defeat condition, with or without this hero in the player's possession
+	auto const & makeFunctor = [&](bool withThisHero)
+	{
+		return [&, withThisHero](const EventCondition & condition)
+		{
+			if ((condition.condition == EventCondition::CONTROL || condition.condition == EventCondition::CONTROL_CURRENT) && condition.objectID != ObjectInstanceID::NONE)
+				return withThisHero || id != condition.objectID;
+
+			if (condition.condition == EventCondition::HAVE_ARTIFACT)
+			{
+				if (!owner)
+					return false;
+
+				for(const auto * hero : owner->getHeroes())
+					if((withThisHero || hero != this) && hero->hasArt(condition.objectType.as<ArtifactID>()))
+						return true;
+				return false;
+			}
+
+			return condition.condition == EventCondition::IS_HUMAN;
+		};
+	};
+
 	for(const TriggeredEvent & event : cb->getMapHeader()->triggeredEvents)
 	{
 		if (event.effect.type != EventEffect::DEFEAT)
 			continue;
 
-		auto const & testFunctor = [&](const EventCondition & condition)
-		{
-				if ((condition.condition == EventCondition::CONTROL || condition.condition == EventCondition::CONTROL_CURRENT) && condition.objectID != ObjectInstanceID::NONE)
-					return (id != condition.objectID);
-
-			if (condition.condition == EventCondition::HAVE_ARTIFACT)
-			{
-				if(hasArt(condition.objectType.as<ArtifactID>()))
-					return true;
-			}
-
-			if(condition.condition == EventCondition::IS_HUMAN)
-				return true;
-
-			return false;
-		};
-
-		if(event.trigger.test(testFunctor))
+		// a defeat that already holds does not depend on this hero
+		if(event.trigger.test(makeFunctor(false)) && !event.trigger.test(makeFunctor(true)))
 			return true;
 	}
 	return false;
@@ -2028,6 +2062,16 @@ bool CGHeroInstance::isCampaignGem() const
 {
 	const StartInfo *si = cb->getStartInfo();
 	return si && si->campState &&si->campState->getGemSorceressID() == getHeroTypeID();
+}
+
+bool CGHeroInstance::canEquipArmageddonsBlade() const
+{
+	const StartInfo *si = cb->getStartInfo();
+	if(!si || !si->campState || !si->campState->currentScenario())
+		return true;
+
+	HeroTypeID bearer = si->campState->scenario(*si->campState->currentScenario()).armageddonsBladeBearer;
+	return !bearer.hasValue() || bearer == getHeroTypeID();
 }
 
 ResourceSet CGHeroInstance::dailyIncome() const

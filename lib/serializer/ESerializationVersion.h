@@ -77,6 +77,8 @@ enum class ESerializationVersion : int32_t
 	SPELL_ID_WITH_MASTERY, // spell id is combined with spell mastery level
 	LOBBY_SCENARIO_LIST, // lobby lists maps and saved games of the server and selects them by name
 	RUMOR_REWORK, // rumor state stores typed rumor and rumors told since their pool was exhausted
+	ARMAGEDDONS_BLADE_BEARER, // campaign scenario may allow only one hero to equip Armageddon's Blade
+	CAMPAIGN_ENEMY_HERO_CARRIED_OVER, // campaign scenario may carry over a hero that the player does not own
 	HERO_MOVEMENT_CONVERSION_LIMITS, // Persist daily land/sea movement conversion limits
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,

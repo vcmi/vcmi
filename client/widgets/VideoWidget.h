@@ -41,6 +41,8 @@ protected:
 	VideoWidgetBase(const Point & position, const VideoPath & video, bool playAudio, float scaleFactor);
 
 	virtual void onPlaybackFinished() = 0;
+	/// True if ended video should start over without being reopened
+	virtual bool loopsCurrentVideo() const { return false; }
 	void playVideo(const VideoPath & video);
 
 public:
@@ -58,8 +60,10 @@ public:
 class VideoWidget final: public VideoWidgetBase
 {
 	VideoPath loopedVideo;
+	bool playingLoopedVideo;
 
 	void onPlaybackFinished() final;
+	bool loopsCurrentVideo() const final;
 public:
 	VideoWidget(const Point & position, const VideoPath & prologue, const VideoPath & looped, bool playAudio);
 	VideoWidget(const Point & position, const VideoPath & looped, bool playAudio);

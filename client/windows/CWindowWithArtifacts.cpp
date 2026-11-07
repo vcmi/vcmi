@@ -281,6 +281,11 @@ void CWindowWithArtifacts::putPickedArtifact(const CGHeroInstance & curHero, con
 	{
 		GAME->interface()->cb->swapArtifacts(srcLoc, dstLoc);
 	}
+	else if(pickedArt->getTypeId() == ArtifactID::ARMAGEDDONS_BLADE && !curHero.canEquipArmageddonsBlade()
+		&& vstd::contains(pickedArt->getType()->getPossibleSlots().at(ArtBearer::HERO), dstLoc.slot))
+	{
+		GAME->interface()->showInfoDialog(LIBRARY->generaltexth->translate("core.genrltxt.761"));
+	}
 }
 
 void CWindowWithArtifacts::onClickPressedCommonArtifact(const CGHeroInstance & curHero, const ArtifactPosition & slot, bool closeWindow)

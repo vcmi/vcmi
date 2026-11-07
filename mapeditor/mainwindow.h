@@ -32,6 +32,7 @@ class EditorMainWindow : public QMainWindow
 	const QString lastDirectorySetting = "MainWindow/Directory";
 	const QString recentlyOpenedFilesSetting = "MainWindow/RecentlyOpenedFiles";
 	const QString objectBrowserListSetting = "MainWindow/ObjectBrowserList";
+	const QString objectBrowserIconSizeSetting = "MainWindow/ObjectBrowserIconSize";
 
 #ifdef ENABLE_QT_TRANSLATIONS
 #endif
@@ -102,6 +103,10 @@ private slots:
 	void on_filter_textChanged(const QString &arg1);
 
 	void on_viewModeButton_toggled(bool checked);
+
+	void on_zoomOutButton_clicked();
+
+	void on_zoomInButton_clicked();
 
 	void on_actionFill_triggered();
 

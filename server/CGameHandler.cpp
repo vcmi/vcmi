@@ -3313,6 +3313,7 @@ bool CGameHandler::buyArtifact(ObjectInstanceID hid, ArtifactID aid)
 		if ((!town->hasBuilt(BuildingID::MAGES_GUILD_1) && complain("Cannot buy a spellbook, no mage guild in the town!"))
 			|| (gameInfo().getResource(hero->getOwner(), EGameResID::GOLD) < GameConstants::SPELLBOOK_GOLD_COST && complain("Cannot buy a spellbook, not enough gold!"))
 		    || (hero->getArt(ArtifactPosition::SPELLBOOK) && complain("Cannot buy a spellbook, hero already has a one!"))
+		    || (hero->isCampaignYog() && complain("Cannot buy a spellbook, Yog has given up magic!"))
 		   )
 			return false;
 

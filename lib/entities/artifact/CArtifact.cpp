@@ -15,6 +15,7 @@
 #include "CArtifactFittingSet.h"
 
 #include "../../bonuses/Limiters.h"
+#include "../../mapObjects/CGHeroInstance.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../GameLibrary.h"
 
@@ -186,6 +187,10 @@ bool CArtifact::canBePutAt(const CArtifactSet * artSet, ArtifactPosition slot, b
 		}
 
 		if(!vstd::contains(possibleSlots.at(artSet->bearerType()), slot))
+			return false;
+
+		const auto * hero = dynamic_cast<const CGHeroInstance *>(artSet);
+		if(hero && getId() == ArtifactID::ARMAGEDDONS_BLADE && !hero->canEquipArmageddonsBlade())
 			return false;
 
 		return artSet->isPositionFree(slot, assumeDestRemoved);
