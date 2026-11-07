@@ -58,6 +58,8 @@ By default, if you do not pass `-B`, the build directory is `../build-ios-device
 5. Optional:
    - CCache to speed up recompilation: `brew install ccache`
 
+The app is built with an iOS 15.0 deployment target, the minimum supported by Xcode 27. The Conan profile keeps `os.version=12.0` so the prebuilt dependency cache remains usable; the `ios-device-conan` preset raises the deployment target for the app itself.
+
 ## Obtaining source code
 
 Clone <https://github.com/vcmi/vcmi> with submodules. Example for command line:

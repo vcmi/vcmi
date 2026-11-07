@@ -61,12 +61,12 @@ jobs:
             preset: macos-ninja-release
 
           - platform: ios
-            os: macos-26
+            os: xcode-27
             pack: 1
             upload: 1
             pack_type: RelWithDebInfo
             extension: ipa
-            before_install: macos.sh
+            before_install: macos-ios.sh
             preset: ios-release-conan-ccache
             conan_profile: ios-arm64
             conan_prebuilts: dependencies-ios
