@@ -250,9 +250,7 @@ void CMapLoaderH3M::readPlayerInfo()
 
 		playerInfo.isFactionRandom = reader->readBool();
 
-		if (allowedFactions.empty())
-			logGlobal->warn("Map '%s': Player %d has no allowed factions to play! Ignoring.", mapName, i);
-		else if (allowedFactions.size() * 2 >= features.factionsCount)
+		if (allowedFactions.size() * 2 >= features.factionsCount)
 		{
 			// Map that allows most factions is assumed to ban the rest, so factions unknown to its format,
 			// such as ones from mods or from newer HotA versions, remain available
@@ -261,7 +259,12 @@ void CMapLoaderH3M::readPlayerInfo()
 					playerInfo.allowedFactions.erase(faction);
 		}
 		else
-			playerInfo.allowedFactions = allowedFactions;
+		{
+			if (playerInfo.canAnyonePlay() && allowedFactions.empty())
+				logGlobal->warn("Map '%s': Player %d has no allowed factions to play! Ignoring.", mapName, i);
+			else
+				playerInfo.allowedFactions = allowedFactions;
+		}
 
 		playerInfo.hasMainTown = reader->readBool();
 		if(playerInfo.hasMainTown)
@@ -290,7 +293,7 @@ void CMapLoaderH3M::readPlayerInfo()
 
 		if(features.levelAB)
 		{
-            reader->skipUnused(1); //Number of hero placeholders on map - unused
+			reader->skipUnused(1); //Number of hero placeholders on map - unused
 			size_t heroCount = reader->readUInt32();
 			for(size_t pp = 0; pp < heroCount; ++pp)
 			{
