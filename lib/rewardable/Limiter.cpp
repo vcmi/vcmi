@@ -342,23 +342,7 @@ void Rewardable::Limiter::serializeJson(JsonSerializeFormat & handler)
 		a.syncSize(fieldValue);
 		secondary = std::map<SecondarySkill, si32>(fieldValue.begin(), fieldValue.end());
 	}
-	// allowedDifficulties: chess names of difficulties on which this limiter is active;
-	// absent (or empty) means no restriction — every difficulty is allowed.
-	if(handler.saving)
-	{
-		if(!allowedDifficulties.allowsAll())
-		{
-			auto names = allowedDifficulties.toNames();
-			handler.enterArray("allowedDifficulties").serializeArray(names);
-		}
-	}
-	else
-	{
-		std::vector<std::string> names;
-		handler.enterArray("allowedDifficulties").serializeArray(names);
-		if(!names.empty())
-			allowedDifficulties = MapDifficultySet::fromNames(names);
-	}
+	allowedDifficulties.serializeJson(handler, "allowedDifficulties");
 	//sublimiters
 	auto serializeSublimitersList = [&handler](const std::string & field, LimitersList & container)
 	{

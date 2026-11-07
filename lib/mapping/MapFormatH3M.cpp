@@ -157,7 +157,7 @@ void CMapLoaderH3M::readHeader()
 		if(features.levelHOTA5)
 		{
 			int32_t townTypesCount = reader->readUInt32();
-			int8_t allowedDifficultiesMask = reader->readInt8Checked(0, 31);
+			int8_t allowedDifficultiesMask = reader->readInt8Checked(1, 31);
 
 			// wrong assumption and this is not related to factions?
 			// assert(features.factionsCount == townTypesCount);
@@ -165,8 +165,7 @@ void CMapLoaderH3M::readHeader()
 			if (features.factionsCount != townTypesCount)
 				logGlobal->warn("Map '%s': Expected %d factions, but %d found!", mapName, features.factionsCount, townTypesCount);
 
-			if (allowedDifficultiesMask != 0 && allowedDifficultiesMask != 31) //TODO: recheck if 0 is possible
-				logGlobal->warn("Map '%s': List of allowed difficulties (%d) is not implemented!", mapName, static_cast<int>(allowedDifficultiesMask));
+			mapHeader->allowedDifficulties = MapDifficultySet(allowedDifficultiesMask);
 		}
 
 		if(features.levelHOTA7)

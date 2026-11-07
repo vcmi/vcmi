@@ -281,9 +281,9 @@ void InfoCard::changeSelection()
 	flagbox->recreate();
 	labelDifficulty->setText(GAME->translator().translate("core.arraytxt", 142 + vstd::to_underlying(mapInfo->mapHeader->difficulty)));
 	iconDifficulty->setSelected(SEL->getCurrentDifficulty());
-	if(SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame)
-		for(auto & button : iconDifficulty->buttons)
-			button.second->setEnabled(button.first == SEL->getCurrentDifficulty());
+	bool isSavedGame = SEL->screenType == ESelectionScreen::loadGame || SEL->screenType == ESelectionScreen::saveGame;
+	for(auto & [id, button] : iconDifficulty->buttons)
+		button->setEnabled(isSavedGame ? id == SEL->getCurrentDifficulty() : header->allowedDifficulties.contains(static_cast<EMapDifficulty>(id)));
 
 	const std::array<std::string, 5> difficultyPercent = {"80%", "100%", "130%", "160%", "200%"};
 	labelDifficultyPercent->setText(difficultyPercent[SEL->getCurrentDifficulty()]);

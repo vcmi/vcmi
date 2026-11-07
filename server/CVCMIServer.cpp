@@ -616,6 +616,10 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 		if(mi->campaign)
 			return;
 
+		// difficulty from previous map or from client settings may be forbidden on this map
+		auto difficulty = static_cast<EMapDifficulty>(si->difficulty);
+		si->difficulty = static_cast<uint8_t>(mi->mapHeader->allowedDifficulties.closest(difficulty));
+
 		for(int i = 0; i < mi->mapHeader->players.size(); i++)
 		{
 			const PlayerInfo & pinfo = mi->mapHeader->players[i];

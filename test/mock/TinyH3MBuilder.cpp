@@ -189,6 +189,12 @@ TinyH3MBuilder & TinyH3MBuilder::difficulty(EMapDifficulty d)
 	return *this;
 }
 
+TinyH3MBuilder & TinyH3MBuilder::allowedDifficulties(uint8_t mask)
+{
+	mapAllowedDifficulties = mask;
+	return *this;
+}
+
 TinyH3MBuilder & TinyH3MBuilder::heroLevelLimit(uint8_t level)
 {
 	mapHeroLevelLimit = level;
@@ -835,7 +841,7 @@ void TinyH3MBuilder::writeHeader(TinyH3MWriter & w) const
 		if(features.levelHOTA5)
 		{
 			w.writeUInt32(static_cast<uint32_t>(features.factionsCount));
-			w.writeUInt8(31); // all difficulty levels allowed
+			w.writeUInt8(mapAllowedDifficulties);
 		}
 	}
 
