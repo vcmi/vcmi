@@ -132,7 +132,7 @@ std::optional<ScenarioList> ScenarioListBuilder::buildFolderOf(const std::string
 	const ResourcePath file(fileName, type == ScenarioListEntry::EType::MAP ? EResType::MAP : EResType::SAVEGAME);
 	for(const auto & entry : list.entries)
 	{
-		if(entry.fileURI == file.getName())
+		if(boost::algorithm::iequals(entry.fileURI, file.getName()))
 		{
 			selectedFile = entry.fileURI;
 			return list;
