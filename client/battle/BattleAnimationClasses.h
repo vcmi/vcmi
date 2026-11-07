@@ -157,6 +157,9 @@ private:
 	/// range 0 -> 1, indicates move progrees. 0 = movement starts, 1 = move ends
 	double progress;
 
+	/// speed of movement animation, in frames per second
+	double framesPerSecond;
+
 public:
 	bool init() override;
 	void tick(uint32_t msPassed) override;
