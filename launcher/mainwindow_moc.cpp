@@ -140,6 +140,10 @@ MainWindow::MainWindow(QWidget * parent)
 	else
 		enterSetup();
 
+	connect(ui->modlistView, &CModListView::importStateChanged, this, [this]()
+	{
+		setGamepadStartAllowed(gamepadStartAllowed);
+	});
 	setGamepadStartAllowed(h3DataFound && setupCompleted);
 
 	ui->settingsView->setDisplayList();
@@ -156,13 +160,13 @@ MainWindow::MainWindow(QWidget * parent)
 void MainWindow::setGamepadStartAllowed(bool allowed)
 {
 	gamepadStartAllowed = allowed;
-	Helper::allowGamepadStart(allowed);
+	Helper::allowGamepadStart(allowed && !ui->modlistView->isImportInProgress());
 }
 
 void MainWindow::startGameFromGamepad()
 {
 	// setup and dialogs can't be operated with a gamepad, so don't take control away from the player
-	if(!gamepadStartAllowed || QApplication::activeModalWidget())
+	if(!gamepadStartAllowed || ui->modlistView->isImportInProgress() || QApplication::activeModalWidget())
 		return;
 
 	hide();

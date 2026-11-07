@@ -28,6 +28,7 @@
 #include "../helper.h"
 
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/ScopeGuard.h"
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/filesystem/Filesystem.h"
 #include "../../lib/filesystem/CZipLoader.h"
@@ -869,6 +870,9 @@ void CModListView::downloadFile(QString file, QUrl url, QString description, qin
 
 void CModListView::downloadProgress(QString currentFile, qint64 current, qint64 max)
 {
+	if(importOperation)
+		return;
+
 	Q_UNUSED(currentFile);
 
 	const auto toMegabytes = [](qint64 bytes){ return QString::number(bytes / (1024.0 * 1024.0), 'f', 1); };
@@ -981,19 +985,9 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	ui->progressBar->setValue(0);
 
 	if(doInstallFiles)
-	{
-		installFiles(savedFiles);
-		for(const auto & file : savedFiles)
-		{
-			if(file.endsWith(".zip", Qt::CaseInsensitive))
-			{
-				logGlobal->info("Erasing archive '%s'", file.toStdString());
-				QFile::remove(file);
-			}
-		}
-	}
+		installDownloadedFiles(savedFiles);
 
-	Helper::keepScreenOn(false);
+	Helper::keepScreenOn(dlManager != nullptr || importOperation != nullptr);
 	hideProgressBar();
 
 	if(retryRepositories)
@@ -1002,6 +996,27 @@ void CModListView::downloadFinished(QStringList savedFiles, QStringList failedFi
 	for(const auto & modName : modsToRetry)
 		if(modStateModel->isModExists(modName))
 			downloadMod(modStateModel->getMod(modName));
+}
+
+void CModListView::installDownloadedFiles(QStringList files)
+{
+	if(importOperation)
+	{
+		connect(importOperation, &QObject::destroyed, this, [this, files]()
+		{
+			installDownloadedFiles(files);
+		}, Qt::QueuedConnection);
+		return;
+	}
+	installFiles(files);
+	for(const auto & file : files)
+	{
+		if(file.endsWith(".zip", Qt::CaseInsensitive))
+		{
+			logGlobal->info("Erasing archive '%s'", file.toStdString());
+			QFile::remove(file);
+		}
+	}
 }
 
 bool CModListView::askToIgnoreSslErrors()
@@ -1033,7 +1048,7 @@ void CModListView::showExternalProgress(const QString & format, int current, int
 
 void CModListView::hideExternalProgress()
 {
-	if(dlManager == nullptr)
+	if(dlManager == nullptr && !importOperation)
 	{
 		ui->progressWidget->setVisible(false);
 		ui->progressBar->setMaximum(0);
@@ -1043,7 +1058,7 @@ void CModListView::hideExternalProgress()
 
 void CModListView::hideProgressBar()
 {
-	if(dlManager == nullptr) // it was not recreated meanwhile
+	if(dlManager == nullptr && !importOperation) // it was not recreated meanwhile
 	{
 		ui->progressWidget->setVisible(false);
 		ui->progressBar->setMaximum(0);
@@ -1132,8 +1147,46 @@ EZipType classifyZipArchive(const std::vector<std::string> & fileList)
 }
 }
 
+bool CModListView::isImportInProgress() const
+{
+	return !importOperation.isNull();
+}
+
 void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 {
+	if(importOperation)
+	{
+		connect(importOperation, &QObject::destroyed, this, [this, files, removeGithubSuffix]()
+		{
+			installFiles(files, removeGithubSuffix);
+		}, Qt::QueuedConnection);
+		return;
+	}
+
+	auto restoreImportUi = vstd::makeScopeGuard([this]()
+	{
+		ui->abortButton->setEnabled(true);
+		Helper::keepScreenOn(dlManager != nullptr);
+		hideProgressBar();
+		emit importStateChanged();
+	});
+	auto operation = std::make_unique<QObject>();
+	importOperation = operation.get();
+	ui->abortButton->setEnabled(false);
+	emit importStateChanged();
+	if(std::any_of(files.begin(), files.end(), [](const QString & file)
+	{
+		return Helper::getRealPath(file).endsWith(".zip", Qt::CaseInsensitive);
+	}))
+	{
+		Helper::getMainWindow()->switchToModsTab();
+		ui->progressWidget->setVisible(true);
+		ui->progressBar->setFormat(tr("Inspecting archive..."));
+		ui->progressBar->setRange(0, 0);
+		Helper::keepScreenOn(true);
+		qApp->processEvents();
+	}
+
 	QStringList mods;
 	QStringList maps;
 	QStringList saves;
@@ -1149,8 +1202,14 @@ void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 		{
 			try
 			{
-				ZipArchive archive(qstringToPath(realFilename));
-				auto zipType = classifyZipArchive(archive.listFiles());
+				auto inspection = std::async(std::launch::async, [realFilename]()
+				{
+					ZipArchive archive(qstringToPath(realFilename));
+					return classifyZipArchive(archive.listFiles());
+				});
+				while(inspection.wait_for(std::chrono::milliseconds(10)) != std::future_status::ready)
+					qApp->processEvents();
+				const auto zipType = inspection.get();
 
 				if(zipType == EZipType::MAPS)
 					maps.push_back(filename);
@@ -1252,14 +1311,7 @@ void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 	if(!mods.empty())
 	{
 		logGlobal->info("Installing mods: started");
-		ui->progressWidget->setVisible(true);
-		ui->progressBar->setRange(0, 0);
-		ui->abortButton->setEnabled(false);
-		Helper::keepScreenOn(true);
 		installMods(mods, removeGithubSuffix);
-		Helper::keepScreenOn(dlManager != nullptr);
-		hideProgressBar();
-		ui->abortButton->setEnabled(true);
 		logGlobal->info("Installing mods: ended");
 	}
 
@@ -1303,7 +1355,6 @@ void CModListView::installFiles(QStringList files, bool removeGithubSuffix)
 
 		Helper::keepScreenOn(false);
 		hideProgressBar();
-		ui->abortButton->setEnabled(true);
 		ui->progressWidget->setVisible(false);
 		//update
 		reload("chronicles");
@@ -1519,6 +1570,8 @@ void CModListView::installMods(QStringList archives, bool removeGithubSuffix)
 			modDisplayName = modStateModel->getMod(modNames[i]).getName();
 
 		ui->progressBar->setFormat(tr("Installing mod %1").arg(modDisplayName));
+		ui->progressBar->setRange(0, 0);
+		qApp->processEvents();
 
 		manager->installMod(modNames[i], archives[i]);
 	}
@@ -1689,6 +1742,9 @@ void CModListView::on_refreshButton_clicked()
 
 void CModListView::on_abortButton_clicked()
 {
+	if(importOperation)
+		return;
+
 	delete dlManager;
 	dlManager = nullptr;
 	enqueuedModDownloads.clear();
