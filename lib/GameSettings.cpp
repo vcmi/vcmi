@@ -93,6 +93,7 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::HEROES_MOVEMENT_COST_BASE,                        "heroes",    "movementCostBase"                     },
 		{EGameSettings::HEROES_MOVEMENT_POINTS_LAND,                      "heroes",    "movementPointsLand"                   },
 		{EGameSettings::HEROES_MOVEMENT_POINTS_SEA,                       "heroes",    "movementPointsSea"                    },
+		{EGameSettings::HEROES_PREVENT_LAND_SEA_MOVEMENT_EXPLOIT,         "heroes",    "preventLandSeaMovementExploit"        },
 		{EGameSettings::HEROES_SKILL_PER_HERO,                            "heroes",    "skillPerHero"                         },
 		{EGameSettings::HEROES_SPECIALTY_CREATURE_GROWTH,                 "heroes",    "specialtyCreatureGrowth"              },
 		{EGameSettings::HEROES_SPECIALTY_SECONDARY_SKILL_GROWTH,          "heroes",    "specialtySecondarySkillGrowth"        },

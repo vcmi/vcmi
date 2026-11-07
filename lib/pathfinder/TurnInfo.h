@@ -60,6 +60,7 @@ private:
 	int movePointsLimitLand;
 	int movePointsLimitWater;
 	int movePointsLimitAir;
+	bool isCurrentTurn = false;
 
 	bool waterWalkingTest;
 	bool flyingMovementTest;
@@ -82,4 +83,5 @@ public:
 	TurnInfo(TurnInfoCache * sharedCache, const CGHeroInstance * target, int Turn);
 	bool isLayerAvailable(const EPathfindingLayer & layer) const;
 	int getMaxMovePoints(const EPathfindingLayer & layer) const;
+	int getMovementConversionLimit(const EPathfindingLayer & layer) const;
 };

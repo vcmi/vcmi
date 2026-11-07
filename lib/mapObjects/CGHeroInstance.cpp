@@ -228,6 +228,12 @@ void CGHeroInstance::setMovementPoints(int points)
 		movement = std::max(0, points);
 }
 
+void CGHeroInstance::replenishMovementPoints()
+{
+	setMovementConversionLimits(*getTurnInfo(0));
+	setMovementPoints(movementPointsLimit());
+}
+
 int CGHeroInstance::movementPointsLimit() const
 {
 	auto layer = inBoat() ? getBoat()->layer : EPathfindingLayer::LAND;
@@ -271,6 +277,23 @@ int CGHeroInstance::getLowestCreatureSpeed() const
 std::unique_ptr<TurnInfo> CGHeroInstance::getTurnInfo(int days) const
 {
 	return std::make_unique<TurnInfo>(turnInfoCache.get(), this, days);
+}
+
+void CGHeroInstance::setMovementConversionLimits(const TurnInfo & ti)
+{
+	movementPointLandLimit = ti.getMovePointsLimitLand();
+	movementPointSeaLimit = ti.getMovePointsLimitWater();
+}
+
+int CGHeroInstance::getMovementConversionLimit(const EPathfindingLayer & layer) const
+{
+	if(layer == EPathfindingLayer::LAND)
+		return movementPointLandLimit;
+
+	if(layer == EPathfindingLayer::SAIL)
+		return movementPointSeaLimit;
+
+	throw std::runtime_error("Invalid movement conversion layer: " + std::to_string(static_cast<int>(layer)));
 }
 
 int CGHeroInstance::movementPointsLimitCached(const EPathfindingLayer & layer, const TurnInfo * ti) const
@@ -540,6 +563,7 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 	//initialize bonuses
 	recreateSecondarySkillsBonuses();
 
+	setMovementConversionLimits(*getTurnInfo(0));
 	movement = movementPointsLimit();
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 }
@@ -1556,14 +1580,18 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 {
 	if(!ti->hasFreeShipBoarding())
 		return 0; // take all MPs by default
-	
+
 	auto boatLayer = inBoat() ? getBoat()->layer : EPathfindingLayer::SAIL;
 
 	if(boatLayer == EPathfindingLayer::AVIATE)
 		return 0; // boarding an airship takes all MPs, can be extended to support airship boarding bonuses (similar to hasFreeShipBoarding)
 
-	int mp1 = ti->getMaxMovePoints(disembark ? EPathfindingLayer::LAND : boatLayer);
-	int mp2 = ti->getMaxMovePoints(disembark ? boatLayer : EPathfindingLayer::LAND);
+	const int mp1 = ti->getMovementConversionLimit(disembark ? EPathfindingLayer::LAND : boatLayer);
+	const int mp2 = ti->getMovementConversionLimit(disembark ? boatLayer : EPathfindingLayer::LAND);
+
+	if(mp1 <= 0 || mp2 <= 0)
+		throw std::runtime_error("Invalid movement conversion limits: " + std::to_string(mp1) + ", " + std::to_string(mp2));
+
 	int ret = static_cast<int>((MPsBefore - basicCost) * static_cast<double>(mp1) / mp2);
 	return ret;
 }

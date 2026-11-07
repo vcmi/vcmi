@@ -14,6 +14,7 @@
 
 #include "../mapObjects/CGHeroInstance.h"
 #include "../mapping/CMap.h"
+#include "../pathfinder/TurnInfo.h"
 
 TavernHeroesPool::TavernHeroesPool(CGameState * owner)
 	: owner(owner)
@@ -64,7 +65,7 @@ void TavernHeroesPool::setHeroForPlayer(PlayerColor player, TavernHeroSlot slot,
 
 	if (replenishPoints)
 	{
-		h->setMovementPoints(h->movementPointsLimit());
+		h->replenishMovementPoints();
 		h->mana = h->manaLimit();
 	}
 
@@ -135,7 +136,7 @@ void TavernHeroesPool::onNewDay()
 		if (vstd::contains(unusedHeroes, heroID))
 			continue;
 
-		heroPtr->setMovementPoints(heroPtr->movementPointsLimit());
+		heroPtr->replenishMovementPoints();
 		heroPtr->mana = heroPtr->getManaNewTurn();
 	}
 }

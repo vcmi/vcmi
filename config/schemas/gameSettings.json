@@ -64,6 +64,7 @@
 				"movementCostBase"  :             { "type" : "number" },
 				"movementPointsLand" :            { "type" : "array" },
 				"movementPointsSea" :             { "type" : "array" },
+				"preventLandSeaMovementExploit"	: { "type": "boolean" },
 				"skillPerHero" :                  { "type" : "number" },
 				"specialtyCreatureGrowth" :       { "type" : "number" },
 				"specialtySecondarySkillGrowth" : { "type" : "number" },
