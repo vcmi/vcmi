@@ -1172,6 +1172,11 @@ void ApplyClientNetPackVisitor::visitSetAvailableArtifacts(SetAvailableArtifacts
 		const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(cl.gameInfo().getObj(ObjectInstanceID(pack.id)));
 		assert(bm);
 		const auto * tile = cl.gameInfo().getTile(bm->visitablePos());
+		// Objects without a visitable tile (e.g. some objects from mods) are never added to this list.
+		// Such a market cannot be visited by anyone, so there is no player to notify.
+		if(!tile || tile->visitableObjects.empty())
+			return;
+
 		const auto * topObject = cl.gameInfo().getObjInstance(tile->visitableObjects.back());
 
 		callInterfaceIfPresent(cl, topObject->getOwner(), &IGameEventsReceiver::availableArtifactsChanged, bm);
