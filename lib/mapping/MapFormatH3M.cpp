@@ -171,9 +171,8 @@ void CMapLoaderH3M::readHeader()
 		if(features.levelHOTA7)
 		{
 			bool canHireDefeatedHeroes = reader->readBool();
-
-			if (!canHireDefeatedHeroes)
-				logGlobal->warn("Map '%s': Option to block hiring of defeated heroes is not implemented!", mapName);
+			if(map)
+				map->overrideGameSetting(EGameSettings::HEROES_HIRE_DEFEATED, JsonNode(canHireDefeatedHeroes));
 		}
 
 		if(features.levelHOTA8)

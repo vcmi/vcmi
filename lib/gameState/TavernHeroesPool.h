@@ -73,6 +73,7 @@ public:
 	void onNewDay();
 
 	void addHeroToPool(HeroTypeID hero);
+	bool isHeroInPool(HeroTypeID hero) const;
 
 	/// Marks hero as available to only specific set of players
 	void setAvailability(HeroTypeID hero, std::set<PlayerColor> mask);

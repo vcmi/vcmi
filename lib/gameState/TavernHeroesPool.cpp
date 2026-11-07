@@ -146,6 +146,11 @@ void TavernHeroesPool::addHeroToPool(HeroTypeID hero)
 	heroesPool.push_back(hero);
 }
 
+bool TavernHeroesPool::isHeroInPool(HeroTypeID hero) const
+{
+	return vstd::contains(heroesPool, hero);
+}
+
 void TavernHeroesPool::setAvailability(HeroTypeID hero, std::set<PlayerColor> mask)
 {
 	perPlayerAvailability[hero] = mask;
