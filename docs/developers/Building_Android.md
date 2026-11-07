@@ -1,20 +1,15 @@
 # Building Android
 
-The following instructions apply to **v1.7 and later**. For earlier versions see older Git revision, e.g. from [1.6.8 release](https://github.com/vcmi/vcmi/blob/1.6.8/docs/developers/Building_Android.md).
+The following instructions apply to **v1.8 and later**. For earlier versions see older Git revision, e.g. from [1.7.5 release](https://github.com/vcmi/vcmi/blob/1.7.5/docs/developers/Building_Android.md).
 
-*Note*: building has been tested only on Linux and macOS. It may or may not work on Windows out of the box.
+*Note*: building has only been tested on Linux and macOS. It may or may not work on Windows out of the box.
 
 ## Requirements
 
 1. CMake 3.26+: download from your package manager or from <https://cmake.org/download/>
-2. JDK 17, not necessarily from Oracle
+2. JDK 17: any distribution, not necessarily from Oracle
 3. Android command line tools or Android Studio for your OS: <https://developer.android.com/studio/>
-4. Android NDK version **r25c (25.2.9519653)** (later version would also probably work), there're multiple ways to obtain it:
-    - recommended: download with Conan, especially if you're going to build VCMI dependencies from source, see [#NDK and Conan](#ndk-and-conan)
-    - install with Android Studio
-    - install with `sdkmanager` command line tool
-    - download from <https://developer.android.com/ndk/downloads>
-5. Optional:
+4. Optional:
     - Ninja: download from your package manager or from <https://github.com/ninja-build/ninja/releases>
     - Ccache: download from your package manager or from <https://github.com/ccache/ccache/releases>
 
@@ -32,8 +27,8 @@ We use Conan package manager to build/consume dependencies, find detailed usage 
 
 On the step where you need to replace **PROFILE**, choose:
 
-- `android-32-ndk` to build for ARM 32-bit (armeabi-v7a)
 - `android-64-ndk` to build for ARM 64-bit (aarch64-v8a)
+- `android-32-ndk` to build for ARM 32-bit (armeabi-v7a)
 - `android-x64-ndk` to build for Intel 64-bit (x86_64)
 
 Advanced users may choose profile without `-ndk` suffix to use NDK that's already installed in their system.
@@ -42,7 +37,7 @@ Advanced users may choose profile without `-ndk` suffix to use NDK that's alread
 
 Conan must be aware of the NDK location when you execute `conan install`. There're multiple ways to achieve that as written in the [Conan docs](https://docs.conan.io/2/examples/cross_build/android/ndk.html#examples-cross-build-android-ndk):
 
-- the easiest is to download NDK from Conan (option 1 in the docs), then all the magic happens automatically
+- the easiest is to download NDK from Conan (option 1 in the docs), then all the magic happens automatically - this is what our aforementioned Conan profiles use
 - to use an already installed NDK, you can simply pass it on the command line to `conan install`: (note that this will likely work only when consuming the prebuilt binaries)
 
 ```sh
@@ -62,9 +57,11 @@ Building for Android is a 2-step process. First, native C++ code is compiled to 
 
 This is a traditional CMake project, you can build it from command line or some IDE. You're not required to pass any custom options (except Conan toolchain file), defaults are already good.
 
-The Java code (located in the `android` directory of the repo) will be built automatically after the native code using the `androiddeployqt` tool. But you must set `JAVA_HOME` and `ANDROID_HOME` environment variables.
+The Java code (located in the `android` directory of the repo) will be built automatically after the native code using the `androiddeployqt` tool. APK will appear in `<build dir>/android-build/vcmi-app/build/outputs/apk/<build configuration>` directory.
 
-APK will appear in `<build dir>/android-build/vcmi-app/build/outputs/apk/<build configuration>` directory which you can then install to your device with `adb install -r /path/to/apk` (`adb` command is from Android command line tools).
+### Building from command line
+
+You must set `JAVA_HOME` and `ANDROID_HOME` environment variables. After buildoing you can install the app to your device with `adb install -r /path/to/apk` (`adb` command is from Android command line tools - `platform-tools` directory).
 
 ### Example
 
@@ -74,8 +71,10 @@ export JAVA_HOME=/path/to/jdk17
 export ANDROID_HOME=/path/to/android/sdk
 
 cmake -S . -B ../build -G Ninja -D CMAKE_BUILD_TYPE=Debug -D ENABLE_CCACHE:BOOL=ON --toolchain ...
-cmake --build ../build
+cmake --build ../build --target build_apk
 ```
+
+### Building and running in Qt Creator
 
 ## Docker
 

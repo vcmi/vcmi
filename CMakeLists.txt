@@ -31,6 +31,11 @@ if(POLICY CMP0177)
 	cmake_policy(SET CMP0177 NEW)
 endif()
 
+# file(CREATE_LINK) with COPY_ON_ERROR copies directory content.
+if(POLICY CMP0205)
+	cmake_policy(SET CMP0205 NEW)
+endif()
+
 ############################################
 #        User-provided options             #
 ############################################
@@ -73,8 +78,8 @@ option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" O
 # Platform-specific options
 
 if(ANDROID)
+	set(ANDROID_SDK "$ENV{ANDROID_HOME}" CACHE STRING "Path to Android SDK")
 	set(ANDROID_TARGET_SDK_VERSION "35" CACHE STRING "Android target SDK version")
-	set(ANDROIDDEPLOYQT_OPTIONS "" CACHE STRING "Additional androiddeployqt options separated by semi-colon")
 	set(ANDROID_GRADLE_PROPERTIES "" CACHE STRING "Additional Gradle properties separated by semi-colon")
 
 	set(ENABLE_STATIC_LIBS ON)
@@ -688,23 +693,43 @@ if(WIN32 AND USING_CONAN AND EXISTS "${CONAN_RUNTIME_LIBS_FILE}")
 endif()
 
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
-	# Widgets finds its own dependencies (QtGui and QtCore).
-	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+	if(ANDROID)
+		# required by Qt, see Qt5AndroidSupport.cmake
+		set(QT_ANDROID_APPLICATION_BINARY vcmiclient)
 
-	if(ENABLE_TEMPLATE_EDITOR)
-		find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Svg Xml)
-		find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Svg Xml)
+		# proper way is to set ANDROID_SDK_PLATFORM, but Qt's CMake code has a bug:
+		# it sets 2 command line parameters in a single string, which we fix here
+		# there's the same bug with --jdk parameter, but it's used only in signAAB() and we sign manually via the Gradle project
+		set(android_deploy_qt_platform "--android-platform" "android-${ANDROID_TARGET_SDK_VERSION}")
+		# there's no way to provide custom params, so we'll do it through this variable as well
+		list(APPEND android_deploy_qt_platform "--verbose" $<$<NOT:$<CONFIG:Debug>>:--release>)
 
-		if(QT_VERSION_MAJOR EQUAL 6)
-			find_package(QT NAMES Qt6 REQUIRED COMPONENTS SvgWidgets)
-			find_package(Qt6 REQUIRED COMPONENTS SvgWidgets)
-		endif()
+		set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/android" CACHE INTERNAL "")
+		set(QT_CREATOR_SKIP_CONAN_SETUP ON)
+		# needed only for Qt Creator < 21 to avoid "Product type is not an application, not building an APK"
+		set(ANDROID_DEPLOYMENT_SETTINGS_FILE "${CMAKE_BINARY_DIR}/android_deployment_settings.json" CACHE INTERNAL "")
 	endif()
 
+	# Widgets finds its own dependencies (QtGui and QtCore).
+	find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+
+	set(qtComponents Widgets)
 	if(ENABLE_TRANSLATIONS)
-		find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools)
+		list(APPEND qtComponents LinguistTools)
 		add_definitions(-DENABLE_QT_TRANSLATIONS)
+	endif()
+	if(ENABLE_TEMPLATE_EDITOR)
+		list(APPEND qtComponents Svg Xml)
+		if(QT_VERSION_MAJOR EQUAL 6)
+			list(APPEND qtComponents SvgWidgets)
+		endif()
+	endif()
+	find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS ${qtComponents})
+
+	if(ANDROID AND NOT TARGET apk)
+		# Conan doesn't include this file by default, https://github.com/conan-io/conan-center-index/pull/31171
+		# TODO: check in Qt 6
+		include("${QT_PACKAGE_DIR}/lib/cmake/Qt${QT_VERSION_MAJOR}Core/Qt${QT_VERSION_MAJOR}AndroidSupport.cmake")
 	endif()
 endif()
 
@@ -767,7 +792,6 @@ elseif(ANDROID)
 	string(JSON ANDROID_SYSROOT_LIB_SUBDIR GET "${ndkAbiInfo}" "${ANDROID_ABI}" "triple")
 
 	# required by Qt
-	set(androidPackageSourceDir "${CMAKE_SOURCE_DIR}/android")
 	set(androidQtBuildDir "${CMAKE_BINARY_DIR}/android-build")
 	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${androidQtBuildDir}/${LIB_DIR}")
 else()
@@ -804,8 +828,7 @@ endif()
 # common Qt paths
 if(ENABLE_LAUNCHER OR ENABLE_EDITOR)
 	get_target_property(qmakePath Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
-	get_filename_component(qtDir "${qmakePath}/../../" ABSOLUTE)
-	set(qtBinDir "${qtDir}/bin")
+	get_filename_component(qtBinDir "${qmakePath}/../" ABSOLUTE)
 endif()
 
 #######################################
@@ -875,7 +898,12 @@ vcmi_install_conan_deps()
 
 if(ANDROID)
 	string(REPLACE ";" "\n" ANDROID_GRADLE_PROPERTIES_MULTILINE "${ANDROID_GRADLE_PROPERTIES}")
-	file(WRITE "${androidPackageSourceDir}/vcmi-app/gradle.properties" "signingRoot=${CMAKE_SOURCE_DIR}/CI/android\n${ANDROID_GRADLE_PROPERTIES_MULTILINE}")
+	file(WRITE "${ANDROID_PACKAGE_SOURCE_DIR}/vcmi-app/gradle.properties"
+"SDL_JAVA_SRC_DIR=${SDL_JAVA_SRC_DIR}
+androidNdkPath=${CMAKE_ANDROID_NDK}
+signingRoot=${CMAKE_SOURCE_DIR}/CI/android
+${ANDROID_GRADLE_PROPERTIES_MULTILINE}"
+	)
 
 	if(ANDROID_STL MATCHES "_shared$")
 		set(stlLibName "${CMAKE_SHARED_LIBRARY_PREFIX}${ANDROID_STL}${CMAKE_SHARED_LIBRARY_SUFFIX}")
