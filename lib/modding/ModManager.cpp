@@ -435,7 +435,7 @@ std::string ModsPresetState::importPreset(const JsonNode & newConfig)
 
 ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode & repositoryList)
 {
-	JsonNode coreModConfig(JsonPath::builtin("config/gameConfig.json"));
+	JsonNode coreModConfig(JsonPath::builtin("config/gameConfig.json"), *CResourceHandler::get(ModScope::scopeBuiltin()));
 	coreModConfig.setModScope(ModScope::scopeBuiltin());
 	mods.try_emplace(ModScope::scopeBuiltin(), ModScope::scopeBuiltin(), coreModConfig, JsonNode());
 

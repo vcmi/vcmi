@@ -28,7 +28,7 @@ protected:
 
 CLegacyConfigParser::CLegacyConfigParser(const TextPath & resource, const CModHandler & modHandler)
 {
-	auto input = CResourceHandler::get()->load(resource);
+	auto input = modHandler.getRootFilesystem().load(resource);
 	fileEncoding = modHandler.findResourceEncoding(resource);
 
 	data.reset(new char[input->getSize()]);

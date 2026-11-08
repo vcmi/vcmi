@@ -413,7 +413,7 @@ void CCreatureHandler::loadCommanders(LibraryLoadContext & context)
 	auto configResource = JsonPath::builtin("config/commanders.json");
 
 	std::string modSource = context.lib.modh->findResourceOrigin(configResource);
-	JsonNode data(configResource);
+	JsonNode data(configResource, context.filesystem);
 	data.setModScope(modSource);
 
 	const JsonNode & config = data; // switch to const data accessors
@@ -606,10 +606,10 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(LibraryLoadContext & c
 	}
 
 	if (!node["disabled"].Bool() &&
-		!CResourceHandler::get()->existsResource(cre->animDefName) &&
-		!CResourceHandler::get()->existsResource(cre->animDefName.toType<EResType::JSON>()) &&
-		!CResourceHandler::get()->existsResource(cre->animDefName.addPrefix("SPRITES/")) &&
-		!CResourceHandler::get()->existsResource(cre->animDefName.addPrefix("SPRITES/").toType<EResType::JSON>()))
+		!context.filesystem.existsResource(cre->animDefName) &&
+		!context.filesystem.existsResource(cre->animDefName.toType<EResType::JSON>()) &&
+		!context.filesystem.existsResource(cre->animDefName.addPrefix("SPRITES/")) &&
+		!context.filesystem.existsResource(cre->animDefName.addPrefix("SPRITES/").toType<EResType::JSON>()))
 		throw ModLoadingException(scope, "creature " + cre->getJsonKey() + " has no combat animation but is not marked as special!" );
 
 	JsonNode advMapFile = node["graphics"]["map"];

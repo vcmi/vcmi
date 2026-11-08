@@ -12,6 +12,7 @@
 #include "../filesystem/ResourcePath.h"
 
 class JsonNode;
+class ISimpleResourceLoader;
 using JsonMap = std::map<std::string, JsonNode>;
 using JsonVector = std::vector<JsonNode>;
 
@@ -79,11 +80,10 @@ public:
 	explicit JsonNode(const char * data, size_t datasize, const std::string & fileName);
 	explicit JsonNode(const char * data, size_t datasize, const JsonParsingSettings & parserSettings, const std::string & fileName);
 
-	/// Create tree from JSON file
+	/// Create tree from JSON file in current filesystem
 	explicit JsonNode(const JsonPath & fileURI);
-	explicit JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings);
-	explicit JsonNode(const JsonPath & fileURI, const std::string & modName);
-	explicit JsonNode(const JsonPath & fileURI, const JsonParsingSettings & parserSettings, const std::string & modName, bool & isValidSyntax);
+	/// Create tree from JSON file in provided filesystem
+	explicit JsonNode(const JsonPath & fileURI, const ISimpleResourceLoader & filesystem);
 
 	bool operator==(const JsonNode & other) const;
 	bool operator!=(const JsonNode & other) const;

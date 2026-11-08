@@ -10,61 +10,7 @@
 #include "StdInc.h"
 #include "AdapterLoaders.h"
 
-#include "Filesystem.h"
-#include "../json/JsonNode.h"
-
-CMappedFileLoader::CMappedFileLoader(const std::string & mountPoint, const JsonNode &config)
-{
-	for(auto entry : config.Struct())
-	{
-		//fileList[ResourcePath(mountPoint + entry.first)] = ResourcePath(mountPoint + entry.second.String());
-		fileList.emplace(ResourcePath(mountPoint + entry.first), ResourcePath(mountPoint + entry.second.String()));
-	}
-}
-
-std::unique_ptr<CInputStream> CMappedFileLoader::load(const ResourcePath & resourceName) const
-{
-	return CResourceHandler::get()->load(fileList.at(resourceName));
-}
-
-bool CMappedFileLoader::existsResource(const ResourcePath & resourceName) const
-{
-	return fileList.count(resourceName) != 0;
-}
-
-std::string CMappedFileLoader::getMountPoint() const
-{
-	return ""; // does not have any meaning with this type of data source
-}
-
-std::optional<boost::filesystem::path> CMappedFileLoader::getResourceName(const ResourcePath & resourceName) const
-{
-	return CResourceHandler::get()->getResourceName(fileList.at(resourceName));
-}
-
-std::unordered_set<ResourcePath> CMappedFileLoader::getFilteredFiles(std::function<bool(const ResourcePath &)> filter) const
-{
-	std::unordered_set<ResourcePath> foundID;
-
-	for(const auto & file : fileList)
-	{
-		if (filter(file.first))
-			foundID.insert(file.first);
-	}
-	return foundID;
-}
-
-std::string CMappedFileLoader::getFullFileURI(const ResourcePath& resourceName) const
-{
-	return CResourceHandler::get()->getFullFileURI(fileList.at(resourceName));
-}
-
-std::time_t CMappedFileLoader::getLastWriteTime(const ResourcePath& resourceName) const
-{
-	return CResourceHandler::get()->getLastWriteTime(fileList.at(resourceName));
-}
-
-
+#include "CInputStream.h"
 
 CFilesystemList::CFilesystemList()
 {
@@ -239,7 +185,7 @@ std::vector<const ISimpleResourceLoader *> CFilesystemList::getResourcesWithName
 	return ret;
 }
 
-void CFilesystemList::addLoader(std::unique_ptr<ISimpleResourceLoader> loader, bool writeable)
+void CFilesystemList::addLoader(std::shared_ptr<ISimpleResourceLoader> loader, bool writeable)
 {
 	if (writeable)
 		writeableLoaders.insert(loader.get());

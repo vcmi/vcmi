@@ -140,7 +140,7 @@ const spells::SchoolService * GameLibrary::spellSchools() const
 	return spellSchoolHandler.get();
 }
 
-void GameLibrary::loadFilesystem(bool extractArchives)
+void initializeBaseFilesystem(bool extractArchives, bool useTestPreset)
 {
 	CStopWatch loadTime;
 
@@ -149,11 +149,7 @@ void GameLibrary::loadFilesystem(bool extractArchives)
 
 	CResourceHandler::load("config/filesystem.json", extractArchives);
 	logGlobal->info("\tData loading: %d ms", loadTime.getDiff());
-}
 
-void GameLibrary::loadModFilesystem(bool useTestPreset)
-{
-	CStopWatch loadTime;
 	// Test preset discovers the vcmi-test fixtures mod from test/testdata/ instead of the
 	// shipped Mods/ directory, so it is never scanned or shipped by the game itself.
 	if(useTestPreset)
@@ -161,6 +157,24 @@ void GameLibrary::loadModFilesystem(bool useTestPreset)
 		auto loader = std::make_unique<CFilesystemLoader>("MODS/", "test/testdata/", 64);
 		dynamic_cast<CFilesystemList*>(CResourceHandler::get("initial"))->addLoader(std::move(loader), false);
 	}
+
+	settings.init("config/settings.json", "vcmi:settings");
+	persistentStorage.init("config/persistentStorage.json", "");
+	keyBindingsConfig.init("config/keyBindingsConfig.json", "");
+	CGeneralTextHandler::detectInstallParameters();
+}
+
+void setGameLibrary(std::unique_ptr<GameLibrary> library)
+{
+	const GameLibrary * previous = LIBRARY;
+	CResourceHandler::setCurrent(library ? &library->modh->getFilesystem() : nullptr);
+	LIBRARY = library.release();
+	delete previous;
+}
+
+void GameLibrary::loadModFilesystem(bool useTestPreset)
+{
+	CStopWatch loadTime;
 	modh = std::make_unique<CModHandler>(useTestPreset);
 	identifiersHandler = std::make_unique<CIdentifierStorage>(*modh);
 	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
@@ -175,24 +189,21 @@ void createHandler(LibraryHandlerPtr<Handler> & handler)
 	handler = std::make_unique<Handler>();
 }
 
-void GameLibrary::initializeFilesystem(bool extractArchives, bool useTestPreset)
+void GameLibrary::initializeFilesystem(bool useTestPreset)
 {
-	loadFilesystem(extractArchives);
-	settings.init("config/settings.json", "vcmi:settings");
-	persistentStorage.init("config/persistentStorage.json", "");
-	keyBindingsConfig.init("config/keyBindingsConfig.json", "");
 	loadModFilesystem(useTestPreset);
 
 	// Detect game data mode after filesystem is loaded
+	const bool hasDemoMap = modh->getRootFilesystem().existsResource(ResourcePath("MAPS/H3DEMO.H3M"));
 	gameDataMode = GameDataMode::SOD;
 	if(CGeneralTextHandler::isRoEData())
 	{
-		if(CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M")))
+		if(hasDemoMap)
 			gameDataMode = GameDataMode::DEMO_ROE;
 		else
 			gameDataMode = GameDataMode::ROE;
 	}
-	else if(CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M")))
+	else if(hasDemoMap)
 		gameDataMode = GameDataMode::DEMO_SOD;
 
 	if(gameDataMode == GameDataMode::DEMO_ROE || gameDataMode == GameDataMode::DEMO_SOD)
@@ -237,14 +248,14 @@ void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 	createHandler(heroclassesh);
 	createHandler(arth);
 	creh = std::make_unique<CCreatureHandler>(context);
-	createHandler(townh);
+	townh = std::make_unique<CTownHandler>(context);
 	createHandler(biomeHandler);
 	createHandler(objtypeh);
 	createHandler(spellSchoolHandler);
 	createHandler(spellh);
 	createHandler(scriptTypeHandler);
 	createHandler(skillh);
-	createHandler(terviewh);
+	terviewh = std::make_unique<CTerrainViewPatternConfig>(context.filesystem);
 	createHandler(campaignRegions);
 	createHandler(tplh); //templates need already resolved identifiers (refactor?)
 	createHandler(battlefieldsHandler);

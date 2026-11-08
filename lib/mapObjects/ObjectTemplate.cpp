@@ -68,7 +68,7 @@ void ObjectTemplate::afterLoadFixup()
 	}
 }
 
-void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
+void ObjectTemplate::readTxt(CLegacyConfigParser & parser, const ISimpleResourceLoader & filesystem)
 {
 	std::string data = parser.readString();
 	std::vector<std::string> strings;
@@ -124,17 +124,17 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser)
 	else
 		visitDir = (8|16|32|64|128);
 
-	readMsk();
+	readMsk(filesystem);
 	recalculate();
 }
 
-void ObjectTemplate::readMsk()
+void ObjectTemplate::readMsk(const ISimpleResourceLoader & filesystem)
 {
 	ResourcePath resID("Sprites/" + animationFile.getName(), EResType::MASK);
 
-	if (CResourceHandler::get()->existsResource(resID))
+	if (filesystem.existsResource(resID))
 	{
-		auto msk = CResourceHandler::get()->load(resID)->readAll();
+		auto msk = filesystem.load(resID)->readAll();
 		setSize(msk.first.get()[0], msk.first.get()[1]);
 	}
 	else //maximum possible size of H3 object //TODO: remove hardcode and move this data into modding system
@@ -191,7 +191,7 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 		visitDir = (8|16|32|64|128);
 
 	reader.skip(16);
-	readMsk();
+	readMsk(*CResourceHandler::get());
 
 	afterLoadFixup();
 	recalculate();

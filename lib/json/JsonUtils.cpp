@@ -209,10 +209,15 @@ void JsonUtils::inherit(JsonNode & descendant, const JsonNode & base)
 
 JsonNode JsonUtils::assembleFromFiles(const std::string & filename)
 {
+	return assembleFromFiles(*CResourceHandler::get(), filename);
+}
+
+JsonNode JsonUtils::assembleFromFiles(const ISimpleResourceLoader & filesystem, const std::string & filename)
+{
 	JsonNode result;
 	JsonPath resID = JsonPath::builtinTODO(filename);
 
-	for(auto & loader : CResourceHandler::get()->getResourcesWithName(resID))
+	for(auto & loader : filesystem.getResourcesWithName(resID))
 	{
 		auto textData = loader->load(resID)->readAll();
 		JsonNode section(reinterpret_cast<std::byte *>(textData.first.get()), textData.second, resID.getName());

@@ -172,9 +172,9 @@ void TerrainViewPattern::WeightedRule::setNative()
 	dirtRule = sandRule = transitionRule = nativeStrongRule = anyRule = false; //no idea what they mean, but look mutually exclusive
 }
 
-CTerrainViewPatternConfig::CTerrainViewPatternConfig()
+CTerrainViewPatternConfig::CTerrainViewPatternConfig(const ISimpleResourceLoader & filesystem)
 {
-	const JsonNode config(JsonPath::builtin("config/terrainViewPatterns.json"));
+	const JsonNode config(JsonPath::builtin("config/terrainViewPatterns.json"), filesystem);
 	static const std::string patternTypes[] = { "terrainView", "terrainType" };
 	for (int i = 0; i < std::size(patternTypes); ++i)
 	{

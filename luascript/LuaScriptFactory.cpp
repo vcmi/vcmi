@@ -27,10 +27,10 @@ LuaScriptStore::LuaScriptStore(LuaModule & host)
 
 LuaScriptStore::~LuaScriptStore() = default;
 
-void LuaScriptStore::load(const ScriptTypeDescription & description)
+void LuaScriptStore::load(const ScriptTypeDescription & description, const CResourceHandler & filesystem)
 {
 	ScriptPath basePath = ScriptPath::builtinTODO(description.sourcePath).addPrefix("SCRIPTS/");
-	loadedScripts[description.scriptId] = std::make_unique<LuaScriptInstance>(host, description.modScope, basePath, description.patches);
+	loadedScripts[description.scriptId] = std::make_unique<LuaScriptInstance>(host, filesystem, description.modScope, basePath, description.patches);
 }
 
 const LuaScriptInstance * LuaScriptStore::get(const std::string & scriptId) const
@@ -49,9 +49,9 @@ LuaScriptFactory::LuaScriptFactory(LuaScriptStore & store)
 {
 }
 
-void LuaScriptFactory::initialize(const ScriptTypeDescription & description)
+void LuaScriptFactory::initialize(const ScriptTypeDescription & description, const CResourceHandler & filesystem)
 {
-	store.load(description);
+	store.load(description, filesystem);
 }
 
 std::shared_ptr<ICombatEventScript> LuaScriptFactory::createCombatEventScript(const std::string & scriptId) const

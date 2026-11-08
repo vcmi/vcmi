@@ -14,6 +14,7 @@
 #include "../json/JsonValidator.h"
 
 class GameLibrary;
+class ISimpleResourceLoader;
 
 /// Level of checks of loaded content, set by "mods/validation" setting
 enum class EContentValidation : int8_t
@@ -29,6 +30,9 @@ class DLL_LINKAGE LibraryLoadContext : boost::noncopyable
 public:
 	/// Library that is being loaded
 	GameLibrary & lib;
+
+	/// Root of the filesystem of the library, with all active mods mounted
+	const ISimpleResourceLoader & filesystem;
 
 	/// Resolves identifiers requested by loaded content once content of all mods is loaded
 	DeferredIdentifierResolver resolver;

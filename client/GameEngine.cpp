@@ -82,13 +82,17 @@ GameEngine::GameEngine()
 		videoPlayerInstance = std::make_unique<CVideoPlayer>();
 #endif
 
+	cursorHandlerInstance = std::make_unique<CursorHandler>();
+
+	asyncTasks = std::make_unique<AsyncRunner>();
+}
+
+void GameEngine::initAudio()
+{
 	soundPlayerInstance = std::make_unique<CSoundHandler>();
 	musicPlayerInstance = std::make_unique<CMusicHandler>();
 	sound().setVolume(settings["general"]["sound"].Integer());
 	music().setVolume(settings["general"]["music"].Integer());
-	cursorHandlerInstance = std::make_unique<CursorHandler>();
-
-	asyncTasks = std::make_unique<AsyncRunner>();
 }
 
 void GameEngine::handleEvents()

@@ -18,16 +18,16 @@
 namespace scripting
 {
 
-LuaScriptInstance::LuaScriptInstance(const LuaModule & host,
+LuaScriptInstance::LuaScriptInstance(const LuaModule & host, const CResourceHandler & filesystem,
 	const std::string & baseScope, const ScriptPath & basePath,
 	const std::vector<std::pair<std::string, std::string>> & patches)
 	: host(host)
 	, baseModScope(baseScope)
 	, baseSourcePath(basePath.getName())
 {
-	loadLayer(baseScope, basePath);
+	loadLayer(filesystem, baseScope, basePath);
 	for (const auto & [scope, path] : patches)
-		loadLayer(scope, path);
+		loadLayer(filesystem, scope, path);
 }
 
 LuaScriptInstance::LuaScriptInstance(const LuaModule & host, const std::string & baseScope, std::string sourceText,
@@ -42,19 +42,19 @@ LuaScriptInstance::LuaScriptInstance(const LuaModule & host, const std::string &
 	layers.push_back(std::move(layer));
 
 	for(const auto & name : builtinLayers)
-		loadLayer(ModScope::scopeBuiltin(), name);
+		loadLayer(CResourceHandler::getCurrent(), ModScope::scopeBuiltin(), name);
 }
 
 LuaScriptInstance::~LuaScriptInstance() = default;
 
-void LuaScriptInstance::loadLayer(const std::string & modScope, const std::string & sourcePath)
+void LuaScriptInstance::loadLayer(const CResourceHandler & filesystem, const std::string & modScope, const std::string & sourcePath)
 {
-	loadLayer(modScope, ScriptPath::builtinTODO(sourcePath).addPrefix("SCRIPTS/"));
+	loadLayer(filesystem, modScope, ScriptPath::builtinTODO(sourcePath).addPrefix("SCRIPTS/"));
 }
 
-void LuaScriptInstance::loadLayer(const std::string & modScope, const ScriptPath & sourcePath)
+void LuaScriptInstance::loadLayer(const CResourceHandler & filesystem, const std::string & modScope, const ScriptPath & sourcePath)
 {
-	auto * loader = CResourceHandler::get(modScope);
+	auto * loader = filesystem.getLoader(modScope);
 	if (!loader->existsResource(sourcePath))
 	{
 		logMod->error("Script layer not found: %s:%s", modScope, sourcePath.getName());

@@ -331,8 +331,9 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	logGlobal->info("The log file will be saved to %s", TextOperations::filesystemPathToUtf8(logPath));
 
 	//init
+	initializeBaseFilesystem(extractionOptions.extractArchives);
 	auto library = std::make_unique<GameLibrary>();
-	library->initializeFilesystem(extractionOptions.extractArchives);
+	library->initializeFilesystem();
 
 	// Initialize logging based on settings
 	logConfig->configure();
@@ -459,7 +460,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	setTitle();
 
 	library->initializeLibrary();
-	LIBRARY = library.release();
+	setGameLibrary(std::move(library));
 
 	Settings config = settings.write["session"]["editor"];
 	config->Bool() = true;

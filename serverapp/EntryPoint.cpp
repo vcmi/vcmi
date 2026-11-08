@@ -53,15 +53,14 @@ static void exportLuaApiDocs(const boost::filesystem::path & outPath)
 static std::unique_ptr<GameLibrary> loadLibrary()
 {
 	auto library = std::make_unique<GameLibrary>();
-	library->initializeFilesystem(false);
+	library->initializeFilesystem();
 	library->initializeLibrary();
 	return library;
 }
 
 static void generateTranslations(const std::string & modID)
 {
-	GameLibrary().loadFilesystem(false);
-	settings.init("config/settings.json", "vcmi:settings");
+	initializeBaseFilesystem(false);
 
 	auto mods = std::make_unique<ModManager>();
 
@@ -91,7 +90,7 @@ static void generateTranslations(const std::string & modID)
 	std::map<std::string, ExportedStrings> textsByMod;
 	std::vector<std::string> modsWithOverrides;
 
-	LIBRARY = loadLibrary().release();
+	setGameLibrary(loadLibrary());
 
 	{
 		CMapService mapService;
@@ -208,9 +207,7 @@ static void generateTranslations(const std::string & modID)
 	}
 
 
-	CResourceHandler::destroy();
-	delete LIBRARY;
-	LIBRARY = loadLibrary().release();
+	setGameLibrary(loadLibrary());
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
 
 	for(const auto & modEntry : textsByMod)
@@ -356,8 +353,9 @@ int main(int argc, const char * argv[])
 
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
+	initializeBaseFilesystem(false);
 	auto library = std::make_unique<GameLibrary>();
-	library->initializeFilesystem(false);
+	library->initializeFilesystem();
 	logConfigurator.configure();
 
 	if(opts.count("export-config"))
@@ -368,7 +366,7 @@ int main(int argc, const char * argv[])
 	}
 	else
 		library->initializeLibrary();
-	LIBRARY = library.release();
+	setGameLibrary(std::move(library));
 
 	if(opts.count("creature-values"))
 	{
@@ -390,6 +388,6 @@ int main(int argc, const char * argv[])
 
 	logConfigurator.deconfigure();
 
-	delete LIBRARY;
+	setGameLibrary(nullptr);
 	return 0;
 }
