@@ -186,6 +186,9 @@ std::map<SecondarySkill, si32> JsonRandom::loadSecondaries(const JsonNode & valu
 		for(const auto & element : value.Vector())
 		{
 			std::set<SecondarySkill> potentialPicks = jsonKeyExtractor.filterKeys(element, defaultSkills, variables);
+			if(potentialPicks.empty())
+				continue; // map allows too few skills, return fewer instead of throwing
+
 			SecondarySkill skillID = *RandomGeneratorUtil::nextItem(potentialPicks, rng);
 
 			defaultSkills.erase(skillID); //avoid dupicates
