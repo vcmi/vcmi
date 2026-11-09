@@ -69,7 +69,7 @@ public:
 
 	void addObstacle()
 	{
-		const auto * obstacleInfo = LIBRARY->obstacles()->getByName("core:12");
+		const auto * obstacleInfo = LIBRARY->obstacles()->getByName("core:ObDtS03");
 		ASSERT_NE(obstacleInfo, nullptr);
 
 		auto obstacle = std::make_shared<CObstacleInstance>();
