@@ -72,7 +72,9 @@ void CGeneralTextHandler::detectInstallParameters()
 
 	std::array<size_t, 256> charCount{};
 	std::array<double, 16> footprint{};
-	std::array<double, 6> deviations{};
+	std::array<double, knownFootprints.size()> deviations{};
+
+	static_assert(std::size(knownFootprints) == std::size(knownLanguages));
 
 	auto data = resource->readAll();
 
