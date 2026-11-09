@@ -32,13 +32,16 @@ std::shared_ptr<CObstacleInstance> makeUsualObstacle(si32 uniqueID)
 	return obstacle;
 }
 
-std::shared_ptr<CObstacleInstance> makeUsualObstacleAt(si32 uniqueID, const BattleHex & pos, si32 obstacleTypeID = 0)
+std::shared_ptr<CObstacleInstance> makeUsualObstacleAt(si32 uniqueID, const BattleHex & pos)
 {
+	const auto * obstacleInfo = LIBRARY->obstacles()->getByName("core:ObDtS03");
+	ASSERT_NE(obstacleInfo, nullptr);
+
 	auto obstacle = std::make_shared<CObstacleInstance>();
 	obstacle->obstacleType = CObstacleInstance::USUAL;
 	obstacle->uniqueID = uniqueID;
 	obstacle->pos = pos;
-	obstacle->ID = obstacleTypeID;
+	obstacle->ID = obstacleInfo->obstacle.getNum();
 	return obstacle;
 }
 
@@ -146,7 +149,7 @@ TEST_F(RemoveObstacleTest, ApplicableTargetUsualNonMassive)
 	setupEffect(config);
 
 	const BattleHex hex(5, 5);
-	IBattleInfo::ObstacleCList obstacles = { makeUsualObstacleAt(1, hex, 0) };
+	IBattleInfo::ObstacleCList obstacles = { makeUsualObstacleAt(1, hex) };
 
 	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(false));
 	EXPECT_CALL(*battleFake, getAllObstacles()).WillRepeatedly(Return(obstacles));
@@ -323,8 +326,8 @@ TEST_F(RemoveObstacleApplyTest, RemovesUsualObstacleNonMassive)
 	setupEffect(config);
 
 	const BattleHex targetHex(5, 5);
-	auto onTarget = makeUsualObstacleAt(1, targetHex, 0);
-	auto elsewhere = makeUsualObstacleAt(2, BattleHex(10, 5), 0);
+	auto onTarget = makeUsualObstacleAt(1, targetHex);
+	auto elsewhere = makeUsualObstacleAt(2, BattleHex(10, 5));
 	IBattleInfo::ObstacleCList obstacles = { onTarget, elsewhere };
 
 	EXPECT_CALL(mechanicsMock, isMassive()).WillRepeatedly(Return(false));
