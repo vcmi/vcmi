@@ -162,10 +162,10 @@ void ApplyGhNetPackVisitor::visitSpellResearch(SpellResearch & pack)
 
 void ApplyGhNetPackVisitor::visitVisitTownBuilding(VisitTownBuilding & pack)
 {
-	gh.throwIfWrongOwner(connection, &pack, pack.tid);
+	gh.throwIfWrongPlayer(connection, &pack);
 	gh.throwIfPlayerNotActive(connection, &pack);
 
-	result = gh.visitTownBuilding(pack.tid, pack.bid);
+	result = gh.visitTownBuilding(pack.tid, pack.bid, pack.player);
 }
 
 void ApplyGhNetPackVisitor::visitRecruitCreatures(RecruitCreatures & pack)
