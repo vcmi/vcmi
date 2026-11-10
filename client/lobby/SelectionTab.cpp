@@ -1063,8 +1063,6 @@ void SelectionTab::setScenarioList(const ScenarioList & list)
 	{
 		if(tabType == ESelectionScreen::newGame && subfolder.name == "RandomMaps")
 			continue;
-		if(subfolder.compatible == false)
-			continue;
 
 		auto folder = std::make_shared<ElementInfo>();
 		folder->isFolder = true;

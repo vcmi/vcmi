@@ -13,6 +13,7 @@
 #include "../../lib/mapping/ScenarioList.h"
 
 enum class ELoadMode : ui8;
+struct JsonValidator;
 
 /// Lists maps, saved games or campaigns available on the server, one folder at a time
 class ScenarioListBuilder
@@ -25,7 +26,12 @@ class ScenarioListBuilder
 
 	std::vector<ScenarioListEntry> parseMapsOrCampaigns(const std::vector<ResourcePath> & folderFiles) const;
 	std::vector<ScenarioListEntry> parseSaves(const std::vector<ResourcePath> & folderFiles, std::vector<std::string> & unsupportedSaves) const;
-	std::optional<bool> isFolderCompatible(std::vector<ResourcePath> folderFiles) const;
+	/// Returns entry of a saved game, with file name only if the save can not be read
+	ScenarioListEntry readSave(const ResourcePath & file, JsonValidator & validator) const;
+	/// Returns entry of a file that can not be read
+	ScenarioListEntry createUnreadableEntry(const ResourcePath & file, ScenarioListEntry::EProblem problem, const std::string & error) const;
+	/// Returns status of the newest readable save of a folder, autosaves first; empty if that save is of another load mode
+	std::optional<ScenarioListEntry::EStatus> getFolderStatus(std::vector<ResourcePath> folderFiles) const;
 	/// Returns folder of the file and its file URI in selectedFile, empty if the file is not listed
 	std::optional<ScenarioList> buildFolderOf(const std::string & fileName, std::string & selectedFile) const;
 
@@ -54,6 +60,6 @@ public:
 	/// selects the newest save of the root folder or of its newest subfolder with compatible saves
 	ScenarioList buildForSave(const std::string & saveName, std::string & selectedFile) const;
 
-	/// Returns true if saved game can be loaded in this load mode
+	/// Returns true if saved game can be loaded in this load mode; saves that can not be read are listed in every load mode
 	static bool isSaveCompatible(const ScenarioListEntry & entry, ELoadMode loadMode);
 };
