@@ -26,9 +26,11 @@ class ScenarioListBuilder
 
 	std::vector<ScenarioListEntry> parseMapsOrCampaigns(const std::vector<ResourcePath> & folderFiles) const;
 	std::vector<ScenarioListEntry> parseSaves(const std::vector<ResourcePath> & folderFiles, std::vector<std::string> & unsupportedSaves) const;
+	/// Returns entry of a campaign, with file name only if the campaign header can not be read
+	ScenarioListEntry readCampaign(const ResourcePath & file) const;
 	/// Returns entry of a map, with file name and required mods only if the map header can not be read
 	ScenarioListEntry readMap(const ResourcePath & file) const;
-	/// Sets problem of an entry whose map format is not supported by active mods
+	/// Sets problem of a map or campaign whose map format is not supported by active mods
 	static void verifyMapFormat(ScenarioListEntry & entry);
 	/// Returns entry of a saved game, with file name only if the save can not be read
 	ScenarioListEntry readSave(const ResourcePath & file, JsonValidator & validator) const;

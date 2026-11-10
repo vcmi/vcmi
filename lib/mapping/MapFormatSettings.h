@@ -36,6 +36,11 @@ public:
 		return mapping.count(format) != 0;
 	}
 
+	EMapFormat getMapFormat(CampaignVersion format) const
+	{
+		return campaignToMap.at(format);
+	}
+
 	bool isSupported(CampaignVersion format) const
 	{
 		return isSupported(campaignToMap.at(format));

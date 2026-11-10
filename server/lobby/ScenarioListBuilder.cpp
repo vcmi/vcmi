@@ -223,39 +223,21 @@ std::vector<ScenarioListEntry> ScenarioListBuilder::parseMapsOrCampaigns(const s
 {
 	auto timeStart = std::chrono::steady_clock::now();
 
-	// every entry is written by a single thread only, entries of failed files stay empty
-	std::vector<std::optional<ScenarioListEntry>> entries(folderFiles.size());
+	// every entry is written by a single thread only
+	std::vector<ScenarioListEntry> entries(folderFiles.size());
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, folderFiles.size()), [&](const tbb::blocked_range<size_t> & r)
 	{
 		for(auto i = r.begin(); i != r.end(); i++)
 		{
 			const auto & file = folderFiles[i];
-			try
-			{
-				if(type == ScenarioListEntry::EType::CAMPAIGN)
-				{
-					entries[i] = ScenarioListEntry::fromCampaign(file);
-					continue;
-				}
-
-				entries[i] = readMap(file);
-			}
-			catch(const std::exception & e)
-			{
-				logGlobal->error("File %s is invalid. Message: %s", file.getName(), e.what());
-			}
+			entries[i] = type == ScenarioListEntry::EType::CAMPAIGN ? readCampaign(file) : readMap(file);
 		}
 	});
 
-	std::vector<ScenarioListEntry> result;
-	for(auto & entry : entries)
-		if(entry)
-			result.push_back(std::move(*entry));
-
 	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
 	logGlobal->debug("Parsing %d maps or campaigns took %d ms", folderFiles.size(), timeElapsed.count());
-	return result;
+	return entries;
 }
 
 ScenarioListEntry ScenarioListBuilder::createUnreadableEntry(const ResourcePath & file, ScenarioListEntry::EProblem problem, const std::string & error) const
@@ -268,6 +250,22 @@ ScenarioListEntry ScenarioListBuilder::createUnreadableEntry(const ResourcePath 
 	result.problem = problem;
 	result.error = error;
 	return result;
+}
+
+ScenarioListEntry ScenarioListBuilder::readCampaign(const ResourcePath & file) const
+{
+	try
+	{
+		// maps of the campaign are not read, so mods required by them are found only on start
+		auto entry = ScenarioListEntry::fromCampaign(file);
+		verifyMapFormat(entry);
+		return entry;
+	}
+	catch(const std::exception & e) // NOSONAR: malformed campaigns can throw several exception types
+	{
+		logGlobal->error("Failed to read campaign %s: %s", file.getOriginalName(), e.what());
+		return createUnreadableEntry(file, ScenarioListEntry::EProblem::INVALID_FILE, e.what());
+	}
 }
 
 ScenarioListEntry ScenarioListBuilder::readMap(const ResourcePath & file) const

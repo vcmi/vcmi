@@ -89,6 +89,10 @@
 				"scenarios" : {
 					"type" : "number",
 					"description" : "Number of scenarios in the campaign"
+				},
+				"format" : {
+					"type" : "number",
+					"description" : "Format of maps of the campaign, value of EMapFormat"
 				}
 			}
 		},

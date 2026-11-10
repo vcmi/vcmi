@@ -11,6 +11,8 @@
 #include "ScenarioMetadata.h"
 
 #include "CMapHeader.h"
+#include "MapFormat.h"
+#include "MapFormatSettings.h"
 
 #include "../GameLibrary.h"
 #include "../campaign/CampaignState.h"
@@ -124,6 +126,9 @@ JsonNode ScenarioMetadata::campaignToJson(const Campaign & campaign)
 	result["campaignVersion"] = textToJson(campaign.getCampaignVersion(), translators);
 	result["creationDateTime"].Integer() = campaign.getCreationDateTime();
 	result["scenarios"].Integer() = campaign.scenariosCount();
+
+	const CampaignVersion version = campaign.getFormat();
+	result["format"].Integer() = static_cast<int>(version == CampaignVersion::VCMI ? EMapFormat::VCMI : LIBRARY->mapFormat->getMapFormat(version));
 	return result;
 }
 

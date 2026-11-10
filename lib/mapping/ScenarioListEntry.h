@@ -65,7 +65,7 @@ public:
 	/// Reads only the campaign header; throws std::runtime_error if it can not be loaded
 	static ScenarioListEntry fromCampaign(const ResourcePath & file);
 
-	/// Name, author, contact, version and creation time are of the campaign for campaigns, of the map otherwise
+	/// Name, author, contact, version, creation time and format are of the campaign for campaigns, of the map otherwise
 	std::string getName(const ITranslator * translator) const;
 	std::string getAuthor(const ITranslator * translator) const;
 	std::string getAuthorContact(const ITranslator * translator) const;
