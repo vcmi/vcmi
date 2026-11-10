@@ -229,17 +229,22 @@ std::set<TerrainId> ZoneOptions::getDefaultTerrainTypes(const GameLibrary & libr
 	return terrains;
 }
 
-std::set<FactionID> ZoneOptions::getDefaultTownTypes() const
+std::set<FactionID> ZoneOptions::getDefaultTownTypes(const GameLibrary & library) const
 {
-	return LIBRARY->townh->getDefaultAllowed();
+	return library.townh->getDefaultAllowed();
 }
 
 std::set<FactionID> ZoneOptions::getTownTypes() const
 {
+	return getTownTypes(*LIBRARY);
+}
+
+std::set<FactionID> ZoneOptions::getTownTypes(const GameLibrary & library) const
+{
 	if (townTypes.empty())
 	{
 		//Assume that all towns are allowed, unless banned
-		return vstd::difference(getDefaultTownTypes(), bannedTownTypes);
+		return vstd::difference(getDefaultTownTypes(library), bannedTownTypes);
 	}
 	else 
 	{
@@ -1062,7 +1067,7 @@ void CRmgTemplate::afterLoad(const GameLibrary & library)
 		auto zone = idAndZone.second;
 
 		// Inherit properties recursively
-		inheritTownProperties(zone);
+		inheritTownProperties(library, zone);
 
 		inheritZoneProperty(zone, 
 							[&library](const rmg::ZoneOptions & options){ return options.getTerrainTypes(library); },
@@ -1117,7 +1122,7 @@ void CRmgTemplate::afterLoad(const GameLibrary & library)
 	allowedWaterContent.erase(EWaterContent::RANDOM);
 }
 
-void CRmgTemplate::inheritTownProperties(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration)
+void CRmgTemplate::inheritTownProperties(const GameLibrary & library, std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration)
 {
 	if (iteration >= 50)
 	{
@@ -1130,14 +1135,14 @@ void CRmgTemplate::inheritTownProperties(std::shared_ptr<rmg::ZoneOptions> zone,
 		const auto otherZone = zones.at(zone->getTownsLikeZone());
 		
 		// Recursively inherit from the source zone first
-		inheritTownProperties(otherZone, iteration + 1);
+		inheritTownProperties(library, otherZone, iteration + 1);
 
 		// Now copy all town-related properties from the source zone
 		zone->setPlayerTowns(otherZone->getPlayerTowns());
 		zone->setNeutralTowns(otherZone->getNeutralTowns());
 		zone->setMatchTerrainToTown(otherZone->isMatchTerrainToTown());
 		zone->setTownHints(otherZone->getTownHints());
-		zone->setTownTypes(otherZone->getTownTypes());
+		zone->setTownTypes(otherZone->getTownTypes(library));
 		zone->setBannedTownTypes(otherZone->getBannedTownTypes());
 	}
 }

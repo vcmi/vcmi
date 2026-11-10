@@ -268,6 +268,13 @@ void JsonUtils::detectConflicts(JsonNode & result, const JsonNode & left, const 
 		}
 		case JsonNode::JsonType::DATA_STRUCT:
 		{
+			// e.g. mod replaces struct with value in older format - merge overwrites it entirely
+			if (!right.isStruct())
+			{
+				result[keyName][right.getModScope()] = right;
+				return;
+			}
+
 			for(const auto & node : left.Struct())
 				if (!right[node.first].isNull())
 					detectConflicts(result, node.second, right[node.first], keyName + "/" + node.first);
