@@ -98,43 +98,43 @@ CampaignEditor::~CampaignEditor()
 	delete ui;
 }
 
-void CampaignEditor::setCampaign(std::shared_ptr<CampaignState> newState)
+void CampaignEditor::setCampaign(std::shared_ptr<Campaign> newState)
 {
-	if(campaignState)
-		Translator::instance().uninstall(*campaignState->getTexts());
+	if(campaign)
+		Translator::instance().uninstall(*campaign->getTexts());
 
-	campaignState = std::move(newState);
+	campaign = std::move(newState);
 
 	// campaign texts are inert data - the editor has to install them to render campaign-defined text
-	if(campaignState)
-		Translator::instance().install(campaignState->getTexts());
+	if(campaign)
+		Translator::instance().install(campaign->getTexts());
 }
 
 void CampaignEditor::redraw()
 {
-	ui->actionSave->setEnabled(campaignState != nullptr);
-	ui->actionSave_as->setEnabled(campaignState != nullptr);
-	ui->actionScenarioProperties->setEnabled(campaignState != nullptr && campaignState->scenarios.count(selectedScenario));
-	ui->actionCampaignProperties->setEnabled(campaignState != nullptr);
+	ui->actionSave->setEnabled(campaign != nullptr);
+	ui->actionSave_as->setEnabled(campaign != nullptr);
+	ui->actionScenarioProperties->setEnabled(campaign != nullptr && campaign->scenarios.count(selectedScenario));
+	ui->actionCampaignProperties->setEnabled(campaign != nullptr);
 
-	if(!campaignState)
+	if(!campaign)
 		return;
 
 	campaignScene->clear();
 
-	auto background = BitmapHandler::loadBitmap(campaignState->getRegions().getBackgroundName().getName());
+	auto background = BitmapHandler::loadBitmap(campaign->getRegions().getBackgroundName().getName());
 	if(!ui->actionShowFullBackground->isChecked())
 		background = background.copy(0, 0, 456, 600);
 	campaignScene->addItem(new QGraphicsPixmapItem(QPixmap::fromImage(background)));
-	for (auto & s : campaignState->scenarios)
+	for (auto & s : campaign->scenarios)
 	{
 		auto scenario = s.first;
-		auto color = campaignState->scenarios.at(scenario).regionColor;
-		auto image = BitmapHandler::loadBitmap(campaignState->getRegions().getAvailableName(scenario, color).getName());
+		auto color = campaign->scenarios.at(scenario).regionColor;
+		auto image = BitmapHandler::loadBitmap(campaign->getRegions().getAvailableName(scenario, color).getName());
 		if(selectedScenario == scenario)
-			image = BitmapHandler::loadBitmap(campaignState->getRegions().getSelectedName(scenario, color).getName());
-		else if(campaignState->scenarios.at(scenario).mapName == "")
-			image = BitmapHandler::loadBitmap(campaignState->getRegions().getConqueredName(scenario, color).getName());
+			image = BitmapHandler::loadBitmap(campaign->getRegions().getSelectedName(scenario, color).getName());
+		else if(campaign->scenarios.at(scenario).mapName == "")
+			image = BitmapHandler::loadBitmap(campaign->getRegions().getConqueredName(scenario, color).getName());
 		auto pixmap = new ClickablePixmapItem(QPixmap::fromImage(image), [this, scenario]()
 		{
 			bool redrawRequired = selectedScenario != scenario;
@@ -144,7 +144,7 @@ void CampaignEditor::redraw()
 				redraw();
 		}, [this, scenario]()
 		{
-			if(ScenarioProperties::showScenarioProperties(campaignState, scenario, cb))
+			if(ScenarioProperties::showScenarioProperties(campaign, scenario, cb))
 				changed();
 			redraw();
 		}, [this, scenario](QGraphicsSceneContextMenuEvent * event)
@@ -153,15 +153,15 @@ void CampaignEditor::redraw()
 			QAction *actionScenarioProperties = contextMenu.addAction(tr("Scenario editor"));
 			actionScenarioProperties->setIcon(ui->actionScenarioProperties->icon());
 			connect(actionScenarioProperties, &QAction::triggered, this, [this, scenario]() {
-				if(ScenarioProperties::showScenarioProperties(campaignState, scenario, cb))
+				if(ScenarioProperties::showScenarioProperties(campaign, scenario, cb))
 					changed();
 				redraw();
 			});
 			contextMenu.exec(event->screenPos());
 		});
-		auto pos = campaignState->getRegions().getPosition(scenario);
+		auto pos = campaign->getRegions().getPosition(scenario);
 		pixmap->setPos(pos.x, pos.y);
-		pixmap->setToolTip(QString::fromStdString(campaignState->scenarios.at(scenario).mapName));
+		pixmap->setToolTip(QString::fromStdString(campaign->scenarios.at(scenario).mapName));
 		campaignScene->addItem(pixmap);
 	}
 
@@ -197,13 +197,13 @@ void CampaignEditor::changed()
 
 bool CampaignEditor::validate()
 {
-	if(campaignState->mapPieces.empty())
+	if(campaign->mapPieces.empty())
 	{
 		QMessageBox::critical(this, tr("Validation failed"), tr("Campaign has no maps defined."));
 		return false;
 	}
 
-	if(campaignState->mapPieces.size() != campaignState->campaignRegions.regions.size())
+	if(campaign->mapPieces.size() != campaign->campaignRegions.regions.size())
 		logGlobal->trace("Not all regions have a map");
 
 	return true;
@@ -214,7 +214,7 @@ void CampaignEditor::saveCampaign()
 	if(!validate())
 		return;
 
-	Helper::saveCampaign(campaignState, filename);
+	Helper::saveCampaign(campaign, filename);
 	unsaved = false;
 }
 
@@ -238,7 +238,7 @@ void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaign
 	try
 	{
 		dialog->loadCampaignFile(campaignFile);
-		if(!dialog->campaignState)
+		if(!dialog->campaign)
 		{
 			dialog->close();
 			return;
@@ -254,11 +254,11 @@ void CampaignEditor::showCampaignEditor(QWidget *parent, const QString &campaign
 void CampaignEditor::loadCampaignFile(const QString & filenameSelect)
 {
 	setCampaign(Helper::openCampaignInternal(filenameSelect));
-	selectedScenario = *campaignState->allScenarios().begin();
+	selectedScenario = *campaign->allScenarios().begin();
 
-	for(auto const & scenario : campaignState->allScenarios())
+	for(auto const & scenario : campaign->allScenarios())
 	{
-		if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario, cb))
+		if(!CampaignEditor::tryToOpenMap(this, campaign, scenario, cb))
 		{
 			setCampaign(nullptr);
 			selectedScenario = CampaignScenarioID::NONE;
@@ -266,8 +266,8 @@ void CampaignEditor::loadCampaignFile(const QString & filenameSelect)
 		}
 	}
 
-	while(campaignState->scenarios.size() < campaignState->campaignRegions.regions.size())
-		campaignState->scenarios.emplace(CampaignScenarioID(std::prev(campaignState->scenarios.end())->first + 1), CampaignScenario()); // show as regions without scenario defined yet
+	while(campaign->scenarios.size() < campaign->campaignRegions.regions.size())
+		campaign->scenarios.emplace(CampaignScenarioID(std::prev(campaign->scenarios.end())->first + 1), CampaignScenario()); // show as regions without scenario defined yet
 
 	redraw();
 }
@@ -328,14 +328,14 @@ void CampaignEditor::on_actionOpenSet_triggered()
 		return;
 
 	setCampaign(CampaignHandler::getCampaign(campaigns.find(selectedCampaign).value().getName()));
-	selectedScenario = *campaignState->allScenarios().begin();
+	selectedScenario = *campaign->allScenarios().begin();
 
 	redraw();
 }
 
 void CampaignEditor::on_actionSave_as_triggered()
 {
-	if(!campaignState)
+	if(!campaign)
 		return;
 
 	auto title = tr("Save campaign");
@@ -365,16 +365,16 @@ void CampaignEditor::on_actionNew_triggered()
 	if(!getAnswerAboutUnsavedChanges())
 		return;
 
-	setCampaign(std::make_shared<CampaignState>());
-	campaignState->campaignRegions = *LIBRARY->campaignRegions->getByIndex(0);
-	for (int i = 0; i < campaignState->campaignRegions.regions.size(); i++)
+	setCampaign(std::make_shared<Campaign>());
+	campaign->campaignRegions = *LIBRARY->campaignRegions->getByIndex(0);
+	for (int i = 0; i < campaign->campaignRegions.regions.size(); i++)
 	{
 		CampaignScenario s;
 		s.travelOptions.startOptions = CampaignStartOptions::START_BONUS;
-		campaignState->scenarios.emplace(CampaignScenarioID(i), s);
+		campaign->scenarios.emplace(CampaignScenarioID(i), s);
 	}
-	campaignState->modName = "mapEditor";
-	campaignState->creationDateTime = std::time(nullptr);
+	campaign->modName = "mapEditor";
+	campaign->creationDateTime = std::time(nullptr);
 
 	changed();
 	redraw();
@@ -382,7 +382,7 @@ void CampaignEditor::on_actionNew_triggered()
 
 void CampaignEditor::on_actionSave_triggered()
 {
-	if(!campaignState)
+	if(!campaign)
 		return;
 
 	if(filename.isNull())
@@ -394,20 +394,20 @@ void CampaignEditor::on_actionSave_triggered()
 
 void CampaignEditor::on_actionCampaignProperties_triggered()
 {
-	if(!campaignState)
+	if(!campaign)
 		return;
 
-	if(CampaignProperties::showCampaignProperties(campaignState))
+	if(CampaignProperties::showCampaignProperties(campaign))
 		changed();
 	redraw();
 }
 
 void CampaignEditor::on_actionScenarioProperties_triggered()
 {
-	if(!campaignState || selectedScenario == CampaignScenarioID::NONE)
+	if(!campaign || selectedScenario == CampaignScenarioID::NONE)
 		return;
 
-	if(ScenarioProperties::showScenarioProperties(campaignState, selectedScenario, cb))
+	if(ScenarioProperties::showScenarioProperties(campaign, selectedScenario, cb))
 		changed();
 	redraw();
 }
@@ -466,7 +466,7 @@ void CampaignEditor::dropEvent(QDropEvent *event)
 	}
 }
 
-std::unique_ptr<CMap> CampaignEditor::tryToOpenMap(QWidget* parent, std::shared_ptr<CampaignState> state, CampaignScenarioID scenario, EditorCallback * cb)
+std::unique_ptr<CMap> CampaignEditor::tryToOpenMap(QWidget* parent, std::shared_ptr<Campaign> state, CampaignScenarioID scenario, EditorCallback * cb)
 {
 	try
 	{

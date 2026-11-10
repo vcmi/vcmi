@@ -54,7 +54,7 @@ std::string getGameName(const StartInfo & startInfo, const CMapHeader & mapHeade
 	if(startInfo.campState)
 	{
 		// the campaign name is registered in the campaign's own container, not in the map's
-		translator.install(startInfo.campState->getTexts());
+		translator.install(startInfo.campState->getCampaign().getTexts());
 		return sanitizeMapName(startInfo.getCampaignName(&translator));
 	}
 

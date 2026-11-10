@@ -28,10 +28,10 @@
 #include "../../lib/constants/StringConstants.h"
 #include "../translator.h"
 
-ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario, EditorCallback * cb):
+ScenarioProperties::ScenarioProperties(std::shared_ptr<Campaign> campaign, CampaignScenarioID scenario, EditorCallback * cb):
 	ui(new Ui::ScenarioProperties),
-	campaignState(campaignState),
-	map(campaignState->getMap(scenario, cb)),
+	campaign(campaign),
+	map(campaign->getMap(scenario, cb)),
 	scenario(scenario),
 	cb(cb)
 {
@@ -41,15 +41,15 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 	
 	setWindowModality(Qt::ApplicationModal);
 
-	ui->lineEditRegionName->setText(QString::fromStdString(campaignState->getRegions().regions.at(scenario).infix));
-	ui->plainTextEditRightClickText->setPlainText(QString::fromStdString(campaignState->scenarios.at(scenario).regionText.toString(&Translator::instance())));
+	ui->lineEditRegionName->setText(QString::fromStdString(campaign->getRegions().regions.at(scenario).infix));
+	ui->plainTextEditRightClickText->setPlainText(QString::fromStdString(campaign->scenarios.at(scenario).regionText.toString(&Translator::instance())));
 	
 	for(int i = 0, index = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 	{
 		MetaString str;
 		str.appendName(PlayerColor(i));
 		ui->comboBoxRegionColor->addItem(QString::fromStdString(str.toString(&Translator::instance())), QVariant(i));
-		if(i == campaignState->scenarios.at(scenario).regionColor)
+		if(i == campaign->scenarios.at(scenario).regionColor)
 			ui->comboBoxRegionColor->setCurrentIndex(index);
 		++index;
 	}
@@ -57,41 +57,41 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 	for(int i = 0, index = 0; i < 5; ++i)
 	{
 		ui->comboBoxDefaultDifficulty->addItem(QString::fromStdString(Translator::instance().translate("core.arraytxt", 142 + i)), QVariant(i));
-		if(i == campaignState->scenarios.at(scenario).difficulty)
+		if(i == campaign->scenarios.at(scenario).difficulty)
 			ui->comboBoxDefaultDifficulty->setCurrentIndex(index);
 		++index;
 	}
 
-	for(int i = 0; i < campaignState->scenarios.size(); ++i)
+	for(int i = 0; i < campaign->scenarios.size(); ++i)
 	{
 		auto tmpScenario = CampaignScenarioID(i);
-		auto * item = new QListWidgetItem(QString::fromStdString(campaignState->getRegions().regions.at(i).infix) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName));
+		auto * item = new QListWidgetItem(QString::fromStdString(campaign->getRegions().regions.at(i).infix) + " - " + QString::fromStdString(campaign->scenarios.at(tmpScenario).mapName));
 		item->setData(Qt::UserRole, QVariant::fromValue(i));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(campaignState->scenarios.at(scenario).preconditionRegions.count(tmpScenario) ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(campaign->scenarios.at(scenario).preconditionRegions.count(tmpScenario) ? Qt::Checked : Qt::Unchecked);
 		ui->listWidgetPrerequisites->addItem(item);
 	}
 
-	ui->checkBoxPrologueEnabled->setChecked(campaignState->scenarios.at(scenario).prolog.hasPrologEpilog);
-	ui->lineEditPrologueVideo->setText(QString::fromStdString(campaignState->scenarios.at(scenario).prolog.prologVideo.first.getName()));
-	ui->lineEditPrologueVideoLoop->setText(QString::fromStdString(campaignState->scenarios.at(scenario).prolog.prologVideo.second.getName()));
-	ui->lineEditPrologueMusic->setText(QString::fromStdString(campaignState->scenarios.at(scenario).prolog.prologMusic.getName()));
-	ui->lineEditPrologueVoice->setText(QString::fromStdString(campaignState->scenarios.at(scenario).prolog.prologVoice.getName()));
-	ui->plainTextEditPrologueText->setPlainText(QString::fromStdString(campaignState->scenarios.at(scenario).prolog.prologText.toString(&Translator::instance())));
-	ui->checkBoxEpilogueEnabled->setChecked(campaignState->scenarios.at(scenario).epilog.hasPrologEpilog);
-	ui->lineEditEpilogueVideo->setText(QString::fromStdString(campaignState->scenarios.at(scenario).epilog.prologVideo.first.getName()));
-	ui->lineEditEpilogueVideoLoop->setText(QString::fromStdString(campaignState->scenarios.at(scenario).epilog.prologVideo.second.getName()));
-	ui->lineEditEpilogueMusic->setText(QString::fromStdString(campaignState->scenarios.at(scenario).epilog.prologMusic.getName()));
-	ui->lineEditEpilogueVoice->setText(QString::fromStdString(campaignState->scenarios.at(scenario).epilog.prologVoice.getName()));
-	ui->plainTextEditEpilogueText->setPlainText(QString::fromStdString(campaignState->scenarios.at(scenario).epilog.prologText.toString(&Translator::instance())));
+	ui->checkBoxPrologueEnabled->setChecked(campaign->scenarios.at(scenario).prolog.hasPrologEpilog);
+	ui->lineEditPrologueVideo->setText(QString::fromStdString(campaign->scenarios.at(scenario).prolog.prologVideo.first.getName()));
+	ui->lineEditPrologueVideoLoop->setText(QString::fromStdString(campaign->scenarios.at(scenario).prolog.prologVideo.second.getName()));
+	ui->lineEditPrologueMusic->setText(QString::fromStdString(campaign->scenarios.at(scenario).prolog.prologMusic.getName()));
+	ui->lineEditPrologueVoice->setText(QString::fromStdString(campaign->scenarios.at(scenario).prolog.prologVoice.getName()));
+	ui->plainTextEditPrologueText->setPlainText(QString::fromStdString(campaign->scenarios.at(scenario).prolog.prologText.toString(&Translator::instance())));
+	ui->checkBoxEpilogueEnabled->setChecked(campaign->scenarios.at(scenario).epilog.hasPrologEpilog);
+	ui->lineEditEpilogueVideo->setText(QString::fromStdString(campaign->scenarios.at(scenario).epilog.prologVideo.first.getName()));
+	ui->lineEditEpilogueVideoLoop->setText(QString::fromStdString(campaign->scenarios.at(scenario).epilog.prologVideo.second.getName()));
+	ui->lineEditEpilogueMusic->setText(QString::fromStdString(campaign->scenarios.at(scenario).epilog.prologMusic.getName()));
+	ui->lineEditEpilogueVoice->setText(QString::fromStdString(campaign->scenarios.at(scenario).epilog.prologVoice.getName()));
+	ui->plainTextEditEpilogueText->setPlainText(QString::fromStdString(campaign->scenarios.at(scenario).epilog.prologText.toString(&Translator::instance())));
 
-	ui->checkBoxCrossoverExperience->setChecked(campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.experience);
-	ui->checkBoxCrossoverPrimarySkills->setChecked(campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.primarySkills);
-	ui->checkBoxCrossoverSecondarySkills->setChecked(campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.secondarySkills);
-	ui->checkBoxCrossoverSpells->setChecked(campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.spells);
-	ui->checkBoxCrossoverArtifacts->setChecked(campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.artifacts);
+	ui->checkBoxCrossoverExperience->setChecked(campaign->scenarios.at(scenario).travelOptions.whatHeroKeeps.experience);
+	ui->checkBoxCrossoverPrimarySkills->setChecked(campaign->scenarios.at(scenario).travelOptions.whatHeroKeeps.primarySkills);
+	ui->checkBoxCrossoverSecondarySkills->setChecked(campaign->scenarios.at(scenario).travelOptions.whatHeroKeeps.secondarySkills);
+	ui->checkBoxCrossoverSpells->setChecked(campaign->scenarios.at(scenario).travelOptions.whatHeroKeeps.spells);
+	ui->checkBoxCrossoverArtifacts->setChecked(campaign->scenarios.at(scenario).travelOptions.whatHeroKeeps.artifacts);
 
-	auto campaignStartOption = campaignState->scenarios.at(scenario).travelOptions.startOptions;
+	auto campaignStartOption = campaign->scenarios.at(scenario).travelOptions.startOptions;
 	ui->radioButtonStartingOptionBonus->setChecked(campaignStartOption == CampaignStartOptions::START_BONUS || campaignStartOption == CampaignStartOptions::NONE);
 	ui->radioButtonStartingOptionHeroCrossover->setChecked(campaignStartOption == CampaignStartOptions::HERO_CROSSOVER);
 	ui->radioButtonStartingOptionStartingHero->setChecked(campaignStartOption == CampaignStartOptions::HERO_OPTIONS);
@@ -101,7 +101,7 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(campaignState->scenarios.at(scenario).travelOptions.artifactsKeptByHero.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(campaign->scenarios.at(scenario).travelOptions.artifactsKeptByHero.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listWidgetCrossoverArtifacts->addItem(item);
 	}
 	
@@ -110,7 +110,7 @@ ScenarioProperties::ScenarioProperties(std::shared_ptr<CampaignState> campaignSt
 		auto * item = new QListWidgetItem(QString::fromStdString(objectPtr->getNameSingularTranslated()));
 		item->setData(Qt::UserRole, QVariant::fromValue(objectPtr->getIndex()));
 		item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-		item->setCheckState(campaignState->scenarios.at(scenario).travelOptions.monstersKeptByHero.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
+		item->setCheckState(campaign->scenarios.at(scenario).travelOptions.monstersKeptByHero.count(objectPtr->getId()) ? Qt::Checked : Qt::Unchecked);
 		ui->listWidgetCrossoverCreatures->addItem(item);
 	}
 
@@ -144,13 +144,13 @@ void ScenarioProperties::reloadMapRelatedUi()
 	if(map)
 		Translator::instance().uninstall(*map->texts);
 
-	map = campaignState->getMap(scenario, cb);
+	map = campaign->getMap(scenario, cb);
 
 	// the scenario map carries the names this dialog shows - its own and those of its heroes
 	if(map)
 		Translator::instance().install(map->texts);
 
-	ui->lineEditMapFile->setText(QString::fromStdString(campaignState->scenarios.at(scenario).mapName));
+	ui->lineEditMapFile->setText(QString::fromStdString(campaign->scenarios.at(scenario).mapName));
 	ui->lineEditScenarioName->setText(map ? QString::fromStdString(map->name.toString(&Translator::instance())) : tr("No map"));
 	if(!map)
 		ui->lineEditScenarioName->setStyleSheet("background-color: red;");
@@ -201,25 +201,25 @@ void ScenarioProperties::reloadMapRelatedUi()
 			str.appendRawString(")");
 			ui->comboBoxStartingBonusPlayerPosition->addItem(QString::fromStdString(str.toString(&Translator::instance())), QVariant(i));
 		}
-		int index = ui->comboBoxStartingBonusPlayerPosition->findData(campaignState->scenarios.at(scenario).travelOptions.playerColor.getNum());
+		int index = ui->comboBoxStartingBonusPlayerPosition->findData(campaign->scenarios.at(scenario).travelOptions.playerColor.getNum());
 		if(index != -1)
 			ui->comboBoxStartingBonusPlayerPosition->setCurrentIndex(index);
 	}
 
-	if(campaignState->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::HERO_CROSSOVER || campaignState->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::HERO_OPTIONS)
+	if(campaign->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::HERO_CROSSOVER || campaign->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::HERO_OPTIONS)
 	{
-		if(campaignState->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::HERO_OPTIONS)
+		if(campaign->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::HERO_OPTIONS)
 			on_radioButtonStartingOptionStartingHero_toggled();
 		else
 			on_radioButtonStartingOptionHeroCrossover_toggled();
 
-		for(int i = 0; i < campaignState->scenarios.at(scenario).travelOptions.bonusesToChoose.size(); i++)
+		for(int i = 0; i < campaign->scenarios.at(scenario).travelOptions.bonusesToChoose.size(); i++)
 		{
-			auto bonus = campaignState->scenarios.at(scenario).travelOptions.bonusesToChoose[i];
+			auto bonus = campaign->scenarios.at(scenario).travelOptions.bonusesToChoose[i];
 
 			ui->tableWidgetStartingCrossover->insertRow(i);
 			QComboBox* comboBoxOption = new QComboBox();
-			if(campaignState->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::HERO_OPTIONS)
+			if(campaign->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::HERO_OPTIONS)
 			{
 				for(auto & hero : heroSelection)
 					comboBoxOption->addItem(QString::fromStdString(hero.second), hero.first);
@@ -229,7 +229,7 @@ void ScenarioProperties::reloadMapRelatedUi()
 				for(int j = 0; j < scenario.getNum(); ++j)
 				{
 					auto tmpScenario = CampaignScenarioID(j);
-					auto text = QString::fromStdString(campaignState->getRegions().regions.at(j).infix) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName);
+					auto text = QString::fromStdString(campaign->getRegions().regions.at(j).infix) + " - " + QString::fromStdString(campaign->scenarios.at(tmpScenario).mapName);
 					comboBoxOption->addItem(text, j);
 				}
 			}
@@ -254,10 +254,10 @@ void ScenarioProperties::reloadMapRelatedUi()
 
 		ui->tableWidgetStartingCrossover->resizeColumnsToContents();
 	}
-	else if(campaignState->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::START_BONUS)
+	else if(campaign->scenarios.at(scenario).travelOptions.startOptions == CampaignStartOptions::START_BONUS)
 	{
 		ui->listWidgetStartingBonusOption->clear();
-		for(auto & bonus : campaignState->scenarios.at(scenario).travelOptions.bonusesToChoose)
+		for(auto & bonus : campaign->scenarios.at(scenario).travelOptions.bonusesToChoose)
 		{
 			QListWidgetItem * item = new QListWidgetItem(StartingBonus::getBonusListTitle(bonus, map));
 			item->setData(Qt::UserRole, QVariant::fromValue(bonus));
@@ -273,12 +273,12 @@ void ScenarioProperties::reloadEnableState()
 	ui->pushButtonStartingRemove->setEnabled(ui->tableWidgetStartingCrossover->rowCount() > 0 || ui->listWidgetStartingBonusOption->count() > 0);
 }
 
-bool ScenarioProperties::showScenarioProperties(std::shared_ptr<CampaignState> campaignState, CampaignScenarioID scenario, EditorCallback * cb)
+bool ScenarioProperties::showScenarioProperties(std::shared_ptr<Campaign> campaign, CampaignScenarioID scenario, EditorCallback * cb)
 {
-	if(!campaignState || scenario == CampaignScenarioID::NONE)
+	if(!campaign || scenario == CampaignScenarioID::NONE)
 		return false;
 
-	auto * dialog = new ScenarioProperties(campaignState, scenario, cb);
+	auto * dialog = new ScenarioProperties(campaign, scenario, cb);
 
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 
@@ -290,29 +290,29 @@ void ScenarioProperties::on_buttonBox_clicked(QAbstractButton * button)
 {
 	if(button == ui->buttonBox->button(QDialogButtonBox::Ok))
 	{
-		campaignState->scenarios.at(scenario).regionText = MetaString::createFromRawString(ui->plainTextEditRightClickText->toPlainText().toStdString());
+		campaign->scenarios.at(scenario).regionText = MetaString::createFromRawString(ui->plainTextEditRightClickText->toPlainText().toStdString());
 
-		campaignState->scenarios.at(scenario).regionColor = ui->comboBoxRegionColor->currentData().toInt();
-		campaignState->scenarios.at(scenario).difficulty = ui->comboBoxDefaultDifficulty->currentData().toInt();
+		campaign->scenarios.at(scenario).regionColor = ui->comboBoxRegionColor->currentData().toInt();
+		campaign->scenarios.at(scenario).difficulty = ui->comboBoxDefaultDifficulty->currentData().toInt();
 
-		campaignState->scenarios.at(scenario).prolog.hasPrologEpilog = ui->checkBoxPrologueEnabled->isChecked();
-		campaignState->scenarios.at(scenario).prolog.prologVideo.first = VideoPath::builtin(ui->lineEditPrologueVideo->text().toStdString());
-		campaignState->scenarios.at(scenario).prolog.prologVideo.second = VideoPath::builtin(ui->lineEditPrologueVideoLoop->text().toStdString());
-		campaignState->scenarios.at(scenario).prolog.prologMusic = AudioPath::builtin(ui->lineEditPrologueMusic->text().toStdString());
-		campaignState->scenarios.at(scenario).prolog.prologVoice = AudioPath::builtin(ui->lineEditPrologueVoice->text().toStdString());
-		campaignState->scenarios.at(scenario).prolog.prologText = MetaString::createFromRawString(ui->plainTextEditPrologueText->toPlainText().toStdString());
-		campaignState->scenarios.at(scenario).epilog.hasPrologEpilog = ui->checkBoxEpilogueEnabled->isChecked();
-		campaignState->scenarios.at(scenario).epilog.prologVideo.first = VideoPath::builtin(ui->lineEditEpilogueVideo->text().toStdString());
-		campaignState->scenarios.at(scenario).epilog.prologVideo.second = VideoPath::builtin(ui->lineEditEpilogueVideoLoop->text().toStdString());
-		campaignState->scenarios.at(scenario).epilog.prologMusic = AudioPath::builtin(ui->lineEditEpilogueMusic->text().toStdString());
-		campaignState->scenarios.at(scenario).epilog.prologVoice = AudioPath::builtin(ui->lineEditEpilogueVoice->text().toStdString());
-		campaignState->scenarios.at(scenario).epilog.prologText = MetaString::createFromRawString(ui->plainTextEditEpilogueText->toPlainText().toStdString());
+		campaign->scenarios.at(scenario).prolog.hasPrologEpilog = ui->checkBoxPrologueEnabled->isChecked();
+		campaign->scenarios.at(scenario).prolog.prologVideo.first = VideoPath::builtin(ui->lineEditPrologueVideo->text().toStdString());
+		campaign->scenarios.at(scenario).prolog.prologVideo.second = VideoPath::builtin(ui->lineEditPrologueVideoLoop->text().toStdString());
+		campaign->scenarios.at(scenario).prolog.prologMusic = AudioPath::builtin(ui->lineEditPrologueMusic->text().toStdString());
+		campaign->scenarios.at(scenario).prolog.prologVoice = AudioPath::builtin(ui->lineEditPrologueVoice->text().toStdString());
+		campaign->scenarios.at(scenario).prolog.prologText = MetaString::createFromRawString(ui->plainTextEditPrologueText->toPlainText().toStdString());
+		campaign->scenarios.at(scenario).epilog.hasPrologEpilog = ui->checkBoxEpilogueEnabled->isChecked();
+		campaign->scenarios.at(scenario).epilog.prologVideo.first = VideoPath::builtin(ui->lineEditEpilogueVideo->text().toStdString());
+		campaign->scenarios.at(scenario).epilog.prologVideo.second = VideoPath::builtin(ui->lineEditEpilogueVideoLoop->text().toStdString());
+		campaign->scenarios.at(scenario).epilog.prologMusic = AudioPath::builtin(ui->lineEditEpilogueMusic->text().toStdString());
+		campaign->scenarios.at(scenario).epilog.prologVoice = AudioPath::builtin(ui->lineEditEpilogueVoice->text().toStdString());
+		campaign->scenarios.at(scenario).epilog.prologText = MetaString::createFromRawString(ui->plainTextEditEpilogueText->toPlainText().toStdString());
 
-		campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.experience = ui->checkBoxCrossoverExperience->isChecked();
-		campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.primarySkills = ui->checkBoxCrossoverPrimarySkills->isChecked();
-		campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.secondarySkills = ui->checkBoxCrossoverSecondarySkills->isChecked();
-		campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.spells = ui->checkBoxCrossoverSpells->isChecked();
-		campaignState->scenarios.at(scenario).travelOptions.whatHeroKeeps.artifacts = ui->checkBoxCrossoverArtifacts->isChecked();
+		campaign->scenarios.at(scenario).travelOptions.whatHeroKeeps.experience = ui->checkBoxCrossoverExperience->isChecked();
+		campaign->scenarios.at(scenario).travelOptions.whatHeroKeeps.primarySkills = ui->checkBoxCrossoverPrimarySkills->isChecked();
+		campaign->scenarios.at(scenario).travelOptions.whatHeroKeeps.secondarySkills = ui->checkBoxCrossoverSecondarySkills->isChecked();
+		campaign->scenarios.at(scenario).travelOptions.whatHeroKeeps.spells = ui->checkBoxCrossoverSpells->isChecked();
+		campaign->scenarios.at(scenario).travelOptions.whatHeroKeeps.artifacts = ui->checkBoxCrossoverArtifacts->isChecked();
 
 		CampaignStartOptions startOption = CampaignStartOptions::NONE;
 		if(ui->radioButtonStartingOptionBonus->isChecked())
@@ -321,40 +321,40 @@ void ScenarioProperties::on_buttonBox_clicked(QAbstractButton * button)
 			startOption = CampaignStartOptions::HERO_CROSSOVER;
 		else if(ui->radioButtonStartingOptionStartingHero->isChecked())
 			startOption = CampaignStartOptions::HERO_OPTIONS;
-		campaignState->scenarios.at(scenario).travelOptions.startOptions = startOption;
+		campaign->scenarios.at(scenario).travelOptions.startOptions = startOption;
 
-		campaignState->scenarios.at(scenario).travelOptions.artifactsKeptByHero.clear();
+		campaign->scenarios.at(scenario).travelOptions.artifactsKeptByHero.clear();
 		for(int i = 0; i < ui->listWidgetCrossoverArtifacts->count(); ++i)
 		{
 			auto * item = ui->listWidgetCrossoverArtifacts->item(i);
 			if(item->checkState() == Qt::Checked)
-				campaignState->scenarios.at(scenario).travelOptions.artifactsKeptByHero.emplace(i);
+				campaign->scenarios.at(scenario).travelOptions.artifactsKeptByHero.emplace(i);
 		}
 
-		campaignState->scenarios.at(scenario).travelOptions.monstersKeptByHero.clear();
+		campaign->scenarios.at(scenario).travelOptions.monstersKeptByHero.clear();
 		for(int i = 0; i < ui->listWidgetCrossoverCreatures->count(); ++i)
 		{
 			auto * item = ui->listWidgetCrossoverCreatures->item(i);
 			if(item->checkState() == Qt::Checked)
-				campaignState->scenarios.at(scenario).travelOptions.monstersKeptByHero.emplace(i);
+				campaign->scenarios.at(scenario).travelOptions.monstersKeptByHero.emplace(i);
 		}
 
-		campaignState->scenarios.at(scenario).preconditionRegions.clear();
+		campaign->scenarios.at(scenario).preconditionRegions.clear();
 		for(int i = 0; i < ui->listWidgetPrerequisites->count(); ++i)
 		{
 			auto * item = ui->listWidgetPrerequisites->item(i);
 			if(item->checkState() == Qt::Checked)
-				campaignState->scenarios.at(scenario).preconditionRegions.emplace(i);
+				campaign->scenarios.at(scenario).preconditionRegions.emplace(i);
 		}
 
-		campaignState->scenarios.at(scenario).travelOptions.bonusesToChoose.clear();
+		campaign->scenarios.at(scenario).travelOptions.bonusesToChoose.clear();
 		if(ui->radioButtonStartingOptionBonus->isChecked())
 		{
-			campaignState->scenarios.at(scenario).travelOptions.playerColor = PlayerColor(ui->comboBoxStartingBonusPlayerPosition->currentData().toInt());
-			campaignState->scenarios.at(scenario).travelOptions.bonusesToChoose.clear();
+			campaign->scenarios.at(scenario).travelOptions.playerColor = PlayerColor(ui->comboBoxStartingBonusPlayerPosition->currentData().toInt());
+			campaign->scenarios.at(scenario).travelOptions.bonusesToChoose.clear();
 			for (int i = 0; i < ui->listWidgetStartingBonusOption->count(); ++i) {
 				QListWidgetItem *item = ui->listWidgetStartingBonusOption->item(i);
-				campaignState->scenarios.at(scenario).travelOptions.bonusesToChoose.push_back(item->data(Qt::UserRole).value<CampaignBonus>());
+				campaign->scenarios.at(scenario).travelOptions.bonusesToChoose.push_back(item->data(Qt::UserRole).value<CampaignBonus>());
 			}
 		}
 		else if(ui->radioButtonStartingOptionHeroCrossover->isChecked() || ui->radioButtonStartingOptionStartingHero->isChecked())
@@ -379,7 +379,7 @@ void ScenarioProperties::on_buttonBox_clicked(QAbstractButton * button)
 						HeroTypeID(comboBoxOption->currentData().toInt())
 					};
 				}
-				campaignState->scenarios.at(scenario).travelOptions.bonusesToChoose.push_back(bonus);
+				campaign->scenarios.at(scenario).travelOptions.bonusesToChoose.push_back(bonus);
 			}
 		}
 
@@ -419,16 +419,16 @@ void ScenarioProperties::on_pushButtonImport_clicked()
 	
 	QByteArray fileData = file.readAll();
 	std::vector<uint8_t> byteArray(fileData.begin(), fileData.end());
-	campaignState->mapPieces[scenario] = byteArray;
+	campaign->mapPieces[scenario] = byteArray;
 
 	QFileInfo fileInfo(filename);
 	QString baseName = fileInfo.fileName();
-	campaignState->scenarios.at(scenario).mapName = baseName.toStdString();
+	campaign->scenarios.at(scenario).mapName = baseName.toStdString();
 
-	if(!CampaignEditor::tryToOpenMap(this, campaignState, scenario, cb))
+	if(!CampaignEditor::tryToOpenMap(this, campaign, scenario, cb))
 	{
-		campaignState->mapPieces.erase(scenario);
-		campaignState->scenarios.at(scenario) = CampaignScenario();
+		campaign->mapPieces.erase(scenario);
+		campaign->scenarios.at(scenario) = CampaignScenario();
 		return;
 	}
 
@@ -437,7 +437,7 @@ void ScenarioProperties::on_pushButtonImport_clicked()
 
 void ScenarioProperties::on_pushButtonExport_clicked()
 {
-	auto mapName = QString::fromStdString(campaignState->scenarios.at(scenario).mapName);
+	auto mapName = QString::fromStdString(campaign->scenarios.at(scenario).mapName);
 	bool isVmap = mapName.toLower().endsWith(".vmap");
 
 	auto title = tr("Save map");
@@ -456,7 +456,7 @@ void ScenarioProperties::on_pushButtonExport_clicked()
 		return;
 	}
 
-	auto byteArray = campaignState->mapPieces[scenario];
+	auto byteArray = campaign->mapPieces[scenario];
 	QByteArray fileData(reinterpret_cast<const char*>(byteArray.data()), byteArray.size());
 
 	file.write(fileData);
@@ -466,8 +466,8 @@ void ScenarioProperties::on_pushButtonExport_clicked()
 
 void ScenarioProperties::on_pushButtonRemove_clicked()
 {
-	campaignState->mapPieces.erase(scenario);
-	campaignState->scenarios.at(scenario) = CampaignScenario();
+	campaign->mapPieces.erase(scenario);
+	campaign->scenarios.at(scenario) = CampaignScenario();
 	reloadMapRelatedUi();
 }
 
@@ -516,7 +516,7 @@ void ScenarioProperties::on_pushButtonStartingAdd_clicked()
 			for(int i = 0; i < scenario.getNum(); ++i)
 			{
 				auto tmpScenario = CampaignScenarioID(i);
-				auto text = QString::fromStdString(campaignState->getRegions().regions.at(i).infix) + " - " + QString::fromStdString(campaignState->scenarios.at(tmpScenario).mapName);
+				auto text = QString::fromStdString(campaign->getRegions().regions.at(i).infix) + " - " + QString::fromStdString(campaign->scenarios.at(tmpScenario).mapName);
 				comboBoxOption->addItem(text, i);
 			}
 		}

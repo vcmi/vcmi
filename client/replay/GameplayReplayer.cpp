@@ -26,7 +26,9 @@
 
 #include "../../lib/CPlayerState.h"
 #include "../../lib/CThreadHelper.h"
+#include "../../lib/StartInfo.h"
 #include "../../lib/battle/BattleInfo.h"
+#include "../../lib/campaign/CampaignState.h"
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/gameState/CGameState.h"
@@ -205,6 +207,8 @@ void GameplayReplayer::run(ReplaySequence sequence, PlayerColor observer, Option
 	logGlobal->info("Replay: day %d, player %s, %d days", sequence.day, sequence.replayedPlayer.toString(), sequence.days.size());
 
 	CClient & client = *GAME->server().client;
+	const auto & liveCampaignState = client.gameState().getStartInfo()->campState;
+	const auto campaign = liveCampaignState ? liveCampaignState->getCampaignPtr() : nullptr;
 	LiveSessionBackup backup;
 	std::shared_ptr<CGameState> replayState;
 	bool sessionInstalled = false;
@@ -215,7 +219,7 @@ void GameplayReplayer::run(ReplaySequence sequence, PlayerColor observer, Option
 		// fast-forwarding through earlier turns costs nothing but CPU time.
 		replayState = std::make_shared<CGameState>();
 		replayState->preInit(LIBRARY);
-		replayState->loadFromMemory(std::move(sequence.snapshot));
+		replayState->loadFromMemory(std::move(sequence.snapshot), campaign);
 
 		for(const auto & data : sequence.fastForwardPacks)
 		{
@@ -280,7 +284,7 @@ void GameplayReplayer::run(ReplaySequence sequence, PlayerColor observer, Option
 					if(passIndex > 0)
 					{
 						endPass(client, replayState);
-						replayState->loadFromMemory(dayStart);
+						replayState->loadFromMemory(dayStart, campaign);
 						beginPass(client, *replayState, observer, pass.followedPlayer.value_or(sequence.replayedPlayer), previousViewCenter);
 					}
 				}

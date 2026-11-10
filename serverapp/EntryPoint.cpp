@@ -102,7 +102,7 @@ static void generateTranslations(const std::string & modID)
 		});
 
 		std::vector<std::unique_ptr<CMap>> loadedMaps;
-		std::vector<std::shared_ptr<CampaignState>> loadedCampaigns;
+		std::vector<std::shared_ptr<Campaign>> loadedCampaigns;
 
 		logGlobal->info("Loading maps for export");
 		for (auto const & mapName : mapList)
@@ -142,7 +142,7 @@ static void generateTranslations(const std::string & modID)
 				for (auto const & part : loadedCampaigns.back()->allScenarios())
 				{
 					EditorCallback cb(nullptr);
-					loadedCampaigns.back()->getMap(part, &cb);
+					loadedMaps.push_back(loadedCampaigns.back()->getMap(part, &cb));
 				}
 			}
 			catch(std::exception & e)
@@ -158,11 +158,7 @@ static void generateTranslations(const std::string & modID)
 			map->texts->exportAllTexts(textsByMod, false);
 
 		for (auto const & campaign : loadedCampaigns)
-		{
 			campaign->getTexts()->exportAllTexts(textsByMod, false);
-			for (auto const & scenarioTexts : campaign->getScenarioTexts())
-				scenarioTexts.second->exportAllTexts(textsByMod, false);
-		}
 	}
 
 	for(const auto & modEntry : textsByMod)

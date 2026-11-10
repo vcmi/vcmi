@@ -14,8 +14,6 @@
 #include "../../lib/LoadProgress.h"
 #include "../../lib/network/NetworkInterface.h"
 
-class CampaignState;
-
 class CTextInput;
 class CGStatusBar;
 class CTextBox;
@@ -177,8 +175,7 @@ public:
 	void onScreenResize() override;
 	void makeActiveInterface();
 	static void openLobby(ESelectionScreen screenType, bool host, const std::vector<std::string> & names, ELoadMode loadMode, bool battleMode, bool hotseatMode = false, std::string server = {}, ui16 port = 0);
-	static void openCampaignLobby(const std::string & campaignFileName, std::string campaignSet = "");
-	static void openCampaignLobby(std::shared_ptr<CampaignState> campaign);
+	static void openCampaignLobby(const std::string & campaignFileName, const std::string & campaignSet);
 	static void startTutorial();
 	static void openHighScoreScreen();
 	void openCampaignScreen(std::string name);

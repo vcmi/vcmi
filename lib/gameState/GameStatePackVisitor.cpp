@@ -11,6 +11,7 @@
 #include "GameStatePackVisitor.h"
 
 #include "CGameState.h"
+#include "HighScore.h"
 #include "TavernHeroesPool.h"
 
 #include "../CPlayerState.h"
@@ -390,7 +391,7 @@ void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 					crossoverHeroes.push_back(hero);
 
 			auto * campaign = gs.getStartInfo()->campState.get();
-			HeroTypeID enemyHeroType = campaign->scenario(*campaign->currentScenario()).enemyHeroCarriedOver;
+			HeroTypeID enemyHeroType = campaign->getCampaign().scenario(*campaign->currentScenario()).enemyHeroCarriedOver;
 			if (enemyHeroType.hasValue())
 			{
 				// a defeated hero is in the hero pool, stripped of artifacts unless he retreated or surrendered
@@ -401,6 +402,7 @@ void GameStatePackVisitor::visitPlayerEndsGame(PlayerEndsGame & pack)
 					crossoverHeroes.push_back(enemyHero);
 			}
 
+			campaign->highscoreParameters.push_back(HighScore::prepareHighScores(&gs, pack.player, true));
 			campaign->savePersistentVariables(gs.getMap());
 			campaign->setCurrentMapAsConquered(crossoverHeroes);
 		}

@@ -27,6 +27,7 @@ class Services;
 class IGameRandomizer;
 class IMapService;
 class CMap;
+class Campaign;
 class BinarySerializer;
 class BinaryDeserializer;
 struct CPackForClient;
@@ -220,11 +221,13 @@ public:
 
 	/// Serializes the whole gamestate into a memory buffer. The replay log is deliberately left
 	/// out - a snapshot lives inside that very log, and including it would nest snapshots.
+	/// The campaign is left out as well, it never changes during the game.
 	std::vector<std::byte> saveToMemory();
 
 	/// Replaces contents of this gamestate with a snapshot made by saveToMemory().
 	/// Identity of this object is preserved, so all shared_ptr's to it stay valid.
-	void loadFromMemory(std::vector<std::byte> data);
+	/// `campaign` is the campaign of the game the snapshot was made in, null outside of campaigns.
+	void loadFromMemory(std::vector<std::byte> data, std::shared_ptr<const Campaign> campaign);
 
 	template <typename Handler> void serialize(Handler &h)
 	{
@@ -255,6 +258,8 @@ public:
 	}
 
 private:
+	void setCampaign(std::shared_ptr<const Campaign> campaign);
+
 	// ----- initialization -----
 	void initNewGame(const IMapService * mapService, vstd::RNG & randomGenerator, bool allowSavingRandomMap, Load::ProgressAccumulator & progressTracking);
 	void initGlobalBonuses();

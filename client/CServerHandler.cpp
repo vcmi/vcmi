@@ -125,7 +125,6 @@ CServerHandler::CServerHandler()
 	, threadNetwork(&CServerHandler::threadRunNetwork, this)
 	, state(EClientState::NONE)
 	, serverPort(0)
-	, campaignStateToSend(nullptr)
 	, screenType(ESelectionScreen::unknown)
 	, serverMode(EServerMode::NONE)
 	, loadMode(ELoadMode::NONE)
@@ -162,6 +161,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	serverMode = newServerMode;
 	loadMode = ELoadMode::NONE;
 	scenarioToStart.reset();
+	campaignToStart.reset();
 	// si is replaced below - texts of the previous lobby must not shadow those of the next one
 	lobbyTextOverlays.clear();
 	hotseatMode = false;
@@ -463,11 +463,11 @@ void CServerHandler::sendClientDisconnecting()
 	waitForServerShutdown();
 }
 
-void CServerHandler::setCampaignState(std::shared_ptr<CampaignState> newCampaign)
+void CServerHandler::startCampaign(const std::string & fileURI, const std::string & campaignSet) const
 {
-	setState(EClientState::LOBBY_CAMPAIGN);
 	LobbySetCampaign lsc;
-	lsc.ourCampaign = newCampaign;
+	lsc.fileURI = fileURI;
+	lsc.campaignSet = campaignSet;
 	sendLobbyPack(lsc);
 }
 
@@ -606,8 +606,8 @@ void CServerHandler::sendGuiAction(ui8 action) const
 
 void CServerHandler::sendRestartGame() const
 {
-	if(si->campState && !si->campState->getLoadingBackground().empty())
-		ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+	if(si->campState && !si->campState->getCampaign().getLoadingBackground().empty())
+		ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getCampaign().getLoadingBackground());
 	else
 		ENGINE->windows().createAndPushWindow<CLoadingScreen>();
 	
@@ -657,8 +657,8 @@ void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 
 	if(!settings["session"]["headless"].Bool())
 	{
-		if(si->campState && !si->campState->getLoadingBackground().empty())
-			ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getLoadingBackground());
+		if(si->campState && !si->campState->getCampaign().getLoadingBackground().empty())
+			ENGINE->windows().createAndPushWindow<CLoadingScreen>(si->campState->getCampaign().getLoadingBackground());
 		else
 			ENGINE->windows().createAndPushWindow<CLoadingScreen>();
 	}
@@ -675,8 +675,10 @@ void CServerHandler::installLobbyTexts()
 
 	if(mi && mi->mapHeader)
 		lobbyTextOverlays.emplace_back(mi->mapHeader->texts);
+	if(mi && mi->campaign)
+		lobbyTextOverlays.emplace_back(mi->campaign->getTexts());
 	if(si && si->campState)
-		lobbyTextOverlays.emplace_back(si->campState->getTexts());
+		lobbyTextOverlays.emplace_back(si->campState->getCampaign().getTexts());
 }
 
 void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
@@ -690,7 +692,7 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 	gameplayTextOverlays.emplace_back(gameState->getMap().texts);
 	if(si->campState)
 	{
-		gameplayTextOverlays.emplace_back(si->campState->getTexts());
+		gameplayTextOverlays.emplace_back(si->campState->getCampaign().getTexts());
 		for(const auto & scenarioTexts : si->campState->getScenarioTexts())
 			gameplayTextOverlays.emplace_back(scenarioTexts.second);
 	}
@@ -706,8 +708,6 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 		client->newGame(gameState);
 		break;
 	case EStartMode::CAMPAIGN:
-		if(si->campState->conqueredScenarios().empty())
-			si->campState->highscoreParameters.clear();
 		client->newGame(gameState);
 		break;
 	case EStartMode::LOAD_GAME:
@@ -734,16 +734,14 @@ void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 
 void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victory, const StatisticDataSet & statistic)
 {
-	HighScoreParameter param = HighScore::prepareHighScores(&client->gameState(), player, victory);
-
 	if(victory && client->gameState().getStartInfo()->campState)
 	{
-		startCampaignScenario(param, client->gameState().getStartInfo()->campState, statistic);
+		startCampaignScenario(client->gameState().getStartInfo()->campState, statistic);
 	}
 	else
 	{
 		HighScoreCalculation scenarioHighScores;
-		scenarioHighScores.parameters.push_back(param);
+		scenarioHighScores.parameters.push_back(HighScore::prepareHighScores(&client->gameState(), player, victory));
 		scenarioHighScores.isCampaign = false;
 
 		endGameplay();
@@ -753,7 +751,7 @@ void CServerHandler::showHighScoresAndEndGameplay(PlayerColor player, bool victo
 	}
 }
 
-void CServerHandler::endGameplay()
+void CServerHandler::stopGameplay()
 {
 	// a running replay holds the live session hostage - it has to be gone before anything is torn down.
 	// Every caller of this method owns the interface mutex, which the replay thread needs to finish.
@@ -779,15 +777,16 @@ void CServerHandler::endGameplay()
 
 	client->endNetwork();
 	client->finishGameplay();
+}
 
-	// Game is ending
-	// Tell the network thread to reach a stable state
-	sendClientDisconnecting();
-	logNetwork->info("Closed connection.");
-
+void CServerHandler::destroyGameplay()
+{
 	client->endGame();
 	client.reset();
+}
 
+void CServerHandler::showMainMenu()
+{
 	if (GAME->mainmenu())
 	{
 		GAME->mainmenu()->enable();
@@ -797,6 +796,28 @@ void CServerHandler::endGameplay()
 
 	if(ENGINE)
 		ENGINE->discord().setStatus("", "", {0, 0});
+}
+
+void CServerHandler::endGameplay()
+{
+	stopGameplay();
+
+	// Game is ending
+	// Tell the network thread to reach a stable state
+	sendClientDisconnecting();
+	logNetwork->info("Closed connection.");
+
+	destroyGameplay();
+	showMainMenu();
+}
+
+void CServerHandler::endCampaignScenario()
+{
+	// the connection stays open for the lobby of the next scenario
+	setState(EClientState::CAMPAIGN_SCENARIO_WON);
+	stopGameplay();
+	destroyGameplay();
+	showMainMenu();
 }
 
 bool CServerHandler::hasQuickSave() const
@@ -821,53 +842,75 @@ void CServerHandler::restartGameplay()
 {
 	// Before the windows are destroyed, so that they do not send actions for the game being discarded
 	setState(EClientState::LOBBY);
-	client->finishGameplay();
-	client->endGame();
-	client.reset();
+	stopGameplay();
+	destroyGameplay();
 
 	logicConnection->enterLobbyConnectionMode();
 }
 
-void CServerHandler::startCampaignScenario(HighScoreParameter param, std::shared_ptr<CampaignState> cs, const StatisticDataSet & statistic)
+void CServerHandler::sendNextCampaignScenario() const
 {
-	std::shared_ptr<CampaignState> ourCampaign = cs;
+	LobbyNextCampaignScenario pack;
+	sendLobbyPack(pack);
+}
 
-	if (!cs)
-		ourCampaign = si->campState;
+void CServerHandler::openNextCampaignScenarioLobby()
+{
+	logicConnection->enterLobbyConnectionMode();
 
-	param.campaignName = cs->getNameTranslated(&GAME->translator());
-	cs->highscoreParameters.push_back(param);
+	// the lobby of the next scenario is set up as for a client that has just connected
+	hostClientId = GameConnectionID::INVALID;
+	si = std::make_shared<StartInfo>();
+	mi.reset();
+	lobbyTextOverlays.clear();
+	setState(EClientState::LOBBY);
+
+	if(!settings["session"]["headless"].Bool())
+		ENGINE->windows().createAndPushWindow<CLobbyScreen>(ESelectionScreen::campaignList, true);
+}
+
+void CServerHandler::startCampaignScenario(std::shared_ptr<CampaignState> ourCampaign, const StatisticDataSet & statistic)
+{
 	auto campaignScoreCalculator = std::make_shared<HighScoreCalculation>();
 	campaignScoreCalculator->isCampaign = true;
-	campaignScoreCalculator->parameters = cs->highscoreParameters;
+	campaignScoreCalculator->parameters = ourCampaign->highscoreParameters;
+	for(auto & param : campaignScoreCalculator->parameters)
+		param.campaignName = ourCampaign->getCampaign().getNameTranslated(&GAME->translator());
 
-	endGameplay();
+	if(ourCampaign->isCampaignFinished())
+		endGameplay();
+	else
+		endCampaignScenario();
 
 	// the game just took its campaign texts down with it, but the epilogue still has to render
 	// them - this keeps them up until the transition hands over to the next lobby
-	auto campaignTexts = std::make_shared<TranslatorOverlay>(ourCampaign->getTexts());
+	auto campaignTexts = std::make_shared<TranslatorOverlay>(ourCampaign->getCampaign().getTexts());
 
-	auto & epilogue = ourCampaign->scenario(*ourCampaign->lastScenario()).epilog;
+	auto & epilogue = ourCampaign->getCampaign().scenario(*ourCampaign->lastScenario()).epilog;
 	auto finisher = [ourCampaign, campaignScoreCalculator, statistic, campaignTexts]()
 	{
 		if(ourCampaign->campaignSet != "" && ourCampaign->isCampaignFinished())
 		{
-			Settings entry = persistentStorage.write["completedCampaigns"][ourCampaign->getFilename()];
+			Settings entry = persistentStorage.write["completedCampaigns"][ourCampaign->getCampaign().getFilename()];
 			entry->Bool() = true;
 		}
 
 		if(!ourCampaign->isCampaignFinished())
-			GAME->mainmenu()->openCampaignLobby(ourCampaign);
+		{
+			// otherwise connection was lost during the epilogue, and the error is already shown
+			if(GAME->server().getState() == EClientState::CAMPAIGN_SCENARIO_WON)
+				GAME->server().sendNextCampaignScenario();
+		}
 		else
 		{
 			GAME->mainmenu()->openCampaignScreen(ourCampaign->campaignSet);
-			if(!ourCampaign->getOutroVideo().empty() && ENGINE->video().open(ourCampaign->getOutroVideo(), 1))
+			if(!ourCampaign->getCampaign().getOutroVideo().empty() && ENGINE->video().open(ourCampaign->getCampaign().getOutroVideo(), 1))
 			{
 				ENGINE->music().stopMusic();
-				auto rim = ourCampaign->getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getVideoRim();
-				if(ourCampaign->getVideoRim() == ImagePath::builtin("NONE"))
+				auto rim = ourCampaign->getCampaign().getVideoRim().empty() ? ImagePath::builtin("INTRORIM") : ourCampaign->getCampaign().getVideoRim();
+				if(ourCampaign->getCampaign().getVideoRim() == ImagePath::builtin("NONE"))
 					rim = ImagePath();
-				ENGINE->windows().createAndPushWindow<VideoWindow>(ourCampaign->getOutroVideo(), rim, false, 1, [campaignScoreCalculator, statistic](bool skipped){
+				ENGINE->windows().createAndPushWindow<VideoWindow>(ourCampaign->getCampaign().getOutroVideo(), rim, false, 1, [campaignScoreCalculator, statistic](bool skipped){
 					ENGINE->windows().createAndPushWindow<CHighScoreInputScreen>(true, *campaignScoreCalculator, statistic);
 				});
 			}
@@ -1011,7 +1054,13 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 
 	logNetwork->error("Lost connection to server! Connection has been closed");
 
-	if(client)
+	if(getState() == EClientState::CAMPAIGN_SCENARIO_WON)
+	{
+		// main menu is already shown under the epilogue
+		setState(EClientState::NONE);
+		showServerError(LIBRARY->generaltexth->translate("vcmi.server.errors.disconnected"));
+	}
+	else if(client)
 	{
 		endGameplay();
 		GAME->mainmenu()->menu->switchToTab("main");
@@ -1080,6 +1129,10 @@ void CServerHandler::visitForLobby(CPackForLobby & lobbyPack)
 
 void CServerHandler::visitForClient(CPackForClient & clientPack)
 {
+	// the server still announces the end of the game to other players of a won campaign scenario
+	if(getState() == EClientState::CAMPAIGN_SCENARIO_WON)
+		return;
+
 	if(gameplayReplayer && gameplayReplayer->isActive())
 	{
 		// a replay has taken the client over, so the live gamestate is not there to receive this pack.

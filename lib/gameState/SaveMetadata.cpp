@@ -44,9 +44,9 @@ static JsonNode gameToJson(const StartInfo & startInfo)
 	JsonNode result;
 	if(startInfo.campState)
 	{
-		const std::string language = LIBRARY->modh->getModLanguage(startInfo.campState->getModName());
+		const std::string language = LIBRARY->modh->getModLanguage(startInfo.campState->getCampaign().getModName());
 		result["mode"].String() = "campaign";
-		result["campaignName"] = ScenarioMetadata::textToJson(startInfo.campState->getName(), {{language, *startInfo.campState->getTexts()}});
+		result["campaignName"] = ScenarioMetadata::textToJson(startInfo.campState->getCampaign().getName(), {{language, *startInfo.campState->getCampaign().getTexts()}});
 		result["campaignScenario"].Integer() = startInfo.campState->currentScenario().value().getNum();
 	}
 	else if(boost::iequals(startInfo.mapname, "Maps/Tutorial"))

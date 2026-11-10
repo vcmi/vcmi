@@ -32,7 +32,6 @@
 
 #include "../../lib/CConfigHandler.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
-#include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/mapping/CMapInfo.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/rmg/CMapGenOptions.h"
@@ -307,20 +306,7 @@ void CLobbyScreen::startCampaign()
 	if(!GAME->server().mi)
 		return;
 
-	try {
-		auto ourCampaign = CampaignHandler::getCampaign(GAME->server().mi->fileURI);
-		GAME->server().setCampaignState(ourCampaign);
-	}
-	catch (const std::runtime_error &e)
-	{
-		// handle possible exception on map loading. For example campaign that contains map in unsupported format
-		// for example, wog campaigns or hota campaigns without hota map support mod
-		MetaString message;
-		message.appendTextID("vcmi.client.errors.invalidMap");
-		message.replaceRawString(e.what());
-
-		CInfoWindow::showInfoDialog(message.toString(&GAME->translator()), {});
-	}
+	GAME->server().startCampaign(GAME->server().mi->fileURI, "");
 }
 
 void CLobbyScreen::startScenario(bool allowOnlyAI)
@@ -344,6 +330,10 @@ void CLobbyScreen::startScenario(bool allowOnlyAI)
 
 void CLobbyScreen::toggleMode(bool host)
 {
+	// hidden lobby goes straight to bonus selection, so the list is never shown
+	if(blackScreen)
+		return;
+
 	tabSel->toggleMode();
 	if(screenType == ESelectionScreen::campaignList)
 	{
@@ -407,7 +397,6 @@ void CLobbyScreen::updateAfterStateChange()
 	const size_t requiredHumanPlayers = shouldFilterByPlayerCount ? std::max<size_t>(2, GAME->server().playerNames.size()) : 0;
 	if(!compatibilityFilterInitialized || (shouldFilterByPlayerCount && requiredHumanPlayers != lastRequiredHumanPlayers))
 	{
-		tabSel->rememberCurrentSelection();
 		tabSel->filter(-1, requiredHumanPlayers);
 		tabSel->restoreLastSelection();
 		updateCompatibilityNotice(requiredHumanPlayers);
