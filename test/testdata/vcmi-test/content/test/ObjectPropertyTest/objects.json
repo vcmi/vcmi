@@ -6628,12 +6628,8 @@
 						"numbers": null,
 						"stringsTextID": null
 					},
-					"timeLimit": 28
-				}
-			],
-			"rewardable": {
-				"info": [
-					{
+					"timeLimit": 28,
+					"reward": {
 						"limiter": {
 							"allOf": [],
 							"anyOf": [],
@@ -6691,7 +6687,10 @@
 						},
 						"visitType": 1
 					}
-				],
+				}
+			],
+			"rewardable": {
+				"info": [],
 				"infoWindowType": 0,
 				"onSelect": {
 					"exactStrings": null,
@@ -6776,12 +6775,8 @@
 						"message": null,
 						"numbers": null,
 						"stringsTextID": null
-					}
-				}
-			],
-			"rewardable": {
-				"info": [
-					{
+					},
+					"reward": {
 						"limiter": {
 							"allOf": [],
 							"anyOf": [],
@@ -6834,7 +6829,10 @@
 						},
 						"visitType": 1
 					}
-				],
+				}
+			],
+			"rewardable": {
+				"info": [],
 				"infoWindowType": 0,
 				"onSelect": {
 					"exactStrings": null,
@@ -6919,12 +6917,8 @@
 						"message": null,
 						"numbers": null,
 						"stringsTextID": null
-					}
-				}
-			],
-			"rewardable": {
-				"info": [
-					{
+					},
+					"reward": {
 						"limiter": {
 							"allOf": [],
 							"anyOf": [],
@@ -6977,7 +6971,10 @@
 						},
 						"visitType": 1
 					}
-				],
+				}
+			],
+			"rewardable": {
+				"info": [],
 				"infoWindowType": 0,
 				"onSelect": {
 					"exactStrings": null,
@@ -7063,12 +7060,8 @@
 						"message": null,
 						"numbers": null,
 						"stringsTextID": null
-					}
-				}
-			],
-			"rewardable": {
-				"info": [
-					{
+					},
+					"reward": {
 						"limiter": {
 							"allOf": [],
 							"anyOf": [],
@@ -7121,7 +7114,10 @@
 						},
 						"visitType": 1
 					}
-				],
+				}
+			],
+			"rewardable": {
+				"info": [],
 				"infoWindowType": 0,
 				"onSelect": {
 					"exactStrings": null,
@@ -7207,12 +7203,8 @@
 						"message": null,
 						"numbers": null,
 						"stringsTextID": null
-					}
-				}
-			],
-			"rewardable": {
-				"info": [
-					{
+					},
+					"reward": {
 						"limiter": {
 							"allOf": [],
 							"anyOf": [],
@@ -7265,7 +7257,10 @@
 						},
 						"visitType": 1
 					}
-				],
+				}
+			],
+			"rewardable": {
+				"info": [],
 				"infoWindowType": 0,
 				"onSelect": {
 					"exactStrings": null,
@@ -7353,12 +7348,8 @@
 						"message": null,
 						"numbers": null,
 						"stringsTextID": null
-					}
-				}
-			],
-			"rewardable": {
-				"info": [
-					{
+					},
+					"reward": {
 						"limiter": {
 							"allOf": [],
 							"anyOf": [],
@@ -7414,7 +7405,10 @@
 						},
 						"visitType": 1
 					}
-				],
+				}
+			],
+			"rewardable": {
+				"info": [],
 				"infoWindowType": 0,
 				"onSelect": {
 					"exactStrings": null,
@@ -7504,12 +7498,8 @@
 						"message": null,
 						"numbers": null,
 						"stringsTextID": null
-					}
-				}
-			],
-			"rewardable": {
-				"info": [
-					{
+					},
+					"reward": {
 						"limiter": {
 							"allOf": [],
 							"anyOf": [],
@@ -7562,7 +7552,10 @@
 						},
 						"visitType": 1
 					}
-				],
+				}
+			],
+			"rewardable": {
+				"info": [],
 				"infoWindowType": 0,
 				"onSelect": {
 					"exactStrings": null,
@@ -7656,12 +7649,8 @@
 						"message": null,
 						"numbers": null,
 						"stringsTextID": null
-					}
-				}
-			],
-			"rewardable": {
-				"info": [
-					{
+					},
+					"reward": {
 						"limiter": {
 							"allOf": [],
 							"anyOf": [],
@@ -7719,7 +7708,10 @@
 						},
 						"visitType": 1
 					}
-				],
+				}
+			],
+			"rewardable": {
+				"info": [],
 				"infoWindowType": 0,
 				"onSelect": {
 					"exactStrings": null,
@@ -7807,12 +7799,8 @@
 						"message": null,
 						"numbers": null,
 						"stringsTextID": null
-					}
-				}
-			],
-			"rewardable": {
-				"info": [
-					{
+					},
+					"reward": {
 						"limiter": {
 							"allOf": [],
 							"anyOf": [],
@@ -7868,7 +7856,10 @@
 						},
 						"visitType": 1
 					}
-				],
+				}
+			],
+			"rewardable": {
+				"info": [],
 				"infoWindowType": 0,
 				"onSelect": {
 					"exactStrings": null,
@@ -7956,12 +7947,8 @@
 						"message": null,
 						"numbers": null,
 						"stringsTextID": null
-					}
-				}
-			],
-			"rewardable": {
-				"info": [
-					{
+					},
+					"reward": {
 						"limiter": {
 							"allOf": [],
 							"anyOf": [],
@@ -8017,7 +8004,10 @@
 						},
 						"visitType": 1
 					}
-				],
+				}
+			],
+			"rewardable": {
+				"info": [],
 				"infoWindowType": 0,
 				"onSelect": {
 					"exactStrings": null,
@@ -8112,12 +8102,8 @@
 						"message": null,
 						"numbers": null,
 						"stringsTextID": null
-					}
-				}
-			],
-			"rewardable": {
-				"info": [
-					{
+					},
+					"reward": {
 						"limiter": {
 							"allOf": [],
 							"anyOf": [],
@@ -8175,7 +8161,10 @@
 						},
 						"visitType": 1
 					}
-				],
+				}
+			],
+			"rewardable": {
+				"info": [],
 				"infoWindowType": 0,
 				"onSelect": {
 					"exactStrings": null,

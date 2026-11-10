@@ -938,6 +938,10 @@ void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		default:
 			readOrWriteReward18(handler);
 	}
+
+	// rewards of older formats now live in quests, and a stale copy would bring back a reward removed in the editor
+	if(!handler.saving)
+		configuration.info.clear();
 }
 
 void SeerHut::readOrWriteReward18(JsonSerializeFormat & handler)
@@ -960,6 +964,9 @@ void SeerHut::readOrWriteReward18(JsonSerializeFormat & handler)
 			auto & quest = addQuest();
 			auto questSerializer = questsArray.enterStruct(i);
 			quest.serializeJson(handler);
+			// maps saved before quests stored own rewards keep them in rewardable, in quest order
+			if(!quest.reward && i < static_cast<int>(configuration.info.size()))
+				quest.reward = configuration.info[i];
 		}
 	}
 }
