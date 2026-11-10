@@ -65,6 +65,9 @@ public:
 	/// Reads only the campaign header; throws std::runtime_error if it can not be loaded
 	static ScenarioListEntry fromCampaign(const ResourcePath & file);
 
+	/// Returns false for files that could not be read, which have no name, size and other properties of the map or campaign
+	bool hasDescription() const;
+
 	/// Name, author, contact, version, creation time and format are of the campaign for campaigns, of the map otherwise
 	std::string getName(const ITranslator * translator) const;
 	std::string getAuthor(const ITranslator * translator) const;

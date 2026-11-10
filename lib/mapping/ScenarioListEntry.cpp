@@ -100,6 +100,11 @@ const JsonNode & ScenarioListEntry::getDescription() const
 	return metadata[type == EType::CAMPAIGN ? "campaign" : "map"];
 }
 
+bool ScenarioListEntry::hasDescription() const
+{
+	return !getDescription().isNull();
+}
+
 std::string ScenarioListEntry::getName(const ITranslator * translator) const
 {
 	return ScenarioMetadata::textToString(getDescription()["name"], translator);

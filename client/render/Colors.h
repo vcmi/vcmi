@@ -26,6 +26,9 @@ public:
 	/** actual 100% white color */
 	static const ColorRGBA WHITE_TRUE;
 
+	/** text of items that can not be used in current state */
+	static const ColorRGBA GRAY;
+
 	/** the metallic gold color used mostly as a border around buttons */
 	static const ColorRGBA METALLIC_GOLD;
 

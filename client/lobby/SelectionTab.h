@@ -43,6 +43,7 @@ public:
 	std::string name = "";
 	bool isFolder = false;
 	bool isAutoSaveFolder = false;
+	ScenarioListEntry::EStatus status = ScenarioListEntry::EStatus::COMPATIBLE;
 };
 
 /// Class which handles map sorting by different criteria
@@ -110,6 +111,10 @@ class SelectionTab : public CIntObject
 	/// Selects file with this name if it is in the current folder
 	bool selectFileInCurrentFolder(const std::string & fname);
 	void selectFirstFile();
+	/// Returns false for files that can not be loaded with active mods or this version of VCMI
+	bool isSelectable(const ElementInfo & item) const;
+	/// Returns index of the first selectable item starting from index in the direction, or -1 if there is none
+	int findSelectable(int index, int direction) const;
 public:
 	std::vector<std::shared_ptr<ElementInfo>> allItems;
 	std::vector<std::shared_ptr<ElementInfo>> curItems;

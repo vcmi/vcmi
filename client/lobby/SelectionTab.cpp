@@ -43,8 +43,11 @@
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
+#include "../../lib/modding/CModHandler.h"
+#include "../../lib/modding/ModDescription.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
+#include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextOperations.h"
 #include "../../lib/TerrainHandler.h"
 #include "../../lib/UnlockGuard.h"
@@ -145,6 +148,86 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 			return TextOperations::compareLocalizedStrings(aaa->name, bbb->name);
 		}
 	}
+}
+
+/// Returns name of a mod required by the entry, from metadata if the mod is not installed
+static std::string getModName(const ScenarioListEntry & entry, const TModID & modID)
+{
+	if(vstd::contains(LIBRARY->modh->getAllMods(), modID))
+		return LIBRARY->modh->getModInfo(modID).getName();
+
+	const TModID rootID = modID.substr(0, modID.find('.'));
+	std::string rootName = entry.metadata["mods"][rootID]["name"].String();
+	if(rootName.empty())
+		rootName = rootID;
+	return rootID == modID ? rootName : rootName + " (" + modID.substr(rootID.size() + 1) + ")";
+}
+
+/// Returns description of the reasons why the entry can not be loaded
+static std::string getIncompatibilityText(const ScenarioListEntry & entry)
+{
+	std::string result;
+	switch(entry.problem)
+	{
+		case ScenarioListEntry::EProblem::MAP_FORMAT:
+			result = LIBRARY->generaltexth->translate("vcmi.lobby.incompatible.mapFormat");
+			break;
+		case ScenarioListEntry::EProblem::SAVE_TOO_OLD:
+			result = LIBRARY->generaltexth->translate("vcmi.lobby.incompatible.saveTooOld");
+			break;
+		case ScenarioListEntry::EProblem::SAVE_TOO_NEW:
+		{
+			const std::string & version = entry.metadata["vcmiVersion"].String();
+			MetaString text = MetaString::createFromTextID("vcmi.lobby.incompatible.saveTooNew");
+			text.replaceRawString(version.empty() ? "?" : version);
+			result = text.toString(&GAME->translator());
+			break;
+		}
+		case ScenarioListEntry::EProblem::INVALID_FILE:
+			result = LIBRARY->generaltexth->translate("vcmi.lobby.incompatible.invalidFile") + "\n" + entry.error;
+			break;
+		default:
+			break;
+	}
+
+	const std::vector<std::pair<ModVerificationStatus, std::string>> groups = {
+		{ ModVerificationStatus::NOT_INSTALLED, "vcmi.lobby.incompatible.modsMissing" },
+		{ ModVerificationStatus::VERSION_MISMATCH, "vcmi.lobby.incompatible.modsVersion" },
+		{ ModVerificationStatus::DISABLED, "vcmi.server.errors.modsToEnable" },
+		{ ModVerificationStatus::EXCESSIVE, "vcmi.server.errors.modsToDisable" },
+	};
+
+	for(const auto & [groupStatus, textID] : groups)
+	{
+		std::string lines;
+		for(const auto & [modID, status] : entry.mods)
+		{
+			if(status != groupStatus)
+				continue;
+
+			const TModID rootID = modID.substr(0, modID.find('.'));
+			const std::string & requiredVersion = entry.metadata["mods"][rootID]["version"].String();
+			std::string line = getModName(entry, modID);
+			if(status == ModVerificationStatus::NOT_INSTALLED && !requiredVersion.empty() && modID == rootID)
+				line += " " + requiredVersion;
+			if(status == ModVerificationStatus::VERSION_MISMATCH)
+			{
+				MetaString versions = MetaString::createFromTextID("vcmi.lobby.incompatible.modVersion");
+				versions.replaceRawString(line);
+				versions.replaceRawString(requiredVersion);
+				versions.replaceRawString(LIBRARY->modh->getModInfo(modID).getVersion().toString());
+				line = versions.toString(&GAME->translator());
+			}
+			lines += "\n" + line;
+		}
+
+		if(lines.empty())
+			continue;
+		if(!result.empty())
+			result += "\n\n";
+		result += LIBRARY->generaltexth->translate(textID) + lines;
+	}
+	return result;
 }
 
 // pick sorting order based on selection
@@ -536,31 +619,59 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 
 void SelectionTab::keyPressed(EShortcut key)
 {
-	int moveBy = 0;
+	const int lastIndex = static_cast<int>(curItems.size()) - 1;
+	int target = 0;
+	int direction = 0;
 	switch(key)
 	{
 	case EShortcut::MOVE_UP:
-		moveBy = -1;
+		target = static_cast<int>(selectionPos) - 1;
+		direction = -1;
 		break;
 	case EShortcut::MOVE_DOWN:
-		moveBy = +1;
+		target = static_cast<int>(selectionPos) + 1;
+		direction = +1;
 		break;
 	case EShortcut::MOVE_PAGE_UP:
-		moveBy = -(int)listItems.size() + 1;
+		target = static_cast<int>(selectionPos) - static_cast<int>(listItems.size()) + 1;
+		direction = -1;
 		break;
 	case EShortcut::MOVE_PAGE_DOWN:
-		moveBy = +(int)listItems.size() - 1;
+		target = static_cast<int>(selectionPos) + static_cast<int>(listItems.size()) - 1;
+		direction = +1;
 		break;
 	case EShortcut::MOVE_FIRST:
-		select(-slider->getValue());
-		return;
+		target = 0;
+		direction = +1;
+		break;
 	case EShortcut::MOVE_LAST:
-		select((int)curItems.size() - slider->getValue());
-		return;
+		target = lastIndex;
+		direction = -1;
+		break;
 	default:
 		return;
 	}
-	select((int)selectionPos - slider->getValue() + moveBy);
+
+	if(curItems.empty())
+		return;
+
+	const int index = findSelectable(std::clamp(target, 0, lastIndex), direction);
+	if(index != -1)
+		select(index - slider->getValue());
+}
+
+bool SelectionTab::isSelectable(const ElementInfo & item) const
+{
+	// saves on the save screen are only overwritten, not loaded
+	return item.isFolder || tabType == ESelectionScreen::saveGame || item.status == ScenarioListEntry::EStatus::COMPATIBLE;
+}
+
+int SelectionTab::findSelectable(int index, int direction) const
+{
+	for(; index >= 0 && index < static_cast<int>(curItems.size()); index += direction)
+		if(isSelectable(*curItems[index]))
+			return index;
+	return -1;
 }
 
 void SelectionTab::clickDouble(const Point & cursorPosition)
@@ -602,6 +713,12 @@ void SelectionTab::showPopupWindow(const Point & cursorPosition)
 
 	if(py >= curItems.size())
 		return;
+
+	if(!curItems[py]->isFolder && curItems[py]->status != ScenarioListEntry::EStatus::COMPATIBLE)
+	{
+		CRClickPopup::createAndPush(getIncompatibilityText(*curItems[py]->entry));
+		return;
+	}
 
 	if(!curItems[py]->isFolder)
 	{
@@ -689,7 +806,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 		sort();
 		if(selectFirst)
 		{
-			int firstPos = std::ranges::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+			int firstPos = std::ranges::find_if(curItems, [this](std::shared_ptr<ElementInfo> e) { return !e->isFolder && isSelectable(*e); }) - curItems.begin();
 			if(firstPos < curItems.size())
 			{
 				slider->scrollTo(firstPos);
@@ -756,6 +873,12 @@ void SelectionTab::select(int position)
 	vstd::amax(py, 0);
 	vstd::amin(py, curItems.size() - 1);
 
+	if(!isSelectable(*curItems[py]))
+	{
+		CInfoWindow::showInfoDialog(getIncompatibilityText(*curItems[py]->entry), {});
+		return;
+	}
+
 	selectionPos = py;
 
 	if(position < 0)
@@ -800,7 +923,7 @@ void SelectionTab::select(int position)
 void SelectionTab::selectAbs(int position)
 {
 	if(position == -1)
-		position = std::ranges::find_if(curItems, [](std::shared_ptr<ElementInfo> e) { return !e->isFolder; }) - curItems.begin();
+		position = std::ranges::find_if(curItems, [this](std::shared_ptr<ElementInfo> e) { return !e->isFolder && isSelectable(*e); }) - curItems.begin();
 	select(position - slider->getValue());
 }
 
@@ -885,6 +1008,7 @@ void SelectionTab::selectFirstFile()
 	int firstPos = std::ranges::find_if(curItems, [this](const std::shared_ptr<ElementInfo> & element)
 	{
 		return !element->isFolder
+			&& isSelectable(*element)
 			&& (tabType != ESelectionScreen::saveGame || !SavegamePath::isAutosaveName(element->fileURI));
 	}) - curItems.begin();
 	if(firstPos < curItems.size())
@@ -908,7 +1032,7 @@ void SelectionTab::selectNewestFile(bool skipAutosaves)
 	std::string newestFile = "";
 	for(const auto & item : curItems)
 	{
-		if(item->isFolder)
+		if(item->isFolder || !isSelectable(*item))
 			continue;
 		if(skipAutosaves && SavegamePath::isAutosaveName(item->fileURI))
 			continue;
@@ -986,6 +1110,19 @@ bool SelectionTab::checkNameFilter(const std::string & fullstring) const
 					   [](char a, char b) -> bool {return std::tolower(a) == std::tolower(b);}) != fullstring.end();
 }
 
+static ColorRGBA getStatusColor(ScenarioListEntry::EStatus status)
+{
+	switch(status)
+	{
+		case ScenarioListEntry::EStatus::MODS_INACTIVE:
+			return Colors::GRAY;
+		case ScenarioListEntry::EStatus::INCOMPATIBLE:
+			return Colors::RED;
+		default:
+			return Colors::WHITE;
+	}
+}
+
 static std::string getMapSizeName(int width)
 {
 	switch(width)
@@ -1055,6 +1192,7 @@ void SelectionTab::setScenarioList(const ScenarioList & list)
 		element->entry = entry;
 		element->fileURI = entry.fileURI;
 		element->lastWrite = entry.lastWrite;
+		element->status = entry.getStatus();
 		allItems.push_back(element);
 	}
 	updateNames(offset);
@@ -1069,6 +1207,7 @@ void SelectionTab::setScenarioList(const ScenarioList & list)
 		folder->folderName = subfolder.name;
 		folder->isAutoSaveFolder = boost::starts_with(curFolder, "Autosave/");
 		folder->lastWrite = subfolder.lastWrite;
+		folder->status = subfolder.status;
 		allItems.push_back(folder);
 	}
 
@@ -1123,11 +1262,11 @@ void SelectionTab::updateNames(size_t offset)
 	for(size_t i = offset; i < allItems.size(); ++i)
 	{
 		const auto & item = allItems[i];
-		if(item->entry->type == ScenarioListEntry::EType::CAMPAIGN)
+		if(item->entry->type == ScenarioListEntry::EType::CAMPAIGN && item->entry->hasDescription())
 		{
 			item->name = item->entry->getName(&GAME->translator());
 		}
-		else if(item->entry->type == ScenarioListEntry::EType::SAVE)
+		else if(item->entry->type != ScenarioListEntry::EType::MAP || !item->entry->hasDescription())
 		{
 			std::vector<std::string> path;
 			boost::split(path, item->entry->originalFileURI, boost::is_any_of("\\/"));
@@ -1182,7 +1321,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		return;
 	}
 
-	auto color = selected ? Colors::YELLOW : Colors::WHITE;
+	auto color = selected ? Colors::YELLOW : getStatusColor(info->status);
 	if(info->isFolder)
 	{
 		labelAmountOfPlayers->disable();
@@ -1224,7 +1363,7 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 			iconFormat->disable();
 		iconVictoryCondition->disable();
 		iconLossCondition->disable();
-		labelNumberOfCampaignMaps->enable();
+		labelNumberOfCampaignMaps->setEnabled(info->entry->hasDescription());
 		std::ostringstream ostr(std::ostringstream::out);
 		ostr << info->entry->getCampaignScenarios();
 		labelNumberOfCampaignMaps->setText(ostr.str());
@@ -1256,6 +1395,15 @@ void SelectionTab::ListItem::updateItem(std::shared_ptr<ElementInfo> info, bool 
 		iconVictoryCondition->setFrame(info->entry->getVictoryIcon(), 0);
 		iconLossCondition->enable();
 		iconLossCondition->setFrame(info->entry->getDefeatIcon(), 0);
+		if(!info->entry->hasDescription())
+		{
+			labelAmountOfPlayers->disable();
+			labelMapSizeLetter->disable();
+			if(iconFormat)
+				iconFormat->disable();
+			iconVictoryCondition->disable();
+			iconLossCondition->disable();
+		}
 		labelName->setMaxWidth(185);
 		labelName->alignment = ETextAlignment::CENTER;
 		labelName->moveTo(Point(pos.x + LABEL_POS_X - (ENGINE->isRoeData() ? 36 : 0), labelName->pos.y));
