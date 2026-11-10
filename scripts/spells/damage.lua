@@ -19,11 +19,8 @@ function Script:isReceptive(mechanics, unit)
 			if sub == "any" then return false end
 			return LIBRARY:getSpellSchoolByName(sub) == school
 		end)
-		local total = 0
-		for i = 1, matching:size() do
-			total = total + matching:getBonus(i):getVal()
-		end
-		if total >= 100 then
+
+		if matching:totalValue() >= 100 then
 			return false
 		end
 	end
