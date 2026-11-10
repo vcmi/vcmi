@@ -108,6 +108,8 @@ public:
 	TinyH3MBuilder & name(std::string s);
 	TinyH3MBuilder & description(std::string s);
 	TinyH3MBuilder & difficulty(EMapDifficulty d);
+	/// HotA-only bitmask of difficulties player may choose
+	TinyH3MBuilder & allowedDifficulties(uint8_t mask);
 	/// Maximum hero level, 0 for no limit. Written only for AB+ formats.
 	TinyH3MBuilder & heroLevelLimit(uint8_t level);
 
@@ -413,6 +415,7 @@ private:
 	std::string    mapDescription;
 	std::string    mapScript;
 	EMapDifficulty mapDifficulty = EMapDifficulty::NORMAL;
+	uint8_t        mapAllowedDifficulties = 31;
 	uint8_t        mapHeroLevelLimit = 0;
 
 	std::array<bool, 8> playerEnabled{};

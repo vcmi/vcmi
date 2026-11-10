@@ -409,6 +409,7 @@ bool MovementAnimation::init()
 		progressPerSecond =  AnimationControls::getFlightDistance(stack->unitType()) / distance;
 	}
 
+	framesPerSecond = AnimationControls::getCreatureAnimationSpeed(stack->unitType(), myAnim.get(), ECreatureAnimType::MOVING);
 	return true;
 }
 
@@ -416,18 +417,23 @@ void MovementAnimation::tick(uint32_t msPassed)
 {
 	progress += float(msPassed) / 1000 * progressPerSecond;
 
-	//moving instructions
-	myAnim->pos.x = begX + distanceX * progress;
-	myAnim->pos.y = begY + distanceY * progress;
+	// keep unit at the point where current frame has started, otherwise unit visibly slides while showing the same frame
+	// single-frame animation restarts its frame on every loop, so such unit also moves in steps
+	double frame = myAnim->getCurrentFrame();
+	double frameStartProgress = std::min(progress - (frame - std::floor(frame)) / framesPerSecond * progressPerSecond, 1.0);
+
+	// negative if current frame has started on previous hex - unit stays where that frame has placed it
+	if(frameStartProgress >= 0)
+	{
+		myAnim->pos.x = begX + distanceX * frameStartProgress;
+		myAnim->pos.y = begY + distanceY * frameStartProgress;
+	}
 
 	BattleAnimation::tick(msPassed);
 
 	if(progress >= 1.0)
 	{
 		progress -= 1.0;
-		// Sets the position of the creature animation sprites
-		Point coords = owner.stacksController->getStackPositionAtHex(nextHex, stack);
-		myAnim->pos.moveTo(coords);
 
 		// true if creature haven't reached the final destination hex
 		if ((currentMoveIndex + 1) < destTiles.size())
@@ -441,7 +447,10 @@ void MovementAnimation::tick(uint32_t msPassed)
 			initialized = false;
 		}
 		else
+		{
+			myAnim->pos.moveTo(owner.stacksController->getStackPositionAtHex(nextHex, stack));
 			delete this;
+		}
 	}
 }
 
@@ -473,7 +482,8 @@ MovementAnimation::MovementAnimation(BattleInterface & owner, const CStack *stac
 	  distanceX(0), distanceY(0),
 	  progressPerSecond(0.0),
 	  moveSoundHandler(-1),
-	  progress(0.0)
+	  progress(0.0),
+	  framesPerSecond(0.0)
 {
 	logAnim->debug("Created MovementAnimation for %s", stack->getName());
 }

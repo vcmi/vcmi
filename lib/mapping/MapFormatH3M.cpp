@@ -157,7 +157,7 @@ void CMapLoaderH3M::readHeader()
 		if(features.levelHOTA5)
 		{
 			int32_t townTypesCount = reader->readUInt32();
-			int8_t allowedDifficultiesMask = reader->readInt8Checked(0, 31);
+			int8_t allowedDifficultiesMask = reader->readInt8Checked(1, 31);
 
 			// wrong assumption and this is not related to factions?
 			// assert(features.factionsCount == townTypesCount);
@@ -165,16 +165,14 @@ void CMapLoaderH3M::readHeader()
 			if (features.factionsCount != townTypesCount)
 				logGlobal->warn("Map '%s': Expected %d factions, but %d found!", mapName, features.factionsCount, townTypesCount);
 
-			if (allowedDifficultiesMask != 0 && allowedDifficultiesMask != 31) //TODO: recheck if 0 is possible
-				logGlobal->warn("Map '%s': List of allowed difficulties (%d) is not implemented!", mapName, static_cast<int>(allowedDifficultiesMask));
+			mapHeader->allowedDifficulties = MapDifficultySet(allowedDifficultiesMask);
 		}
 
 		if(features.levelHOTA7)
 		{
 			bool canHireDefeatedHeroes = reader->readBool();
-
-			if (!canHireDefeatedHeroes)
-				logGlobal->warn("Map '%s': Option to block hiring of defeated heroes is not implemented!", mapName);
+			if(map)
+				map->overrideGameSetting(EGameSettings::HEROES_HIRE_DEFEATED, JsonNode(canHireDefeatedHeroes));
 		}
 
 		if(features.levelHOTA8)
@@ -252,9 +250,7 @@ void CMapLoaderH3M::readPlayerInfo()
 
 		playerInfo.isFactionRandom = reader->readBool();
 
-		if (allowedFactions.empty())
-			logGlobal->warn("Map '%s': Player %d has no allowed factions to play! Ignoring.", mapName, i);
-		else if (allowedFactions.size() * 2 >= features.factionsCount)
+		if (allowedFactions.size() * 2 >= features.factionsCount)
 		{
 			// Map that allows most factions is assumed to ban the rest, so factions unknown to its format,
 			// such as ones from mods or from newer HotA versions, remain available
@@ -263,7 +259,12 @@ void CMapLoaderH3M::readPlayerInfo()
 					playerInfo.allowedFactions.erase(faction);
 		}
 		else
-			playerInfo.allowedFactions = allowedFactions;
+		{
+			if (playerInfo.canAnyonePlay() && allowedFactions.empty())
+				logGlobal->warn("Map '%s': Player %d has no allowed factions to play! Ignoring.", mapName, i);
+			else
+				playerInfo.allowedFactions = allowedFactions;
+		}
 
 		playerInfo.hasMainTown = reader->readBool();
 		if(playerInfo.hasMainTown)
@@ -292,7 +293,7 @@ void CMapLoaderH3M::readPlayerInfo()
 
 		if(features.levelAB)
 		{
-            reader->skipUnused(1); //Number of hero placeholders on map - unused
+			reader->skipUnused(1); //Number of hero placeholders on map - unused
 			size_t heroCount = reader->readUInt32();
 			for(size_t pp = 0; pp < heroCount; ++pp)
 			{

@@ -80,6 +80,26 @@ TEST(TinyH3MBuilderTest, TwoLevelMapHasTwoLayers)
 	EXPECT_EQ(header->mapLayers.size(), 2u);
 }
 
+TEST(TinyH3MBuilderTest, HotaAllowedDifficulties)
+{
+	// normal and expert only
+	auto bytes = TinyH3M::TinyH3MBuilder(EMapFormat::HOTA)
+		.hotaVersion(5)
+		.size(36, /*twoLevel*/ false)
+		.allowedDifficulties(0b01010)
+		.buildAndDump("HotaAllowedDifficulties");
+
+	auto header = loadHeader(std::move(bytes));
+	ASSERT_NE(header, nullptr);
+	const auto & allowed = header->allowedDifficulties;
+	EXPECT_FALSE(allowed.contains(EMapDifficulty::EASY));
+	EXPECT_TRUE(allowed.contains(EMapDifficulty::NORMAL));
+	EXPECT_EQ(allowed.closest(EMapDifficulty::EASY), EMapDifficulty::NORMAL);
+	EXPECT_EQ(allowed.closest(EMapDifficulty::HARD), EMapDifficulty::EXPERT);
+	EXPECT_EQ(allowed.closest(EMapDifficulty::IMPOSSIBLE), EMapDifficulty::EXPERT);
+	EXPECT_EQ(allowed.closest(EMapDifficulty::EXPERT), EMapDifficulty::EXPERT);
+}
+
 TEST(TinyH3MBuilderTest, EmptyROEFullLoad)
 {
 	auto bytes = TinyH3M::TinyH3MBuilder(EMapFormat::ROE)

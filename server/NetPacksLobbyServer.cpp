@@ -556,7 +556,10 @@ void ApplyOnServerNetPackVisitor::visitLobbySetExtraOptions(LobbySetExtraOptions
 
 void ApplyOnServerNetPackVisitor::visitLobbySetDifficulty(LobbySetDifficulty & pack)
 {
-	srv.si->difficulty = std::clamp<uint8_t>(pack.difficulty, 0, 4);
+	auto difficulty = static_cast<EMapDifficulty>(std::clamp<uint8_t>(pack.difficulty, 0, 4));
+	if(srv.mi && srv.mi->mapHeader)
+		difficulty = srv.mi->mapHeader->allowedDifficulties.closest(difficulty);
+	srv.si->difficulty = static_cast<uint8_t>(difficulty);
 	result = true;
 }
 

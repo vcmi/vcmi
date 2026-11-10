@@ -273,6 +273,10 @@ void GameStatePackVisitor::visitFoWChange(FoWChange & pack)
 
 void GameStatePackVisitor::visitSetAvailableHero(SetAvailableHero & pack)
 {
+	bool returnsToPool = pack.roleID == TavernSlotRole::RETREATED || pack.roleID == TavernSlotRole::SURRENDERED;
+	if (returnsToPool && !gs.heroesPool->isHeroInPool(pack.hid))
+		gs.heroesPool->addHeroToPool(pack.hid);
+
 	gs.heroesPool->setHeroForPlayer(pack.player, pack.slotID, pack.hid, pack.army, pack.roleID, pack.replenishPoints);
 }
 
@@ -508,8 +512,9 @@ void GameStatePackVisitor::visitRemoveObject(RemoveObject & pack)
 		beatenHero->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 		auto beatenObject = gs.getMap().eraseObject(obj->id);
 
-		//return hero to the pool, so he may reappear in tavern
-		gs.heroesPool->addHeroToPool(beatenHero->getHeroTypeID());
+		// retreated or surrendered heroes are added back by SetAvailableHero that follows
+		if (gs.getSettings().getBoolean(EGameSettings::HEROES_HIRE_DEFEATED))
+			gs.heroesPool->addHeroToPool(beatenHero->getHeroTypeID());
 		gs.getMap().addToHeroPool(std::dynamic_pointer_cast<CGHeroInstance>(beatenObject));
 		return;
 	}

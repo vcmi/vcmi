@@ -44,6 +44,17 @@ public:
 		return mask == allDifficultiesMask;
 	}
 
+	/// Nearest contained difficulty, harder one on tie. Unchanged if set is empty
+	EMapDifficulty closest(EMapDifficulty difficulty) const
+	{
+		int base = static_cast<int>(difficulty);
+		for(int distance = 0; distance < static_cast<int>(EMapDifficulty::COUNT); ++distance)
+			for(int candidate : {base + distance, base - distance})
+				if(candidate >= 0 && candidate < static_cast<int>(EMapDifficulty::COUNT) && contains(static_cast<EMapDifficulty>(candidate)))
+					return static_cast<EMapDifficulty>(candidate);
+		return difficulty;
+	}
+
 	bool operator==(const MapDifficultySet & other) const
 	{
 		return mask == other.mask;
@@ -69,6 +80,17 @@ public:
 				if(GameConstants::DIFFICULTY_NAMES[i] == name)
 					mask |= (1u << i);
 		return names.empty() ? MapDifficultySet() : MapDifficultySet(mask);
+	}
+
+	/// Stores set as list of chess names. Absent or empty list means no restriction
+	template <typename Handler>
+	void serializeJson(Handler & handler, const std::string & fieldName)
+	{
+		auto names = toNames();
+		if(!handler.saving || !names.empty())
+			handler.enterArray(fieldName).serializeArray(names);
+		if(!handler.saving)
+			*this = fromNames(names);
 	}
 
 	template <typename Handler>

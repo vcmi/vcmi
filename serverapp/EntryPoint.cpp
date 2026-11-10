@@ -193,12 +193,8 @@ static void generateTranslations(const std::string & modID)
 		try
 		{
 			std::string fullModID = modID + '.' + submod.first;
-			bool hasOverrides = vstd::contains(modsWithOverrides, fullModID);
-			if (!submod.second && !hasOverrides)
+			if (!submod.second && !vstd::contains(modsWithOverrides, fullModID))
 				mods->tryEnableMods({fullModID});
-
-			if (submod.second && hasOverrides)
-				mods->tryDisableMod(fullModID);
 		}
 		catch (const std::exception &)
 		{
@@ -206,6 +202,19 @@ static void generateTranslations(const std::string & modID)
 		}
 	}
 
+	// Disable only after enabling everything else - other submods (e.g. compatibility patches) may pull these back in as dependencies
+	for (const auto & overridingModID : modsWithOverrides)
+	{
+		try
+		{
+			if (mods->isModActive(overridingModID))
+				mods->tryDisableMod(overridingModID);
+		}
+		catch (const std::exception & e)
+		{
+			logGlobal->warn("Failed to disable mod %s for translation export: %s", overridingModID, e.what());
+		}
+	}
 
 	setGameLibrary(loadLibrary());
 	LIBRARY->generaltexth->exportAllTexts(textsByMod, false);
