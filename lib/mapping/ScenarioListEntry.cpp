@@ -82,6 +82,19 @@ ScenarioListEntry ScenarioListEntry::fromSave(const ResourcePath & file, JsonVal
 	return result;
 }
 
+ScenarioListEntry::EStatus ScenarioListEntry::getStatus() const
+{
+	if(problem == EProblem::NONE)
+		return EStatus::COMPATIBLE;
+	if(problem != EProblem::MODS)
+		return EStatus::INCOMPATIBLE;
+
+	for(const auto & [modID, status] : mods)
+		if(status != ModVerificationStatus::DISABLED && status != ModVerificationStatus::EXCESSIVE)
+			return EStatus::INCOMPATIBLE;
+	return EStatus::MODS_INACTIVE;
+}
+
 const JsonNode & ScenarioListEntry::getDescription() const
 {
 	return metadata[type == EType::CAMPAIGN ? "campaign" : "map"];

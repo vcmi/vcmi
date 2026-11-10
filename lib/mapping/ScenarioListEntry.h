@@ -10,6 +10,7 @@
 #pragma once
 
 #include "../json/JsonNode.h"
+#include "../modding/ModVerificationInfo.h"
 
 class ITranslator;
 class ResourcePath;
@@ -27,11 +28,32 @@ public:
 		CAMPAIGN
 	};
 
+	/// Reason why the entry can not be selected with active mods and this version of VCMI
+	enum class EProblem : uint8_t
+	{
+		NONE,
+		MODS, ///< see mods
+		MAP_FORMAT, ///< map format is not supported by active mods
+		SAVE_TOO_OLD,
+		SAVE_TOO_NEW,
+		INVALID_FILE ///< see error
+	};
+
+	enum class EStatus : uint8_t
+	{
+		COMPATIBLE,
+		MODS_INACTIVE, ///< can be selected after enabling or disabling installed mods
+		INCOMPATIBLE
+	};
+
 	EType type = EType::MAP;
 	std::string fileURI; ///< same as CMapInfo::fileURI
 	std::string originalFileURI; ///< resource name with letter case kept
 	std::time_t lastWrite = 0;
-	JsonNode metadata; ///< format is described by config/schemas/scenarioMetadata.json
+	JsonNode metadata; ///< format is described by config/schemas/scenarioMetadata.json, may lack "map" and "campaign" sections if the file can not be read
+	EProblem problem = EProblem::NONE;
+	ModListVerificationStatus mods; ///< mods that do not match active mods, by mod ID
+	std::string error; ///< reason why the file can not be read, for INVALID_FILE
 
 	/// Throws std::runtime_error if the map can not be loaded
 	static ScenarioListEntry fromMap(const ResourcePath & file);
@@ -61,6 +83,8 @@ public:
 	/// Returns number of players that can be controlled by human
 	int getHumanPlayers() const;
 
+	EStatus getStatus() const;
+
 	bool isCampaignSave() const;
 	bool isTutorialSave() const;
 	int getHumanPlayersInSave() const;
@@ -78,6 +102,9 @@ public:
 		h & originalFileURI;
 		h & lastWrite;
 		h & metadata;
+		h & problem;
+		h & mods;
+		h & error;
 	}
 
 private:
