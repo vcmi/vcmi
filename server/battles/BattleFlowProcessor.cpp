@@ -223,18 +223,7 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 				logGlobal->warn("No valid stack to act during round! Skipping to next round!");
 		}
 
-		BattleUnitsChanged removeGhosts;
-		removeGhosts.battleID = battle.getBattle()->getBattleID();
-
-		auto pendingGhosts = battle.battleGetStacksIf([](const CStack * stack){
-			return stack->ghostPending;
-		});
-
-		for(const auto * stack : pendingGhosts)
-			removeGhosts.changedStacks.emplace_back(stack->unitId(), UnitChanges::EOperation::REMOVE);
-
-		if(!removeGhosts.changedStacks.empty())
-			gameHandler->sendAndApply(removeGhosts);
+		removeGhosts(battle);
 
 		gameHandler->turnTimerHandler->onBattleNextStack(battle.getBattle()->getBattleID(), *next);
 
@@ -616,6 +605,8 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		return;
 
 	removeBrokenBindings(battle);
+	// the acting unit may keep its turn, e.g. after a hero spell, but corpses that leave no remains must go now
+	removeGhosts(battle);
 
 	// tactics - next stack will be selected by player
 	if(battle.battleGetTacticDist() != 0)
@@ -721,6 +712,22 @@ void BattleFlowProcessor::tryUnbindStack(const CBattleInfoCallback & battle, con
 		ssp.stackID = st->unitId();
 		gameHandler->sendAndApply(ssp);
 	}
+}
+
+void BattleFlowProcessor::removeGhosts(const CBattleInfoCallback & battle)
+{
+	BattleUnitsChanged removeGhosts;
+	removeGhosts.battleID = battle.getBattle()->getBattleID();
+
+	auto pendingGhosts = battle.battleGetStacksIf([](const CStack * stack){
+		return stack->ghostPending;
+	});
+
+	for(const auto * stack : pendingGhosts)
+		removeGhosts.changedStacks.emplace_back(stack->unitId(), UnitChanges::EOperation::REMOVE);
+
+	if(!removeGhosts.changedStacks.empty())
+		gameHandler->sendAndApply(removeGhosts);
 }
 
 void BattleFlowProcessor::removeBrokenBindings(const CBattleInfoCallback & battle)
