@@ -711,6 +711,10 @@ void QuestSource::defineDefaultTexts(Quest & q)
 		return;
 	}
 
+	// texts of scripted quests are shown by their map script
+	if(q.missionKind == EQuestMission::HOTA_SCRIPTED)
+		return;
+
 	const std::string & questName = Quest::missionName(q.missionKind);
 	if(q.firstVisitText.empty())
 		q.firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(0), q.textOption).get());
@@ -818,6 +822,10 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 	// advance past a finished / expired active quest so the next one is offered
 	if(!isEmpty() && (advancePending || !isQuestAvailable(getQuest())))
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_ADVANCE, true);
+
+	// scripted quest is handled by its map script, which only runs when the visit starts
+	if(!getVisitScriptHandler().empty())
+		return;
 
 	InfoWindow iw;
 	iw.player = h->getOwner();
