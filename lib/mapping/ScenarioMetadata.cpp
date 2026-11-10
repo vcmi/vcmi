@@ -16,6 +16,7 @@
 #include "../campaign/CampaignState.h"
 #include "../json/JsonNode.h"
 #include "../modding/CModHandler.h"
+#include "../modding/ModDescription.h"
 #include "../modding/ModScope.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
@@ -151,5 +152,78 @@ JsonNode ScenarioMetadata::modsToJson(const ModCompatibilityInfo & mods)
 		if(modID != rootID)
 			entry["submods"].Vector().emplace_back(modID.substr(rootID.size() + 1));
 	}
+	return result;
+}
+
+JsonNode ScenarioMetadata::activeModsToJson()
+{
+	ModCompatibilityInfo mods;
+	for(const auto & modID : LIBRARY->modh->getActiveMods())
+		mods[modID] = LIBRARY->modh->getModInfo(modID).getVerificationInfo();
+	return modsToJson(mods);
+}
+
+ModListVerificationStatus ScenarioMetadata::verifyMods(const JsonNode & mods, bool isSave)
+{
+	const auto & installedMods = LIBRARY->modh->getAllMods();
+	const auto & activeMods = LIBRARY->modh->getActiveMods();
+
+	// local version of a mod may no longer affect gameplay, in which case it does not need to be enabled
+	const auto affectsGameplay = [&installedMods](const TModID & rootID)
+	{
+		return std::ranges::any_of(installedMods, [&rootID](const TModID & modID)
+		{
+			const auto & mod = LIBRARY->modh->getModInfo(modID);
+			return (modID == rootID || mod.getTopParentID() == rootID) && mod.affectsGameplay();
+		});
+	};
+
+	ModListVerificationStatus result;
+	for(const auto & [rootID, entry] : mods.Struct())
+	{
+		if(!vstd::contains(installedMods, rootID))
+		{
+			result[rootID] = ModVerificationStatus::NOT_INSTALLED;
+			continue;
+		}
+
+		if(!affectsGameplay(rootID))
+			continue;
+
+		if(!vstd::contains(activeMods, rootID))
+		{
+			result[rootID] = ModVerificationStatus::DISABLED;
+			continue;
+		}
+
+		// list of submods and versions often change between versions of a mod without breaking saves
+		if(isSave)
+			continue;
+
+		const auto requiredVersion = CModVersion::fromString(entry["version"].String());
+		if(!requiredVersion.isNull() && !LIBRARY->modh->getModInfo(rootID).getVersion().compatible(requiredVersion))
+		{
+			result[rootID] = ModVerificationStatus::VERSION_MISMATCH;
+			continue;
+		}
+
+		for(const auto & submod : entry["submods"].Vector())
+		{
+			const TModID modID = rootID + '.' + submod.String();
+			if(!vstd::contains(installedMods, modID))
+				result[modID] = ModVerificationStatus::NOT_INSTALLED;
+			else if(!vstd::contains(activeMods, modID))
+				result[modID] = ModVerificationStatus::DISABLED;
+		}
+	}
+
+	if(isSave)
+	{
+		const JsonNode localMods = activeModsToJson();
+		for(const auto & [rootID, localMod] : localMods.Struct())
+			if(!mods.Struct().contains(rootID))
+				result[rootID] = ModVerificationStatus::EXCESSIVE;
+	}
+
 	return result;
 }

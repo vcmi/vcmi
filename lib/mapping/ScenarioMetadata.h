@@ -37,4 +37,11 @@ DLL_LINKAGE JsonNode campaignToJson(const Campaign & campaign);
 
 /// Describes mods from provided list that affect gameplay, as "mods" section of metadata
 DLL_LINKAGE JsonNode modsToJson(const ModCompatibilityInfo & mods);
+
+/// Describes active mods of LIBRARY that affect gameplay, as "mods" section of metadata
+DLL_LINKAGE JsonNode activeModsToJson();
+
+/// Returns mods from "mods" section of metadata that do not match active mods of LIBRARY, by mod ID.
+/// Saves compare root mods only and report active mods missing from the list; maps also compare listed submods and root versions
+DLL_LINKAGE ModListVerificationStatus verifyMods(const JsonNode & mods, bool isSave);
 }

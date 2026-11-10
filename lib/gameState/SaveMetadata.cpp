@@ -25,15 +25,6 @@
 #include "../texts/MetaString.h"
 #include "../texts/TextLocalizationContainer.h"
 
-/// Returns all active mods, gameplay-affecting or not
-static ModCompatibilityInfo getActiveMods()
-{
-	ModCompatibilityInfo result;
-	for(const auto & modID : LIBRARY->modh->getActiveMods())
-		result[modID] = LIBRARY->modh->getModInfo(modID).getVerificationInfo();
-	return result;
-}
-
 static JsonNode gameToJson(const StartInfo & startInfo)
 {
 	int humanPlayers = 0;
@@ -69,7 +60,7 @@ JsonNode SaveMetadata::create(const CGameState & gameState)
 	result["map"] = ScenarioMetadata::mapToJson(gameState.getMap());
 	result["game"] = gameToJson(*gameState.getStartInfo());
 	result["game"]["day"].Integer() = gameState.day;
-	result["mods"] = ScenarioMetadata::modsToJson(getActiveMods());
+	result["mods"] = ScenarioMetadata::activeModsToJson();
 	return result;
 }
 
@@ -99,36 +90,18 @@ JsonNode SaveMetadata::parse(const std::vector<std::byte> & data, const std::str
 
 void SaveMetadata::verifyMods(const JsonNode & metadata)
 {
-	const JsonNode localMods = ScenarioMetadata::modsToJson(getActiveMods());
-	const auto & savedMods = metadata["mods"].Struct();
-	const auto installedMods = LIBRARY->modh->getAllMods();
-	const auto & activeMods = LIBRARY->modh->getActiveMods();
-
-	// local version of a mod may no longer affect gameplay, in which case it does not need to be enabled
-	const auto affectsGameplay = [&installedMods](const TModID & rootID)
-	{
-		return std::ranges::any_of(installedMods, [&rootID](const TModID & modID)
-		{
-			const auto & mod = LIBRARY->modh->getModInfo(modID);
-			return (modID == rootID || mod.getTopParentID() == rootID) && mod.affectsGameplay();
-		});
-	};
-
 	ModIncompatibility::ModList missingMods;
 	ModIncompatibility::ModList excessiveMods;
 
-	// only root mods are compared, since list of submods often changes between versions of a mod
-	for(const auto & [modID, savedMod] : savedMods)
+	for(const auto & [modID, status] : ScenarioMetadata::verifyMods(metadata["mods"], true))
 	{
-		if(!vstd::contains(installedMods, modID))
-			missingMods.push_back(savedMod["name"].String());
-		else if(!vstd::contains(activeMods, modID) && affectsGameplay(modID))
+		if(status == ModVerificationStatus::NOT_INSTALLED)
+			missingMods.push_back(metadata["mods"][modID]["name"].String());
+		else if(status == ModVerificationStatus::EXCESSIVE)
+			excessiveMods.push_back(LIBRARY->modh->getModInfo(modID).getName());
+		else
 			missingMods.push_back(LIBRARY->modh->getModInfo(modID).getName());
 	}
-
-	for(const auto & [modID, localMod] : localMods.Struct())
-		if(!savedMods.contains(modID))
-			excessiveMods.push_back(LIBRARY->modh->getModInfo(modID).getName());
 
 	if(!missingMods.empty() || !excessiveMods.empty())
 		throw ModIncompatibility(missingMods, excessiveMods);
