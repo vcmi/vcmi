@@ -121,6 +121,9 @@ public:
 	/// Returns loader with provided name from this filesystem, or from base filesystem if this filesystem does not have it
 	ISimpleResourceLoader * getLoader(const std::string & identifier) const;
 
+	/// Returns true if loader with provided name exists in this filesystem or in base filesystem
+	bool hasLoader(const std::string & identifier) const;
+
 	~CResourceHandler() = default;
 private:
 	static CResourceHandler baseFilesystem;

@@ -408,10 +408,7 @@ void CPlayerInterface::townRemoved(const CGTownInstance* town)
 
 	// close town screen if it shows the town being removed, otherwise objectRemovedAfter dereferences a dangling pointer
 	if(castleInt && castleInt->town == town)
-	{
 		castleInt->close();
-		castleInt = nullptr;
-	}
 
 	if(town->tempOwner == playerID)
 	{
@@ -444,7 +441,6 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
 	if(castleInt)
 		castleInt->close();
-	castleInt = nullptr;
 
 	auto newCastleInt = std::make_shared<CCastleInterface>(town);
 

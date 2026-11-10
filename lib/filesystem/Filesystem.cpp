@@ -256,6 +256,11 @@ std::unique_ptr<CResourceHandler> CResourceHandler::createLibraryFilesystem(cons
 	return result;
 }
 
+bool CResourceHandler::hasLoader(const std::string & identifier) const
+{
+	return knownLoaders.contains(identifier) || baseFilesystem.knownLoaders.contains(identifier);
+}
+
 void CResourceHandler::load(const std::string &fsConfigURI, bool extractArchives)
 {
 	auto fsConfigData = get("initial")->load(JsonPath::builtin(fsConfigURI))->readAll();

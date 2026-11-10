@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "NetworkLagCompensator.h"
 
+#include "NetworkLagIndependentPackVisitor.h"
 #include "NetworkLagPredictionTestVisitor.h"
 #include "NetworkLagReplyPrediction.h"
 #include "PackRollbackGeneratorVisitor.h"
@@ -80,12 +81,11 @@ void NetworkLagCompensator::tryPredictReply(const CPackForServer & request)
 	logGlobal->trace("Scheduled prediction of effects of pack '%s'", typeid(request).name());
 }
 
-bool NetworkLagCompensator::verifyReply(const CPackForClient & pack)
+bool NetworkLagCompensator::verifyReply(CPackForClient & pack)
 {
 	logGlobal->trace("Verifying reply: received pack '%s'", typeid(pack).name());
 
 	const auto * packageReceived = dynamic_cast<const PackageReceived *>(&pack);
-	const auto * packageApplied = dynamic_cast<const PackageApplied *>(&pack);
 
 	if(packageReceived)
 	{
@@ -103,7 +103,11 @@ bool NetworkLagCompensator::verifyReply(const CPackForClient & pack)
 	if(currentPackageID == invalidPackageID)
 	{
 		// this is system package or reply to actions of another player
-		// TODO: consider reapplying all our predictions, in case if this event invalidated our prediction
+		// unconfirmed predictions were applied on top of state that this pack may change, so they can not be kept
+		NetworkLagIndependentPackVisitor visitor;
+		pack.visit(visitor);
+		if(!visitor.isIndependent())
+			rollbackAllPredictions();
 		return false;
 	}
 
@@ -120,33 +124,33 @@ bool NetworkLagCompensator::verifyReply(const CPackForClient & pack)
 		{
 			predictedReplies.erase(predictedReplies.begin());
 			currentPackageID = invalidPackageID;
-			return true;
+			// predicted PackageApplied was not delivered to client, so the one from server must be
+			return dynamic_cast<const PackageApplied *>(&pack) == nullptr;
 		}
 	}
 	else
 	{
-		// Prediction was incorrect - rollback everything that is left in this prediction and use real server packs
-		for(auto & prediction : std::views::reverse(predictedReplies.front().writtenPacks))
+		// Prediction was incorrect. Later predictions were applied on top of this one and may depend on it,
+		// so all of them are rolled back and real server packs are used instead
+		rollbackAllPredictions();
+		return false;
+	}
+
+	return true;
+}
+
+void NetworkLagCompensator::rollbackAllPredictions()
+{
+	for(auto & reply : std::views::reverse(predictedReplies))
+	{
+		for(auto & prediction : std::views::reverse(reply.writtenPacks))
 		{
 			for(auto & pack : prediction.rollbackPacks)
 				GAME->server().client->handlePack(*pack);
 		}
-		predictedReplies.erase(predictedReplies.begin());
-		currentPackageID = invalidPackageID;
-		return false;
 	}
-
-	if(packageApplied)
-	{
-		assert(currentPackageID == packageApplied->requestID);
-		assert(!predictedReplies.empty());
-		assert(currentPackageID == predictedReplies.front().requestID);
-		assert(predictedReplies.front().writtenPacks.empty());
-		predictedReplies.erase(predictedReplies.begin());
-		currentPackageID = invalidPackageID;
-	}
-
-	return true;
+	predictedReplies.clear();
+	currentPackageID = invalidPackageID;
 }
 
 void NetworkLagCompensator::setState(EServerState value)
@@ -191,6 +195,11 @@ void NetworkLagCompensator::applyPack(CPackForClient & pack)
 	serializer & &pack;
 	packWriter.rollbackPacks = visitor.acquireRollbackPacks();
 	predictedReplies.back().writtenPacks.push_back(std::move(packWriter));
+
+	// Client reacts to PackageApplied by sending follow-up requests, such as next step of hero movement.
+	// Such requests can not be rolled back, so the client only receives PackageApplied once server confirms it
+	if(dynamic_cast<const PackageApplied *>(&pack) != nullptr)
+		return;
 
 	GAME->server().client->handlePack(pack);
 }

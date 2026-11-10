@@ -679,14 +679,6 @@ void CServerHandler::installLobbyTexts()
 		lobbyTextOverlays.emplace_back(si->campState->getTexts());
 }
 
-void CServerHandler::enableLagCompensation(bool on)
-{
-	if (on)
-		networkLagCompensator = std::make_unique<NetworkLagCompensator>(getNetworkHandler(),  client->gameStatePtr());
-	else
-		networkLagCompensator.reset();
-}
-
 void CServerHandler::startGameplay(std::shared_ptr<CGameState> gameState)
 {
 	if(GAME->mainmenu())

@@ -120,6 +120,9 @@ void BattleHero::heroLeftClicked()
 	if(!hero || !owner.makingTurn())
 		return;
 
+	if(owner.getBattle()->battleGetMySide() != (defender ? BattleSide::DEFENDER : BattleSide::ATTACKER))
+		return;
+
 	if(owner.getBattle()->battleCanCastSpell(hero, spells::Mode::HERO) == ESpellCastProblem::OK) //check conditions
 	{
 		ENGINE->cursor().set(Cursor::Map::POINTER);

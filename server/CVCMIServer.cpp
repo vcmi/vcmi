@@ -370,7 +370,7 @@ bool CVCMIServer::prepareToStartGame()
 		if (!ps || ps->checkVanquished())
 		{
 			logGlobal->error("Human player %s has no heroes and no towns! Aborting game start!", color.toString());
-			auto str = MetaString::createFromTextID("vcmi.broadcast.failedLoadGame");
+			announceMessage(MetaString::createFromTextID("vcmi.broadcast.failedLoadGame"));
 			return false;
 		}
 	}

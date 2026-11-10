@@ -295,6 +295,7 @@ set(vcmiclientcommon_HEADERS
 	mapView/MapOverlayLogVisualizer.h
 
 	netlag/NetworkLagCompensator.h
+	netlag/NetworkLagIndependentPackVisitor.h
 	netlag/NetworkLagPredictedPack.h
 	netlag/NetworkLagPredictionTestVisitor.h
 	netlag/NetworkLagReplyPrediction.h

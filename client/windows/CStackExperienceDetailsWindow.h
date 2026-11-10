@@ -71,7 +71,6 @@ class CStackWindow::StackExperienceDetailsWindow : public CWindowObject
 	void rebuildTableRows();
 
 public:
-	static int getStackExperienceTierFromCreatureLevel(int creatureLevel);
 	static int calculateDynamicTableRowCount(const CStackInstance * stack, const CCreature * creature);
 	static ImagePath getDialogBackground(int rowCount);
 	StackExperienceDetailsWindow(const CStackInstance * stack, const CCreature * creature);

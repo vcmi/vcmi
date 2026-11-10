@@ -727,6 +727,23 @@
 			"weekSpecialProbability" : 25,
 			// if stack experience is on, creatures on map will get specified amount of experience daily
 			"dailyStackExperience" : 100,
+			// stack experience per unit required to reach ranks 1-10
+			// row index is creature level, starting from 1. Last row is also used for creatures of all higher levels
+			"stackExperienceRanks" : [
+				[ 1000,  2000,  3200,  4600,  6200,  8000, 10000, 12200,  14600,  17200 ],
+				[ 2000,  4000,  6400,  9200, 12400, 16000, 20000, 24400,  29200,  34400 ],
+				[ 3000,  6000,  9600, 13800, 18600, 24000, 30000, 36600,  43800,  51600 ],
+				[ 4000,  8000, 12800, 18400, 24800, 32000, 40000, 48800,  58400,  68800 ],
+				[ 5000, 10000, 16000, 23000, 31000, 40000, 50000, 61000,  73000,  86000 ],
+				[ 6000, 12000, 19200, 27600, 37200, 48000, 60000, 73200,  87600, 103200 ],
+				[ 7000, 14000, 22400, 32200, 43400, 56000, 70000, 85400, 102200, 120400 ],
+				[ 8000, 16000, 25600, 36800, 49600, 64000, 80000, 97600, 116800, 137600 ]
+			],
+			// maximal stack experience per unit, rows as in stackExperienceRanks
+			"stackExperienceLimit" : [ 29450, 55400, 77850, 96800, 112250, 124200, 132650, 147000 ],
+			// maximal experience per unit gained in a single battle, in percent of stackExperienceLimit, rows as in stackExperienceRanks
+			"stackExperiencePerBattle" : [ 50, 45, 40, 35, 30, 25, 20, 20 ],
+			"stackExperienceAfterUpgrade" : 75,
 			// if enabled, double growth, plague and creature weeks can happen randomly. Has no effect on weeks by "Deity of Fire"
 			// NOTE: on HotA maps, this setting has no effect. Value provided in map will be used instead.
 			"allowRandomSpecialWeeks" : true,

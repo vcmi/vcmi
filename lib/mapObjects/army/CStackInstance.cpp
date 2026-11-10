@@ -53,27 +53,13 @@ CCreature::CreatureQuantityId CStackInstance::getQuantityID() const
 
 int CStackInstance::getExpRank() const
 {
-	if(!LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
+	// stacks outside of a game have no callback, but they also never have experience
+	if(totalExperience == 0 || !canGainExperience())
 		return 0;
-	int tier = getType()->getLevel();
-	if(vstd::iswithin(tier, 1, 7))
-	{
-		for(int i = static_cast<int>(LIBRARY->creh->expRanks[tier].size()) - 2; i > -1; --i) //sic!
-		{ //exp values vary from 1st level to max exp at 11th level
-			if(getAverageExperience() >= LIBRARY->creh->expRanks[tier][i])
-				return ++i; //faster, but confusing - 0 index mean 1st level of experience
-		}
-		return 0;
-	}
-	else //higher tier
-	{
-		for(int i = static_cast<int>(LIBRARY->creh->expRanks[0].size()) - 2; i > -1; --i)
-		{
-			if(getAverageExperience() >= LIBRARY->creh->expRanks[0][i])
-				return ++i;
-		}
-		return 0;
-	}
+
+	TExpType experience = getAverageExperience();
+	const auto & ranks = cb->getSettings().getValue(EGameSettings::CREATURES_STACK_EXPERIENCE_RANKS)[getExperienceTableRow()].Vector();
+	return static_cast<int>(std::ranges::count_if(ranks, [experience](const JsonNode & rank){ return experience >= rank.Integer(); }));
 }
 
 int CStackInstance::getLevel() const
@@ -86,10 +72,8 @@ void CStackInstance::giveAverageStackExperience(TExpType desiredAmountPerUnit)
 	if(!canGainExperience())
 		return;
 
-	int level = std::clamp(getLevel(), 1, 7);
-	TExpType maxAmountPerUnit = LIBRARY->creh->expRanks[level].back();
-	TExpType actualAmountPerUnit = std::min(desiredAmountPerUnit, maxAmountPerUnit * LIBRARY->creh->maxExpPerBattle[level] / 100);
-	TExpType maxExperience = maxAmountPerUnit * getCount();
+	TExpType actualAmountPerUnit = std::min(desiredAmountPerUnit, getMaxExperiencePerBattle());
+	TExpType maxExperience = getMaxExperiencePerUnit() * getCount();
 	TExpType maxExperienceToGain = maxExperience - totalExperience;
 	TExpType actualGainedExperience = std::min(maxExperienceToGain, actualAmountPerUnit * getCount());
 
@@ -119,6 +103,28 @@ bool CStackInstance::canGainExperience() const
 	return cb->getSettings().getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE);
 }
 
+int CStackInstance::getExperienceTableRow() const
+{
+	// rows are for creature levels starting from 1, last row is also used for all higher levels
+	int rows = static_cast<int>(cb->getSettings().getValue(EGameSettings::CREATURES_STACK_EXPERIENCE_RANKS).Vector().size());
+	return std::max(1, std::min(getType()->getLevel(), rows)) - 1;
+}
+
+TExpType CStackInstance::getExperienceForRank(int rank) const
+{
+	return cb->getSettings().getValue(EGameSettings::CREATURES_STACK_EXPERIENCE_RANKS)[getExperienceTableRow()][rank - 1].Integer();
+}
+
+TExpType CStackInstance::getMaxExperiencePerUnit() const
+{
+	return cb->getSettings().getVectorValue(EGameSettings::CREATURES_STACK_EXPERIENCE_LIMIT, getExperienceTableRow());
+}
+
+TExpType CStackInstance::getMaxExperiencePerBattle() const
+{
+	return getMaxExperiencePerUnit() * cb->getSettings().getVectorValue(EGameSettings::CREATURES_STACK_EXPERIENCE_PER_BATTLE, getExperienceTableRow()) / 100;
+}
+
 void CStackInstance::setType(const CreatureID & creID)
 {
 	if(creID == CreatureID::NONE)
@@ -132,8 +138,8 @@ void CStackInstance::setType(const CCreature * c)
 	if(getCreature())
 	{
 		detachFromSource(*getCreature());
-		if(LIBRARY->engineSettings()->getBoolean(EGameSettings::MODULE_STACK_EXPERIENCE))
-			totalExperience = totalExperience * LIBRARY->creh->expAfterUpgrade / 100;
+		if(totalExperience != 0)
+			totalExperience = totalExperience * cb->getSettings().getInteger(EGameSettings::CREATURES_STACK_EXPERIENCE_AFTER_UPGRADE) / 100;
 	}
 
 	CStackBasicDescriptor::setType(c);

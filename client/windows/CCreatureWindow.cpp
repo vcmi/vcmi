@@ -939,7 +939,7 @@ void CStackWindow::init()
 	if(!info->stackNode)
 	{
 		//does not contain any propagated bonuses
-		fakeNode = std::make_unique<CStackInstance>(nullptr, info->creature->getId(), 1, true);
+		fakeNode = std::make_unique<CStackInstance>(GAME->interface() ? GAME->interface()->cb.get() : nullptr, info->creature->getId(), 1, true);
 		info->stackNode = fakeNode.get();
 	}
 

@@ -41,7 +41,7 @@ private:
 	//void visitInsertNewStack(InsertNewStack & pack) override;
 	void visitSwapStacks(SwapStacks & pack) override;
 	void visitRebalanceStacks(RebalanceStacks & pack) override;
-	void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) override;
+	//void visitBulkRebalanceStacks(BulkRebalanceStacks & pack) override;
 	//void visitGrowUpArtifact(GrowUpArtifact & pack) override;
 	//void visitPutArtifact(PutArtifact & pack) override;
 	//void visitBulkEraseArtifacts(BulkEraseArtifacts & pack) override;

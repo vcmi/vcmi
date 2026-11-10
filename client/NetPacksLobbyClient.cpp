@@ -26,6 +26,7 @@
 #include "globalLobby/GlobalLobbyServerSetup.h"
 #include "globalLobby/GlobalLobbyClient.h"
 
+#include "CMT.h"
 #include "CServerHandler.h"
 #include "GameChatHandler.h"
 #include "Client.h"
@@ -265,6 +266,25 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyUpdateMapInfo(LobbyUpdateMapIn
 	handler.mi = pack.mapInfo;
 	// the map info the previous texts came from is gone now
 	handler.installLobbyTexts();
+}
+
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyShowMessage(LobbyShowMessage & pack)
+{
+	// game started from command line has no lobby screen, so the error that blocks the start can not be resolved
+	if(settings["session"]["testmap"].isNull() && settings["session"]["testsave"].isNull())
+		return;
+
+	const std::string message = pack.message.toString(&GAME->translator());
+	if(ENGINE)
+	{
+		ENGINE->dispatchMainThread([message](){ handleFatalError(message, false); });
+	}
+	else
+	{
+		logGlobal->error("Failed to start game: %s", message);
+		GAME->onShutdownRequested(false);
+	}
+	result = false;
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyUpdateState(LobbyUpdateState & pack)
