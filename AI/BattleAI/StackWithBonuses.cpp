@@ -15,6 +15,7 @@
 #include "../../lib/battle/BattleLayout.h"
 #include "../../lib/CStack.h"
 #include "../../lib/gameState/GameStatePackVisitor.h"
+#include "../../lib/networkPacks/PacksForClient.h"
 #include "../../lib/networkPacks/PacksForClientBattle.h"
 #include "../../lib/networkPacks/SetStackEffect.h"
 
@@ -524,6 +525,10 @@ bool HypotheticBattle::HypotheticServerCallback::rollCombatAbility(const IBattle
 
 void HypotheticBattle::HypotheticServerCallback::apply(CPackForClient & pack)
 {
+	// battle-wide bonuses from combat scripts rely on limiters, which hypothetical units do not evaluate
+	if(dynamic_cast<GiveBonus *>(&pack))
+		return;
+
 	logAi->error("Package of type %s is not allowed in battle evaluation", typeid(pack).name());
 }
 
