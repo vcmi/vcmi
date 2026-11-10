@@ -246,8 +246,8 @@ void CHeroWindow::updateArtifacts()
 			std::string helpBox = helpBoxText.toString(&GAME->translator());
 
 			garr = std::make_shared<CGarrisonInt>(Point(15, 485), 8, Point(), curHero, nullptr, removableTroops);
-			auto split = std::make_shared<CButton>(Point(539, 519), AnimationPath::builtin("hsbtns9.def"), CButton::tooltip(LIBRARY->generaltexth->allTexts[256], helpBox), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT);
-			garr->addSplitBtn(split);
+			auto split = std::make_shared<CButton>(Point(539, 519), AnimationPath::builtin("hsbtns9.def"), CButton::tooltip(std::string(), helpBox), [this](){ garr->splitClick(); }, EShortcut::HERO_ARMY_SPLIT);
+			garr->addSplitBtn(split, "core.heroscrn.20");
 		}
 		if(!arts)
 		{
