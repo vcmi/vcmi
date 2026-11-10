@@ -1283,7 +1283,7 @@ void CCastleBuildings::openTownHall()
 
 void CCastleBuildings::enterAnyThievesGuild()
 {
-	std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo(true);
+	std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo();
 	for(auto & ownedTown : towns)
 	{
 		if(ownedTown->hasBuilt(BuildingID::TAVERN))
@@ -1318,7 +1318,7 @@ void CCastleBuildings::enterAnyMarket()
 		return;
 	}
 
-	std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo(true);
+	std::vector<const CGTownInstance*> towns = GAME->interface()->cb->getTownsInfo();
 	for(auto & town : towns)
 	{
 		if(town->hasBuilt(BuildingID::MARKETPLACE))
@@ -1685,7 +1685,7 @@ public:
 		auto isMarketAvailable = [this](){
 			if(town->hasBuilt(BuildingID::MARKETPLACE))
 				return true;
-			for(const auto & t : GAME->interface()->cb->getTownsInfo(true))
+			for(const auto & t : GAME->interface()->cb->getTownsInfo())
 				if(t->hasBuilt(BuildingID::MARKETPLACE))
 					return true;
 			return false;

@@ -339,8 +339,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "将地图卷动速度设置为非常快。",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "将地图卷动速度设置为即刻",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "将地图卷动速度设置为即刻。",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{在小地图上显示英雄}\n\n在小地图上显示额外的英雄可视图标，使之在大地图上更容易被找到。",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "在小地图上显示英雄",
 	"vcmi.adventureOptions.numericQuantities.help": "{生物数量显示}\n\n以数字 A-B 格式显示不准确的敌方生物数量。",
 	"vcmi.adventureOptions.numericQuantities.hover": "生物数量显示",
 	"vcmi.adventureOptions.replayShowBattles.help": "{在回放中显示战斗}\n\n在回放的回合中发生的每一次战斗都会在屏幕上播放。如果禁用此选项，这些战斗将被跳过。",

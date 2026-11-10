@@ -340,8 +340,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "Ställ in kartans rullningshastighet till mycket snabb.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Ställ in kartans rullningshastighet till omedelbar.",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "Ställ in kartans rullningshastighet till omedelbar.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Visa Hjältar på Minikartan}\n\nVisa särskilda ikoner för alla hjältar som syns på minikartan, så att de blir lättare att se på stora kartor.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Visa hjältar på minikartan",
 	"vcmi.adventureOptions.numericQuantities.help": "{Numeriska truppmängder}\n\nVisar den ungefärliga mängden av fientliga trupper i numeriskt format (A-B).",
 	"vcmi.adventureOptions.numericQuantities.hover": "Numeriska truppmängder",
 	"vcmi.adventureOptions.replayShowBattles.help": "{Visa strider i repriser}\n\nVarje strid som ägde rum under den repeterade turen spelas upp på skärmen. Om detta är inaktiverat hoppas sådana strider över.",

@@ -285,8 +285,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "Establezca la velocidad de arrastre del mapa en muy rápida.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Establece la velocidad de desplazamiento del mapa como instantánea.",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "Establezca la velocidad de arrastre del mapa en instantánea.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Mostrar héroes en el minimapa}\n\nMuestra un icono adicional para todos los héroes visibles en el minimapa, para que sean más fáciles de ver en mapas grandes.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Mostrar héroes en el minimapa",
 	"vcmi.adventureOptions.numericQuantities.help": "{Cantidades numéricas de criaturas}\n\n Muestra las cantidades aproximadas de criaturas enemigas en formato A-B numérico.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Cantidades numéricas de criaturas",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{Arrastrar con el botón derecho del ratón}\n\nCuando está activada, al mover el ratón con el botón derecho pulsado se arrastrará la vista del mapa de aventuras.",

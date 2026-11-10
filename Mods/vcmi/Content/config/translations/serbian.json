@@ -273,8 +273,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Подесите брзину померања мапе на веома споро.",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Подесите брзину скроловања мапе на веома брзо.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Подесите брзину скроловања мапе на тренутну.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Прикажи хероје на минимапи}\n\nПрикажи икону за додавање за све хероје видљиве на минимапи, што их чини лакшим за уочавање на великим мапама",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Прикажи хероје на минимапи",
 	"vcmi.adventureOptions.numericQuantities.help": "{Нумеричке количине створења}\n\nПрикажите приближне количине непријатељских створења у нумеричком А-Б формату.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Нумеричке количине створења",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{Десни клик - превлачење}\n\nКада је омогућено, померање миша са притиснутим десним тастером миша ће превући приказ мапе авантуре.",

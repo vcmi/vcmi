@@ -290,8 +290,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "Nustatykite labai greitą žemėlapio slinkimo greitį.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Nustatykite momentinį žemėlapio slinkimo greitį.",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "Nustatykite momentinį žemėlapio slinkimo greitį.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Rodyti herojus minimaliame žemėlapyje}\n\nRodyti visų mažajame žemėlapyje matomų herojų pridėjimo piktogramą, kad juos būtų lengviau matyti dideliuose žemėlapiuose.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Rodyti herojus minimaliame žemėlapyje",
 	"vcmi.adventureOptions.numericQuantities.help": "{Skaičius būtybių kiekis}\n\nParodykite apytikslius priešo būtybių kiekius skaitiniu A-B formatu.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Skaitiniai būtybių kiekiai",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{Dešiniuoju pelės mygtuku spustelėkite Vilkite}\n\nKai įjungta, judant pelę paspaudus dešinįjį mygtuką, bus vilkiamas nuotykių žemėlapio vaizdas.",

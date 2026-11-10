@@ -298,8 +298,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Очень медленная прокрутка карты.",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Очень быстрая прокрутка карты.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Мгновенная прокрутка карты.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Показ героев на миникарте}\n\nДобавляет для всех героев, видимых на миникарте, специальные значки, чтобы их было проще заметить на обширных картах.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Показ героев на миникарте",
 	"vcmi.adventureOptions.numericQuantities.help": "{Приблизительное число существ}\n\nПоказывать приблизительное число существ в формате A-B вместо словесных обозначений",
 	"vcmi.adventureOptions.numericQuantities.hover": "Приблизительное число существ",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{Тянуть ПКМ}\n\nЕсли эта функция включена, перемещение мыши с нажатой правой кнопкой (ПКМ) приведет к перетаскиванию карты приключений.",

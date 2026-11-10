@@ -291,8 +291,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "Harita kaydırma hızını çok hızlı olarak ayarlayın.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Harita kaydırma hızını anlık olarak ayarlayın.",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "Harita kaydırma hızını anlık olarak ayarlayın.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Mini Haritada Kahramanları Göster}\n\nMinimap'te görünen tüm kahramanlar için ek simge göstererek, büyük haritalarda daha kolay görülmelerini sağlar.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Mini Haritada Kahramanları Göster",
 	"vcmi.adventureOptions.numericQuantities.help": "{Sayısal Yaratık Miktarları}\n\nDüşman yaratıkların yaklaşık miktarlarını sayısal A-B biçiminde göster.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Sayısal Yaratık Miktarları",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{Sağ Tıkla Sürükle}\n\nEtkinleştirildiğinde, sağ tuş basılıyken fareyi hareket ettirmek macera haritası görünümünü sürükler.",

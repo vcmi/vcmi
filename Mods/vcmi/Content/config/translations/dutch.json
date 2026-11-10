@@ -273,8 +273,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Stel de scrollsnelheid van de kaart in op zeer langzaam.",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Stel de scrollsnelheid van de kaart in op zeer snel.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Stel de scrollsnelheid van de kaart in op 'direct'.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Helden weergeven op minimap}\n\nToon een extra pictogram voor alle helden die zichtbaar zijn op de minimap, zodat ze gemakkelijker te zien zijn op grote kaarten.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Toon helden op de minimap",
 	"vcmi.adventureOptions.numericQuantities.help": "{Numerieke aantallen wezens}\n\nGeef de geschatte aantallen vijandelijke wezens weer in het numerieke A-B-formaat.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Numerieke aantallen wezens",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{Rechtermuisklik en slepen}\n\nWanneer deze functie is ingeschakeld, kunt u de avonturenkaartweergave slepen door de muis te bewegen terwijl u de rechtermuisknop ingedrukt houdt.",

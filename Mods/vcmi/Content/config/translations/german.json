@@ -340,8 +340,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed5.hover": "Stellt die Kartenscrollgeschwindigkeit der Karte auf sehr schnell ein.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Geschwindigkeit des Kartenbildlaufs auf sofort einstellen.",
 	"vcmi.adventureOptions.mapScrollSpeed6.hover": "Stellt die Kartenscrollgeschwindigkeit der Karte auf sofort ein.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Helden auf der Minimap anzeigen}\n\nZusätzliches Symbol für alle Helden auf der Minimap anzeigen, damit sie auf großen Karten besser zu sehen sind.",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Helden (Minimap) anz.",
 	"vcmi.adventureOptions.numericQuantities.help": "{Numerische Kreaturenmengen}\n\n Zeigt die ungefähre Menge der feindlichen Kreaturen im numerischen Format A-B an.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Numerische Kreaturenmengen",
 	"vcmi.adventureOptions.replayShowBattles.help": "{Kämpfe in Wiederholungen anzeigen}\n\nJeder Kampf, der während des wiedergegebenen Zuges stattgefunden hat, wird nachgespielt. Ist diese Option deaktiviert, werden solche Kämpfe übersprungen.",

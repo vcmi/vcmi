@@ -280,8 +280,6 @@
 	"vcmi.adventureOptions.mapScrollSpeed1.help": "Iestatiet kartes ritināšanas ātrumu uz ļoti mazu.",
 	"vcmi.adventureOptions.mapScrollSpeed5.help": "Iestatiet kartes ritināšanas ātrumu uz ļoti lielu.",
 	"vcmi.adventureOptions.mapScrollSpeed6.help": "Iestatiet kartes ritināšanas ātrumu uz momentānu.",
-	"vcmi.adventureOptions.minimapShowHeroes.help": "{Rādīt varoņus minikartē}\n\nRādīt pievienošanas ikonu visiem varoņiem, kas redzami minikartē, padarot tos vieglāk saskatāmus lielās kartēs",
-	"vcmi.adventureOptions.minimapShowHeroes.hover": "Rādīt varoņus minimapā",
 	"vcmi.adventureOptions.numericQuantities.help": "{Radību skaitliskais daudzums}\n\nParādiet aptuveno ienaidnieka radību daudzumu skaitliskā A-B formātā.",
 	"vcmi.adventureOptions.numericQuantities.hover": "Skaitliskie radījumu daudzumi",
 	"vcmi.adventureOptions.rightButtonDrag.help": "{Labās pogas nospiešana un vilkšana}\n\nJa tā ir iespējota, pārvietojot peli, turot nospiestu labo pogu, tiks vilkts piedzīvojumu kartes skats.",
