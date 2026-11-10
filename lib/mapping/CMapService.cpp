@@ -58,6 +58,18 @@ std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name
 	return loader->loadMapHeader();
 }
 
+std::optional<ModCompatibilityInfo> CMapService::loadMapMods(const ResourcePath & name) const
+{
+	std::string modName = LIBRARY->modh->findResourceOrigin(name);
+	std::string encoding = LIBRARY->modh->getResourceEncoding(name, modName);
+
+	auto stream = getStreamFromFS(name);
+	auto loader = getMapLoader(stream, name.getName(), modName, encoding);
+	if(auto jsonLoader = dynamic_cast<CMapLoaderJson*>(loader.get()))
+		return jsonLoader->readMods();
+	return std::nullopt;
+}
+
 std::unique_ptr<CMap> CMapService::loadMap(const uint8_t * buffer, int size, const std::string & name,  const std::string & modName, const std::string & encoding, IGameInfoCallback * cb) const
 {
 	auto stream = getStreamFromMem(buffer, size);

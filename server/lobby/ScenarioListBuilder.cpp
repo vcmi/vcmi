@@ -15,6 +15,7 @@
 #include "../../lib/filesystem/SavegamePath.h"
 #include "../../lib/gameState/SaveMetadata.h"
 #include "../../lib/json/JsonValidator.h"
+#include "../../lib/mapping/CMapService.h"
 #include "../../lib/mapping/ScenarioMetadata.h"
 #include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/serializer/SaveFileFormat.h"
@@ -238,9 +239,7 @@ std::vector<ScenarioListEntry> ScenarioListBuilder::parseMapsOrCampaigns(const s
 					continue;
 				}
 
-				auto entry = ScenarioListEntry::fromMap(file);
-				if(entry.getMapFormatSettings()["supported"].Bool())
-					entries[i] = std::move(entry);
+				entries[i] = readMap(file);
 			}
 			catch(const std::exception & e)
 			{
@@ -269,6 +268,49 @@ ScenarioListEntry ScenarioListBuilder::createUnreadableEntry(const ResourcePath 
 	result.problem = problem;
 	result.error = error;
 	return result;
+}
+
+ScenarioListEntry ScenarioListBuilder::readMap(const ResourcePath & file) const
+{
+	ScenarioListEntry entry;
+	try
+	{
+		entry = ScenarioListEntry::fromMap(file);
+	}
+	catch(const std::exception & e) // NOSONAR: malformed maps can throw several exception types
+	{
+		logGlobal->error("Failed to read map %s: %s", file.getOriginalName(), e.what());
+		entry = createUnreadableEntry(file, ScenarioListEntry::EProblem::INVALID_FILE, e.what());
+
+		// header of a map may refer to entities of mods that are not active
+		try
+		{
+			const auto mods = CMapService().loadMapMods(file);
+			if(!mods)
+				return entry;
+			entry.metadata["mods"] = ScenarioMetadata::modsToJson(*mods);
+			entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], false);
+			if(!entry.mods.empty())
+				entry.problem = ScenarioListEntry::EProblem::MODS;
+		}
+		catch(const std::exception & modsError) // NOSONAR: malformed maps can throw several exception types
+		{
+			logGlobal->error("Failed to read mods of map %s: %s", file.getOriginalName(), modsError.what());
+		}
+		return entry;
+	}
+
+	entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], false);
+	if(!entry.mods.empty())
+		entry.problem = ScenarioListEntry::EProblem::MODS;
+	verifyMapFormat(entry);
+	return entry;
+}
+
+void ScenarioListBuilder::verifyMapFormat(ScenarioListEntry & entry)
+{
+	if(!entry.getMapFormatSettings()["supported"].Bool())
+		entry.problem = ScenarioListEntry::EProblem::MAP_FORMAT;
 }
 
 ScenarioListEntry ScenarioListBuilder::readSave(const ResourcePath & file, JsonValidator & validator) const

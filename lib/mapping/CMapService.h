@@ -92,6 +92,9 @@ public:
 	 */
 	static ModCompatibilityInfo verifyMapHeaderMods(const CMapHeader & map);
 
+	/// Returns mods required by a map in VCMI format, read without its header; nullopt for maps in other formats
+	std::optional<ModCompatibilityInfo> loadMapMods(const ResourcePath & name) const;
+
 private:
 	/**
 	 * Gets a map input stream object specified by a map name.
