@@ -21,6 +21,7 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
+#include "../lib/modding/ModIncompatibility.h"
 
 #include "../lib/CRandomGenerator.h"
 #include "../lib/campaign/CampaignHandler.h"
@@ -28,6 +29,8 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/SavegamePath.h"
 #include "../lib/gameState/CGameState.h"
+#include "../lib/gameState/SaveMetadata.h"
+#include "../lib/json/JsonValidator.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
@@ -322,8 +325,14 @@ static std::shared_ptr<CMapInfo> createMapInfo(const LobbySetMap & pack, const B
 			mapInfo->mapInit(pack.selection.fileURI);
 			break;
 		case ScenarioSelection::EType::SAVE:
-			mapInfo->saveInit(ResourcePath(pack.selection.fileURI, EResType::SAVEGAME));
+		{
+			// header of a save made with other mods may be read without error but refer to wrong entities
+			const ResourcePath file(pack.selection.fileURI, EResType::SAVEGAME);
+			JsonValidator validator;
+			SaveMetadata::verifyMods(ScenarioListEntry::fromSave(file, validator).metadata);
+			mapInfo->saveInit(file);
 			break;
+		}
 		case ScenarioSelection::EType::CAMPAIGN:
 			mapInfo->fileURI = pack.selection.fileURI;
 			mapInfo->campaignInit();
@@ -351,6 +360,14 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 	try
 	{
 		mapInfo = createMapInfo(pack, srv.battleOnlyModeStartInfo.get());
+	}
+	catch(const ModIncompatibility & e)
+	{
+		logGlobal->error("Failed to load %s: %s", pack.selection.fileURI, e.what());
+
+		LobbyShowMessage message;
+		message.message.appendRawString(e.getFullErrorMsg());
+		connection->sendPack(message);
 	}
 	catch(const std::exception & e)
 	{
