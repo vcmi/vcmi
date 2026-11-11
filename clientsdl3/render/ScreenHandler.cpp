@@ -420,6 +420,9 @@ void ScreenHandler::initializeWindow()
 		handleFatalError(message, true);
 	}
 
+	// window state requested on creation, such as fullscreen, is applied asynchronously on some backends
+	SDL_SyncWindow(mainWindow);
+
 	// create first available renderer if no preferred one is set
 	std::string preferredDriver = getPreferredRenderingDriver();
 	GpuResources::get().setRenderer(SDL_CreateRenderer(mainWindow, preferredDriver.empty() ? nullptr : preferredDriver.c_str()));
@@ -570,7 +573,8 @@ SDL_Window * ScreenHandler::createWindow()
 
 		case EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED:
 			// with no fullscreen mode set, SDL_WINDOW_FULLSCREEN is borderless at desktop resolution
-			return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN, false);
+			// fullscreen is applied asynchronously on Wayland and until then SDL uses requested size, with 0x0 turning into 1x1 window
+			return createWindowImpl(dimensions, SDL_WINDOW_FULLSCREEN, false);
 
 		case EWindowMode::WINDOWED:
 			return createWindowImpl(dimensions, SDL_WINDOW_RESIZABLE, true);

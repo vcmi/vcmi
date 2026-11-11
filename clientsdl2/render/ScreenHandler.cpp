@@ -488,7 +488,8 @@ SDL_Window * ScreenHandler::createWindow()
 			return createWindowImpl(dimensions, SDL_WINDOW_FULLSCREEN, false);
 
 		case EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED:
-			return createWindowImpl(Point(), SDL_WINDOW_FULLSCREEN_DESKTOP, false);
+			// sdl2-compat applies fullscreen asynchronously on Wayland and until then uses requested size, with 0x0 turning into 1x1 window
+			return createWindowImpl(dimensions, SDL_WINDOW_FULLSCREEN_DESKTOP, false);
 
 		case EWindowMode::WINDOWED:
 			return createWindowImpl(dimensions, SDL_WINDOW_RESIZABLE, true);
