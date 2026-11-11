@@ -212,11 +212,12 @@ public:
 	const std::vector<CTownHints> & getTownHints() const;
 	void setTownHints(const std::vector<CTownHints> & value);
 	std::set<FactionID> getTownTypes() const;
+	std::set<FactionID> getTownTypes(const GameLibrary & library) const;
 	void setTownTypes(const std::set<FactionID> & value);
 	std::set<FactionID> getBannedTownTypes() const;
 	void setBannedTownTypes(const std::set<FactionID> & value);
 
-	std::set<FactionID> getDefaultTownTypes() const;
+	std::set<FactionID> getDefaultTownTypes(const GameLibrary & library) const;
 	std::set<FactionID> getMonsterTypes() const;
 
 	void setMonsterTypes(const std::set<FactionID> & value);
@@ -403,7 +404,7 @@ private:
 	std::map<GameResID, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::vector<CTreasureInfo> inheritTreasureInfo(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 
-	void inheritTownProperties(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
+	void inheritTownProperties(const GameLibrary & library, std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 
 	void serializeSize(JsonSerializeFormat & handler, int3 & value, const std::string & fieldName);
 	void serializePlayers(JsonSerializeFormat & handler, CPlayerCountRange & value, const std::string & fieldName);

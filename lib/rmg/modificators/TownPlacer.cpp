@@ -365,7 +365,7 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 
 FactionID TownPlacer::getRandomTownType(bool matchUndergroundType)
 {
-	auto townTypesAllowed = (!zone.getTownTypes().empty() ? zone.getTownTypes() : zone.getDefaultTownTypes());
+	auto townTypesAllowed = (!zone.getTownTypes().empty() ? zone.getTownTypes() : zone.getDefaultTownTypes(*LIBRARY));
 	if(matchUndergroundType)
 	{
 		std::set<FactionID> townTypesVerify;
