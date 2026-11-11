@@ -518,12 +518,9 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCal
 		{
 			BattleHex intermediaryHex = battle.getClosestHexToTargetInRange(reachabilityCache, *actingStack, bestTarget.attackableFromHex);
 			if(intermediaryHex == BattleHex::INVALID)
-			{
 				makeStackDoNothing(battle, actingStack);
-			}
-
-			BattleAction moveAction = BattleAction::makeMove(actingStack, intermediaryHex);
-			makeAutomaticAction(battle, actingStack, moveAction);
+			else
+				makeAutomaticAction(battle, actingStack, BattleAction::makeMove(actingStack, intermediaryHex));
 		}
 		else
 		{
