@@ -160,14 +160,16 @@ double ModsState::getInstalledModSizeMegabytes(const TModID & modName) const
 ModsPresetState::ModsPresetState(bool useTestPreset)
 	: settingsPath(JsonPath::builtin(useTestPreset ? "config/testModSettings.json" : "config/modSettings.json"))
 {
-	if(CResourceHandler::get("local")->existsResource(ResourcePath(settingsPath)))
+	auto * userConfigs = CResourceHandler::get("config");
+
+	if(userConfigs->existsResource(ResourcePath(settingsPath)))
 	{
-		modConfig = JsonNode(settingsPath);
+		modConfig = JsonNode(settingsPath, *userConfigs);
 	}
 	else
 	{
 		// Probably new install. Create initial configuration
-		CResourceHandler::get("local")->createResource(settingsPath.getOriginalName() + ".json");
+		userConfigs->createResource(settingsPath.getOriginalName() + ".json");
 	}
 
 	if(modConfig["presets"].isNull() || modConfig["presets"].Struct().empty())
@@ -347,7 +349,7 @@ void ModsPresetState::setValidatedChecksum(const TModID & modName, std::optional
 
 void ModsPresetState::saveConfigurationState() const
 {
-	std::fstream file(CResourceHandler::get()->getResourceName(ResourcePath(settingsPath))->c_str(), std::ofstream::out | std::ofstream::trunc);
+	std::fstream file(CResourceHandler::get("config")->getResourceName(ResourcePath(settingsPath))->c_str(), std::ofstream::out | std::ofstream::trunc);
 	file << modConfig.toCompactString();
 }
 

@@ -43,7 +43,7 @@
 		],
 		"CONFIG/":
 		[
-			{"type" : "dir",  "path" : "config"}
+			{"type" : "dir",  "path" : "config", "bundledOnly" : true} // game configs can not be replaced from user data directory
 		],
 		"MAPS/":
 		[

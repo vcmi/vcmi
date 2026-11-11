@@ -93,8 +93,9 @@ void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const Js
 		depth = static_cast<int>(config["depth"].Float());
 
 	ResourcePath resID(URI, EResType::DIRECTORY);
+	const auto * source = CResourceHandler::get(config["bundledOnly"].Bool() ? "bundled" : "initial");
 
-	for(auto & loader : CResourceHandler::get("initial")->getResourcesWithName(resID))
+	for(auto & loader : source->getResourcesWithName(resID))
 	{
 		auto filename = loader->getResourceName(resID);
 		loaders.push_back(std::make_unique<CFilesystemLoader>(mountPoint, *filename, depth));
@@ -118,7 +119,19 @@ void CFilesystemGenerator::loadArchive(const std::string &mountPoint, const Json
 		loaders.push_back(std::make_unique<CArchiveLoader>(mountPoint, *filename, extractArchives));
 }
 
-std::unique_ptr<ISimpleResourceLoader> CResourceHandler::createInitial()
+std::shared_ptr<ISimpleResourceLoader> CResourceHandler::createBundled()
+{
+	auto bundledLoader = std::make_shared<CFilesystemList>();
+
+	for (auto & path : VCMIDirs::get().dataPaths())
+	{
+		if (boost::filesystem::is_directory(path)) // some of system-provided paths may not exist
+			bundledLoader->addLoader(std::make_unique<CFilesystemLoader>("", path, 1, true), false);
+	}
+	return bundledLoader;
+}
+
+std::unique_ptr<ISimpleResourceLoader> CResourceHandler::createInitial(const std::shared_ptr<ISimpleResourceLoader> & bundledLoader)
 {
 	//temporary filesystem that will be used to initialize main one.
 	//used to solve several case-sensivity issues like Mp3 vs MP3
@@ -140,14 +153,10 @@ std::unique_ptr<ISimpleResourceLoader> CResourceHandler::createInitial()
 		}
 	};
 
-	for (auto & path : VCMIDirs::get().dataPaths())
-	{
-		if (boost::filesystem::is_directory(path)) // some of system-provided paths may not exist
-			initialLoader->addLoader(std::make_unique<CFilesystemLoader>("", path, 1, true), false);
-	}
+	initialLoader->addLoader(bundledLoader, false);
 	initialLoader->addLoader(std::make_unique<CFilesystemLoader>("", VCMIDirs::get().userDataPath(), 0, true), false);
 
-	recurseInDir("CONFIG", 0);// look for configs
+	// no recursion into CONFIG - game configs are only loaded from bundled paths
 	recurseInDir("DATA", 0); // look for archives
 	recurseInDir("MODS", 64); // look for mods.
 
@@ -160,6 +169,8 @@ void CResourceHandler::initialize()
 	// root
 	// |
 	// |- initial
+	// |  |-bundled (game data and game configs shipped with the game)
+	// |  |-user data directory (game data only)
 	// |
 	// |- data
 	// |  |-core
@@ -168,7 +179,8 @@ void CResourceHandler::initialize()
 	// |
 	// |- local
 	//    |-saves
-	//    |-config
+	//
+	// config (user configs, not a part of root)
 
 	// launcher and client may share the process (e.g. on iOS), so base filesystem may already be initialized
 	if (baseFilesystem.knownLoaders.contains("root"))
@@ -184,9 +196,11 @@ void CResourceHandler::initialize()
 
 	auto localFS = std::make_unique<CFilesystemList>();
 	localFS->addLoader(savesLoader, true);
-	localFS->addLoader(configLoader, true);
 
-	addFilesystem("root", "initial", createInitial());
+	auto bundledFS = createBundled();
+	baseFilesystem.knownLoaders["bundled"] = bundledFS;
+
+	addFilesystem("root", "initial", createInitial(bundledFS));
 	addFilesystem("root", "data", std::make_unique<CFilesystemList>());
 	addFilesystem("root", "local", std::move(localFS));
 }

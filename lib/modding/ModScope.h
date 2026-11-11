@@ -16,8 +16,8 @@ namespace ModScope
 inline bool isScopeReserved(const std::string & scope)
 {
 	//following scopes are reserved - either in use by mod system or by filesystem
-	static const std::array<std::string, 9> reservedScopes = {
-		"core", "map", "game", "root", "saves", "config", "local", "initial", "mapEditor"
+	static const std::array<std::string, 10> reservedScopes = {
+		"core", "map", "game", "root", "saves", "config", "local", "initial", "bundled", "mapEditor"
 	};
 
 	return std::find(reservedScopes.begin(), reservedScopes.end(), scope) != reservedScopes.end();
