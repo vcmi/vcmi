@@ -786,17 +786,16 @@ int CUnitState::getTotalAttacks(bool ranged) const
 
 int CUnitState::getMinDamage(bool ranged) const
 {
-	return ranged ?
+	return std::max(0, ranged ?
 		bonusCache.getBonusValue(UnitBonusValuesProxy::MIN_DAMAGE_RANGED):
-		bonusCache.getBonusValue(UnitBonusValuesProxy::MIN_DAMAGE_MELEE);
-
+		bonusCache.getBonusValue(UnitBonusValuesProxy::MIN_DAMAGE_MELEE));
 }
 
 int CUnitState::getMaxDamage(bool ranged) const
 {
-	return ranged ?
+	return std::max(0, ranged ?
 		bonusCache.getBonusValue(UnitBonusValuesProxy::MAX_DAMAGE_RANGED):
-		bonusCache.getBonusValue(UnitBonusValuesProxy::MAX_DAMAGE_MELEE);
+		bonusCache.getBonusValue(UnitBonusValuesProxy::MAX_DAMAGE_MELEE));
 }
 
 int CUnitState::getAttack(bool ranged) const

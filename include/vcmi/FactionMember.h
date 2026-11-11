@@ -25,10 +25,12 @@ public:
 	virtual int32_t magicResistance() const;
 	/**
 	 Returns minimal damage of creature or (when implemented) hero.
+	 Never negative, even if penalties such as stacked percentage reductions push the bonus total lower.
 	*/
 	virtual int getMinDamage(bool ranged) const;
 	/**
 	 Returns maximal damage of creature or (when implemented) hero.
+	 Never negative, even if penalties such as stacked percentage reductions push the bonus total lower.
 	*/
 	virtual int getMaxDamage(bool ranged) const;
 	/**

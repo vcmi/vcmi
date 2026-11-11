@@ -132,8 +132,9 @@ end
 function Script:getBaseDamageSingle(info)
 	local attacker = info.attacker
 
-	local minDamage = attacker:getMinDamage(info.shooting)
-	local maxDamage = attacker:getMaxDamage(info.shooting)
+	-- penalties can bring the range down to 0, but an attack still deals damage
+	local minDamage = math.max(1, attacker:getMinDamage(info.shooting))
+	local maxDamage = math.max(1, attacker:getMaxDamage(info.shooting))
 
 	if minDamage > maxDamage then
 		-- the config of a creature is caught when it loads, so what reaches here is a bonus that

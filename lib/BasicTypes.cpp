@@ -50,14 +50,14 @@ int AFactionMember::getMinDamage(bool ranged) const
 {
 	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_1";
 	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMin));
-	return getBonusBearer()->valOfBonuses(selector, cachingStr);
+	return std::max(0, getBonusBearer()->valOfBonuses(selector, cachingStr));
 }
 
 int AFactionMember::getMaxDamage(bool ranged) const
 {
 	const std::string cachingStr = "type_CREATURE_DAMAGEs_0Otype_CREATURE_DAMAGEs_2";
 	static const auto selector = Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageBoth).Or(Selector::typeSubtype(BonusType::CREATURE_DAMAGE, BonusCustomSubtype::creatureDamageMax));
-	return getBonusBearer()->valOfBonuses(selector, cachingStr);
+	return std::max(0, getBonusBearer()->valOfBonuses(selector, cachingStr));
 }
 
 bool AFactionMember::unaffectedByMorale() const
