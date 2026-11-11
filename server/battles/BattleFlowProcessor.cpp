@@ -227,6 +227,10 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 
 		gameHandler->turnTimerHandler->onBattleNextStack(battle.getBattle()->getBattleID(), *next);
 
+		// activation removes the bonuses that last until the unit gets its turn, so an automatic action
+		// is chosen from the same state that it is validated and applied in
+		setActiveStack(battle, next, BattleUnitTurnReason::AUTOMATIC_ACTION);
+
 		if (!tryMakeAutomaticAction(battle, next))
 		{
 			if(next->alive()) {
@@ -664,14 +668,8 @@ void BattleFlowProcessor::makeStackDoNothing(const CBattleInfoCallback & battle,
 
 bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle, const CStack *stack, const BattleAction &ba)
 {
-	BattleSetActiveStack bsa;
-	bsa.battleID = battle.getBattle()->getBattleID();
-	bsa.stack = stack->unitId();
-	bsa.reason = BattleUnitTurnReason::AUTOMATIC_ACTION;
-	gameHandler->sendAndApply(bsa);
-
-	bool ret = owner->makeAutomaticBattleAction(battle, ba);
-	return ret;
+	assert(battle.battleActiveUnit() == stack);
+	return owner->makeAutomaticBattleAction(battle, ba);
 }
 
 void BattleFlowProcessor::removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle)

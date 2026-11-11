@@ -157,6 +157,30 @@ TEST_F(MeleeActionTest, berserkUnitAttacksUnitOfOwnSide)
 	EXPECT_LT(ally->getAvailableHealth(), allyHealth);
 }
 
+TEST_F(MeleeActionTest, berserkUntilUnitGetsTurnDoesNotControlThatTurn)
+{
+	startGame();
+	startBattle();
+
+	CStack * berserk = addStack(BattleSide::ATTACKER, CreatureID(pikeman), attackFrom, stackCount);
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), targetHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(15, 1), stackCount);
+	berserk->addNewBonus(std::make_shared<Bonus>(BonusDuration::STACK_GETS_TURN, BonusType::ATTACKS_NEAREST_CREATURE, BonusSource::OTHER, 0, BonusSourceID()));
+	for(const auto & stack : battle()->stacks)
+		if(stack.get() != berserk && stack.get() != ally && stack.get() != enemy)
+			injure(stack.get(), stack->getAvailableHealth());
+	beginCombat();
+
+	const auto allyHealth = ally->getAvailableHealth();
+	const int32_t round = battle()->getRound();
+	while(battle()->battleActiveUnit() != berserk && battle()->getRound() == round)
+		ASSERT_TRUE(act(BattleAction::makeDefend(battle()->battleActiveUnit())));
+
+	EXPECT_EQ(battle()->battleActiveUnit(), berserk) << "the unit gets a turn of its own instead of a forced attack";
+	EXPECT_FALSE(berserk->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE));
+	EXPECT_EQ(ally->getAvailableHealth(), allyHealth);
+}
+
 TEST_F(MeleeActionTest, quicksandOnTheWayCancelsAttack)
 {
 	startGame();
