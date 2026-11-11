@@ -28,7 +28,7 @@ jobs:
       matrix:
         include:
           - platform: mac-intel
-            os: macos-26
+            os: macos-26-intel
             pack: 1
             upload: 1
             pack_type: Release
