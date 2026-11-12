@@ -183,8 +183,8 @@
 			"noDistancePenalty" : { "type" : "NO_DISTANCE_PENALTY" },
 			"noRetalitation" : { "type" : "BLOCKS_RANGED_RETALIATION" },
 			"noLuck" : { "type" : "NO_LUCK" },
-			"attackAlwaysZero" : { "type" : "PRIMARY_SKILL", "subtype" : "attack", "val" : 0, "valueType" : "INDEPENDENT_MIN" },
-			"noArcheryBonuses" : { "type" : "PERCENTAGE_DAMAGE_BOOST", "subtype" : "damageTypeRanged", "val" : 0, "valueType" : "INDEPENDENT_MIN" },
+			"attackAlwaysZero" : { "type" : "PRIMARY_SKILL", "subtype" : "attack", "val" : 0, "valueType" : "AT_MOST" },
+			"noArcheryBonuses" : { "type" : "PERCENTAGE_DAMAGE_BOOST", "subtype" : "damageTypeRanged", "val" : 0, "valueType" : "AT_MOST" },
 			"cpuControlled" : { "type" : "CPU_CONTROLLED" },
 			"townDamage" : { "type" : "COMBAT_EVENT_TRIGGER", "subtype" : "arrowTowerDamage" }
 		},

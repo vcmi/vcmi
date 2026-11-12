@@ -139,23 +139,23 @@
 			{
 				"type" : "NO_LUCK",
 				"val" : 0,
-				"valueType" : "INDEPENDENT_MIN",
+				"valueType" : "AT_MOST",
 				"description" : "@core.arraytxt.81"
 			},
 			{
 				"type" : "BLOCK_MAGIC_ABOVE",
 				"val" : 1,
-				"valueType" : "INDEPENDENT_MIN"
+				"valueType" : "AT_MOST"
 			},
 			{
 				"type" : "BLOCK_CREATURE_MAGIC",
 				"val" : 0,
-				"valueType" : "INDEPENDENT_MIN"
+				"valueType" : "AT_MOST"
 			},
 			{
 				"type" : "BLOCK_NATIVE_TERRAIN_BONUS",
 				"val" : 0,
-				"valueType" : "INDEPENDENT_MIN"
+				"valueType" : "AT_MOST"
 			}
 		]
 	},

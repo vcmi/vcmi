@@ -843,7 +843,7 @@ Example:
 			"type" : "FLYING_MOVEMENT",
 			"duration" : "ONE_DAY",
 			"val" : 40,
-			"valueType" : "INDEPENDENT_MIN"
+			"valueType" : "AT_MOST"
 		}
 	}
 }
