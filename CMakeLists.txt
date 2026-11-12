@@ -79,7 +79,7 @@ option(ENABLE_CCACHE "Speed up recompilation by caching previous compilations" O
 
 if(ANDROID)
 	set(ANDROID_SDK "$ENV{ANDROID_HOME}" CACHE STRING "Path to Android SDK")
-	set(ANDROID_TARGET_SDK_VERSION "35" CACHE STRING "Android target SDK version")
+	set(ANDROID_TARGET_SDK_VERSION "35" CACHE STRING "Android target SDK version") # used only in command line builds
 	set(ANDROID_GRADLE_PROPERTIES "" CACHE STRING "Additional Gradle properties separated by semi-colon")
 
 	set(ENABLE_STATIC_LIBS ON)
