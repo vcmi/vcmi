@@ -964,9 +964,9 @@ local BonusValueType = {
     percentToSource = 4,
     ---Percentage applied only to bonuses from a matching targetSourceType.
     percentToTargetType = 5,
-    ---Independent ceiling — wins if greater than the accumulated value.
+    ---Lower bound, AT_LEAST in json — total value is at least the highest of such bonuses.
     independentMax = 6,
-    ---Independent floor — wins if smaller than the accumulated value.
+    ---Upper bound, AT_MOST in json — total value is at most the lowest of such bonuses.
     independentMin = 7,
 }
 

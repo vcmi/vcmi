@@ -14,6 +14,10 @@
 #include "../../lib/bonuses/Limiters.h"
 #include "../../lib/bonuses/Propagators.h"
 #include "../../lib/bonuses/Updaters.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/json/JsonBonus.h"
+#include "../../lib/modding/IdentifierResolver.h"
+#include "../../lib/modding/ModScope.h"
 
 namespace test
 {
@@ -329,6 +333,51 @@ TEST_F(BonusSystemTest, legionPieces)
 	EXPECT_EQ(town.valOfBonuses(BonusType::CREATURE_GROWTH, BonusCustomSubtype::creatureLevel(3)), 0);
 
 	heroAine.detachFromSource(legion);
+}
+
+TEST(BonusValueTypeTest, AtLeastAndAtMostBounds)
+{
+	auto parse = [](int val, const std::string & valueType)
+	{
+		JsonNode json;
+		json["type"].String() = "STACKS_SPEED";
+		json["val"].Integer() = val;
+		json["valueType"].String() = valueType;
+		json.setModScope(ModScope::scopeGame());
+
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		return JsonUtils::parseBonus(json, resolver);
+	};
+
+	auto total = [](std::initializer_list<std::shared_ptr<Bonus>> bonuses)
+	{
+		BonusList list;
+		for(const auto & bonus : bonuses)
+			list.push_back(bonus);
+		return list.totalValue();
+	};
+
+	EXPECT_EQ(parse(1, "AT_LEAST")->valType, BonusValueType::INDEPENDENT_MAX);
+	EXPECT_EQ(parse(1, "AT_MOST")->valType, BonusValueType::INDEPENDENT_MIN);
+
+	// clamp of regular value
+	EXPECT_EQ(total({parse(1, "BASE_NUMBER"), parse(3, "AT_LEAST"), parse(7, "AT_MOST")}), 3);
+	EXPECT_EQ(total({parse(9, "BASE_NUMBER"), parse(3, "AT_LEAST"), parse(7, "AT_MOST")}), 7);
+	EXPECT_EQ(total({parse(5, "BASE_NUMBER"), parse(3, "AT_LEAST"), parse(7, "AT_MOST")}), 5);
+
+	// highest lower bound and lowest upper bound are used
+	EXPECT_EQ(total({parse(0, "BASE_NUMBER"), parse(3, "AT_LEAST"), parse(4, "AT_LEAST")}), 4);
+	EXPECT_EQ(total({parse(9, "BASE_NUMBER"), parse(7, "AT_MOST"), parse(6, "AT_MOST")}), 6);
+
+	// conflicting bounds - upper bound takes priority
+	EXPECT_EQ(total({parse(0, "BASE_NUMBER"), parse(8, "AT_LEAST"), parse(4, "AT_MOST")}), 4);
+
+	// nothing to clamp
+	EXPECT_EQ(total({parse(3, "AT_LEAST")}), 3);
+	EXPECT_EQ(total({parse(7, "AT_MOST")}), 7);
+	EXPECT_EQ(total({parse(3, "AT_LEAST"), parse(7, "AT_MOST")}), 5);
+	EXPECT_EQ(total({parse(3, "AT_LEAST"), parse(6, "AT_MOST")}), 4);
+	EXPECT_EQ(total({parse(8, "AT_LEAST"), parse(4, "AT_MOST")}), 4);
 }
 
 }
