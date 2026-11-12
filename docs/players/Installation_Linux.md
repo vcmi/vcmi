@@ -11,9 +11,9 @@ Up-to-date releases can be found in our PPA here: <https://launchpad.net/~vcmi/+
 To install VCMI from PPA use:
 
 ```sh
-    sudo apt-add-repository ppa:vcmi/ppa
-    sudo apt update
-    sudo apt install vcmi
+sudo apt-add-repository ppa:vcmi/ppa
+sudo apt update
+sudo apt install vcmi
 ```
 
 ### Ubuntu - Unstable testing build from PPA
@@ -23,9 +23,9 @@ We also provide latest, unstable builds mostly suitable for testing here: <https
 In order to install from this PPA use:
 
 ```sh
-    sudo add-apt-repository ppa:vcmi/vcmi-latest
-    sudo apt update
-    sudo apt install vcmi
+sudo add-apt-repository ppa:vcmi/vcmi-latest
+sudo apt update
+sudo apt install vcmi
 ```
 
 ### Ubuntu - From Ubuntu repository
@@ -34,8 +34,8 @@ VCMI stable builds available in "multiverse" repository. Learn how to enable it 
 Once enabled, you can install VCMI using Ubuntu Store or in terminal using following commands:
 
 ```sh
-    sudo apt update
-    sudo apt install vcmi
+sudo apt update
+sudo apt install vcmi
 ```
 
 Note that version available in Ubuntu is outdated. Install via PPA is preferred.
@@ -46,8 +46,8 @@ Stable VCMI version is available in "contrib" repository. Learn how to enable it
 To install VCMI from repository:
 
 ```sh
-    sudo apt-get update
-    sudo apt-get install vcmi
+sudo apt-get update
+sudo apt-get install vcmi
 ```
 
 ### Fedora (40 or newer)
@@ -55,8 +55,8 @@ To install VCMI from repository:
 Stable VCMI version is available in RPM Fusion repository. Learn how to enable it in [wiki](https://docs.fedoraproject.org/en-US/quick-docs/rpmfusion-setup/). To install VCMI from repository:
 
 ```sh
-    sudo dnf update
-    sudo dnf install vcmi
+sudo dnf update
+sudo dnf install vcmi
 ```
 
 ### Gentoo
