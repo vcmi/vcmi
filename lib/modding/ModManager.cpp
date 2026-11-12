@@ -521,8 +521,9 @@ ModManager::ModManager(const JsonNode & repositoryList, bool useTestPreset, cons
 	syncDemoModState();
 
 	// resolved together with active mods, so that mods that depend on new mods are not disabled as broken
+	const auto installedValidMods = getInstalledValidMods();
 	for(const auto & modID : newMods)
-		if(vstd::contains(getInstalledValidMods(), modID))
+		if(vstd::contains(installedValidMods, modID))
 			modsPreset->setModActive(modID, true);
 
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
@@ -760,9 +761,10 @@ void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
 	const auto & newActiveMods = testResolver.getActiveMods();
 	const auto & newBrokenMods = testResolver.getBrokenMods();
 
+	[[maybe_unused]] const auto installedValidMods = getInstalledValidMods();
 	for (const auto & modID : newActiveMods)
 	{
-		assert(vstd::contains(getInstalledValidMods(), modID));
+		assert(vstd::contains(installedValidMods, modID));
 		modsPreset->setModActive(modID, true);
 	}
 
