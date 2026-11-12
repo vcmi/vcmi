@@ -267,6 +267,11 @@ void BonusMigration::warnIfDeprecated(const JsonNode & ability)
 		warnOnce(ability, "Bonus " + ability["type"].String() + " still works, but is deprecated. New content should use " + std::string(replacement) + " instead");
 }
 
+std::string_view BonusMigration::retiredAbilityScript(const std::string & bonusType)
+{
+	return lookup(retiredAbilities, withoutScope(bonusType));
+}
+
 void BonusMigration::migrateHeroGrantedAttacks(Bonus & bonus)
 {
 	auto creatureLimiter = std::make_shared<CCreatureTypeLimiter>();

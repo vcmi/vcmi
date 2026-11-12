@@ -51,6 +51,8 @@ public:
 	virtual Object createResistance() const = 0;
 
 	virtual Object createConfigurable(std::string scope, std::string type, std::string identifier) const = 0;
+	/// Creates condition from json object, e.g. { "type" : "bonus", "bonusType" : "X", "bonusSubtype" : "Y" }
+	virtual Object createFromJson(const JsonNode & config) const = 0;
 
 	virtual Object createReceptiveFeature() const = 0;
 	virtual Object createImmunityNegation() const = 0;

@@ -15,8 +15,14 @@
 #include "../CBonusTypeHandler.h"
 #include "../battle/CBattleInfoCallback.h"
 #include "../battle/Unit.h"
+#include "../CCreatureHandler.h"
 #include "../bonuses/BonusList.h"
+#include "../bonuses/BonusMigration.h"
 #include "../bonuses/BonusParameters.h"
+#include "../bonuses/BonusSelector.h"
+#include "../bonuses/Limiters.h"
+#include "../json/JsonBonus.h"
+#include "../modding/IdentifierResolver.h"
 #include "../modding/IdentifierStorage.h"
 #include "../modding/ModUtility.h"
 #include "../serializer/JsonSerializeFormat.h"
@@ -58,22 +64,33 @@ protected:
 	virtual bool check(const Mechanics * m, const battle::Unit * target) const = 0;
 };
 
-class SelectorCondition : public TargetConditionItemBase
+/// Same check as HAS_ANOTHER_BONUS_LIMITER, applied to the target unit
+class BonusCondition : public TargetConditionItemBase
 {
 public:
-	SelectorCondition(const CSelector & csel):
-		sel(csel)
+	explicit BonusCondition(std::shared_ptr<const HasAnotherBonusLimiter> limiter_):
+		limiter(std::move(limiter_)),
+		selector(limiter->getSelector())
 	{
 	}
 
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		return target->hasBonus(sel);
+		if(!limiter->hasValueRange())
+			return target->hasBonus(selector);
+
+		auto bonuses = target->getBonuses(selector);
+		if(bonuses->empty())
+			return false;
+
+		int value = bonuses->totalValue();
+		return value >= limiter->minValue && value <= limiter->maxValue;
 	}
 
 private:
-	CSelector sel;
+	std::shared_ptr<const HasAnotherBonusLimiter> limiter;
+	CSelector selector;
 };
 
 class ResistanceCondition : public TargetConditionItemBase
@@ -97,16 +114,32 @@ protected:
 class CreatureCondition : public TargetConditionItemBase
 {
 public:
-	CreatureCondition(const CreatureID & type_): type(type_) {}
+	CreatureCondition(const CreatureID & type_, bool includeUpgrades_ = false): type(type_), includeUpgrades(includeUpgrades_) {}
 
 protected:
 	bool check(const Mechanics * m, const battle::Unit * target) const override
 	{
-		return target->creatureId() == type;
+		return target->creatureId() == type || (includeUpgrades && target->unitType()->isUpgradeOf(type));
 	}
 
 private:
 	CreatureID type;
+	bool includeUpgrades;
+};
+
+class FactionCondition : public TargetConditionItemBase
+{
+public:
+	FactionCondition(const FactionID & faction_): faction(faction_) {}
+
+protected:
+	bool check(const Mechanics * m, const battle::Unit * target) const override
+	{
+		return target->getFactionID() == faction;
+	}
+
+private:
+	FactionID faction;
 };
 
 class AbsoluteLevelCondition : public TargetConditionItemBase
@@ -315,9 +348,31 @@ protected:
 	}
 };
 
+/// Retired bonus types never appear on units, so a condition on them would silently never match
+static bool warnIfRetiredBonus(const std::string & bonusType)
+{
+	std::string_view script = BonusMigration::retiredAbilityScript(bonusType);
+
+	if(script.empty())
+		return false;
+
+	logMod->warn("Bonus %s in spell target condition was retired. Use condition { \"type\" : \"bonus\", \"bonusType\" : \"COMBAT_EVENT_TRIGGER\", \"bonusSubtype\" : \"%s\" } instead", bonusType, script);
+	return true;
+}
+
 class DefaultTargetConditionItemFactory : public TargetConditionItemFactory
 {
 	const CIdentifierStorage & identifiers;
+
+	/// Parses condition as an equivalent limiter, so fields are named and resolved exactly like in that limiter
+	template<typename LimiterType>
+	std::shared_ptr<const LimiterType> parseAsLimiter(const JsonNode & config, const std::string & limiterType) const
+	{
+		InstantIdentifierResolver resolver(identifiers);
+		JsonNode limiterConfig = config;
+		limiterConfig["type"].String() = limiterType;
+		return std::dynamic_pointer_cast<const LimiterType>(JsonUtils::parseLimiter(limiterConfig, resolver));
+	}
 
 public:
 	explicit DefaultTargetConditionItemFactory(const CIdentifierStorage & identifiers)
@@ -367,8 +422,8 @@ public:
 		{
 			std::optional bonusID(identifiers.getIdentifier(scope, "bonus", identifier, true));
 			if (bonusID)
-				return std::make_shared<SelectorCondition>(Selector::type()(static_cast<BonusType>(*bonusID)));
-			else
+				return std::make_shared<BonusCondition>(std::make_shared<HasAnotherBonusLimiter>(static_cast<BonusType>(*bonusID)));
+			else if (!warnIfRetiredBonus(identifier))
 				logMod->error("Invalid bonus %s type in spell target condition.", identifier);
 		}
 		else if(type == "creature")
@@ -398,6 +453,46 @@ public:
 			logMod->error("Invalid type %s in spell target condition.", type);
 		}
 
+		return Object();
+	}
+
+	Object createFromJson(const JsonNode & config) const override
+	{
+		const std::string & type = config["type"].String();
+
+		if(type == "bonus")
+		{
+			if(warnIfRetiredBonus(config["bonusType"].String()))
+				return Object();
+
+			auto limiter = parseAsLimiter<HasAnotherBonusLimiter>(config, "HAS_ANOTHER_BONUS_LIMITER");
+			if(limiter && limiter->type != BonusType::NONE)
+				return std::make_shared<BonusCondition>(limiter);
+		}
+		else if(type == "creature")
+		{
+			auto limiter = parseAsLimiter<CCreatureTypeLimiter>(config, "CREATURE_TYPE_LIMITER");
+			if(limiter && limiter->creatureID.hasValue())
+				return std::make_shared<CreatureCondition>(limiter->creatureID, limiter->includeUpgrades);
+		}
+		else if(type == "faction")
+		{
+			auto limiter = parseAsLimiter<FactionLimiter>(config, "FACTION_LIMITER");
+			if(limiter && limiter->faction != FactionID::DEFAULT)
+				return std::make_shared<FactionCondition>(limiter->faction);
+		}
+		else if(type == "spell")
+		{
+			auto rawId = identifiers.getIdentifier("spell", config["spell"], true);
+			if(rawId)
+				return std::make_shared<SpellEffectCondition>(SpellID(rawId.value()));
+		}
+		else if(type == "healthValueSpecial")
+		{
+			return std::make_shared<HealthValueCondition>();
+		}
+
+		logMod->error("Invalid spell target condition: %s", config.toCompactString());
 		return Object();
 	}
 
@@ -499,23 +594,38 @@ void TargetCondition::loadConditions(const JsonNode & source, bool exclusive, bo
 
 		const JsonNode & value = keyValue.second;
 
-		if (!value.isString())
+		if (!value.isString() && !value.isStruct())
 			continue;
 
-		if(value.String() == "absolute")
+		const JsonNode & mode = value.isStruct() ? value["mode"] : value;
+
+		if(mode.isString() && mode.String() == "absolute")
 			isAbsolute = true;
-		else if(value.String() == "normal")
+		else if(mode.isString() && mode.String() == "normal")
 			isAbsolute = false;
 		else
+		{
+			if(value.isStruct())
+				logMod->error("Spell target condition %s has invalid mode: %s", keyValue.first, value.toCompactString());
 			continue;
+		}
 
-		std::string scope;
-		std::string type;
-		std::string identifier;
+		std::shared_ptr<TargetConditionItem> item;
 
-		ModUtility::parseIdentifier(keyValue.first, scope, type, identifier);
+		if(value.isStruct())
+		{
+			item = itemFactory->createFromJson(value);
+		}
+		else
+		{
+			std::string scope;
+			std::string type;
+			std::string identifier;
 
-		std::shared_ptr<TargetConditionItem> item = itemFactory->createConfigurable(keyValue.second.getModScope(), type, identifier);
+			ModUtility::parseIdentifier(keyValue.first, scope, type, identifier);
+
+			item = itemFactory->createConfigurable(value.getModScope(), type, identifier);
+		}
 
 		if(item)
 		{

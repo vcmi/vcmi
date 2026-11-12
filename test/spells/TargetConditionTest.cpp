@@ -44,6 +44,7 @@ public:
 	MOCK_CONST_METHOD0(createNormalLevel, Object());
 	MOCK_CONST_METHOD0(createNormalSpell, Object());
 	MOCK_CONST_METHOD3(createConfigurable, Object(std::string, std::string, std::string));
+	MOCK_CONST_METHOD1(createFromJson, Object(const JsonNode &));
 	MOCK_CONST_METHOD0(createReceptiveFeature, Object());
 	MOCK_CONST_METHOD0(createImmunityNegation, Object());
 };
@@ -132,6 +133,31 @@ TEST_F(TargetConditionTest, SerializesCorrectly)
 	EXPECT_THAT(subject.normal, Contains(normalInvertedItem));
 	EXPECT_THAT(subject.normal, Contains(normalItem));
 	EXPECT_THAT(subject.absolute, Contains(absoluteItem));
+}
+
+TEST_F(TargetConditionTest, SerializesObjectConditions)
+{
+	redirectFactoryToStub();
+
+	auto item = std::make_shared<StrictMock<ItemMock>>();
+	EXPECT_CALL(*item, setInverted(Eq(true))).Times(1);
+	EXPECT_CALL(*item, setExclusive(Eq(true))).Times(1);
+
+	JsonNode config;
+	JsonNode & condition = config["noneOf"]["rebirth"];
+	condition["type"].String() = "bonus";
+	condition["mode"].String() = "absolute";
+	condition["bonusType"].String() = "COMBAT_EVENT_TRIGGER";
+	condition["bonusSubtype"].String() = "rebirth";
+
+	// object without mode is reported and skipped
+	config["noneOf"]["noMode"]["type"].String() = "bonus";
+
+	EXPECT_CALL(factoryMock, createFromJson(Eq(condition))).WillOnce(Return(item));
+
+	setupSubject(config);
+
+	EXPECT_THAT(subject.absolute, Contains(item));
 }
 
 TEST_F(TargetConditionTest, CreatesSpecialConditions)

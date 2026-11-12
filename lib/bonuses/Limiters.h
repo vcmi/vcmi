@@ -19,6 +19,7 @@ struct Bonus;
 class BonusList;
 class CBonusSystemNode;
 class CCreature;
+class CSelector;
 class JsonNode;
 
 struct BonusLimitationContext
@@ -140,6 +141,10 @@ public:
 	HasAnotherBonusLimiter(BonusType bonus, BonusSubtypeID _subtype);
 	HasAnotherBonusLimiter(BonusType bonus, BonusSource src);
 	HasAnotherBonusLimiter(BonusType bonus, BonusSubtypeID _subtype, BonusSource src);
+
+	/// Selects bonuses this limiter looks for, ignoring the value range
+	CSelector getSelector() const;
+	bool hasValueRange() const;
 
 	EDecision limit(const BonusLimitationContext &context) const override;
 	std::string toString() const override;
