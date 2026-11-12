@@ -1,6 +1,5 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Koule zranitelnosti}\nRuší přirozenou magickou odolnost všech bytostí na bojišti.",
-	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Další útoky}\nTato jednotka může zaútočit ještě ${val}x.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Další odvety}\nTato jednotka může provést ještě ${val} odvet(y).",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Kouzlení zblízka}\nTato jednotka může seslat ${subtype.spell}, pokud stojí vedle cíle.",

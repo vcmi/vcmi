@@ -1,6 +1,5 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Kula Wrażliwości}\nNeguje naturalną odporność na magię wszystkich stworzeń na polu bitwy.",
-	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Dodatkowe Uderzenia}\nJednostka ma zdolność dodatkowych uderzeń - ${val}.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Dodatkowy Odwet}\nJednostka ma zdolność dodatkowych kontrataków - ${val}.",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Zaklęcie w zwarciu}\nJednostka może rzucić zaklęcie ${subtype.spell}, będąc na sąsiednim polu względem celu.",
@@ -1124,7 +1123,6 @@
 	"vcmi.server.errors.campOrMapFile.unknownEntity": "Nie udało się wczytać pliku! Nieznany element '%s' znaleziony w pliku! Plik może nie być zgodny z aktualnie zainstalowaną wersją modów!",
 	"vcmi.server.errors.disconnected": "{Błąd sieciowy}\n\nUtracono połączenie z serwerem!",
 	"vcmi.server.errors.existingProcess": "Inny proces 'vcmiserver' został już uruchomiony, zakończ go nim zaczniesz nową grę.",
-	"vcmi.server.errors.incompatibleVersion": "",
 	"vcmi.server.errors.modDependencyLoop": "Nie udało się wczytać moda {'%s'}!\n Być może znajduje się w pętli zależności",
 	"vcmi.server.errors.modsToDisable": "{Następujące mody muszą zostać wyłączone}",
 	"vcmi.server.errors.modsToEnable": "{Następujące mody są wymagane do wczytania gry}",

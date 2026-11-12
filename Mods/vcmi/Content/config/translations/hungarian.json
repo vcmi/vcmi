@@ -1,6 +1,5 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{A sebezhetőség gömbje}\nSemlegesíti minden lény természetes varázsellenállását a csatamezőn.",
-	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{További támadások}\nEz a lény még ${val} alkalommal támadhat.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{További ellencsapások}\nEz a lény még ${val} alkalommal tehet ellencsapást.",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Szomszédos varázshasználó}\nEz a lény képes elmondani a(z) ${subtype.spell} varázslatot a célpontja mellett állva.",
@@ -1125,7 +1124,6 @@
 	"vcmi.server.errors.campOrMapFile.unknownEntity": "Nem sikerült betölteni a fájlt! Ismeretlen entitás: „%s”! A fájl lehet, hogy nem kompatibilis a jelenleg telepített modok verziójával!",
 	"vcmi.server.errors.disconnected": "{Hálózati hiba}\n\nA kapcsolat a játékkiszolgálóval megszakadt!",
 	"vcmi.server.errors.existingProcess": "Egy másik VCMI kiszolgálófolyamat is fut. Állítsd le, mielőtt új játékot indítanál.",
-	"vcmi.server.errors.incompatibleVersion": "",
 	"vcmi.server.errors.modsToDisable": "{A következő modokat le kell tiltani}",
 	"vcmi.server.errors.modsToEnable": "{A következő modok szükségesek}",
 	"vcmi.server.errors.notAllowed": "Nem vagy jogosult ennek a műveletnek a végrehajtására!",
