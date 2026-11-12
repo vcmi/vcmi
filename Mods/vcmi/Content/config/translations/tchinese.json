@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{毀滅之球}\n消除戰場上所有生物的魔法抗性。",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{額外攻擊}\n此單位可額外攻擊 ${val} 次。",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{額外還擊}\n此單位可額外還擊 ${val} 次。",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{毗鄰施法}\n生物可在與目標相鄰時施放${subtype.spell}。",
@@ -352,6 +353,7 @@
 	"vcmi.adventureOptions.smoothDragging.help": "{平滑地圖拖動}\n\n啟用後，地圖拖動會產生柔和的羽化效果。",
 	"vcmi.adventureOptions.smoothDragging.hover": "平滑地圖拖動",
 	"vcmi.artifact.charges": "充能",
+	"vcmi.artifact.disabledCombination": "",
 	"vcmi.battle.action.attack": "使用近戰攻擊",
 	"vcmi.battle.action.attackLongWeapon": "使用長兵器攻擊",
 	"vcmi.battle.action.genie": "施放隨機有益魔法",
@@ -1122,6 +1124,7 @@
 	"vcmi.server.errors.campOrMapFile.unknownEntity": "載入檔案失敗！ 發現未知實體'%s'！檔案可能與目前安裝的mod版本不相容！",
 	"vcmi.server.errors.disconnected": "{網路錯誤}\n\n與遊戲伺服器的連線已斷開！",
 	"vcmi.server.errors.existingProcess": "一個VCMI程序已經在執行，啟動新程序前請結束它。",
+	"vcmi.server.errors.incompatibleVersion": "",
 	"vcmi.server.errors.modsToDisable": "{需要禁用的mod列表}",
 	"vcmi.server.errors.modsToEnable": "{需要啟用的mod列表}",
 	"vcmi.server.errors.notAllowed": "你無權執行此操作！",
