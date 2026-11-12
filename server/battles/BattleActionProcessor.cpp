@@ -333,7 +333,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 		return valid;
 
 	// Resolve deaths first so ACTION_FINISHED observes final alive states.
-	flushPendingDeaths(battle);
+	flushPendingEvents(battle);
 
 	// Obstacle triggers may kill a moving unit before ACTION_FINISHED.
 	processActionFinishedTriggers(battle, stack);
@@ -1276,7 +1276,7 @@ void BattleActionProcessor::processActionFinishedTriggers(const CBattleInfoCallb
 	runEventTriggers(battle, pending, CombatEventPayload());
 
 	// Deaths caused by ACTION_FINISHED handlers still belong to this action.
-	flushPendingDeaths(battle);
+	flushPendingEvents(battle);
 }
 
 void BattleActionProcessor::noteDeaths(const CBattleInfoCallback & battle, const std::vector<BattleStackAttacked> & casualties)
@@ -1304,20 +1304,40 @@ void BattleActionProcessor::noteDeaths(const CBattleInfoCallback & battle, const
 	}
 }
 
-void BattleActionProcessor::flushPendingDeaths(const CBattleInfoCallback & battle)
+void BattleActionProcessor::noteSpawns(const CBattleInfoCallback & battle, const BattleUnitsChanged & changes)
+{
+	for(const UnitChanges & change : changes.changedStacks)
+		if(change.operation == UnitChanges::EOperation::ADD)
+			pendingSpawns.push_back({battle.getBattle()->getBattleID(), change.id});
+}
+
+void BattleActionProcessor::flushPendingEvents(const CBattleInfoCallback & battle)
 {
 	const BattleID battleID = battle.getBattle()->getBattleID();
 
 	while(true)
 	{
-		// Process newly queued deaths in the next batch and retain deaths from other battles.
+		// Process newly queued events in the next batch and retain events from other battles.
+		std::vector<PendingSpawn> spawns;
+		std::ranges::copy_if(pendingSpawns, std::back_inserter(spawns), [battleID](const PendingSpawn & spawn){ return spawn.battle == battleID; });
+
 		std::vector<PendingDeath> batch;
 		std::ranges::copy_if(pendingDeaths, std::back_inserter(batch), [battleID](const PendingDeath & death){ return death.battle == battleID; });
 
-		if(batch.empty())
+		if(spawns.empty() && batch.empty())
 			return;
 
-		forgetPendingDeaths(battleID);
+		forgetPendingEvents(battleID);
+
+		// A summoned war machine needs its setup-time stats just like one present from the start.
+		std::vector<PendingTrigger> setup;
+		for(const PendingSpawn & spawn : spawns)
+		{
+			const battle::Unit * unit = battle.battleGetUnitByID(spawn.unit);
+			if(unit)
+				collectEventTriggers(battle, setup, CombatEventType::BATTLE_SETUP, unit, nullptr);
+		}
+		runEventTriggers(battle, setup, CombatEventPayload());
 
 		CombatEventPayload payload;
 		std::vector<PendingTrigger> pending;
@@ -1344,9 +1364,10 @@ void BattleActionProcessor::flushPendingDeaths(const CBattleInfoCallback & battl
 	}
 }
 
-void BattleActionProcessor::forgetPendingDeaths(const BattleID & battleID)
+void BattleActionProcessor::forgetPendingEvents(const BattleID & battleID)
 {
 	std::erase_if(pendingDeaths, [battleID](const PendingDeath & death){ return death.battle == battleID; });
+	std::erase_if(pendingSpawns, [battleID](const PendingSpawn & spawn){ return spawn.battle == battleID; });
 }
 
 void BattleActionProcessor::processSpellHitTriggers(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore)
@@ -1389,7 +1410,7 @@ void BattleActionProcessor::processSpellHitTriggers(const CBattleInfoCallback & 
 	// Enchanter casts run during stack activation, outside a battle action.
 	if(!actionInProgress)
 	{
-		flushPendingDeaths(battle);
+		flushPendingEvents(battle);
 		processActionFinishedTriggers(battle, casterUnit);
 	}
 }

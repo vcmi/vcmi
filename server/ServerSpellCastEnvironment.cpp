@@ -70,6 +70,10 @@ void ServerSpellCastEnvironment::apply(BattleStackMoved & pack)
 void ServerSpellCastEnvironment::apply(BattleUnitsChanged & pack)
 {
 	gh->sendAndApply(pack);
+
+	const auto * battle = gh->gameState().getBattle(pack.battleID);
+	if(battle)
+		gh->battles->noteSpawns(*battle, pack);
 }
 
 void ServerSpellCastEnvironment::apply(SetStackEffect & pack)

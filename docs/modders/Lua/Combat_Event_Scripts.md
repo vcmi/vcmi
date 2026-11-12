@@ -114,7 +114,7 @@ Handlers:
 - `onSpellHit` - executes after casting on every affected unit. `other` is the casting unit, or nil for a hero cast. See [Spell hits](#spell-hits)
 - `onDeath` - executes after the action that killed `unit`. `other` is the killing unit, or nil for deaths caused by spells, moats or scripts. See [Deaths](#deaths)
 - `onActionFinished` - executes once after action resolution on the actor and every affected unit. `other` is the actor, or nil for a hero cast. See [The end of an action](#the-end-of-an-action)
-- `onBattleSetup` - executes once for every unit before tactics. `other` is nil
+- `onBattleSetup` - executes once for every unit before tactics, and once for every unit added later, such as a summoned, cloned or transmuted unit, after the action that added it. `other` is nil
 - `onBattleStart` - executes once for every unit after tactics and before opening spells. `other` is nil
 - `onRoundStart` - executes for every alive unit at the start of each round after the first. `onBattleStart` covers the first round. `other` is nil
 
@@ -160,7 +160,7 @@ Priority also orders death handlers. Resurrection scripts use a priority below 1
 
 ### ballistaDamage
 
-Applies a `CREATURE_DAMAGE` bonus to a war machine during battle setup. The value uses its hero's base and artifact attack, multiplied by bonus `val`. Army, spell and terrain attack bonuses are excluded.
+Applies a `CREATURE_DAMAGE` bonus to a war machine during battle setup, including one summoned mid-battle. The value uses its hero's base and artifact attack, multiplied by bonus `val`. Army, spell and terrain attack bonuses are excluded.
 
 Override `getDamageRange(unit, minDamage, maxDamage)` in a patch to change the formula. It returns the final minimum and maximum damage.
 

@@ -15,6 +15,7 @@
 struct BattleLogMessage;
 struct BattleAttack;
 struct BattleStackAttacked;
+struct BattleUnitsChanged;
 class BattleAction;
 class CBattleInfoCallback;
 class BattleHex;
@@ -92,6 +93,16 @@ class BattleActionProcessor : boost::noncopyable
 	/// Queued UNIT_DEATH events, dispatched after the current action to prevent nested handlers
 	std::vector<PendingDeath> pendingDeaths;
 
+	/// Unit added mid-battle that has yet to receive BATTLE_SETUP. `battle` disambiguates unit IDs
+	struct PendingSpawn
+	{
+		BattleID battle;
+		uint32_t unit;
+	};
+
+	/// Queued BATTLE_SETUP events of spawned units, dispatched together with queued deaths
+	std::vector<PendingSpawn> pendingSpawns;
+
 	/// Collects handlers before dispatch so priority ordering applies across units
 	void collectEventTriggers(const CBattleInfoCallback & battle, std::vector<PendingTrigger> & pending, CombatEventType event, const battle::Unit * self, const battle::Unit * other);
 
@@ -166,11 +177,14 @@ public:
 	/// Queues UNIT_DEATH events from casualties, including clones
 	void noteDeaths(const CBattleInfoCallback & battle, const std::vector<BattleStackAttacked> & casualties);
 
-	/// Dispatches queued UNIT_DEATH events in batches until handlers cause no new deaths
-	void flushPendingDeaths(const CBattleInfoCallback & battle);
+	/// Queues BATTLE_SETUP for units added by the given change, such as summons and clones
+	void noteSpawns(const CBattleInfoCallback & battle, const BattleUnitsChanged & changes);
 
-	/// Discards queued deaths when a battle ends
-	void forgetPendingDeaths(const BattleID & battleID);
+	/// Dispatches queued BATTLE_SETUP and UNIT_DEATH events in batches until handlers queue no new ones
+	void flushPendingEvents(const CBattleInfoCallback & battle);
+
+	/// Discards queued events when a battle ends
+	void forgetPendingEvents(const BattleID & battleID);
 
 	bool makeAutomaticBattleAction(const CBattleInfoCallback & battle, const BattleAction & ba);
 	bool makePlayerBattleAction(const CBattleInfoCallback & battle, PlayerColor player, const BattleAction & ba);
