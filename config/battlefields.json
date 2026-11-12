@@ -133,9 +133,7 @@
 		"isSpecial" : true,
 		"bonuses": [
 			{
-				"type" : "MORALE",
-				"val" : 0,
-				"valueType" : "INDEPENDENT_MIN",
+				"type" : "NO_MORALE",
 				"description" : "@core.arraytxt.112"
 			},
 			{
