@@ -12,6 +12,7 @@
 #include "CHero.h"
 
 #include "../../GameLibrary.h"
+#include "../../bonuses/Bonus.h"
 #include "../../texts/CGeneralTextHandler.h"
 
 CHero::CHero() = default;
@@ -116,6 +117,15 @@ CreatureID CHero::defaultCreature() const
 	}
 
 	throw std::runtime_error("Hero " + getJsonKey() + " has no valid army stack!");
+}
+
+std::set<SpellID> CHero::getPreviewSpells() const
+{
+	std::set<SpellID> result = spells;
+	for(const auto & bonus : specialty)
+		if(bonus->type == BonusType::SPELL)
+			result.insert(bonus->subtype.as<SpellID>());
+	return result;
 }
 
 void CHero::registerIcons(const IconRegistar & cb) const

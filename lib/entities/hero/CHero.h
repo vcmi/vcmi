@@ -40,6 +40,9 @@ public:
 	/// Returns unit which should be given the hero on retreat from battle
 	CreatureID defaultCreature() const;
 
+	/// Returns spells shown in hero preview: spellbook contents and spells granted by specialty
+	std::set<SpellID> getPreviewSpells() const;
+
 	//initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<std::pair<SecondarySkill, ui8>> secSkillsInit;
 

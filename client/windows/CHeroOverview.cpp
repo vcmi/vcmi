@@ -229,7 +229,7 @@ void CHeroOverview::genControls()
 		backgroundRectangles.push_back(std::make_shared<TransparentFilledRectangle>(r.resize(1), rectangleColor, borderColor));
 	}
 	i = 0;
-	for(auto & spell : (*LIBRARY->heroh)[heroIdx]->spells)
+	for(auto & spell : (*LIBRARY->heroh)[heroIdx]->getPreviewSpells())
 	{
 		if(i == 0)
 		{

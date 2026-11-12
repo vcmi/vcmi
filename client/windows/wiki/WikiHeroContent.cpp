@@ -480,7 +480,7 @@ std::vector<std::shared_ptr<CIntObject>> buildHeroContent(
 		else
 		{
 			std::vector<const CSpell *> validSpells;
-			for(const SpellID & sid : hero->spells)
+			for(const SpellID & sid : hero->getPreviewSpells())
 			{
 				if(sid.getNum() < 0 || sid.getNum() >= (int)LIBRARY->spellh->size()) continue;
 				const auto & sp = (*LIBRARY->spellh)[sid.getNum()];
