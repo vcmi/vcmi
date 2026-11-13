@@ -46,6 +46,7 @@ class VCMIApp(VCMI):
         tc = CMakeToolchain(self)
         tc.variables["USING_CONAN"] = True
         tc.variables["CONAN_RUNTIME_LIBS_FILE"] = self._generateRuntimeLibsFile()
+        tc.variables["QT_PACKAGE_DIR"] = self._pathForCmake(self.dependencies.host["qt"].package_folder)
         if self.settings.os == "Android":
             tc.variables["CMAKE_ANDROID_API"] = str(self.settings.os.api_level)
             # SDL's Android glue: .java sources for SDL2, a prebuilt jar for SDL3

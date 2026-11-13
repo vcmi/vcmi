@@ -25,6 +25,7 @@ ENV ANDROID_HOME="/usr/lib/android-sdk"
 ENV GRADLE_USER_HOME="/vcmi/.cache/gradle"
 ENV SDK_VERSION="35"
 ENV NDK_VERSION="29.0.14206865"
+ENV CMAKE_PRESET="android-conan-ninja-release"
 
 RUN sdkmanager --install "platform-tools" "platforms;android-$SDK_VERSION" "ndk;$NDK_VERSION"
 RUN yes | sdkmanager --licenses
@@ -38,6 +39,7 @@ CMD ["sh", "-c", " \
     # generate CMake toolchain
     conan install . --output-folder=conan-generated --build=never --profile=dependencies/conan_profiles/android-64 --profile=dependencies/conan_profiles/base/android-system -c tools.android:ndk_path=$ANDROID_HOME/ndk/$NDK_VERSION && \
     # build
-    cmake --preset android-daily-release && \
-    cmake --build --preset android-daily-release \
+    cmake -DANDROID_GRADLE_PROPERTIES=$(python3 CI/android/gradle_daily_props.py) --preset $CMAKE_PRESET && \
+    cmake --build --preset $CMAKE_PRESET && \
+    cmake --build out/build/$CMAKE_PRESET --target build_apk \
 "]

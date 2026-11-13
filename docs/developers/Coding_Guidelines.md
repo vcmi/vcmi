@@ -6,12 +6,12 @@ VCMI implementation bases on C++20 standard. Any feature is acceptable as long a
 
 - GCC 10 or newer
 - Clang 16 or newer
-- Visual Studio 2022 (MSVC 19.44)
+- Visual Studio 2019 (MSVC 19.29)
 - XCode 16.2 (Apple Clang 16.0.0)
 
 You can find information about compiler support at <https://en.cppreference.com/w/cpp/compiler_support/20.html>.
 
-Additionally, features that require macOS 10.15 or newer are not available: <https://developer.apple.com/xcode/cpp/#c++20>
+Additionally, features that require macOS 10.15+ / iOS 13+ are not available (for simple cases conditional compilation should be fine though): <https://developer.apple.com/xcode/cpp/#c++20>
 
 - (C++17) Filesystem library
 - (C++17) Elementary string conversions std::to_chars, std::from_chars

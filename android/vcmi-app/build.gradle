@@ -1,6 +1,11 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.github.zellius.shortcut-helper'
 
+final def debugPackageId = rootProject.ext.namespace
+final def lastDotPos = debugPackageId.lastIndexOf('.')
+final def basePackageId = debugPackageId[0..<lastDotPos]
+final def debugSuffix = debugPackageId[lastDotPos..-1]
+
 android {
 	/*******************************************************
 	 * The following variables:
@@ -16,9 +21,11 @@ android {
 	 *******************************************************/
 
 	namespace = "eu.vcmi.vcmi"
+	ndkPath = androidNdkPath
 
+	// Qt generates these properties
 	buildToolsVersion = androidBuildToolsVersion
-	ndkVersion = androidNdkVersion // Qt generates this property
+	ndkVersion = androidNdkVersion
 
 	buildFeatures {
 		aidl = true
@@ -29,7 +36,7 @@ android {
 	packagingOptions.jniLibs.useLegacyPackaging true
 
 	defaultConfig {
-		applicationId "is.xyz.vcmi"
+		applicationId = basePackageId
 
 		compileSdk = androidCompileSdkVersion.takeAfter("-") as Integer // has "android-" prepended
 		minSdk = qtMinSdkVersion as Integer
@@ -61,7 +68,7 @@ android {
 	buildTypes {
 		debug {
 			debuggable true
-			applicationIdSuffix '.debug'
+			applicationIdSuffix = debugSuffix
 			manifestPlaceholders = [
 				applicationLabel: 'VCMI debug',
 				applicationVariant: 'debug',
