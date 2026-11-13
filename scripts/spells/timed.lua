@@ -83,10 +83,8 @@ end
 --- Scales every buffered bonus value by a per-target-tier percentage (Solmyr-style
 --- SPECIAL_SPELL_SCALING, matching CGHeroInstance::getSpellBonus but for buff/debuff vals).
 function Script:applySpellScaling(mechanics, hero, buffer, tier, spellKey)
-	local scaling = hero:getBonuses({type = "SPECIAL_SPELL_SCALING", subtype = spellKey})
-	if scaling:size() == 0 then return end
-
-	local percent = scaling:getBonus(1):getVal() * math.floor(hero:getLevel() / tier)
+	local scaling = hero:getBonusesValue({type = "SPECIAL_SPELL_SCALING", subtype = spellKey})
+	local percent = scaling * math.floor(hero:getLevel() / tier)
 	if percent == 0 then return end
 	for _, nb in pairs(buffer) do
 		nb.val = math.floor((nb.val or 0) * (100 + percent) / 100)

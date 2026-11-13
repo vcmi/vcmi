@@ -18,15 +18,9 @@ local FIRE_SCHOOL = "fire"
 --- Whether fire damage can reach the attacker at all. Immunity is checked here rather than left to
 --- the damage pipeline, because a fully immune attacker should not even produce a battle log entry.
 function Script:isImmune(attacker)
-	local function immuneBy(type, predicate)
-		return attacker:getBonuses({type = type}):filter(function(bonus)
-			return bonus:getSubtype() == FIRE_SCHOOL and (predicate == nil or predicate(bonus))
-		end):size() > 0
-	end
-
-	return immuneBy("SPELL_SCHOOL_IMMUNITY")
-		or immuneBy("NEGATIVE_EFFECTS_IMMUNITY")
-		or immuneBy("SPELL_DAMAGE_REDUCTION", function(bonus) return bonus:getVal() >= 100 end)
+	return attacker:hasBonuses({type = "SPELL_SCHOOL_IMMUNITY", subtype = FIRE_SCHOOL})
+		or attacker:hasBonuses({type = "NEGATIVE_EFFECTS_IMMUNITY", subtype = FIRE_SCHOOL})
+		or attacker:getBonusesValue({type = "SPELL_DAMAGE_REDUCTION", subtype = FIRE_SCHOOL}) >= 100
 end
 
 function Script:onAfterAttacked(server, battle, unit, other, payload)
