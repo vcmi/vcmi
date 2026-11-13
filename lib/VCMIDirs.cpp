@@ -252,12 +252,10 @@ bfs::path VCMIDirsIOS::userLogsPath() const { return {iOS_utils::documentsPath()
 std::vector<bfs::path> VCMIDirsIOS::dataPaths() const
 {
 	std::vector<bfs::path> paths;
-	paths.reserve(4);
+	paths.reserve(2);
 #ifdef VCMI_IOS_SIM
 	paths.emplace_back(iOS_utils::hostApplicationSupportPath());
 #endif
-	paths.emplace_back(userDataPath());
-	paths.emplace_back(iOS_utils::documentsPath());
 	paths.emplace_back(binaryPath());
 	return paths;
 }
@@ -386,7 +384,6 @@ std::vector<bfs::path> VCMIDirsAndroid::dataPaths() const
 {
 	return {
 		internalPath,
-		userDataPath(),
 	};
 }
 

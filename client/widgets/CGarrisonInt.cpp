@@ -570,8 +570,10 @@ bool CGarrisonSlot::handleSplittingShortcuts()
 	return true;
 }
 
-void CGarrisonInt::addSplitBtn(std::shared_ptr<CButton> button)
+void CGarrisonInt::addSplitBtn(std::shared_ptr<CButton> button, const std::string & hoverTextID)
 {
+	if(!hoverTextID.empty())
+		splitHoverTextID = hoverTextID;
 	addChild(button.get());
 	splitButtons.push_back(button);
 	button->block(getSelection() == nullptr);
@@ -809,6 +811,14 @@ void CGarrisonInt::selectSlot(CGarrisonSlot *slot)
 		highlighted = slot;
 		for(auto button : splitButtons)
 			button->block(highlighted == nullptr || !slot->our());
+
+		if(highlighted && highlighted->creature && !splitHoverTextID.empty())
+		{
+			MetaString hoverText = MetaString::createFromTextID(splitHoverTextID);
+			hoverText.replaceNamePlural(highlighted->creature->getId());
+			for(auto button : splitButtons)
+				button->addHoverText(EButtonState::NORMAL, hoverText.toString(&GAME->translator()));
+		}
 
 		if(highlighted)
 			highlighted->setHighlight(true);

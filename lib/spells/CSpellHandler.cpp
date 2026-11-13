@@ -454,7 +454,7 @@ std::shared_ptr<CSpell> CSpellHandler::loadFromJson(LibraryLoadContext & context
 		CSpell::LevelInfo & levelObject = spell->levels[levelIndex];
 
 		if (!levelNode["description"].String().empty())
-			context.lib.generaltexth->registerString(scope, spell->getDescriptionTextID(levelIndex), levelNode["description"]);
+			context.lib.generaltexth->registerString(scope, TextIdentifier("spell", spell->modScope, spell->identifier, "description", LEVEL_NAMES[levelIndex]), levelNode["description"]);
 
 		levelObject.cost          = static_cast<si32>(levelNode["cost"].Integer());
 		levelObject.smartTarget   = levelNode["targetModifier"]["smart"].Bool();

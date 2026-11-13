@@ -273,6 +273,25 @@ TEST_F(SpellcastActionTest, heroCastsSpellOnUnit)
 	EXPECT_EQ(battle()->getActiveStackID(), static_cast<int32_t>(ally->unitId()));
 }
 
+TEST_F(SpellcastActionTest, heroSpellRemovesDisintegratedUnitAtOnce)
+{
+	startGame();
+	startBattle();
+
+	const CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
+	const CStack * victim = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testAutomaton"), enemyHex, 1);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), freeHex, stackCount); // keeps the battle going
+	injure(victim, victim->getAvailableHealth() - 1);
+	teachSpell(attackerSideHero, SpellID::MAGIC_ARROW);
+	battle()->activeStack = ally->unitId();
+
+	ASSERT_TRUE(castAsHero(attackerSideHero, SpellID::MAGIC_ARROW, victim));
+
+	// the ally keeps its turn after the cast, but the corpse must not wait for its end
+	EXPECT_EQ(battle()->getActiveStackID(), static_cast<int32_t>(ally->unitId()));
+	EXPECT_TRUE(victim->isGhost());
+}
+
 TEST_F(SpellcastActionTest, heroCastsOnlyOncePerRound)
 {
 	startGame();

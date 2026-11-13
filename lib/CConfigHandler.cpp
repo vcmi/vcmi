@@ -68,12 +68,20 @@ void SettingsStorage::init(const std::string & dataFilename, const std::string &
 
 	JsonPath confName = JsonPath::builtin(dataFilename);
 
+	auto * userConfigs = CResourceHandler::get("config");
+
+	// default values shipped with the game, if any
 	config = JsonUtils::assembleFromFiles(confName.getOriginalName());
 
-	// Probably new install. Create config file to save settings to
-	if (!CResourceHandler::get("local")->existsResource(confName))
+	if (userConfigs->existsResource(confName))
 	{
-		CResourceHandler::get("local")->createResource(dataFilename);
+		JsonNode userConfig(confName, *userConfigs);
+		JsonUtils::merge(config, userConfig);
+	}
+	else
+	{
+		// Probably new install. Create config file to save settings to
+		userConfigs->createResource(dataFilename);
 		if(schemaName.empty())
 			invalidateNode(std::vector<std::string>());
 	}
@@ -97,7 +105,7 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 	if(!schema.isNull())
 		JsonUtils::minimize(savedConf, schema);
 
-	std::fstream file(CResourceHandler::get()->getResourceName(JsonPath::builtin(dataFilename))->c_str(), std::ofstream::out | std::ofstream::trunc);
+	std::fstream file(CResourceHandler::get("config")->getResourceName(JsonPath::builtin(dataFilename))->c_str(), std::ofstream::out | std::ofstream::trunc);
 	file << savedConf.toString();
 }
 

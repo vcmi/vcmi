@@ -2538,12 +2538,26 @@ bool CGameHandler::buildStructure(ObjectInstanceID tid, BuildingID requestedID, 
 	return true;
 }
 
-bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid)
+bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid, PlayerColor player)
 {
 	const CGTownInstance * t = gameInfo().getTown(tid);
 
+	if(!t)
+	{
+		complain("Town not found!");
+		return false;
+	}
+
 	if(!t->hasBuilt(bid))
 		return false;
+
+	// rewardable buildings interact only with visiting hero, everything else, e.g. bank, is owner-only
+	const bool alliedVisit = t->getVisitingHero() && t->getVisitingHero()->getOwner() == player && t->rewardableBuildings.count(bid);
+	if(t->getOwner() != player && !alliedVisit)
+	{
+		complain("Can't visit building in town of another player!");
+		return false;
+	}
 
 	auto subID = t->getTown()->buildings.at(bid)->subId;
 

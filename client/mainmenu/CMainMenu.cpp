@@ -796,7 +796,7 @@ void CSimpleJoinScreen::connectToServer()
 void CSimpleJoinScreen::leaveScreen()
 {
 	textTitle->setText(LIBRARY->generaltexth->translate("vcmi.mainMenu.serverClosing"));
-	GAME->server().setState(EClientState::CONNECTION_CANCELLED);
+	GAME->server().cancelConnection();
 	close();
 }
 

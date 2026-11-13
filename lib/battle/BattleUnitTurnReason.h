@@ -19,6 +19,6 @@ enum class BattleUnitTurnReason : int8_t
 	HERO_SPELLCAST,
 	/// Unit gained turn due to casting a spell while having ability to cast spells without spending turn
 	UNIT_SPELLCAST,
-	/// Unit gained turn for automatic action, player can not select action for this unit
+	/// Unit gained turn and the server decides whether it acts automatically, player can not select action for this unit yet
 	AUTOMATIC_ACTION
 };

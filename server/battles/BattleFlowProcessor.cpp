@@ -223,20 +223,13 @@ void BattleFlowProcessor::activateNextStack(const CBattleInfoCallback & battle)
 				logGlobal->warn("No valid stack to act during round! Skipping to next round!");
 		}
 
-		BattleUnitsChanged removeGhosts;
-		removeGhosts.battleID = battle.getBattle()->getBattleID();
-
-		auto pendingGhosts = battle.battleGetStacksIf([](const CStack * stack){
-			return stack->ghostPending;
-		});
-
-		for(const auto * stack : pendingGhosts)
-			removeGhosts.changedStacks.emplace_back(stack->unitId(), UnitChanges::EOperation::REMOVE);
-
-		if(!removeGhosts.changedStacks.empty())
-			gameHandler->sendAndApply(removeGhosts);
+		removeGhosts(battle);
 
 		gameHandler->turnTimerHandler->onBattleNextStack(battle.getBattle()->getBattleID(), *next);
+
+		// activation removes the bonuses that last until the unit gets its turn, so an automatic action
+		// is chosen from the same state that it is validated and applied in
+		setActiveStack(battle, next, BattleUnitTurnReason::AUTOMATIC_ACTION);
 
 		if (!tryMakeAutomaticAction(battle, next))
 		{
@@ -525,12 +518,9 @@ bool BattleFlowProcessor::tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCal
 		{
 			BattleHex intermediaryHex = battle.getClosestHexToTargetInRange(reachabilityCache, *actingStack, bestTarget.attackableFromHex);
 			if(intermediaryHex == BattleHex::INVALID)
-			{
 				makeStackDoNothing(battle, actingStack);
-			}
-
-			BattleAction moveAction = BattleAction::makeMove(actingStack, intermediaryHex);
-			makeAutomaticAction(battle, actingStack, moveAction);
+			else
+				makeAutomaticAction(battle, actingStack, BattleAction::makeMove(actingStack, intermediaryHex));
 		}
 		else
 		{
@@ -616,6 +606,8 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		return;
 
 	removeBrokenBindings(battle);
+	// the acting unit may keep its turn, e.g. after a hero spell, but corpses that leave no remains must go now
+	removeGhosts(battle);
 
 	// tactics - next stack will be selected by player
 	if(battle.battleGetTacticDist() != 0)
@@ -673,14 +665,8 @@ void BattleFlowProcessor::makeStackDoNothing(const CBattleInfoCallback & battle,
 
 bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle, const CStack *stack, const BattleAction &ba)
 {
-	BattleSetActiveStack bsa;
-	bsa.battleID = battle.getBattle()->getBattleID();
-	bsa.stack = stack->unitId();
-	bsa.reason = BattleUnitTurnReason::AUTOMATIC_ACTION;
-	gameHandler->sendAndApply(bsa);
-
-	bool ret = owner->makeAutomaticBattleAction(battle, ba);
-	return ret;
+	assert(battle.battleActiveUnit() == stack);
+	return owner->makeAutomaticBattleAction(battle, ba);
 }
 
 void BattleFlowProcessor::removeObstacle(const CBattleInfoCallback & battle, const CObstacleInstance & obstacle)
@@ -721,6 +707,22 @@ void BattleFlowProcessor::tryUnbindStack(const CBattleInfoCallback & battle, con
 		ssp.stackID = st->unitId();
 		gameHandler->sendAndApply(ssp);
 	}
+}
+
+void BattleFlowProcessor::removeGhosts(const CBattleInfoCallback & battle)
+{
+	BattleUnitsChanged removeGhosts;
+	removeGhosts.battleID = battle.getBattle()->getBattleID();
+
+	auto pendingGhosts = battle.battleGetStacksIf([](const CStack * stack){
+		return stack->ghostPending;
+	});
+
+	for(const auto * stack : pendingGhosts)
+		removeGhosts.changedStacks.emplace_back(stack->unitId(), UnitChanges::EOperation::REMOVE);
+
+	if(!removeGhosts.changedStacks.empty())
+		gameHandler->sendAndApply(removeGhosts);
 }
 
 void BattleFlowProcessor::removeBrokenBindings(const CBattleInfoCallback & battle)

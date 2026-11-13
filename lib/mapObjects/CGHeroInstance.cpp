@@ -1043,10 +1043,6 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 
 	if(spell->isSpecial())
 	{
-		if(inSpellBook)
-		{//hero has this spell in spellbook
-			logGlobal->error("Special spell %s in spellbook.", spell->getNameTextID());
-		}
 		return std::ranges::any_of(*getBonusesOfType(BonusType::SPELL, spell->getId()), [this](const auto & bonus){ return hasSpellbook() || castableWithoutSpellbook(*bonus); });
 	}
 	else if(!cb->isAllowed(spell->getId()))

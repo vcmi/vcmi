@@ -131,6 +131,8 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 
 	void threadRunNetwork();
 	void waitForServerShutdown();
+	/// Closes connection to server, if any, without notifying the server
+	void closeConnection();
 
 	void onPacketReceived(const NetworkConnectionPtr &, const std::vector<std::byte> & message) override;
 	void onConnectionFailed(const std::string & errorMessage) override;
@@ -198,6 +200,8 @@ public:
 
 	EClientState getState() const;
 	void setState(EClientState newState);
+	/// Aborts connection attempt requested by player, including already established connection to remote server
+	void cancelConnection();
 
 	bool isHost() const;
 	bool isGuest() const;

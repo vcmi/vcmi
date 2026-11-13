@@ -653,7 +653,8 @@ void CPlayerInterface::battleStart(const BattleID & battleID, const CCreatureSet
 	bool useQuickCombat = settings["adventure"]["quickCombat"].Bool() || GAME->map().getMap()->battleOnly;
 	bool forceQuickCombat = settings["adventure"]["forceQuickCombat"].Bool();
 
-	if ((replayAllowed && useQuickCombat) || forceQuickCombat)
+	// a replayed battle is shown as recorded, so there is nothing for quick combat to fight
+	if (!GAME->server().isReplayActive() && ((replayAllowed && useQuickCombat) || forceQuickCombat))
 	{
 		prepareAutoFightingAI(battleID, army1, army2, tile, hero1, hero2, side);
 	}

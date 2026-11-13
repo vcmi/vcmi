@@ -154,6 +154,8 @@ public:
 
 	void generateNewStack(uint32_t id, const CStackInstance & base, BattleSide side, const SlotID & slot, const BattleHex & position);
 	void generateNewStack(uint32_t id, const CStackBasicDescriptor & base, BattleSide side, const SlotID & slot, const BattleHex & position);
+	/// Logs error if battle layout has placed two units on the same hex
+	void checkInitialPositions() const;
 
 	const SideInBattle & getSide(BattleSide side) const;
 	SideInBattle & getSide(BattleSide side);

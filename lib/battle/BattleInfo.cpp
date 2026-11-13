@@ -57,6 +57,28 @@ void BattleInfo::generateNewStack(uint32_t id, const CStackBasicDescriptor & bas
 	stacks.push_back(std::move(ret));
 }
 
+void BattleInfo::checkInitialPositions() const
+{
+	// getAvailableHex does not see units until battle is initialized, so it can not move them away from each other
+	std::map<BattleHex, const CStack *> occupied;
+
+	for(const auto & unit : stacks)
+	{
+		for(const BattleHex & hex : battle::Unit::getHexes(unit->initialPosition, unit->doubleWide(), unit->unitSide()))
+		{
+			if(!hex.isValid())
+				continue;
+
+			const auto [other, inserted] = occupied.emplace(hex, unit.get());
+			if(!inserted)
+			{
+				logMod->error("Invalid battlefield layout! Unit %s at hex %d overlaps with unit %s at hex %d", unit->unitType()->getJsonKey(), unit->initialPosition.toInt(), other->second->unitType()->getJsonKey(), other->second->initialPosition.toInt());
+				break;
+			}
+		}
+	}
+}
+
 void BattleInfo::localInit()
 {
 	for(BattleSide i : { BattleSide::ATTACKER, BattleSide::DEFENDER})
@@ -368,6 +390,8 @@ std::unique_ptr<BattleInfo> BattleInfo::setupBattle(IGameInfoCallback *cb, const
 
 		//Moat generating is done on server
 	}
+
+	currentBattle->checkInitialPositions();
 
 	std::stable_sort(currentBattle->stacks.begin(), currentBattle->stacks.end(), [cmpst](const auto & left, const auto & right){ return cmpst(left.get(), right.get());});
 

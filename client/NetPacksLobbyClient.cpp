@@ -213,12 +213,8 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareS
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyStartGame(LobbyStartGame & pack)
 {
 	handler.setState(EClientState::STARTING);
-	if(handler.si->mode != EStartMode::LOAD_GAME)
-	{
-		auto modeBackup = handler.si->mode;
-		handler.si = pack.initializedStartInfo;
-		handler.si->mode = modeBackup;
-	}
+	// lobby state is not updated on restart or quick load, so StartInfo of client may be from the previous game
+	handler.si = pack.initializedStartInfo;
 	handler.client = std::make_unique<CClient>();
 	handler.startGameplay(pack.initializedGameState);
 }

@@ -326,3 +326,32 @@ TEST_F(QuestJsonRewardTest, SeerFromOldestVmapFormatHasQuestWithReward)
 	ASSERT_TRUE(loaded.getQuest().reward.has_value());
 	EXPECT_EQ(loaded.getQuest().reward->reward.heroExperience, 5000);
 }
+
+TEST_F(QuestJsonRewardTest, SeerQuestsTakeRewardsStoredInRewardable)
+{
+	struct SeerProbe : public SeerHut
+	{
+		using SeerHut::SeerHut;
+		using SeerHut::serializeJsonOptions;
+	};
+
+	auto s = seerLevel();
+	ASSERT_NO_FATAL_FAILURE(startWithMap(std::move(s.builder)));
+
+	JsonNode options;
+	options["quests"].Vector().resize(2);
+	options["rewardable"]["info"].Vector().resize(2);
+	options["rewardable"]["info"].Vector()[0]["reward"]["heroExperience"].Integer() = 5000;
+	options["rewardable"]["info"].Vector()[1]["reward"]["heroExperience"].Integer() = 7000;
+
+	SeerProbe loaded(gameState().get());
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer loader(nullptr, resolver, options);
+	loaded.serializeJsonOptions(loader);
+	ASSERT_EQ(loaded.allQuests().size(), 2u);
+	ASSERT_TRUE(loaded.allQuests()[0]->reward.has_value());
+	ASSERT_TRUE(loaded.allQuests()[1]->reward.has_value());
+	EXPECT_EQ(loaded.allQuests()[0]->reward->reward.heroExperience, 5000);
+	EXPECT_EQ(loaded.allQuests()[1]->reward->reward.heroExperience, 7000);
+	EXPECT_TRUE(loaded.configuration.info.empty());
+}

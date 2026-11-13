@@ -53,11 +53,12 @@ class BattleFlowProcessor : boost::noncopyable
 	void stackTurnTrigger(const CBattleInfoCallback & battle, const CStack * stack);
 	void tryUnbindStack(const CBattleInfoCallback & battle, const CStack * stack);
 	void removeBrokenBindings(const CBattleInfoCallback & battle);
+	void removeGhosts(const CBattleInfoCallback & battle);
 	void setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack, BattleUnitTurnReason reason);
 	double calculateTowerAttackValue(const CBattleInfoCallback& battle, const CStack* attacker, const CStack* target) const;
 
 	void makeStackDoNothing(const CBattleInfoCallback & battle, const CStack * next);
-	bool makeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack, const BattleAction & ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
+	bool makeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack, const BattleAction & ba); //used when action is taken by the active stack without volition of player (eg. unguided catapult attack)
 
 public:
 	explicit BattleFlowProcessor(BattleProcessor * owner, CGameHandler * newGameHandler);

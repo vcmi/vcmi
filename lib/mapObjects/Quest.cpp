@@ -711,6 +711,10 @@ void QuestSource::defineDefaultTexts(Quest & q)
 		return;
 	}
 
+	// texts of scripted quests are shown by their map script
+	if(q.missionKind == EQuestMission::HOTA_SCRIPTED)
+		return;
+
 	const std::string & questName = Quest::missionName(q.missionKind);
 	if(q.firstVisitText.empty())
 		q.firstVisitText.appendTextID(TextIdentifier("core", "seerhut", "quest", questName, Quest::missionState(0), q.textOption).get());
@@ -818,6 +822,10 @@ void SeerHut::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance 
 	// advance past a finished / expired active quest so the next one is offered
 	if(!isEmpty() && (advancePending || !isQuestAvailable(getQuest())))
 		gameEvents.setObjPropertyValue(id, ObjProperty::SEERHUT_ADVANCE, true);
+
+	// scripted quest is handled by its map script, which only runs when the visit starts
+	if(!getVisitScriptHandler().empty())
+		return;
 
 	InfoWindow iw;
 	iw.player = h->getOwner();
@@ -938,6 +946,10 @@ void SeerHut::serializeJsonOptions(JsonSerializeFormat & handler)
 		default:
 			readOrWriteReward18(handler);
 	}
+
+	// rewards of older formats now live in quests, and a stale copy would bring back a reward removed in the editor
+	if(!handler.saving)
+		configuration.info.clear();
 }
 
 void SeerHut::readOrWriteReward18(JsonSerializeFormat & handler)
@@ -960,6 +972,9 @@ void SeerHut::readOrWriteReward18(JsonSerializeFormat & handler)
 			auto & quest = addQuest();
 			auto questSerializer = questsArray.enterStruct(i);
 			quest.serializeJson(handler);
+			// maps saved before quests stored own rewards keep them in rewardable, in quest order
+			if(!quest.reward && i < static_cast<int>(configuration.info.size()))
+				quest.reward = configuration.info[i];
 		}
 	}
 }

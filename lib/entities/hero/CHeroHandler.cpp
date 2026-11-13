@@ -24,6 +24,7 @@
 #include "../../json/JsonUtils.h"
 #include "../../modding/LibraryLoadContext.h"
 #include "../../CSkillHandler.h"
+#include "../../spells/CSpellHandler.h"
 #include "../../texts/CGeneralTextHandler.h"
 #include "../../texts/CLegacyConfigParser.h"
 
@@ -133,8 +134,11 @@ void CHeroHandler::loadHeroSkills(LibraryLoadContext & context, CHero * hero, co
 	for(const JsonNode & spell : node["spellbook"].Vector())
 	{
 		context.resolver.requestIdentifier("spell", spell,
-		[=](si32 spellID)
+		[=, &context](si32 spellID)
 		{
+			// special spells can only be cast through SPELL bonus
+			if(context.lib.spellh->getObjectForLoading(SpellID(spellID))->isSpecial())
+				logMod->warn("Hero %s has special spell %s in spellbook", hero->getJsonKey(), spell.String());
 			hero->spells.insert(SpellID(spellID));
 		});
 	}

@@ -109,6 +109,7 @@ public:
 	int interx;  ///< Space between slots
 	Point garOffset;  ///< Offset between garrisons (not used if only one hero)
 	std::vector<std::shared_ptr<CButton>> splitButtons;  ///< May be empty if no buttons
+	std::string splitHoverTextID; ///< Hover text of split buttons with placeholder for selected creature, empty if text is fixed
 
 	bool smallIcons;      ///< true - 32x32 imgs, false - 58x64
 	bool removableUnits;  ///< player can remove units from upper army unless it is locked, false when viewing army of another player
@@ -126,7 +127,7 @@ public:
 	SlotID getEmptySlot(EGarrisonType type) const;
 
 	void setArmy(const CArmedInstance * army, EGarrisonType type);
-	void addSplitBtn(std::shared_ptr<CButton> button);
+	void addSplitBtn(std::shared_ptr<CButton> button, const std::string & hoverTextID = {});
 
 	void recreateSlots();
 

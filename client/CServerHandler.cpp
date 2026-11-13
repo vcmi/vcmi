@@ -167,7 +167,7 @@ void CServerHandler::resetStateForLobby(EStartMode mode, ESelectionScreen screen
 	hotseatMode = false;
 	battleMode = false;
 	th = std::make_unique<CStopWatch>();
-	logicConnection.reset();
+	closeConnection();
 	si = std::make_shared<StartInfo>();
 	mi.reset();
 	localPlayerNames.clear();
@@ -301,6 +301,13 @@ void CServerHandler::onConnectionEstablished(const NetworkConnectionPtr & netCon
 	std::unique_lock<std::mutex> interfaceLock;
 	if(ENGINE)
 		interfaceLock = std::unique_lock<std::mutex>(ENGINE->interfaceMutex);
+
+	if(getState() == EClientState::CONNECTION_CANCELLED && !isServerLocal())
+	{
+		logNetwork->info("Connection aborted by player!");
+		netConnection->close();
+		return;
+	}
 
 	networkConnection = netConnection;
 
@@ -1074,6 +1081,26 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	}
 
 	networkConnection.reset();
+}
+
+void CServerHandler::closeConnection()
+{
+	if(networkConnection)
+	{
+		networkConnection->close();
+		networkConnection.reset();
+	}
+	logicConnection.reset();
+}
+
+void CServerHandler::cancelConnection()
+{
+	setState(EClientState::CONNECTION_CANCELLED);
+	lobbyPreviewMode = false;
+
+	// connection to local server is shut down in onTimer, together with the server
+	if(!isServerLocal())
+		closeConnection();
 }
 
 void CServerHandler::waitForServerShutdown()

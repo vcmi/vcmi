@@ -278,6 +278,25 @@ TEST_F(UnitStateTest, getMaxDamage)
 	EXPECT_EQ(subject.getMaxDamage(true), 10);
 }
 
+TEST_F(UnitStateTest, damageNeverNegative)
+{
+	setDefaultExpectations();
+
+	// two reductions summing past -100% would otherwise give negative damage with min above max
+	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, 30, BonusSourceID(), BonusCustomSubtype::creatureDamageMin));
+	bonusMock.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, 50, BonusSourceID(), BonusCustomSubtype::creatureDamageMax));
+
+	for(int reduction : {-100, -15})
+	{
+		auto bonus = std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CREATURE_DAMAGE, BonusSource::SPELL_EFFECT, reduction, BonusSourceID(), BonusCustomSubtype::creatureDamageBoth);
+		bonus->valType = BonusValueType::PERCENT_TO_ALL;
+		bonusMock.addNewBonus(bonus);
+	}
+
+	EXPECT_EQ(subject.getMinDamage(false), 0);
+	EXPECT_EQ(subject.getMaxDamage(false), 0);
+}
+
 TEST_F(UnitStateTest, retaliationAfterBeingAttacked)
 {
 	setDefaultExpectations();
