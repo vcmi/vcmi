@@ -11,7 +11,7 @@
     <string name="notification_permission_title">Les notifications sont désactivées</string>
     <string name="notification_permission_denied">VCMI a besoin des permissions pour envoyer des notifications lorsque votre tour commence ou lorsque vous recevez un message dans le chat, lorsque que le jeu tourne en arrière plan. Sans ces permissions, le jeu continu de fonctionner, mais vous ne serez pas notifié.</string>
     <string name="notification_permission_settings">Options</string>
-    <string name="quit_message">Voulez-vous vraiment quitter la partie ? Les progressions non sauvegardées seront perdues.</string>
+    <string name="quit_message">Voulez-vous vraiment quitter la partie ? Les progressions non sauvegardées seront perdues.</string>
     <string name="data_folder_name">Données VCMI</string>
     <string name="shortcut_play">Lancer VCMI</string>
     <string name="shortcut_editor">Ouvrir l\'éditeur VCMI</string>

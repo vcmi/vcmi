@@ -1124,6 +1124,7 @@
 	"vcmi.server.errors.campOrMapFile.unknownEntity": "Datei konnte nicht geladen werden! Unbekannte Entität '%s' gefunden! Die Datei ist möglicherweise nicht mit der aktuell installierten Mod-Version kompatibel!",
 	"vcmi.server.errors.disconnected": "{Netzwerkfehler}\n\nDie Verbindung zum Spielserver wurde unterbrochen!",
 	"vcmi.server.errors.existingProcess": "Es läuft ein weiterer VCMI-Server-Prozess, bitte beendet diesen zuerst bevor ein neues Spiel gestartet wird.",
+	"vcmi.server.errors.incompatibleVersion": "{Inkompatible Version}\n\nDer Spielserver verwendet eine Version von VCMI, die mit Ihrer Version nicht kompatibel ist!",
 	"vcmi.server.errors.modsToDisable": "{Folgende Mods müssen deaktiviert werden}",
 	"vcmi.server.errors.modsToEnable": "{Erforderliche Mods um das Spiel zu laden}",
 	"vcmi.server.errors.notAllowed": "Ihr dürft diese Aktion nicht durchführen!",
