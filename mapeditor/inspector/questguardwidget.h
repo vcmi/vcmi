@@ -19,31 +19,27 @@ class QuestGuardWidget;
 }
 
 class MapController;
+class QuestWidget;
+class TextIdentifier;
 
 class QuestGuardWidget : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit QuestGuardWidget(MapController &, Quest &, QWidget *parent = nullptr);
+	explicit QuestGuardWidget(MapController &, QuestSource &, QWidget *parent = nullptr);
 	~QuestGuardWidget();
 	
 	void obtainData();
 	bool commitChanges();
 
-private slots:
-	void onTargetPicked(const CGObjectInstance *);
-	
-	void on_lKillTargetSelect_clicked();
-
-	void on_lCreatureAdd_clicked();
-
-	void on_lCreatureRemove_clicked();
-
 private:
-	void onCreatureAdd(QTableWidget * listWidget, QComboBox * comboWidget, QSpinBox * spinWidget);
-	
+
+	void setTranslation(MetaString & metastring, const TextIdentifier & identifier, const std::string & translation);
+
 	Quest & quest;
+	QuestSource & questGuard;
+	std::shared_ptr<QuestWidget> questWidget;
 	MapController & controller;
 	Ui::QuestGuardWidget *ui;
 };
@@ -54,17 +50,16 @@ class QuestGuardDelegate : public BaseInspectorItemDelegate
 public:
 	using BaseInspectorItemDelegate::BaseInspectorItemDelegate;
 	
-	QuestGuardDelegate(MapController &, Quest &);
+	QuestGuardDelegate(MapController &, QuestSource &);
 	
 	QWidget * createEditor(QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
 	void setEditorData(QWidget * editor, const QModelIndex & index) const override;
 	void setModelData(QWidget * editor, QAbstractItemModel * model, const QModelIndex & index) const override;
-	void updateModelData(QAbstractItemModel * model, const QModelIndex & index) const override;
 	
 protected:
 	bool eventFilter(QObject * object, QEvent * event) override;
 
 private:
-	Quest & quest;
+	QuestSource & questGuard;
 	MapController & controller;
 };
