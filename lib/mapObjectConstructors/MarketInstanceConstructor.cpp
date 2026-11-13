@@ -109,11 +109,8 @@ void MarketInstanceConstructor::randomizeObject(CGMarket * object, IGameRandomiz
 
 	if(auto * university = dynamic_cast<CGUniversity *>(object))
 	{
-		for (auto skillConfig : predefinedOffer.Vector())
-		{
-			const auto & skill = randomizer.loadSecondary(skillConfig, emptyVariables);
-			university->skills.push_back(skill);
-		}
+		for(const auto & skill : randomizer.loadSecondaries(predefinedOffer, emptyVariables))
+			university->skills.push_back(skill.first);
 	}
 }
 
