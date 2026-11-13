@@ -102,8 +102,12 @@ public:
 	{
 		if(commander)
 			return commander->getType()->getNameSingularTranslated();
-		else
-			return creature->getNamePluralTranslated();
+		if (stack)
+			return stack->getName();
+		if (stackNode)
+			return stackNode->getName();
+
+		return creature->getNamePluralTranslated();
 	}
 private:
 
