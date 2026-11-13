@@ -52,6 +52,13 @@
 		]
 	},
 
+	"faroese" : {
+		"skipValidation" : true,
+		"translations" : [
+			"config/translations/faroese.json"
+		]
+	},
+
 	"filipino" : {
 		"skipValidation" : true,
 		"translations" : [
