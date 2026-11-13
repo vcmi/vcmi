@@ -829,6 +829,14 @@ const CGHeroInstance * CGTownInstance::getGarrisonHero() const
 	return cb->getHero(garrisonHero);
 }
 
+bool CGTownInstance::canBeVisitedBy(PlayerColor player, BuildingID building) const
+{
+	if(getOwner() == player)
+		return true;
+
+	return getVisitingHero() && getVisitingHero()->getOwner() == player && rewardableBuildings.count(building);
+}
+
 bool CGTownInstance::armedGarrison() const
 {
 	return !stacks.empty() || getGarrisonHero();

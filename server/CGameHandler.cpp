@@ -2551,9 +2551,7 @@ bool CGameHandler::visitTownBuilding(ObjectInstanceID tid, BuildingID bid, Playe
 	if(!t->hasBuilt(bid))
 		return false;
 
-	// rewardable buildings interact only with visiting hero, everything else, e.g. bank, is owner-only
-	const bool alliedVisit = t->getVisitingHero() && t->getVisitingHero()->getOwner() == player && t->rewardableBuildings.count(bid);
-	if(t->getOwner() != player && !alliedVisit)
+	if(!t->canBeVisitedBy(player, bid))
 	{
 		complain("Can't visit building in town of another player!");
 		return false;

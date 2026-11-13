@@ -137,6 +137,8 @@ public:
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
 	const CGHeroInstance * getVisitingHero() const;
 	const CGHeroInstance * getGarrisonHero() const;
+	/// True if player may interact with this building: owner always, ally only with rewardable building via own visiting hero
+	bool canBeVisitedBy(PlayerColor player, BuildingID building) const;
 
 	std::string getNameTextID() const;
 
