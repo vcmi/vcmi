@@ -2879,7 +2879,7 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/questguardwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
-        <translation>Zabít hrdinu/příšeru</translation>
+        <translation>Zabít hrdinu/jednotku</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="197"/>
@@ -2914,7 +2914,7 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/questguardwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation>Zdroje</translation>
+        <translation>Suroviny</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="338"/>
@@ -3230,7 +3230,7 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="188"/>
         <source>Primary skills</source>
-        <translation>Hlavní dovednosti</translation>
+        <translation>Základní dovednosti</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="203"/>
@@ -3320,7 +3320,7 @@ Přidejte ji do povinných modifikací mapy v nabídce Mapa-&gt;Obecné nastaven
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="669"/>
         <source>Cast an adventure map spell</source>
-        <translation>Seslat kouzlo mapy světa</translation>
+        <translation>Seslat dobrodružné koulo</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="678"/>
