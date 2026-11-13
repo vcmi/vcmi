@@ -1,5 +1,5 @@
 {
-	"sand_shore": { "graphics" : "CMBKBCH.BMP" },
+	"sand_shore": { "graphics" : "CMBKBCH.BMP", "isSpecial" : true },
 	"sand_mesas": { "graphics" : "CMBKDES.BMP" },
 	"dirt_birches": { "graphics" : "CMBKDRTR.BMP" },
 	"dirt_hills": { "graphics" : "CMBKDRMT.BMP" },
