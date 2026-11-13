@@ -111,6 +111,10 @@ These are internal types that are generally not available for modding and are ha
 
 		// How valuable this object is to AI
 		"aiValue" : 1000,
+
+		// If set to true, hero can visit this object from tiles above its visitable tile
+		// Hero can always visit object from tiles to the left, right and below of visitable tile
+		"visitableFromTop" : false,
 		
 		// Battleground that will be used for combats in this object. Overrides terrain this object was placed on. If array is used battleground will choosen randomly
 		"battleground" : "cursed_ground",
@@ -168,9 +172,9 @@ These are internal types that are generally not available for modding and are ha
 		// Optional path to def file with animation of this object to use in map editor
 		"editorAnimation":"DEFNAME.def",
 
-		// Directions from which hero can visit this object.
-		// "+" means that object can be visited from that direction, or "-" othervice
-		// default not visitable
+		// DEPRECATED, use visitableFromTop of object type instead
+		// If object type has no visitableFromTop, it is visitable from top if top row of any of its templates contains "+"
+		// Other rows are ignored
 		"visitableFrom" : [
 			"---",
 			"+++",
@@ -182,7 +186,7 @@ These are internal types that are generally not available for modding and are ha
 		// V=visible, passable
 		// B=blocked, visible
 		// H=hidden - blocked, not visible tile
-		// A=activable, visible, passable depending on visitableFrom field
+		// A=activable, visible, passable depending on visitableFromTop field
 		// T=trigger - visiting the tile will trigger the object, tile is not visible (e.g. event)
 		//top and left leading zeros are optional and in fact ignored
 		//bottom, right corner of mask = bottom right corner of animation frame
