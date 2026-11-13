@@ -151,8 +151,7 @@ void Object::Instance::clear()
 
 bool Object::Instance::isVisitableFrom(const int3 & position) const
 {
-	auto relPosition = position - getPosition(true);
-	return dObject->appearance->isVisitableFrom(relPosition.x, relPosition.y);
+	return position.y >= getPosition(true).y || dObject->isVisitableFromTop();
 }
 
 bool Object::Instance::isBlockedVisitable() const
@@ -412,7 +411,7 @@ const Area & Object::getBorderAbove() const
 	{
 		for(const auto & instance : dInstances)
 		{
-			if (instance.isRemovable() || instance.object().appearance->isVisitableFromTop())
+			if (instance.isRemovable() || instance.object().isVisitableFromTop())
 				continue;
 			dBorderAboveCache.unite(instance.getBorderAbove());
 		}

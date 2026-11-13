@@ -663,12 +663,12 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				//Cannot be trespassed (Corpse)
 				continue;
 			}
-			else if(instance->object().appearance->isVisitableFromTop())
+			else if(instance->object().isVisitableFromTop())
 			{
 				//Passable objects
 				rp->areaForRoads().add(instance->getVisitablePosition());
 			}
-			else if(!instance->object().appearance->isVisitableFromTop())
+			else if(!instance->object().isVisitableFromTop())
 			{
 				// Do not route road behind visitable tile
 				auto borderAbove = instance->getBorderAbove();

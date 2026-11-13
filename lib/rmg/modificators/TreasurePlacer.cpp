@@ -741,12 +741,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 		if(!oi) //fail
 			break;
 		
-		bool visitableFromTop = true;
-		for(auto & t : oi->templates)
-			if(!t->isVisitableFromTop())
-				visitableFromTop = false;
-		
-		if(visitableFromTop)
+		if(isVisitableFromTop(oi->templates))
 		{
 			objectInfos.push_back(oi);
 		}
@@ -882,7 +877,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			auto instanceAccessibleArea = instance.getAccessibleArea();
 			if(instance.getBlockedArea().getTilesVector().size() == 1)
 			{
-				if(instance.object().appearance->isVisitableFromTop() && !instance.object().isBlockedVisitable())
+				if(instance.object().isVisitableFromTop() && !instance.object().isBlockedVisitable())
 					instanceAccessibleArea.add(instance.getVisitablePosition());
 			}
 			
@@ -900,6 +895,11 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 	return rmgObject;
 }
 
+bool TreasurePlacer::isVisitableFromTop(const std::vector<std::shared_ptr<const ObjectTemplate>> & templates)
+{
+	return std::ranges::all_of(templates, [](const auto & t){ return LIBRARY->objtypeh->getHandlerFor(t->id, t->subid).isVisitableFromTop(); });
+}
+
 ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects)
 {
 	std::vector<std::pair<ui32, ObjectInfo*>> thresholds; //handle complex object via pointer
@@ -914,12 +914,7 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 		if(oi.value > maxVal)
 			break; //this assumes values are sorted in ascending order
 		
-		bool visitableFromTop = true;
-		for(auto & t : oi.templates)
-			if(!t->isVisitableFromTop())
-				visitableFromTop = false;
-		
-		if(!visitableFromTop && !allowLargeObjects)
+		if(!isVisitableFromTop(oi.templates) && !allowLargeObjects)
 			continue;
 		
 		if(oi.value >= minValue && oi.maxPerZone > 0)

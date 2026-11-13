@@ -19,6 +19,10 @@
 		"aiValue" : {
 			"type" : "number"
 		},
+		"visitableFromTop" : {
+			"type" : "boolean",
+			"description" : "If set, hero can visit this object from tiles above its visitable tile"
+		},
 		"base" : {
 			"additionalProperties" : true, // Not validated on its own - instead data copied to main object and validated as part of it
 			"type" : "object"

@@ -511,6 +511,7 @@ void CObjectClassesHandler::generateExtraMonolithsForRMG(LibraryLoadContext & co
 		newPortal->subtype = portalVec.size(); //indexes must be unique, they are returned as a set
 		newPortal->blockVisit = portal->blockVisit;
 		newPortal->removable = portal->removable;
+		newPortal->visitableFromTop = portal->visitableFromTop;
 
 		portalVec.push_back(newPortal);
 

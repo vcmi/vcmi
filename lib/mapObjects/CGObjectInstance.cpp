@@ -385,6 +385,11 @@ bool CGObjectInstance::isVisitable() const
 	return appearance->isVisitable();
 }
 
+bool CGObjectInstance::isVisitableFromTop() const
+{
+	return getObjectHandler().isVisitableFromTop();
+}
+
 bool CGObjectInstance::isBlockedVisitable() const
 {
 	// TODO: Read from json
@@ -434,6 +439,14 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeInt("l", pos.z);
 		JsonNode app;
 		appearance->writeJson(app, false);
+		// older game versions read visitable directions from map templates
+		if(appearance->isVisitable())
+		{
+			JsonVector & visitableFrom = app["visitableFrom"].Vector();
+			visitableFrom.emplace_back(isVisitableFromTop() ? "+++" : "---");
+			visitableFrom.emplace_back("+-+");
+			visitableFrom.emplace_back("+++");
+		}
 		handler.serializeRaw("template", app, std::nullopt);
 	}
 

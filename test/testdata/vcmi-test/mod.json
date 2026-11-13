@@ -17,7 +17,29 @@
 			"name" : "Quest Gate",
 			"handler" : "questGate",
 			"types" : {
-				"object" : { }
+				"object" : { "visitableFromTop" : true }
+			}
+		},
+		// visitable from top-right only according to template made for older versions
+		"legacyVisitableFromTop" : {
+			"handler" : "generic",
+			"types" : {
+				"object" : {
+					"templates" : {
+						"normal" : { "animation" : "AVXbuoy0", "visitableFrom" : [ "--+", "+-+", "+++" ], "mask" : [ "VA" ] }
+					}
+				}
+			}
+		},
+		"explicitlyNotVisitableFromTop" : {
+			"handler" : "generic",
+			"types" : {
+				"object" : {
+					"visitableFromTop" : false,
+					"templates" : {
+						"normal" : { "animation" : "AVXbuoy0", "visitableFrom" : [ "+++", "+-+", "+++" ], "mask" : [ "VA" ] }
+					}
+				}
 			}
 		}
 	},

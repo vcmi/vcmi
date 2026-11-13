@@ -97,6 +97,8 @@ public:
 
 	/// If true hero can visit this object only from neighbouring tiles and can't stand on this object
 	virtual bool isBlockedVisitable() const;
+	/// returns true if hero can visit this object from tiles above its visitable tile
+	bool isVisitableFromTop() const;
 
 	// If true, can be possibly removed from the map
 	virtual bool isRemovable() const;
