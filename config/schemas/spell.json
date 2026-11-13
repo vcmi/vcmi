@@ -4,6 +4,91 @@
 	"title" : "VCMI spell format",
 	"description" : "Format used to define new spells in VCMI",
 	"definitions" : {
+		"targetConditionMode" : {
+			"type" : "string",
+			"enum" : [ "absolute", "normal" ],
+			"description" : "Normal conditions can be ignored by effects that negate immunities, absolute ones can not"
+		},
+		"targetCondition" : {
+			"anyOf" : [
+				{ "$ref" : "#/definitions/targetConditionMode" },
+				{
+					"type" : "object",
+					"required" : [ "type", "mode" ],
+					"properties" : {
+						"type" : { "type" : "string", "enum" : [ "bonus", "creature", "faction", "spell", "healthValueSpecial" ] },
+						"mode" : { "$ref" : "#/definitions/targetConditionMode" }
+					},
+					"allOf" : [
+						{
+							"if" : { "properties" : { "type" : { "const" : "bonus" } } },
+							"then" : {
+								"additionalProperties" : false,
+								"required" : [ "bonusType" ],
+								"properties" : {
+									"type" : {},
+									"mode" : {},
+									"bonusType" : { "type" : "string" },
+									"bonusSubtype" : { "type" : "string" },
+									"bonusSourceType" : { "type" : "string" },
+									"bonusSourceID" : { "type" : "string" },
+									"bonusSourceSecondaryID" : { "anyOf" : [ { "enum" : [ "NONE", "BASIC", "ADVANCED", "EXPERT" ] }, { "type" : "number" } ] },
+									"bonusMinValue" : { "type" : "number" },
+									"bonusMaxValue" : { "type" : "number" }
+								}
+							}
+						},
+						{
+							"if" : { "properties" : { "type" : { "const" : "creature" } } },
+							"then" : {
+								"additionalProperties" : false,
+								"required" : [ "creature" ],
+								"properties" : {
+									"type" : {},
+									"mode" : {},
+									"creature" : { "type" : "string" },
+									"includeUpgrades" : { "type" : "boolean" }
+								}
+							}
+						},
+						{
+							"if" : { "properties" : { "type" : { "const" : "faction" } } },
+							"then" : {
+								"additionalProperties" : false,
+								"required" : [ "faction" ],
+								"properties" : {
+									"type" : {},
+									"mode" : {},
+									"faction" : { "type" : "string" }
+								}
+							}
+						},
+						{
+							"if" : { "properties" : { "type" : { "const" : "spell" } } },
+							"then" : {
+								"additionalProperties" : false,
+								"required" : [ "spell" ],
+								"properties" : {
+									"type" : {},
+									"mode" : {},
+									"spell" : { "type" : "string" }
+								}
+							}
+						},
+						{
+							"if" : { "properties" : { "type" : { "const" : "healthValueSpecial" } } },
+							"then" : {
+								"additionalProperties" : false,
+								"properties" : {
+									"type" : {},
+									"mode" : {}
+								}
+							}
+						}
+					]
+				}
+			]
+		},
 		"animationQueue" : {
 			"type" : "array",
 			"items" : {
@@ -456,9 +541,9 @@
 			"type" : "object",
 			"additionalProperties" : false,
 			"properties" : {
-				"noneOf" : { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } },
-				"anyOf" :  { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } },
-				"allOf" :  { "type" : "object", "additionalProperties" : { "type" : "string", "enum" : [ "absolute", "normal" ] } }
+				"noneOf" : { "type" : "object", "additionalProperties" : { "$ref" : "#/definitions/targetCondition" } },
+				"anyOf" :  { "type" : "object", "additionalProperties" : { "$ref" : "#/definitions/targetCondition" } },
+				"allOf" :  { "type" : "object", "additionalProperties" : { "$ref" : "#/definitions/targetCondition" } }
 			}
 		},
 		"animation" : {"$ref" : "#/definitions/animation"},

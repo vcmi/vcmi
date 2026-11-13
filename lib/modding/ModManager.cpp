@@ -16,6 +16,7 @@
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
 #include "../json/JsonNode.h"
+#include "../CConfigHandler.h"
 #include "../texts/Languages.h"
 
 static std::string getModDirectory(const TModID & modName)
@@ -521,8 +522,9 @@ ModManager::ModManager(const JsonNode & repositoryList, bool useTestPreset, cons
 	syncDemoModState();
 
 	// resolved together with active mods, so that mods that depend on new mods are not disabled as broken
+	const auto installedValidMods = getInstalledValidMods();
 	for(const auto & modID : newMods)
-		if(vstd::contains(getInstalledValidMods(), modID))
+		if(vstd::contains(installedValidMods, modID))
 			modsPreset->setModActive(modID, true);
 
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
@@ -760,9 +762,10 @@ void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
 	const auto & newActiveMods = testResolver.getActiveMods();
 	const auto & newBrokenMods = testResolver.getBrokenMods();
 
+	[[maybe_unused]] const auto installedValidMods = getInstalledValidMods();
 	for (const auto & modID : newActiveMods)
 	{
-		assert(vstd::contains(getInstalledValidMods(), modID));
+		assert(vstd::contains(installedValidMods, modID));
 		modsPreset->setModActive(modID, true);
 	}
 
@@ -776,18 +779,21 @@ void ModManager::updatePreset(const ModDependenciesResolver & testResolver)
 	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
 
 	// Try to enable all existing compatibility patches. Ignore on failure
-	for (const auto & rootMod : modsPreset->getActiveRootMods())
+	if (!settings["session"]["disableCompatibilityAutoEnable"].Bool())
 	{
-		for (const auto & modSetting : modsPreset->getModSettings(rootMod))
+		for (const auto & rootMod : modsPreset->getActiveRootMods())
 		{
-			if (modSetting.second)
-				continue;
+			for (const auto & modSetting : modsPreset->getModSettings(rootMod))
+			{
+				if (modSetting.second)
+					continue;
 
-			TModID fullModID = rootMod + '.' + modSetting.first;
-			const auto & modDescription = modsStorage->getMod(fullModID);
+				TModID fullModID = rootMod + '.' + modSetting.first;
+				const auto & modDescription = modsStorage->getMod(fullModID);
 
-			if (modDescription.isCompatibility())
-				desiredModList.push_back(fullModID);
+				if (modDescription.isCompatibility())
+					desiredModList.push_back(fullModID);
+			}
 		}
 	}
 

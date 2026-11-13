@@ -110,7 +110,7 @@
 			"fearless" :
 			{
 				"type" : "FEARFUL",
-				"valueType" : "INDEPENDENT_MIN",
+				"valueType" : "AT_MOST",
 				"description" : "PLACEHOLDER",
 				"val" : 0
 
@@ -533,7 +533,7 @@
 			{
 				"type" : "LUCK",
 				"val" : 1,
-				"valueType" : "INDEPENDENT_MAX",
+				"valueType" : "AT_LEAST",
 				"description" : "PLACEHOLDER"
 			}
 		 },
@@ -674,7 +674,7 @@
 				"type" : "VISIONS",
 				"subtype" : "visionsMonsters",
 				"val" : 3,
-				"valueType" : "INDEPENDENT_MAX",
+				"valueType" : "AT_LEAST",
 				"propagator" : "HERO",
 				"description" : "PLACEHOLDER"
 			},
@@ -683,7 +683,7 @@
 				"type" : "VISIONS",
 				"subtype" : "visionsHeroes",
 				"val" : 3,
-				"valueType" : "INDEPENDENT_MAX",
+				"valueType" : "AT_LEAST",
 				"propagator" : "HERO",
 				"description" : "PLACEHOLDER"
 			},
@@ -692,7 +692,7 @@
 				"type" : "VISIONS",
 				"subtype" : "visionsTowns",
 				"val" : 3,
-				"valueType" : "INDEPENDENT_MAX",
+				"valueType" : "AT_LEAST",
 				"propagator" : "HERO",
 				"description" : "PLACEHOLDER"
 			}

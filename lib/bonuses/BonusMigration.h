@@ -35,4 +35,7 @@ void warnIfRetired(const JsonNode & ability, const TextIdentifier & descriptionI
 
 /// Logs a warning, once per mod, for bonus types that still work but have a better replacement.
 void warnIfDeprecated(const JsonNode & ability);
+
+/// Name of the combat script that replaced this retired bonus type, or empty view if there is none
+std::string_view retiredAbilityScript(const std::string & bonusType);
 }

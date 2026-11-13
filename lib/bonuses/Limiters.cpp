@@ -149,7 +149,7 @@ HasAnotherBonusLimiter::HasAnotherBonusLimiter(BonusType bonus, BonusSubtypeID _
 {
 }
 
-ILimiter::EDecision HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
+CSelector HasAnotherBonusLimiter::getSelector() const
 {
 	boost::container::static_vector<CSelector, 4> selectorSegments;
 
@@ -167,11 +167,22 @@ ILimiter::EDecision HasAnotherBonusLimiter::limit(const BonusLimitationContext &
 	for (size_t i = 1; i <selectorSegments.size(); ++i)
 		mySelector = mySelector.And(selectorSegments[i]);
 
+	return mySelector;
+}
+
+bool HasAnotherBonusLimiter::hasValueRange() const
+{
+	return minValue != std::numeric_limits<int32_t>::min() || maxValue != std::numeric_limits<int32_t>::max();
+}
+
+ILimiter::EDecision HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
+{
+	auto mySelector = getSelector();
+
 	//if we have a bonus of required type accepted, limiter should accept also this bonus
 	if(context.alreadyAccepted.getFirst(mySelector))
 	{
-		if ( minValue == std::numeric_limits<int32_t>::min() &&
-			 maxValue == std::numeric_limits<int32_t>::max())
+		if(!hasValueRange())
 			return ILimiter::EDecision::ACCEPT;
 
 		// can't determine final bonus value yet

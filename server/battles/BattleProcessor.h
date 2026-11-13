@@ -22,6 +22,7 @@ class CBattleInfoCallback;
 struct BattleResult;
 struct BattleLayout;
 struct BattleStackAttacked;
+struct BattleUnitsChanged;
 class BattleID;
 
 namespace battle
@@ -92,8 +93,10 @@ public:
 	void spellHasHit(const CBattleInfoCallback & battle, const spells::Spell & spell, const battle::Unit * casterUnit, const std::vector<std::shared_ptr<const battle::CUnitState>> & unitsBefore);
 	/// Queues UNIT_DEATH events from the given casualties
 	void noteDeaths(const CBattleInfoCallback & battle, const std::vector<BattleStackAttacked> & casualties);
-	/// Dispatches queued UNIT_DEATH events outside a battle action
-	void flushPendingDeaths(const CBattleInfoCallback & battle);
+	/// Queues BATTLE_SETUP for units added by the given change
+	void noteSpawns(const CBattleInfoCallback & battle, const BattleUnitsChanged & changes);
+	/// Dispatches queued BATTLE_SETUP and UNIT_DEATH events outside a battle action
+	void flushPendingEvents(const CBattleInfoCallback & battle);
 	/// Kills the opposing army and resolves the current battle in player's favor
 	void cheatBattleVictory(PlayerColor player);
 

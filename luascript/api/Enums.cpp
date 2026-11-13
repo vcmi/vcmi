@@ -212,8 +212,8 @@ EnumGroup<BonusValueType> Enums::exportBonusValueType() const
 		{ "percentToBase",        BonusValueType::PERCENT_TO_BASE,        "Percentage applied to the base value only." },
 		{ "percentToSource",      BonusValueType::PERCENT_TO_SOURCE,      "Percentage applied to the same-source subtotal." },
 		{ "percentToTargetType",  BonusValueType::PERCENT_TO_TARGET_TYPE, "Percentage applied only to bonuses from a matching targetSourceType." },
-		{ "independentMax",       BonusValueType::INDEPENDENT_MAX,        "Independent ceiling — wins if greater than the accumulated value." },
-		{ "independentMin",       BonusValueType::INDEPENDENT_MIN,        "Independent floor — wins if smaller than the accumulated value." },
+		{ "independentMax",       BonusValueType::INDEPENDENT_MAX,        "Lower bound, AT_LEAST in json — total value is at least the highest of such bonuses." },
+		{ "independentMin",       BonusValueType::INDEPENDENT_MIN,        "Upper bound, AT_MOST in json — total value is at most the lowest of such bonuses." },
 	}};
 }
 

@@ -86,7 +86,7 @@
 							"poison" : {
 								"val" : 30,
 								"type" : "POISON",
-								"valueType" : "INDEPENDENT_MAX",
+								"valueType" : "AT_LEAST",
 								"duration" : "N_TURNS"
 							},
 							"stackHealth" : {

@@ -11,8 +11,13 @@
 
 #include "BattleTestFixture.h"
 
+#include "../../../server/CGameHandler.h"
+#include "../../../server/battles/BattleProcessor.h"
 #include "../../../lib/GameLibrary.h"
 #include "../../../lib/CCreatureHandler.h"
+#include "../../../lib/battle/BattleInfo.h"
+#include "../../../lib/networkPacks/PacksForClientBattle.h"
+#include <vcmi/ServerCallback.h>
 
 namespace
 {
@@ -105,4 +110,36 @@ TEST_F(BallistaDamageTest, TheShownDamageIsTheDamageItDeals)
 
 	EXPECT_EQ(estimate.damage.min, ballista->getMinDamage(true));
 	EXPECT_EQ(estimate.damage.max, ballista->getMaxDamage(true));
+}
+
+/// Verifies that a war machine summoned mid-battle receives the same scaling as one present from the start
+TEST_F(BallistaDamageTest, SummonedBallistaScalesToo)
+{
+	constexpr int heroAttack = 7;
+
+	startGame();
+	attackerSideHero->setPrimarySkill(PrimarySkill::ATTACK, heroAttack, ChangeValueMode::ABSOLUTE);
+	startBattle();
+	beginCombat();
+
+	battle::UnitInfo info;
+	info.id = battle()->battleNextUnitId();
+	info.count = 1;
+	info.type = CreatureID::BALLISTA;
+	info.side = BattleSide::ATTACKER;
+	info.position = BattleHex(leftHex);
+	info.summoned = true;
+
+	BattleUnitsChanged pack;
+	pack.battleID = BattleID(0);
+	pack.changedStacks.emplace_back(info.id, UnitChanges::EOperation::ADD);
+	info.save(pack.changedStacks.back().data);
+	gameHandler->spellcastEnvironment()->apply(pack);
+	gameHandler->battles->flushPendingEvents(*battle());
+
+	const CStack * ballista = battle()->getStack(info.id);
+	ASSERT_NE(ballista, nullptr);
+
+	EXPECT_EQ(ballista->getMinDamage(true), baseDamage(false) * (heroAttack + 1));
+	EXPECT_EQ(ballista->getMaxDamage(true), baseDamage(true) * (heroAttack + 1));
 }

@@ -48,6 +48,68 @@ TEST_F(BonusConditionTest, ReceptiveIfMatchesType)
 	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
+class BonusConditionFromJsonTest : public BonusConditionTest
+{
+public:
+	void SetUp() override
+	{
+		TargetConditionItemTest::SetUp();
+	}
+
+	void createSubject(int32_t minValue, int32_t maxValue)
+	{
+		JsonNode config;
+		config["type"].String() = "bonus";
+		config["mode"].String() = "normal";
+		config["bonusType"].String() = "SPELL_SCHOOL_IMMUNITY";
+		config["bonusSubtype"].String() = "fire";
+		if(minValue != std::numeric_limits<int32_t>::min())
+			config["bonusMinValue"].Integer() = minValue;
+		if(maxValue != std::numeric_limits<int32_t>::max())
+			config["bonusMaxValue"].Integer() = maxValue;
+		config.setModScope("game");
+
+		subject = TargetConditionItemFactory::create(*LIBRARY->identifiers())->createFromJson(config);
+		GTEST_ASSERT_NE(subject, nullptr);
+	}
+
+	void addImmunity(SpellSchool school, int value)
+	{
+		unitBonuses.addNewBonus(std::make_shared<Bonus>(BonusDuration::ONE_BATTLE, BonusType::SPELL_SCHOOL_IMMUNITY, BonusSource::OTHER, value, BonusSourceID(), BonusSubtypeID(school)));
+	}
+};
+
+TEST_F(BonusConditionFromJsonTest, ReceptiveIfMatchesSubtype)
+{
+	createSubject(std::numeric_limits<int32_t>::min(), std::numeric_limits<int32_t>::max());
+	setDefaultExpectations();
+	addImmunity(SpellSchool::FIRE, 0);
+	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
+}
+
+TEST_F(BonusConditionFromJsonTest, ImmuneIfSubtypeMismatch)
+{
+	createSubject(std::numeric_limits<int32_t>::min(), std::numeric_limits<int32_t>::max());
+	setDefaultExpectations();
+	addImmunity(SpellSchool::WATER, 0);
+	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
+}
+
+TEST_F(BonusConditionFromJsonTest, ChecksTotalValueOfMatchingBonuses)
+{
+	createSubject(5, 10);
+	setDefaultExpectations();
+	addImmunity(SpellSchool::FIRE, 3);
+	addImmunity(SpellSchool::WATER, 3);
+	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
+
+	addImmunity(SpellSchool::FIRE, 3);
+	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
+
+	addImmunity(SpellSchool::FIRE, 5);
+	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
+}
+
 TEST_F(BonusConditionTest, ImmuneIfTypeMismatch)
 {
 	setDefaultExpectations();

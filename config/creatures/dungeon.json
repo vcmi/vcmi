@@ -331,7 +331,7 @@
 			{
 				"type" : "MORALE",
 				"val" : 1,
-				"valueType" : "INDEPENDENT_MAX"
+				"valueType" : "AT_LEAST"
 			}
 		 },
 		"upgrades": ["minotaurKing"],
@@ -361,7 +361,7 @@
 			{
 				"type" : "MORALE",
 				"val" : 1,
-				"valueType" : "INDEPENDENT_MAX"
+				"valueType" : "AT_LEAST"
 			}
 		 },
 		"graphics" :

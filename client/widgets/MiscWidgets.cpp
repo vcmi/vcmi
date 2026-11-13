@@ -622,16 +622,17 @@ void MoraleLuckBox::set(const AFactionMember * node)
 	description.replaceTextID("core.arraytxt", neutralDescr[morale] - mrlt);
 	text = description.toString(&GAME->translator());
 
-	if (morale && node && node->unaffectedByMorale())
-	{
-		text += LIBRARY->generaltexth->translate("core.arraytxt.113"); //unaffected by morale
-		component.value = 0;
-	}
-	else if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
+	// checked before unaffectedByMorale, which includes NO_MORALE, to show what blocks morale, e.g. Cursed Ground
+	if(morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_MORALE))
 	{
 		auto noMorale = node->getBonusBearer()->getBonus(Selector::type()(BonusType::NO_MORALE));
 		if(GAME->interface())
 			text += "\n" + noMorale->Description(GAME->interface()->cb.get());
+		component.value = 0;
+	}
+	else if (morale && node && node->unaffectedByMorale())
+	{
+		text += LIBRARY->generaltexth->translate("core.arraytxt.113"); //unaffected by morale
 		component.value = 0;
 	}
 	else if (!morale && node && node->getBonusBearer()->hasBonusOfType(BonusType::NO_LUCK))

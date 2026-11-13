@@ -1085,7 +1085,7 @@
 			"fly" : {
 				"type" : "FLYING_MOVEMENT",
 				"val" : 0,
-				"valueType" : "INDEPENDENT_MIN"
+				"valueType" : "AT_MOST"
 			}
 		},
 		"index" : 72,
@@ -1223,7 +1223,7 @@
 			"magicBlock" : {
 				"type" : "BLOCK_MAGIC_ABOVE",
 				"val" : 2,
-				"valueType" : "INDEPENDENT_MIN",
+				"valueType" : "AT_MOST",
 				"propagator": "BATTLE_WIDE"
 			}
 		}
@@ -1234,7 +1234,7 @@
 			"moraleBlock" : {
 				"type" : "MORALE",
 				"val" : 0,
-				"valueType" : "INDEPENDENT_MIN",
+				"valueType" : "AT_MOST",
 				"propagator": "BATTLE_WIDE"
 			}
 		},
@@ -1247,7 +1247,7 @@
 			"luckBlock" : {
 				"type" : "LUCK",
 				"val" : 0,
-				"valueType" : "INDEPENDENT_MIN",
+				"valueType" : "AT_MOST",
 				"propagator": "BATTLE_WIDE"
 			}
 		},
@@ -1313,7 +1313,7 @@
 			"waterWalking" : {
 				"type" : "WATER_WALKING",
 				"val" : 0,
-				"valueType" : "INDEPENDENT_MIN"
+				"valueType" : "AT_MOST"
 			}
 		},
 		"index" : 90,
@@ -1375,13 +1375,13 @@
 				"type" : "MAGIC_RESISTANCE",
 				"val" : 0,
 				"description" : "PLACEHOLDER",
-				"valueType" : "INDEPENDENT_MIN",
+				"valueType" : "AT_MOST",
 				"propagator": "BATTLE_WIDE"
 			},
 			"noResistanceAura" : {
 				"type" : "SPELL_RESISTANCE_AURA",
 				"val" : 0,
-				"valueType" : "INDEPENDENT_MIN",
+				"valueType" : "AT_MOST",
 				"description" : "@artifact.core.orbOfVulnerability.bonus.noResistance",
 				"propagator": "BATTLE_WIDE"
 			}
@@ -1791,13 +1791,13 @@
 				"subtype" : "summonBoat",
 				"type" : "SPELL",
 				"val" : 3,
-				"valueType" : "INDEPENDENT_MAX"
+				"valueType" : "AT_LEAST"
 			},
 			"scuttleBoat" : {
 				"subtype" : "scuttleBoat",
 				"type" : "SPELL",
 				"val" : 3,
-				"valueType" : "INDEPENDENT_MAX"
+				"valueType" : "AT_LEAST"
 			}
 		},
 		"index" : 123,
@@ -1873,7 +1873,7 @@
 				"subtype" : "armageddon",
 				"type" : "SPELL",
 				"val" : 3,
-				"valueType" : "INDEPENDENT_MAX"
+				"valueType" : "AT_LEAST"
 			},
 			"immnunity" : {
 				"subtype" : "armageddon",
@@ -2084,7 +2084,7 @@
 			"immunity" : {
 				"type" : "LEVEL_SPELL_IMMUNITY",
 				"val" : 4,
-				"valueType" : "INDEPENDENT_MAX"
+				"valueType" : "AT_LEAST"
 			},
 			"attack" : {
 				"subtype" : "attack",

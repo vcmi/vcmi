@@ -13,10 +13,17 @@ newVal = (val * (100 + PERCENT_TO_SOURCE) / 100))
 - All bonus value types summarized and then used as subject of the following formula:
 
 ```text
-clamp(((BASE_NUMBER * (100 + PERCENT_TO_BASE) / 100) + ADDITIVE_VALUE) * (100 + PERCENT_TO_ALL) / 100), INDEPENDENT_MAX, INDEPENDENT_MIN)
+clamp(((BASE_NUMBER * (100 + PERCENT_TO_BASE) / 100) + ADDITIVE_VALUE) * (100 + PERCENT_TO_ALL) / 100), AT_LEAST, AT_MOST)
 ```
 
-Semantics of INDEPENDENT_MAX and INDEPENDENT_MIN are wrapped, and first means than bonus total value will be at least INDEPENDENT_MAX, and second means than bonus value will be at most INDEPENDENT_MIN.
+AT_LEAST means that total value will be at least the highest of such bonuses. AT_MOST means that total value will be at most the lowest of such bonuses. If these bounds conflict, AT_MOST takes priority.
+
+INDEPENDENT_MAX and INDEPENDENT_MIN are older names of AT_LEAST and AT_MOST respectively. They are still supported, but new content should use AT_LEAST and AT_MOST instead.
+
+If there are no other bonuses to clamp:
+
+- with only AT_LEAST or only AT_MOST bonuses, total value is equal to that bound
+- with both AT_LEAST and AT_MOST bonuses, total value is the middle of the range between them, rounded towards AT_LEAST
 
 ## List of all bonus value types
 
@@ -24,7 +31,7 @@ Semantics of INDEPENDENT_MAX and INDEPENDENT_MIN are wrapped, and first means th
 - BASE_NUMBER
 - PERCENT_TO_ALL
 - PERCENT_TO_BASE
-- INDEPENDENT_MAX
-- INDEPENDENT_MIN
+- AT_LEAST (older name: INDEPENDENT_MAX, should be avoided)
+- AT_MOST (older name: INDEPENDENT_MIN, should be avoided)
 - PERCENT_TO_SOURCE
 - PERCENT_TO_TARGET_TYPE

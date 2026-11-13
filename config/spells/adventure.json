@@ -86,7 +86,7 @@
 							"subtype" : "visionsMonsters",
 							"duration" : "ONE_DAY",
 							"val" : 1,
-							"valueType" : "INDEPENDENT_MAX"
+							"valueType" : "AT_LEAST"
 						}
 					}
 				}
@@ -102,7 +102,7 @@
 							"subtype" : "visionsHeroes",
 							"duration" : "ONE_DAY",
 							"val" : 2,
-							"valueType" : "INDEPENDENT_MAX"
+							"valueType" : "AT_LEAST"
 						}
 					}
 				}
@@ -118,14 +118,14 @@
 							"subtype" : "visionsHeroes",
 							"duration" : "ONE_DAY",
 							"val" : 3,
-							"valueType" : "INDEPENDENT_MAX"
+							"valueType" : "AT_LEAST"
 						},
 						"visionsTowns" :{
 							"type" : "VISIONS",
 							"subtype" : "visionsTowns",
 							"duration" : "ONE_DAY",
 							"val" : 3,
-							"valueType" : "INDEPENDENT_MAX"
+							"valueType" : "AT_LEAST"
 						}
 					}
 				}
@@ -195,7 +195,7 @@
 							"type" : "DISGUISED",
 							"duration" : "ONE_DAY",
 							"val" : 1,
-							"valueType" : "INDEPENDENT_MAX"
+							"valueType" : "AT_LEAST"
 						}
 					}
 				}
@@ -281,7 +281,7 @@
 							"type" : "FLYING_MOVEMENT",
 							"duration" : "ONE_DAY",
 							"val" : 40,
-							"valueType" : "INDEPENDENT_MIN"
+							"valueType" : "AT_MOST"
 						}
 					}
 				}
@@ -329,7 +329,7 @@
 							"type" : "WATER_WALKING",
 							"duration" : "ONE_DAY",
 							"val" : 40,
-							"valueType" : "INDEPENDENT_MIN"
+							"valueType" : "AT_MOST"
 						}
 					}
 				}

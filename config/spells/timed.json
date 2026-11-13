@@ -439,7 +439,7 @@
 							"levelSpellImmunity" : {
 								"val" : 3,
 								"type" : "LEVEL_SPELL_IMMUNITY",
-								"valueType" : "INDEPENDENT_MAX",
+								"valueType" : "AT_LEAST",
 								"duration" : "N_TURNS"
 							}
 						}
@@ -503,7 +503,7 @@
 						"bonus" : {
 							"spellReflect" : {
 								"type" : "MAGIC_MIRROR",
-								"valueType" : "INDEPENDENT_MAX",
+								"valueType" : "AT_LEAST",
 								"duration" : "N_TURNS",
 								"val" : 20
 							}
@@ -563,7 +563,7 @@
 							"alwaysMaximumDamage" : {
 								"val" : 0,
 								"type" : "ALWAYS_MAXIMUM_DAMAGE",
-								"valueType" : "INDEPENDENT_MAX",
+								"valueType" : "AT_LEAST",
 								"duration" : "N_TURNS"
 							}
 						}
@@ -636,7 +636,7 @@
 							"alwaysMinimumDamage" : {
 								"val" : 0,
 								"type" : "ALWAYS_MINIMUM_DAMAGE",
-								"valueType" : "INDEPENDENT_MAX",
+								"valueType" : "AT_LEAST",
 								"duration" : "N_TURNS"
 							}
 						}

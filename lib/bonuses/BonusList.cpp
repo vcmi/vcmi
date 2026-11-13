@@ -162,6 +162,10 @@ int BonusList::totalValue(int baseValue) const
 	if(notIndepBonuses)
 		return std::clamp(valFirst, accumulated.indepMax, accumulated.indepMin);
 
+	// range without any value to clamp - pick its middle, rounded towards lower bound
+	if (indexMinCount && indexMaxCount)
+		return std::midpoint(accumulated.indepMax, accumulated.indepMin);
+
 	if (indexMinCount)
 		return accumulated.indepMin;
 
