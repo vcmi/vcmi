@@ -243,31 +243,31 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="574"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="573"/>
         <source>Uninstall</source>
         <translation>卸载</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="564"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="563"/>
         <source>Enable</source>
         <translation>激活</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="559"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="558"/>
         <source>Disable</source>
         <translation>禁用</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="579"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="578"/>
         <source>Update</source>
         <translation>更新</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="569"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="568"/>
         <source>Install</source>
         <translation>安装</translation>
     </message>
@@ -287,14 +287,14 @@
         <translation>终止</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="358"/>
         <source>Installed version</source>
         <translation>已安装的版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>Latest version</source>
         <translation>最新版本</translation>
     </message>
@@ -303,33 +303,33 @@
         <translation type="vanished">大小</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="370"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>Download size</source>
         <translation>下载大小</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="372"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>Authors</source>
         <translation>作者</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="375"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="374"/>
         <source>License</source>
         <translation>授权许可</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="378"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="377"/>
         <source>Contact</source>
         <translation>联系方式</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
         <source>Compatibility</source>
         <translation>兼容性</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <source>Required VCMI version</source>
         <translation>需要VCMI版本</translation>
     </message>
@@ -342,9 +342,9 @@
         <translation type="vanished">请更新模组</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="217"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1201"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1206"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="216"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1200"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1205"/>
         <source>mods repository index</source>
         <translation>模组源索引</translation>
     </message>
@@ -361,8 +361,8 @@
         <translation type="vanished">或更新的版本</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>Supported VCMI versions</source>
         <translation>支持的VCMI版本</translation>
     </message>
@@ -371,12 +371,12 @@
         <translation type="vanished">语言</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="429"/>
         <source>Required mods</source>
         <translation>前置模组</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="431"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Conflicting mods</source>
         <translation>冲突的模组</translation>
     </message>
@@ -397,49 +397,49 @@
         <translation type="vanished">这是一个子模组，无法脱离所属模组单独安装或卸载</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="458"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="457"/>
         <source>Notes</source>
         <translation>注释</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="541"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Context menu</source>
         <translation>右键菜单</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="584"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="583"/>
         <source>Open directory</source>
         <translation>打开目录</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="589"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="588"/>
         <source>Open repository</source>
         <translation>打开源</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="885"/>
         <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
         <translation>
             <numerusform>正在下载 %n 个模组，已完成 %p%（%v MB / %m MB）</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="888"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="887"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>正在下载 %1. %p% (%v MB 共 %m MB) 已完成</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="923"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="922"/>
         <source>Extracting content.zip (%1/%2) for %3</source>
         <translation>正在解压%3的content.zip(%1/%2)</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="929"/>
         <source>Download failed</source>
         <translation>下载失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -460,7 +460,7 @@ Install successfully downloaded?</source>
 安装下载成功的部分？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1165"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
@@ -469,69 +469,69 @@ Please report this issue to developers</source>
 请将这个问题反馈给开发者</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1284"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1283"/>
         <source>Installing Heroes Chronicles</source>
         <translation>安装历代记</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1315"/>
         <source>Extracting error!</source>
         <translation>提取错误！</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1317"/>
         <source>Invalid file selected</source>
         <translation>所选的文件无效</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1317"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
         <translation>您必须选择一个历代记安装文件！</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1450"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1449"/>
         <source>Save exists</source>
         <translation>存档已存在</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1451"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1450"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>存档“ %1”已存在，你要覆盖它吗？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1470"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
         <translation>从%1导入存档失败。
 原因：%2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1483"/>
         <source>Success</source>
         <translation>成功</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1483"/>
         <source>Imported %1 save files</source>
         <translation>已导入 %1 个存档文件</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1522"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1521"/>
         <source>Installing mod %1</source>
         <translation>正在安装模组 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1553"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1552"/>
         <source>%1 requires: %2</source>
         <translation>%1 需求：%2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1556"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1555"/>
         <source>Failed to enable mod</source>
         <translation>启用模组失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1557"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1556"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
@@ -540,12 +540,12 @@ Reason: %2</source>
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1570"/>
         <source>Mods disabled</source>
         <translation>模组已关闭</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1572"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
@@ -554,143 +554,143 @@ Reason: %2</source>
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1660"/>
         <source>Map exists</source>
         <translation>地图已存在</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1660"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>地图 &apos;%1&apos; 已存在。要覆盖吗？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1072"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1071"/>
         <source>Yes to All</source>
         <translation>全部是</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1073"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1072"/>
         <source>No to All</source>
         <translation>全部否</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1679"/>
         <source>Import complete</source>
         <translation>导入完成</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1679"/>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>已成功导入 %1 张地图。</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1815"/>
         <source>Uninstall mod</source>
         <translation>卸载模组</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1815"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation>你确定要卸载%1？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1165"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1470"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1682"/>
         <source>Import failed</source>
         <translation>导入失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="364"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
         <source>Last updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="367"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="366"/>
         <source>Installed size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
         <source>GitHub repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>GitHub stars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
         <source>Not compatible with this VCMI version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <source>%1 or newer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="397"/>
         <source>up to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>%1 - %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="412"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>%1, complete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="414"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="413"/>
         <source>%1, %2% translated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="416"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="415"/>
         <source>%1, available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="418"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="417"/>
         <source>Translation</source>
         <translation type="unfinished">本地化</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="432"/>
         <source>This translation cannot be enabled because it is for a different language than the one selected in settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
         <source>This mod cannot be enabled because these required mods are missing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
         <source>This mod cannot be installed because these required mods are missing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="436"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
         <source>This is a submod. It cannot be installed or uninstalled separately from its parent mod.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="452"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="451"/>
         <source>This mod failed automatic validation and may not work correctly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="932"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
         <source>
 
 Process successfully downloaded files?</source>
@@ -699,7 +699,7 @@ Process successfully downloaded files?</source>
 是否处理已成功下载的文件？</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1010"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1009"/>
         <source>VCMI could not confirm that it is connected to the real download server.
 
 This usually happens on older systems, such as Windows 7, that are missing recent security updates.
@@ -716,36 +716,36 @@ Do you want to turn off this check and try again? You can turn it back on at any
 是否要关闭此项检查并重试？你可以随时在启动器设置中通过关闭“忽略SSL错误”选项重新启用此项检查。</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1017"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1016"/>
         <source>Unable to verify download server</source>
         <translation>无法验证下载服务器</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1682"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>无法导入以下地图：
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1713"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1712"/>
         <source>Operation failed</source>
         <translation>操作失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1714"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1713"/>
         <source>Encountered errors:
 </source>
         <translation>遇到问题：
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1766"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>screenshots</source>
         <translation>截图</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1772"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1771"/>
         <source>Screenshot %1</source>
         <translation>截图 %1</translation>
     </message>
@@ -758,7 +758,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
     <name>CSettingsView</name>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="129"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="130"/>
         <source>Off</source>
         <translation>关闭</translation>
     </message>
@@ -773,7 +773,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation>界面缩放</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1362"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1391"/>
         <source>Neutral AI in battles</source>
         <translation>战场中立生物AI</translation>
     </message>
@@ -803,7 +803,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation>在线大厅端口</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1227"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
         <source>Autocombat AI in battles</source>
         <translation>自动战斗AI</translation>
     </message>
@@ -813,7 +813,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation>摇杆灵敏度</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1274"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
         <source>Automatic (Linear)</source>
         <translation>自动（线性）</translation>
     </message>
@@ -840,7 +840,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation>模组验证</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1441"/>
         <source>Config editor</source>
         <translation>配置编辑器</translation>
     </message>
@@ -885,7 +885,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation>使用可缩放字体</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1369"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1398"/>
         <source>Online Lobby address</source>
         <translation>在线大厅地址</translation>
     </message>
@@ -910,7 +910,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation>杂项</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1470"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1499"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -1002,27 +1002,32 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>用于下载的代理服务器，例如 http://host:port 或 socks5h://host:port。如果留空，则使用环境变量中配置的代理</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1198"/>
+        <source>Check for VCMI updates on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1278"/>
         <source>Autosaves per game (0 = unlimited)</source>
         <translation>每局游戏的自动存档数（0 = 无限制）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1264"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1293"/>
         <source>Nearest</source>
         <translation>最邻近</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1269"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1298"/>
         <source>Linear</source>
         <translation>线性</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1309"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1338"/>
         <source>Input - Touchscreen</source>
         <translation>输入 - 触屏</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1577"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1606"/>
         <source>Save Before Visit</source>
         <translation>访问前存档</translation>
     </message>
@@ -1052,7 +1057,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>音频</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1463"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1492"/>
         <source>Relative Pointer Speed</source>
         <translation>相对指针速度</translation>
     </message>
@@ -1062,12 +1067,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>音乐音量</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1371"/>
         <source>Ignore SSL errors</source>
         <translation>忽略SSL错误</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1294"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1323"/>
         <source>Input - Mouse</source>
         <translation>输入 - 鼠标</translation>
     </message>
@@ -1077,7 +1082,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>长按触屏间隔</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1405"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1434"/>
         <source>Controller Click Tolerance</source>
         <translation>控制器按键灵敏度</translation>
     </message>
@@ -1087,27 +1092,27 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>触屏点击灵敏度</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1239"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1268"/>
         <source>Input - Controller</source>
         <translation>输入 - 控制器</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1364"/>
         <source>Sound Volume</source>
         <translation>音效音量</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1483"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1512"/>
         <source>Windowed</source>
         <translation>窗口化</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1488"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1517"/>
         <source>Borderless fullscreen</source>
         <translation>无边框全屏</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1493"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1522"/>
         <source>Exclusive fullscreen</source>
         <translation>独占全屏</translation>
     </message>
@@ -1149,17 +1154,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>默认源</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1285"/>
         <source>Renderer</source>
         <translation>渲染器</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="128"/>
         <source>On</source>
         <translation>开启</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1282"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1311"/>
         <source>Reserved screen area</source>
         <translation>保留屏幕区域</translation>
     </message>
@@ -1174,7 +1179,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>启动时检查更新</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1220"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
         <source>Fullscreen</source>
         <translation>全屏</translation>
     </message>
@@ -1224,17 +1229,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation>显示开场动画</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="138"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="139"/>
         <source>StupidAI (deprecated)</source>
         <translation>StupidAI（已弃用）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="143"/>
         <source>BattleAI (default, recommended)</source>
         <translation>BattleAI（默认，推荐）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="147"/>
         <source>MMAI (experimental)</source>
         <translation>MMAI（实验性）</translation>
     </message>
@@ -1243,37 +1248,37 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="vanished">Nullkiller（已被 Nullkiller2 取代）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="159"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="160"/>
         <source>Nullkiller2 (default, recommended)</source>
         <translation>Nullkiller2（默认，推荐）</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="169"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="170"/>
         <source>EmptyAI - No valid AI libraries found!</source>
         <translation>EmptyAI - 未找到有效的 AI 库！</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="765"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="776"/>
         <source>Active</source>
         <translation>激活</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="770"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="781"/>
         <source>Disabled</source>
         <translation>禁用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="771"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="782"/>
         <source>Enable</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="776"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="787"/>
         <source>Not Installed</source>
         <translation>未安装</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="777"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="788"/>
         <source>Install</source>
         <translation>安装</translation>
     </message>
@@ -1333,7 +1338,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/modstate.cpp" line="176"/>
+        <location filename="../modManager/modstate.cpp" line="175"/>
         <location filename="../modManager/modstatemodel.cpp" line="106"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
@@ -2067,17 +2072,17 @@ Bin (%n字节):
         <translation>启动可执行文件时出错</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="456"/>
+        <location filename="../mainwindow_moc.cpp" line="470"/>
         <source>mod archive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="467"/>
+        <location filename="../mainwindow_moc.cpp" line="481"/>
         <source>Replace config file?</source>
         <translation>替换配置文件？</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="467"/>
+        <location filename="../mainwindow_moc.cpp" line="481"/>
         <source>Do you want to replace %1?</source>
         <translation>您想要替换%1吗？</translation>
     </message>
@@ -2321,30 +2326,30 @@ Bin (%n字节):
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="148"/>
+        <location filename="../main.cpp" line="156"/>
         <source>Error starting executable</source>
         <translation>启动可执行文件时出错</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="149"/>
+        <location filename="../main.cpp" line="157"/>
         <source>Failed to start %1
 Reason: %2</source>
         <translation>启动%1失败
 原因：%2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1402"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1421"/>
         <source>Import failed</source>
         <translation>导入失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1402"/>
         <source>Failed to import save %1 from %2</source>
         <translation>从%2导入存档%1失败</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1421"/>
         <source>Failed to import save file %1</source>
         <translation>导入存档文件%1失败</translation>
     </message>
@@ -2352,27 +2357,27 @@ Reason: %2</source>
 <context>
     <name>StartGameTab</name>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="655"/>
+        <location filename="../startGame/StartGameTab.ui" line="654"/>
         <source>Import from Clipboard</source>
         <translation>从剪贴板导入</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="674"/>
+        <location filename="../startGame/StartGameTab.ui" line="673"/>
         <source>Rename Current Preset</source>
         <translation>重命名当前预设</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="588"/>
+        <location filename="../startGame/StartGameTab.ui" line="587"/>
         <source>Create New Preset</source>
         <translation>创建新预设</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="569"/>
+        <location filename="../startGame/StartGameTab.ui" line="568"/>
         <source>Export to Clipboard</source>
         <translation>导出到剪切板</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="623"/>
+        <location filename="../startGame/StartGameTab.ui" line="622"/>
         <source>Delete Current Preset</source>
         <translation>删除当前预设</translation>
     </message>
@@ -2387,11 +2392,12 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.ui" line="201"/>
         <location filename="../startGame/StartGameTab.ui" line="220"/>
         <location filename="../startGame/StartGameTab.ui" line="299"/>
-        <location filename="../startGame/StartGameTab.ui" line="411"/>
-        <location filename="../startGame/StartGameTab.ui" line="430"/>
-        <location filename="../startGame/StartGameTab.ui" line="471"/>
-        <location filename="../startGame/StartGameTab.ui" line="509"/>
-        <location filename="../startGame/StartGameTab.ui" line="528"/>
+        <location filename="../startGame/StartGameTab.ui" line="410"/>
+        <location filename="../startGame/StartGameTab.ui" line="429"/>
+        <location filename="../startGame/StartGameTab.ui" line="470"/>
+        <location filename="../startGame/StartGameTab.ui" line="508"/>
+        <location filename="../startGame/StartGameTab.ui" line="527"/>
+        <location filename="../startGame/StartGameTab.ui" line="779"/>
         <source>?</source>
         <translation>?</translation>
     </message>
@@ -2401,7 +2407,7 @@ Reason: %2</source>
         <translation>安装翻译</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="449"/>
+        <location filename="../startGame/StartGameTab.ui" line="448"/>
         <source>No soundtrack detected!</source>
         <translation>未检测到音轨！</translation>
     </message>
@@ -2411,37 +2417,34 @@ Reason: %2</source>
         <translation>末日之刃战役缺失！</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="351"/>
+        <location filename="../startGame/StartGameTab.ui" line="350"/>
         <source>No video files detected!</source>
         <translation>未检测到视频文件！</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="490"/>
+        <location filename="../startGame/StartGameTab.ui" line="489"/>
         <source>Activate Translation</source>
         <translation>已启用的翻译</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="373"/>
+        <location filename="../startGame/StartGameTab.ui" line="372"/>
         <source>Import files</source>
         <translation>导入文件</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="759"/>
         <source>Check For Updates</source>
-        <translation>检查更新</translation>
+        <translation type="vanished">检查更新</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="778"/>
         <source>Go to Downloads Page</source>
-        <translation>跳转到下载页面</translation>
+        <translation type="vanished">跳转到下载页面</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="797"/>
         <source>Go to Changelog Page</source>
-        <translation>跳转到更新日志页面</translation>
+        <translation type="vanished">跳转到更新日志页面</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="715"/>
+        <location filename="../startGame/StartGameTab.cpp" line="258"/>
         <source>You are using the latest version</source>
         <translation>您当前使用的是最新版本</translation>
     </message>
@@ -2466,29 +2469,38 @@ Reason: %2</source>
         <translation>安装游戏</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="831"/>
+        <location filename="../startGame/StartGameTab.ui" line="714"/>
+        <location filename="../startGame/StartGameTab.cpp" line="246"/>
+        <location filename="../startGame/StartGameTab.cpp" line="252"/>
+        <location filename="../startGame/StartGameTab.cpp" line="257"/>
+        <location filename="../startGame/StartGameTab.cpp" line="262"/>
+        <source>Check for Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="815"/>
         <source>Resume</source>
         <translation>恢复</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="892"/>
+        <location filename="../startGame/StartGameTab.ui" line="876"/>
         <source>Play</source>
         <translation>进行游戏</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="859"/>
+        <location filename="../startGame/StartGameTab.ui" line="843"/>
         <source>Editor</source>
         <translation>编辑器</translation>
     </message>
     <message numerus="yes">
-        <location filename="../startGame/StartGameTab.cpp" line="212"/>
+        <location filename="../startGame/StartGameTab.cpp" line="214"/>
         <source>Update %n mods</source>
         <translation>
             <numerusform>更新%n模组</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../startGame/StartGameTab.cpp" line="216"/>
+        <location filename="../startGame/StartGameTab.cpp" line="218"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
         <translation>
@@ -2497,62 +2509,81 @@ Reason: %2</source>
         </translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="241"/>
         <source>Update to %1 available</source>
-        <translation>可更新至%1</translation>
+        <translation type="vanished">可更新至%1</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="289"/>
+        <location filename="../startGame/StartGameTab.cpp" line="320"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
         <translation>选择文件（配置、模组、存档、地图、战役、gog 文件）……</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="298"/>
+        <location filename="../startGame/StartGameTab.cpp" line="329"/>
         <source>Install Heroes III</source>
         <translation>安装英雄无敌3</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="299"/>
+        <location filename="../startGame/StartGameTab.cpp" line="330"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
         <translation>此操作将删除所有试玩版游戏数据（Data、Maps、Mp3、Video文件夹），并重新启动安装向导。确定继续吗？</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="276"/>
+        <location filename="../startGame/StartGameTab.cpp" line="307"/>
         <source>All supported files</source>
         <translation>所有支持的文件格式</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="277"/>
+        <location filename="../startGame/StartGameTab.cpp" line="249"/>
+        <source>Checking for Updates...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="253"/>
+        <source>Could not check for updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="263"/>
+        <source>Update to %1 Available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="289"/>
+        <source>VCMI could not contact the update server. Make sure that you are connected to the internet and try again later.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="308"/>
         <source>Maps</source>
         <translation>地图</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="278"/>
+        <location filename="../startGame/StartGameTab.cpp" line="309"/>
         <source>Campaigns</source>
         <translation>战役</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="279"/>
+        <location filename="../startGame/StartGameTab.cpp" line="310"/>
         <source>Saves</source>
         <translation>存档</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="280"/>
+        <location filename="../startGame/StartGameTab.cpp" line="311"/>
         <source>Configs</source>
         <translation>配置</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="281"/>
+        <location filename="../startGame/StartGameTab.cpp" line="312"/>
         <source>Mods</source>
         <translation>模组</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="282"/>
+        <location filename="../startGame/StartGameTab.cpp" line="313"/>
         <source>Gog files</source>
         <translation>Gog文件</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="285"/>
+        <location filename="../startGame/StartGameTab.cpp" line="316"/>
         <source>All files (*.*)</source>
         <translation>所有文件 (*.*)</translation>
     </message>
@@ -2579,28 +2610,28 @@ Reason: %2</source>
 </translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="333"/>
-        <location filename="../startGame/StartGameTab.cpp" line="368"/>
+        <location filename="../startGame/StartGameTab.cpp" line="364"/>
+        <location filename="../startGame/StartGameTab.cpp" line="399"/>
         <source>Preparing selected files for import...</source>
         <translation>正在准备导入所选文件...</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="338"/>
+        <location filename="../startGame/StartGameTab.cpp" line="369"/>
         <source>Preparing selected files for import... %1/%2</source>
         <translation>正在准备导入所选文件...%1/%2</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="359"/>
+        <location filename="../startGame/StartGameTab.cpp" line="390"/>
         <source>Import failed</source>
         <translation>导入失败</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="359"/>
+        <location filename="../startGame/StartGameTab.cpp" line="390"/>
         <source>Failed to prepare file for import: %1</source>
         <translation>导入文件准备失败：%1</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="427"/>
+        <location filename="../startGame/StartGameTab.cpp" line="458"/>
         <source>This option allows you to import additional data files into your VCMI installation. At the moment, following options are supported:
 
  - Heroes III Maps (.h3m or .vmap).
@@ -2623,17 +2654,17 @@ Reason: %2</source>
 </translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="444"/>
+        <location filename="../startGame/StartGameTab.cpp" line="475"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
         <translation>您的英雄无敌3版本使用的是不同的语言。VCMI提供了多种语言的翻译，您可以使用这些翻译。使用此选项可以自动安装适合您语言的翻译。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="454"/>
+        <location filename="../startGame/StartGameTab.cpp" line="485"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
         <translation>您语言对应的英雄无敌3翻译已安装，但是被关闭了。使用这个选项来启用它。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="464"/>
+        <location filename="../startGame/StartGameTab.cpp" line="495"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
@@ -2642,14 +2673,14 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
 警告：在某些情况下，模组的更新版本可能与您现有的存档不兼容。建议您在完成当前的游戏后再更新模组。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="476"/>
+        <location filename="../startGame/StartGameTab.cpp" line="507"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
         <translation>如果你在gog.com拥有英雄无敌历代记，可以使用GOG提供的离线备份安装包，将英雄无敌历代记的数据导入VCMI，并作为自定义战役使用。
 要导入英雄无敌历代记，请下载你想安装的每一部历代记对应的离线备份安装包，选择“导入文件”选项，然后选取已下载的文件。系统将为VCMI自动生成并安装包含这些历代记内容的模组。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="489"/>
+        <location filename="../startGame/StartGameTab.cpp" line="520"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
@@ -2658,7 +2689,7 @@ To resolve this problem, please copy missing mp3 files from Heroes III to VCMI d
 要解决此问题，请手动将英雄无敌3中的缺失mp3文件复制到VCMI的数据文件目录，或重新安装VCMI并重新导入英雄无敌3的数据文件。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="500"/>
+        <location filename="../startGame/StartGameTab.cpp" line="531"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
@@ -2667,7 +2698,7 @@ To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data
 要解决此问题，请手动将英雄无敌3中的VIDEO.VID文件复制到VCMI的数据文件目录，或重新安装VCMI并重新导入英雄无敌3的数据文件。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="511"/>
+        <location filename="../startGame/StartGameTab.cpp" line="542"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com.</source>
@@ -2676,7 +2707,7 @@ To resolve this problem, please reinstall game and reimport data files using sup
 要解决此问题，请重新安装游戏，并使用受支持版本的英雄无敌3重新导入数据文件。VCMI需要英雄无敌3死亡阴影或完全版才能运行，你可以从gog.com获取这些版本。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="522"/>
+        <location filename="../startGame/StartGameTab.cpp" line="553"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
@@ -2685,7 +2716,7 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
 要解决此问题，请手动将英雄无敌3中的缺失数据文件复制到VCMI的数据文件目录，或重新安装VCMI并重新导入英雄无敌3的数据文件。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="533"/>
+        <location filename="../startGame/StartGameTab.cpp" line="564"/>
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
@@ -2694,24 +2725,24 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
 安装完成后，你需要设置图像放大过滤器到x2或更高，高清图像效果才可见。</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="572"/>
-        <location filename="../startGame/StartGameTab.cpp" line="581"/>
+        <location filename="../startGame/StartGameTab.cpp" line="603"/>
+        <location filename="../startGame/StartGameTab.cpp" line="612"/>
         <source>Preset import failed</source>
         <translation>预设导入失败</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="572"/>
-        <location filename="../startGame/StartGameTab.cpp" line="581"/>
+        <location filename="../startGame/StartGameTab.cpp" line="603"/>
+        <location filename="../startGame/StartGameTab.cpp" line="612"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
         <translation>导入预设失败——剪切板中的数据并非模组预设数据！</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="597"/>
+        <location filename="../startGame/StartGameTab.cpp" line="628"/>
         <source>Enter preset name:</source>
         <translation>输入预设名字：</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="640"/>
+        <location filename="../startGame/StartGameTab.cpp" line="671"/>
         <source>Rename preset &apos;%1&apos; to:</source>
         <translation>重命名预设&apos;%1&apos;为：</translation>
     </message>
@@ -2719,29 +2750,123 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
 <context>
     <name>UpdateDialog</name>
     <message>
-        <location filename="../updatedialog_moc.ui" line="71"/>
         <source>You have the latest version</source>
-        <translation>您已经拥有最新版本</translation>
+        <translation type="vanished">您已经拥有最新版本</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.ui" line="94"/>
         <source>Close</source>
-        <translation>关闭</translation>
+        <translation type="vanished">关闭</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.ui" line="101"/>
         <source>Check for updates on startup</source>
-        <translation>在启动时检查更新</translation>
+        <translation type="vanished">在启动时检查更新</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="71"/>
         <source>Network error</source>
-        <translation>网络错误</translation>
+        <translation type="vanished">网络错误</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="100"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation>无法从URL中读取JSON或JSON数据不正确</translation>
+        <translation type="vanished">无法从URL中读取JSON或JSON数据不正确</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateView</name>
+    <message>
+        <location filename="../updates/UpdateView.ui" line="50"/>
+        <source>Changelog</source>
+        <translation type="unfinished">修改日志</translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.ui" line="85"/>
+        <source>Back</source>
+        <translation type="unfinished">返回</translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.ui" line="105"/>
+        <source>Full Changelog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="51"/>
+        <source>VCMI %1 is available. You have %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="61"/>
+        <source>Your browser will download the installer. Run it once the download finishes: it will close VCMI and update it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="62"/>
+        <location filename="../updates/UpdateView.cpp" line="74"/>
+        <source>Download Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="66"/>
+        <source>Your browser will download the update as a ZIP archive. Close VCMI, then extract the archive into your VCMI folder, replacing existing files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="68"/>
+        <source>Your browser will download the update as an APK file. Open it to install the update over the current version. Android may ask you to allow your browser to install apps.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="70"/>
+        <source>Your browser will download a disk image. Close VCMI, open it and replace your current VCMI app with the one inside.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="72"/>
+        <source>Your browser will download the update as an AppImage. Allow it to run as a program, for example with &apos;chmod +x&apos;, and start it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="78"/>
+        <source>Open Store</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="82"/>
+        <source>Update VCMI in Google Play. Google Play releases updates gradually, so the new version may take a few days to appear there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="87"/>
+        <source>Update VCMI in your F-Droid app. F-Droid builds new versions itself, so the update may take a few days to appear there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="91"/>
+        <source>Update VCMI in the TestFlight app. New versions may take a few days to appear there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="96"/>
+        <source>Update VCMI in your software center or with &apos;flatpak update eu.vcmi.VCMI&apos;. New versions may take a few days to appear on Flathub.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="101"/>
+        <source>Update VCMI with the package manager of your distribution. Some distributions take a long time to ship new versions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="103"/>
+        <source>Update VCMI the same way you installed it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="105"/>
+        <source>Open Download Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="113"/>
+        <source>Your saves, settings and mods are kept.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
