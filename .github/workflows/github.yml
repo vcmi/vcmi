@@ -126,7 +126,7 @@ jobs:
             upload: 1
             extension: apk
             preset: android-conan-ninja-release
-            conan_profile: android-32-ndk
+            conan_profile: android-32
             conan_prebuilts: dependencies-android-armeabi-v7a
             conan_options: --profile=dependencies/conan_profiles/base/android-system
             artifact_platform: armeabi-v7a
@@ -137,7 +137,7 @@ jobs:
             upload: 1
             extension: apk
             preset: android-conan-ninja-release
-            conan_profile: android-64-ndk
+            conan_profile: android-64
             conan_prebuilts: dependencies-android-arm64-v8a
             conan_options: --profile=dependencies/conan_profiles/base/android-system
             artifact_platform: arm64-v8a
@@ -148,7 +148,7 @@ jobs:
             upload: 1
             extension: apk
             preset: android-conan-ninja-release
-            conan_profile: android-x64-ndk
+            conan_profile: android-x64
             conan_prebuilts: dependencies-android-x64
             conan_options: --profile=dependencies/conan_profiles/base/android-system
             artifact_platform: x64
@@ -179,6 +179,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       BUILD_DIR: ${{ github.workspace }}/out/build/${{ matrix.preset }}
+      ANDROID_NDK_VERSION: 29.0.14206865
 
     steps:
     - name: Checkout repository
@@ -327,6 +328,7 @@ jobs:
           --profile=dependencies/conan_profiles/${{ matrix.conan_profile }} \
           --conf="tools.cmake.cmaketoolchain:generator=Ninja" \
           ${{ matrix.conan_options }} \
+          ${{ startsWith(matrix.platform, 'android') && '--conf="tools.android:ndk_path=$ANDROID_HOME/ndk/$ANDROID_NDK_VERSION"' || '' }} \
           ${{ startsWith(matrix.platform, 'msvc') && '--conf="tools.microsoft.msbuild:vs_version=${MSBUILD_VS_VERSION}"' || '' }}
 
     # MSVC CI builds use Ninja. Qt tools such as moc, uic, and rcc run in the later
