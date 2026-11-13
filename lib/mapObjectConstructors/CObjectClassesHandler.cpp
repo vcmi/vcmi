@@ -356,20 +356,20 @@ void CObjectClassesHandler::removeSubObject(MapObjectID ID, MapObjectSubID subID
 	mapObjectTypes.at(ID.getNum())->objectTypeHandlers.at(subID.getNum()) = nullptr;
 }
 
-TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObjectSubID subtype) const
+AObjectTypeHandler & CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObjectSubID subtype) const
 {
 	try
 	{
 		if (mapObjectTypes.at(type.getNum()) == nullptr)
-			return mapObjectTypes.front()->objectTypeHandlers.front();
+			return *mapObjectTypes.front()->objectTypeHandlers.front();
 
 		auto subID = subtype.getNum();
 		if (type == Obj::PRISON || type == Obj::HERO_PLACEHOLDER || type == Obj::SPELL_SCROLL)
 			subID = 0;
-		auto result = mapObjectTypes.at(type.getNum())->objectTypeHandlers.at(subID);
+		const auto & result = mapObjectTypes.at(type.getNum())->objectTypeHandlers.at(subID);
 
 		if (result != nullptr)
-			return result;
+			return *result;
 	}
 	catch (std::out_of_range & e)
 	{
@@ -381,7 +381,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(MapObjectID type, MapObj
 	throw std::out_of_range(errorString);
 }
 
-TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const CIdentifierStorage & identifiers, const std::string & scope, const std::string & type, const std::string & subtype) const
+AObjectTypeHandler & CObjectClassesHandler::getHandlerFor(const CIdentifierStorage & identifiers, const std::string & scope, const std::string & type, const std::string & subtype) const
 {
 	std::optional<si32> id = identifiers.getIdentifier(scope, "object", type);
 	if(id)
@@ -389,8 +389,8 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const CIdentifierStorage
 		const auto & object = mapObjectTypes.at(id.value());
 		std::optional<si32> subID = identifiers.getIdentifier(scope, object->getJsonKey(), subtype);
 
-		if (subID)
-			return object->objectTypeHandlers.at(subID.value());
+		if (subID && object->objectTypeHandlers.at(subID.value()))
+			return *object->objectTypeHandlers.at(subID.value());
 	}
 
 	std::string objectType = type + "::" + subtype;
@@ -398,7 +398,7 @@ TObjectTypeHandler CObjectClassesHandler::getHandlerFor(const CIdentifierStorage
 	throw IdentifierResolutionException(objectType);
 }
 
-TObjectTypeHandler CObjectClassesHandler::getHandlerFor(CompoundMapObjectID compoundIdentifier) const
+AObjectTypeHandler & CObjectClassesHandler::getHandlerFor(CompoundMapObjectID compoundIdentifier) const
 {
 	return getHandlerFor(compoundIdentifier.primaryID, compoundIdentifier.secondaryID);
 }
@@ -536,7 +536,7 @@ SObjectSounds CObjectClassesHandler::getObjectSounds(MapObjectID type, MapObject
 		subtype = 0;
 
 	if(mapObjectTypes.at(type.getNum()))
-		return getHandlerFor(type, subtype)->getSounds();
+		return getHandlerFor(type, subtype).getSounds();
 	else
 		return mapObjectTypes.front()->objectTypeHandlers.front()->getSounds();
 }

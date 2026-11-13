@@ -113,7 +113,7 @@ void Object::Instance::setPositionRaw(const int3 & position)
 
 void Object::Instance::setAnyTemplate(vstd::RNG & rng)
 {
-	auto templates = dObject->getObjectHandler()->getTemplates();
+	auto templates = dObject->getObjectHandler().getTemplates();
 	if(templates.empty())
 		throw rmgException(boost::str(boost::format("Did not find any graphics for object (%d,%d)") % dObject->ID % dObject->getObjTypeIndex()));
 
@@ -124,7 +124,7 @@ void Object::Instance::setAnyTemplate(vstd::RNG & rng)
 
 void Object::Instance::setTemplate(TerrainId terrain, vstd::RNG & rng)
 {
-	auto templates = dObject->getObjectHandler()->getMostSpecificTemplates(terrain);
+	auto templates = dObject->getObjectHandler().getMostSpecificTemplates(terrain);
 
 	if (templates.empty())
 	{
@@ -133,7 +133,7 @@ void Object::Instance::setTemplate(TerrainId terrain, vstd::RNG & rng)
 	}
 	
 	dObject->appearance = *RandomGeneratorUtil::nextItem(templates, rng);
-	if(auto app = dObject->getObjectHandler()->getOverride(terrain, dObject.get()))
+	if(auto app = dObject->getObjectHandler().getOverride(terrain, dObject.get()))
 		dObject->appearance = app;
 	dAccessibleAreaCache.clear();
 	setPosition(getPosition(false));
@@ -508,7 +508,7 @@ void Object::Instance::finalize(RmgMap & map, vstd::RNG & rng)
 	if (!dObject->appearance)
 	{
 		const auto * terrainType = map.getTile(getPosition(true)).getTerrain();
-		auto templates = dObject->getObjectHandler()->getTemplates(terrainType->getId());
+		auto templates = dObject->getObjectHandler().getTemplates(terrainType->getId());
 		if (templates.empty())
 		{
 			throw rmgException(boost::str(boost::format("Did not find graphics for object (%d,%d) at %s (terrain %d)") % dObject->ID % dObject->getObjTypeIndex() % getPosition(true).toString() % terrainType));

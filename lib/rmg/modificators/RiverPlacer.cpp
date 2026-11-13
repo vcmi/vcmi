@@ -380,11 +380,11 @@ void RiverPlacer::connectRiver(const int3 & tile)
 		assert(deltaPos.getTilesVector().size() == 1);
 		
 		auto pos = deltaPos.getTilesVector().front();
-		auto handler = LIBRARY->objtypeh->getHandlerFor(RIVER_DELTA_ID, RIVER_DELTA_SUBTYPE);
-		assert(handler->isStaticObject());
+		auto & handler = LIBRARY->objtypeh->getHandlerFor(RIVER_DELTA_ID, RIVER_DELTA_SUBTYPE);
+		assert(handler.isStaticObject());
 		
 		std::vector<std::shared_ptr<const ObjectTemplate>> tmplates;
-		for(auto & temp : handler->getTemplates())
+		for(auto & temp : handler.getTemplates())
 		{
 			if(temp->canBePlacedAt(zone.getTerrainType()))
 			   tmplates.push_back(temp);
@@ -401,7 +401,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 			{
 				if(templ->animationFile == targetTemplateName)
 				{
-					auto obj = handler->create(map.mapInstance->cb, templ);
+					auto obj = handler.create(map.mapInstance->cb, templ);
 					rmg::Object deltaObj(obj, deltaPositions[pos]);
 					deltaObj.finalize(map, zone.getRand());
 				}

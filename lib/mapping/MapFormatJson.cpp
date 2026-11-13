@@ -1185,17 +1185,17 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	configuration.setModScope(ModScope::scopeGame());
 
-	auto handler = LIBRARY->objtypeh->getHandlerFor(*LIBRARY->identifiers(), ModScope::scopeMap(), typeName, subtypeName);
+	auto & handler = LIBRARY->objtypeh->getHandlerFor(*LIBRARY->identifiers(), ModScope::scopeMap(), typeName, subtypeName);
 
 	auto appearance = std::make_shared<ObjectTemplate>();
 
-	appearance->id = Obj(handler->getIndex());
-	appearance->subid = handler->getSubIndex();
+	appearance->id = Obj(handler.getIndex());
+	appearance->subid = handler.getSubIndex();
 	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
 	appearance->readJson(configuration["template"], resolver, false);
 
 	// Will be destroyed soon and replaced with shared template
-	instance = handler->create(owner->map->cb, appearance);
+	instance = handler.create(owner->map->cb, appearance);
 
 	instance->instanceName = instanceName;
 	instance->setAnchorPos(pos);

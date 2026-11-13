@@ -367,8 +367,8 @@ void CRewardableObject::newTurn(IGameEventCallback & gameEvents, IGameRandomizer
 	{
 		if (configuration.resetParameters.rewards)
 		{
-			auto handler = std::dynamic_pointer_cast<const CRewardableConstructor>(getObjectHandler());
-			auto newConfiguration = handler->generateConfiguration(cb, gameRandomizer, ID, configuration.variables.preset);
+			const auto & handler = dynamic_cast<const CRewardableConstructor &>(getObjectHandler());
+			auto newConfiguration = handler.generateConfiguration(cb, gameRandomizer, ID, configuration.variables.preset);
 			gameEvents.setRewardableObjectConfiguration(id, newConfiguration);
 		}
 		if (configuration.resetParameters.visitors)
@@ -382,7 +382,7 @@ void CRewardableObject::newTurn(IGameEventCallback & gameEvents, IGameRandomizer
 
 void CRewardableObject::initObj(IGameRandomizer & gameRandomizer)
 {
-	getObjectHandler()->configureObject(this, gameRandomizer);
+	getObjectHandler().configureObject(this, gameRandomizer);
 }
 
 CRewardableObject::CRewardableObject(IGameInfoCallback *cb)

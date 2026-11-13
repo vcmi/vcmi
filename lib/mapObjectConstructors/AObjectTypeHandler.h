@@ -102,7 +102,7 @@ public:
 	/// terrain the battle at this object takes place on, or NONE to use the map tile's terrain
 	TerrainId getBattleTerrain() const;
 
-	const RandomMapInfo & getRMGInfo();
+	const RandomMapInfo & getRMGInfo() const;
 
 	std::optional<si32> getAiValue() const;
 
@@ -118,7 +118,7 @@ public:
 	/// returns object's name in form of human-readable text
 	std::string getNameTranslated() const;
 
-	virtual bool isStaticObject();
+	virtual bool isStaticObject() const;
 
 	virtual void afterLoadFinalization(LibraryLoadContext & context);
 

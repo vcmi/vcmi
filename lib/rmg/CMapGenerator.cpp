@@ -511,7 +511,7 @@ int CMapGenerator::getNextMonlithIndex()
 		else
 		{
 			//Skip modded Monoliths which can't beplaced on every terrain
-			auto templates = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, monolithIndex)->getTemplates();
+			auto templates = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, monolithIndex).getTemplates();
 			if (templates.empty() || !templates[0]->canBePlacedAtAnyTerrain())
 			{
 				monolithIndex++;

@@ -31,7 +31,7 @@ class DLL_LINKAGE CGResource : public CArmedInstance
 public:
 	using CArmedInstance::CArmedInstance;
 	
-	std::shared_ptr<ResourceInstanceConstructor> getResourceHandler() const;
+	const ResourceInstanceConstructor * getResourceHandler() const;
 
 	void onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const override;
 	void initObj(IGameRandomizer & gameRandomizer) override;

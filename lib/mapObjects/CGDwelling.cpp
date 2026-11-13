@@ -151,7 +151,7 @@ void CGDwelling::pickRandomObject(IGameRandomizer & gameRandomizer)
 			auto dwellingIDs = LIBRARY->objtypeh->knownSubObjects(primaryID);
 			for (MapObjectSubID entry : dwellingIDs)
 			{
-				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(LIBRARY->objtypeh->getHandlerFor(primaryID, entry).get());
+				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(&LIBRARY->objtypeh->getHandlerFor(primaryID, entry));
 
 				if (!handler->isBannedForRandomDwelling() && handler->producesCreature(cid.toCreature()))
 					return MapObjectSubID(entry);
@@ -187,7 +187,7 @@ void CGDwelling::initObj(IGameRandomizer & gameRandomizer)
 	case Obj::CREATURE_GENERATOR4:
 	case Obj::WAR_MACHINE_FACTORY:
 		{
-			getObjectHandler()->configureObject(this, gameRandomizer);
+			getObjectHandler().configureObject(this, gameRandomizer);
 			assert(!creatures.empty());
 			assert(!creatures[0].second.empty());
 			break;
@@ -249,7 +249,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		BlockingDialog bd(true,false);
 		bd.player = h->tempOwner;
 		bd.text.appendTextID("core.genrltxt.421"); //Much to your dismay, the %s is guarded by %s %s. Do you wish to fight the guards?
-		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
+		bd.text.replaceTextID(getObjectHandler().getNameTextID());
 		if(settings["gameTweaks"]["numericCreaturesQuantities"].Bool())
 			bd.text.replaceRawString(CCreature::getQuantityRangeStringForId(Slots().begin()->second->getQuantityID()));
 		else
@@ -280,7 +280,7 @@ void CGDwelling::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			"vcmi.adventureMap.dwelling6"
 		};
 		bd.text.appendTextID(dwellingVisitTextID[count]);	
-		bd.text.replaceTextID(getObjectHandler()->getNameTextID());
+		bd.text.replaceTextID(getObjectHandler().getNameTextID());
 		for(const auto & elem : creatures)
 			bd.text.replaceNamePlural(elem.second[0]);
 	}
@@ -593,8 +593,7 @@ ResourceSet CGDwelling::dailyIncome() const
 
 AnimationPath CGDwelling::getKingdomOverviewImage() const
 {
-	const auto & baseHandler = getObjectHandler();
-	const auto & ourHandler = std::dynamic_pointer_cast<const DwellingInstanceConstructor>(baseHandler);
+	const auto * ourHandler = dynamic_cast<const DwellingInstanceConstructor *>(&getObjectHandler());
 	return ourHandler ? ourHandler->getKingdomOverviewImage() : AnimationPath{};
 }
 

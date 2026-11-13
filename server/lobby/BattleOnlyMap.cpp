@@ -60,9 +60,9 @@ void BattleOnlyMap::write(const BattleOnlyModeStartInfo & startInfo)
 
 	auto addHero = [&](int sel, PlayerColor color, const int3 & position)
 	{
-		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, startInfo.selectedHero[sel].toHeroType()->getHeroClass()->getId());
-		auto templates = factory->getTemplates();
-		auto obj = std::dynamic_pointer_cast<CGHeroInstance>(factory->create(&cb, templates.front()));
+		auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, startInfo.selectedHero[sel].toHeroType()->getHeroClass()->getId());
+		auto templates = factory.getTemplates();
+		auto obj = std::dynamic_pointer_cast<CGHeroInstance>(factory.create(&cb, templates.front()));
 		obj->setHeroType(startInfo.selectedHero[sel]);
 
 		obj->setOwner(color);
@@ -107,9 +107,9 @@ void BattleOnlyMap::write(const BattleOnlyModeStartInfo & startInfo)
 		addHero(1, PlayerColor(1), int3(5, 5, 0));
 	else
 	{
-		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, startInfo.selectedTown);
-		auto templates = factory->getTemplates();
-		auto obj = factory->create(&cb, templates.front());
+		auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, startInfo.selectedTown);
+		auto templates = factory.getTemplates();
+		auto obj = factory.create(&cb, templates.front());
 		auto townObj = std::dynamic_pointer_cast<CGTownInstance>(obj);
 		obj->setOwner(PlayerColor(1));
 		obj->pos = int3(5, 5, 0);

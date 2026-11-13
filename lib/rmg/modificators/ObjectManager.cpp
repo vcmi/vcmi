@@ -789,9 +789,9 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 		amount = strength / creId.toEntity(LIBRARY)->getAIValue();
 	}
 	
-	auto guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);
+	auto & guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);
 
-	auto guard = std::dynamic_pointer_cast<CGCreature>(guardFactory->create(map.mapInstance->cb, nullptr));
+	auto guard = std::dynamic_pointer_cast<CGCreature>(guardFactory.create(map.mapInstance->cb, nullptr));
 	guard->initialCharacter = CGCreature::Character::HOSTILE;
 	auto hlp = std::make_unique<CStackInstance>(map.mapInstance->cb, creId, amount);
 	//will be set during initialization

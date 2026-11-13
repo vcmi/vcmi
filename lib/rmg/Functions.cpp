@@ -75,7 +75,7 @@ int chooseRandomAppearance(vstd::RNG & generator, si32 ObjID, TerrainId terrain)
 	vstd::erase_if(factories, [ObjID, &terrain](si32 f)
 	{
 		//TODO: Use templates with lowest number of terrains (most specific)
-		return LIBRARY->objtypeh->getHandlerFor(ObjID, f)->getTemplates(terrain).empty();
+		return LIBRARY->objtypeh->getHandlerFor(ObjID, f).getTemplates(terrain).empty();
 	});
 	
 	return *RandomGeneratorUtil::nextItem(factories, generator);

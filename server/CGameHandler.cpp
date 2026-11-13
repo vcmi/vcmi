@@ -4635,21 +4635,21 @@ std::shared_ptr<CGObjectInstance> CGameHandler::createNewObject(const int3 & vis
 	const TerrainTile & t = gameState().getMap().getTile(visitablePosition);
 	terrainType = t.getTerrainID();
 
-	auto handler = LIBRARY->objtypeh->getHandlerFor(objectID, subID);
+	auto & handler = LIBRARY->objtypeh->getHandlerFor(objectID, subID);
 
-	auto o = handler->create(&gameInfo(), nullptr);
-	handler->configureObject(o.get(), *randomizer);
+	auto o = handler.create(&gameInfo(), nullptr);
+	handler.configureObject(o.get(), *randomizer);
 	assert(o->ID == objectID);
 	gs->getMap().generateUniqueInstanceName(o.get());
 
-	assert(!handler->getTemplates(terrainType).empty());
-	if (handler->getTemplates().empty())
+	assert(!handler.getTemplates(terrainType).empty());
+	if (handler.getTemplates().empty())
 		throw std::runtime_error("Attempt to create object (" + std::to_string(objectID) + ", " + std::to_string(subID.getNum()) + ") with no templates!");
 
-	if (!handler->getTemplates(terrainType).empty())
-		o->appearance = handler->getTemplates(terrainType).front();
+	if (!handler.getTemplates(terrainType).empty())
+		o->appearance = handler.getTemplates(terrainType).front();
 	else
-		o->appearance = handler->getTemplates().front();
+		o->appearance = handler.getTemplates().front();
 
 	if (o->isVisitable())
 		o->setAnchorPos(visitablePosition + o->getVisitableOffset());

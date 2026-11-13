@@ -889,8 +889,8 @@ void CMapLoaderH3M::readPredefinedHeroes()
 
 	const auto createPredefinedHero = [this](int heroID)
 	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, HeroTypeID(heroID).toHeroType()->getHeroClass()->getIndex());
-		auto object = handler->create(map->cb, handler->getTemplates().front());
+		auto & handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, HeroTypeID(heroID).toHeroType()->getHeroClass()->getIndex());
+		auto object = handler.create(map->cb, handler.getTemplates().front());
 		auto hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
 		hero->subID = heroID;
 		return hero;
@@ -1497,10 +1497,9 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readResource(const int3 & mapPo
 
 	if (objectTemplate->id != Obj::RANDOM_RESOURCE)
 	{
-		const auto & baseHandler = LIBRARY->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid);
-		const auto & ourHandler = std::dynamic_pointer_cast<ResourceInstanceConstructor>(baseHandler);
+		const auto & ourHandler = dynamic_cast<const ResourceInstanceConstructor &>(LIBRARY->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid));
 
-		object->amount *= ourHandler->getAmountMultiplier();
+		object->amount *= ourHandler.getAmountMultiplier();
 	}
 
 	reader->skipZero(4);
@@ -1674,7 +1673,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readHotaBattleLocation(const in
 std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readGeneric(const int3 & mapPosition, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
 	if(LIBRARY->objtypeh->knownSubObjects(objectTemplate->id).count(objectTemplate->subid))
-		return LIBRARY->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid)->create(map->cb, objectTemplate);
+		return LIBRARY->objtypeh->getHandlerFor(objectTemplate->id, objectTemplate->subid).create(map->cb, objectTemplate);
 
 	logGlobal->warn("Map '%s': Unrecognized object %d:%d ('%s') at %s found!", mapName, objectTemplate->id.toEnum(), objectTemplate->subid, objectTemplate->animationFile.getOriginalName(), mapPosition.toString());
 	return std::make_shared<CGObjectInstance>(map->cb);
@@ -2265,7 +2264,7 @@ void CMapLoaderH3M::adjustOutdatedGarrisonTemplate(CGObjectInstance & object)
 	if(!object.appearance->isVisitable())
 		return;
 
-	for(const auto & configTemplate : LIBRARY->objtypeh->getHandlerFor(object.ID, object.subID)->getTemplates())
+	for(const auto & configTemplate : LIBRARY->objtypeh->getHandlerFor(object.ID, object.subID).getTemplates())
 	{
 		if(configTemplate->animationFile != object.appearance->animationFile || !configTemplate->isVisitable())
 			continue;

@@ -344,7 +344,7 @@ public:
 	/// Hero level and experience for UI, or a notice that hero can not gain more levels
 	MetaString getExperienceDescription() const;
 
-	TObjectTypeHandler getObjectHandler() const override;
+	const AObjectTypeHandler & getObjectHandler() const override;
 
 	void afterAddToMap(CMap * map) override;
 	void afterRemoveFromMap(CMap * map) override;

@@ -939,21 +939,21 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 	{
 		std::ranges::stable_sort(knownSubObjects, std::less{}, [](MapObjectSubID secondaryID)
 		{
-			auto dwelling = std::dynamic_pointer_cast<const DwellingInstanceConstructor>(LIBRARY->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, secondaryID));
-			auto creatures = dwelling->getProducedCreatures();
+			const auto & dwelling = dynamic_cast<const DwellingInstanceConstructor &>(LIBRARY->objtypeh->getHandlerFor(Obj::CREATURE_GENERATOR1, secondaryID));
+			auto creatures = dwelling.getProducedCreatures();
 			return creatures.empty() ? CreatureID::NONE : creatures.front()->getId();
 		});
 	}
 	for(auto secondaryID : knownSubObjects)
 	{
-		auto factory = LIBRARY->objtypeh->getHandlerFor(ID, secondaryID);
-		auto templates = factory->getTemplates();
+		auto & factory = LIBRARY->objtypeh->getHandlerFor(ID, secondaryID);
+		auto templates = factory.getTemplates();
 		bool singleTemplate = templates.size() == 1;
-		if(staticOnly && !factory->isStaticObject())
+		if(staticOnly && !factory.isStaticObject())
 			continue;
 
 		// object browser lists types, not placed objects, so the name is resolved without an instance
-		auto subGroupTextID = factory->hasNameTextID() ? factory->getNameTextID() : LIBRARY->objtypeh->getObjectGroupNameTextID(ID);
+		auto subGroupTextID = factory.hasNameTextID() ? factory.getNameTextID() : LIBRARY->objtypeh->getObjectGroupNameTextID(ID);
 		auto subGroupName = QString::fromStdString(Translator::instance().translate(subGroupTextID));
 
 		for(int templateId = 0; templateId < templates.size(); ++templateId)
@@ -965,7 +965,7 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 			QPixmap preview = makePreview(afile.getOriginalName());
 
 			//create object to extract name
-			auto temporaryObj(factory->create(controller.getCallback(), templ));
+			auto temporaryObj(factory.create(controller.getCallback(), templ));
 			QString translated = useCustomName ? QString::fromStdString(temporaryObj->getObjectName().toString(&Translator::instance())) : subGroupName;
 			if(!singleTemplate)
 				translated += QString(" (%1)").arg(QString::fromStdString(templ->stringID));
@@ -977,13 +977,13 @@ void EditorMainWindow::addGroupIntoCatalog(const QString & groupName, bool useCu
 							 {"animationEditor", QString::fromStdString(templ->editorAnimationFile.getOriginalName())},
 							 {"animation", QString::fromStdString(templ->animationFile.getOriginalName())},
 							 {"preview", jsonFromPixmap(preview)},
-							 {"typeName", QString::fromStdString(factory->getJsonKey())}
+							 {"typeName", QString::fromStdString(factory.getJsonKey())}
 			};
 
 			auto * item = new QStandardItem(QIcon(preview), translated);
 			item->setData(data);
 			item->setData(groupName, ObjectGroupRole);
-			item->setData(QString::fromStdString(templateModScope(factory->getModScope(), afile)).section('.', 0, 0), ModIDRole);
+			item->setData(QString::fromStdString(templateModScope(factory.getModScope(), afile)).section('.', 0, 0), ModIDRole);
 			item->setToolTip(translated);
 			objectsModel.appendRow(item);
 		}
@@ -1548,7 +1548,7 @@ void EditorMainWindow::on_actionUpdate_appearance_triggered()
 	std::set<CGObjectInstance*> staticObjects;
 	for(auto * obj : controller.scene(mapLevel)->selectionObjectsView.getSelection())
 	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(obj->ID, obj->subID);
+		auto & handler = LIBRARY->objtypeh->getHandlerFor(obj->ID, obj->subID);
 		if(!controller.map()->isInTheMap(obj->visitablePos()))
 		{
 			++errors;
@@ -1557,7 +1557,7 @@ void EditorMainWindow::on_actionUpdate_appearance_triggered()
 
 		auto * terrain = controller.map()->getTile(obj->visitablePos()).getTerrain();
 
-		if(handler->isStaticObject())
+		if(handler.isStaticObject())
 		{
 			staticObjects.insert(obj);
 			if(obj->appearance->canBePlacedAt(terrain->getId()))
@@ -1572,13 +1572,13 @@ void EditorMainWindow::on_actionUpdate_appearance_triggered()
 		}
 		else
 		{
-			auto app = handler->getOverride(terrain->getId(), obj);
+			auto app = handler.getOverride(terrain->getId(), obj);
 			if(!app)
 			{
 				if(obj->appearance->canBePlacedAt(terrain->getId()))
 					continue;
 
-				auto templates = handler->getTemplates(terrain->getId());
+				auto templates = handler.getTemplates(terrain->getId());
 				if(templates.empty())
 				{
 					++errors;

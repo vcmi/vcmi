@@ -482,9 +482,9 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 			auto & manager = *zone.getModificator<ObjectManager>();
 			auto & managerOther = *otherZone->getModificator<ObjectManager>();
 
-			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
-			rmg::Object rmgGate1(factory->create(map.mapInstance->cb, nullptr));
-			rmg::Object rmgGate2(factory->create(map.mapInstance->cb, nullptr));
+			auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SUBTERRANEAN_GATE, 0);
+			rmg::Object rmgGate1(factory.create(map.mapInstance->cb, nullptr));
+			rmg::Object rmgGate2(factory.create(map.mapInstance->cb, nullptr));
 			rmgGate1.setTemplate(zone.getTerrainType(), zone.getRand());
 			rmgGate2.setTemplate(otherZone->getTerrainType(), zone.getRand());
 
@@ -519,9 +519,9 @@ void ConnectionsPlacer::placeMonolithConnection(const rmg::ZoneConnection & conn
 
 	bool allowRoad = shouldGenerateRoad(connection);
 
-	auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
-	auto teleport1 = factory->create(map.mapInstance->cb, nullptr);
-	auto teleport2 = factory->create(map.mapInstance->cb, nullptr);
+	auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
+	auto teleport1 = factory.create(map.mapInstance->cb, nullptr);
+	auto teleport2 = factory.create(map.mapInstance->cb, nullptr);
 
 	RequiredObjectInfo obj1(teleport1, connection.getGuardStrength(), allowRoad);
 	RequiredObjectInfo obj2(teleport2, connection.getGuardStrength(), allowRoad);

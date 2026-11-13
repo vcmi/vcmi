@@ -274,7 +274,7 @@ std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(TerrainId 
 	return std::shared_ptr<const ObjectTemplate>(); //empty
 }
 
-const RandomMapInfo & AObjectTypeHandler::getRMGInfo()
+const RandomMapInfo & AObjectTypeHandler::getRMGInfo() const
 {
 	return rmgInfo;
 }
@@ -284,7 +284,7 @@ std::optional<si32> AObjectTypeHandler::getAiValue() const
 	return aiValue;
 }
 
-bool AObjectTypeHandler::isStaticObject()
+bool AObjectTypeHandler::isStaticObject() const
 {
 	return false; // most of classes are not static
 }

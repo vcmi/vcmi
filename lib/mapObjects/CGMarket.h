@@ -17,7 +17,7 @@ class MarketInstanceConstructor;
 class CGMarket : public CGObjectInstance, public IMarket
 {
 protected:
-	std::shared_ptr<MarketInstanceConstructor> getMarketHandler() const;
+	const MarketInstanceConstructor * getMarketHandler() const;
 
 public:
 	CGMarket(IGameInfoCallback *cb);

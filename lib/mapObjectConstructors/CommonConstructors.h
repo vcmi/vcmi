@@ -34,7 +34,7 @@ class IGameRandomizer;
 class CObstacleConstructor : public CDefaultObjectTypeHandler<CGObjectInstance>
 {
 public:
-	bool isStaticObject() override;
+	bool isStaticObject() const override;
 
 };
 

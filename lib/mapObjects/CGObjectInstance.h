@@ -27,7 +27,6 @@ class CGameState;
 class Quest;
 class IQuestSource;
 class AObjectTypeHandler;
-using TObjectTypeHandler = std::shared_ptr<AObjectTypeHandler>;
 
 class DLL_LINKAGE CGObjectInstance : public IObjectInterface, public scripting::ApiRawPointer<CGObjectInstance>
 {
@@ -116,7 +115,7 @@ public:
 	std::optional<AudioPath> getVisitSound(vstd::RNG & rng) const;
 	std::optional<AudioPath> getRemovalSound(vstd::RNG & rng) const;
 
-	virtual TObjectTypeHandler getObjectHandler() const;
+	virtual const AObjectTypeHandler & getObjectHandler() const;
 
 	/** VIRTUAL METHODS **/
 
