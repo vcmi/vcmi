@@ -471,6 +471,7 @@
 
 ### Other
 
+* Added support for iPhone Duo, including dynamic resizing between the inner and outer displays
 * Do not allow targeting unavailable hexes with area attacks
 * Fix saving of server port number
 
