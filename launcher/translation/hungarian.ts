@@ -243,31 +243,31 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="574"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="573"/>
         <source>Uninstall</source>
         <translation>Eltávolítás</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="564"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="563"/>
         <source>Enable</source>
         <translation>Engedélyezés</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="559"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="558"/>
         <source>Disable</source>
         <translation>Letiltás</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="579"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="578"/>
         <source>Update</source>
         <translation>Frissítés</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="569"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="568"/>
         <source>Install</source>
         <translation>Telepítés</translation>
     </message>
@@ -287,14 +287,14 @@
         <translation>Megszakítás</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="358"/>
         <source>Installed version</source>
         <translation>Telepített verzió</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>Latest version</source>
         <translation>Legújabb verzió</translation>
     </message>
@@ -303,33 +303,33 @@
         <translation type="vanished">Méret</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="370"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>Download size</source>
         <translation>Letöltési méret</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="372"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>Authors</source>
         <translation>Szerzők</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="375"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="374"/>
         <source>License</source>
         <translation>Licenc</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="378"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="377"/>
         <source>Contact</source>
         <translation>Kapcsolat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
         <source>Compatibility</source>
         <translation>Kompatibilitás</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <source>Required VCMI version</source>
         <translation>Szükséges VCMI-verzió</translation>
     </message>
@@ -342,9 +342,9 @@
         <translation type="vanished">frissítse a modot</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="217"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1201"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1206"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="216"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1200"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1205"/>
         <source>mods repository index</source>
         <translation>modtároló-index</translation>
     </message>
@@ -361,8 +361,8 @@
         <translation type="vanished">vagy újabb</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>Supported VCMI versions</source>
         <translation>Támogatott VCMI-verziók</translation>
     </message>
@@ -371,12 +371,12 @@
         <translation type="vanished">Nyelvek</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="429"/>
         <source>Required mods</source>
         <translation>Szükséges modok</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="431"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Conflicting mods</source>
         <translation>Ütköző modok</translation>
     </message>
@@ -397,49 +397,49 @@
         <translation type="vanished">Ez egy almod, amely nem telepíthető vagy távolítható el külön az alapmodtól</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="458"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="457"/>
         <source>Notes</source>
         <translation>Jegyzetek</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="541"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Context menu</source>
         <translation>Helyi menü</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="584"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="583"/>
         <source>Open directory</source>
         <translation>Könyvtár megnyitása</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="589"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="588"/>
         <source>Open repository</source>
         <translation>Tároló megnyitása</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="885"/>
         <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
         <translation>
             <numerusform>%n mod letöltése. %p% (%m MB / %v MB) kész</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="888"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="887"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation>Letöltés: %1. %p% (%v MB / %m MB) kész</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="923"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="922"/>
         <source>Extracting content.zip (%1/%2) for %3</source>
         <translation>Tartalom kibontása .zip fájlból (%1/%2) a(z) %3 számára</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="929"/>
         <source>Download failed</source>
         <translation>Letöltési hiba</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -460,7 +460,7 @@ Install successfully downloaded?</source>
 Sikeresen letöltött telepítés?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1165"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
@@ -469,69 +469,69 @@ Ok: %2.
 Jelezze ezt a problémát a fejlesztőknek</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1284"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1283"/>
         <source>Installing Heroes Chronicles</source>
         <translation>Heroes Chronicles telepítése</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1315"/>
         <source>Extracting error!</source>
         <translation>Kicsomagolási hiba!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1317"/>
         <source>Invalid file selected</source>
         <translation>Érvénytelen fájl lett kiválasztva</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1317"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
         <translation>Ki kell választania egy Heroes Chronicles telepítőfájlt!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1450"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1449"/>
         <source>Save exists</source>
         <translation>A mentés már létezik</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1451"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1450"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>A(z) „%1” mentés már létezik. Felülírja?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1470"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
         <translation>Nem sikerült importálni a mentéseket innen: %1
 Ok: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1483"/>
         <source>Success</source>
         <translation>Kész</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1483"/>
         <source>Imported %1 save files</source>
         <translation>%1 mentési fájl importálva</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1522"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1521"/>
         <source>Installing mod %1</source>
         <translation>A(z) %1 nevű mod telepítése</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1553"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1552"/>
         <source>%1 requires: %2</source>
         <translation>A(z) %1 modnak szüksége van erre: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1556"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1555"/>
         <source>Failed to enable mod</source>
         <translation>Nem sikerült engedélyezni a modot</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1557"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1556"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
@@ -540,12 +540,12 @@ Ok: %2</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1570"/>
         <source>Mods disabled</source>
         <translation>A modok le vannak tiltva</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1572"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
@@ -554,143 +554,143 @@ Ok: %2</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1660"/>
         <source>Map exists</source>
         <translation>A térkép már létezik</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1660"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation>A(z) „%1” nevű térkép már létezik. Felül szeretné írni?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1072"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1071"/>
         <source>Yes to All</source>
         <translation>Igen az összeset</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1073"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1072"/>
         <source>No to All</source>
         <translation>Nem mindre</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1679"/>
         <source>Import complete</source>
         <translation>Adatok importálása kész</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1679"/>
         <source>%n map(s) successfully imported.</source>
         <translation>
             <numerusform>%n térkép sikeresen importálva lett.</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1815"/>
         <source>Uninstall mod</source>
         <translation>Mod eltávolítása</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1815"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation>Biztosan eltávolítja a(z) %1 nevű modot?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1165"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1470"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1682"/>
         <source>Import failed</source>
         <translation>Nem sikerült importálni az adatokat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="364"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
         <source>Last updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="367"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="366"/>
         <source>Installed size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
         <source>GitHub repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>GitHub stars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
         <source>Not compatible with this VCMI version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <source>%1 or newer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="397"/>
         <source>up to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>%1 - %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="412"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>%1, complete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="414"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="413"/>
         <source>%1, %2% translated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="416"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="415"/>
         <source>%1, available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="418"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="417"/>
         <source>Translation</source>
         <translation type="unfinished">Fordítás</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="432"/>
         <source>This translation cannot be enabled because it is for a different language than the one selected in settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
         <source>This mod cannot be enabled because these required mods are missing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
         <source>This mod cannot be installed because these required mods are missing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="436"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
         <source>This is a submod. It cannot be installed or uninstalled separately from its parent mod.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="452"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="451"/>
         <source>This mod failed automatic validation and may not work correctly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="932"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
         <source>
 
 Process successfully downloaded files?</source>
@@ -699,7 +699,7 @@ Process successfully downloaded files?</source>
 Sikeresen letöltött fájlok feldolgozása?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1010"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1009"/>
         <source>VCMI could not confirm that it is connected to the real download server.
 
 This usually happens on older systems, such as Windows 7, that are missing recent security updates.
@@ -716,36 +716,36 @@ Ugyanakkor az is előfordulhat, hogy valaki manipulálja az internetkapcsolatát
 Szeretné kikapcsolni ezt az ellenőrzést, és újra megpróbálni? A funkciót bármikor visszakapcsolhatja az indítóprogram beállításaiban az „SSL-hibák figyelmen kívül hagyása” beállítás bekapcsolásával.</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1017"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1016"/>
         <source>Unable to verify download server</source>
         <translation>Nem sikerült ellenőrizni a letöltési kiszolgálót</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1682"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation>Nem sikerült importálni a következő térképeket:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1713"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1712"/>
         <source>Operation failed</source>
         <translation>Művelet sikertelen</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1714"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1713"/>
         <source>Encountered errors:
 </source>
         <translation>Hibák::
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1766"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>screenshots</source>
         <translation>képernyőképek</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1772"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1771"/>
         <source>Screenshot %1</source>
         <translation>Képernyőkép %1</translation>
     </message>
@@ -758,7 +758,7 @@ Szeretné kikapcsolni ezt az ellenőrzést, és újra megpróbálni? A funkciót
     <name>CSettingsView</name>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="129"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="130"/>
         <source>Off</source>
         <translation>Kikapcsolva</translation>
     </message>
@@ -773,7 +773,7 @@ Szeretné kikapcsolni ezt az ellenőrzést, és újra megpróbálni? A funkciót
         <translation>Felület nagyítása</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1362"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1391"/>
         <source>Neutral AI in battles</source>
         <translation>Semleges MI a csatákban</translation>
     </message>
@@ -798,7 +798,7 @@ Szeretné kikapcsolni ezt az ellenőrzést, és újra megpróbálni? A funkciót
         <translation>Online előcsarnok portja</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1227"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
         <source>Autocombat AI in battles</source>
         <translation>Automatikus csata MI a csatákban</translation>
     </message>
@@ -808,7 +808,7 @@ Szeretné kikapcsolni ezt az ellenőrzést, és újra megpróbálni? A funkciót
         <translation>Karok érzékenysége</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1274"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
         <source>Automatic (Linear)</source>
         <translation>Automatikus (lineáris)</translation>
     </message>
@@ -835,7 +835,7 @@ Szeretné kikapcsolni ezt az ellenőrzést, és újra megpróbálni? A funkciót
         <translation>Modok ellenőrzése</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1441"/>
         <source>Config editor</source>
         <translation>Konfigurációszerkesztő</translation>
     </message>
@@ -880,7 +880,7 @@ Szeretné kikapcsolni ezt az ellenőrzést, és újra megpróbálni? A funkciót
         <translation>Átméretezhető betűtípusok használata</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1369"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1398"/>
         <source>Online Lobby address</source>
         <translation>Online előcsarnok címe</translation>
     </message>
@@ -905,7 +905,7 @@ Szeretné kikapcsolni ezt az ellenőrzést, és újra megpróbálni? A funkciót
         <translation>Egyebek</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1470"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1499"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -997,27 +997,32 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
         <translation>Letöltésekhez használt proxykiszolgáló, például http://host:port vagy socks5h://host:port. Üresen hagyva, a rendszer a környezeti változókban megadott proxyt fogja használni</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1198"/>
+        <source>Check for VCMI updates on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1278"/>
         <source>Autosaves per game (0 = unlimited)</source>
         <translation>Játékonkénti automatikus mentések maximális száma (0 = korlátlan)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1264"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1293"/>
         <source>Nearest</source>
         <translation>Legközelebbi</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1269"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1298"/>
         <source>Linear</source>
         <translation>Lineáris</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1309"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1338"/>
         <source>Input - Touchscreen</source>
         <translation>Bemenet - Érintőképernyő</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1577"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1606"/>
         <source>Save Before Visit</source>
         <translation>Mentés a látogatás előtt</translation>
     </message>
@@ -1047,7 +1052,7 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
         <translation>Hang</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1463"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1492"/>
         <source>Relative Pointer Speed</source>
         <translation>Relatív kurzorsebesség</translation>
     </message>
@@ -1057,12 +1062,12 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
         <translation>Zene hangereje</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1371"/>
         <source>Ignore SSL errors</source>
         <translation>SSL-hibák figyelmen kívül hagyása</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1294"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1323"/>
         <source>Input - Mouse</source>
         <translation>Bemenet - Egér</translation>
     </message>
@@ -1072,7 +1077,7 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
         <translation>Hosszú érintés időtartama</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1405"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1434"/>
         <source>Controller Click Tolerance</source>
         <translation>Vezérlő kattintási tűréshatára</translation>
     </message>
@@ -1082,27 +1087,27 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
         <translation>Érintés érintési tűréshatára</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1239"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1268"/>
         <source>Input - Controller</source>
         <translation>Bemenet - Vezérlő</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1364"/>
         <source>Sound Volume</source>
         <translation>Hang hangereje</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1483"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1512"/>
         <source>Windowed</source>
         <translation>Ablakos</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1488"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1517"/>
         <source>Borderless fullscreen</source>
         <translation>Keret nélküli teljes képernyő</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1493"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1522"/>
         <source>Exclusive fullscreen</source>
         <translation>Exkluzív teljes képernyő</translation>
     </message>
@@ -1149,17 +1154,17 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
         <translation>Alapértelmezett tároló</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1285"/>
         <source>Renderer</source>
         <translation>Megjelenítő</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="128"/>
         <source>On</source>
         <translation>Bekapcsolva</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1282"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1311"/>
         <source>Reserved screen area</source>
         <translation>Fenntartott képernyőterület</translation>
     </message>
@@ -1174,7 +1179,7 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
         <translation>Ellenőrzés indításkor</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1220"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
         <source>Fullscreen</source>
         <translation>Teljes képernyő</translation>
     </message>
@@ -1224,17 +1229,17 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
         <translation>Bevezető videó megjelenítése</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="138"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="139"/>
         <source>StupidAI (deprecated)</source>
         <translation>Buta MI (elavult)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="143"/>
         <source>BattleAI (default, recommended)</source>
         <translation>Csatázó MI (alapértelmezett, ajánlott)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="147"/>
         <source>MMAI (experimental)</source>
         <translation>Mengmian MI (kísérleti)</translation>
     </message>
@@ -1243,37 +1248,37 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
         <translation type="obsolete">Nullkiller (a Nullkiller2 váltotta fel)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="159"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="160"/>
         <source>Nullkiller2 (default, recommended)</source>
         <translation>Nullkiller2 (alapértelmezett, ajánlott)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="169"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="170"/>
         <source>EmptyAI - No valid AI libraries found!</source>
         <translation>Üres MI – Nem található érvényes MI-könyvtár!</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="765"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="776"/>
         <source>Active</source>
         <translation>Aktív</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="770"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="781"/>
         <source>Disabled</source>
         <translation>Letiltva</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="771"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="782"/>
         <source>Enable</source>
         <translation>Engedélyezés</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="776"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="787"/>
         <source>Not Installed</source>
         <translation>Nincs telepítve</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="777"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="788"/>
         <source>Install</source>
         <translation>Telepítés</translation>
     </message>
@@ -1333,7 +1338,7 @@ Exkluzív teljes képernyő - a játék teljes képernyős módban fut, és az �
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/modstate.cpp" line="176"/>
+        <location filename="../modManager/modstate.cpp" line="175"/>
         <location filename="../modManager/modstatemodel.cpp" line="106"/>
         <source>%1 MiB</source>
         <translation>%1 MiB</translation>
@@ -2059,17 +2064,17 @@ Bin (%n bájt):
         <translation>Hiba történt az indítható fájl indításakor</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="456"/>
+        <location filename="../mainwindow_moc.cpp" line="470"/>
         <source>mod archive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="467"/>
+        <location filename="../mainwindow_moc.cpp" line="481"/>
         <source>Replace config file?</source>
         <translation>Lecseréli a konfigurációs fájlt?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="467"/>
+        <location filename="../mainwindow_moc.cpp" line="481"/>
         <source>Do you want to replace %1?</source>
         <translation>Szeretné lecserélni a következőt: %1?</translation>
     </message>
@@ -2313,30 +2318,30 @@ Bin (%n bájt):
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="148"/>
+        <location filename="../main.cpp" line="156"/>
         <source>Error starting executable</source>
         <translation>Hiba történt a program elindításakor</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="149"/>
+        <location filename="../main.cpp" line="157"/>
         <source>Failed to start %1
 Reason: %2</source>
         <translation>Nem sikerült elindítani a(z) %1 programot
 A hiba oka: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1402"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1421"/>
         <source>Import failed</source>
         <translation>Nem sikerült importálni az adatokat</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1402"/>
         <source>Failed to import save %1 from %2</source>
         <translation>Nem sikerült importálni a(z) %1 mentési fájlt innen: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1421"/>
         <source>Failed to import save file %1</source>
         <translation>Nem sikerült importálni a(z) %1 mentési fájlt</translation>
     </message>
@@ -2344,27 +2349,27 @@ A hiba oka: %2</translation>
 <context>
     <name>StartGameTab</name>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="655"/>
+        <location filename="../startGame/StartGameTab.ui" line="654"/>
         <source>Import from Clipboard</source>
         <translation>Importálás a vágólapról</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="674"/>
+        <location filename="../startGame/StartGameTab.ui" line="673"/>
         <source>Rename Current Preset</source>
         <translation>Jelenlegi előbeállítás átnevezése</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="588"/>
+        <location filename="../startGame/StartGameTab.ui" line="587"/>
         <source>Create New Preset</source>
         <translation>Új előbeállítás létrehozása</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="569"/>
+        <location filename="../startGame/StartGameTab.ui" line="568"/>
         <source>Export to Clipboard</source>
         <translation>Exportálás a vágólapra</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="623"/>
+        <location filename="../startGame/StartGameTab.ui" line="622"/>
         <source>Delete Current Preset</source>
         <translation>Jelenlegi előbeállítás törlése</translation>
     </message>
@@ -2379,11 +2384,12 @@ A hiba oka: %2</translation>
         <location filename="../startGame/StartGameTab.ui" line="201"/>
         <location filename="../startGame/StartGameTab.ui" line="220"/>
         <location filename="../startGame/StartGameTab.ui" line="299"/>
-        <location filename="../startGame/StartGameTab.ui" line="411"/>
-        <location filename="../startGame/StartGameTab.ui" line="430"/>
-        <location filename="../startGame/StartGameTab.ui" line="471"/>
-        <location filename="../startGame/StartGameTab.ui" line="509"/>
-        <location filename="../startGame/StartGameTab.ui" line="528"/>
+        <location filename="../startGame/StartGameTab.ui" line="410"/>
+        <location filename="../startGame/StartGameTab.ui" line="429"/>
+        <location filename="../startGame/StartGameTab.ui" line="470"/>
+        <location filename="../startGame/StartGameTab.ui" line="508"/>
+        <location filename="../startGame/StartGameTab.ui" line="527"/>
+        <location filename="../startGame/StartGameTab.ui" line="779"/>
         <source>?</source>
         <translation>?</translation>
     </message>
@@ -2393,7 +2399,7 @@ A hiba oka: %2</translation>
         <translation>Fordítás telepítése</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="449"/>
+        <location filename="../startGame/StartGameTab.ui" line="448"/>
         <source>No soundtrack detected!</source>
         <translation>Nem található zenei anyag!</translation>
     </message>
@@ -2403,37 +2409,34 @@ A hiba oka: %2</translation>
         <translation>Az Armaggedon&apos;s Blade hadjáratai hiányoznak!</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="351"/>
+        <location filename="../startGame/StartGameTab.ui" line="350"/>
         <source>No video files detected!</source>
         <translation>Nincsenek észlelt videófájlok!</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="490"/>
+        <location filename="../startGame/StartGameTab.ui" line="489"/>
         <source>Activate Translation</source>
         <translation>Fordítás aktiválása</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="373"/>
+        <location filename="../startGame/StartGameTab.ui" line="372"/>
         <source>Import files</source>
         <translation>Fájlok importálása</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="759"/>
         <source>Check For Updates</source>
-        <translation>Frissítések keresése</translation>
+        <translation type="vanished">Frissítések keresése</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="778"/>
         <source>Go to Downloads Page</source>
-        <translation>Ugrás a letöltési oldalra</translation>
+        <translation type="vanished">Ugrás a letöltési oldalra</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="797"/>
         <source>Go to Changelog Page</source>
-        <translation>Ugrás a változáslista oldalára</translation>
+        <translation type="vanished">Ugrás a változáslista oldalára</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="715"/>
+        <location filename="../startGame/StartGameTab.cpp" line="258"/>
         <source>You are using the latest version</source>
         <translation>A legújabb verziót használja</translation>
     </message>
@@ -2458,29 +2461,38 @@ A hiba oka: %2</translation>
         <translation>Játék telepítése</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="831"/>
+        <location filename="../startGame/StartGameTab.ui" line="714"/>
+        <location filename="../startGame/StartGameTab.cpp" line="246"/>
+        <location filename="../startGame/StartGameTab.cpp" line="252"/>
+        <location filename="../startGame/StartGameTab.cpp" line="257"/>
+        <location filename="../startGame/StartGameTab.cpp" line="262"/>
+        <source>Check for Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="815"/>
         <source>Resume</source>
         <translation>Folytatás</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="892"/>
+        <location filename="../startGame/StartGameTab.ui" line="876"/>
         <source>Play</source>
         <translation>Játék</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="859"/>
+        <location filename="../startGame/StartGameTab.ui" line="843"/>
         <source>Editor</source>
         <translation>Szerkesztő</translation>
     </message>
     <message numerus="yes">
-        <location filename="../startGame/StartGameTab.cpp" line="212"/>
+        <location filename="../startGame/StartGameTab.cpp" line="214"/>
         <source>Update %n mods</source>
         <translation>
             <numerusform>%n mod frissítése</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../startGame/StartGameTab.cpp" line="216"/>
+        <location filename="../startGame/StartGameTab.cpp" line="218"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
         <translation>
@@ -2489,62 +2501,81 @@ A hiba oka: %2</translation>
         </translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="241"/>
         <source>Update to %1 available</source>
-        <translation>A(z) %1 frissítés elérhető</translation>
+        <translation type="vanished">A(z) %1 frissítés elérhető</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="289"/>
+        <location filename="../startGame/StartGameTab.cpp" line="320"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
         <translation>Válassza ki a fájlokat (konfigurációk, modok, mentések, térképek, hadjáratok, gog-fájlok) a telepítéshez…</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="298"/>
+        <location filename="../startGame/StartGameTab.cpp" line="329"/>
         <source>Install Heroes III</source>
         <translation>Heroes III telepítése</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="299"/>
+        <location filename="../startGame/StartGameTab.cpp" line="330"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
         <translation>Ez el fogja távolítani az összes demó-játékadatot (Data, Maps, Mp3 és Video mappákat), és újraindítja a telepítővarázslót. Biztos benne?</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="276"/>
+        <location filename="../startGame/StartGameTab.cpp" line="307"/>
         <source>All supported files</source>
         <translation>Minden támogatott fájl</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="277"/>
+        <location filename="../startGame/StartGameTab.cpp" line="249"/>
+        <source>Checking for Updates...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="253"/>
+        <source>Could not check for updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="263"/>
+        <source>Update to %1 Available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="289"/>
+        <source>VCMI could not contact the update server. Make sure that you are connected to the internet and try again later.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="308"/>
         <source>Maps</source>
         <translation>Térképek</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="278"/>
+        <location filename="../startGame/StartGameTab.cpp" line="309"/>
         <source>Campaigns</source>
         <translation>Hadjáratok</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="279"/>
+        <location filename="../startGame/StartGameTab.cpp" line="310"/>
         <source>Saves</source>
         <translation>Mentések</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="280"/>
+        <location filename="../startGame/StartGameTab.cpp" line="311"/>
         <source>Configs</source>
         <translation>Konfigurációk</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="281"/>
+        <location filename="../startGame/StartGameTab.cpp" line="312"/>
         <source>Mods</source>
         <translation>Modok</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="282"/>
+        <location filename="../startGame/StartGameTab.cpp" line="313"/>
         <source>Gog files</source>
         <translation>GOG-fájlok</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="285"/>
+        <location filename="../startGame/StartGameTab.cpp" line="316"/>
         <source>All files (*.*)</source>
         <translation>Minden fájl (*.*)</translation>
     </message>
@@ -2571,28 +2602,28 @@ A hiba oka: %2</translation>
 </translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="333"/>
-        <location filename="../startGame/StartGameTab.cpp" line="368"/>
+        <location filename="../startGame/StartGameTab.cpp" line="364"/>
+        <location filename="../startGame/StartGameTab.cpp" line="399"/>
         <source>Preparing selected files for import...</source>
         <translation>Kiválasztott fájlok előkészítése importálásra…</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="338"/>
+        <location filename="../startGame/StartGameTab.cpp" line="369"/>
         <source>Preparing selected files for import... %1/%2</source>
         <translation>Kiválasztott fájlok előkészítése importálásra… %1/%2</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="359"/>
+        <location filename="../startGame/StartGameTab.cpp" line="390"/>
         <source>Import failed</source>
         <translation>Nem sikerült importálni az adatokat</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="359"/>
+        <location filename="../startGame/StartGameTab.cpp" line="390"/>
         <source>Failed to prepare file for import: %1</source>
         <translation>Nem sikerült előkészíteni a fájlt az importálásra: %1</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="427"/>
+        <location filename="../startGame/StartGameTab.cpp" line="458"/>
         <source>This option allows you to import additional data files into your VCMI installation. At the moment, following options are supported:
 
  - Heroes III Maps (.h3m or .vmap).
@@ -2615,17 +2646,17 @@ A hiba oka: %2</translation>
 </translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="444"/>
+        <location filename="../startGame/StartGameTab.cpp" line="475"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
         <translation>A Heroes III játék más nyelven fut. A VCMI a játék különböző nyelvű fordításait kínálja, amelyeket felhasználhat. Ezzel a beállítással automatikusan telepítheti a saját nyelvére szóló fordítást.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="454"/>
+        <location filename="../startGame/StartGameTab.cpp" line="485"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
         <translation>A Heroes III fordítása telepítve van az Ön nyelvére, de jelenleg ki van kapcsolva. Használja ezt a beállítást a bekapcsolásához.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="464"/>
+        <location filename="../startGame/StartGameTab.cpp" line="495"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
@@ -2634,14 +2665,14 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
 FIGYELEM: Előfordulhat, hogy a modok frissített verziói nem kompatibilisek a meglévő játékmentésekkel. Érdemes elhalasztani a modok frissítését, amíg be nem fejezte a folyamatban lévő játékait.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="476"/>
+        <location filename="../startGame/StartGameTab.cpp" line="507"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
         <translation>Amennyiben Ön birtokolja a Heroes Chronicles játékot a GOG-on, használhatja a GOG által biztosított offline biztonsági mentésű telepítőket, hogy a Heroes Chronicles adatait egyéni hadjáratokként importálja a VCMI-ba.
 A Heroes Chronicles importálásához töltse le minden egyes telepítendő krónika offline biztonsági mentésű telepítőjét, válassza ki a „Fájlok importálása” lehetőséget, majd jelölje ki a letöltött fájlt. Ez létrehoz és telepít egy olyan modot a VCMI-hoz, amely tartalmazza az importált krónikákat.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="489"/>
+        <location filename="../startGame/StartGameTab.cpp" line="520"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
@@ -2650,7 +2681,7 @@ To resolve this problem, please copy missing mp3 files from Heroes III to VCMI d
 A probléma megoldásához másolja át a hiányzó mp3-fájlokat a Heroes III játékból a VCMI adatfájlok könyvtárába kézzel, vagy telepítse újra a VCMI-klienst, és importálja újra a Heroes III adatfájljait.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="500"/>
+        <location filename="../startGame/StartGameTab.cpp" line="531"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
@@ -2659,7 +2690,7 @@ To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data
 A probléma megoldásához másolja át a VIDEO.VID fájlt a Heroes III mappából a VCMI adatfájlok könyvtárába kézzel, vagy telepítse újra a VCMI-klienst, és importálja újra a Heroes III adatfájljait.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="511"/>
+        <location filename="../startGame/StartGameTab.cpp" line="542"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com.</source>
@@ -2668,7 +2699,7 @@ To resolve this problem, please reinstall game and reimport data files using sup
 A probléma megoldásához telepítse újra a játékot, és importálja újra az adatfájlokat a Heroes III egy támogatott verzióját használva. A VCMI futtatásához a Heroes III: Shadow of Death vagy a Complete Edition szükséges, amelyet beszerezhet (például) a GOG-ról.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="522"/>
+        <location filename="../startGame/StartGameTab.cpp" line="553"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
@@ -2677,7 +2708,7 @@ To resolve this problem, please copy missing data files from Heroes III to VCMI 
 A probléma megoldásához másolja át a hiányzó adatfájlokat a Heroes III mappáyból a VCMI adatfájlok könyvtárába kézzel, vagy telepítse újra a VCMI-klienst, és importálja újra a Heroes III adatfájljait.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="533"/>
+        <location filename="../startGame/StartGameTab.cpp" line="564"/>
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
@@ -2686,24 +2717,24 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
 A telepítés után a felméretezési szűrőt legalább x2-esre kell állítania ahhoz, hogy ténylegesen láthassa a HD grafikát.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="572"/>
-        <location filename="../startGame/StartGameTab.cpp" line="581"/>
+        <location filename="../startGame/StartGameTab.cpp" line="603"/>
+        <location filename="../startGame/StartGameTab.cpp" line="612"/>
         <source>Preset import failed</source>
         <translation>Nem sikerült az előbeállítást importálni</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="572"/>
-        <location filename="../startGame/StartGameTab.cpp" line="581"/>
+        <location filename="../startGame/StartGameTab.cpp" line="603"/>
+        <location filename="../startGame/StartGameTab.cpp" line="612"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
         <translation>Nem sikerült az előbeállítást importálni - a vágólapon lévő adatok nem tűnnek egy mod előbeállításának!</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="597"/>
+        <location filename="../startGame/StartGameTab.cpp" line="628"/>
         <source>Enter preset name:</source>
         <translation>Adja meg az előbeállítás nevét:</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="640"/>
+        <location filename="../startGame/StartGameTab.cpp" line="671"/>
         <source>Rename preset &apos;%1&apos; to:</source>
         <translation>A(z) „%1” előbeállítás átnevezése erre:</translation>
     </message>
@@ -2711,29 +2742,123 @@ A telepítés után a felméretezési szűrőt legalább x2-esre kell állítani
 <context>
     <name>UpdateDialog</name>
     <message>
-        <location filename="../updatedialog_moc.ui" line="71"/>
         <source>You have the latest version</source>
-        <translation>Ön a legújabb verziót használja</translation>
+        <translation type="vanished">Ön a legújabb verziót használja</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.ui" line="94"/>
         <source>Close</source>
-        <translation>Bezárás</translation>
+        <translation type="vanished">Bezárás</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.ui" line="101"/>
         <source>Check for updates on startup</source>
-        <translation>Frissítések keresése indításkor</translation>
+        <translation type="vanished">Frissítések keresése indításkor</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="71"/>
         <source>Network error</source>
-        <translation>Hálózati hiba</translation>
+        <translation type="vanished">Hálózati hiba</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="100"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation>Nem sikerült beolvasni a JSON-fájlt a webcímről, vagy a JSON-fájl adatai hibásak</translation>
+        <translation type="vanished">Nem sikerült beolvasni a JSON-fájlt a webcímről, vagy a JSON-fájl adatai hibásak</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateView</name>
+    <message>
+        <location filename="../updates/UpdateView.ui" line="50"/>
+        <source>Changelog</source>
+        <translation type="unfinished">Változáslista</translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.ui" line="85"/>
+        <source>Back</source>
+        <translation type="unfinished">Vissza</translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.ui" line="105"/>
+        <source>Full Changelog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="51"/>
+        <source>VCMI %1 is available. You have %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="61"/>
+        <source>Your browser will download the installer. Run it once the download finishes: it will close VCMI and update it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="62"/>
+        <location filename="../updates/UpdateView.cpp" line="74"/>
+        <source>Download Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="66"/>
+        <source>Your browser will download the update as a ZIP archive. Close VCMI, then extract the archive into your VCMI folder, replacing existing files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="68"/>
+        <source>Your browser will download the update as an APK file. Open it to install the update over the current version. Android may ask you to allow your browser to install apps.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="70"/>
+        <source>Your browser will download a disk image. Close VCMI, open it and replace your current VCMI app with the one inside.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="72"/>
+        <source>Your browser will download the update as an AppImage. Allow it to run as a program, for example with &apos;chmod +x&apos;, and start it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="78"/>
+        <source>Open Store</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="82"/>
+        <source>Update VCMI in Google Play. Google Play releases updates gradually, so the new version may take a few days to appear there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="87"/>
+        <source>Update VCMI in your F-Droid app. F-Droid builds new versions itself, so the update may take a few days to appear there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="91"/>
+        <source>Update VCMI in the TestFlight app. New versions may take a few days to appear there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="96"/>
+        <source>Update VCMI in your software center or with &apos;flatpak update eu.vcmi.VCMI&apos;. New versions may take a few days to appear on Flathub.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="101"/>
+        <source>Update VCMI with the package manager of your distribution. Some distributions take a long time to ship new versions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="103"/>
+        <source>Update VCMI the same way you installed it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="105"/>
+        <source>Open Download Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="113"/>
+        <source>Your saves, settings and mods are kept.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

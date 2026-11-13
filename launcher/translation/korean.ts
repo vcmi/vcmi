@@ -243,31 +243,31 @@
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="428"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="574"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="573"/>
         <source>Uninstall</source>
         <translation type="unfinished">제거</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="459"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="564"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="563"/>
         <source>Enable</source>
         <translation type="unfinished">활성화</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="490"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="559"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="558"/>
         <source>Disable</source>
         <translation type="unfinished">비활성화</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="397"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="579"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="578"/>
         <source>Update</source>
         <translation type="unfinished">업데이트</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="521"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="569"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="568"/>
         <source>Install</source>
         <translation type="unfinished">설치</translation>
     </message>
@@ -287,14 +287,14 @@
         <translation type="unfinished">중단</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="359"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="352"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="358"/>
         <source>Installed version</source>
         <translation type="unfinished">설치된 버전</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="354"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="361"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="353"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="360"/>
         <source>Latest version</source>
         <translation type="unfinished">최신 버전</translation>
     </message>
@@ -303,33 +303,33 @@
         <translation type="obsolete">크기</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="370"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>Download size</source>
         <translation type="unfinished">다운로드 크기</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="372"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
         <source>Authors</source>
         <translation type="unfinished">제작자</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="375"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="374"/>
         <source>License</source>
         <translation type="unfinished">라이선스</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="378"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="377"/>
         <source>Contact</source>
         <translation type="unfinished">연락처</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
         <source>Compatibility</source>
         <translation type="unfinished">호환성</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="394"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="393"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <source>Required VCMI version</source>
         <translation type="unfinished">필요한 VCMI 버전</translation>
     </message>
@@ -342,9 +342,9 @@
         <translation type="obsolete">모드를 업데이트하세요</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="217"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1201"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1206"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="216"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1200"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1205"/>
         <source>mods repository index</source>
         <translation type="unfinished">모드 저장소 인덱스</translation>
     </message>
@@ -361,8 +361,8 @@
         <translation type="obsolete">이상</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="397"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>Supported VCMI versions</source>
         <translation type="unfinished">지원되는 VCMI 버전</translation>
     </message>
@@ -371,12 +371,12 @@
         <translation type="obsolete">언어</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="429"/>
         <source>Required mods</source>
         <translation type="unfinished">필수 모드</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="431"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Conflicting mods</source>
         <translation type="unfinished">충돌하는 모드</translation>
     </message>
@@ -397,49 +397,49 @@
         <translation type="obsolete">이것은 하위 모드로, 상위 모드와 별도로 설치하거나 제거할 수 없습니다</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="458"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="457"/>
         <source>Notes</source>
         <translation type="unfinished">메모</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="541"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="540"/>
         <source>Context menu</source>
         <translation type="unfinished">컨텍스트 메뉴</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="584"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="583"/>
         <source>Open directory</source>
         <translation type="unfinished">디렉터리 열기</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="589"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="588"/>
         <source>Open repository</source>
         <translation type="unfinished">저장소 열기</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="886"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="885"/>
         <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="888"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="887"/>
         <source>Downloading %1. %p% (%v MB out of %m MB) finished</source>
         <translation type="unfinished">%1 다운로드 중. %p% (%m MB 중 %v MB) 완료</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="923"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="922"/>
         <source>Extracting content.zip (%1/%2) for %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="929"/>
         <source>Download failed</source>
         <translation type="unfinished">다운로드 실패</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="930"/>
         <source>Unable to download all files.
 
 Encountered errors:
@@ -461,237 +461,237 @@ Install successfully downloaded?</source>
 설치 파일을 정상적으로 다운로드했습니까?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1165"/>
         <source>Failed to install file %1.
 Reason: %2.
 Please report this issue to developers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1284"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1283"/>
         <source>Installing Heroes Chronicles</source>
         <translation type="unfinished">Heroes Chronicles 설치 중</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1316"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1315"/>
         <source>Extracting error!</source>
         <translation type="unfinished">압축 해제 오류!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1317"/>
         <source>Invalid file selected</source>
         <translation type="unfinished">잘못된 파일이 선택되었습니다</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1318"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1317"/>
         <source>You have to select a Heroes Chronicles installer file!</source>
         <translation type="unfinished">Heroes Chronicles 설치 파일을 선택해야 합니다!</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1450"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1449"/>
         <source>Save exists</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1451"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1450"/>
         <source>Save &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1470"/>
         <source>Failed to import saves from %1.
 Reason: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1483"/>
         <source>Success</source>
         <translation type="unfinished">성공</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1484"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1483"/>
         <source>Imported %1 save files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1522"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1521"/>
         <source>Installing mod %1</source>
         <translation type="unfinished">모드 %1 설치 중</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1553"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1552"/>
         <source>%1 requires: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1556"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1555"/>
         <source>Failed to enable mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1557"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1556"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1570"/>
         <source>Mods disabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1572"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1660"/>
         <source>Map exists</source>
         <translation type="unfinished">지도가 존재합니다</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1633"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1661"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1660"/>
         <source>Map &apos;%1&apos; already exists. Do you want to overwrite it?</source>
         <translation type="unfinished">지도 &apos;%1&apos; 이(가) 이미 존재합니다. 덮어쓰시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1072"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1071"/>
         <source>Yes to All</source>
         <translation type="unfinished">모두 예</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1073"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1072"/>
         <source>No to All</source>
         <translation type="unfinished">모두 아니오</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1679"/>
         <source>Import complete</source>
         <translation type="unfinished">가져오기 완료</translation>
     </message>
     <message numerus="yes">
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1680"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1679"/>
         <source>%n map(s) successfully imported.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1815"/>
         <source>Uninstall mod</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1816"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1815"/>
         <source>Are you sure you want to uninstall %1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1166"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1471"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1165"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1470"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1682"/>
         <source>Import failed</source>
         <translation type="unfinished">가져오기 실패</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="364"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
         <source>Last updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="367"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="366"/>
         <source>Installed size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="382"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
         <source>GitHub repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="385"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>GitHub stars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="392"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
         <source>Not compatible with this VCMI version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="396"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <source>%1 or newer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="398"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="397"/>
         <source>up to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="400"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>%1 - %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="412"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>%1, complete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="414"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="413"/>
         <source>%1, %2% translated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="416"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="415"/>
         <source>%1, available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="418"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="417"/>
         <source>Translation</source>
         <translation type="unfinished">번역</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="432"/>
         <source>This translation cannot be enabled because it is for a different language than the one selected in settings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
         <source>This mod cannot be enabled because these required mods are missing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
         <source>This mod cannot be installed because these required mods are missing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="436"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
         <source>This is a submod. It cannot be installed or uninstalled separately from its parent mod.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="452"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="451"/>
         <source>This mod failed automatic validation and may not work correctly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="932"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
         <source>
 
 Process successfully downloaded files?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1010"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1009"/>
         <source>VCMI could not confirm that it is connected to the real download server.
 
 This usually happens on older systems, such as Windows 7, that are missing recent security updates.
@@ -702,36 +702,36 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1017"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1016"/>
         <source>Unable to verify download server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1683"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1682"/>
         <source>Failed to import the following maps:
 %1</source>
         <translation type="unfinished">다음 지도를 가져오지 못했습니다:
 %1</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1713"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1712"/>
         <source>Operation failed</source>
         <translation type="unfinished">작업 실패</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1714"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1713"/>
         <source>Encountered errors:
 </source>
         <translation type="unfinished">발생한 오류:
 </translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1766"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1765"/>
         <source>screenshots</source>
         <translation type="unfinished">스크린샷</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1772"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1771"/>
         <source>Screenshot %1</source>
         <translation type="unfinished">스크린샷 %1</translation>
     </message>
@@ -744,7 +744,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
     <name>CSettingsView</name>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="166"/>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="129"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="130"/>
         <source>Off</source>
         <translation type="unfinished">끔</translation>
     </message>
@@ -759,7 +759,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">인터페이스 배율</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1362"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1391"/>
         <source>Neutral AI in battles</source>
         <translation type="unfinished">전투 중 중립 AI</translation>
     </message>
@@ -784,7 +784,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">온라인 로비 포트</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1227"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
         <source>Autocombat AI in battles</source>
         <translation type="unfinished">전투 자동전투 AI</translation>
     </message>
@@ -794,7 +794,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">스틱 감도</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1274"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1303"/>
         <source>Automatic (Linear)</source>
         <translation type="unfinished">자동(선형)</translation>
     </message>
@@ -821,7 +821,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">모드 유효성 검사</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1412"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1441"/>
         <source>Config editor</source>
         <translation type="unfinished">설정 편집기</translation>
     </message>
@@ -866,7 +866,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">확장 가능한 글꼴 사용</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1369"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1398"/>
         <source>Online Lobby address</source>
         <translation type="unfinished">온라인 로비 주소</translation>
     </message>
@@ -891,7 +891,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <translation type="unfinished">기타</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1470"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1499"/>
         <source>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
@@ -983,27 +983,32 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1198"/>
+        <source>Check for VCMI updates on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1278"/>
         <source>Autosaves per game (0 = unlimited)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1264"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1293"/>
         <source>Nearest</source>
         <translation type="unfinished">최근접</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1269"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1298"/>
         <source>Linear</source>
         <translation type="unfinished">선형</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1309"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1338"/>
         <source>Input - Touchscreen</source>
         <translation type="unfinished">입력 - 터치스크린</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1577"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1606"/>
         <source>Save Before Visit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1033,7 +1038,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished">오디오</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1463"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1492"/>
         <source>Relative Pointer Speed</source>
         <translation type="unfinished">상대 포인터 속도</translation>
     </message>
@@ -1043,12 +1048,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished">음악 볼륨</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1342"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1371"/>
         <source>Ignore SSL errors</source>
         <translation type="unfinished">SSL 오류 무시</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1294"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1323"/>
         <source>Input - Mouse</source>
         <translation type="unfinished">입력 - 마우스</translation>
     </message>
@@ -1058,7 +1063,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished">롱터치 시간</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1405"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1434"/>
         <source>Controller Click Tolerance</source>
         <translation type="unfinished">컨트롤러 클릭 허용치</translation>
     </message>
@@ -1068,27 +1073,27 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished">터치 탭 허용치</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1239"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1268"/>
         <source>Input - Controller</source>
         <translation type="unfinished">입력 - 컨트롤러</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1335"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1364"/>
         <source>Sound Volume</source>
         <translation type="unfinished">사운드 볼륨</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1483"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1512"/>
         <source>Windowed</source>
         <translation type="unfinished">창 모드</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1488"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1517"/>
         <source>Borderless fullscreen</source>
         <translation type="unfinished">경계 없는 전체 화면</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1493"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1522"/>
         <source>Exclusive fullscreen</source>
         <translation type="unfinished">독점 전체 화면</translation>
     </message>
@@ -1135,17 +1140,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished">기본 저장소</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1256"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1285"/>
         <source>Renderer</source>
         <translation type="unfinished">렌더러</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="127"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="128"/>
         <source>On</source>
         <translation type="unfinished">켬</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1282"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1311"/>
         <source>Reserved screen area</source>
         <translation type="unfinished">예약된 화면 영역</translation>
     </message>
@@ -1160,7 +1165,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished">시작 시 확인</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.ui" line="1220"/>
+        <location filename="../settingsView/csettingsview_moc.ui" line="1249"/>
         <source>Fullscreen</source>
         <translation type="unfinished">전체 화면</translation>
     </message>
@@ -1210,17 +1215,17 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="unfinished">인트로 표시</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="138"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="139"/>
         <source>StupidAI (deprecated)</source>
         <translation type="unfinished">StupidAI(사용 중단됨)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="142"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="143"/>
         <source>BattleAI (default, recommended)</source>
         <translation type="unfinished">BattleAI(기본값, 권장)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="146"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="147"/>
         <source>MMAI (experimental)</source>
         <translation type="unfinished">MMAI(실험적)</translation>
     </message>
@@ -1229,37 +1234,37 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
         <translation type="obsolete">Nullkiller(Nullkiller2로 대체됨)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="159"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="160"/>
         <source>Nullkiller2 (default, recommended)</source>
         <translation type="unfinished">Nullkiller2(기본값, 권장)</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="169"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="170"/>
         <source>EmptyAI - No valid AI libraries found!</source>
         <translation type="unfinished">EmptyAI - 유효한 AI 라이브러리를 찾을 수 없습니다!</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="765"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="776"/>
         <source>Active</source>
         <translation type="unfinished">활성</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="770"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="781"/>
         <source>Disabled</source>
         <translation type="unfinished">비활성화됨</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="771"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="782"/>
         <source>Enable</source>
         <translation type="unfinished">활성화</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="776"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="787"/>
         <source>Not Installed</source>
         <translation type="unfinished">설치되지 않음</translation>
     </message>
     <message>
-        <location filename="../settingsView/csettingsview_moc.cpp" line="777"/>
+        <location filename="../settingsView/csettingsview_moc.cpp" line="788"/>
         <source>Install</source>
         <translation type="unfinished">설치</translation>
     </message>
@@ -1319,7 +1324,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
 <context>
     <name>File size</name>
     <message>
-        <location filename="../modManager/modstate.cpp" line="176"/>
+        <location filename="../modManager/modstate.cpp" line="175"/>
         <location filename="../modManager/modstatemodel.cpp" line="106"/>
         <source>%1 MiB</source>
         <translation type="unfinished">%1 MiB</translation>
@@ -2040,17 +2045,17 @@ Bin (%n bytes):
         <translation type="unfinished">실행 파일 시작 오류</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="456"/>
+        <location filename="../mainwindow_moc.cpp" line="470"/>
         <source>mod archive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="467"/>
+        <location filename="../mainwindow_moc.cpp" line="481"/>
         <source>Replace config file?</source>
         <translation type="unfinished">설정 파일을 교체하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../mainwindow_moc.cpp" line="467"/>
+        <location filename="../mainwindow_moc.cpp" line="481"/>
         <source>Do you want to replace %1?</source>
         <translation type="unfinished">%1을(를) 교체하시겠습니까?</translation>
     </message>
@@ -2294,30 +2299,30 @@ Bin (%n bytes):
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../main.cpp" line="148"/>
+        <location filename="../main.cpp" line="156"/>
         <source>Error starting executable</source>
         <translation type="unfinished">실행 파일 시작 오류</translation>
     </message>
     <message>
-        <location filename="../main.cpp" line="149"/>
+        <location filename="../main.cpp" line="157"/>
         <source>Failed to start %1
 Reason: %2</source>
         <translation type="unfinished">%1을(를) 시작하지 못했습니다
 이유: %2</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1402"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1421"/>
         <source>Import failed</source>
         <translation type="unfinished">가져오기 실패</translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1403"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1402"/>
         <source>Failed to import save %1 from %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../modManager/cmodlistview_moc.cpp" line="1422"/>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1421"/>
         <source>Failed to import save file %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2325,27 +2330,27 @@ Reason: %2</source>
 <context>
     <name>StartGameTab</name>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="655"/>
+        <location filename="../startGame/StartGameTab.ui" line="654"/>
         <source>Import from Clipboard</source>
         <translation type="unfinished">클립보드에서 가져오기</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="674"/>
+        <location filename="../startGame/StartGameTab.ui" line="673"/>
         <source>Rename Current Preset</source>
         <translation type="unfinished">현재 프리셋 이름 바꾸기</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="588"/>
+        <location filename="../startGame/StartGameTab.ui" line="587"/>
         <source>Create New Preset</source>
         <translation type="unfinished">새 프리셋 만들기</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="569"/>
+        <location filename="../startGame/StartGameTab.ui" line="568"/>
         <source>Export to Clipboard</source>
         <translation type="unfinished">클립보드로 내보내기</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="623"/>
+        <location filename="../startGame/StartGameTab.ui" line="622"/>
         <source>Delete Current Preset</source>
         <translation type="unfinished">현재 프리셋 삭제</translation>
     </message>
@@ -2360,11 +2365,12 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.ui" line="201"/>
         <location filename="../startGame/StartGameTab.ui" line="220"/>
         <location filename="../startGame/StartGameTab.ui" line="299"/>
-        <location filename="../startGame/StartGameTab.ui" line="411"/>
-        <location filename="../startGame/StartGameTab.ui" line="430"/>
-        <location filename="../startGame/StartGameTab.ui" line="471"/>
-        <location filename="../startGame/StartGameTab.ui" line="509"/>
-        <location filename="../startGame/StartGameTab.ui" line="528"/>
+        <location filename="../startGame/StartGameTab.ui" line="410"/>
+        <location filename="../startGame/StartGameTab.ui" line="429"/>
+        <location filename="../startGame/StartGameTab.ui" line="470"/>
+        <location filename="../startGame/StartGameTab.ui" line="508"/>
+        <location filename="../startGame/StartGameTab.ui" line="527"/>
+        <location filename="../startGame/StartGameTab.ui" line="779"/>
         <source>?</source>
         <translation type="unfinished">?</translation>
     </message>
@@ -2374,7 +2380,7 @@ Reason: %2</source>
         <translation type="unfinished">번역 설치</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="449"/>
+        <location filename="../startGame/StartGameTab.ui" line="448"/>
         <source>No soundtrack detected!</source>
         <translation type="unfinished">사운드트랙을 찾을 수 없습니다!</translation>
     </message>
@@ -2384,37 +2390,34 @@ Reason: %2</source>
         <translation type="unfinished">Armaggedon&apos;s Blade 캠페인이 없습니다!</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="351"/>
+        <location filename="../startGame/StartGameTab.ui" line="350"/>
         <source>No video files detected!</source>
         <translation type="unfinished">비디오 파일을 찾을 수 없습니다!</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="490"/>
+        <location filename="../startGame/StartGameTab.ui" line="489"/>
         <source>Activate Translation</source>
         <translation type="unfinished">번역 활성화</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="373"/>
+        <location filename="../startGame/StartGameTab.ui" line="372"/>
         <source>Import files</source>
         <translation type="unfinished">파일 가져오기</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="759"/>
         <source>Check For Updates</source>
-        <translation type="unfinished">업데이트 확인</translation>
+        <translation type="obsolete">업데이트 확인</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="778"/>
         <source>Go to Downloads Page</source>
-        <translation type="unfinished">다운로드 페이지로 이동</translation>
+        <translation type="obsolete">다운로드 페이지로 이동</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="797"/>
         <source>Go to Changelog Page</source>
-        <translation type="unfinished">변경 로그 페이지로 이동</translation>
+        <translation type="obsolete">변경 로그 페이지로 이동</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="715"/>
+        <location filename="../startGame/StartGameTab.cpp" line="258"/>
         <source>You are using the latest version</source>
         <translation type="unfinished">최신 버전을 사용 중입니다</translation>
     </message>
@@ -2439,29 +2442,38 @@ Reason: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="831"/>
+        <location filename="../startGame/StartGameTab.ui" line="714"/>
+        <location filename="../startGame/StartGameTab.cpp" line="246"/>
+        <location filename="../startGame/StartGameTab.cpp" line="252"/>
+        <location filename="../startGame/StartGameTab.cpp" line="257"/>
+        <location filename="../startGame/StartGameTab.cpp" line="262"/>
+        <source>Check for Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.ui" line="815"/>
         <source>Resume</source>
         <translation type="unfinished">재개</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="892"/>
+        <location filename="../startGame/StartGameTab.ui" line="876"/>
         <source>Play</source>
         <translation type="unfinished">플레이</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.ui" line="859"/>
+        <location filename="../startGame/StartGameTab.ui" line="843"/>
         <source>Editor</source>
         <translation type="unfinished">에디터</translation>
     </message>
     <message numerus="yes">
-        <location filename="../startGame/StartGameTab.cpp" line="212"/>
+        <location filename="../startGame/StartGameTab.cpp" line="214"/>
         <source>Update %n mods</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../startGame/StartGameTab.cpp" line="216"/>
+        <location filename="../startGame/StartGameTab.cpp" line="218"/>
         <source>Heroes Chronicles:
 %n/%1 installed</source>
         <translation type="unfinished">
@@ -2469,62 +2481,81 @@ Reason: %2</source>
         </translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="241"/>
         <source>Update to %1 available</source>
-        <translation type="unfinished">%1로 업데이트 가능</translation>
+        <translation type="obsolete">%1로 업데이트 가능</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="289"/>
+        <location filename="../startGame/StartGameTab.cpp" line="320"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="298"/>
+        <location filename="../startGame/StartGameTab.cpp" line="329"/>
         <source>Install Heroes III</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="299"/>
+        <location filename="../startGame/StartGameTab.cpp" line="330"/>
         <source>This will remove all demo game data (Data, Maps, Mp3, Video folders) and restart the setup wizard. Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="276"/>
+        <location filename="../startGame/StartGameTab.cpp" line="307"/>
         <source>All supported files</source>
         <translation type="unfinished">모든 지원 파일</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="277"/>
+        <location filename="../startGame/StartGameTab.cpp" line="249"/>
+        <source>Checking for Updates...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="253"/>
+        <source>Could not check for updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="263"/>
+        <source>Update to %1 Available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="289"/>
+        <source>VCMI could not contact the update server. Make sure that you are connected to the internet and try again later.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../startGame/StartGameTab.cpp" line="308"/>
         <source>Maps</source>
         <translation type="unfinished">지도</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="278"/>
+        <location filename="../startGame/StartGameTab.cpp" line="309"/>
         <source>Campaigns</source>
         <translation type="unfinished">캠페인</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="279"/>
+        <location filename="../startGame/StartGameTab.cpp" line="310"/>
         <source>Saves</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="280"/>
+        <location filename="../startGame/StartGameTab.cpp" line="311"/>
         <source>Configs</source>
         <translation type="unfinished">설정</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="281"/>
+        <location filename="../startGame/StartGameTab.cpp" line="312"/>
         <source>Mods</source>
         <translation type="unfinished">모드</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="282"/>
+        <location filename="../startGame/StartGameTab.cpp" line="313"/>
         <source>Gog files</source>
         <translation type="unfinished">GOG 파일</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="285"/>
+        <location filename="../startGame/StartGameTab.cpp" line="316"/>
         <source>All files (*.*)</source>
         <translation type="unfinished">모든 파일 (*.*)</translation>
     </message>
@@ -2551,28 +2582,28 @@ Reason: %2</source>
 </translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="333"/>
-        <location filename="../startGame/StartGameTab.cpp" line="368"/>
+        <location filename="../startGame/StartGameTab.cpp" line="364"/>
+        <location filename="../startGame/StartGameTab.cpp" line="399"/>
         <source>Preparing selected files for import...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="338"/>
+        <location filename="../startGame/StartGameTab.cpp" line="369"/>
         <source>Preparing selected files for import... %1/%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="359"/>
+        <location filename="../startGame/StartGameTab.cpp" line="390"/>
         <source>Import failed</source>
         <translation type="unfinished">가져오기 실패</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="359"/>
+        <location filename="../startGame/StartGameTab.cpp" line="390"/>
         <source>Failed to prepare file for import: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="427"/>
+        <location filename="../startGame/StartGameTab.cpp" line="458"/>
         <source>This option allows you to import additional data files into your VCMI installation. At the moment, following options are supported:
 
  - Heroes III Maps (.h3m or .vmap).
@@ -2586,17 +2617,17 @@ Reason: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="444"/>
+        <location filename="../startGame/StartGameTab.cpp" line="475"/>
         <source>Your Heroes III version uses different language. VCMI provides translations of the game into various languages that you can use. Use this option to automatically install such translation to your language.</source>
         <translation type="unfinished">보유한 Heroes III 버전의 언어가 다릅니다. VCMI는 다양한 언어 번역을 제공합니다. 이 옵션으로 자동 설치하세요.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="454"/>
+        <location filename="../startGame/StartGameTab.cpp" line="485"/>
         <source>Translation of Heroes III into your language is installed, but has been turned off. Use this option to enable it.</source>
         <translation type="unfinished">해당 언어로의 Heroes III 번역이 설치되어 있지만 꺼져 있습니다. 이 옵션으로 활성화하세요.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="464"/>
+        <location filename="../startGame/StartGameTab.cpp" line="495"/>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
@@ -2605,65 +2636,65 @@ WARNING: In some cases, updated versions of mods may not be compatible with your
 경고: 일부 경우 업데이트된 모드는 기존 저장과 호환되지 않을 수 있습니다. 진행 중인 게임을 마칠 때까지 업데이트를 미루는 것이 좋습니다.</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="476"/>
+        <location filename="../startGame/StartGameTab.cpp" line="507"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="489"/>
+        <location filename="../startGame/StartGameTab.cpp" line="520"/>
         <source>VCMI has detected that Heroes III music files are missing from your installation. VCMI will run, but in-game music will not be available.
 
 To resolve this problem, please copy missing mp3 files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="500"/>
+        <location filename="../startGame/StartGameTab.cpp" line="531"/>
         <source>VCMI has detected that Heroes III video files are missing from your installation. VCMI will run, but in-game cutscenes will not be available.
 
 To resolve this problem, please copy VIDEO.VID file from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="511"/>
+        <location filename="../startGame/StartGameTab.cpp" line="542"/>
         <source>VCMI has detected that some of Heroes III data files are missing from your installation. You may attempt to run VCMI, but game may not work as expected or crash.
 
 To resolve this problem, please reinstall game and reimport data files using supported version of Heroes III. VCMI requires Heroes III: Shadow of Death or Complete Edition to run, which you can get (for example) from gog.com.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="522"/>
+        <location filename="../startGame/StartGameTab.cpp" line="553"/>
         <source>VCMI has detected that some of Heroes III: Armageddon&apos;s Blade data files are missing from your installation. VCMI will work, but Armageddon&apos;s Blade campaigns will not be available.
 
 To resolve this problem, please copy missing data files from Heroes III to VCMI data files directory manually or reinstall VCMI and re-import Heroes III data files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="533"/>
+        <location filename="../startGame/StartGameTab.cpp" line="564"/>
         <source>To improve graphics quality in VCMI, you can install files from the official Heroes III HD version on Steam.Select the Heroes HD folder from Steam.
 
 After installation, you need to set the upscaling filter to x2 or higher in order to actually see the HD graphics.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="572"/>
-        <location filename="../startGame/StartGameTab.cpp" line="581"/>
+        <location filename="../startGame/StartGameTab.cpp" line="603"/>
+        <location filename="../startGame/StartGameTab.cpp" line="612"/>
         <source>Preset import failed</source>
         <translation type="unfinished">프리셋 가져오기 실패</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="572"/>
-        <location filename="../startGame/StartGameTab.cpp" line="581"/>
+        <location filename="../startGame/StartGameTab.cpp" line="603"/>
+        <location filename="../startGame/StartGameTab.cpp" line="612"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
         <translation type="unfinished">프리셋 가져오기 실패 - 클립보드 데이터가 모드 프리셋처럼 보이지 않습니다!</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="597"/>
+        <location filename="../startGame/StartGameTab.cpp" line="628"/>
         <source>Enter preset name:</source>
         <translation type="unfinished">프리셋 이름을 입력하세요:</translation>
     </message>
     <message>
-        <location filename="../startGame/StartGameTab.cpp" line="640"/>
+        <location filename="../startGame/StartGameTab.cpp" line="671"/>
         <source>Rename preset &apos;%1&apos; to:</source>
         <translation type="unfinished">프리셋 &apos;%1&apos;의 이름을 다음으로 변경:</translation>
     </message>
@@ -2671,29 +2702,123 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
 <context>
     <name>UpdateDialog</name>
     <message>
-        <location filename="../updatedialog_moc.ui" line="71"/>
         <source>You have the latest version</source>
-        <translation type="unfinished">최신 버전을 사용 중입니다</translation>
+        <translation type="obsolete">최신 버전을 사용 중입니다</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.ui" line="94"/>
         <source>Close</source>
-        <translation type="unfinished">닫기</translation>
+        <translation type="obsolete">닫기</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.ui" line="101"/>
         <source>Check for updates on startup</source>
-        <translation type="unfinished">시작 시 업데이트 확인</translation>
+        <translation type="obsolete">시작 시 업데이트 확인</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="71"/>
         <source>Network error</source>
-        <translation type="unfinished">네트워크 오류</translation>
+        <translation type="obsolete">네트워크 오류</translation>
     </message>
     <message>
-        <location filename="../updatedialog_moc.cpp" line="100"/>
         <source>Cannot read JSON from URL or incorrect JSON data</source>
-        <translation type="unfinished">URL에서 JSON을 읽을 수 없거나 올바르지 않은 JSON 데이터입니다</translation>
+        <translation type="obsolete">URL에서 JSON을 읽을 수 없거나 올바르지 않은 JSON 데이터입니다</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateView</name>
+    <message>
+        <location filename="../updates/UpdateView.ui" line="50"/>
+        <source>Changelog</source>
+        <translation type="unfinished">변경 내역</translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.ui" line="85"/>
+        <source>Back</source>
+        <translation type="unfinished">뒤로</translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.ui" line="105"/>
+        <source>Full Changelog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="51"/>
+        <source>VCMI %1 is available. You have %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="61"/>
+        <source>Your browser will download the installer. Run it once the download finishes: it will close VCMI and update it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="62"/>
+        <location filename="../updates/UpdateView.cpp" line="74"/>
+        <source>Download Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="66"/>
+        <source>Your browser will download the update as a ZIP archive. Close VCMI, then extract the archive into your VCMI folder, replacing existing files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="68"/>
+        <source>Your browser will download the update as an APK file. Open it to install the update over the current version. Android may ask you to allow your browser to install apps.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="70"/>
+        <source>Your browser will download a disk image. Close VCMI, open it and replace your current VCMI app with the one inside.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="72"/>
+        <source>Your browser will download the update as an AppImage. Allow it to run as a program, for example with &apos;chmod +x&apos;, and start it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="78"/>
+        <source>Open Store</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="82"/>
+        <source>Update VCMI in Google Play. Google Play releases updates gradually, so the new version may take a few days to appear there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="87"/>
+        <source>Update VCMI in your F-Droid app. F-Droid builds new versions itself, so the update may take a few days to appear there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="91"/>
+        <source>Update VCMI in the TestFlight app. New versions may take a few days to appear there.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="96"/>
+        <source>Update VCMI in your software center or with &apos;flatpak update eu.vcmi.VCMI&apos;. New versions may take a few days to appear on Flathub.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="101"/>
+        <source>Update VCMI with the package manager of your distribution. Some distributions take a long time to ship new versions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="103"/>
+        <source>Update VCMI the same way you installed it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="105"/>
+        <source>Open Download Page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../updates/UpdateView.cpp" line="113"/>
+        <source>Your saves, settings and mods are kept.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

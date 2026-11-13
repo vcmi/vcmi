@@ -413,7 +413,7 @@
     <name>EditorMainWindow</name>
     <message>
         <location filename="../mainwindow.ui" line="14"/>
-        <location filename="../mainwindow.cpp" line="564"/>
+        <location filename="../mainwindow.cpp" line="571"/>
         <source>VCMI Map Editor</source>
         <translation type="unfinished">Editor ng Mapa ng VCMI</translation>
     </message>
@@ -424,7 +424,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="63"/>
-        <location filename="../mainwindow.ui" line="1040"/>
+        <location filename="../mainwindow.ui" line="1057"/>
         <source>Open Recent</source>
         <translation type="unfinished">Buksan ang Kamakailan</translation>
     </message>
@@ -469,564 +469,574 @@
         <translation type="unfinished">Browser</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="346"/>
+        <location filename="../mainwindow.ui" line="349"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="356"/>
+        <location filename="../mainwindow.ui" line="359"/>
+        <source>Smaller icons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="366"/>
+        <source>Larger icons</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.ui" line="373"/>
         <source>Show as list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="394"/>
+        <location filename="../mainwindow.ui" line="411"/>
         <source>Inspector</source>
         <translation type="unfinished">Inspektor</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="436"/>
+        <location filename="../mainwindow.ui" line="453"/>
         <source>Property</source>
         <translation type="unfinished">Ari-arian</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="441"/>
+        <location filename="../mainwindow.ui" line="458"/>
         <source>Value</source>
         <translation type="unfinished">Halaga</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="465"/>
+        <location filename="../mainwindow.ui" line="482"/>
         <source>Tools</source>
         <translation type="unfinished">Mga Kagamitan</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="829"/>
+        <location filename="../mainwindow.ui" line="846"/>
         <source>Painting</source>
         <translation type="unfinished">Pagpipinta</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="881"/>
+        <location filename="../mainwindow.ui" line="898"/>
         <source>Terrains</source>
         <translation type="unfinished">Mga Lupain</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="924"/>
+        <location filename="../mainwindow.ui" line="941"/>
         <source>Roads</source>
         <translation type="unfinished">Mga Kalsada</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="964"/>
+        <location filename="../mainwindow.ui" line="981"/>
         <source>Rivers</source>
         <translation type="unfinished">Mga Ilog</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="998"/>
+        <location filename="../mainwindow.ui" line="1015"/>
         <source>Preview</source>
         <translation type="unfinished">Preview</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1032"/>
+        <location filename="../mainwindow.ui" line="1049"/>
         <source>Open</source>
         <translation type="unfinished">Bukas</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1035"/>
+        <location filename="../mainwindow.ui" line="1052"/>
         <source>Ctrl+O</source>
         <translation type="unfinished">Ctrl+O</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1045"/>
+        <location filename="../mainwindow.ui" line="1062"/>
         <source>More...</source>
         <translation type="unfinished">Higit pa...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1053"/>
+        <location filename="../mainwindow.ui" line="1070"/>
         <source>Save</source>
         <translation type="unfinished">I-save</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1056"/>
+        <location filename="../mainwindow.ui" line="1073"/>
         <source>Ctrl+S</source>
         <translation type="unfinished">Ctrl+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1061"/>
+        <location filename="../mainwindow.ui" line="1078"/>
         <source>New</source>
         <translation type="unfinished">Bago</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1064"/>
+        <location filename="../mainwindow.ui" line="1081"/>
         <source>Ctrl+N</source>
         <translation type="unfinished">Ctrl+N</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1069"/>
+        <location filename="../mainwindow.ui" line="1086"/>
         <source>Save as...</source>
         <translation type="unfinished">I-save bilang...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1072"/>
+        <location filename="../mainwindow.ui" line="1089"/>
         <source>Ctrl+Shift+S</source>
         <translation type="unfinished">Ctrl+Shift+S</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1077"/>
-        <location filename="../mainwindow.ui" line="1080"/>
+        <location filename="../mainwindow.ui" line="1094"/>
+        <location filename="../mainwindow.ui" line="1097"/>
         <source>Campaign editor</source>
         <translation type="unfinished">Editor ng kampanya</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1085"/>
-        <location filename="../mainwindow.ui" line="1088"/>
+        <location filename="../mainwindow.ui" line="1102"/>
+        <location filename="../mainwindow.ui" line="1105"/>
         <source>Template editor</source>
         <translation type="unfinished">Editor ng template</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1096"/>
-        <location filename="../mainwindow.ui" line="1099"/>
+        <location filename="../mainwindow.ui" line="1113"/>
+        <location filename="../mainwindow.ui" line="1116"/>
         <source>View underground</source>
         <translation type="unfinished">Tingnan sa ilalim ng lupa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1102"/>
+        <location filename="../mainwindow.ui" line="1119"/>
         <source>Ctrl+U</source>
         <translation type="unfinished">Ctrl+U</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1110"/>
+        <location filename="../mainwindow.ui" line="1127"/>
         <source>Pass</source>
         <translation type="unfinished">Pasa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1113"/>
+        <location filename="../mainwindow.ui" line="1130"/>
         <source>Ctrl+Shift+P</source>
         <translation type="unfinished">Ctrl+Shift+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1118"/>
+        <location filename="../mainwindow.ui" line="1135"/>
         <source>Cut</source>
         <translation type="unfinished">Gupitin</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1121"/>
+        <location filename="../mainwindow.ui" line="1138"/>
         <source>Ctrl+X</source>
         <translation type="unfinished">Ctrl+X</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1126"/>
+        <location filename="../mainwindow.ui" line="1143"/>
         <source>Copy</source>
         <translation type="unfinished">Kopyahin</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1129"/>
+        <location filename="../mainwindow.ui" line="1146"/>
         <source>Ctrl+C</source>
         <translation type="unfinished">Ctrl+C</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1134"/>
+        <location filename="../mainwindow.ui" line="1151"/>
         <source>Paste</source>
         <translation type="unfinished">I-paste</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1137"/>
+        <location filename="../mainwindow.ui" line="1154"/>
         <source>Ctrl+V</source>
         <translation type="unfinished">Ctrl+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1142"/>
+        <location filename="../mainwindow.ui" line="1159"/>
         <source>Fill</source>
         <translation type="unfinished">Punan</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1145"/>
+        <location filename="../mainwindow.ui" line="1162"/>
         <source>Fills the selection with obstacles</source>
         <translation type="unfinished">Pinupuno ang seleksyon ng mga balakid</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1156"/>
+        <location filename="../mainwindow.ui" line="1173"/>
         <source>Grid</source>
         <translation type="unfinished">Grid</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1159"/>
+        <location filename="../mainwindow.ui" line="1176"/>
         <source>Ctrl+G</source>
         <translation type="unfinished">Ctrl+G</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1167"/>
+        <location filename="../mainwindow.ui" line="1184"/>
         <source>General</source>
         <translation type="unfinished">Heneral</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1170"/>
+        <location filename="../mainwindow.ui" line="1187"/>
         <source>Map title and description</source>
         <translation type="unfinished">Pamagat at paglalarawan ng mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1173"/>
+        <location filename="../mainwindow.ui" line="1190"/>
         <source>Ctrl+Enter</source>
         <translation type="unfinished">Ctrl+Enter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1181"/>
+        <location filename="../mainwindow.ui" line="1198"/>
         <source>Players settings</source>
         <translation type="unfinished">Mga setting ng manlalaro</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1184"/>
+        <location filename="../mainwindow.ui" line="1201"/>
         <source>Ctrl+P</source>
         <translation type="unfinished">Ctrl+P</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1192"/>
-        <location filename="../mainwindow.ui" line="1195"/>
+        <location filename="../mainwindow.ui" line="1209"/>
+        <location filename="../mainwindow.ui" line="1212"/>
         <source>Undo</source>
         <translation type="unfinished">I-undo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1198"/>
+        <location filename="../mainwindow.ui" line="1215"/>
         <source>Ctrl+Z</source>
         <translation type="unfinished">Ctrl+Z</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1209"/>
+        <location filename="../mainwindow.ui" line="1226"/>
         <source>Redo</source>
         <translation type="unfinished">Gawing muli</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1212"/>
+        <location filename="../mainwindow.ui" line="1229"/>
         <source>Ctrl+Y</source>
         <translation type="unfinished">Ctrl+Y</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1223"/>
+        <location filename="../mainwindow.ui" line="1240"/>
         <source>Erase</source>
         <translation type="unfinished">Burahin</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1226"/>
+        <location filename="../mainwindow.ui" line="1243"/>
         <source>Del</source>
         <translation type="unfinished">Del</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1234"/>
+        <location filename="../mainwindow.ui" line="1251"/>
         <source>Neutral</source>
         <translation type="unfinished">Neutral</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1237"/>
+        <location filename="../mainwindow.ui" line="1254"/>
         <source>Ctrl+0</source>
         <translation type="unfinished">Ctrl+0</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1242"/>
+        <location filename="../mainwindow.ui" line="1259"/>
         <source>Validate</source>
         <translation type="unfinished">Patunayan</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1245"/>
+        <location filename="../mainwindow.ui" line="1262"/>
         <source>Ctrl+Shift+V</source>
         <translation type="unfinished">Ctrl+Shift+V</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1253"/>
-        <location filename="../mainwindow.cpp" line="1631"/>
+        <location filename="../mainwindow.ui" line="1270"/>
+        <location filename="../mainwindow.cpp" line="1689"/>
         <source>Select map layer type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1264"/>
-        <location filename="../mainwindow.cpp" line="1571"/>
-        <location filename="../mainwindow.cpp" line="1586"/>
+        <location filename="../mainwindow.ui" line="1281"/>
+        <location filename="../mainwindow.cpp" line="1629"/>
+        <location filename="../mainwindow.cpp" line="1644"/>
         <source>Add level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1272"/>
-        <location filename="../mainwindow.cpp" line="1480"/>
-        <location filename="../mainwindow.cpp" line="1484"/>
+        <location filename="../mainwindow.ui" line="1289"/>
+        <location filename="../mainwindow.cpp" line="1538"/>
         <location filename="../mainwindow.cpp" line="1542"/>
+        <location filename="../mainwindow.cpp" line="1600"/>
         <source>Update appearance</source>
         <translation type="unfinished">I-update ang hitsura</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1283"/>
+        <location filename="../mainwindow.ui" line="1300"/>
         <source>Recreate obstacles</source>
         <translation type="unfinished">Muling likhain ang mga balakid</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1294"/>
+        <location filename="../mainwindow.ui" line="1311"/>
         <source>Player 1</source>
         <translation type="unfinished">Manlalaro 1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1297"/>
+        <location filename="../mainwindow.ui" line="1314"/>
         <source>Ctrl+1</source>
         <translation type="unfinished">Ctrl+1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1305"/>
+        <location filename="../mainwindow.ui" line="1322"/>
         <source>Player 2</source>
         <translation type="unfinished">Manlalaro 2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1308"/>
+        <location filename="../mainwindow.ui" line="1325"/>
         <source>Ctrl+2</source>
         <translation type="unfinished">Ctrl+2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1316"/>
+        <location filename="../mainwindow.ui" line="1333"/>
         <source>Player 3</source>
         <translation type="unfinished">Manlalaro 3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1319"/>
+        <location filename="../mainwindow.ui" line="1336"/>
         <source>Ctrl+3</source>
         <translation type="unfinished">Ctrl+3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1327"/>
+        <location filename="../mainwindow.ui" line="1344"/>
         <source>Player 4</source>
         <translation type="unfinished">Manlalaro 4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1330"/>
+        <location filename="../mainwindow.ui" line="1347"/>
         <source>Ctrl+4</source>
         <translation type="unfinished">Ctrl+4</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1338"/>
+        <location filename="../mainwindow.ui" line="1355"/>
         <source>Player 5</source>
         <translation type="unfinished">Manlalaro 5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1341"/>
+        <location filename="../mainwindow.ui" line="1358"/>
         <source>Ctrl+5</source>
         <translation type="unfinished">Ctrl+5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1349"/>
+        <location filename="../mainwindow.ui" line="1366"/>
         <source>Player 6</source>
         <translation type="unfinished">Manlalaro 6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1352"/>
+        <location filename="../mainwindow.ui" line="1369"/>
         <source>Ctrl+6</source>
         <translation type="unfinished">Ctrl+6</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1360"/>
+        <location filename="../mainwindow.ui" line="1377"/>
         <source>Player 7</source>
         <translation type="unfinished">Manlalaro 7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1363"/>
+        <location filename="../mainwindow.ui" line="1380"/>
         <source>Ctrl+7</source>
         <translation type="unfinished">Ctrl+7</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1371"/>
+        <location filename="../mainwindow.ui" line="1388"/>
         <source>Player 8</source>
         <translation type="unfinished">Manlalaro 8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1374"/>
+        <location filename="../mainwindow.ui" line="1391"/>
         <source>Ctrl+8</source>
         <translation type="unfinished">Ctrl+8</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1379"/>
+        <location filename="../mainwindow.ui" line="1396"/>
         <source>Export as...</source>
         <translation type="unfinished">I-export bilang...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1382"/>
+        <location filename="../mainwindow.ui" line="1399"/>
         <source>Ctrl+E</source>
         <translation type="unfinished">Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1390"/>
+        <location filename="../mainwindow.ui" line="1407"/>
         <source>Translations</source>
         <translation type="unfinished">Mga Pagsasalin</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1393"/>
+        <location filename="../mainwindow.ui" line="1410"/>
         <source>Ctrl+T</source>
         <translation type="unfinished">Ctrl+T</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1398"/>
-        <location filename="../mainwindow.ui" line="1401"/>
+        <location filename="../mainwindow.ui" line="1415"/>
+        <location filename="../mainwindow.ui" line="1418"/>
         <source>h3m converter</source>
         <translation type="unfinished">h3m converter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1404"/>
+        <location filename="../mainwindow.ui" line="1421"/>
         <source>Ctrl+Shift+M</source>
         <translation type="unfinished">Ctrl+Shift+M</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1409"/>
-        <location filename="../mainwindow.ui" line="1412"/>
+        <location filename="../mainwindow.ui" line="1426"/>
+        <location filename="../mainwindow.ui" line="1429"/>
         <source>h3c converter</source>
         <translation type="unfinished">h3c converter</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1415"/>
+        <location filename="../mainwindow.ui" line="1432"/>
         <source>Ctrl+Shift+C</source>
         <translation type="unfinished">Ctrl+Shift+C</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1420"/>
+        <location filename="../mainwindow.ui" line="1437"/>
         <source>Exit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1423"/>
+        <location filename="../mainwindow.ui" line="1440"/>
         <source>Ctrl+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1428"/>
+        <location filename="../mainwindow.ui" line="1445"/>
         <source>Lock</source>
         <translation type="unfinished">I-lock</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1431"/>
+        <location filename="../mainwindow.ui" line="1448"/>
         <source>Lock objects on map to avoid unnecessary changes</source>
         <translation type="unfinished">I-lock ang mga bagay sa mapa upang maiwasan ang mga hindi kinakailangang pagbabago</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1434"/>
+        <location filename="../mainwindow.ui" line="1451"/>
         <source>Ctrl+L</source>
         <translation type="unfinished">Ctrl+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1439"/>
+        <location filename="../mainwindow.ui" line="1456"/>
         <source>Unlock</source>
         <translation type="unfinished">I-unlock</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1442"/>
+        <location filename="../mainwindow.ui" line="1459"/>
         <source>Unlock all objects on the map</source>
         <translation type="unfinished">I-unlock ang lahat ng bagay sa mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1256"/>
-        <location filename="../mainwindow.ui" line="1445"/>
+        <location filename="../mainwindow.ui" line="1273"/>
+        <location filename="../mainwindow.ui" line="1462"/>
         <source>Ctrl+Shift+L</source>
         <translation type="unfinished">Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1450"/>
+        <location filename="../mainwindow.ui" line="1467"/>
         <source>Zoom in</source>
         <translation type="unfinished">Mag-zoom in</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1453"/>
+        <location filename="../mainwindow.ui" line="1470"/>
         <source>Ctrl++</source>
         <translation type="unfinished">Ctrl++</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1458"/>
+        <location filename="../mainwindow.ui" line="1475"/>
         <source>Zoom out</source>
         <translation type="unfinished">Mag-zoom out</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1461"/>
+        <location filename="../mainwindow.ui" line="1478"/>
         <source>Ctrl+-</source>
         <translation type="unfinished">Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1466"/>
+        <location filename="../mainwindow.ui" line="1483"/>
         <source>Zoom reset</source>
         <translation type="unfinished">Pag-reset ng zoom</translation>
     </message>
     <message>
-        <location filename="../mainwindow.ui" line="1469"/>
+        <location filename="../mainwindow.ui" line="1486"/>
         <source>Ctrl+Shift+=</source>
         <translation type="unfinished">Ctrl+Shift+=</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="502"/>
+        <location filename="../mainwindow.cpp" line="509"/>
         <source>Mapeditor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="503"/>
+        <location filename="../mainwindow.cpp" line="510"/>
         <source>Mapeditor on Android is experimental.
 
 For the best experience, we recommend using the map editor on a tablet (or with a mouse/pen).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="530"/>
+        <location filename="../mainwindow.cpp" line="537"/>
         <source>Confirmation</source>
         <translation type="unfinished">Kumpirmasyon</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="530"/>
+        <location filename="../mainwindow.cpp" line="537"/>
         <source>Unsaved changes will be lost, are you sure?</source>
         <translation type="unfinished">Mawawala ang mga hindi na-save na pagbabago, sigurado ka ba?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1559"/>
-        <location filename="../mainwindow.cpp" line="1648"/>
+        <location filename="../mainwindow.cpp" line="1617"/>
+        <location filename="../mainwindow.cpp" line="1706"/>
         <source>Level %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="623"/>
+        <location filename="../mainwindow.cpp" line="630"/>
         <source>Mods are required</source>
         <translation type="unfinished">Kinakailangan ang mga mod</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="631"/>
-        <location filename="../mainwindow.cpp" line="637"/>
+        <location filename="../mainwindow.cpp" line="638"/>
+        <location filename="../mainwindow.cpp" line="644"/>
         <source>Failed to open map</source>
         <translation type="unfinished">Nabigong buksan ang mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="668"/>
+        <location filename="../mainwindow.cpp" line="675"/>
         <source>Open map</source>
         <translation type="unfinished">Buksan ang mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="670"/>
+        <location filename="../mainwindow.cpp" line="677"/>
         <source>All supported maps (*.vmap *.h3m);;VCMI maps(*.vmap);;HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">Lahat ng sinusuportahang mapa (*.vmap *.h3m);;mga mapa ng VCMI(*.vmap);;mga mapa ng HoMM3(*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="725"/>
+        <location filename="../mainwindow.cpp" line="732"/>
         <source>Recently Opened Files</source>
         <translation type="unfinished">Mga Kamakailang Binuksan na File</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="778"/>
+        <location filename="../mainwindow.cpp" line="785"/>
         <source>Map validation</source>
         <translation type="unfinished">Pagpapatunay ng mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="780"/>
+        <location filename="../mainwindow.cpp" line="787"/>
         <source>Map has critical problems and most probably will not be playable. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">May mga kritikal na problema ang mapa at malamang na hindi ito mape-play. Buksan ang Validator mula sa menu ng Mapa para makita ang mga isyung natagpuan.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="782"/>
+        <location filename="../mainwindow.cpp" line="789"/>
         <source>Map has some errors. Open Validator from the Map menu to see issues found</source>
         <translation type="unfinished">May ilang error ang mapa. Buksan ang Validator mula sa menu ng Mapa para makita ang mga isyung natagpuan.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="809"/>
+        <location filename="../mainwindow.cpp" line="816"/>
         <source>Failed to save map</source>
         <translation type="unfinished">Nabigong i-save ang mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="822"/>
+        <location filename="../mainwindow.cpp" line="829"/>
         <source>Save map</source>
         <translation type="unfinished">I-save ang mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="823"/>
+        <location filename="../mainwindow.cpp" line="830"/>
         <source>VCMI maps (*.vmap)</source>
         <translation type="unfinished">Mga mapa ng VCMI (*.vmap)</translation>
     </message>
@@ -1035,231 +1045,241 @@ For the best experience, we recommend using the map editor on a tablet (or with 
         <translation type="obsolete">Uri</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1016"/>
+        <location filename="../mainwindow.cpp" line="1041"/>
         <source>Towns</source>
         <translation type="unfinished">Mga Bayan</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1017"/>
+        <location filename="../mainwindow.cpp" line="1042"/>
         <source>Objects</source>
         <translation type="unfinished">Mga Bagay</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1018"/>
+        <location filename="../mainwindow.cpp" line="1043"/>
         <source>Heroes</source>
         <translation type="unfinished">Mga Bayani</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1019"/>
+        <location filename="../mainwindow.cpp" line="1044"/>
         <source>Artifacts</source>
         <translation type="unfinished">Mga Artifact</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1020"/>
+        <location filename="../mainwindow.cpp" line="1045"/>
         <source>Resources</source>
         <translation type="unfinished">Mga Mapagkukunan</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1021"/>
+        <location filename="../mainwindow.cpp" line="1046"/>
         <source>Banks</source>
         <translation type="unfinished">Mga Bangko</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1022"/>
+        <location filename="../mainwindow.cpp" line="1047"/>
         <source>Dwellings</source>
         <translation type="unfinished">Mga tirahan</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1023"/>
+        <location filename="../mainwindow.cpp" line="1048"/>
         <source>Grounds</source>
         <translation type="unfinished">Mga Lugar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1024"/>
+        <location filename="../mainwindow.cpp" line="1049"/>
         <source>Teleports</source>
         <translation type="unfinished">Mga Teleport</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1025"/>
+        <location filename="../mainwindow.cpp" line="1050"/>
         <source>Mines</source>
         <translation type="unfinished">Mga Mina</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1026"/>
+        <location filename="../mainwindow.cpp" line="1051"/>
         <source>Triggers</source>
         <translation type="unfinished">Mga Trigger</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1027"/>
+        <location filename="../mainwindow.cpp" line="1052"/>
         <source>Monsters</source>
         <translation type="unfinished">Mga Halimaw</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1028"/>
+        <location filename="../mainwindow.cpp" line="1053"/>
         <source>Quests</source>
         <translation type="unfinished">Mga Pakikipagsapalaran</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1029"/>
+        <location filename="../mainwindow.cpp" line="1054"/>
         <source>Wog Objects</source>
         <translation type="unfinished">Mga Bagay na Wog</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1030"/>
+        <location filename="../mainwindow.cpp" line="1055"/>
         <source>Obstacles</source>
         <translation type="unfinished">Mga balakid</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1031"/>
+        <location filename="../mainwindow.cpp" line="1056"/>
         <source>Other</source>
         <translation type="unfinished">Iba pa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1170"/>
+        <location filename="../mainwindow.cpp" line="1195"/>
         <source>Mods loading problem</source>
         <translation type="unfinished">Problema sa paglo-load ng mga mod</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1170"/>
+        <location filename="../mainwindow.cpp" line="1195"/>
         <source>Critical error during Mods loading. Disable invalid mods and restart.</source>
         <translation type="unfinished">Kritikal na error habang naglo-load ang mga Mod. I-disable ang mga invalid na mod at i-restart.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1227"/>
+        <location filename="../mainwindow.cpp" line="1258"/>
+        <source>All mods</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1259"/>
+        <source>Heroes III (core)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1273"/>
         <source>Undo clicked</source>
         <translation type="unfinished">Na-click ang pag-undo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1238"/>
+        <location filename="../mainwindow.cpp" line="1284"/>
         <source>Redo clicked</source>
         <translation type="unfinished">Na-click ang pag-ulit</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1249"/>
+        <location filename="../mainwindow.cpp" line="1295"/>
         <source>Passability clicked</source>
         <translation type="unfinished">Na-click ang kakayahang pumasa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1262"/>
+        <location filename="../mainwindow.cpp" line="1308"/>
         <source>Grid clicked</source>
         <translation type="unfinished">Na-click ang grid</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1330"/>
+        <location filename="../mainwindow.cpp" line="1388"/>
         <source>Fill clicked</source>
         <translation type="unfinished">Na-click ang pagpuno</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1480"/>
+        <location filename="../mainwindow.cpp" line="1538"/>
         <source>No objects selected</source>
         <translation type="unfinished">Walang napiling mga bagay</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1484"/>
+        <location filename="../mainwindow.cpp" line="1542"/>
         <source>This operation is irreversible. Do you want to continue?</source>
         <translation type="unfinished">Hindi na maibabalik ang operasyong ito. Gusto mo pa bang magpatuloy?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1542"/>
+        <location filename="../mainwindow.cpp" line="1600"/>
         <source>Errors occurred. %1 objects were not updated</source>
         <translation type="unfinished">May mga naganap na error. %1 na mga bagay ang hindi na-update</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1571"/>
+        <location filename="../mainwindow.cpp" line="1629"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1587"/>
+        <location filename="../mainwindow.cpp" line="1645"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1632"/>
+        <location filename="../mainwindow.cpp" line="1690"/>
         <source>Type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1693"/>
+        <location filename="../mainwindow.cpp" line="1751"/>
         <source>Image format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1694"/>
+        <location filename="../mainwindow.cpp" line="1752"/>
         <source>Select image format:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1708"/>
-        <location filename="../mainwindow.cpp" line="1712"/>
+        <location filename="../mainwindow.cpp" line="1766"/>
+        <location filename="../mainwindow.cpp" line="1770"/>
         <source>Save to image</source>
         <translation type="unfinished">I-save sa larawan</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1754"/>
+        <location filename="../mainwindow.cpp" line="1812"/>
         <source>Failed to save image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1754"/>
+        <location filename="../mainwindow.cpp" line="1812"/>
         <source>Cannot save image to %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1774"/>
+        <location filename="../mainwindow.cpp" line="1832"/>
         <source>Select maps to convert</source>
         <translation type="unfinished">Pumili ng mga mapa na iko-convert</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1776"/>
+        <location filename="../mainwindow.cpp" line="1834"/>
         <source>HoMM3 maps(*.h3m)</source>
         <translation type="unfinished">Mga mapa ng HoMM3 (*.h3m)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1782"/>
-        <location filename="../mainwindow.cpp" line="1789"/>
+        <location filename="../mainwindow.cpp" line="1840"/>
+        <location filename="../mainwindow.cpp" line="1847"/>
         <source>Choose directory to save converted maps</source>
         <translation type="unfinished">Pumili ng direktoryo para i-save ang mga na-convert na mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1784"/>
+        <location filename="../mainwindow.cpp" line="1842"/>
         <source>Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1805"/>
+        <location filename="../mainwindow.cpp" line="1863"/>
         <source>Operation completed</source>
         <translation type="unfinished">Nakumpleto na ang operasyon</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1805"/>
+        <location filename="../mainwindow.cpp" line="1863"/>
         <source>Successfully converted %1 maps</source>
         <translation type="unfinished">Matagumpay na na-convert ang %1 na mga mapa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1809"/>
+        <location filename="../mainwindow.cpp" line="1867"/>
         <source>Failed to convert the map. Abort operation</source>
         <translation type="unfinished">Nabigong i-convert ang mapa. Itigil ang operasyon</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1817"/>
+        <location filename="../mainwindow.cpp" line="1875"/>
         <source>Select campaign to convert</source>
         <translation type="unfinished">Pumili ng kampanyang iko-convert</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1818"/>
+        <location filename="../mainwindow.cpp" line="1876"/>
         <source>HoMM3 campaigns (*.h3c)</source>
         <translation type="unfinished">Mga kampanyang HoMM3 (*.h3c)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1824"/>
+        <location filename="../mainwindow.cpp" line="1882"/>
         <source>Select destination file</source>
         <translation type="unfinished">Piliin ang patutunguhang file</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1825"/>
+        <location filename="../mainwindow.cpp" line="1883"/>
         <source>VCMI campaigns (*.vcmp)</source>
         <translation type="unfinished">Mga kampanyang VCMI (*.vcmp)</translation>
     </message>
@@ -1562,24 +1582,29 @@ Warning: levels cannot be removed once added.</source>
 <context>
     <name>MapController</name>
     <message>
-        <location filename="../mapcontroller.cpp" line="650"/>
+        <location filename="../mapcontroller.cpp" line="653"/>
         <source>Hero %1 cannot be created as NEUTRAL.</source>
         <translation type="unfinished">Hindi maaaring gawing NEUTRAL ang Hero %1.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="664"/>
+        <location filename="../mapcontroller.cpp" line="668"/>
+        <source>Hero cannot be placed at the entrance of this town, because it is the main town of its owner and a hero is generated there on game start. Disable &quot;Generate hero at main&quot; in player settings first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mapcontroller.cpp" line="685"/>
         <source>Missing Required Mod</source>
         <translation type="unfinished">Nawawalang Kinakailangang Mod</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="664"/>
+        <location filename="../mapcontroller.cpp" line="685"/>
         <source>
 
 Do you want to do that now ?</source>
         <translation type="unfinished">Gusto mo bang gawin &apos;yan ngayon?</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="674"/>
+        <location filename="../mapcontroller.cpp" line="695"/>
         <source>This object&apos;s mod is mandatory for map to remain valid.</source>
         <translation type="unfinished">Ang mod ng bagay na ito ay kinakailangan para manatiling balido ang mapa.</translation>
     </message>
@@ -1988,6 +2013,11 @@ Do you want to do that now ?</source>
         <source>Player ID: %1</source>
         <translation type="unfinished">ID ng Manlalaro: %1</translation>
     </message>
+    <message>
+        <location filename="../playerparams.cpp" line="173"/>
+        <source>Hero %1 is already placed at the entrance of this town</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlayerSelectionDialog</name>
@@ -2095,27 +2125,27 @@ Do you want to do that now ?</source>
         <translation type="unfinished">Mga pangalawang kasanayan:</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1046"/>
+        <location filename="../inspector/inspector.cpp" line="1052"/>
         <source>Compliant</source>
         <translation type="unfinished">Sumusunod</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1047"/>
+        <location filename="../inspector/inspector.cpp" line="1053"/>
         <source>Friendly</source>
         <translation type="unfinished">Palakaibigan</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1048"/>
+        <location filename="../inspector/inspector.cpp" line="1054"/>
         <source>Aggressive</source>
         <translation type="unfinished">Agresibo</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1049"/>
+        <location filename="../inspector/inspector.cpp" line="1055"/>
         <source>Hostile</source>
         <translation type="unfinished">Masungit</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1050"/>
+        <location filename="../inspector/inspector.cpp" line="1056"/>
         <source>Savage</source>
         <translation type="unfinished">Savage</translation>
     </message>
@@ -2162,11 +2192,11 @@ Do you want to do that now ?</source>
         <translation type="unfinished">
             <numerusform>%n tile</numerusform>
             <numerusform>%n tile</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="378"/>
+        <location filename="../inspector/inspector.cpp" line="700"/>
         <source>Buildings</source>
         <translation type="unfinished">Mga Gusali</translation>
     </message>
@@ -2177,7 +2207,7 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="384"/>
-        <location filename="../inspector/inspector.cpp" line="703"/>
+        <location filename="../inspector/inspector.cpp" line="706"/>
         <source>Exclude player&apos;s faction</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2188,31 +2218,31 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="456"/>
-        <location filename="../inspector/inspector.cpp" line="858"/>
+        <location filename="../inspector/inspector.cpp" line="864"/>
         <source>Aggression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="457"/>
-        <location filename="../inspector/inspector.cpp" line="860"/>
+        <location filename="../inspector/inspector.cpp" line="866"/>
         <source>Join only for money</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="458"/>
-        <location filename="../inspector/inspector.cpp" line="862"/>
+        <location filename="../inspector/inspector.cpp" line="868"/>
         <source>Joining percentage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="462"/>
-        <location filename="../inspector/inspector.cpp" line="864"/>
+        <location filename="../inspector/inspector.cpp" line="870"/>
         <source>Upgraded stack</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="464"/>
-        <location filename="../inspector/inspector.cpp" line="866"/>
+        <location filename="../inspector/inspector.cpp" line="872"/>
         <source>Stacks count</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2252,18 +2282,18 @@ Do you want to do that now ?</source>
         <translation type="unfinished">IsStatic</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="954"/>
-        <location filename="../inspector/inspector.cpp" line="1108"/>
+        <location filename="../inspector/inspector.cpp" line="960"/>
+        <location filename="../inspector/inspector.cpp" line="1114"/>
         <source>neutral</source>
         <translation type="unfinished">neutral</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1057"/>
+        <location filename="../inspector/inspector.cpp" line="1063"/>
         <source>Never</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1058"/>
+        <location filename="../inspector/inspector.cpp" line="1064"/>
         <source>Always</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2288,39 +2318,40 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="266"/>
-        <location filename="../inspector/inspector.cpp" line="742"/>
+        <location filename="../inspector/inspector.cpp" line="745"/>
         <source>Same as town</source>
         <translation type="unfinished">Pareho ng bayan</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="282"/>
-        <location filename="../inspector/inspector.cpp" line="757"/>
+        <location filename="../inspector/inspector.cpp" line="760"/>
         <source>Removable units</source>
         <translation type="unfinished">Mga naaalis na yunit</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="307"/>
-        <location filename="../inspector/inspector.cpp" line="765"/>
+        <location filename="../inspector/inspector.cpp" line="768"/>
         <source>Placeholder type</source>
         <translation type="unfinished">Uri ng placeholder</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="310"/>
-        <location filename="../inspector/inspector.cpp" line="783"/>
+        <location filename="../inspector/inspector.cpp" line="786"/>
         <source>Power rank</source>
         <translation type="unfinished">Ranggo ng kapangyarihan</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="318"/>
         <location filename="../inspector/inspector.cpp" line="358"/>
-        <location filename="../inspector/inspector.cpp" line="786"/>
-        <location filename="../inspector/inspector.cpp" line="810"/>
+        <location filename="../inspector/inspector.cpp" line="789"/>
+        <location filename="../inspector/inspector.cpp" line="813"/>
+        <location filename="../inspector/inspector.cpp" line="832"/>
         <source>Hero type</source>
         <translation type="unfinished">Uri ng bayani</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="328"/>
-        <location filename="../inspector/inspector.cpp" line="807"/>
+        <location filename="../inspector/inspector.cpp" line="810"/>
         <source>Experience</source>
         <translation type="unfinished">Karanasan</translation>
     </message>
@@ -2338,19 +2369,20 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="334"/>
-        <location filename="../inspector/inspector.cpp" line="796"/>
+        <location filename="../inspector/inspector.cpp" line="799"/>
+        <location filename="../inspector/inspector.cpp" line="832"/>
         <source>Gender</source>
         <translation type="unfinished">Kasarian</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="336"/>
-        <location filename="../inspector/inspector.cpp" line="799"/>
+        <location filename="../inspector/inspector.cpp" line="802"/>
         <source>Name</source>
         <translation type="unfinished">Pangalan</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="337"/>
-        <location filename="../inspector/inspector.cpp" line="803"/>
+        <location filename="../inspector/inspector.cpp" line="806"/>
         <source>Biography</source>
         <translation type="unfinished">Talambuhay</translation>
     </message>
@@ -2362,7 +2394,7 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="367"/>
-        <location filename="../inspector/inspector.cpp" line="822"/>
+        <location filename="../inspector/inspector.cpp" line="825"/>
         <source>Patrol radius</source>
         <translation type="unfinished">Radius ng pagpapatrolya</translation>
     </message>
@@ -2374,7 +2406,7 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="383"/>
-        <location filename="../inspector/inspector.cpp" line="700"/>
+        <location filename="../inspector/inspector.cpp" line="703"/>
         <source>Same as player</source>
         <translation type="unfinished">Pareho ng manlalaro</translation>
     </message>
@@ -2385,35 +2417,35 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="446"/>
         <location filename="../inspector/inspector.cpp" line="513"/>
         <location filename="../inspector/inspector.cpp" line="656"/>
-        <location filename="../inspector/inspector.cpp" line="711"/>
-        <location filename="../inspector/inspector.cpp" line="728"/>
-        <location filename="../inspector/inspector.cpp" line="847"/>
+        <location filename="../inspector/inspector.cpp" line="714"/>
+        <location filename="../inspector/inspector.cpp" line="731"/>
+        <location filename="../inspector/inspector.cpp" line="853"/>
         <source>Message</source>
         <translation type="unfinished">Mensahe</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="412"/>
-        <location filename="../inspector/inspector.cpp" line="732"/>
+        <location filename="../inspector/inspector.cpp" line="735"/>
         <source>Spell</source>
         <translation type="unfinished">Spell</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="424"/>
-        <location filename="../inspector/inspector.cpp" line="720"/>
+        <location filename="../inspector/inspector.cpp" line="723"/>
         <source>Productivity</source>
         <translation type="unfinished">Produktibidad</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="431"/>
         <location filename="../inspector/inspector.cpp" line="467"/>
-        <location filename="../inspector/inspector.cpp" line="839"/>
-        <location filename="../inspector/inspector.cpp" line="856"/>
+        <location filename="../inspector/inspector.cpp" line="845"/>
+        <location filename="../inspector/inspector.cpp" line="862"/>
         <source>Amount</source>
         <translation type="unfinished">Halaga</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="450"/>
-        <location filename="../inspector/inspector.cpp" line="850"/>
+        <location filename="../inspector/inspector.cpp" line="856"/>
         <source>Character</source>
         <translation type="unfinished">Karakter</translation>
     </message>
@@ -2428,12 +2460,12 @@ Do you want to do that now ?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1015"/>
+        <location filename="../inspector/inspector.cpp" line="1021"/>
         <source>Select town</source>
         <translation type="unfinished">Pumili ng bayan</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1026"/>
+        <location filename="../inspector/inspector.cpp" line="1032"/>
         <location filename="../inspector/playerselectionwidget.cpp" line="104"/>
         <source>Available for:
 </source>
@@ -2441,13 +2473,13 @@ Do you want to do that now ?</source>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="452"/>
-        <location filename="../inspector/inspector.cpp" line="852"/>
+        <location filename="../inspector/inspector.cpp" line="858"/>
         <source>Never flees</source>
         <translation type="unfinished">Hindi kailanman tumatakas</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="453"/>
-        <location filename="../inspector/inspector.cpp" line="854"/>
+        <location filename="../inspector/inspector.cpp" line="860"/>
         <source>Not growing</source>
         <translation type="unfinished">Hindi lumalaki</translation>
     </message>
@@ -2495,7 +2527,7 @@ Do you want to do that now ?</source>
         <translation type="obsolete">Limitasyon sa oras</translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="952"/>
+        <location filename="../inspector/inspector.cpp" line="958"/>
         <source>UNFLAGGABLE</source>
         <translation type="unfinished">HINDI MAAARING MA-FLAGGA</translation>
     </message>
@@ -2505,17 +2537,17 @@ Do you want to do that now ?</source>
         <translation type="unfinished">Hindi mailagay ang bagay</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="632"/>
+        <location filename="../mapcontroller.cpp" line="635"/>
         <source>There can only be one grail object on the map.</source>
         <translation type="unfinished">Iisa lang ang maaaring maging grail object sa mapa.</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="687"/>
+        <location filename="../mapcontroller.cpp" line="708"/>
         <source> (submod of %1)</source>
         <translation type="unfinished">(submod ng %1)</translation>
     </message>
     <message>
-        <location filename="../mapcontroller.cpp" line="689"/>
+        <location filename="../mapcontroller.cpp" line="710"/>
         <source>The mod &apos;%1&apos;%2, is required by an object on the map.
 Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <comment>should be consistent with Map-&gt;General menu entry translation</comment>
@@ -2543,7 +2575,7 @@ Idagdag ito sa mga kinakailangang mod ng mapa sa Map-&gt;General settings.</tran
     </message>
     <message>
         <location filename="../inspector/abilitieswidget.cpp" line="218"/>
-        <location filename="../inspector/inspector.cpp" line="1052"/>
+        <location filename="../inspector/inspector.cpp" line="1058"/>
         <source>Custom</source>
         <translation type="unfinished">Pasadya</translation>
     </message>
@@ -2768,7 +2800,7 @@ Idagdag ito sa mga kinakailangang mod ng mapa sa Map-&gt;General settings.</tran
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/inspector.cpp" line="1056"/>
+        <location filename="../inspector/inspector.cpp" line="1062"/>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
         <translation type="unfinished">Random</translation>
@@ -4776,64 +4808,69 @@ Bantay: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="783"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="793"/>
         <source>Open template</source>
         <translation type="unfinished">Buksan ang template</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="785"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="795"/>
         <source>VCMI templates(*.json)</source>
         <translation type="unfinished">Mga template ng VCMI(*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="803"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="807"/>
+        <source>Failed to open template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../templateeditor/templateeditor.cpp" line="821"/>
         <source>Save template</source>
         <translation type="unfinished">I-save ang template</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="804"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="822"/>
         <source>VCMI templates (*.json)</source>
         <translation type="unfinished">Mga template ng VCMI (*.json)</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="943"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="984"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="961"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="1002"/>
         <source>Enter Name</source>
         <translation type="unfinished">Ilagay ang Pangalan</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="943"/>
-        <location filename="../templateeditor/templateeditor.cpp" line="984"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="961"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="1002"/>
         <source>Name:</source>
         <translation type="unfinished">Pangalan:</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="950"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="968"/>
         <source>Already existing!</source>
         <translation type="unfinished">Umiiral na!</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="950"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="968"/>
         <source>A template with this name is already existing.</source>
         <translation type="unfinished">Mayroon nang template na may ganitong pangalan.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="967"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="985"/>
         <source>Too few templates!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="967"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="985"/>
         <source>At least one template should remain after removing.</source>
         <translation type="unfinished">Dapat may matira kahit isang template pagkatapos tanggalin.</translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="1217"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="1235"/>
         <source>Too few zones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../templateeditor/templateeditor.cpp" line="1217"/>
+        <location filename="../templateeditor/templateeditor.cpp" line="1235"/>
         <source>Create at least two zones before adding a connection.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5225,18 +5262,18 @@ Bantay: %3</translation>
         <translation type="unfinished">Teksto</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="178"/>
-        <location filename="../mapsettings/translations.cpp" line="182"/>
+        <location filename="../mapsettings/translations.cpp" line="177"/>
+        <location filename="../mapsettings/translations.cpp" line="181"/>
         <source>Remove translation</source>
         <translation type="unfinished">Alisin ang pagsasalin</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="178"/>
+        <location filename="../mapsettings/translations.cpp" line="177"/>
         <source>Default language cannot be removed</source>
         <translation type="unfinished">Hindi maaaring alisin ang default na wika</translation>
     </message>
     <message>
-        <location filename="../mapsettings/translations.cpp" line="182"/>
+        <location filename="../mapsettings/translations.cpp" line="181"/>
         <source>All existing text records for this language will be removed. Continue?</source>
         <translation type="unfinished">Aalisin ang lahat ng umiiral na talaan ng teksto para sa wikang ito. Magpatuloy?</translation>
     </message>
@@ -5356,22 +5393,22 @@ Bantay: %3</translation>
         <translation type="unfinished">Ang Bagay %1 ay itinalaga sa manlalarong hindi maaaring laruin %2</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="151"/>
+        <location filename="../validator.cpp" line="159"/>
         <source>Spell scroll %1 doesn&apos;t have instance assigned and must be removed</source>
         <translation type="unfinished">Walang nakatalagang instance ang spell scroll %1 at dapat itong alisin</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="157"/>
+        <location filename="../validator.cpp" line="165"/>
         <source>Artifact %1 is prohibited by map settings</source>
         <translation type="unfinished">Ipinagbabawal ng mga setting ng mapa ang Artifact %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="227"/>
+        <location filename="../validator.cpp" line="235"/>
         <source>Player %1 has no towns and heroes assigned</source>
         <translation type="unfinished">Walang nakatalagang bayan at bayani ang Manlalaro %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="119"/>
+        <location filename="../validator.cpp" line="127"/>
         <source>Prison %1 must be a NEUTRAL</source>
         <translation type="unfinished">Ang bilangguan %1 ay dapat na NEUTRAL</translation>
     </message>
@@ -5381,112 +5418,117 @@ Bantay: %3</translation>
         <translation type="unfinished">Ang bagay na maaaring pag-aari %1 ay HINDI MAAARING I-FLAGGABLE ngunit dapat ay may NEUTRAL o may-ari ng manlalaro</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="124"/>
+        <location filename="../validator.cpp" line="118"/>
+        <source>Hero %1 is placed in main town of player %2, which is set to generate hero at main town. Starting hero will not be generated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../validator.cpp" line="132"/>
         <source>Hero %1 must have an owner</source>
         <translation type="unfinished">Dapat may may-ari ang Bayani %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="131"/>
+        <location filename="../validator.cpp" line="139"/>
         <source>Hero %1 is prohibited by map settings</source>
         <translation type="unfinished">Ipinagbabawal ng mga setting ng mapa ang Hero %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="134"/>
+        <location filename="../validator.cpp" line="142"/>
         <source>Hero %1 has duplicate on map</source>
         <translation type="unfinished">May duplikado ang Hero %1 sa mapa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="137"/>
+        <location filename="../validator.cpp" line="145"/>
         <source>Hero %1 has an empty type and must be removed</source>
         <translation type="unfinished">Ang Hero %1 ay may blangkong uri at dapat alisin</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="148"/>
+        <location filename="../validator.cpp" line="156"/>
         <source>Spell scroll %1 is prohibited by map settings</source>
         <translation type="unfinished">Ipinagbabawal ng mga setting ng mapa ang pag-scroll sa spell %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="166"/>
+        <location filename="../validator.cpp" line="174"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="171"/>
+        <location filename="../validator.cpp" line="179"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="184"/>
+        <location filename="../validator.cpp" line="192"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="190"/>
+        <location filename="../validator.cpp" line="198"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="196"/>
+        <location filename="../validator.cpp" line="204"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="207"/>
+        <location filename="../validator.cpp" line="215"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="213"/>
+        <location filename="../validator.cpp" line="221"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="229"/>
+        <location filename="../validator.cpp" line="237"/>
         <source>Player %1 doesn&apos;t have any starting town</source>
         <translation type="unfinished">Walang panimulang bayan ang manlalarong %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="235"/>
+        <location filename="../validator.cpp" line="243"/>
         <source>Map name is not specified</source>
         <translation type="unfinished">Hindi tinukoy ang pangalan ng mapa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="237"/>
+        <location filename="../validator.cpp" line="245"/>
         <source>Map description is not specified</source>
         <translation type="unfinished">Hindi tinukoy ang paglalarawan ng mapa</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="254"/>
+        <location filename="../validator.cpp" line="262"/>
         <source>defeat a specific hero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="255"/>
+        <location filename="../validator.cpp" line="263"/>
         <source>lose a specific hero</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="258"/>
+        <location filename="../validator.cpp" line="266"/>
         <source>hero placeholder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="260"/>
+        <location filename="../validator.cpp" line="268"/>
         <source>Triggered event &apos;%1&apos; uses %2 condition targeting %3 at %4. This setup is unusual and should be avoided; map will stay playable, but the condition remains unresolved unless placeholder replacement is supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="328"/>
+        <location filename="../validator.cpp" line="336"/>
         <source>The map is valid and has no issues.</source>
         <translation type="unfinished">Ang mapa ay balido at walang problema.</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="273"/>
+        <location filename="../validator.cpp" line="281"/>
         <source>Exception occurs during validation: %1</source>
         <translation type="unfinished">Nangyayari ang eksepsiyon habang pinapatunayan: %1</translation>
     </message>
     <message>
-        <location filename="../validator.cpp" line="277"/>
+        <location filename="../validator.cpp" line="285"/>
         <source>Unknown exception occurs during validation</source>
         <translation type="unfinished">Nagaganap ang hindi kilalang eksepsiyon habang nagpapatunay</translation>
     </message>
@@ -5805,27 +5847,27 @@ Bantay: %3</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../mainwindow.cpp" line="212"/>
+        <location filename="../mainwindow.cpp" line="217"/>
         <source>Filepath of the map to open.</source>
         <translation type="unfinished">Filepath ng mapa na bubuksan.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="215"/>
+        <location filename="../mainwindow.cpp" line="220"/>
         <source>Extract original H3 archives into a separate folder.</source>
         <translation type="unfinished">I-extract ang mga orihinal na archive ng H3 sa isang hiwalay na folder.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="216"/>
+        <location filename="../mainwindow.cpp" line="221"/>
         <source>From an extracted archive, it Splits TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 and Un44 into individual PNG&apos;s.</source>
         <translation type="unfinished">Mula sa isang nakuha na archive, hinahati nito ang TwCrPort, CPRSMALL, FlagPort, ITPA, ITPt, Un32 at Un44 sa mga indibidwal na PNG.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="217"/>
+        <location filename="../mainwindow.cpp" line="222"/>
         <source>From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.</source>
         <translation type="unfinished">Mula sa isang nakuha na archive, kino-convert ang mga indibidwal na Larawan (matatagpuan sa folder ng Mga Larawan) mula .pcx patungong png.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="218"/>
+        <location filename="../mainwindow.cpp" line="223"/>
         <source>Delete original files, for the ones split / converted.</source>
         <translation type="unfinished">Burahin ang mga orihinal na file, para sa mga nahati/na-convert.</translation>
     </message>
