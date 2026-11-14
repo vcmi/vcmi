@@ -35,6 +35,7 @@ enum class ELanguages
 	CHINESE_TRADITIONAL,
 	DUTCH,
 	ENGLISH,
+	FAROESE,
 	FILIPINO,
 	FINNISH,
 	FRENCH,
@@ -96,7 +97,7 @@ struct Options
 
 inline const auto & getLanguageList()
 {
-	static const std::array<Options, 29> languages
+	static const std::array<Options, 30> languages
 	{ {
 		{ "belarusian",  "Belarusian",  "Беларускі",    "CP1251",      "be_BY", "be", "bel", "%d.%m.%Y %H:%M",    EPluralForms::UK_3, true },
 		{ "bulgarian",   "Bulgarian",   "Български",    "CP1251",      "bg_BG", "bg", "bul", "%d.%m.%Y %H:%M",    EPluralForms::EN_2, true },
@@ -105,6 +106,7 @@ inline const auto & getLanguageList()
 		{ "tchinese",    "Traditional Chinese", "正體字",  "BIG5",      "zh_TW", "zh-TW", "chi", "%Y-%m-%d %H:%M", EPluralForms::VI_1, true },
 		{ "dutch",       "Dutch",       "Nederlands",   "CP1252",      "nl_NL", "nl", "nld", "%Y-%m-%d %H:%M",    EPluralForms::EN_2, true },
 		{ "english",     "English",     "English",      "CP1252",      "en_US", "en", "eng", "%Y-%m-%d %H:%M",    EPluralForms::EN_2, true }, // English uses international date/time format here
+		{ "faroese",     "Faroese",     "Føroyskt",     "CP1252",      "fo_FO", "fo", "fao", "%d.%m.%Y %H:%M",    EPluralForms::EN_2, true },
 		{ "filipino",    "Filipino",    "Pilipino",     "CP1252",      "fil_FIL","fil","fil","%Y-%m-%d %H:%M",    EPluralForms::EN_2, true },
 		{ "finnish",     "Finnish",     "Suomi",        "CP1252",      "fi_FI", "fi", "fin", "%d.%m.%Y %H:%M",    EPluralForms::EN_2, true },
 		{ "french",      "French",      "Français",     "CP1252",      "fr_FR", "fr", "fre", "%d/%m/%Y %H:%M",    EPluralForms::FR_2, true },
