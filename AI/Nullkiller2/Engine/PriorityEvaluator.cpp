@@ -903,6 +903,15 @@ static float evaluateRewardableSkillValue(const RewardableObjectInfo & rewardabl
 				totalValue += value;
 			}
 		}
+
+		// Each gained level is worth a Tree of Knowledge visit.
+		TExpType gainedExp = 0;
+		if(reward.heroLevel > 0)
+			gainedExp += hero->experienceToGainLevels(reward.heroLevel);
+		if(reward.heroExperience > 0)
+			gainedExp += hero->calculateXp(reward.heroExperience);
+		if(gainedExp > 0)
+			totalValue += LIBRARY->heroh->level(hero->exp + gainedExp) - hero->level;
 	}
 
 	return totalValue;
