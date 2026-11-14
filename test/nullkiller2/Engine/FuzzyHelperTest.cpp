@@ -293,7 +293,7 @@ TEST_F(Nullkiller2_Engine_FuzzyHelper, unsupportedGuardConfigurationRemainsUnkno
 	supportedGuard["amount"].Integer() = 10;
 	supportedConfiguration.setModScope(ModScope::scopeBuiltin());
 	Rewardable::Info supportedInfo;
-	LibraryLoadContext context(*LIBRARY);
+	LibraryLoadContext context(const_cast<GameLibrary &>(*LIBRARY));
 	supportedInfo.init(context, supportedConfiguration, "testCreatureBank");
 	const auto guardRange = supportedInfo.getCreatureBankGuardRange();
 	ASSERT_TRUE(guardRange);
