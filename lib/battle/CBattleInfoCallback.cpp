@@ -1506,16 +1506,18 @@ ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * be
 
 	auto cache = getReachability(berserker);
 
-	if (battleCanShoot(berserker))
+	const auto nearestTarget = std::ranges::min_element(targets, [&berserker](const battle::Unit * lhs, const battle::Unit * rhs)
 	{
-		const auto target = std::ranges::min_element(targets, [&berserker](const battle::Unit * lhs, const battle::Unit * rhs)
-		{
-			return BattleHex::getDistance(berserker->getPosition(), lhs->getPosition()) < BattleHex::getDistance(berserker->getPosition(), rhs->getPosition());
-		})[0];
+		return BattleHex::getDistance(berserker->getPosition(), lhs->getPosition()) < BattleHex::getDistance(berserker->getPosition(), rhs->getPosition());
+	})[0];
+
+	// a shooter that can not shoot its nearest target, e.g. Steel Elves next to it or out of limited range, attacks in melee
+	if (battleCanShoot(berserker, nearestTarget->getPosition()))
+	{
 		ForcedAction result = {
 			EActionType::SHOOT,
 			berserker->getPosition(),
-			target
+			nearestTarget
 		};
 		return result;
 	}

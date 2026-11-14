@@ -240,6 +240,18 @@ public:
 		return unit;
 	}
 
+	/// Berserk shooter with Steel Elves ability: shoots freely while blocked, but only in melee at adjacent units
+	UnitFake & addBerserkElves(BattleHex hex, BattleSide side)
+	{
+		auto & unit = addRegularMelee(hex, side);
+		unit.addCreatureAbility(BonusType::ATTACKS_NEAREST_CREATURE);
+		unit.addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::FREE_SHOOTING, BonusSource::CREATURE_ABILITY, 0, BonusSourceID(), BonusCustomSubtype::freeShootingExceptAdjacent));
+		EXPECT_CALL(unit, canShoot()).WillRepeatedly(Return(true));
+		EXPECT_CALL(unit, canShootBlocked()).WillRepeatedly(Return(true));
+		EXPECT_CALL(unit, unitType()).WillRepeatedly(Return(CreatureID(CreatureID::ARCHER).toCreature()));
+		return unit;
+	}
+
 	UnitFake & addLongWeaponUnit(BattleHex hex, BattleSide side)
 	{
 		auto & unit = addRegularMelee(hex, side);
@@ -750,6 +762,44 @@ TEST_F(AttackableHexesTest, DefenderPositionOverride_BreathCountsHypoteticDefend
 		19);
 
 	EXPECT_TRUE(vstd::contains(attacked, &next));
+}
+
+TEST_F(AttackableHexesTest, BerserkShooterAttacksAdjacentUnitItCanNotShootInMelee)
+{
+	UnitFake & shooter = addBerserkElves(60, BattleSide::ATTACKER);
+	UnitFake & neighbour = addRegularMelee(61, BattleSide::DEFENDER);
+	UnitFake & distant = addRegularMelee(100, BattleSide::DEFENDER);
+	EXPECT_CALL(shooter, unitId()).WillRepeatedly(Return(1));
+	EXPECT_CALL(neighbour, unitId()).WillRepeatedly(Return(2));
+	EXPECT_CALL(distant, unitId()).WillRepeatedly(Return(3));
+
+	startBattle();
+	redirectUnitsToFake();
+	EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::ATTACKER))).WillRepeatedly(Return(PlayerColor(0)));
+	EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::DEFENDER))).WillRepeatedly(Return(PlayerColor(1)));
+
+	const ForcedAction action = subject.getBerserkForcedAction(&shooter);
+	EXPECT_EQ(action.type, EActionType::WALK_AND_ATTACK);
+	EXPECT_EQ(action.target, &neighbour);
+}
+
+TEST_F(AttackableHexesTest, BerserkShooterShootsNearestAlly)
+{
+	UnitFake & shooter = addBerserkElves(60, BattleSide::ATTACKER);
+	UnitFake & ally = addRegularMelee(63, BattleSide::ATTACKER);
+	UnitFake & enemy = addRegularMelee(100, BattleSide::DEFENDER);
+	EXPECT_CALL(shooter, unitId()).WillRepeatedly(Return(1));
+	EXPECT_CALL(ally, unitId()).WillRepeatedly(Return(2));
+	EXPECT_CALL(enemy, unitId()).WillRepeatedly(Return(3));
+
+	startBattle();
+	redirectUnitsToFake();
+	EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::ATTACKER))).WillRepeatedly(Return(PlayerColor(0)));
+	EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::DEFENDER))).WillRepeatedly(Return(PlayerColor(1)));
+
+	const ForcedAction action = subject.getBerserkForcedAction(&shooter);
+	EXPECT_EQ(action.type, EActionType::SHOOT);
+	EXPECT_EQ(action.target, &ally);
 }
 
 class BattleFinishedTest : public CBattleInfoCallbackTest
