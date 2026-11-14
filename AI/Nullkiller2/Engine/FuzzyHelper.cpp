@@ -18,21 +18,20 @@
 #include "../../../lib/IGameSettings.h"
 #include "../../../lib/mapObjects/CRewardableObject.h"
 #include "../../../lib/rewardable/Info.h"
-#include "../../../lib/StartInfo.h"
 
 namespace NK2AI
 {
 
 static constexpr ui64 UNKNOWN_DANGER = 190000000;
 
-static ui64 evaluateRewardableDanger(const CGObjectInstance * obj, const RewardableObjectInfo & rewardableInfo)
+static ui64 evaluateRewardableDanger(const CGObjectInstance * obj, const RewardableObjectInfo & rewardableInfo,
+	bool estimateUnscoutedBankGuards)
 {
 	const bool guardsVisible = obj->cb->getSettings().getBoolean(EGameSettings::BANKS_SHOW_GUARDS_COMPOSITION);
 	const auto * rewardableObject = dynamic_cast<const CRewardableObject *>(obj);
 	// Some banks trigger combat immediately on visit.
 	const bool forceCombat = rewardableObject && rewardableObject->configuration.forceCombat;
-	const bool knowsRange = !guardsVisible || forceCombat || (!rewardableInfo.scouted &&
-		static_cast<int>(obj->cb->getStartInfo()->getDifficulty()) >= static_cast<int>(EMapDifficulty::EXPERT));
+	const bool knowsRange = !guardsVisible || forceCombat || (!rewardableInfo.scouted && estimateUnscoutedBankGuards);
 	if((!rewardableInfo.scouted || rewardableInfo.guarded) && knowsRange)
 	{
 		auto objectInfo = obj->getObjectHandler()->getObjectInfo();
@@ -173,7 +172,7 @@ ui64 FuzzyHelper::evaluateDanger(const CGObjectInstance * obj)
 	default:
 	{
 		if(const auto info = aiNk->cc->getRewardableObjectInfo(obj))
-			return evaluateRewardableDanger(obj, *info);
+			return evaluateRewardableDanger(obj, *info, aiNk->settings->shouldEstimateUnscoutedBankGuards());
 
 		const CArmedInstance * a = dynamic_cast<const CArmedInstance *>(obj);
 		if (a)

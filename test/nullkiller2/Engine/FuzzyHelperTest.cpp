@@ -242,7 +242,9 @@ TEST_F(Nullkiller2_Engine_FuzzyHelper, visibleUnscoutedBankUsesMinimumDangerAtEx
 TEST_F(Nullkiller2_Engine_FuzzyHelper, visibleForceCombatBankUsesMaximumDangerBelowExpertDifficulty)
 {
 	bank->configuration.forceCombat = true;
+	gateway.reset();
 	gameState()->getStartInfo()->difficulty = static_cast<ui8>(EMapDifficulty::NORMAL);
+	gateway = makeGateway(callback);
 	gameState()->teams.at(gameState()->players.at(PLAYER).team).scoutedObjects.erase(bank->id);
 
 	const auto objectInfo = bank->getObjectHandler()->getObjectInfo();
@@ -251,6 +253,20 @@ TEST_F(Nullkiller2_Engine_FuzzyHelper, visibleForceCombatBankUsesMaximumDangerBe
 	const auto guardRange = bankInfo->getCreatureBankGuardRange();
 	ASSERT_TRUE(guardRange.has_value());
 	EXPECT_EQ(gateway->nullkiller->dangerEvaluator->evaluateDanger(bank.get()), guardRange->second);
+}
+
+TEST_F(Nullkiller2_Engine_FuzzyHelper, visibleUnscoutedBankCanBeScoutedAtNormalDifficulty)
+{
+	gateway.reset();
+	gameState()->getStartInfo()->difficulty = static_cast<ui8>(EMapDifficulty::NORMAL);
+	gateway = makeGateway(callback);
+
+	auto & team = gameState()->teams.at(gameState()->players.at(PLAYER).team);
+	team.scoutedObjects.erase(bank->id);
+	EXPECT_EQ(gateway->nullkiller->dangerEvaluator->evaluateDanger(bank.get()), 0);
+
+	team.scoutedObjects.insert(bank->id);
+	EXPECT_GT(gateway->nullkiller->dangerEvaluator->evaluateDanger(bank.get()), 0);
 }
 
 TEST_F(Nullkiller2_Engine_FuzzyHelper, guaranteedGuardUpgradeExcludesBaseCreature)

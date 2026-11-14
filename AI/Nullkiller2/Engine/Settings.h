@@ -34,6 +34,7 @@ namespace NK2AI
 		bool useTroopsFromGarrisons;
 		bool updateHitmapOnTileReveal;
 		bool openMap;
+		bool estimateUnscoutedBankGuards;
 
 	public:
 		explicit Settings(int difficultyLevel);
@@ -56,5 +57,6 @@ namespace NK2AI
 		bool isGarrisonTroopsUsageAllowed() const { return useTroopsFromGarrisons; }
 		bool isUpdateHitmapOnTileReveal() const { return updateHitmapOnTileReveal; }
 		bool isOpenMap() const { return openMap; }
+		bool shouldEstimateUnscoutedBankGuards() const { return estimateUnscoutedBankGuards; }
 	};
 }
