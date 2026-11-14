@@ -12,6 +12,7 @@
 
 #include "ModDescription.h"
 #include "ModScope.h"
+#include "ModSnapshot.h"
 
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
@@ -239,13 +240,12 @@ std::map<TModID, bool> ModsPresetState::getModSettings(const TModID & modID) con
 	return modSettings;
 }
 
-std::optional<uint32_t> ModsPresetState::getValidatedChecksum(const TModID & modName) const
+std::map<TModID, uint32_t> ModsPresetState::getValidatedChecksums() const
 {
-	const JsonNode & node = modConfig["validatedMods"][modName];
-	if (node.isNull())
-		return std::nullopt;
-	else
-		return node.Integer();
+	std::map<TModID, uint32_t> result;
+	for(const auto & [modName, checksum] : modConfig["validatedMods"].Struct())
+		result[modName] = static_cast<uint32_t>(checksum.Integer());
+	return result;
 }
 
 void ModsPresetState::setModActive(const TModID & modID, bool isActive)
@@ -516,7 +516,7 @@ ModManager::ModManager(const JsonNode & repositoryList, bool useTestPreset, cons
 	: modsState(std::make_unique<ModsState>())
 	, modsPreset(std::make_unique<ModsPresetState>(useTestPreset))
 {
-	modsStorage = std::make_unique<ModsStorage>(modsState->getInstalledMods(), repositoryList);
+	modsStorage = std::make_shared<const ModsStorage>(modsState->getInstalledMods(), repositoryList);
 
 	eraseMissingModsFromPreset();
 	addNewModsToPreset();
@@ -567,18 +567,16 @@ const TModList & ModManager::getActiveMods() const
 	return depedencyResolver->getActiveMods();
 }
 
-std::optional<uint32_t> ModManager::getValidatedChecksum(const TModID & modName) const
+ModSnapshot ModManager::createSnapshot() const
 {
-	return modsPreset->getValidatedChecksum(modName);
+	return ModSnapshot(modsStorage, getActiveMods(), modsPreset->getValidatedChecksums());
 }
 
-void ModManager::setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value)
+void ModManager::setValidatedChecksums(const std::map<TModID, std::optional<uint32_t>> & checksums)
 {
-	modsPreset->setValidatedChecksum(modName, value);
-}
+	for(const auto & [modName, checksum] : checksums)
+		modsPreset->setValidatedChecksum(modName, checksum);
 
-void ModManager::saveConfigurationState() const
-{
 	modsPreset->saveConfigurationState();
 }
 

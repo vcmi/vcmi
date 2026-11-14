@@ -9,12 +9,13 @@
  */
 #pragma once
 
+#include "ModSnapshot.h"
+
 #include "../json/JsonNode.h"
 
 class CModHandler;
 class ModDescription;
 class ResourcePath;
-class ModManager;
 class ISimpleResourceLoader;
 class CResourceHandler;
 class LibraryLoadContext;
@@ -25,7 +26,8 @@ using TModFilesystems = std::vector<std::pair<TModID, std::shared_ptr<ISimpleRes
 
 class DLL_LINKAGE CModHandler final : boost::noncopyable
 {
-	std::unique_ptr<ModManager> modManager;
+	/// Installed and active mods of the library this handler belongs to
+	const ModSnapshot mods;
 
 	/// Filesystem with active mods mounted, created by loadModFilesystems
 	std::unique_ptr<CResourceHandler> filesystem;
@@ -86,11 +88,13 @@ public:
 
 	/// load content from all available mods
 	void load(LibraryLoadContext & context);
-	void afterLoad();
+
+	/// Returns result of validation of active mods, to store in mod manager: checksum of a mod without issues, or nothing for a mod with issues
+	const std::map<TModID, std::optional<uint32_t>> & getValidatedChecksums() const;
 
 	/// Returns list of all mods, from which at least one identifier has failed to resolve
 	const std::vector<TModID> & getModsWithFailedRequests() const;
 
-	explicit CModHandler(bool useTestPreset = false);
+	explicit CModHandler(ModSnapshot mods);
 	~CModHandler();
 };

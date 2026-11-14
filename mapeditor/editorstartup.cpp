@@ -18,6 +18,8 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModManager.h"
 #include "../lib/texts/TextOperations.h"
 
 EditorStartup::EditorStartup() = default;
@@ -37,8 +39,9 @@ bool EditorStartup::initFilesystem(bool extractArchives)
 	logGlobal->info("The log file will be saved to %s", TextOperations::filesystemPathToUtf8(logPath));
 
 	initializeBaseFilesystem(extractArchives);
+	mods = std::make_unique<ModManager>();
 	library = std::make_unique<GameLibrary>();
-	library->initializeFilesystem();
+	library->initializeFilesystem(mods->createSnapshot());
 
 	logConfig->configure();
 	logGlobal->debug("settings = %s", settings.toJsonNode().toString());
@@ -64,6 +67,7 @@ bool EditorStartup::initFilesystem(bool extractArchives)
 void EditorStartup::initLibrary()
 {
 	library->initializeLibrary();
+	mods->setValidatedChecksums(library->modh->getValidatedChecksums());
 	setGameLibrary(std::move(library));
 
 	Settings config = settings.write["session"]["editor"];

@@ -14,6 +14,7 @@
 
 class JsonNode;
 class ModDescription;
+class ModSnapshot;
 struct CModVersion;
 
 using TModID = std::string;
@@ -79,7 +80,7 @@ public:
 
 	/// Returns list of all known settings (submods) for a specified mod
 	std::map<TModID, bool> getModSettings(const TModID & modID) const;
-	std::optional<uint32_t> getValidatedChecksum(const TModID & modName) const;
+	std::map<TModID, uint32_t> getValidatedChecksums() const;
 	void setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value);
 
 	void saveConfigurationState() const;
@@ -120,7 +121,7 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 {
 	std::unique_ptr<ModsState> modsState;
 	std::unique_ptr<ModsPresetState> modsPreset;
-	std::unique_ptr<ModsStorage> modsStorage;
+	std::shared_ptr<const ModsStorage> modsStorage;
 	std::unique_ptr<ModDependenciesResolver> depedencyResolver;
 
 	void generateLoadOrder(TModList desiredModList);
@@ -147,10 +148,13 @@ public:
 	bool isModSettingActive(const TModID & rootModID, const TModID & modSettingID) const;
 	std::map<TModID, bool> getModSettings(const TModID & rootModID) const;
 	bool isModActive(const TModID & modID) const;
-	std::optional<uint32_t> getValidatedChecksum(const TModID & modName) const;
-	void setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value);
-	void saveConfigurationState() const;
 	double getInstalledModSizeMegabytes(const TModID & modName) const;
+
+	/// Returns mod list for a game library, with currently active mods
+	ModSnapshot createSnapshot() const;
+
+	/// Stores result of validation of mods by a loaded game library: checksum of a mod without issues, or nothing for a mod with issues
+	void setValidatedChecksums(const std::map<TModID, std::optional<uint32_t>> & checksums);
 
 	void tryEnableMods(const TModList & modList);
 	void tryDisableMod(const TModID & modName);

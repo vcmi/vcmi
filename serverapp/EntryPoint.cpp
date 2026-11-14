@@ -50,11 +50,13 @@ static void exportLuaApiDocs(const boost::filesystem::path & outPath)
 	logGlobal->info("Generated files can be found in " + TextOperations::filesystemPathToUtf8(outPath) + " directory");
 }
 
-static std::unique_ptr<GameLibrary> loadLibrary()
+/// Loads library with active mods of provided mod manager
+static std::unique_ptr<GameLibrary> loadLibrary(ModManager & mods)
 {
 	auto library = std::make_unique<GameLibrary>();
-	library->initializeFilesystem();
+	library->initializeFilesystem(mods.createSnapshot());
 	library->initializeLibrary();
+	mods.setValidatedChecksums(library->modh->getValidatedChecksums());
 	return library;
 }
 
@@ -219,7 +221,7 @@ static void generateTranslations(const std::string & modID)
 	{
 		exportPresets.push_back("translation-export-" + std::to_string(exportPresets.size()));
 		auto mods = activateExportPreset(exportPresets.back(), modID, disabledMods);
-		setGameLibrary(loadLibrary());
+		setGameLibrary(loadLibrary(*mods));
 
 		std::map<std::string, ExportedStrings> passTexts;
 		LIBRARY->generaltexth->exportAllTexts(passTexts, false);
@@ -431,8 +433,9 @@ int main(int argc, const char * argv[])
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
 	initializeBaseFilesystem(false);
+	ModManager mods;
 	auto library = std::make_unique<GameLibrary>();
-	library->initializeFilesystem();
+	library->initializeFilesystem(mods.createSnapshot());
 	logConfigurator.configure();
 
 	if(opts.count("export-config"))
@@ -443,6 +446,7 @@ int main(int argc, const char * argv[])
 	}
 	else
 		library->initializeLibrary();
+	mods.setValidatedChecksums(library->modh->getValidatedChecksums());
 	setGameLibrary(std::move(library));
 
 	if(opts.count("creature-values"))

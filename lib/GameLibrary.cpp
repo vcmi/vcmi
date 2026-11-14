@@ -172,26 +172,20 @@ void setGameLibrary(std::unique_ptr<GameLibrary> library)
 	delete previous;
 }
 
-void GameLibrary::loadModFilesystem(bool useTestPreset)
-{
-	CStopWatch loadTime;
-	modh = std::make_unique<CModHandler>(useTestPreset);
-	identifiersHandler = std::make_unique<CIdentifierStorage>(*modh);
-	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
-
-	modh->loadModFilesystems();
-	logGlobal->info("\tMod filesystems: %d ms", loadTime.getDiff());
-}
-
 template <class Handler>
 void createHandler(LibraryHandlerPtr<Handler> & handler)
 {
 	handler = std::make_unique<Handler>();
 }
 
-void GameLibrary::initializeFilesystem(bool useTestPreset)
+void GameLibrary::initializeFilesystem(const ModSnapshot & mods)
 {
-	loadModFilesystem(useTestPreset);
+	CStopWatch loadTime;
+	modh = std::make_unique<CModHandler>(mods);
+	identifiersHandler = std::make_unique<CIdentifierStorage>(*modh);
+
+	modh->loadModFilesystems();
+	logGlobal->info("\tMod filesystems: %d ms", loadTime.getDiff());
 
 	// Detect game data mode after filesystem is loaded
 	const bool hasDemoMap = modh->getRootFilesystem().existsResource(ResourcePath("MAPS/H3DEMO.H3M"));
@@ -266,7 +260,6 @@ void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 	scriptHandler = std::make_unique<scripting::LuaModule>();
 	scriptHandler->installScripting(*scriptTypeHandler);
 	modh->load(context);
-	modh->afterLoad();
 
 	mapFormat = std::make_unique<MapFormatSettings>(*this);
 

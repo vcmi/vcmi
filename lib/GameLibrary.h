@@ -41,6 +41,7 @@ class IGameSettings;
 class GameSettings;
 class CIdentifierStorage;
 class LibraryLoadContext;
+class ModSnapshot;
 class SpellSchoolHandler;
 class MapFormatSettings;
 class CampaignRegionsHandler;
@@ -130,8 +131,8 @@ public:
 	GameLibrary();
 	~GameLibrary();
 
-	/// Mounts filesystems of active mods. Requires initializeBaseFilesystem
-	void initializeFilesystem(bool useTestPreset = false);
+	/// Mounts filesystems of active mods from provided mod list. Requires initializeBaseFilesystem
+	void initializeFilesystem(const ModSnapshot & mods);
 
 	/// Loads all game entities
 	void initializeLibrary();
@@ -149,9 +150,6 @@ public:
 	bool isDemoData() const;
 
 	GameDataMode gameDataMode = GameDataMode::SOD;
-
-	// loads filesystems of all mods
-	void loadModFilesystem(bool useTestPreset = false);
 };
 
 /// Mounts game data, user directories and process-wide settings. Called once per process, before any library is created. Can also extract original H3 archives

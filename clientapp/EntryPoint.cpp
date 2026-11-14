@@ -38,6 +38,7 @@
 #include "../lib/texts/TextOperations.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
+#include "../lib/modding/ModManager.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 #include "../lib/texts/MetaString.h"
 #include "../lib/GameLibrary.h"
@@ -261,10 +262,12 @@ int main(int argc, char * argv[])
 
 	// Init filesystem and settings
 	auto library = std::make_unique<GameLibrary>();
+	std::unique_ptr<ModManager> mods;
 	try
 	{
 		initializeBaseFilesystem(false);
-		library->initializeFilesystem();
+		mods = std::make_unique<ModManager>();
+		library->initializeFilesystem(mods->createSnapshot());
 	}
 	catch (const DataLoadingException & e)
 	{
@@ -373,6 +376,7 @@ int main(int argc, char * argv[])
 			handleFatalError(criticalInitializationError.value(), false);
 		}
 
+		mods->setValidatedChecksums(library->modh->getValidatedChecksums());
 		setGameLibrary(std::move(library));
 
 		if (ENGINE)
