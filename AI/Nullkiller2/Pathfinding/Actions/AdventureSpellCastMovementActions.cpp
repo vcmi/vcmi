@@ -72,7 +72,7 @@ namespace AIPathfinding
 			source->manaCost);
 #endif
 
-		return hero->mana >= source->manaCost + manaCost;
+		return hero->mana >= source->manaCost + manaCost && !aiNk->pathfinder->getStorage()->isSpellLevelBlockedAt(hero, spellToCast.toSpell(), source->coord);
 	}
 
 	std::string AdventureCastAction::toString() const

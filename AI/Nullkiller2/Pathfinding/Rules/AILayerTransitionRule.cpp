@@ -83,7 +83,9 @@ namespace AIPathfinding
 
 			auto action = waterWalkingActions.find(nodeStorage->getHero(source.node));
 
-			if(action != waterWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
+			if(action != waterWalkingActions.end()
+				&& action->second->canAct(aiNk, nodeStorage->getAINode(source.node))
+				&& tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
 			{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 				logAi->trace("Casting water walk while moving %s -> %s!", source.coord.toString(), destination.coord.toString());
@@ -101,7 +103,9 @@ namespace AIPathfinding
 
 			auto action = airWalkingActions.find(nodeStorage->getHero(source.node));
 
-			if(action != airWalkingActions.end() && tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
+			if(action != airWalkingActions.end()
+				&& action->second->canAct(aiNk, nodeStorage->getAINode(source.node))
+				&& tryUseSpecialAction(destination, source, action->second, EPathNodeAction::NORMAL))
 			{
 #if NK2AI_PATHFINDER_TRACE_LEVEL >= 2
 				logAi->trace("Casting fly while moving %s -> %s!", source.coord.toString(), destination.coord.toString());

@@ -218,11 +218,18 @@ void AINodeStorage::clear()
 	actors.clear();
 	committedTiles.clear();
 	dimensionDoorCapabilities.clear();
+	specialTerrainTiles = aiNk->cc->getSpecialTerrainTiles();
 	heroChainPass = EHeroChainPass::INITIAL;
 	heroChainTurn = 0;
 	heroChainMaxTurns = 1;
 	turnDistanceLimit[HeroRole::MAIN] = PathfinderSettings::MaxTurnDistanceLimit;;
 	turnDistanceLimit[HeroRole::SCOUT] = PathfinderSettings::MaxTurnDistanceLimit;;
+}
+
+bool AINodeStorage::isSpellLevelBlockedAt(const CGHeroInstance * hero, const spells::Spell * spell, const int3 & tile) const
+{
+	const auto terrain = specialTerrainTiles.find(tile);
+	return hero->isSpellLevelBlockedOn(spell, terrain == specialTerrainTiles.end() ? BattleField::NONE : terrain->second);
 }
 
 std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
@@ -1215,6 +1222,9 @@ std::optional<AINodeStorage::DimensionDoorSpellPlan> AINodeStorage::getDimension
 	const int plannedDimensionDoorCasts = plannedSourceTurn == source.node->turns ? srcNode->dimensionDoorCasts : 0;
 	const int castsAlreadyPerformed = plannedSourceTurn == 0 ? capability.castsAlreadyPerformed : 0;
 
+	if(isSpellLevelBlockedAt(hero, capability.spell, source.coord))
+		return std::nullopt;
+
 	if(!AIPathfinding::hasDimensionDoorActionResources({
 		hero,
 		capability.spell,
@@ -1401,7 +1411,8 @@ struct TownPortalFinder
 
 			if(aiNode->actor->baseActor != actor
 				|| node->layer != EPathfindingLayer::LAND
-				|| node->moveRemains < movementNeeded)
+				|| node->moveRemains < movementNeeded
+				|| nodeStorage->isSpellLevelBlockedAt(hero, townPortal, node->coord))
 			{
 				continue;
 			}

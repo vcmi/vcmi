@@ -511,6 +511,31 @@ const TerrainTile * CGameInfoCallback::getTileUnchecked(int3 tile) const
 	return nullptr;
 }
 
+std::map<int3, BattleField> CGameInfoCallback::getSpecialTerrainTiles() const
+{
+	std::map<int3, BattleField> result;
+
+	// same order as CGameState::getSpecialTerrainAt - first patch that covers a tile wins
+	for(const auto * patch : gameState().getMap().getObjects<CGTerrainPatch>())
+	{
+		const BattleField terrain = patch->getBattlefield();
+		if(terrain == BattleField::NONE)
+			continue;
+
+		for(int fy = 0; fy < patch->getHeight(); ++fy)
+		{
+			for(int fx = 0; fx < patch->getWidth(); ++fx)
+			{
+				const int3 tile = patch->anchorPos() - int3(fx, fy, 0);
+				if(isVisible(tile) && patch->coveringAt(tile))
+					result.emplace(tile, terrain);
+			}
+		}
+	}
+
+	return result;
+}
+
 EDiggingStatus CGameInfoCallback::getTileDigStatus(int3 tile) const
 {
 	if(!isVisible(tile))
