@@ -2746,14 +2746,17 @@ EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position, con
 			{
 				ArtifactID requiredArtifact = reader->readArtifact();
 
+				SpellID scrollSpell = SpellID::NONE;
 				if (features.levelHOTA5)
-				{
-					SpellID scrollSpell = reader->readSpell16();
-					if (requiredArtifact == ArtifactID::SPELL_SCROLL)
-						quest.mission.scrolls.push_back(scrollSpell);
-					else
-						quest.mission.artifacts.push_back(requiredArtifact);
-				}
+					scrollSpell = reader->readSpell16();
+
+				// Artifact can be missing (e.g. map requires a mod that is not installed).
+				// Skip it instead of dereferencing an invalid id later, when quest texts are built.
+				if(requiredArtifact == ArtifactID::NONE)
+					continue;
+
+				if (features.levelHOTA5 && requiredArtifact == ArtifactID::SPELL_SCROLL)
+					quest.mission.scrolls.push_back(scrollSpell);
 				else
 					quest.mission.artifacts.push_back(requiredArtifact);
 
@@ -2764,11 +2767,20 @@ EQuestMission CMapLoaderH3M::readQuest(Quest & quest, const int3 & position, con
 		case EQuestMission::ARMY:
 		{
 			size_t typeNumber = reader->readUInt8();
-			quest.mission.creatures.resize(typeNumber);
+			auto & creatures = quest.mission.creatures;
+			creatures.clear();
+			creatures.reserve(typeNumber);
 			for(size_t hh = 0; hh < typeNumber; ++hh)
 			{
-				quest.mission.creatures[hh].setType(reader->readCreature("quest at " + position.toString()).toCreature());
-				quest.mission.creatures[hh].setCount(reader->readUInt16());
+				CreatureID creatureID = reader->readCreature("quest at " + position.toString());
+				auto count = reader->readUInt16();
+
+				// Creature can be missing (e.g. map requires a mod that is not installed) or be a random placeholder.
+				// Skip such entries instead of querying the creature handler with an invalid id and failing the whole map load.
+				if(creatureID.getNum() < 0)
+					continue;
+
+				creatures.emplace_back(creatureID, count);
 			}
 			break;
 		}
