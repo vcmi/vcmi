@@ -266,7 +266,7 @@ void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 	scriptHandler = std::make_unique<scripting::LuaModule>();
 	scriptHandler->installScripting(*scriptTypeHandler);
 	modh->load(context);
-	modh->afterLoad(context);
+	modh->afterLoad();
 
 	mapFormat = std::make_unique<MapFormatSettings>(*this);
 

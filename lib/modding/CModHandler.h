@@ -33,6 +33,9 @@ class DLL_LINKAGE CModHandler final : boost::noncopyable
 	/// Mods from which at least one identifier request has failed to resolve while loading library content
 	std::vector<TModID> modsWithFailedRequests;
 
+	/// Checksums of active mods that have no issues found while loading their content, empty for mods with issues. Filled by load
+	std::map<TModID, std::optional<uint32_t>> validatedChecksums;
+
 	/// Reads files of all active mods and computes their checksums
 	void loadModContent(LibraryLoadContext & context) const;
 	JsonNode loadModContent(const TModID & modName, const std::vector<std::string> & contentTypes, const std::string & preferredLanguage, uint32_t & checksum, bool & isValid) const;
@@ -83,7 +86,7 @@ public:
 
 	/// load content from all available mods
 	void load(LibraryLoadContext & context);
-	void afterLoad(const LibraryLoadContext & context);
+	void afterLoad();
 
 	/// Returns list of all mods, from which at least one identifier has failed to resolve
 	const std::vector<TModID> & getModsWithFailedRequests() const;

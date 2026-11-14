@@ -588,20 +588,22 @@ void CModHandler::load(LibraryLoadContext & context)
 	context.modContent.clear();
 	modsWithFailedRequests = context.resolver.getModsWithFailedRequests();
 
+	for(const TModID & modName : activeMods)
+	{
+		if(context.validationPassed.count(modName))
+			validatedChecksums[modName] = context.modChecksums.at(modName);
+		else
+			validatedChecksums[modName] = std::nullopt;
+	}
+
 	logMod->info("\tHandlers post-load finalization");
 	logMod->info("\tAll game content loaded");
 }
 
-void CModHandler::afterLoad(const LibraryLoadContext & context)
+void CModHandler::afterLoad()
 {
-	JsonNode modSettings;
-	for (const auto & modEntry : getActiveMods())
-	{
-		if (context.validationPassed.count(modEntry))
-			modManager->setValidatedChecksum(modEntry, context.modChecksums.at(modEntry));
-		else
-			modManager->setValidatedChecksum(modEntry, std::nullopt);
-	}
+	for(const auto & [modName, checksum] : validatedChecksums)
+		modManager->setValidatedChecksum(modName, checksum);
 
 	modManager->saveConfigurationState();
 }
