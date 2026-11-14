@@ -28,7 +28,7 @@ public:
 	const ModDescription & getModDescription(const TModID & modID) const;
 
 	/// Returns all installed mods, active or not
-	TModList getAllMods() const;
+	TModList getInstalledMods() const;
 
 	/// Returns active mods in their load order
 	const TModList & getActiveMods() const;

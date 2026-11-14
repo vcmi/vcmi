@@ -153,7 +153,7 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 /// Returns name of a mod required by the entry, from metadata if the mod is not installed
 static std::string getModName(const ScenarioListEntry & entry, const TModID & modID)
 {
-	if(vstd::contains(LIBRARY->modh->getAllMods(), modID))
+	if(vstd::contains(LIBRARY->modh->getInstalledMods(), modID))
 		return LIBRARY->modh->getModInfo(modID).getName();
 
 	const TModID rootID = modID.substr(0, modID.find('.'));

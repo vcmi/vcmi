@@ -24,7 +24,7 @@ const ModDescription & ModSnapshot::getModDescription(const TModID & modID) cons
 	return storage->getMod(modID);
 }
 
-TModList ModSnapshot::getAllMods() const
+TModList ModSnapshot::getInstalledMods() const
 {
 	return storage->getAllMods();
 }

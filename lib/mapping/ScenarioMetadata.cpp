@@ -170,7 +170,7 @@ JsonNode ScenarioMetadata::activeModsToJson()
 
 ModListVerificationStatus ScenarioMetadata::verifyMods(const JsonNode & mods, bool isSave)
 {
-	const auto & installedMods = LIBRARY->modh->getAllMods();
+	const auto & installedMods = LIBRARY->modh->getInstalledMods();
 	const auto & activeMods = LIBRARY->modh->getActiveMods();
 
 	// local version of a mod may no longer affect gameplay, in which case it does not need to be enabled
