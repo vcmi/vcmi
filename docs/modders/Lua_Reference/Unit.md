@@ -122,9 +122,21 @@ True if the unit is absolutely immune to the given spell.
 
 - returns `boolean`
 
+### isAddedInBattle
+
+True if the unit was added during battle, e.g. by a summon or transmutation, whether it is temporary or not.
+
+- returns `boolean`
+
+### isTemporary
+
+True if the unit is removed from its army once the battle is over, e.g. a summoned elemental.
+
+- returns `boolean`
+
 ### isSummoned
 
-True if the stack was summoned during battle (e.g. by Summon Elementals).
+DEPRECATED. Use isAddedInBattle, or isTemporary to check whether the unit is removed after battle. Same as isAddedInBattle.
 
 - returns `boolean`
 

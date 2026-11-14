@@ -101,6 +101,8 @@ public:
 	virtual bool isInvincible() const = 0;
 
 	virtual bool isClone() const = 0;
+	/// True if the unit is removed from its army once the battle is over
+	virtual bool isTemporary() const = 0;
 	virtual bool hasClone() const = 0;
 
 	virtual bool canCast() const = 0;
@@ -109,7 +111,8 @@ public:
 	virtual bool canShoot() const = 0;
 	virtual bool isShooter() const = 0;
 	bool isMeleeAttacker() const;
-	bool isSummoned() const;
+	/// True if the unit was added during battle, e.g. by a summon or transmutation, temporary or not
+	bool isAddedInBattle() const;
 	/// Side whose player controls the unit, which differs from its own side while it is hypnotized
 	BattleSide controllingSide() const;
 	bool isCommander() const;

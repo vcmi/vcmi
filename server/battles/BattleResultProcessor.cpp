@@ -182,9 +182,8 @@ void CasualtiesAfterBattle::updateArmy(CGameHandler *gh)
 		}
 		else
 		{
-			//even if it will be possible to summon anything permanently it should be checked for free slot
-			//necromancy is handled separately
-			gh->complain("No free slot to put summoned creature");
+			// troop is lost when the army has no free slot for it
+			logGlobal->debug("No free slot to put %d permanently summoned %s", summoned_iter.second, summoned_iter.first.toCreature()->getJsonKey());
 		}
 	}
 	for (auto al : removedWarMachines)

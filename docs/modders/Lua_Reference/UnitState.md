@@ -72,9 +72,15 @@ True if the stack has invincibility.
 
 - returns `boolean`
 
+### isTemporary
+
+True if the unit is removed from its army once the battle is over, e.g. a summoned elemental.
+
+- returns `boolean`
+
 ### isSummoned
 
-True if the stack was summoned during battle.
+DEPRECATED. Use isTemporary. Same as isTemporary.
 
 - returns `boolean`
 

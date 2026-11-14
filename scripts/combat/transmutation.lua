@@ -46,6 +46,8 @@ function Script:onAfterAttack(server, battle, unit, other)
 	-- stack inherits is read while it is still a real unit
 	local position = other:getPosition()
 	local side = other:getSide()
+	-- a temporary victim, e.g. a clone or summoned elemental, must not turn into a permanent stack
+	local summoned = other:isTemporary()
 
 	server:removeUnit(battle, other)
 	server:addUnit(battle, {
@@ -53,7 +55,7 @@ function Script:onAfterAttack(server, battle, unit, other)
 		type = creature,
 		side = side,
 		position = position,
-		summoned = false
+		summoned = summoned
 	})
 	server:refreshBattleUnits(battle)
 end

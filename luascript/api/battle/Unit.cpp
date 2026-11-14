@@ -67,8 +67,12 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 	R.function<&UnitProxy::hasAbsoluteImmunity>("hasAbsoluteImmunity",
 		{{"spell", "Spell to test absolute immunity against."}}, {},
 		"True if the unit is absolutely immune to the given spell.");
-	R.method<&Unit::isSummoned>("isSummoned", {},
-		"True if the stack was summoned during battle (e.g. by Summon Elementals).");
+	R.method<&Unit::isAddedInBattle>("isAddedInBattle", {},
+		"True if the unit was added during battle, e.g. by a summon or transmutation, whether it is temporary or not.");
+	R.method<&Unit::isTemporary>("isTemporary", {},
+		"True if the unit is removed from its army once the battle is over, e.g. a summoned elemental.");
+	R.method<&Unit::isAddedInBattle>("isSummoned", {},
+		"DEPRECATED. Use isAddedInBattle, or isTemporary to check whether the unit is removed after battle. Same as isAddedInBattle.");
 	R.method<&Unit::isCommander>("isCommander", {},
 		"True if the stack is a hero's commander.");
 	R.method<&ACreature::isLiving, Unit>("isLiving", {},

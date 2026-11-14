@@ -537,6 +537,11 @@ bool CUnitState::isClone() const
 	return cloned;
 }
 
+bool CUnitState::isTemporary() const
+{
+	return summoned;
+}
+
 bool CUnitState::hasClone() const
 {
 	return cloneID > 0;

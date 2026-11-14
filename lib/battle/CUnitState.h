@@ -204,6 +204,7 @@ public:
 
 	bool isClone() const override;
 	bool hasClone() const override;
+	bool isTemporary() const override;
 
 	bool canCast() const override;
 	bool isCaster() const override;

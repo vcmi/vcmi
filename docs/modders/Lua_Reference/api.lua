@@ -1806,7 +1806,15 @@ function Unit:isInvincible() end
 ---@return boolean
 function Unit:hasAbsoluteImmunity(spell) end
 
----True if the stack was summoned during battle (e.g. by Summon Elementals).
+---True if the unit was added during battle, e.g. by a summon or transmutation, whether it is temporary or not.
+---@return boolean
+function Unit:isAddedInBattle() end
+
+---True if the unit is removed from its army once the battle is over, e.g. a summoned elemental.
+---@return boolean
+function Unit:isTemporary() end
+
+---DEPRECATED. Use isAddedInBattle, or isTemporary to check whether the unit is removed after battle. Same as isAddedInBattle.
 ---@return boolean
 function Unit:isSummoned() end
 
@@ -1956,7 +1964,11 @@ function UnitState:isValidTarget(allowDead) end
 ---@return boolean
 function UnitState:isInvincible() end
 
----True if the stack was summoned during battle.
+---True if the unit is removed from its army once the battle is over, e.g. a summoned elemental.
+---@return boolean
+function UnitState:isTemporary() end
+
+---DEPRECATED. Use isTemporary. Same as isTemporary.
 ---@return boolean
 function UnitState:isSummoned() end
 
