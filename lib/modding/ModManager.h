@@ -80,6 +80,18 @@ public:
 
 	/// Returns list of all known settings (submods) for a specified mod
 	std::map<TModID, bool> getModSettings(const TModID & modID) const;
+
+	void saveConfigurationState() const;
+};
+
+/// Stores checksums of mods that have passed validation, to skip validation of unchanged mods on next load
+class ModsValidationState : boost::noncopyable
+{
+	JsonNode checksums;
+
+public:
+	ModsValidationState();
+
 	std::map<TModID, uint32_t> getValidatedChecksums() const;
 	void setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value);
 
@@ -121,6 +133,7 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 {
 	std::unique_ptr<ModsState> modsState;
 	std::unique_ptr<ModsPresetState> modsPreset;
+	std::unique_ptr<ModsValidationState> modsValidation;
 	std::shared_ptr<const ModsStorage> modsStorage;
 	std::unique_ptr<ModDependenciesResolver> depedencyResolver;
 

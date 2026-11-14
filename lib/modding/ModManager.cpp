@@ -188,6 +188,9 @@ ModsPresetState::ModsPresetState(bool useTestPreset)
 	if (!vstd::contains(allPresets, modConfig["activePreset"].String()))
 		modConfig["activePreset"] = JsonNode(allPresets.front());
 
+	// MODS COMPATIBILITY: before 1.8, checksums of validated mods were stored together with presets
+	modConfig.Struct().erase("validatedMods");
+
 	logGlobal->debug("Loading following mod settings: %s", modConfig.toCompactString());
 }
 
@@ -238,14 +241,6 @@ std::map<TModID, bool> ModsPresetState::getModSettings(const TModID & modID) con
 	const JsonNode & modSettingsJson = getActivePresetConfig()["settings"][modID];
 	auto modSettings = modSettingsJson.convertTo<std::map<TModID, bool>>();
 	return modSettings;
-}
-
-std::map<TModID, uint32_t> ModsPresetState::getValidatedChecksums() const
-{
-	std::map<TModID, uint32_t> result;
-	for(const auto & [modName, checksum] : modConfig["validatedMods"].Struct())
-		result[modName] = static_cast<uint32_t>(checksum.Integer());
-	return result;
 }
 
 void ModsPresetState::setModActive(const TModID & modID, bool isActive)
@@ -341,14 +336,6 @@ std::vector<TModID> ModsPresetState::getActiveMods() const
 	return allActiveMods;
 }
 
-void ModsPresetState::setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value)
-{
-	if (value.has_value())
-		modConfig["validatedMods"][modName].Integer() = *value;
-	else
-		modConfig["validatedMods"].Struct().erase(modName);
-}
-
 void ModsPresetState::saveConfigurationState() const
 {
 	std::fstream file(CResourceHandler::get("config")->getResourceName(ResourcePath(settingsPath))->c_str(), std::ofstream::out | std::ofstream::trunc);
@@ -437,6 +424,52 @@ std::string ModsPresetState::importPreset(const JsonNode & newConfig)
 	return importedPresetName;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+static JsonPath getValidationPath()
+{
+	return JsonPath::builtin("config/modValidation.json");
+}
+
+ModsValidationState::ModsValidationState()
+{
+	const auto * userConfigs = CResourceHandler::get("config");
+	const JsonPath validationPath = getValidationPath();
+
+	if(userConfigs->existsResource(validationPath))
+		checksums = JsonNode(validationPath, *userConfigs);
+}
+
+std::map<TModID, uint32_t> ModsValidationState::getValidatedChecksums() const
+{
+	std::map<TModID, uint32_t> result;
+	for(const auto & [modName, checksum] : checksums.Struct())
+		result[modName] = static_cast<uint32_t>(checksum.Integer());
+	return result;
+}
+
+void ModsValidationState::setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value)
+{
+	if(value.has_value())
+		checksums[modName].Integer() = *value;
+	else
+		checksums.Struct().erase(modName);
+}
+
+void ModsValidationState::saveConfigurationState() const
+{
+	auto * userConfigs = CResourceHandler::get("config");
+	const JsonPath validationPath = getValidationPath();
+
+	if(!userConfigs->existsResource(validationPath))
+		userConfigs->createResource(validationPath.getOriginalName() + ".json");
+
+	std::fstream file(userConfigs->getResourceName(validationPath)->c_str(), std::ofstream::out | std::ofstream::trunc);
+	file << checksums.toCompactString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode & repositoryList)
 {
 	JsonNode coreModConfig(JsonPath::builtin("config/gameConfig.json"), *CResourceHandler::get(ModScope::scopeBuiltin()));
@@ -515,6 +548,7 @@ ModManager::ModManager()
 ModManager::ModManager(const JsonNode & repositoryList, bool useTestPreset, const TModList & newMods)
 	: modsState(std::make_unique<ModsState>())
 	, modsPreset(std::make_unique<ModsPresetState>(useTestPreset))
+	, modsValidation(std::make_unique<ModsValidationState>())
 {
 	modsStorage = std::make_shared<const ModsStorage>(modsState->getInstalledMods(), repositoryList);
 
@@ -569,15 +603,15 @@ const TModList & ModManager::getActiveMods() const
 
 ModSnapshot ModManager::createSnapshot() const
 {
-	return ModSnapshot(modsStorage, getActiveMods(), modsPreset->getValidatedChecksums());
+	return ModSnapshot(modsStorage, getActiveMods(), modsValidation->getValidatedChecksums());
 }
 
 void ModManager::setValidatedChecksums(const std::map<TModID, std::optional<uint32_t>> & checksums)
 {
 	for(const auto & [modName, checksum] : checksums)
-		modsPreset->setValidatedChecksum(modName, checksum);
+		modsValidation->setValidatedChecksum(modName, checksum);
 
-	modsPreset->saveConfigurationState();
+	modsValidation->saveConfigurationState();
 }
 
 TModList ModManager::getAllMods() const
