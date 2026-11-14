@@ -13,6 +13,7 @@
 #include "Nullkiller.h"
 #include "../../../lib/battle/CombatValue.h"
 #include "../../../lib/entities/artifact/CArtifact.h"
+#include "../../../lib/entities/hero/CHeroHandler.h"
 #include "../../../lib/entities/ResourceTypeHandler.h"
 #include "../../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../../lib/mapObjects/CGResource.h"
