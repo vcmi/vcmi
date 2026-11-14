@@ -20,6 +20,7 @@
 #include "../../lib/entities/building/CBuilding.h"
 #include "../../lib/mapObjects/ObjectTemplate.h"
 #include "../../lib/mapObjects/CGHeroInstance.h"
+#include "../../lib/mapObjects/CRewardableObject.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"

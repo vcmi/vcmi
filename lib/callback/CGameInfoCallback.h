@@ -10,9 +10,9 @@
 #pragma once
 
 #include "MapInfoCallback.h"
-#include "../mapObjects/CRewardableObject.h"
 
 struct SThievesGuildInfo;
+struct RewardableObjectInfo;
 class ITranslator;
 class Player;
 
