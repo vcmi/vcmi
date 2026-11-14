@@ -107,5 +107,40 @@
 			"positive" : true,
 			"rising" : true
 		}
+	},
+	// Land mine whose trigger casts the mine itself, a mod error that would multiply the obstacles on every trigger
+	"testSelfTriggeringMine" :
+	{
+		"type" : "ability",
+		"targetType" : "NO_TARGET",
+		"name" : "Test Self Triggering Mine",
+		"school" : {},
+		"level" : 0,
+		"power" : 0,
+		"graphics" : {},
+		"levels" : {
+			"base" : {
+				"description" : "",
+				"cost" : 0,
+				"power" : 0,
+				"range" : "X",
+				"battleEffects" : {
+					"obstacle" : {
+						"type" : "core:obstacle",
+						"hidden" : true,
+						"passable" : true,
+						"triggerAbility" : "testSelfTriggeringMine",
+						"patchCount" : 4
+					}
+				}
+			},
+			"none" : {},
+			"basic" : {},
+			"advanced" : {},
+			"expert" : {}
+		},
+		"flags" : {
+			"indifferent" : true
+		}
 	}
 }

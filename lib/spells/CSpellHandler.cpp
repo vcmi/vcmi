@@ -16,6 +16,8 @@
 #include "../json/JsonUtils.h"
 #include "../GameLibrary.h"
 #include "../modding/LibraryLoadContext.h"
+#include "../modding/IdentifierStorage.h"
+#include "../modding/ModScope.h"
 #include "../texts/CLegacyConfigParser.h"
 #include "../texts/CGeneralTextHandler.h"
 
@@ -496,6 +498,25 @@ void CSpellHandler::afterLoadFinalization(LibraryLoadContext & context)
 {
 	for(auto & spell : objects)
 	{
+		for(auto & level : spell->levels)
+		{
+			if(!level.battleEffects.isStruct())
+				continue;
+
+			// each trigger would place more obstacles of the same spell
+			for(auto & [name, effect] : level.battleEffects.Struct())
+			{
+				if(!effect.Struct().count("triggerAbility"))
+					continue;
+
+				auto trigger = context.lib.identifiers()->getIdentifier(ModScope::scopeGame(), "spell", effect["triggerAbility"].String(), true);
+				if(trigger != spell->id.getNum())
+					continue;
+
+				logMod->error("Spell %s: obstacle trigger ability of effect '%s' casts this spell again, trigger ignored", spell->getJsonKey(), name);
+				effect.Struct().erase("triggerAbility");
+			}
+		}
 		spell->setupMechanics(context);
 	}
 }

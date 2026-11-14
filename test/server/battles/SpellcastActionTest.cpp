@@ -12,6 +12,7 @@
 #include "BattleTestFixture.h"
 
 #include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/battle/CObstacleInstance.h"
 #include "../../../lib/battle/CPlayerBattleCallback.h"
 #include "../../../lib/battle/Destination.h"
 #include "../../../lib/battle/actions/BattleActionType.h"
@@ -718,4 +719,22 @@ TEST_F(SpellcastActionTest, removeObstacleSeesQuicksandHiddenFromCaster)
 	spells::detail::ProblemImpl problem;
 	EXPECT_TRUE(mechanics->canBeCast(problem));
 	EXPECT_TRUE(mechanics->canBeCastAt(spells::Target{spells::Destination(enemyHex)}, problem));
+}
+
+/// An obstacle whose trigger would cast its own spell again keeps no trigger, see #8232
+TEST_F(SpellcastActionTest, obstacleTriggerCastingOwnSpellIsIgnored)
+{
+	startGame();
+	startBattle();
+
+	const SpellID mine = spellByName("vcmi-test:testSelfTriggeringMine");
+	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	grantSpell(caster, BonusType::SPELLCASTER, mine, 0);
+
+	ASSERT_TRUE(castAsUnit(caster, mine));
+
+	const auto obstacles = battle()->getAllObstacles();
+	ASSERT_FALSE(obstacles.empty());
+	for(const auto & obstacle : obstacles)
+		EXPECT_FALSE(obstacle->triggersEffects());
 }
