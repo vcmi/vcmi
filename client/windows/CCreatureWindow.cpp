@@ -250,16 +250,23 @@ CStackWindow::ActiveSpellsSection::ActiveSpellsSection(CStackWindow * owner, int
 				throw std::runtime_error("Failed to find effects for spell " + effect.toSpell()->getJsonKey());
 
 			int duration = spellBonuses->front()->turnsRemain;
+			bool isSupressed = spellBonuses->front()->type == BonusType::SUPPRESSED_SPELL;
 			std::string preferredLanguage = Languages::getPreferredLanguage();
 
 			MetaString spellText;
+			if(isSupressed)
+			{
+				spellText.appendTextID(LIBRARY->generaltexth->translate("vcmi.creatureWindow.spell.suppressed"));
+				spellText.appendRawString("\n");
+			}
 			spellText.appendTextID(spell->getDescriptionTextID(spellWithMastery.getMastery()));
 			spellText.appendRawString("\n");
-			spellText.appendTextID(Languages::getPluralFormTextID( preferredLanguage, duration, "vcmi.battleResultsWindow.spellDurationRemaining"));
+			spellText.appendTextID(Languages::getPluralFormTextID(preferredLanguage, duration, "vcmi.battleResultsWindow.spellDurationRemaining"));
 			spellText.replaceNumber(duration);
 			std::string spellDescription = spellText.toString(&GAME->translator());
 
-			spellIcons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed));
+			auto mode = isSupressed ? CShowableAnim::GRAYSCALE : CShowableAnim::BASE;
+			spellIcons.push_back(std::make_shared<CAnimImage>(AnimationPath::builtin("SpellInt"), effect + 1, 0, firstPos.x + offset.x * printed, firstPos.y + offset.y * printed, mode));
 			labels.push_back(std::make_shared<CLabel>(firstPos.x + offset.x * printed + 46, firstPos.y + offset.y * printed + 36, EFonts::FONT_TINY, ETextAlignment::BOTTOMRIGHT, Colors::WHITE, std::to_string(duration)));
 			clickableAreas.push_back(std::make_shared<LRClickableAreaWText>(Rect(firstPos + offset * printed, Point(50, 38)), spellDescription, spellDescription));
 			if(++printed >= 8) // interface limit reached

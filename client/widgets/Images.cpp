@@ -35,6 +35,8 @@ static EImageBlitMode getModeForFlags( uint8_t flags)
 		return EImageBlitMode::WITH_SHADOW_AND_SELECTION;
 	if (flags & CCreatureAnim::MAP_OBJECT_MODE)
 		return EImageBlitMode::WITH_SHADOW;
+	if (flags & CCreatureAnim::GRAYSCALE)
+		return EImageBlitMode::GRAYSCALE_BODY_HIDE_SELECTION;
 
 	return EImageBlitMode::COLORKEY;
 }
