@@ -73,6 +73,7 @@ set(test_SRCS
 		rmg/StandaloneObjectRulesTest.cpp
 
 		modding/ModDescriptionTest.cpp
+		modding/ModSnapshotTest.cpp
 
 		quest/QuestTest.cpp
 		quest/QuestAssertions.cpp
