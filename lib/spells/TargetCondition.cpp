@@ -142,6 +142,24 @@ private:
 	FactionID faction;
 };
 
+/// Same check as CREATURE_LEVEL_LIMITER: level is in range from minLevel up to, but not including, maxLevel
+class CreatureLevelCondition : public TargetConditionItemBase
+{
+public:
+	CreatureLevelCondition(uint32_t minLevel_, uint32_t maxLevel_): minLevel(minLevel_), maxLevel(maxLevel_) {}
+
+protected:
+	bool check(const Mechanics * m, const battle::Unit * target) const override
+	{
+		const auto level = static_cast<uint32_t>(target->creatureLevel());
+		return level >= minLevel && level < maxLevel;
+	}
+
+private:
+	uint32_t minLevel;
+	uint32_t maxLevel;
+};
+
 class AbsoluteLevelCondition : public TargetConditionItemBase
 {
 public:
@@ -480,6 +498,12 @@ public:
 			auto limiter = parseAsLimiter<FactionLimiter>(config, "FACTION_LIMITER");
 			if(limiter && limiter->faction != FactionID::DEFAULT)
 				return std::make_shared<FactionCondition>(limiter->faction);
+		}
+		else if(type == "level")
+		{
+			auto limiter = parseAsLimiter<CreatureLevelLimiter>(config, "CREATURE_LEVEL_LIMITER");
+			if(limiter)
+				return std::make_shared<CreatureLevelCondition>(limiter->minLevel, limiter->maxLevel);
 		}
 		else if(type == "spell")
 		{

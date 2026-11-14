@@ -135,7 +135,7 @@ Parameters:
 		// accepts creatures of levels 2,3,4, but rejects creatures of level 1 or 5+
 		"type" : "CREATURE_LEVEL_LIMITER",
 		"minLevel" : 2,
-		"maxlevel" : 5
+		"maxLevel" : 5
 	}
 ],
 ```

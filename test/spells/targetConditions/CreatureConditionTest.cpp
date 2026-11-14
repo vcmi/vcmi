@@ -132,5 +132,42 @@ TEST_F(FactionConditionTest, ImmuneIfFactionMismatch)
 	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
 }
 
+class LevelConditionTest : public TargetConditionItemTest
+{
+public:
+	void SetUp() override
+	{
+		TargetConditionItemTest::SetUp();
+
+		JsonNode config;
+		config["type"].String() = "level";
+		config["mode"].String() = "normal";
+		config["minLevel"].Integer() = 2;
+		config["maxLevel"].Integer() = 5;
+		config.setModScope("core");
+
+		subject = TargetConditionItemFactory::create(*LIBRARY->identifiers())->createFromJson(config);
+		GTEST_ASSERT_NE(subject, nullptr);
+	}
+};
+
+TEST_F(LevelConditionTest, ReceptiveFromMinLevel)
+{
+	EXPECT_CALL(unitMock, creatureLevel()).WillOnce(Return(2));
+	EXPECT_TRUE(subject->isReceptive(&mechanicsMock, &unitMock));
+}
+
+TEST_F(LevelConditionTest, ImmuneBelowMinLevel)
+{
+	EXPECT_CALL(unitMock, creatureLevel()).WillOnce(Return(1));
+	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
+}
+
+TEST_F(LevelConditionTest, ImmuneFromMaxLevel)
+{
+	EXPECT_CALL(unitMock, creatureLevel()).WillOnce(Return(5));
+	EXPECT_FALSE(subject->isReceptive(&mechanicsMock, &unitMock));
+}
+
 }
 

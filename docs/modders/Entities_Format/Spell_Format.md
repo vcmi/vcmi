@@ -350,6 +350,7 @@ Conditions can also be written as objects under an arbitrary name. This form sup
 - `"bonus"`: unit has a bonus that matches all specified fields, same as `HAS_ANOTHER_BONUS_LIMITER`. Fields: `bonusType` (required), `bonusSubtype`, `bonusSourceType`, `bonusSourceID`, `bonusSourceSecondaryID`, `bonusMinValue`, `bonusMaxValue`
 - `"creature"`: unit is of this creature type, same as `CREATURE_TYPE_LIMITER`. Fields: `creature` (required), `includeUpgrades`
 - `"faction"`: unit belongs to this faction, same as `FACTION_LIMITER`. Fields: `faction` (required)
+- `"level"`: unit creature level is at least `minLevel` and below `maxLevel`, same as `CREATURE_LEVEL_LIMITER`. Fields: `minLevel`, `maxLevel`
 - `"spell"`: unit is affected by this spell. Fields: `spell` (required)
 - `"healthValueSpecial"`: same as string form of this condition
 

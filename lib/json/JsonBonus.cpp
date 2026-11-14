@@ -666,7 +666,10 @@ static std::shared_ptr<const ILimiter> parseCreatureLevelLimiter(const JsonNode 
 {
 	const JsonNode & parameters = limiter["parameters"];
 	const JsonNode & minLevelNode = limiter.Struct().count("minLevel") ? limiter["minLevel"] : parameters[0];
-	const JsonNode & maxLevelNode = limiter.Struct().count("maxlevel") ? limiter["maxlevel"] : parameters[1];
+	// "maxlevel" is old spelling, kept for compatibility with existing mods
+	const JsonNode & maxLevelNode = limiter.Struct().count("maxLevel") ? limiter["maxLevel"]
+		: limiter.Struct().count("maxlevel") ? limiter["maxlevel"]
+		: parameters[1];
 
 	//If parameters is empty, level limiter works as CREATURES_ONLY limiter
 	auto levelLimiter = std::make_shared<CreatureLevelLimiter>();
