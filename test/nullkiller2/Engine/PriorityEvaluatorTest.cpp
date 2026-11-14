@@ -48,7 +48,7 @@ TEST(Nullkiller2_Engine_PriorityEvaluator, builtinCreatureRewardProvenance)
 
 	reward["message"].setModScope("vcmi-test");
 	Rewardable::Info info;
-	LibraryLoadContext context(*LIBRARY);
+	LibraryLoadContext context(const_cast<GameLibrary &>(*LIBRARY));
 	info.init(context, configuration, "testCreatureBank");
 	EXPECT_TRUE(info.hasOnlyBuiltinCreatureRewards());
 
@@ -67,7 +67,7 @@ TEST(Nullkiller2_Engine_PriorityEvaluator, builtinMixedRewardProvenance)
 	configuration.setModScope(ModScope::scopeBuiltin());
 	reward["message"].setModScope("vcmi-test");
 	Rewardable::Info info;
-	LibraryLoadContext context(*LIBRARY);
+	LibraryLoadContext context(const_cast<GameLibrary &>(*LIBRARY));
 	info.init(context, configuration, "testMixedBank");
 	EXPECT_TRUE(info.hasOnlyBuiltinRewards());
 
@@ -106,7 +106,7 @@ public:
 		creature["amount"].Integer() = 1;
 		reward["resources"]["gold"].Integer() = 1000;
 		parameters.setModScope(ModScope::scopeBuiltin());
-		LibraryLoadContext context(*LIBRARY);
+		LibraryLoadContext context(const_cast<GameLibrary &>(*LIBRARY));
 		handler->info.init(context, parameters, "testMixedBank");
 	}
 
@@ -674,7 +674,7 @@ TEST_F(Nullkiller2_Engine_CreatureBankReward, hiddenModdedBankUsesPublicCreature
 	MixedRewardBank moddedBank(callback.get());
 	auto handler = std::dynamic_pointer_cast<MixedBankHandler>(moddedBank.getObjectHandler());
 	ASSERT_TRUE(handler);
-	LibraryLoadContext context(*LIBRARY);
+	LibraryLoadContext context(const_cast<GameLibrary &>(*LIBRARY));
 	handler->info.init(context, parameters, "testModdedBank");
 	ASSERT_FALSE(handler->info.hasOnlyBuiltinCreatureRewards());
 	moddedBank.ID = bank->ID;
