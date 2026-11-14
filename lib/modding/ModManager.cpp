@@ -93,12 +93,13 @@ static std::optional<std::string> loadModTextFile(const TModID & modName, const 
 {
 	// existsResource may report a stale entry (e.g. mod updated to a version without description);
 	// tolerate a failing load since description is optional and index/disk can diverge until reload
-	if (!CResourceHandler::get()->existsResource(path))
+	const auto * modFiles = CResourceHandler::get("initial");
+	if (!modFiles->existsResource(path))
 		return std::nullopt;
 
 	try
 	{
-		auto data = CResourceHandler::get()->load(path)->readAll();
+		auto data = modFiles->load(path)->readAll();
 		return std::string(reinterpret_cast<const char *>(data.first.get()), data.second);
 	}
 	catch (const std::exception & e)
@@ -143,7 +144,7 @@ double ModsState::getInstalledModSizeMegabytes(const TModID & modName) const
 	// iterate over the path itself - a detour through std::string would convert it using the
 	// Windows ANSI codepage, replacing any character the codepage lacks with '?'. The directory
 	// would then not exist and recursive_directory_iterator would throw
-	const boost::filesystem::path path = *CResourceHandler::get()->getResourceName(resDir);
+	const boost::filesystem::path path = *CResourceHandler::get("initial")->getResourceName(resDir);
 
 	size_t sizeBytes = 0;
 	for(boost::filesystem::recursive_directory_iterator it(path); it != boost::filesystem::recursive_directory_iterator(); ++it)
@@ -450,7 +451,7 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 		if(ModScope::isScopeReserved(modID))
 			continue;
 
-		JsonNode modConfig(getModDefinitionFile(modID));
+		JsonNode modConfig(getModDefinitionFile(modID), *CResourceHandler::get("initial"));
 		modConfig.setModScope(modID);
 
 		if(modConfig["modType"].isNull())
@@ -645,8 +646,10 @@ void ModManager::syncDemoModState()
 	if (!modsStorage->getMod(demoModID).isInstalled())
 		return;
 
-	bool hasFullData = CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
-	bool hasDemoData = !hasFullData && CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M"));
+	// game data without mods, so that files of active mods of current library do not affect the result
+	const auto * gameData = CResourceHandler::get(ModScope::scopeBuiltin());
+	bool hasFullData = gameData->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
+	bool hasDemoData = !hasFullData && gameData->existsResource(ResourcePath("MAPS/H3DEMO.H3M"));
 
 	bool isActive = vstd::contains(modsPreset->getActiveRootMods(), demoModID);
 
