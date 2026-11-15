@@ -15,8 +15,10 @@
 #include "../../lib/filesystem/SavegamePath.h"
 #include "../../lib/gameState/SaveMetadata.h"
 #include "../../lib/json/JsonValidator.h"
+#include "../../lib/GameLibrary.h"
 #include "../../lib/mapping/CMapService.h"
 #include "../../lib/mapping/ScenarioMetadata.h"
+#include "../../lib/modding/CModHandler.h"
 #include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/serializer/SaveFileFormat.h"
 
@@ -287,7 +289,7 @@ ScenarioListEntry ScenarioListBuilder::readMap(const ResourcePath & file) const
 			if(!mods)
 				return entry;
 			entry.metadata["mods"] = ScenarioMetadata::modsToJson(*mods);
-			entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], false);
+			entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], false, LIBRARY->modh->getModList());
 			if(!entry.mods.empty())
 				entry.problem = ScenarioListEntry::EProblem::MODS;
 		}
@@ -298,7 +300,7 @@ ScenarioListEntry ScenarioListBuilder::readMap(const ResourcePath & file) const
 		return entry;
 	}
 
-	entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], false);
+	entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], false, LIBRARY->modh->getModList());
 	if(!entry.mods.empty())
 		entry.problem = ScenarioListEntry::EProblem::MODS;
 	verifyMapFormat(entry);
@@ -316,7 +318,7 @@ ScenarioListEntry ScenarioListBuilder::readSave(const ResourcePath & file, JsonV
 	try
 	{
 		auto entry = ScenarioListEntry::fromSave(file, validator);
-		entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], true);
+		entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], true, LIBRARY->modh->getModList());
 		if(!entry.mods.empty())
 			entry.problem = ScenarioListEntry::EProblem::MODS;
 		return entry;

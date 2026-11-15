@@ -9,8 +9,10 @@
  */
 #include "StdInc.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/mapping/ScenarioMetadata.h"
+#include "../../lib/modding/CModHandler.h"
 #include "../../lib/texts/Languages.h"
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextLocalizationContainer.h"
@@ -33,7 +35,7 @@ static JsonNode makeMetadataMods(const std::string & testModVersion, const std::
 
 TEST(ScenarioMetadataTest, saveModsIgnoreVersionsAndSubmods)
 {
-	const auto result = ScenarioMetadata::verifyMods(makeMetadataMods("2.0", {"absent"}), true);
+	const auto result = ScenarioMetadata::verifyMods(makeMetadataMods("2.0", {"absent"}), true, LIBRARY->modh->getModList());
 
 	EXPECT_EQ(result.at(absentMod), ModVerificationStatus::NOT_INSTALLED);
 	EXPECT_FALSE(result.contains(testMod));
@@ -45,16 +47,16 @@ TEST(ScenarioMetadataTest, saveWithoutActiveModRequiresDisablingIt)
 	JsonNode mods;
 	mods.Struct();
 
-	const auto result = ScenarioMetadata::verifyMods(mods, true);
+	const auto result = ScenarioMetadata::verifyMods(mods, true, LIBRARY->modh->getModList());
 
 	EXPECT_EQ(result.at(testMod), ModVerificationStatus::EXCESSIVE);
 }
 
 TEST(ScenarioMetadataTest, mapModsCheckVersionsAndSubmods)
 {
-	EXPECT_EQ(ScenarioMetadata::verifyMods(makeMetadataMods("2.0", {}), false).at(testMod), ModVerificationStatus::VERSION_MISMATCH);
+	EXPECT_EQ(ScenarioMetadata::verifyMods(makeMetadataMods("2.0", {}), false, LIBRARY->modh->getModList()).at(testMod), ModVerificationStatus::VERSION_MISMATCH);
 
-	const auto result = ScenarioMetadata::verifyMods(makeMetadataMods("1.0", {"absent"}), false);
+	const auto result = ScenarioMetadata::verifyMods(makeMetadataMods("1.0", {"absent"}), false, LIBRARY->modh->getModList());
 	EXPECT_EQ(result.at(absentMod), ModVerificationStatus::NOT_INSTALLED);
 	EXPECT_EQ(result.at(testMod + ".absent"), ModVerificationStatus::NOT_INSTALLED);
 	EXPECT_FALSE(result.contains(testMod));

@@ -16,6 +16,7 @@ class CMapHeader;
 class ITranslator;
 class JsonNode;
 class MetaString;
+class ModSnapshot;
 class TextLocalizationContainer;
 
 /// Information on a map or a saved game that can be read without loading mods used by it.
@@ -38,10 +39,11 @@ DLL_LINKAGE JsonNode campaignToJson(const Campaign & campaign);
 /// Describes mods from provided list that affect gameplay, as "mods" section of metadata
 DLL_LINKAGE JsonNode modsToJson(const ModCompatibilityInfo & mods);
 
-/// Describes active mods of LIBRARY that affect gameplay, as "mods" section of metadata
-DLL_LINKAGE JsonNode activeModsToJson();
+/// Describes active mods of provided mod list that affect gameplay, as "mods" section of metadata
+DLL_LINKAGE JsonNode activeModsToJson(const ModSnapshot & modList);
 
-/// Returns mods from "mods" section of metadata that do not match active mods of LIBRARY, by mod ID.
-/// Saves compare root mods only and report active mods missing from the list; maps also compare listed submods and root versions
-DLL_LINKAGE ModListVerificationStatus verifyMods(const JsonNode & mods, bool isSave);
+/// Returns mods from "mods" section of metadata that do not match active mods of provided mod list, by mod ID.
+/// exact: list is complete, active gameplay mods missing from it are reported (saves); otherwise list is a minimum (maps).
+/// Exact lists compare root mods only; others also compare listed submods and root versions
+DLL_LINKAGE ModListVerificationStatus verifyMods(const JsonNode & mods, bool exact, const ModSnapshot & modList);
 }

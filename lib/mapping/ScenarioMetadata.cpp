@@ -20,6 +20,7 @@
 #include "../modding/CModHandler.h"
 #include "../modding/ModDescription.h"
 #include "../modding/ModScope.h"
+#include "../modding/ModSnapshot.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 #include "../texts/MetaString.h"
@@ -160,25 +161,25 @@ JsonNode ScenarioMetadata::modsToJson(const ModCompatibilityInfo & mods)
 	return result;
 }
 
-JsonNode ScenarioMetadata::activeModsToJson()
+JsonNode ScenarioMetadata::activeModsToJson(const ModSnapshot & modList)
 {
 	ModCompatibilityInfo mods;
-	for(const auto & modID : LIBRARY->modh->getActiveMods())
-		mods[modID] = LIBRARY->modh->getModInfo(modID).getVerificationInfo();
+	for(const auto & modID : modList.getActiveMods())
+		mods[modID] = modList.getModDescription(modID).getVerificationInfo();
 	return modsToJson(mods);
 }
 
-ModListVerificationStatus ScenarioMetadata::verifyMods(const JsonNode & mods, bool isSave)
+ModListVerificationStatus ScenarioMetadata::verifyMods(const JsonNode & mods, bool exact, const ModSnapshot & modList)
 {
-	const auto & installedMods = LIBRARY->modh->getInstalledMods();
-	const auto & activeMods = LIBRARY->modh->getActiveMods();
+	const auto & installedMods = modList.getInstalledMods();
+	const auto & activeMods = modList.getActiveMods();
 
 	// local version of a mod may no longer affect gameplay, in which case it does not need to be enabled
-	const auto affectsGameplay = [&installedMods](const TModID & rootID)
+	const auto affectsGameplay = [&installedMods, &modList](const TModID & rootID)
 	{
-		return std::ranges::any_of(installedMods, [&rootID](const TModID & modID)
+		return std::ranges::any_of(installedMods, [&rootID, &modList](const TModID & modID)
 		{
-			const auto & mod = LIBRARY->modh->getModInfo(modID);
+			const auto & mod = modList.getModDescription(modID);
 			return (modID == rootID || mod.getTopParentID() == rootID) && mod.affectsGameplay();
 		});
 	};
@@ -202,11 +203,11 @@ ModListVerificationStatus ScenarioMetadata::verifyMods(const JsonNode & mods, bo
 		}
 
 		// list of submods and versions often change between versions of a mod without breaking saves
-		if(isSave)
+		if(exact)
 			continue;
 
 		const auto requiredVersion = CModVersion::fromString(entry["version"].String());
-		if(!requiredVersion.isNull() && !LIBRARY->modh->getModInfo(rootID).getVersion().compatible(requiredVersion))
+		if(!requiredVersion.isNull() && !modList.getModDescription(rootID).getVersion().compatible(requiredVersion))
 		{
 			result[rootID] = ModVerificationStatus::VERSION_MISMATCH;
 			continue;
@@ -222,9 +223,9 @@ ModListVerificationStatus ScenarioMetadata::verifyMods(const JsonNode & mods, bo
 		}
 	}
 
-	if(isSave)
+	if(exact)
 	{
-		const JsonNode localMods = activeModsToJson();
+		const JsonNode localMods = activeModsToJson(modList);
 		for(const auto & [rootID, localMod] : localMods.Struct())
 			if(!mods.Struct().contains(rootID))
 				result[rootID] = ModVerificationStatus::EXCESSIVE;

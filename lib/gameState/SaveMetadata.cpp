@@ -60,7 +60,7 @@ JsonNode SaveMetadata::create(const CGameState & gameState)
 	result["map"] = ScenarioMetadata::mapToJson(gameState.getMap());
 	result["game"] = gameToJson(*gameState.getStartInfo());
 	result["game"]["day"].Integer() = gameState.day;
-	result["mods"] = ScenarioMetadata::activeModsToJson();
+	result["mods"] = ScenarioMetadata::activeModsToJson(LIBRARY->modh->getModList());
 	return result;
 }
 
@@ -93,7 +93,7 @@ void SaveMetadata::verifyMods(const JsonNode & metadata)
 	ModIncompatibility::ModList missingMods;
 	ModIncompatibility::ModList excessiveMods;
 
-	for(const auto & [modID, status] : ScenarioMetadata::verifyMods(metadata["mods"], true))
+	for(const auto & [modID, status] : ScenarioMetadata::verifyMods(metadata["mods"], true, LIBRARY->modh->getModList()))
 	{
 		if(status == ModVerificationStatus::NOT_INSTALLED)
 			missingMods.push_back(metadata["mods"][modID]["name"].String());

@@ -52,6 +52,11 @@ const std::vector<TModID> & CModHandler::getModsWithFailedRequests() const
 	return modsWithFailedRequests;
 }
 
+const ModSnapshot & CModHandler::getModList() const
+{
+	return mods;
+}
+
 std::vector<std::string> CModHandler::getInstalledMods() const
 {
 	return mods.getInstalledMods();

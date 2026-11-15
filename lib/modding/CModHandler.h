@@ -80,6 +80,9 @@ public:
 	/// Adds checks of formats that name files, which look the file up in filesystems of the mod and of its dependencies
 	void addFileFormats(JsonValidator & validator) const;
 
+	/// Returns installed and active mods of this library
+	const ModSnapshot & getModList() const;
+
 	/// Returns all installed mods, active or not
 	std::vector<std::string> getInstalledMods() const;
 
