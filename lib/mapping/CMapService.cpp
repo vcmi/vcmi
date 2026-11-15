@@ -116,34 +116,6 @@ void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::
 	}
 }
 
-ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
-{
-	const auto & activeMods = LIBRARY->modh->getActiveMods();
-	
-	ModCompatibilityInfo missingMods;
-	ModCompatibilityInfo missingModsFiltered;
-	for(const auto & mapMod : map.mods)
-	{
-		if(vstd::contains(activeMods, mapMod.first))
-		{
-			const auto & modInfo = LIBRARY->modh->getModInfo(mapMod.first);
-			if(mapMod.second.version.isNull() || modInfo.getVersion().compatible(mapMod.second.version))
-				continue;
-		}
-		missingMods[mapMod.first] = mapMod.second;
-	}
-	
-	//filter child mods
-	for(const auto & mapMod : missingMods)
-	{
-		if(!mapMod.second.parent.empty() && missingMods.count(mapMod.second.parent))
-			continue;
-		missingModsFiltered.insert(mapMod);
-	}
-	
-	return missingModsFiltered;
-}
-
 std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const ResourcePath & name)
 {
 	return CResourceHandler::get()->load(name);

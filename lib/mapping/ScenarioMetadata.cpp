@@ -19,6 +19,7 @@
 #include "../json/JsonNode.h"
 #include "../modding/CModHandler.h"
 #include "../modding/ModDescription.h"
+#include "../modding/ModIncompatibility.h"
 #include "../modding/ModScope.h"
 #include "../modding/ModSnapshot.h"
 #include "../texts/CGeneralTextHandler.h"
@@ -231,4 +232,33 @@ ModListVerificationStatus ScenarioMetadata::verifyMods(const JsonNode & mods, bo
 	}
 
 	return result;
+}
+
+void ScenarioMetadata::throwIfModsIncompatible(const JsonNode & mods, bool exact, const ModSnapshot & modList)
+{
+	ModIncompatibility::ModList missingMods;
+	ModIncompatibility::ModList excessiveMods;
+
+	for(const auto & [modID, status] : verifyMods(mods, exact, modList))
+	{
+		if(status == ModVerificationStatus::EXCESSIVE)
+			excessiveMods.push_back(getModName(mods, modID, modList));
+		else if(status != ModVerificationStatus::VERSION_MISMATCH)
+			missingMods.push_back(getModName(mods, modID, modList));
+	}
+
+	if(!missingMods.empty() || !excessiveMods.empty())
+		throw ModIncompatibility(missingMods, excessiveMods);
+}
+
+std::string ScenarioMetadata::getModName(const JsonNode & mods, const TModID & modID, const ModSnapshot & modList)
+{
+	if(vstd::contains(modList.getInstalledMods(), modID))
+		return modList.getModDescription(modID).getName();
+
+	const TModID rootID = modID.substr(0, modID.find('.'));
+	std::string rootName = mods[rootID]["name"].String();
+	if(rootName.empty())
+		rootName = rootID;
+	return rootID == modID ? rootName : rootName + " (" + modID.substr(rootID.size() + 1) + ")";
 }

@@ -29,7 +29,8 @@
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/MapFormatJson.h"
 #include "../lib/mapping/MapFormat.h"
-#include "../lib/modding/ModIncompatibility.h"
+#include "../lib/mapping/ScenarioMetadata.h"
+#include "../lib/modding/CModHandler.h"
 #include "../lib/rmg/CRmgTemplate.h"
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/serializer/JsonDeserializer.h"
@@ -133,14 +134,8 @@ std::unique_ptr<CMap> Helper::openMapInternal(const QString & filenameSelect, IG
 	CMapService mapService;
 	if(auto header = mapService.loadMapHeader(resId, true))
 	{
-		auto missingMods = CMapService::verifyMapHeaderMods(*header);
-		ModIncompatibility::ModList modList;
-		for(const auto & m : missingMods)
-			modList.push_back(m.second.name);
-		
-		if(!modList.empty())
-			throw ModIncompatibility(modList);
-		
+		ScenarioMetadata::throwIfModsIncompatible(ScenarioMetadata::modsToJson(header->mods), false, LIBRARY->modh->getModList());
+
 		return mapService.loadMap(resId, cb);
 	}
 	else

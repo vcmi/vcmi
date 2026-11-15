@@ -21,7 +21,6 @@
 #include "../mapping/ScenarioMetadata.h"
 #include "../modding/CModHandler.h"
 #include "../modding/ModDescription.h"
-#include "../modding/ModIncompatibility.h"
 #include "../texts/MetaString.h"
 #include "../texts/TextLocalizationContainer.h"
 
@@ -90,22 +89,5 @@ JsonNode SaveMetadata::parse(const std::vector<std::byte> & data, const std::str
 
 void SaveMetadata::verifyMods(const JsonNode & metadata)
 {
-	ModIncompatibility::ModList missingMods;
-	ModIncompatibility::ModList excessiveMods;
-
-	for(const auto & [modID, status] : ScenarioMetadata::verifyMods(metadata["mods"], true, LIBRARY->modh->getModList()))
-	{
-		if(status == ModVerificationStatus::VERSION_MISMATCH)
-			continue;
-
-		if(status == ModVerificationStatus::NOT_INSTALLED)
-			missingMods.push_back(metadata["mods"][modID]["name"].String());
-		else if(status == ModVerificationStatus::EXCESSIVE)
-			excessiveMods.push_back(LIBRARY->modh->getModInfo(modID).getName());
-		else
-			missingMods.push_back(LIBRARY->modh->getModInfo(modID).getName());
-	}
-
-	if(!missingMods.empty() || !excessiveMods.empty())
-		throw ModIncompatibility(missingMods, excessiveMods);
+	ScenarioMetadata::throwIfModsIncompatible(metadata["mods"], true, LIBRARY->modh->getModList());
 }

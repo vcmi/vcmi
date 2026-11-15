@@ -43,6 +43,7 @@
 #include "../../lib/campaign/CampaignState.h"
 #include "../../lib/mapping/CMapHeader.h"
 #include "../../lib/mapping/MapFormat.h"
+#include "../../lib/mapping/ScenarioMetadata.h"
 #include "../../lib/modding/CModHandler.h"
 #include "../../lib/modding/ModDescription.h"
 #include "../../lib/networkPacks/PacksForLobby.h"
@@ -150,19 +151,6 @@ bool mapSorter::operator()(const std::shared_ptr<ElementInfo> aaa, const std::sh
 	}
 }
 
-/// Returns name of a mod required by the entry, from metadata if the mod is not installed
-static std::string getModName(const ScenarioListEntry & entry, const TModID & modID)
-{
-	if(vstd::contains(LIBRARY->modh->getInstalledMods(), modID))
-		return LIBRARY->modh->getModInfo(modID).getName();
-
-	const TModID rootID = modID.substr(0, modID.find('.'));
-	std::string rootName = entry.metadata["mods"][rootID]["name"].String();
-	if(rootName.empty())
-		rootName = rootID;
-	return rootID == modID ? rootName : rootName + " (" + modID.substr(rootID.size() + 1) + ")";
-}
-
 /// Returns description of the reasons why the entry can not be loaded
 static std::string getIncompatibilityText(const ScenarioListEntry & entry)
 {
@@ -207,7 +195,7 @@ static std::string getIncompatibilityText(const ScenarioListEntry & entry)
 
 			const TModID rootID = modID.substr(0, modID.find('.'));
 			const std::string & requiredVersion = entry.metadata["mods"][rootID]["version"].String();
-			std::string line = getModName(entry, modID);
+			std::string line = ScenarioMetadata::getModName(entry.metadata["mods"], modID, LIBRARY->modh->getModList());
 			if(status == ModVerificationStatus::NOT_INSTALLED && !requiredVersion.empty() && modID == rootID)
 				line += " " + requiredVersion;
 			if(status == ModVerificationStatus::VERSION_MISMATCH)

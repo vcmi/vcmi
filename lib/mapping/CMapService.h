@@ -84,13 +84,6 @@ public:
 	std::unique_ptr<CMap> loadMap(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding, IGameInfoCallback * cb) const override;
 	std::unique_ptr<CMapHeader> loadMapHeader(const uint8_t * buffer, int size, const std::string & name, const std::string & modName, const std::string & encoding) const override;
 	void saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::path fullPath) const override;
-	
-	/**
-	 * Tests if mods used in the map are currently loaded
-	 * @param map const reference to map header
-	 * @return data structure representing missing or incompatible mods (those which are needed from map but not loaded)
-	 */
-	static ModCompatibilityInfo verifyMapHeaderMods(const CMapHeader & map);
 
 	/// Returns mods required by a map in VCMI format, read without its header; nullopt for maps in other formats
 	std::optional<ModCompatibilityInfo> loadMapMods(const ResourcePath & name) const;
