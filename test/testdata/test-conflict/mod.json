@@ -1,0 +1,11 @@
+{
+	"name" : "VCMI test conflicting gameplay mod",
+	"description" : "Test-only mod for mod list resolution",
+	"version" : "1.0",
+	"author" : "VCMI Team",
+	"contact" : "",
+	"modType" : "Mechanics",
+	"keepDisabled" : true,
+	"conflicts" : [ "test-gameplay" ],
+	"creatures" : [ ]
+}

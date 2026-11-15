@@ -722,16 +722,15 @@ TModList ModManager::collectDependenciesRecursive(const TModID & modID) const
 	while (!toTest.empty())
 	{
 		TModID currentModID = toTest.back();
-		const auto & currentMod = getModDescription(currentModID);
 		toTest.pop_back();
 		result.push_back(currentModID);
 
-		if (!currentMod.isInstalled())
-			throw std::runtime_error("Unable to enable mod " + modID + "! Dependency " + currentModID + " is not installed!");
+		if (!vstd::contains(modsStorage->getAllMods(), currentModID) || !getModDescription(currentModID).isInstalled())
+			continue;
 
-		for (const auto & dependency : currentMod.getDependencies())
+		for (const auto & dependency : getModDescription(currentModID).getDependencies())
 		{
-			if (!vstd::contains(result, dependency))
+			if (!vstd::contains(result, dependency) && !vstd::contains(toTest, dependency))
 				toTest.push_back(dependency);
 		}
 	}
@@ -739,52 +738,119 @@ TModList ModManager::collectDependenciesRecursive(const TModID & modID) const
 	return result;
 }
 
+TModList ModManager::getEnabledSubmodsFromPreset(const TModList & rootMods, bool includeGameplaySubmods) const
+{
+	const TModList installedMods = getInstalledValidMods();
+	TModList result;
+
+	for (const auto & rootModID : rootMods)
+	{
+		if (rootModID.find('.') != std::string::npos)
+			continue;
+
+		for (const auto & [settingID, isActive] : modsPreset->getModSettings(rootModID))
+		{
+			const TModID modID = rootModID + '.' + settingID;
+			if (isActive && vstd::contains(installedMods, modID) && (includeGameplaySubmods || !modsStorage->getMod(modID).affectsGameplay()))
+				result.push_back(modID);
+		}
+	}
+	return result;
+}
+
+void ModManager::tryAddNewMods(ModDependenciesResolver & resolver, const TModList & mods) const
+{
+	TModList newMods;
+	for (const auto & modID : mods)
+		if (!vstd::contains(resolver.getActiveMods(), modID) && !vstd::contains(resolver.getBrokenMods(), modID) && !vstd::contains(newMods, modID))
+			newMods.push_back(modID);
+
+	resolver.tryAddMods(newMods, *modsStorage);
+}
+
 void ModManager::tryEnableMods(const TModList & modList)
 {
 	TModList requiredActiveMods;
-	TModList additionalActiveMods = getActiveMods();
 
 	for (const auto & modName : modList)
 	{
 		for (const auto & dependency : collectDependenciesRecursive(modName))
 		{
-			if (!vstd::contains(requiredActiveMods, dependency))
-			{
-				requiredActiveMods.push_back(dependency);
-				vstd::erase(additionalActiveMods, dependency);
-			}
-		}
+			if (!vstd::contains(modsStorage->getAllMods(), dependency) || !getModDescription(dependency).isInstalled())
+				throw std::runtime_error("Unable to enable mod " + modName + "! Dependency " + dependency + " is not installed!");
 
-		assert(!vstd::contains(additionalActiveMods, modName));
-		assert(vstd::contains(requiredActiveMods, modName));// FIXME: fails on attempt to enable broken mod / translation to other language
+			if (!vstd::contains(requiredActiveMods, dependency))
+				requiredActiveMods.push_back(dependency);
+		}
 	}
 
 	ModDependenciesResolver testResolver(requiredActiveMods, *modsStorage);
-
-	testResolver.tryAddMods(additionalActiveMods, *modsStorage);
-
-	TModList additionalActiveSubmods;
-	for (const auto & modName : modList)
-	{
-		if (modName.find('.') != std::string::npos)
-			continue;
-
-		auto modSettings = modsPreset->getModSettings(modName);
-		for (const auto & entry : modSettings)
-		{
-			TModID fullModID = modName + '.' + entry.first;
-			if (entry.second && !vstd::contains(requiredActiveMods, fullModID))
-				additionalActiveSubmods.push_back(fullModID);
-		}
-	}
-
-	testResolver.tryAddMods(additionalActiveSubmods, *modsStorage);
+	tryAddNewMods(testResolver, getActiveMods());
+	tryAddNewMods(testResolver, getEnabledSubmodsFromPreset(modList, true));
 
 	for (const auto & modName : modList)
 		if (!vstd::contains(testResolver.getActiveMods(), modName))
 			logGlobal->error("Failed to enable mod '%s'! This may be caused by a recursive dependency!", modName);
 
 	updatePreset(testResolver);
+}
+
+ModSnapshot ModManager::createSnapshot(const JsonNode & requiredMods, bool exact) const
+{
+	const TModList installedMods = getInstalledValidMods();
+	TModList listedMods = { ModScope::scopeBuiltin() };
+	const auto addListedMod = [&listedMods](const TModID & modID)
+	{
+		if (!vstd::contains(listedMods, modID))
+			listedMods.push_back(modID);
+	};
+
+	for (const auto & [rootModID, entry] : requiredMods.Struct())
+	{
+		// mods that no longer affect gameplay do not need to be enabled, see ScenarioMetadata::verifyMods
+		if (!vstd::contains(installedMods, rootModID) || !modsStorage->isGameplayRoot(rootModID))
+			continue;
+
+		addListedMod(rootModID);
+		for (const auto & submod : entry["submods"].Vector())
+		{
+			const TModID modID = rootModID + '.' + submod.String();
+			if (!vstd::contains(installedMods, modID))
+			{
+				logMod->info("Submod '%s' used by the game is not installed", modID);
+				continue;
+			}
+
+			for (size_t separator = modID.find('.', rootModID.size() + 1); separator != std::string::npos; separator = modID.find('.', separator + 1))
+				addListedMod(modID.substr(0, separator));
+			addListedMod(modID);
+		}
+	}
+
+	TModList requiredActiveMods;
+	for (const auto & modID : listedMods)
+		for (const auto & dependency : collectDependenciesRecursive(modID))
+			if (vstd::contains(installedMods, dependency) && !vstd::contains(requiredActiveMods, dependency))
+				requiredActiveMods.push_back(dependency);
+
+	// required mods are resolved first, so that a conflict with another mod can not disable them
+	ModDependenciesResolver resolver(requiredActiveMods, *modsStorage);
+
+	TModList otherMods;
+	for (const auto & modID : getActiveMods())
+	{
+		const TModID rootModID = modID.substr(0, modID.find('.'));
+		const bool isListedOrNotGameplayRoot = vstd::contains(listedMods, rootModID) || !modsStorage->isGameplayRoot(rootModID);
+		if (!exact || (isListedOrNotGameplayRoot && !modsStorage->getMod(modID).affectsGameplay()))
+			otherMods.push_back(modID);
+	}
+	tryAddNewMods(resolver, otherMods);
+	tryAddNewMods(resolver, getEnabledSubmodsFromPreset(listedMods, !exact));
+
+	for (const auto & modID : resolver.getBrokenMods())
+		logMod->info("Mod '%s' is not used by the game: it is disabled, conflicts with another mod or lacks a dependency", modID);
+
+	return ModSnapshot(modsStorage, resolver.getActiveMods(), modsValidation->getValidatedChecksums());
 }
 
 void ModManager::tryDisableMod(const TModID & modName)

@@ -150,7 +150,12 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 	void updatePreset(const ModDependenciesResolver & newData);
 
 	TModList getInstalledValidMods() const;
+	/// Returns mod and all mods it depends on, directly or not. Includes dependencies that are not installed, but not their own dependencies
 	TModList collectDependenciesRecursive(const TModID & modID) const;
+	/// Returns submods of provided root mods that are enabled in active preset
+	TModList getEnabledSubmodsFromPreset(const TModList & rootMods, bool includeGameplaySubmods) const;
+	/// Resolves provided mods that resolver has not processed yet
+	void tryAddNewMods(ModDependenciesResolver & resolver, const TModList & mods) const;
 
 	void tryEnableMod(const TModID & modList);
 
@@ -171,6 +176,11 @@ public:
 
 	/// Returns mod list for a game library, with currently active mods
 	ModSnapshot createSnapshot() const;
+
+	/// Returns mod list for a game library that loads a game with provided mods, in the form of "mods" section of scenario metadata. Active preset is not changed.
+	/// exact: gameplay mods missing from the list are disabled (saves); otherwise active mods are kept (maps).
+	/// Required mods that can not be enabled are left disabled, see ScenarioMetadata::verifyMods
+	ModSnapshot createSnapshot(const JsonNode & requiredMods, bool exact) const;
 
 	/// Stores result of validation of mods by a loaded game library: checksum of a mod without issues, or nothing for a mod with issues
 	void setValidatedChecksums(const std::map<TModID, std::optional<uint32_t>> & checksums);

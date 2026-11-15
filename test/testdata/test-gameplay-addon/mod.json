@@ -1,0 +1,10 @@
+{
+	"name" : "VCMI test interface mod for gameplay mod",
+	"description" : "Test-only mod for mod list resolution",
+	"version" : "1.0",
+	"author" : "VCMI Team",
+	"contact" : "",
+	"modType" : "Interface",
+	"keepDisabled" : true,
+	"depends" : [ "test-gameplay" ]
+}
