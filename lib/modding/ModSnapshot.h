@@ -34,6 +34,9 @@ public:
 	const TModList & getActiveMods() const;
 	bool isModActive(const TModID & modID) const;
 
+	/// Returns true if root mod or any of its submods affects gameplay
+	bool isGameplayRoot(const TModID & rootID) const;
+
 	/// Returns checksum with which mod has passed validation, if any
 	std::optional<uint32_t> getValidatedChecksum(const TModID & modID) const;
 };

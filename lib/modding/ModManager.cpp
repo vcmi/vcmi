@@ -517,6 +517,10 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 
 		mods.try_emplace(mod.first, mod.first, JsonNode(), mod.second);
 	}
+
+	for(const auto & [modID, mod] : mods)
+		if(mod.affectsGameplay())
+			gameplayRoots.insert(mod.getTopParentID().empty() ? modID : mod.getTopParentID());
 }
 
 const ModDescription & ModsStorage::getMod(const TModID & fullID) const
@@ -529,6 +533,11 @@ const ModDescription & ModsStorage::getMod(const TModID & fullID) const
 		// rethrow with better error message
 		throw std::out_of_range("Failed to find mod " + fullID);
 	}
+}
+
+bool ModsStorage::isGameplayRoot(const TModID & rootID) const
+{
+	return gameplayRoots.contains(rootID);
 }
 
 TModList ModsStorage::getAllMods() const

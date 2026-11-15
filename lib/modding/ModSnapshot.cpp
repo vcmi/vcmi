@@ -39,6 +39,11 @@ bool ModSnapshot::isModActive(const TModID & modID) const
 	return vstd::contains(activeMods, modID);
 }
 
+bool ModSnapshot::isGameplayRoot(const TModID & rootID) const
+{
+	return storage->isGameplayRoot(rootID);
+}
+
 std::optional<uint32_t> ModSnapshot::getValidatedChecksum(const TModID & modID) const
 {
 	auto it = validatedChecksums.find(modID);

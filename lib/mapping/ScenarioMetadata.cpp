@@ -174,16 +174,6 @@ ModListVerificationStatus ScenarioMetadata::verifyMods(const JsonNode & mods, bo
 	const auto & installedMods = modList.getInstalledMods();
 	const auto & activeMods = modList.getActiveMods();
 
-	// local version of a mod may no longer affect gameplay, in which case it does not need to be enabled
-	const auto affectsGameplay = [&installedMods, &modList](const TModID & rootID)
-	{
-		return std::ranges::any_of(installedMods, [&rootID, &modList](const TModID & modID)
-		{
-			const auto & mod = modList.getModDescription(modID);
-			return (modID == rootID || mod.getTopParentID() == rootID) && mod.affectsGameplay();
-		});
-	};
-
 	ModListVerificationStatus result;
 	for(const auto & [rootID, entry] : mods.Struct())
 	{
@@ -193,7 +183,8 @@ ModListVerificationStatus ScenarioMetadata::verifyMods(const JsonNode & mods, bo
 			continue;
 		}
 
-		if(!affectsGameplay(rootID))
+		// local version of a mod may no longer affect gameplay, in which case it does not need to be enabled
+		if(!modList.isGameplayRoot(rootID))
 			continue;
 
 		if(!vstd::contains(activeMods, rootID))

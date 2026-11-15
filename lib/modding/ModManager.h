@@ -103,10 +103,16 @@ class ModsStorage : boost::noncopyable
 {
 	std::map<TModID, ModDescription> mods;
 
+	/// Root mods that affect gameplay themselves or through any of their submods
+	std::set<TModID> gameplayRoots;
+
 public:
 	ModsStorage(const TModList & modsToLoad, const JsonNode & repositoryList);
 
 	const ModDescription & getMod(const TModID & fullID) const;
+
+	/// Returns true if root mod or any of its submods affects gameplay
+	bool isGameplayRoot(const TModID & rootID) const;
 
 	TModList getAllMods() const;
 };
