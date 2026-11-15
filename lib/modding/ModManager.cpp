@@ -867,7 +867,6 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 	// Topological sort algorithm.
 	std::ranges::sort(modsToResolve); // Sort mods per name
 	std::vector<TModID> sortedValidMods(activeMods.begin(), activeMods.end()); // Vector keeps order of elements (LIFO)
-	std::set<TModID> resolvedModIDs(activeMods.begin(), activeMods.end()); // Use a set for validation for performance reason, but set does not keep order of elements
 	std::set<TModID> notResolvedModIDs(modsToResolve.begin(), modsToResolve.end()); // Use a set for validation for performance reason
 
 	enum class ModResolveStatus {
@@ -902,10 +901,10 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 				return ModResolveStatus::WAITING;
 
 		for(const TModID & conflict : mod.getConflicts())
-			if(vstd::contains(resolvedModIDs, conflict))
+			if(vstd::contains(sortedValidMods, conflict))
 				return ModResolveStatus::BROKEN;
 
-		for(const TModID & reverseConflict : resolvedModIDs)
+		for(const TModID & reverseConflict : sortedValidMods)
 			if(vstd::contains(storage.getMod(reverseConflict).getConflicts(), mod.getID()))
 				return ModResolveStatus::BROKEN;
 
@@ -921,7 +920,7 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 
 			if (status == ModResolveStatus::RESOLVED)
 			{
-				resolvedOnCurrentTreeLevel.insert(*it); // Not to the resolvedModIDs, so current node children will be resolved on the next iteration
+				resolvedOnCurrentTreeLevel.insert(*it);
 				assert(!vstd::contains(sortedValidMods, *it));
 				sortedValidMods.push_back(*it);
 				it = modsToResolve.erase(it);
@@ -939,7 +938,6 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 		}
 		if(!resolvedOnCurrentTreeLevel.empty())
 		{
-			resolvedModIDs.insert(resolvedOnCurrentTreeLevel.begin(), resolvedOnCurrentTreeLevel.end());
 			for(const auto & it : resolvedOnCurrentTreeLevel)
 				notResolvedModIDs.erase(it);
 			continue;
