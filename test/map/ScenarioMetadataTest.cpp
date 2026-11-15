@@ -33,13 +33,16 @@ static JsonNode makeMetadataMods(const std::string & testModVersion, const std::
 	return result;
 }
 
-TEST(ScenarioMetadataTest, saveModsIgnoreVersionsAndSubmods)
+TEST(ScenarioMetadataTest, missingSubmodsAreNotReported)
 {
-	const auto result = ScenarioMetadata::verifyMods(makeMetadataMods("2.0", {"absent"}), true, LIBRARY->modh->getModList());
+	for(const bool exact : {true, false})
+	{
+		const auto result = ScenarioMetadata::verifyMods(makeMetadataMods("1.0", {"absent"}), exact, LIBRARY->modh->getModList());
 
-	EXPECT_EQ(result.at(absentMod), ModVerificationStatus::NOT_INSTALLED);
-	EXPECT_FALSE(result.contains(testMod));
-	EXPECT_FALSE(result.contains(testMod + ".absent"));
+		EXPECT_EQ(result.at(absentMod), ModVerificationStatus::NOT_INSTALLED);
+		EXPECT_FALSE(result.contains(testMod));
+		EXPECT_FALSE(result.contains(testMod + ".absent"));
+	}
 }
 
 TEST(ScenarioMetadataTest, saveWithoutActiveModRequiresDisablingIt)
@@ -52,15 +55,10 @@ TEST(ScenarioMetadataTest, saveWithoutActiveModRequiresDisablingIt)
 	EXPECT_EQ(result.at(testMod), ModVerificationStatus::EXCESSIVE);
 }
 
-TEST(ScenarioMetadataTest, mapModsCheckVersionsAndSubmods)
+TEST(ScenarioMetadataTest, versionMismatchIsReported)
 {
-	EXPECT_EQ(ScenarioMetadata::verifyMods(makeMetadataMods("2.0", {}), false, LIBRARY->modh->getModList()).at(testMod), ModVerificationStatus::VERSION_MISMATCH);
-
-	const auto result = ScenarioMetadata::verifyMods(makeMetadataMods("1.0", {"absent"}), false, LIBRARY->modh->getModList());
-	EXPECT_EQ(result.at(absentMod), ModVerificationStatus::NOT_INSTALLED);
-	EXPECT_EQ(result.at(testMod + ".absent"), ModVerificationStatus::NOT_INSTALLED);
-	EXPECT_FALSE(result.contains(testMod));
-	EXPECT_EQ(result.size(), 2);
+	for(const bool exact : {true, false})
+		EXPECT_EQ(ScenarioMetadata::verifyMods(makeMetadataMods("2.0", {}), exact, LIBRARY->modh->getModList()).at(testMod), ModVerificationStatus::VERSION_MISMATCH);
 }
 
 static ModVerificationInfo makeMod(const std::string & name, bool impactsGameplay)

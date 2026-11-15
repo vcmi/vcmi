@@ -95,6 +95,9 @@ void SaveMetadata::verifyMods(const JsonNode & metadata)
 
 	for(const auto & [modID, status] : ScenarioMetadata::verifyMods(metadata["mods"], true, LIBRARY->modh->getModList()))
 	{
+		if(status == ModVerificationStatus::VERSION_MISMATCH)
+			continue;
+
 		if(status == ModVerificationStatus::NOT_INSTALLED)
 			missingMods.push_back(metadata["mods"][modID]["name"].String());
 		else if(status == ModVerificationStatus::EXCESSIVE)

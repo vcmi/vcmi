@@ -43,7 +43,7 @@ DLL_LINKAGE JsonNode modsToJson(const ModCompatibilityInfo & mods);
 DLL_LINKAGE JsonNode activeModsToJson(const ModSnapshot & modList);
 
 /// Returns mods from "mods" section of metadata that do not match active mods of provided mod list, by mod ID.
-/// exact: list is complete, active gameplay mods missing from it are reported (saves); otherwise list is a minimum (maps).
-/// Exact lists compare root mods only; others also compare listed submods and root versions
+/// exact: list is complete, active gameplay mods and submods missing from it are reported (saves); otherwise list is a minimum (maps).
+/// Listed submods that are not installed are not reported. VERSION_MISMATCH does not prevent loading, other statuses do
 DLL_LINKAGE ModListVerificationStatus verifyMods(const JsonNode & mods, bool exact, const ModSnapshot & modList);
 }

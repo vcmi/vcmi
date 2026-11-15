@@ -193,24 +193,32 @@ ModListVerificationStatus ScenarioMetadata::verifyMods(const JsonNode & mods, bo
 			continue;
 		}
 
-		// list of submods and versions often change between versions of a mod without breaking saves
-		if(exact)
-			continue;
-
 		const auto requiredVersion = CModVersion::fromString(entry["version"].String());
 		if(!requiredVersion.isNull() && !modList.getModDescription(rootID).getVersion().compatible(requiredVersion))
-		{
 			result[rootID] = ModVerificationStatus::VERSION_MISMATCH;
-			continue;
-		}
 
+		std::set<TModID> listedSubmods;
 		for(const auto & submod : entry["submods"].Vector())
 		{
 			const TModID modID = rootID + '.' + submod.String();
-			if(!vstd::contains(installedMods, modID))
-				result[modID] = ModVerificationStatus::NOT_INSTALLED;
-			else if(!vstd::contains(activeMods, modID))
+			listedSubmods.insert(modID);
+
+			// submods are often renamed or removed between versions of a mod, scenario may still be playable without them
+			if(!vstd::contains(installedMods, modID) || !modList.getModDescription(modID).affectsGameplay())
+				continue;
+
+			if(!vstd::contains(activeMods, modID))
 				result[modID] = ModVerificationStatus::DISABLED;
+		}
+
+		if(!exact)
+			continue;
+
+		for(const auto & modID : activeMods)
+		{
+			const auto & mod = modList.getModDescription(modID);
+			if(mod.getTopParentID() == rootID && mod.affectsGameplay() && !listedSubmods.contains(modID))
+				result[modID] = ModVerificationStatus::EXCESSIVE;
 		}
 	}
 

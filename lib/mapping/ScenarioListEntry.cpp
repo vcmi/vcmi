@@ -89,10 +89,15 @@ ScenarioListEntry::EStatus ScenarioListEntry::getStatus() const
 	if(problem != EProblem::MODS)
 		return EStatus::INCOMPATIBLE;
 
+	bool hasInactiveMods = false;
 	for(const auto & [modID, status] : mods)
-		if(status != ModVerificationStatus::DISABLED && status != ModVerificationStatus::EXCESSIVE)
+	{
+		if(status == ModVerificationStatus::DISABLED || status == ModVerificationStatus::EXCESSIVE)
+			hasInactiveMods = true;
+		else if(status != ModVerificationStatus::VERSION_MISMATCH)
 			return EStatus::INCOMPATIBLE;
-	return EStatus::MODS_INACTIVE;
+	}
+	return hasInactiveMods ? EStatus::MODS_INACTIVE : EStatus::COMPATIBLE;
 }
 
 const JsonNode & ScenarioListEntry::getDescription() const

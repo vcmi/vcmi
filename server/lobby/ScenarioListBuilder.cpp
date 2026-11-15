@@ -290,7 +290,9 @@ ScenarioListEntry ScenarioListBuilder::readMap(const ResourcePath & file) const
 				return entry;
 			entry.metadata["mods"] = ScenarioMetadata::modsToJson(*mods);
 			entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], false, LIBRARY->modh->getModList());
-			if(!entry.mods.empty())
+			// version mismatch alone does not explain failure to read the map
+			const bool modsPreventLoading = std::ranges::any_of(entry.mods, [](const auto & mod){ return mod.second != ModVerificationStatus::VERSION_MISMATCH; });
+			if(modsPreventLoading)
 				entry.problem = ScenarioListEntry::EProblem::MODS;
 		}
 		catch(const std::exception & modsError) // NOSONAR: malformed maps can throw several exception types
