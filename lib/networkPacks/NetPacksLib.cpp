@@ -786,6 +786,11 @@ void LobbyRestartGame::visitTyped(ICPackVisitor & visitor)
 	visitor.visitLobbyRestartGame(*this);
 }
 
+void LobbyReloadMods::visitTyped(ICPackVisitor & visitor)
+{
+	visitor.visitLobbyReloadMods(*this);
+}
+
 void LobbyNextCampaignScenario::visitTyped(ICPackVisitor & visitor)
 {
 	visitor.visitLobbyNextCampaignScenario(*this);

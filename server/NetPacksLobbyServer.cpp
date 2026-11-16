@@ -769,7 +769,11 @@ void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScen
 {
 	const ScenarioListBuilder builder(pack.type, pack.loadMode);
 	LobbyScenarioList reply;
-	if(pack.selectLast && pack.type == ScenarioListEntry::EType::MAP)
+	if(!pack.selectFile.empty() && pack.type == ScenarioListEntry::EType::SAVE)
+		reply.list = builder.buildForSave(pack.selectFile, reply.selectedFile);
+	else if(!pack.selectFile.empty())
+		reply.list = builder.buildForFile(pack.selectFile, reply.selectedFile);
+	else if(pack.selectLast && pack.type == ScenarioListEntry::EType::MAP)
 		reply.list = builder.buildForFile(LastScenarios::getMap(), reply.selectedFile);
 	else if(pack.selectLast && pack.type == ScenarioListEntry::EType::CAMPAIGN)
 		reply.list = builder.buildForFile(LastScenarios::getCampaign(), reply.selectedFile);
@@ -782,6 +786,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScen
 	srv.lastScenarioListRequest = pack;
 	srv.lastScenarioListRequest->folder = reply.list.folder;
 	srv.lastScenarioListRequest->selectLast = false;
+	srv.lastScenarioListRequest->selectFile.clear();
 	result = false;
 }
 

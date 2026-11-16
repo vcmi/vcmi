@@ -325,4 +325,5 @@ void registerTypes(Serializer &s)
 	s.template registerType<LobbyRequestQuickLoadInfo>(278);
 	s.template registerType<LobbyQuickLoadInfo>(279);
 	s.template registerType<LobbyNextCampaignScenario>(280);
+	s.template registerType<LobbyReloadMods>(281);
 }

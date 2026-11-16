@@ -256,6 +256,7 @@ struct DLL_LINKAGE LobbyRequestScenarioList : public CLobbyPackToServer
 	std::string folder; ///< relative to Maps/ or Saves/
 	ELoadMode loadMode = ELoadMode::NONE; ///< saves that can not be loaded in this mode are not listed
 	bool selectLast = false; ///< ignore folder, list folder of the map last selected, or of the save last written or loaded in this load mode
+	std::string selectFile; ///< ignore folder and selectLast, list folder of this file
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -265,6 +266,7 @@ struct DLL_LINKAGE LobbyRequestScenarioList : public CLobbyPackToServer
 		h & folder;
 		h & loadMode;
 		h & selectLast;
+		h & selectFile;
 	}
 };
 
@@ -272,7 +274,7 @@ struct DLL_LINKAGE LobbyRequestScenarioList : public CLobbyPackToServer
 struct DLL_LINKAGE LobbyScenarioList : public CPackForLobby
 {
 	ScenarioList list;
-	std::string selectedFile; ///< file URI of the entry to select, set only for selectLast requests
+	std::string selectedFile; ///< file URI of the entry to select, set only for selectLast and selectFile requests
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -318,6 +320,7 @@ struct DLL_LINKAGE LobbySetMap : public CLobbyPackToServer
 {
 	ScenarioSelection selection;
 	std::shared_ptr<CMapGenOptions> mapGenOpts; ///< set only for random maps
+	bool reloadMods = false; ///< host accepts reload of game library if the selection needs other mods
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -325,6 +328,22 @@ struct DLL_LINKAGE LobbySetMap : public CLobbyPackToServer
 	{
 		h & selection;
 		h & mapGenOpts;
+		h & reloadMods;
+	}
+};
+
+/// Sent by server before it replaces its game library; clients reload theirs with the same mods before reading next packs
+struct DLL_LINKAGE LobbyReloadMods : public CLobbyPackToPropagate
+{
+	JsonNode mods; ///< required mods, as "mods" section of scenario metadata
+	bool exact = false; ///< see ScenarioListEntry::isExactModList
+
+	void visitTyped(ICPackVisitor & visitor) override;
+
+	template <typename Handler> void serialize(Handler &h)
+	{
+		h & mods;
+		h & exact;
 	}
 };
 
