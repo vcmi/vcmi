@@ -19,6 +19,8 @@ class CPlayerInterface;
 class CMapHandler;
 class CMainMenu;
 class CMainMenuConfig;
+class ClientLibraries;
+class ModManager;
 
 class INetworkHandler;
 
@@ -36,6 +38,7 @@ class GameInstance final : boost::noncopyable, public IGameEngineUser
 	/// Only the overlay may compose the translator, so the concrete type stays out of reach
 	friend class TranslatorOverlay;
 
+	std::unique_ptr<ClientLibraries> librariesInstance;
 	std::unique_ptr<CompositeTranslator> translatorInstance;
 	std::unique_ptr<CServerHandler> serverInstance;
 	std::unique_ptr<CMapHandler> mapInstance;
@@ -46,9 +49,10 @@ class GameInstance final : boost::noncopyable, public IGameEngineUser
 	void pauseAutoSave();
 
 public:
-	GameInstance();
+	explicit GameInstance(std::unique_ptr<ModManager> modManager);
 	~GameInstance();
 
+	ClientLibraries & libraries();
 	CServerHandler & server();
 	CMapHandler & map();
 	ITranslator & translator();

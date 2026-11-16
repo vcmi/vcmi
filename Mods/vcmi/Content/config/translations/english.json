@@ -502,6 +502,7 @@
 	"vcmi.capitalColors.6": "Teal",
 	"vcmi.capitalColors.7": "Pink",
 	"vcmi.client.errors.invalidMap": "{Invalid map or campaign}\n\nFailed to start game! Selected map or campaign might be invalid or corrupted. Reason:\n%s",
+	"vcmi.client.errors.modReloadFailure": "{Mod loading failure}\n\nFailed to load mods required by selected game. Reason:\n%s",
 	"vcmi.client.errors.modLoadingFailure": "{Mod loading failure}\n\nCritical issues found when loading mods! Game may not work correctly or crash! Please update or disable following mods:\n\n",
 	"vcmi.client.screenShot": "Screenshot saved to %s",
 	"vcmi.commander.insufficientResources": "You do not have enough resources to resurrect your commander.",

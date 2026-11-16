@@ -16,6 +16,7 @@
 
 #include "../client/ClientCommandManager.h"
 #include "../client/CMT.h"
+#include "../client/ClientLibraries.h"
 #include "../client/CPlayerInterface.h"
 #include "../client/CServerHandler.h"
 #include "../client/GameEngine.h"
@@ -320,7 +321,7 @@ int main(int argc, char * argv[])
 			ENGINE = std::make_unique<GameEngine>();
 		}
 
-		GAME = std::make_unique<GameInstance>();
+		GAME = std::make_unique<GameInstance>(std::move(mods));
 
 		if (ENGINE)
 			ENGINE->setEngineUser(GAME.get());
@@ -354,7 +355,7 @@ int main(int argc, char * argv[])
 			handleFatalError(criticalInitializationError.value(), false);
 		}
 
-		mods->setValidatedChecksums(library->modh->getValidatedChecksums());
+		GAME->libraries().mods().setValidatedChecksums(library->modh->getValidatedChecksums());
 		setGameLibrary(std::move(library));
 
 		GAME->createLibraryClientState();

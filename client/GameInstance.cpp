@@ -11,6 +11,7 @@
 #include "GameInstance.h"
 
 #include "CPlayerInterface.h"
+#include "ClientLibraries.h"
 #include "CMT.h"
 #include "CServerHandler.h"
 #include "GameEngine.h"
@@ -33,6 +34,7 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
+#include "../lib/modding/ModManager.h"
 #include "../lib/texts/MetaString.h"
 #include "../lib/callback/CCallback.h"
 #include "../lib/filesystem/SavegamePath.h"
@@ -40,14 +42,20 @@
 
 std::unique_ptr<GameInstance> GAME = nullptr;
 
-GameInstance::GameInstance()
-	: translatorInstance(std::make_unique<CompositeTranslator>())
+GameInstance::GameInstance(std::unique_ptr<ModManager> modManager)
+	: librariesInstance(std::make_unique<ClientLibraries>(std::move(modManager)))
+	, translatorInstance(std::make_unique<CompositeTranslator>())
 	, serverInstance(std::make_unique<CServerHandler>())
 	, interfaceInstance(nullptr)
 {
 }
 
 GameInstance::~GameInstance() = default;
+
+ClientLibraries & GameInstance::libraries()
+{
+	return *librariesInstance;
+}
 
 CServerHandler & GameInstance::server()
 {
