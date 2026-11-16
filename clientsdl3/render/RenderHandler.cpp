@@ -694,6 +694,21 @@ void RenderHandler::onLibraryLoadingFinished(const Services * services)
 	}
 }
 
+void RenderHandler::onLibraryUnloading()
+{
+	animationSpriteDefs.clear();
+	animationFiles.clear();
+	animationLayouts.clear();
+	animationLayoutModes.clear();
+	animationLayoutVariants.clear();
+	imageFiles.clear();
+	retainedAssets.clear();
+	fonts.clear();
+	paletteShiftedFrames.clear();
+	hdImageLoader.reset();
+	assetGenerator = std::make_shared<AssetGenerator>();
+}
+
 std::shared_ptr<const IFont> RenderHandler::loadFont(EFonts font)
 {
 	if (fonts.count(font))

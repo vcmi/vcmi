@@ -85,6 +85,7 @@ public:
 
 	// IRenderHandler implementation
 	void onLibraryLoadingFinished(const Services * services) override;
+	void onLibraryUnloading() override;
 
 	std::shared_ptr<IImage> loadImage(const ImageLocator & locator) override;
 	std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) override;

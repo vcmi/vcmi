@@ -135,4 +135,15 @@ public:
 		return result;
 	}
 
+	/// Drops all retained and evicted assets. Rendering thread only, with no asset task running
+	void clear()
+	{
+		std::lock_guard lock(mutex);
+		order.clear();
+		index.clear();
+		evictedAssets.clear();
+		usedBytes = 0;
+		storesSinceRefresh = 0;
+	}
+
 };

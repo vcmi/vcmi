@@ -33,6 +33,9 @@ public:
 	/// Must be called once LIBRARY loading is over to initialize icons
 	virtual void onLibraryLoadingFinished(const Services * services) = 0;
 
+	/// Drops all assets and data of current LIBRARY, so onLibraryLoadingFinished can be called for another library. Caches are not locked, so no other thread may load assets meanwhile
+	virtual void onLibraryUnloading() = 0;
+
 	/// Loads image using given path
 	virtual std::shared_ptr<IImage> loadImage(const ImageLocator & locator) = 0;
 	virtual std::shared_ptr<IImage> loadImage(const ImagePath & path, EImageBlitMode mode) = 0;
