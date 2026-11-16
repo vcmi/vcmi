@@ -387,7 +387,7 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 
 		// selection that needs no reload is selected as usual, an incompatible one fails to load below
 		const bool needsReload = entry && entry->getStatus() == ScenarioListEntry::EStatus::MODS_INACTIVE;
-		if(needsReload && !srv.reloadLibrary(entry->metadata["mods"], entry->isExactModList(), connection))
+		if(needsReload && !srv.reloadLibrary(entry->metadata["mods"], entry->isExactModList(), pack.selection.fileURI, connection))
 		{
 			result = false;
 			return;

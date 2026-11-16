@@ -491,7 +491,8 @@ void SelectionTab::openFolder(const std::string & folder, const std::function<vo
 void SelectionTab::requestLastSelection()
 {
 	LobbyRequestScenarioList request;
-	request.selectLast = true;
+	request.selectFile = GAME->server().takeFileToSelectAfterReload();
+	request.selectLast = request.selectFile.empty();
 	sendListRequest(request, [this](const LobbyScenarioList & pack)
 	{
 		filter(0);

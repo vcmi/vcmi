@@ -124,7 +124,7 @@ public:
 
 	/// Replaces game library with a library of provided mods, as "mods" section of scenario metadata. Clients reload theirs on LobbyReloadMods.
 	/// Returns false if the library is unchanged, after the reason is shown to the host. Disconnects the host if it has reloaded its library while this server has not
-	bool reloadLibrary(const JsonNode & mods, bool exact, const std::shared_ptr<GameConnection> & host);
+	bool reloadLibrary(const JsonNode & mods, bool exact, const std::string & selectedFile, const std::shared_ptr<GameConnection> & host);
 
 	void clientConnected(std::shared_ptr<GameConnection> c, const std::vector<std::string> & names, const std::string & uuid, EStartMode mode);
 	void clientDisconnected(std::shared_ptr<GameConnection> c);

@@ -125,7 +125,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClient
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyReloadMods(LobbyReloadMods & pack)
 {
 	result = false;
-	handler.reloadLibrary(pack.mods, pack.exact);
+	handler.reloadLibrary(pack);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)

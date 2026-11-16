@@ -33,6 +33,7 @@ struct CPackForLobby;
 struct CPackForServer;
 struct CPackForClient;
 struct LobbyModsCheck;
+struct LobbyReloadMods;
 
 class HighScoreParameter;
 
@@ -130,6 +131,8 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 
 	/// Network thread waits on it while main thread reloads game library on LobbyReloadMods, so that next packs are read with the new library
 	ConditionalWait libraryReloadWait;
+	/// File of the selection that caused the last reload, to select in the list of the new lobby screen
+	std::string fileToSelectAfterReload;
 
 	std::atomic<EClientState> state;
 	bool lobbyPreviewMode = false;
@@ -138,7 +141,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	void threadRunNetwork();
 	void waitForServerShutdown();
 	/// Network thread, reloads game library with mods required by the server and returns once it is done
-	void reloadLibrary(const JsonNode & mods, bool exact);
+	void reloadLibrary(const LobbyReloadMods & pack);
 	/// Replaces open windows with the lobby screen
 	void openLobbyScreen();
 	/// Closes connection to server, if any, without notifying the server
@@ -257,6 +260,8 @@ public:
 	void sendStartGame(bool allowOnlyAI = false, bool verify = true) const override;
 
 	void startScenarioAfterConnection(const ScenarioSelection & selection, bool reloadMods = false);
+	/// Returns file to select in the list after a reload of game library, empty if there is none or it was already taken
+	std::string takeFileToSelectAfterReload();
 	bool validateGameStart(bool allowOnlyAI = false) const;
 	void debugStartTest(std::string filename, bool save = false);
 

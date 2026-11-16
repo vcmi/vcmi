@@ -337,6 +337,7 @@ struct DLL_LINKAGE LobbyReloadMods : public CLobbyPackToPropagate
 {
 	JsonNode mods; ///< required mods, as "mods" section of scenario metadata
 	bool exact = false; ///< see ScenarioListEntry::isExactModList
+	std::string selectedFile; ///< file URI of the selection that needs other mods, selected again after the reload
 
 	void visitTyped(ICPackVisitor & visitor) override;
 
@@ -344,6 +345,7 @@ struct DLL_LINKAGE LobbyReloadMods : public CLobbyPackToPropagate
 	{
 		h & mods;
 		h & exact;
+		h & selectedFile;
 	}
 };
 

@@ -152,9 +152,10 @@ void CServerHandler::onLibraryUnloading()
 		lobbyClient->releaseLobbyWindow();
 }
 
-void CServerHandler::reloadLibrary(const JsonNode & mods, bool exact)
+void CServerHandler::reloadLibrary(const LobbyReloadMods & pack)
 {
-	const ModSnapshot snapshot = GAME->libraries().mods().createSnapshot(mods, exact);
+	const ModSnapshot snapshot = GAME->libraries().mods().createSnapshot(pack.mods, pack.exact);
+	fileToSelectAfterReload = pack.selectedFile;
 	libraryReloadWait.setBusy();
 
 	const auto onFinished = [this](bool success)
@@ -739,6 +740,11 @@ void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 		else
 			ENGINE->windows().createAndPushWindow<CLoadingScreen>();
 	}
+}
+
+std::string CServerHandler::takeFileToSelectAfterReload()
+{
+	return std::exchange(fileToSelectAfterReload, {});
 }
 
 void CServerHandler::startScenarioAfterConnection(const ScenarioSelection & selection, bool reloadMods)

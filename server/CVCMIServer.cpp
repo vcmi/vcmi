@@ -606,7 +606,7 @@ void CVCMIServer::resetLobbyForReload()
 	campaignBonus = -1;
 }
 
-bool CVCMIServer::reloadLibrary(const JsonNode & mods, bool exact, const std::shared_ptr<GameConnection> & host)
+bool CVCMIServer::reloadLibrary(const JsonNode & mods, bool exact, const std::string & selectedFile, const std::shared_ptr<GameConnection> & host)
 {
 	assert(libraryReloader);
 
@@ -642,6 +642,7 @@ bool CVCMIServer::reloadLibrary(const JsonNode & mods, bool exact, const std::sh
 	LobbyReloadMods reloadPack;
 	reloadPack.mods = mods;
 	reloadPack.exact = exact;
+	reloadPack.selectedFile = selectedFile;
 	announcePack(reloadPack);
 
 	std::string error;
