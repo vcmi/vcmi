@@ -164,12 +164,12 @@ void initializeBaseFilesystem(bool extractArchives, bool useTestPreset)
 	CGeneralTextHandler::detectInstallParameters();
 }
 
-void setGameLibrary(std::unique_ptr<GameLibrary> library)
+std::unique_ptr<const GameLibrary> setGameLibrary(std::unique_ptr<const GameLibrary> library)
 {
-	const GameLibrary * previous = LIBRARY;
+	std::unique_ptr<const GameLibrary> previous(LIBRARY);
 	CResourceHandler::setCurrent(library ? &library->modh->getFilesystem() : nullptr);
 	LIBRARY = library.release();
-	delete previous;
+	return previous;
 }
 
 template <class Handler>
