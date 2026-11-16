@@ -88,6 +88,9 @@ public:
 
 	EStatus getStatus() const;
 
+	/// Returns true if mods of metadata are the complete list of gameplay mods (saves), false if they are a minimum (maps and campaigns)
+	bool isExactModList() const;
+
 	bool isCampaignSave() const;
 	bool isTutorialSave() const;
 	int getHumanPlayersInSave() const;

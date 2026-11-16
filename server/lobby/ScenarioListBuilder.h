@@ -66,6 +66,9 @@ public:
 	/// selects the newest save of the root folder or of its newest subfolder with compatible saves
 	ScenarioList buildForSave(const std::string & saveName, std::string & selectedFile) const;
 
+	/// Returns entry of a listed file, with its status against active mods. Throws std::runtime_error if the file is not listed
+	ScenarioListEntry readEntry(const ResourcePath & file) const;
+
 	/// Returns true if saved game can be loaded in this load mode; saves that can not be read are listed in every load mode
 	static bool isSaveCompatible(const ScenarioListEntry & entry, ELoadMode loadMode);
 };

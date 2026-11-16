@@ -76,6 +76,26 @@ ScenarioListBuilder::ScenarioListBuilder(ScenarioListEntry::EType type, ELoadMod
 	}
 }
 
+ScenarioListEntry ScenarioListBuilder::readEntry(const ResourcePath & file) const
+{
+	if(!lastWriteTimes.contains(file))
+		throw std::runtime_error("File " + file.getOriginalName() + " is not found");
+
+	switch(type)
+	{
+		case ScenarioListEntry::EType::MAP:
+			return readMap(file);
+		case ScenarioListEntry::EType::CAMPAIGN:
+			return readCampaign(file);
+		case ScenarioListEntry::EType::SAVE:
+		{
+			JsonValidator validator;
+			return readSave(file, validator);
+		}
+	}
+	throw std::runtime_error("Invalid scenario list type");
+}
+
 ScenarioListBuilder::FolderFiles ScenarioListBuilder::splitFolder(const std::vector<ResourcePath> & files, const std::string & folder)
 {
 	FolderFiles result;

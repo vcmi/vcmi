@@ -100,6 +100,11 @@ ScenarioListEntry::EStatus ScenarioListEntry::getStatus() const
 	return hasInactiveMods ? EStatus::MODS_INACTIVE : EStatus::COMPATIBLE;
 }
 
+bool ScenarioListEntry::isExactModList() const
+{
+	return type == EType::SAVE;
+}
+
 const JsonNode & ScenarioListEntry::getDescription() const
 {
 	return metadata[type == EType::CAMPAIGN ? "campaign" : "map"];
