@@ -149,7 +149,13 @@ public:
 	/// Returns true if game is running with demo data files
 	bool isDemoData() const;
 
+	/// Identifier unique among libraries of this process, for caches outside of the library that must be rebuilt for another library
+	uint64_t getInstanceID() const;
+
 	GameDataMode gameDataMode = GameDataMode::SOD;
+
+private:
+	const uint64_t instanceID;
 };
 
 /// Mounts game data, user directories and process-wide settings. Called once per process, before any library is created. Can also extract original H3 archives

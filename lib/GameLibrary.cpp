@@ -266,5 +266,17 @@ void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 	creh->buildCombatValues(*this);
 }
 
-GameLibrary::GameLibrary() = default;
+GameLibrary::GameLibrary()
+	: instanceID([]()
+	{
+		static std::atomic<uint64_t> counter = 0;
+		return ++counter;
+	}())
+{
+}
+
+uint64_t GameLibrary::getInstanceID() const
+{
+	return instanceID;
+}
 GameLibrary::~GameLibrary() = default;

@@ -10,6 +10,7 @@
 
 #include "StdInc.h"
 
+#include "GameLibrary.h"
 #include "callback/CBattleCallback.h"
 #include "callback/IGameInfoCallback.h"
 #include "filesystem/Filesystem.h"
@@ -80,9 +81,18 @@ namespace
 		return repo;
 	}
 
+	/// Settings and models come from MMAI mod, so the repository is rebuilt for every game library
 	const ModelRepository * GetModelRepository()
 	{
-		static const auto repo = InitModelRepository();
+		// no lock: battle start runs on network thread or in GUI events, both under interface mutex
+		static std::shared_ptr<ModelRepository> repo;
+		static uint64_t repoLibraryID = 0; // library IDs start from 1
+
+		if(repoLibraryID != LIBRARY->getInstanceID())
+		{
+			repo = InitModelRepository();
+			repoLibraryID = LIBRARY->getInstanceID();
+		}
 		return repo.get();
 	}
 
