@@ -146,7 +146,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	void stopGameplay();
 	/// Destroys interfaces and game state of a stopped game
 	void destroyGameplay();
-	void showMainMenu();
 	/// Ends won scenario of an unfinished campaign, keeping the connection for the lobby of the next scenario
 	void endCampaignScenario();
 
@@ -186,6 +185,8 @@ public:
 	
 	/// Drops lobby state and windows that hold data of current LIBRARY. Requires no running game
 	void onLibraryUnloading();
+	/// Makes main menu the active interface and starts its music
+	void showMainMenu();
 	void resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode serverMode, const std::vector<std::string> & playerNames);
 	void startLocalServerAndConnect(bool connectToLobby);
 	void connectToServer(const std::string & addr, const ui16 port);

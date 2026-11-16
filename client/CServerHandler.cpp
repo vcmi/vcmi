@@ -14,6 +14,7 @@
 #include "Client.h"
 #include "GameChatHandler.h"
 #include "GameEngine.h"
+#include "ClientLibraries.h"
 #include "GameInstance.h"
 #include "LobbyClientNetPackVisitors.h"
 #include "ServerRunner.h"
@@ -478,6 +479,7 @@ void CServerHandler::sendClientDisconnecting()
 	networkConnection.reset();
 	logicConnection.reset();
 	waitForServerShutdown();
+	GAME->libraries().requestReturnToHomeLibrary();
 }
 
 void CServerHandler::startCampaign(const std::string & fileURI, const std::string & campaignSet) const
@@ -1070,6 +1072,7 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	}
 
 	logNetwork->error("Lost connection to server! Connection has been closed");
+	GAME->libraries().requestReturnToHomeLibrary();
 
 	if(getState() == EClientState::CAMPAIGN_SCENARIO_WON)
 	{

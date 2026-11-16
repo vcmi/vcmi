@@ -39,6 +39,13 @@ bool ModSnapshot::isModActive(const TModID & modID) const
 	return vstd::contains(activeMods, modID);
 }
 
+bool ModSnapshot::hasSameActiveMods(const ModSnapshot & other) const
+{
+	const std::set<TModID> ourMods(activeMods.begin(), activeMods.end());
+	const std::set<TModID> otherMods(other.activeMods.begin(), other.activeMods.end());
+	return ourMods == otherMods;
+}
+
 bool ModSnapshot::isGameplayRoot(const TModID & rootID) const
 {
 	return storage->isGameplayRoot(rootID);

@@ -34,6 +34,9 @@ public:
 	const TModList & getActiveMods() const;
 	bool isModActive(const TModID & modID) const;
 
+	/// Returns true if both lists have the same active mods, in any load order
+	bool hasSameActiveMods(const ModSnapshot & other) const;
+
 	/// Returns true if root mod or any of its submods affects gameplay
 	bool isGameplayRoot(const TModID & rootID) const;
 

@@ -188,6 +188,10 @@ void GameInstance::onGlobalLobbyInterfaceActivated()
 
 void GameInstance::onUpdate()
 {
+	// main menu with nothing above it: lobby, game, epilogue and their message windows are gone
+	if (librariesInstance->isReturnRequested() && mainMenuInstance && ENGINE->windows().isTopWindow(mainMenuInstance->menu) && !serverInstance->logicConnection)
+		returnToHomeLibrary();
+
 	if (interfaceInstance)
 		interfaceInstance->update();
 }
@@ -221,6 +225,16 @@ bool GameInstance::wantsFrameRendered()
 		return mapInstance->hasOngoingAnimations();
 
 	return true;
+}
+
+void GameInstance::returnToHomeLibrary()
+{
+	const size_t tab = mainMenuInstance->menu->getActiveTab();
+	librariesInstance->returnToHomeLibrary([this, tab](bool success)
+	{
+		serverInstance->showMainMenu();
+		mainmenu()->menu->switchToTab(tab);
+	});
 }
 
 void GameInstance::onShutdownRequested(bool ask)

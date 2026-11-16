@@ -115,3 +115,21 @@ void ClientLibraries::finishReload(const std::function<void(bool success)> & onF
 	onFinished(true);
 	GAME->checkForModLoadingFailure();
 }
+
+void ClientLibraries::requestReturnToHomeLibrary()
+{
+	returnRequested = true;
+}
+
+bool ClientLibraries::isReturnRequested() const
+{
+	return returnRequested;
+}
+
+void ClientLibraries::returnToHomeLibrary(const std::function<void(bool success)> & onFinished)
+{
+	returnRequested = false;
+	const ModSnapshot presetMods = modManager->createSnapshot();
+	if(!LIBRARY->modh->getModList().hasSameActiveMods(presetMods))
+		reloadLibrary(presetMods, onFinished);
+}
