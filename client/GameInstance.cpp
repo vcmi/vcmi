@@ -71,6 +71,14 @@ std::shared_ptr<CMainMenu> GameInstance::mainmenu()
 	return mainMenuInstance;
 }
 
+const CMainMenuConfig & GameInstance::mainMenuConfig()
+{
+	if (!mainMenuConfigInstance)
+		mainMenuConfigInstance = std::make_unique<CMainMenuConfig>();
+
+	return *mainMenuConfigInstance;
+}
+
 CPlayerInterface * GameInstance::interface()
 {
 	return interfaceInstance;

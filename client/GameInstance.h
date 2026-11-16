@@ -18,6 +18,7 @@ class GlobalLobbyClient;
 class CPlayerInterface;
 class CMapHandler;
 class CMainMenu;
+class CMainMenuConfig;
 
 class INetworkHandler;
 
@@ -39,6 +40,7 @@ class GameInstance final : boost::noncopyable, public IGameEngineUser
 	std::unique_ptr<CServerHandler> serverInstance;
 	std::unique_ptr<CMapHandler> mapInstance;
 	std::shared_ptr<CMainMenu> mainMenuInstance;
+	std::unique_ptr<CMainMenuConfig> mainMenuConfigInstance;
 	CPlayerInterface * interfaceInstance;
 
 	void pauseAutoSave();
@@ -52,6 +54,7 @@ public:
 	ITranslator & translator();
 
 	std::shared_ptr<CMainMenu> mainmenu();
+	const CMainMenuConfig & mainMenuConfig();
 	CPlayerInterface * interface();
 
 	void setServerInstance(std::unique_ptr<CServerHandler> ptr);

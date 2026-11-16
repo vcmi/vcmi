@@ -10,8 +10,8 @@
 
 #include "StdInc.h"
 #include "Colors.h"
+#include "Graphics.h"
 
-#include "../../lib/json/JsonNode.h"
 
 #include <boost/algorithm/hex.hpp>
 
@@ -42,15 +42,9 @@ std::optional<ColorRGBA> Colors::parseColor(std::string text)
 		return ColorRGBA(rgb[0], rgb[1], rgb[2]);
 	}
 
-	static const JsonNode config(JsonPath::builtin("CONFIG/textColors"));
-	auto colors = config["colors"].Struct();
-	for(auto & color : colors) {
-		if(boost::algorithm::to_lower_copy(color.first) == boost::algorithm::to_lower_copy(text))
-		{
-			boost::algorithm::unhex(color.second.String(), std::back_inserter(rgb)); 
-			return ColorRGBA(rgb[0], rgb[1], rgb[2]);
-		}
-	}
+	const auto namedColor = graphics->textColors.find(boost::algorithm::to_lower_copy(text));
+	if(namedColor != graphics->textColors.end())
+		return namedColor->second;
 
 	return std::nullopt;
 }
