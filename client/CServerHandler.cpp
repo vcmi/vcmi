@@ -135,6 +135,16 @@ CServerHandler::CServerHandler()
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 }
 
+void CServerHandler::onLibraryUnloading()
+{
+	assert(!client);
+	lobbyTextOverlays.clear();
+	si = std::make_shared<StartInfo>();
+	mi.reset();
+	if(lobbyClient)
+		lobbyClient->releaseLobbyWindow();
+}
+
 void CServerHandler::threadRunNetwork()
 {
 	setThreadName("runNetwork");

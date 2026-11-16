@@ -86,6 +86,8 @@ public:
 
 	/// Activate interface and pushes lobby UI as top window
 	void activateInterface();
+	/// Drops lobby window kept alive after closing, so it is created again with assets of the next game library
+	void releaseLobbyWindow();
 	void activateRoomInviteInterface();
 
 	void sendMatchChatMessage(const std::string & messageText);

@@ -579,6 +579,11 @@ const std::vector<GlobalLobbyChannelMessage> & GlobalLobbyClient::getChannelHist
 		return chatHistory.at(keyToTest);
 }
 
+void GlobalLobbyClient::releaseLobbyWindow()
+{
+	lobbyWindowLock.reset();
+}
+
 void GlobalLobbyClient::activateInterface()
 {
 	if (ENGINE->windows().topWindow<GlobalLobbyWindow>() != nullptr)

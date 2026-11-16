@@ -53,6 +53,13 @@ public:
 	CMapHandler & map();
 	ITranslator & translator();
 
+	/// Creates client data of current LIBRARY: audio, graphics, render handler data, dialog borders, cursor
+	void createLibraryClientState();
+	/// Destroys windows, main menu and client data of current LIBRARY, so another library can become current. Requires no running game
+	void releaseLibraryClientState();
+	/// Shows mods of current LIBRARY that failed to load
+	void checkForModLoadingFailure();
+
 	std::shared_ptr<CMainMenu> mainmenu();
 	const CMainMenuConfig & mainMenuConfig();
 	CPlayerInterface * interface();

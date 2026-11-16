@@ -184,6 +184,8 @@ public:
 	CServerHandler();
 	~CServerHandler();
 	
+	/// Drops lobby state and windows that hold data of current LIBRARY. Requires no running game
+	void onLibraryUnloading();
 	void resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode serverMode, const std::vector<std::string> & playerNames);
 	void startLocalServerAndConnect(bool connectToLobby);
 	void connectToServer(const std::string & addr, const ui16 port);

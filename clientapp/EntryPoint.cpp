@@ -20,13 +20,10 @@
 #include "../client/CServerHandler.h"
 #include "../client/GameEngine.h"
 #include "../client/GameInstance.h"
-#include "../client/gui/CursorHandler.h"
 #include "../client/gui/WindowHandler.h"
 #include "../client/mainmenu/CMainMenu.h"
 #include "render/Graphics.h"
-#include "render/IRenderHandler.h"
 #include "../client/windows/CMessage.h"
-#include "../client/windows/InfoWindows.h"
 
 #include "../lib/AsyncRunner.h"
 #include "../lib/CConsoleHandler.h"
@@ -37,10 +34,8 @@
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/texts/TextOperations.h"
 #include "../lib/modding/CModHandler.h"
-#include "../lib/modding/ModDescription.h"
 #include "../lib/modding/ModManager.h"
 #include "../lib/texts/CGeneralTextHandler.h"
-#include "../lib/texts/MetaString.h"
 #include "../lib/GameLibrary.h"
 #include "../lib/ScopeGuard.h"
 #include "../lib/VCMIDirs.h"
@@ -101,23 +96,6 @@ static void init(GameLibrary & library)
 	// Debug code to load all maps on start
 	//ClientCommandManager commandController;
 	//commandController.processCommand("translate maps", false);
-}
-
-static void checkForModLoadingFailure()
-{
-	const auto & brokenMods = LIBRARY->modh->getModsWithFailedRequests();
-	if (!brokenMods.empty())
-	{
-		MetaString messageText;
-		messageText.appendTextID("vcmi.client.errors.modLoadingFailure");
-
-		for (const auto & modID : brokenMods)
-		{
-			messageText.appendRawString(LIBRARY->modh->getModInfo(modID).getName());
-			messageText.appendEOL();
-		}
-		CInfoWindow::showInfoDialog(messageText.toString(&GAME->translator()), {});
-	}
 }
 
 static void prog_version()
@@ -379,19 +357,7 @@ int main(int argc, char * argv[])
 		mods->setValidatedChecksums(library->modh->getValidatedChecksums());
 		setGameLibrary(std::move(library));
 
-		if (ENGINE)
-		{
-			pomtime.getDiff();
-			ENGINE->initAudio();
-			graphics = new Graphics(); // should be before curh
-			ENGINE->renderHandler().onLibraryLoadingFinished(LIBRARY);
-
-			CMessage::init();
-			logGlobal->info("Message handler: %d ms", pomtime.getDiff());
-
-			ENGINE->cursor().init();
-			ENGINE->cursor().show();
-		}
+		GAME->createLibraryClientState();
 
 		logGlobal->info("Initialization of VCMI (together): %d ms", total.getDiff());
 
@@ -433,7 +399,7 @@ int main(int argc, char * argv[])
 			{
 				if (ENGINE)
 				{
-					checkForModLoadingFailure();
+					GAME->checkForModLoadingFailure();
 					ENGINE->mainLoop();
 				}
 				else

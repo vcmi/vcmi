@@ -20,10 +20,20 @@
 #include "mapView/mapHandler.h"
 #include "globalLobby/GlobalLobbyClient.h"
 #include "mainmenu/CMainMenu.h"
+#include "gui/CursorHandler.h"
+#include "media/IMusicPlayer.h"
+#include "render/Graphics.h"
+#include "render/IRenderHandler.h"
+#include "windows/CMessage.h"
 #include "windows/InfoWindows.h"
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/AsyncRunner.h"
+#include "../lib/CStopWatch.h"
 #include "../lib/GameLibrary.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModDescription.h"
+#include "../lib/texts/MetaString.h"
 #include "../lib/callback/CCallback.h"
 #include "../lib/filesystem/SavegamePath.h"
 #include "../lib/texts/CGeneralTextHandler.h"
@@ -69,6 +79,61 @@ std::shared_ptr<CMainMenu> GameInstance::mainmenu()
 		mainMenuInstance = std::make_shared<CMainMenu>();
 
 	return mainMenuInstance;
+}
+
+void GameInstance::createLibraryClientState()
+{
+	if (!ENGINE)
+		return;
+
+	CStopWatch timer;
+	ENGINE->initAudio();
+	graphics = new Graphics(); // should be before curh
+	ENGINE->renderHandler().onLibraryLoadingFinished(LIBRARY);
+
+	CMessage::init();
+	logGlobal->info("Message handler: %d ms", timer.getDiff());
+
+	ENGINE->cursor().init();
+	ENGINE->cursor().show();
+}
+
+void GameInstance::releaseLibraryClientState()
+{
+	server().onLibraryUnloading();
+
+	if (!ENGINE)
+		return;
+
+	ENGINE->windows().clear();
+	mainMenuInstance.reset();
+	mainMenuConfigInstance.reset();
+	ENGINE->music().stopMusic(0);
+
+	// asset tasks hold images of current library
+	ENGINE->async().wait();
+
+	CMessage::dispose();
+	delete graphics;
+	graphics = nullptr;
+	ENGINE->renderHandler().onLibraryUnloading();
+}
+
+void GameInstance::checkForModLoadingFailure()
+{
+	const auto & brokenMods = LIBRARY->modh->getModsWithFailedRequests();
+	if (brokenMods.empty())
+		return;
+
+	MetaString messageText;
+	messageText.appendTextID("vcmi.client.errors.modLoadingFailure");
+
+	for (const auto & modID : brokenMods)
+	{
+		messageText.appendRawString(LIBRARY->modh->getModInfo(modID).getName());
+		messageText.appendEOL();
+	}
+	CInfoWindow::showInfoDialog(messageText.toString(&translator()), {});
 }
 
 const CMainMenuConfig & GameInstance::mainMenuConfig()
