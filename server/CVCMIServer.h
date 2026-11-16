@@ -62,6 +62,9 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 	std::shared_ptr<CMapInfo> announcedMapInfo;
 
 	bool loadSavedGame(CGameHandler & handler, const StartInfo & info);
+
+	/// Drops lobby state that refers to entities of the game library, keeps options that do not
+	void resetLobbyForReload();
 public:
 	uint16_t getPort() const override
 	{
@@ -118,6 +121,10 @@ public:
 
 	void setPlayerConnectedId(PlayerSettings & pset, PlayerConnectionID player) const;
 	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});
+
+	/// Replaces game library with a library of provided mods, as "mods" section of scenario metadata. Clients reload theirs on LobbyReloadMods.
+	/// Returns false if the library is unchanged, after the reason is shown to the host. Disconnects the host if it has reloaded its library while this server has not
+	bool reloadLibrary(const JsonNode & mods, bool exact, const std::shared_ptr<GameConnection> & host);
 
 	void clientConnected(std::shared_ptr<GameConnection> c, const std::vector<std::string> & names, const std::string & uuid, EStartMode mode);
 	void clientDisconnected(std::shared_ptr<GameConnection> c);

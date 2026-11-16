@@ -898,6 +898,8 @@
 	"vcmi.lobby.incompatible.modsMissing": "{Following mods are not installed}",
 	"vcmi.lobby.incompatible.modsVersion": "{Following mods have incompatible versions}",
 	"vcmi.lobby.incompatible.modVersion": "%s: version %s is required, %s is installed",
+	"vcmi.lobby.reloadMods.otherPlayers": "Mods can not be changed while other players are connected.",
+	"vcmi.lobby.reloadMods.globalLobby": "Mods can not be changed in a room of the online lobby.",
 	"vcmi.lobby.deleteUnsupportedSave": "{Unsupported saves found}\n\nVCMI has found %d saved games that are no longer supported, possibly due to differences in VCMI versions.\n\nDo you want to delete them?",
 	"vcmi.lobby.filepath": "File path",
 	"vcmi.lobby.handicap": "Handicap",

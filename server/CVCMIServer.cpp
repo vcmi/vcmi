@@ -30,9 +30,12 @@
 #include "../lib/texts/CompositeTranslator.h"
 #include "../lib/mapping/CMapHeader.h"
 #include "../lib/mapping/ScenarioListEntry.h"
+#include "../lib/mapping/ScenarioMetadata.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
 #include "../lib/modding/ModIncompatibility.h"
+#include "../lib/modding/ModManager.h"
+#include "../lib/modding/ModSnapshot.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/CMemorySerializer.h"
 #include "../lib/serializer/GameConnection.h"
@@ -584,6 +587,81 @@ void CVCMIServer::setPlayerConnectedId(PlayerSettings & pset, PlayerConnectionID
 	pset.connectedPlayerIDs.clear();
 	if(player != PlayerConnectionID::PLAYER_AI)
 		pset.connectedPlayerIDs.insert(player);
+}
+
+void CVCMIServer::resetLobbyForReload()
+{
+	auto startInfo = std::make_shared<StartInfo>();
+	startInfo->mode = si->mode;
+	startInfo->difficulty = si->difficulty;
+	startInfo->simturnsInfo = si->simturnsInfo;
+	startInfo->turnTimerInfo = si->turnTimerInfo;
+	startInfo->extraOptionsInfo = si->extraOptionsInfo;
+	si = startInfo;
+
+	mi.reset();
+	announcedMapInfo.reset();
+	battleOnlyModeStartInfo.reset();
+	campaignMap = CampaignScenarioID::NONE;
+	campaignBonus = -1;
+}
+
+bool CVCMIServer::reloadLibrary(const JsonNode & mods, bool exact, const std::shared_ptr<GameConnection> & host)
+{
+	assert(libraryReloader);
+
+	MetaString refusal;
+	if(lobbyProcessor)
+		refusal.appendTextID("vcmi.lobby.reloadMods.globalLobby");
+	else if(activeConnections.size() > 1)
+		refusal.appendTextID("vcmi.lobby.reloadMods.otherPlayers");
+
+	if(!refusal.empty())
+	{
+		LobbyShowMessage message;
+		message.message = refusal;
+		host->sendPack(message);
+		return false;
+	}
+
+	const ModSnapshot snapshot = libraryReloader->mods().createSnapshot(mods, exact);
+	try
+	{
+		ScenarioMetadata::throwIfModsIncompatible(mods, exact, snapshot);
+	}
+	catch(const ModIncompatibility & e)
+	{
+		LobbyShowMessage message;
+		message.message.appendRawString(e.getFullErrorMsg());
+		host->sendPack(message);
+		return false;
+	}
+
+	resetLobbyForReload();
+
+	LobbyReloadMods reloadPack;
+	reloadPack.mods = mods;
+	reloadPack.exact = exact;
+	announcePack(reloadPack);
+
+	std::string error;
+	if(libraryReloader->reload(snapshot, error))
+		return true;
+
+	if(error.empty())
+	{
+		updateAndPropagateLobbyState();
+		return false;
+	}
+
+	// clients have reloaded their libraries, so they can not continue with the previous library of this server
+	LobbyShowMessage message;
+	message.message.appendTextID("vcmi.client.errors.modReloadFailure");
+	message.message.replaceRawString(error);
+	host->sendPack(message);
+	host->getConnection()->close();
+	clientDisconnected(host);
+	return false;
 }
 
 void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpts)

@@ -348,12 +348,50 @@ static std::shared_ptr<CMapInfo> createMapInfo(const LobbySetMap & pack, const B
 	return mapInfo;
 }
 
+/// Returns entry of the selected file with its status against active mods, nullopt for selections without a listed file
+static std::optional<ScenarioListEntry> readSelectedEntry(const ScenarioSelection & selection)
+{
+	switch(selection.type)
+	{
+		case ScenarioSelection::EType::MAP:
+			return ScenarioListBuilder(ScenarioListEntry::EType::MAP, ELoadMode::NONE).readEntry(ResourcePath(selection.fileURI, EResType::MAP));
+		case ScenarioSelection::EType::CAMPAIGN:
+			return ScenarioListBuilder(ScenarioListEntry::EType::CAMPAIGN, ELoadMode::NONE).readEntry(ResourcePath(selection.fileURI, EResType::CAMPAIGN));
+		case ScenarioSelection::EType::SAVE:
+			return ScenarioListBuilder(ScenarioListEntry::EType::SAVE, ELoadMode::NONE).readEntry(ResourcePath(selection.fileURI, EResType::SAVEGAME));
+		default:
+			return std::nullopt;
+	}
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 {
 	if(srv.getState() != EServerState::LOBBY)
 	{
 		result = false;
 		return;
+	}
+
+	if(pack.reloadMods)
+	{
+		std::optional<ScenarioListEntry> entry;
+		try
+		{
+			entry = readSelectedEntry(pack.selection);
+		}
+		catch(const std::runtime_error & e)
+		{
+			// loading below reports the error to the host
+			logGlobal->error("Failed to read %s: %s", pack.selection.fileURI, e.what());
+		}
+
+		// selection that needs no reload is selected as usual, an incompatible one fails to load below
+		const bool needsReload = entry && entry->getStatus() == ScenarioListEntry::EStatus::MODS_INACTIVE;
+		if(needsReload && !srv.reloadLibrary(entry->metadata["mods"], entry->isExactModList(), connection))
+		{
+			result = false;
+			return;
+		}
 	}
 
 	std::shared_ptr<CMapInfo> mapInfo;
