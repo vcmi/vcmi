@@ -16,6 +16,7 @@
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/CConfigHandler.h"
 #include "../server/CVCMIServer.h"
+#include "../server/IServerLibraryReloader.h"
 
 #ifdef ENABLE_SERVER_PROCESS
 
@@ -39,7 +40,7 @@ void ServerThreadRunner::start(bool listenForConnections, bool connectToLobby, s
 {
 	// cfgport may be 0 -- the real port is returned after calling prepare()
 	uint16_t port = settings["server"]["localPort"].Integer();
-	server = std::make_unique<CVCMIServer>(port, true);
+	server = std::make_unique<CVCMIServer>(port, true, nullptr);
 	lobbyMode = connectToLobby;
 
 	if (startingInfo)

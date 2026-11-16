@@ -26,6 +26,7 @@ set(vcmiservercommon_SRCS
 		CGameHandler.cpp
 		CreatureValueEstimator.cpp
 		GlobalLobbyProcessor.cpp
+		ServerLibraryReloader.cpp
 		ServerSpellCastEnvironment.cpp
 		CVCMIServer.cpp
 		NetPacksServer.cpp
@@ -62,6 +63,8 @@ set(vcmiservercommon_HEADERS
 		CreatureValueEstimator.h
 		GlobalLobbyProcessor.h
 		IGameServer.h
+		IServerLibraryReloader.h
+		ServerLibraryReloader.h
 		ServerSpellCastEnvironment.h
 		CVCMIServer.h
 		LobbyNetPackVisitors.h

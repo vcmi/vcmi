@@ -12,6 +12,7 @@
 
 #include "CGameHandler.h"
 #include "GlobalLobbyProcessor.h"
+#include "IServerLibraryReloader.h"
 #include "LobbyNetPackVisitors.h"
 #include "lobby/LastScenarios.h"
 #include "processors/PlayerMessageProcessor.h"
@@ -78,8 +79,9 @@ public:
 	}
 };
 
-CVCMIServer::CVCMIServer(uint16_t port, bool runByClient)
-	: currentClientId(GameConnectionID::FIRST_CONNECTION)
+CVCMIServer::CVCMIServer(uint16_t port, bool runByClient, std::unique_ptr<IServerLibraryReloader> libraryReloader)
+	: libraryReloader(std::move(libraryReloader))
+	, currentClientId(GameConnectionID::FIRST_CONNECTION)
 	, currentPlayerId(PlayerConnectionID::FIRST_HUMAN)
 	, port(port)
 	, runByClient(runByClient)

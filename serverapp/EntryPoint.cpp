@@ -12,6 +12,7 @@
 #include <vstd/DateUtils.h>
 
 #include "../server/CVCMIServer.h"
+#include "../server/ServerLibraryReloader.h"
 #include "../server/CreatureValueEstimator.h"
 
 #include "../lib/CConsoleHandler.h"
@@ -433,9 +434,9 @@ int main(int argc, const char * argv[])
 	boost::program_options::variables_map opts;
 	handleCommandOptions(argc, argv, opts);
 	initializeBaseFilesystem(false);
-	ModManager mods;
+	auto mods = std::make_unique<ModManager>();
 	auto library = std::make_unique<GameLibrary>();
-	library->initializeFilesystem(mods.createSnapshot());
+	library->initializeFilesystem(mods->createSnapshot());
 	logConfigurator.configure();
 
 	if(opts.count("export-config"))
@@ -446,7 +447,7 @@ int main(int argc, const char * argv[])
 	}
 	else
 		library->initializeLibrary();
-	mods.setValidatedChecksums(library->modh->getValidatedChecksums());
+	mods->setValidatedChecksums(library->modh->getValidatedChecksums());
 	setGameLibrary(std::move(library));
 
 	if(opts.count("creature-values"))
@@ -461,7 +462,7 @@ int main(int argc, const char * argv[])
 		if(opts.count("port"))
 			port = opts["port"].as<uint16_t>();
 
-		CVCMIServer server(port, runByClient);
+		CVCMIServer server(port, runByClient, std::make_unique<ServerLibraryReloader>(std::move(mods)));
 		server.prepare(connectToLobby, true);
 		server.run();
 		// CVCMIServer destructor must be called here - before LIBRARY cleanup

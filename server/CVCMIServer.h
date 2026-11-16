@@ -30,6 +30,7 @@ class CGameHandler;
 class CBaseForServerApply;
 class CBaseForGHApply;
 class GlobalLobbyProcessor;
+class IServerLibraryReloader;
 
 class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INetworkTimerListener, public IServerDiscoveryAnnouncer, public IGameServer
 {
@@ -42,6 +43,9 @@ class CVCMIServer : public LobbyInfo, public INetworkServerListener, public INet
 
 	/// Handles connection with global lobby. Must be constructed and destroyed after network handler
 	std::unique_ptr<GlobalLobbyProcessor> lobbyProcessor;
+
+	/// Null if game library of this server can not be reloaded
+	std::unique_ptr<IServerLibraryReloader> libraryReloader;
 
 	EServerState state = EServerState::LOBBY;
 
@@ -94,7 +98,7 @@ public:
 
 	std::shared_ptr<CGameHandler> gh;
 
-	CVCMIServer(uint16_t port, bool runByClient);
+	CVCMIServer(uint16_t port, bool runByClient, std::unique_ptr<IServerLibraryReloader> libraryReloader);
 	~CVCMIServer();
 
 	void run();
