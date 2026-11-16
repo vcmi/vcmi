@@ -99,3 +99,50 @@ A parameter holding the identifier of a creature, a spell or any other entity de
 ```
 
 `entity` enables load-time identifier validation and translated names in `description`. Resolution uses the declared entity type because one key may identify both a creature and a spell. Parameters without `entity` are displayed as literal strings.
+
+## Translatable parameters
+
+A parameter holding text shown to the player is listed in `stringRegistrations`, so that each use of the script registers its own translatable string:
+
+```json
+"shout" : {
+    "implements" : "combatEvent",
+    "script" : "combat/shout",
+    "patches" : [ ],
+    "priority" : 0,
+    "stringRegistrations" : [ "message" ],
+    "schema" : {
+        "properties" : { "message" : { "type" : "string" } },
+        "additionalProperties" : false
+    },
+    "description" : "{Shout}\nShouts at the start of every round."
+}
+```
+
+The entity using the script gives the text. A value starting with `@` reuses a string registered elsewhere, such as `core.genrltxt.558`, and registers nothing:
+
+```json
+"abilities" : {
+    "battleCry" : {
+        "type" : "COMBAT_EVENT_TRIGGER",
+        "subtype" : "shout",
+        "val" : 1,
+        "addInfo" : { "message" : "{%s} shout a battle cry!" }
+    }
+}
+```
+
+The script receives a text identifier in place of the text, and passes it on unchanged:
+
+```lua
+function Script:onRoundStart(server, battle, unit)
+    server:appendLog(battle, {
+        append         = { self.message },
+        replaceStrings = { unit:getCreature():getNameTextID(unit:getCount()) }
+    })
+end
+```
+
+The identifier is formed from the entity and the parameter name, such as `creatures.<mod>.<creature>.bonus.battleCry.message` for a creature ability or `spell.<mod>.<spell>.<effect>.<parameter>` for a spell effect. Translators find these strings in the mod's exported translation.
+
+Only creature and artifact abilities given as a named object, and spell effects, can register strings. Other sources, such as secondary skills, map objects or `eventParameters` of `attachCombatScript`, log a warning and pass the text through untranslated; use an `@` reference there. A spell effect has one identifier for all spell levels, so its text must be the same on every level.
