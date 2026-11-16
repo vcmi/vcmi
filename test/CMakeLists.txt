@@ -72,6 +72,7 @@ set(test_SRCS
 		rmg/RmgObjectTest.cpp
 		rmg/StandaloneObjectRulesTest.cpp
 
+		modding/LibraryReloadTest.cpp
 		modding/ModDescriptionTest.cpp
 		modding/ModManagerTest.cpp
 		modding/ModSnapshotTest.cpp
