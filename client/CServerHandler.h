@@ -12,6 +12,7 @@
 #include "Translator.h"
 
 #include "../lib/CStopWatch.h"
+#include "../lib/ConditionalWait.h"
 
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
@@ -125,12 +126,19 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 
 	std::thread threadNetwork;
 
+	/// Network thread waits on it while main thread reloads game library on LobbyReloadMods, so that next packs are read with the new library
+	ConditionalWait libraryReloadWait;
+
 	std::atomic<EClientState> state;
 	bool lobbyPreviewMode = false;
 	std::function<void()> onLobbyPreviewJoin;
 
 	void threadRunNetwork();
 	void waitForServerShutdown();
+	/// Network thread, reloads game library with mods required by the server and returns once it is done
+	void reloadLibrary(const JsonNode & mods, bool exact);
+	/// Replaces open windows with the lobby screen
+	void openLobbyScreen();
 	/// Closes connection to server, if any, without notifying the server
 	void closeConnection();
 

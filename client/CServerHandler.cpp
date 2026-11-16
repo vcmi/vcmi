@@ -22,6 +22,7 @@
 
 #include "globalLobby/GlobalLobbyClient.h"
 #include "globalLobby/GlobalLobbyRoomWindow.h"
+#include "globalLobby/GlobalLobbyWindow.h"
 
 #include "gui/WindowHandler.h"
 
@@ -63,6 +64,8 @@
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/modding/ModIncompatibility.h"
+#include "../lib/modding/ModSnapshot.h"
+#include "../lib/modding/ModManager.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/GameConnection.h"
 #include "../lib/UnlockGuard.h"
@@ -76,6 +79,7 @@
 
 CServerHandler::~CServerHandler()
 {
+	libraryReloadWait.requestTermination();
 	if (serverRunner)
 		serverRunner->shutdown();
 	stopNetwork();
@@ -116,6 +120,8 @@ void CServerHandler::endNetwork()
 	if (client)
 		client->endNetwork();
 	stopNetwork();
+	// network thread may wait for a library reload that will never finish, since main loop is over
+	libraryReloadWait.requestTermination();
 	waitForNetworkThread();
 }
 
@@ -144,6 +150,57 @@ void CServerHandler::onLibraryUnloading()
 	mi.reset();
 	if(lobbyClient)
 		lobbyClient->releaseLobbyWindow();
+}
+
+void CServerHandler::reloadLibrary(const JsonNode & mods, bool exact)
+{
+	const ModSnapshot snapshot = GAME->libraries().mods().createSnapshot(mods, exact);
+	libraryReloadWait.setBusy();
+
+	const auto onFinished = [this](bool success)
+	{
+		if(serverRunner)
+			serverRunner->onLibraryReloaded(success);
+
+		// reload has closed all windows
+		showMainMenu();
+
+		if(success || (serverRunner && serverRunner->sharesLibrary()))
+		{
+			// new lobby screen loads its list on the first state, as for a client that has just connected
+			hostClientId = GameConnectionID::INVALID;
+			openLobbyScreen();
+		}
+		else
+			sendClientDisconnecting(); // server has its new library, so the lobby can not continue with the previous one
+		libraryReloadWait.setFree();
+	};
+
+	if(!ENGINE)
+	{
+		GAME->libraries().reloadLibrary(snapshot, onFinished);
+		return;
+	}
+
+	ENGINE->dispatchMainThread([snapshot, onFinished]()
+	{
+		GAME->libraries().reloadLibrary(snapshot, onFinished);
+	});
+
+	auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+	libraryReloadWait.waitWhileBusy();
+}
+
+void CServerHandler::openLobbyScreen()
+{
+	if(!ENGINE || settings["session"]["headless"].Bool())
+		return;
+
+	// if global lobby is open, pop all dialogs on top of it as well as lobby itself
+	while(!ENGINE->windows().findWindows<GlobalLobbyWindow>().empty())
+		ENGINE->windows().popWindows(1);
+
+	ENGINE->windows().createAndPushWindow<CLobbyScreen>(screenType, campaignToStart.has_value());
 }
 
 void CServerHandler::threadRunNetwork()
