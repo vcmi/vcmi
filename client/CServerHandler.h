@@ -83,7 +83,8 @@ public:
 	virtual void setCampaignMap(CampaignScenarioID mapId) const = 0;
 	virtual void setCampaignBonus(int bonusId) const = 0;
 	virtual void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const = 0;
-	virtual void selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const = 0;
+	/// reloadMods: accept reload of game library if the selection needs other mods
+	virtual void selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts = {}, bool reloadMods = false) const = 0;
 	virtual void setPlayer(PlayerColor color) const = 0;
 	virtual void setPlayerName(PlayerColor color, const std::string & name) const = 0;
 	virtual void setPlayerHandicap(PlayerColor color, Handicap handicap) const = 0;
@@ -112,6 +113,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::unique_ptr<GameplayReplayer> gameplayReplayer;
 	/// Selected once connected, and started once the server has loaded it
 	std::optional<ScenarioSelection> scenarioToStart;
+	bool reloadModsForScenarioToStart = false;
 	std::vector<std::string> localPlayerNames;
 	/// Quick save of the running game can be loaded, as reported by the server
 	bool quickSaveAvailable = false;
@@ -240,7 +242,7 @@ public:
 	void setCampaignMap(CampaignScenarioID mapId) const override;
 	void setCampaignBonus(int bonusId) const override;
 	void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const override;
-	void selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const override;
+	void selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts = {}, bool reloadMods = false) const override;
 	void setPlayer(PlayerColor color) const override;
 	void setPlayerName(PlayerColor color, const std::string & name) const override;
 	void setPlayerHandicap(PlayerColor color, Handicap handicap) const override;
@@ -254,7 +256,7 @@ public:
 	void sendRestartGame() const override;
 	void sendStartGame(bool allowOnlyAI = false, bool verify = true) const override;
 
-	void startScenarioAfterConnection(const ScenarioSelection & selection);
+	void startScenarioAfterConnection(const ScenarioSelection & selection, bool reloadMods = false);
 	bool validateGameStart(bool allowOnlyAI = false) const;
 	void debugStartTest(std::string filename, bool save = false);
 

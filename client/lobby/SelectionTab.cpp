@@ -863,7 +863,20 @@ void SelectionTab::select(int position)
 
 	if(!isSelectable(*curItems[py]))
 	{
-		CInfoWindow::showInfoDialog(getIncompatibilityText(*curItems[py]->entry), {});
+		const ElementInfo & item = *curItems[py];
+		const std::string text = getIncompatibilityText(*item.entry);
+		if(item.status != ScenarioListEntry::EStatus::MODS_INACTIVE)
+		{
+			CInfoWindow::showInfoDialog(text, {});
+			return;
+		}
+
+		const ScenarioSelection selection = makeSelection(item);
+		const std::string question = LIBRARY->generaltexth->translate("vcmi.lobby.reloadMods.question");
+		CInfoWindow::showYesNoDialog(text + "\n\n" + question, {}, [selection]()
+		{
+			GAME->server().selectScenario(selection, {}, true);
+		}, nullptr);
 		return;
 	}
 
@@ -1046,13 +1059,17 @@ std::shared_ptr<ElementInfo> SelectionTab::getSelectedElement() const
 
 ScenarioSelection SelectionTab::getSelection() const
 {
-	ScenarioSelection selection;
 	const auto element = getSelectedElement();
 	if(!element)
-		return selection;
+		return {};
+	return makeSelection(*element);
+}
 
-	selection.fileURI = element->fileURI;
-	switch(element->entry->type)
+ScenarioSelection SelectionTab::makeSelection(const ElementInfo & element)
+{
+	ScenarioSelection selection;
+	selection.fileURI = element.fileURI;
+	switch(element.entry->type)
 	{
 		case ScenarioListEntry::EType::MAP:
 			selection.type = ScenarioSelection::EType::MAP;

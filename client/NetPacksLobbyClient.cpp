@@ -91,7 +91,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 
 		if(handler.scenarioToStart)
 		{
-			handler.selectScenario(*handler.scenarioToStart);
+			handler.selectScenario(*handler.scenarioToStart, {}, handler.reloadModsForScenarioToStart);
 		}
 		else if(!settings["session"]["headless"].Bool())
 		{

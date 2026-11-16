@@ -165,6 +165,9 @@ public:
 	bool checkNameFilter(const std::string & fullstring) const;
 
 private:
+	/// Returns map, save or campaign of a list entry in the form sent to the server
+	static ScenarioSelection makeSelection(const ElementInfo & element);
+
 	std::shared_ptr<CPicture> background;
 	std::shared_ptr<CSlider> slider;
 	std::vector<std::shared_ptr<CButton>> buttonsSortBy;
