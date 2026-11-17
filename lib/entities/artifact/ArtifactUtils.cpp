@@ -219,13 +219,19 @@ DLL_LINKAGE std::vector<const CArtifact*> ArtifactUtils::assemblyPossibilities(
 {
 	std::vector<const CArtifact*> arts;
 	const auto * art = aid.toArtifact();
-	if(art->isCombined())
+	if(art->isCombined() && !art->isFused())
 		return arts;
 
 	for(const auto combinedArt : art->getPartOf())
 	{
 		assert(combinedArt->isCombined());
 		if(isCombinationDisabled(settings, combinedArt->getId()))
+			continue;
+
+		if(vstd::contains_if(combinedArt->getConstituents(), [](const CArtifact * part)
+		{
+			return part->isCombined() && !part->isFused();
+		}))
 			continue;
 
 		bool possible = true;
