@@ -229,25 +229,34 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			if (object.maxPerZone == 0)
 				object.maxPerZone = std::numeric_limits<int>::max();
 
-			resolver.requestIdentifierIfFound("object", objectConfig["type"], [this, object, objectConfig, &resolver, &objects](int primaryID)
+			const bool hasRarity = !rmg["rarity"].isNull();
+			auto addObject = [this, hasRarity, &objects](ObjectInfo objectWithID)
+			{
+				// random dwellings replace native ones, so by default they are as common
+				if (!hasRarity && objectWithID.primaryID == Obj::RANDOM_DWELLING_LVL)
+					objectWithID.probability = NATIVE_DWELLING_RARITY;
+				addCustomObject(objectWithID, objects);
+			};
+
+			resolver.requestIdentifierIfFound("object", objectConfig["type"], [addObject, object, objectConfig, &resolver, &objects](int primaryID)
 			{
 				if (objectConfig["subtype"].isNull())
 				{
 					auto objectWithID = object;
 					objectWithID.primaryID = primaryID;
 					objectWithID.secondaryID = 0;
-					addCustomObject(objectWithID, objects);
+					addObject(objectWithID);
 				}
 				else
 				{
 					const std::string jsonKey = objects.getJsonKey(primaryID);
 
-					resolver.requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [this, primaryID, object, &objects](int secondaryID)
+					resolver.requestIdentifierIfFound(jsonKey, objectConfig["subtype"], [addObject, primaryID, object](int secondaryID)
 					{
 						auto objectWithID = object;
 						objectWithID.primaryID = primaryID;
 						objectWithID.secondaryID = secondaryID;
-						addCustomObject(objectWithID, objects);
+						addObject(objectWithID);
 					});
 				}
 			});

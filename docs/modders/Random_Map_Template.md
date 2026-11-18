@@ -246,6 +246,10 @@
 
 		// Configure individual common objects. 
 		// Any object in this list will be excluded from regular placement rules, similarly to bannedObjects
+		// A randomDwellingLvl entry becomes a dwelling of the zone's faction and replaces the native dwelling of that level,
+		// other native dwellings keep spawning as usual. Without rmg.value it is valued like that native dwelling
+		// (creature AI value x growth, increased by the number of zones of that faction), as in SoD.
+		// Without rmg.rarity it is as common as native dwellings (40)
 		"commonObjects":
 		[
 			{
@@ -275,16 +279,29 @@
 					"rarity"	: 100,
 					"zoneLimit" : 2
 				}
+			},
+			{
+				// level 7 dwelling of the zone's faction with custom value, at most 2 per zone
+				"type" : "randomDwellingLvl",
+				"subtype" : "objectLvl7",
+				"rmg" : {
+					"value"		: 15000,
+					"zoneLimit" : 2
+				}
 			}
 		],
 
 		// Required objects that will be added to this zone guarded according to rmg.value of the individual objects
+		// They are always generated, each one on its own, never as a part of a larger treasure pile
 		"requiredObjects" : {
 			"refugeeCamp" : 5,
 			// If there are several versions (e.g. standard and cannonYard) a random selection is chosen
 			"warMachineFactory" : 5,
 			// Versions can be specified with optional guard information
 			"creatureGeneratorCommon" : { "unicornGlade" : { "count" : 3, "guard" : 10000 } },
+			// Random dwellings become a dwelling of the zone's faction (randomDwellingLvl: of the given level)
+			// Without "guard", a randomDwellingLvl entry is guarded according to the value of that native dwelling (see commonObjects)
+			"randomDwellingLvl" : { "objectLvl7" : { "count" : 1, "guard" : 30000 } },
 			// Artifacts can be specified
 			"artifact" : { "headOfLegion" : 1, "armsOfLegion" : 1, "torsoOfLegion" : 1, "loinsOfLegion" : 1, "legsOfLegion" : 1 },
 			// Mod objects can be specified
