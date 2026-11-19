@@ -605,6 +605,9 @@ void Animation::initFromJson(const JsonNode & config)
 	base["width"] = config["width"];
 	base["height"] = config["height"];
 
+	if(config["images"].getOverrideFlag())
+		source.clear();
+
 	for(const JsonNode & group : config["sequences"].Vector())
 	{
 		size_t groupID = group["group"].Integer();//TODO: string-to-value conversion("moving" -> MOVING)
