@@ -36,6 +36,7 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 	Point margins;
 	//total size including borders
 	Point fullSize;
+	std::string sourceName = "generated image";
 
 	std::atomic_bool upscalingInProgress = false;
 	bool asyncUpscale = true;
@@ -66,7 +67,7 @@ class SDLImageShared final : public ISharedImage, public std::enable_shared_from
 
 public:
 	//Load image from def file
-	SDLImageShared(const CDefFile *data, size_t frame, size_t group=0);
+	SDLImageShared(const CDefFile * data, const AnimationPath & filename, size_t frame, size_t group = 0);
 	//Load from bitmap file
 	SDLImageShared(const ImagePath & filename, bool optimizeImage=true);
 	//Create using existing surface, extraRef will increase refcount on SDL_Surface
