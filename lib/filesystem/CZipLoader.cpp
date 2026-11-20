@@ -131,7 +131,9 @@ std::unordered_map<ResourcePath, unz64_file_pos> CZipLoader::listFiles(const std
 	auto closeArchive = vstd::makeScopeGuard([file]() { unzClose(file); });
 	const bool success = forEachZipEntry(file, [&ret, &mountPoint](const std::string & name, const unz64_file_pos & position)
 	{
-		ret.insert_or_assign(ResourcePath(mountPoint + name), position);
+		const auto fullName = mountPoint + name;
+		const auto resource = boost::algorithm::ends_with(name, "/") ? ResourcePath(fullName, EResType::DIRECTORY) : ResourcePath(fullName);
+		ret.insert_or_assign(resource, position);
 	});
 	if(!success)
 		logGlobal->error("Failed to read zip directory in '%s'", TextOperations::filesystemPathToUtf8(archive));
