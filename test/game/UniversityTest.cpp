@@ -22,9 +22,9 @@ class UniversityTest : public GameStateTest
 protected:
 	std::vector<SecondarySkill> rollUniversitySkills(GameRandomizer & randomizer)
 	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::UNIVERSITY, 0);
-		auto object = handler->create(gameState.get(), nullptr);
-		handler->configureObject(object.get(), randomizer);
+		auto & handler = LIBRARY->objtypeh->getHandlerFor(Obj::UNIVERSITY, 0);
+		auto object = handler.create(gameState.get(), nullptr);
+		handler.configureObject(object.get(), randomizer);
 
 		std::vector<SecondarySkill> result;
 		for(const auto & skill : dynamic_cast<const CGUniversity &>(*object).availableItemsIds(EMarketMode::RESOURCE_SKILL))

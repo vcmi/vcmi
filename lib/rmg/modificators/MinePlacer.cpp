@@ -58,10 +58,10 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 		const auto res = GameResID(mineInfo.first);
 		for(int i = 0; i < mineInfo.second; ++i)
 		{
-			std::vector<TObjectTypeHandler> compatibleMineHandlers;
+			std::vector<const AObjectTypeHandler *> compatibleMineHandlers;
 			for(auto & subObjID : LIBRARY->objtypeh->knownSubObjects(Obj::MINE))
 			{
-				auto handler = std::dynamic_pointer_cast<MineInstanceConstructor>(LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
+				const auto * handler = dynamic_cast<const MineInstanceConstructor *>(&LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
 				if(handler->getResourceType() == res)
 					compatibleMineHandlers.push_back(handler);
 			}
@@ -106,7 +106,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 		{
 			for(int rc = zone.getRand().nextInt(1, extraRes); rc > 0; --rc)
 			{
-				auto resource = std::dynamic_pointer_cast<CGResource>(LIBRARY->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(map.mapInstance->cb, nullptr));
+				auto resource = std::dynamic_pointer_cast<CGResource>(LIBRARY->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource).create(map.mapInstance->cb, nullptr));
 
 				RequiredObjectInfo roi;
 				roi.obj = resource;

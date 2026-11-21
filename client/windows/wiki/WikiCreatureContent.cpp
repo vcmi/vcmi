@@ -387,8 +387,7 @@ std::vector<std::shared_ptr<CIntObject>> buildCreatureContent( // NOSONAR (compl
 			const MapObjectID objType(objTypeId);
 			for(const MapObjectSubID subtype : LIBRARY->objtypeh->knownSubObjects(objType))
 			{
-				auto baseHandler = LIBRARY->objtypeh->getHandlerFor(objType, subtype);
-				auto handler = std::dynamic_pointer_cast<const DwellingInstanceConstructor>(baseHandler);
+				const auto * handler = dynamic_cast<const DwellingInstanceConstructor *>(&LIBRARY->objtypeh->getHandlerFor(objType, subtype));
 				if(!handler || !handler->producesCreature(creature))
 					continue;
 
@@ -399,7 +398,7 @@ std::vector<std::shared_ptr<CIntObject>> buildCreatureContent( // NOSONAR (compl
 					if(!templates.empty())
 						icon = templates[0]->animationFile;
 				}
-				dwellings.push_back({handler.get(), icon});
+				dwellings.push_back({handler, icon});
 			}
 		}
 

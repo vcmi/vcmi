@@ -5,6 +5,7 @@
 		"index" : 11,
 		"handler": "configurable",
 		"base" : {
+			"visitableFromTop" : true,
 			"sounds" : {
 				"ambient" : ["LOOPBUOY"],
 				"visit" : ["MORALE"]

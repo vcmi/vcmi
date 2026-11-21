@@ -620,12 +620,12 @@ std::shared_ptr<CIntObject> CKingdomInterface::createMainTab(size_t index)
 	}
 }
 
-std::shared_ptr<MineInstanceConstructor> CKingdomInterface::getMineHandler(const GameResID & res)
+const MineInstanceConstructor * CKingdomInterface::getMineHandler(const GameResID & res)
 {
-	std::shared_ptr<MineInstanceConstructor> mineHandler;
+	const MineInstanceConstructor * mineHandler = nullptr;
 	for(auto & subObjID : LIBRARY->objtypeh->knownSubObjects(Obj::MINE))
 	{
-		auto handler = std::dynamic_pointer_cast<MineInstanceConstructor>(LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
+		const auto * handler = dynamic_cast<const MineInstanceConstructor *>(&LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
 		if(handler->getResourceType() == res)
 			mineHandler = handler;
 	}

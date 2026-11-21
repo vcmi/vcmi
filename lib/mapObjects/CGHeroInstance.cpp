@@ -397,7 +397,7 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, const HeroTypeID
 	initHero(gameRandomizer, isFake);
 }
 
-TObjectTypeHandler CGHeroInstance::getObjectHandler() const
+const AObjectTypeHandler & CGHeroInstance::getObjectHandler() const
 {
 	if (ID == Obj::HERO)
 		return LIBRARY->objtypeh->getHandlerFor(ID, getHeroClass()->getIndex());
@@ -407,9 +407,9 @@ TObjectTypeHandler CGHeroInstance::getObjectHandler() const
 
 void CGHeroInstance::updateAppearance()
 {
-	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
+	auto & handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
 	auto terrain = cb->getTile(visitablePos())->getTerrainID();
-	auto app = handler->getOverride(terrain, this);
+	auto app = handler.getOverride(terrain, this);
 	if (app)
 		appearance = app;
 }
@@ -423,8 +423,8 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 
 	if (ID == Obj::HERO)
 	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
-		appearance = handler->getTemplates().front();
+		auto & handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClass()->getIndex());
+		appearance = handler.getTemplates().front();
 	}
 
 	if(!vstd::contains(spells, SpellID::PRESET))
@@ -1934,7 +1934,7 @@ void CGHeroInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 		if(!appearance)
 		{
 			// crossoverDeserialize
-			appearance = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClassID())->getTemplates().front();
+			appearance = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, getHeroClassID()).getTemplates().front();
 		}
 	}
 

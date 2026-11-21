@@ -561,8 +561,8 @@ void Inspector::updateProperties()
 
 	if(obj->ID != Obj::HERO_PLACEHOLDER && !dynamic_cast<CGHeroInstance*>(obj))
 	{
-		auto factory = LIBRARY->objtypeh->getHandlerFor(obj->ID, obj->subID);
-		addProperty(QObject::tr("IsStatic"), factory->isStaticObject());
+		auto & factory = LIBRARY->objtypeh->getHandlerFor(obj->ID, obj->subID);
+		addProperty(QObject::tr("IsStatic"), factory.isStaticObject());
 	}
 
 	addProperty(QObject::tr("Owner"), obj->tempOwner, new OwnerDelegate(controller), true);

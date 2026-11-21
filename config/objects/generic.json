@@ -22,6 +22,7 @@
 		"index" :6,
 		"handler" : "pandora",
 		"base" : {
+			"visitableFromTop" : true,
 			"sounds" : {
 				"visit" : ["MYSTERY"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -43,6 +44,9 @@
 	"event" : {
 		"index" :26,
 		"handler" : "event",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -57,6 +61,7 @@
 		"index" :111,
 		"handler" : "whirlpool",
 		"base" : {
+			"visitableFromTop" : true,
 			"sounds" : {
 				"ambient" : ["LOOPWHIR"],
 				"visit" : ["DANGER"]
@@ -186,6 +191,7 @@
 		"index" :59,
 		"handler" : "sign",
 		"base" : {
+			"visitableFromTop" : true,
 			"sounds" : {
 				"visit" : ["STORE"]
 			}
@@ -288,6 +294,7 @@
 		"index" :215,
 		"handler" : "questGuard",
 		"base" : {
+			"visitableFromTop" : true,
 			"sounds" : {
 				"visit" : ["CAVEHEAD"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]
@@ -308,6 +315,9 @@
 	"randomHero" : {
 		"index" :70,
 		"handler": "randomHero",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -334,6 +344,9 @@
 	"randomArtifact" : {
 		"index" :65,
 		"handler": "randomArtifact",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -346,6 +359,9 @@
 	"randomArtifactTreasure" : {
 		"index" :66,
 		"handler": "randomArtifact",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -363,6 +379,9 @@
 	"randomArtifactMinor" : {
 		"index" :67,
 		"handler": "randomArtifact",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -380,6 +399,9 @@
 	"randomArtifactMajor" : {
 		"index" :68,
 		"handler": "randomArtifact",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -397,6 +419,9 @@
 	"randomArtifactRelic" : {
 		"index" :69,
 		"handler": "randomArtifact",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -415,6 +440,9 @@
 	"randomMonster" : {
 		"index" :71,
 		"handler": "randomMonster",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -427,6 +455,9 @@
 	"randomMonsterLevel1" : {
 		"index" :72,
 		"handler": "randomMonster",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -440,6 +471,9 @@
 	"randomMonsterLevel2" : {
 		"index" :73,
 		"handler": "randomMonster",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -453,6 +487,9 @@
 	"randomMonsterLevel3" : {
 		"index" :74,
 		"handler": "randomMonster",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -466,6 +503,9 @@
 	"randomMonsterLevel4" : {
 		"index" :75,
 		"handler": "randomMonster",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -479,6 +519,9 @@
 	"randomMonsterLevel5" : {
 		"index" :162,
 		"handler": "randomMonster",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -491,6 +534,9 @@
 	"randomMonsterLevel6" : {
 		"index" :163,
 		"handler": "randomMonster",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -504,6 +550,9 @@
 	"randomMonsterLevel7" : {
 		"index" :164,
 		"handler": "randomMonster",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,

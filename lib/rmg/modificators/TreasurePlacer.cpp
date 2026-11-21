@@ -141,10 +141,10 @@ void TreasurePlacer::addCommonObjects()
 			continue;
 		for(auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
-			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
-			if(!handler->isStaticObject() && handler->getRMGInfo().value)
+			auto & handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
+			if(!handler.isStaticObject() && handler.getRMGInfo().value)
 			{
-				auto rmgInfo = handler->getRMGInfo();
+				auto rmgInfo = handler.getRMGInfo();
 				if (rmgInfo.mapLimit || rmgInfo.value > zone.getMaxTreasureValue())
 				{
 					//Skip objects with per-map limit here
@@ -168,7 +168,7 @@ void TreasurePlacer::setBasicProperties(ObjectInfo & oi, CompoundMapObjectID obj
 {
 	oi.generateObject = [this, objid]() -> std::shared_ptr<CGObjectInstance>
 	{
-		auto obj = LIBRARY->objtypeh->getHandlerFor(objid)->create(map.mapInstance->cb, nullptr);
+		auto obj = LIBRARY->objtypeh->getHandlerFor(objid).create(map.mapInstance->cb, nullptr);
 		// adjust ownership for ownable objects (such as dwellings)
 		if (obj->asOwnable() && obj->tempOwner == PlayerColor::UNFLAGGABLE)
 			obj->setOwner(PlayerColor::NEUTRAL);		
@@ -180,7 +180,7 @@ void TreasurePlacer::setBasicProperties(ObjectInfo & oi, CompoundMapObjectID obj
 void TreasurePlacer::addPrisons()
 {
 	//Generate Prison on water only if it has a template
-	auto prisonTemplates = LIBRARY->objtypeh->getHandlerFor(Obj::PRISON, 0)->getTemplates(zone.getTerrainType());
+	auto prisonTemplates = LIBRARY->objtypeh->getHandlerFor(Obj::PRISON, 0).getTemplates(zone.getTerrainType());
 	if (!prisonTemplates.empty())
 	{
 		PrisonHeroPlacer * prisonHeroPlacer = nullptr;
@@ -211,8 +211,8 @@ void TreasurePlacer::addPrisons()
 			oi.generateObject = [i, this, prisonHeroPlacer]() -> std::shared_ptr<CGObjectInstance>
 			{
 				HeroTypeID hid = prisonHeroPlacer->drawRandomHero();
-				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::PRISON, 0);
-				auto obj = std::dynamic_pointer_cast<CGHeroInstance>(factory->create(map.mapInstance->cb, nullptr));
+				auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::PRISON, 0);
+				auto obj = std::dynamic_pointer_cast<CGHeroInstance>(factory.create(map.mapInstance->cb, nullptr));
 
 				obj->setHeroType(hid); //will be initialized later
 				obj->exp = generator.getConfig().prisonExperience[i];
@@ -271,7 +271,7 @@ void TreasurePlacer::addDwellings()
 		
 		for(auto secondaryID : subObjects)
 		{
-			const auto * dwellingHandler = dynamic_cast<const DwellingInstanceConstructor *>(LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID).get());
+			const auto * dwellingHandler = dynamic_cast<const DwellingInstanceConstructor *>(&LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID));
 			auto creatures = dwellingHandler->getProducedCreatures();
 			if(creatures.empty())
 				continue;
@@ -283,7 +283,7 @@ void TreasurePlacer::addDwellings()
 				ObjectInfo oi(dwellingType, secondaryID);
 				setBasicProperties(oi, CompoundMapObjectID(dwellingType, secondaryID));
 
-				auto rmgInfo = LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID)->getRMGInfo();
+				auto rmgInfo = LIBRARY->objtypeh->getHandlerFor(dwellingType, secondaryID).getRMGInfo();
 				// rmg info set for dwelling
 				if(rmgInfo.value)
 				{
@@ -421,8 +421,8 @@ std::optional<TreasurePlacer::CustomPandoraBox> TreasurePlacer::readCustomPandor
 
 std::shared_ptr<CGPandoraBox> TreasurePlacer::createPandoraBox() const
 {
-	auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-	return std::dynamic_pointer_cast<CGPandoraBox>(factory->create(map.mapInstance->cb, nullptr));
+	auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
+	return std::dynamic_pointer_cast<CGPandoraBox>(factory.create(map.mapInstance->cb, nullptr));
 }
 
 void TreasurePlacer::addCustomPandoraBoxes()
@@ -761,8 +761,8 @@ void TreasurePlacer::addSeerHuts()
 
 			oi.generateObject = [cb=map.mapInstance->cb, creature, creaturesAmount, randomAppearance, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
-				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<SeerHut>(factory->create(cb, nullptr));
+				auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
+				auto obj = std::dynamic_pointer_cast<SeerHut>(factory.create(cb, nullptr));
 				
 				Rewardable::VisitInfo reward;
 				reward.reward.creatures.emplace_back(creature->getId(), creaturesAmount);
@@ -796,8 +796,8 @@ void TreasurePlacer::addSeerHuts()
 			
 			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
-				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<SeerHut>(factory->create(map.mapInstance->cb, nullptr));
+				auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
+				auto obj = std::dynamic_pointer_cast<SeerHut>(factory.create(map.mapInstance->cb, nullptr));
 				
 				Rewardable::VisitInfo reward;
 				reward.reward.heroExperience = generator.getConfig().questRewardValues[i];
@@ -814,8 +814,8 @@ void TreasurePlacer::addSeerHuts()
 			
 			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
 			{
-				auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<SeerHut>(factory->create(map.mapInstance->cb, nullptr));
+				auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
+				auto obj = std::dynamic_pointer_cast<SeerHut>(factory.create(map.mapInstance->cb, nullptr));
 				
 				Rewardable::VisitInfo reward;
 				reward.reward.resources[EGameResID::GOLD] = generator.getConfig().questRewardValues[i];
@@ -911,12 +911,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 		if(!oi) //fail
 			break;
 		
-		bool visitableFromTop = true;
-		for(auto & t : oi->templates)
-			if(!t->isVisitableFromTop())
-				visitableFromTop = false;
-		
-		if(visitableFromTop)
+		if(isVisitableFromTop(oi->templates))
 		{
 			objectInfos.push_back(oi);
 		}
@@ -977,7 +972,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			continue;
 		}
 		
-		auto templates = object->getObjectHandler()->getMostSpecificTemplates(zone.getTerrainType());
+		auto templates = object->getObjectHandler().getMostSpecificTemplates(zone.getTerrainType());
 
 		if (templates.empty())
 		{
@@ -1052,7 +1047,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			auto instanceAccessibleArea = instance.getAccessibleArea();
 			if(instance.getBlockedArea().getTilesVector().size() == 1)
 			{
-				if(instance.object().appearance->isVisitableFromTop() && !instance.object().isBlockedVisitable())
+				if(instance.object().isVisitableFromTop() && !instance.object().isBlockedVisitable())
 					instanceAccessibleArea.add(instance.getVisitablePosition());
 			}
 			
@@ -1070,6 +1065,11 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 	return rmgObject;
 }
 
+bool TreasurePlacer::isVisitableFromTop(const std::vector<std::shared_ptr<const ObjectTemplate>> & templates)
+{
+	return std::ranges::all_of(templates, [](const auto & t){ return LIBRARY->objtypeh->getHandlerFor(t->id, t->subid).isVisitableFromTop(); });
+}
+
 ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects)
 {
 	std::vector<std::pair<ui32, ObjectInfo*>> thresholds; //handle complex object via pointer
@@ -1084,12 +1084,7 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 		if(oi.value > maxVal)
 			break; //this assumes values are sorted in ascending order
 		
-		bool visitableFromTop = true;
-		for(auto & t : oi.templates)
-			if(!t->isVisitableFromTop())
-				visitableFromTop = false;
-		
-		if(!visitableFromTop && !allowLargeObjects)
+		if(!isVisitableFromTop(oi.templates) && !allowLargeObjects)
 			continue;
 		
 		if(oi.value >= minValue && oi.maxPerZone > 0)

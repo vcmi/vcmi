@@ -183,7 +183,7 @@ TEST_F(TreasurePlacerTest, MapOptionsLoadIntoPandoraBox)
 
 	JsonNode objectJson;
 	objectJson["options"] = entry(R"({ "spells" : [ "townPortal" ], "experience" : 1000 })");
-	std::shared_ptr<CGObjectInstance> object = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0)->create(nullptr, nullptr);
+	std::shared_ptr<CGObjectInstance> object = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0).create(nullptr, nullptr);
 	auto box = std::dynamic_pointer_cast<CGPandoraBox>(object);
 	ASSERT_NE(box, nullptr);
 

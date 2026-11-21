@@ -58,9 +58,9 @@ void FlaggableMapObject::initObj(IGameRandomizer & gameRandomizer)
 	initBonuses();
 }
 
-std::shared_ptr<FlaggableInstanceConstructor> FlaggableMapObject::getFlaggableHandler() const
+const FlaggableInstanceConstructor * FlaggableMapObject::getFlaggableHandler() const
 {
-	return std::dynamic_pointer_cast<FlaggableInstanceConstructor>(getObjectHandler());
+	return dynamic_cast<const FlaggableInstanceConstructor *>(&getObjectHandler());
 }
 
 void FlaggableMapObject::initBonuses()

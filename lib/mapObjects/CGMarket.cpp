@@ -34,7 +34,7 @@ ObjectInstanceID CGMarket::getObjInstanceID() const
 
 void CGMarket::initObj(IGameRandomizer & gameRandomizer)
 {
-	getObjectHandler()->configureObject(this, gameRandomizer);
+	getObjectHandler().configureObject(this, gameRandomizer);
 }
 
 void CGMarket::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -95,12 +95,10 @@ double CGMarket::getMarketExchangeEffectiveness() const
 	return IMarket::getMarketExchangeEffectiveness();
 }
 
-std::shared_ptr<MarketInstanceConstructor> CGMarket::getMarketHandler() const
+const MarketInstanceConstructor * CGMarket::getMarketHandler() const
 {
 	// null if object type was changed to non-market since the save was made, e.g. by mod update
-	const auto & baseHandler = getObjectHandler();
-	const auto & ourHandler = std::dynamic_pointer_cast<MarketInstanceConstructor>(baseHandler);
-	return ourHandler;
+	return dynamic_cast<const MarketInstanceConstructor *>(&getObjectHandler());
 }
 
 std::set<EMarketMode> CGMarket::availableModes() const

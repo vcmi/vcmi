@@ -75,7 +75,7 @@ void ShrineWidget::commitChanges()
 si64 ShrineWidget::getSpellLevel()
 {
 	static const QString genericWarningMessage = tr("MapEditor was unable to read intended spell level for this shrine type");
-	std::unique_ptr<IObjectInfo> objectInfo = LIBRARY->objtypeh->getHandlerFor(shrine.ID, shrine.subID)->getObjectInfo();
+	std::unique_ptr<IObjectInfo> objectInfo = LIBRARY->objtypeh->getHandlerFor(shrine.ID, shrine.subID).getObjectInfo();
 	JsonNode spellLevelNode;
 	try
 	{

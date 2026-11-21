@@ -5,6 +5,7 @@
 		"index" : 12,
 		"handler": "configurable",
 		"base" : {
+			"visitableFromTop" : true,
 			"blockedVisitable" : true,
 			"removable": true,
 			"sounds" : {
@@ -118,6 +119,7 @@
 		"index" : 29,
 		"handler": "configurable",
 		"base" : {
+			"visitableFromTop" : true,
 			"blockedVisitable" : true,
 			"removable": true,
 			"sounds" : {
@@ -180,6 +182,7 @@
 		"index" : 82,
 		"handler": "configurable",
 		"base" : {
+			"visitableFromTop" : true,
 			"blockedVisitable" : true,
 			"removable": true,
 			"sounds" : {
@@ -241,6 +244,7 @@
 		"index" : 86,
 		"handler": "configurable",
 		"base" : {
+			"visitableFromTop" : true,
 			"blockedVisitable" : true,
 			"removable": true,
 			"sounds" : {
@@ -305,6 +309,7 @@
 		"index" : 101,
 		"handler": "configurable",
 		"base" : {
+			"visitableFromTop" : true,
 			"removable": true,
 			"sounds" : {
 				"visit" : ["CHEST"],

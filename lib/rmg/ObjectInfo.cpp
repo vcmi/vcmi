@@ -59,20 +59,14 @@ ObjectInfo & ObjectInfo::operator=(const ObjectInfo & other)
 
 void ObjectInfo::setAllTemplates(const CObjectClassesHandler & objects, MapObjectID type, MapObjectSubID subtype)
 {
-	auto templHandler = objects.getHandlerFor(type, subtype);
-	if(!templHandler)
-		return;
-	
-	templates = templHandler->getTemplates();
+	auto & templHandler = objects.getHandlerFor(type, subtype);
+	templates = templHandler.getTemplates();
 }
 
 void ObjectInfo::setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrainType)
 {
-	auto templHandler = LIBRARY->objtypeh->getHandlerFor(type, subtype);
-	if(!templHandler)
-		return;
-	
-	templates = templHandler->getTemplates(terrainType);
+	auto & templHandler = LIBRARY->objtypeh->getHandlerFor(type, subtype);
+	templates = templHandler.getTemplates(terrainType);
 }
 
 CompoundMapObjectID ObjectInfo::getCompoundID() const

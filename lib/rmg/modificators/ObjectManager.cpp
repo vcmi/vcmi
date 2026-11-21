@@ -663,12 +663,12 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				//Cannot be trespassed (Corpse)
 				continue;
 			}
-			else if(instance->object().appearance->isVisitableFromTop())
+			else if(instance->object().isVisitableFromTop())
 			{
 				//Passable objects
 				rp->areaForRoads().add(instance->getVisitablePosition());
 			}
-			else if(!instance->object().appearance->isVisitableFromTop())
+			else if(!instance->object().isVisitableFromTop())
 			{
 				// Do not route road behind visitable tile
 				auto borderAbove = instance->getBorderAbove();
@@ -789,9 +789,9 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 		amount = strength / creId.toEntity(LIBRARY)->getAIValue();
 	}
 	
-	auto guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);
+	auto & guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);
 
-	auto guard = std::dynamic_pointer_cast<CGCreature>(guardFactory->create(map.mapInstance->cb, nullptr));
+	auto guard = std::dynamic_pointer_cast<CGCreature>(guardFactory.create(map.mapInstance->cb, nullptr));
 	guard->initialCharacter = CGCreature::Character::HOSTILE;
 	if(!zoneGuard)
 		zone.getMonsterJoining().applyTo(*guard);

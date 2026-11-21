@@ -418,7 +418,7 @@ bool CMap::checkForVisitableDir(const int3 & src, const TerrainTile * pom, const
 		if(!vstd::contains(pom->blockingObjects, objID)) //this visitable object is not blocking, ignore
 			continue;
 
-		if (!getObject(objID)->appearance->isVisitableFrom(src.x - dst.x, src.y - dst.y))
+		if (src.y < dst.y && !getObject(objID)->isVisitableFromTop())
 			return false;
 	}
 	return true;

@@ -28,13 +28,8 @@ ObjectConfig::EObjectCategory getObjectCategory(CompoundMapObjectID id)
 
 	if (name == "configurable")
 	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(id.primaryID, id.secondaryID);
-		if (!handler)
-		{
-			return ObjectConfig::EObjectCategory::NONE;
-		}
-
-		auto info = handler->getObjectInfo();
+		auto & handler = LIBRARY->objtypeh->getHandlerFor(id.primaryID, id.secondaryID);
+		auto info = handler.getObjectInfo();
 
 		if (info->hasGuards())
 		{
@@ -291,8 +286,8 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 				{
 					if(secondaryID != -1)
 					{
-						auto objectHandler = objects.getHandlerFor(MapObjectID(primaryID), MapObjectSubID(secondaryID));
-						const std::string subtypeKey = objectHandler->getSubTypeName();
+						auto & objectHandler = objects.getHandlerFor(MapObjectID(primaryID), MapObjectSubID(secondaryID));
+						const std::string subtypeKey = objectHandler.getSubTypeName();
 						JsonNode flag(banned);
 						objStruct->serializeRaw(subtypeKey, flag, std::nullopt);
 					}
@@ -343,8 +338,8 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			std::string objectType = objects.getJsonKey(object.primaryID);
 			objectStruct->serializeString("type", objectType);
 			
-			auto handler = objects.getHandlerFor(MapObjectID(object.primaryID), MapObjectSubID(object.secondaryID));
-			std::string subtypeName = handler->getSubTypeName();
+			auto & handler = objects.getHandlerFor(MapObjectID(object.primaryID), MapObjectSubID(object.secondaryID));
+			std::string subtypeName = handler.getSubTypeName();
 			objectStruct->serializeString("subtype", subtypeName);
 			
 			auto rmgStruct = objectStruct->enterStruct("rmg");
@@ -503,8 +498,8 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			{
 				std::string jsonKey = objects.getJsonKey(objId.primaryID);
 				auto entryStruct = requiredObjectsStruct->enterStruct(jsonKey);
-				auto objHandler = objects.getHandlerFor(objId);
-				std::string jsonSubKey = objHandler->getJsonKey();
+				auto & objHandler = objects.getHandlerFor(objId);
+				std::string jsonSubKey = objHandler.getJsonKey();
 				auto subEntryStruct = requiredObjectsStruct->enterStruct(jsonSubKey);
 
 				ui16 countVal = info.first;

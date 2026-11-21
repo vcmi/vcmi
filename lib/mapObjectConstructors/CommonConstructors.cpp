@@ -29,7 +29,7 @@
 #include "../texts/TextIdentifier.h"
 #include "../texts/CGeneralTextHandler.h"
 
-bool CObstacleConstructor::isStaticObject()
+bool CObstacleConstructor::isStaticObject() const
 {
 	return true;
 }

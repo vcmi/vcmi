@@ -76,7 +76,7 @@ int chooseRandomAppearance(vstd::RNG & generator, si32 ObjID, TerrainId terrain)
 	vstd::erase_if(factories, [ObjID, &terrain](si32 f)
 	{
 		//TODO: Use templates with lowest number of terrains (most specific)
-		return LIBRARY->objtypeh->getHandlerFor(ObjID, f)->getTemplates(terrain).empty();
+		return LIBRARY->objtypeh->getHandlerFor(ObjID, f).getTemplates(terrain).empty();
 	});
 	
 	return *RandomGeneratorUtil::nextItem(factories, generator);
@@ -121,8 +121,8 @@ ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level)
 
 std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell)
 {
-	auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
-	auto obj = std::dynamic_pointer_cast<CGArtifact>(factory->create(map.mapInstance->cb, nullptr));
+	auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
+	auto obj = std::dynamic_pointer_cast<CGArtifact>(factory.create(map.mapInstance->cb, nullptr));
 	auto * a = map.getMapProxy()->createScroll(spell);
 	obj->setArtifactInstance(a);
 	return obj;

@@ -864,7 +864,7 @@ void CTownHandler::loadObject(LibraryLoadContext & context, const std::string & 
 				logMod->warn("Outdated town mod. Will try to generate valid templates out of fort");
 				JsonNode config;
 				config["animation"] = advMap["castle"];
-				context.lib.objtypeh->getHandlerFor(index, object->index)->addTemplate(context, config);
+				context.lib.objtypeh->getHandlerFor(index, object->index).addTemplate(context, config);
 			}
 		});
 	}

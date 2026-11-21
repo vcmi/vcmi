@@ -22,33 +22,7 @@
 #include "../modding/IdentifierResolver.h"
 
 
-static bool isOnVisitableFromTopList(Obj identifier, int type)
-{
-	if(type == 2 || type == 3 || type == 4 || type == 5) //creature, hero, artifact, resource
-		return true;
-
-	static const Obj visitableFromTop[] =
-		{Obj::FLOTSAM,
-		Obj::SEA_CHEST,
-		Obj::SHIPWRECK_SURVIVOR,
-		Obj::BUOY,
-		Obj::OCEAN_BOTTLE,
-		Obj::BOAT,
-		Obj::WHIRLPOOL,
-		Obj::GARRISON,
-		Obj::GARRISON2,
-		Obj::SCHOLAR,
-		Obj::CAMPFIRE,
-		Obj::BORDERGUARD,
-		Obj::BORDER_GATE,
-		Obj::QUEST_GUARD,
-		Obj::CORPSE
-	};
-	return vstd::find_pos(visitableFromTop, identifier) != -1;
-}
-
 ObjectTemplate::ObjectTemplate():
-	visitDir(8|16|32|64|128), // all but top
 	id(Obj::NO_OBJ),
 	subid(0),
 	printPriority(0),
@@ -64,7 +38,6 @@ void ObjectTemplate::afterLoadFixup()
 	{
 		setSize(1,1);
 		usedTiles[0][0] = VISITABLE | VISIBLE;
-		visitDir = 0xFF;
 	}
 }
 
@@ -116,13 +89,7 @@ void ObjectTemplate::readTxt(CLegacyConfigParser & parser, const ISimpleResource
 
 	id    = Obj(std::stoi(strings[5]));
 	subid = std::stoi(strings[6]);
-	int type  = std::stoi(strings[7]);
 	printPriority = std::stoi(strings[8]) * 100; // to have some space in future
-
-	if (isOnVisitableFromTopList(id, type))
-		visitDir = 0xff;
-	else
-		visitDir = (8|16|32|64|128);
 
 	readMsk(filesystem);
 	recalculate();
@@ -182,13 +149,8 @@ void ObjectTemplate::readMap(CBinaryReader & reader)
 
 	id = Obj(reader.readUInt32());
 	subid = reader.readUInt32();
-	int type = reader.readUInt8();
+	reader.readUInt8(); // object group
 	printPriority = reader.readUInt8() * 100; // to have some space in future
-
-	if (isOnVisitableFromTopList(id, type))
-		visitDir = 0xff;
-	else
-		visitDir = (8|16|32|64|128);
 
 	reader.skip(16);
 	readMsk(*CResourceHandler::get());
@@ -201,21 +163,6 @@ void ObjectTemplate::readJson(const JsonNode &node, IIdentifierResolver & resolv
 {
 	animationFile = AnimationPath::fromJson(node["animation"]);
 	editorAnimationFile = AnimationPath::fromJson(node["editorAnimation"]);
-
-	const JsonVector & visitDirs = node["visitableFrom"].Vector();
-	if (!visitDirs.empty())
-	{
-		if (visitDirs[0].String()[0] == '+') visitDir |= 1;
-		if (visitDirs[0].String()[1] == '+') visitDir |= 2;
-		if (visitDirs[0].String()[2] == '+') visitDir |= 4;
-		if (visitDirs[1].String()[2] == '+') visitDir |= 8;
-		if (visitDirs[2].String()[2] == '+') visitDir |= 16;
-		if (visitDirs[2].String()[1] == '+') visitDir |= 32;
-		if (visitDirs[2].String()[0] == '+') visitDir |= 64;
-		if (visitDirs[1].String()[0] == '+') visitDir |= 128;
-	}
-	else
-		visitDir = 0x00;
 
 	anyLandTerrain = true;
 	if(withTerrain)
@@ -277,26 +224,6 @@ void ObjectTemplate::writeJson(JsonNode & node, const bool withTerrain) const
 	node["animation"].String() = animationFile.getOriginalName();
 	node["editorAnimation"].String() = editorAnimationFile.getOriginalName();
 
-	if(visitDir != 0x0 && isVisitable())
-	{
-		JsonVector & visitDirs = node["visitableFrom"].Vector();
-		visitDirs.resize(3);
-
-		visitDirs[0].String().resize(3);
-		visitDirs[1].String().resize(3);
-		visitDirs[2].String().resize(3);
-
-		visitDirs[0].String()[0] = (visitDir & 1)   ? '+' : '-';
-		visitDirs[0].String()[1] = (visitDir & 2)   ? '+' : '-';
-		visitDirs[0].String()[2] = (visitDir & 4)   ? '+' : '-';
-		visitDirs[1].String()[2] = (visitDir & 8)   ? '+' : '-';
-		visitDirs[2].String()[2] = (visitDir & 16)  ? '+' : '-';
-		visitDirs[2].String()[1] = (visitDir & 32)  ? '+' : '-';
-		visitDirs[2].String()[0] = (visitDir & 64)  ? '+' : '-';
-		visitDirs[1].String()[0] = (visitDir & 128) ? '+' : '-';
-
-		visitDirs[1].String()[1] = '-';
-	}
 
 	if(withTerrain)
 	{
@@ -489,26 +416,6 @@ void ObjectTemplate::calculateBlockMapOffset()
 	blockMapOffset = int3(0, 0, 0);
 }
 
-bool ObjectTemplate::isVisitableFrom(si8 X, si8 Y) const
-{
-	// visitDir uses format
-	// 1 2 3
-	// 8   4
-	// 7 6 5
-	//TODO: static? cached?
-	int dirMap[3][3] =
-	{
-		{ visitDir &   1, visitDir &   2, visitDir &   4 },
-		{ visitDir & 128,        1      , visitDir &   8 },
-		{ visitDir &  64, visitDir &  32, visitDir &  16 }
-	};
-	// map input values to range 0..2
-	int dx = X < 0 ? 0 : X == 0 ? 1 : 2;
-	int dy = Y < 0 ? 0 : Y == 0 ? 1 : 2;
-
-	return dirMap[dy][dx] != 0;
-}
-
 void ObjectTemplate::calculateTopVisibleOffset()
 {
 	for(int y = static_cast<int>(getHeight()) - 1; y >= 0; y--) //Templates start from bottom-right corner
@@ -592,7 +499,4 @@ void ObjectTemplate::recalculate()
 	calculateVisitableOffset();
 	calculateTopVisibleOffset();
 	calculateDrawLayers();
-
-	if (visitable && visitDir == 0)
-		logMod->warn("Template for %s is visitable but has no visitable directions!", animationFile.getOriginalName());
 }

@@ -78,21 +78,21 @@ void MapIdentifiersH3M::loadMapping(const GameLibrary & library, const JsonNode 
 		{
 			for (auto entryInner : entryOuter.second.Struct())
 			{
-				auto handler = library.objtypeh->getHandlerFor(*library.identifiers(), entryInner.second.getModScope(), entryOuter.first, entryInner.first);
+				auto & handler = library.objtypeh->getHandlerFor(*library.identifiers(), entryInner.second.getModScope(), entryOuter.first, entryInner.first);
 
 				auto entryValues = entryInner.second.Vector();
 				ObjectTypeIdentifier h3mID{Obj(entryValues[0].Integer()), int32_t(entryValues[1].Integer())};
-				ObjectTypeIdentifier vcmiID{Obj(handler->getIndex()), handler->getSubIndex()};
+				ObjectTypeIdentifier vcmiID{Obj(handler.getIndex()), handler.getSubIndex()};
 				mappingObjectIndex[h3mID] = vcmiID;
 			}
 		}
 		else
 		{
-			auto handler = library.objtypeh->getHandlerFor(*library.identifiers(), entryOuter.second.getModScope(), entryOuter.first, entryOuter.first);
+			auto & handler = library.objtypeh->getHandlerFor(*library.identifiers(), entryOuter.second.getModScope(), entryOuter.first, entryOuter.first);
 
 			auto entryValues = entryOuter.second.Vector();
 			ObjectTypeIdentifier h3mID{Obj(entryValues[0].Integer()), int32_t(entryValues[1].Integer())};
-			ObjectTypeIdentifier vcmiID{Obj(handler->getIndex()), handler->getSubIndex()};
+			ObjectTypeIdentifier vcmiID{Obj(handler.getIndex()), handler.getSubIndex()};
 			mappingObjectIndex[h3mID] = vcmiID;
 		}
 	}
