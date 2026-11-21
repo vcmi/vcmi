@@ -65,6 +65,20 @@
 			{ "a" : "2", "b" : "5", "guard" : 45000 },
 			{ "a" : "3", "b" : "5", "guard" : 45000 },
 			{ "a" : "4", "b" : "5", "guard" : 45000 }
-		]
+		],
+		"customObjects" :
+		{
+			"commonObjects":
+			[
+				{
+					"type" : "lighthouse",
+					"rmg" : {
+						"rarity" : 10000,
+						"value": 1000,
+						"zoneLimit": 100
+					}
+				}
+			]
+		}
 	}
 }
