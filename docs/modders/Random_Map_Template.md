@@ -238,6 +238,7 @@ The `customObjects` block can be set at the template root and in a zone. The tem
 - `bannedCategories` are combined.
 - `bannedObjects`, `commonObjects` and `requiredObjects` entries replace the template entry with the same id. A zone `bannedObjects` value of `false` lifts a template ban, including a category ban, for that object. A `requiredObjects` count of 0 removes an inherited entry.
 - `pandoraBoxes` are concatenated: template entries first, then zone entries.
+- `spellScrolls` replace the template entry with the same spell; bans never remove `spellScrolls` or required scrolls.
 
 ```json
 {
@@ -311,6 +312,14 @@ The `customObjects` block can be set at the template root and in a zone. The tem
 		}
 	],
 
+	// Spell scrolls added to the zone treasure pool with a fixed spell, on top of the built-in scrolls (see below)
+	"spellScrolls" :
+	[
+		{ "spell" : "townPortal", "rmg" : { "rarity" : 9999, "zoneLimit" : 1 } },
+		{ "spell" : "fly", "rmg" : { "value" : 6000 } },
+		{ "spell" : "magicArrow" }
+	],
+
 	// Required objects that will be added to this zone guarded according to rmg.value of the individual objects
 	// They are always generated, each one on its own, never as a part of a larger treasure pile
 	// count 0 removes a required object inherited from the template
@@ -325,6 +334,8 @@ The `customObjects` block can be set at the template root and in a zone. The tem
 		"randomDwellingLvl" : { "objectLvl7" : { "count" : 1, "guard" : 30000 } },
 		// Artifacts can be specified
 		"artifact" : { "headOfLegion" : 1, "armsOfLegion" : 1, "torsoOfLegion" : 1, "loinsOfLegion" : 1, "legsOfLegion" : 1 },
+		// Spell scrolls: keys are spells; without "guard" the guard follows the scroll's default value
+		"spellScroll" : { "dimensionDoor" : 2, "townPortal" : { "count" : 1, "guard" : 20000 } },
 		// Mod objects can be specified
 		"hota.mapobjects:townGate" : { "count" : 1, "guard" : 100000 }
 	},
@@ -371,3 +382,16 @@ The `rmg` block:
 A box is gold-only when its only content is `resources` with only `gold`, and experience-only when its only content is `experience`. Gold-only, experience-only and `nativeCreatures` boxes have default values. An entry without a default `value` or `rarity` that does not set it is ignored with an error in the log.
 
 Bans never remove custom boxes, including a `pandorasBox` category ban, which only removes the default boxes. Custom boxes are never placed in water zones, and a box worth more than any treasure range of the zone is never placed. The generator adds a guard to the box according to its value, as for any other treasure.
+
+### Spell scrolls
+
+A `spellScrolls` entry adds one scroll with a fixed spell to the zone treasure pool, on top of the built-in scrolls (one per spell level). The spell is spawned even if it is banned on the map (`bannedSpells`, or disabled by default).
+
+- `spell`: spell identifier. Required. Mod scope is allowed (`"mod:spell"`). An unknown spell drops the entry.
+- `rmg.value`: treasure value. Default: `scrolls.value` in [randomMap.json](../../config/randomMap.json) for the spell's level (500, 2000, 3000, 4000, 5000 for levels 1-5). An entry without a value whose level has no `scrolls.value` is ignored with an error in the log.
+- `rmg.rarity`: probability of the scroll in the treasure pool. Default 30, as the built-in scrolls.
+- `rmg.zoneLimit`: maximum number of scrolls of this entry per zone. Default 0, unlimited.
+
+Bans never remove custom scrolls, including a `spellScroll` category ban, which only removes the built-in scrolls. Custom scrolls are never placed in water zones, and a scroll worth more than any treasure range of the zone is never placed. The generator adds a guard to the scroll according to its value, as for any other treasure.
+
+`requiredObjects.spellScroll` keys are spells. Count 0 removes an inherited entry. Without `guard`, the guard follows the scroll's default value.
