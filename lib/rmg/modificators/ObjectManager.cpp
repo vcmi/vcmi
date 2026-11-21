@@ -793,6 +793,8 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 
 	auto guard = std::dynamic_pointer_cast<CGCreature>(guardFactory->create(map.mapInstance->cb, nullptr));
 	guard->initialCharacter = CGCreature::Character::HOSTILE;
+	if(!zoneGuard)
+		zone.getMonsterJoining().applyTo(*guard);
 	auto hlp = std::make_unique<CStackInstance>(map.mapInstance->cb, creId, amount);
 	//will be set during initialization
 	guard->putStack(SlotID(0), std::move(hlp));

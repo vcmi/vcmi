@@ -16,6 +16,7 @@
 #include "../ResourceSet.h"
 #include "ObjectInfo.h"
 #include "ObjectConfig.h"
+#include "MonsterJoiningOptions.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 
 #ifdef ENABLE_TEMPLATE_EDITOR
@@ -253,6 +254,8 @@ public:
 	ObjectConfig getCustomObjects() const;
 	void setCustomObjects(const ObjectConfig & value);
 	TRmgTemplateZoneId getCustomObjectsLikeZone() const;
+	MonsterJoiningOptions getMonsterJoining() const;
+	void setMonsterJoining(const MonsterJoiningOptions & value);
 	TRmgTemplateZoneId getTownsLikeZone() const;
 
 	Point getVisiblePosition() const;
@@ -275,6 +278,7 @@ protected:
 	float visibleSize;
 
 	ObjectConfig objectConfig;
+	MonsterJoiningOptions monsterJoining;
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;
 	bool matchTerrainToTown;
@@ -367,6 +371,7 @@ public:
 	const std::set<SecondarySkill> & getEnabledSkills() const { return enabledSkills; }
 	const std::set<HeroTypeID> & getEnabledHeroes() const { return enabledHeroes; }
 	const ObjectConfig & getCustomObjects() const { return objectConfig; }
+	const rmg::MonsterJoiningOptions & getMonsterJoining() const { return monsterJoining; }
 
 	void validate() const; /// Tests template on validity and throws exception on failure
 
@@ -396,6 +401,7 @@ private:
 	std::set<SecondarySkill> enabledSkills;
 	std::set<HeroTypeID> enabledHeroes;
 	ObjectConfig objectConfig;
+	rmg::MonsterJoiningOptions monsterJoining;
 
 	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::map<GameResID, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);

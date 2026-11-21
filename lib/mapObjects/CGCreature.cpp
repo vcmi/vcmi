@@ -185,8 +185,18 @@ void CGCreature::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 		{
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
-			ynd.text.appendTextID("core.advevent.86");
-			ynd.text.replaceName(getCreatureID(), getJoiningAmount());
+			if(getJoiningAmount() < getStackCount(SlotID(0)))
+			{
+				ynd.text.appendTextID("vcmi.adventureMap.monsterJoinPartial");
+				ynd.text.replaceNumber(getJoiningAmount());
+				ynd.text.replaceNumber(getStackCount(SlotID(0)));
+				ynd.text.replaceNamePlural(getCreatureID());
+			}
+			else
+			{
+				ynd.text.appendTextID("core.advevent.86");
+				ynd.text.replaceName(getCreatureID(), getJoiningAmount());
+			}
 			gameEvents.showBlockingDialog(&ynd);
 			gameEvents.setVisitState(h, JsonNode(action));
 			break;
@@ -199,8 +209,17 @@ void CGCreature::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstan
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			ynd.components.emplace_back(ComponentType::RESOURCE, GameResID(GameResID::GOLD), action);
-			ynd.text.appendTextID("core.advevent.90");
-			ynd.text.replaceNumber(getJoiningAmount());
+			if(getJoiningAmount() < getStackCount(SlotID(0)))
+			{
+				ynd.text.appendTextID("vcmi.adventureMap.monsterJoinPartialForGold");
+				ynd.text.replaceNumber(getJoiningAmount());
+				ynd.text.replaceNumber(getStackCount(SlotID(0)));
+			}
+			else
+			{
+				ynd.text.appendTextID("core.advevent.90");
+				ynd.text.replaceNumber(getJoiningAmount());
+			}
 			ynd.text.replaceNumber(action);
 			ynd.text.replaceNamePlural(getCreature()->getId());
 			gameEvents.showBlockingDialog(&ynd);
@@ -755,11 +774,6 @@ void CGCreature::giveReward(IGameEventCallback & gameEvents, const CGHeroInstanc
 		gameEvents.showInfoDialog(&iw);
 	}
 }
-
-static const std::vector<std::string> CHARACTER_JSON  =
-{
-	"compliant", "friendly", "aggressive", "hostile", "savage", "custom"
-};
 
 //UpgradedStackPresence starts at RANDOM = -1, while serializeEnum indexes from zero
 static const std::vector<std::string> UPGRADED_STACK_PRESENCE_JSON =

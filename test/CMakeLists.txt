@@ -82,6 +82,7 @@ set(test_SRCS
 		quest/CQuestGateTest.cpp
 
 		rmg/CRmgTemplateTest.cpp
+		rmg/MonsterJoiningOptionsTest.cpp
 		rmg/ObjectConfigTest.cpp
 		rmg/TreasurePlacerTest.cpp
 
@@ -152,6 +153,7 @@ set(test_SRCS
 		server/battles/TransmutationTest.cpp
 		server/battles/WalkActionTest.cpp
 		server/activities/ActivityProcessorTest.cpp
+		mapObjects/CGCreatureJoiningTest.cpp
 		server/ArmyManagementTest.cpp
 		server/NeutralTownEventsTest.cpp
 		server/TavernRumorsTest.cpp
