@@ -56,6 +56,7 @@ struct DLL_LINKAGE PandoraBoxConfig
 	void serializeJson(JsonSerializeFormat & handler);
 
 private:
+	void loadReward(JsonSerializeFormat & handler);
 	ui32 getValueFromMultipliers(
 		int pandoraMultiplierGold,
 		int pandoraMultiplierExperience,

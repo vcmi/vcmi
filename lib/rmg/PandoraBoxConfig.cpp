@@ -12,6 +12,8 @@
 #include "PandoraBoxConfig.h"
 
 #include "../CCreatureHandler.h"
+#include "../constants/StringConstants.h"
+#include "../modding/IdentifierResolver.h"
 #include "../serializer/JsonSerializeFormat.h"
 
 bool PandoraBoxConfig::isAllowedForFaction(FactionID zoneFaction) const
@@ -83,9 +85,89 @@ ui32 PandoraBoxConfig::getValueFromMultipliers(
 	return result;
 }
 
+void PandoraBoxConfig::loadReward(JsonSerializeFormat & handler)
+{
+	auto rewardStruct = handler.enterStruct("reward");
+
+	reward.resources.resolveFromJson(handler.getCurrent()["resources"], handler.getIdentifierResolver());
+	handler.serializeBool("removeObject", reward.removeObject);
+	handler.serializeInt("manaPercentage", reward.manaPercentage);
+	handler.serializeInt("movePercentage", reward.movePercentage);
+	handler.serializeInt("heroExperience", reward.heroExperience);
+	handler.serializeInt("heroLevel", reward.heroLevel);
+	handler.serializeInt("manaDiff", reward.manaDiff);
+	handler.serializeInt("manaOverflowFactor", reward.manaOverflowFactor);
+	handler.serializeInt("movePoints", reward.movePoints);
+	handler.serializeInt("moveOverflowFactor", reward.moveOverflowFactor);
+	handler.serializeIdArray("artifacts", reward.grantedArtifacts);
+	handler.serializeIdArray("takenArtifacts", reward.takenArtifacts);
+	handler.serializeIdArray("takenArtifactSlots", reward.takenArtifactSlots);
+	handler.serializeIdArray("scrolls", reward.grantedScrolls);
+	handler.serializeIdArray("takenScrolls", reward.takenScrolls);
+	handler.serializeIdArray("spells", reward.spells);
+
+	const JsonNode & creaturesNode = handler.getCurrent()["creatures"];
+	if(creaturesNode.isVector() && !creaturesNode.Vector().empty())
+	{
+		reward.creatures.resize(creaturesNode.Vector().size());
+		auto creaturesArray = handler.enterArray("creatures");
+		for(size_t i = 0; i < reward.creatures.size(); ++i)
+		{
+			auto creatureStruct = creaturesArray.enterStruct(i);
+			si32 amount = 0;
+			creatureStruct->serializeInt("amount", amount);
+			const JsonNode & typeNode = handler.getCurrent()["type"];
+			if(!typeNode.String().empty())
+			{
+				handler.getIdentifierResolver().requestIdentifier("creature", typeNode, [this, i, amount](int32_t index)
+				{
+					reward.creatures[i] = CStackBasicDescriptor(CreatureID(index), amount);
+				});
+			}
+			else
+				reward.creatures[i].setCount(amount);
+		}
+	}
+
+	if(handler.getCurrent()["primary"].isVector())
+		handler.enterArray("primary").serializeArray(reward.primary);
+
+	{
+		auto secondaryArray = handler.enterArray("secondary");
+		std::vector<std::pair<SecondarySkill, si32>> fieldValue(reward.secondary.begin(), reward.secondary.end());
+		secondaryArray.serializeStruct<std::pair<SecondarySkill, si32>>(fieldValue, [](JsonSerializeFormat & h, std::pair<SecondarySkill, si32> & e)
+		{
+			h.serializeId("skill", e.first);
+			h.serializeId("level", e.second, 0, [](const std::string & i){return vstd::find_pos(NSecondarySkill::levels, i);}, [](si32 i){return NSecondarySkill::levels.at(i);});
+		});
+		secondaryArray.syncSize(fieldValue);
+		reward.secondary = std::map<SecondarySkill, si32>(fieldValue.begin(), fieldValue.end());
+	}
+
+	{
+		auto changeArray = handler.enterArray("creaturesChange");
+		std::vector<std::pair<CreatureID, CreatureID>> fieldValue(reward.creaturesChange.begin(), reward.creaturesChange.end());
+		changeArray.serializeStruct<std::pair<CreatureID, CreatureID>>(fieldValue, [](JsonSerializeFormat & h, std::pair<CreatureID, CreatureID> & e)
+		{
+			h.serializeId("creature", e.first, CreatureID{});
+			h.serializeId("amount", e.second, CreatureID{});
+		});
+		reward.creaturesChange = std::map<CreatureID, CreatureID>(fieldValue.begin(), fieldValue.end());
+	}
+
+	{
+		auto spellCastStruct = handler.enterStruct("spellCast");
+		spellCastStruct->serializeId("spell", reward.spellCast.first, SpellID{});
+		spellCastStruct->serializeInt("level", reward.spellCast.second);
+	}
+}
+
 void PandoraBoxConfig::serializeJson(JsonSerializeFormat & handler)
 {
-	handler.serializeStruct("reward", reward);
+	if(handler.saving)
+		handler.serializeStruct("reward", reward);
+	else if(!handler.getCurrent()["reward"].isNull())
+		loadReward(handler);
 
 	if(handler.saving)
 	{
