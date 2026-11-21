@@ -33,45 +33,14 @@
 			"bannedObjects": {
 				"core:scholar": false
 			},
-			"commonObjects": [],
-			"pandoraBoxes": [
-				{
-					"reward": {
-						"heroExperience": 5000,
-						"manaPercentage": -1,
-						"moveOverflowFactor": 100,
-						"movePercentage": -1,
-						"primary": [0, 0, 0, 0],
-						"spellCast": {
-							"level": 0
-						}
-					}
-				}
-			]
+			"commonObjects": []
 		},
 		"zones": {
 			"1": {
 				"customObjects": {
 					"bannedCategories": [],
 					"bannedObjects": {},
-					"commonObjects": [],
-					"pandoraBoxes": [
-						{
-							"randomSpells": {
-								"count": 12,
-								"level": 5
-							},
-							"reward": {
-								"manaPercentage": -1,
-								"moveOverflowFactor": 100,
-								"movePercentage": -1,
-								"primary": [0, 0, 0, 0],
-								"spellCast": {
-									"level": 0
-								}
-							}
-						}
-					]
+					"commonObjects": []
 				},
 				"mines": {
 					"ore": 1,

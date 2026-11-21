@@ -84,7 +84,6 @@ set(test_SRCS
 
 		rmg/CRmgTemplateTest.cpp
 		rmg/ObjectConfigTest.cpp
-		rmg/PandoraBoxConfigTest.cpp
 
 		netpacks/NetPackFixture.cpp
 

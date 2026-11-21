@@ -261,7 +261,6 @@ set(lib_MAIN_SRCS
 	rmg/Functions.cpp
 	rmg/ObjectInfo.cpp
 	rmg/ObjectConfig.cpp
-	rmg/PandoraBoxConfig.cpp
 	rmg/RmgMap.cpp
 	rmg/PenroseTiling.cpp
 	rmg/modificators/Modificator.cpp
@@ -761,7 +760,6 @@ set(lib_MAIN_HEADERS
 	rmg/Functions.h
 	rmg/ObjectInfo.h
 	rmg/ObjectConfig.h
-	rmg/PandoraBoxConfig.h
 	rmg/PenroseTiling.h
 	rmg/modificators/Modificator.h
 	rmg/modificators/ObjectManager.h
