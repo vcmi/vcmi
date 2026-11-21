@@ -53,5 +53,5 @@ const CCreature * getRandomDwellingCreature(FactionID faction, int level);
 /// Value of a random dwelling of given level (0-based) that becomes a dwelling of given faction, 0 if it can't be determined
 ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level);
 
-/// Spell scroll map object holding `spell`. Does not check the map's allowed spells.
+/// Spell scroll map object holding `spell`.
 std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell);
