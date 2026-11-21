@@ -269,4 +269,57 @@ TEST_F(ObjectConfigTest, RequiredObjectReplacedAndCountZeroTakesEffect)
 	EXPECT_EQ(merged.getRequiredObjects().at(scholar()).first, 3);
 }
 
+TEST_F(ObjectConfigTest, MergeConcatenatesPandoraBoxes)
+{
+	/*
+	 * Asserts: merge puts base pandoraBoxes first, then override boxes.
+	 * Pass: two boxes, experience 1000 then 2000.
+	 * Fail: override replaces the base list, or the order is reversed.
+	 */
+
+	PandoraBoxConfig baseBox;
+	baseBox.reward.heroExperience = 1000;
+	PandoraBoxConfig zoneBox;
+	zoneBox.reward.heroExperience = 2000;
+
+	ObjectConfig base;
+	base.addPandoraBox(baseBox);
+	ObjectConfig zone;
+	zone.addPandoraBox(zoneBox);
+
+	auto merged = ObjectConfig::merge(base, zone);
+
+	ASSERT_EQ(merged.getPandoraBoxes().size(), 2u);
+	EXPECT_EQ(merged.getPandoraBoxes()[0].reward.heroExperience, 1000);
+	EXPECT_EQ(merged.getPandoraBoxes()[1].reward.heroExperience, 2000);
+}
+
+TEST_F(ObjectConfigTest, BansKeepCustomPandoraBoxes)
+{
+	/*
+	 * Asserts: a zone bannedCategories pandorasBox, and a pandoraBox: true ban, keep the
+	 * inherited custom boxes.
+	 * Pass: both merged configs still have the base box.
+	 * Fail: either ban drops the custom box the way it drops a commonObjects entry.
+	 */
+
+	PandoraBoxConfig box;
+	box.reward.heroExperience = 5000;
+
+	ObjectConfig base;
+	base.addPandoraBox(box);
+
+	ObjectConfig categoryZone;
+	categoryZone.addBannedCategory(ObjectConfig::EObjectCategory::PANDORAS_BOX);
+	auto categoryMerged = ObjectConfig::merge(base, categoryZone);
+	ASSERT_EQ(categoryMerged.getPandoraBoxes().size(), 1u);
+	EXPECT_EQ(categoryMerged.getPandoraBoxes()[0].reward.heroExperience, 5000);
+
+	ObjectConfig objectZone;
+	objectZone.setObjectBanned(CompoundMapObjectID(Obj::PANDORAS_BOX, -1), true);
+	auto objectMerged = ObjectConfig::merge(base, objectZone);
+	ASSERT_EQ(objectMerged.getPandoraBoxes().size(), 1u);
+	EXPECT_EQ(objectMerged.getPandoraBoxes()[0].reward.heroExperience, 5000);
+}
+
 }

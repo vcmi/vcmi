@@ -12,6 +12,7 @@
 
 #include "../mapObjects/CompoundMapObjectID.h"
 #include "ObjectInfo.h"
+#include "PandoraBoxConfig.h"
 
 class CObjectClassesHandler;
 class JsonSerializeFormat;
@@ -57,6 +58,8 @@ public:
 	const std::map<CompoundMapObjectID, bool> & getObjectBans() const;
 	const std::vector<EObjectCategory> & getBannedObjectCategories() const;
 	const std::vector<ObjectInfo> & getConfiguredObjects() const;
+	const std::vector<PandoraBoxConfig> & getPandoraBoxes() const;
+	void addPandoraBox(const PandoraBoxConfig & box);
 	bool isObjectBanned(const CompoundMapObjectID & objid) const;
 
 	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> getRequiredObjects() const;
@@ -70,6 +73,7 @@ private:
 	std::vector<EObjectCategory> bannedObjectCategories;
 
 	std::vector<ObjectInfo> customObjects;
+	std::vector<PandoraBoxConfig> pandoraBoxes;
 	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> requiredObjects; // obligatory, potentially guarded objects to spawn in this zone
 
 };

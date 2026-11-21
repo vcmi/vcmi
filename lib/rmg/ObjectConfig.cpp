@@ -444,11 +444,49 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			});
 		}
 	}
+
+	if(handler.saving)
+	{
+		if(!pandoraBoxes.empty())
+		{
+			auto boxesArray = handler.enterArray("pandoraBoxes");
+			boxesArray.syncSize(pandoraBoxes, JsonNode::JsonType::DATA_STRUCT);
+			for(size_t i = 0; i < pandoraBoxes.size(); ++i)
+			{
+				auto boxStruct = boxesArray.enterStruct(i);
+				pandoraBoxes[i].serializeJson(handler);
+			}
+		}
+	}
+	else
+	{
+		const JsonNode & boxesNode = handler.getCurrent()["pandoraBoxes"];
+		if(boxesNode.isVector() && !boxesNode.Vector().empty())
+		{
+			pandoraBoxes.resize(boxesNode.Vector().size());
+			auto boxesArray = handler.enterArray("pandoraBoxes");
+			for(size_t i = 0; i < pandoraBoxes.size(); ++i)
+			{
+				auto boxStruct = boxesArray.enterStruct(i);
+				pandoraBoxes[i].serializeJson(handler);
+			}
+		}
+	}
 }
 
 const std::vector<ObjectInfo> & ObjectConfig::getConfiguredObjects() const
 {
 	return customObjects;
+}
+
+const std::vector<PandoraBoxConfig> & ObjectConfig::getPandoraBoxes() const
+{
+	return pandoraBoxes;
+}
+
+void ObjectConfig::addPandoraBox(const PandoraBoxConfig & box)
+{
+	pandoraBoxes.push_back(box);
 }
 
 const std::map<CompoundMapObjectID, bool> & ObjectConfig::getObjectBans() const
@@ -520,6 +558,8 @@ ObjectConfig ObjectConfig::merge(const ObjectConfig & base, const ObjectConfig &
 
 	for(const auto & [id, info] : override.requiredObjects)
 		result.requiredObjects[id] = info;
+
+	result.pandoraBoxes.insert(result.pandoraBoxes.end(), override.pandoraBoxes.begin(), override.pandoraBoxes.end());
 
 	return result;
 }
