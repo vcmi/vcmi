@@ -94,6 +94,35 @@
 						},
 						"required": ["type", "rmg"]
 					}
+				},
+				"pandoraBoxes": {
+					"type": "array",
+					"description": "Pandora boxes added to the zone treasure pool. An entry is the Pandora box map options (as in a .vmap) plus an rmg block",
+					"items": {
+						"type": "object",
+						"properties": {
+							"rmg": {
+								"type": "object",
+								"additionalProperties": false,
+								"properties": {
+									"value": { "type": "integer", "minimum": 0 },
+									"rarity": { "type": "integer", "minimum": 1 },
+									"zoneLimit": { "type": "integer", "minimum": 0 },
+									"zoneFactions": {
+										"type": "array",
+										"items": { "type": "string" }
+									},
+									"nativeCreatures": {
+										"type": "object",
+										"additionalProperties": false,
+										"properties": {
+											"level": { "type": "integer", "minimum": 0 }
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		},

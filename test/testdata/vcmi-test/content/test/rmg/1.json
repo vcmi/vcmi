@@ -33,7 +33,16 @@
 			"bannedObjects": {
 				"core:scholar": false
 			},
-			"commonObjects": []
+			"commonObjects": [],
+			"pandoraBoxes": [
+				{
+					"experience": 5000,
+					"rmg": {
+						"rarity": 9999,
+						"zoneLimit": 1
+					}
+				}
+			]
 		},
 		"zones": {
 			"1": {
@@ -86,7 +95,23 @@
 				"customObjects": {
 					"bannedCategories": [],
 					"bannedObjects": {},
-					"commonObjects": []
+					"commonObjects": [],
+					"pandoraBoxes": [
+						{
+							"spells": [
+								"townPortal",
+								"fly"
+							],
+							"rmg": {
+								"value": 15000,
+								"rarity": 2,
+								"zoneFactions": [
+									"castle",
+									"neutral"
+								]
+							}
+						}
+					]
 				},
 				"matchTerrainToTown": false,
 				"mines": {

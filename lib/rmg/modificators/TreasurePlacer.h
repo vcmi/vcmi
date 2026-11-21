@@ -12,9 +12,11 @@
 
 #include "../ObjectInfo.h"
 #include "../Zone.h"
+#include "../CMapGenerator.h"
 #include "../../mapObjects/ObjectTemplate.h"
 
 class CGObjectInstance;
+class CGPandoraBox;
 class ObjectManager;
 class RmgMap;
 class CMapGenerator;
@@ -23,7 +25,26 @@ class TreasurePlacer: public Modificator
 {
 public:
 	MODIFICATOR(TreasurePlacer);
-	
+
+	/// Built-in gold and experience boxes hold i * PANDORA_AMOUNT_STEP; randomMap.json pandora multipliers are the value of one step
+	static constexpr ui32 PANDORA_AMOUNT_STEP = 5000;
+	static constexpr ui16 PANDORA_GOLD_RARITY = 5;
+	static constexpr ui16 PANDORA_EXPERIENCE_RARITY = 20;
+	static constexpr ui16 PANDORA_CREATURES_RARITY = 3;
+	static constexpr ui16 PANDORA_SPELLS_RARITY = 2;
+
+	/// "rmg" block of a customObjects.pandoraBoxes entry
+	struct CustomPandoraBox
+	{
+		std::optional<ui32> value; ///< nullopt only for native creature boxes without rmg.value: valued like the built-in creature box
+		ui16 rarity = 0;
+		ui32 zoneLimit = 0; ///< 0 = unlimited
+		std::set<FactionID> zoneFactions; ///< empty = all
+		std::optional<int> nativeCreaturesLevel; ///< set for rmg.nativeCreatures boxes; 0 = all levels
+	};
+	/// rmg fields of a pandoraBoxes entry with preset defaults applied; nullopt (and an error log) when value or rarity is missing
+	static std::optional<CustomPandoraBox> readCustomPandoraBox(const JsonNode & entry, const CMapGenerator::Config & config);
+
 	void process() override;
 	void init() override;
 	char dump(const int3 &) override;
@@ -41,7 +62,12 @@ public:
 	void addPandoraBoxesWithGold();
 	void addPandoraBoxesWithExperience();
 	void addPandoraBoxesWithCreatures();
+	/// Built-in creature box content and value for a native creature; nullopt when the creature gets no box
+	std::optional<ObjectInfo> createCreaturePandoraBox(const CCreature * creature);
 	void addPandoraBoxesWithSpells();
+	/// Boxes from customObjects.pandoraBoxes; added after zone bans are applied, so bans never remove them
+	void addCustomPandoraBoxes();
+	std::shared_ptr<CGPandoraBox> createPandoraBox() const;
 	void addSeerHuts();
 	void addPrisons();
 	void addScrolls();

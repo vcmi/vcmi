@@ -80,8 +80,7 @@
 	// Similar to bannedHeroes, list of normally banned heroes that are enabled on this map
 	"enabledHeroes" : [ ],
 
-	/// Objects banned, customized or required in every zone. Same format as the zone customObjects block.
-	/// Zone entries override template entries for the same object; see the zone customObjects section.
+	/// Objects banned, customized, required or added in every zone, see "Custom objects format" below
 	"customObjects" : { },
 
 	/// List of named zones, see below for format description
@@ -227,100 +226,148 @@
 		  ...
 	],
 
-	// Objects with different configuration than default / set by mods.
-	// A template-level customObjects block is merged into every zone first:
-	// bannedCategories are combined; bannedObjects, commonObjects and requiredObjects replace
-	// the template entry with the same id. A zone bannedObjects value of false lifts a template
-	// ban (including a category ban) for that object. requiredObjects count 0 removes an inherited entry.
-	"customObjects" :
-	{
-		// All of objects of this kind will be removed from zone
-		// Possible values: "all", "none", "creatureBank", "bonus", "dwelling", "resource", "resourceGenerator", "spellScroll", "randomArtifact", "pandorasBox", "questArtifact", "seerHut", "other"
-		"bannedCategories" : ["all", "dwelling", "creatureBank", "other"],
-
-		// Specify object types and subtypes. true bans the object, false allows it even when its category is banned.
-		"bannedObjects" : {
-			// ban a specific object from base game or from any dependent mod. Object with such ID must exist
-			"randomArtifactRelic" : true,
-			
-			// ban object named townGate from mod 'hota.mapobjects'. Mod can be used without explicit dependency
-			// If mod with such name is not loaded, this entry will be ignored and will have no effect
-			"hota.mapobjects:townGate" : true,
-			
-			// ban only land version of Cartographer. Other versions, such as water and subterra cartographers may still appear on map
-			"cartographer" : {
-				"cartographerLand" : true
-			},
-
-			// allow this object in this zone even if the template banned its category
-			"dragonUtopia" : false
-		},
-
-		// Configure individual common objects.
-		// The placer skips the default pool entry with the same id and uses this configuration instead.
-		// A template-level entry applies to every zone that does not override that id.
-		// A randomDwellingLvl entry becomes a dwelling of the zone's faction and replaces the native dwelling of that level,
-		// other native dwellings keep spawning as usual. Without rmg.value it is valued like that native dwelling
-		// (creature AI value x growth, increased by the number of zones of that faction), as in SoD.
-		// Without rmg.rarity it is as common as native dwellings (40)
-		"commonObjects":
-		[
-			{
-				// configure water cartographer properties
-				"type" : "cartographer",
-				"subtype" : "cartographerWater",
-				"rmg" : {
-					"value"		: 9000,
-					"rarity"	: 500,
-					"zoneLimit" : 2
-				}
-			},
-			{
-				// configure scholar properties. Behavior unspecified if there are multiple 'scholar' objects
-				"type" : "scholar",
-				"rmg" : {
-					"value"		: 900,
-					"rarity"	: 50,
-					"zoneLimit" : 2
-				}
-			},
-			{
-				// configure town gate (hota) properties. This entry will have no effect if mod is not enabled
-				"type" : "hota.mapobjects:townGate",
-				"rmg" : {
-					"value"		: 2000,
-					"rarity"	: 100,
-					"zoneLimit" : 2
-				}
-			},
-			{
-				// level 7 dwelling of the zone's faction with custom value, at most 2 per zone
-				"type" : "randomDwellingLvl",
-				"subtype" : "objectLvl7",
-				"rmg" : {
-					"value"		: 15000,
-					"zoneLimit" : 2
-				}
-			}
-		],
-
-		// Required objects that will be added to this zone guarded according to rmg.value of the individual objects
-		// They are always generated, each one on its own, never as a part of a larger treasure pile
-		// count 0 removes a required object inherited from the template
-		"requiredObjects" : {
-			"refugeeCamp" : 5,
-			// If there are several versions (e.g. standard and cannonYard) a random selection is chosen
-			"warMachineFactory" : 5,
-			// Versions can be specified with optional guard information
-			"creatureGeneratorCommon" : { "unicornGlade" : { "count" : 3, "guard" : 10000 } },
-			// Random dwellings become a dwelling of the zone's faction (randomDwellingLvl: of the given level)
-			// Without "guard", a randomDwellingLvl entry is guarded according to the value of that native dwelling (see commonObjects)
-			"randomDwellingLvl" : { "objectLvl7" : { "count" : 1, "guard" : 30000 } },
-			// Artifacts can be specified
-			"artifact" : { "headOfLegion" : 1, "armsOfLegion" : 1, "torsoOfLegion" : 1, "loinsOfLegion" : 1, "legsOfLegion" : 1 },
-			// Mod objects can be specified
-			"hota.mapobjects:townGate" : { "count" : 1, "guard" : 100000 }
-		},
-	}
+	// Objects banned, customized, required or added in this zone, see "Custom objects format" below
+	"customObjects" : { }
 }
 ```
+
+## Custom objects format
+
+The `customObjects` block can be set at the template root and in a zone. The template block is merged into every zone first:
+
+- `bannedCategories` are combined.
+- `bannedObjects`, `commonObjects` and `requiredObjects` entries replace the template entry with the same id. A zone `bannedObjects` value of `false` lifts a template ban, including a category ban, for that object. A `requiredObjects` count of 0 removes an inherited entry.
+- `pandoraBoxes` are concatenated: template entries first, then zone entries.
+
+```json
+{
+	// All of objects of this kind will be removed from zone
+	// Possible values: "all", "none", "creatureBank", "bonus", "dwelling", "resource", "resourceGenerator", "spellScroll", "randomArtifact", "pandorasBox", "questArtifact", "seerHut", "other"
+	"bannedCategories" : ["all", "dwelling", "creatureBank", "other"],
+
+	// Specify object types and subtypes. true bans the object, false allows it even when its category is banned.
+	"bannedObjects" : {
+		// ban a specific object from base game or from any dependent mod. Object with such ID must exist
+		"randomArtifactRelic" : true,
+		
+		// ban object named townGate from mod 'hota.mapobjects'. Mod can be used without explicit dependency
+		// If mod with such name is not loaded, this entry will be ignored and will have no effect
+		"hota.mapobjects:townGate" : true,
+		
+		// ban only land version of Cartographer. Other versions, such as water and subterra cartographers may still appear on map
+		"cartographer" : {
+			"cartographerLand" : true
+		},
+
+		// allow this object in this zone even if the template banned its category
+		"dragonUtopia" : false
+	},
+
+	// Configure individual common objects.
+	// The placer skips the default pool entry with the same id and uses this configuration instead.
+	// A template-level entry applies to every zone that does not override that id.
+	// A randomDwellingLvl entry becomes a dwelling of the zone's faction and replaces the native dwelling of that level,
+	// other native dwellings keep spawning as usual. Without rmg.value it is valued like that native dwelling
+	// (creature AI value x growth, increased by the number of zones of that faction), as in SoD.
+	// Without rmg.rarity it is as common as native dwellings (40)
+	"commonObjects":
+	[
+		{
+			// configure water cartographer properties
+			"type" : "cartographer",
+			"subtype" : "cartographerWater",
+			"rmg" : {
+				"value"		: 9000,
+				"rarity"	: 500,
+				"zoneLimit" : 2
+			}
+		},
+		{
+			// configure scholar properties. Behavior unspecified if there are multiple 'scholar' objects
+			"type" : "scholar",
+			"rmg" : {
+				"value"		: 900,
+				"rarity"	: 50,
+				"zoneLimit" : 2
+			}
+		},
+		{
+			// configure town gate (hota) properties. This entry will have no effect if mod is not enabled
+			"type" : "hota.mapobjects:townGate",
+			"rmg" : {
+				"value"		: 2000,
+				"rarity"	: 100,
+				"zoneLimit" : 2
+			}
+		},
+		{
+			// level 7 dwelling of the zone's faction with custom value, at most 2 per zone
+			"type" : "randomDwellingLvl",
+			"subtype" : "objectLvl7",
+			"rmg" : {
+				"value"		: 15000,
+				"zoneLimit" : 2
+			}
+		}
+	],
+
+	// Required objects that will be added to this zone guarded according to rmg.value of the individual objects
+	// They are always generated, each one on its own, never as a part of a larger treasure pile
+	// count 0 removes a required object inherited from the template
+	"requiredObjects" : {
+		"refugeeCamp" : 5,
+		// If there are several versions (e.g. standard and cannonYard) a random selection is chosen
+		"warMachineFactory" : 5,
+		// Versions can be specified with optional guard information
+		"creatureGeneratorCommon" : { "unicornGlade" : { "count" : 3, "guard" : 10000 } },
+		// Random dwellings become a dwelling of the zone's faction (randomDwellingLvl: of the given level)
+		// Without "guard", a randomDwellingLvl entry is guarded according to the value of that native dwelling (see commonObjects)
+		"randomDwellingLvl" : { "objectLvl7" : { "count" : 1, "guard" : 30000 } },
+		// Artifacts can be specified
+		"artifact" : { "headOfLegion" : 1, "armsOfLegion" : 1, "torsoOfLegion" : 1, "loinsOfLegion" : 1, "legsOfLegion" : 1 },
+		// Mod objects can be specified
+		"hota.mapobjects:townGate" : { "count" : 1, "guard" : 100000 }
+	},
+
+	// Pandora boxes added to the zone treasure pool, on top of the default ones (see below)
+	"pandoraBoxes" :
+	[
+		// HoTA "Use default" equivalent: the value defaults to the default 5000 experience box
+		{ "experience" : 5000, "rmg" : { "rarity" : 9999, "zoneLimit" : 1 } },
+
+		// value and rarity default to the default 10000 gold box
+		{ "resources" : { "gold" : 10000 } },
+
+		// one predefined spell
+		{ "spells" : [ "townPortal" ], "rmg" : { "value" : 8000, "rarity" : 2 } },
+
+		// several predefined spells; only gold, experience and nativeCreatures boxes have default rmg values, so value and rarity are required
+		{ "spells" : [ "fly", "dimensionDoor", "townPortal" ], "rmg" : { "value" : 20000, "rarity" : 2 } },
+
+		// creatures of the zone's faction, as in the default creature boxes: one box per level 1 creature (basic and upgraded)
+		{ "rmg" : { "nativeCreatures" : { "level" : 1 }, "zoneLimit" : 2 } },
+
+		// creatures, only in Castle and neutral zones
+		{ "creatures" : [ { "type" : "angel", "amount" : 5 } ], "rmg" : { "value" : 25000, "rarity" : 3, "zoneFactions" : [ "castle", "neutral" ] } },
+
+		// gold and an artifact
+		{ "resources" : { "gold" : 5000 }, "artifacts" : [ "centaurAxe" ], "rmg" : { "value" : 9000, "rarity" : 5 } }
+	]
+}
+```
+
+### Pandora boxes
+
+A `pandoraBoxes` entry is the `options` block of a Pandora box in a `.vmap` map, plus an `rmg` block. Content can use the short form (`experience`, `mana`, `morale`, `luck`, `resources`, `primarySkills`, `secondarySkills`, `artifacts`, `spells`, `creatures`) or the `rewardable` block that the map editor saves. Fields left out of a `rewardable` block are read as 0, as in a map; set `manaPercentage` and `movePercentage` of each reward to -1, or the reward sets the hero's mana and movement points to 0.
+
+The `rmg` block:
+
+- `value`: treasure value of the box. Gold-only and experience-only boxes default to the value of the default box with the same amount: `pandoras.valueMultiplierGold` or `pandoras.valueMultiplierExperience` in [randomMap.json](../../config/randomMap.json) per 5000. Required for other boxes.
+- `rarity`: probability of the box in the treasure pool. Gold-only boxes default to 5 and experience-only boxes to 20, as the default boxes. Required for other boxes.
+- `zoneLimit`: maximum number of boxes of this entry per zone. Default 0, unlimited.
+- `nativeCreatures`: the box holds creatures of the zone's faction, as the default creature boxes: for each creature of that faction, basic and upgraded, a box with the default amount and value. `level` limits it to one creature level; 0 or no `level` means all levels. The entry has no other content. Rarity defaults to 3, as the default creature boxes. `zoneLimit` applies to each creature separately.
+- `zoneFactions`: factions of the zones that can get the box. A zone's faction is the faction of its towns; a zone without towns gets a random faction or `neutral`. Default: all zones.
+
+A box is gold-only when its only content is `resources` with only `gold`, and experience-only when its only content is `experience`. Gold-only, experience-only and `nativeCreatures` boxes have default values. An entry without a default `value` or `rarity` that does not set it is ignored with an error in the log.
+
+Bans never remove custom boxes, including a `pandorasBox` category ban, which only removes the default boxes. Custom boxes are never placed in water zones, and a box worth more than any treasure range of the zone is never placed. The generator adds a guard to the box according to its value, as for any other treasure.
