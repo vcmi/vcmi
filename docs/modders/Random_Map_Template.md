@@ -83,6 +83,13 @@
 	/// Objects banned, customized, required or added in every zone, see "Custom objects format" below
 	"customObjects" : { },
 
+	/// Joining settings for guards placed inside every zone. Zone monsterJoining overrides this block per field.
+	/// See "Monster joining" below. Connection guards are never affected.
+	"monsterJoining" : {
+		"joiningPercentage" : 50,
+		"joinOnlyForMoney" : true
+	},
+
 	/// List of named zones, see below for format description
 	"zones" :
 	{
@@ -142,7 +149,14 @@
 	"townsAreSameType" : true,
 	
 	//"weak" "strong", "none" - All treasures will be unguarded
-	"monsters" : "normal", 
+	"monsters" : "normal",
+
+	// Joining settings for guards placed inside this zone. Overrides the template block per field.
+	"monsterJoining" : {
+		"character" : "hostile",
+		"joiningPercentage" : 50,
+		"joinOnlyForMoney" : true
+	}, 
 
 	//possible terrain types. All terrains will be available if not specified
 	/// Identifier without modID specifier MUST exist in base game or in one of dependencies
@@ -228,6 +242,35 @@
 
 	// Objects banned, customized, required or added in this zone, see "Custom objects format" below
 	"customObjects" : { }
+}
+```
+
+## Monster joining
+
+The `monsterJoining` block can be set at the template root and in a zone. Per field, a zone value overrides the template value. A field set in neither place keeps the generator default. Connection guards (border guards, subterranean-gate guards, two-way monolith guards) are never affected: they stay Hostile, use the global joining percentage, and may join for free.
+
+Key names match the monster object in the VCMI map format. HoTA's template editor labels map as Disposition → `character`, Custom: N → `custom` + `aggression` N, Joining Percent → `joiningPercentage`, Join only for money → `joinOnlyForMoney`.
+
+- `character`: `compliant` | `friendly` | `aggressive` | `hostile` | `savage` | `custom`. Default `hostile`.
+- `aggression`: integer 1..10, used only with `custom`. `custom` without `aggression` logs an error and falls back to `hostile`.
+- `joiningPercentage`: integer 0..100. 0 = never joins. Unset keeps -1 on the object, so the global `creatures.joiningPercentage` (100) applies.
+- `joinOnlyForMoney`: boolean. Default `false`.
+
+```json
+{
+	"character" : "custom",
+	"aggression" : 7,
+	"joiningPercentage" : 50,
+	"joinOnlyForMoney" : true
+}
+```
+
+HotA-parity at template level:
+
+```json
+"monsterJoining" : {
+	"joiningPercentage" : 50,
+	"joinOnlyForMoney" : true
 }
 ```
 
