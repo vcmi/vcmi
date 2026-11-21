@@ -94,47 +94,6 @@
 						},
 						"required": ["type", "rmg"]
 					}
-				},
-				"pandoraBoxes": {
-					"type": "array",
-					"items": {
-						"type": "object",
-						"properties": {
-							"reward": {
-								"type": "object"
-							},
-							"randomSpells": {
-								"type": "object",
-								"properties": {
-									"count": { "type": "integer", "minimum": 1 },
-									"level": { "type": "integer", "minimum": 1, "maximum": 5 },
-									"school": { "type": "string", "enum": ["air", "earth", "fire", "water"] }
-								},
-								"additionalProperties": false
-							},
-							"nativeCreatures": {
-								"type": "object",
-								"properties": {
-									"level": { "type": "integer", "minimum": 1, "maximum": 7 },
-									"amount": { "type": "integer", "minimum": 1 }
-								},
-								"required": ["level"],
-								"additionalProperties": false
-							},
-							"rmg": {
-								"type": "object",
-								"properties": {
-									"value": { "type": "integer" },
-									"rarity": { "type": "integer" },
-									"zoneLimit": { "type": "integer" }
-								}
-							},
-							"zoneFactions": {
-								"type": "array",
-								"items": { "type": "string" }
-							}
-						}
-					}
 				}
 			}
 		},
