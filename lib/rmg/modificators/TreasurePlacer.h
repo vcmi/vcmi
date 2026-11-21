@@ -43,6 +43,7 @@ public:
 	void addPandoraBoxesWithExperience();
 	void addPandoraBoxesWithCreatures();
 	void addPandoraBoxesWithSpells();
+	void addCustomPandoraBoxes();
 	void addSeerHuts();
 	void addPrisons();
 	void addScrolls();
@@ -54,6 +55,7 @@ public:
 	void setMaxPrisons(size_t count);
 	size_t getMaxPrisons() const;
 	int creatureToCount(const CCreature * creature) const;
+	std::vector<SpellID> pickRandomAllowedSpells(int count, std::optional<ui8> level, std::optional<SpellSchool> school);
 	
 protected:
 	bool isGuardNeededForTreasure(int value);
