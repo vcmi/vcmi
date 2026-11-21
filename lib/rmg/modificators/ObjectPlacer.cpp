@@ -80,7 +80,6 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 		}
 	}
 
-	// getCustomObjects() returns a copy: keep it alive for the loop
 	const auto customObjects = zone.getCustomObjects();
 	for(const auto & [spell, info] : customObjects.getRequiredScrolls())
 	{
