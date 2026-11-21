@@ -373,7 +373,20 @@ std::optional<TreasurePlacer::CustomPandoraBox> TreasurePlacer::readCustomPandor
 	const bool goldOnly = contentKeys == std::set<std::string>{"resources"} && resources.Struct().size() == 1 && resources.Struct().count("gold");
 	const bool experienceOnly = contentKeys == std::set<std::string>{"experience"};
 
+	const JsonNode & rmg = entry["rmg"];
+	const JsonNode & nativeCreatures = rmg["nativeCreatures"];
+	if(!nativeCreatures.isNull() && !contentKeys.empty())
+	{
+		logGlobal->error("RMG pandoraBoxes entry is ignored: rmg.nativeCreatures cannot be combined with other content: %s", entry.toCompactString());
+		return std::nullopt;
+	}
+
 	CustomPandoraBox box;
+	if(!nativeCreatures.isNull())
+	{
+		box.nativeCreaturesLevel = nativeCreatures["level"].Integer();
+		box.rarity = PANDORA_CREATURES_RARITY;
+	}
 	if(goldOnly)
 	{
 		box.value = pandoraAmountValue(resources["gold"].Integer(), config.pandoraMultiplierGold);
@@ -385,10 +398,9 @@ std::optional<TreasurePlacer::CustomPandoraBox> TreasurePlacer::readCustomPandor
 		box.rarity = PANDORA_EXPERIENCE_RARITY;
 	}
 
-	const JsonNode & rmg = entry["rmg"];
-	if(!goldOnly && !experienceOnly && (rmg["value"].isNull() || rmg["rarity"].isNull()))
+	if(!goldOnly && !experienceOnly && !box.nativeCreaturesLevel && (rmg["value"].isNull() || rmg["rarity"].isNull()))
 	{
-		logGlobal->error("RMG pandoraBoxes entry is ignored: only gold-only and experience-only boxes have a default rmg value and rarity: %s", entry.toCompactString());
+		logGlobal->error("RMG pandoraBoxes entry is ignored: only gold-only, experience-only and native creature boxes have a default rmg value and rarity: %s", entry.toCompactString());
 		return std::nullopt;
 	}
 
@@ -430,6 +442,25 @@ void TreasurePlacer::addCustomPandoraBoxes()
 		if(!box->zoneFactions.empty() && !box->zoneFactions.count(zone.getTownType()))
 			continue;
 
+		if(box->nativeCreaturesLevel)
+		{
+			for(const auto * creature : creatures)
+			{
+				if(*box->nativeCreaturesLevel && creature->getLevel() != *box->nativeCreaturesLevel)
+					continue;
+				auto oi = createCreaturePandoraBox(creature);
+				if(!oi)
+					continue;
+				if(box->value)
+					oi->value = *box->value;
+				oi->probability = box->rarity;
+				if(box->zoneLimit)
+					oi->maxPerZone = box->zoneLimit;
+				addObjectToRandomPool(*oi);
+			}
+			continue;
+		}
+
 		// The entry without "rmg" is the box's map options, loaded like a .vmap object (see CMapLoaderJson::MapObjectLoader)
 		JsonNode objectJson;
 		objectJson["options"] = entry;
@@ -446,7 +477,7 @@ void TreasurePlacer::addCustomPandoraBoxes()
 			return obj;
 		};
 		oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = box->value;
+		oi.value = *box->value;
 		oi.probability = box->rarity;
 		if(box->zoneLimit)
 			oi.maxPerZone = box->zoneLimit;
@@ -507,29 +538,38 @@ void TreasurePlacer::addPandoraBoxesWithCreatures()
 {
 	for(auto * creature : creatures)
 	{
-		int creaturesAmount = creatureToCount(creature);
-		if(!creaturesAmount)
+		auto oi = createCreaturePandoraBox(creature);
+		if(!oi)
 			continue;
-
-		ObjectInfo oi(Obj::PANDORAS_BOX, 0);
-		
-		oi.generateObject = [this, creature, creaturesAmount]() -> std::shared_ptr<CGObjectInstance>
-		{
-			auto obj = createPandoraBox();
-			
-			Rewardable::VisitInfo reward;
-			reward.reward.creatures.emplace_back(creature, creaturesAmount);
-			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-			obj->configuration.info.push_back(reward);
-			
-			return obj;
-		};
-		oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = static_cast<ui32>(creature->getAIValue() * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount()));
-		oi.probability = PANDORA_CREATURES_RARITY;
-		if(!oi.templates.empty())
-			addObjectToRandomPool(oi);
+		oi->probability = PANDORA_CREATURES_RARITY;
+		addObjectToRandomPool(*oi);
 	}
+}
+
+std::optional<ObjectInfo> TreasurePlacer::createCreaturePandoraBox(const CCreature * creature)
+{
+	int creaturesAmount = creatureToCount(creature);
+	if(!creaturesAmount)
+		return std::nullopt;
+
+	ObjectInfo oi(Obj::PANDORAS_BOX, 0);
+
+	oi.generateObject = [this, creature, creaturesAmount]() -> std::shared_ptr<CGObjectInstance>
+	{
+		auto obj = createPandoraBox();
+
+		Rewardable::VisitInfo reward;
+		reward.reward.creatures.emplace_back(creature, creaturesAmount);
+		reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		obj->configuration.info.push_back(reward);
+
+		return obj;
+	};
+	oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
+	oi.value = static_cast<ui32>(creature->getAIValue() * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount()));
+	if(oi.templates.empty())
+		return std::nullopt;
+	return oi;
 }
 
 void TreasurePlacer::addPandoraBoxesWithSpells()

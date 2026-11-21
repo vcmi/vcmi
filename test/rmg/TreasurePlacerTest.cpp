@@ -115,6 +115,47 @@ TEST_F(TreasurePlacerTest, BoxWithoutPresetNeedsValueAndRarity)
 	EXPECT_EQ(box->rarity, 2u);
 }
 
+TEST_F(TreasurePlacerTest, NativeCreaturesBoxDefaultsToBuiltInCreatureBox)
+{
+	/*
+	 * Asserts: an rmg.nativeCreatures entry needs no content, value or rarity: it takes the built-in
+	 * creature box rarity, leaves the value to the per-creature built-in formula, and keeps its level;
+	 * explicit rmg fields still win, and a missing level means all levels.
+	 * Pass: level 1 with PANDORA_CREATURES_RARITY and no value; the second entry has level 0, value
+	 * 7000, rarity 9999 and zoneLimit 100.
+	 * Fail: the entry is rejected for lacking value or rarity, or a field is read wrong.
+	 */
+
+	auto box = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1 } } })"), config);
+	ASSERT_TRUE(box.has_value());
+	EXPECT_EQ(box->nativeCreaturesLevel, 1);
+	EXPECT_EQ(box->rarity, TreasurePlacer::PANDORA_CREATURES_RARITY);
+	EXPECT_FALSE(box->value.has_value());
+
+	auto allLevels = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { }, "value" : 7000, "rarity" : 9999, "zoneLimit" : 100 } })"), config);
+	ASSERT_TRUE(allLevels.has_value());
+	EXPECT_EQ(allLevels->nativeCreaturesLevel, 0);
+	EXPECT_EQ(allLevels->value, 7000u);
+	EXPECT_EQ(allLevels->rarity, 9999u);
+	EXPECT_EQ(allLevels->zoneLimit, 100u);
+}
+
+TEST_F(TreasurePlacerTest, NativeCreaturesBoxRejectsOtherContent)
+{
+	/*
+	 * Asserts: rmg.nativeCreatures generates the whole content, so an entry that also has its own
+	 * content is rejected instead of silently dropping part of it.
+	 * Pass: nativeCreatures plus experience gives nullopt; a plain experience box has no native level.
+	 * Fail: the mixed entry is accepted, or a normal box is treated as a native creature box.
+	 */
+
+	EXPECT_FALSE(TreasurePlacer::readCustomPandoraBox(entry(R"({ "experience" : 5000, "rmg" : { "nativeCreatures" : { "level" : 1 } } })"), config).has_value());
+
+	auto plain = TreasurePlacer::readCustomPandoraBox(entry(R"({ "experience" : 5000 })"), config);
+	ASSERT_TRUE(plain.has_value());
+	EXPECT_FALSE(plain->nativeCreaturesLevel.has_value());
+}
+
 TEST_F(TreasurePlacerTest, ZoneFactionsResolveIncludingNeutral)
 {
 	/*
