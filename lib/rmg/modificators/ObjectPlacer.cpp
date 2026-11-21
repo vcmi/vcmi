@@ -83,7 +83,9 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 		}
 	}
 
-	for(const auto & [spell, info] : zone.getCustomObjects().getRequiredScrolls())
+	// getCustomObjects() returns a copy: keep it alive for the loop
+	const auto customObjects = zone.getCustomObjects();
+	for(const auto & [spell, info] : customObjects.getRequiredScrolls())
 	{
 		ui32 guardStrength = info.second.has_value()
 			? info.second.value()

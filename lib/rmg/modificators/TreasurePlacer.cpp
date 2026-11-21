@@ -488,7 +488,9 @@ void TreasurePlacer::addCustomSpellScrolls()
 	if(zone.getType() == ETemplateZoneType::WATER)
 		return;
 
-	for(const auto & scroll : zone.getCustomObjects().getSpellScrolls())
+	// getCustomObjects() returns a copy: keep it alive for the loop
+	const auto customObjects = zone.getCustomObjects();
+	for(const auto & scroll : customObjects.getSpellScrolls())
 	{
 		ObjectInfo oi(Obj::SPELL_SCROLL, 0);
 		oi.setTemplates(Obj::SPELL_SCROLL, 0, zone.getTerrainType());
