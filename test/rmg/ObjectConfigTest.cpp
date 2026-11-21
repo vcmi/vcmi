@@ -68,6 +68,14 @@ protected:
 
 TEST_F(ObjectConfigTest, EmptyZoneInheritsAllSections)
 {
+	/*
+	 * Asserts: a zone with no customObjects of its own inherits all four template-level
+	 * sections unchanged (bannedObjects, bannedCategories, commonObjects, requiredObjects).
+	 * Pass: the merged config still bans creature banks (type-level ban kept as true), keeps the
+	 * CREATURE_BANK category, has the scholar at value 900 and requires 2 refugee camps.
+	 * Fail: any section is dropped or altered by merging with an empty zone.
+	 */
+
 	ObjectConfig base;
 	base.setObjectBanned(creatureBank(-1), true);
 	base.addBannedCategory(ObjectConfig::EObjectCategory::CREATURE_BANK);
@@ -89,6 +97,13 @@ TEST_F(ObjectConfigTest, EmptyZoneInheritsAllSections)
 
 TEST_F(ObjectConfigTest, ZoneFalseLiftsExactAndTypeLevelBan)
 {
+	/*
+	 * Asserts: a zone ban entry set to false overrides the template's true entry for the same key,
+	 * both for an exact subtype (creatureBank:0) and for a whole type (cartographer:-1).
+	 * Pass: none of creatureBank:0, cartographer:0 or cartographer:-1 is banned after the merge.
+	 * Fail: the template ban survives, i.e. a zone cannot lift a template-level ban.
+	 */
+
 	ObjectConfig base;
 	base.setObjectBanned(creatureBank(0), true);
 	base.setObjectBanned(cartographer(-1), true);
@@ -106,6 +121,15 @@ TEST_F(ObjectConfigTest, ZoneFalseLiftsExactAndTypeLevelBan)
 
 TEST_F(ObjectConfigTest, ZoneFalseExemptsObjectFromCategoryAndAllBan)
 {
+	/*
+	 * Asserts: a per-object false ban in the zone exempts that object from a category ban, both for
+	 * a specific category (CREATURE_BANK) and for the ALL category inherited from the template.
+	 * Pass: each object is banned by the category alone (sanity check), and is not banned once the
+	 * zone marks it false.
+	 * Fail: the sanity check fails (category bans not applied), or the category still bans the
+	 * object despite the explicit false entry.
+	 */
+
 	ObjectConfig categoryBase;
 	categoryBase.addBannedCategory(ObjectConfig::EObjectCategory::CREATURE_BANK);
 	EXPECT_TRUE(categoryBase.isObjectBanned(creatureBank(0)));
@@ -127,6 +151,13 @@ TEST_F(ObjectConfigTest, ZoneFalseExemptsObjectFromCategoryAndAllBan)
 
 TEST_F(ObjectConfigTest, ZoneSubtypeBanWinsOverTemplateTypeAllow)
 {
+	/*
+	 * Asserts: a zone's subtype-level ban (cartographer:0 = true) takes precedence over a
+	 * template's type-level allow (cartographer:-1 = false), and affects only that subtype.
+	 * Pass: cartographer:0 is banned and cartographer:1 is not.
+	 * Fail: the type-level false hides the subtype ban, or the subtype ban spreads to other subtypes.
+	 */
+
 	ObjectConfig base;
 	base.setObjectBanned(cartographer(-1), false);
 
@@ -141,6 +172,12 @@ TEST_F(ObjectConfigTest, ZoneSubtypeBanWinsOverTemplateTypeAllow)
 
 TEST_F(ObjectConfigTest, CategoriesAreCombined)
 {
+	/*
+	 * Asserts: banned categories are combined (set union) rather than replaced by the zone's list.
+	 * Pass: the merged config bans exactly CREATURE_BANK (template) and DWELLING (zone).
+	 * Fail: either category is missing, or anything else appears in the merged set.
+	 */
+
 	ObjectConfig base;
 	base.addBannedCategory(ObjectConfig::EObjectCategory::CREATURE_BANK);
 
@@ -156,6 +193,15 @@ TEST_F(ObjectConfigTest, CategoriesAreCombined)
 
 TEST_F(ObjectConfigTest, ZoneCommonObjectReplacesSameIdAndKeepsOthers)
 {
+	/*
+	 * Asserts: commonObjects merge per object id: a zone entry replaces the template entry with the
+	 * same id, and template entries the zone does not mention are kept.
+	 * Pass: scholar has the zone value 1200, dwelling level 6 has the zone value 15000, dwelling
+	 * level 0 keeps the template value 1000, and there are exactly 3 entries (no duplicates).
+	 * Fail: the template value wins for an overridden id, an untouched template entry is lost, or
+	 * the same id appears twice.
+	 */
+
 	ObjectConfig base;
 	base.addCustomObject(makeCustomObject(scholar(), 900), *LIBRARY->objtypeh);
 	base.addCustomObject(makeCustomObject(randomDwelling(0), 1000), *LIBRARY->objtypeh);
@@ -178,6 +224,13 @@ TEST_F(ObjectConfigTest, ZoneCommonObjectReplacesSameIdAndKeepsOthers)
 
 TEST_F(ObjectConfigTest, ZoneTrueBanDropsInheritedCommonObject)
 {
+	/*
+	 * Asserts: when the zone bans an object (true), the matching commonObjects entry inherited from
+	 * the template is removed, while other inherited entries stay.
+	 * Pass: scholar is absent from the configured objects and dwelling level 0 is still present.
+	 * Fail: the banned scholar is still configured, or the unrelated dwelling entry is dropped too.
+	 */
+
 	ObjectConfig base;
 	base.addCustomObject(makeCustomObject(scholar(), 900), *LIBRARY->objtypeh);
 	base.addCustomObject(makeCustomObject(randomDwelling(0), 1000), *LIBRARY->objtypeh);
@@ -193,6 +246,13 @@ TEST_F(ObjectConfigTest, ZoneTrueBanDropsInheritedCommonObject)
 
 TEST_F(ObjectConfigTest, RequiredObjectReplacedAndCountZeroTakesEffect)
 {
+	/*
+	 * Asserts: requiredObjects merge per object id with the zone's count replacing the template's,
+	 * and a zone count of 0 is a real override (it removes the requirement), not "unset".
+	 * Pass: refugee camp is present with count 0 (was 5) and scholar is present with count 3 (was 1).
+	 * Fail: the template count survives, or the count-0 entry is dropped so the template's 5 returns.
+	 */
+
 	ObjectConfig base;
 	base.addRequiredObject(refugeeCamp(), 5);
 	base.addRequiredObject(scholar(), 1);
