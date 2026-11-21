@@ -5,6 +5,98 @@
 	"description" : "Format used to define random map templates in VCMI",
 	"definitions" :
 	{
+		"customObjects" : {
+			"type" : "object",
+			"properties": {
+				"bannedCategories": {
+					"type": "array",
+					"items": {
+						"type": "string",
+						"enum": ["all", "none", "other", "dwelling", "creatureBank", "randomArtifact", "bonus", "resource", "resourceGenerator", "spellScroll", "pandorasBox", "questArtifact", "seerHut"]
+					}
+				},
+				"bannedObjects": {
+					"type": "object",
+					"additionalProperties": {
+						"anyOf" : [
+							{
+								"type": "boolean"
+							},
+							{
+								"type": "object",
+								"additionalProperties": {
+									"type": "boolean"
+								}
+							}
+						]
+						
+					}
+				},
+				"requiredObjects": {
+					"type": "object",
+					"additionalProperties": {
+						"anyOf" : [
+							{ "type": "number", "minimum" : 0 },
+							{
+								"type": "object",
+								"additionalProperties": { "type": "number", "minimum" : 0 }
+							},
+							{
+								"type": "object",
+								"properties": {
+									"count": { "type": "number", "minimum": 0 },
+									"guard": { "type": "number", "minimum": 0 }
+								},
+								"required": ["count"],
+								"additionalProperties": false
+							},
+							{
+								"type": "object",
+								"additionalProperties": {
+									"type": "object",
+									"properties": {
+										"count": { "type": "number", "minimum": 0 },
+										"guard": { "type": "number", "minimum": 0 }
+									},
+									"required": ["count"],
+									"additionalProperties": false
+								}
+							}
+						]
+					}
+				},
+				"commonObjects": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string"
+							},
+							"subtype": {
+								"type": "string"
+							},
+							"rmg": {
+								"type": "object",
+								"properties": {
+									"value": {
+										"type": "integer"
+									},
+									"rarity": {
+										"type": "integer"
+									},
+									"zoneLimit": {
+										"type": "integer"
+									}
+								},
+								"required": ["value", "rarity"]
+							}
+						},
+						"required": ["type", "rmg"]
+					}
+				}
+			}
+		},
 		"zone" : {
 			"type" : "object",
 			"required" : ["type"],
@@ -79,98 +171,7 @@
 						"additionalProperties" : false
 					}
 				},
-				"customObjects" : {
-					"type" : "object",
-					"properties": {
-						"bannedCategories": {
-							"type": "array",
-							"items": {
-								"type": "string",
-								"enum": ["all", "dwelling", "creatureBank", "randomArtifact", "bonus", "resource", "resourceGenerator", "spellScroll", "pandorasBox", "questArtifact", "seerHut"]
-							}
-						},
-						"bannedObjects": {
-							"type": "object",
-							"additionalProperties": {
-								"anyOf" : [
-									{
-										"type": "boolean"
-									},
-									{
-										"type": "object",
-										"additionalProperties": {
-											"type": "boolean"
-										}
-									}
-								]
-								
-							}
-						},
-						"requiredObjects": {
-							"type": "object",
-							"additionalProperties": {
-								"anyOf" : [
-									{ "type": "number", "minimum" : 0 },
-									{
-										"type": "object",
-										"additionalProperties": { "type": "number", "minimum" : 0 }
-									},
-									{
-										"type": "object",
-										"properties": {
-											"count": { "type": "number", "minimum": 0 },
-											"guard": { "type": "number", "minimum": 0 }
-										},
-										"required": ["count"],
-										"additionalProperties": false
-									},
-									{
-										"type": "object",
-										"additionalProperties": {
-											"type": "object",
-											"properties": {
-												"count": { "type": "number", "minimum": 0 },
-												"guard": { "type": "number", "minimum": 0 }
-											},
-											"required": ["count"],
-											"additionalProperties": false
-										}
-									}
-								]
-							}
-						},
-						"commonObjects": {
-							"type": "array",
-							"items": {
-								"type": "object",
-								"properties": {
-									"type": {
-										"type": "string"
-									},
-									"subtype": {
-										"type": "string"
-									},
-									"rmg": {
-										"type": "object",
-										"properties": {
-											"value": {
-												"type": "integer"
-											},
-											"rarity": {
-												"type": "integer"
-											},
-											"zoneLimit": {
-												"type": "integer"
-											}
-										},
-										"required": ["value", "rarity"]
-									}
-								},
-								"required": ["type", "rmg"]
-							}
-						}
-					}
-				}
+				"customObjects" : {"$ref" : "#/definitions/customObjects"}
 			}
 		},
 
@@ -293,6 +294,11 @@
 		"bannedHeroes": {
 			"description" : "List of heroes that are banned on this template",
 			"$ref" : "#/definitions/stringArray"
+		},
+
+		"customObjects" : {
+			"description" : "Object bans, common objects and required objects applied to every zone. Zone customObjects entries override this block per object.",
+			"$ref" : "#/definitions/customObjects"
 		},
 		
 		"name" : {
