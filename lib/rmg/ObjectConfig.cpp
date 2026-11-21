@@ -327,6 +327,12 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 
 		for (const auto & objectConfig : configCommonObjects.Vector())
 		{
+			if (!objectConfig["type"].isString() || objectConfig["type"].String().empty())
+			{
+				logMod->error("Mod '%s': RMG commonObjects entry without \"type\" is ignored: %s", objectConfig.getModScope(), objectConfig.toCompactString());
+				continue;
+			}
+
 			auto rmg = objectConfig["rmg"].Struct();
 
 			ObjectInfo object;
