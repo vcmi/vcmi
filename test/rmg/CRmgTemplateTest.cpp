@@ -14,6 +14,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 
+#include "../../lib/mapObjects/CGCreature.h"
 #include "../../lib/rmg/CRmgTemplate.h"
 
 #include "../../lib/serializer/JsonSerializer.h"
@@ -232,6 +233,72 @@ TEST_F(CRmgTemplateTest, AfterLoadConcatenatesPandoraBoxes)
 
 	EXPECT_THAT(subject->getZones().at(1)->getCustomObjects().getPandoraBoxes(), ElementsAre(rootBox, zoneBox));
 	EXPECT_THAT(subject->getZones().at(2)->getCustomObjects().getPandoraBoxes(), ElementsAre(rootBox, zoneBox));
+}
+
+TEST_F(CRmgTemplateTest, AfterLoadMergesTemplateMonsterJoining)
+{
+	/*
+	 * Asserts: after afterLoad, each zone's monsterJoining is the per-field merge of the
+	 * template block into the zone block. custom without aggression resets character.
+	 * Pass: zone 1 has the template fields; zone 2 keeps them and sets character; zone 3
+	 * has character unset.
+	 * Fail: zone values replace the whole block, template fields are dropped, or custom
+	 * without aggression stays CUSTOM.
+	 */
+	constexpr char text[] = R"({
+		"minSize" : "s",
+		"maxSize" : "s",
+		"players" : "1",
+		"monsterJoining" : {
+			"joiningPercentage" : 50,
+			"joinOnlyForMoney" : true
+		},
+		"zones" : {
+			"1" : { "type" : "treasure", "size" : 10 },
+			"2" : {
+				"type" : "treasure",
+				"size" : 10,
+				"monsterJoining" : { "character" : "hostile" }
+			},
+			"3" : {
+				"type" : "treasure",
+				"size" : 10,
+				"monsterJoining" : { "character" : "custom" }
+			}
+		},
+		"connections" : [
+			{ "a" : "1", "b" : "2", "guard" : 1000 },
+			{ "a" : "2", "b" : "3", "guard" : 1000 }
+		]
+	})";
+
+	JsonNode config(text, std::size(text), "AfterLoadMergesTemplateMonsterJoining");
+	auto subject = std::make_shared<CRmgTemplate>();
+	subject->setId("monsterJoining");
+
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, config);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	subject->afterLoad(*LIBRARY);
+
+	const auto zoneA = subject->getZones().at(1)->getMonsterJoining();
+	EXPECT_FALSE(zoneA.character.has_value());
+	EXPECT_EQ(zoneA.joiningPercentage, static_cast<int8_t>(50));
+	EXPECT_EQ(zoneA.joinOnlyForMoney, true);
+
+	const auto zoneB = subject->getZones().at(2)->getMonsterJoining();
+	EXPECT_EQ(zoneB.character, CGCreature::Character::HOSTILE);
+	EXPECT_EQ(zoneB.joiningPercentage, static_cast<int8_t>(50));
+	EXPECT_EQ(zoneB.joinOnlyForMoney, true);
+
+	const auto zoneC = subject->getZones().at(3)->getMonsterJoining();
+	EXPECT_FALSE(zoneC.character.has_value());
+	EXPECT_FALSE(zoneC.aggression.has_value());
+	EXPECT_EQ(zoneC.joiningPercentage, static_cast<int8_t>(50));
+	EXPECT_EQ(zoneC.joinOnlyForMoney, true);
 }
 
 }

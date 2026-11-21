@@ -30,6 +30,10 @@ public:
 		CUSTOM = 5
 	};
 
+	inline static const std::vector<std::string> CHARACTER_JSON{
+		"compliant", "friendly", "aggressive", "hostile", "savage", "custom"
+	};
+
 	enum class UpgradedStackPresence : int8_t {
 		RANDOM = -1,
 		NEVER = 0,

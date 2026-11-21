@@ -756,11 +756,6 @@ void CGCreature::giveReward(IGameEventCallback & gameEvents, const CGHeroInstanc
 	}
 }
 
-static const std::vector<std::string> CHARACTER_JSON  =
-{
-	"compliant", "friendly", "aggressive", "hostile", "savage", "custom"
-};
-
 //UpgradedStackPresence starts at RANDOM = -1, while serializeEnum indexes from zero
 static const std::vector<std::string> UPGRADED_STACK_PRESENCE_JSON =
 {
