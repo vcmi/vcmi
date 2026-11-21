@@ -26,6 +26,15 @@
 		"maxSize": "s+u",
 		"minSize": "s",
 		"players": "2",
+		"customObjects": {
+			"bannedCategories": [
+				"creatureBank"
+			],
+			"bannedObjects": {
+				"core:scholar": false
+			},
+			"commonObjects": []
+		},
 		"zones": {
 			"1": {
 				"customObjects": {
@@ -208,6 +217,11 @@
 		"minSize": "l",
 		"name": "test name",
 		"players": "1,2-4",
+		"customObjects": {
+			"bannedCategories": [],
+			"bannedObjects": {},
+			"commonObjects": []
+		},
 		"zones": {
 			"1": {
 				"allowedMonsters": [
