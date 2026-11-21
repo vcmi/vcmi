@@ -111,6 +111,13 @@
 									"zoneFactions": {
 										"type": "array",
 										"items": { "type": "string" }
+									},
+									"nativeCreatures": {
+										"type": "object",
+										"additionalProperties": false,
+										"properties": {
+											"level": { "type": "integer", "minimum": 0 }
+										}
 									}
 								}
 							}
