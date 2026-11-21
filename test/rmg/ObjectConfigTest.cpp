@@ -12,6 +12,7 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/rmg/ObjectConfig.h"
 #include "../../lib/rmg/ObjectInfo.h"
 #include "../../lib/serializer/JsonDeserializer.h"
@@ -68,6 +69,42 @@ protected:
 		{
 			if(object.getCompoundID() == id)
 				return &object;
+		}
+		return nullptr;
+	}
+
+	static SpellID spellId(const std::string & name)
+	{
+		auto id = LIBRARY->identifiers()->getIdentifier("core", "spell", name);
+		if(!id)
+			throw std::runtime_error("unknown spell: " + name);
+		return SpellID(*id);
+	}
+
+	static ObjectConfig loadConfig(const std::string & text)
+	{
+		JsonNode json(text.data(), text.size(), "ObjectConfigTest");
+		ObjectConfig config;
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, json);
+		config.serializeJson(handler, *LIBRARY->objtypeh);
+		return config;
+	}
+
+	static JsonNode saveConfig(ObjectConfig & config)
+	{
+		JsonNode saved;
+		JsonSerializer handler(nullptr, saved);
+		config.serializeJson(handler, *LIBRARY->objtypeh);
+		return saved;
+	}
+
+	const ObjectConfig::SpellScrollInfo * findScroll(const ObjectConfig & config, SpellID spell)
+	{
+		for(const auto & scroll : config.getSpellScrolls())
+		{
+			if(scroll.spell == spell)
+				return &scroll;
 		}
 		return nullptr;
 	}
@@ -366,6 +403,280 @@ TEST_F(ObjectConfigTest, PandoraBoxesRoundTripUnchanged)
 		ObjectConfig().serializeJson(handler, *LIBRARY->objtypeh);
 	}
 	EXPECT_FALSE(savedEmpty.Struct().count("pandoraBoxes"));
+}
+
+TEST_F(ObjectConfigTest, SpellScrollsLoadAllFieldsAndSpellOnly)
+{
+	/*
+	 * Asserts: spellScrolls load rmg.value, rmg.rarity and rmg.zoneLimit when set, and leave value
+	 * and rarity unset with zoneLimit 0 when only spell is given.
+	 * Pass: townPortal has value 6000, rarity 9999, zoneLimit 1; magicArrow has no value or rarity
+	 * and zoneLimit 0.
+	 * Fail: a field is dropped, a default is filled in at load, or the spell-only entry is skipped.
+	 */
+
+	auto loaded = loadConfig(R"({
+		"spellScrolls" : [
+			{ "spell" : "townPortal", "rmg" : { "value" : 6000, "rarity" : 9999, "zoneLimit" : 1 } },
+			{ "spell" : "magicArrow" }
+		]
+	})");
+
+	const auto townPortal = findScroll(loaded, spellId("townPortal"));
+	ASSERT_NE(townPortal, nullptr);
+	ASSERT_TRUE(townPortal->value.has_value());
+	EXPECT_EQ(*townPortal->value, 6000u);
+	ASSERT_TRUE(townPortal->rarity.has_value());
+	EXPECT_EQ(*townPortal->rarity, 9999);
+	EXPECT_EQ(townPortal->zoneLimit, 1u);
+
+	const auto magicArrow = findScroll(loaded, spellId("magicArrow"));
+	ASSERT_NE(magicArrow, nullptr);
+	EXPECT_FALSE(magicArrow->value.has_value());
+	EXPECT_FALSE(magicArrow->rarity.has_value());
+	EXPECT_EQ(magicArrow->zoneLimit, 0u);
+}
+
+TEST_F(ObjectConfigTest, SpellScrollsDropEntryWithoutSpell)
+{
+	/*
+	 * Asserts: a spellScrolls entry without a spell string is dropped, while a valid neighbour is kept.
+	 * Pass: only the fly entry is loaded.
+	 * Fail: the incomplete entry is stored, or the valid entry is dropped with it.
+	 */
+
+	auto loaded = loadConfig(R"({
+		"spellScrolls" : [
+			{ "rmg" : { "value" : 6000 } },
+			{ "spell" : "fly" }
+		]
+	})");
+
+	EXPECT_EQ(loaded.getSpellScrolls().size(), 1u);
+	ASSERT_NE(findScroll(loaded, spellId("fly")), nullptr);
+}
+
+TEST_F(ObjectConfigTest, RequiredScrollsStayOutOfRequiredObjects)
+{
+	/*
+	 * Asserts: requiredObjects.spellScroll number and { count, guard } forms go to getRequiredScrolls,
+	 * while a normal required object stays in getRequiredObjects; clearRequiredObjects keeps the scrolls.
+	 * Pass: dimensionDoor count 2 with no guard, townPortal count 1 guard 20000, refugeeCamp count 5
+	 * in required objects, and after clearRequiredObjects the scrolls remain and refugeeCamp is gone.
+	 * Fail: a scroll lands in getRequiredObjects, a field is dropped, or clearRequiredObjects clears scrolls.
+	 */
+
+	auto loaded = loadConfig(R"({
+		"requiredObjects" : {
+			"refugeeCamp" : 5,
+			"spellScroll" : {
+				"dimensionDoor" : 2,
+				"townPortal" : { "count" : 1, "guard" : 20000 }
+			}
+		}
+	})");
+
+	const CompoundMapObjectID refugeeCampType(Obj::REFUGEE_CAMP, -1);
+	ASSERT_TRUE(loaded.getRequiredObjects().count(refugeeCampType));
+	EXPECT_EQ(loaded.getRequiredObjects().at(refugeeCampType).first, 5);
+	EXPECT_EQ(loaded.getRequiredObjects().size(), 1u);
+
+	const auto dimensionDoor = spellId("dimensionDoor");
+	const auto townPortal = spellId("townPortal");
+	ASSERT_TRUE(loaded.getRequiredScrolls().count(dimensionDoor));
+	EXPECT_EQ(loaded.getRequiredScrolls().at(dimensionDoor).first, 2);
+	EXPECT_FALSE(loaded.getRequiredScrolls().at(dimensionDoor).second.has_value());
+	ASSERT_TRUE(loaded.getRequiredScrolls().count(townPortal));
+	EXPECT_EQ(loaded.getRequiredScrolls().at(townPortal).first, 1);
+	ASSERT_TRUE(loaded.getRequiredScrolls().at(townPortal).second.has_value());
+	EXPECT_EQ(*loaded.getRequiredScrolls().at(townPortal).second, 20000u);
+
+	loaded.clearRequiredObjects();
+	EXPECT_TRUE(loaded.getRequiredObjects().empty());
+	ASSERT_TRUE(loaded.getRequiredScrolls().count(dimensionDoor));
+	EXPECT_EQ(loaded.getRequiredScrolls().at(dimensionDoor).first, 2);
+	ASSERT_TRUE(loaded.getRequiredScrolls().count(townPortal));
+}
+
+TEST_F(ObjectConfigTest, SpellScrollsAndRequiredScrollsRoundTrip)
+{
+	/*
+	 * Asserts: save then load keeps every spellScrolls and required-scroll field, and empty lists
+	 * are not written.
+	 * Pass: townPortal keeps value, rarity and zoneLimit; fly keeps only spell; dimensionDoor keeps
+	 * count; townPortal required keeps count and guard; an empty config writes neither key.
+	 * Fail: a field is dropped or filled in, or an empty array/object is written.
+	 */
+
+	auto loaded = loadConfig(R"({
+		"spellScrolls" : [
+			{ "spell" : "townPortal", "rmg" : { "value" : 6000, "rarity" : 9999, "zoneLimit" : 1 } },
+			{ "spell" : "fly" }
+		],
+		"requiredObjects" : {
+			"spellScroll" : {
+				"dimensionDoor" : 2,
+				"townPortal" : { "count" : 1, "guard" : 20000 }
+			}
+		}
+	})");
+
+	JsonNode saved = saveConfig(loaded);
+	ObjectConfig reloaded;
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, saved);
+		reloaded.serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	ASSERT_EQ(reloaded.getSpellScrolls().size(), 2u);
+	const auto townPortalScroll = findScroll(reloaded, spellId("townPortal"));
+	ASSERT_NE(townPortalScroll, nullptr);
+	ASSERT_TRUE(townPortalScroll->value.has_value());
+	EXPECT_EQ(*townPortalScroll->value, 6000u);
+	ASSERT_TRUE(townPortalScroll->rarity.has_value());
+	EXPECT_EQ(*townPortalScroll->rarity, 9999);
+	EXPECT_EQ(townPortalScroll->zoneLimit, 1u);
+	const auto flyScroll = findScroll(reloaded, spellId("fly"));
+	ASSERT_NE(flyScroll, nullptr);
+	EXPECT_FALSE(flyScroll->value.has_value());
+	EXPECT_FALSE(flyScroll->rarity.has_value());
+	EXPECT_EQ(flyScroll->zoneLimit, 0u);
+
+	const auto dimensionDoor = spellId("dimensionDoor");
+	const auto townPortal = spellId("townPortal");
+	ASSERT_TRUE(reloaded.getRequiredScrolls().count(dimensionDoor));
+	EXPECT_EQ(reloaded.getRequiredScrolls().at(dimensionDoor).first, 2);
+	EXPECT_FALSE(reloaded.getRequiredScrolls().at(dimensionDoor).second.has_value());
+	ASSERT_TRUE(reloaded.getRequiredScrolls().count(townPortal));
+	EXPECT_EQ(reloaded.getRequiredScrolls().at(townPortal).first, 1);
+	ASSERT_TRUE(reloaded.getRequiredScrolls().at(townPortal).second.has_value());
+	EXPECT_EQ(*reloaded.getRequiredScrolls().at(townPortal).second, 20000u);
+
+	JsonNode savedEmpty;
+	{
+		JsonSerializer handler(nullptr, savedEmpty);
+		ObjectConfig().serializeJson(handler, *LIBRARY->objtypeh);
+	}
+	EXPECT_FALSE(savedEmpty.Struct().count("spellScrolls"));
+	EXPECT_FALSE(savedEmpty.Struct().count("requiredObjects"));
+}
+
+TEST_F(ObjectConfigTest, SpellScrollsMergeReplacesSameSpell)
+{
+	/*
+	 * Asserts: a zone spellScrolls entry for townPortal replaces the template one; a template fly
+	 * entry is kept and comes before the zone entries.
+	 * Pass: merged list is fly (template rarity 30) then townPortal (zone rarity 9999).
+	 * Fail: the template townPortal survives, fly is lost, or fly comes after the zone entry.
+	 */
+
+	ObjectConfig::SpellScrollInfo templateTownPortal;
+	templateTownPortal.spell = spellId("townPortal");
+	templateTownPortal.rarity = 10;
+	ObjectConfig::SpellScrollInfo templateFly;
+	templateFly.spell = spellId("fly");
+	templateFly.rarity = 30;
+	ObjectConfig::SpellScrollInfo zoneTownPortal;
+	zoneTownPortal.spell = spellId("townPortal");
+	zoneTownPortal.rarity = 9999;
+
+	ObjectConfig base;
+	base.addSpellScroll(templateTownPortal);
+	base.addSpellScroll(templateFly);
+
+	ObjectConfig zone;
+	zone.addSpellScroll(zoneTownPortal);
+
+	auto merged = ObjectConfig::merge(base, zone);
+	ASSERT_EQ(merged.getSpellScrolls().size(), 2u);
+	EXPECT_EQ(merged.getSpellScrolls()[0].spell, spellId("fly"));
+	ASSERT_TRUE(merged.getSpellScrolls()[0].rarity.has_value());
+	EXPECT_EQ(*merged.getSpellScrolls()[0].rarity, 30);
+	EXPECT_EQ(merged.getSpellScrolls()[1].spell, spellId("townPortal"));
+	ASSERT_TRUE(merged.getSpellScrolls()[1].rarity.has_value());
+	EXPECT_EQ(*merged.getSpellScrolls()[1].rarity, 9999);
+}
+
+TEST_F(ObjectConfigTest, SpellScrollsSurviveZoneBans)
+{
+	/*
+	 * Asserts: a zone spellScroll category ban, a type-level spellScroll object ban, and an ALL
+	 * category ban keep inherited spellScrolls and required scrolls.
+	 * Pass: each merge still has the template townPortal pool entry and dimensionDoor required scroll.
+	 * Fail: a ban drops either, as bans do for commonObjects.
+	 */
+
+	ObjectConfig::SpellScrollInfo townPortal;
+	townPortal.spell = spellId("townPortal");
+	townPortal.rarity = 9999;
+
+	ObjectConfig base;
+	base.addSpellScroll(townPortal);
+	base.addRequiredScroll(spellId("dimensionDoor"), 2);
+
+	ObjectConfig categoryZone;
+	categoryZone.addBannedCategory(ObjectConfig::EObjectCategory::SPELL_SCROLL);
+	auto categoryMerged = ObjectConfig::merge(base, categoryZone);
+	ASSERT_NE(findScroll(categoryMerged, spellId("townPortal")), nullptr);
+	ASSERT_TRUE(categoryMerged.getRequiredScrolls().count(spellId("dimensionDoor")));
+
+	ObjectConfig objectZone;
+	objectZone.setObjectBanned(CompoundMapObjectID(Obj::SPELL_SCROLL, -1), true);
+	auto objectMerged = ObjectConfig::merge(base, objectZone);
+	ASSERT_NE(findScroll(objectMerged, spellId("townPortal")), nullptr);
+	ASSERT_TRUE(objectMerged.getRequiredScrolls().count(spellId("dimensionDoor")));
+
+	ObjectConfig allZone;
+	allZone.addBannedCategory(ObjectConfig::EObjectCategory::ALL);
+	auto allMerged = ObjectConfig::merge(base, allZone);
+	ASSERT_NE(findScroll(allMerged, spellId("townPortal")), nullptr);
+	ASSERT_TRUE(allMerged.getRequiredScrolls().count(spellId("dimensionDoor")));
+}
+
+TEST_F(ObjectConfigTest, RequiredScrollReplacedAndCountZeroTakesEffect)
+{
+	/*
+	 * Asserts: required scrolls merge per spell with the zone's count replacing the template's, and
+	 * a zone count of 0 is a real override, not "unset".
+	 * Pass: townPortal is present with count 0 (was 2) and dimensionDoor is present with count 3 (was 1).
+	 * Fail: the template count survives, or the count-0 entry is dropped so the template's 2 returns.
+	 */
+
+	const auto townPortal = spellId("townPortal");
+	const auto dimensionDoor = spellId("dimensionDoor");
+
+	ObjectConfig base;
+	base.addRequiredScroll(townPortal, 2);
+	base.addRequiredScroll(dimensionDoor, 1);
+
+	ObjectConfig zone;
+	zone.addRequiredScroll(townPortal, 0);
+	zone.addRequiredScroll(dimensionDoor, 3);
+
+	auto merged = ObjectConfig::merge(base, zone);
+	ASSERT_TRUE(merged.getRequiredScrolls().count(townPortal));
+	EXPECT_EQ(merged.getRequiredScrolls().at(townPortal).first, 0);
+	ASSERT_TRUE(merged.getRequiredScrolls().count(dimensionDoor));
+	EXPECT_EQ(merged.getRequiredScrolls().at(dimensionDoor).first, 3);
+}
+
+TEST_F(ObjectConfigTest, DefaultScrollValueBySpellLevel)
+{
+	/*
+	 * Asserts: getDefaultScrollValue indexes scrollValues by the spell's level (1-based), and returns
+	 * 0 when that level has no entry.
+	 * Pass: magicArrow (level 1) is 500 and townPortal (level 4) is 4000 for five values; townPortal
+	 * is 0 when only three values are given.
+	 * Fail: the index is 0-based, the wrong spell level is used, or a missing level throws.
+	 */
+
+	const std::vector<int> fiveValues{500, 2000, 3000, 4000, 5000};
+	EXPECT_EQ(ObjectConfig::getDefaultScrollValue(spellId("magicArrow"), fiveValues), 500u);
+	EXPECT_EQ(ObjectConfig::getDefaultScrollValue(spellId("townPortal"), fiveValues), 4000u);
+
+	const std::vector<int> threeValues{500, 2000, 3000};
+	EXPECT_EQ(ObjectConfig::getDefaultScrollValue(spellId("townPortal"), threeValues), 0u);
 }
 
 }

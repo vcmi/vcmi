@@ -57,6 +57,23 @@ public:
 	void clearRequiredObjects();
 	/// Entry of customObjects.pandoraBoxes: Pandora box map options plus an "rmg" block, parsed by TreasurePlacer during generation
 	void addPandoraBox(const JsonNode & entry);
+
+	struct SpellScrollInfo
+	{
+		SpellID spell;
+		std::optional<ui32> value;
+		std::optional<ui16> rarity;
+		ui32 zoneLimit = 0; // 0 = unlimited
+	};
+
+	void addSpellScroll(const SpellScrollInfo & scroll);
+	const std::vector<SpellScrollInfo> & getSpellScrolls() const;
+	void addRequiredScroll(SpellID spell, ui16 count, std::optional<ui32> guardLevel = std::nullopt);
+	const std::map<SpellID, std::pair<ui16, std::optional<ui32>>> & getRequiredScrolls() const;
+
+	/// Built-in value of a scroll with this spell: scrollValues[level - 1], or 0 when the level has no entry
+	static ui32 getDefaultScrollValue(SpellID spell, const std::vector<int> & scrollValues);
+
 	const std::map<CompoundMapObjectID, bool> & getObjectBans() const;
 	const std::vector<EObjectCategory> & getBannedObjectCategories() const;
 	const std::vector<ObjectInfo> & getConfiguredObjects() const;
@@ -76,5 +93,7 @@ private:
 	std::vector<ObjectInfo> customObjects;
 	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> requiredObjects; // obligatory, potentially guarded objects to spawn in this zone
 	std::vector<JsonNode> pandoraBoxes; // raw JSON, because rewards cannot be loaded while templates are (LIBRARY is not set yet)
+	std::vector<SpellScrollInfo> spellScrolls;
+	std::map<SpellID, std::pair<ui16, std::optional<ui32>>> requiredScrolls;
 
 };
