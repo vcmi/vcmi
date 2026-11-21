@@ -81,6 +81,9 @@ set(test_SRCS
 		quest/CQuestBorderTest.cpp
 		quest/CQuestGateTest.cpp
 
+		rmg/CRmgTemplateTest.cpp
+		rmg/ObjectConfigTest.cpp
+
 		netpacks/NetPackFixture.cpp
 
 		spells/AbilityCasterTest.cpp

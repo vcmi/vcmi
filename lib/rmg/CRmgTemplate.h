@@ -249,11 +249,6 @@ public:
 	
 	bool areTownsSameType() const;
 
-	// Get a group of configured objects
-	const std::vector<CompoundMapObjectID> & getBannedObjects() const;
-	const std::vector<ObjectConfig::EObjectCategory> & getBannedObjectCategories() const;
-	const std::vector<ObjectInfo> & getConfiguredObjects() const;
-
 	// Copy whole custom object config from another zone
 	ObjectConfig getCustomObjects() const;
 	void setCustomObjects(const ObjectConfig & value);
@@ -371,6 +366,7 @@ public:
 	const std::set<ArtifactID> & getEnabledArtifacts() const { return enabledArtifacts; }
 	const std::set<SecondarySkill> & getEnabledSkills() const { return enabledSkills; }
 	const std::set<HeroTypeID> & getEnabledHeroes() const { return enabledHeroes; }
+	const ObjectConfig & getCustomObjects() const { return objectConfig; }
 
 	void validate() const; /// Tests template on validity and throws exception on failure
 
@@ -399,6 +395,7 @@ private:
 	std::set<ArtifactID> enabledArtifacts;
 	std::set<SecondarySkill> enabledSkills;
 	std::set<HeroTypeID> enabledHeroes;
+	ObjectConfig objectConfig;
 
 	std::set<TerrainId> inheritTerrainType(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);
 	std::map<GameResID, ui16> inheritMineTypes(std::shared_ptr<rmg::ZoneOptions> zone, uint32_t iteration = 0);

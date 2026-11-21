@@ -1323,6 +1323,12 @@ void TemplateEditor::on_pushButtonEntitiesBannedHeroes_clicked()
 	EntitiesSelector::showEntitiesSelector(entitiesVariant);
 }
 
+void TemplateEditor::on_pushButtonEntitiesCustomObjects_clicked()
+{
+	ObjectSelector::showObjectSelector(templates[selectedTemplate]->objectConfig);
+	changed();
+}
+
 void TemplateEditor::on_actionExit_triggered()
 {
 	close();
