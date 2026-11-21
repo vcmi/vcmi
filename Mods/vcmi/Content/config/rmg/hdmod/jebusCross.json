@@ -56,7 +56,15 @@
 								{"min" : 35000, "max": 55000, "density" : 3},
 								{"min" : 25000, "max": 35000, "density" : 10},
 								{"min" : 10000, "max": 25000, "density" : 10}
-							]
+							],
+				"customObjects" : {
+					"spellScrolls" : [
+						{ "spell" : "townPortal", "rmg" : { "rarity" : 9999, "zoneLimit" : 2 } }
+					],
+					"requiredObjects" : {
+						"spellScroll" : { "dimensionDoor" : 2 }
+					}
+				}
 			}
 		},
 		"connections" :
@@ -65,6 +73,13 @@
 			{ "a" : "2", "b" : "5", "guard" : 45000 },
 			{ "a" : "3", "b" : "5", "guard" : 45000 },
 			{ "a" : "4", "b" : "5", "guard" : 45000 }
-		]
+		],
+		"customObjects" :
+		{
+			"bannedCategories" : [ "spellScroll" ],
+			"spellScrolls" : [
+				{ "spell" : "townPortal", "rmg" : { "rarity" : 9999, "zoneLimit" : 1 } }
+			]
+		}
 	}
 }
