@@ -18,6 +18,7 @@
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../mapObjectConstructors/IObjectInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../spells/CSpell.h"
 
 namespace
 {
@@ -176,6 +177,38 @@ void ObjectConfig::clearRequiredObjects()
 void ObjectConfig::addPandoraBox(const JsonNode & entry)
 {
 	pandoraBoxes.push_back(entry);
+}
+
+void ObjectConfig::addSpellScroll(const SpellScrollInfo & scroll)
+{
+	spellScrolls.push_back(scroll);
+}
+
+const std::vector<ObjectConfig::SpellScrollInfo> & ObjectConfig::getSpellScrolls() const
+{
+	return spellScrolls;
+}
+
+void ObjectConfig::addRequiredScroll(SpellID spell, ui16 count, std::optional<ui32> guardLevel)
+{
+	requiredScrolls[spell] = std::pair{count, guardLevel};
+
+	logRmg->debug("Added required spell scroll %d, count: %d, guard level: %s",
+		spell.getNum(), count,
+		guardLevel.has_value() ? std::to_string(guardLevel.value()) : "none");
+}
+
+const std::map<SpellID, std::pair<ui16, std::optional<ui32>>> & ObjectConfig::getRequiredScrolls() const
+{
+	return requiredScrolls;
+}
+
+ui32 ObjectConfig::getDefaultScrollValue(SpellID spell, const std::vector<int> & scrollValues)
+{
+	const int32_t level = spell.toSpell()->getLevel();
+	if(level < 1 || static_cast<size_t>(level) > scrollValues.size())
+		return 0;
+	return static_cast<ui32>(scrollValues[level - 1]);
 }
 
 void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects)
@@ -394,7 +427,71 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 
 	if(handler.saving)
 	{
-		if(!requiredObjects.empty())
+		if(!spellScrolls.empty())
+		{
+			auto scrollsArray = handler.enterArray("spellScrolls");
+			scrollsArray.syncSize(spellScrolls, JsonNode::JsonType::DATA_STRUCT);
+			for(size_t i = 0; i < spellScrolls.size(); ++i)
+			{
+				auto objectStruct = scrollsArray.enterStruct(i);
+				const auto & scroll = spellScrolls[i];
+				std::string spellName = SpellID::encode(scroll.spell.getNum());
+				objectStruct->serializeString("spell", spellName);
+				if(scroll.value.has_value() || scroll.rarity.has_value() || scroll.zoneLimit)
+				{
+					auto rmgStruct = objectStruct->enterStruct("rmg");
+					if(scroll.value.has_value())
+					{
+						ui32 value = *scroll.value;
+						rmgStruct->serializeInt("value", value);
+					}
+					if(scroll.rarity.has_value())
+					{
+						ui16 rarity = *scroll.rarity;
+						rmgStruct->serializeInt("rarity", rarity);
+					}
+					if(scroll.zoneLimit)
+					{
+						ui32 zoneLimit = scroll.zoneLimit;
+						rmgStruct->serializeInt("zoneLimit", zoneLimit);
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		const JsonNode & configSpellScrolls = handler.getCurrent()["spellScrolls"];
+		auto & resolver = handler.getIdentifierResolver();
+
+		for(const auto & entry : configSpellScrolls.Vector())
+		{
+			if(!entry["spell"].isString() || entry["spell"].String().empty())
+			{
+				logMod->error("Mod '%s': RMG spellScrolls entry without \"spell\" is ignored: %s", entry.getModScope(), entry.toCompactString());
+				continue;
+			}
+
+			SpellScrollInfo info;
+			const JsonNode & rmg = entry["rmg"];
+			if(!rmg["value"].isNull())
+				info.value = static_cast<ui32>(rmg["value"].Integer());
+			if(!rmg["rarity"].isNull())
+				info.rarity = static_cast<ui16>(rmg["rarity"].Integer());
+			info.zoneLimit = static_cast<ui32>(rmg["zoneLimit"].Integer());
+
+			resolver.requestIdentifierIfFound("spell", entry["spell"], [this, info](int spellIndex)
+			{
+				auto scroll = info;
+				scroll.spell = SpellID(spellIndex);
+				addSpellScroll(scroll);
+			});
+		}
+	}
+
+	if(handler.saving)
+	{
+		if(!requiredObjects.empty() || !requiredScrolls.empty())
 		{
 			auto requiredObjectsStruct = handler.enterStruct("requiredObjects");
 			for(const auto & [objId, info] : requiredObjects)
@@ -411,6 +508,22 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 				{
 					ui32 guardVal = info.second.value();
 					subEntryStruct->serializeInt("guard", guardVal);
+				}
+			}
+			if(!requiredScrolls.empty())
+			{
+				auto scrollStruct = requiredObjectsStruct->enterStruct(objects.getJsonKey(Obj::SPELL_SCROLL));
+				for(const auto & [spell, info] : requiredScrolls)
+				{
+					std::string spellKey = SpellID::encode(spell.getNum());
+					auto spellStruct = scrollStruct->enterStruct(spellKey);
+					ui16 countVal = info.first;
+					spellStruct->serializeInt("count", countVal);
+					if(info.second.has_value())
+					{
+						ui32 guardVal = info.second.value();
+						spellStruct->serializeInt("guard", guardVal);
+					}
 				}
 			}
 		}
@@ -443,6 +556,22 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 					if (node.second.Struct().contains("count"))
 					{
 						addRequiredObject(CompoundMapObjectID(primaryID, -1), getInfo(node.second));
+					}
+					else if(primaryID == Obj::SPELL_SCROLL)
+					{
+						for(const auto & subNode : node.second.Struct())
+						{
+							resolver.requestIdentifierIfFound(node.second.getModScope(), "spell", subNode.first, [this, subNode, getInfo](int spellIndex)
+							{
+								if(subNode.second.isNumber())
+									addRequiredScroll(SpellID(spellIndex), static_cast<ui16>(subNode.second.Integer()));
+								else
+								{
+									auto info = getInfo(subNode.second);
+									addRequiredScroll(SpellID(spellIndex), info.first, info.second);
+								}
+							});
+						}
 					}
 					else
 					{
@@ -549,6 +678,23 @@ ObjectConfig ObjectConfig::merge(const ObjectConfig & base, const ObjectConfig &
 
 	// Template boxes first, then zone boxes; bans never remove them
 	vstd::concatenate(result.pandoraBoxes, override.pandoraBoxes);
+
+	std::set<SpellID> overrideSpells;
+	for(const auto & scroll : override.spellScrolls)
+		overrideSpells.insert(scroll.spell);
+
+	std::vector<SpellScrollInfo> mergedScrolls;
+	for(const auto & scroll : base.spellScrolls)
+	{
+		if(!overrideSpells.count(scroll.spell))
+			mergedScrolls.push_back(scroll);
+	}
+	for(const auto & scroll : override.spellScrolls)
+		mergedScrolls.push_back(scroll);
+	result.spellScrolls = std::move(mergedScrolls);
+
+	for(const auto & [spell, info] : override.requiredScrolls)
+		result.requiredScrolls[spell] = info;
 
 	return result;
 }
