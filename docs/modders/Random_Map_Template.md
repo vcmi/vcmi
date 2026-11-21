@@ -355,7 +355,7 @@ The `customObjects` block can be set at the template root and in a zone. The tem
 
 ### Pandora boxes
 
-A `pandoraBoxes` entry is the `options` block of a Pandora box in a `.vmap` map, plus an `rmg` block. Content can use the short form (`experience`, `mana`, `morale`, `luck`, `resources`, `primarySkills`, `secondarySkills`, `artifacts`, `spells`, `creatures`) or the `rewardable` block that the map editor saves.
+A `pandoraBoxes` entry is the `options` block of a Pandora box in a `.vmap` map, plus an `rmg` block. Content can use the short form (`experience`, `mana`, `morale`, `luck`, `resources`, `primarySkills`, `secondarySkills`, `artifacts`, `spells`, `creatures`) or the `rewardable` block that the map editor saves. Fields left out of a `rewardable` block are read as 0, as in a map; set `manaPercentage` and `movePercentage` of each reward to -1, or the reward sets the hero's mana and movement points to 0.
 
 The `rmg` block:
 
