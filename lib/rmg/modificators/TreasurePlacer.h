@@ -18,7 +18,6 @@ class CGObjectInstance;
 class ObjectManager;
 class RmgMap;
 class CMapGenerator;
-class ObjectConfig;
 
 class TreasurePlacer: public Modificator
 {
@@ -72,8 +71,6 @@ protected:
 		void patchWithZoneConfig(const Zone & zone, TreasurePlacer * tp);
 		void sortPossibleObjects();
 		void discardObjectsAboveValue(ui32 value);
-
-		ObjectConfig::EObjectCategory getObjectCategory(CompoundMapObjectID id);
 
 	private:
 

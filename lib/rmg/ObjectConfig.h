@@ -11,8 +11,10 @@
 #pragma once
 
 #include "../mapObjects/CompoundMapObjectID.h"
+#include "ObjectInfo.h"
 
 class CObjectClassesHandler;
+class JsonSerializeFormat;
 
 #ifdef ENABLE_TEMPLATE_EDITOR
 class ObjectSelector;
@@ -46,27 +48,27 @@ public:
 	/// Rarity of native dwellings without rmg info, also the default rarity of randomDwellingLvl common objects
 	static constexpr ui16 NATIVE_DWELLING_RARITY = 40;
 
-	void addBannedObject(const CompoundMapObjectID & objid);
+	void setObjectBanned(const CompoundMapObjectID & objid, bool banned);
+	void addBannedCategory(EObjectCategory category);
 	void addCustomObject(const ObjectInfo & object, const CObjectClassesHandler & objects);
 	void addRequiredObject(const CompoundMapObjectID & objid, ui16 count, std::optional<ui32> guardLevel = std::nullopt);
 	void addRequiredObject(const CompoundMapObjectID & objid, std::pair<ui16, std::optional<ui32>> info);
-	void clearBannedObjects();
-	void clearCustomObjects();
 	void clearRequiredObjects();
-	const std::vector<CompoundMapObjectID> & getBannedObjects() const;
+	const std::map<CompoundMapObjectID, bool> & getObjectBans() const;
 	const std::vector<EObjectCategory> & getBannedObjectCategories() const;
 	const std::vector<ObjectInfo> & getConfiguredObjects() const;
+	bool isObjectBanned(const CompoundMapObjectID & objid) const;
 
 	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> getRequiredObjects() const;
 
+	/// Effective config of a zone: `override` entries replace `base` entries per object, per the VCM-22 merge rules
+	static ObjectConfig merge(const ObjectConfig & base, const ObjectConfig & override);
+
 	void serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects);
 private:
-	// TODO: Add convenience method for banning objects by name
-	std::vector<CompoundMapObjectID> bannedObjects;
+	std::map<CompoundMapObjectID, bool> bannedObjects;
 	std::vector<EObjectCategory> bannedObjectCategories;
 
-	// TODO: In what format should I store custom objects?
-	// Need to convert map serialization format to ObjectInfo
 	std::vector<ObjectInfo> customObjects;
 	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> requiredObjects; // obligatory, potentially guarded objects to spawn in this zone
 
