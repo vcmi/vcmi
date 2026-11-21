@@ -532,6 +532,13 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonEntitiesCustomObjects">
+              <property name="text">
+               <string>Custom objects</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>

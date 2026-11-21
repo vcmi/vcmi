@@ -964,6 +964,11 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 	*mapSettings = handler.getCurrent()["settings"];
 
 	{
+		auto guard = handler.enterStruct("customObjects");
+		objectConfig.serializeJson(handler, objects);
+	}
+
+	{
 		auto connectionsData = handler.enterArray("connections");
 		connectionsData.serializeStruct(connections);
 		if(!handler.saving)
@@ -1062,6 +1067,12 @@ T CRmgTemplate::inheritZoneProperty(std::shared_ptr<rmg::ZoneOptions> zone,
 
 void CRmgTemplate::afterLoad(const GameLibrary & library)
 {
+	for(auto & idAndZone : zones)
+	{
+		auto zone = idAndZone.second;
+		zone->setCustomObjects(ObjectConfig::merge(objectConfig, zone->getCustomObjects()));
+	}
+
 	for(auto & idAndZone : zones)
 	{
 		auto zone = idAndZone.second;
@@ -1214,19 +1225,4 @@ void CRmgTemplate::serializePlayers(JsonSerializeFormat & handler, CPlayerCountR
 
 	if(!handler.saving)
 		value.fromString(encodedValue);
-}
-
-const std::vector<CompoundMapObjectID> & ZoneOptions::getBannedObjects() const
-{
-	return objectConfig.getBannedObjects();
-}
-
-const std::vector<ObjectConfig::EObjectCategory> & ZoneOptions::getBannedObjectCategories() const
-{
-	return objectConfig.getBannedObjectCategories();
-}
-
-const std::vector<ObjectInfo> & ZoneOptions::getConfiguredObjects() const
-{
-	return objectConfig.getConfiguredObjects();
 }

@@ -162,7 +162,7 @@ std::vector<std::string> DeferredIdentifierResolver::getModsWithFailedRequests()
 	std::vector<std::string> result;
 
 	for (const auto & request : failedRequests)
-		if (!vstd::contains(result, request.localScope) && !ModScope::isScopeReserved(request.localScope))
+		if (!request.localScope.empty() && !vstd::contains(result, request.localScope) && !ModScope::isScopeReserved(request.localScope))
 			result.push_back(request.localScope);
 
 	return result;

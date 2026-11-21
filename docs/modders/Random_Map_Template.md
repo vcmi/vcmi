@@ -80,6 +80,10 @@
 	// Similar to bannedHeroes, list of normally banned heroes that are enabled on this map
 	"enabledHeroes" : [ ],
 
+	/// Objects banned, customized or required in every zone. Same format as the zone customObjects block.
+	/// Zone entries override template entries for the same object; see the zone customObjects section.
+	"customObjects" : { },
+
 	/// List of named zones, see below for format description
 	"zones" :
 	{
@@ -179,7 +183,8 @@
 	// Terrain type will have same configuration as in linked zone
 	"terrainTypeLikeZone" : 3,
 
-	// Custom objects will have same configuration as in linked zone
+	// Custom objects will have same configuration as in linked zone.
+	// The linked zone's effective config (after merging the template block) is copied; this zone's own customObjects block is ignored.
 	"customObjectsLikeZone" : 1,
 
 	// factions of monsters allowed on this zone
@@ -222,14 +227,18 @@
 		  ...
 	],
 
-	// Objects with different configuration than default / set by mods
+	// Objects with different configuration than default / set by mods.
+	// A template-level customObjects block is merged into every zone first:
+	// bannedCategories are combined; bannedObjects, commonObjects and requiredObjects replace
+	// the template entry with the same id. A zone bannedObjects value of false lifts a template
+	// ban (including a category ban) for that object. requiredObjects count 0 removes an inherited entry.
 	"customObjects" :
 	{
 		// All of objects of this kind will be removed from zone
-		// Possible values: "all", "none", "creatureBank", "bonus", "dwelling", "resource", "resourceGenerator", "spellScroll", "randomArtifact", "pandorasBox", "questArtifact", "seerHut", "other
+		// Possible values: "all", "none", "creatureBank", "bonus", "dwelling", "resource", "resourceGenerator", "spellScroll", "randomArtifact", "pandorasBox", "questArtifact", "seerHut", "other"
 		"bannedCategories" : ["all", "dwelling", "creatureBank", "other"],
 
-		// Specify object types and subtypes
+		// Specify object types and subtypes. true bans the object, false allows it even when its category is banned.
 		"bannedObjects" : {
 			// ban a specific object from base game or from any dependent mod. Object with such ID must exist
 			"randomArtifactRelic" : true,
@@ -241,11 +250,15 @@
 			// ban only land version of Cartographer. Other versions, such as water and subterra cartographers may still appear on map
 			"cartographer" : {
 				"cartographerLand" : true
-			}
+			},
+
+			// allow this object in this zone even if the template banned its category
+			"dragonUtopia" : false
 		},
 
-		// Configure individual common objects. 
-		// Any object in this list will be excluded from regular placement rules, similarly to bannedObjects
+		// Configure individual common objects.
+		// The placer skips the default pool entry with the same id and uses this configuration instead.
+		// A template-level entry applies to every zone that does not override that id.
 		// A randomDwellingLvl entry becomes a dwelling of the zone's faction and replaces the native dwelling of that level,
 		// other native dwellings keep spawning as usual. Without rmg.value it is valued like that native dwelling
 		// (creature AI value x growth, increased by the number of zones of that faction), as in SoD.
@@ -293,6 +306,7 @@
 
 		// Required objects that will be added to this zone guarded according to rmg.value of the individual objects
 		// They are always generated, each one on its own, never as a part of a larger treasure pile
+		// count 0 removes a required object inherited from the template
 		"requiredObjects" : {
 			"refugeeCamp" : 5,
 			// If there are several versions (e.g. standard and cannonYard) a random selection is chosen

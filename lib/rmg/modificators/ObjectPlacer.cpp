@@ -17,6 +17,9 @@
 
 void ObjectPlacer::process()
 {
+	if(zone.getType() == ETemplateZoneType::SEALED)
+		return;
+
 	auto * manager = zone.getModificator<ObjectManager>();
 	if(!manager)
 	{

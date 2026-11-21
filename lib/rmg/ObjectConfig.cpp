@@ -12,18 +12,141 @@
 #include "ObjectInfo.h"
 #include "ObjectConfig.h"
 
+#include "../GameLibrary.h"
 #include "../modding/IdentifierResolver.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/IObjectInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
 
-void ObjectConfig::addBannedObject(const CompoundMapObjectID & objid)
+namespace
 {
-	// FIXME: We do not need to store the object info, just the id
+ObjectConfig::EObjectCategory getObjectCategory(CompoundMapObjectID id)
+{
+	auto name = LIBRARY->objtypeh->getObjectHandlerName(id.primaryID);
 
-	bannedObjects.push_back(objid);
+	if (name == "configurable")
+	{
+		auto handler = LIBRARY->objtypeh->getHandlerFor(id.primaryID, id.secondaryID);
+		if (!handler)
+		{
+			return ObjectConfig::EObjectCategory::NONE;
+		}
 
-	logGlobal->debug("Banned object of type %d.%d", objid.primaryID, objid.secondaryID);
+		auto info = handler->getObjectInfo();
+
+		if (info->hasGuards())
+		{
+			return ObjectConfig::EObjectCategory::CREATURE_BANK;
+		}
+		else if (info->givesResources())
+		{
+			return ObjectConfig::EObjectCategory::RESOURCE;
+		}
+		else if (info->givesArtifacts())
+		{
+			return ObjectConfig::EObjectCategory::RANDOM_ARTIFACT;
+		}
+		else if (info->givesBonuses())
+		{
+			return ObjectConfig::EObjectCategory::BONUS;
+		}
+
+		return ObjectConfig::EObjectCategory::OTHER;
+	}
+	else if (name == "dwelling" || name == "randomDwelling")
+	{
+		return ObjectConfig::EObjectCategory::DWELLING;
+	}
+	else if (name == "bank")
+		return ObjectConfig::EObjectCategory::CREATURE_BANK;
+	else if (name == "market")
+		return ObjectConfig::EObjectCategory::OTHER;
+	else if (name == "hillFort")
+		return ObjectConfig::EObjectCategory::OTHER;
+	else if (name == "resource" || name == "randomResource")
+		return ObjectConfig::EObjectCategory::RESOURCE;
+	else if (name == "randomArtifact")
+		return ObjectConfig::EObjectCategory::RANDOM_ARTIFACT;
+	else if (name == "artifact")
+	{
+		if (id.primaryID == Obj::SPELL_SCROLL)
+		{
+			return ObjectConfig::EObjectCategory::SPELL_SCROLL;
+		}
+		else
+		{
+			return ObjectConfig::EObjectCategory::QUEST_ARTIFACT;
+		}
+	}
+	else if (name == "denOfThieves")
+		return ObjectConfig::EObjectCategory::OTHER;
+	else if (name == "lighthouse")
+	{
+		return ObjectConfig::EObjectCategory::BONUS;
+	}
+	else if (name == "magi")
+	{
+		return ObjectConfig::EObjectCategory::OTHER;
+	}
+	else if (name == "mine")
+		return ObjectConfig::EObjectCategory::RESOURCE_GENERATOR;
+	else if (name == "pandora")
+		return ObjectConfig::EObjectCategory::PANDORAS_BOX;
+	else if (name == "prison")
+	{
+		return ObjectConfig::EObjectCategory::OTHER;
+	}
+	else if (name == "questArtifact")
+	{
+		return ObjectConfig::EObjectCategory::QUEST_ARTIFACT;
+	}
+	else if (name == "seerHut")
+	{
+		return ObjectConfig::EObjectCategory::SEER_HUT;
+	}
+	else if (name == "siren")
+		return ObjectConfig::EObjectCategory::BONUS;
+	else if (name == "obelisk")
+		return ObjectConfig::EObjectCategory::OTHER;
+
+	return ObjectConfig::EObjectCategory::NONE;
+}
+
+bool categoryContains(const std::vector<ObjectConfig::EObjectCategory> & categories, ObjectConfig::EObjectCategory category)
+{
+	return vstd::contains(categories, category);
+}
+
+/// Ban evaluation of `bannedObjects` only (exact, then type-level). Categories are ignored.
+bool bannedObjectsResolve(const std::map<CompoundMapObjectID, bool> & bans, const CompoundMapObjectID & objid)
+{
+	auto exact = bans.find(objid);
+	if(exact != bans.end())
+		return exact->second;
+
+	if(objid.secondaryID != -1)
+	{
+		auto type = bans.find(CompoundMapObjectID(objid.primaryID, -1));
+		if(type != bans.end())
+			return type->second;
+	}
+
+	return false;
+}
+
+}
+
+void ObjectConfig::setObjectBanned(const CompoundMapObjectID & objid, bool banned)
+{
+	bannedObjects[objid] = banned;
+
+	logGlobal->debug("%s object of type %d.%d", banned ? "Banned" : "Allowed", objid.primaryID, objid.secondaryID);
+}
+
+void ObjectConfig::addBannedCategory(EObjectCategory category)
+{
+	bannedObjectCategories.push_back(category);
 }
 
 void ObjectConfig::addCustomObject(const ObjectInfo & object, const CObjectClassesHandler & objects)
@@ -31,9 +154,6 @@ void ObjectConfig::addCustomObject(const ObjectInfo & object, const CObjectClass
 	customObjects.push_back(object);
 	auto & lastObject = customObjects.back();
 	lastObject.setAllTemplates(objects, object.primaryID, object.secondaryID);
-
-	// also ban object to prevent default configuration from being used in this zone
-	bannedObjects.push_back(CompoundMapObjectID(object.primaryID, object.secondaryID));
 
 	assert(lastObject.templates.size() > 0);
 	logGlobal->debug("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
@@ -76,7 +196,6 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 		{ "seerHut", EObjectCategory::SEER_HUT}
 	};
 
-	// Serialize banned categories
 	if (handler.saving)
 	{
 		auto categoriesArray = handler.enterArray("bannedCategories");
@@ -104,18 +223,16 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 		{
 			auto it = OBJECT_CATEGORY_STRINGS.find(node.String());
 			if(it != OBJECT_CATEGORY_STRINGS.end())
-				bannedObjectCategories.push_back(it->second);
+				addBannedCategory(it->second);
 		}
 	}
 
-	// Serialize banned objects
 	if (handler.saving)
 	{
-		// Group banned objects by primary ID
-		std::map<int, std::set<int>> groupedBanned;
-		for(const auto & objid : bannedObjects)
+		std::map<int, std::map<int, bool>> groupedBanned;
+		for(const auto & [objid, banned] : bannedObjects)
 		{
-			groupedBanned[objid.primaryID].insert(objid.secondaryID);
+			groupedBanned[objid.primaryID][objid.secondaryID] = banned;
 		}
 		
 		auto bannedObjectsStruct = handler.enterStruct("bannedObjects");
@@ -124,24 +241,22 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 		{
 			const std::string jsonKey = objects.getJsonKey(primaryID);
 			
-			if(secondaryIDs.size() == 1 && *secondaryIDs.begin() == -1)
+			if(secondaryIDs.size() == 1 && secondaryIDs.begin()->first == -1)
 			{
-				// Ban entire object type - write as boolean true
-				bool allBanned = true;
-				bannedObjectsStruct->serializeBool(jsonKey, allBanned);
+				JsonNode flag(secondaryIDs.begin()->second);
+				bannedObjectsStruct->serializeRaw(jsonKey, flag, std::nullopt);
 			}
 			else
 			{
-				// Ban specific subtypes
 				auto objStruct = bannedObjectsStruct->enterStruct(jsonKey);
-				for(int secondaryID : secondaryIDs)
+				for(const auto & [secondaryID, banned] : secondaryIDs)
 				{
 					if(secondaryID != -1)
 					{
 						auto objectHandler = objects.getHandlerFor(MapObjectID(primaryID), MapObjectSubID(secondaryID));
 						const std::string subtypeKey = objectHandler->getSubTypeName();
-						bool banned = true;
-						objStruct->serializeBool(subtypeKey, banned);
+						JsonNode flag(banned);
+						objStruct->serializeRaw(subtypeKey, flag, std::nullopt);
 					}
 				}
 			}
@@ -159,8 +274,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			{
 				if (node.second.isBool())
 				{
-					if (node.second.Bool())
-						addBannedObject(CompoundMapObjectID(primaryID, -1));
+					setObjectBanned(CompoundMapObjectID(primaryID, -1), node.second.Bool());
 				}
 				else
 				{
@@ -168,9 +282,9 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 					{
 						const std::string jsonKey = objects.getJsonKey(primaryID);
 
-						resolver.requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
+						resolver.requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID, subNode](int secondaryID)
 						{
-							addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
+							setObjectBanned(CompoundMapObjectID(primaryID, secondaryID), subNode.second.Bool());
 						});
 					}
 				}
@@ -178,7 +292,6 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 		}
 	}
 
-	// Serialize common objects
 	if (handler.saving)
 	{
 		auto commonObjectsArray = handler.enterArray("commonObjects");
@@ -189,7 +302,6 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			auto objectStruct = commonObjectsArray.enterStruct(i);
 			const auto & object = customObjects[i];
 			
-			// Serialize object type/subtype
 			std::string objectType = objects.getJsonKey(object.primaryID);
 			objectStruct->serializeString("type", objectType);
 			
@@ -197,7 +309,6 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			std::string subtypeName = handler->getSubTypeName();
 			objectStruct->serializeString("subtype", subtypeName);
 			
-			// Serialize RMG properties
 			auto rmgStruct = objectStruct->enterStruct("rmg");
 			int value = object.value;
 			int rarity = object.probability;
@@ -216,13 +327,16 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 
 		for (const auto & objectConfig : configCommonObjects.Vector())
 		{
-			auto rmg = objectConfig["rmg"].Struct();
+			if (!objectConfig["type"].isString() || objectConfig["type"].String().empty())
+			{
+				logMod->error("Mod '%s': RMG commonObjects entry without \"type\" is ignored: %s", objectConfig.getModScope(), objectConfig.toCompactString());
+				continue;
+			}
 
-			// TODO: Use common code with default rmg config
+			auto rmg = objectConfig["rmg"].Struct();
 
 			ObjectInfo object;
 
-			// TODO: Configure basic generateObject function
 			object.value = rmg["value"].Integer();
 			object.probability = rmg["rarity"].Integer();
 			object.maxPerZone = rmg["zoneLimit"].Integer();
@@ -232,7 +346,6 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			const bool hasRarity = !rmg["rarity"].isNull();
 			auto addObject = [this, hasRarity, &objects](ObjectInfo objectWithID)
 			{
-				// random dwellings replace native ones, so by default they are as common
 				if (!hasRarity && objectWithID.primaryID == Obj::RANDOM_DWELLING_LVL)
 					objectWithID.probability = NATIVE_DWELLING_RARITY;
 				addCustomObject(objectWithID, objects);
@@ -263,7 +376,6 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 		}
 	}
 
-	// Serialize required objects
 	if(handler.saving)
 	{
 		if(!requiredObjects.empty())
@@ -318,12 +430,10 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 					}
 					else
 					{
-						// secondary ID specified
 						for (const auto & subNode : node.second.Struct())
 						{
 							std::string jsonKey = objects.getJsonKey(primaryID);
 							if(node.first == "artifact" || node.first == "core:artifact")
-								//FIXME: core:artifact is not resolved properly by requestIdentifierIfFound
 								jsonKey = "artifact";
 
 							resolver.requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID, subNode, getInfo](int secondaryID)
@@ -346,7 +456,7 @@ const std::vector<ObjectInfo> & ObjectConfig::getConfiguredObjects() const
 	return customObjects;
 }
 
-const std::vector<CompoundMapObjectID> & ObjectConfig::getBannedObjects() const
+const std::map<CompoundMapObjectID, bool> & ObjectConfig::getObjectBans() const
 {
 	return bannedObjects;
 }
@@ -359,4 +469,62 @@ const std::vector<ObjectConfig::EObjectCategory> & ObjectConfig::getBannedObject
 std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> ObjectConfig::getRequiredObjects() const
 {
 	return requiredObjects;
+}
+
+bool ObjectConfig::isObjectBanned(const CompoundMapObjectID & objid) const
+{
+	auto exact = bannedObjects.find(objid);
+	if(exact != bannedObjects.end())
+		return exact->second;
+
+	if(objid.secondaryID != -1)
+	{
+		auto type = bannedObjects.find(CompoundMapObjectID(objid.primaryID, -1));
+		if(type != bannedObjects.end())
+			return type->second;
+	}
+
+	if(categoryContains(bannedObjectCategories, EObjectCategory::ALL))
+		return true;
+
+	auto category = getObjectCategory(objid);
+	if(category != EObjectCategory::NONE && categoryContains(bannedObjectCategories, category))
+		return true;
+
+	return false;
+}
+
+ObjectConfig ObjectConfig::merge(const ObjectConfig & base, const ObjectConfig & override)
+{
+	ObjectConfig result = base;
+
+	for(auto category : override.bannedObjectCategories)
+	{
+		if(!categoryContains(result.bannedObjectCategories, category))
+			result.bannedObjectCategories.push_back(category);
+	}
+
+	for(const auto & [id, banned] : override.bannedObjects)
+		result.bannedObjects[id] = banned;
+
+	std::set<CompoundMapObjectID> overrideIds;
+	for(const auto & object : override.customObjects)
+		overrideIds.insert(object.getCompoundID());
+
+	std::vector<ObjectInfo> mergedCustom;
+	for(const auto & object : base.customObjects)
+	{
+		auto id = object.getCompoundID();
+		if(overrideIds.count(id) || bannedObjectsResolve(override.bannedObjects, id))
+			continue;
+		mergedCustom.push_back(object);
+	}
+	for(const auto & object : override.customObjects)
+		mergedCustom.push_back(object);
+	result.customObjects = std::move(mergedCustom);
+
+	for(const auto & [id, info] : override.requiredObjects)
+		result.requiredObjects[id] = info;
+
+	return result;
 }

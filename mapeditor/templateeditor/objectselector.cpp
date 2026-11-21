@@ -25,6 +25,8 @@
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../translator.h"
 
+#include <QCheckBox>
+
 ObjectSelector::ObjectSelector(ObjectConfig & obj) :
 	ui(new Ui::ObjectSelector),
 	obj(obj),
@@ -162,11 +164,12 @@ void ObjectSelector::getBannedObjectCategories()
 
 void ObjectSelector::fillBannedObjects()
 {
-	ui->tableWidgetBannedObjects->setColumnCount(2);
-	ui->tableWidgetBannedObjects->setRowCount(obj.bannedObjects.size() + 1);
-	ui->tableWidgetBannedObjects->setHorizontalHeaderLabels({tr("Object"), tr("Action")});
+	const auto & bans = obj.getObjectBans();
+	ui->tableWidgetBannedObjects->setColumnCount(3);
+	ui->tableWidgetBannedObjects->setRowCount(static_cast<int>(bans.size()) + 1);
+	ui->tableWidgetBannedObjects->setHorizontalHeaderLabels({tr("Object"), tr("Banned"), tr("Action")});
 
-	auto addRow = [this](CompoundMapObjectID obj, int row){
+	auto addRow = [this](CompoundMapObjectID obj, bool banned, int row){
 		QComboBox *combo = new QComboBox();
 		for(auto & item : advObjects)
     		combo->addItem(item.second, QVariant::fromValue(item.first));
@@ -184,11 +187,15 @@ void ObjectSelector::fillBannedObjects()
 
 		ui->tableWidgetBannedObjects->setCellWidget(row, 0, combo);
 
+		auto bannedBox = new QCheckBox();
+		bannedBox->setChecked(banned);
+		ui->tableWidgetBannedObjects->setCellWidget(row, 1, bannedBox);
+
 		auto deleteButton = new QPushButton(tr("Delete"));
-		ui->tableWidgetBannedObjects->setCellWidget(row, 1, deleteButton);
+		ui->tableWidgetBannedObjects->setCellWidget(row, 2, deleteButton);
 		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
 			for (int r = 0; r < ui->tableWidgetBannedObjects->rowCount(); ++r) {
-				if (ui->tableWidgetBannedObjects->cellWidget(r, 1) == deleteButton) {
+				if (ui->tableWidgetBannedObjects->cellWidget(r, 2) == deleteButton) {
 					ui->tableWidgetBannedObjects->removeRow(r);
 					break;
 				}
@@ -196,14 +203,15 @@ void ObjectSelector::fillBannedObjects()
 		});
 	};
 
-	for (int row = 0; row < obj.bannedObjects.size(); ++row)
-		addRow(obj.bannedObjects[row], row);
+	int row = 0;
+	for (const auto & [id, banned] : bans)
+		addRow(id, banned, row++);
 
 	auto addButton = new QPushButton(tr("Add"));
-	ui->tableWidgetBannedObjects->setCellWidget(ui->tableWidgetBannedObjects->rowCount() - 1, 1, addButton);
+	ui->tableWidgetBannedObjects->setCellWidget(ui->tableWidgetBannedObjects->rowCount() - 1, 2, addButton);
 	connect(addButton, &QPushButton::clicked, this, [this, addRow]() {
 		ui->tableWidgetBannedObjects->insertRow(ui->tableWidgetBannedObjects->rowCount() - 1);
-		addRow((*advObjects.begin()).first, ui->tableWidgetBannedObjects->rowCount() - 2);
+		addRow((*advObjects.begin()).first, true, ui->tableWidgetBannedObjects->rowCount() - 2);
 	});
 
 	ui->tableWidgetBannedObjects->resizeColumnsToContents();
@@ -216,7 +224,8 @@ void ObjectSelector::getBannedObjects()
 	for (int row = 0; row < ui->tableWidgetBannedObjects->rowCount() - 1; ++row)
 	{
 		auto val = static_cast<QComboBox *>(ui->tableWidgetBannedObjects->cellWidget(row, 0))->currentData().value<CompoundMapObjectID>();
-		obj.bannedObjects.push_back(val);
+		auto banned = static_cast<QCheckBox *>(ui->tableWidgetBannedObjects->cellWidget(row, 1))->isChecked();
+		obj.setObjectBanned(val, banned);
 	}
 }
 
