@@ -1,216 +1,560 @@
 {
-	"2SM2a" :
-	{
-		"minSize" : "s", "maxSize" : "s+u",
-		"players" : "2",
-		"zones" :
-		{
-			"1" :
+	"2SM2a": {
+		"connections": [
 			{
-				"type" : "playerStart",
-				"size" : 11,
-				"owner" : 1,
-				"monsters" : "normal",
-				"playerTowns" : { "castles" : 1 },
-				"mines" : { "wood" : 1, "ore" : 1 },
-				"treasure" :
-				[
-					{ "min" : 10000, "max" : 15000, "density" : 1 },
-					{ "min" : 3000, "max" : 6000, "density" : 6 }
-				]
+				"a": "1",
+				"b": "3",
+				"guard": 3000,
+				"road": "random",
+				"type": "guarded"
 			},
-			"2" :
 			{
-				"type" : "playerStart",
-				"size" : 59,
-				"owner" : 2,
-				"monsters" : "normal",
-				"playerTowns" : { "castles" : 7 },
-				"minesLikeZone" : 1,
-				"treasureLikeZone" : 1
+				"a": "2",
+				"b": "3",
+				"guard": 12500,
+				"road": "random",
+				"type": "guarded"
 			},
-			"3" :
 			{
-				"type" : "treasure",
-				"size" : 11,
-				"monsters" : "normal",
-				"neutralTowns" : { "towns" : 1 },
-				"matchTerrainToTown" : false,
-				"mines" : { "mercury" : 1, "sulfur" : 1, "gold" : 1 },
-				"treasure" :
-				[
-					{ "min" : 15000, "max" : 20000, "density" : 1 },
-					{ "min" : 10000, "max" : 15000, "density" : 6 },
-					{ "min" : 3000, "max" : 6000, "density" : 9 }
-				]
-			},
-			"4" :
-			{
-				"type" : "junction",
-				"size" : 11,
-				"monsters" : "normal",
-				"neutralTowns" : { "towns" : 1 },
-				"matchTerrainToTown" : false,
-				"mines" : { "crystal" : 1, "gems" : 1, "gold" : 1 },
-				"treasureLikeZone" : 3
+				"a": "2",
+				"b": "4",
+				"guard": 123456,
+				"road": "random",
+				"type": "guarded"
 			}
-		},
-		"connections" :
-		[
-			{ "a" : "1", "b" : "3", "guard" : 3000 },
-			{ "a" : "2", "b" : "3", "guard" : 12500 },
-			{ "a" : "2", "b" : "4", "guard" : 123456 }
-		]
+		],
+		"maxSize": "s+u",
+		"minSize": "s",
+		"players": "2",
+		"zones": {
+			"1": {
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"mines": {
+					"ore": 1,
+					"wood": 1
+				},
+				"owner": 1,
+				"playerTowns": {
+					"castles": 1
+				},
+				"size": 11,
+				"treasure": [
+					{
+						"density": 1,
+						"max": 15000,
+						"min": 10000
+					},
+					{
+						"density": 6,
+						"max": 6000,
+						"min": 3000
+					}
+				],
+				"type": "playerStart",
+				"visibleSize": 1
+			},
+			"2": {
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"minesLikeZone": 1,
+				"owner": 2,
+				"playerTowns": {
+					"castles": 7
+				},
+				"size": 59,
+				"treasureLikeZone": 1,
+				"type": "playerStart",
+				"visibleSize": 1
+			},
+			"3": {
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"matchTerrainToTown": false,
+				"mines": {
+					"gold": 1,
+					"mercury": 1,
+					"sulfur": 1
+				},
+				"neutralTowns": {
+					"towns": 1
+				},
+				"size": 11,
+				"treasure": [
+					{
+						"density": 1,
+						"max": 20000,
+						"min": 15000
+					},
+					{
+						"density": 6,
+						"max": 15000,
+						"min": 10000
+					},
+					{
+						"density": 9,
+						"max": 6000,
+						"min": 3000
+					}
+				],
+				"type": "treasure",
+				"visibleSize": 1
+			},
+			"4": {
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"matchTerrainToTown": false,
+				"mines": {
+					"crystal": 1,
+					"gems": 1,
+					"gold": 1
+				},
+				"neutralTowns": {
+					"towns": 1
+				},
+				"size": 11,
+				"treasureLikeZone": 3,
+				"type": "junction",
+				"visibleSize": 1
+			}
+		}
 	},
-
-	"Midnight Mix" :
-	{
-		"name" : "test name",
-		"minSize" : "l", "maxSize" : "l",
-		"players" : "1,2-4",
-		"cpu" : "1,2",
-		"zones" :
-		{
-			"1" :
+	"Midnight Mix": {
+		"connections": [
 			{
-				"type" : "treasure",
-				"size" : 12,
-				"monsters" : "strong",
-				"neutralTowns" : { "castles" : 1 },
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
-				"mines" : { "gold" : 1 },
-				"treasure" :
-				[
-					{ "min" : 8000, "max" : 9300, "density" : 4 },
-					{ "min" : 6000, "max" : 8000, "density" : 8 },
-					{ "min" : 800, "max" : 800, "density" : 4 }
-				]
+				"a": "1",
+				"b": "5",
+				"guard": 9000,
+				"road": "random",
+				"type": "guarded"
 			},
-			"2" :
 			{
-				"type" : "treasure",
-				"size" : 12,
-				"monsters" : "strong",
-				"neutralTowns" : { "castles" : 1 },
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
-				"minesLikeZone" : 1,
-				"treasureLikeZone" : 1
+				"a": "4",
+				"b": "5",
+				"guard": 5000,
+				"road": "random",
+				"type": "guarded"
 			},
-			"4" :
 			{
-				"type" : "playerStart",
-				"size" : 12,
-				"owner" : 1,
-				"monsters" : "normal",
-				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
-				"mines" : { "wood" : 1, "mercury" : 3, "ore" : 5, "sulfur" : 7, "crystal" : 10, "gems" : 34 },
-				"treasure" :
-				[
-					{ "min" : 4500, "max" : 6000, "density" : 1 },
-					{ "min" : 3500, "max" : 4500, "density" : 4 },
-					{ "min" : 300, "max" : 2000, "density" : 12 }
-				]
+				"a": "4",
+				"b": "6",
+				"guard": 5000,
+				"road": "random",
+				"type": "guarded"
 			},
-			"5" :
 			{
-				"type" : "treasure",
-				"size" : 10,
-				"monsters" : "strong",
-				"neutralTowns" : { "towns" : 1 },
-				"matchTerrainToTown" : false,
-				"terrainTypes" : [ "dirt", "grass", "subterra", "lava" ],
-				"treasure" :
-				[
-					{ "min" : 6000, "max" : 7999, "density" : 6 },
-					{ "min" : 4000, "max" : 6000, "density" : 8 },
-					{ "min" : 1200, "max" : 2000, "density" : 5 }
-				]
+				"a": "5",
+				"b": "6",
+				"guard": 5000,
+				"road": "random",
+				"type": "guarded"
 			},
-			"6" :
 			{
-				"type" : "treasure",
-				"size" : 10,
-				"monsters" : "strong",
-				"neutralTowns" : { "towns" : 5 },
-				"townsAreSameType" : true,
-				"terrainTypeLikeZone" : 5,
-				"treasureLikeZone" : 5
+				"a": "1",
+				"b": "8",
+				"guard": 9000,
+				"road": "random",
+				"type": "guarded"
 			},
-			"7" :
 			{
-				"type" : "playerStart",
-				"size" : 12,
-				"owner" : 2,
-				"monsters" : "normal",
-				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
-				"minesLikeZone" : 4,
-				"treasureLikeZone" : 4
+				"a": "7",
+				"b": "8",
+				"guard": 5000,
+				"road": "random",
+				"type": "guarded"
 			},
-			"8" :
 			{
-				"type" : "treasure",
-				"size" : 10,
-				"monsters" : "strong",
-				"neutralTowns" : { "towns" : 1 },
-				"terrainTypeLikeZone" : 5,
-				"treasureLikeZone" : 5
+				"a": "10",
+				"b": "11",
+				"guard": 5000,
+				"road": "random",
+				"type": "guarded"
 			},
-			"10" :
 			{
-				"type" : "playerStart",
-				"size" : 12,
-				"owner" : 3,
-				"monsters" : "normal",
-				"playerTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "castle", "rampart", "tower", "inferno", "dungeon", "stronghold", "fortress" ],
-				"allowedMonsters" : [ "castle", "rampart", "tower", "inferno", "necropolis", "dungeon", "stronghold", "fortress", "neutral" ],
-				"terrainTypes" : [ "dirt", "grass", "snow", "swamp", "rough", "subterra", "lava" ],
-				"minesLikeZone" : 4,
-				"treasureLikeZone" : 4
+				"a": "1",
+				"b": "2",
+				"guard": 10000,
+				"road": "random",
+				"type": "guarded"
 			},
-			"11" :
 			{
-				"type" : "treasure",
-				"size" : 10,
-				"monsters" : "strong",
-				"neutralTowns" : { "towns" : 1 },
-				"terrainTypeLikeZone" : 5,
-				"treasureLikeZone" : 5
+				"a": "1",
+				"b": "13",
+				"guard": 20000,
+				"road": "random",
+				"type": "guarded"
 			},
-			"13" :
 			{
-				"type" : "treasure",
-				"size" : 25,
-				"monsters" : "strong",
-				"neutralTowns" : { "castles" : 1 },
-				"allowedTowns" : [ "tower" ],
-				"terrainTypes" : [ "snow" ],
-				"mines" : { "mercury" : 1, "sulfur" : 1, "crystal" : 1, "gems" : 1, "gold" : 4 },
-				"treasure" :
-				[
-					{ "min" : 6000, "max" : 40000, "density" : 8 },
-					{ "min" : 9000, "max" : 9500, "density" : 8 },
-					{ "min" : 2500, "max" : 3000, "density" : 4 }
-				]
+				"a": "2",
+				"b": "13",
+				"guard": 20000,
+				"road": "random",
+				"type": "guarded"
 			}
-		},
-		"connections" :
-		[
-			{ "a" : "1", "b" : "5", "guard" : 9000 },
-			{ "a" : "4", "b" : "5", "guard" : 5000 },
-			{ "a" : "4", "b" : "6", "guard" : 5000 },
-			{ "a" : "5", "b" : "6", "guard" : 5000 },
-			{ "a" : "1", "b" : "8", "guard" : 9000 },
-			{ "a" : "7", "b" : "8", "guard" : 5000 },
-			{ "a" : "10", "b" : "11", "guard" : 5000 },
-			{ "a" : "1", "b" : "2", "guard" : 10000 },
-			{ "a" : "1", "b" : "13", "guard" : 20000 },
-			{ "a" : "2", "b" : "13", "guard" : 20000 }
-		]
+		],
+		"maxSize": "l",
+		"minSize": "l",
+		"name": "test name",
+		"players": "1,2-4",
+		"zones": {
+			"1": {
+				"allowedMonsters": [
+					"core:castle",
+					"core:rampart",
+					"core:tower",
+					"core:inferno",
+					"core:necropolis",
+					"core:dungeon",
+					"core:stronghold",
+					"core:fortress",
+					"core:neutral"
+				],
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"mines": {
+					"gold": 1
+				},
+				"monsters": "strong",
+				"neutralTowns": {
+					"castles": 1
+				},
+				"size": 12,
+				"terrainTypes": [
+					"core:dirt",
+					"core:grass",
+					"core:snow",
+					"core:swamp",
+					"core:rough",
+					"core:subterra",
+					"core:lava"
+				],
+				"treasure": [
+					{
+						"density": 4,
+						"max": 9300,
+						"min": 8000
+					},
+					{
+						"density": 8,
+						"max": 8000,
+						"min": 6000
+					},
+					{
+						"density": 4,
+						"max": 800,
+						"min": 800
+					}
+				],
+				"type": "treasure",
+				"visibleSize": 1
+			},
+			"10": {
+				"allowedMonsters": [
+					"core:castle",
+					"core:rampart",
+					"core:tower",
+					"core:inferno",
+					"core:necropolis",
+					"core:dungeon",
+					"core:stronghold",
+					"core:fortress",
+					"core:neutral"
+				],
+				"allowedTowns": [
+					"core:castle",
+					"core:rampart",
+					"core:tower",
+					"core:inferno",
+					"core:dungeon",
+					"core:stronghold",
+					"core:fortress"
+				],
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"minesLikeZone": 4,
+				"owner": 3,
+				"playerTowns": {
+					"castles": 1
+				},
+				"size": 12,
+				"terrainTypes": [
+					"core:dirt",
+					"core:grass",
+					"core:snow",
+					"core:swamp",
+					"core:rough",
+					"core:subterra",
+					"core:lava"
+				],
+				"treasureLikeZone": 4,
+				"type": "playerStart",
+				"visibleSize": 1
+			},
+			"11": {
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"monsters": "strong",
+				"neutralTowns": {
+					"towns": 1
+				},
+				"size": 10,
+				"terrainTypeLikeZone": 5,
+				"treasureLikeZone": 5,
+				"type": "treasure",
+				"visibleSize": 1
+			},
+			"13": {
+				"allowedTowns": [
+					"core:tower"
+				],
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"mines": {
+					"crystal": 1,
+					"gems": 1,
+					"gold": 4,
+					"mercury": 1,
+					"sulfur": 1
+				},
+				"monsters": "strong",
+				"neutralTowns": {
+					"castles": 1
+				},
+				"size": 25,
+				"terrainTypes": [
+					"core:snow"
+				],
+				"treasure": [
+					{
+						"density": 8,
+						"max": 40000,
+						"min": 6000
+					},
+					{
+						"density": 8,
+						"max": 9500,
+						"min": 9000
+					},
+					{
+						"density": 4,
+						"max": 3000,
+						"min": 2500
+					}
+				],
+				"type": "treasure",
+				"visibleSize": 1
+			},
+			"2": {
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"minesLikeZone": 1,
+				"monsters": "strong",
+				"neutralTowns": {
+					"castles": 1
+				},
+				"size": 12,
+				"terrainTypes": [
+					"core:dirt",
+					"core:grass",
+					"core:snow",
+					"core:swamp",
+					"core:rough",
+					"core:subterra",
+					"core:lava"
+				],
+				"treasureLikeZone": 1,
+				"type": "treasure",
+				"visibleSize": 1
+			},
+			"4": {
+				"allowedTowns": [
+					"core:castle",
+					"core:rampart",
+					"core:tower",
+					"core:inferno",
+					"core:dungeon",
+					"core:stronghold",
+					"core:fortress"
+				],
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"mines": {
+					"crystal": 10,
+					"gems": 34,
+					"mercury": 3,
+					"ore": 5,
+					"sulfur": 7,
+					"wood": 1
+				},
+				"owner": 1,
+				"playerTowns": {
+					"castles": 1
+				},
+				"size": 12,
+				"terrainTypes": [
+					"core:dirt",
+					"core:grass",
+					"core:snow",
+					"core:swamp",
+					"core:rough",
+					"core:subterra",
+					"core:lava"
+				],
+				"treasure": [
+					{
+						"density": 1,
+						"max": 6000,
+						"min": 4500
+					},
+					{
+						"density": 4,
+						"max": 4500,
+						"min": 3500
+					},
+					{
+						"density": 12,
+						"max": 2000,
+						"min": 300
+					}
+				],
+				"type": "playerStart",
+				"visibleSize": 1
+			},
+			"5": {
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"matchTerrainToTown": false,
+				"monsters": "strong",
+				"neutralTowns": {
+					"towns": 1
+				},
+				"size": 10,
+				"terrainTypes": [
+					"core:dirt",
+					"core:grass",
+					"core:subterra",
+					"core:lava"
+				],
+				"treasure": [
+					{
+						"density": 6,
+						"max": 7999,
+						"min": 6000
+					},
+					{
+						"density": 8,
+						"max": 6000,
+						"min": 4000
+					},
+					{
+						"density": 5,
+						"max": 2000,
+						"min": 1200
+					}
+				],
+				"type": "treasure",
+				"visibleSize": 1
+			},
+			"6": {
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"monsters": "strong",
+				"neutralTowns": {
+					"towns": 5
+				},
+				"size": 10,
+				"terrainTypeLikeZone": 5,
+				"townsAreSameType": true,
+				"treasureLikeZone": 5,
+				"type": "treasure",
+				"visibleSize": 1
+			},
+			"7": {
+				"allowedTowns": [
+					"core:castle",
+					"core:rampart",
+					"core:tower",
+					"core:inferno",
+					"core:dungeon",
+					"core:stronghold",
+					"core:fortress"
+				],
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"minesLikeZone": 4,
+				"owner": 2,
+				"playerTowns": {
+					"castles": 1
+				},
+				"size": 12,
+				"terrainTypes": [
+					"core:dirt",
+					"core:grass",
+					"core:snow",
+					"core:swamp",
+					"core:rough",
+					"core:subterra",
+					"core:lava"
+				],
+				"treasureLikeZone": 4,
+				"type": "playerStart",
+				"visibleSize": 1
+			},
+			"8": {
+				"customObjects": {
+					"bannedCategories": [],
+					"bannedObjects": {},
+					"commonObjects": []
+				},
+				"monsters": "strong",
+				"neutralTowns": {
+					"towns": 1
+				},
+				"size": 10,
+				"terrainTypeLikeZone": 5,
+				"treasureLikeZone": 5,
+				"type": "treasure",
+				"visibleSize": 1
+			}
+		}
 	}
 }

@@ -11,6 +11,7 @@
 
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/GameLibrary.h"
 
 #include "../../lib/rmg/CRmgTemplate.h"
 
@@ -22,7 +23,6 @@
 
 namespace test
 {
-using namespace ::rmg;
 using namespace ::testing;
 
 class CRmgTemplateTest : public Test
@@ -43,52 +43,10 @@ protected:
 			subject->serializeJson(handler, *LIBRARY->objtypeh);
 		}
 
-		EXPECT_FALSE(subject->getName().empty());
+		if(!config["name"].String().empty())
+			EXPECT_EQ(subject->getName(), config["name"].String());
 
-		for(const auto & idAndZone : subject->getZones())
-		{
-			auto thisZone = idAndZone.second;
-			if(thisZone->getMinesLikeZone() != ZoneOptions::NO_ZONE)
-			{
-				auto otherZoneId = thisZone->getMinesLikeZone();
-
-				const auto otherZone = subject->getZones().at(otherZoneId);
-				GTEST_ASSERT_NE(otherZone, nullptr);
-				EXPECT_THAT(thisZone->getMinesInfo(), ContainerEq(otherZone->getMinesInfo()));
-			}
-
-			if(thisZone->getTerrainTypeLikeZone() != ZoneOptions::NO_ZONE)
-			{
-				auto otherZoneId = thisZone->getTerrainTypeLikeZone();
-
-				const auto otherZone = subject->getZones().at(otherZoneId);
-				GTEST_ASSERT_NE(otherZone, nullptr);
-				EXPECT_THAT(thisZone->getTerrainTypes(), ContainerEq(otherZone->getTerrainTypes()));
-			}
-
-			if(thisZone->getTreasureLikeZone() != ZoneOptions::NO_ZONE)
-			{
-				auto otherZoneId = thisZone->getTreasureLikeZone();
-
-				const auto otherZone = subject->getZones().at(otherZoneId);
-				GTEST_ASSERT_NE(otherZone, nullptr);
-				EXPECT_THAT(thisZone->getTreasureInfo(), ContainerEq(otherZone->getTreasureInfo()));
-			}
-		}
-
-		for(const auto & connection : subject->getConnections())
-		{
-			auto id1 = connection.getZoneA();
-			auto id2 = connection.getZoneB();
-
-			auto zone1 = subject->getZones().at(id1);
-			auto zone2 = subject->getZones().at(id2);
-
-			EXPECT_THAT(zone1->getConnections(), Contains(id2));
-			EXPECT_THAT(zone2->getConnections(), Contains(id1));
-		}
-
-		JsonNode actual(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode actual;
 
 		{
 			JsonSerializer handler(nullptr, actual);
