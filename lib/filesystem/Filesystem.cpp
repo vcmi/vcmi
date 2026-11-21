@@ -22,6 +22,33 @@
 #include "../json/JsonNode.h"
 #include "../modding/ModScope.h"
 
+namespace
+{
+	std::vector<boost::filesystem::path> retainLastPathOccurrences(const std::vector<boost::filesystem::path> & paths)
+	{
+		std::set<boost::filesystem::path::string_type> seen;
+		std::vector<boost::filesystem::path> uniquePaths;
+		uniquePaths.reserve(paths.size());
+
+		for (auto it = paths.rbegin(); it != paths.rend(); ++it)
+			if (seen.insert(it->native()).second)
+				uniquePaths.push_back(*it);
+
+		std::reverse(uniquePaths.begin(), uniquePaths.end());
+		return uniquePaths;
+	}
+
+	std::vector<boost::filesystem::path> getUniqueResourcePaths(const ISimpleResourceLoader & source, const ResourcePath & resource)
+	{
+		std::vector<boost::filesystem::path> paths;
+		for (const auto * loader : source.getResourcesWithName(resource))
+			if (auto filename = loader->getResourceName(resource))
+				paths.push_back(std::move(*filename));
+
+		return retainLastPathOccurrences(paths);
+	}
+}
+
 CResourceHandler CResourceHandler::baseFilesystem;
 const CResourceHandler * CResourceHandler::currentFilesystem = nullptr;
 
@@ -95,11 +122,8 @@ void CFilesystemGenerator::loadDirectory(const std::string &mountPoint, const Js
 	ResourcePath resID(URI, EResType::DIRECTORY);
 	const auto * source = CResourceHandler::get(config["bundledOnly"].Bool() ? "bundled" : "initial");
 
-	for(auto & loader : source->getResourcesWithName(resID))
-	{
-		auto filename = loader->getResourceName(resID);
-		loaders.push_back(std::make_unique<CFilesystemLoader>(mountPoint, *filename, depth));
-	}
+	for (const auto & filename : getUniqueResourcePaths(*source, resID))
+		loaders.push_back(std::make_unique<CFilesystemLoader>(mountPoint, filename, depth));
 }
 
 void CFilesystemGenerator::loadZipArchive(const std::string &mountPoint, const JsonNode & config)
@@ -123,7 +147,7 @@ std::shared_ptr<ISimpleResourceLoader> CResourceHandler::createBundled()
 {
 	auto bundledLoader = std::make_shared<CFilesystemList>();
 
-	for (auto & path : VCMIDirs::get().dataPaths())
+	for (const auto & path : retainLastPathOccurrences(VCMIDirs::get().dataPaths()))
 	{
 		if (boost::filesystem::is_directory(path)) // some of system-provided paths may not exist
 			bundledLoader->addLoader(std::make_unique<CFilesystemLoader>("", path, 1, true), false);
@@ -142,14 +166,10 @@ std::unique_ptr<ISimpleResourceLoader> CResourceHandler::createInitial(const std
 	{
 		ResourcePath ID(URI, EResType::DIRECTORY);
 
-		for(auto & loader : initialLoader->getResourcesWithName(ID))
+		for (const auto & filename : getUniqueResourcePaths(*initialLoader, ID))
 		{
-			auto filename = loader->getResourceName(ID);
-			if (filename)
-			{
-				auto dir = std::make_unique<CFilesystemLoader>(URI + '/', *filename, depth, true);
-				initialLoader->addLoader(std::move(dir), false);
-			}
+			auto dir = std::make_unique<CFilesystemLoader>(URI + '/', filename, depth, true);
+			initialLoader->addLoader(std::move(dir), false);
 		}
 	};
 
