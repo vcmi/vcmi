@@ -83,6 +83,7 @@ set(test_SRCS
 		quest/CQuestGateTest.cpp
 
 		rmg/CRmgTemplateTest.cpp
+		rmg/ObjectConfigTest.cpp
 
 		netpacks/NetPackFixture.cpp
 
