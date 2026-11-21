@@ -123,6 +123,27 @@
 							}
 						}
 					}
+				},
+				"spellScrolls": {
+					"type": "array",
+					"description": "Spell scrolls added to the zone treasure pool with a fixed spell. Value, rarity and zoneLimit default to the built-in scroll rules",
+					"items": {
+						"type": "object",
+						"additionalProperties": false,
+						"required": ["spell"],
+						"properties": {
+							"spell": { "type": "string" },
+							"rmg": {
+								"type": "object",
+								"additionalProperties": false,
+								"properties": {
+									"value": { "type": "integer", "minimum": 0 },
+									"rarity": { "type": "integer", "minimum": 0 },
+									"zoneLimit": { "type": "integer", "minimum": 0 }
+								}
+							}
+						}
+					}
 				}
 			}
 		},
@@ -326,7 +347,7 @@
 		},
 
 		"customObjects" : {
-			"description" : "Object bans, common objects and required objects applied to every zone. Zone customObjects entries override this block per object.",
+			"description" : "Object bans, common objects, required objects, Pandora boxes and spell scrolls applied to every zone. Zone customObjects entries override this block per object.",
 			"$ref" : "#/definitions/customObjects"
 		},
 		
