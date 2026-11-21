@@ -607,17 +607,17 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
         <source>Last updated</source>
-        <translation type="unfinished"></translation>
+        <translation>上次更新</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="366"/>
         <source>Installed size</source>
-        <translation type="unfinished"></translation>
+        <translation>安装大小</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
         <source>GitHub repository</source>
-        <translation type="unfinished"></translation>
+        <translation>GitHub 仓库</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
@@ -627,7 +627,7 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
         <source>Not compatible with this VCMI version</source>
-        <translation type="unfinished"></translation>
+        <translation>与当前 VCMI 版本不兼容</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>

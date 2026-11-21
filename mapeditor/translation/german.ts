@@ -476,12 +476,12 @@
     <message>
         <location filename="../mainwindow.ui" line="359"/>
         <source>Smaller icons</source>
-        <translation type="unfinished"></translation>
+        <translation>Kleinere Symbole</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="366"/>
         <source>Larger icons</source>
-        <translation type="unfinished"></translation>
+        <translation>Größere Symbole</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="373"/>
@@ -1139,12 +1139,12 @@ Für ein optimales Erlebnis empfehlen wir, den Karteneditor auf einem Tablet (od
     <message>
         <location filename="../mainwindow.cpp" line="1258"/>
         <source>All mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Mods</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1259"/>
         <source>Heroes III (core)</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III (core)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1273"/>
@@ -1593,7 +1593,7 @@ Warnung: Einmal hinzugefügte Level können nicht mehr entfernt werden.</transla
     <message>
         <location filename="../mapcontroller.cpp" line="668"/>
         <source>Hero cannot be placed at the entrance of this town, because it is the main town of its owner and a hero is generated there on game start. Disable &quot;Generate hero at main&quot; in player settings first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Held kann nicht am Eingang dieser Stadt platziert werden, da es sich um die Hauptstadt des Besitzers handelt und dort zu Spielbeginn ein Held generiert wird. Deaktivieren Sie in den Spieler-Einstellungen die Option &quot;Generiere Held in Hauptstadt&quot; um den Helden zu platzieren.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="685"/>
@@ -2002,7 +2002,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../playerparams.ui" line="179"/>
         <source>Generate hero at main</source>
-        <translation>Held am Hauptplatz generieren</translation>
+        <translation>Generiere Held in Hauptstadt</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="156"/>
@@ -2022,7 +2022,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../playerparams.cpp" line="173"/>
         <source>Hero %1 is already placed at the entrance of this town</source>
-        <translation type="unfinished"></translation>
+        <translation>Held %1 wurde bereits am Eingang dieser Stadt platziert</translation>
     </message>
 </context>
 <context>
@@ -2133,7 +2133,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="1052"/>
         <source>Compliant</source>
-        <translation>Konform</translation>
+        <translation>Umgänglich</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1053"/>
@@ -2153,7 +2153,7 @@ Möchten Sie das jetzt tun?</translation>
     <message>
         <location filename="../inspector/inspector.cpp" line="1056"/>
         <source>Savage</source>
-        <translation>Wild</translation>
+        <translation>Barbarisch</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="363"/>
@@ -2250,7 +2250,7 @@ Möchten Sie das jetzt tun?</translation>
         <location filename="../inspector/inspector.cpp" line="464"/>
         <location filename="../inspector/inspector.cpp" line="872"/>
         <source>Stacks count</source>
-        <translation>Truppengröße</translation>
+        <translation>Truppenanzahl</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="465"/>
@@ -4827,7 +4827,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="807"/>
         <source>Failed to open template</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte Template nicht öffnen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="821"/>
@@ -4902,12 +4902,12 @@ Wächter: %3</translation>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="47"/>
         <source>affects human</source>
-        <translation>beeinflusst Menschen</translation>
+        <translation>betrifft Menschen</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="54"/>
         <source>affects AI</source>
-        <translation>beeinflusst KI</translation>
+        <translation>betrifft Computer</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="70"/>
@@ -4937,7 +4937,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="199"/>
         <source>qty</source>
-        <translation>anz.</translation>
+        <translation>Anz.</translation>
     </message>
     <message>
         <location filename="../mapsettings/timedevent.ui" line="211"/>
@@ -4975,7 +4975,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="60"/>
         <source>Demolish all</source>
-        <translation>Alle zerstören</translation>
+        <translation>Alle abreißen</translation>
     </message>
     <message>
         <location filename="../inspector/townbuildingswidget.ui" line="67"/>
@@ -5033,7 +5033,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="99"/>
         <source>Repeat after (0 = no repeat)</source>
-        <translation>Wiederholung nach (0 = keine Wiederholung)</translation>
+        <translation>Wiederholen nach (0 = keine Wiederholung)</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="123"/>
@@ -5043,12 +5043,12 @@ Wächter: %3</translation>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="146"/>
         <source>affects human</source>
-        <translation>beeinflusst Menschen</translation>
+        <translation>betrifft Menschen</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="155"/>
         <source>affects AI</source>
-        <translation>beeinflusst KI</translation>
+        <translation>betrifft Computer</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="164"/>
@@ -5209,7 +5209,7 @@ Wächter: %3</translation>
         <location filename="../inspector/townspellswidget.ui" line="231"/>
         <location filename="../inspector/townspellswidget.ui" line="277"/>
         <source>Spell that may appear in mage guild</source>
-        <translation>Zauberspruch, der in der Magiergilde erscheinen kann</translation>
+        <translation>Sprüche, die in der Magiergilde erscheinen können</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="100"/>
@@ -5218,7 +5218,7 @@ Wächter: %3</translation>
         <location filename="../inspector/townspellswidget.ui" line="238"/>
         <location filename="../inspector/townspellswidget.ui" line="284"/>
         <source>Spell that must appear in mage guild</source>
-        <translation>Zauberspruch, der in der Magiergilde erscheinen muss</translation>
+        <translation>Sprüche, die in der Magiergilde erscheinen müssen</translation>
     </message>
     <message>
         <location filename="../inspector/townspellswidget.ui" line="122"/>
@@ -5402,7 +5402,7 @@ Wächter: %3</translation>
     <message>
         <location filename="../validator.cpp" line="118"/>
         <source>Hero %1 is placed in main town of player %2, which is set to generate hero at main town. Starting hero will not be generated</source>
-        <translation type="unfinished"></translation>
+        <translation>Held %1 wurde in der Hauptstadt von Spieler %2 platziert, bei dem die Einstellung &quot;Generiere Held in Hauptstadt&quot; aktiviert ist. Es wird kein Startheld generiert werden</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="159"/>
