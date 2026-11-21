@@ -28,6 +28,35 @@ const char *standardPath(NSSearchPathDirectory directory) { return standardPathN
 
 namespace iOS_utils
 {
+UIViewController *rootViewController()
+{
+	for (UIScene *scene in UIApplication.sharedApplication.connectedScenes)
+	{
+		if (![scene isKindOfClass:UIWindowScene.class])
+			continue;
+
+		for (UIWindow *window in ((UIWindowScene *)scene).windows)
+			if (window.isKeyWindow)
+				return window.rootViewController;
+	}
+
+	for (UIScene *scene in UIApplication.sharedApplication.connectedScenes)
+	{
+		if (![scene isKindOfClass:UIWindowScene.class])
+			continue;
+
+		UIWindowScene *windowScene = (UIWindowScene *)scene;
+		if (windowScene.activationState != UISceneActivationStateForegroundActive)
+			continue;
+
+		for (UIWindow *window in windowScene.windows)
+			return window.rootViewController;
+	}
+
+	// legacy app lifecycle (SDL2, Qt) has no connected scenes
+	return UIApplication.sharedApplication.keyWindow.rootViewController;
+}
+
 const char *documentsPath() { return standardPath(NSDocumentDirectory); }
 const char *cachesPath() { return standardPath(NSCachesDirectory); }
 
@@ -61,8 +90,19 @@ void keepScreenOn(bool isEnabled)
 	UIApplication.sharedApplication.idleTimerDisabled = isEnabled ? YES : NO;
 }
 
-bool isIPad()
+bool hasRegularWidth()
 {
+	UIViewController *root = rootViewController();
+	if (root != nil)
+		return root.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular;
+
+	for (UIScene *scene in UIApplication.sharedApplication.connectedScenes)
+	{
+		if ([scene isKindOfClass:UIWindowScene.class])
+			return ((UIWindowScene *)scene).traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular;
+	}
+
+	// legacy app lifecycle (Qt launcher) has no connected scenes
 	return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
 }
 
@@ -85,7 +125,10 @@ void shareFile(const std::string & filePath)
 	NSArray *items = @[url];
 	UIActivityViewController *controller = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
 
-	UIViewController *root = UIApplication.sharedApplication.keyWindow.rootViewController;
+	UIViewController *root = rootViewController();
+	if (root == nil)
+		return;
+
 	if (root.presentedViewController != nil)
 		[root.presentedViewController presentViewController:controller animated:YES completion:nil];
 	else

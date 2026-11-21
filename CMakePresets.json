@@ -318,7 +318,8 @@
             "generator": "Xcode",
             "binaryDir": "../build-${presetName}",
             "cacheVariables": {
-                "CMAKE_SYSTEM_NAME": "iOS"
+                "CMAKE_SYSTEM_NAME": "iOS",
+                "CMAKE_OSX_DEPLOYMENT_TARGET": "15.0"
             }
         },
         {

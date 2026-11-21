@@ -12,9 +12,18 @@
 #include <TargetConditionals.h>
 #include <string>
 
+#ifdef __OBJC__
+@class UIViewController;
+#endif
+
 #pragma GCC visibility push(default)
 namespace iOS_utils
 {
+#ifdef __OBJC__
+// key window's root view controller of the active scene
+UIViewController *rootViewController();
+#endif
+
 const char *documentsPath();
 const char *cachesPath();
 
@@ -34,7 +43,7 @@ const char *bundleIdentifier();
 
 bool isOsVersionAtLeast(unsigned int osMajorVersion);
 void keepScreenOn(bool isEnabled);
-bool isIPad();
+bool hasRegularWidth();
 bool isTestFlightBuild();
 }
 #pragma GCC visibility pop
