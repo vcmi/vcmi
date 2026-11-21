@@ -341,8 +341,11 @@ The `customObjects` block can be set at the template root and in a zone. The tem
 		// one predefined spell
 		{ "spells" : [ "townPortal" ], "rmg" : { "value" : 8000, "rarity" : 2 } },
 
-		// several predefined spells; only gold and experience boxes have default rmg values, so value and rarity are required
+		// several predefined spells; only gold, experience and nativeCreatures boxes have default rmg values, so value and rarity are required
 		{ "spells" : [ "fly", "dimensionDoor", "townPortal" ], "rmg" : { "value" : 20000, "rarity" : 2 } },
+
+		// creatures of the zone's faction, as in the default creature boxes: one box per level 1 creature (basic and upgraded)
+		{ "rmg" : { "nativeCreatures" : { "level" : 1 }, "zoneLimit" : 2 } },
 
 		// creatures, only in Castle and neutral zones
 		{ "creatures" : [ { "type" : "angel", "amount" : 5 } ], "rmg" : { "value" : 25000, "rarity" : 3, "zoneFactions" : [ "castle", "neutral" ] } },
@@ -362,8 +365,9 @@ The `rmg` block:
 - `value`: treasure value of the box. Gold-only and experience-only boxes default to the value of the default box with the same amount: `pandoras.valueMultiplierGold` or `pandoras.valueMultiplierExperience` in [randomMap.json](../../config/randomMap.json) per 5000. Required for other boxes.
 - `rarity`: probability of the box in the treasure pool. Gold-only boxes default to 5 and experience-only boxes to 20, as the default boxes. Required for other boxes.
 - `zoneLimit`: maximum number of boxes of this entry per zone. Default 0, unlimited.
+- `nativeCreatures`: the box holds creatures of the zone's faction, as the default creature boxes: for each creature of that faction, basic and upgraded, a box with the default amount and value. `level` limits it to one creature level; 0 or no `level` means all levels. The entry has no other content. Rarity defaults to 3, as the default creature boxes. `zoneLimit` applies to each creature separately.
 - `zoneFactions`: factions of the zones that can get the box. A zone's faction is the faction of its towns; a zone without towns gets a random faction or `neutral`. Default: all zones.
 
-A box is gold-only when its only content is `resources` with only `gold`, and experience-only when its only content is `experience`. An entry without a default `value` or `rarity` that does not set it is ignored with an error in the log.
+A box is gold-only when its only content is `resources` with only `gold`, and experience-only when its only content is `experience`. Gold-only, experience-only and `nativeCreatures` boxes have default values. An entry without a default `value` or `rarity` that does not set it is ignored with an error in the log.
 
 Bans never remove custom boxes, including a `pandorasBox` category ban, which only removes the default boxes. Custom boxes are never placed in water zones, and a box worth more than any treasure range of the zone is never placed. The generator adds a guard to the box according to its value, as for any other treasure.
