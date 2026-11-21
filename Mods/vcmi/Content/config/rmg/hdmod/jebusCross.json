@@ -3,6 +3,7 @@
 	{
 		"minSize" : "l", "maxSize" : "xl",
 		"players" : "2-4",
+		"monsterJoining" : { "joiningPercentage" : 50, "joinOnlyForMoney" : true },
 		"zones":
 		{
 			"1":
@@ -51,6 +52,7 @@
 				"neutralTowns" : { "castles" : 2 },
 				"terrainTypes" : [ "sand" ], "matchTerrainToTown" : false,
 				"monsters" : "strong",
+				"monsterJoining" : { "character" : "custom", "aggression" : 7 },
 				"mines" : {"gold" : 4},
 				"treasure" : [
 								{"min" : 35000, "max": 55000, "density" : 3},
