@@ -2587,115 +2587,114 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <translation>Benutzerdefiniert</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="452"/>
         <source>Quest:</source>
-        <translation>Aufgabe:</translation>
+        <translation type="vanished">Aufgabe:</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="453"/>
         <location filename="../inspector/questwidget.cpp" line="523"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="500"/>
         <source>Day of Week: %1</source>
         <translation>Tag der Woche: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="454"/>
         <location filename="../inspector/questwidget.cpp" line="525"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="502"/>
         <source>Days Passed: %1</source>
         <translation>Verstrichene Tage: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="455"/>
         <location filename="../inspector/questwidget.cpp" line="527"/>
         <location filename="../inspector/rewardswidget.cpp" line="574"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="420"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="504"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="429"/>
         <source>Hero Level: %1</source>
         <translation>Heldenstufe: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="456"/>
         <location filename="../inspector/questwidget.cpp" line="529"/>
         <location filename="../inspector/rewardswidget.cpp" line="575"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="422"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="506"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="431"/>
         <source>Hero Experience: %1</source>
         <translation>Heldenerfahrung: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="457"/>
         <location filename="../inspector/questwidget.cpp" line="531"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="508"/>
         <source>Mana Points: %1</source>
         <translation>Mana-Punkte: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="458"/>
         <location filename="../inspector/questwidget.cpp" line="533"/>
         <location filename="../inspector/rewardswidget.cpp" line="577"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="426"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="510"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="435"/>
         <source>Mana Percentage: %1</source>
         <translation>Mana-Prozentsatz: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="459"/>
         <location filename="../inspector/questwidget.cpp" line="535"/>
         <location filename="../inspector/rewardswidget.cpp" line="580"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="432"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="512"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="441"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
         <translation>Primärfähigkeiten: %1/%2/%3/%4</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="470"/>
         <location filename="../inspector/questwidget.cpp" line="546"/>
         <location filename="../inspector/rewardswidget.cpp" line="590"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="443"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="523"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="452"/>
         <source>Resources: %1</source>
         <translation>Ressourcen: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="477"/>
         <location filename="../inspector/questwidget.cpp" line="555"/>
         <location filename="../inspector/rewardswidget.cpp" line="596"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="450"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="532"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="459"/>
         <source>Artifacts: %1</source>
         <translation>Artefakte: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="484"/>
         <location filename="../inspector/questwidget.cpp" line="565"/>
         <location filename="../inspector/rewardswidget.cpp" line="602"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="458"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="542"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="467"/>
         <source>Spells: %1</source>
         <translation>Zaubersprüche: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="491"/>
         <location filename="../inspector/questwidget.cpp" line="575"/>
         <location filename="../inspector/rewardswidget.cpp" line="608"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="467"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="552"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="476"/>
         <source>Secondary Skills: %1</source>
         <translation>Sekundärfähigkeiten: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="498"/>
         <location filename="../inspector/questwidget.cpp" line="585"/>
         <location filename="../inspector/rewardswidget.cpp" line="614"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="476"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="562"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="485"/>
         <source>Creatures: %1</source>
         <translation>Kreaturen: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="505"/>
         <location filename="../inspector/questwidget.cpp" line="595"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="572"/>
         <source>Heroes: %1</source>
         <translation>Helden: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="512"/>
         <location filename="../inspector/questwidget.cpp" line="605"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="582"/>
         <source>Hero Classes: %1</source>
         <translation>Helden-Klassen: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="521"/>
         <location filename="../inspector/questwidget.cpp" line="617"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="594"/>
         <source>Players: %1</source>
         <translation>Spieler: %1</translation>
     </message>
@@ -2711,31 +2710,31 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="576"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="424"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="433"/>
         <source>Mana Diff: %1</source>
         <translation>Mana-Differenz: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="578"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="428"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="437"/>
         <source>Move Points: %1</source>
         <translation>Bewegungspunkte: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="579"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="430"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="439"/>
         <source>Move Percentage: %1</source>
         <translation>Prozentsatz der Bewegung: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="617"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="480"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="489"/>
         <source>Spell Cast: %1 (%2)</source>
         <translation>Zauberspruch gewirkt: %1 (%2)</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="625"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="491"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="500"/>
         <source>Bonuses: %1</source>
         <translation>Boni: %1</translation>
     </message>
@@ -2829,13 +2828,19 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="623"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="604"/>
         <source>Empty Quest</source>
         <translation>Leere Aufgabe</translation>
     </message>
     <message>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="497"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="506"/>
         <source>Empty Reward</source>
         <translation>Leere Belohnung</translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/questwidget.cpp" line="599"/>
+        <source>Kill enemy: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2846,129 +2851,132 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <translation>Missionsziel</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="28"/>
+        <location filename="../inspector/questguardwidget.ui" line="47"/>
+        <source>First visit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="57"/>
+        <source>Next visit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Day of week</source>
-        <translation>Tag der Woche</translation>
+        <translation type="vanished">Tag der Woche</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="45"/>
         <source>Days passed</source>
-        <translation>Verstrichene Tage</translation>
+        <translation type="vanished">Verstrichene Tage</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="79"/>
         <source>Hero level</source>
-        <translation>Heldenstufe</translation>
+        <translation type="vanished">Heldenstufe</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="96"/>
         <source>Hero experience</source>
-        <translation>Heldenerfahrung</translation>
+        <translation type="vanished">Heldenerfahrung</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="136"/>
         <source>Spell points</source>
-        <translation>Zauberpunkte</translation>
+        <translation type="vanished">Zauberpunkte</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="156"/>
         <source>%</source>
-        <translation>%</translation>
+        <translation type="vanished">%</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
-        <translation>Held/Monster töten</translation>
+        <translation type="vanished">Held/Monster töten</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="197"/>
         <source>...</source>
-        <translation>...</translation>
+        <translation type="vanished">...</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation>Primärfähigkeiten</translation>
+        <translation type="vanished">Primärfähigkeiten</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="221"/>
         <source>Attack</source>
-        <translation>Angriff</translation>
+        <translation type="vanished">Angriff</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="231"/>
         <source>Defence</source>
-        <translation>Verteidigung</translation>
+        <translation type="vanished">Verteidigung</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation>Zauberkraft</translation>
+        <translation type="vanished">Zauberkraft</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="251"/>
         <source>Knowledge</source>
-        <translation>Wissen</translation>
+        <translation type="vanished">Wissen</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation>Ressourcen</translation>
+        <translation type="vanished">Ressourcen</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="338"/>
         <source>Artifacts</source>
-        <translation>Artefakte</translation>
+        <translation type="vanished">Artefakte</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="370"/>
         <source>Spells</source>
-        <translation>Zaubersprüche</translation>
+        <translation type="vanished">Zaubersprüche</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation>Fähigkeiten</translation>
+        <translation type="vanished">Fähigkeiten</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="442"/>
         <source>Creatures</source>
-        <translation>Kreaturen</translation>
+        <translation type="vanished">Kreaturen</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="491"/>
         <source>Add</source>
-        <translation>Hinzufügen</translation>
+        <translation type="vanished">Hinzufügen</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="498"/>
         <source>Remove</source>
-        <translation>Entfernen</translation>
+        <translation type="vanished">Entfernen</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="538"/>
         <source>Heroes</source>
-        <translation>Helden</translation>
+        <translation type="vanished">Helden</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation>Heldenklassen</translation>
+        <translation type="vanished">Heldenklassen</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="602"/>
         <source>Players</source>
-        <translation>Spieler</translation>
+        <translation type="vanished">Spieler</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="43"/>
         <source>None</source>
-        <translation>Keine</translation>
+        <translation type="vanished">Keine</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="45"/>
         <source>Day %1</source>
-        <translation>Tag %1</translation>
+        <translation type="vanished">Tag %1</translation>
+    </message>
+</context>
+<context>
+    <name>QuestSourceWidget</name>
+    <message>
+        <location filename="../inspector/questsourcewidget.cpp" line="128"/>
+        <source>%1 quest on position %2</source>
+        <translation type="unfinished">%1 Aufgabe an Position %2</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questsourcewidget.cpp" line="212"/>
+        <source>Add reward</source>
+        <translation type="unfinished">Belohnung hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="../inspector/questsourcewidget.cpp" line="212"/>
+        <source>Remove reward</source>
+        <translation type="unfinished">Belohnung entfernen</translation>
     </message>
 </context>
 <context>
@@ -2982,192 +2990,198 @@ Fügen Sie sie zu den erforderlichen Mods unter Karte → Allgemeine Einstellung
         <translation type="vanished">Löschen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="17"/>
+        <location filename="../inspector/questsourcewidget.ui" line="17"/>
         <source>Missions</source>
         <translation>Missionen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="35"/>
+        <location filename="../inspector/questsourcewidget.ui" line="35"/>
         <source>Reward</source>
         <translation>Belohnung</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="52"/>
+        <location filename="../inspector/questsourcewidget.ui" line="52"/>
         <source>Add Reward</source>
         <translation>Belohnung hinzufügen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="59"/>
+        <location filename="../inspector/questsourcewidget.ui" line="59"/>
         <source>Add Quest</source>
         <translation>Aufgabe hinzufügen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="66"/>
+        <location filename="../inspector/questsourcewidget.ui" line="66"/>
         <source>Delete Quest</source>
         <translation>Aufgabe löschen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="93"/>
+        <location filename="../inspector/questsourcewidget.ui" line="93"/>
         <source>Move up</source>
         <translation>Nach oben gehen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="100"/>
+        <location filename="../inspector/questsourcewidget.ui" line="100"/>
         <source>Move down</source>
         <translation>Nach unten gehen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="113"/>
+        <location filename="../inspector/questsourcewidget.ui" line="113"/>
         <source>First Visit</source>
         <translation>Erstbesuch</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="141"/>
+        <location filename="../inspector/questsourcewidget.ui" line="141"/>
         <source>Next Visit</source>
         <translation>Nächstbesuch</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="163"/>
+        <location filename="../inspector/questsourcewidget.ui" line="163"/>
         <source>Completed</source>
         <translation>Abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="199"/>
+        <location filename="../inspector/questsourcewidget.ui" line="199"/>
         <source>Quest</source>
         <translation>Aufgabe</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="214"/>
         <source>Repeatable</source>
-        <translation>Wiederholbar</translation>
+        <translation type="vanished">Wiederholbar</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="224"/>
+        <location filename="../inspector/segments/questwidget.ui" line="19"/>
+        <source>Repetable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/questwidget.ui" line="29"/>
         <source>Set Deadline</source>
         <translation>Zeitlich begrenzen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="245"/>
+        <location filename="../inspector/segments/questwidget.ui" line="43"/>
         <source>Day of week</source>
         <translation>Tag der Woche</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="262"/>
+        <location filename="../inspector/segments/questwidget.ui" line="60"/>
         <source>Days passed</source>
         <translation>Verstrichene Tage</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="296"/>
+        <location filename="../inspector/segments/questwidget.ui" line="94"/>
         <source>Hero level</source>
         <translation>Heldenstufe</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="313"/>
+        <location filename="../inspector/segments/questwidget.ui" line="111"/>
         <source>Hero experience</source>
         <translation>Heldenerfahrung</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="353"/>
+        <location filename="../inspector/segments/questwidget.ui" line="151"/>
         <source>Spell points</source>
         <translation>Zauberpunkte</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="373"/>
+        <location filename="../inspector/segments/questwidget.ui" line="171"/>
         <source>%</source>
         <translation>%</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="400"/>
+        <location filename="../inspector/segments/questwidget.ui" line="199"/>
         <source>Kill hero/monster</source>
         <translation>Held/Monster töten</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="414"/>
+        <location filename="../inspector/segments/questwidget.ui" line="213"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="423"/>
+        <location filename="../inspector/segments/questwidget.ui" line="223"/>
         <source>Primary skills</source>
         <translation>Primärfähigkeiten</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="438"/>
+        <location filename="../inspector/segments/questwidget.ui" line="238"/>
         <source>Attack</source>
         <translation>Angriff</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="448"/>
+        <location filename="../inspector/segments/questwidget.ui" line="248"/>
         <source>Defence</source>
         <translation>Verteidigung</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="458"/>
+        <location filename="../inspector/segments/questwidget.ui" line="258"/>
         <source>Spell power</source>
         <translation>Zauberkraft</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="468"/>
+        <location filename="../inspector/segments/questwidget.ui" line="268"/>
         <source>Knowledge</source>
         <translation>Wissen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="506"/>
+        <location filename="../inspector/segments/questwidget.ui" line="306"/>
         <source>Resources</source>
         <translation>Ressourcen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="555"/>
+        <location filename="../inspector/segments/questwidget.ui" line="355"/>
         <source>Artifacts</source>
         <translation>Artefakte</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="587"/>
+        <location filename="../inspector/segments/questwidget.ui" line="387"/>
         <source>Spells</source>
         <translation>Zaubersprüche</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="619"/>
+        <location filename="../inspector/segments/questwidget.ui" line="419"/>
         <source>Skills</source>
         <translation>Fähigkeiten</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="659"/>
+        <location filename="../inspector/segments/questwidget.ui" line="459"/>
         <source>Creatures</source>
         <translation>Kreaturen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="708"/>
+        <location filename="../inspector/segments/questwidget.ui" line="508"/>
         <source>Add</source>
         <translation>Hinzufügen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="715"/>
+        <location filename="../inspector/segments/questwidget.ui" line="515"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="755"/>
+        <location filename="../inspector/segments/questwidget.ui" line="555"/>
         <source>Heroes</source>
         <translation>Helden</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="787"/>
+        <location filename="../inspector/segments/questwidget.ui" line="587"/>
         <source>Hero classes</source>
         <translation>Heldenklassen</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="819"/>
+        <location filename="../inspector/segments/questwidget.ui" line="619"/>
         <source>Players</source>
         <translation>Spieler</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="45"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="48"/>
         <source>None</source>
         <translation>Keine</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="47"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="50"/>
         <source>Day %1</source>
         <translation>Tag %1</translation>
     </message>

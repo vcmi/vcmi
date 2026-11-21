@@ -1941,116 +1941,121 @@ Bin (%n bajtů):
     </message>
     <message>
         <location filename="../languages.cpp" line="30"/>
+        <source>Faroese</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../languages.cpp" line="31"/>
         <source>Filipino</source>
         <translation>Filipínština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="31"/>
+        <location filename="../languages.cpp" line="32"/>
         <source>Finnish</source>
         <translation>Finština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="32"/>
+        <location filename="../languages.cpp" line="33"/>
         <source>French</source>
         <translation>Francouzština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="33"/>
+        <location filename="../languages.cpp" line="34"/>
         <source>German</source>
         <translation>Němčina</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="34"/>
+        <location filename="../languages.cpp" line="35"/>
         <source>Greek</source>
         <translation>Řečtina</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="35"/>
+        <location filename="../languages.cpp" line="36"/>
         <source>Hungarian</source>
         <translation>Maďarština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="36"/>
+        <location filename="../languages.cpp" line="37"/>
         <source>Italian</source>
         <translation>Italština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="37"/>
+        <location filename="../languages.cpp" line="38"/>
         <source>Japanese</source>
         <translation>Japonština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="38"/>
+        <location filename="../languages.cpp" line="39"/>
         <source>Korean</source>
         <translation>Korejština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="39"/>
+        <location filename="../languages.cpp" line="40"/>
         <source>Latvian</source>
         <translation>Lotyština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="40"/>
+        <location filename="../languages.cpp" line="41"/>
         <source>Lithuanian</source>
         <translation>Litevština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="41"/>
+        <location filename="../languages.cpp" line="42"/>
         <source>Norwegian</source>
         <translation>Norština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="42"/>
+        <location filename="../languages.cpp" line="43"/>
         <source>Polish</source>
         <translation>Polština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="43"/>
+        <location filename="../languages.cpp" line="44"/>
         <source>Portuguese</source>
         <translation>Portugalština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="44"/>
+        <location filename="../languages.cpp" line="45"/>
         <source>Romanian</source>
         <translation>Rumunština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="45"/>
+        <location filename="../languages.cpp" line="46"/>
         <source>Russian</source>
         <translation>Ruština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="46"/>
+        <location filename="../languages.cpp" line="47"/>
         <source>Serbian</source>
         <translation>Srbština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="47"/>
+        <location filename="../languages.cpp" line="48"/>
         <source>Spanish</source>
         <translation>Španělština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="48"/>
+        <location filename="../languages.cpp" line="49"/>
         <source>Swedish</source>
         <translation>Švédština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="49"/>
+        <location filename="../languages.cpp" line="50"/>
         <source>Turkish</source>
         <translation>Turečtina</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="50"/>
+        <location filename="../languages.cpp" line="51"/>
         <source>Ukrainian</source>
         <translation>Ukrajinština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="51"/>
+        <location filename="../languages.cpp" line="52"/>
         <source>Vietnamese</source>
         <translation>Vietnamština</translation>
     </message>
     <message>
-        <location filename="../languages.cpp" line="73"/>
+        <location filename="../languages.cpp" line="74"/>
         <source>Auto (%1)</source>
         <translation>Automaticky (%1)</translation>
     </message>
