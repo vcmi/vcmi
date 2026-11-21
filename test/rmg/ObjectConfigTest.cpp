@@ -14,6 +14,8 @@
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/rmg/ObjectConfig.h"
 #include "../../lib/rmg/ObjectInfo.h"
+#include "../../lib/serializer/JsonDeserializer.h"
+#include "../../lib/serializer/JsonSerializer.h"
 
 namespace test
 {
@@ -53,6 +55,11 @@ protected:
 		info.value = value;
 		info.probability = 50;
 		return info;
+	}
+
+	static JsonNode pandoraBox(const std::string & text)
+	{
+		return JsonNode(text.data(), text.size(), "ObjectConfigTest");
 	}
 
 	const ObjectInfo * findConfigured(const ObjectConfig & config, CompoundMapObjectID id)
@@ -267,6 +274,98 @@ TEST_F(ObjectConfigTest, RequiredObjectReplacedAndCountZeroTakesEffect)
 	EXPECT_EQ(merged.getRequiredObjects().at(refugeeCamp()).first, 0);
 	ASSERT_TRUE(merged.getRequiredObjects().count(scholar()));
 	EXPECT_EQ(merged.getRequiredObjects().at(scholar()).first, 3);
+}
+
+TEST_F(ObjectConfigTest, PandoraBoxesConcatenateBaseFirst)
+{
+	/*
+	 * Asserts: pandoraBoxes are concatenated by merge, never replaced: template (base) entries
+	 * first, then zone (override) entries, even when two entries are identical.
+	 * Pass: the merged list is base box 1, base box 2, then the zone box, in that order.
+	 * Fail: the zone list replaces the template list, entries are deduplicated, or the order differs.
+	 */
+
+	const auto experienceBox = pandoraBox(R"({ "experience" : 5000 })");
+	const auto goldBox = pandoraBox(R"({ "resources" : { "gold" : 10000 } })");
+
+	ObjectConfig base;
+	base.addPandoraBox(experienceBox);
+	base.addPandoraBox(goldBox);
+
+	ObjectConfig zone;
+	zone.addPandoraBox(experienceBox);
+
+	auto merged = ObjectConfig::merge(base, zone);
+
+	EXPECT_THAT(merged.getPandoraBoxes(), ElementsAre(experienceBox, goldBox, experienceBox));
+}
+
+TEST_F(ObjectConfigTest, PandoraBoxesSurviveZoneBans)
+{
+	/*
+	 * Asserts: no kind of zone ban removes inherited pandoraBoxes: the pandorasBox category, the
+	 * "all" category, or an object ban on the Pandora box type.
+	 * Pass: after each merge the template box is still the only entry.
+	 * Fail: a ban drops the inherited box, as bans do for commonObjects.
+	 */
+
+	const auto experienceBox = pandoraBox(R"({ "experience" : 5000 })");
+
+	ObjectConfig base;
+	base.addPandoraBox(experienceBox);
+
+	ObjectConfig categoryZone;
+	categoryZone.addBannedCategory(ObjectConfig::EObjectCategory::PANDORAS_BOX);
+	EXPECT_THAT(ObjectConfig::merge(base, categoryZone).getPandoraBoxes(), ElementsAre(experienceBox));
+
+	ObjectConfig allZone;
+	allZone.addBannedCategory(ObjectConfig::EObjectCategory::ALL);
+	EXPECT_THAT(ObjectConfig::merge(base, allZone).getPandoraBoxes(), ElementsAre(experienceBox));
+
+	ObjectConfig objectZone;
+	objectZone.setObjectBanned(CompoundMapObjectID(Obj::PANDORAS_BOX, -1), true);
+	EXPECT_THAT(ObjectConfig::merge(base, objectZone).getPandoraBoxes(), ElementsAre(experienceBox));
+}
+
+TEST_F(ObjectConfigTest, PandoraBoxesRoundTripUnchanged)
+{
+	/*
+	 * Asserts: pandoraBoxes entries are stored as written (no parsing at template load) and saved
+	 * back unchanged, including the rmg block and the full "rewardable" form; an empty list is not
+	 * written at all.
+	 * Pass: loading two entries gives those two nodes, saving writes the same array, and saving a
+	 * config without boxes writes no "pandoraBoxes" key.
+	 * Fail: an entry is altered or dropped on load or save, or an empty array is written.
+	 */
+
+	const auto input = pandoraBox(R"({
+		"pandoraBoxes" : [
+			{ "spells" : [ "townPortal", "fly" ], "rmg" : { "value" : 15000, "rarity" : 2, "zoneFactions" : [ "castle", "neutral" ] } },
+			{ "rewardable" : { "info" : [ { "reward" : { "heroExperience" : 1000 } } ] }, "rmg" : { "value" : 1200, "rarity" : 5 } }
+		]
+	})");
+
+	ObjectConfig loaded;
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, input);
+		loaded.serializeJson(handler, *LIBRARY->objtypeh);
+	}
+	EXPECT_EQ(loaded.getPandoraBoxes(), input["pandoraBoxes"].Vector());
+
+	JsonNode saved;
+	{
+		JsonSerializer handler(nullptr, saved);
+		loaded.serializeJson(handler, *LIBRARY->objtypeh);
+	}
+	EXPECT_EQ(saved["pandoraBoxes"], input["pandoraBoxes"]);
+
+	JsonNode savedEmpty;
+	{
+		JsonSerializer handler(nullptr, savedEmpty);
+		ObjectConfig().serializeJson(handler, *LIBRARY->objtypeh);
+	}
+	EXPECT_FALSE(savedEmpty.Struct().count("pandoraBoxes"));
 }
 
 }

@@ -173,6 +173,11 @@ void ObjectConfig::clearRequiredObjects()
 	requiredObjects.clear();
 }
 
+void ObjectConfig::addPandoraBox(const JsonNode & entry)
+{
+	pandoraBoxes.push_back(entry);
+}
+
 void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects)
 {
 	static const std::map<std::string, EObjectCategory> OBJECT_CATEGORY_STRINGS = {
@@ -373,6 +378,22 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 
 	if(handler.saving)
 	{
+		if(!pandoraBoxes.empty())
+		{
+			JsonNode boxes;
+			boxes.Vector() = pandoraBoxes;
+			handler.serializeRaw("pandoraBoxes", boxes, std::nullopt);
+		}
+	}
+	else
+	{
+		// Kept as written: rewards cannot be loaded yet, TreasurePlacer reads them during generation
+		for(const auto & entry : handler.getCurrent()["pandoraBoxes"].Vector())
+			addPandoraBox(entry);
+	}
+
+	if(handler.saving)
+	{
 		if(!requiredObjects.empty())
 		{
 			auto requiredObjectsStruct = handler.enterStruct("requiredObjects");
@@ -451,6 +472,11 @@ const std::vector<ObjectInfo> & ObjectConfig::getConfiguredObjects() const
 	return customObjects;
 }
 
+const std::vector<JsonNode> & ObjectConfig::getPandoraBoxes() const
+{
+	return pandoraBoxes;
+}
+
 const std::map<CompoundMapObjectID, bool> & ObjectConfig::getObjectBans() const
 {
 	return bannedObjects;
@@ -520,6 +546,9 @@ ObjectConfig ObjectConfig::merge(const ObjectConfig & base, const ObjectConfig &
 
 	for(const auto & [id, info] : override.requiredObjects)
 		result.requiredObjects[id] = info;
+
+	// Template boxes first, then zone boxes; bans never remove them
+	vstd::concatenate(result.pandoraBoxes, override.pandoraBoxes);
 
 	return result;
 }

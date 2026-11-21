@@ -178,4 +178,60 @@ TEST_F(CRmgTemplateTest, FalseBanSurvivesRoundTrip)
 	EXPECT_FALSE(reloaded->getCustomObjects().isObjectBanned(CompoundMapObjectID(Obj::SCHOLAR, 0)));
 }
 
+TEST_F(CRmgTemplateTest, AfterLoadConcatenatesPandoraBoxes)
+{
+	/*
+	 * Asserts: after afterLoad, a zone's pandoraBoxes are the template-level boxes followed by the
+	 * zone's own boxes, and customObjectsLikeZone copies that merged list.
+	 * Pass: zones 1 and 2 each hold exactly [root experience box, zone 1 spell box].
+	 * Fail: the zone list replaces the template list, the order is reversed, or zone 2 does not
+	 * inherit zone 1's boxes.
+	 */
+
+	constexpr char text[] = R"({
+		"minSize" : "s",
+		"maxSize" : "s",
+		"players" : "1",
+		"customObjects" : {
+			"pandoraBoxes" : [ { "experience" : 5000 } ]
+		},
+		"zones" : {
+			"1" : {
+				"type" : "treasure",
+				"size" : 10,
+				"customObjects" : {
+					"bannedCategories" : [ "pandorasBox" ],
+					"pandoraBoxes" : [ { "spells" : [ "fly" ], "rmg" : { "value" : 8000, "rarity" : 2 } } ]
+				}
+			},
+			"2" : {
+				"type" : "treasure",
+				"size" : 10,
+				"customObjectsLikeZone" : 1
+			}
+		},
+		"connections" : [
+			{ "a" : "1", "b" : "2", "guard" : 1000 }
+		]
+	})";
+
+	JsonNode config(text, std::size(text), "AfterLoadConcatenatesPandoraBoxes");
+	auto subject = std::make_shared<CRmgTemplate>();
+	subject->setId("pandoraBoxes");
+
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, config);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	subject->afterLoad(*LIBRARY);
+
+	const JsonNode & rootBox = config["customObjects"]["pandoraBoxes"][0];
+	const JsonNode & zoneBox = config["zones"]["1"]["customObjects"]["pandoraBoxes"][0];
+
+	EXPECT_THAT(subject->getZones().at(1)->getCustomObjects().getPandoraBoxes(), ElementsAre(rootBox, zoneBox));
+	EXPECT_THAT(subject->getZones().at(2)->getCustomObjects().getPandoraBoxes(), ElementsAre(rootBox, zoneBox));
+}
+
 }
