@@ -60,6 +60,10 @@
 				}
 			]
 		},
+		"monsterJoining": {
+			"joinOnlyForMoney": true,
+			"joiningPercentage": 50
+		},
 		"zones": {
 			"1": {
 				"customObjects": {
@@ -151,6 +155,10 @@
 					"gold": 1,
 					"mercury": 1,
 					"sulfur": 1
+				},
+				"monsterJoining": {
+					"aggression": 7,
+					"character": "custom"
 				},
 				"neutralTowns": {
 					"towns": 1
