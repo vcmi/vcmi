@@ -3,6 +3,7 @@
 	{
 		"minSize" : "l", "maxSize" : "xl",
 		"players" : "2-4",
+		"monsterJoining" : { "joiningPercentage" : 50, "joinOnlyForMoney" : true },
 		"zones":
 		{
 			"1":
