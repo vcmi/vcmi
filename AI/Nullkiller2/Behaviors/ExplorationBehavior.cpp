@@ -22,6 +22,7 @@
 #include "ExplorationBehavior.h"
 
 #include "../../../lib/CPlayerState.h"
+#include "../../../lib/mapObjects/CRewardableObject.h"
 
 namespace NK2AI
 {

@@ -40,7 +40,8 @@ namespace NK2AI
 		allowObjectGraph(true),
 		useTroopsFromGarrisons(false),
 		updateHitmapOnTileReveal(false),
-		openMap(true)
+		openMap(true),
+		estimateUnscoutedBankGuards(false)
 	{
 		const char * difficultyName = GameConstants::DIFFICULTY_NAMES[difficultyLevel];
 		const JsonNode & rootNode = JsonUtils::assembleFromFiles("config/ai/nk2ai/nk2ai-settings");
@@ -62,6 +63,7 @@ namespace NK2AI
 		allowObjectGraph = node["allowObjectGraph"].Bool();
 		updateHitmapOnTileReveal = node["updateHitmapOnTileReveal"].Bool();
 		openMap = node["openMap"].Bool();
+		estimateUnscoutedBankGuards = node["estimateUnscoutedBankGuards"].Bool();
 		useTroopsFromGarrisons = node["useTroopsFromGarrisons"].Bool();
 	}
 }

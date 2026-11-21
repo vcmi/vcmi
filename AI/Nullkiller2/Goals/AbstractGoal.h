@@ -54,7 +54,6 @@ namespace Goals
 		GET_ART_TYPE,
 
 		DEFENCE,
-		STARTUP,
 		DIG_AT_TILE,//elementar with hero on tile
 		BUY_ARMY, //at specific town
 		TRADE, //val resID at object objid
@@ -79,7 +78,8 @@ namespace Goals
 		EXPLORATION_POINT,
 		EXPLORE_NEIGHBOUR_TILE,
 		ATTACK_ONE_WAY_PORTAL_GUARD,
-		ONE_WAY_PORTAL_PROBE
+		ONE_WAY_PORTAL_PROBE,
+		PREPARE_FREE_SLOT_FOR_CREATURE_REWARD
 	};
 
 	class DLL_EXPORT TSubgoal : public std::shared_ptr<AbstractGoal>

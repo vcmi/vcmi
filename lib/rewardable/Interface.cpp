@@ -482,8 +482,13 @@ void Rewardable::Interface::doHeroVisit(IGameEventCallback & gameEvents, const C
 	{
 		logGlobal->debug("Revisiting already visited object");
 
-		if (!wasVisited(h->getOwner()))
-			markAsScouted(gameEvents, h);
+		if(!wasVisited(h->getOwner()))
+		{
+			if(configuration.visitMode == Rewardable::VISIT_ONCE)
+				markAsVisited(gameEvents, h);
+			else
+				markAsScouted(gameEvents, h);
+		}
 
 		auto visitedRewards = getAvailableRewards(h, Rewardable::EEventType::EVENT_ALREADY_VISITED);
 		if (!visitedRewards.empty())

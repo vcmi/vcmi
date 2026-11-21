@@ -93,9 +93,9 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 		objid = obj->id.getNum();
 
 #if NK2AI_TRACE_LEVEL >= 1
-		targetName = obj->getObjectNameTextID() + tile.toString();
+		targetName = obj->getName() + path.toString();
 #else
-		targetName = obj->getTypeName() + tile.toString();
+		targetName = obj->getName() +" at "+ tile.toString();
 #endif
 	}
 	else
@@ -106,7 +106,7 @@ ExecuteHeroChain::ExecuteHeroChain(const AIPath & path, const CGObjectInstance *
 
 bool ExecuteHeroChain::operator==(const ExecuteHeroChain & other) const
 {
-	return tile == other.tile 
+	return tile == other.tile
 		&& chainPath.targetHero == other.chainPath.targetHero
 		&& chainPath.nodes.size() == other.chainPath.nodes.size()
 		&& chainPath.chainMask == other.chainPath.chainMask;
@@ -431,7 +431,7 @@ void ExecuteHeroChain::accept(AIGateway * aiGw)
 
 				throw cannotFulfillGoalException("Hero did not reach the expected hero chain destination.");
 			}
-			
+
 			// no exception means we were not able to reach the tile
 			aiGw->nullkiller->lockHero(hero, HeroLockedReason::HERO_CHAIN);
 			blockedIndexes.insert(node->parentIndex);
@@ -453,7 +453,7 @@ std::string ExecuteHeroChain::toString() const
 #if NK2AI_TRACE_LEVEL >= 1
 	return "ExecuteHeroChain " + targetName + " by " + chainPath.toString();
 #else
-	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getNameTextID();
+	return "ExecuteHeroChain " + targetName + " by " + chainPath.targetHero->getName();
 #endif
 }
 

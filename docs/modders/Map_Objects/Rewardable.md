@@ -164,6 +164,7 @@ Rewardable object is defined similarly to other objects, with key difference bei
 // "limiter",      - object can be visited if hero fails to fulfill provided limiter
 // "player",       - object can be visited if this player has not visited it before
 // "playerGlobal", - object can be visited if this player has not visited this object or any other object of this type before
+// "teamGlobal",   - object can be visited if this team has not visited this object or any other object of this type before
 // "bonus"         - object can be visited if hero no longer has bonus from this object (including any other object of the same type)
 // "unlimited"     - no restriction on revisiting.
 "visitMode" : "unlimited", 

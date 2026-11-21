@@ -62,10 +62,10 @@ const ui32 CGHeroInstance::NO_PATROLLING = std::numeric_limits<ui32>::max();
 void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
 {
 	serializeJsonOwner(handler);
-	
+
 	bool isHeroType = heroType.has_value();
 	handler.serializeBool("placeholderType", isHeroType, false);
-	
+
 	if(!handler.saving)
 	{
 		if(isHeroType)
@@ -73,7 +73,7 @@ void CGHeroPlaceholder::serializeJsonOptions(JsonSerializeFormat & handler)
 		else
 			powerRank = 0;
 	}
-	
+
 	if(isHeroType)
 		handler.serializeId("heroType", heroType.value(), HeroTypeID::NONE);
 	else
@@ -417,7 +417,7 @@ void CGHeroInstance::updateAppearance()
 void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 {
 	assert(validTypes(true));
-	
+
 	if (gender == EHeroGender::DEFAULT)
 		gender = getHeroType()->gender;
 
@@ -507,7 +507,7 @@ void CGHeroInstance::initHero(IGameRandomizer & gameRandomizer, bool isFake)
 	}
 
 	// load base hero bonuses, TODO: per-map loading of base hero bonuses
-	// must be done separately from global bonuses since recruitable heroes in taverns 
+	// must be done separately from global bonuses since recruitable heroes in taverns
 	// are not attached to global bonus node but need access to some global bonuses
 	// e.g. MANA_PER_KNOWLEDGE_PERCENTAGE for correct preview and initial state after recruit	for(const auto & ob : LIBRARY->modh->heroBaseBonuses)
 	// or MOVEMENT to compute initial movement before recruiting is finished
@@ -1348,7 +1348,7 @@ std::string CGHeroInstance::getBiographyTextID() const
 		return biographyCustomTextId;
 	if (getHeroTypeID().hasValue())
 		return getHeroType()->getBiographyTextID();
-	
+
 	return ""; //for random hero
 }
 
@@ -1552,7 +1552,7 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 {
 	if(!ti->hasFreeShipBoarding())
 		return 0; // take all MPs by default
-	
+
 	auto boatLayer = inBoat() ? getBoat()->layer : EPathfindingLayer::SAIL;
 
 	if(boatLayer == EPathfindingLayer::AVIATE)
@@ -1883,7 +1883,7 @@ void CGHeroInstance::serializeCommonOptions(JsonSerializeFormat & handler)
 
 			if(secondarySkills.getType() == JsonNode::JsonType::DATA_VECTOR)
 			{
-				for(const auto & p : secondarySkills.Vector())								
+				for(const auto & p : secondarySkills.Vector())
 				{
 					auto skillMap = p.Struct();
 					addSkill(skillMap["skill"].String(), skillMap["level"].String());
@@ -2090,3 +2090,7 @@ ArtifactPosition CGHeroInstance::getWarMachineSlot(ArtifactID warMachine) const
 	return possibleSlots.front();
 }
 
+std::string CGHeroInstance::getName() const
+{
+	return nameFromTextID(getNameTextID());
+}

@@ -12,6 +12,7 @@
 #include "AIMemory.h"
 
 #include "../../../lib/json/JsonNode.h"
+#include "../../../lib/mapObjects/CRewardableObject.h"
 
 namespace NK2AI
 {
