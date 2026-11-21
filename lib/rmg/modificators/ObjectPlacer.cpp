@@ -12,6 +12,7 @@
 #include "ObjectManager.h"
 #include "RoadPlacer.h"
 #include "../Functions.h"
+#include "../CMapGenerator.h"
 
 #include <vstd/RNG.h>
 
@@ -77,6 +78,15 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 
 			requiredObjects.emplace_back(object, guardStrength);
 		}
+	}
+
+	for(const auto & [spell, info] : zone.getCustomObjects().getRequiredScrolls())
+	{
+		ui32 guardStrength = info.second.has_value()
+			? info.second.value()
+			: ObjectConfig::getDefaultScrollValue(spell, generator.getConfig().scrollValues);
+		for(int i = 0; i < info.first; ++i)
+			requiredObjects.emplace_back(createSpellScroll(map, spell), guardStrength);
 	}
 
 	//Shuffle objects to avoid patterns, but don't shuffle key objects like towns

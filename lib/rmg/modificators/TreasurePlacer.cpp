@@ -77,6 +77,7 @@ void TreasurePlacer::process()
 	// Override with custom objects
 	objects.patchWithZoneConfig(zone, this);
 	addCustomPandoraBoxes();
+	addCustomSpellScrolls();
 
 	auto * m = zone.getModificator<ObjectManager>();
 	if(m)
@@ -327,8 +328,6 @@ void TreasurePlacer::addScrolls()
 	{
 		oi.generateObject = [i, this]() -> std::shared_ptr<CGObjectInstance>
 		{
-			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
-			auto obj = std::dynamic_pointer_cast<CGArtifact>(factory->create(map.mapInstance->cb, nullptr));
 			std::vector<SpellID> out;
 			
 			for(auto spellID : LIBRARY->spellh->getDefaultAllowed())
@@ -336,9 +335,7 @@ void TreasurePlacer::addScrolls()
 				if(map.isAllowedSpell(spellID) && spellID.toSpell()->getLevel() == i + 1)
 					out.push_back(spellID);
 			}
-			auto * a = mapProxy->createScroll(*RandomGeneratorUtil::nextItem(out, zone.getRand()));
-			obj->setArtifactInstance(a);
-			return obj;
+			return createSpellScroll(map, *RandomGeneratorUtil::nextItem(out, zone.getRand()));
 		};
 		oi.setTemplates(Obj::SPELL_SCROLL, 0, zone.getTerrainType());
 		oi.value = generator.getConfig().scrollValues[i];
@@ -483,6 +480,31 @@ void TreasurePlacer::addCustomPandoraBoxes()
 			oi.maxPerZone = box->zoneLimit;
 		if(!oi.templates.empty())
 			addObjectToRandomPool(oi);
+	}
+}
+
+void TreasurePlacer::addCustomSpellScrolls()
+{
+	if(zone.getType() == ETemplateZoneType::WATER)
+		return;
+
+	for(const auto & scroll : zone.getCustomObjects().getSpellScrolls())
+	{
+		ObjectInfo oi(Obj::SPELL_SCROLL, 0);
+		oi.setTemplates(Obj::SPELL_SCROLL, 0, zone.getTerrainType());
+		oi.value = scroll.value.value_or(ObjectConfig::getDefaultScrollValue(scroll.spell, generator.getConfig().scrollValues));
+		if(!oi.value)
+		{
+			logGlobal->error("RMG spellScrolls entry for '%s' has no value and its spell level has no scrolls.value; skipped", SpellID::encode(scroll.spell.getNum()));
+			continue;
+		}
+		oi.probability = scroll.rarity.value_or(30);
+		oi.maxPerZone = scroll.zoneLimit ? scroll.zoneLimit : std::numeric_limits<ui32>::max();
+		oi.generateObject = [this, spell = scroll.spell]() -> std::shared_ptr<CGObjectInstance>
+		{
+			return createSpellScroll(map, spell);
+		};
+		addObjectToRandomPool(oi);
 	}
 }
 
