@@ -64,6 +64,7 @@ void TreasurePlacer::process()
 	addAllPossibleObjects();
 	// Override with custom objects
 	objects.patchWithZoneConfig(zone, this);
+	addCustomPandoraBoxes();
 
 	auto * m = zone.getModificator<ObjectManager>();
 	if(m)
@@ -427,6 +428,29 @@ void TreasurePlacer::addPandoraBoxesWithCreatures()
 	}
 }
 
+std::vector<SpellID> TreasurePlacer::pickRandomAllowedSpells(int count, std::optional<ui8> level, std::optional<SpellSchool> school)
+{
+	std::vector<const CSpell *> spells;
+	for(auto spellID : LIBRARY->spellh->getDefaultAllowed())
+	{
+		if(!map.isAllowedSpell(spellID))
+			continue;
+		const CSpell * spell = spellID.toSpell();
+		if(level && spell->getLevel() != *level)
+			continue;
+		if(school && !spell->hasSchool(*school))
+			continue;
+		spells.push_back(spell);
+	}
+
+	RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
+	std::vector<SpellID> result;
+	const int n = std::min(count, static_cast<int>(spells.size()));
+	for(int j = 0; j < n; ++j)
+		result.push_back(spells[j]->id);
+	return result;
+}
+
 void TreasurePlacer::addPandoraBoxesWithSpells()
 {
 	ObjectInfo oi(Obj::PANDORAS_BOX, 0);
@@ -438,19 +462,8 @@ void TreasurePlacer::addPandoraBoxesWithSpells()
 			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 			auto obj = std::dynamic_pointer_cast<CGPandoraBox>(factory->create(map.mapInstance->cb, nullptr));
 
-			std::vector <const CSpell *> spells;
-			for(auto spellID : LIBRARY->spellh->getDefaultAllowed())
-			{
-				if(map.isAllowedSpell(spellID) && spellID.toSpell()->getLevel() == i)
-					spells.push_back(spellID.toSpell());
-			}
-			
-			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
 			Rewardable::VisitInfo reward;
-			for(int j = 0; j < std::min(12, static_cast<int>(spells.size())); j++)
-			{
-				reward.reward.spells.push_back(spells[j]->id);
-			}
+			reward.reward.spells = pickRandomAllowedSpells(12, static_cast<ui8>(i), std::nullopt);
 			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 			obj->configuration.info.push_back(reward);
 			
@@ -471,19 +484,8 @@ void TreasurePlacer::addPandoraBoxesWithSpells()
 			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 			auto obj = std::dynamic_pointer_cast<CGPandoraBox>(factory->create(map.mapInstance->cb, nullptr));
 
-			std::vector <const CSpell *> spells;
-			for(auto spellID : LIBRARY->spellh->getDefaultAllowed())
-			{
-				if(map.isAllowedSpell(spellID) && spellID.toSpell()->hasSchool(SpellSchool(i)))
-					spells.push_back(spellID.toSpell());
-			}
-			
-			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
 			Rewardable::VisitInfo reward;
-			for(int j = 0; j < std::min(15, static_cast<int>(spells.size())); j++)
-			{
-				reward.reward.spells.push_back(spells[j]->id);
-			}
+			reward.reward.spells = pickRandomAllowedSpells(15, std::nullopt, SpellSchool(i));
 			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 			obj->configuration.info.push_back(reward);
 			
@@ -503,19 +505,8 @@ void TreasurePlacer::addPandoraBoxesWithSpells()
 		auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 		auto obj = std::dynamic_pointer_cast<CGPandoraBox>(factory->create(map.mapInstance->cb, nullptr));
 
-		std::vector <const CSpell *> spells;
-		for(auto spellID : LIBRARY->spellh->getDefaultAllowed())
-		{
-			if(map.isAllowedSpell(spellID))
-				spells.push_back(spellID.toSpell());
-		}
-		
-		RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
 		Rewardable::VisitInfo reward;
-		for(int j = 0; j < std::min(60, static_cast<int>(spells.size())); j++)
-		{
-			reward.reward.spells.push_back(spells[j]->id);
-		}
+		reward.reward.spells = pickRandomAllowedSpells(60, std::nullopt, std::nullopt);
 		reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
 		obj->configuration.info.push_back(reward);
 		
@@ -526,6 +517,83 @@ void TreasurePlacer::addPandoraBoxesWithSpells()
 	oi.probability = 2;
 	if(!oi.templates.empty())
 		addObjectToRandomPool(oi);
+}
+
+void TreasurePlacer::addCustomPandoraBoxes()
+{
+	if(zone.getType() == ETemplateZoneType::WATER)
+		return;
+
+	const auto config = zone.getCustomObjects();
+	for(const auto & box : config.getPandoraBoxes())
+	{
+		if(!box.isAllowedForFaction(zone.getTownType()))
+			continue;
+
+		const CCreature * nativeCreature = nullptr;
+		int creaturesAmount = 0;
+		ui32 nativeValue = 0;
+
+		if(box.nativeCreatures)
+		{
+			std::vector<const CCreature *> candidates;
+			for(auto * creature : creatures)
+			{
+				if(creature->getLevel() == box.nativeCreatures->level)
+					candidates.push_back(creature);
+			}
+			if(candidates.empty())
+			{
+				logGlobal->debug("Skipping custom Pandora box: no native creature of level %d", static_cast<int>(box.nativeCreatures->level));
+				continue;
+			}
+
+			nativeCreature = *RandomGeneratorUtil::nextItem(candidates, zone.getRand());
+			creaturesAmount = box.nativeCreatures->amount ? static_cast<int>(*box.nativeCreatures->amount) : creatureToCount(nativeCreature);
+			if(!creaturesAmount)
+			{
+				logGlobal->debug("Skipping custom Pandora box: native creature amount is 0");
+				continue;
+			}
+
+			nativeValue = static_cast<ui32>(nativeCreature->getAIValue() * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(nativeCreature->getFactionID())) / map.getTotalZoneCount()));
+		}
+
+		const ui32 value = box.getValue(generator.getConfig(), nativeValue);
+		if(value == 0)
+		{
+			logGlobal->error("Skipping custom Pandora box: computed value is 0");
+			continue;
+		}
+
+		ObjectInfo oi(Obj::PANDORAS_BOX, 0);
+		oi.generateObject = [this, box, nativeCreature, creaturesAmount]() -> std::shared_ptr<CGObjectInstance>
+		{
+			auto factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
+			auto obj = std::dynamic_pointer_cast<CGPandoraBox>(factory->create(map.mapInstance->cb, nullptr));
+
+			Rewardable::VisitInfo visit;
+			visit.reward = box.reward;
+			if(box.randomSpells)
+			{
+				auto spells = pickRandomAllowedSpells(box.randomSpells->count, box.randomSpells->level, box.randomSpells->school);
+				visit.reward.spells.insert(visit.reward.spells.end(), spells.begin(), spells.end());
+			}
+			if(nativeCreature)
+				visit.reward.creatures.emplace_back(nativeCreature, creaturesAmount);
+			visit.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+			obj->configuration.info.push_back(visit);
+
+			return obj;
+		};
+		oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
+		oi.value = value;
+		oi.probability = box.getRarity();
+		if(box.zoneLimit != 0)
+			oi.maxPerZone = box.zoneLimit;
+		if(!oi.templates.empty())
+			addObjectToRandomPool(oi);
+	}
 }
 
 void TreasurePlacer::addSeerHuts()
