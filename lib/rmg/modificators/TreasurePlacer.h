@@ -36,10 +36,11 @@ public:
 	/// "rmg" block of a customObjects.pandoraBoxes entry
 	struct CustomPandoraBox
 	{
-		ui32 value = 0;
+		std::optional<ui32> value; ///< nullopt only for native creature boxes without rmg.value: valued like the built-in creature box
 		ui16 rarity = 0;
-		ui32 zoneLimit = 0; // 0 = unlimited
-		std::set<FactionID> zoneFactions; // empty = all
+		ui32 zoneLimit = 0; ///< 0 = unlimited
+		std::set<FactionID> zoneFactions; ///< empty = all
+		std::optional<int> nativeCreaturesLevel; ///< set for rmg.nativeCreatures boxes; 0 = all levels
 	};
 	/// rmg fields of a pandoraBoxes entry with preset defaults applied; nullopt (and an error log) when value or rarity is missing
 	static std::optional<CustomPandoraBox> readCustomPandoraBox(const JsonNode & entry, const CMapGenerator::Config & config);
@@ -62,6 +63,8 @@ public:
 	void addPandoraBoxesWithGold();
 	void addPandoraBoxesWithExperience();
 	void addPandoraBoxesWithCreatures();
+	/// Built-in creature box content and value for a native creature; nullopt when the creature gets no box
+	std::optional<ObjectInfo> createCreaturePandoraBox(const CCreature * creature);
 	void addPandoraBoxesWithSpells();
 	/// Boxes from customObjects.pandoraBoxes; added after zone bans are applied, so bans never remove them
 	void addCustomPandoraBoxes();
