@@ -57,5 +57,5 @@ ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level);
 std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 	const std::vector<MapLayerId> & levelLayers, const std::set<int> & landZoneLevels);
 
-/// Spell scroll map object holding `spell`. Does not check the map's allowed spells.
+/// Spell scroll map object holding `spell`.
 std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell);
