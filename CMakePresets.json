@@ -41,8 +41,7 @@
             "inherits" : "default-release",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX" : "/usr/local",
-                "ONNXRUNTIME_ROOT": "/opt/onnxruntime"
+                "CMAKE_INSTALL_PREFIX" : "/usr/local"
             }
         },
         {
