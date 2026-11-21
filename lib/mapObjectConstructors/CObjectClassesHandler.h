@@ -85,9 +85,9 @@ public:
 	std::set<MapObjectSubID> knownSubObjects(MapObjectID primaryID) const;
 
 	/// returns handler for specified object (ID-based). ObjectHandler keeps ownership
-	TObjectTypeHandler getHandlerFor(MapObjectID type, MapObjectSubID subtype) const;
-	TObjectTypeHandler getHandlerFor(const CIdentifierStorage & identifiers, const std::string & scope, const std::string & type, const std::string & subtype) const;
-	TObjectTypeHandler getHandlerFor(CompoundMapObjectID compoundIdentifier) const;
+	AObjectTypeHandler & getHandlerFor(MapObjectID type, MapObjectSubID subtype) const;
+	AObjectTypeHandler & getHandlerFor(const CIdentifierStorage & identifiers, const std::string & scope, const std::string & type, const std::string & subtype) const;
+	AObjectTypeHandler & getHandlerFor(CompoundMapObjectID compoundIdentifier) const;
 
 	/// Name shared by every object of this group, used when an object type provides no name of its own
 	std::string getObjectGroupNameTextID(MapObjectID type) const;

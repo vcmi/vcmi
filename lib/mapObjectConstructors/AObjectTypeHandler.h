@@ -53,6 +53,7 @@ class DLL_LINKAGE AObjectTypeHandler : public boost::noncopyable
 
 	bool blockVisit;
 	bool removable;
+	bool visitableFromTop = false;
 
 protected:
 	void preInitObject(CGObjectInstance * obj) const;
@@ -102,7 +103,10 @@ public:
 	/// terrain the battle at this object takes place on, or NONE to use the map tile's terrain
 	TerrainId getBattleTerrain() const;
 
-	const RandomMapInfo & getRMGInfo();
+	const RandomMapInfo & getRMGInfo() const;
+
+	/// returns true if hero can visit objects of this type from tiles above visitable tile
+	bool isVisitableFromTop() const;
 
 	std::optional<si32> getAiValue() const;
 
@@ -118,7 +122,7 @@ public:
 	/// returns object's name in form of human-readable text
 	std::string getNameTranslated() const;
 
-	virtual bool isStaticObject();
+	virtual bool isStaticObject() const;
 
 	virtual void afterLoadFinalization(LibraryLoadContext & context);
 

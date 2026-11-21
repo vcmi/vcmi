@@ -138,8 +138,8 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 				{
 					if(secondaryID != -1)
 					{
-						auto objectHandler = objects.getHandlerFor(MapObjectID(primaryID), MapObjectSubID(secondaryID));
-						const std::string subtypeKey = objectHandler->getSubTypeName();
+						auto & objectHandler = objects.getHandlerFor(MapObjectID(primaryID), MapObjectSubID(secondaryID));
+						const std::string subtypeKey = objectHandler.getSubTypeName();
 						bool banned = true;
 						objStruct->serializeBool(subtypeKey, banned);
 					}
@@ -193,8 +193,8 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			std::string objectType = objects.getJsonKey(object.primaryID);
 			objectStruct->serializeString("type", objectType);
 			
-			auto handler = objects.getHandlerFor(MapObjectID(object.primaryID), MapObjectSubID(object.secondaryID));
-			std::string subtypeName = handler->getSubTypeName();
+			auto & handler = objects.getHandlerFor(MapObjectID(object.primaryID), MapObjectSubID(object.secondaryID));
+			std::string subtypeName = handler.getSubTypeName();
 			objectStruct->serializeString("subtype", subtypeName);
 			
 			// Serialize RMG properties
@@ -273,8 +273,8 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			{
 				std::string jsonKey = objects.getJsonKey(objId.primaryID);
 				auto entryStruct = requiredObjectsStruct->enterStruct(jsonKey);
-				auto objHandler = objects.getHandlerFor(objId);
-				std::string jsonSubKey = objHandler->getJsonKey();
+				auto & objHandler = objects.getHandlerFor(objId);
+				std::string jsonSubKey = objHandler.getJsonKey();
 				auto subEntryStruct = requiredObjectsStruct->enterStruct(jsonSubKey);
 
 				ui16 countVal = info.first;

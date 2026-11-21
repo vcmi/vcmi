@@ -18,7 +18,7 @@ class FlaggableInstanceConstructor;
 
 class DLL_LINKAGE FlaggableMapObject final : public CGObjectInstance, public IOwnableObject, public CBonusSystemNode
 {
-	std::shared_ptr<FlaggableInstanceConstructor> getFlaggableHandler() const;
+	const FlaggableInstanceConstructor * getFlaggableHandler() const;
 
 	void initBonuses();
 

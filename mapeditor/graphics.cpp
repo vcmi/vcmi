@@ -130,7 +130,7 @@ void Graphics::loadHeroAnimations()
 {
 	for(const auto & elem : LIBRARY->heroclassesh->getObjects())
 	{
-		for(auto templ : LIBRARY->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex())->getTemplates())
+		for(auto templ : LIBRARY->objtypeh->getHandlerFor(Obj::HERO, elem->getIndex()).getTemplates())
 		{
 			if(!heroAnimations.count(templ->animationFile.getName()))
 				heroAnimations[templ->animationFile.getName()] = loadHeroAnimation(templ->animationFile.getName());

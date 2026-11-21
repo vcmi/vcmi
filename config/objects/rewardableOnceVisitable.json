@@ -54,6 +54,7 @@
 		"index" : 22,
 		"handler": "configurable",
 		"base" : {
+			"visitableFromTop" : true,
 			"blockedVisitable" : true,
 			"sounds" : {
 				"visit" : ["MYSTERY"]

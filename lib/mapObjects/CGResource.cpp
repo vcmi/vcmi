@@ -25,11 +25,9 @@
 
 #include <vstd/RNG.h>
 
-std::shared_ptr<ResourceInstanceConstructor> CGResource::getResourceHandler() const
+const ResourceInstanceConstructor * CGResource::getResourceHandler() const
 {
-	const auto & baseHandler = getObjectHandler();
-	const auto & ourHandler = std::dynamic_pointer_cast<ResourceInstanceConstructor>(baseHandler);
-	return ourHandler;
+	return dynamic_cast<const ResourceInstanceConstructor *>(&getObjectHandler());
 }
 
 int CGResource::getAmountMultiplier() const

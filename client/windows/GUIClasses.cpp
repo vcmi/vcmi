@@ -988,9 +988,7 @@ CShipyardWindow::CShipyardWindow(const TResources & cost, int state, BoatId boat
 
 	bgWater = std::make_shared<CPicture>(ImagePath::builtin("TPSHIPBK"), 100, 69);
 
-	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, boatType);
-
-	auto boatConstructor = std::dynamic_pointer_cast<const BoatInstanceConstructor>(handler);
+	const auto * boatConstructor = dynamic_cast<const BoatInstanceConstructor *>(&LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, boatType));
 
 	assert(boatConstructor);
 

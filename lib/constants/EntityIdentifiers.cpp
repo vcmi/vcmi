@@ -302,7 +302,7 @@ std::string MapObjectSubID::encode(MapObjectID primaryID, int32_t index)
 	if (primaryID == Obj::SPELL_SCROLL)
 		return SpellID::encode(index);
 
-	return LIBRARY->objtypeh->getHandlerFor(primaryID, index)->getJsonKey();
+	return LIBRARY->objtypeh->getHandlerFor(primaryID, index).getJsonKey();
 }
 
 si32 MapObjectSubID::decode(MapObjectID primaryID, const std::string & identifier)
@@ -320,7 +320,7 @@ std::string BoatId::encode(int32_t index)
 {
 	if (index == -1)
 		return "";
-	return LIBRARY->objtypeh->getHandlerFor(MapObjectID::BOAT, index)->getJsonKey();
+	return LIBRARY->objtypeh->getHandlerFor(MapObjectID::BOAT, index).getJsonKey();
 }
 
 si32 BoatId::decode(const std::string & identifier)

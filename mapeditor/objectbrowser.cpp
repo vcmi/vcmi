@@ -66,10 +66,10 @@ bool ObjectBrowserProxyModel::filterAcceptsRow(int source_row, const QModelIndex
 	auto objSubId = data["subid"].toInt();
 	auto templateId = data["template"].toInt();
 
-	auto factory = LIBRARY->objtypeh->getHandlerFor(objId, objSubId);
-	auto templ = factory->getTemplates().at(templateId);
+	auto & factory = LIBRARY->objtypeh->getHandlerFor(objId, objSubId);
+	auto templ = factory.getTemplates().at(templateId);
 
-	return templ->canBePlacedAt(terrain) && (inCategory || !fitsAnyLand(*factory, templ));
+	return templ->canBePlacedAt(terrain) && (inCategory || !fitsAnyLand(factory, templ));
 }
 
 bool ObjectBrowserProxyModel::filterAcceptsRowText(int source_row, const QModelIndex &source_parent) const

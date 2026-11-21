@@ -54,17 +54,17 @@ void ObjectDistributor::distributeLimitedObjects()
 	{
 		for (auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
-			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
-			if (!handler->isStaticObject() && handler->getRMGInfo().value)
+			auto & handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
+			if (!handler.isStaticObject() && handler.getRMGInfo().value)
 			{
-				auto rmgInfo = handler->getRMGInfo();
+				auto rmgInfo = handler.getRMGInfo();
 
 				//Skip objects which don't have global per-map limit here 
 				if (rmgInfo.mapLimit)
 				{
 					if(excludedIDs.find(primaryID) != excludedIDs.end())
 					{
-						logGlobal->error("ObjectDistributor: Object %s does not support per-map limit", handler->getJsonKey());
+						logGlobal->error("ObjectDistributor: Object %s does not support per-map limit", handler.getJsonKey());
 						continue;
 					}
 
@@ -73,7 +73,7 @@ void ObjectDistributor::distributeLimitedObjects()
 
 					for (const auto& it : zones)
 					{
-						if (!handler->getTemplates(it.second->getTerrainType()).empty() &&
+						if (!handler.getTemplates(it.second->getTerrainType()).empty() &&
 							rmgInfo.value <= it.second->getMaxTreasureValue())
 						{
 							matchingZones.push_back(it.second);
@@ -84,7 +84,7 @@ void ObjectDistributor::distributeLimitedObjects()
 					if (!numZones)
 						continue;
 
-					auto rmgInfo = handler->getRMGInfo();
+					auto rmgInfo = handler.getRMGInfo();
 
 					RandomGeneratorUtil::randomShuffle(matchingZones, zone.getRand());
 					for (auto& zone : matchingZones)
@@ -93,7 +93,7 @@ void ObjectDistributor::distributeLimitedObjects()
 						
 						oi.generateObject = [cb=map.mapInstance->cb, primaryID, secondaryID]()
 						{
-							return LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID)->create(cb, nullptr);
+							return LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID).create(cb, nullptr);
 						};
 						
 						oi.value = rmgInfo.value;

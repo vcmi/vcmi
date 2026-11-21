@@ -129,7 +129,7 @@ std::set<SecondarySkill> AbilitiesWidget::getPresetAbilities()
 
 std::set<SecondarySkill> AbilitiesWidget::getDefaultAbilities()
 {
-	std::unique_ptr<IObjectInfo> objectInfo = LIBRARY->objtypeh->getHandlerFor(hut.ID, hut.subID)->getObjectInfo();
+	std::unique_ptr<IObjectInfo> objectInfo = LIBRARY->objtypeh->getHandlerFor(hut.ID, hut.subID).getObjectInfo();
 	JsonNode defaultParameters = static_cast<Rewardable::Info *>(objectInfo.get())->getParameters()["variables"][V_CATEGORY][V_NAME];
 	if(defaultParameters.isNull())
 		return controller.getMapUniquePtr()->allowedAbilities;

@@ -3,6 +3,7 @@
 		"index" :81,
 		"handler" : "configurable",
 		"base" : {
+			"visitableFromTop" : true,
 			"sounds" : {
 				"visit" : ["GAZEBO"],
 				"removal" : [ "PICKUP01", "PICKUP02", "PICKUP03", "PICKUP04", "PICKUP05", "PICKUP06", "PICKUP07" ]

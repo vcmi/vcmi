@@ -17,12 +17,14 @@ Rewardable object is defined similarly to other objects, with key difference bei
           "rarity"  : 25,
           "zoneLimit" : 1
         },
+
+        // Hero can visit this object only from left, right or bottom
+        "visitableFromTop" : false,
         
         // Standard definition of object templates
         "templates" : {
           "avwrhscr" : {
             "animation" : "warehouses/avwrhscr", 
-            "visitableFrom" : [ "---", "-++", "+++" ], 
             "mask" : ["VVV","VVV","VBA"]
           }
         }

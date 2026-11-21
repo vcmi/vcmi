@@ -45,6 +45,7 @@
 		"compatibilityIdentifiers" : { },
 		"blockedVisitable" : { },
 		"removable" : { },
+		"visitableFromTop" : { },
 		"aiValue" : { },
 		"index" : { },
 		"base" : { },

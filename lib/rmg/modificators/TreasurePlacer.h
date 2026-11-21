@@ -59,6 +59,8 @@ protected:
 	bool isGuardNeededForTreasure(int value);
 	
 	ObjectInfo * getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects);
+	/// templates may belong to another object type than their ObjectInfo, e.g. seer huts with random appearance
+	static bool isVisitableFromTop(const std::vector<std::shared_ptr<const ObjectTemplate>> & templates);
 	std::vector<ObjectInfo*> prepareTreasurePile(const CTreasureInfo & treasureInfo);
 	rmg::Object constructTreasurePile(const std::vector<ObjectInfo*> & treasureInfos, bool densePlacement = false);
 

@@ -156,7 +156,7 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 
 	//recalculate blockvis tiles - new appearance might have different blockmap than before
 	cb->gameState().getMap().hideObject(this);
-	auto handler = LIBRARY->objtypeh->getHandlerFor(newID, newSubID);
+	auto & handler = LIBRARY->objtypeh->getHandlerFor(newID, newSubID);
 
 	bool needToAdjustOffset = false;
 
@@ -183,9 +183,9 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 		}
 	}
 
-	if(!handler->getTemplates(tile->getTerrainID()).empty())
+	if(!handler.getTemplates(tile->getTerrainID()).empty())
 	{
-		appearance = handler->getTemplates(tile->getTerrainID())[0];
+		appearance = handler.getTemplates(tile->getTerrainID())[0];
 	}
 	else
 	{
@@ -193,7 +193,7 @@ void CGObjectInstance::setType(MapObjectID newID, MapObjectSubID newSubID)
 			"Object %s at %s has no templates suitable for terrain %s",
 			getObjectNameTextID(), visitablePos().toString(),
 			tile->getTerrain()->getNameTranslated());
-		appearance = handler->getTemplates()[0]; // get at least some appearance since alternative is crash
+		appearance = handler.getTemplates()[0]; // get at least some appearance since alternative is crash
 	}
 
 	if(needToAdjustOffset)
@@ -234,19 +234,19 @@ void CGObjectInstance::setProperty( ObjProperty what, ObjPropertyID identifier )
 	}
 }
 
-TObjectTypeHandler CGObjectInstance::getObjectHandler() const
+const AObjectTypeHandler & CGObjectInstance::getObjectHandler() const
 {
 	return LIBRARY->objtypeh->getHandlerFor(ID, subID);
 }
 
 std::string CGObjectInstance::getTypeName() const
 {
-	return getObjectHandler()->getTypeName();
+	return getObjectHandler().getTypeName();
 }
 
 std::string CGObjectInstance::getSubtypeName() const
 {
-	return getObjectHandler()->getSubTypeName();
+	return getObjectHandler().getSubTypeName();
 }
 
 void CGObjectInstance::setPropertyDer( ObjProperty what, ObjPropertyID identifier )
@@ -282,9 +282,9 @@ void CGObjectInstance::giveDummyBonus(IGameEventCallback & gameEvents, const Obj
 
 std::string CGObjectInstance::getObjectNameTextID() const
 {
-	const auto handler = getObjectHandler();
-	if (handler && handler->hasNameTextID())
-		return handler->getNameTextID();
+	const auto & handler = getObjectHandler();
+	if (handler.hasNameTextID())
+		return handler.getNameTextID();
 
 	return LIBRARY->objtypeh->getObjectGroupNameTextID(ID);
 }
@@ -385,6 +385,11 @@ bool CGObjectInstance::isVisitable() const
 	return appearance->isVisitable();
 }
 
+bool CGObjectInstance::isVisitableFromTop() const
+{
+	return getObjectHandler().isVisitableFromTop();
+}
+
 bool CGObjectInstance::isBlockedVisitable() const
 {
 	// TODO: Read from json
@@ -434,6 +439,14 @@ void CGObjectInstance::serializeJson(JsonSerializeFormat & handler)
 		handler.serializeInt("l", pos.z);
 		JsonNode app;
 		appearance->writeJson(app, false);
+		// older game versions read visitable directions from map templates
+		if(appearance->isVisitable())
+		{
+			JsonVector & visitableFrom = app["visitableFrom"].Vector();
+			visitableFrom.emplace_back(isVisitableFromTop() ? "+++" : "---");
+			visitableFrom.emplace_back("+-+");
+			visitableFrom.emplace_back("+++");
+		}
 		handler.serializeRaw("template", app, std::nullopt);
 	}
 
@@ -456,7 +469,7 @@ void CGObjectInstance::serializeJsonOwner(JsonSerializeFormat & handler)
 BattleField CGObjectInstance::getBattlefield() const
 {
 	auto currentLayer = cb->gameState().getMap().mapLayers.at(pos.z);
-	const auto & objectBattlefields = getObjectHandler()->getBattlefields();
+	const auto & objectBattlefields = getObjectHandler().getBattlefields();
 
 	if (objectBattlefields.empty())
 		return BattleField::NONE;
@@ -466,7 +479,7 @@ BattleField CGObjectInstance::getBattlefield() const
 
 TerrainId CGObjectInstance::getBattleTerrain() const
 {
-	return getObjectHandler()->getBattleTerrain();
+	return getObjectHandler().getBattleTerrain();
 }
 
 const IOwnableObject * CGObjectInstance::asOwnable() const

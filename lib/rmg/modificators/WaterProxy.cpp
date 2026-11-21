@@ -249,7 +249,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, bool createRoad, Rout
 	for(auto subObj : subObjects)
 	{
 		//making a temporary object
-		auto obj(LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, subObj)->create(map.mapInstance->cb, nullptr));
+		auto obj(LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, subObj).create(map.mapInstance->cb, nullptr));
 		if(auto testBoat = dynamic_cast<CGBoat *>(obj.get()))
 		{
 			if(testBoat->layer == EPathfindingLayer::SAIL)
@@ -260,7 +260,7 @@ bool WaterProxy::placeBoat(Zone & land, const Lake & lake, bool createRoad, Rout
 	if(sailingBoatTypes.empty())
 		return false;
 	
-	auto boat = std::dynamic_pointer_cast<CGBoat>(LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(sailingBoatTypes, zone.getRand()))->create(map.mapInstance->cb, nullptr));
+	auto boat = std::dynamic_pointer_cast<CGBoat>(LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, *RandomGeneratorUtil::nextItem(sailingBoatTypes, zone.getRand())).create(map.mapInstance->cb, nullptr));
 
 	rmg::Object rmgObject(boat);
 	rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
@@ -324,7 +324,7 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 		return false;
 	
 	int subtype = chooseRandomAppearance(zone.getRand(), Obj::SHIPYARD, land.getTerrainType());
-	auto shipyard = std::dynamic_pointer_cast<CGShipyard>(LIBRARY->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype)->create(map.mapInstance->cb, nullptr));
+	auto shipyard = std::dynamic_pointer_cast<CGShipyard>(LIBRARY->objtypeh->getHandlerFor(Obj::SHIPYARD, subtype).create(map.mapInstance->cb, nullptr));
 	shipyard->tempOwner = PlayerColor::NEUTRAL;
 	
 	rmg::Object rmgObject(shipyard);

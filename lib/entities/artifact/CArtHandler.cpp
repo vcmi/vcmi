@@ -254,7 +254,7 @@ std::shared_ptr<CArtifact> CArtHandler::loadFromJson(LibraryLoadContext & contex
 
 			// add new template.
 			// Necessary for objects added via mods that don't have any templates in H3
-			context.lib.objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex())->addTemplate(context, templ);
+			context.lib.objtypeh->getHandlerFor(Obj::ARTIFACT, art->getIndex()).addTemplate(context, templ);
 		}
 	});
 
