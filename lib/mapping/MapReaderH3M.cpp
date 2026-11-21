@@ -83,7 +83,7 @@ ArtifactID MapReaderH3M::readArtifact()
 	if(result.getNum() == features.artifactIdentifierInvalid)
 		return ArtifactID::NONE;
 
-	if (result.getNum() < features.artifactsCount)
+	if (result.getNum() < std::max(features.artifactsCount, remapper.maxMappedArtifactId() + 1))
 		return remapIdentifier(result);
 
 	logGlobal->warn("Map '%s': Map contains invalid artifact %d. Will be removed!", mapName, result.getNum());
@@ -97,7 +97,7 @@ ArtifactID MapReaderH3M::readArtifact8()
 	if(result.getNum() == 0xff)
 		return ArtifactID::NONE;
 
-	if (result.getNum() < features.artifactsCount)
+	if (result.getNum() < std::max(features.artifactsCount, remapper.maxMappedArtifactId() + 1))
 		return remapIdentifier(result);
 
 	logGlobal->warn("Map '%s': Map contains invalid artifact %d. Will be removed!", mapName, result.getNum());
@@ -111,7 +111,7 @@ ArtifactID MapReaderH3M::readArtifact32()
 
 ArtifactID MapReaderH3M::toArtifact(int32_t raw)
 {
-	return remapIdentifier(validateIdentifier(ArtifactID(raw), features.artifactsCount, "artifact"));
+	return remapIdentifier(validateIdentifier(ArtifactID(raw), std::max(features.artifactsCount, remapper.maxMappedArtifactId() + 1), "artifact"));
 }
 
 HeroTypeID MapReaderH3M::readHero()
@@ -137,7 +137,7 @@ HeroTypeID MapReaderH3M::readHeroPortrait()
 	if(result.getNum() == features.heroIdentifierInvalid)
 		return HeroTypeID::NONE;
 
-	if (result.getNum() >= features.heroesPortraitsCount)
+	if (result.getNum() >= std::max(features.heroesPortraitsCount, remapper.maxMappedHeroPortraitId() + 1))
 	{
 		logGlobal->warn("Map '%s': Map contains invalid hero portrait ID %d. Will be reset!", mapName, result.getNum() );
 		return HeroTypeID::NONE;
@@ -153,7 +153,7 @@ CreatureID MapReaderH3M::readCreature32(const std::string & context)
 	if(result.getNum() == features.creatureIdentifierInvalid)
 		return CreatureID::NONE;
 
-	if(result.getNum() < features.creaturesCount)
+	if(result.getNum() < std::max(features.creaturesCount, remapper.maxMappedCreatureId() + 1))
 		return remapIdentifier(result);
 
 	// this may be random creature in army/town, to be randomized later
@@ -182,7 +182,7 @@ CreatureID MapReaderH3M::readCreature(const std::string & context)
 	if(result.getNum() == features.creatureIdentifierInvalid)
 		return CreatureID::NONE;
 
-	if(result.getNum() < features.creaturesCount)
+	if(result.getNum() < std::max(features.creaturesCount, remapper.maxMappedCreatureId() + 1))
 		return remapIdentifier(result);
 
 	// this may be random creature in army/town, to be randomized later
