@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../mapObjects/CompoundMapObjectID.h"
+#include "../json/JsonNode.h"
 #include "ObjectInfo.h"
 
 class CObjectClassesHandler;
@@ -54,9 +55,12 @@ public:
 	void addRequiredObject(const CompoundMapObjectID & objid, ui16 count, std::optional<ui32> guardLevel = std::nullopt);
 	void addRequiredObject(const CompoundMapObjectID & objid, std::pair<ui16, std::optional<ui32>> info);
 	void clearRequiredObjects();
+	/// Entry of customObjects.pandoraBoxes: Pandora box map options plus an "rmg" block, parsed by TreasurePlacer during generation
+	void addPandoraBox(const JsonNode & entry);
 	const std::map<CompoundMapObjectID, bool> & getObjectBans() const;
 	const std::vector<EObjectCategory> & getBannedObjectCategories() const;
 	const std::vector<ObjectInfo> & getConfiguredObjects() const;
+	const std::vector<JsonNode> & getPandoraBoxes() const;
 	bool isObjectBanned(const CompoundMapObjectID & objid) const;
 
 	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> getRequiredObjects() const;
@@ -71,5 +75,6 @@ private:
 
 	std::vector<ObjectInfo> customObjects;
 	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> requiredObjects; // obligatory, potentially guarded objects to spawn in this zone
+	std::vector<JsonNode> pandoraBoxes; // raw JSON, because rewards cannot be loaded while templates are (LIBRARY is not set yet)
 
 };
