@@ -83,6 +83,7 @@ set(test_SRCS
 
 		rmg/CRmgTemplateTest.cpp
 		rmg/ObjectConfigTest.cpp
+		rmg/TreasurePlacerTest.cpp
 
 		netpacks/NetPackFixture.cpp
 
