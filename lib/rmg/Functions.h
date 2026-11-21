@@ -12,12 +12,14 @@
 
 #include "Zone.h"
 #include <boost/heap/priority_queue.hpp> //A*
+#include <memory>
 
 class RmgMap;
 class ObjectManager;
 class ObjectTemplate;
 class CMapGenerator;
 class CCreature;
+class CGObjectInstance;
 
 class rmgException : public std::exception
 {
@@ -50,3 +52,6 @@ const CCreature * getRandomDwellingCreature(FactionID faction, int level);
 
 /// Value of a random dwelling of given level (0-based) that becomes a dwelling of given faction, 0 if it can't be determined
 ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level);
+
+/// Spell scroll map object holding `spell`.
+std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell);

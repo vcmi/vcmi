@@ -67,6 +67,8 @@ public:
 	void addPandoraBoxesWithSpells();
 	/// Boxes from customObjects.pandoraBoxes; added after zone bans are applied, so bans never remove them
 	void addCustomPandoraBoxes();
+	/// Scrolls from customObjects.spellScrolls; added after zone bans are applied, so bans never remove them
+	void addCustomSpellScrolls();
 	std::shared_ptr<CGPandoraBox> createPandoraBox() const;
 	void addSeerHuts();
 	void addPrisons();

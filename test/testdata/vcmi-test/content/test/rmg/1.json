@@ -42,6 +42,22 @@
 						"zoneLimit": 1
 					}
 				}
+			],
+			"requiredObjects": {
+				"core:spellScroll": {
+					"core:dimensionDoor": {
+						"count": 2
+					}
+				}
+			},
+			"spellScrolls": [
+				{
+					"spell": "core:townPortal",
+					"rmg": {
+						"rarity": 9999,
+						"zoneLimit": 1
+					}
+				}
 			]
 		},
 		"zones": {
@@ -109,6 +125,23 @@
 									"castle",
 									"neutral"
 								]
+							}
+						}
+					],
+					"requiredObjects": {
+						"core:spellScroll": {
+							"core:townPortal": {
+								"count": 1,
+								"guard": 20000
+							}
+						}
+					},
+					"spellScrolls": [
+						{
+							"spell": "core:townPortal",
+							"rmg": {
+								"rarity": 9999,
+								"zoneLimit": 2
 							}
 						}
 					]
