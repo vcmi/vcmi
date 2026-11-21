@@ -74,8 +74,12 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 			return;
 	 	}
 
-		if (key.keysym.sym >= ' ' && key.keysym.sym < 0x80)
+		if(key.keysym.sym >= ' ' && key.keysym.sym < 0x80)
+		{
+			if(vstd::contains(ENGINE->shortcuts().translateKeycode(keyName), EShortcut::ADVENTURE_SEARCH))
+				ENGINE->events().dispatchShortcutPressed({EShortcut::ADVENTURE_SEARCH});
 			return; // printable character - will be handled as text input
+		}
 	} else {
 		if(key.repeat != 0)
 			return; // ignore periodic event resends
@@ -141,8 +145,12 @@ void InputSourceKeyboard::handleEventKeyUp(const SDL_KeyboardEvent & key)
 
 	if (SDL_IsTextInputActive() == SDL_TRUE)
 	{
-		if (key.keysym.sym >= ' ' && key.keysym.sym < 0x80)
+		if(key.keysym.sym >= ' ' && key.keysym.sym < 0x80)
+		{
+			if(vstd::contains(ENGINE->shortcuts().translateKeycode(keyName), EShortcut::ADVENTURE_SEARCH))
+				ENGINE->events().dispatchShortcutReleased({EShortcut::ADVENTURE_SEARCH});
 			return; // printable character - will be handled as text input
+		}
 	}
 
 	assert(key.state == SDL_RELEASED);

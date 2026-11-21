@@ -1,0 +1,8 @@
+{
+	"basepath" : "lobby/",
+	"images" :
+	[
+		{ "frame" : 0, "file" : "search-normal.png"},
+		{ "frame" : 1, "file" : "search-pressed.png"}
+	]
+}
