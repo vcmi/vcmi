@@ -41,6 +41,9 @@
 
 void TreasurePlacer::process()
 {
+	if (zone.getType() == ETemplateZoneType::SEALED)
+		return;
+
 	if (zone.getMaxTreasureValue() == 0)
 	{
 		//No treasures at all
@@ -229,8 +232,9 @@ void TreasurePlacer::addDwellings()
 		return;
 
 	// randomDwellingLvl common objects replace native dwellings of the same level
+	const auto customObjects = zone.getCustomObjects();
 	std::set<const CCreature *> replacedCreatures;
-	for(const auto & object : zone.getConfiguredObjects())
+	for(const auto & object : customObjects.getConfiguredObjects())
 	{
 		if(object.primaryID == Obj::RANDOM_DWELLING_LVL)
 			replacedCreatures.insert(getRandomDwellingCreature(zone.getTownType(), object.secondaryID));
@@ -1177,47 +1181,23 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 		}
 	}
 	*/
-	auto bannedObjectCategories = zone.getBannedObjectCategories();
-	auto categoriesSet = std::unordered_set<ObjectConfig::EObjectCategory>(bannedObjectCategories.begin(), bannedObjectCategories.end());
+	const auto config = zone.getCustomObjects();
+	std::set<CompoundMapObjectID> configuredIds;
+	for(const auto & object : config.getConfiguredObjects())
+		configuredIds.insert(object.getCompoundID());
 
-	if (categoriesSet.count(ObjectConfig::EObjectCategory::ALL))
+	vstd::erase_if(possibleObjects, [&config, &configuredIds](const ObjectInfo & oi) -> bool
 	{
-		possibleObjects.clear();
-	}
-	else
-	{
-		vstd::erase_if(possibleObjects, [this, &categoriesSet](const ObjectInfo & oi) -> bool
-
+		auto id = oi.getCompoundID();
+		if(config.isObjectBanned(id) || configuredIds.count(id))
 		{
-			auto category = getObjectCategory(oi.getCompoundID());
-			if (categoriesSet.count(category))
-			{
-				logRmg->debug("Removing object %s from possible objects", oi.templates.front()->stringID);
-				return true;
-			}
-			return false;
-		});
+			logRmg->debug("Removing object %d.%d from possible objects", id.primaryID, id.secondaryID);
+			return true;
+		}
+		return false;
+	});
 
-		auto bannedObjects = zone.getBannedObjects();
-		auto bannedObjectsSet = std::set<CompoundMapObjectID>(bannedObjects.begin(), bannedObjects.end());
-		vstd::erase_if(possibleObjects, [&bannedObjectsSet](const ObjectInfo & object)
-		{
-			for (const auto & templ : object.templates)
-			{
-				CompoundMapObjectID key = object.getCompoundID();
-				CompoundMapObjectID keyGroup( key.primaryID, -1);
-				if (bannedObjectsSet.count(key) || bannedObjectsSet.count(keyGroup))
-				{
-					// FIXME: Stopped working, nothing is banned
-					logRmg->debug("Banning object %s from possible objects", templ->stringID);
-					return true;
-				}
-			}
-			return false;
-		});
-	}
-
-	auto configuredObjects = zone.getConfiguredObjects();
+	auto configuredObjects = config.getConfiguredObjects();
 
 	// FIXME: Access TreasurePlacer from ObjectPool
 	for (auto & object : configuredObjects)
@@ -1260,96 +1240,3 @@ void TreasurePlacer::ObjectPool::discardObjectsAboveValue(ui32 value)
 	});
 }
 
-ObjectConfig::EObjectCategory TreasurePlacer::ObjectPool::getObjectCategory(CompoundMapObjectID id)
-{
-	auto name = LIBRARY->objtypeh->getObjectHandlerName(id.primaryID);
-
-	if (name == "configurable")
-	{
-		auto & handler = LIBRARY->objtypeh->getHandlerFor(id.primaryID, id.secondaryID);
-		auto info = handler.getObjectInfo();
-
-		if (info->hasGuards())
-		{
-			return ObjectConfig::EObjectCategory::CREATURE_BANK;
-		}
-		else if (info->givesResources())
-		{
-			return ObjectConfig::EObjectCategory::RESOURCE;
-		}
-		else if (info->givesArtifacts())
-		{
-			return ObjectConfig::EObjectCategory::RANDOM_ARTIFACT;
-		}
-		else if (info->givesBonuses())
-		{
-			return ObjectConfig::EObjectCategory::BONUS;
-		}
-
-		return ObjectConfig::EObjectCategory::OTHER;
-	}
-	else if (name == "dwelling" || name == "randomDwelling")
-	{
-		// TODO: Special handling for different tiers
-		return ObjectConfig::EObjectCategory::DWELLING;
-	}
-	else if (name == "bank")
-		return ObjectConfig::EObjectCategory::CREATURE_BANK;
-	else if (name == "market")
-		return ObjectConfig::EObjectCategory::OTHER;
-	else if (name == "hillFort")
-		return ObjectConfig::EObjectCategory::OTHER;
-	else if (name == "resource" || name == "randomResource")
-		return ObjectConfig::EObjectCategory::RESOURCE;
-	else if (name == "randomArtifact") //"artifact"
-		return ObjectConfig::EObjectCategory::RANDOM_ARTIFACT;
-	else if (name == "artifact")
-	{
-		if (id.primaryID == Obj::SPELL_SCROLL ) // randomArtifactTreasure
-		{
-			return ObjectConfig::EObjectCategory::SPELL_SCROLL;
-		}
-		else
-		{
-			return ObjectConfig::EObjectCategory::QUEST_ARTIFACT;
-		}
-	}
-	else if (name == "denOfThieves")
-		return ObjectConfig::EObjectCategory::OTHER;
-	else if (name == "lighthouse")
-	{
-		return ObjectConfig::EObjectCategory::BONUS;
-	}
-	else if (name == "magi")
-	{
-		// TODO: By default, both eye and hut are banned in every zone
-		return ObjectConfig::EObjectCategory::OTHER;
-	}
-	else if (name == "mine")
-		return ObjectConfig::EObjectCategory::RESOURCE_GENERATOR;
-	else if (name == "pandora")
-		return ObjectConfig::EObjectCategory::PANDORAS_BOX;
-	else if (name == "prison")
-	{
-		// TODO: Prisons should be configurable
-		return ObjectConfig::EObjectCategory::OTHER;
-	}
-	else if (name == "questArtifact")
-	{
-		// TODO: There are no dedicated quest artifacts, needs extra logic
-		return ObjectConfig::EObjectCategory::QUEST_ARTIFACT;
-	}
-	else if (name == "seerHut")
-	{
-		return ObjectConfig::EObjectCategory::SEER_HUT;
-	}
-	else if (name == "siren")
-		return ObjectConfig::EObjectCategory::BONUS;
-	else if (name == "obelisk")
-		return ObjectConfig::EObjectCategory::OTHER;
-
-	// TODO: ObjectConfig::EObjectCategory::SPELL_SCROLL
-
-	// Not interesting for us
-	return ObjectConfig::EObjectCategory::NONE;
-}
