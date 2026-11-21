@@ -84,7 +84,7 @@
 				"customObjects" : {
 					"pandoraBoxes" : [
 						{ "resources" : { "gold" : 3333 }, "rmg" : { "rarity" : 9999, "zoneLimit" : 1 } },
-						{ "rewardable" : { "selectMode" : "selectPlayer", "info" : [ { "visitType" : 1, "reward" : { "heroExperience" : 11111 } }, { "visitType" : 1, "reward" : { "resources" : { "gold" : 11111 } } } ] }, "rmg" : { "value" : 12000, "rarity" : 9999, "zoneLimit" : 1 } },
+						{ "rewardable" : { "selectMode" : "selectPlayer", "info" : [ { "visitType" : 1, "reward" : { "heroExperience" : 11111, "manaPercentage" : -1, "movePercentage" : -1 } }, { "visitType" : 1, "reward" : { "resources" : { "gold" : 11111 }, "manaPercentage" : -1, "movePercentage" : -1 } } ] }, "rmg" : { "value" : 12000, "rarity" : 9999, "zoneLimit" : 1 } },
 						{ "creatures" : [ { "type" : "goldDragon", "amount" : 2 } ], "rmg" : { "value" : 30000, "rarity" : 9999, "zoneLimit" : 1, "zoneFactions" : [ "castle", "rampart", "tower", "inferno" ] } }
 					]
 				}
