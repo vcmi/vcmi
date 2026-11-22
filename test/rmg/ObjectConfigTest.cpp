@@ -13,6 +13,7 @@
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/modding/IdentifierStorage.h"
+#include "../../lib/modding/ModScope.h"
 #include "../../lib/rmg/ObjectConfig.h"
 #include "../../lib/rmg/ObjectInfo.h"
 #include "../../lib/serializer/JsonDeserializer.h"
@@ -84,6 +85,8 @@ protected:
 	static ObjectConfig loadConfig(const std::string & text)
 	{
 		JsonNode json(text.data(), text.size(), "ObjectConfigTest");
+		// Identifier requests need a mod scope; mod loading sets it, a test string does not
+		json.setModScope(ModScope::scopeBuiltin());
 		ObjectConfig config;
 		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
 		JsonDeserializer handler(nullptr, resolver, json);
@@ -522,6 +525,7 @@ TEST_F(ObjectConfigTest, SpellScrollsAndRequiredScrollsRoundTrip)
 	})");
 
 	JsonNode saved = saveConfig(loaded);
+	saved.setModScope(ModScope::scopeBuiltin());
 	ObjectConfig reloaded;
 	{
 		InstantIdentifierResolver resolver(*LIBRARY->identifiers());

@@ -15,6 +15,7 @@
 #include "../../lib/constants/EntityIdentifiers.h"
 
 #include "../../lib/mapObjects/CGCreature.h"
+#include "../../lib/modding/ModScope.h"
 #include "../../lib/rmg/CRmgTemplate.h"
 
 #include "../../lib/serializer/JsonSerializer.h"
@@ -39,14 +40,20 @@ protected:
 		auto subject = std::make_shared<CRmgTemplate>();
 		subject->setId(id);
 
+		// Identifier requests need a mod scope; mod loading sets it, a test file does not
+		JsonNode scopedConfig = config;
+		scopedConfig.setModScope(ModScope::scopeBuiltin());
+
 		{
 			InstantIdentifierResolver resolver(*LIBRARY->identifiers());
-			JsonDeserializer handler(nullptr, resolver, config);
+			JsonDeserializer handler(nullptr, resolver, scopedConfig);
 			subject->serializeJson(handler, *LIBRARY->objtypeh);
 		}
 
 		if(!config["name"].String().empty())
+		{
 			EXPECT_EQ(subject->getName(), config["name"].String());
+		}
 
 		JsonNode actual;
 
@@ -106,6 +113,7 @@ TEST_F(CRmgTemplateTest, AfterLoadMergesTemplateCustomObjects)
 	})";
 
 	JsonNode config(text, std::size(text), "AfterLoadMergesTemplateCustomObjects");
+	config.setModScope(ModScope::scopeBuiltin());
 	auto subject = std::make_shared<CRmgTemplate>();
 	subject->setId("merge");
 
@@ -150,6 +158,7 @@ TEST_F(CRmgTemplateTest, FalseBanSurvivesRoundTrip)
 	})";
 
 	JsonNode config(text, std::size(text), "FalseBanSurvivesRoundTrip");
+	config.setModScope(ModScope::scopeBuiltin());
 	auto subject = std::make_shared<CRmgTemplate>();
 	subject->setId("falseBan");
 
@@ -169,6 +178,7 @@ TEST_F(CRmgTemplateTest, FalseBanSurvivesRoundTrip)
 	ASSERT_TRUE(scholarBan.isBool());
 	EXPECT_FALSE(scholarBan.Bool());
 
+	actual.setModScope(ModScope::scopeBuiltin());
 	auto reloaded = std::make_shared<CRmgTemplate>();
 	{
 		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
