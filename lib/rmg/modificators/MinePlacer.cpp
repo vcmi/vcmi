@@ -62,7 +62,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 			for(auto & subObjID : LIBRARY->objtypeh->knownSubObjects(Obj::MINE))
 			{
 				const auto * handler = dynamic_cast<const MineInstanceConstructor *>(&LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
-				if(handler->getResourceType() == res)
+				if(handler->getResourceType() == res && !handler->getTemplates(zone.getTerrainType()).empty())
 					compatibleMineHandlers.push_back(handler);
 			}
 

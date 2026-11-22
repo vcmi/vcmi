@@ -48,9 +48,13 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 			if(secondaryID == -1)
 			{
 				auto subObjects = LIBRARY->objtypeh->knownSubObjects(objid.primaryID);
+				vstd::erase_if(subObjects, [&](MapObjectSubID subID)
+				{
+					return LIBRARY->objtypeh->getHandlerFor(objid.primaryID, subID).getTemplates(zone.getTerrainType()).empty();
+				});
 				if(subObjects.empty())
 				{
-					logGlobal->error("No subobjects for object type %d", objid.primaryID);
+					logGlobal->error("No subobjects of object type %d have graphics for terrain of zone %d", objid.primaryID, zone.getId());
 					continue;
 				}
 				secondaryID = *RandomGeneratorUtil::nextItem(subObjects, zone.getRand());
