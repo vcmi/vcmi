@@ -26,6 +26,8 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_hints.h>
 #include <SDL3/SDL_render.h>
+#include <SDL3/SDL_timer.h>
+#include <SDL3/SDL_video.h>
 
 InputSourceMouse::InputSourceMouse()
 	:mouseToleranceDistance(settings["input"]["mouseToleranceDistance"].Integer())
@@ -45,6 +47,10 @@ void InputSourceMouse::convertToRenderCoordinates(SDL_Event & event)
 	if(GpuResources::get().renderer() == nullptr)
 		return;
 
+	const bool logCoordinates = event.type == SDL_EVENT_MOUSE_MOTION && SDL_GetTicks() % 250 < 16;
+	const float windowX = event.motion.x;
+	const float windowY = event.motion.y;
+
 	switch(event.type)
 	{
 		case SDL_EVENT_MOUSE_MOTION:
@@ -53,6 +59,21 @@ void InputSourceMouse::convertToRenderCoordinates(SDL_Event & event)
 		case SDL_EVENT_MOUSE_WHEEL:
 			SDL_ConvertEventToRenderCoordinates(GpuResources::get().renderer(), &event);
 			break;
+	}
+
+	if(logCoordinates)
+	{
+		SDL_Renderer * renderer = GpuResources::get().renderer();
+		SDL_Window * window = SDL_GetRenderWindow(renderer);
+		SDL_FRect presentation;
+		int windowWidth;
+		int windowHeight;
+		int outputWidth;
+		int outputHeight;
+		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+		SDL_GetRenderOutputSize(renderer, &outputWidth, &outputHeight);
+		SDL_GetRenderLogicalPresentationRect(renderer, &presentation);
+		logGlobal->info("INPUT_DIAG window %.1fx%.1f render %.1fx%.1f windowSize %dx%d output %dx%d presentation %.1f,%.1f %.1fx%.1f", windowX, windowY, event.motion.x, event.motion.y, windowWidth, windowHeight, outputWidth, outputHeight, presentation.x, presentation.y, presentation.w, presentation.h);
 	}
 }
 
