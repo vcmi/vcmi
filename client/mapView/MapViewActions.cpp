@@ -16,7 +16,6 @@
 
 #include "../adventureMap/AdventureMapInterface.h"
 #include "../GameEngine.h"
-#include "events/InputHandler.h"
 #include "../gui/CursorHandler.h"
 #include "../gui/MouseButton.h"
 #include "render/IScreenHandler.h"
@@ -150,14 +149,7 @@ void MapViewActions::gesture(bool on, const Point & initialPosition, const Point
 
 void MapViewActions::handleHover(const Point & cursorPosition)
 {
-	Point mapPosition = cursorPosition - pos.topLeft();
-	int3 tile = model->getTileAtPoint(mapPosition);
-
-	if(ENGINE->input().getTicks() % 250 < 16)
-	{
-		Rect tileArea = model->getTargetTileArea(tile);
-		logGlobal->info("MAP_DIAG cursor %dx%d map %dx%d tile %dx%dx%d tileArea %d,%d %dx%d view %d,%d %dx%d", cursorPosition.x, cursorPosition.y, mapPosition.x, mapPosition.y, tile.x, tile.y, tile.z, tileArea.x, tileArea.y, tileArea.w, tileArea.h, pos.x, pos.y, pos.w, pos.h);
-	}
+	int3 tile = model->getTileAtPoint(cursorPosition - pos.topLeft());
 
 	if(!context->isInMap(tile))
 	{
