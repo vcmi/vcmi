@@ -533,6 +533,7 @@ void ScreenHandler::initializeScreenBuffers()
 	SDL_Renderer * renderer = GpuResources::get().renderer();
 
 	auto logicalSize = getPreferredLogicalResolution() * getScalingFactor();
+	SDL_SetRenderTarget(renderer, nullptr);
 	SDL_SetRenderLogicalPresentation(renderer, logicalSize.x, logicalSize.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
 	screen = SDL_CreateSurface(logicalSize.x, logicalSize.y, SDL_PIXELFORMAT_ARGB8888);
