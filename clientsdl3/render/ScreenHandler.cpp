@@ -345,6 +345,7 @@ void ScreenHandler::recreateWindowAndScreenBuffers()
 	}
 }
 
+#ifndef VCMI_MOBILE
 static void setWindowedGeometry(SDL_Window * window, SDL_DisplayID displayID, Point resolution, bool center)
 {
 	SDL_Rect bounds;
@@ -366,6 +367,7 @@ static void setWindowedGeometry(SDL_Window * window, SDL_DisplayID displayID, Po
 	if(center)
 		SDL_SetWindowPosition(window, bounds.x + left + (bounds.w - resolution.x - left - right) / 2, bounds.y + top + (bounds.h - resolution.y - top - bottom) / 2);
 }
+#endif
 
 void ScreenHandler::updateWindowState()
 {
