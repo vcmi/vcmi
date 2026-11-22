@@ -16,6 +16,7 @@
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjects/CGPandoraBox.h"
 #include "../../lib/modding/IdentifierStorage.h"
+#include "../../lib/modding/ModScope.h"
 #include "../../lib/rewardable/Info.h"
 #include "../../lib/rmg/modificators/TreasurePlacer.h"
 #include "../../lib/serializer/JsonDeserializer.h"
@@ -183,6 +184,7 @@ TEST_F(TreasurePlacerTest, MapOptionsLoadIntoPandoraBox)
 
 	JsonNode objectJson;
 	objectJson["options"] = entry(R"({ "spells" : [ "townPortal" ], "experience" : 1000 })");
+	objectJson.setModScope(ModScope::scopeGame());
 	std::shared_ptr<CGObjectInstance> object = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0).create(nullptr, nullptr);
 	auto box = std::dynamic_pointer_cast<CGPandoraBox>(object);
 	ASSERT_NE(box, nullptr);
