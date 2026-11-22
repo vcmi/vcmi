@@ -180,10 +180,7 @@ ResourceSet CGMine::dailyIncome() const
 
 MetaString CGMine::getObjectName() const
 {
-	if(getResourceHandler()->getResourceType() == GameResID::NONE || getObjTypeIndex() < GameConstants::RESOURCE_QUANTITY)
-		return MetaString::createFromTextID("core.minename", getObjTypeIndex());
-	else
-		return MetaString::createFromTextID(getResourceHandler()->getNameTextID());
+	return MetaString::createFromTextID(getResourceHandler()->getNameTextID());
 }
 
 MetaString CGMine::getHoverText(PlayerColor player) const

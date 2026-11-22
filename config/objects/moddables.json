@@ -290,6 +290,7 @@
 		"types" : {
 			"sawmill" : {
 				"index" : 0,
+				"name" : "@core.minename.0",
 				"description" : "@core.mineevnt.0",
 				"aiValue" : 1500,
 				"rmg" : {
@@ -303,6 +304,7 @@
 			},
 			"alchemistLab" : {
 				"index" : 1,
+				"name" : "@core.minename.1",
 				"description" : "@core.mineevnt.1",
 				"aiValue" : 3500,
 				"rmg" : {
@@ -316,6 +318,7 @@
 			},
 			"orePit" : {
 				"index" : 2,
+				"name" : "@core.minename.2",
 				"description" : "@core.mineevnt.2",
 				"aiValue" : 1500,
 				"rmg" : {
@@ -329,6 +332,7 @@
 			},
 			"sulfurDune" : {
 				"index" : 3,
+				"name" : "@core.minename.3",
 				"description" : "@core.mineevnt.3",
 				"aiValue" : 3500,
 				"rmg" : {
@@ -342,6 +346,7 @@
 			},
 			"crystalCavern" : {
 				"index" : 4,
+				"name" : "@core.minename.4",
 				"description" : "@core.mineevnt.4",
 				"aiValue" : 3500,
 				"rmg" : {
@@ -356,6 +361,7 @@
 			},
 			"gemPond" : {
 				"index" : 5,
+				"name" : "@core.minename.5",
 				"description" : "@core.mineevnt.5",
 				"aiValue" : 3500,
 				"rmg" : {
@@ -369,6 +375,7 @@
 			},
 			"goldMine" : {
 				"index" : 6,
+				"name" : "@core.minename.6",
 				"description" : "@core.mineevnt.6",
 				"aiValue" : 7000,
 				"rmg" : {
@@ -383,6 +390,7 @@
 			},
 			"abandoned" :	{
 				"index" : 7,
+				"name" : "@core.minename.7",
 				"description" : "@core.mineevnt.7",
 					"guards" : [{
 						"type" : "troglodyte",
@@ -414,6 +422,7 @@
 		"types" : {
 			"mine" : {
 				"index" : 7,
+				"name" : "@core.minename.7",
 				"description" : "@core.mineevnt.7",
 				"battleTerrain": "subterra",
 				"guards" : [{
