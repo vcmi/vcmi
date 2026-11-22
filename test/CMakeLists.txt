@@ -67,6 +67,8 @@ set(test_SRCS
 		map/ScenarioMetadataTest.cpp
 		map/TinyH3MBuilderTest.cpp
 
+		rmg/RmgFunctionsTest.cpp
+
 		modding/ModDescriptionTest.cpp
 
 		quest/QuestTest.cpp

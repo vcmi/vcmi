@@ -69,16 +69,23 @@ rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 	return subarea.getTiles();
 }
 
+std::vector<MapObjectSubID> filterSubtypesPlaceableOn(MapObjectID type, const std::vector<MapObjectSubID> & candidates, TerrainId terrain)
+{
+	std::vector<MapObjectSubID> result;
+	for(const auto & subtype : candidates)
+	{
+		if(!LIBRARY->objtypeh->getHandlerFor(type, subtype)->getTemplates(terrain).empty())
+			result.push_back(subtype);
+	}
+	return result;
+}
+
 int chooseRandomAppearance(vstd::RNG & generator, si32 ObjID, TerrainId terrain)
 {
 	auto factories = LIBRARY->objtypeh->knownSubObjects(ObjID);
-	vstd::erase_if(factories, [ObjID, &terrain](si32 f)
-	{
-		//TODO: Use templates with lowest number of terrains (most specific)
-		return LIBRARY->objtypeh->getHandlerFor(ObjID, f)->getTemplates(terrain).empty();
-	});
-	
-	return *RandomGeneratorUtil::nextItem(factories, generator);
+	std::vector<MapObjectSubID> candidates(factories.begin(), factories.end());
+	auto filtered = filterSubtypesPlaceableOn(MapObjectID(ObjID), candidates, terrain);
+	return *RandomGeneratorUtil::nextItem(filtered, generator);
 }
 
 float getNativeDwellingValueModifier(RmgMap & map, FactionID faction)

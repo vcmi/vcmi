@@ -53,7 +53,14 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 					logGlobal->error("No subobjects for object type %d", objid.primaryID);
 					continue;
 				}
-				secondaryID = *RandomGeneratorUtil::nextItem(subObjects, zone.getRand());
+				std::vector<MapObjectSubID> candidates(subObjects.begin(), subObjects.end());
+				auto placeable = filterSubtypesPlaceableOn(objid.primaryID, candidates, zone.getTerrainType());
+				if(placeable.empty())
+				{
+					logGlobal->warn("No subtype of object type %s has a template for terrain %s", LIBRARY->objtypeh->getJsonKey(objid.primaryID), TerrainId::encode(zone.getTerrainType().getNum()));
+					placeable = candidates;
+				}
+				secondaryID = *RandomGeneratorUtil::nextItem(placeable, zone.getRand());
 			}
 			TObjectTypeHandler handler = LIBRARY->objtypeh->getHandlerFor(objid.primaryID, secondaryID);
 

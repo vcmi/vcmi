@@ -56,23 +56,30 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 	for(const auto & mineInfo : zone.getMinesInfo())
 	{
 		const auto res = GameResID(mineInfo.first);
+		std::vector<MapObjectSubID> compatibleMineSubtypes;
+		for(auto & subObjID : LIBRARY->objtypeh->knownSubObjects(Obj::MINE))
+		{
+			auto handler = std::dynamic_pointer_cast<MineInstanceConstructor>(LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
+			if(handler->getResourceType() == res)
+				compatibleMineSubtypes.push_back(subObjID);
+		}
+
+		if(compatibleMineSubtypes.empty())
+		{
+			logGlobal->error("No mine for resource %s found!", res.toResource()->getJsonKey());
+			continue;
+		}
+
+		auto placeableMineSubtypes = filterSubtypesPlaceableOn(Obj::MINE, compatibleMineSubtypes, zone.getTerrainType());
+		if(placeableMineSubtypes.empty())
+		{
+			logGlobal->warn("No mine for resource %s has a template for terrain %s", res.toResource()->getJsonKey(), TerrainId::encode(zone.getTerrainType().getNum()));
+			placeableMineSubtypes = compatibleMineSubtypes;
+		}
+
 		for(int i = 0; i < mineInfo.second; ++i)
 		{
-			std::vector<TObjectTypeHandler> compatibleMineHandlers;
-			for(auto & subObjID : LIBRARY->objtypeh->knownSubObjects(Obj::MINE))
-			{
-				auto handler = std::dynamic_pointer_cast<MineInstanceConstructor>(LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
-				if(handler->getResourceType() == res)
-					compatibleMineHandlers.push_back(handler);
-			}
-
-			if(compatibleMineHandlers.empty())
-			{
-				logGlobal->error("No mine for resource %s found!", res.toResource()->getJsonKey());
-				continue;
-			}
-
-			auto mineHandler = *RandomGeneratorUtil::nextItem(compatibleMineHandlers, zone.getRand());
+			auto mineHandler = LIBRARY->objtypeh->getHandlerFor(Obj::MINE, *RandomGeneratorUtil::nextItem(placeableMineSubtypes, zone.getRand()));
 
 			const auto & rmginfo = mineHandler->getRMGInfo();
 			auto mine = std::dynamic_pointer_cast<CGMine>(mineHandler->create(map.mapInstance->cb, nullptr));

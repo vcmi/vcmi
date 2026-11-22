@@ -12,6 +12,7 @@
 
 #include "Zone.h"
 #include <boost/heap/priority_queue.hpp> //A*
+#include <vector>
 
 class RmgMap;
 class ObjectManager;
@@ -38,6 +39,9 @@ void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool
 rmg::Tileset collectDistantTiles(const Zone & zone, int distance);
 
 int chooseRandomAppearance(vstd::RNG & generator, si32 ObjID, TerrainId terrain);
+
+/// Candidates of `type` that have at least one template placeable on `terrain`, in input order
+DLL_LINKAGE std::vector<MapObjectSubID> filterSubtypesPlaceableOn(MapObjectID type, const std::vector<MapObjectSubID> & candidates, TerrainId terrain);
 
 /// Multiplier for the value of a dwelling of given faction, increases with the number of zones of that faction
 float getNativeDwellingValueModifier(RmgMap & map, FactionID faction);
