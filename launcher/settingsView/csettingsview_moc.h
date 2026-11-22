@@ -41,7 +41,7 @@ public slots:
 
 private slots:
 	void on_comboBoxResolution_currentTextChanged(const QString & arg1);
-	void on_comboBoxFullScreen_currentIndexChanged(int index);
+	void on_comboBoxDisplayMode_currentIndexChanged(int index);
 	void on_comboBoxFriendlyAI_currentIndexChanged(int index);
 	void on_comboBoxNeutralAI_currentIndexChanged(int index);
 	void on_comboBoxEnemyAI_currentIndexChanged(int index);

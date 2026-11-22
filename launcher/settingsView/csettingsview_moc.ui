@@ -1244,9 +1244,9 @@
         </widget>
        </item>
        <item row="12" column="0">
-        <widget class="QLabel" name="labelFullScreen">
+        <widget class="QLabel" name="labelDisplayMode">
          <property name="text">
-          <string>Fullscreen</string>
+          <string>Display mode</string>
          </property>
         </widget>
        </item>
@@ -1494,15 +1494,15 @@
         </widget>
        </item>
        <item row="12" column="1" colspan="5">
-        <widget class="QComboBox" name="comboBoxFullScreen">
+        <widget class="QComboBox" name="comboBoxDisplayMode">
          <property name="toolTip">
           <string>Select a display mode for the game
 
 Windowed - the game will run inside a window that covers part of your screen.
 
-Borderless Windowed Mode - the game will run in a full-screen window, matching your screen's resolution.
+Fullscreen - the game will fill your screen using the desktop resolution.
 
-Fullscreen Exclusive Mode - the game will cover the entirety of your screen and will use selected resolution.</string>
+Exclusive Fullscreen - the game will fill your screen and use the selected resolution.</string>
          </property>
          <property name="currentIndex">
           <number>0</number>
@@ -1514,7 +1514,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
          </item>
          <item>
           <property name="text">
-           <string>Borderless fullscreen</string>
+           <string>Fullscreen</string>
           </property>
          </item>
          <item>

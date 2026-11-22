@@ -42,7 +42,7 @@
 					"text": "vcmi.systemOptions.scalingButton.hover"
 				},
 				{
-					"text": "vcmi.systemOptions.fullscreenBorderless.hover",
+					"text": "vcmi.systemOptions.fullscreen.hover",
 					"created" : "desktop"
 				},
 				{
@@ -124,9 +124,9 @@
 					"callback": "setGameScaling"
 				},
 				{
-					"name": "fullscreenBorderlessCheckbox",
-					"help": "vcmi.systemOptions.fullscreenBorderless",
-					"callback": "fullscreenBorderlessChanged",
+					"name": "fullscreenCheckbox",
+					"help": "vcmi.systemOptions.fullscreen",
+					"callback": "fullscreenChanged",
 					"created" : "desktop"
 				},
 				{

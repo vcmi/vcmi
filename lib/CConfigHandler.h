@@ -14,6 +14,13 @@
 class Settings;
 class SettingsListener;
 
+enum class EDisplayMode
+{
+	WINDOWED,
+	FULLSCREEN,
+	FULLSCREEN_EXCLUSIVE
+};
+
 /// Main storage of game settings
 class DLL_LINKAGE SettingsStorage
 {
@@ -121,3 +128,6 @@ public:
 extern DLL_LINKAGE SettingsStorage settings;
 extern DLL_LINKAGE SettingsStorage persistentStorage;
 extern DLL_LINKAGE SettingsStorage keyBindingsConfig;
+
+DLL_LINKAGE EDisplayMode getDisplayMode();
+DLL_LINKAGE void setDisplayMode(EDisplayMode mode);

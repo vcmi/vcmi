@@ -346,9 +346,25 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 		return;
 	}
 	// SDL3 delivers each window event as its own event type instead of a single SDL_WINDOWEVENT
+	else if(ev.type == SDL_EVENT_WINDOW_MAXIMIZED)
+	{
+		SDL_Window * window = SDL_GetWindowFromID(ev.window.windowID);
+		if(window && !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN))
+		{
+			Settings video = settings.write["video"];
+			video["windowMaximized"].Bool() = true;
+		}
+		return;
+	}
 	else if(ev.type == SDL_EVENT_WINDOW_RESTORED)
 	{
 #ifndef VCMI_IOS
+		SDL_Window * window = SDL_GetWindowFromID(ev.window.windowID);
+		if(window && !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN))
+		{
+			Settings video = settings.write["video"];
+			video["windowMaximized"].Bool() = SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED;
+		}
 		std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 		ENGINE->onScreenResize(false, false);
 #endif

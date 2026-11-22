@@ -223,7 +223,7 @@ Point ScreenHandler::getRenderResolution() const
 
 Point ScreenHandler::getPreferredWindowResolution() const
 {
-	if (getPreferredWindowMode() == EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED)
+	if (getPreferredWindowMode() == EDisplayMode::FULLSCREEN)
 	{
 		SDL_Rect bounds;
 		if (SDL_GetDisplayBounds(displayIndexToID(getPreferredDisplayIndex()), &bounds))
@@ -254,23 +254,13 @@ int ScreenHandler::getPreferredDisplayIndex() const
 #endif
 }
 
-EWindowMode ScreenHandler::getPreferredWindowMode() const
+EDisplayMode ScreenHandler::getPreferredWindowMode() const
 {
 #ifdef VCMI_MOBILE
 	// On Android / ios game will always render to screen size
-	return EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED;
+	return EDisplayMode::FULLSCREEN;
 #else
-	const JsonNode & video = settings["video"];
-	bool fullscreen = video["fullscreen"].Bool();
-	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
-
-	if (!fullscreen)
-		return EWindowMode::WINDOWED;
-
-	if (realFullscreen)
-		return EWindowMode::FULLSCREEN_EXCLUSIVE;
-	else
-		return EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED;
+	return getDisplayMode();
 #endif
 }
 
@@ -355,6 +345,28 @@ void ScreenHandler::recreateWindowAndScreenBuffers()
 	}
 }
 
+static void setWindowedGeometry(SDL_Window * window, SDL_DisplayID displayID, Point resolution, bool center)
+{
+	SDL_Rect bounds;
+	if(!SDL_GetDisplayUsableBounds(displayID, &bounds))
+	{
+		SDL_SetWindowSize(window, resolution.x, resolution.y);
+		return;
+	}
+
+	int top = 0;
+	int left = 0;
+	int bottom = 0;
+	int right = 0;
+	SDL_GetWindowBordersSize(window, &top, &left, &bottom, &right);
+	resolution.x = std::min(resolution.x, std::max(1, bounds.w - left - right));
+	resolution.y = std::min(resolution.y, std::max(1, bounds.h - top - bottom));
+	SDL_SetWindowSize(window, resolution.x, resolution.y);
+
+	if(center)
+		SDL_SetWindowPosition(window, bounds.x + left + (bounds.w - resolution.x - left - right) / 2, bounds.y + top + (bounds.h - resolution.y - top - bottom) / 2);
+}
+
 void ScreenHandler::updateWindowState()
 {
 #ifndef VCMI_MOBILE
@@ -362,9 +374,9 @@ void ScreenHandler::updateWindowState()
 
 	switch(getPreferredWindowMode())
 	{
-		case EWindowMode::FULLSCREEN_EXCLUSIVE:
+		case EDisplayMode::FULLSCREEN_EXCLUSIVE:
 		{
-			// for some reason, VCMI fails to switch from FULLSCREEN_BORDERLESS_WINDOWED to FULLSCREEN_EXCLUSIVE directly
+			// for some reason, VCMI fails to switch from FULLSCREEN to FULLSCREEN_EXCLUSIVE directly
 			// Switch to windowed mode first to avoid this bug
 			SDL_SetWindowFullscreen(mainWindow, false);
 
@@ -380,7 +392,7 @@ void ScreenHandler::updateWindowState()
 
 			break;
 		}
-		case EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED:
+		case EDisplayMode::FULLSCREEN:
 		{
 			SDL_DisplayID displayID = displayIndexToID(displayIndex);
 			// a null fullscreen mode means borderless fullscreen at desktop resolution
@@ -389,12 +401,22 @@ void ScreenHandler::updateWindowState()
 			SDL_SetWindowFullscreen(mainWindow, true);
 			break;
 		}
-		case EWindowMode::WINDOWED:
+		case EDisplayMode::WINDOWED:
 		{
 			Point resolution = getPreferredWindowResolution();
+			bool wasFullscreen = SDL_GetWindowFlags(mainWindow) & SDL_WINDOW_FULLSCREEN;
+			SDL_DisplayID windowDisplayID = SDL_GetDisplayForWindow(mainWindow);
+			if(windowDisplayID == 0)
+				windowDisplayID = displayIndexToID(displayIndex);
 			SDL_SetWindowFullscreen(mainWindow, false);
 			SDL_SetWindowResizable(mainWindow, true);
-			SDL_SetWindowSize(mainWindow, resolution.x, resolution.y);
+			if(settings["video"]["windowMaximized"].Bool())
+				SDL_MaximizeWindow(mainWindow);
+			else
+			{
+				SDL_RestoreWindow(mainWindow);
+				setWindowedGeometry(mainWindow, windowDisplayID, resolution, wasFullscreen);
+			}
 			break;
 		}
 	}
@@ -568,16 +590,22 @@ SDL_Window * ScreenHandler::createWindow()
 
 	switch(getPreferredWindowMode())
 	{
-		case EWindowMode::FULLSCREEN_EXCLUSIVE:
+		case EDisplayMode::FULLSCREEN_EXCLUSIVE:
 			return createWindowImpl(dimensions, SDL_WINDOW_FULLSCREEN, false);
 
-		case EWindowMode::FULLSCREEN_BORDERLESS_WINDOWED:
+		case EDisplayMode::FULLSCREEN:
 			// with no fullscreen mode set, SDL_WINDOW_FULLSCREEN is borderless at desktop resolution
 			// fullscreen is applied asynchronously on Wayland and until then SDL uses requested size, with 0x0 turning into 1x1 window
 			return createWindowImpl(dimensions, SDL_WINDOW_FULLSCREEN, false);
 
-		case EWindowMode::WINDOWED:
-			return createWindowImpl(dimensions, SDL_WINDOW_RESIZABLE, true);
+		case EDisplayMode::WINDOWED:
+		{
+			bool maximized = settings["video"]["windowMaximized"].Bool();
+			SDL_Window * result = createWindowImpl(dimensions, SDL_WINDOW_RESIZABLE | (maximized ? SDL_WINDOW_MAXIMIZED : 0), true);
+			if(result && !maximized)
+				setWindowedGeometry(result, displayIndexToID(getPreferredDisplayIndex()), dimensions, true);
+			return result;
+		}
 
 		default:
 			return nullptr;
@@ -615,7 +643,7 @@ bool ScreenHandler::onScreenResize(bool keepWindowResolution)
 			return false;
 
 		// the stored resolution is the windowed one, so a fullscreen window must not overwrite it
-		if (getPreferredWindowMode() == EWindowMode::WINDOWED)
+		if (getPreferredWindowMode() == EDisplayMode::WINDOWED && !(SDL_GetWindowFlags(mainWindow) & SDL_WINDOW_MAXIMIZED))
 		{
 			auto res = getRenderResolution();
 
@@ -652,26 +680,25 @@ void ScreenHandler::validateSettings()
 		}
 	}
 
-	if (getPreferredWindowMode() == EWindowMode::WINDOWED)
+	if (getPreferredWindowMode() == EDisplayMode::WINDOWED)
 	{
 		//we only check that our desired window size fits on screen
 		int displayIndex = getPreferredDisplayIndex();
 		Point resolution = getPreferredWindowResolution();
 
-		const SDL_DisplayMode * mode = SDL_GetDesktopDisplayMode(displayIndexToID(displayIndex));
-
-		if (mode != nullptr)
+		SDL_Rect bounds;
+		if(SDL_GetDisplayUsableBounds(displayIndexToID(displayIndex), &bounds))
 		{
-			if(resolution.x > mode->w || resolution.y > mode->h)
+			if(resolution.x > bounds.w || resolution.y > bounds.h)
 			{
 				Settings writer = settings.write["video"]["resolution"];
-				writer["width"].Float() = mode->w;
-				writer["height"].Float() = mode->h;
+				writer["width"].Float() = bounds.w;
+				writer["height"].Float() = bounds.h;
 			}
 		}
 	}
 
-	if (getPreferredWindowMode() == EWindowMode::FULLSCREEN_EXCLUSIVE)
+	if (getPreferredWindowMode() == EDisplayMode::FULLSCREEN_EXCLUSIVE)
 	{
 		auto legalOptions = getSupportedResolutions();
 		Point selectedResolution = getPreferredWindowResolution();

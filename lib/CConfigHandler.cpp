@@ -210,6 +210,33 @@ JsonNode & Settings::operator[](const std::string & value)
 	return node[value];
 }
 
+EDisplayMode getDisplayMode()
+{
+	const std::string & mode = settings["video"]["displayMode"].String();
+	if(mode == "fullscreenExclusive")
+		return EDisplayMode::FULLSCREEN_EXCLUSIVE;
+	if(mode == "fullscreen")
+		return EDisplayMode::FULLSCREEN;
+	return EDisplayMode::WINDOWED;
+}
+
+void setDisplayMode(EDisplayMode mode)
+{
+	Settings entry = settings.write["video"]["displayMode"];
+	switch(mode)
+	{
+		case EDisplayMode::FULLSCREEN_EXCLUSIVE:
+			entry->String() = "fullscreenExclusive";
+			break;
+		case EDisplayMode::FULLSCREEN:
+			entry->String() = "fullscreen";
+			break;
+		case EDisplayMode::WINDOWED:
+			entry->String() = "windowed";
+			break;
+	}
+}
+
 // Force instantiation of the SettingsStorage::NodeAccessor class template.
 // That way method definitions can sit in the cpp file
 template struct SettingsStorage::NodeAccessor<SettingsListener>;

@@ -188,8 +188,8 @@
 			"required" : [ 
 				"resolution",
 				"reservedWidth",
-				"fullscreen",
-				"realFullscreen",
+				"displayMode",
+				"windowMaximized",
 				"cursor",
 				"showIntro",
 				"spellbookAnimation",
@@ -225,11 +225,12 @@
 					"type" : "number",
 					"default" : 0
 				},
-				"fullscreen" : {
-					"type" : "boolean",
-					"default" : true
+				"displayMode" : {
+					"type" : "string",
+					"enum" : [ "windowed", "fullscreen", "fullscreenExclusive" ],
+					"default" : "fullscreen"
 				},
-				"realFullscreen" : {
+				"windowMaximized" : {
 					"type" : "boolean",
 					"default" : false
 				},
