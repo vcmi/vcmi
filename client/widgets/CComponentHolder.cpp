@@ -234,7 +234,7 @@ bool CArtPlace::isLocked() const
 	return locked;
 }
 
-void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<ArtifactID>> & arts)
+void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<ArtifactID>> & arts, const std::set<ArtifactID> & equippedArts)
 {
 	for(auto [combinedId, availableArts] : arts)
 	{
@@ -250,15 +250,20 @@ void CArtPlace::addCombinedArtInfo(const std::map<const ArtifactID, std::vector<
 		info.replaceNumber(combinedArt->getConstituents().size());
 		for(const auto part : combinedArt->getConstituents())
 		{
-			const auto found = std::find_if(availableArts.begin(), availableArts.end(), [part](const auto & availablePart) -> bool
-				{
-					return availablePart == part->getId() ? true : false;
-				});
+			const auto partId = part->getId();
+			const auto found = std::find(availableArts.begin(), availableArts.end(), partId);
 
 			info.appendEOL();
-			if(found < availableArts.end())
+			if(found != availableArts.end())
 			{
-				info.appendName(part->getId());
+				if(equippedArts.count(partId))
+					info.appendName(partId);
+				else
+				{
+					info.appendRawString("{");
+					info.appendName(partId);
+					info.appendRawString("}");
+				}
 				availableArts.erase(found);
 			}
 			else

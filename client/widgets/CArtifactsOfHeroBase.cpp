@@ -309,6 +309,7 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 
 		// If the artifact is part of at least one combined artifact, add additional information
 		std::map<const ArtifactID, std::vector<ArtifactID>> arts;
+		std::set<ArtifactID> equippedArts;
 		for(const auto combinedArt : slotInfo->getArt()->getType()->getPartOf())
 		{
 			assert(combinedArt->isCombined());
@@ -327,6 +328,10 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 			CArtifactFittingSet fittingSet(*curHero);
 			for(const auto part : combinedArt->getConstituents())
 			{
+				const auto wearPartSlot = fittingSet.getArtPos(part->getId(), true, false);
+				if(wearPartSlot != ArtifactPosition::PRE_FIRST)
+					equippedArts.insert(part->getId());
+
 				const auto partSlot = fittingSet.getArtPos(part->getId(), false, false);
 				if(partSlot != ArtifactPosition::PRE_FIRST)
 				{
@@ -335,7 +340,7 @@ void CArtifactsOfHeroBase::setSlotData(ArtPlacePtr artPlace, const ArtifactPosit
 				}
 			}
 		}
-		artPlace->addCombinedArtInfo(arts);
+		artPlace->addCombinedArtInfo(arts, equippedArts);
 	}
 	else
 	{
