@@ -20,6 +20,7 @@
 #include "../../lib/rewardable/Info.h"
 #include "../../lib/rmg/modificators/TreasurePlacer.h"
 #include "../../lib/serializer/JsonDeserializer.h"
+#include "../mock/mock_IGameInfoCallback.h"
 
 namespace test
 {
@@ -185,7 +186,9 @@ TEST_F(TreasurePlacerTest, MapOptionsLoadIntoPandoraBox)
 	JsonNode objectJson;
 	objectJson["options"] = entry(R"({ "spells" : [ "townPortal" ], "experience" : 1000 })");
 	objectJson.setModScope(ModScope::scopeGame());
-	std::shared_ptr<CGObjectInstance> object = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0).create(nullptr, nullptr);
+	// create() asserts a callback; TreasurePlacer passes the map's, the box only stores it
+	NiceMock<IGameInfoCallbackMock> gameInfo;
+	std::shared_ptr<CGObjectInstance> object = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0).create(&gameInfo, nullptr);
 	auto box = std::dynamic_pointer_cast<CGPandoraBox>(object);
 	ASSERT_NE(box, nullptr);
 
