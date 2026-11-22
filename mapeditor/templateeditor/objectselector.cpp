@@ -64,14 +64,14 @@ std::map<CompoundMapObjectID, QString> ObjectSelector::getAdventureMapItems()
 		for(auto & subId : knownSubObjects)
 		{
 			auto objId = CompoundMapObjectID(id, subId);
-			auto factory = LIBRARY->objtypeh->getHandlerFor(id, subId);
-			auto templates = factory->getTemplates();
+			auto & factory = LIBRARY->objtypeh->getHandlerFor(id, subId);
+			auto templates = factory.getTemplates();
 			
 			QString name{};
 			try
 			{
 				auto templ = templates.at(0);
-				auto temporaryObj(factory->create(controller.getCallback(), templ));
+				auto temporaryObj(factory.create(controller.getCallback(), templ));
 				QString translated = QString::fromStdString(temporaryObj->getObjectName().toString(&Translator::instance()));
 				name = translated;
 			}
@@ -80,7 +80,7 @@ std::map<CompoundMapObjectID, QString> ObjectSelector::getAdventureMapItems()
 			if(name.isEmpty())
 			{
 				// no object could be created, so fall back to the name of the type itself
-				auto subGroupTextID = factory->hasNameTextID() ? factory->getNameTextID() : LIBRARY->objtypeh->getObjectGroupNameTextID(id);
+				auto subGroupTextID = factory.hasNameTextID() ? factory.getNameTextID() : LIBRARY->objtypeh->getObjectGroupNameTextID(id);
 				name = QString::fromStdString(Translator::instance().translate(subGroupTextID));
 			}
 

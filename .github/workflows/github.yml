@@ -616,6 +616,8 @@ jobs:
             compiler_cxx: g++-10
             compiler_cc: gcc-10
             preset: linux-gcc-debug
+            # no onnxruntime package before Ubuntu 26.04
+            cmake_options: -DENABLE_MMAI=OFF
 
           - platform: clang-oldest-release
             os: ubuntu-24.04
@@ -623,6 +625,7 @@ jobs:
             compiler_cxx: clang++-16
             compiler_cc: clang-16
             preset: linux-clang-test
+            cmake_options: -DENABLE_MMAI=OFF
 
     runs-on: ${{ matrix.os }}
     env:
@@ -692,7 +695,7 @@ jobs:
 
     - name: Configure
       run: |
-        cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=${{ matrix.compiler_cc }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler_cxx }} --preset ${{ matrix.preset }}
+        cmake -DENABLE_CCACHE:BOOL=ON -DCMAKE_C_COMPILER=${{ matrix.compiler_cc }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler_cxx }} ${{ matrix.cmake_options }} --preset ${{ matrix.preset }}
 
     - name: Build
       run: |

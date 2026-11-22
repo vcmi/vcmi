@@ -252,10 +252,10 @@ void ObstacleProxy::collectPossibleObstacles(TerrainId terrain)
 	{
 		for(auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
-			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
-			if(handler->isStaticObject())
+			auto & handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
+			if(handler.isStaticObject())
 			{
-				for(const auto & temp : handler->getTemplates())
+				for(const auto & temp : handler.getTemplates())
 				{
 					if(temp->canBePlacedAt(terrain) && temp->getBlockMapOffset().isValid())
 						obstaclesBySize[temp->getBlockedOffsets().size()].push_back(temp);
@@ -397,8 +397,8 @@ int ObstacleProxy::getWeightedObjects(const int3 & tile, vstd::RNG & rand, IGame
 
 		for(const auto & temp : templatesToTry)
 		{
-			auto handler = LIBRARY->objtypeh->getHandlerFor(temp->id, temp->subid);
-			auto obj = handler->create(cb, temp);
+			auto & handler = LIBRARY->objtypeh->getHandlerFor(temp->id, temp->subid);
+			auto obj = handler.create(cb, temp);
 			allObjects.emplace_back(obj);
 			rmg::Object * rmgObject = &allObjects.back();
 			for(const auto & offset : obj->getBlockedOffsets())

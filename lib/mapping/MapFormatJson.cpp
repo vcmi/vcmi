@@ -1185,17 +1185,17 @@ void CMapLoaderJson::MapObjectLoader::construct()
 
 	configuration.setModScope(ModScope::scopeGame());
 
-	auto handler = LIBRARY->objtypeh->getHandlerFor(*LIBRARY->identifiers(), ModScope::scopeMap(), typeName, subtypeName);
+	auto & handler = LIBRARY->objtypeh->getHandlerFor(*LIBRARY->identifiers(), ModScope::scopeMap(), typeName, subtypeName);
 
 	auto appearance = std::make_shared<ObjectTemplate>();
 
-	appearance->id = Obj(handler->getIndex());
-	appearance->subid = handler->getSubIndex();
+	appearance->id = Obj(handler.getIndex());
+	appearance->subid = handler.getSubIndex();
 	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
 	appearance->readJson(configuration["template"], resolver, false);
 
 	// Will be destroyed soon and replaced with shared template
-	instance = handler->create(owner->map->cb, appearance);
+	instance = handler.create(owner->map->cb, appearance);
 
 	instance->instanceName = instanceName;
 	instance->setAnchorPos(pos);
@@ -1312,46 +1312,18 @@ void CMapLoaderJson::readTranslations()
 	{
 		std::string actualMapName = TextOperations::convertMapName(mapName);
 
-		std::string preferredLanguage = Languages::getPreferredLanguage();
-		std::string baseLanguage = Languages::getLanguageOptions(Languages::ELanguages::ENGLISH).identifier;
-
-		// Determine base language from translations with most strings
-		int maxStrings = 0;
 		for(auto & translation : translationsFromFile.Struct())
 		{
-			if(translation.second.isStruct() && translation.second.Struct().size() > maxStrings)
-			{
-				maxStrings = translation.second.Struct().size();
-				baseLanguage = translation.first;
-			}
-		}
-
-		// Load base language translations
-		if(translationsFromFile.Struct().count(baseLanguage))
-		{
-			for(auto & str : translationsFromFile[baseLanguage].Struct())
+			for(auto & str : translation.second.Struct())
 			{
 				// Keys in JSON don't have map name (e.g. "header.name"), add map name when registering: map.<mapName>.<identifier>
 				TextIdentifier fullIdentifier = runningInMapEditor
 					? TextIdentifier(str.first)
 					: TextIdentifier("map", actualMapName, str.first);
-				mapRegisterLocalizedString("map", *mapHeader, fullIdentifier, str.second.String(), baseLanguage);
+				mapHeader->translations.Struct()[translation.first].Struct()[fullIdentifier.get()].String() = str.second.String();
 			}
 		}
-
-		// Load preferred language (if different)
-		if(preferredLanguage != baseLanguage && translationsFromFile.Struct().count(preferredLanguage))
-		{
-			JsonNode translationOverrides;
-			for(auto & str : translationsFromFile[preferredLanguage].Struct())
-			{
-				TextIdentifier fullIdentifier = runningInMapEditor
-					? TextIdentifier(str.first)
-					: TextIdentifier("map", actualMapName, str.first);
-				translationOverrides.Struct()[fullIdentifier.get()].String() = str.second.String();
-			}
-			mapHeader->texts->loadTranslationOverrides("map", preferredLanguage, translationOverrides);
-		}
+		mapHeader->registerMapStrings();
 	}
 }
 

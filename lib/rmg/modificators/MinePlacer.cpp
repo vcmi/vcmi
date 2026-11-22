@@ -56,30 +56,23 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 	for(const auto & mineInfo : zone.getMinesInfo())
 	{
 		const auto res = GameResID(mineInfo.first);
-		std::vector<MapObjectSubID> compatibleMineSubtypes;
-		for(auto & subObjID : LIBRARY->objtypeh->knownSubObjects(Obj::MINE))
-		{
-			auto handler = std::dynamic_pointer_cast<MineInstanceConstructor>(LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
-			if(handler->getResourceType() == res)
-				compatibleMineSubtypes.push_back(subObjID);
-		}
-
-		if(compatibleMineSubtypes.empty())
-		{
-			logGlobal->error("No mine for resource %s found!", res.toResource()->getJsonKey());
-			continue;
-		}
-
-		auto placeableMineSubtypes = filterSubtypesPlaceableOn(Obj::MINE, compatibleMineSubtypes, zone.getTerrainType());
-		if(placeableMineSubtypes.empty())
-		{
-			logGlobal->warn("No mine for resource %s has a template for terrain %s", res.toResource()->getJsonKey(), TerrainId::encode(zone.getTerrainType().getNum()));
-			placeableMineSubtypes = compatibleMineSubtypes;
-		}
-
 		for(int i = 0; i < mineInfo.second; ++i)
 		{
-			auto mineHandler = LIBRARY->objtypeh->getHandlerFor(Obj::MINE, *RandomGeneratorUtil::nextItem(placeableMineSubtypes, zone.getRand()));
+			std::vector<const AObjectTypeHandler *> compatibleMineHandlers;
+			for(auto & subObjID : LIBRARY->objtypeh->knownSubObjects(Obj::MINE))
+			{
+				const auto * handler = dynamic_cast<const MineInstanceConstructor *>(&LIBRARY->objtypeh->getHandlerFor(Obj::MINE, subObjID));
+				if(handler->getResourceType() == res && !handler->getTemplates(zone.getTerrainType()).empty())
+					compatibleMineHandlers.push_back(handler);
+			}
+
+			if(compatibleMineHandlers.empty())
+			{
+				logGlobal->error("No mine for resource %s found!", res.toResource()->getJsonKey());
+				continue;
+			}
+
+			auto mineHandler = *RandomGeneratorUtil::nextItem(compatibleMineHandlers, zone.getRand());
 
 			const auto & rmginfo = mineHandler->getRMGInfo();
 			auto mine = std::dynamic_pointer_cast<CGMine>(mineHandler->create(map.mapInstance->cb, nullptr));
@@ -113,7 +106,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 		{
 			for(int rc = zone.getRand().nextInt(1, extraRes); rc > 0; --rc)
 			{
-				auto resource = std::dynamic_pointer_cast<CGResource>(LIBRARY->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource)->create(map.mapInstance->cb, nullptr));
+				auto resource = std::dynamic_pointer_cast<CGResource>(LIBRARY->objtypeh->getHandlerFor(Obj::RESOURCE, mine->producedResource).create(map.mapInstance->cb, nullptr));
 
 				RequiredObjectInfo roi;
 				roi.obj = resource;

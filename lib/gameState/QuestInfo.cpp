@@ -22,7 +22,7 @@
 const Quest * QuestInfo::getQuest(IGameInfoCallback *cb) const
 {
 	if(const auto * type = std::get_if<CompoundMapObjectID>(&identity))
-		return LIBRARY->objtypeh->getHandlerFor(*type)->getTypeQuest();
+		return LIBRARY->objtypeh->getHandlerFor(*type).getTypeQuest();
 
 	const auto * object = getObject(cb);
 	const auto * source = object ? object->asQuestSource() : nullptr;

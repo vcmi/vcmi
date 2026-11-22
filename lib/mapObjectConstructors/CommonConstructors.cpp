@@ -29,7 +29,7 @@
 #include "../texts/TextIdentifier.h"
 #include "../texts/CGeneralTextHandler.h"
 
-bool CObstacleConstructor::isStaticObject()
+bool CObstacleConstructor::isStaticObject() const
 {
 	return true;
 }
@@ -103,7 +103,16 @@ void MineInstanceConstructor::initTypeData(LibraryLoadContext & context, const J
 	defaultQuantity = !config["defaultQuantity"].isNull() ? config["defaultQuantity"].Integer() : 1;
 
 	if(!config["name"].isNull())
-		context.lib.generaltexth->registerString(config.getModScope(), getNameTextID(), config["name"]);
+	{
+		const std::string name = config["name"].String();
+		if(!name.empty() && name.front() == '@')
+			nameTextID = name.substr(1);
+		else
+		{
+			nameTextID = TextIdentifier(getBaseTextID(), "name").get();
+			context.lib.generaltexth->registerString(config.getModScope(), nameTextID, config["name"]);
+		}
+	}
 
 	if(!config["description"].isNull())
 	{
@@ -151,6 +160,11 @@ GameResID MineInstanceConstructor::getResourceType() const
 ui32 MineInstanceConstructor::getDefaultQuantity() const
 {
 	return defaultQuantity;
+}
+
+std::string MineInstanceConstructor::getNameTextID() const
+{
+	return nameTextID;
 }
 
 std::string MineInstanceConstructor::getDescriptionTextID() const

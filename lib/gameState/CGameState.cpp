@@ -669,8 +669,8 @@ void CGameState::placeStartingHero(const PlayerColor & playerColor, const HeroTy
 
 	if (!hero)
 	{
-		auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->getHeroClass()->getIndex());
-		auto object = handler->create(this, handler->getTemplates().front());
+		auto & handler = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, heroTypeId.toHeroType()->getHeroClass()->getIndex());
+		auto object = handler.create(this, handler.getTemplates().front());
 		hero = std::dynamic_pointer_cast<CGHeroInstance>(object);
 		hero->ID = Obj::HERO;
 		hero->setHeroType(heroTypeId);
@@ -1093,12 +1093,12 @@ void CGameState::initHeroBoats(IGameRandomizer & gameRandomizer)
 
 		if (tile.isWater())
 		{
-			auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
-			auto boat = std::dynamic_pointer_cast<CGBoat>(handler->create(this, nullptr));
-			handler->configureObject(boat.get(), gameRandomizer);
+			auto & handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, hero->getBoatType().getNum());
+			auto boat = std::dynamic_pointer_cast<CGBoat>(handler.create(this, nullptr));
+			handler.configureObject(boat.get(), gameRandomizer);
 
 			boat->setAnchorPos(hero->anchorPos());
-			boat->appearance = handler->getTemplates().front();
+			boat->appearance = handler.getTemplates().front();
 			map->generateUniqueInstanceName(boat.get());
 			map->addNewObject(boat);
 			map->hideObject(boat.get());

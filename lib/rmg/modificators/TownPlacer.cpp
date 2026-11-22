@@ -99,9 +99,9 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 			zone.setTownType(getTownTypeFromHint(0));
 		}
 		
-		auto townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
+		auto & townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
 
-		auto town = std::dynamic_pointer_cast<CGTownInstance>(townFactory->create(map.mapInstance->cb, nullptr));
+		auto town = std::dynamic_pointer_cast<CGTownInstance>(townFactory.create(map.mapInstance->cb, nullptr));
 		town->tempOwner = player;
 		town->addBuilding(BuildingID::FORT);
 		town->addBuilding(BuildingID::DEFAULT);
@@ -335,8 +335,8 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 			}
 		}
 		
-		auto townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, subType);
-		auto town = std::dynamic_pointer_cast<CGTownInstance>(townFactory->create(map.mapInstance->cb, nullptr));
+		auto & townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, subType);
+		auto town = std::dynamic_pointer_cast<CGTownInstance>(townFactory.create(map.mapInstance->cb, nullptr));
 		town->ID = Obj::TOWN;
 		
 		town->tempOwner = player;

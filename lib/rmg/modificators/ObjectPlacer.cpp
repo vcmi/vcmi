@@ -48,24 +48,20 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 			if(secondaryID == -1)
 			{
 				auto subObjects = LIBRARY->objtypeh->knownSubObjects(objid.primaryID);
+				vstd::erase_if(subObjects, [&](MapObjectSubID subID)
+				{
+					return LIBRARY->objtypeh->getHandlerFor(objid.primaryID, subID).getTemplates(zone.getTerrainType()).empty();
+				});
 				if(subObjects.empty())
 				{
-					logGlobal->error("No subobjects for object type %d", objid.primaryID);
+					logGlobal->error("No subobjects of object type %d have graphics for terrain of zone %d", objid.primaryID, zone.getId());
 					continue;
 				}
-				std::vector<MapObjectSubID> candidates(subObjects.begin(), subObjects.end());
-				auto placeable = filterSubtypesPlaceableOn(objid.primaryID, candidates, zone.getTerrainType());
-				if(placeable.empty())
-				{
-					logGlobal->warn("No subtype of object type %s has a template for terrain %s", LIBRARY->objtypeh->getJsonKey(objid.primaryID), TerrainId::encode(zone.getTerrainType().getNum()));
-					placeable = candidates;
-				}
-				secondaryID = *RandomGeneratorUtil::nextItem(placeable, zone.getRand());
+				secondaryID = *RandomGeneratorUtil::nextItem(subObjects, zone.getRand());
 			}
-			TObjectTypeHandler handler = LIBRARY->objtypeh->getHandlerFor(objid.primaryID, secondaryID);
+			auto & handler = LIBRARY->objtypeh->getHandlerFor(objid.primaryID, secondaryID);
 
-			assert(handler);
-			ui32 guardStrength = info.second.has_value() ? info.second.value() : handler->getRMGInfo().value;
+			ui32 guardStrength = info.second.has_value() ? info.second.value() : handler.getRMGInfo().value;
 			// Random dwelling of given level becomes a dwelling of the zone's faction (see ObjectManager::placeObject).
 			// Without a guard from the template, guard it according to the value of that native dwelling
 			if(!info.second.has_value() && objid.primaryID == Obj::RANDOM_DWELLING_LVL)
@@ -75,7 +71,7 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 					guardStrength = nativeValue;
 			}
 			
-			auto object = handler->create(map.mapInstance->cb, nullptr);
+			auto object = handler.create(map.mapInstance->cb, nullptr);
 			if (object->asOwnable() && object->tempOwner == PlayerColor::UNFLAGGABLE)
 				object->setOwner(PlayerColor::NEUTRAL);		
 

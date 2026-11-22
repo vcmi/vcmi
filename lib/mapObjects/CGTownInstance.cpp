@@ -710,7 +710,7 @@ void CGTownInstance::updateAppearance()
 
 	auto terrain = tile->getTerrainID();
 	//FIXME: not the best way to do this
-	auto app = getObjectHandler()->getOverride(terrain, this);
+	auto app = getObjectHandler().getOverride(terrain, this);
 	if (app)
 		appearance = app;
 }

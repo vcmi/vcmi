@@ -242,7 +242,7 @@ private:
 
 	void activateTab(size_t which);
 
-	std::shared_ptr<MineInstanceConstructor> getMineHandler(const GameResID & res);
+	const MineInstanceConstructor * getMineHandler(const GameResID & res);
 
 	//Internal functions used during construction
 	void generateButtons();

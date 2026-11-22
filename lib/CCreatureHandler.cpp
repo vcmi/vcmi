@@ -629,12 +629,12 @@ std::shared_ptr<CCreature> CCreatureHandler::loadFromJson(LibraryLoadContext & c
 			templ.setModScope(scope);
 
 			// if creature has custom advMapFile, reset any potentially imported H3M templates and use provided file instead
-			context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->clearTemplates();
-			context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->addTemplate(context, templ);
+			context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num).clearTemplates();
+			context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num).addTemplate(context, templ);
 		}
 
 		// object does not have any templates - this is not usable object (e.g. pseudo-creature like Arrow Tower)
-		if (context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num)->getTemplates().empty())
+		if (context.lib.objtypeh->getHandlerFor(Obj::MONSTER, cre->getId().num).getTemplates().empty())
 		{
 			if (!cre->special)
 				throw ModLoadingException(scope, "creature " + cre->getJsonKey() + " has no adventure map animation but is not marked as special!" );

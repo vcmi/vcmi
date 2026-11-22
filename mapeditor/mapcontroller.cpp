@@ -176,7 +176,7 @@ void MapController::repairMap(CMap * map)
 			assert(type->getHeroClass());
 
 			if(nih->ID == Obj::HERO) //not prison
-				nih->appearance = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, type->getHeroClass()->getIndex())->getTemplates().front();
+				nih->appearance = LIBRARY->objtypeh->getHandlerFor(Obj::HERO, type->getHeroClass()->getIndex()).getTemplates().front();
 			//fix spellbook
 			if(nih->spellbookContainsSpell(SpellID::SPELLBOOK_PRESET))
 			{
@@ -736,8 +736,8 @@ ModCompatibilityInfo MapController::modAssessmentAll()
 	{
 		for(auto secondaryID : LIBRARY->objtypeh->knownSubObjects(primaryID))
 		{
-			auto handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
-			auto modScope = handler->getModScope();
+			auto & handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
+			auto modScope = handler.getModScope();
 			if(modScope != "core")
 				result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
 		}
@@ -754,8 +754,8 @@ void MapController::modAssessmentObject(const CGObjectInstance * obj, ModCompati
 			result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
 	};
 
-	auto handler = obj->getObjectHandler();
-	auto modScope = handler->getModScope();
+	auto & handler = obj->getObjectHandler();
+	auto modScope = handler.getModScope();
 	if(modScope != "core")
 		result[modScope] = LIBRARY->modh->getModInfo(modScope).getVerificationInfo();
 

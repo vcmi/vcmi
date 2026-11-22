@@ -74,7 +74,7 @@ std::vector<MapObjectSubID> filterSubtypesPlaceableOn(MapObjectID type, const st
 	std::vector<MapObjectSubID> result;
 	for(const auto & subtype : candidates)
 	{
-		if(!LIBRARY->objtypeh->getHandlerFor(type, subtype)->getTemplates(terrain).empty())
+		if(!LIBRARY->objtypeh->getHandlerFor(type, subtype).getTemplates(terrain).empty())
 			result.push_back(subtype);
 	}
 	return result;

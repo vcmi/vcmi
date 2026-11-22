@@ -44,18 +44,17 @@ For Ubuntu and Debian you need to:
         ```
 
     - Otherwise, use the script below to install from onnxruntime's
-      [official releases](https://github.com/microsoft/onnxruntime/releases):
+      [NuGet package](https://www.nuget.org/packages/Microsoft.ML.OnnxRuntime/1.18.1)
+      (use `linux-arm64` instead of `linux-x64` on ARM):
 
         ```sh
-        ONNXRUNTIME_URL=https://github.com/microsoft/onnxruntime/releases/download/v1.18.1/onnxruntime-linux-x64-1.18.1.tgz
         ONNXRUNTIME_ROOT=/opt/onnxruntime
-        mkdir -p "$ONNXRUNTIME_ROOT"
-        curl -fsSL "$ONNXRUNTIME_URL" | tar -xzv --strip-components=1 -C "$ONNXRUNTIME_ROOT"
-        sudo ldconfig "$ONNXRUNTIME_ROOT"
+        curl -fsSL -o onnxruntime.nupkg https://www.nuget.org/api/v2/package/Microsoft.ML.OnnxRuntime/1.18.1
+        sudo mkdir -p "$ONNXRUNTIME_ROOT"
+        sudo unzip -o -j onnxruntime.nupkg 'build/native/include/*' -d "$ONNXRUNTIME_ROOT/include"
+        sudo unzip -o -j onnxruntime.nupkg 'runtimes/linux-x64/native/libonnxruntime.so' -d "$ONNXRUNTIME_ROOT/lib"
+        sudo ldconfig "$ONNXRUNTIME_ROOT/lib"
         ```
-
-        NOTE: you will also need to pass `-DONNXRUNTIME_ROOT=/opt/onnxruntime`
-        to `cmake` during the "Configuring Makefiles" step later.
 
 Alternatively if you have VCMI installed from repository or PPA you can use:
 

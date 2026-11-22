@@ -102,7 +102,8 @@ void TextLocalizationContainer::registerString(const std::string & identifierMod
 void TextLocalizationContainer::loadTranslationOverrides(const std::string & modContext, const std::string & language, const JsonNode & config)
 {
 	for(const auto & node : config.Struct())
-		registerStringOverride(modContext, node.first, node.second.String(), language);
+		if(!node.second.String().empty()) // Weblate writes untranslated strings as empty
+			registerStringOverride(modContext, node.first, node.second.String(), language);
 }
 
 bool TextLocalizationContainer::identifierExists(const TextIdentifier & UID) const

@@ -8,6 +8,7 @@
 		"index" :5, 
 		"handler": "artifact",
 		"base" : {
+			"visitableFromTop" : true,
 			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
@@ -25,6 +26,7 @@
 		"index" :34,
 		"handler": "hero",
 		"base" : {
+			"visitableFromTop" : true,
 			"aiValue" : 7500,
 			"removable": true,
 			"base" : {
@@ -42,6 +44,7 @@
 		"index" :54,
 		"handler": "monster",
 		"base" : {
+			"visitableFromTop" : true,
 			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
@@ -58,6 +61,7 @@
 		"index" :76,
 		"handler": "randomResource",
 		"base" : {
+			"visitableFromTop" : true,
 			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
@@ -90,6 +94,7 @@
 		"handler": "resource",
 		"lastReservedIndex" : 6,
 		"base" : {
+			"visitableFromTop" : true,
 			"removable": true,
 			"base" : {
 				"visitableFrom" : [ "+++", "+-+", "+++" ],
@@ -145,6 +150,7 @@
 		"handler": "boat",
 		"lastReservedIndex" : 2,
 		"base" : {
+			"visitableFromTop" : true,
 			"aiValue" : 0,
 			"removable": true,
 			"layer" : "sail",
@@ -186,6 +192,7 @@
 		"handler": "borderGuard",
 		"lastReservedIndex" : 7,
 		"base" : {
+			"visitableFromTop" : true,
 			"aiValue" : 0,
 			"removable": true,
 			"sounds" : {
@@ -209,6 +216,7 @@
 		"handler": "borderGate",
 		"lastReservedIndex" : 7,
 		"base" : {
+			"visitableFromTop" : true,
 			"aiValue" : 0,
 			"sounds" : {
 				"visit" : ["CAVEHEAD"]
@@ -282,6 +290,7 @@
 		"types" : {
 			"sawmill" : {
 				"index" : 0,
+				"name" : "@core.minename.0",
 				"description" : "@core.mineevnt.0",
 				"aiValue" : 1500,
 				"rmg" : {
@@ -295,6 +304,7 @@
 			},
 			"alchemistLab" : {
 				"index" : 1,
+				"name" : "@core.minename.1",
 				"description" : "@core.mineevnt.1",
 				"aiValue" : 3500,
 				"rmg" : {
@@ -308,6 +318,7 @@
 			},
 			"orePit" : {
 				"index" : 2,
+				"name" : "@core.minename.2",
 				"description" : "@core.mineevnt.2",
 				"aiValue" : 1500,
 				"rmg" : {
@@ -321,6 +332,7 @@
 			},
 			"sulfurDune" : {
 				"index" : 3,
+				"name" : "@core.minename.3",
 				"description" : "@core.mineevnt.3",
 				"aiValue" : 3500,
 				"rmg" : {
@@ -334,6 +346,7 @@
 			},
 			"crystalCavern" : {
 				"index" : 4,
+				"name" : "@core.minename.4",
 				"description" : "@core.mineevnt.4",
 				"aiValue" : 3500,
 				"rmg" : {
@@ -348,6 +361,7 @@
 			},
 			"gemPond" : {
 				"index" : 5,
+				"name" : "@core.minename.5",
 				"description" : "@core.mineevnt.5",
 				"aiValue" : 3500,
 				"rmg" : {
@@ -361,6 +375,7 @@
 			},
 			"goldMine" : {
 				"index" : 6,
+				"name" : "@core.minename.6",
 				"description" : "@core.mineevnt.6",
 				"aiValue" : 7000,
 				"rmg" : {
@@ -375,6 +390,7 @@
 			},
 			"abandoned" :	{
 				"index" : 7,
+				"name" : "@core.minename.7",
 				"description" : "@core.mineevnt.7",
 					"guards" : [{
 						"type" : "troglodyte",
@@ -406,6 +422,7 @@
 		"types" : {
 			"mine" : {
 				"index" : 7,
+				"name" : "@core.minename.7",
 				"description" : "@core.mineevnt.7",
 				"battleTerrain": "subterra",
 				"guards" : [{
@@ -425,6 +442,7 @@
 		"handler": "garrison",
 		"lastReservedIndex" : 1,
 		"base" : {
+			"visitableFromTop" : true,
 			"aiValue" : 0,
 			"sounds" : {
 				"visit" : ["MILITARY"]
@@ -450,6 +468,7 @@
 		"handler": "garrison",
 		"lastReservedIndex" : 1,
 		"base" : {
+			"visitableFromTop" : true,
 			"aiValue" : 0,
 			"sounds" : {
 				"visit" : ["MILITARY"]
@@ -571,6 +590,9 @@
 	"spellScroll" : {
 		"index" :93,
 		"handler": "artifact",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : {
 			"object" : {
 				"index" : 0,
@@ -591,6 +613,9 @@
 	"heroPlaceholder"	: {
 		"index" : 214,
 		"handler": "heroPlaceholder",
+		"base" : {
+			"visitableFromTop" : true
+		},
 		"types" : { "object" : { "index" : 0 } }
 	}
 }

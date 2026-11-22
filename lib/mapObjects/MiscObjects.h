@@ -150,7 +150,7 @@ public:
 
 	bool isAbandoned() const;
 	
-	std::shared_ptr<MineInstanceConstructor> getResourceHandler() const;
+	const MineInstanceConstructor * getResourceHandler() const;
 private:
 	using CArmedInstance::CArmedInstance;
 

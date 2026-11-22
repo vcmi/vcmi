@@ -77,11 +77,18 @@ void AObjectTypeHandler::init(LibraryLoadContext & context, const JsonNode & inp
 		rmgInfo.rarity =    static_cast<ui32>(input["rmg"]["rarity"].Float());
 	} // else block is not needed - set in constructor
 
+	// mods made before visitableFromTop was introduced define visitable directions per template
+	bool anyTemplateVisitableFromTop = false;
+
 	for (auto entry : input["templates"].Struct())
 	{
 		entry.second.setType(JsonNode::JsonType::DATA_STRUCT);
 		if (base)
 			JsonUtils::inherit(entry.second, *base);
+
+		const JsonNode & visitableFrom = std::as_const(entry.second)["visitableFrom"];
+		if (!visitableFrom.Vector().empty() && boost::contains(visitableFrom.Vector()[0].String(), "+"))
+			anyTemplateVisitableFromTop = true;
 
 		auto tmpl = std::make_shared<ObjectTemplate>();
 		tmpl->id = Obj(type);
@@ -108,6 +115,7 @@ void AObjectTypeHandler::init(LibraryLoadContext & context, const JsonNode & inp
 	// TODO: Define properties, move them to actual object instance
 	blockVisit = input["blockVisit"].Bool();
 	removable = input["removable"].Bool();
+	visitableFromTop = input["visitableFromTop"].isNull() ? anyTemplateVisitableFromTop : input["visitableFromTop"].Bool();
 
 	if(!input["battleground"].isNull())
 	{
@@ -274,7 +282,12 @@ std::shared_ptr<const ObjectTemplate> AObjectTypeHandler::getOverride(TerrainId 
 	return std::shared_ptr<const ObjectTemplate>(); //empty
 }
 
-const RandomMapInfo & AObjectTypeHandler::getRMGInfo()
+bool AObjectTypeHandler::isVisitableFromTop() const
+{
+	return visitableFromTop;
+}
+
+const RandomMapInfo & AObjectTypeHandler::getRMGInfo() const
 {
 	return rmgInfo;
 }
@@ -284,7 +297,7 @@ std::optional<si32> AObjectTypeHandler::getAiValue() const
 	return aiValue;
 }
 
-bool AObjectTypeHandler::isStaticObject()
+bool AObjectTypeHandler::isStaticObject() const
 {
 	return false; // most of classes are not static
 }

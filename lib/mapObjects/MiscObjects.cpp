@@ -76,11 +76,9 @@ bool CTeamVisited::wasVisited(const TeamID & team) const
 }
 
 //CGMine
-std::shared_ptr<MineInstanceConstructor> CGMine::getResourceHandler() const
+const MineInstanceConstructor * CGMine::getResourceHandler() const
 {
-	const auto & baseHandler = getObjectHandler();
-	const auto & ourHandler = std::dynamic_pointer_cast<MineInstanceConstructor>(baseHandler);
-	return ourHandler;
+	return dynamic_cast<const MineInstanceConstructor *>(&getObjectHandler());
 }
 
 void CGMine::onHeroVisit(IGameEventCallback & gameEvents, const CGHeroInstance * h) const
@@ -182,10 +180,7 @@ ResourceSet CGMine::dailyIncome() const
 
 MetaString CGMine::getObjectName() const
 {
-	if(getResourceHandler()->getResourceType() == GameResID::NONE || getObjTypeIndex() < GameConstants::RESOURCE_QUANTITY)
-		return MetaString::createFromTextID("core.minename", getObjTypeIndex());
-	else
-		return MetaString::createFromTextID(getResourceHandler()->getNameTextID());
+	return MetaString::createFromTextID(getResourceHandler()->getNameTextID());
 }
 
 MetaString CGMine::getHoverText(PlayerColor player) const
@@ -1270,9 +1265,7 @@ BoatId CGShipyard::getBoatType() const
 
 EPathfindingLayer CGShipyard::getBoatLayer() const
 {
-	auto handler = LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, getBoatType());
-	auto boatConstructor = std::dynamic_pointer_cast<const BoatInstanceConstructor>(handler);
-	return boatConstructor->getLayer();
+	return dynamic_cast<const BoatInstanceConstructor &>(LIBRARY->objtypeh->getHandlerFor(Obj::BOAT, getBoatType())).getLayer();
 }
 
 void CGShipyard::getBoatCost(ResourceSet & cost) const
@@ -1417,11 +1410,11 @@ MetaString HillFort::getPopupText(const CGHeroInstance * hero) const
 
 std::string HillFort::getDescriptionToolTip() const
 {
-	return TextIdentifier(getObjectHandler()->getBaseTextID(), "description").get();
+	return TextIdentifier(getObjectHandler().getBaseTextID(), "description").get();
 }
 
 std::string HillFort::getUnavailableUpgradeMessage() const
 {
-	assert(getObjectHandler()->getModScope() != "core");
-	return TextIdentifier(getObjectHandler()->getBaseTextID(), "unavailableUpgradeMessage").get();
+	assert(getObjectHandler().getModScope() != "core");
+	return TextIdentifier(getObjectHandler().getBaseTextID(), "unavailableUpgradeMessage").get();
 }

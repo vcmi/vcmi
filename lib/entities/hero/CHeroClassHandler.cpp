@@ -206,7 +206,7 @@ void CHeroClassHandler::afterLoadFinalization(LibraryLoadContext & context)
 		{
 			JsonNode templ;
 			templ["animation"].String() = hc->imageMapMale;
-			context.lib.objtypeh->getHandlerFor(Obj::HERO, hc->getIndex())->addTemplate(context, templ);
+			context.lib.objtypeh->getHandlerFor(Obj::HERO, hc->getIndex()).addTemplate(context, templ);
 		}
 	}
 }

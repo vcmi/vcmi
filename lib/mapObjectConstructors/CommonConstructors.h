@@ -34,7 +34,7 @@ class IGameRandomizer;
 class CObstacleConstructor : public CDefaultObjectTypeHandler<CGObjectInstance>
 {
 public:
-	bool isStaticObject() override;
+	bool isStaticObject() const override;
 
 };
 
@@ -69,6 +69,7 @@ class DLL_LINKAGE MineInstanceConstructor : public CDefaultObjectTypeHandler<CGM
 	ui32 defaultQuantity;
 	AnimationPath kingdomOverviewImage;
 	JsonNode guards;
+	std::string nameTextID;
 	std::string descriptionTextID;
 	std::string onGuardedMessageTextID;
 	std::string ownedGuardedMessageTextID;
@@ -78,6 +79,7 @@ public:
 
 	GameResID getResourceType() const;
 	ui32 getDefaultQuantity() const;
+	std::string getNameTextID() const override;
 	std::string getDescriptionTextID() const;
 	std::string getOnGuardedMessageTextID() const;
 	std::string getOwnedGuardedMessageTextID() const;
