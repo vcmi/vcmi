@@ -46,9 +46,10 @@ int IImage::height() const
 	return dimensions().y;
 }
 
-SDLImageShared::SDLImageShared(const CDefFile * data, size_t frame, size_t group)
+SDLImageShared::SDLImageShared(const CDefFile * data, const AnimationPath & filename, size_t frame, size_t group)
 	: margins(0, 0),
-	fullSize(0, 0)
+	fullSize(0, 0),
+	sourceName(filename.getOriginalName() + ", group " + std::to_string(group) + ", frame " + std::to_string(frame) + " (" + data->getName(frame, group) + ")")
 {
 	SDLImageLoader loader(this);
 	data->loadFrame(frame, group, loader);
@@ -74,7 +75,8 @@ SDLImageShared::SDLImageShared(SDL_Surface * from, bool premultipliedAlpha)
 
 SDLImageShared::SDLImageShared(const ImagePath & filename, bool optimizeImage)
 	: margins(0, 0),
-	fullSize(0, 0)
+	fullSize(0, 0),
+	sourceName(filename.getOriginalName())
 {
 	surf = BitmapHandler::loadBitmap(filename);
 
@@ -197,7 +199,7 @@ SDL_Texture * SDLImageShared::getTexture(SDL_Palette * palette) const
 		SDL_SetSurfacePalette(surf, originalPalette);
 
 	if(texture == nullptr)
-		logGlobal->error("Failed to create texture from image! %s", SDL_GetError());
+		logGlobal->error("Failed to create texture from image '%s' (%dx%d)! %s", sourceName, surf->w, surf->h, SDL_GetError());
 
 	texturePalette = effectivePalette;
 	texturePaletteVersion = effectivePaletteVersion;
@@ -390,6 +392,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleInteger(int factor, SDL
 std::shared_ptr<SDLImageShared> SDLImageShared::createScaled(const SDLImageShared * from, int integerScaleFactor, EScalingAlgorithm algorithm)
 {
 	auto self = std::make_shared<SDLImageShared>(nullptr);
+	self->sourceName = from->sourceName;
 	self->upscalingInProgress = true;
 
 	auto scaler = std::make_shared<SDLImageScaler>(from->surf, Rect(from->margins, from->fullSize), true);
@@ -475,6 +478,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::scaleTo(const Point & size, 
 		CSDL_Ext::setDefaultColorKey(scaled);//just in case
 
 	auto ret = std::make_shared<SDLImageShared>(scaled);
+	ret->sourceName = sourceName;
 	ret->fullSize = scaler.getResultDimensions().dimensions();
 	ret->margins = scaler.getResultDimensions().topLeft();
 
@@ -566,6 +570,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::horizontalFlip() const
 
 	SDL_Surface * flipped = CSDL_Ext::horizontalFlip(surf);
 	auto ret = std::make_shared<SDLImageShared>(flipped);
+	ret->sourceName = sourceName;
 	ret->fullSize = fullSize;
 	ret->margins.x = margins.x;
 	ret->margins.y = fullSize.y - surf->h - margins.y;
@@ -587,6 +592,7 @@ std::shared_ptr<const ISharedImage> SDLImageShared::verticalFlip() const
 
 	SDL_Surface * flipped = CSDL_Ext::verticalFlip(surf);
 	auto ret = std::make_shared<SDLImageShared>(flipped);
+	ret->sourceName = sourceName;
 	ret->fullSize = fullSize;
 	ret->margins.x = fullSize.x - surf->w - margins.x;
 	ret->margins.y = margins.y;
@@ -612,6 +618,7 @@ std::shared_ptr<SDLImageShared> SDLImageShared::generateCropped(const std::funct
 	SDL_DestroySurface(cut);
 
 	auto ret = std::make_shared<SDLImageShared>(generated);
+	ret->sourceName = sourceName;
 	ret->fullSize = fullSize;
 	ret->margins = optimizer.getResultDimensions().topLeft();
 	ret->optimizeSurface();
