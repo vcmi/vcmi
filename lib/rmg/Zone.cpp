@@ -192,16 +192,6 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const std::
 	});
 }
 
-rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const rmg::Area & searchArea) const
-///connect current tile to any other free tile within searchArea
-{
-	Lock lock(areaMutex);
-	return searchPathLocked(src, onlyStraight, [&searchArea](const int3 & tile)
-	{
-		return searchArea.contains(tile);
-	});
-}
-
 rmg::Path Zone::searchPathLocked(const rmg::Area & src, bool onlyStraight, const rmg::Path::PassableFunction & passable) const
 {
 	auto movementCost = [this](const int3 & s, const int3 & d)

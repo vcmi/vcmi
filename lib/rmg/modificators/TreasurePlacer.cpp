@@ -1049,18 +1049,19 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 			{
 				Zone::Lock lock(zone.areaMutex); //We are going to subtract this area
 
-				auto searchArea = zone.areaPossible().get();
-				searchArea.erase_if([this, &minDistance](const int3& tile) -> bool
+				// Guarded piles, and piles that cannot be removed, are not placed on roads
+				const bool avoidRoads = guarded || !rmgObject.getRemovableArea().contains(rmgObject.getArea());
+				const auto & searchArea = zone.areaPossible().get(); // live area, under our lock
+				auto searchFilter = [this, &minDistance, &roads, avoidRoads](const int3 & tile) -> bool
 				{
-					auto ti = map.getTileInfo(tile);
-					return (ti.getNearestObjectDistance() < minDistance);
-				});
+					if (map.getNearestObjectDistance(tile) < minDistance)
+						return false;
+					return !(avoidRoads && roads.contains(tile));
+				};
 
 				if (guarded)
 				{
-					searchArea.subtract(roads);
-
-					path = manager.placeAndConnectObject(searchArea, rmgObject, [this, &rmgObject, &minDistance, &manager, blockingGuardMaxValue, &roads, &nextToRoad](const int3& tile)
+					path = manager.placeAndConnectObject(searchArea, searchFilter, rmgObject, [this, &rmgObject, &minDistance, &manager, blockingGuardMaxValue, &roads, &nextToRoad](const int3& tile)
 						{
 							// Guard cannot be adjacent to road, but blocked side of an object could be
 							if (rmgObject.getValue() > blockingGuardMaxValue && nextToRoad.contains(rmgObject.getGuardPos()))
@@ -1099,13 +1100,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 				}
 				else
 				{
-					// Do not place non-removable objects on roads
-					if (!rmgObject.getRemovableArea().contains(rmgObject.getArea()))
-					{
-						searchArea.subtract(roads);
-					}
-
-					path = manager.placeAndConnectObject(searchArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE, minDistance);
+					path = manager.placeAndConnectObject(searchArea, searchFilter, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE, minDistance);
 				}
 			}
 
