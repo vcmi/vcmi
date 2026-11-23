@@ -92,7 +92,7 @@ ObjectInfo SeerHutTreasures::createHut(const Rewardable::VisitInfo & reward, ui3
 
 	oi.generateObject = [cb = map.mapInstance->cb, appearance, reward, rewardValue, qap = &qap]() -> std::shared_ptr<CGObjectInstance>
 	{
-		auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, appearance);
+		const auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, appearance);
 		auto hut = std::dynamic_pointer_cast<SeerHut>(factory.create(cb, nullptr));
 		ArtifactID art = qap->drawRandomArtifact();
 		addQuest(*hut, art, reward);
@@ -229,7 +229,7 @@ SeerHutTreasures::Selection SeerHutTreasures::select(std::vector<const CCreature
 	if(!questArtsRemaining)
 		return selection;
 
-	const size_t budget = static_cast<size_t>(questArtsRemaining);
+	const auto budget = static_cast<size_t>(questArtsRemaining);
 	const auto custom = customCandidates(natives, *qap);
 	for(size_t index : pickSlots(custom, budget, zone.getRand()))
 	{

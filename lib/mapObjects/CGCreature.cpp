@@ -775,6 +775,14 @@ void CGCreature::giveReward(IGameEventCallback & gameEvents, const CGHeroInstanc
 	}
 }
 
+const std::vector<std::string> & CGCreature::getCharacterJsonNames()
+{
+	static const std::vector<std::string> names{
+		"compliant", "friendly", "aggressive", "hostile", "savage", "custom"
+	};
+	return names;
+}
+
 //UpgradedStackPresence starts at RANDOM = -1, while serializeEnum indexes from zero
 static const std::vector<std::string> UPGRADED_STACK_PRESENCE_JSON =
 {
@@ -784,7 +792,7 @@ static constexpr int32_t UPGRADED_STACK_PRESENCE_OFFSET = static_cast<int32_t>(C
 
 void CGCreature::serializeJsonOptions(JsonSerializeFormat & handler)
 {
-	handler.serializeEnum("character", initialCharacter, CHARACTER_JSON);
+	handler.serializeEnum("character", initialCharacter, getCharacterJsonNames());
 
 	if(handler.saving)
 	{

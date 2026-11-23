@@ -31,13 +31,17 @@ class TreasureRewardsTest : public Test
 protected:
 	static constexpr ui32 STEP = PandoraBoxTreasures::AMOUNT_STEP;
 
-	CMapGenerator::Config config{};
-
-	void SetUp() override
+	static const CMapGenerator::Config & testConfig()
 	{
-		// Arbitrary test multipliers, deliberately not the config/randomMap.json values
-		config.pandoraMultiplierGold = 1000;
-		config.pandoraMultiplierExperience = 3000;
+		static const CMapGenerator::Config config = []()
+		{
+			CMapGenerator::Config result{};
+			// Arbitrary test multipliers, deliberately not the config/randomMap.json values
+			result.pandoraMultiplierGold = 1000;
+			result.pandoraMultiplierExperience = 3000;
+			return result;
+		}();
+		return config;
 	}
 
 	static JsonNode entry(const std::string & text)
@@ -74,10 +78,10 @@ TEST_F(TreasureRewardsTest, ExperienceOnlyBoxDefaultsToBuiltInPreset)
 	 * Fail: the entry is rejected, or the value or rarity differs from the built-in box.
 	 */
 
-	auto box = TreasureRewards::readCustomReward(entry(R"({ "experience" : )" + std::to_string(2 * STEP) + " }"), PandoraBoxTreasures::rewardDefaults(config));
+	auto box = TreasureRewards::readCustomReward(entry(R"({ "experience" : )" + std::to_string(2 * STEP) + " }"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 
 	ASSERT_TRUE(box.has_value());
-	EXPECT_EQ(box->value, 2u * config.pandoraMultiplierExperience);
+	EXPECT_EQ(box->value, 2u * testConfig().pandoraMultiplierExperience);
 	EXPECT_EQ(box->rarity, PandoraBoxTreasures::EXPERIENCE_RARITY);
 }
 
@@ -91,10 +95,10 @@ TEST_F(TreasureRewardsTest, GoldOnlyBoxDefaultsToBuiltInPreset)
 	 * Fail: the entry is rejected, a default differs, or the box gets a zone limit or factions.
 	 */
 
-	auto box = TreasureRewards::readCustomReward(entry(R"({ "resources" : { "gold" : )" + std::to_string(2 * STEP) + " } }"), PandoraBoxTreasures::rewardDefaults(config));
+	auto box = TreasureRewards::readCustomReward(entry(R"({ "resources" : { "gold" : )" + std::to_string(2 * STEP) + " } }"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 
 	ASSERT_TRUE(box.has_value());
-	EXPECT_EQ(box->value, 2u * config.pandoraMultiplierGold);
+	EXPECT_EQ(box->value, 2u * testConfig().pandoraMultiplierGold);
 	EXPECT_EQ(box->rarity, PandoraBoxTreasures::GOLD_RARITY);
 	EXPECT_EQ(box->zoneLimit, 0u);
 	EXPECT_TRUE(box->zoneFactions.empty());
@@ -108,7 +112,7 @@ TEST_F(TreasureRewardsTest, ExplicitRmgFieldsWinOverDefaults)
 	 * Fail: the preset value or rarity is used although the entry sets its own.
 	 */
 
-	auto box = TreasureRewards::readCustomReward(entry(R"({ "experience" : 5000, "rmg" : { "value" : 12345, "rarity" : 9999, "zoneLimit" : 1 } })"), PandoraBoxTreasures::rewardDefaults(config));
+	auto box = TreasureRewards::readCustomReward(entry(R"({ "experience" : 5000, "rmg" : { "value" : 12345, "rarity" : 9999, "zoneLimit" : 1 } })"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 
 	ASSERT_TRUE(box.has_value());
 	EXPECT_EQ(box->value, 12345u);
@@ -126,11 +130,11 @@ TEST_F(TreasureRewardsTest, BoxWithoutPresetNeedsValueAndRarity)
 	 * Fail: a box without a preset gets a made-up value or rarity, or a complete entry is rejected.
 	 */
 
-	EXPECT_FALSE(TreasureRewards::readCustomReward(entry(R"({ "spells" : [ "fly" ] })"), PandoraBoxTreasures::rewardDefaults(config)).has_value());
-	EXPECT_FALSE(TreasureRewards::readCustomReward(entry(R"({ "spells" : [ "fly" ], "rmg" : { "value" : 8000 } })"), PandoraBoxTreasures::rewardDefaults(config)).has_value());
-	EXPECT_FALSE(TreasureRewards::readCustomReward(entry(R"({ "resources" : { "gold" : 5000, "wood" : 10 } })"), PandoraBoxTreasures::rewardDefaults(config)).has_value());
+	EXPECT_FALSE(TreasureRewards::readCustomReward(entry(R"({ "spells" : [ "fly" ] })"), PandoraBoxTreasures::rewardDefaults(testConfig())).has_value());
+	EXPECT_FALSE(TreasureRewards::readCustomReward(entry(R"({ "spells" : [ "fly" ], "rmg" : { "value" : 8000 } })"), PandoraBoxTreasures::rewardDefaults(testConfig())).has_value());
+	EXPECT_FALSE(TreasureRewards::readCustomReward(entry(R"({ "resources" : { "gold" : 5000, "wood" : 10 } })"), PandoraBoxTreasures::rewardDefaults(testConfig())).has_value());
 
-	auto box = TreasureRewards::readCustomReward(entry(R"({ "spells" : [ "fly" ], "rmg" : { "value" : 8000, "rarity" : 2 } })"), PandoraBoxTreasures::rewardDefaults(config));
+	auto box = TreasureRewards::readCustomReward(entry(R"({ "spells" : [ "fly" ], "rmg" : { "value" : 8000, "rarity" : 2 } })"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 	ASSERT_TRUE(box.has_value());
 	EXPECT_EQ(box->value, 8000u);
 	EXPECT_EQ(box->rarity, 2u);
@@ -147,14 +151,14 @@ TEST_F(TreasureRewardsTest, NativeCreaturesBoxDefaultsToBuiltInCreatureBox)
 	 * Fail: the entry is rejected for lacking value or rarity, or a field is read wrong.
 	 */
 
-	auto box = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1 } } })"), PandoraBoxTreasures::rewardDefaults(config));
+	auto box = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1 } } })"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 	ASSERT_TRUE(box.has_value());
 	EXPECT_EQ(box->nativeCreaturesLevel, 1);
 	EXPECT_EQ(box->nativeCreaturesKind, TreasureRewards::NativeCreatureKind::ALL);
 	EXPECT_EQ(box->rarity, PandoraBoxTreasures::CREATURES_RARITY);
 	EXPECT_FALSE(box->value.has_value());
 
-	auto allLevels = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { }, "value" : 7000, "rarity" : 9999, "zoneLimit" : 100 } })"), PandoraBoxTreasures::rewardDefaults(config));
+	auto allLevels = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { }, "value" : 7000, "rarity" : 9999, "zoneLimit" : 100 } })"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 	ASSERT_TRUE(allLevels.has_value());
 	EXPECT_EQ(allLevels->nativeCreaturesLevel, 0);
 	EXPECT_EQ(allLevels->nativeCreaturesKind, TreasureRewards::NativeCreatureKind::ALL);
@@ -172,9 +176,9 @@ TEST_F(TreasureRewardsTest, NativeCreaturesBoxRejectsOtherContent)
 	 * Fail: the mixed entry is accepted, or a normal box is treated as a native creature box.
 	 */
 
-	EXPECT_FALSE(TreasureRewards::readCustomReward(entry(R"({ "experience" : 5000, "rmg" : { "nativeCreatures" : { "level" : 1 } } })"), PandoraBoxTreasures::rewardDefaults(config)).has_value());
+	EXPECT_FALSE(TreasureRewards::readCustomReward(entry(R"({ "experience" : 5000, "rmg" : { "nativeCreatures" : { "level" : 1 } } })"), PandoraBoxTreasures::rewardDefaults(testConfig())).has_value());
 
-	auto plain = TreasureRewards::readCustomReward(entry(R"({ "experience" : 5000 })"), PandoraBoxTreasures::rewardDefaults(config));
+	auto plain = TreasureRewards::readCustomReward(entry(R"({ "experience" : 5000 })"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 	ASSERT_TRUE(plain.has_value());
 	EXPECT_FALSE(plain->nativeCreaturesLevel.has_value());
 	EXPECT_EQ(plain->nativeCreaturesKind, TreasureRewards::NativeCreatureKind::ALL);
@@ -188,12 +192,12 @@ TEST_F(TreasureRewardsTest, NativeCreaturesKindBasicAndUpgrade)
 	 * Fail: kind is left at ALL, or the entry is rejected.
 	 */
 
-	auto basic = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1, "kind" : "basic" } } })"), PandoraBoxTreasures::rewardDefaults(config));
+	auto basic = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1, "kind" : "basic" } } })"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 	ASSERT_TRUE(basic.has_value());
 	EXPECT_EQ(basic->nativeCreaturesLevel, 1);
 	EXPECT_EQ(basic->nativeCreaturesKind, TreasureRewards::NativeCreatureKind::BASIC);
 
-	auto upgrade = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1, "kind" : "upgrade" } } })"), PandoraBoxTreasures::rewardDefaults(config));
+	auto upgrade = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1, "kind" : "upgrade" } } })"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 	ASSERT_TRUE(upgrade.has_value());
 	EXPECT_EQ(upgrade->nativeCreaturesLevel, 1);
 	EXPECT_EQ(upgrade->nativeCreaturesKind, TreasureRewards::NativeCreatureKind::UPGRADE);
@@ -207,12 +211,12 @@ TEST_F(TreasureRewardsTest, NativeCreaturesKindNeedsLevel)
 	 * Fail: the entry is rejected, or kind is stored without a usable level.
 	 */
 
-	auto noLevel = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "kind" : "upgrade" } } })"), PandoraBoxTreasures::rewardDefaults(config));
+	auto noLevel = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "kind" : "upgrade" } } })"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 	ASSERT_TRUE(noLevel.has_value());
 	EXPECT_EQ(noLevel->nativeCreaturesLevel, 0);
 	EXPECT_EQ(noLevel->nativeCreaturesKind, TreasureRewards::NativeCreatureKind::ALL);
 
-	auto levelZero = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 0, "kind" : "basic" } } })"), PandoraBoxTreasures::rewardDefaults(config));
+	auto levelZero = TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 0, "kind" : "basic" } } })"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 	ASSERT_TRUE(levelZero.has_value());
 	EXPECT_EQ(levelZero->nativeCreaturesLevel, 0);
 	EXPECT_EQ(levelZero->nativeCreaturesKind, TreasureRewards::NativeCreatureKind::ALL);
@@ -227,7 +231,7 @@ TEST_F(TreasureRewardsTest, NativeCreaturesUnknownKindIsRejected)
 	 * Fail: the entry is accepted with ALL, BASIC or UPGRADE.
 	 */
 
-	EXPECT_FALSE(TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 3, "kind" : "elite" } } })"), PandoraBoxTreasures::rewardDefaults(config)).has_value());
+	EXPECT_FALSE(TreasureRewards::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 3, "kind" : "elite" } } })"), PandoraBoxTreasures::rewardDefaults(testConfig())).has_value());
 }
 
 TEST_F(TreasureRewardsTest, SelectNativeCreaturesFiltersCastleLevel1)
@@ -320,7 +324,7 @@ TEST_F(TreasureRewardsTest, ZoneFactionsResolveIncludingNeutral)
 	 * Fail: a name is not resolved, or neutral is dropped.
 	 */
 
-	auto box = TreasureRewards::readCustomReward(entry(R"({ "experience" : 5000, "rmg" : { "zoneFactions" : [ "castle", "neutral" ] } })"), PandoraBoxTreasures::rewardDefaults(config));
+	auto box = TreasureRewards::readCustomReward(entry(R"({ "experience" : 5000, "rmg" : { "zoneFactions" : [ "castle", "neutral" ] } })"), PandoraBoxTreasures::rewardDefaults(testConfig()));
 
 	ASSERT_TRUE(box.has_value());
 	EXPECT_THAT(box->zoneFactions, UnorderedElementsAre(FactionID::CASTLE, FactionID::NEUTRAL));
@@ -417,10 +421,10 @@ TEST_F(TreasureRewardsTest, SeerHutAndPandoraDefaultsAreIndependent)
 	 */
 
 	const auto gold = entry(R"({ "resources" : { "gold" : 7000 } })");
-	auto pandora = TreasureRewards::readCustomReward(gold, PandoraBoxTreasures::rewardDefaults(config));
+	auto pandora = TreasureRewards::readCustomReward(gold, PandoraBoxTreasures::rewardDefaults(testConfig()));
 
 	ASSERT_TRUE(pandora.has_value());
-	EXPECT_EQ(pandora->value, static_cast<ui32>(static_cast<ui64>(7000) * config.pandoraMultiplierGold / STEP));
+	EXPECT_EQ(pandora->value, static_cast<ui32>(static_cast<ui64>(7000) * testConfig().pandoraMultiplierGold / STEP));
 	EXPECT_EQ(pandora->rarity, PandoraBoxTreasures::GOLD_RARITY);
 }
 

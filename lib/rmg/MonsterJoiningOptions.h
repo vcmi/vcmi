@@ -27,8 +27,8 @@ public:
 	std::optional<bool> joinOnlyForMoney;
 
 	void serializeJson(JsonSerializeFormat & handler);
-	/// Per field, override's value when set, otherwise base's
-	static MonsterJoiningOptions merge(const MonsterJoiningOptions & base, const MonsterJoiningOptions & override);
+	/// Per field, overlay's value when set, otherwise base's
+	static MonsterJoiningOptions merge(const MonsterJoiningOptions & base, const MonsterJoiningOptions & overlay);
 	/// Writes initialCharacter (+ agression for CUSTOM), joiningPercentage, joinOnlyForMoney; unset fields get the defaults above
 	void applyTo(CGCreature & guard) const;
 };

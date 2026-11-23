@@ -20,95 +20,63 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../spells/CSpell.h"
 
-#include <functional>
-
 namespace
 {
+ObjectConfig::EObjectCategory getConfigurableCategory(const AObjectTypeHandler & handler)
+{
+	auto info = handler.getObjectInfo();
+
+	if (info->hasGuards())
+		return ObjectConfig::EObjectCategory::CREATURE_BANK;
+	if (info->givesResources())
+		return ObjectConfig::EObjectCategory::RESOURCE;
+	if (info->givesArtifacts())
+		return ObjectConfig::EObjectCategory::RANDOM_ARTIFACT;
+	if (info->givesBonuses())
+		return ObjectConfig::EObjectCategory::BONUS;
+
+	return ObjectConfig::EObjectCategory::OTHER;
+}
+
 ObjectConfig::EObjectCategory getObjectCategory(CompoundMapObjectID id)
 {
+	using EObjectCategory = ObjectConfig::EObjectCategory;
+
+	// Handlers whose category does not depend on the object itself
+	static const std::map<std::string, EObjectCategory> categoryByHandler = {
+		{ "dwelling", EObjectCategory::DWELLING },
+		{ "randomDwelling", EObjectCategory::DWELLING },
+		{ "bank", EObjectCategory::CREATURE_BANK },
+		{ "market", EObjectCategory::OTHER },
+		{ "hillFort", EObjectCategory::OTHER },
+		{ "resource", EObjectCategory::RESOURCE },
+		{ "randomResource", EObjectCategory::RESOURCE },
+		{ "randomArtifact", EObjectCategory::RANDOM_ARTIFACT },
+		{ "denOfThieves", EObjectCategory::OTHER },
+		{ "lighthouse", EObjectCategory::BONUS },
+		{ "magi", EObjectCategory::OTHER },
+		{ "mine", EObjectCategory::RESOURCE_GENERATOR },
+		{ "pandora", EObjectCategory::PANDORAS_BOX },
+		{ "prison", EObjectCategory::OTHER },
+		{ "questArtifact", EObjectCategory::QUEST_ARTIFACT },
+		{ "seerHut", EObjectCategory::SEER_HUT },
+		{ "siren", EObjectCategory::BONUS },
+		{ "obelisk", EObjectCategory::OTHER },
+	};
+
 	auto name = LIBRARY->objtypeh->getObjectHandlerName(id.primaryID);
 
 	if (name == "configurable")
-	{
-		auto & handler = LIBRARY->objtypeh->getHandlerFor(id.primaryID, id.secondaryID);
-		auto info = handler.getObjectInfo();
+		return getConfigurableCategory(LIBRARY->objtypeh->getHandlerFor(id.primaryID, id.secondaryID));
 
-		if (info->hasGuards())
-		{
-			return ObjectConfig::EObjectCategory::CREATURE_BANK;
-		}
-		else if (info->givesResources())
-		{
-			return ObjectConfig::EObjectCategory::RESOURCE;
-		}
-		else if (info->givesArtifacts())
-		{
-			return ObjectConfig::EObjectCategory::RANDOM_ARTIFACT;
-		}
-		else if (info->givesBonuses())
-		{
-			return ObjectConfig::EObjectCategory::BONUS;
-		}
+	if (name == "artifact")
+		return id.primaryID == Obj::SPELL_SCROLL ? EObjectCategory::SPELL_SCROLL : EObjectCategory::QUEST_ARTIFACT;
 
-		return ObjectConfig::EObjectCategory::OTHER;
-	}
-	else if (name == "dwelling" || name == "randomDwelling")
-	{
-		return ObjectConfig::EObjectCategory::DWELLING;
-	}
-	else if (name == "bank")
-		return ObjectConfig::EObjectCategory::CREATURE_BANK;
-	else if (name == "market")
-		return ObjectConfig::EObjectCategory::OTHER;
-	else if (name == "hillFort")
-		return ObjectConfig::EObjectCategory::OTHER;
-	else if (name == "resource" || name == "randomResource")
-		return ObjectConfig::EObjectCategory::RESOURCE;
-	else if (name == "randomArtifact")
-		return ObjectConfig::EObjectCategory::RANDOM_ARTIFACT;
-	else if (name == "artifact")
-	{
-		if (id.primaryID == Obj::SPELL_SCROLL)
-		{
-			return ObjectConfig::EObjectCategory::SPELL_SCROLL;
-		}
-		else
-		{
-			return ObjectConfig::EObjectCategory::QUEST_ARTIFACT;
-		}
-	}
-	else if (name == "denOfThieves")
-		return ObjectConfig::EObjectCategory::OTHER;
-	else if (name == "lighthouse")
-	{
-		return ObjectConfig::EObjectCategory::BONUS;
-	}
-	else if (name == "magi")
-	{
-		return ObjectConfig::EObjectCategory::OTHER;
-	}
-	else if (name == "mine")
-		return ObjectConfig::EObjectCategory::RESOURCE_GENERATOR;
-	else if (name == "pandora")
-		return ObjectConfig::EObjectCategory::PANDORAS_BOX;
-	else if (name == "prison")
-	{
-		return ObjectConfig::EObjectCategory::OTHER;
-	}
-	else if (name == "questArtifact")
-	{
-		return ObjectConfig::EObjectCategory::QUEST_ARTIFACT;
-	}
-	else if (name == "seerHut")
-	{
-		return ObjectConfig::EObjectCategory::SEER_HUT;
-	}
-	else if (name == "siren")
-		return ObjectConfig::EObjectCategory::BONUS;
-	else if (name == "obelisk")
-		return ObjectConfig::EObjectCategory::OTHER;
+	auto category = categoryByHandler.find(name);
+	if (category != categoryByHandler.end())
+		return category->second;
 
-	return ObjectConfig::EObjectCategory::NONE;
+	return EObjectCategory::NONE;
 }
 
 bool categoryContains(const std::vector<ObjectConfig::EObjectCategory> & categories, ObjectConfig::EObjectCategory category)
@@ -133,7 +101,8 @@ bool bannedObjectsResolve(const std::map<CompoundMapObjectID, bool> & bans, cons
 	return false;
 }
 
-void serializeRawJsonList(JsonSerializeFormat & handler, const std::string & key, const std::vector<JsonNode> & stored, const std::function<void(const JsonNode &)> & addOnLoad)
+template<typename AddOnLoad>
+void serializeRawJsonList(JsonSerializeFormat & handler, const std::string & key, const std::vector<JsonNode> & stored, AddOnLoad && addOnLoad)
 {
 	if(handler.saving)
 	{
@@ -670,44 +639,44 @@ bool ObjectConfig::isObjectBanned(const CompoundMapObjectID & objid) const
 	return false;
 }
 
-ObjectConfig ObjectConfig::merge(const ObjectConfig & base, const ObjectConfig & override)
+ObjectConfig ObjectConfig::merge(const ObjectConfig & base, const ObjectConfig & overlay)
 {
 	ObjectConfig result = base;
 
-	for(auto category : override.bannedObjectCategories)
+	for(auto category : overlay.bannedObjectCategories)
 	{
 		if(!categoryContains(result.bannedObjectCategories, category))
 			result.bannedObjectCategories.push_back(category);
 	}
 
-	for(const auto & [id, banned] : override.bannedObjects)
+	for(const auto & [id, banned] : overlay.bannedObjects)
 		result.bannedObjects[id] = banned;
 
 	std::set<CompoundMapObjectID> overrideIds;
-	for(const auto & object : override.customObjects)
+	for(const auto & object : overlay.customObjects)
 		overrideIds.insert(object.getCompoundID());
 
 	std::vector<ObjectInfo> mergedCustom;
 	for(const auto & object : base.customObjects)
 	{
 		auto id = object.getCompoundID();
-		if(overrideIds.count(id) || bannedObjectsResolve(override.bannedObjects, id))
+		if(overrideIds.count(id) || bannedObjectsResolve(overlay.bannedObjects, id))
 			continue;
 		mergedCustom.push_back(object);
 	}
-	for(const auto & object : override.customObjects)
+	for(const auto & object : overlay.customObjects)
 		mergedCustom.push_back(object);
 	result.customObjects = std::move(mergedCustom);
 
-	for(const auto & [id, info] : override.requiredObjects)
+	for(const auto & [id, info] : overlay.requiredObjects)
 		result.requiredObjects[id] = info;
 
 	// Template boxes first, then zone boxes; bans never remove them
-	vstd::concatenate(result.pandoraBoxes, override.pandoraBoxes);
-	vstd::concatenate(result.seerHuts, override.seerHuts);
+	vstd::concatenate(result.pandoraBoxes, overlay.pandoraBoxes);
+	vstd::concatenate(result.seerHuts, overlay.seerHuts);
 
 	std::set<SpellID> overrideSpells;
-	for(const auto & scroll : override.spellScrolls)
+	for(const auto & scroll : overlay.spellScrolls)
 		overrideSpells.insert(scroll.spell);
 
 	std::vector<SpellScrollInfo> mergedScrolls;
@@ -716,11 +685,11 @@ ObjectConfig ObjectConfig::merge(const ObjectConfig & base, const ObjectConfig &
 		if(!overrideSpells.count(scroll.spell))
 			mergedScrolls.push_back(scroll);
 	}
-	for(const auto & scroll : override.spellScrolls)
+	for(const auto & scroll : overlay.spellScrolls)
 		mergedScrolls.push_back(scroll);
 	result.spellScrolls = std::move(mergedScrolls);
 
-	for(const auto & [spell, info] : override.requiredScrolls)
+	for(const auto & [spell, info] : overlay.requiredScrolls)
 		result.requiredScrolls[spell] = info;
 
 	return result;

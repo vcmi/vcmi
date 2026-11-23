@@ -33,7 +33,7 @@ ui32 amountValue(ui32 amount, int multiplier)
 
 std::shared_ptr<CGPandoraBox> createPandoraBox(IGameInfoCallback * cb)
 {
-	auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
+	const auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 	return std::dynamic_pointer_cast<CGPandoraBox>(factory.create(cb, nullptr));
 }
 

@@ -51,7 +51,7 @@ protected:
 		return CompoundMapObjectID(Obj::RANDOM_DWELLING_LVL, level);
 	}
 
-	ObjectInfo makeCustomObject(CompoundMapObjectID id, ui32 value)
+	static ObjectInfo makeCustomObject(CompoundMapObjectID id, ui32 value)
 	{
 		ObjectInfo info(id);
 		info.value = value;
@@ -64,7 +64,7 @@ protected:
 		return JsonNode(text.data(), text.size(), "ObjectConfigTest");
 	}
 
-	const ObjectInfo * findConfigured(const ObjectConfig & config, CompoundMapObjectID id)
+	static const ObjectInfo * findConfigured(const ObjectConfig & config, CompoundMapObjectID id)
 	{
 		for(const auto & object : config.getConfiguredObjects())
 		{
@@ -102,7 +102,7 @@ protected:
 		return saved;
 	}
 
-	const ObjectConfig::SpellScrollInfo * findScroll(const ObjectConfig & config, SpellID spell)
+	static const ObjectConfig::SpellScrollInfo * findScroll(const ObjectConfig & config, SpellID spell)
 	{
 		for(const auto & scroll : config.getSpellScrolls())
 		{
@@ -767,11 +767,11 @@ TEST_F(ObjectConfigTest, DefaultScrollValueBySpellLevel)
 	 * Fail: the index is 0-based, the wrong spell level is used, or a missing level throws.
 	 */
 
-	const std::vector<int> fiveValues{500, 2000, 3000, 4000, 5000};
+	const std::vector fiveValues{500, 2000, 3000, 4000, 5000};
 	EXPECT_EQ(ObjectConfig::getDefaultScrollValue(spellId("magicArrow"), fiveValues), 500u);
 	EXPECT_EQ(ObjectConfig::getDefaultScrollValue(spellId("townPortal"), fiveValues), 4000u);
 
-	const std::vector<int> threeValues{500, 2000, 3000};
+	const std::vector threeValues{500, 2000, 3000};
 	EXPECT_EQ(ObjectConfig::getDefaultScrollValue(spellId("townPortal"), threeValues), 0u);
 }
 

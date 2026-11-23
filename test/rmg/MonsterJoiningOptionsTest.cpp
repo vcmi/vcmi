@@ -61,21 +61,21 @@ TEST_F(MonsterJoiningOptionsTest, ApplyToAllFieldsIncludingCustomAggression)
 TEST_F(MonsterJoiningOptionsTest, MergeTakesOverridePerFieldAndKeepsBase)
 {
 	/*
-	 * Asserts: merge copies a set override field and keeps a base field the override
+	 * Asserts: merge copies a set overlay field and keeps a base field the overlay
 	 * leaves unset.
-	 * Pass: character and aggression from override, joiningPercentage and joinOnlyForMoney from base.
-	 * Fail: unset override fields wipe the base, or set override fields are ignored.
+	 * Pass: character and aggression from overlay, joiningPercentage and joinOnlyForMoney from base.
+	 * Fail: unset overlay fields wipe the base, or set overlay fields are ignored.
 	 */
 	rmg::MonsterJoiningOptions base;
 	base.character = CGCreature::Character::HOSTILE;
 	base.joiningPercentage = 50;
 	base.joinOnlyForMoney = true;
 
-	rmg::MonsterJoiningOptions override;
-	override.character = CGCreature::Character::CUSTOM;
-	override.aggression = 7;
+	rmg::MonsterJoiningOptions overlay;
+	overlay.character = CGCreature::Character::CUSTOM;
+	overlay.aggression = 7;
 
-	auto merged = rmg::MonsterJoiningOptions::merge(base, override);
+	auto merged = rmg::MonsterJoiningOptions::merge(base, overlay);
 
 	EXPECT_EQ(merged.character, CGCreature::Character::CUSTOM);
 	EXPECT_EQ(merged.aggression, static_cast<int8_t>(7));

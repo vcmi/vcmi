@@ -30,9 +30,8 @@ public:
 		CUSTOM = 5
 	};
 
-	inline static const std::vector<std::string> CHARACTER_JSON{
-		"compliant", "friendly", "aggressive", "hostile", "savage", "custom"
-	};
+	/// JSON names of Character values, indexed by value
+	static const std::vector<std::string> & getCharacterJsonNames();
 
 	enum class UpgradedStackPresence : int8_t {
 		RANDOM = -1,
