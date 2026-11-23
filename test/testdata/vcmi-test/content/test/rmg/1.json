@@ -43,6 +43,15 @@
 					}
 				}
 			],
+			"seerHuts": [
+				{
+					"experience": 7000,
+					"rmg": {
+						"rarity": 9999,
+						"zoneLimit": 1
+					}
+				}
+			],
 			"requiredObjects": {
 				"core:spellScroll": {
 					"core:dimensionDoor": {
@@ -117,6 +126,22 @@
 					"bannedObjects": {},
 					"commonObjects": [],
 					"pandoraBoxes": [
+						{
+							"spells": [
+								"townPortal",
+								"fly"
+							],
+							"rmg": {
+								"value": 15000,
+								"rarity": 2,
+								"zoneFactions": [
+									"castle",
+									"neutral"
+								]
+							}
+						}
+					],
+					"seerHuts": [
 						{
 							"spells": [
 								"townPortal",

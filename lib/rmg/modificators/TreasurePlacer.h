@@ -14,13 +14,18 @@
 #include "../Zone.h"
 #include "../CMapGenerator.h"
 #include "../../mapObjects/ObjectTemplate.h"
+#include "../../rewardable/Configuration.h"
+
+#include <vstd/RNG.h>
 
 class CGObjectInstance;
 class CGPandoraBox;
 class IGameInfoCallback;
 class ObjectManager;
+class QuestArtifactPlacer;
 class RmgMap;
 class CMapGenerator;
+class SeerHut;
 struct RandomMapInfo;
 
 class TreasurePlacer: public Modificator
@@ -34,6 +39,9 @@ public:
 	static constexpr ui16 PANDORA_EXPERIENCE_RARITY = 20;
 	static constexpr ui16 PANDORA_CREATURES_RARITY = 3;
 	static constexpr ui16 PANDORA_SPELLS_RARITY = 2;
+	static constexpr ui16 SEER_HUT_GOLD_RARITY = 10;
+	static constexpr ui16 SEER_HUT_EXPERIENCE_RARITY = 10;
+	static constexpr ui16 SEER_HUT_CREATURES_RARITY = 3;
 
 	enum class NativeCreatureKind { ALL, BASIC, UPGRADE };
 
@@ -49,6 +57,7 @@ public:
 		ui16 creaturesRarity = 0;
 	};
 	static CustomRewardDefaults pandoraRewardDefaults(const CMapGenerator::Config & config);
+	static CustomRewardDefaults seerHutRewardDefaults();
 
 	/// "rmg" block of a customObjects.pandoraBoxes or seerHuts entry
 	struct CustomReward
@@ -66,6 +75,12 @@ public:
 	static std::vector<const CCreature *> selectNativeCreatures(const CustomReward & reward, const std::vector<const CCreature *> & natives);
 	/// the entry without "rmg", loaded as Pandora box map options exactly like the .vmap loader does
 	static std::shared_ptr<CGPandoraBox> loadPandoraBoxOptions(const JsonNode & entry, IGameInfoCallback * cb);
+	/// the single reward of an entry's content; nullopt (and an error log) unless it loads to exactly one
+	static std::optional<Rewardable::VisitInfo> readSingleReward(const JsonNode & entry, IGameInfoCallback * cb);
+	/// gives the hut its one quest: bring artifact, receive reward (stored in Quest::reward)
+	static void addSeerHutQuest(SeerHut & hut, ArtifactID artifact, const Rewardable::VisitInfo & reward);
+	/// candidate indices for slots, weighted by probability, each candidate at most maxPerZone times; stops early when every candidate is used up
+	static std::vector<size_t> pickSeerHutSlots(const std::vector<ObjectInfo> & candidates, size_t slots, vstd::RNG & rng);
 
 	void process() override;
 	void init() override;
@@ -95,6 +110,9 @@ public:
 	void addCustomSpellScrolls();
 	std::shared_ptr<CGPandoraBox> createPandoraBox() const;
 	void addSeerHuts();
+	ObjectInfo createSeerHut(const Rewardable::VisitInfo & reward, ui32 rewardValue, int appearance, QuestArtifactPlacer & qap);
+	std::optional<ObjectInfo> createCreatureSeerHut(const CCreature * creature, int appearance, QuestArtifactPlacer & qap);
+	void addCustomSeerHuts();
 	void addPrisons();
 	void addScrolls();
 	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
@@ -144,4 +162,5 @@ protected:
 
 	std::vector<const CCreature *> creatures; //native creatures for this zone
 	std::vector<int> tierValues;
+	std::vector<ObjectInfo> customSeerHuts; // filled by addSeerHuts, so bans cannot remove them
 };

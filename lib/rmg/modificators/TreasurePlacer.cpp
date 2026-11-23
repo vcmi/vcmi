@@ -42,6 +42,8 @@
 
 #include <vstd/RNG.h>
 
+#include <limits>
+
 namespace
 {
 /// Value of a gold or experience Pandora box: the randomMap.json multiplier is the value of one PANDORA_AMOUNT_STEP
@@ -78,6 +80,7 @@ void TreasurePlacer::process()
 	objects.patchWithZoneConfig(zone, this);
 	addCustomPandoraBoxes();
 	addCustomSpellScrolls();
+	addCustomSeerHuts();
 
 	auto * m = zone.getModificator<ObjectManager>();
 	if(m)
@@ -382,6 +385,19 @@ TreasurePlacer::CustomRewardDefaults TreasurePlacer::pandoraRewardDefaults(const
 	return defaults;
 }
 
+TreasurePlacer::CustomRewardDefaults TreasurePlacer::seerHutRewardDefaults()
+{
+	CustomRewardDefaults defaults;
+	defaults.listName = "seerHuts";
+	defaults.amountStep = 1;
+	defaults.goldMultiplier = 1;
+	defaults.experienceMultiplier = 1;
+	defaults.goldRarity = SEER_HUT_GOLD_RARITY;
+	defaults.experienceRarity = SEER_HUT_EXPERIENCE_RARITY;
+	defaults.creaturesRarity = SEER_HUT_CREATURES_RARITY;
+	return defaults;
+}
+
 std::optional<TreasurePlacer::CustomReward> TreasurePlacer::readCustomReward(const JsonNode & entry, const CustomRewardDefaults & defaults)
 {
 	std::set<std::string> contentKeys;
@@ -512,6 +528,58 @@ std::shared_ptr<CGPandoraBox> TreasurePlacer::loadPandoraBoxOptions(const JsonNo
 	JsonDeserializer handler(nullptr, resolver, objectJson);
 	static_cast<CGObjectInstance &>(*obj).serializeJson(handler);
 	return obj;
+}
+
+std::optional<Rewardable::VisitInfo> TreasurePlacer::readSingleReward(const JsonNode & entry, IGameInfoCallback * cb)
+{
+	auto box = loadPandoraBoxOptions(entry, cb);
+	if(!box || box->configuration.info.size() != 1)
+	{
+		logGlobal->error("RMG seerHuts entry is ignored: content must load to exactly one reward: %s", entry.toCompactString());
+		return std::nullopt;
+	}
+	return box->configuration.info.front();
+}
+
+void TreasurePlacer::addSeerHutQuest(SeerHut & hut, ArtifactID artifact, const Rewardable::VisitInfo & reward)
+{
+	Quest & quest = hut.addQuest();
+	quest.mission.artifacts.push_back(artifact);
+	quest.reward = reward;
+}
+
+std::vector<size_t> TreasurePlacer::pickSeerHutSlots(const std::vector<ObjectInfo> & candidates, size_t slots, vstd::RNG & rng)
+{
+	std::vector<size_t> picks;
+	if(candidates.empty() || slots == 0)
+		return picks;
+
+	std::vector<ui32> remaining(candidates.size());
+	for(size_t i = 0; i < candidates.size(); ++i)
+		remaining[i] = candidates[i].maxPerZone;
+
+	for(size_t n = 0; n < slots; ++n)
+	{
+		std::vector<int64_t> weights(candidates.size(), 0);
+		int64_t total = 0;
+		for(size_t i = 0; i < candidates.size(); ++i)
+		{
+			if(!remaining[i])
+				continue;
+			weights[i] = candidates[i].probability;
+			total += weights[i];
+		}
+		if(total <= 0)
+			break;
+
+		const int64_t index = RandomGeneratorUtil::nextItemWeighted(weights, rng);
+		if(index < 0)
+			break;
+
+		picks.push_back(static_cast<size_t>(index));
+		--remaining[index];
+	}
+	return picks;
 }
 
 void TreasurePlacer::addCustomPandoraBoxes()
@@ -771,153 +839,193 @@ void TreasurePlacer::addPandoraBoxesWithSpells()
 		addObjectToRandomPool(oi);
 }
 
+ObjectInfo TreasurePlacer::createSeerHut(const Rewardable::VisitInfo & reward, ui32 rewardValue, int appearance, QuestArtifactPlacer & qap)
+{
+	ObjectInfo oi(Obj::SEER_HUT, appearance);
+	oi.value = static_cast<ui32>(generator.getConfig().seerHutValue);
+	oi.maxPerZone = 1;
+	oi.setTemplates(Obj::SEER_HUT, appearance, zone.getTerrainType());
+
+	oi.generateObject = [cb = map.mapInstance->cb, appearance, reward, rewardValue, qap = &qap]() -> std::shared_ptr<CGObjectInstance>
+	{
+		auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, appearance);
+		auto hut = std::dynamic_pointer_cast<SeerHut>(factory.create(cb, nullptr));
+		ArtifactID art = qap->drawRandomArtifact();
+		addSeerHutQuest(*hut, art, reward);
+		qap->addQuestArtifact(art, rewardValue);
+		return hut;
+	};
+	oi.destroyObject = [qap = &qap](CGObjectInstance & obj)
+	{
+		auto & seer = dynamic_cast<SeerHut &>(obj);
+		ArtifactID artid = seer.getQuest().mission.artifacts.front();
+		qap->addRandomArtifact(artid);
+		qap->removeQuestArtifact(artid);
+	};
+	return oi;
+}
+
+std::optional<ObjectInfo> TreasurePlacer::createCreatureSeerHut(const CCreature * creature, int appearance, QuestArtifactPlacer & qap)
+{
+	int creaturesAmount = creatureToCount(creature);
+	if(!creaturesAmount)
+		return std::nullopt;
+
+	const auto rewardValue = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount())) - 4000) / 3);
+	if(rewardValue > zone.getMaxTreasureValue())
+		return std::nullopt;
+
+	Rewardable::VisitInfo reward;
+	reward.reward.creatures.emplace_back(creature->getId(), creaturesAmount);
+	reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+
+	auto oi = createSeerHut(reward, rewardValue, appearance, qap);
+	if(oi.templates.empty())
+		return std::nullopt;
+	oi.probability = SEER_HUT_CREATURES_RARITY;
+	return oi;
+}
+
+void TreasurePlacer::addCustomSeerHuts()
+{
+	for(const auto & oi : customSeerHuts)
+		addObjectToRandomPool(oi);
+}
+
 void TreasurePlacer::addSeerHuts()
 {
-	//Seer huts with creatures or generic rewards
+	if(zone.getConnectedZoneIds().empty())
+		return;
 
-	ObjectInfo oi(Obj::SEER_HUT, 0);
-	const auto seerHutPlacementValue = static_cast<ui32>(generator.getConfig().seerHutValue);
+	auto * qap = zone.getModificator<QuestArtifactPlacer>();
+	if(!qap)
+		return;
 
-	if(zone.getConnectedZoneIds().size()) //Unlikely, but...
+	const int questArtsRemaining = qap->getMaxQuestArtifactCount();
+	if(!questArtsRemaining)
+		return;
+
+	const size_t budget = static_cast<size_t>(questArtsRemaining);
+	std::vector<ObjectInfo> customCandidates;
+	const auto customObjects = zone.getCustomObjects();
+	for(const auto & entry : customObjects.getSeerHuts())
 	{
-		auto * qap = zone.getModificator<QuestArtifactPlacer>();
-		if(!qap)
-		{
-			return; //TODO: throw?
-		}
-		
-		const int questArtsRemaining = qap->getMaxQuestArtifactCount();
-		if (!questArtsRemaining)
-		{
-			return;
-		}
-		
-		//Generate Seer Hut one by one. Duplicated oi possible and should work fine.
-		oi.maxPerZone = 1;
-		oi.value = seerHutPlacementValue;
+		auto parsed = readCustomReward(entry, seerHutRewardDefaults());
+		if(!parsed)
+			continue;
+		if(!parsed->zoneFactions.empty() && !parsed->zoneFactions.count(zone.getTownType()))
+			continue;
 
-		std::vector<ObjectInfo> possibleSeerHuts;
-		//14 creatures per town + 4 for each of gold / exp reward
-		possibleSeerHuts.reserve(14 + 4 + 4);
-		
-		RandomGeneratorUtil::randomShuffle(creatures, zone.getRand());
+		const ui32 zoneLimit = parsed->zoneLimit ? parsed->zoneLimit : std::numeric_limits<ui32>::max();
 
-		auto setRandomArtifact = [qap](SeerHut * obj, ui32 rewardValue)
+		if(parsed->nativeCreaturesLevel)
 		{
-			ArtifactID artid = qap->drawRandomArtifact();
-			obj->addQuest();
-			obj->getQuest().mission.artifacts.push_back(artid);
-			qap->addQuestArtifact(artid, rewardValue);
-		};
-		auto destroyObject = [qap](CGObjectInstance & obj)
-		{
-			auto & seer = dynamic_cast<SeerHut &>(obj);
-			// Artifact can be used again
-			ArtifactID artid = seer.getQuest().mission.artifacts.front();
-			qap->addRandomArtifact(artid);
-			qap->removeQuestArtifact(artid);
-		};
-
-		for(int i = 0; i < static_cast<int>(creatures.size()); i++)
-		{
-			auto * creature = creatures[i];
-			int creaturesAmount = creatureToCount(creature);
-			
-			if(!creaturesAmount)
-				continue;
-			
-			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
-			
-			// FIXME: Remove duplicated code for gold, exp and creaure reward
-			const auto rewardValue = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount())) - 4000) / 3);
-
-			if (rewardValue > zone.getMaxTreasureValue())
+			for(const auto * creature : selectNativeCreatures(*parsed, creatures))
 			{
-				continue;
+				if(!creatureToCount(creature))
+					continue;
+
+				int appearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
+				std::optional<ObjectInfo> oi;
+				if(parsed->value)
+				{
+					if(*parsed->value > zone.getMaxTreasureValue())
+						continue;
+					Rewardable::VisitInfo reward;
+					reward.reward.creatures.emplace_back(creature->getId(), creatureToCount(creature));
+					reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+					oi = createSeerHut(reward, *parsed->value, appearance, *qap);
+					if(oi->templates.empty())
+						continue;
+				}
+				else
+				{
+					oi = createCreatureSeerHut(creature, appearance, *qap);
+					if(!oi)
+						continue;
+				}
+				oi->probability = parsed->rarity;
+				oi->maxPerZone = zoneLimit;
+				customCandidates.push_back(*oi);
 			}
-
-			oi.generateObject = [cb=map.mapInstance->cb, creature, creaturesAmount, randomAppearance, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
-			{
-				auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<SeerHut>(factory.create(cb, nullptr));
-				
-				Rewardable::VisitInfo reward;
-				reward.reward.creatures.emplace_back(creature->getId(), creaturesAmount);
-				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-				obj->configuration.info.push_back(reward);
-				setRandomArtifact(obj.get(), rewardValue);
-				
-				return obj;
-			};
-			oi.destroyObject = destroyObject;
-			oi.probability = 3;
-			oi.setTemplates(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			if(!oi.templates.empty())
-				possibleSeerHuts.push_back(oi);
-		}
-		
-		static const int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
-		for(int i = 0; i < seerLevels; i++) //seems that code for exp and gold reward is similar
-		{
-			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
-			
-			oi.setTemplates(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			const auto rewardValue = static_cast<ui32>(generator.getConfig().questRewardValues[i]);
-			if (rewardValue > zone.getMaxTreasureValue())
-			{
-				continue;
-			}
-
-			oi.probability = 10;
-			oi.maxPerZone = 1;
-			
-			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
-			{
-				auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<SeerHut>(factory.create(map.mapInstance->cb, nullptr));
-				
-				Rewardable::VisitInfo reward;
-				reward.reward.heroExperience = generator.getConfig().questRewardValues[i];
-				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-				obj->configuration.info.push_back(reward);
-				setRandomArtifact(obj.get(), rewardValue);
-
-				return obj;
-			};
-			oi.destroyObject = destroyObject;
-			
-			if(!oi.templates.empty())
-				possibleSeerHuts.push_back(oi);
-			
-			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
-			{
-				auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<SeerHut>(factory.create(map.mapInstance->cb, nullptr));
-				
-				Rewardable::VisitInfo reward;
-				reward.reward.resources[EGameResID::GOLD] = generator.getConfig().questRewardValues[i];
-				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-				obj->configuration.info.push_back(reward);
-				
-				setRandomArtifact(obj.get(), rewardValue);
-				
-				return obj;
-			};
-			oi.destroyObject = destroyObject;
-			
-			if(!oi.templates.empty())
-				possibleSeerHuts.push_back(oi);
+			continue;
 		}
 
-		if (possibleSeerHuts.empty())
-		{
-			return;
-		}
-		for (size_t i = 0; i < questArtsRemaining; i++)
-		{
-			addObjectToRandomPool(*RandomGeneratorUtil::nextItem(possibleSeerHuts, zone.getRand()));
-		}
+		auto visit = readSingleReward(entry, map.mapInstance->cb);
+		if(!visit || !parsed->value)
+			continue;
+		if(*parsed->value > zone.getMaxTreasureValue())
+			continue;
+
+		int appearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
+		auto oi = createSeerHut(*visit, *parsed->value, appearance, *qap);
+		if(oi.templates.empty())
+			continue;
+		oi.probability = parsed->rarity;
+		oi.maxPerZone = zoneLimit;
+		customCandidates.push_back(oi);
 	}
+
+	customSeerHuts.clear();
+	for(size_t index : pickSeerHutSlots(customCandidates, budget, zone.getRand()))
+	{
+		ObjectInfo copy = customCandidates[index];
+		copy.maxPerZone = 1;
+		customSeerHuts.push_back(std::move(copy));
+	}
+
+	const size_t remaining = budget - customSeerHuts.size();
+	if(remaining == 0)
+		return;
+
+	std::vector<ObjectInfo> possibleSeerHuts;
+	possibleSeerHuts.reserve(14 + 4 + 4);
+
+	RandomGeneratorUtil::randomShuffle(creatures, zone.getRand());
+
+	for(int i = 0; i < static_cast<int>(creatures.size()); i++)
+	{
+		auto * creature = creatures[i];
+		if(!creatureToCount(creature))
+			continue;
+
+		int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
+		auto oi = createCreatureSeerHut(creature, randomAppearance, *qap);
+		if(!oi)
+			continue;
+		possibleSeerHuts.push_back(*oi);
+	}
+
+	static const int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
+	for(int i = 0; i < seerLevels; i++)
+	{
+		int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
+		const auto rewardValue = static_cast<ui32>(generator.getConfig().questRewardValues[i]);
+		if(rewardValue > zone.getMaxTreasureValue())
+			continue;
+
+		Rewardable::VisitInfo expReward;
+		expReward.reward.heroExperience = generator.getConfig().questRewardValues[i];
+		expReward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		auto expHut = createSeerHut(expReward, rewardValue, randomAppearance, *qap);
+		expHut.probability = SEER_HUT_EXPERIENCE_RARITY;
+		if(!expHut.templates.empty())
+			possibleSeerHuts.push_back(expHut);
+
+		Rewardable::VisitInfo goldReward;
+		goldReward.reward.resources[EGameResID::GOLD] = generator.getConfig().questRewardValues[i];
+		goldReward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+		auto goldHut = createSeerHut(goldReward, rewardValue, randomAppearance, *qap);
+		goldHut.probability = SEER_HUT_GOLD_RARITY;
+		if(!goldHut.templates.empty())
+			possibleSeerHuts.push_back(goldHut);
+	}
+
+	if(possibleSeerHuts.empty())
+		return;
+
+	for(size_t i = 0; i < remaining; i++)
+		addObjectToRandomPool(*RandomGeneratorUtil::nextItem(possibleSeerHuts, zone.getRand()));
 }
 
 void TreasurePlacer::setMaxPrisons(size_t count)

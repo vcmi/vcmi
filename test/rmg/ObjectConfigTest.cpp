@@ -408,6 +408,98 @@ TEST_F(ObjectConfigTest, PandoraBoxesRoundTripUnchanged)
 	EXPECT_FALSE(savedEmpty.Struct().count("pandoraBoxes"));
 }
 
+TEST_F(ObjectConfigTest, SeerHutsConcatenateBaseFirst)
+{
+	/*
+	 * Asserts: seerHuts are concatenated by merge, never replaced: template (base) entries
+	 * first, then zone (override) entries, even when two entries are identical.
+	 * Pass: the merged list is base hut 1, base hut 2, then the zone hut, in that order.
+	 * Fail: the zone list replaces the template list, entries are deduplicated, or the order differs.
+	 */
+
+	const auto experienceHut = pandoraBox(R"({ "experience" : 7000 })");
+	const auto goldHut = pandoraBox(R"({ "resources" : { "gold" : 10000 } })");
+
+	ObjectConfig base;
+	base.addSeerHut(experienceHut);
+	base.addSeerHut(goldHut);
+
+	ObjectConfig zone;
+	zone.addSeerHut(experienceHut);
+
+	auto merged = ObjectConfig::merge(base, zone);
+
+	EXPECT_THAT(merged.getSeerHuts(), ElementsAre(experienceHut, goldHut, experienceHut));
+}
+
+TEST_F(ObjectConfigTest, SeerHutsSurviveZoneBans)
+{
+	/*
+	 * Asserts: no kind of zone ban removes inherited seerHuts: the seerHut category, the
+	 * "all" category, or an object ban on the seer hut type.
+	 * Pass: after each merge the template hut is still the only entry.
+	 * Fail: a ban drops the inherited hut, as bans do for commonObjects.
+	 */
+
+	const auto experienceHut = pandoraBox(R"({ "experience" : 7000 })");
+
+	ObjectConfig base;
+	base.addSeerHut(experienceHut);
+
+	ObjectConfig categoryZone;
+	categoryZone.addBannedCategory(ObjectConfig::EObjectCategory::SEER_HUT);
+	EXPECT_THAT(ObjectConfig::merge(base, categoryZone).getSeerHuts(), ElementsAre(experienceHut));
+
+	ObjectConfig allZone;
+	allZone.addBannedCategory(ObjectConfig::EObjectCategory::ALL);
+	EXPECT_THAT(ObjectConfig::merge(base, allZone).getSeerHuts(), ElementsAre(experienceHut));
+
+	ObjectConfig objectZone;
+	objectZone.setObjectBanned(CompoundMapObjectID(Obj::SEER_HUT, -1), true);
+	EXPECT_THAT(ObjectConfig::merge(base, objectZone).getSeerHuts(), ElementsAre(experienceHut));
+}
+
+TEST_F(ObjectConfigTest, SeerHutsRoundTripUnchanged)
+{
+	/*
+	 * Asserts: seerHuts entries are stored as written (no parsing at template load) and saved
+	 * back unchanged, including the rmg block and the full "rewardable" form; an empty list is not
+	 * written at all.
+	 * Pass: loading two entries gives those two nodes, saving writes the same array, and saving a
+	 * config without huts writes no "seerHuts" key.
+	 * Fail: an entry is altered or dropped on load or save, or an empty array is written.
+	 */
+
+	const auto input = pandoraBox(R"({
+		"seerHuts" : [
+			{ "spells" : [ "townPortal", "fly" ], "rmg" : { "value" : 15000, "rarity" : 2, "zoneFactions" : [ "castle", "neutral" ] } },
+			{ "rewardable" : { "info" : [ { "reward" : { "heroExperience" : 1000 } } ] }, "rmg" : { "value" : 1200, "rarity" : 5 } }
+		]
+	})");
+
+	ObjectConfig loaded;
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, input);
+		loaded.serializeJson(handler, *LIBRARY->objtypeh);
+	}
+	EXPECT_EQ(loaded.getSeerHuts(), input["seerHuts"].Vector());
+
+	JsonNode saved;
+	{
+		JsonSerializer handler(nullptr, saved);
+		loaded.serializeJson(handler, *LIBRARY->objtypeh);
+	}
+	EXPECT_EQ(saved["seerHuts"], input["seerHuts"]);
+
+	JsonNode savedEmpty;
+	{
+		JsonSerializer handler(nullptr, savedEmpty);
+		ObjectConfig().serializeJson(handler, *LIBRARY->objtypeh);
+	}
+	EXPECT_FALSE(savedEmpty.Struct().count("seerHuts"));
+}
+
 TEST_F(ObjectConfigTest, SpellScrollsLoadAllFieldsAndSpellOnly)
 {
 	/*
