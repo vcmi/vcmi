@@ -20,6 +20,8 @@
 #include "../serializer/JsonSerializeFormat.h"
 #include "../spells/CSpell.h"
 
+#include <functional>
+
 namespace
 {
 ObjectConfig::EObjectCategory getObjectCategory(CompoundMapObjectID id)
@@ -131,6 +133,24 @@ bool bannedObjectsResolve(const std::map<CompoundMapObjectID, bool> & bans, cons
 	return false;
 }
 
+void serializeRawJsonList(JsonSerializeFormat & handler, const std::string & key, const std::vector<JsonNode> & stored, const std::function<void(const JsonNode &)> & addOnLoad)
+{
+	if(handler.saving)
+	{
+		if(!stored.empty())
+		{
+			JsonNode list;
+			list.Vector() = stored;
+			handler.serializeRaw(key, list, std::nullopt);
+		}
+	}
+	else
+	{
+		for(const auto & entry : handler.getCurrent()[key].Vector())
+			addOnLoad(entry);
+	}
+}
+
 }
 
 void ObjectConfig::setObjectBanned(const CompoundMapObjectID & objid, bool banned)
@@ -177,6 +197,16 @@ void ObjectConfig::clearRequiredObjects()
 void ObjectConfig::addPandoraBox(const JsonNode & entry)
 {
 	pandoraBoxes.push_back(entry);
+}
+
+void ObjectConfig::addSeerHut(const JsonNode & entry)
+{
+	seerHuts.push_back(entry);
+}
+
+const std::vector<JsonNode> & ObjectConfig::getSeerHuts() const
+{
+	return seerHuts;
 }
 
 void ObjectConfig::addSpellScroll(const SpellScrollInfo & scroll)
@@ -411,21 +441,15 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 		}
 	}
 
-	if(handler.saving)
+	// Kept as written: rewards cannot be loaded yet, TreasurePlacer reads them during generation
+	serializeRawJsonList(handler, "pandoraBoxes", pandoraBoxes, [this](const JsonNode & entry)
 	{
-		if(!pandoraBoxes.empty())
-		{
-			JsonNode boxes;
-			boxes.Vector() = pandoraBoxes;
-			handler.serializeRaw("pandoraBoxes", boxes, std::nullopt);
-		}
-	}
-	else
+		addPandoraBox(entry);
+	});
+	serializeRawJsonList(handler, "seerHuts", seerHuts, [this](const JsonNode & entry)
 	{
-		// Kept as written: rewards cannot be loaded yet, TreasurePlacer reads them during generation
-		for(const auto & entry : handler.getCurrent()["pandoraBoxes"].Vector())
-			addPandoraBox(entry);
-	}
+		addSeerHut(entry);
+	});
 
 	if(handler.saving)
 	{
@@ -680,6 +704,7 @@ ObjectConfig ObjectConfig::merge(const ObjectConfig & base, const ObjectConfig &
 
 	// Template boxes first, then zone boxes; bans never remove them
 	vstd::concatenate(result.pandoraBoxes, override.pandoraBoxes);
+	vstd::concatenate(result.seerHuts, override.seerHuts);
 
 	std::set<SpellID> overrideSpells;
 	for(const auto & scroll : override.spellScrolls)

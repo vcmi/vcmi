@@ -281,7 +281,8 @@ The `customObjects` block can be set at the template root and in a zone. The tem
 - `bannedCategories` are combined.
 - `bannedObjects`, `commonObjects` and `requiredObjects` entries replace the template entry with the same id. A zone `bannedObjects` value of `false` lifts a template ban, including a category ban, for that object. A `requiredObjects` count of 0 removes an inherited entry.
 - `pandoraBoxes` are concatenated: template entries first, then zone entries.
-- `spellScrolls` replace the template entry with the same spell; bans never remove `spellScrolls` or required scrolls.
+- `seerHuts` are concatenated: template entries first, then zone entries.
+- `spellScrolls` replace the template entry with the same spell; bans never remove `spellScrolls`, `seerHuts` or required scrolls.
 
 ```json
 {
@@ -418,6 +419,22 @@ The `customObjects` block can be set at the template root and in a zone. The tem
 
 		// gold and an artifact
 		{ "resources" : { "gold" : 5000 }, "artifacts" : [ "centaurAxe" ], "rmg" : { "value" : 9000, "rarity" : 5 } }
+	],
+
+	// Seer huts filling quest-artifact slots before the built-in huts (see below)
+	"seerHuts" :
+	[
+		// 7000 experience; rarity defaults to the built-in experience hut
+		{ "experience" : 7000, "rmg" : { "rarity" : 9999, "zoneLimit" : 1 } },
+
+		// 10000 gold; value and rarity default to the built-in gold hut
+		{ "resources" : { "gold" : 10000 } },
+
+		// upgraded level 3 creature of the zone's faction, as the built-in creature huts
+		{ "rmg" : { "nativeCreatures" : { "level" : 3, "kind" : "upgrade" }, "zoneLimit" : 1 } },
+
+		// artifact and spell; value and rarity required; only in Rampart and neutral zones
+		{ "artifacts" : [ "centaurAxe" ], "spells" : [ "fly" ], "rmg" : { "value" : 9000, "rarity" : 5, "zoneFactions" : [ "rampart", "neutral" ] } }
 	]
 }
 ```
@@ -437,6 +454,18 @@ The `rmg` block:
 A box is gold-only when its only content is `resources` with only `gold`, and experience-only when its only content is `experience`. Gold-only, experience-only and `nativeCreatures` boxes have default values. An entry without a default `value` or `rarity` that does not set it is ignored with an error in the log.
 
 Bans never remove custom boxes, including a `pandorasBox` category ban, which only removes the default boxes. Custom boxes are never placed in water zones, and a box worth more than any treasure range of the zone is never placed. The generator adds a guard to the box according to its value, as for any other treasure.
+
+### Seer huts
+
+A `seerHuts` entry uses the same content format and `rmg` fields as [Pandora boxes](#pandora-boxes). Differences:
+
+- Gold-only and experience-only entries default `value` to the amount and `rarity` as the built-in gold and experience huts. `nativeCreatures` defaults amount, value and rarity as the built-in creature huts. Every other entry must set `value` and `rarity`.
+- `value` is the reward value: a candidate above the zone's maximum treasure is dropped, and the quest artifact in the other zone is guarded by that value. The hut itself is always placed at the built-in seer hut pool value.
+- Content must load to exactly one reward. The short form always does. A `rewardable` block with any other number of `info` entries is ignored with an error in the log.
+- The mission is always a quest artifact of the zone, placed in another zone. Custom missions are not supported.
+- A zone gets one hut per quest artifact it holds. Custom entries take those slots first, picked by rarity, each capped by its `zoneLimit`. Remaining slots go to built-in huts. Set `zoneLimit` to leave room for built-in huts.
+
+Bans never remove custom huts, including a `seerHut` category ban, which only removes the built-in huts.
 
 ### Spell scrolls
 

@@ -5,6 +5,32 @@
 	"description" : "Format used to define random map templates in VCMI",
 	"definitions" :
 	{
+		"customRewardEntry": {
+			"type": "object",
+			"properties": {
+				"rmg": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"value": { "type": "integer", "minimum": 0 },
+						"rarity": { "type": "integer", "minimum": 1 },
+						"zoneLimit": { "type": "integer", "minimum": 0 },
+						"zoneFactions": {
+							"type": "array",
+							"items": { "type": "string" }
+						},
+						"nativeCreatures": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"level": { "type": "integer", "minimum": 0 },
+								"kind": { "type": "string", "enum": ["basic", "upgrade"] }
+							}
+						}
+					}
+				}
+			}
+		},
 		"customObjects" : {
 			"type" : "object",
 			"properties": {
@@ -100,32 +126,12 @@
 				"pandoraBoxes": {
 					"type": "array",
 					"description": "Pandora boxes added to the zone treasure pool. An entry is the Pandora box map options (as in a .vmap) plus an rmg block",
-					"items": {
-						"type": "object",
-						"properties": {
-							"rmg": {
-								"type": "object",
-								"additionalProperties": false,
-								"properties": {
-									"value": { "type": "integer", "minimum": 0 },
-									"rarity": { "type": "integer", "minimum": 1 },
-									"zoneLimit": { "type": "integer", "minimum": 0 },
-									"zoneFactions": {
-										"type": "array",
-										"items": { "type": "string" }
-									},
-									"nativeCreatures": {
-										"type": "object",
-										"additionalProperties": false,
-										"properties": {
-											"level": { "type": "integer", "minimum": 0 },
-											"kind": { "type": "string", "enum": ["basic", "upgrade"] }
-										}
-									}
-								}
-							}
-						}
-					}
+					"items": { "$ref": "#/definitions/customRewardEntry" }
+				},
+				"seerHuts": {
+					"type": "array",
+					"description": "Seer huts added to the zone, filling quest-artifact slots before the built-in huts. An entry is the reward content (as a Pandora box) plus an rmg block",
+					"items": { "$ref": "#/definitions/customRewardEntry" }
 				},
 				"spellScrolls": {
 					"type": "array",

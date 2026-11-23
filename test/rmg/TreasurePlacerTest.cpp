@@ -10,16 +10,23 @@
 #include "StdInc.h"
 
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/CRandomGenerator.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/json/JsonNode.h"
+#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
+#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjectConstructors/RandomMapInfo.h"
 #include "../../lib/mapObjects/CGPandoraBox.h"
+#include "../../lib/mapObjects/Quest.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/modding/ModScope.h"
 #include "../../lib/rewardable/Info.h"
+#include "../../lib/rmg/ObjectInfo.h"
 #include "../../lib/rmg/modificators/TreasurePlacer.h"
 #include "../mock/mock_IGameInfoCallback.h"
+
+#include <limits>
 
 namespace test
 {
@@ -345,6 +352,195 @@ TEST_F(TreasurePlacerTest, MapOptionsLoadIntoPandoraBox)
 	EXPECT_EQ(info.visitType, Rewardable::EEventType::EVENT_FIRST_VISIT);
 	EXPECT_THAT(info.reward.spells, ElementsAre(SpellID(SpellID::decode("townPortal"))));
 	EXPECT_EQ(info.reward.heroExperience, 1000);
+}
+
+TEST_F(TreasurePlacerTest, SeerHutExperienceOnlyDefaultsToAmountAndRarity)
+{
+	/*
+	 * Asserts: an experience-only seer hut without rmg value or rarity gets the amount as value
+	 * and SEER_HUT_EXPERIENCE_RARITY.
+	 * Pass: value 7000 and rarity 10.
+	 * Fail: the Pandora experience formula is used, or the entry is rejected.
+	 */
+
+	auto hut = TreasurePlacer::readCustomReward(entry(R"({ "experience" : 7000 })"), TreasurePlacer::seerHutRewardDefaults());
+
+	ASSERT_TRUE(hut.has_value());
+	EXPECT_EQ(hut->value, 7000u);
+	EXPECT_EQ(hut->rarity, TreasurePlacer::SEER_HUT_EXPERIENCE_RARITY);
+}
+
+TEST_F(TreasurePlacerTest, SeerHutGoldOnlyDefaultsToAmountAndRarity)
+{
+	/*
+	 * Asserts: a gold-only seer hut without rmg value or rarity gets the gold amount as value
+	 * and SEER_HUT_GOLD_RARITY.
+	 * Pass: value 7000 and rarity 10.
+	 * Fail: the Pandora gold formula is used, or the entry is rejected.
+	 */
+
+	auto hut = TreasurePlacer::readCustomReward(entry(R"({ "resources" : { "gold" : 7000 } })"), TreasurePlacer::seerHutRewardDefaults());
+
+	ASSERT_TRUE(hut.has_value());
+	EXPECT_EQ(hut->value, 7000u);
+	EXPECT_EQ(hut->rarity, TreasurePlacer::SEER_HUT_GOLD_RARITY);
+}
+
+TEST_F(TreasurePlacerTest, SeerHutNativeCreaturesDefaultsToCreatureRarityWithoutValue)
+{
+	/*
+	 * Asserts: a nativeCreatures seer hut takes SEER_HUT_CREATURES_RARITY and leaves value unset.
+	 * Pass: rarity 3 and no value.
+	 * Fail: the entry is rejected for lacking value, or a value is filled in.
+	 */
+
+	auto hut = TreasurePlacer::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 3, "kind" : "upgrade" } } })"), TreasurePlacer::seerHutRewardDefaults());
+
+	ASSERT_TRUE(hut.has_value());
+	EXPECT_EQ(hut->rarity, TreasurePlacer::SEER_HUT_CREATURES_RARITY);
+	EXPECT_FALSE(hut->value.has_value());
+}
+
+TEST_F(TreasurePlacerTest, SeerHutWithoutPresetNeedsValueAndRarity)
+{
+	/*
+	 * Asserts: a seer hut that is not gold-only, experience-only or nativeCreatures is rejected
+	 * without rmg value and rarity.
+	 * Pass: spells without rmg gives nullopt.
+	 * Fail: the entry is accepted with a made-up value or rarity.
+	 */
+
+	EXPECT_FALSE(TreasurePlacer::readCustomReward(entry(R"({ "spells" : [ "fly" ] })"), TreasurePlacer::seerHutRewardDefaults()).has_value());
+}
+
+TEST_F(TreasurePlacerTest, SeerHutAndPandoraDefaultsAreIndependent)
+{
+	/*
+	 * Asserts: the same gold entry read with pandoraRewardDefaults still uses the Pandora gold
+	 * formula, so the two default sets do not share multipliers.
+	 * Pass: Pandora value is 7000 * pandoraMultiplierGold / PANDORA_AMOUNT_STEP.
+	 * Fail: the seer hut amount-as-value is used for Pandora as well.
+	 */
+
+	const auto gold = entry(R"({ "resources" : { "gold" : 7000 } })");
+	auto pandora = TreasurePlacer::readCustomReward(gold, TreasurePlacer::pandoraRewardDefaults(config));
+
+	ASSERT_TRUE(pandora.has_value());
+	EXPECT_EQ(pandora->value, static_cast<ui32>(static_cast<ui64>(7000) * config.pandoraMultiplierGold / STEP));
+	EXPECT_EQ(pandora->rarity, TreasurePlacer::PANDORA_GOLD_RARITY);
+}
+
+TEST_F(TreasurePlacerTest, ReadSingleRewardLoadsShortFormAsOneReward)
+{
+	/*
+	 * Asserts: the short form with spells and experience loads to exactly one first-visit reward
+	 * that holds both.
+	 * Pass: Town Portal and 1000 experience in one VisitInfo.
+	 * Fail: the short form is split, empty, or rejected.
+	 */
+
+	NiceMock<IGameInfoCallbackMock> gameInfo;
+	auto reward = TreasurePlacer::readSingleReward(entry(R"({ "spells" : [ "townPortal" ], "experience" : 1000 })"), &gameInfo);
+
+	ASSERT_TRUE(reward.has_value());
+	EXPECT_EQ(reward->visitType, Rewardable::EEventType::EVENT_FIRST_VISIT);
+	EXPECT_THAT(reward->reward.spells, ElementsAre(SpellID(SpellID::decode("townPortal"))));
+	EXPECT_EQ(reward->reward.heroExperience, 1000);
+}
+
+TEST_F(TreasurePlacerTest, ReadSingleRewardRejectsTwoInfoEntries)
+{
+	/*
+	 * Asserts: a rewardable block with two info entries is not a single reward.
+	 * Pass: nullopt.
+	 * Fail: the first or both entries are accepted.
+	 */
+
+	NiceMock<IGameInfoCallbackMock> gameInfo;
+	EXPECT_FALSE(TreasurePlacer::readSingleReward(entry(R"({ "rewardable" : { "info" : [ { "reward" : { "heroExperience" : 1000 } }, { "reward" : { "heroExperience" : 2000 } } ] } })"), &gameInfo).has_value());
+}
+
+TEST_F(TreasurePlacerTest, ReadSingleRewardRejectsEmptyContent)
+{
+	/*
+	 * Asserts: an empty entry does not load to exactly one reward.
+	 * Pass: nullopt.
+	 * Fail: an empty VisitInfo is accepted as the single reward.
+	 */
+
+	NiceMock<IGameInfoCallbackMock> gameInfo;
+	EXPECT_FALSE(TreasurePlacer::readSingleReward(entry("{}"), &gameInfo).has_value());
+}
+
+TEST_F(TreasurePlacerTest, AddSeerHutQuestStoresArtifactAndReward)
+{
+	/*
+	 * Asserts: addSeerHutQuest gives the hut one quest whose mission is the artifact and whose
+	 * reward holds the given experience.
+	 * Pass: allQuests size 1, mission.artifacts is that artifact, reward experience is 7000.
+	 * Fail: no quest is added, the artifact is missing, or the reward is left unset.
+	 */
+
+	NiceMock<IGameInfoCallbackMock> gameInfo;
+	auto hut = std::dynamic_pointer_cast<SeerHut>(LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, 0).create(&gameInfo, nullptr));
+	ASSERT_NE(hut, nullptr);
+
+	Rewardable::VisitInfo reward;
+	reward.reward.heroExperience = 7000;
+	reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
+	const ArtifactID artifact(ArtifactID::decode("centaurAxe"));
+	TreasurePlacer::addSeerHutQuest(*hut, artifact, reward);
+
+	ASSERT_EQ(hut->allQuests().size(), 1u);
+	EXPECT_THAT(hut->getQuest().mission.artifacts, ElementsAre(artifact));
+	ASSERT_TRUE(hut->getQuest().reward.has_value());
+	EXPECT_EQ(hut->getQuest().reward->reward.heroExperience, 7000);
+}
+
+TEST_F(TreasurePlacerTest, PickSeerHutSlotsRespectsBudgetAndZoneLimit)
+{
+	/*
+	 * Asserts: pickSeerHutSlots never exceeds the slot budget, never picks an index more than
+	 * its maxPerZone, and stops when every candidate is used up.
+	 * Pass: 5 slots of two maxPerZone-1 candidates is exactly 2 picks; no candidates is empty.
+	 * Fail: a candidate is over-used, or unused capacity is filled with extra picks.
+	 */
+
+	ObjectInfo first;
+	first.probability = 1;
+	first.maxPerZone = 1;
+	ObjectInfo second;
+	second.probability = 1;
+	second.maxPerZone = 1;
+	CRandomGenerator rng(1);
+
+	auto picks = TreasurePlacer::pickSeerHutSlots({first, second}, 5, rng);
+	EXPECT_LE(picks.size(), 5u);
+	EXPECT_EQ(picks.size(), 2u);
+	EXPECT_THAT(picks, UnorderedElementsAre(0u, 1u));
+
+	EXPECT_THAT(TreasurePlacer::pickSeerHutSlots({}, 5, rng), IsEmpty());
+}
+
+TEST_F(TreasurePlacerTest, PickSeerHutSlotsNeverPicksZeroProbability)
+{
+	/*
+	 * Asserts: a candidate with probability 0 is never picked when another candidate has weight.
+	 * Pass: every pick of unlimited 0 and 1 is the second index.
+	 * Fail: the zero-weight candidate appears in the result.
+	 */
+
+	ObjectInfo zero;
+	zero.probability = 0;
+	zero.maxPerZone = std::numeric_limits<ui32>::max();
+	ObjectInfo one;
+	one.probability = 1;
+	one.maxPerZone = std::numeric_limits<ui32>::max();
+	CRandomGenerator rng(1);
+
+	auto picks = TreasurePlacer::pickSeerHutSlots({zero, one}, 8, rng);
+	ASSERT_EQ(picks.size(), 8u);
+	EXPECT_THAT(picks, Each(Eq(1u)));
 }
 
 TEST_F(TreasurePlacerTest, ApplyCommonObjectDefaultsFillsValueFromDefaults)
