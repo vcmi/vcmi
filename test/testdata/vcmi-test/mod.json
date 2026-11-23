@@ -41,6 +41,22 @@
 					}
 				}
 			}
+		},
+		// Same resource as vanilla crystalCavern, graphics only on sand.
+		"core:mine" : {
+			"types" : {
+				"sandCrystalMine" : {
+					"resource" : "crystal",
+					"templates" : {
+						"sand" : {
+							"animation" : "AVMcrds0.def",
+							"visitableFrom" : [ "---", "+-+", "+++" ],
+							"mask" : [ "VBBB", "VBAB" ],
+							"allowedTerrains" : [ "sand" ]
+						}
+					}
+				}
+			}
 		}
 	},
 	"settings" :
