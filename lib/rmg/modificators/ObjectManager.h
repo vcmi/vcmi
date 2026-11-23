@@ -12,20 +12,11 @@
 
 #include "../Zone.h"
 #include "../RmgObject.h"
-#include <boost/heap/priority_queue.hpp> //A*
+#include "../TileDistanceIndex.h"
 
 class CGObjectInstance;
 class ObjectTemplate;
 class CGCreature;
-
-using TDistance = std::pair<int3, float>;
-struct DistanceMaximizeFunctor
-{
-	bool operator()(const TDistance & lhs, const TDistance & rhs) const
-	{
-		return (rhs.second > lhs.second);
-	}
-};
 
 struct RequiredObjectInfo
 {
@@ -75,7 +66,6 @@ public:
 
 	void updateDistances(const rmg::Object & obj);
 	void updateDistances(const int3& pos);
-	void updateDistances(std::function<ui32(const int3 & tile)> distanceFunction);
 	void createDistancesPriorityQueue();
 
 	const rmg::Area & getVisitableArea() const;
@@ -83,6 +73,8 @@ public:
 	std::vector<CGObjectInstance*> getMines() const;
 	
 protected:
+	void updateDistancesFromTiles(const std::vector<int3> & source);
+
 	//content info
 	std::vector<RequiredObjectInfo> requiredObjects;
 	std::vector<RequiredObjectInfo> closeObjects;
@@ -91,6 +83,6 @@ protected:
 	std::vector<CGObjectInstance*> objects;
 	rmg::Area objectsVisitableArea;
 	
-	boost::heap::priority_queue<TDistance, boost::heap::compare<DistanceMaximizeFunctor>> tilesByDistance;
+	rmg::TileDistanceIndex tilesByDistance;
 	
 };

@@ -76,14 +76,13 @@ void ObjectManager::init()
 
 void ObjectManager::createDistancesPriorityQueue()
 {
+	RecursiveLock lock(zone.areaMutex);
 	const auto tiles = zone.areaPossible()->getTilesVector();
-
-	RecursiveLock lock(externalAccessMutex);
-	tilesByDistance.clear();
+	std::vector<std::pair<int3, float>> entries;
+	entries.reserve(tiles.size());
 	for(const auto & tile : tiles)
-	{
-		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
-	}
+		entries.emplace_back(tile, map.getNearestObjectDistance(tile));
+	tilesByDistance.reset(entries);
 }
 
 void ObjectManager::addRequiredObject(const RequiredObjectInfo & info)
@@ -106,21 +105,15 @@ void ObjectManager::addNearbyObject(const RequiredObjectInfo & info)
 
 void ObjectManager::updateDistances(const rmg::Object & obj)
 {
-	updateDistances([obj](const int3& tile) -> ui32
-	{
-		return obj.getArea().distanceSqr(tile); //optimization, only relative distance is interesting
-	});
+	updateDistancesFromTiles(obj.getArea().getTilesVector());
 }
 
 void ObjectManager::updateDistances(const int3 & pos)
 {
-	updateDistances([pos](const int3& tile) -> ui32
-	{
-		return pos.dist2dSQ(tile); //optimization, only relative distance is interesting
-	});
+	updateDistancesFromTiles({pos});
 }
 
-void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> distanceFunction)
+void ObjectManager::updateDistancesFromTiles(const std::vector<int3> & source)
 {
 	// Workaround to avoid deadlock when accessed from other zone
 	RecursiveLock lock(zone.areaMutex, std::try_to_lock);
@@ -130,15 +123,13 @@ void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> dista
 		return;
 	}
 
-	const auto tiles = zone.areaPossible()->getTilesVector();
-	//RecursiveLock lock(externalAccessMutex);
-	tilesByDistance.clear();
-
-	for (const auto & tile : tiles) //don't need to mark distance for not possible tiles
+	auto possible = zone.areaPossible();
+	for(const auto & [tile, distance] : tilesByDistance.lowerTowards(source, [&possible](const int3 & tile)
 	{
-		ui32 d = distanceFunction(tile);
-		map.setNearestObjectDistance(tile, std::min(static_cast<float>(d), map.getNearestObjectDistance(tile)));
-		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
+		return possible->contains(tile);
+	}))
+	{
+		map.setNearestObjectDistance(tile, distance);
 	}
 }
 
@@ -166,6 +157,7 @@ std::vector<CGObjectInstance*> ObjectManager::getMines() const
 
 int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, OptimizeType optimizer) const
 {
+	RecursiveLock lock(zone.areaMutex);
 	float bestWeight = 0.f;
 	int3 result(-1, -1, -1);
 
@@ -184,29 +176,21 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	
 	if(optimizer & OptimizeType::DISTANCE)
 	{
-		// Do not add or remove tiles while we iterate on them
-		//RecursiveLock lock(externalAccessMutex);
-		auto open = tilesByDistance;
-
-		while(!open.empty())
+		tilesByDistance.forEachFarthestFirst([&](const int3 & tile, float)
 		{
-			auto node = open.top();
-			open.pop();
-			int3 tile = node.first;
-			
 			if(!searchArea.contains(tile))
-				continue;
+				return true;
 			
 			obj.setPosition(tile);
 
 			if (obj.getVisibleTop().y < 0)
-				continue;
+				return true;
 			
 			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
-				continue;
+				return true;
 
 			if (outsideTheMap())
-				continue;
+				return true;
 			
 			float weight = weightFunction(tile);
 			if(weight > bestWeight)
@@ -214,9 +198,10 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 				bestWeight = weight;
 				result = tile;
 				if(!(optimizer & OptimizeType::WEIGHT))
-					break;
+					return false;
 			}
-		}
+			return true;
+		});
 	}
 	else
 	{
