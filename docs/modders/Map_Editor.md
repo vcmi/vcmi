@@ -40,6 +40,31 @@ To load the map, press open and select map file from the browser.
 
 You can load both *.h3m and*.vmap formats but for saving *.vmap is allowed only.
 
+## Command line
+
+`vcmieditor --generate <file.vmap>` generates one random map and saves it without opening a window. Relative paths resolve against the current working directory at launch.
+
+The binary is `vcmieditor` on Linux and macOS and `VCMI_mapeditor.exe` on Windows. In a build from source it is in the build's `bin/` directory (`build/bin/vcmieditor`, or `build\bin\<Config>\VCMI_mapeditor.exe` on Windows).
+
+- `--generate <file>` — headless mode; output `.vmap` path. Default: GUI mode.
+- `--template <text>` — template, matched in this order: exact id; exact name, case-insensitive; substring of id or name, case-insensitive. More than one match at the first level that has any is an error that lists the matching ids. Default: random among templates that fit the options.
+- `--width <n>`, `--height <n>` — map size; give both or neither. Default: the template's smallest size, or the generator default without a template.
+- `--levels <n>` — level count. Default: as size.
+- `--players <n>` — human-or-CPU players. Default: random.
+- `--computer-players <n>` — computer-only players. Default: random.
+- `--water <v>` — `random`, `none`, `normal`, `islands`. Default: `none`; a template that does not allow `none` picks one of its allowed values.
+- `--monsters <v>` — `random`, `weak`, `normal`, `strong`. Default: `random`.
+- `--seed <n>` — RNG seed. Default: current time.
+- `--single-thread` — run the generator on one thread so the same seed repeats. Default: off.
+
+Exit codes: 0 saved; 1 generation or saving threw; 2 bad arguments, no matching template, or a requested value the template does not allow.
+
+```sh
+vcmieditor --generate /abs/path/out.vmap --template 'Jebus Cross' --seed 12345 --single-thread
+```
+
+The last stdout line is `rmg: saved <absolute path> template=<id> seed=<n> size=<w>x<h>x<levels> generate_ms=<n>`.
+
 ## Views
 
 There are 3 buttons switching views <img width="131" alt="Снимок экрана 2022-09-07 в 06 48 08" src="https://user-images.githubusercontent.com/9308612/188777527-b7106146-0d8c-4f14-b78d-f13512bc7bad.png">

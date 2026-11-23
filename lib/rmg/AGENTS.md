@@ -58,3 +58,21 @@ When this file and source code disagree, trust source code first.
 1. Read [`./modificators/AGENTS.md`](./modificators/AGENTS.md).
 2. Register/adjust modifier wiring in [`RmgMap.cpp`](./RmgMap.cpp).
 3. Re-check dependency ordering and lock usage.
+
+## Checking Generated Maps
+
+Unit tests cover single functions. To see what a change does to whole maps (object counts, rewards, bans, timing), generate real maps with the map editor's headless mode. Do not write a temporary gtest that runs `CMapGenerator`.
+
+```sh
+vcmieditor --generate /abs/path/out.vmap --template 'Jebus Cross' --seed 12345 --single-thread
+```
+
+- Build the map editor (`vcmieditor` target, needs Qt), then run the binary from the build's `bin/` directory: `build/bin/vcmieditor` on Linux and macOS, `build\bin\<Config>\VCMI_mapeditor.exe` on Windows. In an installed VCMI it is `vcmieditor` (`VCMI_mapeditor.exe` on Windows).
+- Pass an absolute output path when a wrapper script starts the editor from another directory; relative paths resolve against the directory the editor was started in.
+- It needs no display. It loads the same data and mods as the editor, so templates from mods are available.
+- Options: `--template`, `--width`/`--height` (both or neither), `--levels`, `--players`, `--computer-players`, `--water random|none|normal|islands` (default `none`; a template that needs water picks its own), `--monsters random|weak|normal|strong`, `--seed`, `--single-thread`. `vcmieditor --help` lists them.
+- `--template` matches the exact id (`<mod scope>:<name>`) first, then the exact name, then part of the id or name. When several templates match, the error lists their ids.
+- Exit codes: 0 when the map is saved, 1 when generation or saving fails, 2 for bad arguments, no matching template, or an option the template does not allow. The command never silently changes the size, player count or water you asked for.
+- The last line of stdout reports the saved path, template id, seed, size and `generate_ms` (time spent in `CMapGenerator::generate()`).
+- Generation is multithreaded by default, so the same seed can give different maps. When comparing two builds, always pass `--single-thread` and the same `--seed`; then the same seed gives the same map.
+- A `.vmap` is a zip of JSON files: `header.json`, `objects.json` and one terrain file per level. `creationDateTime` in `header.json` differs on every run; ignore it when comparing maps.

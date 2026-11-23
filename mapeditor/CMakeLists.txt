@@ -2,6 +2,8 @@ set(editor_SRCS
 		StdInc.cpp
 		main.cpp
 		mainwindow.cpp
+		editorstartup.cpp
+		randommapcli.cpp
 		editorbridge.cpp
 		BitmapHandler.cpp
 		maphandler.cpp
@@ -82,6 +84,8 @@ endif()
 set(editor_HEADERS
 		StdInc.h
 		mainwindow.h
+		editorstartup.h
+		randommapcli.h
 		editorbridge.h
 		BitmapHandler.h
 		maphandler.h

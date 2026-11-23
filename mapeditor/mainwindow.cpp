@@ -22,11 +22,8 @@
 #include <QTimer>
 
 #include "../lib/VCMIDirs.h"
-#include "../lib/texts/TextOperations.h"
 #include "../lib/GameLibrary.h"
-#include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
-#include "../lib/CConsoleHandler.h"
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/GameConstants.h"
 #include "../lib/campaign/CampaignHandler.h"
@@ -67,6 +64,7 @@
 #include "templateeditor/templateeditor.h"
 #endif
 #include "editorfiledialog.h"
+#include "randommapcli.h"
 
 #ifdef VCMI_ANDROID
 #include <QAndroidJniObject>
@@ -222,6 +220,7 @@ void EditorMainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
 		{"c", QCoreApplication::translate("main", "From an extracted archive, Converts single Images (found in Images folder) from .pcx to png.")},
 		{"d", QCoreApplication::translate("main", "Delete original files, for the ones split / converted.")},
 		});
+	addRandomMapOptions(parser);
 
 	parser.process(qApp->arguments());
 
@@ -318,42 +317,8 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	ExtractionOptions extractionOptions;
 	parseCommandLine(extractionOptions);
 
-	//configure logging
-	const boost::filesystem::path logPath = VCMIDirs::get().userLogsPath() / "VCMI_Editor_log.txt";
-#ifndef VCMI_MOBILE
-	console = std::make_unique<CConsoleHandler>();
-	logConfig = std::make_unique<CBasicLogConfigurator>(logPath, console.get());
-#else
-	logConfig = std::make_unique<CBasicLogConfigurator>(logPath, nullptr);
-#endif
-	logConfig->configureDefault();
-	logGlobal->info("Starting map editor of '%s'", GameConstants::VCMI_PROJECT_NAME_VERSIONED);
-	logGlobal->info("The log file will be saved to %s", TextOperations::filesystemPathToUtf8(logPath));
-
-	//init
-	initializeBaseFilesystem(extractionOptions.extractArchives);
-	auto library = std::make_unique<GameLibrary>();
-	library->initializeFilesystem();
-
-	// Initialize logging based on settings
-	logConfig->configure();
-	logGlobal->debug("settings = %s", settings.toJsonNode().toString());
-
-	// Some basic data validation to produce better error messages in cases of incorrect install
-	auto testFile = [](std::string filename, std::string message) -> bool
-	{
-		if (CResourceHandler::get()->existsResource(ResourcePath(filename)))
-			return true;
-
-		logGlobal->error("Error: %s was not found!", message);
-		return false;
-	};
-
-	if (!testFile("DATA/HELP.TXT", "Heroes III data") ||
-		!testFile("MODS/VCMI/MOD.JSON", "VCMI data"))
-	{
+	if(!startup.initFilesystem(extractionOptions.extractArchives))
 		QApplication::quit();
-	}
 
 	loadTranslation();
 
@@ -459,13 +424,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	loadUserSettings(); //For example window size
 	setTitle();
 
-	library->initializeLibrary();
-	setGameLibrary(std::move(library));
-
-	Settings config = settings.write["session"]["editor"];
-	config->Bool() = true;
-
-	logGlobal->info("Initializing VCMI_Lib");
+	startup.initLibrary();
 
 	graphics = new Graphics(); // should be before curh->init()
 	graphics->load();//must be after Content loading but should be in main thread

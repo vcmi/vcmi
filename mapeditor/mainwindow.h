@@ -8,13 +8,12 @@
 #include <QTranslator>
 #include "mapcontroller.h"
 #include "resourceExtractor/ResourceConverter.h"
+#include "editorstartup.h"
 
 class ObjectBrowser;
 class ObjectBrowserProxyModel;
 class MapSettings;
 
-class CConsoleHandler;
-class CBasicLogConfigurator;
 class CGObjectInstance;
 
 namespace Ui
@@ -37,10 +36,7 @@ class EditorMainWindow : public QMainWindow
 #ifdef ENABLE_QT_TRANSLATIONS
 #endif
 
-#ifndef VCMI_MOBILE
-	std::unique_ptr<CConsoleHandler> console;
-#endif
-	std::unique_ptr<CBasicLogConfigurator> logConfig;
+	EditorStartup startup;
 
 public:
 	explicit EditorMainWindow(QWidget *parent = nullptr);
