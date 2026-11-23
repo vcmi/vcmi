@@ -12,11 +12,9 @@
 
 #include "../ObjectInfo.h"
 #include "../Zone.h"
-#include "../CMapGenerator.h"
 #include "../../mapObjects/ObjectTemplate.h"
 
 class CGObjectInstance;
-class CGPandoraBox;
 class ObjectManager;
 class RmgMap;
 class CMapGenerator;
@@ -26,31 +24,7 @@ class TreasurePlacer: public Modificator
 {
 public:
 	MODIFICATOR(TreasurePlacer);
-
-	/// Built-in gold and experience boxes hold i * PANDORA_AMOUNT_STEP; randomMap.json pandora multipliers are the value of one step
-	static constexpr ui32 PANDORA_AMOUNT_STEP = 5000;
-	static constexpr ui16 PANDORA_GOLD_RARITY = 5;
-	static constexpr ui16 PANDORA_EXPERIENCE_RARITY = 20;
-	static constexpr ui16 PANDORA_CREATURES_RARITY = 3;
-	static constexpr ui16 PANDORA_SPELLS_RARITY = 2;
-
-	enum class NativeCreatureKind { ALL, BASIC, UPGRADE };
-
-	/// "rmg" block of a customObjects.pandoraBoxes entry
-	struct CustomPandoraBox
-	{
-		std::optional<ui32> value; ///< nullopt only for native creature boxes without rmg.value: valued like the built-in creature box
-		ui16 rarity = 0;
-		ui32 zoneLimit = 0; ///< 0 = unlimited
-		std::set<FactionID> zoneFactions; ///< empty = all
-		std::optional<int> nativeCreaturesLevel; ///< set for rmg.nativeCreatures boxes; 0 = all levels
-		NativeCreatureKind nativeCreaturesKind = NativeCreatureKind::ALL; ///< ALL unless nativeCreaturesLevel >= 1
-	};
-	/// rmg fields of a pandoraBoxes entry with preset defaults applied; nullopt (and an error log) when value or rarity is missing
-	static std::optional<CustomPandoraBox> readCustomPandoraBox(const JsonNode & entry, const CMapGenerator::Config & config);
-	/// natives that get an rmg.nativeCreatures box, in natives order. An upgrade is a creature that isUpgradeOf another creature in natives; basic is every other creature
-	static std::vector<const CCreature *> selectNativeCreatures(const CustomPandoraBox & box, const std::vector<const CCreature *> & natives);
-
+	
 	void process() override;
 	void init() override;
 	char dump(const int3 &) override;
@@ -67,18 +41,13 @@ public:
 	void addCommonObjects();
 	void addDwellings();
 	void addPandoraBoxes();
-	void addPandoraBoxesWithGold();
-	void addPandoraBoxesWithExperience();
-	void addPandoraBoxesWithCreatures();
-	/// Built-in creature box content and value for a native creature; nullopt when the creature gets no box
-	std::optional<ObjectInfo> createCreaturePandoraBox(const CCreature * creature);
-	void addPandoraBoxesWithSpells();
 	/// Boxes from customObjects.pandoraBoxes; added after zone bans are applied, so bans never remove them
 	void addCustomPandoraBoxes();
 	/// Scrolls from customObjects.spellScrolls; added after zone bans are applied, so bans never remove them
 	void addCustomSpellScrolls();
-	std::shared_ptr<CGPandoraBox> createPandoraBox() const;
+	/// Built-in huts go to the pool; custom huts are kept for addCustomSeerHuts
 	void addSeerHuts();
+	void addCustomSeerHuts();
 	void addPrisons();
 	void addScrolls();
 	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
@@ -88,7 +57,6 @@ public:
 
 	void setMaxPrisons(size_t count);
 	size_t getMaxPrisons() const;
-	int creatureToCount(const CCreature * creature) const;
 	
 protected:
 	bool isGuardNeededForTreasure(int value);
@@ -127,5 +95,5 @@ protected:
 	size_t maxPrisons;
 
 	std::vector<const CCreature *> creatures; //native creatures for this zone
-	std::vector<int> tierValues;
+	std::vector<ObjectInfo> customSeerHuts; // filled by addSeerHuts, so bans cannot remove them
 };

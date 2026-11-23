@@ -258,6 +258,9 @@ set(lib_MAIN_SRCS
 	rmg/Functions.cpp
 	rmg/ObjectInfo.cpp
 	rmg/ObjectConfig.cpp
+	rmg/PandoraBoxTreasures.cpp
+	rmg/SeerHutTreasures.cpp
+	rmg/TreasureRewards.cpp
 	rmg/MonsterJoiningOptions.cpp
 	rmg/RmgMap.cpp
 	rmg/PenroseTiling.cpp
@@ -755,6 +758,9 @@ set(lib_MAIN_HEADERS
 	rmg/Functions.h
 	rmg/ObjectInfo.h
 	rmg/ObjectConfig.h
+	rmg/PandoraBoxTreasures.h
+	rmg/SeerHutTreasures.h
+	rmg/TreasureRewards.h
 	rmg/MonsterJoiningOptions.h
 	rmg/PenroseTiling.h
 	rmg/modificators/Modificator.h

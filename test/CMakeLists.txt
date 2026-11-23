@@ -85,7 +85,9 @@ set(test_SRCS
 		rmg/CRmgTemplateTest.cpp
 		rmg/MonsterJoiningOptionsTest.cpp
 		rmg/ObjectConfigTest.cpp
+		rmg/SeerHutTreasuresTest.cpp
 		rmg/TreasurePlacerTest.cpp
+		rmg/TreasureRewardsTest.cpp
 
 		netpacks/NetPackFixture.cpp
 

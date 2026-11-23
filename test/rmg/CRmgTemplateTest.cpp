@@ -245,6 +245,62 @@ TEST_F(CRmgTemplateTest, AfterLoadConcatenatesPandoraBoxes)
 	EXPECT_THAT(subject->getZones().at(2)->getCustomObjects().getPandoraBoxes(), ElementsAre(rootBox, zoneBox));
 }
 
+TEST_F(CRmgTemplateTest, AfterLoadConcatenatesSeerHuts)
+{
+	/*
+	 * Asserts: after afterLoad, a zone's seerHuts are the template-level huts followed by the
+	 * zone's own huts, and customObjectsLikeZone copies that merged list.
+	 * Pass: zones 1 and 2 each hold exactly [root experience hut, zone 1 spell hut].
+	 * Fail: the zone list replaces the template list, the order is reversed, or zone 2 does not
+	 * inherit zone 1's huts.
+	 */
+
+	constexpr char text[] = R"({
+		"minSize" : "s",
+		"maxSize" : "s",
+		"players" : "1",
+		"customObjects" : {
+			"seerHuts" : [ { "experience" : 7000 } ]
+		},
+		"zones" : {
+			"1" : {
+				"type" : "treasure",
+				"size" : 10,
+				"customObjects" : {
+					"bannedCategories" : [ "seerHut" ],
+					"seerHuts" : [ { "spells" : [ "fly" ], "rmg" : { "value" : 8000, "rarity" : 2 } } ]
+				}
+			},
+			"2" : {
+				"type" : "treasure",
+				"size" : 10,
+				"customObjectsLikeZone" : 1
+			}
+		},
+		"connections" : [
+			{ "a" : "1", "b" : "2", "guard" : 1000 }
+		]
+	})";
+
+	JsonNode config(text, std::size(text), "AfterLoadConcatenatesSeerHuts");
+	auto subject = std::make_shared<CRmgTemplate>();
+	subject->setId("seerHuts");
+
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, config);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	subject->afterLoad(*LIBRARY);
+
+	const JsonNode & rootHut = config["customObjects"]["seerHuts"][0];
+	const JsonNode & zoneHut = config["zones"]["1"]["customObjects"]["seerHuts"][0];
+
+	EXPECT_THAT(subject->getZones().at(1)->getCustomObjects().getSeerHuts(), ElementsAre(rootHut, zoneHut));
+	EXPECT_THAT(subject->getZones().at(2)->getCustomObjects().getSeerHuts(), ElementsAre(rootHut, zoneHut));
+}
+
 TEST_F(CRmgTemplateTest, AfterLoadMergesTemplateMonsterJoining)
 {
 	/*

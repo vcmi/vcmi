@@ -13,6 +13,8 @@
 #include "../CRmgTemplate.h"
 #include "../CMapGenerator.h"
 #include "../Functions.h"
+#include "../PandoraBoxTreasures.h"
+#include "../SeerHutTreasures.h"
 #include "ObjectManager.h"
 #include "RoadPlacer.h"
 #include "ConnectionsPlacer.h"
@@ -24,32 +26,19 @@
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjectConstructors/DwellingInstanceConstructor.h"
-#include "../../rewardable/Info.h"
 #include "../../mapObjects/CGHeroInstance.h"
-#include "../../mapObjects/CGPandoraBox.h"
-#include "../../mapObjects/Quest.h"
 #include "../../mapObjects/MiscObjects.h"
 #include "../../CCreatureHandler.h"
 #include "../../entities/faction/CFaction.h"
 #include "../../entities/faction/CTown.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
-#include "../../modding/IdentifierStorage.h"
-#include "../../modding/ModScope.h"
-#include "../../serializer/JsonDeserializer.h"
 #include "../../spells/CSpellHandler.h"
 
 
 #include <vstd/RNG.h>
 
-namespace
-{
-/// Value of a gold or experience Pandora box: the randomMap.json multiplier is the value of one PANDORA_AMOUNT_STEP
-ui32 pandoraAmountValue(ui32 amount, int multiplier)
-{
-	return static_cast<ui32>(static_cast<ui64>(amount) * multiplier / TreasurePlacer::PANDORA_AMOUNT_STEP);
-}
-}
+#include <limits>
 
 void TreasurePlacer::process()
 {
@@ -62,7 +51,6 @@ void TreasurePlacer::process()
 		return;
 	}
 
-	tierValues = generator.getConfig().pandoraCreatureValues;
 	// Add all native creatures
 	for(auto const & cre : LIBRARY->creh->getObjects())
 	{
@@ -78,6 +66,7 @@ void TreasurePlacer::process()
 	objects.patchWithZoneConfig(zone, this);
 	addCustomPandoraBoxes();
 	addCustomSpellScrolls();
+	addCustomSeerHuts();
 
 	auto * m = zone.getModificator<ObjectManager>();
 	if(m)
@@ -363,127 +352,8 @@ void TreasurePlacer::addPandoraBoxes()
 	if(zone.getType() == ETemplateZoneType::WATER)
 		return;
 
-	addPandoraBoxesWithGold();
-	addPandoraBoxesWithExperience();
-	addPandoraBoxesWithCreatures();
-	addPandoraBoxesWithSpells();
-}
-
-std::optional<TreasurePlacer::CustomPandoraBox> TreasurePlacer::readCustomPandoraBox(const JsonNode & entry, const CMapGenerator::Config & config)
-{
-	std::set<std::string> contentKeys;
-	for(const auto & [key, value] : entry.Struct())
-	{
-		if(key != "rmg")
-			contentKeys.insert(key);
-	}
-
-	const JsonNode & resources = entry["resources"];
-	const bool goldOnly = contentKeys == std::set<std::string>{"resources"} && resources.Struct().size() == 1 && resources.Struct().count("gold");
-	const bool experienceOnly = contentKeys == std::set<std::string>{"experience"};
-
-	const JsonNode & rmg = entry["rmg"];
-	const JsonNode & nativeCreatures = rmg["nativeCreatures"];
-	if(!nativeCreatures.isNull() && !contentKeys.empty())
-	{
-		logGlobal->error("RMG pandoraBoxes entry is ignored: rmg.nativeCreatures cannot be combined with other content: %s", entry.toCompactString());
-		return std::nullopt;
-	}
-
-	CustomPandoraBox box;
-	if(!nativeCreatures.isNull())
-	{
-		box.nativeCreaturesLevel = nativeCreatures["level"].Integer();
-		box.rarity = PANDORA_CREATURES_RARITY;
-
-		const std::string kind = nativeCreatures["kind"].String();
-		if(!kind.empty())
-		{
-			if(kind != "basic" && kind != "upgrade")
-			{
-				logGlobal->error("RMG pandoraBoxes entry is ignored: unknown nativeCreatures.kind '%s': %s", kind, entry.toCompactString());
-				return std::nullopt;
-			}
-			if(*box.nativeCreaturesLevel < 1)
-			{
-				logGlobal->warn("RMG pandoraBoxes nativeCreatures.kind is ignored: kind needs level 1 or more: %s", entry.toCompactString());
-			}
-			else if(kind == "basic")
-			{
-				box.nativeCreaturesKind = NativeCreatureKind::BASIC;
-			}
-			else
-			{
-				box.nativeCreaturesKind = NativeCreatureKind::UPGRADE;
-			}
-		}
-	}
-	if(goldOnly)
-	{
-		box.value = pandoraAmountValue(resources["gold"].Integer(), config.pandoraMultiplierGold);
-		box.rarity = PANDORA_GOLD_RARITY;
-	}
-	if(experienceOnly)
-	{
-		box.value = pandoraAmountValue(entry["experience"].Integer(), config.pandoraMultiplierExperience);
-		box.rarity = PANDORA_EXPERIENCE_RARITY;
-	}
-
-	if(!goldOnly && !experienceOnly && !box.nativeCreaturesLevel && (rmg["value"].isNull() || rmg["rarity"].isNull()))
-	{
-		logGlobal->error("RMG pandoraBoxes entry is ignored: only gold-only, experience-only and native creature boxes have a default rmg value and rarity: %s", entry.toCompactString());
-		return std::nullopt;
-	}
-
-	if(!rmg["value"].isNull())
-		box.value = rmg["value"].Integer();
-	if(!rmg["rarity"].isNull())
-		box.rarity = rmg["rarity"].Integer();
-	box.zoneLimit = rmg["zoneLimit"].Integer();
-
-	for(const auto & faction : rmg["zoneFactions"].Vector())
-	{
-		auto factionID = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "faction", faction.String());
-		if(factionID)
-			box.zoneFactions.insert(FactionID(*factionID));
-		else
-			logGlobal->error("RMG pandoraBoxes entry: unknown zone faction '%s' is ignored", faction.String());
-	}
-
-	return box;
-}
-
-std::vector<const CCreature *> TreasurePlacer::selectNativeCreatures(const CustomPandoraBox & box, const std::vector<const CCreature *> & natives)
-{
-	std::vector<const CCreature *> selected;
-	if(!box.nativeCreaturesLevel)
-		return selected;
-
-	for(const auto * creature : natives)
-	{
-		if(*box.nativeCreaturesLevel && creature->getLevel() != *box.nativeCreaturesLevel)
-			continue;
-
-		if(box.nativeCreaturesKind != NativeCreatureKind::ALL)
-		{
-			const bool isUpgrade = std::any_of(natives.begin(), natives.end(), [creature](const CCreature * other)
-			{
-				return creature->isUpgradeOf(other->getId());
-			});
-			if(box.nativeCreaturesKind == NativeCreatureKind::BASIC && isUpgrade)
-				continue;
-			if(box.nativeCreaturesKind == NativeCreatureKind::UPGRADE && !isUpgrade)
-				continue;
-		}
-		selected.push_back(creature);
-	}
-	return selected;
-}
-
-std::shared_ptr<CGPandoraBox> TreasurePlacer::createPandoraBox() const
-{
-	auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
-	return std::dynamic_pointer_cast<CGPandoraBox>(factory.create(map.mapInstance->cb, nullptr));
+	for(const auto & oi : PandoraBoxTreasures(zone, map, generator.getConfig()).builtInBoxes(creatures))
+		addObjectToRandomPool(oi);
 }
 
 void TreasurePlacer::addCustomPandoraBoxes()
@@ -491,55 +361,8 @@ void TreasurePlacer::addCustomPandoraBoxes()
 	if(zone.getType() == ETemplateZoneType::WATER)
 		return;
 
-	const auto customObjects = zone.getCustomObjects();
-	for(const auto & entry : customObjects.getPandoraBoxes())
-	{
-		auto box = readCustomPandoraBox(entry, generator.getConfig());
-		if(!box)
-			continue;
-		if(!box->zoneFactions.empty() && !box->zoneFactions.count(zone.getTownType()))
-			continue;
-
-		if(box->nativeCreaturesLevel)
-		{
-			for(const auto * creature : selectNativeCreatures(*box, creatures))
-			{
-				auto oi = createCreaturePandoraBox(creature);
-				if(!oi)
-					continue;
-				if(box->value)
-					oi->value = *box->value;
-				oi->probability = box->rarity;
-				if(box->zoneLimit)
-					oi->maxPerZone = box->zoneLimit;
-				addObjectToRandomPool(*oi);
-			}
-			continue;
-		}
-
-		// The entry without "rmg" is the box's map options, loaded like a .vmap object (see CMapLoaderJson::MapObjectLoader)
-		JsonNode objectJson;
-		objectJson["options"] = entry;
-		objectJson["options"].Struct().erase("rmg");
-		objectJson.setModScope(ModScope::scopeGame());
-
-		ObjectInfo oi(Obj::PANDORAS_BOX, 0);
-		oi.generateObject = [this, objectJson]() -> std::shared_ptr<CGObjectInstance>
-		{
-			std::shared_ptr<CGObjectInstance> obj = createPandoraBox();
-			InstantIdentifierResolver resolver(*LIBRARY->identifiers());
-			JsonDeserializer handler(nullptr, resolver, objectJson);
-			obj->serializeJson(handler);
-			return obj;
-		};
-		oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = *box->value;
-		oi.probability = box->rarity;
-		if(box->zoneLimit)
-			oi.maxPerZone = box->zoneLimit;
-		if(!oi.templates.empty())
-			addObjectToRandomPool(oi);
-	}
+	for(const auto & oi : PandoraBoxTreasures(zone, map, generator.getConfig()).customBoxes(creatures))
+		addObjectToRandomPool(oi);
 }
 
 void TreasurePlacer::addCustomSpellScrolls()
@@ -569,337 +392,18 @@ void TreasurePlacer::addCustomSpellScrolls()
 	}
 }
 
-void TreasurePlacer::addPandoraBoxesWithGold()
-{
-	ObjectInfo oi(Obj::PANDORAS_BOX, 0);
-	for(int i = 1; i < 5; i++)
-	{
-		oi.generateObject = [this, i]() -> std::shared_ptr<CGObjectInstance>
-		{
-			auto obj = createPandoraBox();
-			
-			Rewardable::VisitInfo reward;
-			reward.reward.resources[EGameResID::GOLD] = i * PANDORA_AMOUNT_STEP;
-			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-			obj->configuration.info.push_back(reward);
-			
-			return obj;
-		};
-		oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = pandoraAmountValue(i * PANDORA_AMOUNT_STEP, generator.getConfig().pandoraMultiplierGold);
-		oi.probability = PANDORA_GOLD_RARITY;
-		if(!oi.templates.empty())
-			addObjectToRandomPool(oi);
-	}
-}
-
-void TreasurePlacer::addPandoraBoxesWithExperience()
-{
-	ObjectInfo oi(Obj::PANDORAS_BOX, 0);
-	for(int i = 1; i < 5; i++)
-	{
-		oi.generateObject = [this, i]() -> std::shared_ptr<CGObjectInstance>
-		{
-			auto obj = createPandoraBox();
-			
-			Rewardable::VisitInfo reward;
-			reward.reward.heroExperience = i * PANDORA_AMOUNT_STEP;
-			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-			obj->configuration.info.push_back(reward);
-			
-			return obj;
-		};
-		oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = pandoraAmountValue(i * PANDORA_AMOUNT_STEP, generator.getConfig().pandoraMultiplierExperience);
-		oi.probability = PANDORA_EXPERIENCE_RARITY;
-		if(!oi.templates.empty())
-			addObjectToRandomPool(oi);
-	}
-}
-
-void TreasurePlacer::addPandoraBoxesWithCreatures()
-{
-	for(auto * creature : creatures)
-	{
-		auto oi = createCreaturePandoraBox(creature);
-		if(!oi)
-			continue;
-		oi->probability = PANDORA_CREATURES_RARITY;
-		addObjectToRandomPool(*oi);
-	}
-}
-
-std::optional<ObjectInfo> TreasurePlacer::createCreaturePandoraBox(const CCreature * creature)
-{
-	int creaturesAmount = creatureToCount(creature);
-	if(!creaturesAmount)
-		return std::nullopt;
-
-	ObjectInfo oi(Obj::PANDORAS_BOX, 0);
-
-	oi.generateObject = [this, creature, creaturesAmount]() -> std::shared_ptr<CGObjectInstance>
-	{
-		auto obj = createPandoraBox();
-
-		Rewardable::VisitInfo reward;
-		reward.reward.creatures.emplace_back(creature, creaturesAmount);
-		reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-		obj->configuration.info.push_back(reward);
-
-		return obj;
-	};
-	oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-	oi.value = static_cast<ui32>(creature->getAIValue() * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount()));
-	if(oi.templates.empty())
-		return std::nullopt;
-	return oi;
-}
-
-void TreasurePlacer::addPandoraBoxesWithSpells()
-{
-	ObjectInfo oi(Obj::PANDORAS_BOX, 0);
-	//Pandora with 12 spells of certain level
-	for(int i = 1; i <= GameConstants::SPELL_LEVELS; i++)
-	{
-		oi.generateObject = [i, this]() -> std::shared_ptr<CGObjectInstance>
-		{
-			auto obj = createPandoraBox();
-
-			std::vector <const CSpell *> spells;
-			for(auto spellID : LIBRARY->spellh->getDefaultAllowed())
-			{
-				if(map.isAllowedSpell(spellID) && spellID.toSpell()->getLevel() == i)
-					spells.push_back(spellID.toSpell());
-			}
-			
-			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
-			Rewardable::VisitInfo reward;
-			for(int j = 0; j < std::min(12, static_cast<int>(spells.size())); j++)
-			{
-				reward.reward.spells.push_back(spells[j]->id);
-			}
-			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-			obj->configuration.info.push_back(reward);
-			
-			return obj;
-		};
-		oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = (i + 1) * generator.getConfig().pandoraMultiplierSpells; //5000 - 15000
-		oi.probability = PANDORA_SPELLS_RARITY;
-		if(!oi.templates.empty())
-			addObjectToRandomPool(oi);
-	}
-	
-	//Pandora with 15 spells of certain school
-	for(int i = 0; i < 4; i++)
-	{
-		oi.generateObject = [i, this]() -> std::shared_ptr<CGObjectInstance>
-		{
-			auto obj = createPandoraBox();
-
-			std::vector <const CSpell *> spells;
-			for(auto spellID : LIBRARY->spellh->getDefaultAllowed())
-			{
-				if(map.isAllowedSpell(spellID) && spellID.toSpell()->hasSchool(SpellSchool(i)))
-					spells.push_back(spellID.toSpell());
-			}
-			
-			RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
-			Rewardable::VisitInfo reward;
-			for(int j = 0; j < std::min(15, static_cast<int>(spells.size())); j++)
-			{
-				reward.reward.spells.push_back(spells[j]->id);
-			}
-			reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-			obj->configuration.info.push_back(reward);
-			
-			return obj;
-		};
-		oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-		oi.value = generator.getConfig().pandoraSpellSchool;
-		oi.probability = PANDORA_SPELLS_RARITY;
-		if(!oi.templates.empty())
-			addObjectToRandomPool(oi);
-	}
-	
-	// Pandora box with 60 random spells
-	
-	oi.generateObject = [this]() -> std::shared_ptr<CGObjectInstance>
-	{
-		auto obj = createPandoraBox();
-
-		std::vector <const CSpell *> spells;
-		for(auto spellID : LIBRARY->spellh->getDefaultAllowed())
-		{
-			if(map.isAllowedSpell(spellID))
-				spells.push_back(spellID.toSpell());
-		}
-		
-		RandomGeneratorUtil::randomShuffle(spells, zone.getRand());
-		Rewardable::VisitInfo reward;
-		for(int j = 0; j < std::min(60, static_cast<int>(spells.size())); j++)
-		{
-			reward.reward.spells.push_back(spells[j]->id);
-		}
-		reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-		obj->configuration.info.push_back(reward);
-		
-		return obj;
-	};
-	oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
-	oi.value = generator.getConfig().pandoraSpell60;
-	oi.probability = PANDORA_SPELLS_RARITY;
-	if(!oi.templates.empty())
-		addObjectToRandomPool(oi);
-}
-
 void TreasurePlacer::addSeerHuts()
 {
-	//Seer huts with creatures or generic rewards
+	auto selection = SeerHutTreasures(zone, map, generator.getConfig()).select(creatures);
+	for(const auto & oi : selection.builtIn)
+		addObjectToRandomPool(oi);
+	customSeerHuts = std::move(selection.custom);
+}
 
-	ObjectInfo oi(Obj::SEER_HUT, 0);
-	const auto seerHutPlacementValue = static_cast<ui32>(generator.getConfig().seerHutValue);
-
-	if(zone.getConnectedZoneIds().size()) //Unlikely, but...
-	{
-		auto * qap = zone.getModificator<QuestArtifactPlacer>();
-		if(!qap)
-		{
-			return; //TODO: throw?
-		}
-		
-		const int questArtsRemaining = qap->getMaxQuestArtifactCount();
-		if (!questArtsRemaining)
-		{
-			return;
-		}
-		
-		//Generate Seer Hut one by one. Duplicated oi possible and should work fine.
-		oi.maxPerZone = 1;
-		oi.value = seerHutPlacementValue;
-
-		std::vector<ObjectInfo> possibleSeerHuts;
-		//14 creatures per town + 4 for each of gold / exp reward
-		possibleSeerHuts.reserve(14 + 4 + 4);
-		
-		RandomGeneratorUtil::randomShuffle(creatures, zone.getRand());
-
-		auto setRandomArtifact = [qap](SeerHut * obj, ui32 rewardValue)
-		{
-			ArtifactID artid = qap->drawRandomArtifact();
-			obj->addQuest();
-			obj->getQuest().mission.artifacts.push_back(artid);
-			qap->addQuestArtifact(artid, rewardValue);
-		};
-		auto destroyObject = [qap](CGObjectInstance & obj)
-		{
-			auto & seer = dynamic_cast<SeerHut &>(obj);
-			// Artifact can be used again
-			ArtifactID artid = seer.getQuest().mission.artifacts.front();
-			qap->addRandomArtifact(artid);
-			qap->removeQuestArtifact(artid);
-		};
-
-		for(int i = 0; i < static_cast<int>(creatures.size()); i++)
-		{
-			auto * creature = creatures[i];
-			int creaturesAmount = creatureToCount(creature);
-			
-			if(!creaturesAmount)
-				continue;
-			
-			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
-			
-			// FIXME: Remove duplicated code for gold, exp and creaure reward
-			const auto rewardValue = static_cast<ui32>(((2 * (creature->getAIValue()) * creaturesAmount * (1 + static_cast<float>(map.getZoneCount(creature->getFactionID())) / map.getTotalZoneCount())) - 4000) / 3);
-
-			if (rewardValue > zone.getMaxTreasureValue())
-			{
-				continue;
-			}
-
-			oi.generateObject = [cb=map.mapInstance->cb, creature, creaturesAmount, randomAppearance, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
-			{
-				auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<SeerHut>(factory.create(cb, nullptr));
-				
-				Rewardable::VisitInfo reward;
-				reward.reward.creatures.emplace_back(creature->getId(), creaturesAmount);
-				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-				obj->configuration.info.push_back(reward);
-				setRandomArtifact(obj.get(), rewardValue);
-				
-				return obj;
-			};
-			oi.destroyObject = destroyObject;
-			oi.probability = 3;
-			oi.setTemplates(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			if(!oi.templates.empty())
-				possibleSeerHuts.push_back(oi);
-		}
-		
-		static const int seerLevels = std::min(generator.getConfig().questValues.size(), generator.getConfig().questRewardValues.size());
-		for(int i = 0; i < seerLevels; i++) //seems that code for exp and gold reward is similar
-		{
-			int randomAppearance = chooseRandomAppearance(zone.getRand(), Obj::SEER_HUT, zone.getTerrainType());
-			
-			oi.setTemplates(Obj::SEER_HUT, randomAppearance, zone.getTerrainType());
-			const auto rewardValue = static_cast<ui32>(generator.getConfig().questRewardValues[i]);
-			if (rewardValue > zone.getMaxTreasureValue())
-			{
-				continue;
-			}
-
-			oi.probability = 10;
-			oi.maxPerZone = 1;
-			
-			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
-			{
-				auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<SeerHut>(factory.create(map.mapInstance->cb, nullptr));
-				
-				Rewardable::VisitInfo reward;
-				reward.reward.heroExperience = generator.getConfig().questRewardValues[i];
-				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-				obj->configuration.info.push_back(reward);
-				setRandomArtifact(obj.get(), rewardValue);
-
-				return obj;
-			};
-			oi.destroyObject = destroyObject;
-			
-			if(!oi.templates.empty())
-				possibleSeerHuts.push_back(oi);
-			
-			oi.generateObject = [i, randomAppearance, this, setRandomArtifact, rewardValue]() -> std::shared_ptr<CGObjectInstance>
-			{
-				auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SEER_HUT, randomAppearance);
-				auto obj = std::dynamic_pointer_cast<SeerHut>(factory.create(map.mapInstance->cb, nullptr));
-				
-				Rewardable::VisitInfo reward;
-				reward.reward.resources[EGameResID::GOLD] = generator.getConfig().questRewardValues[i];
-				reward.visitType = Rewardable::EEventType::EVENT_FIRST_VISIT;
-				obj->configuration.info.push_back(reward);
-				
-				setRandomArtifact(obj.get(), rewardValue);
-				
-				return obj;
-			};
-			oi.destroyObject = destroyObject;
-			
-			if(!oi.templates.empty())
-				possibleSeerHuts.push_back(oi);
-		}
-
-		if (possibleSeerHuts.empty())
-		{
-			return;
-		}
-		for (size_t i = 0; i < questArtsRemaining; i++)
-		{
-			addObjectToRandomPool(*RandomGeneratorUtil::nextItem(possibleSeerHuts, zone.getRand()));
-		}
-	}
+void TreasurePlacer::addCustomSeerHuts()
+{
+	for(const auto & oi : customSeerHuts)
+		addObjectToRandomPool(oi);
 }
 
 void TreasurePlacer::setMaxPrisons(size_t count)
@@ -913,40 +417,6 @@ size_t TreasurePlacer::getMaxPrisons() const
 	RecursiveLock lock(externalAccessMutex);
 	return maxPrisons;
 }
-
-int TreasurePlacer::creatureToCount(const CCreature * creature) const
-{
-	if(!creature->getAIValue() || tierValues.empty()) //bug #2681
-		return 0; //this box won't be generated
-	
-	//Follow the rules from https://heroes.thelazy.net/index.php/Pandora%27s_Box
-
-	int actualTier = creature->getLevel() > tierValues.size() ?
-		tierValues.size() - 1 :
-		creature->getLevel() - 1;
-	float creaturesAmount = std::floor((static_cast<float>(tierValues[actualTier])) / creature->getAIValue());
-	if (creaturesAmount < 1)
-	{
-		return 0;
-	}
-	else if(creaturesAmount <= 5)
-	{
-		//No change
-	}
-	else if(creaturesAmount <= 12)
-	{
-		creaturesAmount = std::ceil(creaturesAmount / 2) * 2;
-	}
-	else if(creaturesAmount <= 50)
-	{
-		creaturesAmount = std::round(creaturesAmount / 5) * 5;
-	}
-	else
-	{
-		creaturesAmount = std::round(creaturesAmount / 10) * 10;
-	}
-	return static_cast<int>(creaturesAmount);
-};
 
 bool TreasurePlacer::isGuardNeededForTreasure(int value)
 {// no guard in a zone with "monsters: none" and for small treasures; water zones cen get monster strength ZONE_NONE elsewhere if needed
