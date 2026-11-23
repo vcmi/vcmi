@@ -53,12 +53,11 @@ void WaterProxy::process()
 		assert(map.getTile(t).getTerrainID() == zone.getTerrainType());
 	}
 
-	// FIXME: Possible deadlock for 2 zones
-
 	auto areaPossible = zone.areaPossible();
 	for(const auto & z : map.getZones())
 	{
-		if(z.second->getId() == zone.getId())
+		// Only zones on this level; this also keeps water zones (one per level) from locking each other's areas
+		if(z.second->getId() == zone.getId() || z.second->getPos().z != zone.getPos().z)
 			continue;
 
 		auto secondArea = z.second->area();

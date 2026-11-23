@@ -4,7 +4,7 @@
 
 Random maps are represented by undirected graph of zones linked with connections.
 
-On maps with water, a single extra water zone is created.
+On maps with water, one extra water zone is created per level that has water and land zones.
 
 ### Modifiers
 
