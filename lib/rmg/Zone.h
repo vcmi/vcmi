@@ -133,6 +133,9 @@ public:
 	using Lock = std::unique_lock<std::recursive_mutex>;
 	
 protected:
+	/// VCM-169: connect `src` to dAreaFree over tiles accepted by `passable`; caller holds areaMutex.
+	rmg::Path searchPathLocked(const rmg::Area & src, bool onlyStraight, const rmg::Path::PassableFunction & passable) const;
+
 	CMapGenerator & generator;
 	std::unique_ptr<vstd::RNG> rand;
 	RmgMap & map;
