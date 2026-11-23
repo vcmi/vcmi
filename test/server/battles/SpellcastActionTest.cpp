@@ -126,6 +126,37 @@ TEST_F(SpellcastActionTest, spellCastWithoutSkipKeepsCasterActive)
 	EXPECT_EQ(battle()->getActiveStackID(), static_cast<int32_t>(caster->unitId()));
 }
 
+TEST_F(SpellcastActionTest, castIsSpentWhenSpellTakesAwayCastsOfItsCaster)
+{
+	startGame();
+	startBattle();
+
+	const SpellID spell = spellByName("vcmi-test:testDisableCasts");
+
+	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	grantSpell(caster, BonusType::SPELLCASTER, spell, 0);
+	ignoreMorale(caster);
+	beginCombat();
+	const auto castsBefore = caster->casts.available();
+
+	BattleAction action;
+	action.side = BattleSide::ATTACKER;
+	action.stackNumber = caster->unitId();
+	action.actionType = EActionType::MONSTER_SPELL;
+	action.spell = spell;
+	action.aimToHex(BattleHex::INVALID);
+
+	ASSERT_TRUE(act(action));
+	ASSERT_TRUE(isAffectedBy(caster, spell));
+
+	for(int round = 0; round < 10 && isAffectedBy(caster, spell); ++round)
+		endRound();
+
+	ASSERT_FALSE(isAffectedBy(caster, spell));
+	EXPECT_EQ(caster->casts.available(), castsBefore - 1);
+}
+
 TEST_F(SpellcastActionTest, secondCastInTurnIsRefusedAndSkipsTurn)
 {
 	startGame();

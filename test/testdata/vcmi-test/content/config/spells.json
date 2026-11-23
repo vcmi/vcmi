@@ -69,6 +69,41 @@
 			"positive" : true
 		}
 	},
+	// Takes away the casts of its target, which mods use to keep a caster from casting again on its own
+	"testDisableCasts" :
+	{
+		"type" : "ability",
+		"targetType" : "NO_TARGET",
+		"name" : "Test Disable Casts",
+		"school" : {},
+		"level" : 1,
+		"power" : 0,
+		"graphics" : {},
+		"levels" : {
+			"base" : {
+				"description" : "",
+				"cost" : 0,
+				"power" : 0,
+				"range" : "X",
+				"targetModifier" : { "smart" : true },
+				"effects" : {
+					"noCasts" : {
+						"type" : "CASTS",
+						"val" : 0,
+						"valueType" : "INDEPENDENT_MIN",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"none" : {},
+			"basic" : {},
+			"advanced" : {},
+			"expert" : {}
+		},
+		"flags" : {
+			"positive" : true
+		}
+	},
 	"testRestoreWarMachine" :
 	{
 		"type" : "combat",

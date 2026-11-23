@@ -433,6 +433,18 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 			unitsBeforeCast.push_back(unit->acquireState());
 	}
 
+	// paid before any effect is applied, since the spell may change casts or mana of its own caster
+	if(sc.activeCast)
+	{
+		caster->spendMana(server, spellCost);
+
+		if(sc.manaGained > 0)
+		{
+			assert(otherHero);
+			otherHero->spendMana(server, -sc.manaGained);
+		}
+	}
+
 	doRemoveEffects(server, affectedUnits, std::bind(&BattleSpellMechanics::counteringSelector, this, _1));
 
 	for(auto & unit : affectedUnits)
@@ -445,17 +457,6 @@ void BattleSpellMechanics::cast(ServerCallback * server, const Target & target)
 
 	for(auto & p : effectsToApply)
 		p.first->apply(server, this, p.second);
-
-	if(sc.activeCast)
-	{
-		caster->spendMana(server, spellCost);
-
-		if(sc.manaGained > 0)
-		{
-			assert(otherHero);
-			otherHero->spendMana(server, -sc.manaGained);
-		}
-	}
 
 	// send empty event to client
 	// temporary(?) workaround to force animations to trigger
