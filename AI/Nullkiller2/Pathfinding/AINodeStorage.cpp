@@ -330,6 +330,15 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 
 	updateAINode(destination.node, [&](AIPathNode * dstNode)
 	{
+		// special transitions attach their action to an uncommitted node, teleports attach theirs in calculateTeleportations,
+		// so any other action on a committed node belongs to the transition being replaced
+		const bool isTeleport = destination.action == EPathNodeAction::TELEPORT_NORMAL
+			|| destination.action == EPathNodeAction::TELEPORT_BLOCKING_VISIT
+			|| destination.action == EPathNodeAction::TELEPORT_BATTLE;
+
+		if(dstNode->action != EPathNodeAction::UNKNOWN && !isTeleport)
+			dstNode->specialAction.reset();
+
 		commit(dstNode, srcNode, destination.action, destination.turn, destination.movementLeft, destination.cost);
 
 		// regular pathfinder can not go directly through whirlpool

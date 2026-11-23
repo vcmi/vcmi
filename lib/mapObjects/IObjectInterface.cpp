@@ -79,12 +79,17 @@ void IObjectInterface::experienceApplied(IGameEventCallback & gameEvents, const 
 
 int3 IBoatGenerator::bestLocation() const
 {
+	return bestLocationFrom(getObject()->visitablePos());
+}
+
+int3 IBoatGenerator::bestLocationFrom(const int3 & origin) const
+{
 	std::vector<int3> offsets;
 	getOutOffsets(offsets);
 
 	for (auto & offset : offsets)
 	{
-		int3 targetTile = getObject()->visitablePos() + offset;
+		int3 targetTile = origin + offset;
 		const TerrainTile *tile = getObject()->cb->tryGetTile(targetTile);
 
 		if(!tile)

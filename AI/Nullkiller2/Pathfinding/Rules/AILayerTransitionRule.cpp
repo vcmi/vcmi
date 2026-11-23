@@ -210,7 +210,10 @@ namespace AIPathfinding
 		{
 			const CGHeroInstance * hero = nodeStorage->getHero(source.node);
 
-			if(summonableVirtualBoats.contains(hero) && summonableVirtualBoats.at(hero)->canAct(aiNk, nodeStorage->getAINode(source.node)))
+			// the spell puts the boat on the first free water tile around the hero, which need not be this one
+			if(summonableVirtualBoats.contains(hero)
+				&& hero->bestLocationFrom(source.coord) == destination.coord
+				&& summonableVirtualBoats.at(hero)->canAct(aiNk, nodeStorage->getAINode(source.node)))
 			{
 				virtualBoat = summonableVirtualBoats.at(hero);
 			}
