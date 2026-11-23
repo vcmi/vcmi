@@ -44,6 +44,7 @@ set(test_SRCS
 		filesystem/SavegamePathTest.cpp
 
 		game/BattleSpellCastTest.cpp
+		game/HeroLevelUpTest.cpp
 		game/HeroRecruitmentTest.cpp
 		game/HeroMovementTest.cpp
 		game/HeroSecondarySkillsTest.cpp
