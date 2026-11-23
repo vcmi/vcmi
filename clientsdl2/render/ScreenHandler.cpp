@@ -602,14 +602,11 @@ void ScreenHandler::validateSettings()
 		Point resolution = getPreferredWindowResolution();
 
 		SDL_Rect bounds;
-		if(SDL_GetDisplayUsableBounds(displayIndex, &bounds) == 0)
+		if(SDL_GetDisplayUsableBounds(displayIndex, &bounds) == 0 && (resolution.x > bounds.w || resolution.y > bounds.h))
 		{
-			if(resolution.x > bounds.w || resolution.y > bounds.h)
-			{
-				Settings writer = settings.write["video"]["resolution"];
-				writer["width"].Float() = bounds.w;
-				writer["height"].Float() = bounds.h;
-			}
+			Settings writer = settings.write["video"]["resolution"];
+			writer["width"].Float() = bounds.w;
+			writer["height"].Float() = bounds.h;
 		}
 	}
 

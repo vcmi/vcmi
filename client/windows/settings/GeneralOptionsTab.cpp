@@ -341,7 +341,10 @@ void GeneralOptionsTab::setGameResolution(int index)
 
 void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 {
-	EDisplayMode displayMode = on ? (exclusive ? EDisplayMode::FULLSCREEN_EXCLUSIVE : EDisplayMode::FULLSCREEN) : EDisplayMode::WINDOWED;
+	EDisplayMode displayMode = EDisplayMode::WINDOWED;
+	if(on)
+		displayMode = exclusive ? EDisplayMode::FULLSCREEN_EXCLUSIVE : EDisplayMode::FULLSCREEN;
+
 	if(displayMode == getDisplayMode())
 		return;
 

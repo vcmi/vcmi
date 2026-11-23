@@ -214,7 +214,12 @@ void CSettingsView::loadSettings()
 	ui->labelResetTutorialTouchscreen->hide();
 	ui->pushButtonResetTutorialTouchscreen->hide();
 	EDisplayMode displayMode = getDisplayMode();
-	ui->comboBoxDisplayMode->setCurrentIndex(displayMode == EDisplayMode::FULLSCREEN_EXCLUSIVE ? 2 : displayMode == EDisplayMode::FULLSCREEN ? 1 : 0);
+	int displayModeIndex = 0;
+	if(displayMode == EDisplayMode::FULLSCREEN)
+		displayModeIndex = 1;
+	else if(displayMode == EDisplayMode::FULLSCREEN_EXCLUSIVE)
+		displayModeIndex = 2;
+	ui->comboBoxDisplayMode->setCurrentIndex(displayModeIndex);
 #endif
 #ifndef VCMI_ANDROID
 	ui->buttonHandleBackRightMouseButton->hide();
@@ -594,7 +599,12 @@ void CSettingsView::on_comboBoxResolution_currentTextChanged(const QString & arg
 
 void CSettingsView::on_comboBoxDisplayMode_currentIndexChanged(int index)
 {
-	setDisplayMode(index == 2 ? EDisplayMode::FULLSCREEN_EXCLUSIVE : index == 1 ? EDisplayMode::FULLSCREEN : EDisplayMode::WINDOWED);
+	EDisplayMode displayMode = EDisplayMode::WINDOWED;
+	if(index == 1)
+		displayMode = EDisplayMode::FULLSCREEN;
+	else if(index == 2)
+		displayMode = EDisplayMode::FULLSCREEN_EXCLUSIVE;
+	setDisplayMode(displayMode);
 
 	fillValidResolutions();
 	fillValidScalingRange();

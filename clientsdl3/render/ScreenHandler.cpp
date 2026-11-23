@@ -28,6 +28,7 @@
 
 #include "lib/CConfigHandler.h"
 #include "lib/GameConstants.h"
+#include "lib/Rect.h"
 #include "lib/constants/StringConstants.h"
 #include "lib/VCMIDirs.h"
 #include "lib/texts/MetaString.h"
@@ -348,8 +349,8 @@ void ScreenHandler::recreateWindowAndScreenBuffers()
 #ifndef VCMI_MOBILE
 static void setWindowedGeometry(SDL_Window * window, SDL_DisplayID displayID, Point resolution, bool center)
 {
-	SDL_Rect bounds;
-	if(!SDL_GetDisplayUsableBounds(displayID, &bounds))
+	SDL_Rect displayBounds;
+	if(!SDL_GetDisplayUsableBounds(displayID, &displayBounds))
 	{
 		SDL_SetWindowSize(window, resolution.x, resolution.y);
 		return;
@@ -360,12 +361,17 @@ static void setWindowedGeometry(SDL_Window * window, SDL_DisplayID displayID, Po
 	int bottom = 0;
 	int right = 0;
 	SDL_GetWindowBordersSize(window, &top, &left, &bottom, &right);
-	resolution.x = std::min(resolution.x, std::max(1, bounds.w - left - right));
-	resolution.y = std::min(resolution.y, std::max(1, bounds.h - top - bottom));
+
+	Rect usableBounds(displayBounds.x + left, displayBounds.y + top, std::max(1, displayBounds.w - left - right), std::max(1, displayBounds.h - top - bottom));
+	resolution.x = std::clamp(resolution.x, 1, usableBounds.w);
+	resolution.y = std::clamp(resolution.y, 1, usableBounds.h);
 	SDL_SetWindowSize(window, resolution.x, resolution.y);
 
 	if(center)
-		SDL_SetWindowPosition(window, bounds.x + left + (bounds.w - resolution.x - left - right) / 2, bounds.y + top + (bounds.h - resolution.y - top - bottom) / 2);
+	{
+		Point position = Rect::createCentered(usableBounds, resolution).topLeft();
+		SDL_SetWindowPosition(window, position.x, position.y);
+	}
 }
 #endif
 
@@ -690,14 +696,11 @@ void ScreenHandler::validateSettings()
 		Point resolution = getPreferredWindowResolution();
 
 		SDL_Rect bounds;
-		if(SDL_GetDisplayUsableBounds(displayIndexToID(displayIndex), &bounds))
+		if(SDL_GetDisplayUsableBounds(displayIndexToID(displayIndex), &bounds) && (resolution.x > bounds.w || resolution.y > bounds.h))
 		{
-			if(resolution.x > bounds.w || resolution.y > bounds.h)
-			{
-				Settings writer = settings.write["video"]["resolution"];
-				writer["width"].Float() = bounds.w;
-				writer["height"].Float() = bounds.h;
-			}
+			Settings writer = settings.write["video"]["resolution"];
+			writer["width"].Float() = bounds.w;
+			writer["height"].Float() = bounds.h;
 		}
 	}
 
