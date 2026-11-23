@@ -383,6 +383,28 @@ std::optional<TreasurePlacer::CustomPandoraBox> TreasurePlacer::readCustomPandor
 	{
 		box.nativeCreaturesLevel = nativeCreatures["level"].Integer();
 		box.rarity = PANDORA_CREATURES_RARITY;
+
+		const std::string kind = nativeCreatures["kind"].String();
+		if(!kind.empty())
+		{
+			if(kind != "basic" && kind != "upgrade")
+			{
+				logRmg->error("RMG pandoraBoxes entry is ignored: unknown nativeCreatures.kind '%s': %s", kind, entry.toCompactString());
+				return std::nullopt;
+			}
+			if(*box.nativeCreaturesLevel < 1)
+			{
+				logRmg->warn("RMG pandoraBoxes nativeCreatures.kind is ignored: kind needs level 1 or more: %s", entry.toCompactString());
+			}
+			else if(kind == "basic")
+			{
+				box.nativeCreaturesKind = NativeCreatureKind::BASIC;
+			}
+			else
+			{
+				box.nativeCreaturesKind = NativeCreatureKind::UPGRADE;
+			}
+		}
 	}
 	if(goldOnly)
 	{
@@ -419,6 +441,33 @@ std::optional<TreasurePlacer::CustomPandoraBox> TreasurePlacer::readCustomPandor
 	return box;
 }
 
+std::vector<const CCreature *> TreasurePlacer::selectNativeCreatures(const CustomPandoraBox & box, const std::vector<const CCreature *> & natives)
+{
+	std::vector<const CCreature *> selected;
+	if(!box.nativeCreaturesLevel)
+		return selected;
+
+	for(const auto * creature : natives)
+	{
+		if(*box.nativeCreaturesLevel && creature->getLevel() != *box.nativeCreaturesLevel)
+			continue;
+
+		if(box.nativeCreaturesKind != NativeCreatureKind::ALL)
+		{
+			const bool isUpgrade = std::any_of(natives.begin(), natives.end(), [creature](const CCreature * other)
+			{
+				return creature->isUpgradeOf(other->getId());
+			});
+			if(box.nativeCreaturesKind == NativeCreatureKind::BASIC && isUpgrade)
+				continue;
+			if(box.nativeCreaturesKind == NativeCreatureKind::UPGRADE && !isUpgrade)
+				continue;
+		}
+		selected.push_back(creature);
+	}
+	return selected;
+}
+
 std::shared_ptr<CGPandoraBox> TreasurePlacer::createPandoraBox() const
 {
 	auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
@@ -441,10 +490,8 @@ void TreasurePlacer::addCustomPandoraBoxes()
 
 		if(box->nativeCreaturesLevel)
 		{
-			for(const auto * creature : creatures)
+			for(const auto * creature : selectNativeCreatures(*box, creatures))
 			{
-				if(*box->nativeCreaturesLevel && creature->getLevel() != *box->nativeCreaturesLevel)
-					continue;
 				auto oi = createCreaturePandoraBox(creature);
 				if(!oi)
 					continue;
