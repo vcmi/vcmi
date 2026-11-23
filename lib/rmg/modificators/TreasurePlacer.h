@@ -17,6 +17,7 @@
 
 class CGObjectInstance;
 class CGPandoraBox;
+class IGameInfoCallback;
 class ObjectManager;
 class RmgMap;
 class CMapGenerator;
@@ -36,8 +37,21 @@ public:
 
 	enum class NativeCreatureKind { ALL, BASIC, UPGRADE };
 
-	/// "rmg" block of a customObjects.pandoraBoxes entry
-	struct CustomPandoraBox
+	/// Defaults of one customObjects reward list; gold and experience value = amount * multiplier / amountStep
+	struct CustomRewardDefaults
+	{
+		std::string listName; ///< "pandoraBoxes" or "seerHuts", for log messages
+		ui32 amountStep = 1;
+		int goldMultiplier = 1;
+		int experienceMultiplier = 1;
+		ui16 goldRarity = 0;
+		ui16 experienceRarity = 0;
+		ui16 creaturesRarity = 0;
+	};
+	static CustomRewardDefaults pandoraRewardDefaults(const CMapGenerator::Config & config);
+
+	/// "rmg" block of a customObjects.pandoraBoxes or seerHuts entry
+	struct CustomReward
 	{
 		std::optional<ui32> value; ///< nullopt only for native creature boxes without rmg.value: valued like the built-in creature box
 		ui16 rarity = 0;
@@ -46,10 +60,12 @@ public:
 		std::optional<int> nativeCreaturesLevel; ///< set for rmg.nativeCreatures boxes; 0 = all levels
 		NativeCreatureKind nativeCreaturesKind = NativeCreatureKind::ALL; ///< ALL unless nativeCreaturesLevel >= 1
 	};
-	/// rmg fields of a pandoraBoxes entry with preset defaults applied; nullopt (and an error log) when value or rarity is missing
-	static std::optional<CustomPandoraBox> readCustomPandoraBox(const JsonNode & entry, const CMapGenerator::Config & config);
+	/// rmg fields of an entry with preset defaults applied; nullopt (and an error log) when value or rarity is missing
+	static std::optional<CustomReward> readCustomReward(const JsonNode & entry, const CustomRewardDefaults & defaults);
 	/// natives that get an rmg.nativeCreatures box, in natives order. An upgrade is a creature that isUpgradeOf another creature in natives; basic is every other creature
-	static std::vector<const CCreature *> selectNativeCreatures(const CustomPandoraBox & box, const std::vector<const CCreature *> & natives);
+	static std::vector<const CCreature *> selectNativeCreatures(const CustomReward & reward, const std::vector<const CCreature *> & natives);
+	/// the entry without "rmg", loaded as Pandora box map options exactly like the .vmap loader does
+	static std::shared_ptr<CGPandoraBox> loadPandoraBoxOptions(const JsonNode & entry, IGameInfoCallback * cb);
 
 	void process() override;
 	void init() override;
