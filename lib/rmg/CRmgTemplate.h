@@ -362,14 +362,14 @@ public:
 	const JsonNode & getMapSettings() const;
 	const std::vector<rmg::ZoneConnection> & getConnectedZoneIds() const;
 
-	const std::set<SpellID> & getBannedSpells() const { return bannedSpells; }
-	const std::set<ArtifactID> & getBannedArtifacts() const { return bannedArtifacts; }
-	const std::set<SecondarySkill> & getBannedSkills() const { return bannedSkills; }
-	const std::set<HeroTypeID> & getBannedHeroes() const { return bannedHeroes; }
-	const std::set<SpellID> & getEnabledSpells() const { return enabledSpells; }
-	const std::set<ArtifactID> & getEnabledArtifacts() const { return enabledArtifacts; }
-	const std::set<SecondarySkill> & getEnabledSkills() const { return enabledSkills; }
-	const std::set<HeroTypeID> & getEnabledHeroes() const { return enabledHeroes; }
+	const std::set<SpellID> & getBannedSpells() const { return banned.spells; }
+	const std::set<ArtifactID> & getBannedArtifacts() const { return banned.artifacts; }
+	const std::set<SecondarySkill> & getBannedSkills() const { return banned.skills; }
+	const std::set<HeroTypeID> & getBannedHeroes() const { return banned.heroes; }
+	const std::set<SpellID> & getEnabledSpells() const { return enabled.spells; }
+	const std::set<ArtifactID> & getEnabledArtifacts() const { return enabled.artifacts; }
+	const std::set<SecondarySkill> & getEnabledSkills() const { return enabled.skills; }
+	const std::set<HeroTypeID> & getEnabledHeroes() const { return enabled.heroes; }
 	const ObjectConfig & getCustomObjects() const { return objectConfig; }
 	const rmg::MonsterJoiningOptions & getMonsterJoining() const { return monsterJoining; }
 
@@ -391,15 +391,17 @@ private:
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 	std::unique_ptr<JsonNode> mapSettings;
 
-	std::set<SpellID> bannedSpells;
-	std::set<ArtifactID> bannedArtifacts;
-	std::set<SecondarySkill> bannedSkills;
-	std::set<HeroTypeID> bannedHeroes;
+	/// Entities named by one template list: the bannedX or enabledX fields
+	struct EntitySets
+	{
+		std::set<SpellID> spells;
+		std::set<ArtifactID> artifacts;
+		std::set<SecondarySkill> skills;
+		std::set<HeroTypeID> heroes;
+	};
 
-	std::set<SpellID> enabledSpells;
-	std::set<ArtifactID> enabledArtifacts;
-	std::set<SecondarySkill> enabledSkills;
-	std::set<HeroTypeID> enabledHeroes;
+	EntitySets banned;
+	EntitySets enabled;
 	ObjectConfig objectConfig;
 	rmg::MonsterJoiningOptions monsterJoining;
 

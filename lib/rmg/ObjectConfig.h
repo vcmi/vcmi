@@ -85,8 +85,8 @@ public:
 
 	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> getRequiredObjects() const;
 
-	/// Effective config of a zone: `override` entries replace `base` entries per object, per the VCM-22 merge rules
-	static ObjectConfig merge(const ObjectConfig & base, const ObjectConfig & override);
+	/// Effective config of a zone: `overlay` entries replace `base` entries per object, per the VCM-22 merge rules
+	static ObjectConfig merge(const ObjectConfig & base, const ObjectConfig & overlay);
 
 	void serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects);
 private:

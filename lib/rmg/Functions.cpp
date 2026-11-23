@@ -138,9 +138,9 @@ std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 
 std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell)
 {
-	auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
+	const auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
 	auto obj = std::dynamic_pointer_cast<CGArtifact>(factory.create(map.mapInstance->cb, nullptr));
-	auto * a = map.getMapProxy()->createScroll(spell);
+	const auto * a = map.getMapProxy()->createScroll(spell);
 	obj->setArtifactInstance(a);
 	return obj;
 }

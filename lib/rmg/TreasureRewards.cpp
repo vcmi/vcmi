@@ -24,6 +24,51 @@
 namespace TreasureRewards
 {
 
+namespace
+{
+/// rmg.nativeCreatures into `reward`; false (and an error log) when the entry must be ignored
+bool readNativeCreatures(const JsonNode & nativeCreatures, const JsonNode & entry, const CustomRewardDefaults & defaults, CustomReward & reward)
+{
+	reward.nativeCreaturesLevel = nativeCreatures["level"].Integer();
+	reward.rarity = defaults.creaturesRarity;
+
+	const std::string kind = nativeCreatures["kind"].String();
+	if(kind.empty())
+		return true;
+
+	if(kind != "basic" && kind != "upgrade")
+	{
+		logRmg->error("RMG %s entry is ignored: unknown nativeCreatures.kind '%s': %s", defaults.listName, kind, entry.toCompactString());
+		return false;
+	}
+
+	if(*reward.nativeCreaturesLevel < 1)
+		logRmg->warn("RMG %s nativeCreatures.kind is ignored: kind needs level 1 or more: %s", defaults.listName, entry.toCompactString());
+	else
+		reward.nativeCreaturesKind = kind == "basic" ? NativeCreatureKind::BASIC : NativeCreatureKind::UPGRADE;
+	return true;
+}
+
+std::set<FactionID> readZoneFactions(const JsonNode & zoneFactions, const CustomRewardDefaults & defaults)
+{
+	std::set<FactionID> factions;
+	for(const auto & faction : zoneFactions.Vector())
+	{
+		auto factionID = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "faction", faction.String());
+		if(factionID)
+			factions.insert(FactionID(*factionID));
+		else
+			logRmg->error("RMG %s entry: unknown zone faction '%s' is ignored", defaults.listName, faction.String());
+	}
+	return factions;
+}
+
+ui32 scaledAmount(si64 amount, int multiplier, ui32 amountStep)
+{
+	return static_cast<ui32>(static_cast<ui64>(amount) * multiplier / amountStep);
+}
+}
+
 std::optional<CustomReward> readCustomReward(const JsonNode & entry, const CustomRewardDefaults & defaults)
 {
 	std::set<std::string> contentKeys;
@@ -46,41 +91,16 @@ std::optional<CustomReward> readCustomReward(const JsonNode & entry, const Custo
 	}
 
 	CustomReward reward;
-	if(!nativeCreatures.isNull())
-	{
-		reward.nativeCreaturesLevel = nativeCreatures["level"].Integer();
-		reward.rarity = defaults.creaturesRarity;
-
-		const std::string kind = nativeCreatures["kind"].String();
-		if(!kind.empty())
-		{
-			if(kind != "basic" && kind != "upgrade")
-			{
-				logRmg->error("RMG %s entry is ignored: unknown nativeCreatures.kind '%s': %s", defaults.listName, kind, entry.toCompactString());
-				return std::nullopt;
-			}
-			if(*reward.nativeCreaturesLevel < 1)
-			{
-				logRmg->warn("RMG %s nativeCreatures.kind is ignored: kind needs level 1 or more: %s", defaults.listName, entry.toCompactString());
-			}
-			else if(kind == "basic")
-			{
-				reward.nativeCreaturesKind = NativeCreatureKind::BASIC;
-			}
-			else
-			{
-				reward.nativeCreaturesKind = NativeCreatureKind::UPGRADE;
-			}
-		}
-	}
+	if(!nativeCreatures.isNull() && !readNativeCreatures(nativeCreatures, entry, defaults, reward))
+		return std::nullopt;
 	if(goldOnly)
 	{
-		reward.value = static_cast<ui32>(static_cast<ui64>(resources["gold"].Integer()) * defaults.goldMultiplier / defaults.amountStep);
+		reward.value = scaledAmount(resources["gold"].Integer(), defaults.goldMultiplier, defaults.amountStep);
 		reward.rarity = defaults.goldRarity;
 	}
 	if(experienceOnly)
 	{
-		reward.value = static_cast<ui32>(static_cast<ui64>(entry["experience"].Integer()) * defaults.experienceMultiplier / defaults.amountStep);
+		reward.value = scaledAmount(entry["experience"].Integer(), defaults.experienceMultiplier, defaults.amountStep);
 		reward.rarity = defaults.experienceRarity;
 	}
 
@@ -95,15 +115,7 @@ std::optional<CustomReward> readCustomReward(const JsonNode & entry, const Custo
 	if(!rmg["rarity"].isNull())
 		reward.rarity = rmg["rarity"].Integer();
 	reward.zoneLimit = rmg["zoneLimit"].Integer();
-
-	for(const auto & faction : rmg["zoneFactions"].Vector())
-	{
-		auto factionID = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "faction", faction.String());
-		if(factionID)
-			reward.zoneFactions.insert(FactionID(*factionID));
-		else
-			logRmg->error("RMG %s entry: unknown zone faction '%s' is ignored", defaults.listName, faction.String());
-	}
+	reward.zoneFactions = readZoneFactions(rmg["zoneFactions"], defaults);
 
 	return reward;
 }
@@ -135,28 +147,6 @@ std::vector<const CCreature *> selectNativeCreatures(const CustomReward & reward
 	return selected;
 }
 
-void forEachCustomReward(const std::vector<JsonNode> & entries, const CustomRewardDefaults & defaults, FactionID zoneFaction, const std::vector<const CCreature *> & natives, const NativeCreatureBuilder & onNativeCreature, const EntryBuilder & onEntry)
-{
-	for(const auto & entry : entries)
-	{
-		auto reward = readCustomReward(entry, defaults);
-		if(!reward)
-			continue;
-		if(!reward->zoneFactions.empty() && !reward->zoneFactions.count(zoneFaction))
-			continue;
-
-		if(reward->nativeCreaturesLevel)
-		{
-			for(const auto * creature : selectNativeCreatures(*reward, natives))
-				onNativeCreature(*reward, creature);
-		}
-		else
-		{
-			onEntry(*reward, entry);
-		}
-	}
-}
-
 std::shared_ptr<CGPandoraBox> loadPandoraBoxOptions(const JsonNode & entry, IGameInfoCallback * cb)
 {
 	JsonNode objectJson;
@@ -164,7 +154,7 @@ std::shared_ptr<CGPandoraBox> loadPandoraBoxOptions(const JsonNode & entry, IGam
 	objectJson["options"].Struct().erase("rmg");
 	objectJson.setModScope(ModScope::scopeGame());
 
-	auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
+	const auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
 	auto obj = std::dynamic_pointer_cast<CGPandoraBox>(factory.create(cb, nullptr));
 	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
 	JsonDeserializer handler(nullptr, resolver, objectJson);

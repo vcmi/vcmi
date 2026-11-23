@@ -24,13 +24,13 @@ void MonsterJoiningOptions::serializeJson(JsonSerializeFormat & handler)
 		if(character)
 		{
 			auto value = *character;
-			handler.serializeEnum("character", value, CGCreature::CHARACTER_JSON);
+			handler.serializeEnum("character", value, CGCreature::getCharacterJsonNames());
 		}
 	}
 	else if(handler.getCurrent()["character"].getType() == JsonNode::JsonType::DATA_STRING)
 	{
 		CGCreature::Character value = CGCreature::Character::HOSTILE;
-		handler.serializeEnum("character", value, CGCreature::CHARACTER_JSON);
+		handler.serializeEnum("character", value, CGCreature::getCharacterJsonNames());
 		character = value;
 	}
 
@@ -53,17 +53,17 @@ void MonsterJoiningOptions::serializeJson(JsonSerializeFormat & handler)
 	}
 }
 
-MonsterJoiningOptions MonsterJoiningOptions::merge(const MonsterJoiningOptions & base, const MonsterJoiningOptions & override)
+MonsterJoiningOptions MonsterJoiningOptions::merge(const MonsterJoiningOptions & base, const MonsterJoiningOptions & overlay)
 {
 	MonsterJoiningOptions result = base;
-	if(override.character)
-		result.character = override.character;
-	if(override.aggression)
-		result.aggression = override.aggression;
-	if(override.joiningPercentage)
-		result.joiningPercentage = override.joiningPercentage;
-	if(override.joinOnlyForMoney)
-		result.joinOnlyForMoney = override.joinOnlyForMoney;
+	if(overlay.character)
+		result.character = overlay.character;
+	if(overlay.aggression)
+		result.aggression = overlay.aggression;
+	if(overlay.joiningPercentage)
+		result.joiningPercentage = overlay.joiningPercentage;
+	if(overlay.joinOnlyForMoney)
+		result.joinOnlyForMoney = overlay.joinOnlyForMoney;
 	return result;
 }
 

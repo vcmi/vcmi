@@ -977,15 +977,15 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 	serializePlayers(handler, players, "players");
 	serializePlayers(handler, humanPlayers, "humans"); // TODO: Rename this parameter
 
-	handler.serializeIdArray("bannedSpells", bannedSpells);
-	handler.serializeIdArray("bannedArtifacts", bannedArtifacts);
-	handler.serializeIdArray("bannedSkills", bannedSkills);
-	handler.serializeIdArray("bannedHeroes", bannedHeroes);
+	handler.serializeIdArray("bannedSpells", banned.spells);
+	handler.serializeIdArray("bannedArtifacts", banned.artifacts);
+	handler.serializeIdArray("bannedSkills", banned.skills);
+	handler.serializeIdArray("bannedHeroes", banned.heroes);
 
-	handler.serializeIdArray("enabledSpells", enabledSpells);
-	handler.serializeIdArray("enabledArtifacts", enabledArtifacts);
-	handler.serializeIdArray("enabledSkills", enabledSkills);
-	handler.serializeIdArray("enabledHeroes", enabledHeroes);
+	handler.serializeIdArray("enabledSpells", enabled.spells);
+	handler.serializeIdArray("enabledArtifacts", enabled.artifacts);
+	handler.serializeIdArray("enabledSkills", enabled.skills);
+	handler.serializeIdArray("enabledHeroes", enabled.heroes);
 
 	*mapSettings = handler.getCurrent()["settings"];
 

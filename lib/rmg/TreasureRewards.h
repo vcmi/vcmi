@@ -52,12 +52,31 @@ std::optional<CustomReward> readCustomReward(const JsonNode & entry, const Custo
 /// natives that get an rmg.nativeCreatures object, in natives order. An upgrade is a creature that isUpgradeOf another creature in natives; basic is every other creature
 std::vector<const CCreature *> selectNativeCreatures(const CustomReward & reward, const std::vector<const CCreature *> & natives);
 
-using NativeCreatureBuilder = std::function<void(const CustomReward & reward, const CCreature * creature)>;
-using EntryBuilder = std::function<void(const CustomReward & reward, const JsonNode & entry)>;
-
 /// Reads each entry of a reward list in order and skips unreadable entries and entries limited to other zone factions.
-/// An rmg.nativeCreatures entry calls onNativeCreature once per selected native creature; any other entry calls onEntry once.
-void forEachCustomReward(const std::vector<JsonNode> & entries, const CustomRewardDefaults & defaults, FactionID zoneFaction, const std::vector<const CCreature *> & natives, const NativeCreatureBuilder & onNativeCreature, const EntryBuilder & onEntry);
+/// An rmg.nativeCreatures entry calls onNativeCreature(const CustomReward &, const CCreature *) once per selected native creature;
+/// any other entry calls onEntry(const CustomReward &, const JsonNode &) once.
+template<typename NativeCreatureBuilder, typename EntryBuilder>
+void forEachCustomReward(const std::vector<JsonNode> & entries, const CustomRewardDefaults & defaults, FactionID zoneFaction, const std::vector<const CCreature *> & natives, NativeCreatureBuilder && onNativeCreature, EntryBuilder && onEntry)
+{
+	for(const auto & entry : entries)
+	{
+		auto reward = readCustomReward(entry, defaults);
+		if(!reward)
+			continue;
+		if(!reward->zoneFactions.empty() && !reward->zoneFactions.count(zoneFaction))
+			continue;
+
+		if(reward->nativeCreaturesLevel)
+		{
+			for(const auto * creature : selectNativeCreatures(*reward, natives))
+				onNativeCreature(*reward, creature);
+		}
+		else
+		{
+			onEntry(*reward, entry);
+		}
+	}
+}
 
 /// the entry without "rmg", loaded as Pandora box map options exactly like the .vmap loader does
 std::shared_ptr<CGPandoraBox> loadPandoraBoxOptions(const JsonNode & entry, IGameInfoCallback * cb);
