@@ -45,7 +45,7 @@ void addRandomMapOptions(QCommandLineParser & parser)
 		{"levels", QCoreApplication::translate("main", "Number of map levels."), "n"},
 		{"players", QCoreApplication::translate("main", "Human-or-CPU player count."), "n"},
 		{"computer-players", QCoreApplication::translate("main", "Computer-only player count."), "n"},
-		{"water", QCoreApplication::translate("main", "Water content: random, none, normal, islands."), "v"},
+		{"water", QCoreApplication::translate("main", "Water content: random, none, normal, islands. Default: none, or the template's choice when it requires water."), "v"},
 		{"monsters", QCoreApplication::translate("main", "Monster strength: random, weak, normal, strong."), "v"},
 		{"seed", QCoreApplication::translate("main", "RNG seed."), "n"},
 		{"single-thread", QCoreApplication::translate("main", "Run the random map generator on one thread.")},
@@ -346,8 +346,8 @@ int runRandomMapCommand(QCoreApplication & app)
 			options.setHumanOrCpuPlayerCount(static_cast<si8>(*players));
 		if(computerPlayers)
 			options.setCompOnlyPlayerCount(static_cast<si8>(*computerPlayers));
-		if(water)
-			options.setWaterContent(*water);
+		// Default to no water; setMapTemplate falls back to the template's allowed water when it forbids none.
+		options.setWaterContent(water.value_or(EWaterContent::NONE));
 		if(monsters)
 			options.setMonsterStrength(*monsters);
 

@@ -52,14 +52,14 @@ The binary is `vcmieditor` on Linux and macOS and `VCMI_mapeditor.exe` on Window
 - `--levels <n>` — level count. Default: as size.
 - `--players <n>` — human-or-CPU players. Default: random.
 - `--computer-players <n>` — computer-only players. Default: random.
-- `--water <v>` — `random`, `none`, `normal`, `islands`. Default: `random`.
+- `--water <v>` — `random`, `none`, `normal`, `islands`. Default: `none`; a template that does not allow `none` picks one of its allowed values.
 - `--monsters <v>` — `random`, `weak`, `normal`, `strong`. Default: `random`.
 - `--seed <n>` — RNG seed. Default: current time.
 - `--single-thread` — run the generator on one thread so the same seed repeats. Default: off.
 
 Exit codes: 0 saved; 1 generation or saving threw; 2 bad arguments, no matching template, or a requested value the template does not allow.
 
-```
+```sh
 vcmieditor --generate /abs/path/out.vmap --template 'Jebus Cross' --seed 12345 --single-thread
 ```
 
