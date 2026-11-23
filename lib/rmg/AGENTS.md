@@ -67,6 +67,8 @@ Unit tests cover single functions. To see what a change does to whole maps (obje
 vcmieditor --generate /abs/path/out.vmap --template 'Jebus Cross' --seed 12345 --single-thread
 ```
 
+- Build the map editor (`vcmieditor` target, needs Qt), then run the binary from the build's `bin/` directory: `build/bin/vcmieditor` on Linux and macOS, `build\bin\<Config>\VCMI_mapeditor.exe` on Windows. In an installed VCMI it is `vcmieditor` (`VCMI_mapeditor.exe` on Windows).
+- Pass an absolute output path when a wrapper script starts the editor from another directory; relative paths resolve against the directory the editor was started in.
 - It needs no display. It loads the same data and mods as the editor, so templates from mods are available.
 - Options: `--template`, `--width`/`--height` (both or neither), `--levels`, `--players`, `--computer-players`, `--water random|none|normal|islands`, `--monsters random|weak|normal|strong`, `--seed`, `--single-thread`. `vcmieditor --help` lists them.
 - `--template` matches the exact id (`<mod scope>:<name>`) first, then the exact name, then part of the id or name. When several templates match, the error lists their ids.
