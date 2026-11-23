@@ -21,6 +21,44 @@
 #include "../../lib/callback/EditorCallback.h"
 
 
+TEST(MapManager, UndoRedoLimit_ZeroKeepsNothing)
+{
+	auto map = std::make_unique<CMap>(nullptr);
+	CRandomGenerator rand;
+	map->width = 52;
+	map->height = 52;
+	map->initTerrain();
+	auto editManager = map->getEditManager();
+	editManager->clearTerrain(&rand);
+
+	editManager->getUndoManager().setUndoRedoLimit(0);
+	editManager->getTerrainSelection().select(int3(5, 5, 0));
+	editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
+
+	EXPECT_EQ(editManager->getUndoManager().getUndoRedoLimit(), 0);
+	EXPECT_EQ(editManager->getUndoManager().peekUndo(), nullptr);
+}
+
+TEST(MapManager, UndoRedoLimit_OneKeepsLatest)
+{
+	auto map = std::make_unique<CMap>(nullptr);
+	CRandomGenerator rand;
+	map->width = 52;
+	map->height = 52;
+	map->initTerrain();
+	auto editManager = map->getEditManager();
+	editManager->clearTerrain(&rand);
+
+	editManager->getUndoManager().setUndoRedoLimit(1);
+	editManager->getTerrainSelection().select(int3(5, 5, 0));
+	editManager->drawTerrain(ETerrainId::GRASS, 10, &rand);
+	editManager->getTerrainSelection().select(int3(8, 8, 0));
+	editManager->drawTerrain(ETerrainId::LAVA, 10, &rand);
+	editManager->getUndoManager().undo();
+
+	EXPECT_EQ(editManager->getUndoManager().peekUndo(), nullptr);
+}
+
 TEST(MapManager, DrawTerrain_Type)
 {
 	try
