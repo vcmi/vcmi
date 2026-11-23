@@ -117,3 +117,20 @@ ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level)
 
 	return getNativeDwellingValue(map, creature);
 }
+
+std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
+	const std::vector<MapLayerId> & levelLayers, const std::set<int> & landZoneLevels)
+{
+	if(water == EWaterContent::NONE)
+		return {};
+
+	std::vector<int> result;
+	for(int level : landZoneLevels)
+	{
+		if(static_cast<size_t>(level) >= levelLayers.size())
+			continue;
+		if(levelLayers[level] != MapLayerId::UNDERGROUND)
+			result.push_back(level);
+	}
+	return result;
+}

@@ -50,3 +50,7 @@ const CCreature * getRandomDwellingCreature(FactionID faction, int level);
 
 /// Value of a random dwelling of given level (0-based) that becomes a dwelling of given faction, 0 if it can't be determined
 ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level);
+
+/// Levels that get their own water zone, ascending
+std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
+	const std::vector<MapLayerId> & levelLayers, const std::set<int> & landZoneLevels);

@@ -155,6 +155,8 @@ set(test_SRCS
 
 		texts/TextOperationsTest.cpp
 
+		rmg/WaterZoneLevelsTest.cpp
+
 		mock/BattleFake.cpp
 		mock/GameHandlerTestClient.cpp
 		mock/GameHandlerTestServer.cpp
