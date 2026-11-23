@@ -342,14 +342,19 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			std::string subtypeName = handler.getSubTypeName();
 			objectStruct->serializeString("subtype", subtypeName);
 			
-			auto rmgStruct = objectStruct->enterStruct("rmg");
 			int value = object.value;
 			int rarity = object.probability;
 			int zoneLimit = (object.maxPerZone == std::numeric_limits<int>::max()) ? 0 : object.maxPerZone;
-				
-			rmgStruct->serializeInt("value", value);
-			rmgStruct->serializeInt("rarity", rarity);
-			rmgStruct->serializeInt("zoneLimit", zoneLimit);
+			if(value || rarity || zoneLimit)
+			{
+				auto rmgStruct = objectStruct->enterStruct("rmg");
+				if(value)
+					rmgStruct->serializeInt("value", value);
+				if(rarity)
+					rmgStruct->serializeInt("rarity", rarity);
+				if(zoneLimit)
+					rmgStruct->serializeInt("zoneLimit", zoneLimit);
+			}
 		}
 	}
 	else
@@ -376,11 +381,8 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			if (object.maxPerZone == 0)
 				object.maxPerZone = std::numeric_limits<int>::max();
 
-			const bool hasRarity = !rmg["rarity"].isNull();
-			auto addObject = [this, hasRarity, &objects](ObjectInfo objectWithID)
+			auto addObject = [this, &objects](ObjectInfo objectWithID)
 			{
-				if (!hasRarity && objectWithID.primaryID == Obj::RANDOM_DWELLING_LVL)
-					objectWithID.probability = NATIVE_DWELLING_RARITY;
 				addCustomObject(objectWithID, objects);
 			};
 

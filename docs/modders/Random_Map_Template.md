@@ -310,6 +310,10 @@ The `customObjects` block can be set at the template root and in a zone. The tem
 	// Configure individual common objects.
 	// The placer skips the default pool entry with the same id and uses this configuration instead.
 	// A template-level entry applies to every zone that does not override that id.
+	// A missing or 0 value or rarity takes the object's own rmg value from its object config.
+	// An entry for an object without one is ignored with an error. A missing or 0 zoneLimit
+	// means no limit per zone, and the object's map-wide limit (mapLimit) no longer applies.
+	// To remove an object, use bannedObjects.
 	// A randomDwellingLvl entry becomes a dwelling of the zone's faction and replaces the native dwelling of that level,
 	// other native dwellings keep spawning as usual. Without rmg.value it is valued like that native dwelling
 	// (creature AI value x growth, increased by the number of zones of that faction), as in SoD.
@@ -327,12 +331,17 @@ The `customObjects` block can be set at the template root and in a zone. The tem
 			}
 		},
 		{
-			// configure scholar properties. Behavior unspecified if there are multiple 'scholar' objects
+			// scholar rarity only; value comes from the object's rmg config
 			"type" : "scholar",
 			"rmg" : {
-				"value"		: 900,
-				"rarity"	: 50,
-				"zoneLimit" : 2
+				"rarity"	: 50
+			}
+		},
+		{
+			// scholar value only; rarity comes from the object's rmg config
+			"type" : "scholar",
+			"rmg" : {
+				"value"		: 900
 			}
 		},
 		{
