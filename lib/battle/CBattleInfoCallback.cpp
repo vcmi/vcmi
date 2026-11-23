@@ -2362,10 +2362,8 @@ std::optional<BattleSide> CBattleInfoCallback::battleIsFinished() const
 
 	for(auto & unit : units)
 	{
-		if(!unit->isClone() && !unit->acquireState()->summoned && !dynamic_cast <const CCommanderInstance *>(unit))
-		{
+		if(isPermanentUnit(*unit))
 			hasUnit.at(unit->unitSide()) = true;
-		}
 	}
 
 	if(!hasUnit[BattleSide::ATTACKER] && !hasUnit[BattleSide::DEFENDER])
@@ -2374,6 +2372,22 @@ std::optional<BattleSide> CBattleInfoCallback::battleIsFinished() const
 		return BattleSide::ATTACKER;
 	else
 		return BattleSide::DEFENDER;
+}
+
+bool CBattleInfoCallback::battleHasPermanentUnits(BattleSide side) const
+{
+	THROW_IF_NOT_BATTLE();
+
+	return !battleGetUnitsIf([side](const battle::Unit * unit)
+	{
+		return unit->unitSide() == side && unit->alive() && !unit->isTurret() && !unit->hasBonusOfType(BonusType::SIEGE_WEAPON) && isPermanentUnit(*unit);
+	}).empty();
+}
+
+bool CBattleInfoCallback::isPermanentUnit(const battle::Unit & unit)
+{
+	// summoned units and clones disappear with the battle
+	return !unit.isClone() && !unit.acquireState()->summoned;
 }
 
 const scripting::Pool & CBattleInfoCallback::getScriptContextPool() const

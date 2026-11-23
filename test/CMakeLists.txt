@@ -134,6 +134,7 @@ set(test_SRCS
 		server/battles/ActionOptionsTest.cpp
 		server/battles/AttackSequenceTest.cpp
 		server/battles/BallistaDamageTest.cpp
+		server/battles/BattleDrawTest.cpp
 		server/battles/BattleTestFixture.cpp
 		server/battles/CombatEventTriggerTest.cpp
 		server/battles/DamageCalculatorTest.cpp

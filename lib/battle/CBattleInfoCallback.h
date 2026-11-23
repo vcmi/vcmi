@@ -63,6 +63,8 @@ public:
 
 	const scripting::Pool & getScriptContextPool() const override;
 	std::optional<BattleSide> battleIsFinished() const override; //return none if battle is ongoing; otherwise the victorious side (0/1) or 2 if it is a draw
+	/// True if the side has alive units that stay in its army once the battle is over
+	bool battleHasPermanentUnits(BattleSide side) const;
 
 	std::vector<std::shared_ptr<const CObstacleInstance>> battleGetAllObstaclesOnPos(const BattleHex & tile, bool onlyBlocking = true, std::optional<BattleSide> perspective = std::nullopt) const override;
 	std::vector<std::shared_ptr<const CObstacleInstance>> getAllAffectedObstaclesByStack(const battle::Unit * unit, const BattleHexArray & passed) const override;
@@ -209,4 +211,6 @@ protected:
 	ReachabilityInfo makeBFS(const AccessibilityInfo & accessibility, const ReachabilityInfo::Parameters & params) const;
 	bool isInObstacle(const BattleHex & hex, const BattleHexArray & obstacles, const ReachabilityInfo::Parameters & params) const;
 	BattleHexArray getStoppers(BattleSide whichSidePerspective) const; //get hexes with stopping obstacles (quicksands)
+	/// True if the unit stays in the army of its side once the battle is over
+	static bool isPermanentUnit(const battle::Unit & unit);
 };

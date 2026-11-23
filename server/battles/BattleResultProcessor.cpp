@@ -398,7 +398,6 @@ void BattleResultProcessor::endBattleConfirm(const CBattleInfoCallback & battle)
 	// Level-ups are asked above the battle, so that the object guarded by the battle is told
 	// about the battle once they are over, and not about the experience. Queued before the
 	// battle is finished, which removes it right away unless a reply is being processed.
-	// The winner is gone if none of its units were left.
 	if(levellingHero.hasValue())
 		if(const auto * hero = gameHandler->gameState().getHero(levellingHero))
 			gameHandler->expGiven(hero);
@@ -428,13 +427,11 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	const auto defenderHero = (*battle)->battleGetFightingHero(BattleSide::DEFENDER);
 	const auto attackerSide = (*battle)->getSidePlayer(BattleSide::ATTACKER);
 	const auto defenderSide = (*battle)->getSidePlayer(BattleSide::DEFENDER);
-	bool winnerHasUnitsLeft = true;
 
 	if (!finishingBattle->isDraw())
 	{
 		winnerHero = (*battle)->battleGetFightingHero(finishingBattle->winnerSide);
 		loserHero = (*battle)->battleGetFightingHero(CBattleInfoEssentials::otherSide(finishingBattle->winnerSide));
-		winnerHasUnitsLeft = winnerHero ? winnerHero->stacksCount() > 0 || (winnerHero->getCommander() && winnerHero->getCommander()->alive) : true;
 	}
 
 	BattleResultsApplied resultsApplied;
@@ -460,7 +457,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		}
 	};
 
-	if(winnerHero && winnerHasUnitsLeft)
+	if(winnerHero)
 	{
 		// Eagle Eye handling
 		if(auto eagleEyeLevel = winnerHero->valOfBonuses(BonusType::LEARN_BATTLE_SPELL_LEVEL_LIMIT))
@@ -523,7 +520,7 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 	}
 
 	// Moving artifacts handling
-	if(result.result == EBattleResult::NORMAL && winnerHero && winnerHasUnitsLeft && !gameHandler->gameState().getMap().battleOnly)
+	if(result.result == EBattleResult::NORMAL && winnerHero && !gameHandler->gameState().getMap().battleOnly)
 	{
 		CArtifactFittingSet artFittingSet(*winnerHero);
 		const auto addArtifactToTransfer = [this, &artFittingSet, &dyingArtifacts, winnerHero](BulkMoveArtifacts & pack, const ArtifactPosition & srcSlot, const CArtifactInstance * art)
@@ -604,14 +601,6 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 		gameHandler->sendAndApply(ro);
 	}
 
-	//retreat the victor if he/she has no pernament creatures left
-	if (winnerHero && !winnerHasUnitsLeft)
-	{
-		RemoveObject ro(winnerHero->id, finishingBattle->loser);
-		gameHandler->sendAndApply(ro);
-		gameHandler->heroPool->onHeroEscaped(finishingBattle->victor, winnerHero);
-	}
-
 	// For draw case both heroes should be removed
 	if(finishingBattle->isDraw())
 	{
@@ -627,26 +616,35 @@ void BattleResultProcessor::battleFinalize(const BattleID & battleID, const Batt
 			RemoveObject ro(defenderHero->id, attackerSide);
 			gameHandler->sendAndApply(ro);
 		}
+	}
 
-		if(gameHandler->gameInfo().getSettings().getBoolean(EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS))
+	const auto returnToTavern = [this, &result](const PlayerColor & player, const CGHeroInstance * hero)
+	{
+		if (!hero)
+			return;
+
+		if (result.result == EBattleResult::SURRENDER)
 		{
-			if (attackerHero)
-				gameHandler->heroPool->onHeroEscaped(attackerSide, attackerHero);
-			if (defenderHero)
-				gameHandler->heroPool->onHeroEscaped(defenderSide, defenderHero);
+			gameHandler->statistics->getPlayerAccumulator(player).numHeroSurrendered++;
+			gameHandler->heroPool->onHeroSurrendered(player, hero);
 		}
-	}
 
-	if (result.result == EBattleResult::SURRENDER)
-	{
-		gameHandler->statistics->getPlayerAccumulator(finishingBattle->loser).numHeroSurrendered++;
-		gameHandler->heroPool->onHeroSurrendered(finishingBattle->loser, loserHero);
-	}
+		if (result.result == EBattleResult::ESCAPE)
+		{
+			gameHandler->statistics->getPlayerAccumulator(player).numHeroEscaped++;
+			gameHandler->heroPool->onHeroEscaped(player, hero);
+		}
+	};
 
-	if (result.result == EBattleResult::ESCAPE)
+	// fleeing from an army of summoned units alone ends the battle in a draw, and both heroes leave as the fleeing one does
+	if(finishingBattle->isDraw())
 	{
-		gameHandler->statistics->getPlayerAccumulator(finishingBattle->loser).numHeroEscaped++;
-		gameHandler->heroPool->onHeroEscaped(finishingBattle->loser, loserHero);
+		returnToTavern(attackerSide, attackerHero);
+		returnToTavern(defenderSide, defenderHero);
+	}
+	else
+	{
+		returnToTavern(finishingBattle->loser, loserHero);
 	}
 
 	//notify all players that battle has ended after all consequences are applied
@@ -678,7 +676,8 @@ void BattleResultProcessor::setBattleResult(const CBattleInfoCallback & battle, 
 	auto & battleResult = battleResults[battle.getBattle()->getBattleID()];
 	battleResult->battleID = battle.getBattle()->getBattleID();
 	battleResult->result = resultType;
-	battleResult->winner = victoriusSide; //surrendering side loses
+	// a side left with nothing but summoned units loses them with the battle, so even an enemy that fled does not lose to it
+	battleResult->winner = victoriusSide != BattleSide::NONE && battle.battleHasPermanentUnits(victoriusSide) ? victoriusSide : BattleSide::NONE;
 	battleResult->attacker = battle.getBattle()->getSidePlayer(BattleSide::ATTACKER);
 
 	auto allStacks = battle.battleGetStacksIf([](const CStack * stack){
