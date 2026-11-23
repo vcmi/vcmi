@@ -307,14 +307,26 @@ void TreasurePlacer::addDwellings()
 	}
 }
 
-void TreasurePlacer::setRandomDwellingValue(ObjectInfo & oi) const
+bool TreasurePlacer::applyCommonObjectDefaults(ObjectInfo & object, const RandomMapInfo & defaults)
+{
+	if(object.value == 0)
+		object.value = defaults.value;
+	if(object.probability == 0)
+		object.probability = static_cast<ui16>(defaults.rarity);
+	return object.value != 0 && object.probability != 0;
+}
+
+void TreasurePlacer::setRandomDwellingDefaults(ObjectInfo & oi) const
 {
 	// The dwelling becomes one of the zone's faction when placed (see ObjectManager::placeObject).
-	// Without a value from the template, value it the same way as native dwellings in addDwellings()
-	if(oi.primaryID != Obj::RANDOM_DWELLING_LVL || oi.value != 0)
+	// Without a value or rarity from the template, use the native dwelling of that level
+	if(oi.primaryID != Obj::RANDOM_DWELLING_LVL)
 		return;
 
-	oi.value = getRandomDwellingValue(map, zone.getTownType(), oi.secondaryID); // objectLvl1 has index 0
+	if(oi.value == 0)
+		oi.value = getRandomDwellingValue(map, zone.getTownType(), oi.secondaryID); // objectLvl1 has index 0
+	if(oi.probability == 0)
+		oi.probability = ObjectConfig::NATIVE_DWELLING_RARITY;
 }
 
 void TreasurePlacer::addScrolls()
@@ -1410,7 +1422,12 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 	for (auto & object : configuredObjects)
 	{
 		tp->setBasicProperties(object, object.getCompoundID());
-		tp->setRandomDwellingValue(object);
+		tp->setRandomDwellingDefaults(object);
+		if(!TreasurePlacer::applyCommonObjectDefaults(object, LIBRARY->objtypeh->getHandlerFor(object.getCompoundID()).getRMGInfo()))
+		{
+			logGlobal->error("RMG commonObjects entry for %d.%d has no value or rarity and the object has no rmg default; skipped", object.primaryID, object.secondaryID);
+			continue;
+		}
 		addObject(object);
 		logGlobal->debug("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
 	}

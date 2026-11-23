@@ -80,19 +80,21 @@
 								"type": "object",
 								"properties": {
 									"value": {
-										"type": "integer"
+										"type": "integer",
+										"minimum": 0
 									},
 									"rarity": {
-										"type": "integer"
+										"type": "integer",
+										"minimum": 0
 									},
 									"zoneLimit": {
-										"type": "integer"
+										"type": "integer",
+										"minimum": 0
 									}
-								},
-								"required": ["value", "rarity"]
+								}
 							}
 						},
-						"required": ["type", "rmg"]
+						"required": ["type"]
 					}
 				},
 				"pandoraBoxes": {

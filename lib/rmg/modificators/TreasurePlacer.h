@@ -20,6 +20,7 @@ class CGPandoraBox;
 class ObjectManager;
 class RmgMap;
 class CMapGenerator;
+struct RandomMapInfo;
 
 class TreasurePlacer: public Modificator
 {
@@ -57,8 +58,10 @@ public:
 	void createTreasures(ObjectManager & manager);
 	void addObjectToRandomPool(const ObjectInfo& oi);
 	void setBasicProperties(ObjectInfo & oi, CompoundMapObjectID objid) const;
-	/// Values a random dwelling of a given level like a native dwelling of the zone's faction, unless the template set a value
-	void setRandomDwellingValue(ObjectInfo & oi) const;
+	/// fills value and probability left at 0 from the object type's rmg defaults; false when either has no default (0)
+	static bool applyCommonObjectDefaults(ObjectInfo & object, const RandomMapInfo & defaults);
+	/// for randomDwellingLvl, a 0 value becomes the native dwelling value and a 0 probability becomes NATIVE_DWELLING_RARITY
+	void setRandomDwellingDefaults(ObjectInfo & oi) const;
 
 	// TODO: Can be defaulted to addAllPossibleObjects, but then each object will need to be configured
 	void addCommonObjects();
