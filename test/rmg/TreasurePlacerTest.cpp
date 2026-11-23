@@ -13,15 +13,12 @@
 #include "../../lib/GameLibrary.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/json/JsonNode.h"
-#include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
-#include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../lib/mapObjectConstructors/RandomMapInfo.h"
 #include "../../lib/mapObjects/CGPandoraBox.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/modding/ModScope.h"
 #include "../../lib/rewardable/Info.h"
 #include "../../lib/rmg/modificators/TreasurePlacer.h"
-#include "../../lib/serializer/JsonDeserializer.h"
 #include "../mock/mock_IGameInfoCallback.h"
 
 namespace test
@@ -76,7 +73,7 @@ TEST_F(TreasurePlacerTest, ExperienceOnlyBoxDefaultsToBuiltInPreset)
 	 * Fail: the entry is rejected, or the value or rarity differs from the built-in box.
 	 */
 
-	auto box = TreasurePlacer::readCustomPandoraBox(entry(R"({ "experience" : )" + std::to_string(2 * STEP) + " }"), config);
+	auto box = TreasurePlacer::readCustomReward(entry(R"({ "experience" : )" + std::to_string(2 * STEP) + " }"), TreasurePlacer::pandoraRewardDefaults(config));
 
 	ASSERT_TRUE(box.has_value());
 	EXPECT_EQ(box->value, 2u * config.pandoraMultiplierExperience);
@@ -93,7 +90,7 @@ TEST_F(TreasurePlacerTest, GoldOnlyBoxDefaultsToBuiltInPreset)
 	 * Fail: the entry is rejected, a default differs, or the box gets a zone limit or factions.
 	 */
 
-	auto box = TreasurePlacer::readCustomPandoraBox(entry(R"({ "resources" : { "gold" : )" + std::to_string(2 * STEP) + " } }"), config);
+	auto box = TreasurePlacer::readCustomReward(entry(R"({ "resources" : { "gold" : )" + std::to_string(2 * STEP) + " } }"), TreasurePlacer::pandoraRewardDefaults(config));
 
 	ASSERT_TRUE(box.has_value());
 	EXPECT_EQ(box->value, 2u * config.pandoraMultiplierGold);
@@ -110,7 +107,7 @@ TEST_F(TreasurePlacerTest, ExplicitRmgFieldsWinOverDefaults)
 	 * Fail: the preset value or rarity is used although the entry sets its own.
 	 */
 
-	auto box = TreasurePlacer::readCustomPandoraBox(entry(R"({ "experience" : 5000, "rmg" : { "value" : 12345, "rarity" : 9999, "zoneLimit" : 1 } })"), config);
+	auto box = TreasurePlacer::readCustomReward(entry(R"({ "experience" : 5000, "rmg" : { "value" : 12345, "rarity" : 9999, "zoneLimit" : 1 } })"), TreasurePlacer::pandoraRewardDefaults(config));
 
 	ASSERT_TRUE(box.has_value());
 	EXPECT_EQ(box->value, 12345u);
@@ -128,11 +125,11 @@ TEST_F(TreasurePlacerTest, BoxWithoutPresetNeedsValueAndRarity)
 	 * Fail: a box without a preset gets a made-up value or rarity, or a complete entry is rejected.
 	 */
 
-	EXPECT_FALSE(TreasurePlacer::readCustomPandoraBox(entry(R"({ "spells" : [ "fly" ] })"), config).has_value());
-	EXPECT_FALSE(TreasurePlacer::readCustomPandoraBox(entry(R"({ "spells" : [ "fly" ], "rmg" : { "value" : 8000 } })"), config).has_value());
-	EXPECT_FALSE(TreasurePlacer::readCustomPandoraBox(entry(R"({ "resources" : { "gold" : 5000, "wood" : 10 } })"), config).has_value());
+	EXPECT_FALSE(TreasurePlacer::readCustomReward(entry(R"({ "spells" : [ "fly" ] })"), TreasurePlacer::pandoraRewardDefaults(config)).has_value());
+	EXPECT_FALSE(TreasurePlacer::readCustomReward(entry(R"({ "spells" : [ "fly" ], "rmg" : { "value" : 8000 } })"), TreasurePlacer::pandoraRewardDefaults(config)).has_value());
+	EXPECT_FALSE(TreasurePlacer::readCustomReward(entry(R"({ "resources" : { "gold" : 5000, "wood" : 10 } })"), TreasurePlacer::pandoraRewardDefaults(config)).has_value());
 
-	auto box = TreasurePlacer::readCustomPandoraBox(entry(R"({ "spells" : [ "fly" ], "rmg" : { "value" : 8000, "rarity" : 2 } })"), config);
+	auto box = TreasurePlacer::readCustomReward(entry(R"({ "spells" : [ "fly" ], "rmg" : { "value" : 8000, "rarity" : 2 } })"), TreasurePlacer::pandoraRewardDefaults(config));
 	ASSERT_TRUE(box.has_value());
 	EXPECT_EQ(box->value, 8000u);
 	EXPECT_EQ(box->rarity, 2u);
@@ -149,14 +146,14 @@ TEST_F(TreasurePlacerTest, NativeCreaturesBoxDefaultsToBuiltInCreatureBox)
 	 * Fail: the entry is rejected for lacking value or rarity, or a field is read wrong.
 	 */
 
-	auto box = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1 } } })"), config);
+	auto box = TreasurePlacer::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1 } } })"), TreasurePlacer::pandoraRewardDefaults(config));
 	ASSERT_TRUE(box.has_value());
 	EXPECT_EQ(box->nativeCreaturesLevel, 1);
 	EXPECT_EQ(box->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::ALL);
 	EXPECT_EQ(box->rarity, TreasurePlacer::PANDORA_CREATURES_RARITY);
 	EXPECT_FALSE(box->value.has_value());
 
-	auto allLevels = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { }, "value" : 7000, "rarity" : 9999, "zoneLimit" : 100 } })"), config);
+	auto allLevels = TreasurePlacer::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { }, "value" : 7000, "rarity" : 9999, "zoneLimit" : 100 } })"), TreasurePlacer::pandoraRewardDefaults(config));
 	ASSERT_TRUE(allLevels.has_value());
 	EXPECT_EQ(allLevels->nativeCreaturesLevel, 0);
 	EXPECT_EQ(allLevels->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::ALL);
@@ -174,9 +171,9 @@ TEST_F(TreasurePlacerTest, NativeCreaturesBoxRejectsOtherContent)
 	 * Fail: the mixed entry is accepted, or a normal box is treated as a native creature box.
 	 */
 
-	EXPECT_FALSE(TreasurePlacer::readCustomPandoraBox(entry(R"({ "experience" : 5000, "rmg" : { "nativeCreatures" : { "level" : 1 } } })"), config).has_value());
+	EXPECT_FALSE(TreasurePlacer::readCustomReward(entry(R"({ "experience" : 5000, "rmg" : { "nativeCreatures" : { "level" : 1 } } })"), TreasurePlacer::pandoraRewardDefaults(config)).has_value());
 
-	auto plain = TreasurePlacer::readCustomPandoraBox(entry(R"({ "experience" : 5000 })"), config);
+	auto plain = TreasurePlacer::readCustomReward(entry(R"({ "experience" : 5000 })"), TreasurePlacer::pandoraRewardDefaults(config));
 	ASSERT_TRUE(plain.has_value());
 	EXPECT_FALSE(plain->nativeCreaturesLevel.has_value());
 	EXPECT_EQ(plain->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::ALL);
@@ -190,12 +187,12 @@ TEST_F(TreasurePlacerTest, NativeCreaturesKindBasicAndUpgrade)
 	 * Fail: kind is left at ALL, or the entry is rejected.
 	 */
 
-	auto basic = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1, "kind" : "basic" } } })"), config);
+	auto basic = TreasurePlacer::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1, "kind" : "basic" } } })"), TreasurePlacer::pandoraRewardDefaults(config));
 	ASSERT_TRUE(basic.has_value());
 	EXPECT_EQ(basic->nativeCreaturesLevel, 1);
 	EXPECT_EQ(basic->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::BASIC);
 
-	auto upgrade = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1, "kind" : "upgrade" } } })"), config);
+	auto upgrade = TreasurePlacer::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1, "kind" : "upgrade" } } })"), TreasurePlacer::pandoraRewardDefaults(config));
 	ASSERT_TRUE(upgrade.has_value());
 	EXPECT_EQ(upgrade->nativeCreaturesLevel, 1);
 	EXPECT_EQ(upgrade->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::UPGRADE);
@@ -209,12 +206,12 @@ TEST_F(TreasurePlacerTest, NativeCreaturesKindNeedsLevel)
 	 * Fail: the entry is rejected, or kind is stored without a usable level.
 	 */
 
-	auto noLevel = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "kind" : "upgrade" } } })"), config);
+	auto noLevel = TreasurePlacer::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "kind" : "upgrade" } } })"), TreasurePlacer::pandoraRewardDefaults(config));
 	ASSERT_TRUE(noLevel.has_value());
 	EXPECT_EQ(noLevel->nativeCreaturesLevel, 0);
 	EXPECT_EQ(noLevel->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::ALL);
 
-	auto levelZero = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 0, "kind" : "basic" } } })"), config);
+	auto levelZero = TreasurePlacer::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 0, "kind" : "basic" } } })"), TreasurePlacer::pandoraRewardDefaults(config));
 	ASSERT_TRUE(levelZero.has_value());
 	EXPECT_EQ(levelZero->nativeCreaturesLevel, 0);
 	EXPECT_EQ(levelZero->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::ALL);
@@ -229,7 +226,7 @@ TEST_F(TreasurePlacerTest, NativeCreaturesUnknownKindIsRejected)
 	 * Fail: the entry is accepted with ALL, BASIC or UPGRADE.
 	 */
 
-	EXPECT_FALSE(TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 3, "kind" : "elite" } } })"), config).has_value());
+	EXPECT_FALSE(TreasurePlacer::readCustomReward(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 3, "kind" : "elite" } } })"), TreasurePlacer::pandoraRewardDefaults(config)).has_value());
 }
 
 TEST_F(TreasurePlacerTest, SelectNativeCreaturesFiltersCastleLevel1)
@@ -245,7 +242,7 @@ TEST_F(TreasurePlacerTest, SelectNativeCreaturesFiltersCastleLevel1)
 	const auto * pikeman = creature("pikeman");
 	const auto * halberdier = creature("halberdier");
 
-	TreasurePlacer::CustomPandoraBox box;
+	TreasurePlacer::CustomReward box;
 	box.nativeCreaturesLevel = 1;
 
 	box.nativeCreaturesKind = TreasurePlacer::NativeCreatureKind::BASIC;
@@ -271,7 +268,7 @@ TEST_F(TreasurePlacerTest, SelectNativeCreaturesSplitsNativesAndKeepsOrder)
 	const auto natives = castleNatives();
 	ASSERT_FALSE(natives.empty());
 
-	TreasurePlacer::CustomPandoraBox box;
+	TreasurePlacer::CustomReward box;
 	box.nativeCreaturesLevel = 0;
 
 	box.nativeCreaturesKind = TreasurePlacer::NativeCreatureKind::BASIC;
@@ -306,7 +303,7 @@ TEST_F(TreasurePlacerTest, SelectNativeCreaturesUpgradeIsMeasuredAgainstNatives)
 	 */
 
 	const auto * halberdier = creature("halberdier");
-	TreasurePlacer::CustomPandoraBox box;
+	TreasurePlacer::CustomReward box;
 	box.nativeCreaturesLevel = 1;
 	box.nativeCreaturesKind = TreasurePlacer::NativeCreatureKind::UPGRADE;
 
@@ -322,7 +319,7 @@ TEST_F(TreasurePlacerTest, ZoneFactionsResolveIncludingNeutral)
 	 * Fail: a name is not resolved, or neutral is dropped.
 	 */
 
-	auto box = TreasurePlacer::readCustomPandoraBox(entry(R"({ "experience" : 5000, "rmg" : { "zoneFactions" : [ "castle", "neutral" ] } })"), config);
+	auto box = TreasurePlacer::readCustomReward(entry(R"({ "experience" : 5000, "rmg" : { "zoneFactions" : [ "castle", "neutral" ] } })"), TreasurePlacer::pandoraRewardDefaults(config));
 
 	ASSERT_TRUE(box.has_value());
 	EXPECT_THAT(box->zoneFactions, UnorderedElementsAre(FactionID::CASTLE, FactionID::NEUTRAL));
@@ -338,18 +335,10 @@ TEST_F(TreasurePlacerTest, MapOptionsLoadIntoPandoraBox)
 	 * Fail: the short form is not read, the reward is split, or loading needs an instance resolver.
 	 */
 
-	JsonNode objectJson;
-	objectJson["options"] = entry(R"({ "spells" : [ "townPortal" ], "experience" : 1000 })");
-	objectJson.setModScope(ModScope::scopeGame());
 	// create() asserts a callback; TreasurePlacer passes the map's, the box only stores it
 	NiceMock<IGameInfoCallbackMock> gameInfo;
-	std::shared_ptr<CGObjectInstance> object = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0).create(&gameInfo, nullptr);
-	auto box = std::dynamic_pointer_cast<CGPandoraBox>(object);
+	auto box = TreasurePlacer::loadPandoraBoxOptions(entry(R"({ "spells" : [ "townPortal" ], "experience" : 1000 })"), &gameInfo);
 	ASSERT_NE(box, nullptr);
-
-	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
-	JsonDeserializer handler(nullptr, resolver, objectJson);
-	object->serializeJson(handler);
 
 	ASSERT_EQ(box->configuration.info.size(), 1u);
 	const auto & info = box->configuration.info.front();

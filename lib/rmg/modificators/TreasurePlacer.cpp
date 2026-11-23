@@ -369,7 +369,20 @@ void TreasurePlacer::addPandoraBoxes()
 	addPandoraBoxesWithSpells();
 }
 
-std::optional<TreasurePlacer::CustomPandoraBox> TreasurePlacer::readCustomPandoraBox(const JsonNode & entry, const CMapGenerator::Config & config)
+TreasurePlacer::CustomRewardDefaults TreasurePlacer::pandoraRewardDefaults(const CMapGenerator::Config & config)
+{
+	CustomRewardDefaults defaults;
+	defaults.listName = "pandoraBoxes";
+	defaults.amountStep = PANDORA_AMOUNT_STEP;
+	defaults.goldMultiplier = config.pandoraMultiplierGold;
+	defaults.experienceMultiplier = config.pandoraMultiplierExperience;
+	defaults.goldRarity = PANDORA_GOLD_RARITY;
+	defaults.experienceRarity = PANDORA_EXPERIENCE_RARITY;
+	defaults.creaturesRarity = PANDORA_CREATURES_RARITY;
+	return defaults;
+}
+
+std::optional<TreasurePlacer::CustomReward> TreasurePlacer::readCustomReward(const JsonNode & entry, const CustomRewardDefaults & defaults)
 {
 	std::set<std::string> contentKeys;
 	for(const auto & [key, value] : entry.Struct())
@@ -386,93 +399,93 @@ std::optional<TreasurePlacer::CustomPandoraBox> TreasurePlacer::readCustomPandor
 	const JsonNode & nativeCreatures = rmg["nativeCreatures"];
 	if(!nativeCreatures.isNull() && !contentKeys.empty())
 	{
-		logGlobal->error("RMG pandoraBoxes entry is ignored: rmg.nativeCreatures cannot be combined with other content: %s", entry.toCompactString());
+		logGlobal->error("RMG %s entry is ignored: rmg.nativeCreatures cannot be combined with other content: %s", defaults.listName, entry.toCompactString());
 		return std::nullopt;
 	}
 
-	CustomPandoraBox box;
+	CustomReward reward;
 	if(!nativeCreatures.isNull())
 	{
-		box.nativeCreaturesLevel = nativeCreatures["level"].Integer();
-		box.rarity = PANDORA_CREATURES_RARITY;
+		reward.nativeCreaturesLevel = nativeCreatures["level"].Integer();
+		reward.rarity = defaults.creaturesRarity;
 
 		const std::string kind = nativeCreatures["kind"].String();
 		if(!kind.empty())
 		{
 			if(kind != "basic" && kind != "upgrade")
 			{
-				logGlobal->error("RMG pandoraBoxes entry is ignored: unknown nativeCreatures.kind '%s': %s", kind, entry.toCompactString());
+				logGlobal->error("RMG %s entry is ignored: unknown nativeCreatures.kind '%s': %s", defaults.listName, kind, entry.toCompactString());
 				return std::nullopt;
 			}
-			if(*box.nativeCreaturesLevel < 1)
+			if(*reward.nativeCreaturesLevel < 1)
 			{
-				logGlobal->warn("RMG pandoraBoxes nativeCreatures.kind is ignored: kind needs level 1 or more: %s", entry.toCompactString());
+				logGlobal->warn("RMG %s nativeCreatures.kind is ignored: kind needs level 1 or more: %s", defaults.listName, entry.toCompactString());
 			}
 			else if(kind == "basic")
 			{
-				box.nativeCreaturesKind = NativeCreatureKind::BASIC;
+				reward.nativeCreaturesKind = NativeCreatureKind::BASIC;
 			}
 			else
 			{
-				box.nativeCreaturesKind = NativeCreatureKind::UPGRADE;
+				reward.nativeCreaturesKind = NativeCreatureKind::UPGRADE;
 			}
 		}
 	}
 	if(goldOnly)
 	{
-		box.value = pandoraAmountValue(resources["gold"].Integer(), config.pandoraMultiplierGold);
-		box.rarity = PANDORA_GOLD_RARITY;
+		reward.value = static_cast<ui32>(static_cast<ui64>(resources["gold"].Integer()) * defaults.goldMultiplier / defaults.amountStep);
+		reward.rarity = defaults.goldRarity;
 	}
 	if(experienceOnly)
 	{
-		box.value = pandoraAmountValue(entry["experience"].Integer(), config.pandoraMultiplierExperience);
-		box.rarity = PANDORA_EXPERIENCE_RARITY;
+		reward.value = static_cast<ui32>(static_cast<ui64>(entry["experience"].Integer()) * defaults.experienceMultiplier / defaults.amountStep);
+		reward.rarity = defaults.experienceRarity;
 	}
 
-	if(!goldOnly && !experienceOnly && !box.nativeCreaturesLevel && (rmg["value"].isNull() || rmg["rarity"].isNull()))
+	if(!goldOnly && !experienceOnly && !reward.nativeCreaturesLevel && (rmg["value"].isNull() || rmg["rarity"].isNull()))
 	{
-		logGlobal->error("RMG pandoraBoxes entry is ignored: only gold-only, experience-only and native creature boxes have a default rmg value and rarity: %s", entry.toCompactString());
+		logGlobal->error("RMG %s entry is ignored: only gold-only, experience-only and native creature boxes have a default rmg value and rarity: %s", defaults.listName, entry.toCompactString());
 		return std::nullopt;
 	}
 
 	if(!rmg["value"].isNull())
-		box.value = rmg["value"].Integer();
+		reward.value = rmg["value"].Integer();
 	if(!rmg["rarity"].isNull())
-		box.rarity = rmg["rarity"].Integer();
-	box.zoneLimit = rmg["zoneLimit"].Integer();
+		reward.rarity = rmg["rarity"].Integer();
+	reward.zoneLimit = rmg["zoneLimit"].Integer();
 
 	for(const auto & faction : rmg["zoneFactions"].Vector())
 	{
 		auto factionID = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "faction", faction.String());
 		if(factionID)
-			box.zoneFactions.insert(FactionID(*factionID));
+			reward.zoneFactions.insert(FactionID(*factionID));
 		else
-			logGlobal->error("RMG pandoraBoxes entry: unknown zone faction '%s' is ignored", faction.String());
+			logGlobal->error("RMG %s entry: unknown zone faction '%s' is ignored", defaults.listName, faction.String());
 	}
 
-	return box;
+	return reward;
 }
 
-std::vector<const CCreature *> TreasurePlacer::selectNativeCreatures(const CustomPandoraBox & box, const std::vector<const CCreature *> & natives)
+std::vector<const CCreature *> TreasurePlacer::selectNativeCreatures(const CustomReward & reward, const std::vector<const CCreature *> & natives)
 {
 	std::vector<const CCreature *> selected;
-	if(!box.nativeCreaturesLevel)
+	if(!reward.nativeCreaturesLevel)
 		return selected;
 
 	for(const auto * creature : natives)
 	{
-		if(*box.nativeCreaturesLevel && creature->getLevel() != *box.nativeCreaturesLevel)
+		if(*reward.nativeCreaturesLevel && creature->getLevel() != *reward.nativeCreaturesLevel)
 			continue;
 
-		if(box.nativeCreaturesKind != NativeCreatureKind::ALL)
+		if(reward.nativeCreaturesKind != NativeCreatureKind::ALL)
 		{
 			const bool isUpgrade = std::any_of(natives.begin(), natives.end(), [creature](const CCreature * other)
 			{
 				return creature->isUpgradeOf(other->getId());
 			});
-			if(box.nativeCreaturesKind == NativeCreatureKind::BASIC && isUpgrade)
+			if(reward.nativeCreaturesKind == NativeCreatureKind::BASIC && isUpgrade)
 				continue;
-			if(box.nativeCreaturesKind == NativeCreatureKind::UPGRADE && !isUpgrade)
+			if(reward.nativeCreaturesKind == NativeCreatureKind::UPGRADE && !isUpgrade)
 				continue;
 		}
 		selected.push_back(creature);
@@ -486,6 +499,21 @@ std::shared_ptr<CGPandoraBox> TreasurePlacer::createPandoraBox() const
 	return std::dynamic_pointer_cast<CGPandoraBox>(factory.create(map.mapInstance->cb, nullptr));
 }
 
+std::shared_ptr<CGPandoraBox> TreasurePlacer::loadPandoraBoxOptions(const JsonNode & entry, IGameInfoCallback * cb)
+{
+	JsonNode objectJson;
+	objectJson["options"] = entry;
+	objectJson["options"].Struct().erase("rmg");
+	objectJson.setModScope(ModScope::scopeGame());
+
+	auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::PANDORAS_BOX, 0);
+	auto obj = std::dynamic_pointer_cast<CGPandoraBox>(factory.create(cb, nullptr));
+	InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+	JsonDeserializer handler(nullptr, resolver, objectJson);
+	static_cast<CGObjectInstance &>(*obj).serializeJson(handler);
+	return obj;
+}
+
 void TreasurePlacer::addCustomPandoraBoxes()
 {
 	if(zone.getType() == ETemplateZoneType::WATER)
@@ -494,7 +522,7 @@ void TreasurePlacer::addCustomPandoraBoxes()
 	const auto customObjects = zone.getCustomObjects();
 	for(const auto & entry : customObjects.getPandoraBoxes())
 	{
-		auto box = readCustomPandoraBox(entry, generator.getConfig());
+		auto box = readCustomReward(entry, pandoraRewardDefaults(generator.getConfig()));
 		if(!box)
 			continue;
 		if(!box->zoneFactions.empty() && !box->zoneFactions.count(zone.getTownType()))
@@ -517,20 +545,10 @@ void TreasurePlacer::addCustomPandoraBoxes()
 			continue;
 		}
 
-		// The entry without "rmg" is the box's map options, loaded like a .vmap object (see CMapLoaderJson::MapObjectLoader)
-		JsonNode objectJson;
-		objectJson["options"] = entry;
-		objectJson["options"].Struct().erase("rmg");
-		objectJson.setModScope(ModScope::scopeGame());
-
 		ObjectInfo oi(Obj::PANDORAS_BOX, 0);
-		oi.generateObject = [this, objectJson]() -> std::shared_ptr<CGObjectInstance>
+		oi.generateObject = [entry, cb = map.mapInstance->cb]() -> std::shared_ptr<CGObjectInstance>
 		{
-			std::shared_ptr<CGObjectInstance> obj = createPandoraBox();
-			InstantIdentifierResolver resolver(*LIBRARY->identifiers());
-			JsonDeserializer handler(nullptr, resolver, objectJson);
-			obj->serializeJson(handler);
-			return obj;
+			return loadPandoraBoxOptions(entry, cb);
 		};
 		oi.setTemplates(Obj::PANDORAS_BOX, 0, zone.getTerrainType());
 		oi.value = *box->value;
