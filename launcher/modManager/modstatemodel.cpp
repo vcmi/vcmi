@@ -30,6 +30,10 @@ void ModStateModel::setRepositoryData(const JsonNode & repositoriesList)
 void ModStateModel::reloadLocalState(const QStringList & newMods)
 {
 	CResourceHandler::get("initial")->updateFilteredFiles([](const std::string &){ return true; });
+	CResourceHandler::get()->updateFilteredFiles([](const std::string & mountPoint)
+	{
+		return mountPoint.empty() || boost::iequals(mountPoint, "CONFIG/");
+	});
 
 	TModList newModsStd;
 	for (const auto & mod : newMods)

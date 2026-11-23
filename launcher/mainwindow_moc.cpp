@@ -437,43 +437,28 @@ void MainWindow::dropEvent(QDropEvent* event)
 	if(mimeData->hasUrls())
 	{
 		const QList<QUrl> urlList = mimeData->urls();
+		QStringList files;
 		for (const auto & url : urlList)
-			manualInstallFile(url.toLocalFile());
+			files.push_back(url.toLocalFile());
+		manualInstallFiles(files);
 	}
 }
 
-void MainWindow::manualInstallFile(QString filePath)
+void MainWindow::manualInstallFiles(QStringList files)
 {
-	QString realFilePath = Helper::getRealPath(filePath);
-
-	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive) || realFilePath.endsWith(".exe", Qt::CaseInsensitive))
-		switchToModsTab();
-
-	QString fileName = QFileInfo{filePath}.fileName();
-	if(realFilePath.endsWith(".zip", Qt::CaseInsensitive))
+	QStringList configFiles;
+	for(const auto & file : files)
 	{
-		// Local archives are imported directly, without copying them into the downloads directory first.
-		getModView()->installFiles(QStringList{filePath}, true);
+		logGlobal->info("Importing file %s", file.toStdString());
+		const QString realPath = Helper::getRealPath(file);
+		if(realPath.endsWith(".zip", Qt::CaseInsensitive) || realPath.endsWith(".exe", Qt::CaseInsensitive))
+			switchToModsTab();
+		if(realPath.endsWith(".json", Qt::CaseInsensitive))
+			configFiles.push_back(file);
 	}
-	else if(realFilePath.endsWith(".json", Qt::CaseInsensitive))
-	{
-		QDir configDir(pathToQString(VCMIDirs::get().userConfigPath()));
-		QStringList configFile = configDir.entryList({fileName}, QDir::Filter::Files); // case insensitive check
-		if(!configFile.empty())
-		{
-			auto dialogResult = QMessageBox::warning(this, tr("Replace config file?"), tr("Do you want to replace %1?").arg(configFile[0]), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-			if(dialogResult == QMessageBox::Yes)
-			{
-				const auto configFilePath = configDir.filePath(configFile[0]);
-				QFile::remove(configFilePath);
-				Helper::performNativeCopy(filePath, configFilePath);
 
-				Helper::reLoadSettings();
-			}
-		}
-	}
-	else
-		getModView()->installFiles(QStringList{filePath});
+	// Preserve the original paths: Android content:// URIs are needed when preparing the files.
+	getModView()->installFiles(files, true, configFiles);
 }
 
 ETranslationStatus MainWindow::getTranslationStatus()

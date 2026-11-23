@@ -669,6 +669,49 @@ Do you want to turn off this check and try again? You can turn it back on at any
         <source>Mod is incompatible</source>
         <translation>模组不兼容</translation>
     </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1511"/>
+        <source>Replace config files?</source>
+        <translation>替换配置文件？</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1512"/>
+        <source>Do you want to replace the following config files?
+
+%1</source>
+        <translation>是否替换以下配置文件？
+
+%1</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1046"/>
+        <source>Replace config</source>
+        <translation>替换配置</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1047"/>
+        <source>Skip config</source>
+        <translation>跳过配置</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1048"/>
+        <source>Cancel import</source>
+        <translation>取消导入</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1532"/>
+        <source>Failed to replace config files:
+%1</source>
+        <translation>无法替换以下配置文件：
+%1</translation>
+    </message>
+    <message>
+        <location filename="../modManager/cmodlistview_moc.cpp" line="1536"/>
+        <source>Replaced config files:
+%1</source>
+        <translation>已替换以下配置文件：
+%1</translation>
+    </message>
 </context>
 <context>
     <name>CSettingsView</name>
@@ -2108,6 +2151,11 @@ Bin (%n字节):
 </source>
         <translation>模组位于受保护的目录，请手动删除它:
 </translation>
+    </message>
+    <message>
+        <location filename="../modManager/modstatecontroller.cpp" line="519"/>
+        <source>Config file %1 is invalid and was skipped</source>
+        <translation>配置文件 %1 无效，已跳过</translation>
     </message>
 </context>
 <context>

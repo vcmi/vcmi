@@ -15,6 +15,7 @@
 #include "modManager/cmodlistview_moc.h"
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/filesystem/Filesystem.h"
 
 #include <QObject>
 #include <QScroller>
@@ -69,6 +70,10 @@ void loadSettings()
 
 void reLoadSettings()
 {
+	CResourceHandler::get()->updateFilteredFiles([](const std::string & mountPoint)
+	{
+		return mountPoint.empty() || boost::iequals(mountPoint, "CONFIG/");
+	});
 	loadSettings();
 	for(const auto widget : qApp->allWidgets())
 		if(auto settingsView = qobject_cast<CSettingsView *>(widget))

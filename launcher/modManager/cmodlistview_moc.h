@@ -38,6 +38,7 @@ class CModListView : public QWidget
 		QString originalPath;
 		QString sourcePath;
 		bool temporarySource = false;
+		std::shared_ptr<ZipArchive> archive;
 		ModStateController::ArchiveImportResult result;
 	};
 
@@ -48,6 +49,7 @@ class CModListView : public QWidget
 	CDownloadManager * dlManager;
 	QPointer<QObject> importOperation;
 	std::shared_ptr<ModStateController::ArchiveImportProgress> importProgress;
+	std::shared_ptr<bool> pendingImportsCanceled;
 	QStringList downloadedArchives;
 	JsonNode accumulatedRepositoryData;
 	QString activatingPreset;
@@ -73,10 +75,10 @@ class CModListView : public QWidget
 
 	bool askOverwriteDialog(const QString & windowTitle, const QString & message, int conflictCount, bool & applyToAll, bool & overwriteAll);
 
-	void installMods(QStringList archives, bool removeGithubSuffix);
+	void installMods(QVector<ArchiveImportOutcome> & archives, bool removeGithubSuffix);
 	void cleanupDownloadedArchives(QStringList archives);
-	static ArchiveImportOutcome importArchive(const QString & archive, const QString & hint,
-		ModStateController::ArchiveImportProgress & progress, const QStringList & protectedMods, bool fullModExtraction);
+	QStringList applyConfigImport(const ModStateController::ArchiveImportResult & result);
+	static ArchiveImportOutcome prepareImport(const QString & file, ModStateController::ArchiveImportProgress & progress);
 	void installMaps(QStringList maps);
 	void installSaves(QStringList saves);
 
@@ -158,7 +160,7 @@ protected:
 public:
 	void downloadMod(const ModState & mod);
 	void downloadFile(QString file, QUrl url, QString description, qint64 sizeBytes = 0);
-	void installFiles(QStringList mods, bool removeGithubSuffix = false);
+	void installFiles(QStringList files, bool removeGithubSuffix = false, QStringList configFiles = {});
 	bool isImportInProgress() const;
 
 	void showExternalProgress(const QString & format, int current, int max);

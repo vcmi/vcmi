@@ -339,8 +339,9 @@ QStringList StartGameTab::stageUnreadableFiles(const QStringList & files)
 	for(int index = 0; index < files.size(); ++index)
 	{
 		const QString file = files[index];
-		// Archives are copied by the background importer, which also handles content:// sources.
-		if(Helper::getRealPath(file).endsWith(".zip", Qt::CaseInsensitive))
+		// The importer needs the original URI for archives and configuration files.
+		const QString path = Helper::getRealPath(file);
+		if(path.endsWith(".zip", Qt::CaseInsensitive) || path.endsWith(".json", Qt::CaseInsensitive))
 		{
 			preparedFiles << file;
 			continue;
@@ -380,15 +381,6 @@ QStringList StartGameTab::stageUnreadableFiles(const QStringList & files)
 	return preparedFiles;
 }
 
-void StartGameTab::importPreparedFiles(const QStringList & files)
-{
-	for(const auto & file : files)
-	{
-		logGlobal->info("Importing file %s", file.toStdString());
-		Helper::getMainWindow()->manualInstallFile(file);
-	}
-}
-
 void StartGameTab::on_buttonImportFiles_clicked()
 {
 	const auto & importFunctor = [this]
@@ -397,7 +389,7 @@ void StartGameTab::on_buttonImportFiles_clicked()
 		if(files.isEmpty())
 			return;
 
-		importPreparedFiles(stageUnreadableFiles(files));
+		Helper::getMainWindow()->manualInstallFiles(stageUnreadableFiles(files));
 	};
 
 	// iOS can't display modal dialogs when called directly on button press
