@@ -14,6 +14,8 @@
 #include "../int3.h"
 
 #include <functional>
+#include <set>
+#include <unordered_map>
 #include <vector>
 
 namespace rmg
@@ -33,5 +35,22 @@ public:
 	/// VCM-169: visit tiles farthest first, ties in an order that depends only on tile coordinates;
 	/// stop when `visit` returns false.
 	void forEachFarthestFirst(const std::function<bool(const int3 &, float)> & visit) const;
+
+private:
+	struct Key
+	{
+		float distance = 0.f;
+		std::size_t tie = 0;
+		int3 tile;
+
+		bool operator<(const Key & other) const;
+	};
+
+	static std::size_t tieOf(const int3 & tile);
+	void erase(const int3 & tile);
+	void insert(const int3 & tile, float distance);
+
+	std::set<Key> ordered;
+	std::unordered_map<int3, Key> byTile;
 };
 }
