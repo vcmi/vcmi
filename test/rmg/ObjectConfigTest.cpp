@@ -683,4 +683,67 @@ TEST_F(ObjectConfigTest, DefaultScrollValueBySpellLevel)
 	EXPECT_EQ(ObjectConfig::getDefaultScrollValue(spellId("townPortal"), threeValues), 0u);
 }
 
+TEST_F(ObjectConfigTest, CommonObjectLoadsRarityOnlyAndSavesWithoutValue)
+{
+	/*
+	 * Asserts: a commonObjects entry may set only rarity; value stays 0 (filled at generation) and
+	 * maxPerZone is unlimited. Save writes only the fields that are set.
+	 * Pass: scholar loads with value 0, probability 7 and unlimited maxPerZone; saved rmg has only
+	 * rarity.
+	 * Fail: the entry is rejected, a default value is filled at load, or save writes value or
+	 * zoneLimit.
+	 */
+
+	auto loaded = loadConfig(R"({ "commonObjects" : [ { "type" : "scholar", "rmg" : { "rarity" : 7 } } ] })");
+	const auto * object = findConfigured(loaded, scholar());
+	ASSERT_NE(object, nullptr);
+	EXPECT_EQ(object->value, 0u);
+	EXPECT_EQ(object->probability, 7);
+	EXPECT_EQ(object->maxPerZone, static_cast<ui32>(std::numeric_limits<int>::max()));
+
+	JsonNode saved = saveConfig(loaded);
+	ASSERT_FALSE(saved["commonObjects"].Vector().empty());
+	const JsonNode & rmg = saved["commonObjects"][0]["rmg"];
+	EXPECT_TRUE(rmg["value"].isNull());
+	EXPECT_EQ(rmg["rarity"].Integer(), 7);
+	EXPECT_TRUE(rmg["zoneLimit"].isNull());
+}
+
+TEST_F(ObjectConfigTest, CommonObjectLoadsWithoutRmg)
+{
+	/*
+	 * Asserts: a commonObjects entry with only type loads; missing rmg means default value, rarity
+	 * and unlimited zoneLimit.
+	 * Pass: scholar is present with value 0, probability 0 and unlimited maxPerZone.
+	 * Fail: the entry is rejected because rmg is missing.
+	 */
+
+	auto loaded = loadConfig(R"({ "commonObjects" : [ { "type" : "scholar" } ] })");
+	const auto * object = findConfigured(loaded, scholar());
+	ASSERT_NE(object, nullptr);
+	EXPECT_EQ(object->value, 0u);
+	EXPECT_EQ(object->probability, 0);
+	EXPECT_EQ(object->maxPerZone, static_cast<ui32>(std::numeric_limits<int>::max()));
+}
+
+TEST_F(ObjectConfigTest, RandomDwellingLvlLoadsWithoutRarityDefault)
+{
+	/*
+	 * Asserts: a randomDwellingLvl entry without rarity keeps probability 0 at load; NATIVE_DWELLING_RARITY
+	 * is applied during generation, not here.
+	 * Pass: probability is 0 and value is the written 1000.
+	 * Fail: probability is filled with NATIVE_DWELLING_RARITY at load.
+	 */
+
+	auto loaded = loadConfig(R"({
+		"commonObjects" : [
+			{ "type" : "randomDwellingLvl", "subtype" : "objectLvl1", "rmg" : { "value" : 1000 } }
+		]
+	})");
+	const auto * object = findConfigured(loaded, randomDwelling(0));
+	ASSERT_NE(object, nullptr);
+	EXPECT_EQ(object->value, 1000u);
+	EXPECT_EQ(object->probability, 0);
+}
+
 }

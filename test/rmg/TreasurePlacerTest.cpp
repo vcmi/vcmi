@@ -9,11 +9,13 @@
  */
 #include "StdInc.h"
 
+#include "../../lib/CCreatureHandler.h"
 #include "../../lib/GameLibrary.h"
 #include "../../lib/constants/EntityIdentifiers.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
+#include "../../lib/mapObjectConstructors/RandomMapInfo.h"
 #include "../../lib/mapObjects/CGPandoraBox.h"
 #include "../../lib/modding/IdentifierStorage.h"
 #include "../../lib/modding/ModScope.h"
@@ -43,6 +45,25 @@ protected:
 	static JsonNode entry(const std::string & text)
 	{
 		return JsonNode(text.data(), text.size(), "TreasurePlacerTest");
+	}
+
+	static const CCreature * creature(const std::string & name)
+	{
+		auto id = LIBRARY->identifiers()->getIdentifier(ModScope::scopeGame(), "creature", name);
+		if(!id)
+			throw std::runtime_error("unknown creature: " + name);
+		return (*LIBRARY->creh)[CreatureID(*id)];
+	}
+
+	static std::vector<const CCreature *> castleNatives()
+	{
+		std::vector<const CCreature *> natives;
+		for(const auto * cre : LIBRARY->creh->getObjects())
+		{
+			if(cre && !cre->special && cre->getFactionID() == FactionID::CASTLE)
+				natives.push_back(cre);
+		}
+		return natives;
 	}
 };
 
@@ -131,12 +152,14 @@ TEST_F(TreasurePlacerTest, NativeCreaturesBoxDefaultsToBuiltInCreatureBox)
 	auto box = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1 } } })"), config);
 	ASSERT_TRUE(box.has_value());
 	EXPECT_EQ(box->nativeCreaturesLevel, 1);
+	EXPECT_EQ(box->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::ALL);
 	EXPECT_EQ(box->rarity, TreasurePlacer::PANDORA_CREATURES_RARITY);
 	EXPECT_FALSE(box->value.has_value());
 
 	auto allLevels = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { }, "value" : 7000, "rarity" : 9999, "zoneLimit" : 100 } })"), config);
 	ASSERT_TRUE(allLevels.has_value());
 	EXPECT_EQ(allLevels->nativeCreaturesLevel, 0);
+	EXPECT_EQ(allLevels->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::ALL);
 	EXPECT_EQ(allLevels->value, 7000u);
 	EXPECT_EQ(allLevels->rarity, 9999u);
 	EXPECT_EQ(allLevels->zoneLimit, 100u);
@@ -156,6 +179,138 @@ TEST_F(TreasurePlacerTest, NativeCreaturesBoxRejectsOtherContent)
 	auto plain = TreasurePlacer::readCustomPandoraBox(entry(R"({ "experience" : 5000 })"), config);
 	ASSERT_TRUE(plain.has_value());
 	EXPECT_FALSE(plain->nativeCreaturesLevel.has_value());
+	EXPECT_EQ(plain->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::ALL);
+}
+
+TEST_F(TreasurePlacerTest, NativeCreaturesKindBasicAndUpgrade)
+{
+	/*
+	 * Asserts: nativeCreatures.kind of basic or upgrade is stored when level is 1 or more.
+	 * Pass: level 1 + kind basic is BASIC; level 1 + kind upgrade is UPGRADE.
+	 * Fail: kind is left at ALL, or the entry is rejected.
+	 */
+
+	auto basic = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1, "kind" : "basic" } } })"), config);
+	ASSERT_TRUE(basic.has_value());
+	EXPECT_EQ(basic->nativeCreaturesLevel, 1);
+	EXPECT_EQ(basic->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::BASIC);
+
+	auto upgrade = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 1, "kind" : "upgrade" } } })"), config);
+	ASSERT_TRUE(upgrade.has_value());
+	EXPECT_EQ(upgrade->nativeCreaturesLevel, 1);
+	EXPECT_EQ(upgrade->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::UPGRADE);
+}
+
+TEST_F(TreasurePlacerTest, NativeCreaturesKindNeedsLevel)
+{
+	/*
+	 * Asserts: kind without a level of 1 or more is ignored; the entry is kept as all natives.
+	 * Pass: kind with no level, and kind with level 0, both keep ALL.
+	 * Fail: the entry is rejected, or kind is stored without a usable level.
+	 */
+
+	auto noLevel = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "kind" : "upgrade" } } })"), config);
+	ASSERT_TRUE(noLevel.has_value());
+	EXPECT_EQ(noLevel->nativeCreaturesLevel, 0);
+	EXPECT_EQ(noLevel->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::ALL);
+
+	auto levelZero = TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 0, "kind" : "basic" } } })"), config);
+	ASSERT_TRUE(levelZero.has_value());
+	EXPECT_EQ(levelZero->nativeCreaturesLevel, 0);
+	EXPECT_EQ(levelZero->nativeCreaturesKind, TreasurePlacer::NativeCreatureKind::ALL);
+}
+
+TEST_F(TreasurePlacerTest, NativeCreaturesUnknownKindIsRejected)
+{
+	/*
+	 * Asserts: an unknown nativeCreatures.kind is an invalid entry, as other invalid pandoraBoxes
+	 * entries are.
+	 * Pass: kind elite gives nullopt.
+	 * Fail: the entry is accepted with ALL, BASIC or UPGRADE.
+	 */
+
+	EXPECT_FALSE(TreasurePlacer::readCustomPandoraBox(entry(R"({ "rmg" : { "nativeCreatures" : { "level" : 3, "kind" : "elite" } } })"), config).has_value());
+}
+
+TEST_F(TreasurePlacerTest, SelectNativeCreaturesFiltersCastleLevel1)
+{
+	/*
+	 * Asserts: selectNativeCreatures keeps Castle natives of the requested level and kind, in
+	 * natives order. Castle level 1 is pikeman (basic) and halberdier (upgrade of pikeman).
+	 * Pass: BASIC is {pikeman}, UPGRADE is {halberdier}, ALL is both in that order.
+	 * Fail: an upgrade is treated as basic, the pair is empty, or the order is reversed.
+	 */
+
+	const auto natives = castleNatives();
+	const auto * pikeman = creature("pikeman");
+	const auto * halberdier = creature("halberdier");
+
+	TreasurePlacer::CustomPandoraBox box;
+	box.nativeCreaturesLevel = 1;
+
+	box.nativeCreaturesKind = TreasurePlacer::NativeCreatureKind::BASIC;
+	EXPECT_THAT(TreasurePlacer::selectNativeCreatures(box, natives), ElementsAre(pikeman));
+
+	box.nativeCreaturesKind = TreasurePlacer::NativeCreatureKind::UPGRADE;
+	EXPECT_THAT(TreasurePlacer::selectNativeCreatures(box, natives), ElementsAre(halberdier));
+
+	box.nativeCreaturesKind = TreasurePlacer::NativeCreatureKind::ALL;
+	EXPECT_THAT(TreasurePlacer::selectNativeCreatures(box, natives), ElementsAre(pikeman, halberdier));
+}
+
+TEST_F(TreasurePlacerTest, SelectNativeCreaturesSplitsNativesAndKeepsOrder)
+{
+	/*
+	 * Asserts: over all levels, BASIC and UPGRADE split the natives into two disjoint sets and
+	 * keep the order of natives.
+	 * Pass: every native is in exactly one of the two results, and each result is a subsequence
+	 * of natives.
+	 * Fail: a creature is in both, in neither, or the order of natives is not kept.
+	 */
+
+	const auto natives = castleNatives();
+	ASSERT_FALSE(natives.empty());
+
+	TreasurePlacer::CustomPandoraBox box;
+	box.nativeCreaturesLevel = 0;
+
+	box.nativeCreaturesKind = TreasurePlacer::NativeCreatureKind::BASIC;
+	const auto basic = TreasurePlacer::selectNativeCreatures(box, natives);
+	box.nativeCreaturesKind = TreasurePlacer::NativeCreatureKind::UPGRADE;
+	const auto upgrade = TreasurePlacer::selectNativeCreatures(box, natives);
+
+	EXPECT_EQ(basic.size() + upgrade.size(), natives.size());
+
+	size_t basicIndex = 0;
+	size_t upgradeIndex = 0;
+	for(const auto * native : natives)
+	{
+		if(basicIndex < basic.size() && basic[basicIndex] == native)
+			++basicIndex;
+		else if(upgradeIndex < upgrade.size() && upgrade[upgradeIndex] == native)
+			++upgradeIndex;
+		else
+			ADD_FAILURE() << "native is in neither result, or the order of natives is not kept";
+	}
+	EXPECT_EQ(basicIndex, basic.size());
+	EXPECT_EQ(upgradeIndex, upgrade.size());
+}
+
+TEST_F(TreasurePlacerTest, SelectNativeCreaturesUpgradeIsMeasuredAgainstNatives)
+{
+	/*
+	 * Asserts: a creature counts as an upgrade only when its base is also in natives, not when
+	 * it is an upgrade in the creature table.
+	 * Pass: natives of only halberdier + UPGRADE is empty.
+	 * Fail: halberdier is selected because pikeman exists in the game data.
+	 */
+
+	const auto * halberdier = creature("halberdier");
+	TreasurePlacer::CustomPandoraBox box;
+	box.nativeCreaturesLevel = 1;
+	box.nativeCreaturesKind = TreasurePlacer::NativeCreatureKind::UPGRADE;
+
+	EXPECT_THAT(TreasurePlacer::selectNativeCreatures(box, {halberdier}), IsEmpty());
 }
 
 TEST_F(TreasurePlacerTest, ZoneFactionsResolveIncludingNeutral)
@@ -201,6 +356,86 @@ TEST_F(TreasurePlacerTest, MapOptionsLoadIntoPandoraBox)
 	EXPECT_EQ(info.visitType, Rewardable::EEventType::EVENT_FIRST_VISIT);
 	EXPECT_THAT(info.reward.spells, ElementsAre(SpellID(SpellID::decode("townPortal"))));
 	EXPECT_EQ(info.reward.heroExperience, 1000);
+}
+
+TEST_F(TreasurePlacerTest, ApplyCommonObjectDefaultsFillsValueFromDefaults)
+{
+	/*
+	 * Asserts: a commonObjects entry with only rarity keeps that rarity and takes value from the
+	 * object type's rmg defaults.
+	 * Pass: value 900 from defaults, probability 500 unchanged, returns true.
+	 * Fail: the value stays 0, rarity is overwritten, or the call returns false.
+	 */
+
+	ObjectInfo object;
+	object.value = 0;
+	object.probability = 500;
+	RandomMapInfo defaults;
+	defaults.value = 900;
+	defaults.rarity = 40;
+
+	EXPECT_TRUE(TreasurePlacer::applyCommonObjectDefaults(object, defaults));
+	EXPECT_EQ(object.value, 900u);
+	EXPECT_EQ(object.probability, 500);
+}
+
+TEST_F(TreasurePlacerTest, ApplyCommonObjectDefaultsFillsRarityFromDefaults)
+{
+	/*
+	 * Asserts: a commonObjects entry with only value keeps that value and takes rarity from the
+	 * object type's rmg defaults.
+	 * Pass: probability 40 from defaults, value 900 unchanged, returns true.
+	 * Fail: the rarity stays 0, value is overwritten, or the call returns false.
+	 */
+
+	ObjectInfo object;
+	object.value = 900;
+	object.probability = 0;
+	RandomMapInfo defaults;
+	defaults.value = 1000;
+	defaults.rarity = 40;
+
+	EXPECT_TRUE(TreasurePlacer::applyCommonObjectDefaults(object, defaults));
+	EXPECT_EQ(object.value, 900u);
+	EXPECT_EQ(object.probability, 40);
+}
+
+TEST_F(TreasurePlacerTest, ApplyCommonObjectDefaultsKeepsBothWhenSet)
+{
+	/*
+	 * Asserts: an entry that sets both value and rarity is left unchanged.
+	 * Pass: value 900 and probability 50 stay as written, returns true.
+	 * Fail: a field is replaced from the defaults.
+	 */
+
+	ObjectInfo object;
+	object.value = 900;
+	object.probability = 50;
+	RandomMapInfo defaults;
+	defaults.value = 1000;
+	defaults.rarity = 40;
+
+	EXPECT_TRUE(TreasurePlacer::applyCommonObjectDefaults(object, defaults));
+	EXPECT_EQ(object.value, 900u);
+	EXPECT_EQ(object.probability, 50);
+}
+
+TEST_F(TreasurePlacerTest, ApplyCommonObjectDefaultsRejectsMissingDefault)
+{
+	/*
+	 * Asserts: an entry without a value is rejected when the object type also has no rmg value.
+	 * Pass: returns false when defaults.value is 0 and the entry value is 0.
+	 * Fail: the entry is accepted with a made-up value.
+	 */
+
+	ObjectInfo object;
+	object.value = 0;
+	object.probability = 50;
+	RandomMapInfo defaults;
+	defaults.value = 0;
+	defaults.rarity = 40;
+
+	EXPECT_FALSE(TreasurePlacer::applyCommonObjectDefaults(object, defaults));
 }
 
 }
