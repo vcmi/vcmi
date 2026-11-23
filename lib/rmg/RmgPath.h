@@ -21,10 +21,13 @@ class Path
 {
 public:
 	using MoveCostFunction = std::function<float(const int3 &, const int3 &)>;
+	using PassableFunction = std::function<bool(const int3 &)>;
 	const static MoveCostFunction DEFAULT_MOVEMENT_FUNCTION;
 	
 	Path(const Area & area);
 	Path(const Area & area, const int3 & src);
+	/// VCM-169: search over tiles accepted by `passable`, ending at any tile of `target` or connected by this Path.
+	Path(PassableFunction passable, const Area & target);
 	Path(const Path & path) = default;
 	Path & operator= (const Path & path);
 	bool valid() const;

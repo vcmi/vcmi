@@ -43,6 +43,10 @@ Path::Path(const Area & area, const int3 & src): dArea(&area)
 	dPath.add(src);
 }
 
+Path::Path(PassableFunction passable, const Area & target)
+{
+}
+
 Path & Path::operator= (const Path & path)
 {
 	//do not modify area
