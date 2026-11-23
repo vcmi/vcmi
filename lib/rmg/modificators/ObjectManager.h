@@ -74,6 +74,10 @@ public:
 	void placeObject(rmg::Object & object, bool guarded, bool updateDistance, bool createRoad = false);
 
 	void updateDistances(const rmg::Object & obj);
+	/// Remembers footprint (occupied and entrance tiles) of a placed object for the multi-entrance distance rule
+	void addFootprint(const rmg::Object & obj);
+	/// Footprint of candidate keeps minDistance from footprints of placed objects whenever a multi-entrance object is involved
+	bool keepsFootprintDistance(const rmg::Object & candidate, float minDistance) const;
 	void updateDistances(const int3& pos);
 	void createDistancesPriorityQueue();
 
@@ -91,6 +95,10 @@ protected:
 	std::vector<RequiredObjectInfo> nearbyObjects;
 	std::vector<CGObjectInstance*> objects;
 	rmg::Area objectsVisitableArea;
+	/// Occupied and entrance tiles of all placed objects, and of the placed objects with multiple entrances
+	rmg::Area objectsFootprint;
+	rmg::Area multiEntranceFootprint;
+	mutable std::mutex footprintMutex;
 	
 	rmg::TileDistanceIndex tilesByDistance;
 	

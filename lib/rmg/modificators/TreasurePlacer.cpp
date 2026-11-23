@@ -737,7 +737,7 @@ std::vector<ObjectInfo*> TreasurePlacer::prepareTreasurePile(const CTreasureInfo
 	while(currentValue <= static_cast<int>(desiredValue) - 100) //no objects with value below 100 are available
 	{
 		// FIXME: Pointer might be invalidated after this
-		auto * oi = getRandomObject(desiredValue, currentValue, !hasLargeObject);
+		auto * oi = getRandomObject(desiredValue, currentValue, !hasLargeObject, objectInfos);
 		if(!oi) //fail
 			break;
 		
@@ -900,7 +900,7 @@ bool TreasurePlacer::isVisitableFromTop(const std::vector<std::shared_ptr<const 
 	return std::ranges::all_of(templates, [](const auto & t){ return LIBRARY->objtypeh->getHandlerFor(t->id, t->subid).isVisitableFromTop(); });
 }
 
-ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects)
+ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects, const std::vector<ObjectInfo*> & pile)
 {
 	std::vector<std::pair<ui32, ObjectInfo*>> thresholds; //handle complex object via pointer
 	ui32 total = 0;
@@ -916,7 +916,10 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 		
 		if(!isVisitableFromTop(oi.templates) && !allowLargeObjects)
 			continue;
-		
+
+		if(!canJoinTreasurePile(oi, pile))
+			continue;
+
 		if(oi.value >= minValue && oi.maxPerZone > 0)
 		{
 			total += oi.probability;
@@ -1031,7 +1034,11 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 				}
 
 				//guard treasure pile
-				bool guarded = isGuardNeededForTreasure(value);
+				const bool standalonePile = std::ranges::any_of(treasurePileInfos, [](const ObjectInfo * oi)
+				{
+					return oi->isStandalone();
+				});
+				bool guarded = !standalonePile && isGuardNeededForTreasure(value);
 				if (guarded)
 					guarded = manager.addGuard(rmgObject, value);
 
@@ -1078,6 +1085,9 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 								else
 									vstd::amin(bestDistance, distance);
 							}
+
+							if (!manager.keepsFootprintDistance(rmgObject, minDistance))
+								return -1.f;
 
 							// Tiles the guard will block must not be free paths, roads or object entrances
 							const auto & guardedArea = rmgObject.instances().back()->getAccessibleArea();

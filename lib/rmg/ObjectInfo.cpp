@@ -73,3 +73,8 @@ CompoundMapObjectID ObjectInfo::getCompoundID() const
 {
 	return CompoundMapObjectID(primaryID, secondaryID);
 }
+
+bool ObjectInfo::isStandalone() const
+{
+	return LIBRARY->objtypeh->getHandlerFor(getCompoundID()).getRMGInfo().standalone;
+}

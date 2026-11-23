@@ -39,5 +39,6 @@ struct DLL_LINKAGE ObjectInfo
 	void setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainId terrain);
 
 	CompoundMapObjectID getCompoundID() const;
+	bool isStandalone() const;
 	//bool matchesId(const CompoundMapObjectID & id) const;
 };
