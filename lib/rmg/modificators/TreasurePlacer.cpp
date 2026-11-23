@@ -841,7 +841,7 @@ void TreasurePlacer::addPandoraBoxesWithSpells()
 
 ObjectInfo TreasurePlacer::createSeerHut(const Rewardable::VisitInfo & reward, ui32 rewardValue, int appearance, QuestArtifactPlacer & qap)
 {
-	ObjectInfo oi(Obj::SEER_HUT, appearance);
+	ObjectInfo oi(Obj::SEER_HUT, 0);
 	oi.value = static_cast<ui32>(generator.getConfig().seerHutValue);
 	oi.maxPerZone = 1;
 	oi.setTemplates(Obj::SEER_HUT, appearance, zone.getTerrainType());
