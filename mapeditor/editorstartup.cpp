@@ -43,7 +43,7 @@ bool EditorStartup::initFilesystem(bool extractArchives)
 	logConfig->configure();
 	logGlobal->debug("settings = %s", settings.toJsonNode().toString());
 
-	auto testFile = [](std::string filename, std::string message) -> bool
+	auto testFile = [](const std::string & filename, const std::string & message) -> bool
 	{
 		if(CResourceHandler::get()->existsResource(ResourcePath(filename)))
 			return true;

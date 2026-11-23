@@ -19,7 +19,7 @@ int main(int argc, char * argv[])
 	if(isRandomMapCommand(argc, argv))
 	{
 		QCoreApplication vcmieditor(argc, argv);
-		return runRandomMapCommand(vcmieditor);
+		return runRandomMapCommand(QCoreApplication::arguments());
 	}
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)

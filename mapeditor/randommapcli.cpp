@@ -22,18 +22,21 @@
 #include "../lib/rmg/CMapGenerator.h"
 #include "../lib/rmg/CRmgTemplate.h"
 #include "../lib/rmg/CRmgTemplateStorage.h"
+#include "../lib/rmg/Functions.h"
 
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QFileInfo>
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cstring>
 #include <ctime>
 #include <iostream>
 #include <limits>
 #include <optional>
+#include <string_view>
 
 void addRandomMapOptions(QCommandLineParser & parser)
 {
@@ -79,58 +82,91 @@ int failRun(const std::string & message)
 	return 1;
 }
 
-bool parseIntOption(const QCommandLineParser & parser, const char * name, int min, int max, int & value, std::string & error)
+template<typename T>
+using NamedValues = std::array<std::pair<std::string_view, T>, 4>;
+
+const NamedValues<EWaterContent::EWaterContent> waterNames = {{
+	{"random", EWaterContent::RANDOM},
+	{"none", EWaterContent::NONE},
+	{"normal", EWaterContent::NORMAL},
+	{"islands", EWaterContent::ISLANDS},
+}};
+
+const NamedValues<EMonsterStrength::EMonsterStrength> monsterNames = {{
+	{"random", EMonsterStrength::RANDOM},
+	{"weak", EMonsterStrength::GLOBAL_WEAK},
+	{"normal", EMonsterStrength::GLOBAL_NORMAL},
+	{"strong", EMonsterStrength::GLOBAL_STRONG},
+}};
+
+struct RandomMapRequest
 {
+	QString outputPath;
+	std::optional<QString> templateQuery;
+	std::optional<int> width;
+	std::optional<int> height;
+	std::optional<int> levels;
+	std::optional<int> players;
+	std::optional<int> computerPlayers;
+	std::optional<EWaterContent::EWaterContent> water;
+	std::optional<EMonsterStrength::EMonsterStrength> monsters;
+	int seed = 0;
+	bool singleThread = false;
+};
+
+/// Leaves value empty when the option is not given. False, with error set, when the value is invalid.
+bool readInt(const QCommandLineParser & parser, const QString & name, int min, int max, std::optional<int> & value, std::string & error)
+{
+	if(!parser.isSet(name))
+		return true;
+
 	bool ok = false;
-	const int parsed = parser.value(QLatin1String(name)).toInt(&ok);
+	const int parsed = parser.value(name).toInt(&ok);
 	if(!ok)
 	{
-		error = std::string("Invalid --") + name + " '" + parser.value(QLatin1String(name)).toStdString() + "'";
+		error = "Invalid --" + name.toStdString() + " '" + parser.value(name).toStdString() + "'";
 		return false;
 	}
 	if(parsed < min || parsed > max)
 	{
-		error = std::string("--") + name + " must be in " + std::to_string(min) + ".." + std::to_string(max);
+		error = "--" + name.toStdString() + " must be in " + std::to_string(min) + ".." + std::to_string(max);
 		return false;
 	}
 	value = parsed;
 	return true;
 }
 
-bool parseWater(const QString & text, EWaterContent::EWaterContent & value, std::string & error)
+template<typename T>
+std::string joinNames(const NamedValues<T> & names)
 {
-	if(text.compare(QLatin1String("random"), Qt::CaseInsensitive) == 0)
-		value = EWaterContent::RANDOM;
-	else if(text.compare(QLatin1String("none"), Qt::CaseInsensitive) == 0)
-		value = EWaterContent::NONE;
-	else if(text.compare(QLatin1String("normal"), Qt::CaseInsensitive) == 0)
-		value = EWaterContent::NORMAL;
-	else if(text.compare(QLatin1String("islands"), Qt::CaseInsensitive) == 0)
-		value = EWaterContent::ISLANDS;
-	else
+	std::string result;
+	for(const auto & [label, id] : names)
 	{
-		error = "Invalid --water '" + text.toStdString() + "' (expected random, none, normal, islands)";
-		return false;
+		if(!result.empty())
+			result += ", ";
+		result += label;
 	}
-	return true;
+	return result;
 }
 
-bool parseMonsters(const QString & text, EMonsterStrength::EMonsterStrength & value, std::string & error)
+/// Case-insensitive lookup in names. Leaves value empty when the option is not given.
+template<typename T>
+bool readEnum(const QCommandLineParser & parser, const QString & name, const NamedValues<T> & names, std::optional<T> & value, std::string & error)
 {
-	if(text.compare(QLatin1String("random"), Qt::CaseInsensitive) == 0)
-		value = EMonsterStrength::RANDOM;
-	else if(text.compare(QLatin1String("weak"), Qt::CaseInsensitive) == 0)
-		value = EMonsterStrength::GLOBAL_WEAK;
-	else if(text.compare(QLatin1String("normal"), Qt::CaseInsensitive) == 0)
-		value = EMonsterStrength::GLOBAL_NORMAL;
-	else if(text.compare(QLatin1String("strong"), Qt::CaseInsensitive) == 0)
-		value = EMonsterStrength::GLOBAL_STRONG;
-	else
+	if(!parser.isSet(name))
+		return true;
+
+	const QString text = parser.value(name);
+	for(const auto & [label, id] : names)
 	{
-		error = "Invalid --monsters '" + text.toStdString() + "' (expected random, weak, normal, strong)";
-		return false;
+		if(text.compare(QLatin1String(label.data(), static_cast<int>(label.size())), Qt::CaseInsensitive) == 0)
+		{
+			value = id;
+			return true;
+		}
 	}
-	return true;
+	error = "Invalid --" + name.toStdString() + " '" + text.toStdString() + "' (expected " + joinNames(names) + ")";
+	return false;
 }
 
 std::string formatSize(const int3 & value)
@@ -140,20 +176,14 @@ std::string formatSize(const int3 & value)
 
 std::string formatWaterAllowed(const std::set<EWaterContent::EWaterContent> & allowed)
 {
-	static const std::pair<EWaterContent::EWaterContent, const char *> names[] = {
-		{EWaterContent::NONE, "none"},
-		{EWaterContent::NORMAL, "normal"},
-		{EWaterContent::ISLANDS, "islands"},
-	};
-
 	std::string result;
-	for(const auto & [id, name] : names)
+	for(const auto & [label, id] : waterNames)
 	{
 		if(!allowed.count(id))
 			continue;
 		if(!result.empty())
 			result += ", ";
-		result += name;
+		result += label;
 	}
 	return result;
 }
@@ -202,131 +232,158 @@ std::string joinTemplateIds(const std::vector<const CRmgTemplate *> & templates)
 	return result;
 }
 
-int rejectIfTemplateChangedOptions(
-	const CMapGenOptions & options,
-	const CRmgTemplate & templ,
-	std::optional<int> requestedWidth,
-	std::optional<int> requestedHeight,
-	std::optional<int> requestedLevels,
-	std::optional<int> requestedPlayers,
-	std::optional<int> requestedComputerPlayers,
-	std::optional<EWaterContent::EWaterContent> requestedWater)
+/// Exit code 2 when the command line is invalid, else 0.
+int parseRequest(const QCommandLineParser & parser, RandomMapRequest & request)
+{
+	if(!parser.positionalArguments().isEmpty())
+		return failArgs("Unexpected argument '" + parser.positionalArguments().at(0).toStdString() + "'");
+
+	if(!parser.isSet("generate"))
+		return failArgs("--generate is required");
+
+	request.outputPath = QFileInfo(parser.value("generate")).absoluteFilePath();
+	if(request.outputPath.isEmpty())
+		return failArgs("--generate requires an output path");
+
+	if(parser.isSet("width") != parser.isSet("height"))
+		return failArgs("--width and --height must be given together");
+
+	constexpr int intMin = std::numeric_limits<int>::min();
+	constexpr int intMax = std::numeric_limits<int>::max();
+	std::optional<int> seed;
+	std::string error;
+	const bool valid = readInt(parser, "width", 1, intMax, request.width, error)
+		&& readInt(parser, "height", 1, intMax, request.height, error)
+		&& readInt(parser, "levels", 1, intMax, request.levels, error)
+		&& readInt(parser, "players", 1, PlayerColor::PLAYER_LIMIT_I, request.players, error)
+		&& readInt(parser, "computer-players", 0, PlayerColor::PLAYER_LIMIT_I, request.computerPlayers, error)
+		&& readEnum(parser, "water", waterNames, request.water, error)
+		&& readEnum(parser, "monsters", monsterNames, request.monsters, error)
+		&& readInt(parser, "seed", intMin, intMax, seed, error);
+	if(!valid)
+		return failArgs(error);
+
+	request.seed = seed.value_or(static_cast<int>(std::time(nullptr)));
+	if(parser.isSet("template"))
+		request.templateQuery = parser.value("template");
+	request.singleThread = parser.isSet("single-thread");
+	return 0;
+}
+
+void applyRequest(CMapGenOptions & options, const RandomMapRequest & request)
+{
+	if(request.width)
+		options.setWidth(*request.width);
+	if(request.height)
+		options.setHeight(*request.height);
+	if(request.levels)
+		options.setLevels(*request.levels);
+	if(request.players)
+		options.setHumanOrCpuPlayerCount(static_cast<si8>(*request.players));
+	if(request.computerPlayers)
+		options.setCompOnlyPlayerCount(static_cast<si8>(*request.computerPlayers));
+	// Default to no water; setMapTemplate falls back to the template's allowed water when it forbids none.
+	options.setWaterContent(request.water.value_or(EWaterContent::NONE));
+	if(request.monsters)
+		options.setMonsterStrength(*request.monsters);
+}
+
+/// setMapTemplate silently replaces values the template does not allow; exit code 2 if it replaced one the user gave.
+int rejectIfTemplateChangedOptions(const CMapGenOptions & options, const CRmgTemplate & templ, const RandomMapRequest & request)
 {
 	const auto sizeRange = templ.getMapSizes();
 	const std::string allowedSize = formatSize(sizeRange.first) + "-" + formatSize(sizeRange.second);
 
-	if(requestedWidth && options.getWidth() != *requestedWidth)
-		return failArgs("Template " + templ.getId() + " does not allow --width " + std::to_string(*requestedWidth) + " (allowed size " + allowedSize + ")");
-	if(requestedHeight && options.getHeight() != *requestedHeight)
-		return failArgs("Template " + templ.getId() + " does not allow --height " + std::to_string(*requestedHeight) + " (allowed size " + allowedSize + ")");
-	if(requestedLevels && options.getLevels() != *requestedLevels)
-		return failArgs("Template " + templ.getId() + " does not allow --levels " + std::to_string(*requestedLevels) + " (allowed size " + allowedSize + ")");
-	if(requestedPlayers && options.getHumanOrCpuPlayerCount() != *requestedPlayers)
-		return failArgs("Template " + templ.getId() + " does not allow --players " + std::to_string(*requestedPlayers) + " (allowed " + templ.getPlayers().toString() + ")");
-	if(requestedComputerPlayers && options.getCompOnlyPlayerCount() != *requestedComputerPlayers)
-		return failArgs("Template " + templ.getId() + " does not allow --computer-players " + std::to_string(*requestedComputerPlayers) + " (allowed players " + templ.getPlayers().toString() + ")");
-	if(requestedWater && options.getWaterContent() != *requestedWater)
+	if(request.width && options.getWidth() != *request.width)
+		return failArgs("Template " + templ.getId() + " does not allow --width " + std::to_string(*request.width) + " (allowed size " + allowedSize + ")");
+	if(request.height && options.getHeight() != *request.height)
+		return failArgs("Template " + templ.getId() + " does not allow --height " + std::to_string(*request.height) + " (allowed size " + allowedSize + ")");
+	if(request.levels && options.getLevels() != *request.levels)
+		return failArgs("Template " + templ.getId() + " does not allow --levels " + std::to_string(*request.levels) + " (allowed size " + allowedSize + ")");
+	if(request.players && options.getHumanOrCpuPlayerCount() != *request.players)
+		return failArgs("Template " + templ.getId() + " does not allow --players " + std::to_string(*request.players) + " (allowed " + templ.getPlayers().toString() + ")");
+	if(request.computerPlayers && options.getCompOnlyPlayerCount() != *request.computerPlayers)
+		return failArgs("Template " + templ.getId() + " does not allow --computer-players " + std::to_string(*request.computerPlayers) + " (allowed players " + templ.getPlayers().toString() + ")");
+	if(request.water && options.getWaterContent() != *request.water)
 		return failArgs("Template " + templ.getId() + " does not allow --water (allowed " + formatWaterAllowed(templ.getWaterContentAllowed()) + ")");
 
 	return 0;
 }
+
+/// Exit code 2 when no template fits, else 0.
+int selectTemplate(CMapGenOptions & options, const RandomMapRequest & request)
+{
+	if(!request.templateQuery)
+		return options.getPossibleTemplates().empty() ? failArgs("No template matches the requested options") : 0;
+
+	const auto matches = findTemplates(*request.templateQuery);
+	if(matches.empty())
+		return failArgs("No template matches '" + request.templateQuery->toStdString() + "'");
+	if(matches.size() > 1)
+		return failArgs("Template '" + request.templateQuery->toStdString() + "' is ambiguous; matching ids: " + joinTemplateIds(matches));
+
+	options.setMapTemplate(matches.front());
+	return rejectIfTemplateChangedOptions(options, *matches.front(), request);
 }
 
-int runRandomMapCommand(QCoreApplication & app)
+/// Exit code 1 when generation or saving throws, else 0 with the summary line filled in.
+int generateAndSave(CMapGenOptions & options, const RandomMapRequest & request, std::string & summary)
+{
+	try
+	{
+		EditorCallback cb(nullptr);
+		CMapGenerator generator(options, &cb, request.seed);
+		if(request.singleThread)
+			generator.setSingleThread(true);
+
+		const auto started = std::chrono::steady_clock::now();
+		std::unique_ptr<CMap> map = generator.generate();
+		const auto generateMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - started).count();
+
+		map->mods = MapController::modAssessmentMap(*map);
+		cb.setMap(map.get());
+		const auto outPath = qstringToPath(request.outputPath);
+		boost::filesystem::create_directories(outPath.parent_path());
+		CMapService().saveMap(map, outPath);
+
+		const auto * mapTemplate = generator.getMapGenOptions().getMapTemplate();
+		summary = "rmg: saved " + request.outputPath.toStdString()
+			+ " template=" + (mapTemplate ? mapTemplate->getId() : "")
+			+ " seed=" + std::to_string(request.seed)
+			+ " size=" + std::to_string(map->width) + "x" + std::to_string(map->height) + "x" + std::to_string(static_cast<int>(map->levels()))
+			+ " generate_ms=" + std::to_string(generateMs);
+	}
+	catch(const rmgException & e)
+	{
+		return failRun(e.what());
+	}
+	catch(const std::runtime_error & e) // also boost::filesystem::filesystem_error
+	{
+		return failRun(e.what());
+	}
+	return 0;
+}
+}
+
+int runRandomMapCommand(const QStringList & arguments)
 {
 	QCommandLineParser parser;
 	parser.setApplicationDescription(QCoreApplication::translate("main", "Generate a random map without opening the editor window."));
 	parser.addHelpOption();
 	addRandomMapOptions(parser);
 
-	if(!parser.parse(app.arguments()))
+	if(!parser.parse(arguments))
 		return failArgs(parser.errorText().toStdString());
 
-	if(parser.isSet(QLatin1String("help")))
+	if(parser.isSet("help"))
 	{
 		std::cout << parser.helpText().toStdString() << std::endl;
 		return 0;
 	}
 
-	if(!parser.positionalArguments().isEmpty())
-		return failArgs("Unexpected argument '" + parser.positionalArguments().at(0).toStdString() + "'");
-
-	if(!parser.isSet(QLatin1String("generate")))
-		return failArgs("--generate is required");
-
-	const QString outputPath = QFileInfo(parser.value(QLatin1String("generate"))).absoluteFilePath();
-	if(outputPath.isEmpty())
-		return failArgs("--generate requires an output path");
-
-	std::optional<int> width;
-	std::optional<int> height;
-	std::optional<int> levels;
-	std::optional<int> players;
-	std::optional<int> computerPlayers;
-	std::optional<EWaterContent::EWaterContent> water;
-	std::optional<EMonsterStrength::EMonsterStrength> monsters;
-	int seed = static_cast<int>(std::time(nullptr));
-	std::string error;
-
-	if(parser.isSet(QLatin1String("width")) != parser.isSet(QLatin1String("height")))
-		return failArgs("--width and --height must be given together");
-
-	if(parser.isSet(QLatin1String("width")))
-	{
-		int value = 0;
-		if(!parseIntOption(parser, "width", 1, std::numeric_limits<int>::max(), value, error))
-			return failArgs(error);
-		width = value;
-	}
-	if(parser.isSet(QLatin1String("height")))
-	{
-		int value = 0;
-		if(!parseIntOption(parser, "height", 1, std::numeric_limits<int>::max(), value, error))
-			return failArgs(error);
-		height = value;
-	}
-	if(parser.isSet(QLatin1String("levels")))
-	{
-		int value = 0;
-		if(!parseIntOption(parser, "levels", 1, std::numeric_limits<int>::max(), value, error))
-			return failArgs(error);
-		levels = value;
-	}
-	if(parser.isSet(QLatin1String("players")))
-	{
-		int value = 0;
-		if(!parseIntOption(parser, "players", 1, PlayerColor::PLAYER_LIMIT_I, value, error))
-			return failArgs(error);
-		players = value;
-	}
-	if(parser.isSet(QLatin1String("computer-players")))
-	{
-		int value = 0;
-		if(!parseIntOption(parser, "computer-players", 0, PlayerColor::PLAYER_LIMIT_I, value, error))
-			return failArgs(error);
-		computerPlayers = value;
-	}
-	if(parser.isSet(QLatin1String("water")))
-	{
-		EWaterContent::EWaterContent value = EWaterContent::RANDOM;
-		if(!parseWater(parser.value(QLatin1String("water")), value, error))
-			return failArgs(error);
-		water = value;
-	}
-	if(parser.isSet(QLatin1String("monsters")))
-	{
-		EMonsterStrength::EMonsterStrength value = EMonsterStrength::RANDOM;
-		if(!parseMonsters(parser.value(QLatin1String("monsters")), value, error))
-			return failArgs(error);
-		monsters = value;
-	}
-	if(parser.isSet(QLatin1String("seed")))
-	{
-		int value = 0;
-		if(!parseIntOption(parser, "seed", std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), value, error))
-			return failArgs(error);
-		seed = value;
-	}
+	RandomMapRequest request;
+	if(const int rc = parseRequest(parser, request))
+		return rc;
 
 	std::string summary;
 	{
@@ -336,67 +393,11 @@ int runRandomMapCommand(QCoreApplication & app)
 		startup.initLibrary();
 
 		CMapGenOptions options;
-		if(width)
-			options.setWidth(*width);
-		if(height)
-			options.setHeight(*height);
-		if(levels)
-			options.setLevels(*levels);
-		if(players)
-			options.setHumanOrCpuPlayerCount(static_cast<si8>(*players));
-		if(computerPlayers)
-			options.setCompOnlyPlayerCount(static_cast<si8>(*computerPlayers));
-		// Default to no water; setMapTemplate falls back to the template's allowed water when it forbids none.
-		options.setWaterContent(water.value_or(EWaterContent::NONE));
-		if(monsters)
-			options.setMonsterStrength(*monsters);
-
-		if(parser.isSet(QLatin1String("template")))
-		{
-			const QString query = parser.value(QLatin1String("template"));
-			const auto matches = findTemplates(query);
-			if(matches.empty())
-				return failArgs("No template matches '" + query.toStdString() + "'");
-			if(matches.size() > 1)
-				return failArgs("Template '" + query.toStdString() + "' is ambiguous; matching ids: " + joinTemplateIds(matches));
-
-			options.setMapTemplate(matches.front());
-			if(const int rc = rejectIfTemplateChangedOptions(options, *matches.front(), width, height, levels, players, computerPlayers, water))
-				return rc;
-		}
-		else if(options.getPossibleTemplates().empty())
-		{
-			return failArgs("No template matches the requested options");
-		}
-
-		try
-		{
-			EditorCallback cb(nullptr);
-			CMapGenerator generator(options, &cb, seed);
-			if(parser.isSet(QLatin1String("single-thread")))
-				generator.setSingleThread(true);
-
-			const auto started = std::chrono::steady_clock::now();
-			std::unique_ptr<CMap> map = generator.generate();
-			const auto generateMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - started).count();
-
-			map->mods = MapController::modAssessmentMap(*map);
-			cb.setMap(map.get());
-			const auto outPath = qstringToPath(outputPath);
-			boost::filesystem::create_directories(outPath.parent_path());
-			CMapService().saveMap(map, outPath);
-
-			const auto * mapTemplate = generator.getMapGenOptions().getMapTemplate();
-			summary = "rmg: saved " + outputPath.toStdString()
-				+ " template=" + (mapTemplate ? mapTemplate->getId() : "")
-				+ " seed=" + std::to_string(seed)
-				+ " size=" + std::to_string(map->width) + "x" + std::to_string(map->height) + "x" + std::to_string(static_cast<int>(map->levels()))
-				+ " generate_ms=" + std::to_string(generateMs);
-		}
-		catch(const std::exception & e)
-		{
-			return failRun(e.what());
-		}
+		applyRequest(options, request);
+		if(const int rc = selectTemplate(options, request))
+			return rc;
+		if(const int rc = generateAndSave(options, request, summary))
+			return rc;
 	}
 
 	// Colored console logs write the reset sequence after the newline, so start a fresh line.

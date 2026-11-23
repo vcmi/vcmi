@@ -10,9 +10,11 @@
 
 #pragma once
 
+#include <QStringList>
+
 class QCommandLineParser;
-class QCoreApplication;
 
 void addRandomMapOptions(QCommandLineParser & parser);
 bool isRandomMapCommand(int argc, char * argv[]);
-int runRandomMapCommand(QCoreApplication & app);
+/// Exit code: 0 saved, 1 generation or saving failed, 2 invalid arguments.
+int runRandomMapCommand(const QStringList & arguments);
