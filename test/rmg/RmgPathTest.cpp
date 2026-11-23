@@ -309,7 +309,8 @@ TEST(RmgPathTest, PredicatePathRejectsTilesThePredicateRejects)
 	{
 		return grid.contains(tile) && tile.y != 1;
 	};
-	const rmg::Path path(noMiddleRow, rmg::Area({int3(4, 2, 0)}));
+	const rmg::Area target({int3(4, 2, 0)});
+	const rmg::Path path(noMiddleRow, target);
 
 	EXPECT_FALSE(path.search(int3(0, 0, 0), true).valid());
 	EXPECT_TRUE(path.search(int3(0, 2, 0), true).valid());

@@ -28,6 +28,7 @@ public:
 	Path(const Area & area, const int3 & src);
 	/// VCM-169: search over tiles accepted by `passable`, ending at any tile of `target` or connected by this Path.
 	Path(PassableFunction passable, const Area & target);
+	Path(PassableFunction passable, Area && target) = delete; //target is kept by reference
 	Path(const Path & path) = default;
 	Path & operator= (const Path & path);
 	bool valid() const;
@@ -51,8 +52,12 @@ public:
 	static float distanceToCubicBezier(const int3 & point, const int3 & p0, const int3 & p1, const int3 & p2, const int3 & p3);
 	
 private:
+	Path() = default;
+	bool isTarget(const int3 & tile) const;
+	int3 nearestTarget(const int3 & tile) const;
 	
-	const Area * dArea = nullptr;
+	PassableFunction dPassable; //empty: this Path cannot search
+	const Area * dTarget = nullptr; //tiles ending a search besides dPath, owned by the caller
 	Area dPath;
 };
 }
