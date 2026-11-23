@@ -9,11 +9,19 @@
  */
 #include "StdInc.h"
 #include <QApplication>
+#include <QCoreApplication>
 #include "mainwindow.h"
+#include "randommapcli.h"
 
 #ifndef ENABLE_SINGLE_APP_BUILD
 int main(int argc, char * argv[])
 {
+	if(isRandomMapCommand(argc, argv))
+	{
+		QCoreApplication vcmieditor(argc, argv);
+		return runRandomMapCommand(vcmieditor);
+	}
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif

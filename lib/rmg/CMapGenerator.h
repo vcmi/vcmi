@@ -64,6 +64,8 @@ public:
 	
 	std::unique_ptr<CMap> generate();
 
+	void setSingleThread(bool value);
+
 	/// Next unused two-way monolith subtype. Thread-safe; called from the parallel connection-placement phase.
 	int getNextMonlithIndex();
 

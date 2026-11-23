@@ -103,6 +103,11 @@ const CMapGenerator::Config & CMapGenerator::getConfig() const
 	return config;
 }
 
+void CMapGenerator::setSingleThread(bool value)
+{
+	config.singleThread = value;
+}
+
 //must be instantiated in .cpp file for access to complete types of all member fields
 CMapGenerator::~CMapGenerator() = default;
 
