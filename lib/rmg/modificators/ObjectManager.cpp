@@ -155,7 +155,7 @@ std::vector<CGObjectInstance*> ObjectManager::getMines() const
 	return mines;
 }
 
-int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, OptimizeType optimizer) const
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, OptimizeType optimizer, float stopDistance) const
 {
 	RecursiveLock lock(zone.areaMutex);
 	float bestWeight = 0.f;
@@ -176,8 +176,11 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	
 	if(optimizer & OptimizeType::DISTANCE)
 	{
-		tilesByDistance.forEachFarthestFirst([&searchArea, &obj, &outsideTheMap, &weightFunction, &bestWeight, &result, optimizer](const int3 & tile, float)
+		tilesByDistance.forEachFarthestFirst([&searchArea, &obj, &outsideTheMap, &weightFunction, &bestWeight, &result, optimizer, stopDistance](const int3 & tile, float distance)
 		{
+			if(distance < stopDistance)
+				return false;
+
 			if(!searchArea.contains(tile))
 				return true;
 
@@ -225,7 +228,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	return result;
 }
 
-int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, OptimizeType optimizer) const
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, OptimizeType optimizer, float stopDistance) const
 {
 	return findPlaceForObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
@@ -248,10 +251,10 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		}
 		
 		return dist;
-	}, optimizer);
+	}, optimizer, stopDistance);
 }
 
-rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const
+rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer, float stopDistance) const
 {
 	return placeAndConnectObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
@@ -315,17 +318,17 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 		}
 		
 		return bestDistance;
-	}, isGuarded, onlyStraight, optimizer);
+	}, isGuarded, onlyStraight, optimizer, stopDistance);
 }
 
-rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const
+rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer, float stopDistance) const
 {
 	int3 pos;
 	auto possibleArea = searchArea;
 	auto cachedArea = zone.areaForRoads();
 	while(true)
 	{
-		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer);
+		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer, stopDistance);
 		if(!pos.isValid())
 		{
 			return rmg::Path::invalid();

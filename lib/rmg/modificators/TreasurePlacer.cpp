@@ -1062,6 +1062,12 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 					path = manager.placeAndConnectObject(searchArea, rmgObject, [this, &rmgObject, &minDistance, &manager, blockingGuardMaxValue, &roads, &nextToRoad](const int3& tile)
 						{
+							// Guard cannot be adjacent to road, but blocked side of an object could be
+							if (rmgObject.getValue() > blockingGuardMaxValue && nextToRoad.contains(rmgObject.getGuardPos()))
+							{
+								return -1.f;
+							}
+
 							float bestDistance = 10e9;
 							for (const auto& t : rmgObject.getArea().getTilesVector())
 							{
@@ -1072,24 +1078,24 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 									vstd::amin(bestDistance, distance);
 							}
 
-							// Guard cannot be adjacent to road, but blocked side of an object could be
-							if (rmgObject.getValue() > blockingGuardMaxValue && nextToRoad.contains(rmgObject.getGuardPos()))
-							{
-								return -1.f;
-							}
-
+							// Tiles the guard will block must not be free paths, roads or object entrances
 							const auto & guardedArea = rmgObject.instances().back()->getAccessibleArea();
-							const auto areaToBlock = rmgObject.getAccessibleArea(true) - guardedArea;
-
-							if (zone.freePaths()->overlap(areaToBlock) || roads.overlap(areaToBlock) || manager.getVisitableArea().overlap(areaToBlock))
-								return -1.f;
+							const auto & visitableArea = manager.getVisitableArea();
+							const auto freePaths = zone.freePaths();
+							for (const auto & t : rmgObject.getAccessibleArea(true).getTilesVector())
+							{
+								if (guardedArea.contains(t))
+									continue;
+								if (roads.contains(t) || visitableArea.contains(t) || freePaths->contains(t))
+									return -1.f;
+							}
 
 							// Add huge penalty for objects hiding roads
 							if (rmgObject.getBorderAbove().overlap(roads))
 								bestDistance /= 10.0f;
 
 							return bestDistance;
-						}, guarded, false, ObjectManager::OptimizeType::BOTH);
+						}, guarded, false, ObjectManager::OptimizeType::BOTH, minDistance);
 				}
 				else
 				{
@@ -1099,7 +1105,7 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 						searchArea.subtract(roads);
 					}
 
-					path = manager.placeAndConnectObject(searchArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE);
+					path = manager.placeAndConnectObject(searchArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE, minDistance);
 				}
 			}
 
