@@ -176,6 +176,12 @@ Returns the battlefield hex occupied by the unit, or front hex for double-wide u
 
 - returns [`BattleHex`](BattleHex.md)
 
+### getBackHex
+
+Returns the back hex of a double-wide unit, or an invalid hex for a single-hex unit
+
+- returns [`BattleHex`](BattleHex.md)
+
 ### getTotalHealth
 
 Returns the total hit points across all creatures in the stack, including dead.

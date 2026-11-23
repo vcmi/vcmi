@@ -85,6 +85,8 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 		"Returns the battle side (attacker or defender) this unit belongs to. A hypnotized unit keeps its side; use Battle:isHostile to tell friend from foe.");
 	R.method<&Unit::getPosition>("getPosition", {},
 		"Returns the battlefield hex occupied by the unit, or front hex for double-wide units");
+	R.method<static_cast<BattleHex (Unit::*)() const>(&Unit::occupiedHex)>("getBackHex", {},
+		"Returns the back hex of a double-wide unit, or an invalid hex for a single-hex unit");
 	R.method<&Unit::getTotalHealth>("getTotalHealth", {},
 		"Returns the total hit points across all creatures in the stack, including dead.");
 	R.method<&Unit::getAvailableHealth>("getAvailableHealth", {},

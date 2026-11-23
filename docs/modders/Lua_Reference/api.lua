@@ -1842,6 +1842,10 @@ function Unit:getSide() end
 ---@return BattleHex
 function Unit:getPosition() end
 
+---Returns the back hex of a double-wide unit, or an invalid hex for a single-hex unit
+---@return BattleHex
+function Unit:getBackHex() end
+
 ---Returns the total hit points across all creatures in the stack, including dead.
 ---@return integer
 function Unit:getTotalHealth() end
