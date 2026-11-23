@@ -33,6 +33,8 @@ public:
 	static constexpr ui16 PANDORA_CREATURES_RARITY = 3;
 	static constexpr ui16 PANDORA_SPELLS_RARITY = 2;
 
+	enum class NativeCreatureKind { ALL, BASIC, UPGRADE };
+
 	/// "rmg" block of a customObjects.pandoraBoxes entry
 	struct CustomPandoraBox
 	{
@@ -41,9 +43,12 @@ public:
 		ui32 zoneLimit = 0; ///< 0 = unlimited
 		std::set<FactionID> zoneFactions; ///< empty = all
 		std::optional<int> nativeCreaturesLevel; ///< set for rmg.nativeCreatures boxes; 0 = all levels
+		NativeCreatureKind nativeCreaturesKind = NativeCreatureKind::ALL; ///< ALL unless nativeCreaturesLevel >= 1
 	};
 	/// rmg fields of a pandoraBoxes entry with preset defaults applied; nullopt (and an error log) when value or rarity is missing
 	static std::optional<CustomPandoraBox> readCustomPandoraBox(const JsonNode & entry, const CMapGenerator::Config & config);
+	/// natives that get an rmg.nativeCreatures box, in natives order. An upgrade is a creature that isUpgradeOf another creature in natives; basic is every other creature
+	static std::vector<const CCreature *> selectNativeCreatures(const CustomPandoraBox & box, const std::vector<const CCreature *> & natives);
 
 	void process() override;
 	void init() override;

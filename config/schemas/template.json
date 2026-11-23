@@ -116,7 +116,8 @@
 										"type": "object",
 										"additionalProperties": false,
 										"properties": {
-											"level": { "type": "integer", "minimum": 0 }
+											"level": { "type": "integer", "minimum": 0 },
+											"kind": { "type": "string", "enum": ["basic", "upgrade"] }
 										}
 									}
 								}
