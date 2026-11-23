@@ -72,8 +72,13 @@ void CBattleCallback::onBattleStarted(const IBattleInfo * info)
 			"Player " + playerName +
 			" is already engaged in battle " + std::to_string(info->getBattleID().getNum()));
 
+	// a spectator standing in for a player, e.g. under gosolo, also watches battles that player is not in
+	PlayerColor viewer = getPlayerID().value();
+	if(viewer != info->getSidePlayer(BattleSide::ATTACKER) && viewer != info->getSidePlayer(BattleSide::DEFENDER))
+		viewer = PlayerColor::SPECTATOR;
+
 	logGlobal->debug("Battle %d started for player %s", info->getBattleID(), playerName);
-	activeBattles[info->getBattleID()] = std::make_shared<CPlayerBattleCallback>(info, getPlayerID().value());
+	activeBattles[info->getBattleID()] = std::make_shared<CPlayerBattleCallback>(info, viewer);
 }
 
 void CBattleCallback::onBattleEnded(const BattleID & battleID)

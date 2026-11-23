@@ -11,7 +11,9 @@
 
 #include "../../lib/battle/CBattleInfoCallback.h"
 #include "../../lib/battle/CObstacleInstance.h"
+#include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/battle/CUnitState.h"
+#include "../../lib/callback/CBattleCallback.h"
 
 #include <vstd/RNG.h>
 
@@ -1088,4 +1090,20 @@ TEST_F(BattleMatchOwnerTest, hypnotizedToHypnotizedEnemy)
 
 	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, true));
 	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, false));
+}
+
+TEST(CBattleCallbackTest, playerNotTakingPartWatchesBattleAsSpectator)
+{
+	NiceMock<BattleStateMock> battle;
+	ON_CALL(battle, getBattleID()).WillByDefault(Return(BattleID(0)));
+	ON_CALL(battle, getSidePlayer(BattleSide::ATTACKER)).WillByDefault(Return(PlayerColor(0)));
+	ON_CALL(battle, getSidePlayer(BattleSide::DEFENDER)).WillByDefault(Return(PlayerColor(1)));
+
+	CBattleCallback participant(PlayerColor(1), nullptr);
+	participant.onBattleStarted(&battle);
+	EXPECT_EQ(participant.getBattle(BattleID(0))->battleGetMySide(), BattleSide::DEFENDER);
+
+	CBattleCallback watcher(PlayerColor(2), nullptr);
+	watcher.onBattleStarted(&battle);
+	EXPECT_EQ(watcher.getBattle(BattleID(0))->battleGetMySide(), BattleSide::ALL_KNOWING);
 }
