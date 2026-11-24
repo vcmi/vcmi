@@ -643,10 +643,11 @@ rmg::ERoadOption ZoneConnection::getRoadOption() const
 
 bool ZoneConnection::needsPassage() const
 {
-	//repulsive connections are virtual, forced portals bring their own, self-connections are an intended portal
+	//repulsive connections are virtual; forced portals and one-way portals bring their own; self-connections are an intended portal
 	return zoneA != zoneB
 		&& connectionType != rmg::EConnectionType::REPULSIVE
-		&& connectionType != rmg::EConnectionType::FORCE_PORTAL;
+		&& connectionType != rmg::EConnectionType::FORCE_PORTAL
+		&& connectionType != rmg::EConnectionType::ONE_WAY;
 }
 
 void ZoneConnection::setRoadOption(rmg::ERoadOption roadOption)
@@ -672,7 +673,8 @@ void ZoneConnection::serializeJson(JsonSerializeFormat & handler)
 		"fictive",
 		"repulsive",
 		"wide",
-		"forcePortal"
+		"forcePortal",
+		"oneWay"
 	};
 
 	static const std::vector<std::string> roadOptions =

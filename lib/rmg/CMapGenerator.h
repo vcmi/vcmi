@@ -69,6 +69,9 @@ public:
 	/// Next unused two-way monolith subtype. Thread-safe; called from the parallel connection-placement phase.
 	int getNextMonlithIndex();
 
+	/// Next unused one-way monolith subtype, usable for both the entrance and the exit. Thread-safe.
+	int getNextOneWayMonolithIndex();
+
 	/// True if a subterranean gate pair at the given tiles would keep every gate paired with its intended
 	/// partner. For use while searching; the answer may go stale once another thread reserves.
 	bool canReserveGatePair(const int3 & posA, const int3 & posB) const;
@@ -100,7 +103,11 @@ private:
 	std::vector<rmg::ZoneConnection> connectionsLeft;
 	
 	int monolithIndex;
+	int oneWayMonolithIndex;
 	std::mutex monolithIndexMutex;
+
+	/// Next unused subtype that every listed object ID can use at this index. Increments the counter.
+	int nextUsableMonolithIndex(int & index, const std::vector<MapObjectID> & objectIds);
 
 	// Placed subterranean gates, each with the squared 2D distance to its committed partner (see reserveGatePair)
 	struct ReservedGate { int3 pos; int pairingDistanceSqr; };

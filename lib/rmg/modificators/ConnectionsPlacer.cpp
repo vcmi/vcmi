@@ -129,7 +129,8 @@ void ConnectionsPlacer::otherSideConnection(const rmg::ZoneConnection & connecti
 void ConnectionsPlacer::forcePortalConnection(const rmg::ZoneConnection & connection)
 {
 	// This should always succeed
-	if (connection.getConnectionType() == rmg::EConnectionType::FORCE_PORTAL)
+	if (connection.getConnectionType() == rmg::EConnectionType::FORCE_PORTAL
+		|| connection.getConnectionType() == rmg::EConnectionType::ONE_WAY)
 	{
 		placeMonolithConnection(connection);
 	}
@@ -511,22 +512,42 @@ void ConnectionsPlacer::selfSideIndirectConnection(const rmg::ZoneConnection & c
 
 void ConnectionsPlacer::placeMonolithConnection(const rmg::ZoneConnection & connection)
 {
-	auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
-	auto & otherZone = map.getZones().at(otherZoneId);
-
 	bool allowRoad = shouldGenerateRoad(connection);
 
-	auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
-	auto teleport1 = factory.create(map.mapInstance->cb, nullptr);
-	auto teleport2 = factory.create(map.mapInstance->cb, nullptr);
+	if (connection.getConnectionType() == rmg::EConnectionType::ONE_WAY)
+	{
+		const auto subtype = generator.getNextOneWayMonolithIndex();
+		auto & entranceFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_ONE_WAY_ENTRANCE, subtype);
+		auto & exitFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_ONE_WAY_EXIT, subtype);
+		auto entrance = entranceFactory.create(map.mapInstance->cb, nullptr);
+		auto exit = exitFactory.create(map.mapInstance->cb, nullptr);
 
-	RequiredObjectInfo obj1(teleport1, connection.getGuardStrength(), allowRoad);
-	RequiredObjectInfo obj2(teleport2, connection.getGuardStrength(), allowRoad);
-	zone.getModificator<ObjectManager>()->addRequiredObject(obj1);
-	otherZone->getModificator<ObjectManager>()->addRequiredObject(obj2);
+		auto & zoneA = map.getZones().at(connection.getZoneA());
+		auto & zoneB = map.getZones().at(connection.getZoneB());
+		RequiredObjectInfo objEntrance(entrance, connection.getGuardStrength(), allowRoad);
+		RequiredObjectInfo objExit(exit, 0, allowRoad);
+		zoneA->getModificator<ObjectManager>()->addRequiredObject(objEntrance);
+		zoneB->getModificator<ObjectManager>()->addRequiredObject(objExit);
+	}
+	else
+	{
+		auto otherZoneId = (connection.getZoneA() == zone.getId() ? connection.getZoneB() : connection.getZoneA());
+		auto & otherZone = map.getZones().at(otherZoneId);
+
+		auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, generator.getNextMonlithIndex());
+		auto teleport1 = factory.create(map.mapInstance->cb, nullptr);
+		auto teleport2 = factory.create(map.mapInstance->cb, nullptr);
+
+		RequiredObjectInfo obj1(teleport1, connection.getGuardStrength(), allowRoad);
+		RequiredObjectInfo obj2(teleport2, connection.getGuardStrength(), allowRoad);
+		zone.getModificator<ObjectManager>()->addRequiredObject(obj1);
+		otherZone->getModificator<ObjectManager>()->addRequiredObject(obj2);
+	}
 
 	dCompleted.push_back(connection);
-	
+
+	auto otherZoneId = connection.getOtherZoneId(zone.getId());
+	auto & otherZone = map.getZones().at(otherZoneId);
 	assert(otherZone->getModificator<ConnectionsPlacer>());
 	otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
 }

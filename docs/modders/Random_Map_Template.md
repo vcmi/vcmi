@@ -92,9 +92,12 @@
 		{ "a" : "zoneA", "b" : "zoneB", "guard" : 5000, "road" : "false" },
 		{ "a" : "zoneA", "b" : "zoneC", "guard" : 5000, "road" : "random" },
 		{ "a" : "zoneB", "b" : "zoneC", "type" : "wide" }
-		//"type" can be "guarded" (default), "wide", "fictive", "repulsive" or "forcePortal"
+		//"type" can be "guarded" (default), "wide", "fictive", "repulsive", "forcePortal" or "oneWay"
 		//"wide" connections have no border, or guard. "fictive" and "repulsive" connections are virtual -
 		//they do not create actual path, but only attract or repulse zones, respectively
+		//"oneWay" is always a one-way Monolith pair (entrance in a, exit in b). Direction is a to b.
+		//"guard" applies to the entrance only. Like "forcePortal", it does not pull the zones together.
+		//When a and b are the same zone, both ends are placed in that zone.
 	]
 }
 ```

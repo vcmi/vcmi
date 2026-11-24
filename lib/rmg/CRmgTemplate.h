@@ -92,7 +92,8 @@ enum class EConnectionType
 	FICTIVE,
 	REPULSIVE,
 	WIDE,
-	FORCE_PORTAL
+	FORCE_PORTAL,
+	ONE_WAY
 };
 
 enum class ERoadOption
