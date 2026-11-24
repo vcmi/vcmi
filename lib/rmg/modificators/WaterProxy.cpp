@@ -164,7 +164,7 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 			//Don't place shipyard or boats on the very small lake
 			if (lake.area.getTilesVector().size() < 25)
 			{
-				logGlobal->info("Skipping very small lake at zone %d", dst.getId());
+				logRmg->info("Skipping very small lake at zone %d", dst.getId());
 				continue;
 			}
 						
@@ -182,18 +182,18 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 			{
 				if(placeShipyard(dst, lake, generator.getConfig().shipyardGuard, createRoad, result))
 				{
-					logGlobal->info("Shipyard successfully placed at zone %d", dst.getId());
+					logRmg->info("Shipyard successfully placed at zone %d", dst.getId());
 				}
 				else
 				{
-					logGlobal->warn("Shipyard placement failed, trying boat at zone %d", dst.getId());
+					logRmg->warn("Shipyard placement failed, trying boat at zone %d", dst.getId());
 					if(placeBoat(dst, lake, createRoad, result))
 					{
-						logGlobal->warn("Boat successfully placed at zone %d", dst.getId());
+						logRmg->warn("Boat successfully placed at zone %d", dst.getId());
 					}
 					else
 					{
-						logGlobal->error("Boat placement failed at zone %d", dst.getId());
+						logRmg->error("Boat placement failed at zone %d", dst.getId());
 					}
 				}
 			}
@@ -201,11 +201,11 @@ RouteInfo WaterProxy::waterRoute(Zone & dst)
 			{
 				if(placeBoat(dst, lake,  createRoad, result))
 				{
-					logGlobal->info("Boat successfully placed at zone %d", dst.getId());
+					logRmg->info("Boat successfully placed at zone %d", dst.getId());
 				}
 				else
 				{
-					logGlobal->error("Boat placement failed at zone %d", dst.getId());
+					logRmg->error("Boat placement failed at zone %d", dst.getId());
 				}
 			}
 		}
@@ -423,4 +423,13 @@ char WaterProxy::dump(const int3 & t)
 	}
 	
 	return '~';
+}
+
+std::string WaterProxy::dumpLegend() const
+{
+	return "0-9 neighbour zone\n"
+		"= unused connection\n"
+		"~ water\n"
+		"? not in lake\n"
+		+ Modificator::dumpLegend();
 }

@@ -40,6 +40,7 @@ public:
 	
 	virtual void init() {/*override to add dependencies*/}
 	virtual char dump(const int3 &);
+	virtual std::string dumpLegend() const;
 	virtual ~Modificator() = default;
 
 	void setName(const std::string & n);
@@ -72,6 +73,4 @@ private:
 	std::list<Modificator*> preceeders; //must be ordered container
 
 	mutable std::shared_mutex mx; //Used only for task scheduling
-
-	void dump();
 };

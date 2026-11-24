@@ -158,6 +158,7 @@ set(test_SRCS
 		rmg/WaterZoneLevelsTest.cpp
 		rmg/TileDistanceIndexTest.cpp
 		rmg/RmgPathTest.cpp
+		rmg/RmgMapDumperTest.cpp
 
 		mock/BattleFake.cpp
 		mock/GameHandlerTestClient.cpp

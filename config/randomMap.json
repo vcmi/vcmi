@@ -46,6 +46,15 @@
 	},
 	"singleThread" : false,
 
+	"debug" :
+	{
+		// Whole-map ASCII dumps after named stages; empty = off. A non-empty list forces single-thread generation.
+		// Valid values: "zones", ObjectManager, ObjectDistributor, PrisonHeroPlacer, TreasurePlacer, ObstaclePlacer,
+		// TerrainPainter, TownPlacer, MinePlacer, ObjectPlacer, QuestArtifactPlacer, ConnectionsPlacer, RoadPlacer,
+		// RiverPlacer, RockPlacer, RockFiller, WaterAdopter, WaterProxy, WaterRoutes.
+		"dumpStages" : []
+	},
+
 	"zonePlacement" :
 	{
 		// max distance between the two ends of a subterranean gate (0 = gates must share a column)

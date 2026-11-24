@@ -85,7 +85,7 @@ void TerrainPainter::initTerrainType()
 
 			if (terrainType <= ETerrainId::NONE)
 			{
-				logGlobal->warn("Town %s has invalid terrain type: %d", zone.getTownType(), terrainType);
+				logRmg->warn("Town %s has invalid terrain type: %d", zone.getTownType(), terrainType);
 				zone.setTerrainType(ETerrainId::DIRT);
 			}
 			else

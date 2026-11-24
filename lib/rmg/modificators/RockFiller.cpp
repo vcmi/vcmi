@@ -76,3 +76,10 @@ char RockFiller::dump(const int3 & t)
 	}
 	return Modificator::dump(t);
 }
+
+std::string RockFiller::dumpLegend() const
+{
+	return "R rock in zone\n"
+		"E rock outside zone\n"
+		+ Modificator::dumpLegend();
+}

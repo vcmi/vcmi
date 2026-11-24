@@ -24,7 +24,7 @@ namespace ELogLevel
 }
 
 /// The class CLoggerDomain provides convenient access to super domains from a sub domain.
-class CLoggerDomain
+class DLL_LINKAGE CLoggerDomain
 {
 public:
 	/// Constructs a CLoggerDomain with the domain designated by name.
@@ -44,7 +44,7 @@ private:
 
 /// The logger is used to log messages to certain targets of a specific domain/name.
 /// It is thread-safe and can be used concurrently by several threads.
-class CLogger final: public vstd::CLoggerBase
+class DLL_LINKAGE CLogger final: public vstd::CLoggerBase
 {
 public:
 	ELogLevel::ELogLevel getLevel() const;

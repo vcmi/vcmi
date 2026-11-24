@@ -99,8 +99,6 @@ void CZonePlacer::findPathsBetweenZones()
 
 void CZonePlacer::placeZones(vstd::RNG * rand)
 {
-	logGlobal->info("Starting zone placement");
-
 	width = map.getMapGenOptions().getWidth();
 	height = map.getMapGenOptions().getHeight();
 
@@ -128,17 +126,22 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 		pristineSize[zone.second] = zone.second->getSize();
 	}
 
-	CZoneGridPlacer gridPlacer(map, distancesBetweenZones, config.playerRepulsion, playerStartZones, participatingPlayerZones);
+	CZoneGridPlacer gridPlacer(map, distancesBetweenZones, config.playerRepulsion, playerStartZones, participatingPlayerZones, placementLog);
 
 	// Winning layout across all attempts (positions and per-attempt prescaled sizes).
-	std::map<std::shared_ptr<Zone>, float3> winningCenters;
+	TZoneCenterMap winningCenters;
 	std::map<std::shared_ptr<Zone>, int> winningSizes;
+	std::vector<ConnectionPrediction> winningPredictions;
+	int winningAttempt = 0;
 	int winningScore = std::numeric_limits<int>::max();
 	float winningFitness = std::numeric_limits<float>::max();
 
 	const int attempts = std::max(1, config.attempts);
+	placementLog.placementStarted(static_cast<int>(zones.size()), mapLevels, width, height, attempts);
 	for(int attempt = 0; attempt < attempts; ++attempt)
 	{
+		placementLog.attemptStarted(attempt + 1, attempts);
+
 		//restore pristine state and reset per-attempt accumulators
 		for(const auto & zone : zones)
 		{
@@ -153,8 +156,9 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 		RandomGeneratorUtil::randomShuffle(zonesVector, *rand);
 		prepareZones(zones, zonesVector, mapLevels);
 		gridPlacer.placeOnGrid(zones, rand);
+		placementLog.initialGridLayout(zones);
 
-		std::map<std::shared_ptr<Zone>, float3> bestSolution;
+		TZoneCenterMap bestSolution;
 
 		TForceVector forces;
 		TForceVector totalForces; //  both attraction and pushback, overcomplicated?
@@ -224,42 +228,46 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 				improved |= evaluateSolution();
 			}
 
+			placementLog.relaxationIteration(stifness, distances, overlaps, improved);
+
 			if (!improved)
 			{
 				//Only cool down if we didn't see any improvement
 				stifness *= stiffnessIncreaseFactor;
 			}
-
 		}
 
-		ConnectivityCounts counts = classifyConnections(zones, bestSolution);
+		auto predictions = classifyConnections(zones, bestSolution);
+		const ConnectivityCounts counts = connectivityCounts(predictions);
 		const int score = counts.direct * config.scoreDirect + counts.gates * config.scoreGate + counts.monoliths * config.scoreMonolith;
 
 		//most templates connect same-level zones only, so every attempt scores the same - fall back on the
 		//relaxation fitness, otherwise the first attempt would always win and the rest would be wasted
 		const float fitness = (bestTotalDistance + 1) * (bestTotalOverlap + 1);
 
-		logGlobal->info("Zone placement attempt %d/%d: score %d (direct %d, gates %d, monoliths %d); fitness %2.4f (distance %2.4f overlap %2.4f)",
-			attempt + 1, attempts, score, counts.direct, counts.gates, counts.monoliths, fitness, bestTotalDistance, bestTotalOverlap);
+		placementLog.attemptFinished(attempt + 1, attempts, score, counts, fitness, bestTotalDistance, bestTotalOverlap);
+		placementLog.attemptBestLayout(zones, bestSolution);
 
 		if(score < winningScore || (score == winningScore && fitness < winningFitness))
 		{
 			winningScore = score;
 			winningFitness = fitness;
+			winningAttempt = attempt + 1;
 			winningCenters = bestSolution;
+			winningPredictions = std::move(predictions);
 			winningSizes.clear();
 			for(const auto & zone : zones)
 				winningSizes[zone.second] = zone.second->getSize();
 		}
 	}
 
-	logGlobal->info("Best zone placement score: %d", winningScore);
 	for(const auto & zone : zones) //apply the winning layout
 	{
 		zone.second->setSize(winningSizes[zone.second]);
 		zone.second->setCenter(winningCenters[zone.second]);
 		zone.second->setPos(cords(winningCenters[zone.second]));
 	}
+	placementLog.winner(winningAttempt, attempts, winningScore, zones, winningPredictions);
 
 	applyRandomOrientation(zones, rand);
 }
@@ -289,6 +297,7 @@ void CZonePlacer::applyRandomOrientation(const TZoneMap & zones, vstd::RNG * ran
 	orientRotation = square ? rand->nextInt(0, 3) : rand->nextInt(0, 1) * 2;
 	orientFlipH = rand->nextInt(0, 1) == 1;
 	orientFlipV = rand->nextInt(0, 1) == 1;
+	placementLog.orientation(orientRotation, orientFlipH, orientFlipV);
 	if(orientRotation == 0 && !orientFlipH && !orientFlipV)
 		return; //identity
 
@@ -396,7 +405,7 @@ void CZonePlacer::prepareZones(const TZoneMap & zones, const TZoneVector & zones
 			}
 			else
 			{
-				logGlobal->trace("Player %d (starting zone %d) does not participate in game", player.getNum(), zone.first);
+				placementLog.nonParticipatingPlayer(player.getNum(), zone.first);
 			}
 
 			if (faction == FactionID::RANDOM) //TODO: check this after a town has already been randomized
@@ -479,6 +488,8 @@ void CZonePlacer::prepareZones(const TZoneMap & zones, const TZoneVector & zones
 	{
 		zone.second->setSize(static_cast<int>(zone.second->getSize() * prescaler[zone.second->getCenter().z]));
 	}
+
+	placementLog.levelSplitAndPrescale(zones, prescaler);
 }
 
 void CZonePlacer::findPlayerZones(const TZoneMap & zones)
@@ -638,14 +649,11 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 	}
 }
 
-CZonePlacer::ConnectivityCounts CZonePlacer::classifyConnections(const TZoneMap & zones, const std::map<std::shared_ptr<Zone>, float3> & solution) const
+std::vector<ConnectionPrediction> CZonePlacer::classifyConnections(const TZoneMap & zones, const TZoneCenterMap & solution) const
 {
 	//Predict from geometry alone - this is the signal placement can influence, the real outcome is
 	//decided later by ConnectionsPlacer.
-	//How far a same-level pair may sit and still be predicted "connectable", as a multiple of touching distance
-	constexpr float attractionReachScore = 1.5f;
-
-	ConnectivityCounts counts;
+	std::vector<ConnectionPrediction> predictions;
 	std::set<int> seen;
 	for(const auto & zonePair : zones)
 	{
@@ -665,26 +673,42 @@ CZonePlacer::ConnectivityCounts CZonePlacer::classifyConnections(const TZoneMap 
 			if(selfPos == solution.end() || otherPos == solution.end())
 				continue;
 
-			float touching = (zonePair.second->getSize() + otherIt->second->getSize()) / mapSize;
-			auto distance = static_cast<float>(selfPos->second.dist2d(otherPos->second));
-
-			if(selfPos->second.z != otherPos->second.z)
-			{
-				//cross-level: a gate needs the footprints to overlap in XY, or to come within
-				//maxGateDistance of each other - the same reach ConnectionsPlacer will search with
-				const float gateReach = touching + config.maxGateDistance / mapSize;
-				if(distance <= gateReach)
-					counts.gates++;
-				else
-					counts.monoliths++;
-			}
-			else if(distance <= touching * attractionReachScore)
-				counts.direct++; //adjacent / overlapping -> a direct guarded passage is achievable
-			else
-				counts.monoliths++;
+			const float touching = (zonePair.second->getSize() + otherIt->second->getSize()) / mapSize;
+			predictions.push_back(predictConnection(connection, touching, selfPos->second, otherPos->second));
 		}
 	}
-	return counts;
+	return predictions;
+}
+
+ConnectionPrediction CZonePlacer::predictConnection(const rmg::ZoneConnection & connection, float touching, const float3 & selfPos, const float3 & otherPos) const
+{
+	//How far a same-level pair may sit and still be predicted "connectable", as a multiple of touching distance
+	constexpr float attractionReachScore = 1.5f;
+
+	ConnectionPrediction prediction;
+	prediction.id = connection.getId();
+	prediction.zoneA = connection.getZoneA();
+	prediction.zoneB = connection.getZoneB();
+	prediction.type = connection.getConnectionType();
+	prediction.distance = static_cast<float>(selfPos.dist2d(otherPos));
+
+	if(selfPos.z != otherPos.z)
+	{
+		//cross-level: a gate needs the footprints to overlap in XY, or to come within
+		//maxGateDistance of each other - the same reach ConnectionsPlacer will search with
+		prediction.reach = touching + config.maxGateDistance / mapSize;
+		prediction.predicted = (prediction.distance <= prediction.reach)
+			? ConnectionOutcome::Gate
+			: ConnectionOutcome::Monolith;
+	}
+	else
+	{
+		prediction.reach = touching * attractionReachScore;
+		prediction.predicted = (prediction.distance <= prediction.reach)
+			? ConnectionOutcome::Direct
+			: ConnectionOutcome::Monolith;
+	}
+	return prediction;
 }
 
 void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDistanceVector& distances, TDistanceVector& overlaps)
@@ -723,6 +747,8 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		return lhs.first > rhs.first; //Largest displacement first
 	});
 
+	placementLog.misplacedRatio(misplacedZones.front().first);
+
 	if (misplacedZones.size() >= 2)
 	{
 		//Swap 2 misplaced zones
@@ -755,6 +781,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 		{
 			auto firstCenter = firstZone->getCenter();
 			auto secondCenter = secondZone->getCenter();
+			placementLog.zonesSwapped(firstZone->getId(), firstCenter, secondZone->getId(), secondCenter);
 			firstZone->setCenter(secondCenter);
 			secondZone->setCenter(firstCenter);
 
@@ -795,6 +822,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 			float3 vec = targetZone->getCenter() - ourCenter;
 			float newDistanceBetweenZones = (std::max(misplacedZone->getSize(), targetZone->getSize())) / mapSize;
 			misplacedZone->setCenter(targetZone->getCenter() - vec.unitVector() * newDistanceBetweenZones); //zones should now overlap by half size
+			placementLog.zoneMoved(misplacedZone->getId(), targetZone->getId(), vec, ourCenter, misplacedZone->getCenter(), true);
 		}
 	}
 	else
@@ -821,6 +849,7 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 			float3 vec = ourCenter - targetZone->getCenter();
 			float newDistanceBetweenZones = (misplacedZone->getSize() + targetZone->getSize()) / mapSize;
 			misplacedZone->setCenter(targetZone->getCenter() + vec.unitVector() * newDistanceBetweenZones); //zones should now be just separated
+			placementLog.zoneMoved(misplacedZone->getId(), targetZone->getId(), vec, ourCenter, misplacedZone->getCenter(), false);
 		}
 	}
 	//Don't swap that zone in next iteration
@@ -829,8 +858,6 @@ void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDista
 
 void CZonePlacer::assignZones(vstd::RNG * rand)
 {
-	logGlobal->info("Starting zone colouring");
-
 	auto width = map.getMapGenOptions().getWidth();
 	auto height = map.getMapGenOptions().getHeight();
 
@@ -947,7 +974,7 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 			map.getMapProxy()->drawTerrain(*rand, v, ETerrainId::SUBTERRANEAN);
 		}
 	}
-	logGlobal->info("Finished zone colouring");
+	placementLog.colouringFinished(zones);
 }
 
 void CZonePlacer::assignTilesCapacityBalanced(int level, const std::vector<std::shared_ptr<Zone>> & levelZones, const std::set<Point2D> & vertices) const
@@ -1066,6 +1093,16 @@ void CZonePlacer::assignTilesCapacityBalanced(int level, const std::vector<std::
 	if(std::isinf(bestError))
 		throw rmgException("Could not fit all zones on level " + std::to_string(level) + ", RMG template is inappropriate for map size");
 	vertexZone = bestVertexZone;
+
+	std::vector<int> vertexCount(numZones, 0);
+	std::vector<double> tilesWon(numZones, 0.0);
+	for(size_t v = 0; v < numVertices; ++v)
+	{
+		const int zoneIndex = vertexZone[v];
+		vertexCount[zoneIndex] += 1;
+		tilesWon[zoneIndex] += vertexTileCount[v];
+	}
+	placementLog.tileAssignment(level, bestError, levelZones, target, tilesWon, vertexCount);
 
 	// Paint tiles using the final vertex->zone assignment.
 	for(pos.x = 0; pos.x < width; ++pos.x)
