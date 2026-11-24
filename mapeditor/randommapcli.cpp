@@ -446,6 +446,10 @@ int runRandomMapCommand(const QStringList & arguments)
 		startup.initLibrary();
 
 		CMapGenOptions options;
+		// Same road defaults as the game lobby
+		options.setRoadEnabled(RoadId(Road::DIRT_ROAD), true);
+		options.setRoadEnabled(RoadId(Road::GRAVEL_ROAD), true);
+		options.setRoadEnabled(RoadId(Road::COBBLESTONE_ROAD), true);
 		applyRequest(options, request);
 		if(const int rc = selectTemplate(options, request))
 			return rc;
