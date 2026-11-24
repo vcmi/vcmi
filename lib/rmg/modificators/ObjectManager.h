@@ -78,6 +78,8 @@ public:
 	void addFootprint(const rmg::Object & obj);
 	/// Footprint of candidate keeps minDistance from footprints of placed objects whenever a multi-entrance object is involved
 	bool keepsFootprintDistance(const rmg::Object & candidate, float minDistance) const;
+	/// Smallest distance from the tiles of obj to other objects, or -1 when obj breaks minDistance
+	float distanceToNearestObject(const rmg::Object & obj, si32 minDistance) const;
 	void updateDistances(const int3& pos);
 	void createDistancesPriorityQueue();
 

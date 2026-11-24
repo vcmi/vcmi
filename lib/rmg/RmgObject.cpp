@@ -288,21 +288,6 @@ bool Object::isVisitable() const
 	});
 }
 
-bool Object::allEntrancesOnMap(const std::function<bool(const int3 &)> & isOnMap) const
-{
-	for(const auto * instance : instances())
-	{
-		if(instance->getVisitableArea().getTilesVector().size() <= 1)
-			continue;
-		for(const auto & tile : instance->getAccessibleArea().getTilesVector())
-		{
-			if(!isOnMap(tile))
-				return false;
-		}
-	}
-	return true;
-}
-
 bool Object::hasMultipleEntrances() const
 {
 	return std::ranges::any_of(instances(), [](const Instance * instance)

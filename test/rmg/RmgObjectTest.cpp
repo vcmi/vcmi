@@ -55,7 +55,7 @@ TEST(RmgObjectTest, oasisMaskHasSixEntrances)
 {
 	const auto object = makeObject(R"([ "BB", "AA" ])", int3(10, 10, 0));
 
-	const std::set<int3> expected = {
+	const std::set expected = {
 		int3(8, 10, 0), int3(11, 10, 0),
 		int3(8, 11, 0), int3(9, 11, 0), int3(10, 11, 0), int3(11, 11, 0)
 	};
@@ -66,7 +66,7 @@ TEST(RmgObjectTest, wateringHoleMaskHasEightEntrances)
 {
 	const auto object = makeObject(R"([ "AAAA" ])", int3(10, 10, 0));
 
-	const std::set<int3> expected = {
+	const std::set expected = {
 		int3(6, 10, 0), int3(11, 10, 0),
 		int3(6, 11, 0), int3(7, 11, 0), int3(8, 11, 0), int3(9, 11, 0), int3(10, 11, 0), int3(11, 11, 0)
 	};
@@ -77,7 +77,7 @@ TEST(RmgObjectTest, singleTileObjectKeepsFiveEntrances)
 {
 	const auto object = makeObject(R"([ "A" ])", int3(10, 10, 0));
 
-	const std::set<int3> expected = {
+	const std::set expected = {
 		int3(9, 10, 0), int3(11, 10, 0),
 		int3(9, 11, 0), int3(10, 11, 0), int3(11, 11, 0)
 	};
@@ -88,7 +88,7 @@ TEST(RmgObjectTest, oasisVisitableAreaHoldsBothTiles)
 {
 	const auto object = makeObject(R"([ "BB", "AA" ])", int3(10, 10, 0));
 
-	const std::set<int3> expected = { int3(9, 10, 0), int3(10, 10, 0) };
+	const std::set expected = { int3(9, 10, 0), int3(10, 10, 0) };
 	EXPECT_EQ(tilesOf(object.getVisitableArea()), expected);
 }
 
@@ -111,7 +111,7 @@ TEST(RmgObjectTest, oasisFootprintHoldsBodyAndEntrances)
 {
 	const auto object = makeObject(R"([ "BB", "AA" ])", int3(10, 10, 0));
 
-	const std::set<int3> expected = {
+	const std::set expected = {
 		int3(9, 9, 0), int3(10, 9, 0), int3(9, 10, 0), int3(10, 10, 0),
 		int3(8, 10, 0), int3(11, 10, 0),
 		int3(8, 11, 0), int3(9, 11, 0), int3(10, 11, 0), int3(11, 11, 0)

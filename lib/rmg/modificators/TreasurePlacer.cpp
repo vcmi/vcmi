@@ -127,7 +127,7 @@ void TreasurePlacer::addCommonObjects()
 			auto & handler = LIBRARY->objtypeh->getHandlerFor(primaryID, secondaryID);
 			if(!handler.isStaticObject() && handler.getRMGInfo().value)
 			{
-				auto rmgInfo = handler.getRMGInfo();
+				const auto & rmgInfo = handler.getRMGInfo();
 				if (rmgInfo.mapLimit || rmgInfo.value > zone.getMaxTreasureValue())
 				{
 					//Skip objects with per-map limit here

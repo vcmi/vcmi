@@ -14,8 +14,6 @@
 #include "../int3.h"
 #include "RmgArea.h"
 
-#include <functional>
-
 namespace vstd
 {
 class RNG;
@@ -89,7 +87,21 @@ public:
 	
 	bool isVisitable() const;
 	/// False when an instance with more than one visitable tile has an entrance off the map
-	bool allEntrancesOnMap(const std::function<bool(const int3 &)> & isOnMap) const;
+	template<typename IsOnMap>
+	bool allEntrancesOnMap(const IsOnMap & isOnMap) const
+	{
+		for(const auto * instance : instances())
+		{
+			if(instance->getVisitableArea().getTilesVector().size() <= 1)
+				continue;
+			for(const auto & tile : instance->getAccessibleArea().getTilesVector())
+			{
+				if(!isOnMap(tile))
+					return false;
+			}
+		}
+		return true;
+	}
 	/// True when any instance has more than one visitable tile
 	bool hasMultipleEntrances() const;
 	/// Occupied tiles plus the entrance tiles of every visitable tile

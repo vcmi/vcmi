@@ -26,7 +26,7 @@ AObjectTypeHandler & handlerFor(const std::string & objectName)
 
 ObjectInfo infoFor(const std::string & objectName)
 {
-	auto & handler = handlerFor(objectName);
+	const auto & handler = handlerFor(objectName);
 	return ObjectInfo(handler.getIndex(), handler.getSubIndex());
 }
 }
@@ -42,8 +42,8 @@ TEST(StandaloneObjectRulesTest, canJoinTreasurePileRules)
 	ObjectInfo standalone = infoFor("standaloneObject");
 	ObjectInfo plain = infoFor("pileObject");
 	std::vector<ObjectInfo *> empty;
-	std::vector<ObjectInfo *> plainPile{&plain};
-	std::vector<ObjectInfo *> standalonePile{&standalone};
+	std::vector plainPile{&plain};
+	std::vector standalonePile{&standalone};
 
 	EXPECT_TRUE(canJoinTreasurePile(standalone, empty));
 	EXPECT_FALSE(canJoinTreasurePile(standalone, plainPile));
