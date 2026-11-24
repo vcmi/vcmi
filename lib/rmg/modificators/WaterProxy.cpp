@@ -329,6 +329,13 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 	rmg::Object rmgObject(shipyard);
 	rmgObject.setTemplate(land.getTerrainType(), zone.getRand());
 	bool guarded = manager->addGuard(rmgObject, guard);
+
+	std::vector<int3> offsets;
+	static_cast<const IBoatGenerator &>(*shipyard).getOutOffsets(offsets);
+	const auto isWaterTerrain = [this](const int3 & t)
+	{
+		return map.isOnMap(t) && map.getTile(t).isWater();
+	};
 	
 	auto waterAvailable = zone.areaForRoads();
 	waterAvailable.intersect(lake.area);
@@ -356,12 +363,16 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 		}
 		
 		//try to place shipyard close to boarding position and appropriate water access
-		auto path = manager->placeAndConnectObject(land.areaPossible().get(), rmgObject, [&rmgObject, &shipPositions, &boardingPosition](const int3 & tile)
+		auto path = manager->placeAndConnectObject(land.areaPossible().get(), rmgObject, [&rmgObject, &shipPositions, &boardingPosition, &offsets, &isWaterTerrain](const int3 & tile)
 		{
 			//Must only check the border of shipyard and not the added guard
 			rmg::Area shipyardOut = rmgObject.instances().front()->getBlockedArea().getBorderOutside();
 
-			if(!shipyardOut.contains(boardingPosition) || (shipyardOut * shipPositions).empty())
+			if(!shipyardOut.contains(boardingPosition))
+				return -1.f;
+
+			const int3 boatTile = predictBoatTile(offsets, rmgObject.instances().front()->getVisitablePosition(), isWaterTerrain);
+			if(!shipPositions.contains(boatTile))
 				return -1.f;
 			
 			return 1.0f;
@@ -373,12 +384,11 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 		pathToBoarding.connect(land.freePaths().get());
 		pathToBoarding.connect(path);
 		pathToBoarding = pathToBoarding.search(boardingPosition, false);
-		
-		//make sure shipyard places ship at position we defined
-		rmg::Area shipyardOutToBlock(rmgObject.getArea().getBorderOutside());
-		shipyardOutToBlock.intersect(waterAvailable);
-		shipyardOutToBlock.subtract(shipPositions);
-		shipPositions.subtract(shipyardOutToBlock);
+
+		const int3 boatTile = predictBoatTile(offsets, rmgObject.instances().front()->getVisitablePosition(), isWaterTerrain);
+		shipPositions.clear();
+		if(boatTile.isValid())
+			shipPositions.add(boatTile);
 		auto pathToBoat = zone.searchPath(shipPositions, true);
 		
 		if(!path.valid() || !pathToBoarding.valid() || !pathToBoat.valid())
@@ -397,11 +407,6 @@ bool WaterProxy::placeShipyard(Zone & land, const Lake & lake, si32 guard, bool 
 		info.water = shipPositions;
 		
 		manager->placeObject(rmgObject, guarded, true, createRoad);
-		
-		zone.areaPossible()->subtract(shipyardOutToBlock);
-		for(const auto & i : shipyardOutToBlock.getTilesVector())
-			if(map.isOnMap(i) && map.isPossible(i))
-				map.setOccupied(i, ETileType::BLOCKED);
 		
 		break;
 	}

@@ -134,3 +134,14 @@ std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 	}
 	return result;
 }
+
+int3 predictBoatTile(const std::vector<int3> & offsets, const int3 & origin, const std::function<bool(const int3 &)> & isWater)
+{
+	for(const auto & offset : offsets)
+	{
+		int3 tile = origin + offset;
+		if(isWater(tile))
+			return tile;
+	}
+	return int3(-1, -1, -1);
+}

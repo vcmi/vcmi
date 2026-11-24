@@ -12,6 +12,7 @@
 
 #include "Zone.h"
 #include <boost/heap/priority_queue.hpp> //A*
+#include <functional>
 
 class RmgMap;
 class ObjectManager;
@@ -54,3 +55,7 @@ ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level);
 /// Levels that get their own water zone, ascending
 std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 	const std::vector<MapLayerId> & levelLayers, const std::set<int> & landZoneLevels);
+
+/// The tile where IBoatGenerator::bestLocation() will put the boat:
+/// the first origin + offset, in offsets order, that isWater accepts; int3(-1,-1,-1) if none.
+DLL_LINKAGE int3 predictBoatTile(const std::vector<int3> & offsets, const int3 & origin, const std::function<bool(const int3 &)> & isWater);
