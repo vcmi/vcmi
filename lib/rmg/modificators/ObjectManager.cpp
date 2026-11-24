@@ -76,14 +76,13 @@ void ObjectManager::init()
 
 void ObjectManager::createDistancesPriorityQueue()
 {
+	RecursiveLock lock(zone.areaMutex);
 	const auto tiles = zone.areaPossible()->getTilesVector();
-
-	RecursiveLock lock(externalAccessMutex);
-	tilesByDistance.clear();
+	std::vector<std::pair<int3, float>> entries;
+	entries.reserve(tiles.size());
 	for(const auto & tile : tiles)
-	{
-		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
-	}
+		entries.emplace_back(tile, map.getNearestObjectDistance(tile));
+	tilesByDistance.reset(entries);
 }
 
 void ObjectManager::addRequiredObject(const RequiredObjectInfo & info)
@@ -106,21 +105,15 @@ void ObjectManager::addNearbyObject(const RequiredObjectInfo & info)
 
 void ObjectManager::updateDistances(const rmg::Object & obj)
 {
-	updateDistances([obj](const int3& tile) -> ui32
-	{
-		return obj.getArea().distanceSqr(tile); //optimization, only relative distance is interesting
-	});
+	updateDistancesFromTiles(obj.getArea().getTilesVector());
 }
 
 void ObjectManager::updateDistances(const int3 & pos)
 {
-	updateDistances([pos](const int3& tile) -> ui32
-	{
-		return pos.dist2dSQ(tile); //optimization, only relative distance is interesting
-	});
+	updateDistancesFromTiles({pos});
 }
 
-void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> distanceFunction)
+void ObjectManager::updateDistancesFromTiles(const std::vector<int3> & source)
 {
 	// Workaround to avoid deadlock when accessed from other zone
 	RecursiveLock lock(zone.areaMutex, std::try_to_lock);
@@ -130,15 +123,13 @@ void ObjectManager::updateDistances(std::function<ui32(const int3 & tile)> dista
 		return;
 	}
 
-	const auto tiles = zone.areaPossible()->getTilesVector();
-	//RecursiveLock lock(externalAccessMutex);
-	tilesByDistance.clear();
-
-	for (const auto & tile : tiles) //don't need to mark distance for not possible tiles
+	auto possible = zone.areaPossible();
+	for(const auto & [tile, distance] : tilesByDistance.lowerTowards(source, [&possible](const int3 & tile)
 	{
-		ui32 d = distanceFunction(tile);
-		map.setNearestObjectDistance(tile, std::min(static_cast<float>(d), map.getNearestObjectDistance(tile)));
-		tilesByDistance.push(std::make_pair(tile, map.getNearestObjectDistance(tile)));
+		return possible->contains(tile);
+	}))
+	{
+		map.setNearestObjectDistance(tile, distance);
 	}
 }
 
@@ -164,10 +155,29 @@ std::vector<CGObjectInstance*> ObjectManager::getMines() const
 	return mines;
 }
 
-int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, OptimizeType optimizer) const
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, OptimizeType optimizer, float stopDistance) const
 {
+	return findPlaceForObject(searchArea, AREA_NO_FILTER, obj, weightFunction, optimizer, stopDistance);
+}
+
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, const TileFilter & filter, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, OptimizeType optimizer, float stopDistance) const
+{
+	RecursiveLock lock(zone.areaMutex);
 	float bestWeight = 0.f;
 	int3 result(-1, -1, -1);
+
+	auto inSearchArea = [&searchArea, &filter](const int3 & tile)
+	{
+		return searchArea.contains(tile) && filter(tile);
+	};
+	auto objectFits = [&obj, &inSearchArea]() -> bool
+	{
+		const auto & area = obj.getArea().getTilesVector();
+		if(!std::all_of(area.begin(), area.end(), inSearchArea))
+			return false;
+		const auto & accessible = obj.getAccessibleArea().getTilesVector();
+		return std::any_of(accessible.begin(), accessible.end(), inSearchArea);
+	};
 
 	//Blocked area might not cover object position if it has an offset from (0,0)
 	auto outsideTheMap = [this, &obj]() -> bool
@@ -184,50 +194,40 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	
 	if(optimizer & OptimizeType::DISTANCE)
 	{
-		// Do not add or remove tiles while we iterate on them
-		//RecursiveLock lock(externalAccessMutex);
-		auto open = tilesByDistance;
-
-		while(!open.empty())
+		tilesByDistance.forEachFarthestFirst([&inSearchArea, &objectFits, &obj, &outsideTheMap, &weightFunction, &bestWeight, &result, optimizer, stopDistance](const int3 & tile, float distance)
 		{
-			auto node = open.top();
-			open.pop();
-			int3 tile = node.first;
-			
-			if(!searchArea.contains(tile))
-				continue;
-			
+			if(distance < stopDistance)
+				return false;
+
+			if(!inSearchArea(tile))
+				return true;
+
 			obj.setPosition(tile);
+			if(obj.getVisibleTop().y < 0 || !objectFits() || outsideTheMap())
+				return true;
 
-			if (obj.getVisibleTop().y < 0)
-				continue;
-			
-			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
-				continue;
-
-			if (outsideTheMap())
-				continue;
-			
 			float weight = weightFunction(tile);
-			if(weight > bestWeight)
-			{
-				bestWeight = weight;
-				result = tile;
-				if(!(optimizer & OptimizeType::WEIGHT))
-					break;
-			}
-		}
+			if(weight <= bestWeight)
+				return true;
+
+			bestWeight = weight;
+			result = tile;
+			return (optimizer & OptimizeType::WEIGHT) != 0;
+		});
 	}
 	else
 	{
 		for(const auto & tile : searchArea.getTilesVector())
 		{
+			if(!filter(tile))
+				continue;
+
 			obj.setPosition(tile);
 
 			if (obj.getVisibleTop().y < 0)
 				continue;
 					
-			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
+			if(!objectFits())
 				continue;
 
 			if (outsideTheMap())
@@ -249,7 +249,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	return result;
 }
 
-int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, OptimizeType optimizer) const
+int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, OptimizeType optimizer, float stopDistance) const
 {
 	return findPlaceForObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
@@ -272,12 +272,17 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 		}
 		
 		return dist;
-	}, optimizer);
+	}, optimizer, stopDistance);
 }
 
-rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const
+rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer, float stopDistance) const
 {
-	return placeAndConnectObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
+	return placeAndConnectObject(searchArea, AREA_NO_FILTER, obj, min_dist, isGuarded, onlyStraight, optimizer, stopDistance);
+}
+
+rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, const TileFilter & filter, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer, float stopDistance) const
+{
+	return placeAndConnectObject(searchArea, filter, obj, [this, min_dist, &obj](const int3 & tile)
 	{
 		float bestDistance = 10e9;
 		for(const auto & t : obj.getArea().getTilesVector())
@@ -339,23 +344,40 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 		}
 		
 		return bestDistance;
-	}, isGuarded, onlyStraight, optimizer);
+	}, isGuarded, onlyStraight, optimizer, stopDistance);
 }
 
-rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const
+rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer, float stopDistance) const
 {
-	int3 pos;
-	auto possibleArea = searchArea;
-	auto cachedArea = zone.areaForRoads();
+	return placeAndConnectObject(searchArea, AREA_NO_FILTER, obj, weightFunction, isGuarded, onlyStraight, optimizer, stopDistance);
+}
+
+rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, const TileFilter & filter, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer, float stopDistance) const
+{
+	RecursiveLock lock(zone.areaMutex);
+	// Held under our own lock for the whole call
+	const auto & areaPossible = zone.areaPossible().get();
+	const auto & freePaths = zone.freePaths().get();
+
+	rmg::Tileset tried; //do not place again at these points
+	auto untriedInFilter = [&tried, &filter](const int3 & tile)
+	{
+		return !tried.count(tile) && filter(tile);
+	};
+
 	while(true)
 	{
-		pos = findPlaceForObject(possibleArea, obj, weightFunction, optimizer);
+		int3 pos = findPlaceForObject(searchArea, untriedInFilter, obj, weightFunction, optimizer, stopDistance);
 		if(!pos.isValid())
 		{
 			return rmg::Path::invalid();
 		}
-		possibleArea.erase(pos); //do not place again at this point
-		auto accessibleArea = obj.getAccessibleArea(isGuarded) * cachedArea;
+		tried.insert(pos);
+
+		auto accessibleArea = obj.getAccessibleArea(isGuarded).getSubarea([&areaPossible, &freePaths](const int3 & t)
+		{
+			return areaPossible.contains(t) || freePaths.contains(t);
+		});
 		//we should exclude tiles which will be covered
 		if(isGuarded)
 		{
@@ -364,18 +386,19 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 			accessibleArea.add(obj.instances().back()->getPosition(true));
 		}
 
-		rmg::Area subArea;
+		rmg::Path path = rmg::Path::invalid();
 		if (isGuarded)
 		{
 			const auto & guardedArea = obj.instances().back()->getAccessibleArea();
 			const auto & unguardedArea = obj.getAccessibleArea(isGuarded);
-			subArea = cachedArea.getSubarea([guardedArea, unguardedArea, obj](const int3 & t)
+			const int3 guardPosition = obj.instances().back()->getPosition(true);
+			path = zone.searchPath(accessibleArea, onlyStraight, [&guardedArea, &unguardedArea, &obj, guardPosition](const int3 & t)
 			{
 				if(unguardedArea.contains(t) && !guardedArea.contains(t))
 					return false;
 				
 				//guard position is always target
-				if(obj.instances().back()->getPosition(true) == t)
+				if(guardPosition == t)
 					return true;
 
 				return !obj.getArea().contains(t);
@@ -383,12 +406,11 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg
 		}
 		else
 		{
-			subArea = cachedArea.getSubarea([obj](const int3 & t)
+			path = zone.searchPath(accessibleArea, onlyStraight, [&obj](const int3 & t)
 			{
 				return !obj.getArea().contains(t);
 			});
 		}
-		auto path = zone.searchPath(accessibleArea, onlyStraight, subArea);
 		
 		if(path.valid())
 		{

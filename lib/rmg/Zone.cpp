@@ -185,37 +185,14 @@ void Zone::moveToCenterOfMass()
 rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const std::function<bool(const int3 &)> & areafilter) const
 ///connect current tile to any other free tile within zone
 {
-	auto movementCost = [this](const int3 & s, const int3 & d)
+	Lock lock(areaMutex);
+	return searchPathLocked(src, onlyStraight, [this, &areafilter](const int3 & tile)
 	{
-		if(map.isFree(d))
-			return 1;
-		else if (map.isPossible(d))
-			return 2;
-		return 3;
-	};
-
-	auto area = (dAreaPossible + dAreaFree).getSubarea(areafilter);
-	rmg::Path freePath(area);
-	rmg::Path resultPath(area);
-	freePath.connect(dAreaFree);
-
-	//connect to all pieces
-	auto goals = connectedAreas(src, onlyStraight);
-	for(auto & goal : goals)
-	{
-		auto path = freePath.search(goal, onlyStraight, movementCost);
-		if(path.getPathArea().empty())
-			return rmg::Path::invalid();
-
-		freePath.connect(path.getPathArea());
-		resultPath.connect(path.getPathArea());
-	}
-
-	return resultPath;
+		return (dAreaPossible.contains(tile) || dAreaFree.contains(tile)) && areafilter(tile);
+	});
 }
 
-rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const rmg::Area & searchArea) const
-///connect current tile to any other free tile within searchArea
+rmg::Path Zone::searchPathLocked(const rmg::Area & src, bool onlyStraight, const rmg::Path::PassableFunction & passable) const
 {
 	auto movementCost = [this](const int3 & s, const int3 & d)
 	{
@@ -226,9 +203,8 @@ rmg::Path Zone::searchPath(const rmg::Area & src, bool onlyStraight, const rmg::
 		return 3;
 	};
 
-	rmg::Path freePath(searchArea);
-	rmg::Path resultPath(searchArea);
-	freePath.connect(dAreaFree);
+	rmg::Path freePath(passable, dAreaFree);
+	rmg::Path resultPath = rmg::Path::invalid();
 
 	//connect to all pieces
 	auto goals = connectedAreas(src, onlyStraight);

@@ -52,6 +52,7 @@ int CMapUndoManager::getUndoRedoLimit() const
 void CMapUndoManager::setUndoRedoLimit(int value)
 {
 	assert(value >= 0);
+	undoRedoLimit = value;
 	undoStack.resize(std::min(undoStack.size(), static_cast<TStack::size_type>(value)));
 	redoStack.resize(std::min(redoStack.size(), static_cast<TStack::size_type>(value)));
 	onUndoRedo();

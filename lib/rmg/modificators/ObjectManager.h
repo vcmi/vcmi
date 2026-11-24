@@ -12,20 +12,11 @@
 
 #include "../Zone.h"
 #include "../RmgObject.h"
-#include <boost/heap/priority_queue.hpp> //A*
+#include "../TileDistanceIndex.h"
 
 class CGObjectInstance;
 class ObjectTemplate;
 class CGCreature;
-
-using TDistance = std::pair<int3, float>;
-struct DistanceMaximizeFunctor
-{
-	bool operator()(const TDistance & lhs, const TDistance & rhs) const
-	{
-		return (rhs.second > lhs.second);
-	}
-};
 
 struct RequiredObjectInfo
 {
@@ -63,11 +54,20 @@ public:
 	bool createMonoliths();
 	bool createRequiredObjects();
 
-	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, OptimizeType optimizer) const;
-	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, OptimizeType optimizer) const;
+	/// VCM-169: `stopDistance` ends the DISTANCE scan at the first tile whose nearest-object distance is below it.
+	/// The caller guarantees that `searchArea` holds no such tile, so the result does not change.
+	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, OptimizeType optimizer, float stopDistance = 0.f) const;
+	int3 findPlaceForObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, OptimizeType optimizer, float stopDistance = 0.f) const;
 
-	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const;
-	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer) const;
+	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer, float stopDistance = 0.f) const;
+	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer, float stopDistance = 0.f) const;
+
+	/// VCM-169: search `searchArea` restricted to tiles `filter` accepts, without copying it.
+	/// These hold zone.areaMutex for the whole call; `searchArea` may be a live area of this zone.
+	using TileFilter = std::function<bool(const int3 &)>;
+	int3 findPlaceForObject(const rmg::Area & searchArea, const TileFilter & filter, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, OptimizeType optimizer, float stopDistance = 0.f) const;
+	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, const TileFilter & filter, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer, float stopDistance = 0.f) const;
+	rmg::Path placeAndConnectObject(const rmg::Area & searchArea, const TileFilter & filter, rmg::Object & obj, const std::function<float(const int3)> & weightFunction, bool isGuarded, bool onlyStraight, OptimizeType optimizer, float stopDistance = 0.f) const;
 
 	std::shared_ptr<CGCreature> chooseGuard(si32 strength, bool zoneGuard = false);
 	bool addGuard(rmg::Object & object, si32 strength, bool zoneGuard = false);
@@ -75,7 +75,6 @@ public:
 
 	void updateDistances(const rmg::Object & obj);
 	void updateDistances(const int3& pos);
-	void updateDistances(std::function<ui32(const int3 & tile)> distanceFunction);
 	void createDistancesPriorityQueue();
 
 	const rmg::Area & getVisitableArea() const;
@@ -83,6 +82,8 @@ public:
 	std::vector<CGObjectInstance*> getMines() const;
 	
 protected:
+	void updateDistancesFromTiles(const std::vector<int3> & source);
+
 	//content info
 	std::vector<RequiredObjectInfo> requiredObjects;
 	std::vector<RequiredObjectInfo> closeObjects;
@@ -91,6 +92,6 @@ protected:
 	std::vector<CGObjectInstance*> objects;
 	rmg::Area objectsVisitableArea;
 	
-	boost::heap::priority_queue<TDistance, boost::heap::compare<DistanceMaximizeFunctor>> tilesByDistance;
+	rmg::TileDistanceIndex tilesByDistance;
 	
 };
