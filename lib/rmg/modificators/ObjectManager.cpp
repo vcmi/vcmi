@@ -784,6 +784,7 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 	
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
+	std::vector<GuardCandidate> candidates;
 	std::vector<CreatureID> possibleCreatures;
 	for(auto const & cre : LIBRARY->creh->getObjects())
 	{
@@ -793,10 +794,17 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 			continue;
 		if(!vstd::contains(zone.getMonsterTypes(), cre->getFactionID()))
 			continue;
-		if((static_cast<si32>(cre->getAIValue() * (cre->ammMin + cre->ammMax) / 2) < strength) && (strength < static_cast<si32>(cre->getAIValue()) * 100)) //at least one full monster. size between average size of given stack and 100
-		{
-			possibleCreatures.push_back(cre->getId());
-		}
+
+		const GuardCandidate candidate{
+			cre->getId(),
+			cre->getAIValue(),
+			static_cast<si32>(cre->getAIValue() * (cre->ammMin + cre->ammMax) / 2),
+			static_cast<si32>(cre->getAIValue()) * 100
+		};
+		candidates.push_back(candidate);
+
+		if((candidate.minStrength < strength) && (strength < candidate.maxStrength)) //at least one full monster. size between average size of given stack and 100
+			possibleCreatures.push_back(candidate.id);
 	}
 	if(!possibleCreatures.empty())
 	{
@@ -805,10 +813,10 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 		if (amount >= 4)
 			amount = static_cast<int>(amount * zone.getRand().nextDouble(0.75, 1.25));
 	}
-	else //just pick any available creature
+	else
 	{
-		creId = CreatureID::AZURE_DRAGON; //Azure Dragon
-		amount = strength / creId.toEntity(LIBRARY)->getAIValue();
+		creId = chooseFallbackGuard(strength, candidates);
+		amount = guardStackSize(strength, creId.toEntity(LIBRARY)->getAIValue());
 	}
 	
 	auto & guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);

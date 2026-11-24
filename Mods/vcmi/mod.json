@@ -297,6 +297,7 @@
 		"config/rmg/symmetric/8sm0f.JSON",
 		"config/rmg/symmetric/8xm12.JSON",
 		"config/rmg/symmetric/8xm12a.JSON",
-		"config/rmg/symmetric/8xm8.JSON"
+		"config/rmg/symmetric/8xm8.JSON",
+		"config/rmg/test/guardFallback.json"
 	]
 }

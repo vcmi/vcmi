@@ -134,3 +134,36 @@ std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 	}
 	return result;
 }
+
+CreatureID chooseFallbackGuard(si32 strength, const std::vector<GuardCandidate> & candidates)
+{
+	if(candidates.empty())
+		return CreatureID::PEASANT;
+
+	auto distanceToWindow = [strength](const GuardCandidate & candidate) -> si64
+	{
+		if(strength < candidate.minStrength)
+			return static_cast<si64>(candidate.minStrength) - strength;
+		if(strength > candidate.maxStrength)
+			return static_cast<si64>(strength) - candidate.maxStrength;
+		return 0;
+	};
+
+	CreatureID best = candidates.front().id;
+	si64 bestDistance = distanceToWindow(candidates.front());
+	for(size_t i = 1; i < candidates.size(); ++i)
+	{
+		const si64 distance = distanceToWindow(candidates[i]);
+		if(distance < bestDistance)
+		{
+			bestDistance = distance;
+			best = candidates[i].id;
+		}
+	}
+	return best;
+}
+
+si32 guardStackSize(si32 strength, si32 aiValue)
+{
+	return std::max(1, strength / aiValue);
+}
