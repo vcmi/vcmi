@@ -64,7 +64,7 @@
 #include "windows/CMarketWindow.h"
 #include "windows/CPuzzleWindow.h"
 #include "windows/CQuestLog.h"
-#include "windows/CScenarioEventJournal.h"
+#include "windows/CScenarioEventLog.h"
 #include "windows/CSpellWindow.h"
 #include "windows/CTutorialWindow.h"
 #include "windows/GUIClasses.h"
@@ -1803,6 +1803,14 @@ void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)
 	ENGINE->windows().createAndPushWindow<CThievesGuildWindow>(obj);
 }
 
+void CPlayerInterface::showJournal()
+{
+	if(hasDisplayableQuests())
+		showQuestLog();
+	else
+		showScenarioEventLog();
+}
+
 void CPlayerInterface::showQuestLog()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -1811,20 +1819,14 @@ void CPlayerInterface::showQuestLog()
 	{
 		return !quest.isDisplayable(cb.get());
 	});
-	if(quests.empty())
-	{
-		const auto entries = cb->getMyScenarioEventJournal();
-		ENGINE->windows().createAndPushWindow<ScenarioEventJournal>(entries);
-		return;
-	}
 	ENGINE->windows().createAndPushWindow<CQuestLog>(quests);
 }
 
-void CPlayerInterface::showScenarioEventJournal()
+void CPlayerInterface::showScenarioEventLog()
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	const auto entries = cb->getMyScenarioEventJournal();
-	ENGINE->windows().createAndPushWindow<ScenarioEventJournal>(entries);
+	ENGINE->windows().createAndPushWindow<CScenarioEventLog>(entries);
 }
 
 bool CPlayerInterface::hasDisplayableQuests() const

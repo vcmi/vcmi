@@ -1,5 +1,5 @@
 /*
- * CScenarioEventJournal.cpp, part of VCMI engine
+ * CScenarioEventLog.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "CScenarioEventJournal.h"
+#include "CScenarioEventLog.h"
 
 #include "../CPlayerInterface.h"
 #include "../GameEngine.h"
@@ -25,12 +25,12 @@
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-ScenarioEventJournalMinimap::ScenarioEventJournalMinimap(const Rect & position)
+CScenarioEventLogMinimap::CScenarioEventLogMinimap(const Rect & position)
 	: CMinimap(position)
 {
 }
 
-void ScenarioEventJournalMinimap::setLocation(const int3 & newLocation)
+void CScenarioEventLogMinimap::setLocation(const int3 & newLocation)
 {
 	location = newLocation;
 	marker.reset();
@@ -49,41 +49,43 @@ void ScenarioEventJournalMinimap::setLocation(const int3 & newLocation)
 	const Point markerPosition = tileToPixels(location);
 	marker = std::make_shared<CPicture>(ImagePath::builtin("minimapIcons/generic"), markerPosition);
 	marker->moveBy(Point(-marker->pos.w / 2, -marker->pos.h / 2));
-	marker->addLClickCallback(std::bind(&ScenarioEventJournalMinimap::markerClicked, this));
+	marker->addLClickCallback(std::bind(&CScenarioEventLogMinimap::markerClicked, this));
 	redraw();
 }
 
-void ScenarioEventJournalMinimap::markerClicked() const
+void CScenarioEventLogMinimap::markerClicked() const
 {
 	adventureInt->centerOnTile(location);
 }
 
-void ScenarioEventJournalMinimap::showAll(Canvas & to)
+void CScenarioEventLogMinimap::showAll(Canvas & to)
 {
 	CIntObject::showAll(to);
 }
 
-ScenarioEventJournal::ScenarioEventJournal(const std::vector<ScenarioEventJournalEntry> & journalEntries)
+CScenarioEventLog::CScenarioEventLog(const std::vector<ScenarioEventJournalEntry> & journalEntries)
 	: JournalWindow(EJournalMode::EVENTS)
 	, entries(journalEntries)
 {
 	OBJECT_CONSTRUCTION;
 
-	minimap = std::make_shared<ScenarioEventJournalMinimap>(Rect(12, 12, 169, 169));
+	minimap = std::make_shared<CScenarioEventLogMinimap>(Rect(12, 12, 169, 169));
 	initializeItems();
+	if(entries.empty())
+		setContent(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.noEvents"), {});
 }
 
-size_t ScenarioEventJournal::getItemCount() const
+size_t CScenarioEventLog::getItemCount() const
 {
 	return entries.size();
 }
 
-std::string ScenarioEventJournal::getItemText(size_t itemIndex) const
+std::string CScenarioEventLog::getItemText(size_t itemIndex) const
 {
 	return LIBRARY->generaltexth->translate("core.genrltxt.64") + " " + std::to_string(entries.at(itemIndex).day);
 }
 
-void ScenarioEventJournal::onItemSelected(size_t itemIndex)
+void CScenarioEventLog::onItemSelected(size_t itemIndex)
 {
 	const auto & entry = entries.at(itemIndex);
 	std::vector<std::shared_ptr<CComponent>> components;
@@ -95,7 +97,7 @@ void ScenarioEventJournal::onItemSelected(size_t itemIndex)
 	minimap->setLocation(entry.location);
 }
 
-void ScenarioEventJournal::updateMinimap()
+void CScenarioEventLog::updateMinimap()
 {
 	minimap->update();
 }

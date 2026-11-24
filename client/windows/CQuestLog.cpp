@@ -120,6 +120,8 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests)
 
 	minimap = std::make_shared<CQuestMinimap>(Rect(12, 12, 169, 169));
 	initializeItems();
+	if(quests.empty())
+		setContent(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.noQuests"), {});
 }
 
 size_t CQuestLog::getItemCount() const

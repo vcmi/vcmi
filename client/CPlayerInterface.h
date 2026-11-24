@@ -201,8 +201,9 @@ public: // public interface for use by client via GAME->interface() access
 	void update();
 	void showPuzzleMap() override;
 	void viewWorldMap() override;
+	void showJournal();
 	void showQuestLog() override;
-	void showScenarioEventJournal() override;
+	void showScenarioEventLog() override;
 	void scenarioEventJournalChanged() override;
 	bool hasDisplayableQuests() const;
 	bool hasScenarioEventJournalEntries() const;

@@ -54,9 +54,6 @@ JournalWindow::JournalWindow(EJournalMode mode)
 	questsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.quests"), FONT_SMALL, Colors::YELLOW);
 	eventsTab->setTextOverlay(LIBRARY->generaltexth->translate("vcmi.adventureMap.journal.events"), FONT_SMALL, Colors::YELLOW);
 
-	questsTab->block(!GAME->interface()->hasDisplayableQuests());
-	eventsTab->block(!GAME->interface()->hasScenarioEventJournalEntries());
-
 	journalTabs = std::make_shared<CToggleGroup>([this](int selectedMode)
 	{
 		if(selectedMode == static_cast<int>(this->mode))
@@ -66,7 +63,7 @@ JournalWindow::JournalWindow(EJournalMode mode)
 		if(selectedMode == static_cast<int>(EJournalMode::QUESTS))
 			GAME->interface()->showQuestLog();
 		else
-			GAME->interface()->showScenarioEventJournal();
+			GAME->interface()->showScenarioEventLog();
 	});
 	journalTabs->addToggle(static_cast<int>(EJournalMode::QUESTS), questsTab);
 	journalTabs->addToggle(static_cast<int>(EJournalMode::EVENTS), eventsTab);
@@ -93,7 +90,8 @@ void JournalWindow::initializeItems()
 
 	const int firstVisible = std::max(0, static_cast<int>(getItemCount()) - VISIBLE_ITEM_COUNT);
 	recreateItemList(firstVisible);
-	selectItem(getItemCount() - 1);
+	if(getItemCount() > 0)
+		selectItem(getItemCount() - 1);
 
 	slider->setAmount(static_cast<int>(getItemCount()));
 	if(getItemCount() > VISIBLE_ITEM_COUNT)

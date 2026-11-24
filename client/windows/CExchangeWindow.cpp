@@ -171,8 +171,8 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2,
 	if(questionID.getNum() > 0 && heroInst[0]->tempOwner != GAME->interface()->playerID)
 		quit->block(true);
 
-	questlogButton[0] = std::make_shared<CButton>(Point( qeLayout ? 8 : 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), std::bind(&CExchangeWindow::questLogShortcut, this));
-	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), std::bind(&CExchangeWindow::questLogShortcut, this));
+	questlogButton[0] = std::make_shared<CButton>(Point( qeLayout ? 8 : 10, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), std::bind(&CExchangeWindow::journalShortcut, this));
+	questlogButton[1] = std::make_shared<CButton>(Point(740, qeLayout ? 39 : 44), AnimationPath::builtin("hsbtns4.def"), CButton::tooltip(LIBRARY->generaltexth->translate("core.heroscrn.0")), std::bind(&CExchangeWindow::journalShortcut, this));
 	questlogButton[0]->block(!GAME->interface()->hasJournalEntries());
 	questlogButton[1]->block(!GAME->interface()->hasJournalEntries());
 
@@ -379,10 +379,10 @@ bool CExchangeWindow::holdsGarrison(const CArmedInstance * army)
 	return garr->upperArmy() == army || garr->lowerArmy() == army;
 }
 
-void CExchangeWindow::questLogShortcut()
+void CExchangeWindow::journalShortcut()
 {
 	ENGINE->cursor().dragAndDropCursor(nullptr);
-	GAME->interface()->showQuestLog();
+	GAME->interface()->showJournal();
 }
 
 void CExchangeWindow::updateArtifacts()
