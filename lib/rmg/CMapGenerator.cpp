@@ -139,6 +139,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		Load::Progress::step();
 		initQuestArtsRemaining();
 		genZones();
+		map->addWaterZones(*this, *rand);
 		Load::Progress::step();
 		map->getMap(this).calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
 		map->addModificators();
@@ -347,13 +348,14 @@ void CMapGenerator::genZones()
 
 void CMapGenerator::addWaterTreasuresInfo()
 {
-	if (!getZoneWater())
-		return;
-
 	//add treasures on water
-	for (const auto& treasureInfo : getConfig().waterTreasure)
+	for(const auto & z : map->getZones())
 	{
-		getZoneWater()->addTreasureInfo(treasureInfo);
+		if(z.second->getType() != ETemplateZoneType::WATER)
+			continue;
+
+		for(const auto & treasureInfo : getConfig().waterTreasure)
+			z.second->addTreasureInfo(treasureInfo);
 	}
 }
 
@@ -625,10 +627,12 @@ void CMapGenerator::unbanQuestArt(const ArtifactID & id)
 	map->getMap(this).allowedArtifact.insert(id);
 }
 
-Zone * CMapGenerator::getZoneWater() const
+Zone * CMapGenerator::getWaterZone(int level) const
 {
 	for(auto & z : map->getZones())
-		if(z.second->getType() == ETemplateZoneType::WATER)
+	{
+		if(z.second->getType() == ETemplateZoneType::WATER && z.second->getPos().z == level)
 			return z.second.get();
+	}
 	return nullptr;
 }

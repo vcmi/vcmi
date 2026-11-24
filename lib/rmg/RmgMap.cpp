@@ -106,22 +106,32 @@ void RmgMap::initTiles(CMapGenerator & generator, vstd::RNG & rand)
 		zone->setOptions(*option.second);
 		zones[zone->getId()] = zone;
 	}
-	
-	switch(mapGenOptions.getWaterContent())
+}
+
+void RmgMap::addWaterZones(CMapGenerator & generator, vstd::RNG & rand)
+{
+	std::set<int> landZoneLevels;
+	TRmgTemplateZoneId nextId = 0;
+	for(const auto & zonePair : zones)
 	{
-		case EWaterContent::NORMAL:
-		case EWaterContent::ISLANDS:
-			TRmgTemplateZoneId waterId = zones.size() + 1;
-			rmg::ZoneOptions options;
-			options.setId(waterId);
-			options.setType(ETemplateZoneType::WATER);
-			auto zone = std::make_shared<Zone>(*this, generator, rand);
-			zone->setOptions(options);
-			//std::set<FactionID> allowedMonsterFactions({FactionID::CASTLE, FactionID::INFERNO}); // example of filling allowed monster factions
-			//zone->setMonsterTypes(allowedMonsterFactions); // can be set here, probably from template json, along with the treasure ranges and densities
-			zone->monsterStrength = EMonsterStrength::ZONE_NONE; // can be set to other value, probably from a new field in the template json
-			zones[zone->getId()] = zone;
-			break;
+		landZoneLevels.insert(zonePair.second->getPos().z);
+		if(zonePair.second->getId() > nextId)
+			nextId = zonePair.second->getId();
+	}
+
+	const auto levels = waterZoneLevels(mapGenOptions.getWaterContent(), mapGenOptions.getLevelMapLayers(), landZoneLevels);
+	for(int level : levels)
+	{
+		++nextId;
+		rmg::ZoneOptions options;
+		options.setId(nextId);
+		options.setType(ETemplateZoneType::WATER);
+		auto zone = std::make_shared<Zone>(*this, generator, rand);
+		zone->setOptions(options);
+		zone->monsterStrength = EMonsterStrength::ZONE_NONE;
+		zone->setPos(int3(0, 0, level));
+		zone->setCenter(float3(0.f, 0.f, static_cast<float>(level)));
+		zones[zone->getId()] = zone;
 	}
 }
 
@@ -152,11 +162,6 @@ void RmgMap::addModificators()
 		
 		if(zone->getType() == ETemplateZoneType::WATER)
 		{
-			for(auto & z1 : getZones())
-			{
-				z1.second->addModificator<WaterAdopter>();
-				z1.second->getModificator<WaterAdopter>()->setWaterZone(zone->getId());
-			}
 			zone->addModificator<WaterProxy>();
 			zone->addModificator<WaterRoutes>();
 		}
@@ -181,7 +186,26 @@ void RmgMap::addModificators()
 				rockFillerLevels.insert(level);
 			}
 		}
-		
+	}
+
+	std::map<int, TRmgTemplateZoneId> waterZoneByLevel;
+	for(const auto & z : getZones())
+	{
+		if(z.second->getType() == ETemplateZoneType::WATER)
+			waterZoneByLevel[z.second->getPos().z] = z.second->getId();
+	}
+
+	for(auto & z : getZones())
+	{
+		if(z.second->getType() == ETemplateZoneType::WATER)
+			continue;
+
+		const auto it = waterZoneByLevel.find(z.second->getPos().z);
+		if(it == waterZoneByLevel.end())
+			continue;
+
+		z.second->addModificator<WaterAdopter>();
+		z.second->getModificator<WaterAdopter>()->setWaterZone(it->second);
 	}
 }
 

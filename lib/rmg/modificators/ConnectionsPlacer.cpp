@@ -337,16 +337,15 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 
 	//2. connect via water
 	bool waterMode = map.getMapGenOptions().getWaterContent() != EWaterContent::NONE;
-	if(waterMode && zone.isUnderground() == otherZone->isUnderground())
+	if(waterMode && zone.getPos().z == otherZone->getPos().z)
 	{
-		if(generator.getZoneWater() && generator.getZoneWater()->getModificator<WaterProxy>())
+		auto * waterZone = generator.getWaterZone(zone.getPos().z);
+		auto * waterProxy = waterZone ? waterZone->getModificator<WaterProxy>() : nullptr;
+		if(waterProxy && waterProxy->waterKeepConnection(connection, createRoad))
 		{
-			if(generator.getZoneWater()->getModificator<WaterProxy>()->waterKeepConnection(connection, createRoad))
-			{
-				assert(otherZone->getModificator<ConnectionsPlacer>());
-				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
-				success = true;
-			}
+			assert(otherZone->getModificator<ConnectionsPlacer>());
+			otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);
+			success = true;
 		}
 	}
 
