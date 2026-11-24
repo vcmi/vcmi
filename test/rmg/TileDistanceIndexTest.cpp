@@ -41,7 +41,7 @@ std::vector<std::pair<int3, float>> fullGrid(float distance)
 std::vector<std::pair<int3, float>> visitAll(const rmg::TileDistanceIndex & index)
 {
 	std::vector<std::pair<int3, float>> visited;
-	index.forEachFarthestFirst([&](const int3 & tile, float distance)
+	index.forEachFarthestFirst([&visited](const int3 & tile, float distance)
 	{
 		visited.emplace_back(tile, distance);
 		return true;
@@ -57,14 +57,9 @@ float bruteMin(const int3 & tile, const std::vector<int3> & sources)
 	return best;
 }
 
-class TileDistanceIndexTest : public Test
+TEST(TileDistanceIndexTest, VisitsFarthestFirstAndStops)
 {
-protected:
 	rmg::TileDistanceIndex index;
-};
-
-TEST_F(TileDistanceIndexTest, VisitsFarthestFirstAndStops)
-{
 	std::vector<std::pair<int3, float>> tiles = {
 		{int3(0, 0, 0), 1.f},
 		{int3(1, 0, 0), 9.f},
@@ -80,7 +75,7 @@ TEST_F(TileDistanceIndexTest, VisitsFarthestFirstAndStops)
 		EXPECT_GE(visited[i - 1].second, visited[i].second);
 
 	std::vector<int3> prefix;
-	index.forEachFarthestFirst([&](const int3 & tile, float)
+	index.forEachFarthestFirst([&prefix](const int3 & tile, float)
 	{
 		prefix.push_back(tile);
 		return prefix.size() < 3;
@@ -91,8 +86,9 @@ TEST_F(TileDistanceIndexTest, VisitsFarthestFirstAndStops)
 	EXPECT_EQ(prefix[2], visited[2].first);
 }
 
-TEST_F(TileDistanceIndexTest, TieOrderDependsOnlyOnCoordinates)
+TEST(TileDistanceIndexTest, TieOrderDependsOnlyOnCoordinates)
 {
+	rmg::TileDistanceIndex index;
 	auto tiles = fullGrid(4.f);
 	auto shuffled = tiles;
 	std::mt19937 rng(20261123);
@@ -112,12 +108,13 @@ TEST_F(TileDistanceIndexTest, TieOrderDependsOnlyOnCoordinates)
 	}
 }
 
-TEST_F(TileDistanceIndexTest, LowerTowardsMatchesBruteForceAndReturnsLoweredTiles)
+TEST(TileDistanceIndexTest, LowerTowardsMatchesBruteForceAndReturnsLoweredTiles)
 {
+	rmg::TileDistanceIndex index;
 	index.reset(fullGrid(INF));
 	std::mt19937 rng(169);
-	std::uniform_int_distribution<int> coord(0, GRID - 1);
-	std::uniform_int_distribution<int> sourceSize(1, 5);
+	std::uniform_int_distribution coord(0, GRID - 1);
+	std::uniform_int_distribution sourceSize(1, 5);
 
 	std::vector<int3> allSources;
 	std::unordered_map<int3, float> current;
@@ -171,16 +168,17 @@ TEST_F(TileDistanceIndexTest, LowerTowardsMatchesBruteForceAndReturnsLoweredTile
 	}
 }
 
-TEST_F(TileDistanceIndexTest, DropsTilesThatFailKeepInsideScannedBox)
+TEST(TileDistanceIndexTest, DropsTilesThatFailKeepInsideScannedBox)
 {
+	rmg::TileDistanceIndex index;
 	index.reset(fullGrid(INF));
 
-	std::unordered_set<int3> dropped = {
+	std::unordered_set dropped = {
 		int3(10, 10, 0), int3(11, 10, 0), int3(12, 11, 0),
 		int3(0, 0, 0), int3(29, 29, 0), int3(5, 20, 0),
 	};
-	const std::vector<int3> source = {int3(10, 10, 0), int3(11, 11, 0)};
-	const auto keep = [&](const int3 & tile) { return !dropped.contains(tile); };
+	const std::vector source = {int3(10, 10, 0), int3(11, 11, 0)};
+	const auto keep = [&dropped](const int3 & tile) { return !dropped.contains(tile); };
 
 	const auto lowered = index.lowerTowards(source, keep);
 	for(const auto & [tile, distance] : lowered)

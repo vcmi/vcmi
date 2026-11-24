@@ -176,31 +176,22 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 	
 	if(optimizer & OptimizeType::DISTANCE)
 	{
-		tilesByDistance.forEachFarthestFirst([&](const int3 & tile, float)
+		tilesByDistance.forEachFarthestFirst([&searchArea, &obj, &outsideTheMap, &weightFunction, &bestWeight, &result, optimizer](const int3 & tile, float)
 		{
 			if(!searchArea.contains(tile))
 				return true;
-			
+
 			obj.setPosition(tile);
-
-			if (obj.getVisibleTop().y < 0)
-				return true;
-			
-			if(!searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()))
+			if(obj.getVisibleTop().y < 0 || !searchArea.contains(obj.getArea()) || !searchArea.overlap(obj.getAccessibleArea()) || outsideTheMap())
 				return true;
 
-			if (outsideTheMap())
-				return true;
-			
 			float weight = weightFunction(tile);
-			if(weight > bestWeight)
-			{
-				bestWeight = weight;
-				result = tile;
-				if(!(optimizer & OptimizeType::WEIGHT))
-					return false;
-			}
-			return true;
+			if(weight <= bestWeight)
+				return true;
+
+			bestWeight = weight;
+			result = tile;
+			return (optimizer & OptimizeType::WEIGHT) != 0;
 		});
 	}
 	else

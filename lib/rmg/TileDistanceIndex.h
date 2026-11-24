@@ -13,8 +13,8 @@
 #include "../GameConstants.h"
 #include "../int3.h"
 
-#include <functional>
 #include <set>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -30,11 +30,42 @@ public:
 	/// VCM-169: lower each indexed tile to its squared 2D distance to the nearest tile of `source`
 	/// where that is smaller. Indexed tiles met during the update for which `keep` is false are removed.
 	/// Returns the tiles that were lowered, with their new distance.
-	std::vector<std::pair<int3, float>> lowerTowards(const std::vector<int3> & source, const std::function<bool(const int3 &)> & keep);
+	template<typename Keep>
+	std::vector<std::pair<int3, float>> lowerTowards(const std::vector<int3> & source, const Keep & keep)
+	{
+		while(!ordered.empty())
+		{
+			const int3 farthest = ordered.begin()->tile;
+			if(keep(farthest))
+				break;
+			erase(farthest);
+		}
+
+		std::vector<std::pair<int3, float>> lowered;
+		if(source.empty() || ordered.empty())
+			return lowered;
+
+		for(const auto & tile : tilesNear(source, ordered.begin()->distance))
+		{
+			if(keep(tile))
+				lowerTile(tile, source, lowered);
+			else
+				erase(tile);
+		}
+		return lowered;
+	}
 
 	/// VCM-169: visit tiles farthest first, ties in an order that depends only on tile coordinates;
 	/// stop when `visit` returns false.
-	void forEachFarthestFirst(const std::function<bool(const int3 &, float)> & visit) const;
+	template<typename Visit>
+	void forEachFarthestFirst(const Visit & visit) const
+	{
+		for(const auto & key : ordered)
+		{
+			if(!visit(key.tile, key.distance))
+				return;
+		}
+	}
 
 private:
 	struct Key
@@ -46,9 +77,24 @@ private:
 		bool operator<(const Key & other) const;
 	};
 
+	struct Box
+	{
+		int64_t minX;
+		int64_t maxX;
+		int64_t minY;
+		int64_t maxY;
+		int64_t minZ;
+		int64_t maxZ;
+	};
+
 	static std::size_t tieOf(const int3 & tile);
 	void erase(const int3 & tile);
 	void insert(const int3 & tile, float distance);
+	void lowerTile(const int3 & tile, const std::vector<int3> & source, std::vector<std::pair<int3, float>> & lowered);
+	/// Indexed tiles within sqrt(maxDistance) of the bounding box of `source`.
+	std::vector<int3> tilesNear(const std::vector<int3> & source, float maxDistance) const;
+	std::vector<int3> scanIndex(const Box & box) const;
+	std::vector<int3> scanBox(const Box & box) const;
 
 	std::set<Key> ordered;
 	std::unordered_map<int3, Key> byTile;
