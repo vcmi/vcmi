@@ -1049,19 +1049,26 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 			{
 				Zone::Lock lock(zone.areaMutex); //We are going to subtract this area
 
-				auto searchArea = zone.areaPossible().get();
-				searchArea.erase_if([this, &minDistance](const int3& tile) -> bool
+				// Guarded piles, and piles that cannot be removed, are not placed on roads
+				const bool avoidRoads = guarded || !rmgObject.getRemovableArea().contains(rmgObject.getArea());
+				const auto & searchArea = zone.areaPossible().get(); // live area, under our lock
+				auto searchFilter = [this, &minDistance, &roads, avoidRoads](const int3 & tile) -> bool
 				{
-					auto ti = map.getTileInfo(tile);
-					return (ti.getNearestObjectDistance() < minDistance);
-				});
+					if (map.getNearestObjectDistance(tile) < minDistance)
+						return false;
+					return !(avoidRoads && roads.contains(tile));
+				};
 
 				if (guarded)
 				{
-					searchArea.subtract(roads);
-
-					path = manager.placeAndConnectObject(searchArea, rmgObject, [this, &rmgObject, &minDistance, &manager, blockingGuardMaxValue, &roads, &nextToRoad](const int3& tile)
+					path = manager.placeAndConnectObject(searchArea, searchFilter, rmgObject, [this, &rmgObject, &minDistance, &manager, blockingGuardMaxValue, &roads, &nextToRoad](const int3& tile)
 						{
+							// Guard cannot be adjacent to road, but blocked side of an object could be
+							if (rmgObject.getValue() > blockingGuardMaxValue && nextToRoad.contains(rmgObject.getGuardPos()))
+							{
+								return -1.f;
+							}
+
 							float bestDistance = 10e9;
 							for (const auto& t : rmgObject.getArea().getTilesVector())
 							{
@@ -1072,34 +1079,28 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 									vstd::amin(bestDistance, distance);
 							}
 
-							// Guard cannot be adjacent to road, but blocked side of an object could be
-							if (rmgObject.getValue() > blockingGuardMaxValue && nextToRoad.contains(rmgObject.getGuardPos()))
-							{
-								return -1.f;
-							}
-
+							// Tiles the guard will block must not be free paths, roads or object entrances
 							const auto & guardedArea = rmgObject.instances().back()->getAccessibleArea();
-							const auto areaToBlock = rmgObject.getAccessibleArea(true) - guardedArea;
-
-							if (zone.freePaths()->overlap(areaToBlock) || roads.overlap(areaToBlock) || manager.getVisitableArea().overlap(areaToBlock))
-								return -1.f;
+							const auto & visitableArea = manager.getVisitableArea();
+							const auto freePaths = zone.freePaths();
+							for (const auto & t : rmgObject.getAccessibleArea(true).getTilesVector())
+							{
+								if (guardedArea.contains(t))
+									continue;
+								if (roads.contains(t) || visitableArea.contains(t) || freePaths->contains(t))
+									return -1.f;
+							}
 
 							// Add huge penalty for objects hiding roads
 							if (rmgObject.getBorderAbove().overlap(roads))
 								bestDistance /= 10.0f;
 
 							return bestDistance;
-						}, guarded, false, ObjectManager::OptimizeType::BOTH);
+						}, guarded, false, ObjectManager::OptimizeType::BOTH, minDistance);
 				}
 				else
 				{
-					// Do not place non-removable objects on roads
-					if (!rmgObject.getRemovableArea().contains(rmgObject.getArea()))
-					{
-						searchArea.subtract(roads);
-					}
-
-					path = manager.placeAndConnectObject(searchArea, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE);
+					path = manager.placeAndConnectObject(searchArea, searchFilter, rmgObject, minDistance, guarded, false, ObjectManager::OptimizeType::DISTANCE, minDistance);
 				}
 			}
 

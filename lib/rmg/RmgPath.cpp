@@ -34,13 +34,21 @@ boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>> creat
 	return boost::heap::priority_queue<TDistance, boost::heap::compare<NodeComparer>>();
 }
 
-Path::Path(const Area & area): dArea(&area)
+Path::Path(const Area & area)
+	: dPassable([&area](const int3 & tile){ return area.contains(tile); })
 {
 }
 
-Path::Path(const Area & area, const int3 & src): dArea(&area)
+Path::Path(const Area & area, const int3 & src)
+	: Path(area)
 {
 	dPath.add(src);
+}
+
+Path::Path(PassableFunction passable, const Area & target)
+	: dPassable(std::move(passable))
+	, dTarget(&target)
+{
 }
 
 Path & Path::operator= (const Path & path)
@@ -57,22 +65,48 @@ bool Path::valid() const
 
 Path Path::invalid()
 {
-	return Path({});
+	return Path();
+}
+
+bool Path::isTarget(const int3 & tile) const
+{
+	return dPath.contains(tile) || (dTarget && dTarget->contains(tile));
+}
+
+int3 Path::nearestTarget(const int3 & tile) const
+{
+	int3 result = dPath.empty() ? int3(-1, -1, -1) : dPath.nearest(tile);
+	if(dTarget && !dTarget->empty())
+	{
+		int3 targetTile = dTarget->nearest(tile);
+		if(!result.isValid() || targetTile.dist2dSQ(tile) < result.dist2dSQ(tile))
+			result = targetTile;
+	}
+	return result;
 }
 
 Path Path::search(const Tileset & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
 	//A* algorithm taken from Wiki http://en.wikipedia.org/wiki/A*_search_algorithm
-	if(!dArea)
+	if(!dPassable)
 		return Path::invalid();
 	
-	if(dst.empty()) // Skip construction of same area
-		return Path(*dArea);
+	Path result(*this);
+	result.dPath.clear();
+	if(dst.empty())
+		return result;
 
-	auto resultArea = *dArea + dst;
-	Path result(resultArea);
-
-	int3 src = rmg::Area(dst).nearest(dPath);
+	// Same alternation as Area::nearest, over dPath and dTarget together
+	const rmg::Area dstArea(dst);
+	int dist = std::numeric_limits<int>::max();
+	int3 src = dstArea.getTilesVector().front();
+	int3 otherNearTile = nearestTarget(src);
+	while(dist != otherNearTile.dist2dSQ(src))
+	{
+		dist = otherNearTile.dist2dSQ(src);
+		src = dstArea.nearest(otherNearTile);
+		otherNearTile = nearestTarget(src);
+	}
 	result.connect(src);
 	
 	Tileset closed;    // The set of nodes already evaluated.
@@ -93,7 +127,7 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 		
 		closed.insert(currentNode);
 		
-		if(dPath.contains(currentNode)) //we reached connection, stop
+		if(isTarget(currentNode)) //we reached connection, stop
 		{
 			// Trace the path using the saved parent information and return path
 			int3 backTracking = currentNode;
@@ -106,12 +140,12 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 		}
 		else
 		{
-			auto computeTileScore = [&open, &closed, &cameFrom, &currentNode, &distances, &moveCostFunction, &result](const int3& pos) -> void
+			auto computeTileScore = [this, &open, &closed, &cameFrom, &currentNode, &distances, &moveCostFunction, &dst](const int3& pos) -> void
 			{
 				if(closed.count(pos))
 					return;
 				
-				if(!result.dArea->contains(pos))
+				if(!dst.count(pos) && !dPassable(pos))
 					return;
 				
 				float movementCost = moveCostFunction(currentNode, pos);
@@ -158,7 +192,6 @@ Path Path::search(const Area & dst, bool straight, std::function<float(const int
 
 Path Path::search(const Path & dst, bool straight, std::function<float(const int3 &, const int3 &)> moveCostFunction) const
 {
-	assert(dst.dArea == dArea);
 	return search(dst.dPath, straight, std::move(moveCostFunction));
 }
 
