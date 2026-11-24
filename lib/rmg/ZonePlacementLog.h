@@ -101,7 +101,8 @@ public:
 	void zonesSwapped(TRmgTemplateZoneId firstId, const float3 & firstOldCenter, TRmgTemplateZoneId secondId, const float3 & secondOldCenter) const;
 	void zoneMoved(TRmgTemplateZoneId zoneId, TRmgTemplateZoneId targetId, const float3 & direction, const float3 & oldCenter, const float3 & newCenter, bool toward) const;
 
-	void attemptFinished(int attempt, int attempts, int score, const ConnectivityCounts & counts, float fitness, float totalDistance, float totalOverlap) const;
+	void attemptFinished(int attempt, int attempts, int score, const ConnectivityCounts & counts, float fitness, float totalDistance, float totalOverlap, float crowding) const;
+	void playerZonesArranged(const std::vector<TRmgTemplateZoneId> & group, const std::vector<std::pair<TRmgTemplateZoneId, std::pair<float3, float3>>> & moves) const;
 	void attemptBestLayout(const TZoneMap & zones, const TZoneCenterMap & solution) const;
 	void winner(int attempt, int attempts, int score, const TZoneMap & zones, const std::vector<ConnectionPrediction> & predictions) const;
 	void orientation(int rotation, bool flipH, bool flipV) const;

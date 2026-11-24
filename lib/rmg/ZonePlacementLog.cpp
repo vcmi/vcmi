@@ -165,10 +165,27 @@ void ZonePlacementLog::zoneMoved(TRmgTemplateZoneId zoneId, TRmgTemplateZoneId t
 		formatCenter(newCenter));
 }
 
-void ZonePlacementLog::attemptFinished(int attempt, int attempts, int score, const ConnectivityCounts & counts, float fitness, float totalDistance, float totalOverlap) const
+void ZonePlacementLog::attemptFinished(int attempt, int attempts, int score, const ConnectivityCounts & counts, float fitness, float totalDistance, float totalOverlap, float crowding) const
 {
-	logger->info("Zone placement attempt %d/%d: score %d (direct %d, gates %d, monoliths %d); fitness %2.4f (distance %2.4f overlap %2.4f)",
-		attempt, attempts, score, counts.direct, counts.gates, counts.monoliths, fitness, totalDistance, totalOverlap);
+	logger->info("Zone placement attempt %d/%d: score %d (direct %d, gates %d, monoliths %d); fitness %2.4f (distance %2.4f overlap %2.4f crowding %2.4f)",
+		attempt, attempts, score, counts.direct, counts.gates, counts.monoliths, fitness, totalDistance, totalOverlap, crowding);
+}
+
+void ZonePlacementLog::playerZonesArranged(const std::vector<TRmgTemplateZoneId> & group, const std::vector<std::pair<TRmgTemplateZoneId, std::pair<float3, float3>>> & moves) const
+{
+	if(!logger->isDebugEnabled())
+		return;
+
+	std::string ids;
+	for(size_t i = 0; i < group.size(); ++i)
+	{
+		if(i)
+			ids += " ";
+		ids += std::to_string(group[i]);
+	}
+	logger->debug("Arranged interchangeable player zones: %s", ids);
+	for(const auto & move : moves)
+		logger->debug("  zone %d %s -> %s", move.first, formatCenter(move.second.first), formatCenter(move.second.second));
 }
 
 void ZonePlacementLog::attemptBestLayout(const TZoneMap & zones, const TZoneCenterMap & solution) const

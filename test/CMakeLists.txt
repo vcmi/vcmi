@@ -159,6 +159,7 @@ set(test_SRCS
 		rmg/TileDistanceIndexTest.cpp
 		rmg/RmgPathTest.cpp
 		rmg/RmgMapDumperTest.cpp
+		rmg/PlayerZoneArrangementTest.cpp
 
 		mock/BattleFake.cpp
 		mock/GameHandlerTestClient.cpp

@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "CZonePlacer.h"
 #include "CZoneGridPlacer.h"
+#include "PlayerZoneArrangement.h"
 
 #include "../TerrainHandler.h"
 #include "../entities/faction/CFaction.h"
@@ -241,11 +242,36 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 		const ConnectivityCounts counts = connectivityCounts(predictions);
 		const int score = counts.direct * config.scoreDirect + counts.gates * config.scoreGate + counts.monoliths * config.scoreMonolith;
 
+		std::vector<ZonePairDistance> crowdingPairs;
+		std::vector<TRmgTemplateZoneId> playerIds(playerStartZones.begin(), playerStartZones.end());
+		for(size_t i = 0; i < playerIds.size(); ++i)
+		{
+			for(size_t j = i + 1; j < playerIds.size(); ++j)
+			{
+				const auto zoneA = zones.at(playerIds[i]);
+				const auto zoneB = zones.at(playerIds[j]);
+				const auto centerA = bestSolution.find(zoneA);
+				const auto centerB = bestSolution.find(zoneB);
+				if(centerA == bestSolution.end() || centerB == bestSolution.end())
+					continue;
+				if(centerA->second.z != centerB->second.z)
+					continue;
+				const auto distIt = distancesBetweenZones.find(playerIds[i]);
+				if(distIt != distancesBetweenZones.end() && distIt->second.count(playerIds[j]) && distIt->second.at(playerIds[j]) == 1)
+					continue;
+				ZonePairDistance pair;
+				pair.distance = static_cast<float>(centerA->second.dist2d(centerB->second));
+				pair.touching = (zoneA->getSize() + zoneB->getSize()) / mapSize;
+				crowdingPairs.push_back(pair);
+			}
+		}
+		const float crowding = playerCrowding(crowdingPairs);
+
 		//most templates connect same-level zones only, so every attempt scores the same - fall back on the
 		//relaxation fitness, otherwise the first attempt would always win and the rest would be wasted
-		const float fitness = (bestTotalDistance + 1) * (bestTotalOverlap + 1);
+		const float fitness = (bestTotalDistance + 1) * (bestTotalOverlap + 1) * (1 + config.playerRepulsion * crowding);
 
-		placementLog.attemptFinished(attempt + 1, attempts, score, counts, fitness, bestTotalDistance, bestTotalOverlap);
+		placementLog.attemptFinished(attempt + 1, attempts, score, counts, fitness, bestTotalDistance, bestTotalOverlap, crowding);
 		placementLog.attemptBestLayout(zones, bestSolution);
 
 		if(score < winningScore || (score == winningScore && fitness < winningFitness))
@@ -267,6 +293,49 @@ void CZonePlacer::placeZones(vstd::RNG * rand)
 		zone.second->setCenter(winningCenters[zone.second]);
 		zone.second->setPos(cords(winningCenters[zone.second]));
 	}
+
+	std::vector<PlayerZoneInfo> playerInfos;
+	playerInfos.reserve(playerStartZones.size());
+	for(const auto id : playerStartZones)
+	{
+		const auto zone = zones.at(id);
+		PlayerZoneInfo info;
+		info.id = id;
+		info.owner = zone->getOwner().value_or(0);
+		info.participates = vstd::contains(participatingPlayerZones, id);
+		info.level = static_cast<int>(zone->getCenter().z);
+		info.size = zone->getSize();
+		info.center = zone->getCenter();
+		for(const auto & connection : zone->getConnections())
+		{
+			if(connection.getZoneA() == connection.getZoneB())
+				continue;
+			info.links.emplace_back(connection.getOtherZoneId(id), connection.getConnectionType());
+		}
+		playerInfos.push_back(info);
+	}
+	for(const auto & groupIds : findInterchangeableZones(playerInfos))
+	{
+		std::vector<PlayerZoneInfo> group;
+		for(const auto & info : playerInfos)
+		{
+			if(vstd::contains(groupIds, info.id))
+				group.push_back(info);
+		}
+		const auto newCenters = arrangeByPlayerOrder(group);
+		std::vector<std::pair<TRmgTemplateZoneId, std::pair<float3, float3>>> moves;
+		for(const auto & [id, center] : newCenters)
+		{
+			const auto zone = zones.at(id);
+			const float3 oldCenter = zone->getCenter();
+			if(oldCenter.x != center.x || oldCenter.y != center.y || oldCenter.z != center.z)
+				moves.emplace_back(id, std::make_pair(oldCenter, center));
+			zone->setCenter(center);
+			zone->setPos(cords(center));
+		}
+		placementLog.playerZonesArranged(groupIds, moves);
+	}
+
 	placementLog.winner(winningAttempt, attempts, winningScore, zones, winningPredictions);
 
 	applyRandomOrientation(zones, rand);
@@ -620,8 +689,8 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 		}
 
 		//Player starting zones push each other away too. This is what spreads them evenly over the map -
-		//four mutually repelling zones in a square map settle in its four corners. Zones of players
-		//actually in the game push twice as hard, so they claim the opposite ends of that spread.
+		//four mutually repelling zones in a square map settle in its four corners. Lower player indexes
+		//push harder, so they claim the opposite ends of that spread.
 		if (config.playerRepulsion > 0 && vstd::contains(playerStartZones, zone.second->getId()))
 		{
 			const bool weParticipate = vstd::contains(participatingPlayerZones, zone.second->getId());
@@ -639,7 +708,7 @@ void CZonePlacer::separateOverlappingZones(TZoneMap &zones, TForceVector &forces
 					continue;
 
 				const bool bothParticipate = weParticipate && vstd::contains(participatingPlayerZones, otherZone.first);
-				pushAwayFrom(otherZone.second, config.playerRepulsion * (bothParticipate ? 2.f : 1.f));
+				pushAwayFrom(otherZone.second, config.playerRepulsion * playerPairWeight(*zone.second->getOwner(), *otherZone.second->getOwner(), bothParticipate));
 			}
 		}
 

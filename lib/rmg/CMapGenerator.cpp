@@ -113,7 +113,7 @@ void CMapGenerator::loadConfig()
 	config.dumpStages.clear();
 	for(const auto & stage : assembledRandomMap["debug"]["dumpStages"].Vector())
 		config.dumpStages.insert(stage.String());
-	const auto & zonePlacementJson = randomMapJson["zonePlacement"];
+	const auto & zonePlacementJson = assembledRandomMap["zonePlacement"];
 	config.zonePlacement.attempts = zonePlacementJson["attempts"].Integer();
 	config.zonePlacement.scoreDirect = zonePlacementJson["scoreDirect"].Integer();
 	config.zonePlacement.scoreGate = zonePlacementJson["scoreSubterraneanGate"].Integer();
