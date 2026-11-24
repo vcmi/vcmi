@@ -288,7 +288,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 
 		const Rect searchRect(49, 18, 312 - (ENGINE->isRoeData() ? 36 : 0), 20);
 		const std::string searchText = LIBRARY->generaltexth->translate(searchTextID);
-		searchDescription = std::make_shared<CLabel>(searchRect.center().x, searchRect.center().y, FONT_MEDIUM, ETextAlignment::CENTER, ColorRGBA(105, 127, 159), searchText);
+		searchDescription = std::make_shared<CLabel>(searchRect.center().x, searchRect.center().y, FONT_MEDIUM, ETextAlignment::CENTER, Colors::YELLOW, searchText);
 		searchDescription->disable();
 
 		searchInput = std::make_shared<SearchTextInput>(searchRect, [this](EShortcut key){
@@ -306,7 +306,7 @@ SelectionTab::SelectionTab(ESelectionScreen Type)
 				}
 			}
 		});
-		searchInput->setColor(Colors::WHITE);
+		searchInput->setColor(Colors::YELLOW);
 		searchInput->setCallback([this](const std::string & text) {
 			searchDescription->setEnabled(text.empty());
 			std::shared_ptr<ElementInfo> selectedMap = getSelectedElement();
