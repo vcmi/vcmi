@@ -288,7 +288,7 @@ void Zone::fractalize()
 	float blockDistance = minDistance * spanFactor; //More obstacles in the Underground
 	freeDistance = freeDistance * marginFactor;
 	vstd::amax(freeDistance, 4 * 4);
-	logGlobal->trace("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
+	logRmg->trace("Zone %d: treasureValue %d blockDistance: %2.f, freeDistance: %2.f", getId(), treasureValue, blockDistance, freeDistance);
 
 	Lock lock(areaMutex);
 

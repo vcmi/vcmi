@@ -90,6 +90,17 @@ public:
 	int getRandomSeed() const;
 	
 private:
+	/// Attaches VCMI_RMG_log.txt to the rmg logger for this generator and truncates the file.
+	class RmgLogFileSession
+	{
+	public:
+		RmgLogFileSession();
+		~RmgLogFileSession();
+		RmgLogFileSession(const RmgLogFileSession &) = delete;
+		RmgLogFileSession & operator=(const RmgLogFileSession &) = delete;
+	};
+	RmgLogFileSession rmgLogSession;
+
 	std::unique_ptr<vstd::RNG> rand;
 	int randomSeed;
 	CMapGenOptions& mapGenOptions;

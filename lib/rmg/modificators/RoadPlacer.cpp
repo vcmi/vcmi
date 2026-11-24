@@ -111,7 +111,7 @@ bool RoadPlacer::createRoad(const int3 & destination)
 		res = createRoadDesperate(path, destination);
 		if (!res.valid())
 		{
-			logGlobal->warn("Failed to create road to node %s", destination.toString());
+			logRmg->warn("Failed to create road to node %s", destination.toString());
 			return false;
 		}
 	}
@@ -227,11 +227,11 @@ void RoadPlacer::connectRoads()
 		}
 		catch (const rmgException& e)
 		{
-			logGlobal->warn("Handled exception while drawing road to node %s: %s", node.toString(), e.what());
+			logRmg->warn("Handled exception while drawing road to node %s: %s", node.toString(), e.what());
 		}
 		catch (const std::exception & e)
 		{
-			logGlobal->error("Unhandled exception while drawing road to node %s: %s", node.toString(), e.what());
+			logRmg->error("Unhandled exception while drawing road to node %s: %s", node.toString(), e.what());
 			throw;
 		}
 	}

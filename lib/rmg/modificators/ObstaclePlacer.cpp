@@ -43,13 +43,13 @@ void ObstaclePlacer::process()
 
 	if (!prepareBiome(filter, zone.getRand()))
 	{
-		logGlobal->warn("Failed to prepare biome, using all possible obstacles");
+		logRmg->warn("Failed to prepare biome, using all possible obstacles");
 		// Use all if we fail to create proper biome
 		collectPossibleObstacles(zone.getTerrainType());
 	}
 	else
 	{
-		logGlobal->info("Biome prepared successfully for zone %d", zone.getId());
+		logRmg->info("Biome prepared successfully for zone %d", zone.getId());
 	}
 	
 	{

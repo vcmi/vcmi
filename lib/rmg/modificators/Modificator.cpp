@@ -78,7 +78,7 @@ void Modificator::run()
 
 	if(!finished)
 	{
-		logGlobal->trace("Modificator zone %d - %s - started", zone.getId(), getName());
+		logRmg->trace("Modificator zone %d - %s - started", zone.getId(), getName());
 		CStopWatch processTime;
 		try
 		{
@@ -86,13 +86,13 @@ void Modificator::run()
 		}
 		catch(rmgException &e)
 		{
-			logGlobal->error("Modificator %s, exception: %s", getName(), e.what());
+			logRmg->error("Modificator %s, exception: %s", getName(), e.what());
 		}
 #ifdef RMG_DUMP
 		dump();
 #endif
 		finished = true;
-		logGlobal->trace("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
+		logRmg->trace("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
 	}
 }
 

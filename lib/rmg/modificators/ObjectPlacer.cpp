@@ -20,7 +20,7 @@ void ObjectPlacer::process()
 	auto * manager = zone.getModificator<ObjectManager>();
 	if(!manager)
 	{
-		logGlobal->error("ObjectManager doesn't exist for zone %d, skip modificator %s", zone.getId(), getName());
+		logRmg->error("ObjectManager doesn't exist for zone %d, skip modificator %s", zone.getId(), getName());
 		return;
 	}
 
@@ -54,7 +54,7 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 				});
 				if(subObjects.empty())
 				{
-					logGlobal->error("No subobjects of object type %d have graphics for terrain of zone %d", objid.primaryID, zone.getId());
+					logRmg->error("No subobjects of object type %d have graphics for terrain of zone %d", objid.primaryID, zone.getId());
 					continue;
 				}
 				secondaryID = *RandomGeneratorUtil::nextItem(subObjects, zone.getRand());
