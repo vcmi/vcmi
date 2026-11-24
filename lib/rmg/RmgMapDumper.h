@@ -43,7 +43,24 @@ private:
 };
 
 /// One char per tile, x along a row, y down the rows, levels separated by an empty line.
-DLL_LINKAGE std::string renderDumpGrid(int width, int height, int levels, const std::function<char(const int3 &)> & tileChar);
+template<typename TileChar>
+std::string renderDumpGrid(int width, int height, int levels, const TileChar & tileChar)
+{
+	std::string out;
+	out.reserve(static_cast<size_t>(std::max(0, levels)) * (static_cast<size_t>(std::max(0, height)) * (static_cast<size_t>(std::max(0, width)) + 1) + 1));
+	for(int z = 0; z < levels; ++z)
+	{
+		if(z > 0)
+			out.push_back('\n');
+		for(int y = 0; y < height; ++y)
+		{
+			for(int x = 0; x < width; ++x)
+				out.push_back(tileChar(int3(x, y, z)));
+			out.push_back('\n');
+		}
+	}
+	return out;
+}
 
 /// Writes whole-map snapshots to <userLogsPath>/rmg-dumps/<seed>_<NN>_<stage>.txt
 class RmgMapDumper

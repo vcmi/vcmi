@@ -242,6 +242,42 @@ std::string joinTemplateIds(const std::vector<const CRmgTemplate *> & templates)
 	return result;
 }
 
+void parseDumpStages(const QCommandLineParser & parser, RandomMapRequest & request)
+{
+	if(!parser.isSet("dump"))
+		return;
+
+	request.dumpStagesGiven = true;
+	for(const QString & value : parser.values("dump"))
+	{
+		for(const QString & part : value.split(QLatin1Char(','), Qt::SkipEmptyParts))
+		{
+			const QString name = part.trimmed();
+			if(!name.isEmpty())
+				request.dumpStages.insert(name.toStdString());
+		}
+	}
+}
+
+/// Exit code 2 when a --log value is invalid, else 0.
+int parseLogLevels(const QCommandLineParser & parser, RandomMapRequest & request)
+{
+	for(const QString & value : parser.values("log"))
+	{
+		const int eq = value.indexOf(QLatin1Char('='));
+		const std::string domain = eq > 0 ? value.left(eq).trimmed().toStdString() : std::string();
+		const std::string levelName = eq > 0 ? value.mid(eq + 1).trimmed().toStdString() : std::string();
+		if(domain.empty() || levelName.empty())
+			return failArgs("Invalid --log '" + value.toStdString() + "' (expected <domain>=<level>)");
+
+		const auto level = CBasicLogConfigurator::findLogLevel(levelName);
+		if(!level)
+			return failArgs("Invalid --log level '" + levelName + "'");
+		request.logLevels.emplace_back(domain, *level);
+	}
+	return 0;
+}
+
 /// Exit code 2 when the command line is invalid, else 0.
 int parseRequest(const QCommandLineParser & parser, RandomMapRequest & request)
 {
@@ -278,45 +314,8 @@ int parseRequest(const QCommandLineParser & parser, RandomMapRequest & request)
 		request.templateQuery = parser.value("template");
 	request.singleThread = parser.isSet("single-thread");
 
-	if(parser.isSet("dump"))
-	{
-		request.dumpStagesGiven = true;
-		for(const QString & value : parser.values("dump"))
-		{
-			const auto parts = value.split(QLatin1Char(','), Qt::SkipEmptyParts);
-			for(const QString & part : parts)
-			{
-				const QString name = part.trimmed();
-				if(!name.isEmpty())
-					request.dumpStages.insert(name.toStdString());
-			}
-		}
-	}
-
-	if(parser.isSet("log"))
-	{
-		for(const QString & value : parser.values("log"))
-		{
-			const int eq = value.indexOf(QLatin1Char('='));
-			if(eq <= 0 || eq == value.size() - 1)
-				return failArgs("Invalid --log '" + value.toStdString() + "' (expected <domain>=<level>)");
-
-			const std::string domain = value.left(eq).trimmed().toStdString();
-			const std::string levelName = value.mid(eq + 1).trimmed().toStdString();
-			if(domain.empty() || levelName.empty())
-				return failArgs("Invalid --log '" + value.toStdString() + "' (expected <domain>=<level>)");
-
-			try
-			{
-				request.logLevels.emplace_back(domain, CBasicLogConfigurator::getLogLevel(levelName));
-			}
-			catch(const std::runtime_error &)
-			{
-				return failArgs("Invalid --log level '" + levelName + "'");
-			}
-		}
-	}
-	return 0;
+	parseDumpStages(parser, request);
+	return parseLogLevels(parser, request);
 }
 
 void applyRequest(CMapGenOptions & options, const RandomMapRequest & request)

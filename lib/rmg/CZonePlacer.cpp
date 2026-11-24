@@ -653,9 +653,6 @@ std::vector<ConnectionPrediction> CZonePlacer::classifyConnections(const TZoneMa
 {
 	//Predict from geometry alone - this is the signal placement can influence, the real outcome is
 	//decided later by ConnectionsPlacer.
-	//How far a same-level pair may sit and still be predicted "connectable", as a multiple of touching distance
-	constexpr float attractionReachScore = 1.5f;
-
 	std::vector<ConnectionPrediction> predictions;
 	std::set<int> seen;
 	for(const auto & zonePair : zones)
@@ -676,36 +673,42 @@ std::vector<ConnectionPrediction> CZonePlacer::classifyConnections(const TZoneMa
 			if(selfPos == solution.end() || otherPos == solution.end())
 				continue;
 
-			float touching = (zonePair.second->getSize() + otherIt->second->getSize()) / mapSize;
-			auto distance = static_cast<float>(selfPos->second.dist2d(otherPos->second));
-
-			ConnectionPrediction prediction;
-			prediction.id = connection.getId();
-			prediction.zoneA = connection.getZoneA();
-			prediction.zoneB = connection.getZoneB();
-			prediction.type = connection.getConnectionType();
-			prediction.distance = distance;
-
-			if(selfPos->second.z != otherPos->second.z)
-			{
-				//cross-level: a gate needs the footprints to overlap in XY, or to come within
-				//maxGateDistance of each other - the same reach ConnectionsPlacer will search with
-				prediction.reach = touching + config.maxGateDistance / mapSize;
-				prediction.predicted = (distance <= prediction.reach)
-					? ConnectionOutcome::Gate
-					: ConnectionOutcome::Monolith;
-			}
-			else
-			{
-				prediction.reach = touching * attractionReachScore;
-				prediction.predicted = (distance <= prediction.reach)
-					? ConnectionOutcome::Direct
-					: ConnectionOutcome::Monolith;
-			}
-			predictions.push_back(prediction);
+			const float touching = (zonePair.second->getSize() + otherIt->second->getSize()) / mapSize;
+			predictions.push_back(predictConnection(connection, touching, selfPos->second, otherPos->second));
 		}
 	}
 	return predictions;
+}
+
+ConnectionPrediction CZonePlacer::predictConnection(const rmg::ZoneConnection & connection, float touching, const float3 & selfPos, const float3 & otherPos) const
+{
+	//How far a same-level pair may sit and still be predicted "connectable", as a multiple of touching distance
+	constexpr float attractionReachScore = 1.5f;
+
+	ConnectionPrediction prediction;
+	prediction.id = connection.getId();
+	prediction.zoneA = connection.getZoneA();
+	prediction.zoneB = connection.getZoneB();
+	prediction.type = connection.getConnectionType();
+	prediction.distance = static_cast<float>(selfPos.dist2d(otherPos));
+
+	if(selfPos.z != otherPos.z)
+	{
+		//cross-level: a gate needs the footprints to overlap in XY, or to come within
+		//maxGateDistance of each other - the same reach ConnectionsPlacer will search with
+		prediction.reach = touching + config.maxGateDistance / mapSize;
+		prediction.predicted = (prediction.distance <= prediction.reach)
+			? ConnectionOutcome::Gate
+			: ConnectionOutcome::Monolith;
+	}
+	else
+	{
+		prediction.reach = touching * attractionReachScore;
+		prediction.predicted = (prediction.distance <= prediction.reach)
+			? ConnectionOutcome::Direct
+			: ConnectionOutcome::Monolith;
+	}
+	return prediction;
 }
 
 void CZonePlacer::moveOneZone(TZoneMap& zones, TForceVector& totalForces, TDistanceVector& distances, TDistanceVector& overlaps)

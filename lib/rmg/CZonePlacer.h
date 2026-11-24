@@ -21,6 +21,11 @@ namespace vstd
 class RNG;
 }
 
+namespace rmg
+{
+class ZoneConnection;
+}
+
 class CZoneGraph;
 class CMap;
 class RmgMap;
@@ -59,6 +64,7 @@ private:
 
 	// Predicted connectivity of a finished layout, used to pick the best of several placement attempts.
 	std::vector<ConnectionPrediction> classifyConnections(const TZoneMap & zones, const TZoneCenterMap & solution) const;
+	ConnectionPrediction predictConnection(const rmg::ZoneConnection & connection, float touching, const float3 & selfPos, const float3 & otherPos) const;
 
 	// One level's tile assignment: iterate a per-zone additive weight so each zone's claimed tile count
 	// converges to its target share, then paint the tiles.

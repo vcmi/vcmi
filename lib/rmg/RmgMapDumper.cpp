@@ -75,7 +75,7 @@ std::string joinNames(const std::vector<std::string> & names)
 
 Modificator * findModificatorByName(Zone & zone, const std::string & name)
 {
-	for(auto & modificator : zone.getModificators())
+	for(const auto & modificator : zone.getModificators())
 	{
 		if(modificator->getName() == name)
 			return modificator.get();
@@ -130,24 +130,6 @@ std::vector<std::string> RmgDumpStages::unknown() const
 	return result;
 }
 
-std::string renderDumpGrid(int width, int height, int levels, const std::function<char(const int3 &)> & tileChar)
-{
-	std::string out;
-	out.reserve(static_cast<size_t>(std::max(0, levels)) * (static_cast<size_t>(std::max(0, height)) * (static_cast<size_t>(std::max(0, width)) + 1) + 1));
-	for(int z = 0; z < levels; ++z)
-	{
-		if(z > 0)
-			out.push_back('\n');
-		for(int y = 0; y < height; ++y)
-		{
-			for(int x = 0; x < width; ++x)
-				out.push_back(tileChar(int3(x, y, z)));
-			out.push_back('\n');
-		}
-	}
-	return out;
-}
-
 RmgMapDumper::RmgMapDumper(RmgMap & map, const CMapGenerator & generator, std::set<std::string> stages)
 	: map(map)
 	, generator(generator)
@@ -167,7 +149,7 @@ void RmgMapDumper::expectModificators()
 {
 	for(auto & zonePair : map.getZones())
 	{
-		for(auto & modificator : zonePair.second->getModificators())
+		for(const auto & modificator : zonePair.second->getModificators())
 		{
 			stages.expect(modificator->getName());
 			expectedModificatorNames.insert(modificator->getName());
@@ -278,7 +260,7 @@ std::string RmgMapDumper::modificatorLegend(const std::string & stage)
 
 	for(auto & zonePair : map.getZones())
 	{
-		if(auto * modificator = findModificatorByName(*zonePair.second, stage))
+		if(const auto * modificator = findModificatorByName(*zonePair.second, stage))
 		{
 			if(seen.insert(modificator->getName()).second)
 				appendLegend(modificator->getName(), modificator->dumpLegend());
@@ -293,7 +275,7 @@ std::string RmgMapDumper::modificatorLegend(const std::string & stage)
 	{
 		for(auto & zonePair : map.getZones())
 		{
-			if(auto * objectManager = zonePair.second->getModificator<ObjectManager>())
+			if(const auto * objectManager = zonePair.second->getModificator<ObjectManager>())
 			{
 				if(seen.insert(objectManager->getName()).second)
 					appendLegend(objectManager->getName(), objectManager->dumpLegend());
@@ -308,6 +290,6 @@ std::string RmgMapDumper::modificatorLegend(const std::string & stage)
 std::string RmgMapDumper::validStageList() const
 {
 	std::set<std::string> names = expectedModificatorNames;
-	names.insert("zones");
+	names.emplace("zones");
 	return joinNames(std::vector<std::string>(names.begin(), names.end()));
 }
