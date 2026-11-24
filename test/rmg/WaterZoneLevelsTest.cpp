@@ -25,13 +25,13 @@ protected:
 
 TEST_F(WaterZoneLevelsTest, IslandsLandOnAllLevels)
 {
-	const std::vector<int> expected{0, 2};
+	const std::vector expected{0, 2};
 	EXPECT_EQ(waterZoneLevels(EWaterContent::ISLANDS, defaultLayers, {0, 1, 2}), expected);
 }
 
 TEST_F(WaterZoneLevelsTest, NormalLandOnSurfaceAndUnderground)
 {
-	const std::vector<int> expected{0};
+	const std::vector expected{0};
 	EXPECT_EQ(waterZoneLevels(EWaterContent::NORMAL, defaultLayers, {0, 1}), expected);
 }
 
@@ -43,14 +43,14 @@ TEST_F(WaterZoneLevelsTest, NoneYieldsEmpty)
 
 TEST_F(WaterZoneLevelsTest, IslandsSkipsLevelWithoutLand)
 {
-	const std::vector<int> expected{0};
+	const std::vector expected{0};
 	EXPECT_EQ(waterZoneLevels(EWaterContent::ISLANDS, defaultLayers, {0, 1}), expected);
 }
 
 TEST_F(WaterZoneLevelsTest, SkipsUndergroundWhenItIsLevelZero)
 {
 	const std::vector<MapLayerId> layers{MapLayerId::UNDERGROUND, MapLayerId::SURFACE};
-	const std::vector<int> expected{1};
+	const std::vector expected{1};
 	EXPECT_EQ(waterZoneLevels(EWaterContent::ISLANDS, layers, {0, 1}), expected);
 }
 
