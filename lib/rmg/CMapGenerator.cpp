@@ -26,6 +26,7 @@
 #include "../filesystem/Filesystem.h"
 #include "../logging/CLogger.h"
 #include "../CConfigHandler.h"
+#include "../json/JsonUtils.h"
 #include "../VCMIDirs.h"
 #include "CZonePlacer.h"
 #include "CRoadRandomizer.h"
@@ -33,6 +34,7 @@
 #include "Zone.h"
 #include "Functions.h"
 #include "RmgMap.h"
+#include "RmgMapDumper.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/TreasurePlacer.h"
 #include "modificators/RoadPlacer.h"
@@ -106,6 +108,11 @@ void CMapGenerator::loadConfig()
 	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
 	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
 	config.singleThread = randomMapJson["singleThread"].Bool();
+	// A mod that ships config/randomMap.json replaces that whole file; assemble so core dumpStages still apply.
+	const JsonNode assembledRandomMap = JsonUtils::assembleFromFiles("config/randomMap.json");
+	config.dumpStages.clear();
+	for(const auto & stage : assembledRandomMap["debug"]["dumpStages"].Vector())
+		config.dumpStages.insert(stage.String());
 	const auto & zonePlacementJson = randomMapJson["zonePlacement"];
 	config.zonePlacement.attempts = zonePlacementJson["attempts"].Integer();
 	config.zonePlacement.scoreDirect = zonePlacementJson["scoreDirect"].Integer();
@@ -123,6 +130,11 @@ const CMapGenerator::Config & CMapGenerator::getConfig() const
 void CMapGenerator::setSingleThread(bool value)
 {
 	config.singleThread = value;
+}
+
+void CMapGenerator::setDumpStages(std::set<std::string> stages)
+{
+	config.dumpStages = std::move(stages);
 }
 
 //must be instantiated in .cpp file for access to complete types of all member fields
@@ -149,6 +161,12 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 {
 	Load::Progress::reset();
 	Load::Progress::setupStepsTill(5, 30);
+	mapDumper.reset();
+	if(!config.dumpStages.empty())
+	{
+		config.singleThread = true;
+		mapDumper = std::make_unique<RmgMapDumper>(*map, *this, config.dumpStages);
+	}
 	try
 	{
 		addHeaderInfo();
@@ -156,6 +174,8 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		Load::Progress::step();
 		initQuestArtsRemaining();
 		genZones();
+		if(mapDumper)
+			mapDumper->dumpZones();
 		map->addWaterZones(*this, *rand);
 		Load::Progress::step();
 		map->getMap(this).calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
@@ -395,6 +415,9 @@ void CMapGenerator::fillZones()
 		Progress::Progress::step();
 	}
 
+	if(mapDumper)
+		mapDumper->expectModificators();
+
 	std::vector<std::shared_ptr<Zone>> treasureZones;
 
 	TModificators allJobs;
@@ -415,6 +438,8 @@ void CMapGenerator::fillZones()
 				{
 					auto jobCopy = *it;
 					jobCopy->run();
+					if(mapDumper)
+						mapDumper->onModificatorFinished(*jobCopy);
 					Progress::Progress::step(); //Update progress bar
 					allJobs.erase(it);
 					break; //Restart from the first job
@@ -460,6 +485,9 @@ void CMapGenerator::fillZones()
 		//Wait for all the tasks
 		pool.wait();
 	}
+
+	if(mapDumper)
+		mapDumper->reportUnknownStages();
 
 	for (const auto& it : map->getZones())
 	{

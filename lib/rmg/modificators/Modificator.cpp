@@ -88,9 +88,6 @@ void Modificator::run()
 		{
 			logRmg->error("Modificator %s, exception: %s", getName(), e.what());
 		}
-#ifdef RMG_DUMP
-		dump();
-#endif
 		finished = true;
 		logRmg->trace("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
 	}
@@ -117,29 +114,6 @@ void Modificator::postfunction(Modificator * modificator)
 	}
 }
 
-void Modificator::dump()
-{
-	// TODO: Refactor to lock zone area only once
-
-	std::ofstream out(boost::str(boost::format("seed_%d_modzone_%d_%s.txt") % generator.getRandomSeed() % zone.getId() % getName()));
-	int levels = map.levels();
-	int width =  map.width();
-	int height = map.height();
-	for(int z = 0; z < levels; z++)
-	{
-		for(int j=0; j<height; j++)
-		{
-			for(int i=0; i<width; i++)
-			{
-				out << dump(int3(i, j, z));
-			}
-			out << std::endl;
-		}
-		out << std::endl;
-	}
-	out << std::endl;
-}
-
 char Modificator::dump(const int3 & t)
 {
 	if(zone.freePaths()->contains(t))
@@ -156,4 +130,14 @@ char Modificator::dump(const int3 & t)
 			return '^'; //visitable points?
 	}
 	return '?';
+}
+
+std::string Modificator::dumpLegend() const
+{
+	return ". free path\n"
+		"' ' possible\n"
+		"U used\n"
+		"# obstacle\n"
+		"^ visitable\n"
+		"? outside zone";
 }

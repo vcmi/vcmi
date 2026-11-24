@@ -1106,18 +1106,18 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 			if (path.valid())
 			{
-#ifdef TREASURE_PLACER_LOG
-				treasureArea.unite(rmgObject.getArea());
-				if (guarded)
-				{
-					guards.unite(rmgObject.instances().back()->getBlockedArea());
-					auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
-					auto areaToBlock = rmgObject.getAccessibleArea(true) - guardedArea;
-					treasureBlockArea.unite(areaToBlock);
-				}
-#endif
 				zone.connectPath(path);
 				manager.placeObject(rmgObject, guarded, true);
+				// Record dump tiles from the placed map objects; querying rmg::Object areas here changes the generated map
+				const auto * guard = guarded ? rmgObject.instances().back() : nullptr;
+				for(const auto * instance : rmgObject.instances())
+				{
+					auto & target = instance == guard ? guards : treasureArea;
+					for(const auto & tile : instance->object().getBlockedPos())
+						target.add(tile);
+					if(instance->object().isVisitable())
+						target.add(instance->object().visitablePos());
+				}
 			}
 		}
 	}
@@ -1129,10 +1129,15 @@ char TreasurePlacer::dump(const int3 & t)
 		return '!';
 	if(treasureArea.contains(t))
 		return '$';
-	if(treasureBlockArea.contains(t))
-		return '*';
 	
 	return Modificator::dump(t);
+}
+
+std::string TreasurePlacer::dumpLegend() const
+{
+	return "! guard\n"
+		"$ treasure\n"
+		+ Modificator::dumpLegend();
 }
 
 void TreasurePlacer::ObjectPool::addObject(const ObjectInfo & info)

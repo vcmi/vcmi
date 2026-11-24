@@ -253,6 +253,8 @@ set(lib_MAIN_SRCS
 	rmg/CRmgTemplateStorage.cpp
 	rmg/CZonePlacer.cpp
 	rmg/CZoneGridPlacer.cpp
+	rmg/ZonePlacementLog.cpp
+	rmg/RmgMapDumper.cpp
 	rmg/CRoadRandomizer.cpp
 	rmg/TileInfo.cpp
 	rmg/Zone.cpp
@@ -747,6 +749,8 @@ set(lib_MAIN_HEADERS
 	rmg/CRmgTemplateStorage.h
 	rmg/CZonePlacer.h
 	rmg/CZoneGridPlacer.h
+	rmg/ZonePlacementLog.h
+	rmg/RmgMapDumper.h
 	rmg/ZonePlacementConfig.h
 	rmg/CRoadRandomizer.h
 	rmg/TileInfo.h

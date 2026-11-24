@@ -28,6 +28,7 @@ public:
 	void process() override;
 	void init() override;
 	char dump(const int3 &) override;
+	std::string dumpLegend() const override;
 	
 	void createTreasures(ObjectManager & manager);
 	void addObjectToRandomPool(const ObjectInfo& oi);
@@ -88,7 +89,6 @@ protected:
 	int minGuardedValue = 0;
 	
 	rmg::Area treasureArea;
-	rmg::Area treasureBlockArea;
 	rmg::Area guards;
 
 	size_t maxPrisons;

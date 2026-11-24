@@ -75,3 +75,18 @@ For every zone, a few random obstacle sets are selected. [Details](https://githu
 ### Filling space
 
 Tiles which need to be `blocked` but are not `used` are filled with obstacles. Largest obstacles which cover the most tiles are picked first, other than that they are chosen randomly.
+
+## Debugging
+
+RMG messages go to the `rmg` log domain. Zone placement events go to the child domain `rmg.zonePlacement`. Default level is `rmg=info`. Raise a domain in `settings.json` `logging.loggers`, or for one editor run with `vcmieditor --generate ... --log rmg.zonePlacement=trace`.
+
+Each generation rewrites `VCMI_RMG_log.txt` in the user logs directory (the same directory as `VCMI_Client_log.txt`). At `info`, the file holds attempt summaries, the winning layout and the predicted outcome of each connection. At `trace`, it also holds per-iteration relaxation, swaps and moves.
+
+`debug.dumpStages` in `config/randomMap.json` names generation stages to snapshot. Empty (the default) writes nothing and does not change generation cost. A non-empty list forces single-thread generation. `vcmieditor --generate ... --dump <stage[,stage...]>` overrides the config for that run. An unknown stage name is a warning that lists the valid names, not a CLI error.
+
+Dumps are whole-map ASCII files under `rmg-dumps/` in the user logs directory, named `<seed>_<NN>_<stage>.txt`. The header records template, seed, size, levels, stage and a legend. Grid: one char per tile, x along a row, y down the rows, levels separated by a blank line.
+
+Valid stage names:
+
+- `zones` — after zone placement, before water zones receive tiles. One char per zone id (`0-9A-Za-z`, `?` beyond 62).
+- A modificator class name: `ObjectManager`, `ObjectDistributor`, `PrisonHeroPlacer`, `TreasurePlacer`, `ObstaclePlacer`, `TerrainPainter`, `TownPlacer`, `MinePlacer`, `ObjectPlacer`, `QuestArtifactPlacer`, `ConnectionsPlacer`, `RoadPlacer`, `RiverPlacer`, `RockPlacer`, `RockFiller`, `WaterAdopter`, `WaterProxy`, `WaterRoutes`. Each tile uses that modificator's `dump(int3)` (or `ObjectManager`'s base dump when the zone has no such modificator). The file header lists each class's `dumpLegend()`.

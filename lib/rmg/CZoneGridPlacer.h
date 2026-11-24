@@ -17,6 +17,7 @@ class RNG;
 
 class RmgMap;
 class Zone;
+class ZonePlacementLog;
 
 class CZoneGridPlacer
 {
@@ -25,7 +26,8 @@ public:
 	using DistanceMap = std::map<int, std::map<int, size_t>>;
 
 	CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, float playerRepulsion,
-		const std::set<TRmgTemplateZoneId> & playerZones, const std::set<TRmgTemplateZoneId> & participatingPlayerZones);
+		const std::set<TRmgTemplateZoneId> & playerZones, const std::set<TRmgTemplateZoneId> & participatingPlayerZones,
+		ZonePlacementLog & placementLog);
 
 	void placeOnGrid(const ZoneMap & zones, vstd::RNG * rand) const;
 
@@ -112,4 +114,5 @@ private:
 	float playerRepulsion; // strength of the preference for keeping player starts apart (0 = off)
 	const std::set<TRmgTemplateZoneId> & playerZones; // every player starting zone
 	const std::set<TRmgTemplateZoneId> & participatingPlayerZones; // those belonging to players in the game
+	ZonePlacementLog & placementLog;
 };

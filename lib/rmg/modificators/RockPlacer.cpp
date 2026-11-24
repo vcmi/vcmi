@@ -100,3 +100,10 @@ char RockPlacer::dump(const int3 & t)
 	}
 	return Modificator::dump(t);
 }
+
+std::string RockPlacer::dumpLegend() const
+{
+	return "R rock in zone\n"
+		"E rock outside zone\n"
+		+ Modificator::dumpLegend();
+}

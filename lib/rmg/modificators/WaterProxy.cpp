@@ -424,3 +424,12 @@ char WaterProxy::dump(const int3 & t)
 	
 	return '~';
 }
+
+std::string WaterProxy::dumpLegend() const
+{
+	return "0-9 neighbour zone\n"
+		"= unused connection\n"
+		"~ water\n"
+		"? not in lake\n"
+		+ Modificator::dumpLegend();
+}

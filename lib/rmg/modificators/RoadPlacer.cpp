@@ -253,3 +253,11 @@ char RoadPlacer::dump(const int3 & t)
 		return 'i';
 	return Modificator::dump(t);
 }
+
+std::string RoadPlacer::dumpLegend() const
+{
+	return "@ road node\n"
+		"+ road\n"
+		"i isolated\n"
+		+ Modificator::dumpLegend();
+}

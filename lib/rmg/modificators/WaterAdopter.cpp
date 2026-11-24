@@ -269,3 +269,12 @@ char WaterAdopter::dump(const int3 & t)
 	
 	return Modificator::dump(t);
 }
+
+std::string WaterAdopter::dumpLegend() const
+{
+	return "X no-water\n"
+		"~ water\n"
+		"0-9 water distance\n"
+		"% water distance > 9\n"
+		+ Modificator::dumpLegend();
+}

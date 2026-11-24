@@ -112,6 +112,15 @@ char RiverPlacer::dump(const int3 & t)
 	return '?';
 }
 
+std::string RiverPlacer::dumpLegend() const
+{
+	return "@ river node\n"
+		"~ river\n"
+		"2 sink\n"
+		"1 source\n"
+		+ Modificator::dumpLegend();
+}
+
 void RiverPlacer::addRiverNode(const int3 & node)
 {
 	assert(zone.area()->contains(node));
