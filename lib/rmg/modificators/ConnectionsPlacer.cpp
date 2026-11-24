@@ -384,8 +384,9 @@ bool ConnectionsPlacer::commitGatePair(const rmg::ZoneConnection & connection, G
 
 bool ConnectionsPlacer::placeGatePairInColumn(const rmg::ZoneConnection & connection, GatePair & gates, const rmg::Area & commonArea)
 {
+	const rmg::Area otherPossible = gates.otherZone.areaPossible().get();
 	rmg::Path path2(gates.otherZone.area().get());
-	rmg::Path path1 = gates.manager.placeAndConnectObject(commonArea, gates.gate1, [this, &gates, &path2](const int3 & tile)
+	rmg::Path path1 = gates.manager.placeAndConnectObject(commonArea, gates.gate1, [this, &gates, &path2, &otherPossible](const int3 & tile)
 	{
 		auto ti = map.getTileInfo(tile);
 		auto otherTi = map.getTileInfo(tile - gates.zShift);
@@ -397,11 +398,8 @@ bool ConnectionsPlacer::placeGatePairInColumn(const rmg::ZoneConnection & connec
 		//This could fail is accessibleArea is below the map
 		rmg::Area toPlace(gates.gate1.getArea());
 		toPlace.unite(toPlace.getBorderOutside()); // Add a bit of extra space around
-		toPlace.erase_if([this](const int3 & tile)
-		{
-			return !map.isOnMap(tile);
-		});
 		toPlace.translate(-gates.zShift);
+		toPlace.intersect(otherPossible);
 
 		path2 = gates.managerOther.placeAndConnectObject(toPlace, gates.gate2, GATE_MIN_DIST, gates.guarded2, true, ObjectManager::OptimizeType::NONE);
 
