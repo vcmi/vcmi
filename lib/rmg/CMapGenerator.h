@@ -107,7 +107,7 @@ private:
 	std::mutex monolithIndexMutex;
 
 	/// Next unused subtype that every listed object ID can use at this index. Increments the counter.
-	int nextUsableMonolithIndex(int & index, const std::vector<MapObjectID> & objectIds);
+	static int nextUsableMonolithIndex(int & index, const std::vector<MapObjectID> & objectIds);
 
 	// Placed subterranean gates, each with the squared 2D distance to its committed partner (see reserveGatePair)
 	struct ReservedGate { int3 pos; int pairingDistanceSqr; };
