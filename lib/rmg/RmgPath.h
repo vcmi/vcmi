@@ -46,7 +46,6 @@ public:
 	const Area & getPathArea() const;
 	
 	static Path invalid();
-	static MoveCostFunction createCurvedCostFunction(const Area & border);
 	static float nonEuclideanCostFunction(const int3& src, const int3& dst, const int3& center);
 	
 private:

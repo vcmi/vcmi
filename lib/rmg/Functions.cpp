@@ -28,13 +28,17 @@
 
 #include <vstd/RNG.h>
 
-rmg::BezierCurve chooseCurve(Zone & zone, const int3 & src)
+rmg::BezierCurve chooseCurve(const Zone & zone, const int3 & src, vstd::RNG & rng)
 {
-	auto & rng = zone.getRand();
 	const auto & tiles = zone.area()->getTilesVector();
 	int3 control1 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
 	int3 control2 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
 	return {src, control1, control2, zone.getPos()};
+}
+
+rmg::BezierCurve chooseCurve(Zone & zone, const int3 & src)
+{
+	return chooseCurve(zone, src, zone.getRand());
 }
 
 void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool onlyStraight /* = true */)

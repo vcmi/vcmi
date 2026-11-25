@@ -243,23 +243,6 @@ float Path::nonEuclideanCostFunction(const int3& src, const int3& dst, const int
 	return d * bias;
 }
 
-Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
-{
-	// Capture by value to ensure the Area object persists
-	return [border = border](const int3& src, const int3& dst) -> float
-	{
-		float ret = nonEuclideanCostFunction(src, dst, border.getCenterOfMass());
-		// Route main roads far from border
-		float dist = border.distanceSqr(dst);
-
-		if(dist > 1.0f)
-		{
-			ret /= dist;
-		}
-		return ret;
-	};
-}
-
 float BezierCurve::distanceSq(const int3 & tile) const
 {
 	constexpr int SAMPLES = 20;
