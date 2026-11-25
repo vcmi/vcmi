@@ -965,17 +965,14 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 	handler.serializeIdArray("enabledHeroes", enabledHeroes);
 
 	handler.serializeFloat("penroseTileScale", penroseTileScale, 1.0f);
-	if(!handler.saving)
+	if(!handler.saving && (penroseTileScale < PenroseTiling::MIN_TILE_SCALE || penroseTileScale > PenroseTiling::MAX_TILE_SCALE))
 	{
-		if(penroseTileScale < PenroseTiling::MIN_TILE_SCALE || penroseTileScale > PenroseTiling::MAX_TILE_SCALE)
-		{
-			logRmg->warn("Template %s: penroseTileScale %g is outside [%g, %g], clamping",
-				(id.empty() ? name : id),
-				penroseTileScale,
-				PenroseTiling::MIN_TILE_SCALE,
-				PenroseTiling::MAX_TILE_SCALE);
-			penroseTileScale = std::clamp(penroseTileScale, PenroseTiling::MIN_TILE_SCALE, PenroseTiling::MAX_TILE_SCALE);
-		}
+		logRmg->warn("Template %s: penroseTileScale %g is outside [%g, %g], clamping",
+			(id.empty() ? name : id),
+			penroseTileScale,
+			PenroseTiling::MIN_TILE_SCALE,
+			PenroseTiling::MAX_TILE_SCALE);
+		penroseTileScale = std::clamp(penroseTileScale, PenroseTiling::MIN_TILE_SCALE, PenroseTiling::MAX_TILE_SCALE);
 	}
 
 	*mapSettings = handler.getCurrent()["settings"];

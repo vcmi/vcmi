@@ -176,7 +176,7 @@ std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, float ti
 
 	float randomAngle = rand->nextDouble(0.25 * PI_CONSTANT, 0.75 * PI_CONSTANT);
 
-	std::vector<Point2D> points = { Point2D(0.0f, 0.0f), Point2D(0.0f, geom.radius).rotated(randomAngle) };
+	std::vector points = { Point2D(0.0f, 0.0f), Point2D(0.0f, geom.radius).rotated(randomAngle) };
 	std::array<std::vector<uint32_t>, 5> indices;
 
 	for (uint32_t i = 1; i < POLY; ++i)

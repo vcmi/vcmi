@@ -14,8 +14,10 @@
 #include "../../lib/rmg/PenroseTiling.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
+#include <optional>
 #include <set>
 #include <unordered_map>
 #include <vector>
@@ -55,7 +57,7 @@ struct VertexGrid
 		const float maxDistSq = maxDist * maxDist;
 		const int ix = binCoord(x);
 		const int iy = binCoord(y);
-		const int radius = static_cast<int>(std::ceil(maxDist / cell));
+		const auto radius = static_cast<int>(std::ceil(maxDist / cell));
 		for(int dy = -radius; dy <= radius; ++dy)
 		{
 			for(int dx = -radius; dx <= radius; ++dx)
@@ -125,15 +127,31 @@ void nearestNeighbourMeans(const std::set<Point2D> & points, double & meanAbsDx,
 	meanAbsDy = sumDy / count;
 }
 
+// Returns the first sample of a 101x101 grid over [0,1]^2, corners included,
+// that has no vertex within maxDist.
+std::optional<Point2D> findUncoveredSample(const VertexGrid & grid, float maxDist)
+{
+	for(int iy = 0; iy <= 100; ++iy)
+	{
+		for(int ix = 0; ix <= 100; ++ix)
+		{
+			const Point2D sample(ix / 100.f, iy / 100.f);
+			if(!grid.hasWithin(sample.x(), sample.y(), maxDist))
+				return sample;
+		}
+	}
+	return std::nullopt;
+}
+
 }
 
 TEST(PenroseTilingTest, Coverage)
 {
 	PenroseTiling tiling;
-	const size_t zoneCounts[] = {0, 1, 2, 8, 20, 50, 131, 200};
-	const float scales[] = {0.25f, 0.5f, 1.f, 2.f};
-	const int mapSizes[] = {36, 252};
-	const int seeds[] = {1, 2, 3};
+	const std::array<size_t, 8> zoneCounts = {0, 1, 2, 8, 20, 50, 131, 200};
+	const std::array<float, 4> scales = {0.25f, 0.5f, 1.f, 2.f};
+	const std::array<int, 2> mapSizes = {36, 252};
+	const std::array<int, 3> seeds = {1, 2, 3};
 
 	for(size_t numZones : zoneCounts)
 	{
@@ -149,20 +167,10 @@ TEST(PenroseTilingTest, Coverage)
 					CRandomGenerator rng(seed);
 					const auto points = tiling.generatePenroseTiling(numZones, tileScale, mapSize, &rng);
 					ASSERT_FALSE(points.empty()) << "numZones=" << numZones << " scale=" << tileScale << " mapSize=" << mapSize << " seed=" << seed;
-					VertexGrid grid(points, std::max(geom.edge, 1.e-4f));
-					for(int iy = 0; iy <= 100; ++iy)
-					{
-						for(int ix = 0; ix <= 100; ++ix)
-						{
-							const float x = ix / 100.f;
-							const float y = iy / 100.f;
-							EXPECT_TRUE(grid.hasWithin(x, y, maxDist))
-								<< "numZones=" << numZones << " scale=" << tileScale << " mapSize=" << mapSize
-								<< " seed=" << seed << " sample=(" << x << "," << y << ") edge=" << geom.edge;
-							if(HasFailure())
-								return;
-						}
-					}
+					const VertexGrid grid(points, std::max(geom.edge, 1.e-4f));
+					if(const auto uncovered = findUncoveredSample(grid, maxDist))
+						FAIL() << "numZones=" << numZones << " scale=" << tileScale << " mapSize=" << mapSize
+							<< " seed=" << seed << " sample=(" << uncovered->x() << "," << uncovered->y() << ") edge=" << geom.edge;
 				}
 			}
 		}
@@ -173,11 +181,12 @@ TEST(PenroseTilingTest, BaselineTileCount)
 {
 	// Means of generatePenroseTiling size() over seeds 1-10, captured from the
 	// pre-isotropic X-stretched tiling. Guard the area-preserving formula.
-	const struct
+	struct BaselineRow
 	{
 		size_t numZones;
 		double mean;
-	} baseline[] = {
+	};
+	const std::array<BaselineRow, 8> baseline = {{
 		{1, 269.5},
 		{2, 288.1},
 		{4, 324.7},
@@ -186,7 +195,7 @@ TEST(PenroseTilingTest, BaselineTileCount)
 		{20, 626.9},
 		{50, 1191.9},
 		{100, 2132.8},
-	};
+	}};
 
 	for(const auto & row : baseline)
 	{
