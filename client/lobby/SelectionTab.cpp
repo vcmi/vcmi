@@ -760,11 +760,16 @@ void SelectionTab::toggleSearch(bool enabled)
 	}
 	else
 	{
+		auto selectedElement = getSelectedElement();
 		searchInput->setText("");
 		searchInput->disable();
 		searchDescription->disable();
 		labelTabTitle->enable();
-		filter(-1, true);
+		filter(-1);
+
+		auto selectedElementPosition = std::ranges::find(curItems, selectedElement);
+		if(selectedElementPosition != curItems.end())
+			selectAbs(selectedElementPosition - curItems.begin());
 	}
 }
 
