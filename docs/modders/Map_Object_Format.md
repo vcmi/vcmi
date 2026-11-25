@@ -146,7 +146,10 @@ These are internal types that are generally not available for modding and are ha
 			"zoneLimit" : 4,
 
 			// Rarity of object, 10 = rare, 100 = common
-			"rarity" : 50
+			"rarity" : 50,
+
+			// If true, the generator places this object as a treasure pile of its own and never guards it
+			"standalone" : false
 		}
 
 		// default values, will be merged with each template during loading

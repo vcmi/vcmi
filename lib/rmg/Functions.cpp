@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
+#include "ObjectInfo.h"
 #include "RmgMap.h"
 #include "TileInfo.h"
 #include "RmgPath.h"
@@ -167,6 +168,28 @@ CreatureID chooseFallbackGuard(si32 strength, const std::vector<GuardCandidate> 
 si32 guardStackSize(si32 strength, si32 aiValue)
 {
 	return std::max(1, strength / aiValue);
+}
+
+bool footprintKeepsDistance(const rmg::Area & footprint, const rmg::Area & placed, float minDistance)
+{
+	if(placed.empty())
+		return true;
+
+	return std::ranges::all_of(footprint.getTilesVector(), [&placed, minDistance](const int3 & tile)
+	{
+		return static_cast<float>(placed.distanceSqr(tile)) >= minDistance;
+	});
+}
+
+bool canJoinTreasurePile(const ObjectInfo & candidate, const std::vector<ObjectInfo *> & pile)
+{
+	if(candidate.isStandalone() && !pile.empty())
+		return false;
+
+	return std::ranges::none_of(pile, [](const ObjectInfo * existing)
+	{
+		return existing->isStandalone();
+	});
 }
 
 std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell)

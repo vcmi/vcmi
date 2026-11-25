@@ -109,6 +109,10 @@
 		//"type" can be "guarded" (default), "wide", "fictive", "repulsive" or "forcePortal"
 		//"wide" connections have no border, or guard. "fictive" and "repulsive" connections are virtual -
 		//they do not create actual path, but only attract or repulse zones, respectively
+		//"road": "true" always builds a road; "false" never does; "random" (default) picks
+		//roads that form one tree joining every zone with a town and drops dead ends into
+		//town-less zones. "fictive" and "repulsive" connections never get a road.
+		//"wide" connections never get a random road.
 	]
 }
 ```

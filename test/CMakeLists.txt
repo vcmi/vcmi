@@ -68,6 +68,9 @@ set(test_SRCS
 		map/ScenarioMetadataTest.cpp
 		map/TinyH3MBuilderTest.cpp
 
+		rmg/RmgObjectTest.cpp
+		rmg/StandaloneObjectRulesTest.cpp
+
 		modding/ModDescriptionTest.cpp
 
 		quest/QuestTest.cpp
@@ -168,6 +171,7 @@ set(test_SRCS
 		rmg/TileDistanceIndexTest.cpp
 		rmg/RmgPathTest.cpp
 		rmg/RmgMapDumperTest.cpp
+		rmg/CRoadRandomizerTest.cpp
 		rmg/PenroseTilingTest.cpp
 		rmg/CRmgTemplatePenroseScaleTest.cpp
 

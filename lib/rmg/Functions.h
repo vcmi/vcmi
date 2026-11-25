@@ -19,6 +19,7 @@ class ObjectManager;
 class ObjectTemplate;
 class CMapGenerator;
 class CCreature;
+struct ObjectInfo;
 class CGObjectInstance;
 
 class rmgException : public std::exception
@@ -72,6 +73,12 @@ CreatureID chooseFallbackGuard(si32 strength, const std::vector<GuardCandidate> 
 
 /// Stack size of a guard of given strength, never below 1
 si32 guardStackSize(si32 strength, si32 aiValue);
+
+/// Whether candidate can be added to an existing treasure pile
+bool canJoinTreasurePile(const ObjectInfo & candidate, const std::vector<ObjectInfo *> & pile);
+
+/// Whether every tile of footprint is at least minDistance (squared tile distance, as in the RMG distance map) away from placed
+bool footprintKeepsDistance(const rmg::Area & footprint, const rmg::Area & placed, float minDistance);
 
 /// Spell scroll map object holding `spell`.
 std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell);
