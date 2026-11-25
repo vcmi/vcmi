@@ -27,7 +27,7 @@ class CRoadRandomizerTest : public Test
 protected:
 	static constexpr int SEED_COUNT = 20;
 
-	std::shared_ptr<CRmgTemplate> loadTemplate(const std::string & json)
+	static std::shared_ptr<CRmgTemplate> loadTemplate(const std::string & json)
 	{
 		JsonNode config(json.data(), json.size(), "test");
 		auto subject = std::make_shared<CRmgTemplate>();
@@ -43,13 +43,13 @@ protected:
 		return subject;
 	}
 
-	void randomize(CRmgTemplate & tmpl, int seed)
+	static void randomize(const CRmgTemplate & tmpl, int seed)
 	{
 		CRandomGenerator rng(seed);
 		CRoadRandomizer(tmpl.getZones()).dropRandomRoads(rng);
 	}
 
-	ERoadOption roadBetween(const CRmgTemplate & tmpl, TRmgTemplateZoneId a, TRmgTemplateZoneId b)
+	static ERoadOption roadBetween(const CRmgTemplate & tmpl, TRmgTemplateZoneId a, TRmgTemplateZoneId b)
 	{
 		for(const auto & connection : tmpl.getZones().at(a)->getConnections())
 		{
@@ -214,9 +214,8 @@ TEST_F(CRoadRandomizerTest, CycleOfThreeTownsHasExactlyTwoRoads)
 		EXPECT_NE(road23, ERoadOption::ROAD_RANDOM);
 		EXPECT_NE(road31, ERoadOption::ROAD_RANDOM);
 
-		const int trueCount = (road12 == ERoadOption::ROAD_TRUE)
-			+ (road23 == ERoadOption::ROAD_TRUE)
-			+ (road31 == ERoadOption::ROAD_TRUE);
+		const std::array roads = {road12, road23, road31};
+		const auto trueCount = std::count(roads.begin(), roads.end(), ERoadOption::ROAD_TRUE);
 		EXPECT_EQ(trueCount, 2);
 	}
 }
