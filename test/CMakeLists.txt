@@ -167,6 +167,7 @@ set(test_SRCS
 		texts/TextOperationsTest.cpp
 
 		rmg/WaterZoneLevelsTest.cpp
+		rmg/GuardFallbackTest.cpp
 		rmg/TileDistanceIndexTest.cpp
 		rmg/RmgPathTest.cpp
 		rmg/RmgMapDumperTest.cpp

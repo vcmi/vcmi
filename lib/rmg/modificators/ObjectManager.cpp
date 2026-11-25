@@ -800,12 +800,14 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 	int strength1 = static_cast<int>(std::max(0.f, (strength - value1.at(monsterStrength)) * multiplier1.at(monsterStrength)));
 	int strength2 = static_cast<int>(std::max(0.f, (strength - value2.at(monsterStrength)) * multiplier2.at(monsterStrength)));
 	
+	const si32 guardedValue = strength;
 	strength = strength1 + strength2;
 	if (strength < generator.getConfig().minGuardStrength)
 		return nullptr; //no guard at all
 	
 	CreatureID creId = CreatureID::NONE;
 	int amount = 0;
+	std::vector<GuardCandidate> candidates;
 	std::vector<CreatureID> possibleCreatures;
 	for(auto const & cre : LIBRARY->creh->getObjects())
 	{
@@ -815,10 +817,17 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 			continue;
 		if(!vstd::contains(zone.getMonsterTypes(), cre->getFactionID()))
 			continue;
-		if((static_cast<si32>(cre->getAIValue() * (cre->ammMin + cre->ammMax) / 2) < strength) && (strength < static_cast<si32>(cre->getAIValue()) * 100)) //at least one full monster. size between average size of given stack and 100
-		{
-			possibleCreatures.push_back(cre->getId());
-		}
+
+		const GuardCandidate candidate{
+			cre->getId(),
+			cre->getAIValue(),
+			static_cast<si32>(cre->getAIValue() * (cre->ammMin + cre->ammMax) / 2),
+			static_cast<si32>(cre->getAIValue()) * 100
+		};
+		candidates.push_back(candidate);
+
+		if((candidate.minStrength < strength) && (strength < candidate.maxStrength)) //at least one full monster. size between average size of given stack and 100
+			possibleCreatures.push_back(candidate.id);
 	}
 	if(!possibleCreatures.empty())
 	{
@@ -827,10 +836,12 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 		if (amount >= 4)
 			amount = static_cast<int>(amount * zone.getRand().nextDouble(0.75, 1.25));
 	}
-	else //just pick any available creature
+	else
 	{
-		creId = CreatureID::AZURE_DRAGON; //Azure Dragon
-		amount = strength / creId.toEntity(LIBRARY)->getAIValue();
+		creId = chooseFallbackGuard(strength, candidates);
+		amount = guardStackSize(strength, creId.toEntity(LIBRARY)->getAIValue());
+		logRmg->error("Zone %d: no allowed creature fits guard strength %d (guarded value %d), falling back to %d x %s",
+			zone.getId(), strength, guardedValue, amount, creId.toEntity(LIBRARY)->getJsonKey());
 	}
 	
 	auto & guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);
