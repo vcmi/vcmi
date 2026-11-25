@@ -57,6 +57,23 @@ struct ConnectionPrediction
 	float reach = 0.f;
 };
 
+/// Relaxation result of one placement attempt; lower value is better.
+struct AttemptFitness
+{
+	float value = 0.f;
+	float totalDistance = 0.f;
+	float totalOverlap = 0.f;
+	float crowding = 0.f;
+};
+
+/// One player start zone given another zone's center by the player order arrangement.
+struct ZoneMove
+{
+	TRmgTemplateZoneId zone = 0;
+	float3 from;
+	float3 to;
+};
+
 struct ConnectivityCounts
 {
 	int direct = 0;
@@ -101,8 +118,8 @@ public:
 	void zonesSwapped(TRmgTemplateZoneId firstId, const float3 & firstOldCenter, TRmgTemplateZoneId secondId, const float3 & secondOldCenter) const;
 	void zoneMoved(TRmgTemplateZoneId zoneId, TRmgTemplateZoneId targetId, const float3 & direction, const float3 & oldCenter, const float3 & newCenter, bool toward) const;
 
-	void attemptFinished(int attempt, int attempts, int score, const ConnectivityCounts & counts, float fitness, float totalDistance, float totalOverlap, float crowding) const;
-	void playerZonesArranged(const std::vector<TRmgTemplateZoneId> & group, const std::vector<std::pair<TRmgTemplateZoneId, std::pair<float3, float3>>> & moves) const;
+	void attemptFinished(int attempt, int attempts, int score, const ConnectivityCounts & counts, const AttemptFitness & fitness) const;
+	void playerZonesArranged(const std::vector<TRmgTemplateZoneId> & group, const std::vector<ZoneMove> & moves) const;
 	void attemptBestLayout(const TZoneMap & zones, const TZoneCenterMap & solution) const;
 	void winner(int attempt, int attempts, int score, const TZoneMap & zones, const std::vector<ConnectionPrediction> & predictions) const;
 	void orientation(int rotation, bool flipH, bool flipV) const;

@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <optional>
 
 namespace
 {
@@ -70,6 +71,87 @@ struct Slot
 	TRmgTemplateZoneId originalId = 0;
 	bool taken = false;
 };
+
+/// Distances within this tolerance count as a tie, decided by zone id so the result does not depend on float noise.
+bool almostEqual(double a, double b)
+{
+	return std::abs(a - b) <= 1e-6 * std::max({1.0, std::abs(a), std::abs(b)});
+}
+
+/// Participating players first, then by player index.
+std::vector<PlayerZoneInfo> sortByPlayerOrder(const std::vector<PlayerZoneInfo> & group)
+{
+	std::vector<PlayerZoneInfo> ordered = group;
+	std::sort(ordered.begin(), ordered.end(), [](const PlayerZoneInfo & a, const PlayerZoneInfo & b)
+	{
+		if(a.participates != b.participates)
+			return a.participates && !b.participates;
+		if(a.owner != b.owner)
+			return a.owner < b.owner;
+		return a.id < b.id;
+	});
+	return ordered;
+}
+
+/// The two slots farthest apart, the one with the lower original id first.
+std::pair<size_t, size_t> findFarthestPair(const std::vector<Slot> & slots)
+{
+	auto idKey = [&slots](size_t i, size_t j)
+	{
+		return std::minmax(slots[i].originalId, slots[j].originalId);
+	};
+
+	size_t bestA = 0;
+	size_t bestB = 1;
+	double bestDist = slots[0].center.dist2d(slots[1].center);
+	for(size_t i = 0; i < slots.size(); ++i)
+	{
+		for(size_t j = i + 1; j < slots.size(); ++j)
+		{
+			const double distance = slots[i].center.dist2d(slots[j].center);
+			const bool tie = almostEqual(distance, bestDist);
+			if((!tie && distance > bestDist) || (tie && idKey(i, j) < idKey(bestA, bestB)))
+			{
+				bestDist = distance;
+				bestA = i;
+				bestB = j;
+			}
+		}
+	}
+
+	if(slots[bestB].originalId < slots[bestA].originalId)
+		std::swap(bestA, bestB);
+	return {bestA, bestB};
+}
+
+/// The free slot farthest from every placed center, lowest original id on a tie.
+size_t findFarthestFreeSlot(const std::vector<Slot> & slots, const std::vector<float3> & placed)
+{
+	std::optional<size_t> bestSlot;
+	double bestMinDist = 0;
+	for(size_t i = 0; i < slots.size(); ++i)
+	{
+		if(slots[i].taken)
+			continue;
+		double minDist = std::numeric_limits<double>::infinity();
+		for(const auto & center : placed)
+			minDist = std::min(minDist, slots[i].center.dist2d(center));
+
+		if(!bestSlot)
+		{
+			bestSlot = i;
+			bestMinDist = minDist;
+			continue;
+		}
+		const bool tie = almostEqual(minDist, bestMinDist);
+		if((!tie && minDist > bestMinDist) || (tie && slots[i].originalId < slots[*bestSlot].originalId))
+		{
+			bestMinDist = minDist;
+			bestSlot = i;
+		}
+	}
+	return *bestSlot;
+}
 }
 
 std::vector<std::vector<TRmgTemplateZoneId>> findInterchangeableZones(const std::vector<PlayerZoneInfo> & zones)
@@ -108,83 +190,27 @@ std::map<TRmgTemplateZoneId, float3> arrangeByPlayerOrder(const std::vector<Play
 	if(group.size() < 2)
 		return result;
 
-	std::vector<PlayerZoneInfo> ordered = group;
-	std::sort(ordered.begin(), ordered.end(), [](const PlayerZoneInfo & a, const PlayerZoneInfo & b)
-	{
-		if(a.participates != b.participates)
-			return a.participates && !b.participates;
-		if(a.owner != b.owner)
-			return a.owner < b.owner;
-		return a.id < b.id;
-	});
+	const std::vector<PlayerZoneInfo> ordered = sortByPlayerOrder(group);
 
 	std::vector<Slot> slots;
 	slots.reserve(group.size());
 	for(const auto & zone : group)
 		slots.push_back(Slot{zone.center, zone.id, false});
 
-	int bestA = -1;
-	int bestB = -1;
-	double bestDist = -1;
-	for(size_t i = 0; i < slots.size(); ++i)
+	std::vector<float3> placed;
+	auto take = [&](size_t slot, const PlayerZoneInfo & zone)
 	{
-		for(size_t j = i + 1; j < slots.size(); ++j)
-		{
-			const double distance = slots[i].center.dist2d(slots[j].center);
-			bool better = distance > bestDist;
-			if(!better && distance == bestDist && bestA >= 0)
-			{
-				const auto minId = std::min(slots[i].originalId, slots[j].originalId);
-				const auto maxId = std::max(slots[i].originalId, slots[j].originalId);
-				const auto bestMin = std::min(slots[bestA].originalId, slots[bestB].originalId);
-				const auto bestMax = std::max(slots[bestA].originalId, slots[bestB].originalId);
-				better = minId < bestMin || (minId == bestMin && maxId < bestMax);
-			}
-			if(better)
-			{
-				bestDist = distance;
-				bestA = static_cast<int>(i);
-				bestB = static_cast<int>(j);
-			}
-		}
-	}
+		slots[slot].taken = true;
+		result[zone.id] = slots[slot].center;
+		placed.push_back(slots[slot].center);
+	};
 
-	int firstSlot = bestA;
-	int secondSlot = bestB;
-	if(slots[bestB].originalId < slots[bestA].originalId)
-		std::swap(firstSlot, secondSlot);
-
-	result[ordered[0].id] = slots[firstSlot].center;
-	result[ordered[1].id] = slots[secondSlot].center;
-	slots[firstSlot].taken = true;
-	slots[secondSlot].taken = true;
-
-	std::vector<float3> placed {slots[firstSlot].center, slots[secondSlot].center};
+	const auto [firstSlot, secondSlot] = findFarthestPair(slots);
+	take(firstSlot, ordered[0]);
+	take(secondSlot, ordered[1]);
 
 	for(size_t n = 2; n < ordered.size(); ++n)
-	{
-		int bestSlot = -1;
-		double bestMinDist = -1;
-		for(size_t i = 0; i < slots.size(); ++i)
-		{
-			if(slots[i].taken)
-				continue;
-			double minDist = std::numeric_limits<double>::infinity();
-			for(const auto & center : placed)
-				minDist = std::min(minDist, slots[i].center.dist2d(center));
-			bool better = minDist > bestMinDist;
-			if(!better && minDist == bestMinDist && bestSlot >= 0)
-				better = slots[i].originalId < slots[bestSlot].originalId;
-			if(better)
-			{
-				bestMinDist = minDist;
-				bestSlot = static_cast<int>(i);
-			}
-		}
-		slots[bestSlot].taken = true;
-		result[ordered[n].id] = slots[bestSlot].center;
-		placed.push_back(slots[bestSlot].center);
-	}
+		take(findFarthestFreeSlot(slots, placed), ordered[n]);
 
 	return result;
 }

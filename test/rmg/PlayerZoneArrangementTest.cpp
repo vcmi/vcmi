@@ -90,7 +90,7 @@ bool holdsDiagonal(const float3 & a, const float3 & b)
 
 TEST(InterchangeableZonesTest, FourZonesLinkedToSameHubFormOneGroup)
 {
-	const std::vector<PlayerZoneInfo> zones = {
+	const std::vector zones = {
 		hubLinked(1, 1, true),
 		hubLinked(2, 2, true),
 		hubLinked(3, 3, true),
@@ -105,7 +105,7 @@ TEST(InterchangeableZonesTest, ExtraLinkKeepsZoneOutOfGroup)
 {
 	auto extra = hubLinked(1, 1, true);
 	extra.links.emplace_back(6, rmg::EConnectionType::GUARDED);
-	const std::vector<PlayerZoneInfo> zones = {
+	const std::vector zones = {
 		extra,
 		hubLinked(2, 2, true),
 		hubLinked(3, 3, true),
@@ -120,7 +120,7 @@ TEST(InterchangeableZonesTest, DifferentSizeIsNotGrouped)
 {
 	auto small = hubLinked(1, 1, true);
 	small.size = 20;
-	const std::vector<PlayerZoneInfo> zones = {
+	const std::vector zones = {
 		small,
 		hubLinked(2, 2, true),
 		hubLinked(3, 3, true),
@@ -135,7 +135,7 @@ TEST(InterchangeableZonesTest, DifferentLevelIsNotGrouped)
 {
 	auto underground = hubLinked(1, 1, true);
 	underground.level = 1;
-	const std::vector<PlayerZoneInfo> zones = {
+	const std::vector zones = {
 		underground,
 		hubLinked(2, 2, true),
 		hubLinked(3, 3, true),
@@ -148,7 +148,7 @@ TEST(InterchangeableZonesTest, DifferentLevelIsNotGrouped)
 
 TEST(InterchangeableZonesTest, MutualLinkToSameHubIsGrouped)
 {
-	const std::vector<PlayerZoneInfo> zones = {
+	const std::vector zones = {
 		makeZone(1, 1, true, 0, 30, {}, {
 			{5, rmg::EConnectionType::GUARDED},
 			{2, rmg::EConnectionType::GUARDED},
@@ -167,7 +167,7 @@ TEST(InterchangeableZonesTest, DifferentConnectionTypeKeepsZoneOutOfGroup)
 {
 	auto wide = hubLinked(1, 1, true);
 	wide.links = {{5, rmg::EConnectionType::WIDE}};
-	const std::vector<PlayerZoneInfo> zones = {
+	const std::vector zones = {
 		wide,
 		hubLinked(2, 2, true),
 		hubLinked(3, 3, true),
@@ -180,7 +180,7 @@ TEST(InterchangeableZonesTest, DifferentConnectionTypeKeepsZoneOutOfGroup)
 
 TEST(ArrangeByPlayerOrderTest, NeighbouringOwnersTakeADiagonal)
 {
-	const std::vector<PlayerZoneInfo> zones = {
+	const std::vector zones = {
 		hubLinked(1, 1, true, float3(0.f, 0.f, 0)),
 		hubLinked(2, 2, true, float3(1.f, 0.f, 0)),
 		hubLinked(3, 3, true, float3(1.f, 1.f, 0)),
@@ -194,7 +194,7 @@ TEST(ArrangeByPlayerOrderTest, NeighbouringOwnersTakeADiagonal)
 
 TEST(ArrangeByPlayerOrderTest, ParticipatingOwnersOneAndThreeTakeADiagonal)
 {
-	const std::vector<PlayerZoneInfo> zones = {
+	const std::vector zones = {
 		hubLinked(1, 1, true, float3(0.f, 0.f, 0)),
 		hubLinked(2, 2, false, float3(1.f, 0.f, 0)),
 		hubLinked(3, 3, true, float3(1.f, 1.f, 0)),
@@ -208,7 +208,7 @@ TEST(ArrangeByPlayerOrderTest, ParticipatingOwnersOneAndThreeTakeADiagonal)
 TEST(ArrangeByPlayerOrderTest, EightRingCentersPlaceOneTwoAndThreeFourOpposite)
 {
 	constexpr float h = 0.7071067811865476f;
-	const std::vector<float3> ring = {
+	const std::vector ring = {
 		float3(1.f, 0.f, 0),
 		float3(h, h, 0),
 		float3(0.f, 1.f, 0),
@@ -233,7 +233,7 @@ TEST(ArrangeByPlayerOrderTest, EightRingCentersPlaceOneTwoAndThreeFourOpposite)
 
 TEST(ArrangeByPlayerOrderTest, SameInputIsDeterministic)
 {
-	const std::vector<PlayerZoneInfo> zones = {
+	const std::vector zones = {
 		hubLinked(1, 1, true, float3(0.f, 0.f, 0)),
 		hubLinked(2, 2, true, float3(1.f, 0.f, 0)),
 		hubLinked(3, 3, true, float3(1.f, 1.f, 0)),
