@@ -13,12 +13,14 @@
 #include "Zone.h"
 #include <boost/heap/priority_queue.hpp> //A*
 #include <functional>
+#include <memory>
 
 class RmgMap;
 class ObjectManager;
 class ObjectTemplate;
 class CMapGenerator;
 class CCreature;
+class CGObjectInstance;
 
 class rmgException : public std::exception
 {
@@ -55,6 +57,9 @@ ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level);
 /// Levels that get their own water zone, ascending
 std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 	const std::vector<MapLayerId> & levelLayers, const std::set<int> & landZoneLevels);
+
+/// Spell scroll map object holding `spell`.
+std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell);
 
 /// The tile where IBoatGenerator::bestLocation() will put the boat:
 /// the first origin + offset, in offsets order, that isWater accepts; int3(-1,-1,-1) if none.

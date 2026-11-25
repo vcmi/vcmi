@@ -294,6 +294,8 @@
 	"vcmi.adventureMap.dwelling6": "{%s}\n\nWould you like to recruit %s, %s, %s, %s, %s, or %s?",
 	"vcmi.adventureMap.layer.help": "{Switch Layer}\n\nSwitches the adventure map between map layers\n\nSwitch %s (%d) to %s (%d)",
 	"vcmi.adventureMap.layer.hover": "Switch Layer  -  %s (%d) to %s (%d)",
+	"vcmi.adventureMap.monsterJoinPartial": "{Followers}\n\n%d of the %d %s with a desire for greater glory wish to join you. Do you accept?",
+	"vcmi.adventureMap.monsterJoinPartialForGold": "%d of the %d %s will join your army for the sum of %d gold. Do you accept?",
 	"vcmi.adventureMap.monsterLevel": "\n\nLevel %LEVEL %TOWN %ATTACK_TYPE unit",
 	"vcmi.adventureMap.monsterMeleeType": "melee",
 	"vcmi.adventureMap.monsterRangedType": "ranged",

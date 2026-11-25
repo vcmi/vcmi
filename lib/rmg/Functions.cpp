@@ -22,6 +22,7 @@
 #include "../CCreatureHandler.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTown.h"
+#include "../mapObjects/MiscObjects.h"
 
 #include <vstd/RNG.h>
 
@@ -133,6 +134,15 @@ std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 			result.push_back(level);
 	}
 	return result;
+}
+
+std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell)
+{
+	const auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
+	auto obj = std::dynamic_pointer_cast<CGArtifact>(factory.create(map.mapInstance->cb, nullptr));
+	const auto * a = map.getMapProxy()->createScroll(spell);
+	obj->setArtifactInstance(a);
+	return obj;
 }
 
 int3 predictBoatTile(const std::vector<int3> & offsets, const int3 & origin, const std::function<bool(const int3 &)> & isWater)
