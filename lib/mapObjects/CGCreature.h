@@ -30,6 +30,9 @@ public:
 		CUSTOM = 5
 	};
 
+	/// JSON names of Character values, indexed by value
+	static const std::vector<std::string> & getCharacterJsonNames();
+
 	enum class UpgradedStackPresence : int8_t {
 		RANDOM = -1,
 		NEVER = 0,

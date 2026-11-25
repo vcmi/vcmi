@@ -5,6 +5,180 @@
 	"description" : "Format used to define random map templates in VCMI",
 	"definitions" :
 	{
+		"customRewardEntry": {
+			"type": "object",
+			"properties": {
+				"rmg": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"value": { "type": "integer", "minimum": 0 },
+						"rarity": { "type": "integer", "minimum": 1 },
+						"zoneLimit": { "type": "integer", "minimum": 0 },
+						"zoneFactions": {
+							"type": "array",
+							"items": { "type": "string" }
+						},
+						"nativeCreatures": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"level": { "type": "integer", "minimum": 0 },
+								"kind": { "type": "string", "enum": ["basic", "upgrade"] }
+							}
+						}
+					}
+				}
+			}
+		},
+		"customObjects" : {
+			"type" : "object",
+			"properties": {
+				"bannedCategories": {
+					"type": "array",
+					"items": {
+						"type": "string",
+						"enum": ["all", "none", "other", "dwelling", "creatureBank", "randomArtifact", "bonus", "resource", "resourceGenerator", "spellScroll", "pandorasBox", "questArtifact", "seerHut"]
+					}
+				},
+				"bannedObjects": {
+					"type": "object",
+					"additionalProperties": {
+						"anyOf" : [
+							{
+								"type": "boolean"
+							},
+							{
+								"type": "object",
+								"additionalProperties": {
+									"type": "boolean"
+								}
+							}
+						]
+						
+					}
+				},
+				"requiredObjects": {
+					"type": "object",
+					"additionalProperties": {
+						"anyOf" : [
+							{ "type": "number", "minimum" : 0 },
+							{
+								"type": "object",
+								"additionalProperties": { "type": "number", "minimum" : 0 }
+							},
+							{
+								"type": "object",
+								"properties": {
+									"count": { "type": "number", "minimum": 0 },
+									"guard": { "type": "number", "minimum": 0 }
+								},
+								"required": ["count"],
+								"additionalProperties": false
+							},
+							{
+								"type": "object",
+								"additionalProperties": {
+									"type": "object",
+									"properties": {
+										"count": { "type": "number", "minimum": 0 },
+										"guard": { "type": "number", "minimum": 0 }
+									},
+									"required": ["count"],
+									"additionalProperties": false
+								}
+							}
+						]
+					}
+				},
+				"commonObjects": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string"
+							},
+							"subtype": {
+								"type": "string"
+							},
+							"rmg": {
+								"type": "object",
+								"properties": {
+									"value": {
+										"type": "integer",
+										"minimum": 0
+									},
+									"rarity": {
+										"type": "integer",
+										"minimum": 0
+									},
+									"zoneLimit": {
+										"type": "integer",
+										"minimum": 0
+									}
+								}
+							}
+						},
+						"required": ["type"]
+					}
+				},
+				"pandoraBoxes": {
+					"type": "array",
+					"description": "Pandora boxes added to the zone treasure pool. An entry is the Pandora box map options (as in a .vmap) plus an rmg block",
+					"items": { "$ref": "#/definitions/customRewardEntry" }
+				},
+				"seerHuts": {
+					"type": "array",
+					"description": "Seer huts added to the zone, filling quest-artifact slots before the built-in huts. An entry is the reward content (as a Pandora box) plus an rmg block",
+					"items": { "$ref": "#/definitions/customRewardEntry" }
+				},
+				"spellScrolls": {
+					"type": "array",
+					"description": "Spell scrolls added to the zone treasure pool with a fixed spell. Value, rarity and zoneLimit default to the built-in scroll rules",
+					"items": {
+						"type": "object",
+						"additionalProperties": false,
+						"required": ["spell"],
+						"properties": {
+							"spell": { "type": "string" },
+							"rmg": {
+								"type": "object",
+								"additionalProperties": false,
+								"properties": {
+									"value": { "type": "integer", "minimum": 0 },
+									"rarity": { "type": "integer", "minimum": 0 },
+									"zoneLimit": { "type": "integer", "minimum": 0 }
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"monsterJoining" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"character" : {
+					"type" : "string",
+					"enum" : ["compliant", "friendly", "aggressive", "hostile", "savage", "custom"]
+				},
+				"aggression" : {
+					"type" : "integer",
+					"minimum" : 1,
+					"maximum" : 10
+				},
+				"joiningPercentage" : {
+					"type" : "integer",
+					"minimum" : 0,
+					"maximum" : 100
+				},
+				"joinOnlyForMoney" : {
+					"type" : "boolean"
+				}
+			}
+		},
 		"zone" : {
 			"type" : "object",
 			"required" : ["type"],
@@ -79,98 +253,8 @@
 						"additionalProperties" : false
 					}
 				},
-				"customObjects" : {
-					"type" : "object",
-					"properties": {
-						"bannedCategories": {
-							"type": "array",
-							"items": {
-								"type": "string",
-								"enum": ["all", "dwelling", "creatureBank", "randomArtifact", "bonus", "resource", "resourceGenerator", "spellScroll", "pandorasBox", "questArtifact", "seerHut"]
-							}
-						},
-						"bannedObjects": {
-							"type": "object",
-							"additionalProperties": {
-								"anyOf" : [
-									{
-										"type": "boolean"
-									},
-									{
-										"type": "object",
-										"additionalProperties": {
-											"type": "boolean"
-										}
-									}
-								]
-								
-							}
-						},
-						"requiredObjects": {
-							"type": "object",
-							"additionalProperties": {
-								"anyOf" : [
-									{ "type": "number", "minimum" : 0 },
-									{
-										"type": "object",
-										"additionalProperties": { "type": "number", "minimum" : 0 }
-									},
-									{
-										"type": "object",
-										"properties": {
-											"count": { "type": "number", "minimum": 0 },
-											"guard": { "type": "number", "minimum": 0 }
-										},
-										"required": ["count"],
-										"additionalProperties": false
-									},
-									{
-										"type": "object",
-										"additionalProperties": {
-											"type": "object",
-											"properties": {
-												"count": { "type": "number", "minimum": 0 },
-												"guard": { "type": "number", "minimum": 0 }
-											},
-											"required": ["count"],
-											"additionalProperties": false
-										}
-									}
-								]
-							}
-						},
-						"commonObjects": {
-							"type": "array",
-							"items": {
-								"type": "object",
-								"properties": {
-									"type": {
-										"type": "string"
-									},
-									"subtype": {
-										"type": "string"
-									},
-									"rmg": {
-										"type": "object",
-										"properties": {
-											"value": {
-												"type": "integer"
-											},
-											"rarity": {
-												"type": "integer"
-											},
-											"zoneLimit": {
-												"type": "integer"
-											}
-										},
-										"required": ["value", "rarity"]
-									}
-								},
-								"required": ["type", "rmg"]
-							}
-						}
-					}
-				}
+				"customObjects" : {"$ref" : "#/definitions/customObjects"},
+				"monsterJoining" : {"$ref" : "#/definitions/monsterJoining"}
 			}
 		},
 
@@ -293,6 +377,16 @@
 		"bannedHeroes": {
 			"description" : "List of heroes that are banned on this template",
 			"$ref" : "#/definitions/stringArray"
+		},
+
+		"customObjects" : {
+			"description" : "Object bans, common objects, required objects, Pandora boxes and spell scrolls applied to every zone. Zone customObjects entries override this block per object.",
+			"$ref" : "#/definitions/customObjects"
+		},
+
+		"monsterJoining" : {
+			"description" : "Joining settings for guards placed inside every zone. Zone monsterJoining overrides this block per field.",
+			"$ref" : "#/definitions/monsterJoining"
 		},
 		
 		"name" : {
