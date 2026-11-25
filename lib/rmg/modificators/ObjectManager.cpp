@@ -108,6 +108,26 @@ void ObjectManager::updateDistances(const rmg::Object & obj)
 	updateDistancesFromTiles(obj.getArea().getTilesVector());
 }
 
+void ObjectManager::addFootprint(const rmg::Object & obj)
+{
+	const auto footprint = obj.getFootprint();
+	std::lock_guard lock(footprintMutex);
+	objectsFootprint.unite(footprint);
+	if(obj.hasMultipleEntrances())
+		multiEntranceFootprint.unite(footprint);
+}
+
+bool ObjectManager::keepsFootprintDistance(const rmg::Object & candidate, float minDistance) const
+{
+	const bool candidateHasMultipleEntrances = candidate.hasMultipleEntrances();
+	std::lock_guard lock(footprintMutex);
+	if(!candidateHasMultipleEntrances && multiEntranceFootprint.empty())
+		return true;
+
+	const auto footprint = candidate.getFootprint();
+	return footprintKeepsDistance(footprint, candidateHasMultipleEntrances ? objectsFootprint : multiEntranceFootprint, minDistance);
+}
+
 void ObjectManager::updateDistances(const int3 & pos)
 {
 	updateDistancesFromTiles({pos});
@@ -189,7 +209,7 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, const TileF
 				return true;
 			}
 		}
-		return false;
+		return !obj.allEntrancesOnMap([this](const int3 & tile) { return map.isOnMap(tile); });
 	};
 	
 	if(optimizer & OptimizeType::DISTANCE)
@@ -253,26 +273,30 @@ int3 ObjectManager::findPlaceForObject(const rmg::Area & searchArea, rmg::Object
 {
 	return findPlaceForObject(searchArea, obj, [this, min_dist, &obj](const int3 & tile)
 	{
-		auto ti = map.getTileInfo(tile);
-		float dist = ti.getNearestObjectDistance();
+		float dist = map.getTileInfo(tile).getNearestObjectDistance();
 		if(dist < min_dist)
 			return -1.f;
 
-		for(const auto & t : obj.getArea().getTilesVector())
-		{
-			auto localDist = map.getTileInfo(t).getNearestObjectDistance();
-			if (localDist < min_dist)
-			{
-				return -1.f;
-			}
-			else
-			{
-				vstd::amin(dist, localDist); //Evaluate object tile which will be closest to another object
-			}
-		}
-		
-		return dist;
+		//Evaluate object tile which will be closest to another object
+		return std::min(dist, distanceToNearestObject(obj, min_dist));
 	}, optimizer, stopDistance);
+}
+
+float ObjectManager::distanceToNearestObject(const rmg::Object & obj, si32 minDistance) const
+{
+	float bestDistance = 10e9;
+	for(const auto & t : obj.getArea().getTilesVector())
+	{
+		float distance = map.getTileInfo(t).getNearestObjectDistance();
+		if(distance < minDistance)
+			return -1.f;
+		vstd::amin(bestDistance, distance);
+	}
+
+	if(!keepsFootprintDistance(obj, minDistance))
+		return -1.f;
+
+	return bestDistance;
 }
 
 rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, rmg::Object & obj, si32 min_dist, bool isGuarded, bool onlyStraight, OptimizeType optimizer, float stopDistance) const
@@ -284,15 +308,9 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, con
 {
 	return placeAndConnectObject(searchArea, filter, obj, [this, min_dist, &obj](const int3 & tile)
 	{
-		float bestDistance = 10e9;
-		for(const auto & t : obj.getArea().getTilesVector())
-		{
-			float distance = map.getTileInfo(t).getNearestObjectDistance();
-			if(distance < min_dist)
-				return -1.f;
-			else
-				vstd::amin(bestDistance, distance);
-		}
+		float bestDistance = distanceToNearestObject(obj, min_dist);
+		if(bestDistance < 0)
+			return -1.f;
 		
 		rmg::Area perimeter;
 		rmg::Area areaToBlock;
@@ -639,6 +657,8 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 		}
 	}
 
+	addFootprint(object);
+
 	if (updateDistance)
 	{
 		//Update distances in every adjacent zone (including this one) in case of wide connection
@@ -665,6 +685,8 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 				if (manager)
 				{
 					manager->updateDistances(object);
+					if (manager != this)
+						manager->addFootprint(object);
 				}
 			}
 		}
@@ -675,7 +697,7 @@ void ObjectManager::placeObject(rmg::Object & object, bool guarded, bool updateD
 	{
 		if (instance->object().isVisitable())
 		{
-			objectsVisitableArea.add(instance->getVisitablePosition());
+			objectsVisitableArea.unite(instance->getVisitableArea());
 		}
 		objects.push_back(&instance->object());
 		if(auto * rp = zone.getModificator<RoadPlacer>())
@@ -815,6 +837,8 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 
 	auto guard = std::dynamic_pointer_cast<CGCreature>(guardFactory.create(map.mapInstance->cb, nullptr));
 	guard->initialCharacter = CGCreature::Character::HOSTILE;
+	if(!zoneGuard)
+		zone.getMonsterJoining().applyTo(*guard);
 	auto hlp = std::make_unique<CStackInstance>(map.mapInstance->cb, creId, amount);
 	//will be set during initialization
 	guard->putStack(SlotID(0), std::move(hlp));

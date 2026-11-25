@@ -12,12 +12,12 @@
 			"magicSpring" : {
 				"index" : 0,
 				"aiValue" : 500,
-				//banned due to problems with 2 viistable offsets
-				//"rmg" : {
-				//	"zoneLimit"	: 1,
-				//	"value"		: 500,
-				//	"rarity"	: 50
-				//},
+				"rmg" : {
+					"zoneLimit"	: 1,
+					"value"		: 500,
+					"rarity"	: 50,
+					"standalone" : true
+				},
 				"compatibilityIdentifiers" : [ "object" ],
 
 				"onEmptyMessage" : 76,

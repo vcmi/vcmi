@@ -11,26 +11,20 @@
 #include "StdInc.h"
 #include "CRoadRandomizer.h"
 
-#include "RmgMap.h"
-#include "Zone.h"
-#include "Functions.h"
-#include "CRmgTemplate.h"
-
 #include <vstd/RNG.h>
 
-CRoadRandomizer::CRoadRandomizer(RmgMap & map)
-	: map(map)
+namespace
 {
-}
+using TParentMap = std::map<TRmgTemplateZoneId, TRmgTemplateZoneId>;
 
-TRmgTemplateZoneId findSet(std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> & parent, TRmgTemplateZoneId x)
+TRmgTemplateZoneId findSet(TParentMap & parent, TRmgTemplateZoneId x)
 {
 	if(parent[x] != x)
 		parent[x] = findSet(parent, parent[x]);
 	return parent[x];
 }
 
-void unionSets(std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> & parent, TRmgTemplateZoneId x, TRmgTemplateZoneId y)
+void unionSets(TParentMap & parent, TRmgTemplateZoneId x, TRmgTemplateZoneId y)
 {
 	TRmgTemplateZoneId rx = findSet(parent, x);
 	TRmgTemplateZoneId ry = findSet(parent, y);
@@ -38,205 +32,178 @@ void unionSets(std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> & parent, TRmgTe
 		parent[rx] = ry;
 }
 
-/*
-Random road generation requirements:
-- Every town should be connected via road
-- There should be exactly one road betwen any two towns (connected MST)
-	- This excludes cases when there are multiple obligatory road connections betwween two zones
-- Road cannot end in a zone without town
-- Wide connections should have no road
-*/
-
-void CRoadRandomizer::dropRandomRoads(vstd::RNG * rand)
+bool isRoadCapable(const rmg::ZoneConnection & connection)
 {
-	logRmg->info("Starting road randomization");
+	return connection.getZoneA() != connection.getZoneB()
+		&& connection.getConnectionType() != rmg::EConnectionType::REPULSIVE
+		&& connection.getConnectionType() != rmg::EConnectionType::FICTIVE;
+}
 
-	auto zones = map.getZones();
-	
-	// Helper lambda to set road option for all instances of a connection
-	auto setRoadOptionForConnection = [&zones](int connectionId, rmg::ERoadOption roadOption)
+bool hasConnection(const rmg::ZoneOptions & zone, int connectionId)
+{
+	const auto & connections = zone.getConnections();
+	return std::any_of(connections.begin(), connections.end(), [connectionId](const rmg::ZoneConnection & connection)
 	{
-		// Update all instances of this connection (A→B and B→A) to have the same road option
-		for(auto & zonePtr : zones)
+		return connection.getId() == connectionId;
+	});
+}
+
+// Update all instances of this connection (A→B and B→A) to have the same road option
+void setRoadOptionForConnection(const CRmgTemplate::Zones & zones, int connectionId, rmg::ERoadOption roadOption)
+{
+	for(const auto & zonePtr : zones)
+	{
+		if(hasConnection(*zonePtr.second, connectionId))
+			zonePtr.second->setRoadOption(connectionId, roadOption);
+	}
+}
+
+// Each connection is stored by both of its zones; keep the first copy, in zone order
+std::vector<rmg::ZoneConnection> collectUniqueConnections(const CRmgTemplate::Zones & zones)
+{
+	std::vector<rmg::ZoneConnection> uniqueConnections;
+	std::set<int> seenIds;
+	for(const auto & zonePtr : zones)
+	{
+		for(const auto & connection : zonePtr.second->getConnections())
 		{
-			for(auto & connection : zonePtr.second->getConnections())
-			{
-				if(connection.getId() == connectionId)
-				{
-					zonePtr.second->setRoadOption(connectionId, roadOption);
-				}
-			}
+			if(seenIds.insert(connection.getId()).second)
+				uniqueConnections.push_back(connection);
 		}
-	};
-	
-	// Identify zones with towns
+	}
+	return uniqueConnections;
+}
+
+bool hasTown(const rmg::ZoneOptions & zone)
+{
+	// start zones always receive a main town, even without explicit playerTowns
+	bool isStartZone = zone.getOwner() && (zone.getType() == ETemplateZoneType::PLAYER_START || zone.getType() == ETemplateZoneType::CPU_START);
+
+	return isStartZone
+		|| zone.getPlayerTowns().getTownCount()
+		|| zone.getPlayerTowns().getCastleCount()
+		|| zone.getNeutralTowns().getTownCount()
+		|| zone.getNeutralTowns().getCastleCount();
+}
+
+std::set<TRmgTemplateZoneId> findZonesWithTowns(const CRmgTemplate::Zones & zones)
+{
 	std::set<TRmgTemplateZoneId> zonesWithTowns;
 	for(const auto & zone : zones)
 	{
-		// start zones always receive a main town, even without explicit playerTowns
-		bool isStartZone = zone.second->getOwner() && (zone.second->getType() == ETemplateZoneType::PLAYER_START || zone.second->getType() == ETemplateZoneType::CPU_START);
-
-		if(isStartZone ||
-		   zone.second->getPlayerTowns().getTownCount() || 
-		   zone.second->getPlayerTowns().getCastleCount() ||
-		   zone.second->getNeutralTowns().getTownCount() ||
-		   zone.second->getNeutralTowns().getCastleCount())
-		{
+		if(hasTown(*zone.second))
 			zonesWithTowns.insert(zone.first);
-		}
 	}
-	
-	logRmg->info("Found %d zones with towns", zonesWithTowns.size());
-	
-	if(zonesWithTowns.empty())
+	return zonesWithTowns;
+}
+
+// Returns the id of the only road of a zone, or -1 if it has none or several
+int findSoleRoad(const rmg::ZoneOptions & zone)
+{
+	int roadCount = 0;
+	int soleRoadId = -1;
+	for(const auto & connection : zone.getConnections())
 	{
-		// No towns, no roads needed - mark all RANDOM roads as FALSE
-		for(auto & zonePtr : zones)
+		if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
 		{
-			for(auto & connection : zonePtr.second->getConnections())
-			{
-				if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
-				{
-					setRoadOptionForConnection(connection.getId(), rmg::ERoadOption::ROAD_FALSE);
-				}
-			}
-		}
-		return;
-	}
-	
-	// Initialize Union-Find for all zones to track connectivity
-	std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> parent;
-	// Track if a component (represented by its root) contains a town
-	std::map<TRmgTemplateZoneId, bool> componentHasTown;
-
-	for(const auto & zone : zones)
-	{
-		auto zoneId = zone.first;
-		parent[zoneId] = zoneId;
-		componentHasTown[zoneId] = vstd::contains(zonesWithTowns, zoneId);
-	}
-
-	// Process all connections that are already set to TRUE
-	std::set<int> explicitRoads;
-	for(auto & zonePtr : zones)
-	{
-		for(auto & connection : zonePtr.second->getConnections())
-		{
-			if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
-			{
-				explicitRoads.insert(connection.getId());
-				auto zoneA = connection.getZoneA();
-				auto zoneB = connection.getZoneB();
-				auto rootA = findSet(parent, zoneA);
-				auto rootB = findSet(parent, zoneB);
-
-				if(rootA != rootB)
-				{
-					bool hasTown = componentHasTown[rootA] || componentHasTown[rootB];
-					parent[rootA] = rootB;
-					componentHasTown[rootB] = hasTown;
-				}
-			}
+			roadCount++;
+			soleRoadId = connection.getId();
 		}
 	}
+	return roadCount == 1 ? soleRoadId : -1;
+}
 
-	// Collect all RANDOM connections to be processed
-	std::vector<rmg::ZoneConnection> randomRoads;
-	std::map<int, bool> processedConnectionIds;
-
-	for(auto & zonePtr : zones)
-	{
-		for(auto & connection : zonePtr.second->getConnections())
-		{
-			if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
-			{
-				// Ensure we only add each connection once
-				if(processedConnectionIds.find(connection.getId()) == processedConnectionIds.end())
-				{
-					randomRoads.push_back(connection);
-					processedConnectionIds[connection.getId()] = true;
-				}
-			}
-		}
-	}
-
-	RandomGeneratorUtil::randomShuffle(randomRoads, *rand);
-
-	// Process random roads using Kruskal's-like algorithm to connect components
-	for(const auto& connection : randomRoads)
-	{
-		auto zoneA = connection.getZoneA();
-		auto zoneB = connection.getZoneB();
-		auto rootA = findSet(parent, zoneA);
-		auto rootB = findSet(parent, zoneB);
-
-		bool roadSet = false;
-
-		// Only build roads if they connect different components
-		if(rootA != rootB)
-		{
-			bool townInA = componentHasTown[rootA];
-			bool townInB = componentHasTown[rootB];
-
-			// Connect components if at least one of them contains a town.
-			// This ensures we connect all town components and extend them,
-			// but never connect two non-town components together.
-			if(townInA || townInB)
-			{
-				logRmg->info("Setting RANDOM road to TRUE for connection %d between zones %d and %d to connect town components.", connection.getId(), zoneA, zoneB);
-				setRoadOptionForConnection(connection.getId(), rmg::ERoadOption::ROAD_TRUE);
-				
-				// Union the sets
-				bool hasTown = townInA || townInB;
-				parent[rootA] = rootB;
-				componentHasTown[rootB] = hasTown;
-				roadSet = true;
-			}
-		}
-
-		if(!roadSet)
-		{
-			// This road was not chosen, either because it creates a cycle or connects two non-town areas
-			setRoadOptionForConnection(connection.getId(), rmg::ERoadOption::ROAD_FALSE);
-		}
-	}
-
-	// Trim roads ending in zones without towns (iteratively until no loose ends remain)
+// Removes the road of a town-less zone that is a leaf of the road network, until none is left
+void trimTownlessLeaves(const CRmgTemplate::Zones & zones, const std::set<TRmgTemplateZoneId> & zonesWithTowns, const std::set<int> & explicitRoads)
+{
 	bool changed = true;
 	while(changed)
 	{
 		changed = false;
-		
-		for(auto & zonePtr : zones)
+
+		for(const auto & zonePtr : zones)
 		{
 			auto zoneId = zonePtr.first;
-			
-			// Skip zones with towns
 			if(vstd::contains(zonesWithTowns, zoneId))
 				continue;
-			
-			// Count ROAD_TRUE connections for this zone
-			int roadCount = 0;
-			int looseEndConnectionId = -1;
-			
-			for(const auto & connection : zonePtr.second->getConnections())
-			{
-				if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
-				{
-					roadCount++;
-					looseEndConnectionId = connection.getId();
-				}
-			}
-			
-			// If exactly one road enters this zone, remove it - unless template requested it
-			if(roadCount == 1 && !explicitRoads.count(looseEndConnectionId))
+
+			int looseEndConnectionId = findSoleRoad(*zonePtr.second);
+			if(looseEndConnectionId != -1 && !vstd::contains(explicitRoads, looseEndConnectionId))
 			{
 				logRmg->info("Trimming loose end: removing road connection %d from zone %d (no town)", looseEndConnectionId, zoneId);
-				setRoadOptionForConnection(looseEndConnectionId, rmg::ERoadOption::ROAD_FALSE);
+				setRoadOptionForConnection(zones, looseEndConnectionId, rmg::ERoadOption::ROAD_FALSE);
 				changed = true;
 			}
 		}
 	}
+}
+}
+
+CRoadRandomizer::CRoadRandomizer(CRmgTemplate::Zones zones)
+	: zones(std::move(zones))
+{
+}
+
+/*
+Random road generation:
+- A connection is road-capable when it is not repulsive or fictive and joins two distinct zones.
+- Non-capable connections never carry a road, including an explicit template true.
+- Explicit true roads on capable connections are kept and unioned first.
+- Random capable connections are shuffled and accepted when they join two components.
+- Town-less leaves are then trimmed unless the remaining road is explicit.
+- The result is the minimal subtree that joins all town zones in each connected component.
+*/
+
+void CRoadRandomizer::dropRandomRoads(vstd::RNG & rand)
+{
+	logRmg->info("Starting road randomization");
+
+	TParentMap parent;
+	for(const auto & zone : zones)
+		parent[zone.first] = zone.first;
+
+	std::set<int> explicitRoads;
+	std::vector<rmg::ZoneConnection> randomRoads;
+
+	for(const auto & connection : collectUniqueConnections(zones))
+	{
+		if(!isRoadCapable(connection))
+		{
+			setRoadOptionForConnection(zones, connection.getId(), rmg::ERoadOption::ROAD_FALSE);
+		}
+		else if(connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE)
+		{
+			explicitRoads.insert(connection.getId());
+			unionSets(parent, connection.getZoneA(), connection.getZoneB());
+		}
+		else if(connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
+		{
+			randomRoads.push_back(connection);
+		}
+	}
+
+	auto zonesWithTowns = findZonesWithTowns(zones);
+	logRmg->info("Found %d zones with towns", zonesWithTowns.size());
+
+	RandomGeneratorUtil::randomShuffle(randomRoads, rand);
+
+	for(const auto & connection : randomRoads)
+	{
+		auto zoneA = connection.getZoneA();
+		auto zoneB = connection.getZoneB();
+		if(findSet(parent, zoneA) != findSet(parent, zoneB))
+		{
+			logRmg->info("Setting RANDOM road to TRUE for connection %d between zones %d and %d.", connection.getId(), zoneA, zoneB);
+			setRoadOptionForConnection(zones, connection.getId(), rmg::ERoadOption::ROAD_TRUE);
+			unionSets(parent, zoneA, zoneB);
+		}
+		else
+		{
+			setRoadOptionForConnection(zones, connection.getId(), rmg::ERoadOption::ROAD_FALSE);
+		}
+	}
+
+	trimTownlessLeaves(zones, zonesWithTowns, explicitRoads);
 
 	logRmg->info("Finished road generation - created minimal spanning tree connecting all towns");
 }

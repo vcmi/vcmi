@@ -18,7 +18,7 @@ class CGObjectInstance;
 class ObjectManager;
 class RmgMap;
 class CMapGenerator;
-class ObjectConfig;
+struct RandomMapInfo;
 
 class TreasurePlacer: public Modificator
 {
@@ -33,18 +33,22 @@ public:
 	void createTreasures(ObjectManager & manager);
 	void addObjectToRandomPool(const ObjectInfo& oi);
 	void setBasicProperties(ObjectInfo & oi, CompoundMapObjectID objid) const;
-	/// Values a random dwelling of a given level like a native dwelling of the zone's faction, unless the template set a value
-	void setRandomDwellingValue(ObjectInfo & oi) const;
+	/// fills value and probability left at 0 from the object type's rmg defaults; false when either has no default (0)
+	static bool applyCommonObjectDefaults(ObjectInfo & object, const RandomMapInfo & defaults);
+	/// for randomDwellingLvl, a 0 value becomes the native dwelling value and a 0 probability becomes NATIVE_DWELLING_RARITY
+	void setRandomDwellingDefaults(ObjectInfo & oi) const;
 
 	// TODO: Can be defaulted to addAllPossibleObjects, but then each object will need to be configured
 	void addCommonObjects();
 	void addDwellings();
 	void addPandoraBoxes();
-	void addPandoraBoxesWithGold();
-	void addPandoraBoxesWithExperience();
-	void addPandoraBoxesWithCreatures();
-	void addPandoraBoxesWithSpells();
+	/// Boxes from customObjects.pandoraBoxes; added after zone bans are applied, so bans never remove them
+	void addCustomPandoraBoxes();
+	/// Scrolls from customObjects.spellScrolls; added after zone bans are applied, so bans never remove them
+	void addCustomSpellScrolls();
+	/// Built-in huts go to the pool; custom huts are kept for addCustomSeerHuts
 	void addSeerHuts();
+	void addCustomSeerHuts();
 	void addPrisons();
 	void addScrolls();
 	void addAllPossibleObjects(); //add objects, including zone-specific, to possibleObjects
@@ -54,12 +58,11 @@ public:
 
 	void setMaxPrisons(size_t count);
 	size_t getMaxPrisons() const;
-	int creatureToCount(const CCreature * creature) const;
 	
 protected:
 	bool isGuardNeededForTreasure(int value);
 	
-	ObjectInfo * getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects);
+	ObjectInfo * getRandomObject(ui32 desiredValue, ui32 currentValue, bool allowLargeObjects, const std::vector<ObjectInfo*> & pile);
 	/// templates may belong to another object type than their ObjectInfo, e.g. seer huts with random appearance
 	static bool isVisitableFromTop(const std::vector<std::shared_ptr<const ObjectTemplate>> & templates);
 	std::vector<ObjectInfo*> prepareTreasurePile(const CTreasureInfo & treasureInfo);
@@ -75,8 +78,6 @@ protected:
 		void patchWithZoneConfig(const Zone & zone, TreasurePlacer * tp);
 		void sortPossibleObjects();
 		void discardObjectsAboveValue(ui32 value);
-
-		ObjectConfig::EObjectCategory getObjectCategory(CompoundMapObjectID id);
 
 	private:
 
@@ -94,5 +95,5 @@ protected:
 	size_t maxPrisons;
 
 	std::vector<const CCreature *> creatures; //native creatures for this zone
-	std::vector<int> tierValues;
+	std::vector<ObjectInfo> customSeerHuts; // filled by addSeerHuts, so bans cannot remove them
 };

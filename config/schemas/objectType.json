@@ -42,6 +42,9 @@
 				},
 				"rarity" : {
 					"type" : "number"
+				},
+				"standalone" : {
+					"type" : "boolean"
 				}
 			}
 		},

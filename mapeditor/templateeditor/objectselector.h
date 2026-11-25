@@ -18,6 +18,8 @@ namespace Ui {
 class ObjectSelector;
 }
 
+class QTableWidget;
+
 class ObjectSelector : public QDialog
 {
 	Q_OBJECT
@@ -38,6 +40,11 @@ private:
 	
 	std::map<CompoundMapObjectID, QString> advObjects;
 	std::map<CompoundMapObjectID, QString> getAdventureMapItems();
+
+	/// Puts a searchable combo box over every adventure map object, with `selected` chosen, in a cell of `table`
+	void setObjectComboCell(QTableWidget * table, int row, int column, const CompoundMapObjectID & selected) const;
+	/// Puts a Delete button that removes its own row in a cell of `table`
+	void setDeleteButtonCell(QTableWidget * table, int row, int column);
 
 	void fillBannedObjectCategories();
 	void getBannedObjectCategories();
