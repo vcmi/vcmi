@@ -1100,7 +1100,8 @@ void CMapLoaderH3M::readObjectTemplates()
 		reader->remapTemplate(*remapped);
 		remappedTemplates.push_back(remapped);
 
-		if (!CResourceHandler::get()->existsResource(remapped->animationFile.addPrefix("SPRITES/")))
+		if (!CResourceHandler::get()->existsResource(remapped->animationFile.addPrefix("SPRITES/")) &&
+		   !CResourceHandler::get()->existsResource(remapped->animationFile.addPrefix("SPRITES/").toType<EResType::JSON>()))
 			logMod->warn("Map '%s': Template animation %s of type (%d %d) is missing!", mapName, remapped->animationFile.getOriginalName(), remapped->id, remapped->subid );
 	}
 }
