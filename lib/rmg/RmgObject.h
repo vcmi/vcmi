@@ -36,10 +36,10 @@ public:
 		const Area & getBlockedArea() const;
 		
 		int3 getVisitablePosition() const;
-		bool isVisitableFrom(const int3 & tile) const;
 		bool isBlockedVisitable() const;
 		bool isRemovable() const;
 		const Area & getAccessibleArea() const;
+		const Area & getVisitableArea() const;
 		Area getBorderAbove() const;
 		void setTemplate(TerrainId terrain, vstd::RNG &); //cache invalidation
 		void setAnyTemplate(vstd::RNG &); //cache invalidation
@@ -60,6 +60,7 @@ public:
 		mutable Area dBlockedAreaCache;
 		int3 dPosition;
 		mutable Area dAccessibleAreaCache;
+		mutable Area dVisitableAreaCache;
 		std::shared_ptr<CGObjectInstance> dObject;
 		const Object & dParent;
 	};
@@ -85,6 +86,26 @@ public:
 	const Area & getBorderAbove() const;
 	
 	bool isVisitable() const;
+	/// False when an instance with more than one visitable tile has an entrance off the map
+	template<typename IsOnMap>
+	bool allEntrancesOnMap(const IsOnMap & isOnMap) const
+	{
+		for(const auto * instance : instances())
+		{
+			if(instance->getVisitableArea().getTilesVector().size() <= 1)
+				continue;
+			for(const auto & tile : instance->getAccessibleArea().getTilesVector())
+			{
+				if(!isOnMap(tile))
+					return false;
+			}
+		}
+		return true;
+	}
+	/// True when any instance has more than one visitable tile
+	bool hasMultipleEntrances() const;
+	/// Occupied tiles plus the entrance tiles of every visitable tile
+	Area getFootprint() const;
 	const int3 & getPosition() const;
 	void setPosition(const int3 & position);
 	void setTemplate(const TerrainId & terrain, vstd::RNG &);

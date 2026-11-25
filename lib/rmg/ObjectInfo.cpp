@@ -29,34 +29,6 @@ ObjectInfo::ObjectInfo(CompoundMapObjectID id):
 {
 }
 
-ObjectInfo::ObjectInfo(const ObjectInfo & other)
-{
-	templates = other.templates;
-	primaryID = other.primaryID;
-	secondaryID = other.secondaryID;
-	value = other.value;
-	probability = other.probability;
-	maxPerZone = other.maxPerZone;
-	generateObject = other.generateObject;
-	destroyObject = other.destroyObject;
-}
-
-ObjectInfo & ObjectInfo::operator=(const ObjectInfo & other)
-{
-	if (this == &other)
-		return *this;
-
-	templates = other.templates;
-	primaryID = other.primaryID;
-	secondaryID = other.secondaryID;
-	value = other.value;
-	probability = other.probability;
-	maxPerZone = other.maxPerZone;
-	generateObject = other.generateObject;
-	destroyObject = other.destroyObject;
-	return *this;
-}
-
 void ObjectInfo::setAllTemplates(const CObjectClassesHandler & objects, MapObjectID type, MapObjectSubID subtype)
 {
 	auto & templHandler = objects.getHandlerFor(type, subtype);
@@ -72,4 +44,9 @@ void ObjectInfo::setTemplates(MapObjectID type, MapObjectSubID subtype, TerrainI
 CompoundMapObjectID ObjectInfo::getCompoundID() const
 {
 	return CompoundMapObjectID(primaryID, secondaryID);
+}
+
+bool ObjectInfo::isStandalone() const
+{
+	return LIBRARY->objtypeh->getHandlerFor(getCompoundID()).getRMGInfo().standalone;
 }

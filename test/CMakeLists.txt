@@ -68,6 +68,9 @@ set(test_SRCS
 		map/ScenarioMetadataTest.cpp
 		map/TinyH3MBuilderTest.cpp
 
+		rmg/RmgObjectTest.cpp
+		rmg/StandaloneObjectRulesTest.cpp
+
 		modding/ModDescriptionTest.cpp
 
 		quest/QuestTest.cpp
@@ -81,6 +84,13 @@ set(test_SRCS
 		quest/CQuestGuardTest.cpp
 		quest/CQuestBorderTest.cpp
 		quest/CQuestGateTest.cpp
+
+		rmg/CRmgTemplateTest.cpp
+		rmg/MonsterJoiningOptionsTest.cpp
+		rmg/ObjectConfigTest.cpp
+		rmg/SeerHutTreasuresTest.cpp
+		rmg/TreasurePlacerTest.cpp
+		rmg/TreasureRewardsTest.cpp
 
 		netpacks/NetPackFixture.cpp
 
@@ -149,6 +159,7 @@ set(test_SRCS
 		server/battles/TransmutationTest.cpp
 		server/battles/WalkActionTest.cpp
 		server/activities/ActivityProcessorTest.cpp
+		mapObjects/CGCreatureJoiningTest.cpp
 		server/ArmyManagementTest.cpp
 		server/NeutralTownEventsTest.cpp
 		server/TavernRumorsTest.cpp
@@ -160,6 +171,7 @@ set(test_SRCS
 		rmg/RmgPathTest.cpp
 		rmg/RmgMapDumperTest.cpp
 		rmg/OneWayConnectionTest.cpp
+		rmg/CRoadRandomizerTest.cpp
 		rmg/PenroseTilingTest.cpp
 		rmg/CRmgTemplatePenroseScaleTest.cpp
 

@@ -25,6 +25,8 @@
 #include "../../lib/mapObjectConstructors/CObjectClassesHandler.h"
 #include "../translator.h"
 
+#include <QCheckBox>
+
 ObjectSelector::ObjectSelector(ObjectConfig & obj) :
 	ui(new Ui::ObjectSelector),
 	obj(obj),
@@ -92,6 +94,42 @@ std::map<CompoundMapObjectID, QString> ObjectSelector::getAdventureMapItems()
 	return objects;
 }
 
+void ObjectSelector::setObjectComboCell(QTableWidget * table, int row, int column, const CompoundMapObjectID & selected) const
+{
+	auto combo = std::make_unique<QComboBox>();
+	for(const auto & [objectId, name] : advObjects)
+		combo->addItem(name, QVariant::fromValue(objectId));
+
+	int index = combo->findData(QVariant::fromValue(selected));
+	if (index != -1)
+		combo->setCurrentIndex(index);
+
+	combo->setEditable(true);
+	// The combo box owns its completer
+	auto completer = std::make_unique<QCompleter>(combo.get());
+	completer->setModel(combo->model());
+	completer->setCompletionMode(QCompleter::PopupCompletion);
+	completer->setFilterMode(Qt::MatchContains);
+	combo->setCompleter(completer.release());
+
+	// The table takes ownership of its cell widgets
+	table->setCellWidget(row, column, combo.release());
+}
+
+void ObjectSelector::setDeleteButtonCell(QTableWidget * table, int row, int column)
+{
+	auto deleteButton = std::make_unique<QPushButton>(tr("Delete"));
+	connect(deleteButton.get(), &QPushButton::clicked, this, [table, column, button = deleteButton.get()]() {
+		for (int r = 0; r < table->rowCount(); ++r) {
+			if (table->cellWidget(r, column) == button) {
+				table->removeRow(r);
+				break;
+			}
+		}
+	});
+	table->setCellWidget(row, column, deleteButton.release());
+}
+
 void ObjectSelector::fillBannedObjectCategories()
 {
 	ui->tableWidgetBannedObjectCategories->setColumnCount(2);
@@ -124,16 +162,7 @@ void ObjectSelector::fillBannedObjectCategories()
 
 		ui->tableWidgetBannedObjectCategories->setCellWidget(row, 0, combo);
 
-		auto deleteButton = new QPushButton(tr("Delete"));
-		ui->tableWidgetBannedObjectCategories->setCellWidget(row, 1, deleteButton);
-		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
-			for (int r = 0; r < ui->tableWidgetBannedObjectCategories->rowCount(); ++r) {
-				if (ui->tableWidgetBannedObjectCategories->cellWidget(r, 1) == deleteButton) {
-					ui->tableWidgetBannedObjectCategories->removeRow(r);
-					break;
-				}
-			}
-		});
+		setDeleteButtonCell(ui->tableWidgetBannedObjectCategories, row, 1);
 	};
 
 	for (int row = 0; row < obj.bannedObjectCategories.size(); ++row)
@@ -162,48 +191,30 @@ void ObjectSelector::getBannedObjectCategories()
 
 void ObjectSelector::fillBannedObjects()
 {
-	ui->tableWidgetBannedObjects->setColumnCount(2);
-	ui->tableWidgetBannedObjects->setRowCount(obj.bannedObjects.size() + 1);
-	ui->tableWidgetBannedObjects->setHorizontalHeaderLabels({tr("Object"), tr("Action")});
+	const auto & bans = obj.getObjectBans();
+	ui->tableWidgetBannedObjects->setColumnCount(3);
+	ui->tableWidgetBannedObjects->setRowCount(static_cast<int>(bans.size()) + 1);
+	ui->tableWidgetBannedObjects->setHorizontalHeaderLabels({tr("Object"), tr("Banned"), tr("Action")});
 
-	auto addRow = [this](CompoundMapObjectID obj, int row){
-		QComboBox *combo = new QComboBox();
-		for(auto & item : advObjects)
-    		combo->addItem(item.second, QVariant::fromValue(item.first));
+	auto addRow = [this](CompoundMapObjectID objId, bool banned, int row){
+		setObjectComboCell(ui->tableWidgetBannedObjects, row, 0, objId);
 
-		int index = combo->findData(QVariant::fromValue(obj));
-		if (index != -1)
-			combo->setCurrentIndex(index);
-		
-		combo->setEditable(true);
-		QCompleter* completer = new QCompleter(combo);
-		completer->setModel(combo->model());
-		completer->setCompletionMode(QCompleter::PopupCompletion);
-		completer->setFilterMode(Qt::MatchContains);
-		combo->setCompleter(completer);
+		auto bannedBox = std::make_unique<QCheckBox>();
+		bannedBox->setChecked(banned);
+		ui->tableWidgetBannedObjects->setCellWidget(row, 1, bannedBox.release());
 
-		ui->tableWidgetBannedObjects->setCellWidget(row, 0, combo);
-
-		auto deleteButton = new QPushButton(tr("Delete"));
-		ui->tableWidgetBannedObjects->setCellWidget(row, 1, deleteButton);
-		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
-			for (int r = 0; r < ui->tableWidgetBannedObjects->rowCount(); ++r) {
-				if (ui->tableWidgetBannedObjects->cellWidget(r, 1) == deleteButton) {
-					ui->tableWidgetBannedObjects->removeRow(r);
-					break;
-				}
-			}
-		});
+		setDeleteButtonCell(ui->tableWidgetBannedObjects, row, 2);
 	};
 
-	for (int row = 0; row < obj.bannedObjects.size(); ++row)
-		addRow(obj.bannedObjects[row], row);
+	int row = 0;
+	for (const auto & [id, banned] : bans)
+		addRow(id, banned, row++);
 
 	auto addButton = new QPushButton(tr("Add"));
-	ui->tableWidgetBannedObjects->setCellWidget(ui->tableWidgetBannedObjects->rowCount() - 1, 1, addButton);
+	ui->tableWidgetBannedObjects->setCellWidget(ui->tableWidgetBannedObjects->rowCount() - 1, 2, addButton);
 	connect(addButton, &QPushButton::clicked, this, [this, addRow]() {
 		ui->tableWidgetBannedObjects->insertRow(ui->tableWidgetBannedObjects->rowCount() - 1);
-		addRow((*advObjects.begin()).first, ui->tableWidgetBannedObjects->rowCount() - 2);
+		addRow((*advObjects.begin()).first, true, ui->tableWidgetBannedObjects->rowCount() - 2);
 	});
 
 	ui->tableWidgetBannedObjects->resizeColumnsToContents();
@@ -216,7 +227,8 @@ void ObjectSelector::getBannedObjects()
 	for (int row = 0; row < ui->tableWidgetBannedObjects->rowCount() - 1; ++row)
 	{
 		auto val = static_cast<QComboBox *>(ui->tableWidgetBannedObjects->cellWidget(row, 0))->currentData().value<CompoundMapObjectID>();
-		obj.bannedObjects.push_back(val);
+		auto banned = static_cast<QCheckBox *>(ui->tableWidgetBannedObjects->cellWidget(row, 1))->isChecked();
+		obj.setObjectBanned(val, banned);
 	}
 }
 
@@ -229,23 +241,7 @@ void ObjectSelector::fillRequiredObjects()
 	ui->tableWidgetRequiredObjects->setHorizontalHeaderLabels({tr("Object"), tr("Count"), tr("Guard"), tr("Action")});
 
 	auto addRow = [this](CompoundMapObjectID objId, ui16 count, std::optional<ui32> guard, int row){
-		// Column 0: Object selector (QComboBox with searchable dropdown)
-		QComboBox *combo = new QComboBox();
-		for(auto & item : advObjects)
-			combo->addItem(item.second, QVariant::fromValue(item.first));
-
-		int index = combo->findData(QVariant::fromValue(objId));
-		if (index != -1)
-			combo->setCurrentIndex(index);
-		
-		combo->setEditable(true);
-		QCompleter* completer = new QCompleter(combo);
-		completer->setModel(combo->model());
-		completer->setCompletionMode(QCompleter::PopupCompletion);
-		completer->setFilterMode(Qt::MatchContains);
-		combo->setCompleter(completer);
-
-		ui->tableWidgetRequiredObjects->setCellWidget(row, 0, combo);
+		setObjectComboCell(ui->tableWidgetRequiredObjects, row, 0, objId);
 
 		// Column 1: Count (QSpinBox, range 1-100)
 		QSpinBox *spinCount = new QSpinBox();
@@ -260,17 +256,7 @@ void ObjectSelector::fillRequiredObjects()
 		spinGuard->setSpecialValueText(tr("None")); // Shows "None" when value is -1
 		ui->tableWidgetRequiredObjects->setCellWidget(row, 2, spinGuard);
 
-		// Column 3: Delete button
-		auto deleteButton = new QPushButton(tr("Delete"));
-		ui->tableWidgetRequiredObjects->setCellWidget(row, 3, deleteButton);
-		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
-			for (int r = 0; r < ui->tableWidgetRequiredObjects->rowCount(); ++r) {
-				if (ui->tableWidgetRequiredObjects->cellWidget(r, 3) == deleteButton) {
-					ui->tableWidgetRequiredObjects->removeRow(r);
-					break;
-				}
-			}
-		});
+		setDeleteButtonCell(ui->tableWidgetRequiredObjects, row, 3);
 	};
 
 	int row = 0;
@@ -312,23 +298,8 @@ void ObjectSelector::fillCustomObjects()
 	ui->tableWidgetObjects->setRowCount(obj.customObjects.size() + 1);
 	ui->tableWidgetObjects->setHorizontalHeaderLabels({tr("Object"), tr("Value"), tr("Probability"), tr("Max per zone"), tr("Action")});
 
-	auto addRow = [this](CompoundMapObjectID obj, ui32 value, ui16 probability, ui32 maxPerZone, int row){
-		QComboBox *combo = new QComboBox();
-		for(auto & item : advObjects)
-    		combo->addItem(item.second, QVariant::fromValue(item.first));
-
-		int index = combo->findData(QVariant::fromValue(obj));
-		if (index != -1)
-			combo->setCurrentIndex(index);
-		
-		combo->setEditable(true);
-		QCompleter* completer = new QCompleter(combo);
-		completer->setModel(combo->model());
-		completer->setCompletionMode(QCompleter::PopupCompletion);
-		completer->setFilterMode(Qt::MatchContains);
-		combo->setCompleter(completer);
-
-		ui->tableWidgetObjects->setCellWidget(row, 0, combo);
+	auto addRow = [this](CompoundMapObjectID objId, ui32 value, ui16 probability, ui32 maxPerZone, int row){
+		setObjectComboCell(ui->tableWidgetObjects, row, 0, objId);
 
 		QSpinBox *spinValue = new QSpinBox();
         spinValue->setRange(0, 10000);
@@ -345,16 +316,7 @@ void ObjectSelector::fillCustomObjects()
         spinMaxPerZone->setValue(maxPerZone);
 		ui->tableWidgetObjects->setCellWidget(row, 3, spinMaxPerZone);
 
-		auto deleteButton = new QPushButton(tr("Delete"));
-		ui->tableWidgetObjects->setCellWidget(row, 4, deleteButton);
-		connect(deleteButton, &QPushButton::clicked, this, [this, deleteButton]() {
-			for (int r = 0; r < ui->tableWidgetObjects->rowCount(); ++r) {
-				if (ui->tableWidgetObjects->cellWidget(r, 4) == deleteButton) {
-					ui->tableWidgetObjects->removeRow(r);
-					break;
-				}
-			}
-		});
+		setDeleteButtonCell(ui->tableWidgetObjects, row, 4);
 	};
 
 	for (int row = 0; row < obj.customObjects.size(); ++row)

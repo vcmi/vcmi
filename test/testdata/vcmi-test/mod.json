@@ -41,6 +41,35 @@
 					}
 				}
 			}
+		},
+		"standaloneObject" : {
+			"handler" : "generic",
+			"types" : {
+				"object" : {
+					"rmg" : {
+						"value" : 100,
+						"rarity" : 50,
+						"standalone" : true
+					},
+					"templates" : {
+						"normal" : { "animation" : "AVXbuoy0", "mask" : [ "BB", "AA" ] }
+					}
+				}
+			}
+		},
+		"pileObject" : {
+			"handler" : "generic",
+			"types" : {
+				"object" : {
+					"rmg" : {
+						"value" : 100,
+						"rarity" : 50
+					},
+					"templates" : {
+						"normal" : { "animation" : "AVXbuoy0", "mask" : [ "A" ] }
+					}
+				}
+			}
 		}
 	},
 	"settings" :

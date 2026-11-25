@@ -12,18 +12,126 @@
 #include "ObjectInfo.h"
 #include "ObjectConfig.h"
 
+#include "../GameLibrary.h"
 #include "../modding/IdentifierResolver.h"
 #include "../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
+#include "../mapObjectConstructors/IObjectInfo.h"
 #include "../serializer/JsonSerializeFormat.h"
+#include "../spells/CSpell.h"
 
-void ObjectConfig::addBannedObject(const CompoundMapObjectID & objid)
+namespace
 {
-	// FIXME: We do not need to store the object info, just the id
+ObjectConfig::EObjectCategory getConfigurableCategory(const AObjectTypeHandler & handler)
+{
+	auto info = handler.getObjectInfo();
 
-	bannedObjects.push_back(objid);
+	if (info->hasGuards())
+		return ObjectConfig::EObjectCategory::CREATURE_BANK;
+	if (info->givesResources())
+		return ObjectConfig::EObjectCategory::RESOURCE;
+	if (info->givesArtifacts())
+		return ObjectConfig::EObjectCategory::RANDOM_ARTIFACT;
+	if (info->givesBonuses())
+		return ObjectConfig::EObjectCategory::BONUS;
 
-	logRmg->debug("Banned object of type %d.%d", objid.primaryID, objid.secondaryID);
+	return ObjectConfig::EObjectCategory::OTHER;
+}
+
+ObjectConfig::EObjectCategory getObjectCategory(CompoundMapObjectID id)
+{
+	using EObjectCategory = ObjectConfig::EObjectCategory;
+
+	// Handlers whose category does not depend on the object itself
+	static const std::map<std::string, EObjectCategory> categoryByHandler = {
+		{ "dwelling", EObjectCategory::DWELLING },
+		{ "randomDwelling", EObjectCategory::DWELLING },
+		{ "bank", EObjectCategory::CREATURE_BANK },
+		{ "market", EObjectCategory::OTHER },
+		{ "hillFort", EObjectCategory::OTHER },
+		{ "resource", EObjectCategory::RESOURCE },
+		{ "randomResource", EObjectCategory::RESOURCE },
+		{ "randomArtifact", EObjectCategory::RANDOM_ARTIFACT },
+		{ "denOfThieves", EObjectCategory::OTHER },
+		{ "lighthouse", EObjectCategory::BONUS },
+		{ "magi", EObjectCategory::OTHER },
+		{ "mine", EObjectCategory::RESOURCE_GENERATOR },
+		{ "pandora", EObjectCategory::PANDORAS_BOX },
+		{ "prison", EObjectCategory::OTHER },
+		{ "questArtifact", EObjectCategory::QUEST_ARTIFACT },
+		{ "seerHut", EObjectCategory::SEER_HUT },
+		{ "siren", EObjectCategory::BONUS },
+		{ "obelisk", EObjectCategory::OTHER },
+	};
+
+	auto name = LIBRARY->objtypeh->getObjectHandlerName(id.primaryID);
+
+	if (name == "configurable")
+		return getConfigurableCategory(LIBRARY->objtypeh->getHandlerFor(id.primaryID, id.secondaryID));
+
+	if (name == "artifact")
+		return id.primaryID == Obj::SPELL_SCROLL ? EObjectCategory::SPELL_SCROLL : EObjectCategory::QUEST_ARTIFACT;
+
+	auto category = categoryByHandler.find(name);
+	if (category != categoryByHandler.end())
+		return category->second;
+
+	return EObjectCategory::NONE;
+}
+
+bool categoryContains(const std::vector<ObjectConfig::EObjectCategory> & categories, ObjectConfig::EObjectCategory category)
+{
+	return vstd::contains(categories, category);
+}
+
+/// Ban evaluation of `bannedObjects` only (exact, then type-level). Categories are ignored.
+bool bannedObjectsResolve(const std::map<CompoundMapObjectID, bool> & bans, const CompoundMapObjectID & objid)
+{
+	auto exact = bans.find(objid);
+	if(exact != bans.end())
+		return exact->second;
+
+	if(objid.secondaryID != -1)
+	{
+		auto type = bans.find(CompoundMapObjectID(objid.primaryID, -1));
+		if(type != bans.end())
+			return type->second;
+	}
+
+	return false;
+}
+
+template<typename AddOnLoad>
+void serializeRawJsonList(JsonSerializeFormat & handler, const std::string & key, const std::vector<JsonNode> & stored, AddOnLoad && addOnLoad)
+{
+	if(handler.saving)
+	{
+		if(!stored.empty())
+		{
+			JsonNode list;
+			list.Vector() = stored;
+			handler.serializeRaw(key, list, std::nullopt);
+		}
+	}
+	else
+	{
+		for(const auto & entry : handler.getCurrent()[key].Vector())
+			addOnLoad(entry);
+	}
+}
+
+}
+
+void ObjectConfig::setObjectBanned(const CompoundMapObjectID & objid, bool banned)
+{
+	bannedObjects[objid] = banned;
+
+	logRmg->debug("%s object of type %d.%d", banned ? "Banned" : "Allowed", objid.primaryID, objid.secondaryID);
+}
+
+void ObjectConfig::addBannedCategory(EObjectCategory category)
+{
+	bannedObjectCategories.push_back(category);
 }
 
 void ObjectConfig::addCustomObject(const ObjectInfo & object, const CObjectClassesHandler & objects)
@@ -31,9 +139,6 @@ void ObjectConfig::addCustomObject(const ObjectInfo & object, const CObjectClass
 	customObjects.push_back(object);
 	auto & lastObject = customObjects.back();
 	lastObject.setAllTemplates(objects, object.primaryID, object.secondaryID);
-
-	// also ban object to prevent default configuration from being used in this zone
-	bannedObjects.push_back(CompoundMapObjectID(object.primaryID, object.secondaryID));
 
 	assert(lastObject.templates.size() > 0);
 	logRmg->debug("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
@@ -58,6 +163,53 @@ void ObjectConfig::clearRequiredObjects()
 	requiredObjects.clear();
 }
 
+void ObjectConfig::addPandoraBox(const JsonNode & entry)
+{
+	pandoraBoxes.push_back(entry);
+}
+
+void ObjectConfig::addSeerHut(const JsonNode & entry)
+{
+	seerHuts.push_back(entry);
+}
+
+const std::vector<JsonNode> & ObjectConfig::getSeerHuts() const
+{
+	return seerHuts;
+}
+
+void ObjectConfig::addSpellScroll(const SpellScrollInfo & scroll)
+{
+	spellScrolls.push_back(scroll);
+}
+
+const std::vector<ObjectConfig::SpellScrollInfo> & ObjectConfig::getSpellScrolls() const
+{
+	return spellScrolls;
+}
+
+void ObjectConfig::addRequiredScroll(SpellID spell, ui16 count, std::optional<ui32> guardLevel)
+{
+	requiredScrolls[spell] = std::pair{count, guardLevel};
+
+	logRmg->debug("Added required spell scroll %d, count: %d, guard level: %s",
+		spell.getNum(), count,
+		guardLevel.has_value() ? std::to_string(guardLevel.value()) : "none");
+}
+
+const std::map<SpellID, std::pair<ui16, std::optional<ui32>>> & ObjectConfig::getRequiredScrolls() const
+{
+	return requiredScrolls;
+}
+
+ui32 ObjectConfig::getDefaultScrollValue(SpellID spell, const std::vector<int> & scrollValues)
+{
+	const int32_t level = spell.toSpell()->getLevel();
+	if(level < 1 || static_cast<size_t>(level) > scrollValues.size())
+		return 0;
+	return static_cast<ui32>(scrollValues[level - 1]);
+}
+
 void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects)
 {
 	static const std::map<std::string, EObjectCategory> OBJECT_CATEGORY_STRINGS = {
@@ -76,7 +228,6 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 		{ "seerHut", EObjectCategory::SEER_HUT}
 	};
 
-	// Serialize banned categories
 	if (handler.saving)
 	{
 		auto categoriesArray = handler.enterArray("bannedCategories");
@@ -104,18 +255,16 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 		{
 			auto it = OBJECT_CATEGORY_STRINGS.find(node.String());
 			if(it != OBJECT_CATEGORY_STRINGS.end())
-				bannedObjectCategories.push_back(it->second);
+				addBannedCategory(it->second);
 		}
 	}
 
-	// Serialize banned objects
 	if (handler.saving)
 	{
-		// Group banned objects by primary ID
-		std::map<int, std::set<int>> groupedBanned;
-		for(const auto & objid : bannedObjects)
+		std::map<int, std::map<int, bool>> groupedBanned;
+		for(const auto & [objid, banned] : bannedObjects)
 		{
-			groupedBanned[objid.primaryID].insert(objid.secondaryID);
+			groupedBanned[objid.primaryID][objid.secondaryID] = banned;
 		}
 		
 		auto bannedObjectsStruct = handler.enterStruct("bannedObjects");
@@ -124,24 +273,22 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 		{
 			const std::string jsonKey = objects.getJsonKey(primaryID);
 			
-			if(secondaryIDs.size() == 1 && *secondaryIDs.begin() == -1)
+			if(secondaryIDs.size() == 1 && secondaryIDs.begin()->first == -1)
 			{
-				// Ban entire object type - write as boolean true
-				bool allBanned = true;
-				bannedObjectsStruct->serializeBool(jsonKey, allBanned);
+				JsonNode flag(secondaryIDs.begin()->second);
+				bannedObjectsStruct->serializeRaw(jsonKey, flag, std::nullopt);
 			}
 			else
 			{
-				// Ban specific subtypes
 				auto objStruct = bannedObjectsStruct->enterStruct(jsonKey);
-				for(int secondaryID : secondaryIDs)
+				for(const auto & [secondaryID, banned] : secondaryIDs)
 				{
 					if(secondaryID != -1)
 					{
 						auto & objectHandler = objects.getHandlerFor(MapObjectID(primaryID), MapObjectSubID(secondaryID));
 						const std::string subtypeKey = objectHandler.getSubTypeName();
-						bool banned = true;
-						objStruct->serializeBool(subtypeKey, banned);
+						JsonNode flag(banned);
+						objStruct->serializeRaw(subtypeKey, flag, std::nullopt);
 					}
 				}
 			}
@@ -159,8 +306,7 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			{
 				if (node.second.isBool())
 				{
-					if (node.second.Bool())
-						addBannedObject(CompoundMapObjectID(primaryID, -1));
+					setObjectBanned(CompoundMapObjectID(primaryID, -1), node.second.Bool());
 				}
 				else
 				{
@@ -168,9 +314,9 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 					{
 						const std::string jsonKey = objects.getJsonKey(primaryID);
 
-						resolver.requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID](int secondaryID)
+						resolver.requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID, subNode](int secondaryID)
 						{
-							addBannedObject(CompoundMapObjectID(primaryID, secondaryID));
+							setObjectBanned(CompoundMapObjectID(primaryID, secondaryID), subNode.second.Bool());
 						});
 					}
 				}
@@ -178,7 +324,6 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 		}
 	}
 
-	// Serialize common objects
 	if (handler.saving)
 	{
 		auto commonObjectsArray = handler.enterArray("commonObjects");
@@ -189,7 +334,6 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			auto objectStruct = commonObjectsArray.enterStruct(i);
 			const auto & object = customObjects[i];
 			
-			// Serialize object type/subtype
 			std::string objectType = objects.getJsonKey(object.primaryID);
 			objectStruct->serializeString("type", objectType);
 			
@@ -197,15 +341,19 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 			std::string subtypeName = handler.getSubTypeName();
 			objectStruct->serializeString("subtype", subtypeName);
 			
-			// Serialize RMG properties
-			auto rmgStruct = objectStruct->enterStruct("rmg");
 			int value = object.value;
 			int rarity = object.probability;
 			int zoneLimit = (object.maxPerZone == std::numeric_limits<int>::max()) ? 0 : object.maxPerZone;
-				
-			rmgStruct->serializeInt("value", value);
-			rmgStruct->serializeInt("rarity", rarity);
-			rmgStruct->serializeInt("zoneLimit", zoneLimit);
+			if(value || rarity || zoneLimit)
+			{
+				auto rmgStruct = objectStruct->enterStruct("rmg");
+				if(value)
+					rmgStruct->serializeInt("value", value);
+				if(rarity)
+					rmgStruct->serializeInt("rarity", rarity);
+				if(zoneLimit)
+					rmgStruct->serializeInt("zoneLimit", zoneLimit);
+			}
 		}
 	}
 	else
@@ -216,25 +364,24 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 
 		for (const auto & objectConfig : configCommonObjects.Vector())
 		{
-			auto rmg = objectConfig["rmg"].Struct();
+			if (!objectConfig["type"].isString() || objectConfig["type"].String().empty())
+			{
+				logMod->error("Mod '%s': RMG commonObjects entry without \"type\" is ignored: %s", objectConfig.getModScope(), objectConfig.toCompactString());
+				continue;
+			}
 
-			// TODO: Use common code with default rmg config
+			auto rmg = objectConfig["rmg"].Struct();
 
 			ObjectInfo object;
 
-			// TODO: Configure basic generateObject function
 			object.value = rmg["value"].Integer();
 			object.probability = rmg["rarity"].Integer();
 			object.maxPerZone = rmg["zoneLimit"].Integer();
 			if (object.maxPerZone == 0)
 				object.maxPerZone = std::numeric_limits<int>::max();
 
-			const bool hasRarity = !rmg["rarity"].isNull();
-			auto addObject = [this, hasRarity, &objects](ObjectInfo objectWithID)
+			auto addObject = [this, &objects](ObjectInfo objectWithID)
 			{
-				// random dwellings replace native ones, so by default they are as common
-				if (!hasRarity && objectWithID.primaryID == Obj::RANDOM_DWELLING_LVL)
-					objectWithID.probability = NATIVE_DWELLING_RARITY;
 				addCustomObject(objectWithID, objects);
 			};
 
@@ -263,10 +410,83 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 		}
 	}
 
-	// Serialize required objects
+	// Kept as written: rewards cannot be loaded yet, TreasurePlacer reads them during generation
+	serializeRawJsonList(handler, "pandoraBoxes", pandoraBoxes, [this](const JsonNode & entry)
+	{
+		addPandoraBox(entry);
+	});
+	serializeRawJsonList(handler, "seerHuts", seerHuts, [this](const JsonNode & entry)
+	{
+		addSeerHut(entry);
+	});
+
 	if(handler.saving)
 	{
-		if(!requiredObjects.empty())
+		if(!spellScrolls.empty())
+		{
+			auto scrollsArray = handler.enterArray("spellScrolls");
+			scrollsArray.syncSize(spellScrolls, JsonNode::JsonType::DATA_STRUCT);
+			for(size_t i = 0; i < spellScrolls.size(); ++i)
+			{
+				auto objectStruct = scrollsArray.enterStruct(i);
+				const auto & scroll = spellScrolls[i];
+				std::string spellName = SpellID::encode(scroll.spell.getNum());
+				objectStruct->serializeString("spell", spellName);
+				if(scroll.value.has_value() || scroll.rarity.has_value() || scroll.zoneLimit)
+				{
+					auto rmgStruct = objectStruct->enterStruct("rmg");
+					if(scroll.value.has_value())
+					{
+						ui32 value = *scroll.value;
+						rmgStruct->serializeInt("value", value);
+					}
+					if(scroll.rarity.has_value())
+					{
+						ui16 rarity = *scroll.rarity;
+						rmgStruct->serializeInt("rarity", rarity);
+					}
+					if(scroll.zoneLimit)
+					{
+						ui32 zoneLimit = scroll.zoneLimit;
+						rmgStruct->serializeInt("zoneLimit", zoneLimit);
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		const JsonNode & configSpellScrolls = handler.getCurrent()["spellScrolls"];
+		auto & resolver = handler.getIdentifierResolver();
+
+		for(const auto & entry : configSpellScrolls.Vector())
+		{
+			if(!entry["spell"].isString() || entry["spell"].String().empty())
+			{
+				logMod->error("Mod '%s': RMG spellScrolls entry without \"spell\" is ignored: %s", entry.getModScope(), entry.toCompactString());
+				continue;
+			}
+
+			SpellScrollInfo info;
+			const JsonNode & rmg = entry["rmg"];
+			if(!rmg["value"].isNull())
+				info.value = static_cast<ui32>(rmg["value"].Integer());
+			if(!rmg["rarity"].isNull())
+				info.rarity = static_cast<ui16>(rmg["rarity"].Integer());
+			info.zoneLimit = static_cast<ui32>(rmg["zoneLimit"].Integer());
+
+			resolver.requestIdentifierIfFound("spell", entry["spell"], [this, info](int spellIndex)
+			{
+				auto scroll = info;
+				scroll.spell = SpellID(spellIndex);
+				addSpellScroll(scroll);
+			});
+		}
+	}
+
+	if(handler.saving)
+	{
+		if(!requiredObjects.empty() || !requiredScrolls.empty())
 		{
 			auto requiredObjectsStruct = handler.enterStruct("requiredObjects");
 			for(const auto & [objId, info] : requiredObjects)
@@ -283,6 +503,22 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 				{
 					ui32 guardVal = info.second.value();
 					subEntryStruct->serializeInt("guard", guardVal);
+				}
+			}
+			if(!requiredScrolls.empty())
+			{
+				auto scrollStruct = requiredObjectsStruct->enterStruct(objects.getJsonKey(Obj::SPELL_SCROLL));
+				for(const auto & [spell, info] : requiredScrolls)
+				{
+					std::string spellKey = SpellID::encode(spell.getNum());
+					auto spellStruct = scrollStruct->enterStruct(spellKey);
+					ui16 countVal = info.first;
+					spellStruct->serializeInt("count", countVal);
+					if(info.second.has_value())
+					{
+						ui32 guardVal = info.second.value();
+						spellStruct->serializeInt("guard", guardVal);
+					}
 				}
 			}
 		}
@@ -316,14 +552,28 @@ void ObjectConfig::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 					{
 						addRequiredObject(CompoundMapObjectID(primaryID, -1), getInfo(node.second));
 					}
+					else if(primaryID == Obj::SPELL_SCROLL)
+					{
+						for(const auto & subNode : node.second.Struct())
+						{
+							resolver.requestIdentifierIfFound(node.second.getModScope(), "spell", subNode.first, [this, subNode, getInfo](int spellIndex)
+							{
+								if(subNode.second.isNumber())
+									addRequiredScroll(SpellID(spellIndex), static_cast<ui16>(subNode.second.Integer()));
+								else
+								{
+									auto info = getInfo(subNode.second);
+									addRequiredScroll(SpellID(spellIndex), info.first, info.second);
+								}
+							});
+						}
+					}
 					else
 					{
-						// secondary ID specified
 						for (const auto & subNode : node.second.Struct())
 						{
 							std::string jsonKey = objects.getJsonKey(primaryID);
 							if(node.first == "artifact" || node.first == "core:artifact")
-								//FIXME: core:artifact is not resolved properly by requestIdentifierIfFound
 								jsonKey = "artifact";
 
 							resolver.requestIdentifierIfFound(node.second.getModScope(), jsonKey, subNode.first, [this, primaryID, subNode, getInfo](int secondaryID)
@@ -346,7 +596,12 @@ const std::vector<ObjectInfo> & ObjectConfig::getConfiguredObjects() const
 	return customObjects;
 }
 
-const std::vector<CompoundMapObjectID> & ObjectConfig::getBannedObjects() const
+const std::vector<JsonNode> & ObjectConfig::getPandoraBoxes() const
+{
+	return pandoraBoxes;
+}
+
+const std::map<CompoundMapObjectID, bool> & ObjectConfig::getObjectBans() const
 {
 	return bannedObjects;
 }
@@ -359,4 +614,83 @@ const std::vector<ObjectConfig::EObjectCategory> & ObjectConfig::getBannedObject
 std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> ObjectConfig::getRequiredObjects() const
 {
 	return requiredObjects;
+}
+
+bool ObjectConfig::isObjectBanned(const CompoundMapObjectID & objid) const
+{
+	auto exact = bannedObjects.find(objid);
+	if(exact != bannedObjects.end())
+		return exact->second;
+
+	if(objid.secondaryID != -1)
+	{
+		auto type = bannedObjects.find(CompoundMapObjectID(objid.primaryID, -1));
+		if(type != bannedObjects.end())
+			return type->second;
+	}
+
+	if(categoryContains(bannedObjectCategories, EObjectCategory::ALL))
+		return true;
+
+	auto category = getObjectCategory(objid);
+	if(category != EObjectCategory::NONE && categoryContains(bannedObjectCategories, category))
+		return true;
+
+	return false;
+}
+
+ObjectConfig ObjectConfig::merge(const ObjectConfig & base, const ObjectConfig & overlay)
+{
+	ObjectConfig result = base;
+
+	for(auto category : overlay.bannedObjectCategories)
+	{
+		if(!categoryContains(result.bannedObjectCategories, category))
+			result.bannedObjectCategories.push_back(category);
+	}
+
+	for(const auto & [id, banned] : overlay.bannedObjects)
+		result.bannedObjects[id] = banned;
+
+	std::set<CompoundMapObjectID> overrideIds;
+	for(const auto & object : overlay.customObjects)
+		overrideIds.insert(object.getCompoundID());
+
+	std::vector<ObjectInfo> mergedCustom;
+	for(const auto & object : base.customObjects)
+	{
+		auto id = object.getCompoundID();
+		if(overrideIds.count(id) || bannedObjectsResolve(overlay.bannedObjects, id))
+			continue;
+		mergedCustom.push_back(object);
+	}
+	for(const auto & object : overlay.customObjects)
+		mergedCustom.push_back(object);
+	result.customObjects = std::move(mergedCustom);
+
+	for(const auto & [id, info] : overlay.requiredObjects)
+		result.requiredObjects[id] = info;
+
+	// Template boxes first, then zone boxes; bans never remove them
+	vstd::concatenate(result.pandoraBoxes, overlay.pandoraBoxes);
+	vstd::concatenate(result.seerHuts, overlay.seerHuts);
+
+	std::set<SpellID> overrideSpells;
+	for(const auto & scroll : overlay.spellScrolls)
+		overrideSpells.insert(scroll.spell);
+
+	std::vector<SpellScrollInfo> mergedScrolls;
+	for(const auto & scroll : base.spellScrolls)
+	{
+		if(!overrideSpells.count(scroll.spell))
+			mergedScrolls.push_back(scroll);
+	}
+	for(const auto & scroll : overlay.spellScrolls)
+		mergedScrolls.push_back(scroll);
+	result.spellScrolls = std::move(mergedScrolls);
+
+	for(const auto & [spell, info] : overlay.requiredScrolls)
+		result.requiredScrolls[spell] = info;
+
+	return result;
 }

@@ -75,6 +75,7 @@ void AObjectTypeHandler::init(LibraryLoadContext & context, const JsonNode & inp
 
 		rmgInfo.zoneLimit = loadJsonOrMax(input["rmg"]["zoneLimit"]);
 		rmgInfo.rarity =    static_cast<ui32>(input["rmg"]["rarity"].Float());
+		rmgInfo.standalone = input["rmg"]["standalone"].Bool();
 	} // else block is not needed - set in constructor
 
 	// mods made before visitableFromTop was introduced define visitable directions per template

@@ -378,8 +378,9 @@ void CMapGenerator::genZones()
 	placer->assignZones(rand.get());
 	placer->RemoveRoadsForWideConnections();
 	
-	CRoadRandomizer roadRandomizer(*map);
-	roadRandomizer.dropRandomRoads(rand.get());
+	CRmgTemplate::Zones zoneOptions(map->getZones().begin(), map->getZones().end());
+	CRoadRandomizer roadRandomizer(std::move(zoneOptions));
+	roadRandomizer.dropRandomRoads(*rand);
 
 	logRmg->info("Zones generated successfully");
 }

@@ -11,6 +11,7 @@
 #include "StdInc.h"
 #include "Functions.h"
 #include "CMapGenerator.h"
+#include "ObjectInfo.h"
 #include "RmgMap.h"
 #include "TileInfo.h"
 #include "RmgPath.h"
@@ -22,6 +23,7 @@
 #include "../CCreatureHandler.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTown.h"
+#include "../mapObjects/MiscObjects.h"
 
 #include <vstd/RNG.h>
 
@@ -133,4 +135,35 @@ std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 			result.push_back(level);
 	}
 	return result;
+}
+
+bool footprintKeepsDistance(const rmg::Area & footprint, const rmg::Area & placed, float minDistance)
+{
+	if(placed.empty())
+		return true;
+
+	return std::ranges::all_of(footprint.getTilesVector(), [&placed, minDistance](const int3 & tile)
+	{
+		return static_cast<float>(placed.distanceSqr(tile)) >= minDistance;
+	});
+}
+
+bool canJoinTreasurePile(const ObjectInfo & candidate, const std::vector<ObjectInfo *> & pile)
+{
+	if(candidate.isStandalone() && !pile.empty())
+		return false;
+
+	return std::ranges::none_of(pile, [](const ObjectInfo * existing)
+	{
+		return existing->isStandalone();
+	});
+}
+
+std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell)
+{
+	const auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
+	auto obj = std::dynamic_pointer_cast<CGArtifact>(factory.create(map.mapInstance->cb, nullptr));
+	const auto * a = map.getMapProxy()->createScroll(spell);
+	obj->setArtifactInstance(a);
+	return obj;
 }
