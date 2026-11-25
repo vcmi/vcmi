@@ -91,12 +91,17 @@ public:
 
 	std::shared_ptr<TacticsHandler> tacticsHandler;
 
+	std::unique_ptr<BattleEvaluator> battleAIEvaluator;
+	std::unique_ptr<BattleAction> battleAIAction;
+
 	std::string renderANSI() const;
 	std::shared_ptr<BattleAction> buildBattleAction(const ActionPtr & a, const CStack * acstack) const;
 	std::shared_ptr<BattleAction> maybeBuildAutoAction(const CStack * stack, const BattleID & bid) const;
-	BattleEvaluator createBattleAIEvaluator(const CStack * stack, const BattleID & bid) const;
-	bool maybeCastCreatureSpell(const CStack * stack, BattleEvaluator & evaluator, const BattleID & bid);
-	bool maybeCastSpell(const CStack * stack, BattleEvaluator & evaluator) const;
+	float getBattleAIStrengthRatio() const;
+	BattleAction * getBattleAIAction(const CStack * stack, const BattleID & bid);
+	BattleEvaluator * getBattleAIEvaluator(const CStack * stack, const BattleID & bid);
+	bool maybeCastCreatureSpell(const CStack * stack, const BattleID & bid);
+	bool maybeCastSpell(const CStack * stack, const BattleID & bid);
 	void _activeStack(const BattleID & bid, const CStack * stack);
 	bool guardVip(const BattleID & bid, const CStack * guard, const CStack * vip);
 	void tacticMove(const BattleID & bid, const CStack * cstack, const BattleHex & bh);

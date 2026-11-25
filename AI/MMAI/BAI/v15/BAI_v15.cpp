@@ -17,6 +17,7 @@
 #include "battle/CBattleInfoEssentials.h"
 #include "callback/CBattleCallback.h"
 
+#include "AI/BattleAI/BattleEvaluator.h"
 #include "AI/MMAI/common.h"
 #include "BAI/v15/render_v15.h"
 #include "BAI/v15/verify_v15.h"
@@ -191,7 +192,7 @@ void BAI::yourTacticPhase(const BattleID & bid, int distance)
 	tacticsHandler->onTacticsStarted();
 }
 
-bool BAI::maybeCastSpell(const CStack * astack, BattleEvaluator & evaluator) const
+bool BAI::maybeCastSpell(const CStack * astack, const BattleID & bid)
 {
 	if(!useHeroSpells)
 		return false;
@@ -205,25 +206,20 @@ bool BAI::maybeCastSpell(const CStack * astack, BattleEvaluator & evaluator) con
 		return false;
 
 	logger.debug("Attempting a BattleAI spellcast");
-	return evaluator.attemptCastingSpell(astack);
+	return getBattleAIEvaluator(astack, bid)->attemptCastingSpell(astack);
 }
 
-bool BAI::maybeCastCreatureSpell(const CStack * astack, BattleEvaluator & evaluator, const BattleID & bid)
+bool BAI::maybeCastCreatureSpell(const CStack * astack, const BattleID & bid)
 {
 	if(!useCreatureSpells)
 		return false;
 
-	logger.debug("Attempting a BattleAI creature spellcast");
-
-	auto action = evaluator.selectStackAction(astack);
-	if(action.actionType != EActionType::MONSTER_SPELL)
-	{
-		logger.debug("Not making BattleAI creature spellcast (action would be " + action.toString());
+	auto * action = getBattleAIAction(astack, bid);
+	if(action->actionType != EActionType::MONSTER_SPELL)
 		return false;
-	}
 
-	logger.debug("Making BattleAI creature spellcast.");
-	cb->battleMakeUnitAction(bid, action);
+	logger.debug("Attempting a BattleAI creature spellcast");
+	cb->battleMakeUnitAction(bid, *action);
 	return true;
 }
 
@@ -380,6 +376,8 @@ void BAI::activeStack(const BattleID & bid, const CStack * astack)
 void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 {
 	logger.debug("activeStack: " + astack->getDescription());
+	battleAIEvaluator.reset();
+	battleAIAction.reset();
 
 	if(const auto ba = maybeBuildAutoAction(astack, bid))
 	{
@@ -398,23 +396,17 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 
 	if(inFallback)
 	{
-		auto evaluator = BattleEvaluator(env, cb, astack, cb->getPlayerID().value(), bid, battle->battleGetMySide(), 1.0f, 2);
-		cb->battleMakeUnitAction(bid, evaluator.selectStackAction(astack));
+		cb->battleMakeUnitAction(bid, *getBattleAIAction(astack, bid));
 		return;
 	}
 
+	if(maybeCastSpell(astack, bid))
+		return;
+
+	if(maybeCastCreatureSpell(astack, bid))
+		return;
+
 	state->onActiveStack(astack, roundcounter);
-
-	if(useHeroSpells || useCreatureSpells)
-	{
-		auto evaluator = createBattleAIEvaluator(astack, bid);
-
-		if(maybeCastSpell(astack, evaluator))
-			return;
-
-		if(maybeCastCreatureSpell(astack, evaluator, bid))
-			return;
-	}
 
 	auto concede = maybeFleeOrSurrender(bid);
 	if(concede)
@@ -453,8 +445,7 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 	if(v < fallbackValueThreshold && (action->actionType == S15::ActionType::DEFEND || action->actionType == S15::ActionType::MOVE))
 	{
 		logger.warn("Value too low (%.4f < %.2f) for action \"%s\", will fall back to BattleAI", v, fallbackValueThreshold, action->humanName());
-		auto evaluator = BattleEvaluator(env, cb, astack, cb->getPlayerID().value(), bid, battle->battleGetMySide(), 1.0f, 2);
-		cb->battleMakeUnitAction(bid, evaluator.selectStackAction(astack));
+		cb->battleMakeUnitAction(bid, *getBattleAIAction(astack, bid));
 		lastAction.reset();
 		return;
 	}
@@ -473,15 +464,44 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 	cb->battleMakeUnitAction(bid, ba);
 }
 
-BattleEvaluator BAI::createBattleAIEvaluator(const CStack * stack, const BattleID & bid) const
+// Stolen from BattleAI (must duplicate the function here since AIs libs are not static)
+float BAI::getBattleAIStrengthRatio() const
 {
-	auto lv = state->G->getByExtraIndex<N::Player>(BattleSide::LEFT_SIDE)->attr(PA::ARMY_VALUE_NOW_REL);
-	auto rv = state->G->getByExtraIndex<N::Player>(BattleSide::RIGHT_SIDE)->attr(PA::ARMY_VALUE_NOW_REL);
-	auto vratio = static_cast<float>(lv) / static_cast<float>(rv);
-	if(battle->battleGetMySide() == BattleSide::RIGHT_SIDE)
-		vratio = 1 / vratio;
+	auto stacks = battle->battleGetAllStacks();
+	uint64_t our = 0;
+	uint64_t enemy = 0;
 
-	return BattleEvaluator(env, cb, stack, cb->getPlayerID().value(), bid, battle->battleGetMySide(), vratio, 2);
+	const auto side = battle->battleGetMySide();
+	const auto ourEnemy = CombatValueContext::against(*battle, side);
+	const auto theirEnemy = CombatValueContext::against(*battle, CBattleInfoEssentials::otherSide(side));
+
+	for(const auto & stack : stacks)
+	{
+		if(stack->unitSide() == side)
+			our += stack->estimateCombatValue(ourEnemy);
+		else
+			enemy += stack->estimateCombatValue(theirEnemy);
+	}
+
+	return enemy == 0 ? 1.0f : static_cast<float>(our) / static_cast<float>(enemy);
+}
+
+BattleEvaluator * BAI::getBattleAIEvaluator(const CStack * stack, const BattleID & bid)
+{
+	if(battleAIEvaluator)
+		return battleAIEvaluator.get();
+	const auto ratio = getBattleAIStrengthRatio();
+	battleAIEvaluator = std::make_unique<BattleEvaluator>(env, cb, stack, cb->getPlayerID().value(), bid, battle->battleGetMySide(), ratio, 2);
+	return battleAIEvaluator.get();
+}
+
+BattleAction * BAI::getBattleAIAction(const CStack * stack, const BattleID & bid)
+{
+	if(battleAIAction)
+		return battleAIAction.get();
+	auto * evaluator = getBattleAIEvaluator(stack, bid);
+	battleAIAction = std::make_unique<BattleAction>(evaluator->selectStackAction(stack));
+	return battleAIAction.get();
 }
 
 void BAI::actionFinished(const BattleID & bid, const BattleAction & action)
