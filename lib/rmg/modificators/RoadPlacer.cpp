@@ -110,34 +110,18 @@ bool RoadPlacer::createRoad(const int3 & destination, const rmg::DistanceMap & b
 	auto res = rmg::Path::invalid();
 	if(const auto it = nodeCurves.find(destination); it != nodeCurves.end())
 	{
-		constexpr int JOIN_DISTANCE = 8; // tiles from an existing road over which curve deviation fades in
-		rmg::DistanceMap distFromRoads;
-		rmg::Area grown = roads;
-		for(const auto & tile : roads.getTilesVector())
-			distFromRoads[tile] = 0;
+		constexpr int JOIN_DISTANCE = 8; // within this many tiles of an existing road, take the shortest way to it
+		rmg::Area joinBand = roads;
 		for(int r = 1; r <= JOIN_DISTANCE; ++r)
-		{
-			rmg::Area ring(grown.getBorderOutside());
-			grown.unite(ring);
-			for(const auto & tile : ring.getTilesVector())
-				distFromRoads[tile] = r;
-		}
+			joinBand.unite(rmg::Area(joinBand.getBorderOutside()));
 
-		const auto & curve = it->second;
-		auto curveRoutig = [this, &curve, &borderDistance, &distFromRoads](const int3 & src, const int3 & dst) -> float
+		const auto curveCost = it->second.costFunction(borderDistance, joinBand);
+		auto curveRoutig = [this, &curveCost](const int3 & src, const int3 & dst) -> float
 		{
 			if(const float penalty = isolatedMovePenalty(src, dst); penalty > 0.f)
 				return penalty;
 
-			float w = 1.f;
-			if(const auto rit = distFromRoads.find(dst); rit != distFromRoads.end())
-			{
-				const float r = static_cast<float>(rit->second);
-				w = (r / JOIN_DISTANCE) * (r / JOIN_DISTANCE);
-			}
-
-			const float distToCurve = curve.distanceSq(dst);
-			float ret = 1.f + w * distToCurve * distToCurve + curve.borderPenalty(borderDistance, dst);
+			float ret = 1.f + curveCost(src, dst);
 			if(visitableTiles.contains(src) || visitableTiles.contains(dst))
 				ret *= VISITABLE_PENALTY;
 			return ret;

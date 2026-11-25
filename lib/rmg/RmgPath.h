@@ -68,5 +68,7 @@ struct BezierCurve
 	static float borderPenalty(const DistanceMap & borderDistance, const int3 & tile);
 	Path::MoveCostFunction costFunction() const;
 	Path::MoveCostFunction costFunction(const DistanceMap & borderDistance) const;
+	// Inside joinBand the curve deviation is free, so the search takes the shortest way to a nearby road.
+	Path::MoveCostFunction costFunction(const DistanceMap & borderDistance, const Area & joinBand) const;
 };
 }

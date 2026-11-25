@@ -333,3 +333,17 @@ Path::MoveCostFunction BezierCurve::costFunction(const DistanceMap & borderDista
 		return distToCurve * distToCurve + borderPenalty(borderDistance, dst);
 	};
 }
+
+Path::MoveCostFunction BezierCurve::costFunction(const DistanceMap & borderDistance, const Area & joinBand) const
+{
+	return [*this, borderDistance, joinBand](const int3 &, const int3 & dst) -> float
+	{
+		float deviation = 0.f;
+		if(!joinBand.contains(dst))
+		{
+			const float distToCurve = distanceSq(dst);
+			deviation = distToCurve * distToCurve;
+		}
+		return deviation + borderPenalty(borderDistance, dst);
+	};
+}

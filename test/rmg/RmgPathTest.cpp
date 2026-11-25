@@ -74,36 +74,12 @@ rmg::DistanceMap borderDistanceOf(const rmg::Area & area)
 	return area.computeDistanceMap(reverse);
 }
 
-rmg::DistanceMap distanceFromRoads(const rmg::Area & roads, int joinDistance)
+rmg::Area joinBandAround(const rmg::Area & roads, int joinDistance)
 {
-	rmg::DistanceMap distFromRoads;
-	rmg::Area grown = roads;
-	for(const auto & tile : roads.getTilesVector())
-		distFromRoads[tile] = 0;
+	rmg::Area band = roads;
 	for(int r = 1; r <= joinDistance; ++r)
-	{
-		rmg::Area ring(grown.getBorderOutside());
-		grown.unite(ring);
-		for(const auto & tile : ring.getTilesVector())
-			distFromRoads[tile] = r;
-	}
-	return distFromRoads;
-}
-
-rmg::Path::MoveCostFunction fadedCurveCost(const rmg::BezierCurve & curve, const rmg::DistanceMap & borderDistance,
-	const rmg::DistanceMap & distFromRoads, int joinDistance)
-{
-	return [&curve, &borderDistance, &distFromRoads, joinDistance](const int3 &, const int3 & dst) -> float
-	{
-		float w = 1.f;
-		if(const auto rit = distFromRoads.find(dst); rit != distFromRoads.end())
-		{
-			const float r = static_cast<float>(rit->second);
-			w = (r / joinDistance) * (r / joinDistance);
-		}
-		const float distToCurve = curve.distanceSq(dst);
-		return 1.f + w * distToCurve * distToCurve + curve.borderPenalty(borderDistance, dst);
-	};
+		band.unite(rmg::Area(band.getBorderOutside()));
+	return band;
 }
 
 }
@@ -422,15 +398,15 @@ TEST(RmgPathTest, SearchWithBezierCostFollowsBentCurveNotTheChord)
 	EXPECT_FALSE(result.getPathArea().contains(int3(10, 0, 0)));
 }
 
-TEST(RmgPathTest, FadedCurveSearchJoinsNearbyRoadInsteadOfFollowingCurveToTheEnd)
+TEST(RmgPathTest, CurveSearchJoinsRoadWithinJoinBandInsteadOfFollowingCurveToTheEnd)
 {
-	constexpr int JOIN_DISTANCE = 6;
+	constexpr int JOIN_DISTANCE = 8;
 	const auto grid = rect(0, 0, 25, 16);
 	const int3 node(0, 2, 0);
 	const int3 centre(24, 2, 0);
 	const rmg::BezierCurve curve{node, int3(8, 2, 0), int3(16, 2, 0), centre};
-	const auto nearbyRoad = row(8, 20, 4);
-	const auto farRoad = row(8, 20, 12);
+	const auto nearbyRoad = row(8, 20, 8); // 6 tiles from the curve
+	const auto farRoad = row(8, 20, 15); // 13 tiles from the curve
 
 	rmg::Area nearbyNetwork = nearbyRoad;
 	nearbyNetwork.add(centre);
@@ -438,34 +414,34 @@ TEST(RmgPathTest, FadedCurveSearchJoinsNearbyRoadInsteadOfFollowingCurveToTheEnd
 	farNetwork.add(centre);
 
 	const rmg::DistanceMap noBorder;
-	const auto nearbyDist = distanceFromRoads(nearbyNetwork, JOIN_DISTANCE);
-	const auto farDist = distanceFromRoads(farNetwork, JOIN_DISTANCE);
-	const auto unfadedCost = [&curve, &noBorder](const int3 & src, const int3 & dst) -> float
+	const auto stepCost = [](const rmg::Path::MoveCostFunction & cost)
 	{
-		return 1.f + curve.costFunction(noBorder)(src, dst);
+		return [cost](const int3 & src, const int3 & dst) -> float { return 1.f + cost(src, dst); };
 	};
+	const auto plainCost = stepCost(curve.costFunction(noBorder));
 
 	rmg::Path nearbyPath(grid);
 	nearbyPath.connect(nearbyNetwork);
-	const auto unfadedNearby = nearbyPath.search(node, true, unfadedCost);
-	const auto fadedNearby = nearbyPath.search(node, true, fadedCurveCost(curve, noBorder, nearbyDist, JOIN_DISTANCE));
+	const auto plainNearby = nearbyPath.search(node, true, plainCost);
+	const auto joinNearby = nearbyPath.search(node, true, stepCost(curve.costFunction(noBorder, joinBandAround(nearbyNetwork, JOIN_DISTANCE))));
 
-	ASSERT_TRUE(unfadedNearby.valid());
-	ASSERT_TRUE(fadedNearby.valid());
-	EXPECT_TRUE(unfadedNearby.getPathArea().contains(centre));
-	EXPECT_FALSE(unfadedNearby.getPathArea().overlap(nearbyRoad));
-	EXPECT_TRUE(fadedNearby.getPathArea().overlap(nearbyRoad));
-	EXPECT_FALSE(fadedNearby.getPathArea().contains(centre));
-	EXPECT_LE(static_cast<int>(fadedNearby.getPathArea().getTiles().size()), 14);
+	ASSERT_TRUE(plainNearby.valid());
+	ASSERT_TRUE(joinNearby.valid());
+	EXPECT_TRUE(plainNearby.getPathArea().contains(centre));
+	EXPECT_FALSE(plainNearby.getPathArea().overlap(nearbyRoad));
+	EXPECT_TRUE(joinNearby.getPathArea().overlap(nearbyRoad));
+	EXPECT_FALSE(joinNearby.getPathArea().contains(centre));
+	EXPECT_LE(static_cast<int>(joinNearby.getPathArea().getTiles().size()), 15);
 
 	rmg::Path farPath(grid);
 	farPath.connect(farNetwork);
-	const auto unfadedFar = farPath.search(node, true, unfadedCost);
-	const auto fadedFar = farPath.search(node, true, fadedCurveCost(curve, noBorder, farDist, JOIN_DISTANCE));
+	const auto plainFar = farPath.search(node, true, plainCost);
+	const auto joinFar = farPath.search(node, true, stepCost(curve.costFunction(noBorder, joinBandAround(farNetwork, JOIN_DISTANCE))));
 
-	ASSERT_TRUE(unfadedFar.valid());
-	ASSERT_TRUE(fadedFar.valid());
-	EXPECT_EQ(sorted(fadedFar.getPathArea()), sorted(unfadedFar.getPathArea()));
+	ASSERT_TRUE(plainFar.valid());
+	ASSERT_TRUE(joinFar.valid());
+	EXPECT_TRUE(joinFar.getPathArea().contains(centre));
+	EXPECT_FALSE(joinFar.getPathArea().overlap(farRoad));
 }
 
 TEST(RmgPathTest, BezierCurveStaysInsideARectangleInterior)
