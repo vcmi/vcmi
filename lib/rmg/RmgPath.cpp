@@ -260,10 +260,8 @@ Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
 	};
 }
 
-float Path::distanceToCubicBezier(const int3 & point, const int3 & p0, const int3 & p1, const int3 & p2, const int3 & p3)
+float BezierCurve::distanceSq(const int3 & tile) const
 {
-	// Approximate distance to cubic Bezier curve by sampling
-	// B(t) = (1-t)³P0 + 3(1-t)²tP1 + 3(1-t)t²P2 + t³P3
 	constexpr int SAMPLES = 20;
 	float minDistSq = std::numeric_limits<float>::max();
 
@@ -276,12 +274,11 @@ float Path::distanceToCubicBezier(const int3 & point, const int3 & p0, const int
 		float t2 = t * t;
 		float t3 = t2 * t;
 
-		// Cubic Bezier formula
 		float bx = oneMinusT3 * p0.x + 3.0f * oneMinusT2 * t * p1.x + 3.0f * oneMinusT * t2 * p2.x + t3 * p3.x;
 		float by = oneMinusT3 * p0.y + 3.0f * oneMinusT2 * t * p1.y + 3.0f * oneMinusT * t2 * p2.y + t3 * p3.y;
 
-		float dx = point.x - bx;
-		float dy = point.y - by;
+		float dx = tile.x - bx;
+		float dy = tile.y - by;
 		float distSq = dx * dx + dy * dy;
 
 		if(distSq < minDistSq)
@@ -291,21 +288,11 @@ float Path::distanceToCubicBezier(const int3 & point, const int3 & p0, const int
 	return minDistSq;
 }
 
-Path::MoveCostFunction Path::createBezierCostFunction(const int3 & p0, const int3 & p1, const int3 & p2, const int3 & p3)
+Path::MoveCostFunction BezierCurve::costFunction() const
 {
-	// p0: start point (Q0)
-	// p1: first control point (Q1) - any tile in zone
-	// p2: second control point (Q2) - any tile in zone
-	// p3: end point (Q3)
-	return [p0, p1, p2, p3](const int3 & src, const int3 & dst) -> float
+	return [*this](const int3 &, const int3 & dst) -> float
 	{
-
-		// Distance from destination tile to the Bezier curve
-		float distToCurve = distanceToCubicBezier(dst, p0, p1, p2, p3);
-
-		// Penalize tiles far from the curve
-		// Square for stronger effect
+		float distToCurve = distanceSq(dst);
 		return distToCurve * distToCurve;
-
 	};
 }

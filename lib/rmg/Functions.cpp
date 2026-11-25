@@ -15,6 +15,7 @@
 #include "RmgMap.h"
 #include "TileInfo.h"
 #include "RmgPath.h"
+#include "modificators/RoadPlacer.h"
 #include "../TerrainHandler.h"
 #include "../mapping/CMap.h"
 #include "../mapObjectConstructors/AObjectTypeHandler.h"
@@ -27,32 +28,34 @@
 
 #include <vstd/RNG.h>
 
-void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool onlyStraight /* = true */)
+rmg::BezierCurve chooseCurve(Zone & zone, const int3 & src)
 {
-	// Get random control points from within the zone
 	auto & rng = zone.getRand();
 	const auto & tiles = zone.area()->getTilesVector();
+	int3 control1 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
+	int3 control2 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
+	return {src, control1, control2, zone.getPos()};
+}
 
-	if(tiles.size() < 2)
+void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool onlyStraight /* = true */)
+{
+	if(zone.area()->getTilesVector().size() < 2)
 	{
 		logRmg->warn("Zone too small for curved path");
 		return;
 	}
 
-	// Pick two random control points (Q1, Q2) from zone tiles
-	int3 control1 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
-	int3 control2 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
-
-	// Create Bezier cost function: Q0=start, Q1=control1, Q2=control2, Q3=src
-	auto costFunction = rmg::Path::createBezierCostFunction(src, control1, control2, zone.getPos());
+	const auto curve = chooseCurve(zone, src);
 
 	auto pathArea = zone.areaForRoads();
 	rmg::Path curvedPath(pathArea);
 	curvedPath.connect(zone.freePaths().get());
-	curvedPath = curvedPath.search(src, onlyStraight, costFunction);
+	curvedPath = curvedPath.search(src, onlyStraight, curve.costFunction());
 	if (curvedPath.valid())
 	{
 		path = curvedPath;
+		if(auto * rp = zone.getModificator<RoadPlacer>())
+			rp->setNodeCurve(src, curve);
 	}
 	else
 	{

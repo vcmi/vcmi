@@ -37,6 +37,7 @@ public:
 };
 
 void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool onlyStraight = true);
+rmg::BezierCurve chooseCurve(Zone & zone, const int3 & src);
 
 /// `roads` with dead-end spurs stripped; tiles in `keep` are never removed
 rmg::Area pruneRoadDeadEnds(const rmg::Area & roads, const rmg::Tileset & keep);

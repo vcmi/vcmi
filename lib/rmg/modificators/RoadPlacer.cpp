@@ -63,6 +63,22 @@ const rmg::Area & RoadPlacer::getRoads() const
 	return roads;
 }
 
+float RoadPlacer::isolatedMovePenalty(const int3 & src, const int3 & dst)
+{
+	if(std::abs((src - dst).y) == 1)
+	{
+		//Do not allow connections straight up through object not visitable from top
+		if(areaIsolated().contains(dst) || areaIsolated().contains(src))
+			return 1e12f;
+	}
+	else if(areaIsolated().contains(dst))
+	{
+		//Simply do not route road behind objects that are not visitable from top, such as Monoliths
+		return 1e6f;
+	}
+	return 0.f;
+}
+
 bool RoadPlacer::createRoad(const int3 & destination)
 {
 	auto searchArea = zone.areaPossible() + zone.freePaths() + areaRoads + roads;
@@ -74,22 +90,8 @@ bool RoadPlacer::createRoad(const int3 & destination)
 
 	auto simpleRoutig = [this, &border](const int3& src, const int3& dst)
 	{
-		if(std::abs((src - dst).y) == 1)
-		{
-			//Do not allow connections straight up through object not visitable from top
-			if(areaIsolated().contains(dst) || areaIsolated().contains(src))
-			{
-				return 1e12f;
-			}
-		}
-		else
-		{
-			if(areaIsolated().contains(dst))
-			{
-				//Simply do not route road behind objects that are not visitable from top, such as Monoliths
-				return 1e6f;
-			}
-		}
+		if(const float penalty = isolatedMovePenalty(src, dst); penalty > 0.f)
+			return penalty;
 
 		float ret = rmg::Path::nonEuclideanCostFunction(src, dst, border.getCenterOfMass());
 
@@ -104,8 +106,27 @@ bool RoadPlacer::createRoad(const int3 & destination)
 		}
 		return ret;
 	};
-	
-	auto res = path.search(destination, true, simpleRoutig);
+
+	auto res = rmg::Path::invalid();
+	if(const auto it = nodeCurves.find(destination); it != nodeCurves.end())
+	{
+		const auto bezierCost = it->second.costFunction();
+		auto curveRoutig = [this, bezierCost](const int3 & src, const int3 & dst) -> float
+		{
+			if(const float penalty = isolatedMovePenalty(src, dst); penalty > 0.f)
+				return penalty;
+
+			float ret = 1.f + bezierCost(src, dst);
+			if(visitableTiles.contains(src) || visitableTiles.contains(dst))
+				ret *= VISITABLE_PENALTY;
+			return ret;
+		};
+		res = path.search(destination, true, curveRoutig);
+	}
+
+	if(!res.valid())
+		res = path.search(destination, true, simpleRoutig);
+
 	if(!res.valid())
 	{
 		res = createRoadDesperate(path, destination);
@@ -117,28 +138,14 @@ bool RoadPlacer::createRoad(const int3 & destination)
 	}
 	roads.unite(res.getPathArea());
 	return true;
-	
 }
 
 rmg::Path RoadPlacer::createRoadDesperate(rmg::Path & path, const int3 & destination)
 {
 	auto desperateRoutig = [this](const int3& src, const int3& dst) -> float
 	{
-		//Do not allow connections straight up through object not visitable from top
-		if(std::abs((src - dst).y) == 1)
-		{
-			if(areaIsolated().contains(dst) || areaIsolated().contains(src))
-			{
-				return 1e12;
-			}
-		}
-		else
-		{
-			if(areaIsolated().contains(dst))
-			{
-				return 1e6;
-			}
-		}
+		if(const float penalty = isolatedMovePenalty(src, dst); penalty > 0.f)
+			return penalty;
 
 		float weight = dst.dist2dSQ(src);
 		auto ret =  weight * weight; // Still prefer straight paths
@@ -195,6 +202,30 @@ void RoadPlacer::addRoadNode(const int3& node)
 	roadNodes.insert(node);
 }
 
+void RoadPlacer::setNodeCurve(const int3 & node, const rmg::BezierCurve & curve)
+{
+	RecursiveLock lock(externalAccessMutex);
+	int3 key = node;
+	if(!roadNodes.contains(key))
+	{
+		// Guarded objects pass the guard tile as src; the road node is the object, one step away.
+		bool found = false;
+		for(const auto & dir : int3::getDirs())
+		{
+			const int3 candidate = node + dir;
+			if(roadNodes.contains(candidate))
+			{
+				key = candidate;
+				found = true;
+				break;
+			}
+		}
+		if(!found)
+			return;
+	}
+	nodeCurves[key] = curve;
+}
+
 void RoadPlacer::connectRoads()
 {
 	//Assumes objects are already placed
@@ -218,6 +249,8 @@ void RoadPlacer::connectRoads()
 	RecursiveLock lock(externalAccessMutex);
 	if(roads.empty())
 		roads.add(zone.getPos());
+
+	logRmg->debug("Zone %d: %d of %d road nodes have a curve", zone.getId(), static_cast<int>(nodeCurves.size()), static_cast<int>(roadNodes.size()));
 
 	for(const auto & node : roadNodes)
 	{

@@ -346,4 +346,42 @@ TEST(RmgPathTest, PredicatePathRejectsTilesThePredicateRejects)
 	EXPECT_TRUE(path.search(int3(0, 2, 0), true).valid());
 }
 
+TEST(RmgPathTest, BezierCurveDistanceSqIsZeroAtEndsAndGrowsAwayFromStraightCurve)
+{
+	const rmg::BezierCurve curve{int3(0, 0, 0), int3(1, 0, 0), int3(2, 0, 0), int3(3, 0, 0)};
+
+	EXPECT_FLOAT_EQ(curve.distanceSq(curve.p0), 0.f);
+	EXPECT_FLOAT_EQ(curve.distanceSq(curve.p3), 0.f);
+
+	const float oneAway = curve.distanceSq(int3(1, 1, 0));
+	const float twoAway = curve.distanceSq(int3(1, 2, 0));
+	const float threeAway = curve.distanceSq(int3(1, 3, 0));
+	EXPECT_GT(oneAway, 0.f);
+	EXPECT_GT(twoAway, oneAway);
+	EXPECT_GT(threeAway, twoAway);
+}
+
+TEST(RmgPathTest, BezierCurveCostFunctionIsZeroOnCurveAndPositiveOffIt)
+{
+	const rmg::BezierCurve curve{int3(0, 0, 0), int3(0, 20, 0), int3(20, 20, 0), int3(20, 0, 0)};
+	const auto cost = curve.costFunction();
+
+	EXPECT_FLOAT_EQ(cost(int3(0, 0, 0), int3(10, 15, 0)), 0.f);
+	EXPECT_GT(cost(int3(0, 0, 0), int3(10, 0, 0)), 0.f);
+}
+
+TEST(RmgPathTest, SearchWithBezierCostFollowsBentCurveNotTheChord)
+{
+	const auto grid = rect(0, 0, 21, 21);
+	rmg::Path path(grid);
+	path.connect(int3(20, 0, 0));
+
+	const rmg::BezierCurve curve{int3(0, 0, 0), int3(0, 20, 0), int3(20, 20, 0), int3(20, 0, 0)};
+	const auto result = path.search(int3(0, 0, 0), true, curve.costFunction());
+
+	ASSERT_TRUE(result.valid());
+	EXPECT_TRUE(result.getPathArea().contains(int3(10, 15, 0)));
+	EXPECT_FALSE(result.getPathArea().contains(int3(10, 0, 0)));
+}
+
 }
