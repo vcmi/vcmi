@@ -171,6 +171,36 @@ TEST(RmgPathTest, CostFunctionMakesSearchPreferCheapTiles)
 	EXPECT_EQ(sorted(result.getPathArea()), sorted(expected));
 }
 
+TEST(RmgPathTest, SearchKeepsCheaperPathInsideSameIntegerBucket)
+{
+	const auto grid = rect(0, 0, 3, 2);
+	rmg::Path path(grid);
+	path.connect(int3(2, 1, 0));
+
+	const auto fractionalCosts = [](const int3 & src, const int3 & dst) -> float
+	{
+		const auto edge = [&](int x0, int y0, int x1, int y1)
+		{
+			return src == int3(x0, y0, 0) && dst == int3(x1, y1, 0);
+		};
+		if(edge(0, 0, 1, 0))
+			return 0.1f;
+		if(edge(0, 0, 0, 1))
+			return 0.4f;
+		if(edge(1, 0, 1, 1))
+			return 0.8f;
+		if(edge(0, 1, 1, 1))
+			return 0.1f;
+		if(edge(1, 1, 2, 1))
+			return 0.1f;
+		return 0.9f;
+	};
+	const auto result = path.search(int3(0, 0, 0), true, fractionalCosts);
+
+	ASSERT_TRUE(result.valid());
+	EXPECT_EQ(sorted(result.getPathArea()), sorted(rmg::Area({int3(0, 0, 0), int3(0, 1, 0), int3(1, 1, 0), int3(2, 1, 0)})));
+}
+
 TEST(RmgPathTest, SearchFromPathWithConnectedAreaReturnsOnlyNewPath)
 {
 	const auto grid = rect(0, 0, 10, 10);
