@@ -37,6 +37,7 @@ public:
 	Schema::Side getSide() override;
 	int getAction(const MMAI::Schema::IState * s) override;
 	double getValue(const MMAI::Schema::IState * s) override;
+	std::pair<int, double> getActionAndValue(const MMAI::Schema::IState * s) override;
 
 private:
 	std::shared_ptr<NNContainer> container;

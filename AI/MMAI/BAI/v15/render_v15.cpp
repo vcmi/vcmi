@@ -427,7 +427,7 @@ std::string Render(const State * state, const ActionPtr & action) // NOSONAR
 				break;
 			case 3:
 				name = "Last action";
-				value = action ? action->humanName(state->battle.battleGetMySide()) : "";
+				value = action ? action->humanName() : "";
 				break;
 			case 4:
 			{

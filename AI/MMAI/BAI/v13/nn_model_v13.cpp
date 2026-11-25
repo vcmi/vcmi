@@ -18,6 +18,7 @@
 #include "json/JsonNode.h"
 
 #include <onnxruntime_cxx_api.h>
+#include <stdexcept>
 
 namespace MMAI::BAI::V13
 {
@@ -517,9 +518,12 @@ int NNModel::getAction(const MMAI::Schema::IState * s)
 
 double NNModel::getValue(const MMAI::Schema::IState * s)
 {
-	// This quantifies how good is the current state as perceived by the model
-	// (not used, not implemented)
-	return 0;
+	throw std::runtime_error("getValue: not implemented in v13");
+}
+
+std::pair<int, double> NNModel::getActionAndValue(const MMAI::Schema::IState * s)
+{
+	throw std::runtime_error("getActionAndValue: not implemented in v13");
 }
 
 std::vector<Ort::Value> NNModel::prepareInputsV13(const MMAI::Schema::IState * s, const MMAI::Schema::V13::ISupplementaryData * sup) const

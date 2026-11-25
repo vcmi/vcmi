@@ -30,6 +30,7 @@ public:
 		int version,
 		const std::shared_ptr<Environment> & env,
 		const std::shared_ptr<CBattleCallback> & cb,
+		double fallbackValueThreshold,
 		bool useCreatureSpells,
 		bool useHeroSpells,
 		bool enableTactics);
@@ -58,7 +59,7 @@ public:
 		bool replayAllowed
 	) override; //called by engine when battle starts; side=0 - left, side=1 - right
 
-	Schema::Action getNonRenderAction();
+	std::pair<int, double> getNonRenderActionAndValue();
 
 	// Subsequent versions may override this with subclasses of State
 	virtual std::unique_ptr<State> initState(const CPlayerBattleCallback * battle);
@@ -71,20 +72,21 @@ public:
 	const std::shared_ptr<Environment> env;
 	const std::shared_ptr<CBattleCallback> cb;
 
-	bool useCreatureSpells = false;
-	bool useHeroSpells = false;
-	bool enableTactics = false;
+	const double fallbackValueThreshold;
+	const bool useCreatureSpells;
+	const bool useHeroSpells;
+	const bool enableTactics;
 
 	// consecutive invalid actions counter
 	int errcounter = 0;
 	int roundcounter = 0;
 	bool inFallback = false;
+	bool inTemporaryFallback = false;
 
 	int getActionTotalMs = 0;
 	int getActionTotalCalls = 0;
 
 	bool resetting = false;
-	std::vector<Schema::Action> allactions; // DEBUG ONLY
 	std::shared_ptr<CPlayerBattleCallback> battle = nullptr;
 
 	std::shared_ptr<TacticsHandler> tacticsHandler;

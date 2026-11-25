@@ -40,6 +40,7 @@ BAI::BAI(
 	int version,
 	const std::shared_ptr<Environment> & env,
 	const std::shared_ptr<CBattleCallback> & cb,
+	double fallbackValueThreshold,
 	bool useCreatureSpells,
 	bool useHeroSpells,
 	bool enableTactics
@@ -49,19 +50,20 @@ BAI::BAI(
 	, logger(cb->getPlayerID().value().toString())
 	, env(env)
 	, cb(cb)
+	, fallbackValueThreshold(fallbackValueThreshold)
 	, useCreatureSpells(useCreatureSpells)
 	, useHeroSpells(useHeroSpells)
 	, enableTactics(enableTactics)
 {
 }
 
-Schema::Action BAI::getNonRenderAction()
+std::pair<int, double> BAI::getNonRenderActionAndValue()
 {
 	NestedLogTag _("NN");
 
 	const auto * s = state.get();
-	auto action = model->getAction(s);
-	while(action == Schema::ACTION_RENDER_ANSI)
+	auto pair = model->getActionAndValue(s);
+	while(pair.first == Schema::ACTION_RENDER_ANSI)
 	{
 		logger.debug("Got a RENDER action");
 		if(state->supdata->ansiRender.empty())
@@ -70,11 +72,11 @@ Schema::Action BAI::getNonRenderAction()
 			state->supdata->type = S15::ISupplementaryData::Type::ANSI_RENDER;
 		}
 
-		action = model->getAction(state.get());
+		pair = model->getActionAndValue(s);
 	}
 	state->supdata->ansiRender.clear();
 	state->supdata->type = S15::ISupplementaryData::Type::REGULAR;
-	return action;
+	return pair;
 }
 
 std::unique_ptr<State> BAI::initState(const CPlayerBattleCallback * b)
@@ -142,12 +144,13 @@ void BAI::battleEnd(const BattleID & bid, const BattleResult * br, QuestionID qu
 		logger.info("Battle ended due to ACTION_RESET: nothing to do");
 		return;
 	}
-	else if(lastAction == nullptr)
+	else if(getActionTotalCalls == 0)
 	{
-		// no previous action means battle ended without giving us a turn (OK)
+		// no actions means battle ended without giving us a turn (OK)
 		// Happens if the enemy immediately retreats (we won)
 		// or if the enemy one-shots us (we lost)
 		logger.info("Battle ended without giving us a turn: nothing to do");
+		logger.info("MMAI stats after battle end: 0 predictions");
 	}
 	// else if(lastAction->actionType == AT::RETREAT)
 	// {
@@ -158,14 +161,10 @@ void BAI::battleEnd(const BattleID & bid, const BattleResult * br, QuestionID qu
 	else
 	{
 		logger.debug("Battle ended normally: reporting terminal state, expecting ACTION_RESET");
-		auto a = getNonRenderAction();
+		const auto & [a, _] = getNonRenderActionAndValue();
 		ASSERT(a == Schema::ACTION_RESET, "expected ACTION_RESET, got: " + std::to_string(EI(a)));
-	}
-
-	if(getActionTotalCalls > 0)
 		logger.info("MMAI stats after battle end: %d predictions, %d ms per prediction", getActionTotalCalls, getActionTotalMs / getActionTotalCalls);
-	else
-		logger.info("MMAI stats after battle end: 0 predictions");
+	}
 
 	// BAI is destroyed after this call
 	logger.debug("Leaving battleEnd, embracing death");
@@ -391,9 +390,9 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 
 	// Guard against infinite battles
 	// (print warning once, make only fallback actions from there on)
-	if(!inFallback && getActionTotalCalls >= MMAIFallbackTrigger())
+	if(!inFallback && getActionTotalCalls >= MMAIFallbackNumActionsTrigger())
 	{
-		logger.warn("Reached %d predictions, will fall back to BattleAI until this combat ends", MMAIFallbackTrigger());
+		logger.warn("Reached %d predictions, will fall back to BattleAI until this combat ends", MMAIFallbackNumActionsTrigger());
 		inFallback = true;
 	}
 
@@ -428,12 +427,10 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 	logger.debug("Not conceding.");
 
 	auto t0 = std::chrono::steady_clock::now();
-	int a = getNonRenderAction();
+	const auto & [a, v] = getNonRenderActionAndValue();
 	auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count();
 	getActionTotalMs += static_cast<int>(dt);
 	getActionTotalCalls += 1;
-
-	allactions.push_back(a);
 
 	// battle should have ended instead
 	ASSERT(!resetting, "got activeStack(), but resetting was already true");
@@ -447,14 +444,25 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 		return;
 	}
 
-	logger.debug("Received action: " + std::to_string(a));
+	logger.debug("Received action=%d value=%.4f", a, v);
 	auto action = state->G->getById<N::Action>(a);
 	ASSERT(action->isActive || resetting, "expected active action");
+
+	// MMAI performs poorly when there is no chance to win or inflict any meaningful casualties
+	// (defends, or makes meaningless moves) => fallback to BattleAI when it looks like this is the case
+	if(v < fallbackValueThreshold && (action->actionType == S15::ActionType::DEFEND || action->actionType == S15::ActionType::MOVE))
+	{
+		logger.warn("Value too low (%.4f < %.2f) for action \"%s\", will fall back to BattleAI", v, fallbackValueThreshold, action->humanName());
+		auto evaluator = BattleEvaluator(env, cb, astack, cb->getPlayerID().value(), bid, battle->battleGetMySide(), 1.0f, 2);
+		cb->battleMakeUnitAction(bid, evaluator.selectStackAction(astack));
+		lastAction.reset();
+		return;
+	}
 
 	lastAction = action;
 
 	auto ba = ToBattleAction(*battle, action, astack);
-	logger.debug(action->humanName(battle->battleGetMySide()));
+	logger.debug(action->humanName());
 
 	if(isMMAIAutoRender())
 		std::cout << "\n" << Render(state.get(), action) << "\n";

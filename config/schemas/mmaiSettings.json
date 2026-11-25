@@ -29,6 +29,10 @@
             "default" : "BattleAI",
             "enum" : [ "BattleAI", "StupidAI" ]
         },
+        "fallbackValueThreshold": {
+            "type" : "number",
+            "default" : -1.4
+        },
         "useCreatureSpells": {
             "type" : "boolean",
             "default" : true

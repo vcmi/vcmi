@@ -65,6 +65,12 @@ double ScriptedModel::getValue(const MMAI::Schema::IState * s)
 	return -666;
 };
 
+std::pair<int, double> ScriptedModel::getActionAndValue(const MMAI::Schema::IState * s)
+{
+	warn("getActionAndValue", -666);
+	return {-666, -666};
+};
+
 void ScriptedModel::warn(const std::string & m, int retval) const
 {
 	logAi->warn("method %s called on a ScriptedModel object; returning %d\n", m.c_str(), retval);

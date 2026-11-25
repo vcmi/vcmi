@@ -43,29 +43,49 @@ namespace
 		std::map<std::string, std::string> paths;
 		std::shared_ptr<ScriptedModel> fallbackModel;
 		std::string fallbackName;
+		double fallbackValueThreshold = -1.3;
 	};
 
 	std::shared_ptr<ModelRepository> InitModelRepository()
 	{
 		auto repo = std::make_unique<ModelRepository>();
-		auto json = JsonUtils::assembleFromFiles("MMAI/CONFIG/mmai-settings.json");
+		const auto json = JsonUtils::assembleFromFiles("MMAI/CONFIG/mmai-settings.json");
 		std::string fallback;
 
 		if(json.isStruct())
 		{
 			JsonValidator validator;
-			validator.validate(json, "vcmi:mmaiSettings", "mmai");
-			repo->temperature = static_cast<float>(json["temperature"].Float());
-			repo->useCreatureSpells = json["useCreatureSpells"].Bool();
+			const auto & schema = validator.getSchema("vcmi:mmaiSettings");
+			const auto & properties = schema["properties"];
+			validator.validate(json, schema, "mmai");
+			const auto setting = [&](const std::string & key, bool (JsonNode::*hasType)() const) -> const JsonNode &
+			{
+				const auto & node = json[key];
+				return (node.*hasType)() ? node : properties[key]["default"];
+			};
 
-			repo->seed = json["seed"].Integer();
+			repo->temperature = static_cast<float>(setting("temperature", &JsonNode::isNumber).Float());
+			repo->useCreatureSpells = setting("useCreatureSpells", &JsonNode::isBool).Bool();
+
+			const double thresholdOverride = MMAIFallbackValueTrigger();
+			repo->fallbackValueThreshold =
+				thresholdOverride == MMAI_FALLBACK_VALUE_TRIGGER_UNSET ? setting("fallbackValueThreshold", &JsonNode::isNumber).Float() : thresholdOverride;
+
+			repo->seed = setting("seed", &JsonNode::isNumber).Integer();
 			if(repo->seed == 0)
 				repo->seed = CRandomGenerator::getDefault().nextInt();
 
-			for(const auto & [key, node] : json["models"].Struct())
-				repo->paths.try_emplace(key, node.String());
+			const auto & models = json["models"];
+			if(models.isStruct())
+				for(const auto & [key, node] : models.Struct())
+					if(node.isString())
+						repo->paths.try_emplace(key, node.String());
 
-			fallback = json["fallback"].isNull() ? "BattleAI" : json["fallback"].String();
+			const auto & fallbackSchema = properties["fallback"];
+			const auto & configuredFallback = json["fallback"];
+			const auto & allowedFallbacks = fallbackSchema["enum"].Vector();
+			fallback = configuredFallback.isString() && vstd::contains(allowedFallbacks, configuredFallback) ? configuredFallback.String()
+																											 : fallbackSchema["default"].String();
 		}
 		else
 		{
@@ -337,7 +357,13 @@ void Router::battleStart(
 		case Schema::ModelType::NN:
 			// XXX: must not call initBattleInterface here
 			bai = CreateBAI(
-				model, env, cb, GetModelRepository()->useCreatureSpells, autocombatPreferences.enableSpellsUsage, autocombatPreferences.enableTacticsUsage
+				model,
+				env,
+				cb,
+				GetModelRepository()->fallbackValueThreshold,
+				GetModelRepository()->useCreatureSpells,
+				autocombatPreferences.enableSpellsUsage,
+				autocombatPreferences.enableTacticsUsage
 			);
 			break;
 		default:

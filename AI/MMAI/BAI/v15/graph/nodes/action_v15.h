@@ -105,15 +105,9 @@ public:
 		return ss.str();
 	}
 
-	std::string humanName(BattleSide side) const
+	std::string humanName() const
 	{
 		const auto & endhex = endsAt.at(0);
-
-		auto stackstr = [&side](const auto & unit)
-		{
-			std::string targetside = (side == BattleSide::LEFT_SIDE) ? "L" : "R";
-			return targetside + "-" + unit->alias;
-		};
 
 		switch(actionType)
 		{
@@ -125,10 +119,10 @@ public:
 				return "Move to " + endhex->name();
 			case S15::ActionType::AMOVE:
 				ASSERT(target != nullptr, "AMOVE with no valid targets");
-				return "Attack Stack(" + stackstr(target) + ") from " + endhex->name();
+				return "Attack Stack(" + target->name() + ") from " + endhex->name();
 			case S15::ActionType::SHOOT:
 				ASSERT(target != nullptr, "SHOOT with no valid targets");
-				return "Shoot Stack(" + stackstr(target) + ") from " + endhex->name();
+				return "Shoot Stack(" + target->name() + ") from " + endhex->name();
 			default:
 				throwf("Unexpected action type: %1%", EI(actionType));
 		}

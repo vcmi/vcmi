@@ -23,6 +23,7 @@ public:
 	std::string getName() override;
 	int getVersion() override;
 	int getAction(const MMAI::Schema::IState * s) override;
+	std::pair<int, double> getActionAndValue(const MMAI::Schema::IState * s) override;
 	Schema::Side getSide() override;
 	double getValue(const MMAI::Schema::IState * s) override;
 

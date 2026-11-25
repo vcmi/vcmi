@@ -16,6 +16,7 @@
 #include "schema/base.h"
 #include "schema/v15/graph.h"
 
+#include <memory>
 #include <onnxruntime_cxx_api.h>
 
 namespace MMAI::BAI::V15
@@ -32,6 +33,7 @@ public:
 	Schema::Side getSide() override;
 	int getAction(const MMAI::Schema::IState * s) override;
 	double getValue(const MMAI::Schema::IState * s) override;
+	std::pair<int, double> getActionAndValue(const MMAI::Schema::IState * s) override;
 
 private:
 	struct NodeInputSpec
@@ -49,6 +51,16 @@ private:
 		std::string dstName;
 		int attrSize;
 	};
+
+	struct ModelResponse
+	{
+		std::string actionName;
+		int action = -42;
+		double confidence = -42;
+		double value = -42;
+	};
+
+	ModelResponse runModel(const MMAI::Schema::IState * s);
 
 	std::shared_ptr<NNContainer> container;
 	float temperature;
