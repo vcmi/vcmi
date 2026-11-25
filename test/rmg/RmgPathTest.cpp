@@ -68,6 +68,12 @@ void expectSameAsAreaPath(const rmg::Area & area, const rmg::Area & connected, c
 	EXPECT_EQ(sorted(actual.getPathArea()), sorted(expected.getPathArea()));
 }
 
+rmg::DistanceMap borderDistanceOf(const rmg::Area & area)
+{
+	std::map<int, rmg::Tileset> reverse;
+	return area.computeDistanceMap(reverse);
+}
+
 rmg::DistanceMap distanceFromRoads(const rmg::Area & roads, int joinDistance)
 {
 	rmg::DistanceMap distFromRoads;
@@ -460,6 +466,33 @@ TEST(RmgPathTest, FadedCurveSearchJoinsNearbyRoadInsteadOfFollowingCurveToTheEnd
 	ASSERT_TRUE(unfadedFar.valid());
 	ASSERT_TRUE(fadedFar.valid());
 	EXPECT_EQ(sorted(fadedFar.getPathArea()), sorted(unfadedFar.getPathArea()));
+}
+
+TEST(RmgPathTest, BezierCurveStaysInsideARectangleInterior)
+{
+	const auto area = rect(0, 0, 21, 21);
+	const auto borderDistance = borderDistanceOf(area);
+	const rmg::BezierCurve curve{int3(5, 10, 0), int3(8, 12, 0), int3(13, 12, 0), int3(16, 10, 0)};
+
+	EXPECT_TRUE(curve.staysInside(borderDistance, 4));
+}
+
+TEST(RmgPathTest, BezierCurvePulledToTheRectangleEdgeDoesNotStayInside)
+{
+	const auto area = rect(0, 0, 21, 21);
+	const auto borderDistance = borderDistanceOf(area);
+	const rmg::BezierCurve curve{int3(5, 10, 0), int3(10, 0, 0), int3(10, 0, 0), int3(16, 10, 0)};
+
+	EXPECT_FALSE(curve.staysInside(borderDistance, 4));
+}
+
+TEST(RmgPathTest, BezierCurveWithEndpointOnTheEdgeStillStaysInside)
+{
+	const auto area = rect(0, 0, 21, 21);
+	const auto borderDistance = borderDistanceOf(area);
+	const rmg::BezierCurve curve{int3(0, 10, 0), int3(6, 12, 0), int3(10, 12, 0), int3(14, 10, 0)};
+
+	EXPECT_TRUE(curve.staysInside(borderDistance, 4));
 }
 
 TEST(RmgPathTest, SearchWithBezierBorderPenaltyStaysInlandWhileUnpenalizedPathHugsTheBorder)

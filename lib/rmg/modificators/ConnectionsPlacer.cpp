@@ -177,8 +177,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 					if (safetyGap.empty())
 					{
 						auto & rng = zone.getRand();
-						const auto ourCurve = chooseCurve(zone, potentialPos, rng);
-						const auto theirCurve = chooseCurve(*otherZone, potentialPos, rng);
+						const auto ourCurve = chooseCurve(zone, potentialPos, ourBorderDistance, rng);
+						const auto theirCurve = chooseCurve(*otherZone, potentialPos, theirBorderDistance, rng);
 
 						auto ourArea = zone.areaForRoads();
 						auto theirArea = otherZone->areaForRoads();
@@ -293,12 +293,11 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			auto monsterType = manager.chooseGuard(connection.getGuardStrength(), true);
 
 			auto & rng = zone.getRand();
-			const auto ourCurve = chooseCurve(zone, guardPos, rng);
-			const auto theirCurve = chooseCurve(*otherZone, guardPos, rng);
-
 			std::map<int, rmg::Tileset> reverse;
 			const auto ourBorderDistance = zone.area()->computeDistanceMap(reverse);
 			const auto theirBorderDistance = otherZone->area()->computeDistanceMap(reverse);
+			const auto ourCurve = chooseCurve(zone, guardPos, ourBorderDistance, rng);
+			const auto theirCurve = chooseCurve(*otherZone, guardPos, theirBorderDistance, rng);
 
 			auto ourArea = zone.areaForRoads();
 			auto theirArea = otherZone->areaForRoads();

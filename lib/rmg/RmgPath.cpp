@@ -243,32 +243,70 @@ float Path::nonEuclideanCostFunction(const int3& src, const int3& dst, const int
 	return d * bias;
 }
 
+namespace
+{
+constexpr int BEZIER_SAMPLES = 20;
+
+std::pair<float, float> evaluate(const BezierCurve & curve, float t)
+{
+	const float oneMinusT = 1.0f - t;
+	const float oneMinusT2 = oneMinusT * oneMinusT;
+	const float oneMinusT3 = oneMinusT2 * oneMinusT;
+	const float t2 = t * t;
+	const float t3 = t2 * t;
+
+	const float bx = oneMinusT3 * curve.p0.x + 3.0f * oneMinusT2 * t * curve.p1.x + 3.0f * oneMinusT * t2 * curve.p2.x + t3 * curve.p3.x;
+	const float by = oneMinusT3 * curve.p0.y + 3.0f * oneMinusT2 * t * curve.p1.y + 3.0f * oneMinusT * t2 * curve.p2.y + t3 * curve.p3.y;
+	return {bx, by};
+}
+}
+
+int3 BezierCurve::pointAt(float t) const
+{
+	const auto [bx, by] = evaluate(*this, t);
+	return int3(static_cast<si32>(std::lround(bx)), static_cast<si32>(std::lround(by)), p0.z);
+}
+
 float BezierCurve::distanceSq(const int3 & tile) const
 {
-	constexpr int SAMPLES = 20;
 	float minDistSq = std::numeric_limits<float>::max();
 
-	for(int i = 0; i <= SAMPLES; ++i)
+	for(int i = 0; i <= BEZIER_SAMPLES; ++i)
 	{
-		float t = static_cast<float>(i) / SAMPLES;
-		float oneMinusT = 1.0f - t;
-		float oneMinusT2 = oneMinusT * oneMinusT;
-		float oneMinusT3 = oneMinusT2 * oneMinusT;
-		float t2 = t * t;
-		float t3 = t2 * t;
-
-		float bx = oneMinusT3 * p0.x + 3.0f * oneMinusT2 * t * p1.x + 3.0f * oneMinusT * t2 * p2.x + t3 * p3.x;
-		float by = oneMinusT3 * p0.y + 3.0f * oneMinusT2 * t * p1.y + 3.0f * oneMinusT * t2 * p2.y + t3 * p3.y;
-
-		float dx = tile.x - bx;
-		float dy = tile.y - by;
-		float distSq = dx * dx + dy * dy;
+		const auto [bx, by] = evaluate(*this, static_cast<float>(i) / BEZIER_SAMPLES);
+		const float dx = tile.x - bx;
+		const float dy = tile.y - by;
+		const float distSq = dx * dx + dy * dy;
 
 		if(distSq < minDistSq)
 			minDistSq = distSq;
 	}
 
 	return minDistSq;
+}
+
+int BezierCurve::minSampledRing(const DistanceMap & borderDistance, int minRing) const
+{
+	const ui32 skipDistSq = static_cast<ui32>(minRing + 1) * static_cast<ui32>(minRing + 1);
+	int worst = std::numeric_limits<int>::max();
+
+	for(int i = 0; i <= BEZIER_SAMPLES; ++i)
+	{
+		const int3 sample = pointAt(static_cast<float>(i) / BEZIER_SAMPLES);
+		if(sample.dist2dSQ(p0) <= skipDistSq || sample.dist2dSQ(p3) <= skipDistSq)
+			continue;
+
+		const auto it = borderDistance.find(sample);
+		const int ring = (it == borderDistance.end()) ? -1 : it->second;
+		worst = std::min(worst, ring);
+	}
+
+	return worst;
+}
+
+bool BezierCurve::staysInside(const DistanceMap & borderDistance, int minRing) const
+{
+	return minSampledRing(borderDistance, minRing) >= minRing;
 }
 
 float BezierCurve::borderPenalty(const DistanceMap & borderDistance, const int3 & tile)

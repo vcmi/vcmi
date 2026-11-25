@@ -61,7 +61,10 @@ private:
 struct BezierCurve
 {
 	int3 p0, p1, p2, p3; // p0: road node, p1/p2: control points, p3: zone.getPos()
+	int3 pointAt(float t) const;
 	float distanceSq(const int3 & tile) const;
+	int minSampledRing(const DistanceMap & borderDistance, int minRing) const;
+	bool staysInside(const DistanceMap & borderDistance, int minRing) const;
 	static float borderPenalty(const DistanceMap & borderDistance, const int3 & tile);
 	Path::MoveCostFunction costFunction() const;
 	Path::MoveCostFunction costFunction(const DistanceMap & borderDistance) const;

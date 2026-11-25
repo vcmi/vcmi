@@ -28,17 +28,34 @@
 
 #include <vstd/RNG.h>
 
-rmg::BezierCurve chooseCurve(const Zone & zone, const int3 & src, vstd::RNG & rng)
+rmg::BezierCurve chooseCurve(const Zone & zone, const int3 & src, const rmg::DistanceMap & borderDistance, vstd::RNG & rng)
 {
-	const auto & tiles = zone.area()->getTilesVector();
-	int3 control1 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
-	int3 control2 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
-	return {src, control1, control2, zone.getPos()};
-}
+	constexpr int MIN_RING = 4; // reject a curve that comes this close to the zone border
+	constexpr int MAX_TRIES = 10;
 
-rmg::BezierCurve chooseCurve(Zone & zone, const int3 & src)
-{
-	return chooseCurve(zone, src, zone.getRand());
+	const auto & tiles = zone.area()->getTilesVector();
+	rmg::BezierCurve best;
+	int bestRing = std::numeric_limits<int>::min();
+
+	for(int attempt = 0; attempt < MAX_TRIES; ++attempt)
+	{
+		const int3 control1 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
+		const int3 control2 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
+		const rmg::BezierCurve candidate{src, control1, control2, zone.getPos()};
+
+		if(candidate.staysInside(borderDistance, MIN_RING))
+			return candidate;
+
+		const int ring = candidate.minSampledRing(borderDistance, MIN_RING);
+		if(ring > bestRing)
+		{
+			best = candidate;
+			bestRing = ring;
+		}
+	}
+
+	logRmg->debug("Zone %d: no Bezier curve stayed inside", zone.getId());
+	return best;
 }
 
 void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool onlyStraight /* = true */)
@@ -49,10 +66,9 @@ void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool
 		return;
 	}
 
-	const auto curve = chooseCurve(zone, src);
-
 	std::map<int, rmg::Tileset> reverse;
 	const auto borderDistance = zone.area()->computeDistanceMap(reverse);
+	const auto curve = chooseCurve(zone, src, borderDistance, zone.getRand());
 
 	auto pathArea = zone.areaForRoads();
 	rmg::Path curvedPath(pathArea);
