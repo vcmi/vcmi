@@ -22,6 +22,7 @@
 #include "../CCreatureHandler.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTown.h"
+#include "../mapObjects/MiscObjects.h"
 
 #include <vstd/RNG.h>
 
@@ -33,7 +34,7 @@ void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool
 
 	if(tiles.size() < 2)
 	{
-		logGlobal->warn("Zone too small for curved path");
+		logRmg->warn("Zone too small for curved path");
 		return;
 	}
 
@@ -54,7 +55,7 @@ void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool
 	}
 	else
 	{
-		logGlobal->warn("Failed to create curved path to %s", src.toString());
+		logRmg->warn("Failed to create curved path to %s", src.toString());
 	}
 }
 
@@ -166,4 +167,13 @@ CreatureID chooseFallbackGuard(si32 strength, const std::vector<GuardCandidate> 
 si32 guardStackSize(si32 strength, si32 aiValue)
 {
 	return std::max(1, strength / aiValue);
+}
+
+std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell)
+{
+	const auto & factory = LIBRARY->objtypeh->getHandlerFor(Obj::SPELL_SCROLL, 0);
+	auto obj = std::dynamic_pointer_cast<CGArtifact>(factory.create(map.mapInstance->cb, nullptr));
+	const auto * a = map.getMapProxy()->createScroll(spell);
+	obj->setArtifactInstance(a);
+	return obj;
 }

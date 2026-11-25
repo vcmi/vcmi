@@ -12,12 +12,14 @@
 
 #include "Zone.h"
 #include <boost/heap/priority_queue.hpp> //A*
+#include <memory>
 
 class RmgMap;
 class ObjectManager;
 class ObjectTemplate;
 class CMapGenerator;
 class CCreature;
+class CGObjectInstance;
 
 class rmgException : public std::exception
 {
@@ -70,3 +72,6 @@ CreatureID chooseFallbackGuard(si32 strength, const std::vector<GuardCandidate> 
 
 /// Stack size of a guard of given strength, never below 1
 si32 guardStackSize(si32 strength, si32 aiValue);
+
+/// Spell scroll map object holding `spell`.
+std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell);

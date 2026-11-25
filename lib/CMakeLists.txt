@@ -253,12 +253,18 @@ set(lib_MAIN_SRCS
 	rmg/CRmgTemplateStorage.cpp
 	rmg/CZonePlacer.cpp
 	rmg/CZoneGridPlacer.cpp
+	rmg/ZonePlacementLog.cpp
+	rmg/RmgMapDumper.cpp
 	rmg/CRoadRandomizer.cpp
 	rmg/TileInfo.cpp
 	rmg/Zone.cpp
 	rmg/Functions.cpp
 	rmg/ObjectInfo.cpp
 	rmg/ObjectConfig.cpp
+	rmg/PandoraBoxTreasures.cpp
+	rmg/SeerHutTreasures.cpp
+	rmg/TreasureRewards.cpp
+	rmg/MonsterJoiningOptions.cpp
 	rmg/RmgMap.cpp
 	rmg/PenroseTiling.cpp
 	rmg/modificators/Modificator.cpp
@@ -747,6 +753,8 @@ set(lib_MAIN_HEADERS
 	rmg/CRmgTemplateStorage.h
 	rmg/CZonePlacer.h
 	rmg/CZoneGridPlacer.h
+	rmg/ZonePlacementLog.h
+	rmg/RmgMapDumper.h
 	rmg/ZonePlacementConfig.h
 	rmg/CRoadRandomizer.h
 	rmg/TileInfo.h
@@ -756,6 +764,10 @@ set(lib_MAIN_HEADERS
 	rmg/Functions.h
 	rmg/ObjectInfo.h
 	rmg/ObjectConfig.h
+	rmg/PandoraBoxTreasures.h
+	rmg/SeerHutTreasures.h
+	rmg/TreasureRewards.h
+	rmg/MonsterJoiningOptions.h
 	rmg/PenroseTiling.h
 	rmg/modificators/Modificator.h
 	rmg/modificators/ObjectManager.h

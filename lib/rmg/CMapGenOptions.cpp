@@ -344,7 +344,7 @@ void CMapGenOptions::resetPlayersMap()
 		}
 		else
 		{
-			logGlobal->warn("Adding settings for player %s", color);
+			logRmg->warn("Adding settings for player %s", color);
 			// Usually, all players should be initialized in initPlayersMap()
 			CPlayerSettings settings;
 			players[color] = settings;
@@ -521,9 +521,9 @@ void CMapGenOptions::finalize(vstd::RNG & rand)
 				layersStr += "/";
 			layersStr += MapLayerId::encode(levelMapLayers[i].getNum());
 		}
-		logGlobal->info("RMG map: %dx%d, %s", getWidth(), getHeight(), layersStr.c_str());
+		logRmg->info("RMG map: %dx%d, %s", getWidth(), getHeight(), layersStr.c_str());
 	}
-	logGlobal->info("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d",
+	logRmg->info("RMG settings: players %d, teams %d, computer players %d, computer teams %d, water %d, monsters %d",
 		static_cast<int>(getHumanOrCpuPlayerCount()), static_cast<int>(getTeamCount()), static_cast<int>(getCompOnlyPlayerCount()),
 		static_cast<int>(getCompOnlyTeamCount()), static_cast<int>(getWaterContent()), static_cast<int>(getMonsterStrength()));
 
@@ -533,7 +533,7 @@ void CMapGenOptions::finalize(vstd::RNG & rand)
 	}
 	assert(mapTemplate);
 	
-	logGlobal->info("RMG template name: %s", mapTemplate->getName());
+	logRmg->info("RMG template name: %s", mapTemplate->getName());
 
 	auto maxPlayers = getMaxPlayersCount();
 	if (getHumanOrCpuPlayerCount() == RANDOM_SIZE)
@@ -606,7 +606,7 @@ void CMapGenOptions::finalize(vstd::RNG & rand)
 	assert (vstd::iswithin(waterContent, EWaterContent::NONE, EWaterContent::ISLANDS));
 	assert (vstd::iswithin(monsterStrength, EMonsterStrength::GLOBAL_WEAK, EMonsterStrength::GLOBAL_STRONG));
 
-	logGlobal->trace("Player config:");
+	logRmg->trace("Player config:");
 	int cpuOnlyPlayers = 0;
 	for(const auto & player : players)
 	{
@@ -626,9 +626,9 @@ void CMapGenOptions::finalize(vstd::RNG & rand)
 			default:
 				assert(false);
 		}
-		logGlobal->trace("Player %d: %s", player.second.getColor(), playerType);
+		logRmg->trace("Player %d: %s", player.second.getColor(), playerType);
 	}
-	logGlobal->info("Final player config: %d total, %d cpu-only", players.size(), cpuOnlyPlayers);
+	logRmg->info("Final player config: %d total, %d cpu-only", players.size(), cpuOnlyPlayers);
 }
 
 void CMapGenOptions::updatePlayers()
@@ -712,7 +712,7 @@ PlayerColor CMapGenOptions::getNextPlayerColor() const
 			return i;
 		}
 	}
-	logGlobal->error("Failed to get next player color");
+	logRmg->error("Failed to get next player color");
 	assert(false);
 	return PlayerColor(0);
 }

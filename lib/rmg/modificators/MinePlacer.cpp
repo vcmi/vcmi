@@ -32,7 +32,7 @@ void MinePlacer::process()
 	auto * manager = zone.getModificator<ObjectManager>();
 	if(!manager)
 	{
-		logGlobal->error("ObjectManager doesn't exist for zone %d, skip modificator %s", zone.getId(), getName());
+		logRmg->error("ObjectManager doesn't exist for zone %d, skip modificator %s", zone.getId(), getName());
 		return;
 	}
 
@@ -68,7 +68,7 @@ bool MinePlacer::placeMines(ObjectManager & manager)
 
 			if(compatibleMineHandlers.empty())
 			{
-				logGlobal->error("No mine for resource %s found!", res.toResource()->getJsonKey());
+				logRmg->error("No mine for resource %s found!", res.toResource()->getJsonKey());
 				continue;
 			}
 

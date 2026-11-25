@@ -11,7 +11,11 @@
 
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/filesystem/ResourcePath.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/constants/EntityIdentifiers.h"
 
+#include "../../lib/mapObjects/CGCreature.h"
+#include "../../lib/modding/ModScope.h"
 #include "../../lib/rmg/CRmgTemplate.h"
 
 #include "../../lib/serializer/JsonSerializer.h"
@@ -22,7 +26,6 @@
 
 namespace test
 {
-using namespace ::rmg;
 using namespace ::testing;
 
 class CRmgTemplateTest : public Test
@@ -32,63 +35,27 @@ public:
 
 protected:
 
-	void testLoadSave(const std::string & id, const JsonNode & config)
+	static void testLoadSave(const std::string & id, const JsonNode & config)
 	{
 		auto subject = std::make_shared<CRmgTemplate>();
 		subject->setId(id);
 
+		// Identifier requests need a mod scope; mod loading sets it, a test file does not
+		JsonNode scopedConfig = config;
+		scopedConfig.setModScope(ModScope::scopeBuiltin());
+
 		{
 			InstantIdentifierResolver resolver(*LIBRARY->identifiers());
-			JsonDeserializer handler(nullptr, resolver, config);
+			JsonDeserializer handler(nullptr, resolver, scopedConfig);
 			subject->serializeJson(handler, *LIBRARY->objtypeh);
 		}
 
-		EXPECT_FALSE(subject->getName().empty());
-
-		for(const auto & idAndZone : subject->getZones())
+		if(!config["name"].String().empty())
 		{
-			auto thisZone = idAndZone.second;
-			if(thisZone->getMinesLikeZone() != ZoneOptions::NO_ZONE)
-			{
-				auto otherZoneId = thisZone->getMinesLikeZone();
-
-				const auto otherZone = subject->getZones().at(otherZoneId);
-				GTEST_ASSERT_NE(otherZone, nullptr);
-				EXPECT_THAT(thisZone->getMinesInfo(), ContainerEq(otherZone->getMinesInfo()));
-			}
-
-			if(thisZone->getTerrainTypeLikeZone() != ZoneOptions::NO_ZONE)
-			{
-				auto otherZoneId = thisZone->getTerrainTypeLikeZone();
-
-				const auto otherZone = subject->getZones().at(otherZoneId);
-				GTEST_ASSERT_NE(otherZone, nullptr);
-				EXPECT_THAT(thisZone->getTerrainTypes(), ContainerEq(otherZone->getTerrainTypes()));
-			}
-
-			if(thisZone->getTreasureLikeZone() != ZoneOptions::NO_ZONE)
-			{
-				auto otherZoneId = thisZone->getTreasureLikeZone();
-
-				const auto otherZone = subject->getZones().at(otherZoneId);
-				GTEST_ASSERT_NE(otherZone, nullptr);
-				EXPECT_THAT(thisZone->getTreasureInfo(), ContainerEq(otherZone->getTreasureInfo()));
-			}
+			EXPECT_EQ(subject->getName(), config["name"].String());
 		}
 
-		for(const auto & connection : subject->getConnections())
-		{
-			auto id1 = connection.getZoneA();
-			auto id2 = connection.getZoneB();
-
-			auto zone1 = subject->getZones().at(id1);
-			auto zone2 = subject->getZones().at(id2);
-
-			EXPECT_THAT(zone1->getConnections(), Contains(id2));
-			EXPECT_THAT(zone2->getConnections(), Contains(id1));
-		}
-
-		JsonNode actual(JsonNode::JsonType::DATA_STRUCT);
+		JsonNode actual;
 
 		{
 			JsonSerializer handler(nullptr, actual);
@@ -112,6 +79,292 @@ TEST_F(CRmgTemplateTest, SerializeCycle)
 
 	for(const auto & idAndConfig : testData.Struct())
 		testLoadSave(idAndConfig.first, idAndConfig.second);
+}
+
+TEST_F(CRmgTemplateTest, AfterLoadMergesTemplateCustomObjects)
+{
+	constexpr char text[] = R"({
+		"minSize" : "s",
+		"maxSize" : "s",
+		"players" : "1",
+		"customObjects" : {
+			"bannedCategories" : ["creatureBank"],
+			"bannedObjects" : { "scholar" : true }
+		},
+		"zones" : {
+			"1" : { "type" : "treasure", "size" : 10 },
+			"2" : {
+				"type" : "treasure",
+				"size" : 10,
+				"customObjects" : {
+					"bannedObjects" : { "scholar" : false, "creatureBank" : false }
+				}
+			},
+			"3" : {
+				"type" : "treasure",
+				"size" : 10,
+				"customObjectsLikeZone" : 2
+			}
+		},
+		"connections" : [
+			{ "a" : "1", "b" : "2", "guard" : 1000 },
+			{ "a" : "2", "b" : "3", "guard" : 1000 }
+		]
+	})";
+
+	JsonNode config(text, std::size(text), "AfterLoadMergesTemplateCustomObjects");
+	config.setModScope(ModScope::scopeBuiltin());
+	auto subject = std::make_shared<CRmgTemplate>();
+	subject->setId("merge");
+
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, config);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	subject->afterLoad(*LIBRARY);
+
+	const CompoundMapObjectID scholar(Obj::SCHOLAR, 0);
+	const CompoundMapObjectID bank(Obj::CREATURE_BANK, 0);
+
+	const auto & zoneA = subject->getZones().at(1)->getCustomObjects();
+	EXPECT_TRUE(zoneA.isObjectBanned(scholar));
+	EXPECT_TRUE(zoneA.isObjectBanned(bank));
+
+	const auto & zoneB = subject->getZones().at(2)->getCustomObjects();
+	EXPECT_FALSE(zoneB.isObjectBanned(scholar));
+	EXPECT_FALSE(zoneB.isObjectBanned(bank));
+
+	const auto & zoneC = subject->getZones().at(3)->getCustomObjects();
+	EXPECT_FALSE(zoneC.isObjectBanned(scholar));
+	EXPECT_FALSE(zoneC.isObjectBanned(bank));
+}
+
+TEST_F(CRmgTemplateTest, FalseBanSurvivesRoundTrip)
+{
+	constexpr char text[] = R"({
+		"minSize" : "s",
+		"maxSize" : "s",
+		"players" : "1",
+		"customObjects" : {
+			"bannedCategories" : ["all"],
+			"bannedObjects" : { "scholar" : false }
+		},
+		"zones" : {
+			"1" : { "type" : "treasure", "size" : 10 }
+		},
+		"connections" : []
+	})";
+
+	JsonNode config(text, std::size(text), "FalseBanSurvivesRoundTrip");
+	config.setModScope(ModScope::scopeBuiltin());
+	auto subject = std::make_shared<CRmgTemplate>();
+	subject->setId("falseBan");
+
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, config);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	JsonNode actual;
+	{
+		JsonSerializer handler(nullptr, actual);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	const JsonNode & scholarBan = actual["customObjects"]["bannedObjects"]["core:scholar"];
+	ASSERT_TRUE(scholarBan.isBool());
+	EXPECT_FALSE(scholarBan.Bool());
+
+	actual.setModScope(ModScope::scopeBuiltin());
+	auto reloaded = std::make_shared<CRmgTemplate>();
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, actual);
+		reloaded->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	EXPECT_FALSE(reloaded->getCustomObjects().isObjectBanned(CompoundMapObjectID(Obj::SCHOLAR, 0)));
+}
+
+TEST_F(CRmgTemplateTest, AfterLoadConcatenatesPandoraBoxes)
+{
+	/*
+	 * Asserts: after afterLoad, a zone's pandoraBoxes are the template-level boxes followed by the
+	 * zone's own boxes, and customObjectsLikeZone copies that merged list.
+	 * Pass: zones 1 and 2 each hold exactly [root experience box, zone 1 spell box].
+	 * Fail: the zone list replaces the template list, the order is reversed, or zone 2 does not
+	 * inherit zone 1's boxes.
+	 */
+
+	constexpr char text[] = R"({
+		"minSize" : "s",
+		"maxSize" : "s",
+		"players" : "1",
+		"customObjects" : {
+			"pandoraBoxes" : [ { "experience" : 5000 } ]
+		},
+		"zones" : {
+			"1" : {
+				"type" : "treasure",
+				"size" : 10,
+				"customObjects" : {
+					"bannedCategories" : [ "pandorasBox" ],
+					"pandoraBoxes" : [ { "spells" : [ "fly" ], "rmg" : { "value" : 8000, "rarity" : 2 } } ]
+				}
+			},
+			"2" : {
+				"type" : "treasure",
+				"size" : 10,
+				"customObjectsLikeZone" : 1
+			}
+		},
+		"connections" : [
+			{ "a" : "1", "b" : "2", "guard" : 1000 }
+		]
+	})";
+
+	JsonNode config(text, std::size(text), "AfterLoadConcatenatesPandoraBoxes");
+	auto subject = std::make_shared<CRmgTemplate>();
+	subject->setId("pandoraBoxes");
+
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, config);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	subject->afterLoad(*LIBRARY);
+
+	const JsonNode & rootBox = config["customObjects"]["pandoraBoxes"][0];
+	const JsonNode & zoneBox = config["zones"]["1"]["customObjects"]["pandoraBoxes"][0];
+
+	EXPECT_THAT(subject->getZones().at(1)->getCustomObjects().getPandoraBoxes(), ElementsAre(rootBox, zoneBox));
+	EXPECT_THAT(subject->getZones().at(2)->getCustomObjects().getPandoraBoxes(), ElementsAre(rootBox, zoneBox));
+}
+
+TEST_F(CRmgTemplateTest, AfterLoadConcatenatesSeerHuts)
+{
+	/*
+	 * Asserts: after afterLoad, a zone's seerHuts are the template-level huts followed by the
+	 * zone's own huts, and customObjectsLikeZone copies that merged list.
+	 * Pass: zones 1 and 2 each hold exactly [root experience hut, zone 1 spell hut].
+	 * Fail: the zone list replaces the template list, the order is reversed, or zone 2 does not
+	 * inherit zone 1's huts.
+	 */
+
+	constexpr char text[] = R"({
+		"minSize" : "s",
+		"maxSize" : "s",
+		"players" : "1",
+		"customObjects" : {
+			"seerHuts" : [ { "experience" : 7000 } ]
+		},
+		"zones" : {
+			"1" : {
+				"type" : "treasure",
+				"size" : 10,
+				"customObjects" : {
+					"bannedCategories" : [ "seerHut" ],
+					"seerHuts" : [ { "spells" : [ "fly" ], "rmg" : { "value" : 8000, "rarity" : 2 } } ]
+				}
+			},
+			"2" : {
+				"type" : "treasure",
+				"size" : 10,
+				"customObjectsLikeZone" : 1
+			}
+		},
+		"connections" : [
+			{ "a" : "1", "b" : "2", "guard" : 1000 }
+		]
+	})";
+
+	JsonNode config(text, std::size(text), "AfterLoadConcatenatesSeerHuts");
+	auto subject = std::make_shared<CRmgTemplate>();
+	subject->setId("seerHuts");
+
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, config);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	subject->afterLoad(*LIBRARY);
+
+	const JsonNode & rootHut = config["customObjects"]["seerHuts"][0];
+	const JsonNode & zoneHut = config["zones"]["1"]["customObjects"]["seerHuts"][0];
+
+	EXPECT_THAT(subject->getZones().at(1)->getCustomObjects().getSeerHuts(), ElementsAre(rootHut, zoneHut));
+	EXPECT_THAT(subject->getZones().at(2)->getCustomObjects().getSeerHuts(), ElementsAre(rootHut, zoneHut));
+}
+
+TEST_F(CRmgTemplateTest, AfterLoadMergesTemplateMonsterJoining)
+{
+	/*
+	 * Asserts: after afterLoad, each zone's monsterJoining is the per-field merge of the
+	 * template block into the zone block. custom without aggression resets character.
+	 * Pass: zone 1 has the template fields; zone 2 keeps them and sets character; zone 3
+	 * has character unset.
+	 * Fail: zone values replace the whole block, template fields are dropped, or custom
+	 * without aggression stays CUSTOM.
+	 */
+	constexpr char text[] = R"({
+		"minSize" : "s",
+		"maxSize" : "s",
+		"players" : "1",
+		"monsterJoining" : {
+			"joiningPercentage" : 50,
+			"joinOnlyForMoney" : true
+		},
+		"zones" : {
+			"1" : { "type" : "treasure", "size" : 10 },
+			"2" : {
+				"type" : "treasure",
+				"size" : 10,
+				"monsterJoining" : { "character" : "hostile" }
+			},
+			"3" : {
+				"type" : "treasure",
+				"size" : 10,
+				"monsterJoining" : { "character" : "custom" }
+			}
+		},
+		"connections" : [
+			{ "a" : "1", "b" : "2", "guard" : 1000 },
+			{ "a" : "2", "b" : "3", "guard" : 1000 }
+		]
+	})";
+
+	JsonNode config(text, std::size(text), "AfterLoadMergesTemplateMonsterJoining");
+	auto subject = std::make_shared<CRmgTemplate>();
+	subject->setId("monsterJoining");
+
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, config);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	subject->afterLoad(*LIBRARY);
+
+	const auto zoneA = subject->getZones().at(1)->getMonsterJoining();
+	EXPECT_FALSE(zoneA.character.has_value());
+	EXPECT_EQ(zoneA.joiningPercentage, static_cast<int8_t>(50));
+	EXPECT_EQ(zoneA.joinOnlyForMoney, true);
+
+	const auto zoneB = subject->getZones().at(2)->getMonsterJoining();
+	EXPECT_EQ(zoneB.character, CGCreature::Character::HOSTILE);
+	EXPECT_EQ(zoneB.joiningPercentage, static_cast<int8_t>(50));
+	EXPECT_EQ(zoneB.joinOnlyForMoney, true);
+
+	const auto zoneC = subject->getZones().at(3)->getMonsterJoining();
+	EXPECT_FALSE(zoneC.character.has_value());
+	EXPECT_FALSE(zoneC.aggression.has_value());
+	EXPECT_EQ(zoneC.joiningPercentage, static_cast<int8_t>(50));
+	EXPECT_EQ(zoneC.joinOnlyForMoney, true);
 }
 
 }

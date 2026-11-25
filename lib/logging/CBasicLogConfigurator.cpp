@@ -103,7 +103,7 @@ void CBasicLogConfigurator::configure()
 	}
 }
 
-ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & level)
+std::optional<ELogLevel::ELogLevel> CBasicLogConfigurator::findLogLevel(const std::string & level)
 {
 	static const std::map<std::string, ELogLevel::ELogLevel> levelMap =
 	{
@@ -117,8 +117,14 @@ ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & leve
 	const auto & levelPair = levelMap.find(level);
 	if(levelPair != levelMap.end())
 		return levelPair->second;
-	else
-		throw std::runtime_error("Log level " + level + " unknown.");
+	return std::nullopt;
+}
+
+ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & level)
+{
+	if(const auto result = findLogLevel(level))
+		return *result;
+	throw std::runtime_error("Log level " + level + " unknown.");
 }
 
 EConsoleTextColor CBasicLogConfigurator::getConsoleColor(const std::string & colorName)

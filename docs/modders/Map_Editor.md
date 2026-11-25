@@ -56,8 +56,10 @@ The binary is `vcmieditor` on Linux and macOS and `VCMI_mapeditor.exe` on Window
 - `--monsters <v>` — `random`, `weak`, `normal`, `strong`. Default: `random`.
 - `--seed <n>` — RNG seed. Default: current time.
 - `--single-thread` — run the generator on one thread so the same seed repeats. Default: off.
+- `--dump <stage[,stage...]>` — write whole-map ASCII dumps after those stages (`zones` or a modificator class name). Unknown names log a warning listing valid stages; they are not a CLI error. A non-empty list forces single-thread generation. Default: off (`debug.dumpStages` in `config/randomMap.json`).
+- `--log <domain>=<level>` — set a logger domain to a level for this run only (repeatable). Invalid values exit 2. Does not write `settings.json`. Default: the levels from `settings.json` / schema.
 
-Exit codes: 0 saved; 1 generation or saving threw; 2 bad arguments, no matching template, or a requested value the template does not allow.
+Exit codes: 0 saved; 1 generation or saving threw; 2 bad arguments, no matching template, a requested value the template does not allow, or an invalid `--log`.
 
 ```sh
 vcmieditor --generate /abs/path/out.vmap --template 'Jebus Cross' --seed 12345 --single-thread

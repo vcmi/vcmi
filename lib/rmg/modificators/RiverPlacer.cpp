@@ -112,6 +112,15 @@ char RiverPlacer::dump(const int3 & t)
 	return '?';
 }
 
+std::string RiverPlacer::dumpLegend() const
+{
+	return "@ river node\n"
+		"~ river\n"
+		"2 sink\n"
+		"1 source\n"
+		+ Modificator::dumpLegend();
+}
+
 void RiverPlacer::addRiverNode(const int3 & node)
 {
 	assert(zone.area()->contains(node));
@@ -310,7 +319,7 @@ void RiverPlacer::preprocess()
 	
 	if(source.empty())
 	{
-		logGlobal->info("River source is empty!");
+		logRmg->info("River source is empty!");
 		
 		//looking outside map
 		
@@ -323,7 +332,7 @@ void RiverPlacer::preprocess()
 	
 	if(sink.empty())
 	{
-		logGlobal->error("River sink is empty!");
+		logRmg->error("River sink is empty!");
 		for(auto & i : heightMap)
 		{
 			if(i.second <= 0)
@@ -369,7 +378,7 @@ void RiverPlacer::connectRiver(const int3 & tile)
 	
 	if(pathToSource.getPathArea().empty() || pathToSink.getPathArea().empty())
 	{
-		logGlobal->error("Cannot build river");
+		logRmg->error("Cannot build river");
 		return;
 	}
 	
