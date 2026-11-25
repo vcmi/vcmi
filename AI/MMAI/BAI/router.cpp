@@ -69,9 +69,8 @@ namespace
 			repo->temperature = static_cast<float>(setting("temperature", &JsonNode::isNumber).Float());
 			repo->useCreatureSpells = setting("useCreatureSpells", &JsonNode::isBool).Bool();
 
-			const double thresholdOverride = MMAIFallbackValueTrigger();
-			repo->fallbackValueThreshold =
-				thresholdOverride == MMAI_FALLBACK_VALUE_TRIGGER_UNSET ? setting("fallbackValueThreshold", &JsonNode::isNumber).Float() : thresholdOverride;
+			const auto thresholdOverride = MMAIFallbackValueTrigger();
+			repo->fallbackValueThreshold = thresholdOverride ? *thresholdOverride : setting("fallbackValueThreshold", &JsonNode::isNumber).Float();
 
 			repo->seed = setting("seed", &JsonNode::isNumber).Integer();
 			if(repo->seed == 0)

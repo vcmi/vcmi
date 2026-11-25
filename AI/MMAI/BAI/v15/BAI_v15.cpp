@@ -214,7 +214,7 @@ bool BAI::maybeCastCreatureSpell(const CStack * astack, const BattleID & bid)
 	if(!useCreatureSpells)
 		return false;
 
-	auto * action = getBattleAIAction(astack, bid);
+	const auto * action = getBattleAIAction(astack, bid);
 	if(action->actionType != EActionType::MONSTER_SPELL)
 		return false;
 
@@ -444,7 +444,7 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 	// (defends, or makes meaningless moves) => fallback to BattleAI when it looks like this is the case
 	if(v < fallbackValueThreshold && (action->actionType == S15::ActionType::DEFEND || action->actionType == S15::ActionType::MOVE))
 	{
-		logger.warn("Value too low (%.4f < %.2f) for action \"%s\", will fall back to BattleAI", v, fallbackValueThreshold, action->humanName());
+		logger.info("Value too low (%.4f < %.2f) for action \"%s\", fallback to BattleAI", v, fallbackValueThreshold, action->humanName());
 		cb->battleMakeUnitAction(bid, *getBattleAIAction(astack, bid));
 		lastAction.reset();
 		return;

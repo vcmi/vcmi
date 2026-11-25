@@ -17,6 +17,7 @@
 #include <charconv>
 #include <cstring>
 #include <locale>
+#include <optional>
 
 namespace MMAI
 {
@@ -166,16 +167,14 @@ inline int MMAIFallbackNumActionsTrigger()
 	return value;
 }
 
-constexpr double MMAI_FALLBACK_VALUE_TRIGGER_UNSET = -42;
-
-inline double MMAIFallbackValueTrigger()
+inline std::optional<double> MMAIFallbackValueTrigger()
 {
-	static const double value = []
+	static const auto value = []() -> std::optional<double>
 	{
 		const char * envvar = std::getenv("MMAI_FALLBACK_VALUE_TRIGGER");
 
 		if(envvar == nullptr)
-			return MMAI_FALLBACK_VALUE_TRIGGER_UNSET;
+			return std::nullopt;
 
 		std::istringstream input(envvar);
 		input.imbue(std::locale::classic());
@@ -183,7 +182,7 @@ inline double MMAIFallbackValueTrigger()
 		if(input >> std::noskipws >> result && input.eof() && std::isfinite(result))
 			return result;
 
-		return MMAI_FALLBACK_VALUE_TRIGGER_UNSET;
+		return std::nullopt;
 	}();
 	return value;
 }
