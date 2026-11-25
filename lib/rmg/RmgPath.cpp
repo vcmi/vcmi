@@ -271,6 +271,17 @@ float BezierCurve::distanceSq(const int3 & tile) const
 	return minDistSq;
 }
 
+float BezierCurve::borderPenalty(const DistanceMap & borderDistance, const int3 & tile)
+{
+	constexpr int R = 8; // tiles from the zone border that still receive a penalty
+	constexpr float K = 16.f; // strength of the additive per-step border penalty
+	const auto it = borderDistance.find(tile);
+	if(it == borderDistance.end())
+		return 0.f;
+	const int inward = std::max(0, R - it->second);
+	return K * static_cast<float>(inward * inward);
+}
+
 Path::MoveCostFunction BezierCurve::costFunction() const
 {
 	return costFunction(DistanceMap{});
@@ -280,14 +291,7 @@ Path::MoveCostFunction BezierCurve::costFunction(const DistanceMap & borderDista
 {
 	return [*this, borderDistance](const int3 &, const int3 & dst) -> float
 	{
-		constexpr int R = 8; // tiles from the zone border that still receive a penalty
-		constexpr float K = 16.f; // strength of the additive per-step border penalty
 		float distToCurve = distanceSq(dst);
-		float cost = distToCurve * distToCurve;
-		const auto it = borderDistance.find(dst);
-		if(it == borderDistance.end())
-			return cost;
-		const int inward = std::max(0, R - it->second);
-		return cost + K * static_cast<float>(inward * inward);
+		return distToCurve * distToCurve + borderPenalty(borderDistance, dst);
 	};
 }
