@@ -26,6 +26,8 @@
 
 #include "AI/MMAI/common.h"
 
+#include <functional>
+
 namespace MMAI::BAI
 {
 // key => {model, path}
@@ -58,10 +60,10 @@ namespace
 			const auto & schema = validator.getSchema("vcmi:mmaiSettings");
 			const auto & properties = schema["properties"];
 			validator.validate(json, schema, "mmai");
-			const auto setting = [&](const std::string & key, bool (JsonNode::*hasType)() const) -> const JsonNode &
+			const auto setting = [&](const std::string & key, auto hasType) -> const JsonNode &
 			{
 				const auto & node = json[key];
-				return (node.*hasType)() ? node : properties[key]["default"];
+				return std::invoke(hasType, node) ? node : properties[key]["default"];
 			};
 
 			repo->temperature = static_cast<float>(setting("temperature", &JsonNode::isNumber).Float());
