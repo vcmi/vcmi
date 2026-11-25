@@ -778,6 +778,7 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 	int strength1 = static_cast<int>(std::max(0.f, (strength - value1.at(monsterStrength)) * multiplier1.at(monsterStrength)));
 	int strength2 = static_cast<int>(std::max(0.f, (strength - value2.at(monsterStrength)) * multiplier2.at(monsterStrength)));
 	
+	const si32 guardedValue = strength;
 	strength = strength1 + strength2;
 	if (strength < generator.getConfig().minGuardStrength)
 		return nullptr; //no guard at all
@@ -817,6 +818,8 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 	{
 		creId = chooseFallbackGuard(strength, candidates);
 		amount = guardStackSize(strength, creId.toEntity(LIBRARY)->getAIValue());
+		logRmg->error("Zone %d: no allowed creature fits guard strength %d (guarded value %d), falling back to %d x %s",
+			zone.getId(), strength, guardedValue, amount, creId.toEntity(LIBRARY)->getJsonKey());
 	}
 	
 	auto & guardFactory = LIBRARY->objtypeh->getHandlerFor(Obj::MONSTER, creId);
