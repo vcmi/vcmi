@@ -220,12 +220,24 @@ EDisplayMode getDisplayMode()
 	return EDisplayMode::WINDOWED;
 }
 
-static EDisplayMode lastFullscreenMode = EDisplayMode::FULLSCREEN;
+static EDisplayMode getPreferredFullscreenMode()
+{
+	const std::string & mode = settings["video"]["preferredFullscreenMode"].String();
+	if(mode == "fullscreenExclusive")
+		return EDisplayMode::FULLSCREEN_EXCLUSIVE;
+	return EDisplayMode::FULLSCREEN;
+}
+
+static void setPreferredFullscreenMode(EDisplayMode mode)
+{
+	Settings entry = settings.write["video"]["preferredFullscreenMode"];
+	entry->String() = mode == EDisplayMode::FULLSCREEN_EXCLUSIVE ? "fullscreenExclusive" : "fullscreen";
+}
 
 void setDisplayMode(EDisplayMode mode)
 {
 	if(mode != EDisplayMode::WINDOWED)
-		lastFullscreenMode = mode;
+		setPreferredFullscreenMode(mode);
 
 	Settings entry = settings.write["video"]["displayMode"];
 	switch(mode)
@@ -246,10 +258,10 @@ void toggleFullscreenMode()
 {
 	EDisplayMode currentMode = getDisplayMode();
 	if(currentMode == EDisplayMode::WINDOWED)
-		setDisplayMode(lastFullscreenMode);
+		setDisplayMode(getPreferredFullscreenMode());
 	else
 	{
-		lastFullscreenMode = currentMode;
+		setPreferredFullscreenMode(currentMode);
 		setDisplayMode(EDisplayMode::WINDOWED);
 	}
 }

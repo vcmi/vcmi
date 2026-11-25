@@ -189,6 +189,7 @@
 				"resolution",
 				"reservedWidth",
 				"displayMode",
+				"preferredFullscreenMode",
 				"windowMaximized",
 				"cursor",
 				"showIntro",
@@ -228,6 +229,11 @@
 				"displayMode" : {
 					"type" : "string",
 					"enum" : [ "windowed", "fullscreen", "fullscreenExclusive" ],
+					"default" : "fullscreen"
+				},
+				"preferredFullscreenMode" : {
+					"type" : "string",
+					"enum" : [ "fullscreen", "fullscreenExclusive" ],
 					"default" : "fullscreen"
 				},
 				"windowMaximized" : {
