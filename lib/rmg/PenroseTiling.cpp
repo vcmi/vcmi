@@ -15,6 +15,9 @@
 
 #include <vstd/RNG.h>
 
+#include <algorithm>
+#include <cmath>
+
 
 Point2D Point2D::operator * (float scale) const
 {
@@ -143,25 +146,43 @@ void PenroseTiling::split(Triangle& p, std::vector<Point2D>& points,
 	return;
 }
 
-std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, vstd::RNG * rand)
+PenroseTiling::Geometry PenroseTiling::geometry(size_t numZones, float tileScale, int mapSize)
 {
-	float scale = 173.2f / (numZones * 1.5f + 20);
+	tileScale = std::clamp(tileScale, MIN_TILE_SCALE, MAX_TILE_SCALE);
+	const int size = std::max(mapSize, 1);
+	const float k = 173.2f * BASE_SIZE / (1.5f * static_cast<float>(numZones) + 20.f);
+	float phiPow = 1.f;
+	for(uint32_t i = 0; i < DEPTH; ++i)
+		phiPow *= PHI;
+	const float L0 = phiPow * std::sqrt(k);
+	const float minEdge = 4.0f / static_cast<float>(size); // at least 4 map tiles
+	const float edge = std::max(L0 * tileScale, std::min(L0, minEdge));
+
+	const float rMin = (std::sqrt(2.f) / 2.f) / std::cos(PI_CONSTANT / 10.f) * 1.05f;
+	uint32_t depth = 0;
+	float radius = edge;
+	while(radius < rMin)
+	{
+		radius /= PHI;
+		++depth;
+	}
+	return {edge, radius, depth};
+}
+
+std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, float tileScale, int mapSize, vstd::RNG * rand)
+{
+	const auto geom = geometry(numZones, tileScale, mapSize);
 	float polyAngle = (2 * PI_CONSTANT) / POLY;
 
 	float randomAngle = rand->nextDouble(0.25 * PI_CONSTANT, 0.75 * PI_CONSTANT);
 
-	std::vector<Point2D> points = { Point2D(0.0f, 0.0f), Point2D(0.0f, 1.0f).rotated(randomAngle) };
+	std::vector points = { Point2D(0.0f, 0.0f), Point2D(0.0f, geom.radius).rotated(randomAngle) };
 	std::array<std::vector<uint32_t>, 5> indices;
 
 	for (uint32_t i = 1; i < POLY; ++i)
 	{
 		Point2D next = points[i].rotated(polyAngle);
 		points.push_back(next);
-	}
-
-	for (auto& p : points)
-	{
-		p.x(p.x() * scale * BASE_SIZE);
 	}
 
 	std::set<Point2D> finalPoints;
@@ -172,18 +193,14 @@ std::set<Point2D> PenroseTiling::generatePenroseTiling(size_t numZones, vstd::RN
 
 		Triangle t(true, TIndices({ 0, p[i & 1], p[!(i & 1)] }));
 
-		split(t, points, indices, DEPTH);
+		split(t, points, indices, geom.depth);
 	}
-	// Remove duplicates
 	vstd::unique(points);
 
-	// Shift center to (0.5, 0.5)
 	for (auto & point : points)
 	{
 		point = point + Point2D(0.5f, 0.5f);
 	}
-
-	// For 8XM8 map, only 650 out of 15971 points are in the range
 
 	vstd::copy_if(points, vstd::set_inserter(finalPoints), [](const Point2D point)
 	{

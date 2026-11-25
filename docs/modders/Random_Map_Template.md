@@ -24,7 +24,11 @@
 	"humans" : "1-4",
 
 	///Optional parameter allowing to prohibit some water modes. All modes are allowed if parameter is not specified
-	"allowedWaterContent" : ["none", "normal", "islands"]
+	"allowedWaterContent" : ["none", "normal", "islands"],
+
+	/// Multiplier for Penrose tile size used to assign map tiles to zones. Default 1.0, allowed range 0.25-2.0.
+	/// Smaller values give smoother zone edges and cost more generation time.
+	"penroseTileScale" : 1.0
 	
 	/// List of game settings that were overriden by this template. See config/gameConfig.json in vcmi install directory for possible values
 	/// Settings defined here will always override any settings from vcmi or from mods

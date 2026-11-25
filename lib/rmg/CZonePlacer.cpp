@@ -930,7 +930,11 @@ void CZonePlacer::assignZones(vstd::RNG * rand)
 	{
 		//Create different tiling for each level
 
-		auto vertices = penrose.generatePenroseTiling(zonesOnLevel[level].size(), rand);
+		auto vertices = penrose.generatePenroseTiling(
+			zonesOnLevel[level].size(),
+			map.getMapGenOptions().getMapTemplate()->getPenroseTileScale(),
+			std::max(width, height),
+			rand);
 
 		// Orient the vertex field too, so oriented zones claim the rotated-equivalent vertices. Otherwise
 		// cross-level overlaps get reshuffled against a fixed vertex field and degrade into monoliths.
