@@ -12,6 +12,7 @@
 
 #include "Zone.h"
 #include <boost/heap/priority_queue.hpp> //A*
+#include <memory>
 
 class RmgMap;
 class ObjectManager;
@@ -19,6 +20,7 @@ class ObjectTemplate;
 class CMapGenerator;
 class CCreature;
 struct ObjectInfo;
+class CGObjectInstance;
 
 class rmgException : public std::exception
 {
@@ -61,3 +63,6 @@ bool canJoinTreasurePile(const ObjectInfo & candidate, const std::vector<ObjectI
 
 /// Whether every tile of footprint is at least minDistance (squared tile distance, as in the RMG distance map) away from placed
 bool footprintKeepsDistance(const rmg::Area & footprint, const rmg::Area & placed, float minDistance);
+
+/// Spell scroll map object holding `spell`.
+std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell);

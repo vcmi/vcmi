@@ -41,7 +41,7 @@ void QuestArtifactPlacer::addQuestArtZone(std::shared_ptr<Zone> otherZone)
 
 void QuestArtifactPlacer::addQuestArtifact(const ArtifactID& id, ui32 desiredValue)
 {
-	logGlobal->trace("Need to place quest artifact %s (desired value %u)",
+	logRmg->trace("Need to place quest artifact %s (desired value %u)",
 		LIBRARY->artifacts()->getById(id)->getNameTranslated(),
 		desiredValue);
 	RecursiveLock lock(externalAccessMutex);
@@ -50,7 +50,7 @@ void QuestArtifactPlacer::addQuestArtifact(const ArtifactID& id, ui32 desiredVal
 
 void QuestArtifactPlacer::removeQuestArtifact(const ArtifactID& id)
 {
-	logGlobal->trace("Will not try to place quest artifact %s", LIBRARY->artifacts()->getById(id)->getNameTranslated());
+	logRmg->trace("Will not try to place quest artifact %s", LIBRARY->artifacts()->getById(id)->getNameTranslated());
 	RecursiveLock lock(externalAccessMutex);
 	vstd::erase_if(questArtifactsToPlace, [&id](const QuestArtifactRequest& request)
 	{
@@ -122,7 +122,7 @@ void QuestArtifactPlacer::findZonesForQuestArts()
 		}
 	}
 
-	logGlobal->trace("Number of nearby zones suitable for quest artifacts: %d", questArtZones.size());
+	logRmg->trace("Number of nearby zones suitable for quest artifacts: %d", questArtZones.size());
 }
 
 void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
@@ -144,7 +144,7 @@ void QuestArtifactPlacer::placeQuestArtifacts(vstd::RNG & rand)
 			if (!objectToReplace)
 				continue;
 
-			logGlobal->trace("Replacing %s at %s with the quest artifact %s (desired value %u)",
+			logRmg->trace("Replacing %s at %s with the quest artifact %s (desired value %u)",
 				objectToReplace->getObjectNameTextID(),
 				objectToReplace->anchorPos().toString(),
 				LIBRARY->artifacts()->getById(questRequest.id)->getNameTranslated(),

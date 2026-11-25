@@ -12,6 +12,7 @@
 
 #include "float3.h"
 #include "ZonePlacementConfig.h"
+#include "ZonePlacementLog.h"
 #include "../int3.h"
 #include "../GameConstants.h"
 
@@ -20,17 +21,16 @@ namespace vstd
 class RNG;
 }
 
+namespace rmg
+{
+class ZoneConnection;
+}
+
 class CZoneGraph;
 class CMap;
 class RmgMap;
 class Zone;
 class Point2D;
-
-typedef std::vector<std::pair<TRmgTemplateZoneId, std::shared_ptr<Zone>>> TZoneVector;
-typedef std::map<TRmgTemplateZoneId, std::shared_ptr<Zone>> TZoneMap;
-typedef std::map<std::shared_ptr<Zone>, float3> TForceVector;
-typedef std::map<std::shared_ptr<Zone>, float> TDistanceVector;
-typedef std::map<int, std::map<int, size_t>> TDistanceMap;
 
 class CZonePlacer
 {
@@ -63,14 +63,15 @@ private:
 	void moveOneZone(TZoneMap & zones, TForceVector & totalForces, TDistanceVector & distances, TDistanceVector & overlaps);
 
 	// Predicted connectivity of a finished layout, used to pick the best of several placement attempts.
-	struct ConnectivityCounts { int direct = 0; int gates = 0; int monoliths = 0; };
-	ConnectivityCounts classifyConnections(const TZoneMap & zones, const std::map<std::shared_ptr<Zone>, float3> & solution) const;
+	std::vector<ConnectionPrediction> classifyConnections(const TZoneMap & zones, const TZoneCenterMap & solution) const;
+	ConnectionPrediction predictConnection(const rmg::ZoneConnection & connection, float touching, const float3 & selfPos, const float3 & otherPos) const;
 
 	// One level's tile assignment: iterate a per-zone additive weight so each zone's claimed tile count
 	// converges to its target share, then paint the tiles.
 	void assignTilesCapacityBalanced(int level, const std::vector<std::shared_ptr<Zone>> & levelZones, const std::set<Point2D> & vertices) const;
 
 private:
+	ZonePlacementLog placementLog;
 	int width;
 	int height;
 	//metric coefficient

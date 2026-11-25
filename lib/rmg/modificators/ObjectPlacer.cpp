@@ -12,15 +12,19 @@
 #include "ObjectManager.h"
 #include "RoadPlacer.h"
 #include "../Functions.h"
+#include "../CMapGenerator.h"
 
 #include <vstd/RNG.h>
 
 void ObjectPlacer::process()
 {
+	if(zone.getType() == ETemplateZoneType::SEALED)
+		return;
+
 	auto * manager = zone.getModificator<ObjectManager>();
 	if(!manager)
 	{
-		logGlobal->error("ObjectManager doesn't exist for zone %d, skip modificator %s", zone.getId(), getName());
+		logRmg->error("ObjectManager doesn't exist for zone %d, skip modificator %s", zone.getId(), getName());
 		return;
 	}
 
@@ -54,7 +58,7 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 				});
 				if(subObjects.empty())
 				{
-					logGlobal->error("No subobjects of object type %d have graphics for terrain of zone %d", objid.primaryID, zone.getId());
+					logRmg->error("No subobjects of object type %d have graphics for terrain of zone %d", objid.primaryID, zone.getId());
 					continue;
 				}
 				secondaryID = *RandomGeneratorUtil::nextItem(subObjects, zone.getRand());
@@ -77,6 +81,16 @@ bool ObjectPlacer::placeRequiredObjects(ObjectManager & manager)
 
 			requiredObjects.emplace_back(object, guardStrength);
 		}
+	}
+
+	const auto customObjects = zone.getCustomObjects();
+	for(const auto & [spell, info] : customObjects.getRequiredScrolls())
+	{
+		ui32 guardStrength = info.second.has_value()
+			? info.second.value()
+			: ObjectConfig::getDefaultScrollValue(spell, generator.getConfig().scrollValues);
+		for(int i = 0; i < info.first; ++i)
+			requiredObjects.emplace_back(createSpellScroll(map, spell), guardStrength);
 	}
 
 	//Shuffle objects to avoid patterns, but don't shuffle key objects like towns

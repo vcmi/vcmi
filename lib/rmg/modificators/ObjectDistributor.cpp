@@ -64,7 +64,7 @@ void ObjectDistributor::distributeLimitedObjects()
 				{
 					if(excludedIDs.find(primaryID) != excludedIDs.end())
 					{
-						logGlobal->error("ObjectDistributor: Object %s does not support per-map limit", handler.getJsonKey());
+						logRmg->error("ObjectDistributor: Object %s does not support per-map limit", handler.getJsonKey());
 						continue;
 					}
 

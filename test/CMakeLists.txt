@@ -85,6 +85,13 @@ set(test_SRCS
 		quest/CQuestBorderTest.cpp
 		quest/CQuestGateTest.cpp
 
+		rmg/CRmgTemplateTest.cpp
+		rmg/MonsterJoiningOptionsTest.cpp
+		rmg/ObjectConfigTest.cpp
+		rmg/SeerHutTreasuresTest.cpp
+		rmg/TreasurePlacerTest.cpp
+		rmg/TreasureRewardsTest.cpp
+
 		netpacks/NetPackFixture.cpp
 
 		spells/AbilityCasterTest.cpp
@@ -152,6 +159,7 @@ set(test_SRCS
 		server/battles/TransmutationTest.cpp
 		server/battles/WalkActionTest.cpp
 		server/activities/ActivityProcessorTest.cpp
+		mapObjects/CGCreatureJoiningTest.cpp
 		server/ArmyManagementTest.cpp
 		server/NeutralTownEventsTest.cpp
 		server/TavernRumorsTest.cpp
@@ -161,6 +169,9 @@ set(test_SRCS
 		rmg/WaterZoneLevelsTest.cpp
 		rmg/TileDistanceIndexTest.cpp
 		rmg/RmgPathTest.cpp
+		rmg/RmgMapDumperTest.cpp
+		rmg/PenroseTilingTest.cpp
+		rmg/CRmgTemplatePenroseScaleTest.cpp
 
 		mock/BattleFake.cpp
 		mock/GameHandlerTestClient.cpp

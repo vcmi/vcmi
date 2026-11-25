@@ -123,3 +123,16 @@ char WaterRoutes::dump(const int3 & t)
 	return ' ';
 }
 
+std::string WaterRoutes::dumpLegend() const
+{
+	return "B boarding\n"
+		"@ visitable\n"
+		"# blocked\n"
+		"+ water path\n"
+		"- water\n"
+		". free path\n"
+		"~ water area\n"
+		"' ' outside\n"
+		+ Modificator::dumpLegend();
+}
+

@@ -22,6 +22,7 @@ public:
 	void postProcess();
 	void init() override;
 	char dump(const int3 &) override;
+	std::string dumpLegend() const override;
 	
 	void addRoadNode(const int3 & node);
 	void connectRoads(); //fills "roads" according to "roadNodes"

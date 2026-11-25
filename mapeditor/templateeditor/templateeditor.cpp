@@ -1301,26 +1301,32 @@ void TemplateEditor::on_pushButtonCustomObjects_clicked()
 
 void TemplateEditor::on_pushButtonEntitiesBannedSpells_clicked()
 {
-	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedSpells);
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->banned.spells);
 	EntitiesSelector::showEntitiesSelector(entitiesVariant);
 }
 
 void TemplateEditor::on_pushButtonEntitiesBannedArtifacts_clicked()
 {
-	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedArtifacts);
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->banned.artifacts);
 	EntitiesSelector::showEntitiesSelector(entitiesVariant);
 }
 
 void TemplateEditor::on_pushButtonEntitiesBannedSkills_clicked()
 {
-	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedSkills);
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->banned.skills);
 	EntitiesSelector::showEntitiesSelector(entitiesVariant);
 }
 
 void TemplateEditor::on_pushButtonEntitiesBannedHeroes_clicked()
 {
-	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->bannedHeroes);
+	EntityIds entitiesVariant = std::ref(templates[selectedTemplate]->banned.heroes);
 	EntitiesSelector::showEntitiesSelector(entitiesVariant);
+}
+
+void TemplateEditor::on_pushButtonEntitiesCustomObjects_clicked()
+{
+	ObjectSelector::showObjectSelector(templates[selectedTemplate]->objectConfig);
+	changed();
 }
 
 void TemplateEditor::on_actionExit_triggered()

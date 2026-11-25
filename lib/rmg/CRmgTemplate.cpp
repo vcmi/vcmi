@@ -12,6 +12,9 @@
 #include <vstd/ContainerUtils.h>
 #include "CRmgTemplate.h"
 #include "Functions.h"
+#include "PenroseTiling.h"
+
+#include <algorithm>
 
 #include "../TerrainHandler.h"
 #include "../GameLibrary.h"
@@ -34,6 +37,21 @@ namespace
 	std::string encodeZoneId(si32 id)
 	{
 		return std::to_string(id);
+	}
+
+	void serializeMonsterJoining(JsonSerializeFormat & handler, rmg::MonsterJoiningOptions & options)
+	{
+		if(handler.saving
+			&& !options.character
+			&& !options.aggression
+			&& !options.joiningPercentage
+			&& !options.joinOnlyForMoney)
+		{
+			return;
+		}
+
+		auto guard = handler.enterStruct("monsterJoining");
+		options.serializeJson(handler);
 	}
 }
 
@@ -338,6 +356,16 @@ TRmgTemplateZoneId ZoneOptions::getCustomObjectsLikeZone() const
 	return customObjectsLikeZone;
 }
 
+MonsterJoiningOptions ZoneOptions::getMonsterJoining() const
+{
+	return monsterJoining;
+}
+
+void ZoneOptions::setMonsterJoining(const MonsterJoiningOptions & value)
+{
+	monsterJoining = value;
+}
+
 TRmgTemplateZoneId ZoneOptions::getTownsLikeZone() const
 {
 	return townsLikeZone;
@@ -396,14 +424,14 @@ void ZoneOptions::setRoadOption(int connectionId, rmg::ERoadOption roadOption)
 		if(connection.getId() == connectionId)
 		{
 			connection.setRoadOption(roadOption);
-			logGlobal->info("Set road option for connection %d between zones %d and %d to %s", 
+			logRmg->info("Set road option for connection %d between zones %d and %d to %s", 
 				connectionId, connection.getZoneA(), connection.getZoneB(), 
 				roadOption == rmg::ERoadOption::ROAD_TRUE ? "true" : 
 				roadOption == rmg::ERoadOption::ROAD_FALSE ? "false" : "random");
 			return;
 		}
 	}
-	logGlobal->warn("Failed to find connection with ID %d in zone %d", connectionId, id);
+	logRmg->warn("Failed to find connection with ID %d in zone %d", connectionId, id);
 }
 
 std::vector<TRmgTemplateZoneId> ZoneOptions::getConnectedZoneIds() const
@@ -558,6 +586,7 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler, const CObjectClas
 		auto guard = handler.enterStruct("customObjects");
 		objectConfig.serializeJson(handler, objects);
 	}
+	serializeMonsterJoining(handler, monsterJoining);
 	handler.serializeInt("visiblePositionX", visiblePosition.x);
 	handler.serializeInt("visiblePositionY", visiblePosition.y);
 	handler.serializeFloat("visibleSize", visibleSize);
@@ -951,17 +980,34 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 	serializePlayers(handler, players, "players");
 	serializePlayers(handler, humanPlayers, "humans"); // TODO: Rename this parameter
 
-	handler.serializeIdArray("bannedSpells", bannedSpells);
-	handler.serializeIdArray("bannedArtifacts", bannedArtifacts);
-	handler.serializeIdArray("bannedSkills", bannedSkills);
-	handler.serializeIdArray("bannedHeroes", bannedHeroes);
+	handler.serializeIdArray("bannedSpells", banned.spells);
+	handler.serializeIdArray("bannedArtifacts", banned.artifacts);
+	handler.serializeIdArray("bannedSkills", banned.skills);
+	handler.serializeIdArray("bannedHeroes", banned.heroes);
 
-	handler.serializeIdArray("enabledSpells", enabledSpells);
-	handler.serializeIdArray("enabledArtifacts", enabledArtifacts);
-	handler.serializeIdArray("enabledSkills", enabledSkills);
-	handler.serializeIdArray("enabledHeroes", enabledHeroes);
+	handler.serializeIdArray("enabledSpells", enabled.spells);
+	handler.serializeIdArray("enabledArtifacts", enabled.artifacts);
+	handler.serializeIdArray("enabledSkills", enabled.skills);
+	handler.serializeIdArray("enabledHeroes", enabled.heroes);
+
+	handler.serializeFloat("penroseTileScale", penroseTileScale, 1.0f);
+	if(!handler.saving && (penroseTileScale < PenroseTiling::MIN_TILE_SCALE || penroseTileScale > PenroseTiling::MAX_TILE_SCALE))
+	{
+		logRmg->warn("Template %s: penroseTileScale %g is outside [%g, %g], clamping",
+			(id.empty() ? name : id),
+			penroseTileScale,
+			PenroseTiling::MIN_TILE_SCALE,
+			PenroseTiling::MAX_TILE_SCALE);
+		penroseTileScale = std::clamp(penroseTileScale, PenroseTiling::MIN_TILE_SCALE, PenroseTiling::MAX_TILE_SCALE);
+	}
 
 	*mapSettings = handler.getCurrent()["settings"];
+
+	{
+		auto guard = handler.enterStruct("customObjects");
+		objectConfig.serializeJson(handler, objects);
+	}
+	serializeMonsterJoining(handler, monsterJoining);
 
 	{
 		auto connectionsData = handler.enterArray("connections");
@@ -1045,7 +1091,7 @@ T CRmgTemplate::inheritZoneProperty(std::shared_ptr<rmg::ZoneOptions> zone,
 {
 	if (iteration >= 50)
 	{
-		logGlobal->error("Infinite recursion for %s detected in template %s", propertyString, name);
+		logRmg->error("Infinite recursion for %s detected in template %s", propertyString, name);
 		return T();
 	}
 	
@@ -1062,6 +1108,20 @@ T CRmgTemplate::inheritZoneProperty(std::shared_ptr<rmg::ZoneOptions> zone,
 
 void CRmgTemplate::afterLoad(const GameLibrary & library)
 {
+	for(auto & idAndZone : zones)
+	{
+		auto zone = idAndZone.second;
+		zone->setCustomObjects(ObjectConfig::merge(objectConfig, zone->getCustomObjects()));
+
+		auto joining = rmg::MonsterJoiningOptions::merge(monsterJoining, zone->getMonsterJoining());
+		if(joining.character == CGCreature::Character::CUSTOM && !joining.aggression)
+		{
+			logMod->error("Template '%s' zone %d: monsterJoining character is custom but aggression is not set", id, zone->getId());
+			joining.character.reset();
+		}
+		zone->setMonsterJoining(joining);
+	}
+
 	for(auto & idAndZone : zones)
 	{
 		auto zone = idAndZone.second;
@@ -1126,7 +1186,7 @@ void CRmgTemplate::inheritTownProperties(const GameLibrary & library, std::share
 {
 	if (iteration >= 50)
 	{
-		logGlobal->error("Infinite recursion for town properties detected in template %s", name);
+		logRmg->error("Infinite recursion for town properties detected in template %s", name);
 		return;
 	}
 
@@ -1214,19 +1274,4 @@ void CRmgTemplate::serializePlayers(JsonSerializeFormat & handler, CPlayerCountR
 
 	if(!handler.saving)
 		value.fromString(encodedValue);
-}
-
-const std::vector<CompoundMapObjectID> & ZoneOptions::getBannedObjects() const
-{
-	return objectConfig.getBannedObjects();
-}
-
-const std::vector<ObjectConfig::EObjectCategory> & ZoneOptions::getBannedObjectCategories() const
-{
-	return objectConfig.getBannedObjectCategories();
-}
-
-const std::vector<ObjectInfo> & ZoneOptions::getConfiguredObjects() const
-{
-	return objectConfig.getConfiguredObjects();
 }

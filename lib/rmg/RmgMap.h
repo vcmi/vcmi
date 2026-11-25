@@ -86,8 +86,6 @@ public:
 	void addModificators();
 
 	bool isAllowedSpell(const SpellID & sid) const;
-
-	void dump(bool zoneId) const;
 	
 private:
 	void assertOnMap(const int3 &tile) const; //throws

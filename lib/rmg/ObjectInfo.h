@@ -22,8 +22,6 @@ struct DLL_LINKAGE ObjectInfo
 	ObjectInfo() = default;
 	ObjectInfo(si32 ID, si32 subID);
 	ObjectInfo(CompoundMapObjectID id);
-	ObjectInfo(const ObjectInfo & other);
-	ObjectInfo & operator=(const ObjectInfo & other);
 
 	std::vector<std::shared_ptr<const ObjectTemplate>> templates;
 	si32 primaryID;

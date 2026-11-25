@@ -440,7 +440,7 @@ rmg::Path ObjectManager::placeAndConnectObject(const rmg::Area & searchArea, con
 bool ObjectManager::createMonoliths()
 {
 	// Special case for Junction zone only
-	logGlobal->trace("Creating Monoliths");
+	logRmg->trace("Creating Monoliths");
 	for(const auto & objInfo : requiredObjects)
 	{
 		if (objInfo.obj->ID != Obj::MONOLITH_TWO_WAY)
@@ -457,7 +457,7 @@ bool ObjectManager::createMonoliths()
 		
 		if(!path.valid())
 		{
-			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
+			logRmg->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
 		}
 
@@ -479,7 +479,7 @@ bool ObjectManager::createMonoliths()
 
 bool ObjectManager::createRequiredObjects()
 {
-	logGlobal->trace("Creating required objects");
+	logRmg->trace("Creating required objects");
 	
 	RecursiveLock lock(externalAccessMutex); //In case someone adds more objects
 	for(const auto & objInfo : requiredObjects)
@@ -493,7 +493,7 @@ bool ObjectManager::createRequiredObjects()
 		
 		if(!path.valid())
 		{
-			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
+			logRmg->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
 		}
 
@@ -543,7 +543,7 @@ bool ObjectManager::createRequiredObjects()
 		
 		if(!path.valid())
 		{
-			logGlobal->error("Failed to fill zone %d due to lack of space", zone.getId());
+			logRmg->error("Failed to fill zone %d due to lack of space", zone.getId());
 			return false;
 		}
 		
@@ -580,7 +580,7 @@ bool ObjectManager::createRequiredObjects()
 		{
 			for (auto* instance : rmgNearObject.instances())
 			{
-				logGlobal->error("Failed to connect nearby object %s at %s",
+				logRmg->error("Failed to connect nearby object %s at %s",
 					instance->object().getObjectNameTextID(), instance->getPosition(true).toString());
 				mapProxy->removeObject(&instance->object());
 			}
@@ -837,6 +837,8 @@ std::shared_ptr<CGCreature> ObjectManager::chooseGuard(si32 strength, bool zoneG
 
 	auto guard = std::dynamic_pointer_cast<CGCreature>(guardFactory.create(map.mapInstance->cb, nullptr));
 	guard->initialCharacter = CGCreature::Character::HOSTILE;
+	if(!zoneGuard)
+		zone.getMonsterJoining().applyTo(*guard);
 	auto hlp = std::make_unique<CStackInstance>(map.mapInstance->cb, creId, amount);
 	//will be set during initialization
 	guard->putStack(SlotID(0), std::move(hlp));

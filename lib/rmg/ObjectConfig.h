@@ -11,8 +11,11 @@
 #pragma once
 
 #include "../mapObjects/CompoundMapObjectID.h"
+#include "../json/JsonNode.h"
+#include "ObjectInfo.h"
 
 class CObjectClassesHandler;
+class JsonSerializeFormat;
 
 #ifdef ENABLE_TEMPLATE_EDITOR
 class ObjectSelector;
@@ -46,28 +49,55 @@ public:
 	/// Rarity of native dwellings without rmg info, also the default rarity of randomDwellingLvl common objects
 	static constexpr ui16 NATIVE_DWELLING_RARITY = 40;
 
-	void addBannedObject(const CompoundMapObjectID & objid);
+	void setObjectBanned(const CompoundMapObjectID & objid, bool banned);
+	void addBannedCategory(EObjectCategory category);
 	void addCustomObject(const ObjectInfo & object, const CObjectClassesHandler & objects);
 	void addRequiredObject(const CompoundMapObjectID & objid, ui16 count, std::optional<ui32> guardLevel = std::nullopt);
 	void addRequiredObject(const CompoundMapObjectID & objid, std::pair<ui16, std::optional<ui32>> info);
-	void clearBannedObjects();
-	void clearCustomObjects();
 	void clearRequiredObjects();
-	const std::vector<CompoundMapObjectID> & getBannedObjects() const;
+	/// Entry of customObjects.pandoraBoxes: Pandora box map options plus an "rmg" block, parsed by TreasurePlacer during generation
+	void addPandoraBox(const JsonNode & entry);
+	/// Entry of customObjects.seerHuts: the same format as a pandoraBoxes entry, parsed by TreasurePlacer during generation
+	void addSeerHut(const JsonNode & entry);
+
+	struct SpellScrollInfo
+	{
+		SpellID spell;
+		std::optional<ui32> value;
+		std::optional<ui16> rarity;
+		ui32 zoneLimit = 0; // 0 = unlimited
+	};
+
+	void addSpellScroll(const SpellScrollInfo & scroll);
+	const std::vector<SpellScrollInfo> & getSpellScrolls() const;
+	void addRequiredScroll(SpellID spell, ui16 count, std::optional<ui32> guardLevel = std::nullopt);
+	const std::map<SpellID, std::pair<ui16, std::optional<ui32>>> & getRequiredScrolls() const;
+
+	/// Built-in value of a scroll with this spell: scrollValues[level - 1], or 0 when the level has no entry
+	static ui32 getDefaultScrollValue(SpellID spell, const std::vector<int> & scrollValues);
+
+	const std::map<CompoundMapObjectID, bool> & getObjectBans() const;
 	const std::vector<EObjectCategory> & getBannedObjectCategories() const;
 	const std::vector<ObjectInfo> & getConfiguredObjects() const;
+	const std::vector<JsonNode> & getPandoraBoxes() const;
+	const std::vector<JsonNode> & getSeerHuts() const;
+	bool isObjectBanned(const CompoundMapObjectID & objid) const;
 
 	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> getRequiredObjects() const;
 
+	/// Effective config of a zone: `overlay` entries replace `base` entries per object, per the VCM-22 merge rules
+	static ObjectConfig merge(const ObjectConfig & base, const ObjectConfig & overlay);
+
 	void serializeJson(JsonSerializeFormat & handler, const CObjectClassesHandler & objects);
 private:
-	// TODO: Add convenience method for banning objects by name
-	std::vector<CompoundMapObjectID> bannedObjects;
+	std::map<CompoundMapObjectID, bool> bannedObjects;
 	std::vector<EObjectCategory> bannedObjectCategories;
 
-	// TODO: In what format should I store custom objects?
-	// Need to convert map serialization format to ObjectInfo
 	std::vector<ObjectInfo> customObjects;
 	std::map<CompoundMapObjectID, std::pair<ui16, std::optional<ui32>>> requiredObjects; // obligatory, potentially guarded objects to spawn in this zone
+	std::vector<JsonNode> pandoraBoxes; // raw JSON, because rewards cannot be loaded while templates are (LIBRARY is not set yet)
+	std::vector<JsonNode> seerHuts;
+	std::vector<SpellScrollInfo> spellScrolls;
+	std::map<SpellID, std::pair<ui16, std::optional<ui32>>> requiredScrolls;
 
 };

@@ -548,9 +548,9 @@ void ConnectionsPlacer::collectNeighbourZones()
 bool ConnectionsPlacer::shouldGenerateRoad(const rmg::ZoneConnection& connection) const
 {
 	if (connection.getRoadOption() == rmg::ERoadOption::ROAD_RANDOM)
-		logGlobal->error("Random road between zones %d and %d", connection.getZoneA(), connection.getZoneB());
+		logRmg->error("Random road between zones %d and %d", connection.getZoneA(), connection.getZoneB());
 	else
-		logGlobal->info("Should generate road between zones %d and %d: %d", connection.getZoneA(), connection.getZoneB(), connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE);
+		logRmg->info("Should generate road between zones %d and %d: %d", connection.getZoneA(), connection.getZoneB(), connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE);
 	return connection.getRoadOption() == rmg::ERoadOption::ROAD_TRUE;
 }
 

@@ -19,9 +19,6 @@
 #include "RmgObject.h"
 #include "modificators/Modificator.h"
 
-//uncomment to generate dumps afger every step of map generation
-//#define RMG_DUMP
-
 class RmgMap;
 class CMapGenerator;
 class Modificator;

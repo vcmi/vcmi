@@ -15,6 +15,7 @@
 #include "Functions.h"
 #include "RmgMap.h"
 #include "Zone.h"
+#include "ZonePlacementLog.h"
 
 #include <vstd/RNG.h>
 
@@ -42,12 +43,14 @@ std::array<int3, 6> hexNeighbourDirs(int row)
 }
 
 CZoneGridPlacer::CZoneGridPlacer(const RmgMap & map, const DistanceMap & distancesBetweenZones, float playerRepulsion,
-	const std::set<TRmgTemplateZoneId> & playerZones, const std::set<TRmgTemplateZoneId> & participatingPlayerZones)
+	const std::set<TRmgTemplateZoneId> & playerZones, const std::set<TRmgTemplateZoneId> & participatingPlayerZones,
+	ZonePlacementLog & placementLog)
 	: map(map)
 	, distancesBetweenZones(distancesBetweenZones)
 	, playerRepulsion(playerRepulsion)
 	, playerZones(playerZones)
 	, participatingPlayerZones(participatingPlayerZones)
+	, placementLog(placementLog)
 {
 }
 
@@ -553,16 +556,11 @@ void CZoneGridPlacer::logPlacement(
 {
 	if (!decision.foundPos)
 	{
-		logGlobal->warn("Could not find place for zone %d on level %d grid size %d", zone->getId(), level, gridSize);
+		placementLog.gridPlacementFailed(zone->getId(), level, gridSize);
 		return;
 	}
 
-	logGlobal->trace(
-		"placeOnGrid: zone %d level %d grid %s score %.6g",
-		zone->getId(),
-		level,
-		decision.bestPos.toString(),
-		decision.score);
+	placementLog.gridCellChosen(zone->getId(), level, decision.bestPos, decision.score);
 }
 
 void CZoneGridPlacer::setInitialZoneCenters(
