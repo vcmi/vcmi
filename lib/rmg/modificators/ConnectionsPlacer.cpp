@@ -199,7 +199,17 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 							if (createRoad)
 							{
 								zone.getModificator<RoadPlacer>()->addRoadNode(potentialPos);
-								otherZone->getModificator<RoadPlacer>()->addRoadNode(borderPos);
+								int3 otherRoadNode = borderPos;
+								for(const auto & dir : rmg::dirs4)
+								{
+									int3 candidate = potentialPos + dir;
+									if(theirPath.getPathArea().contains(candidate))
+									{
+										otherRoadNode = candidate;
+										break;
+									}
+								}
+								otherZone->getModificator<RoadPlacer>()->addRoadNode(otherRoadNode);
 							}
 
 							success = true;
@@ -325,6 +335,15 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 					zone.getModificator<RoadPlacer>()->addRoadNode(guardPos);
 
 					assert(otherZone->getModificator<RoadPlacer>());
+					for(const auto & dir : rmg::dirs4)
+					{
+						int3 candidate = guardPos + dir;
+						if(theirPath.getPathArea().contains(candidate))
+						{
+							roadNode = candidate;
+							break;
+						}
+					}
 					otherZone->getModificator<RoadPlacer>()->addRoadNode(roadNode);
 				}
 				assert(otherZone->getModificator<ConnectionsPlacer>());
