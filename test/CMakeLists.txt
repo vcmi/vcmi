@@ -159,6 +159,8 @@ set(test_SRCS
 		rmg/TileDistanceIndexTest.cpp
 		rmg/RmgPathTest.cpp
 		rmg/RmgMapDumperTest.cpp
+		rmg/PenroseTilingTest.cpp
+		rmg/CRmgTemplatePenroseScaleTest.cpp
 
 		mock/BattleFake.cpp
 		mock/GameHandlerTestClient.cpp
