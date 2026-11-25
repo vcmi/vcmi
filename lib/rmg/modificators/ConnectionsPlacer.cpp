@@ -158,6 +158,10 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	{
 		if (connection.getConnectionType() == rmg::EConnectionType::WIDE)
 		{
+			std::map<int, rmg::Tileset> reverse;
+			const auto ourBorderDistance = zone.area()->computeDistanceMap(reverse);
+			const auto theirBorderDistance = otherZone->area()->computeDistanceMap(reverse);
+
 			for (auto borderPos : directConnectionIterator->second)
 			{
 				//TODO: Refactor common code with direct connection
@@ -182,9 +186,9 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 						rmg::Path ourPath(ourArea);
 						rmg::Path theirPath(theirArea);
 						ourPath.connect(zone.freePaths().get());
-						ourPath = ourPath.search(potentialPos, true, ourCurve.costFunction());
+						ourPath = ourPath.search(potentialPos, true, ourCurve.costFunction(ourBorderDistance));
 						theirPath.connect(otherZone->freePaths().get());
-						theirPath = theirPath.search(potentialPos, true, theirCurve.costFunction());
+						theirPath = theirPath.search(potentialPos, true, theirCurve.costFunction(theirBorderDistance));
 
 						if (ourPath.valid() && theirPath.valid())
 						{
@@ -292,15 +296,19 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			const auto ourCurve = chooseCurve(zone, guardPos, rng);
 			const auto theirCurve = chooseCurve(*otherZone, guardPos, rng);
 
+			std::map<int, rmg::Tileset> reverse;
+			const auto ourBorderDistance = zone.area()->computeDistanceMap(reverse);
+			const auto theirBorderDistance = otherZone->area()->computeDistanceMap(reverse);
+
 			auto ourArea = zone.areaForRoads();
 			auto theirArea = otherZone->areaForRoads();
 			theirArea.add(guardPos);
 			rmg::Path ourPath(ourArea);
 			rmg::Path theirPath(theirArea);
 			ourPath.connect(zone.freePaths().get());
-			ourPath = ourPath.search(guardPos, true, ourCurve.costFunction());
+			ourPath = ourPath.search(guardPos, true, ourCurve.costFunction(ourBorderDistance));
 			theirPath.connect(otherZone->freePaths().get());
-			theirPath = theirPath.search(guardPos, true, theirCurve.costFunction());
+			theirPath = theirPath.search(guardPos, true, theirCurve.costFunction(theirBorderDistance));
 			
 			if(ourPath.valid() && theirPath.valid())
 			{

@@ -79,7 +79,7 @@ float RoadPlacer::isolatedMovePenalty(const int3 & src, const int3 & dst)
 	return 0.f;
 }
 
-bool RoadPlacer::createRoad(const int3 & destination)
+bool RoadPlacer::createRoad(const int3 & destination, const rmg::DistanceMap & borderDistance)
 {
 	auto searchArea = zone.areaPossible() + zone.freePaths() + areaRoads + roads;
 
@@ -110,7 +110,7 @@ bool RoadPlacer::createRoad(const int3 & destination)
 	auto res = rmg::Path::invalid();
 	if(const auto it = nodeCurves.find(destination); it != nodeCurves.end())
 	{
-		const auto bezierCost = it->second.costFunction();
+		const auto bezierCost = it->second.costFunction(borderDistance);
 		auto curveRoutig = [this, bezierCost](const int3 & src, const int3 & dst) -> float
 		{
 			if(const float penalty = isolatedMovePenalty(src, dst); penalty > 0.f)
@@ -252,11 +252,14 @@ void RoadPlacer::connectRoads()
 
 	logRmg->debug("Zone %d: %d of %d road nodes have a curve", zone.getId(), static_cast<int>(nodeCurves.size()), static_cast<int>(roadNodes.size()));
 
+	std::map<int, rmg::Tileset> reverse;
+	const auto borderDistance = zone.area()->computeDistanceMap(reverse);
+
 	for(const auto & node : roadNodes)
 	{
 		try
 		{
-			createRoad(node);
+			createRoad(node, borderDistance);
 		}
 		catch (const rmgException& e)
 		{

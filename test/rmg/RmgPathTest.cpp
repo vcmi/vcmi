@@ -384,4 +384,35 @@ TEST(RmgPathTest, SearchWithBezierCostFollowsBentCurveNotTheChord)
 	EXPECT_FALSE(result.getPathArea().contains(int3(10, 0, 0)));
 }
 
+TEST(RmgPathTest, SearchWithBezierBorderPenaltyStaysInlandWhileUnpenalizedPathHugsTheBorder)
+{
+	const auto area = rect(0, 0, 24, 10);
+	const int3 start(0, 0, 0);
+	const int3 end(23, 0, 0);
+	const rmg::BezierCurve curve{start, int3(8, 0, 0), int3(16, 0, 0), end};
+
+	std::map<int, rmg::Tileset> reverse;
+	const auto borderDistance = area.computeDistanceMap(reverse);
+
+	rmg::Path path(area);
+	path.connect(end);
+
+	const auto hugging = path.search(start, true, curve.costFunction());
+	ASSERT_TRUE(hugging.valid());
+	for(const auto & tile : hugging.getPathArea().getTiles())
+		EXPECT_EQ(tile.y, 0);
+
+	const auto inland = path.search(start, true, curve.costFunction(borderDistance));
+	ASSERT_TRUE(inland.valid());
+	for(const auto & tile : inland.getPathArea().getTiles())
+	{
+		const int distStart = std::abs(tile.x - start.x) + std::abs(tile.y - start.y);
+		const int distEnd = std::abs(tile.x - end.x) + std::abs(tile.y - end.y);
+		if(distStart <= 3 || distEnd <= 3)
+			continue;
+		ASSERT_TRUE(borderDistance.count(tile));
+		EXPECT_GE(borderDistance.at(tile), 2);
+	}
+}
+
 }

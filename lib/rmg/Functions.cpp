@@ -51,10 +51,13 @@ void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool
 
 	const auto curve = chooseCurve(zone, src);
 
+	std::map<int, rmg::Tileset> reverse;
+	const auto borderDistance = zone.area()->computeDistanceMap(reverse);
+
 	auto pathArea = zone.areaForRoads();
 	rmg::Path curvedPath(pathArea);
 	curvedPath.connect(zone.freePaths().get());
-	curvedPath = curvedPath.search(src, onlyStraight, curve.costFunction());
+	curvedPath = curvedPath.search(src, onlyStraight, curve.costFunction(borderDistance));
 	if (curvedPath.valid())
 	{
 		path = curvedPath;
