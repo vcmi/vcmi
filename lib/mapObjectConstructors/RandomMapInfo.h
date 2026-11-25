@@ -24,6 +24,9 @@ struct DLL_LINKAGE RandomMapInfo
 	/// Rarity of object, 5 = extremely rare, 100 = common
 	ui32 rarity;
 
+	/// Placed by the random map generator as a treasure pile of its own, never guarded
+	bool standalone = false;
+
 	RandomMapInfo():
 		value(0),
 		zoneLimit(0),

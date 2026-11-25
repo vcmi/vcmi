@@ -10,27 +10,21 @@
 
 #pragma once
 
-#include "../GameConstants.h"
+#include "CRmgTemplate.h"
 
 namespace vstd
 {
 class RNG;
 }
 
-class RmgMap;
-
 class CRoadRandomizer
 {
 public:
-	explicit CRoadRandomizer(RmgMap & map);
+	explicit CRoadRandomizer(CRmgTemplate::Zones zones);
 	~CRoadRandomizer() = default;
 
-	void dropRandomRoads(vstd::RNG * rand);
+	void dropRandomRoads(vstd::RNG & rand);
 
 private:
-	RmgMap & map;
+	CRmgTemplate::Zones zones;
 };
-
-// Helper functions for Union-Find (Disjoint Set Union)
-TRmgTemplateZoneId findSet(std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> & parent, TRmgTemplateZoneId x);
-void unionSets(std::map<TRmgTemplateZoneId, TRmgTemplateZoneId> & parent, TRmgTemplateZoneId x, TRmgTemplateZoneId y);

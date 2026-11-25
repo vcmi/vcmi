@@ -295,7 +295,8 @@
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 100,
-					"rarity"	: 50
+					"rarity"	: 50,
+					"standalone" : true
 				},
 				"compatibilityIdentifiers" : [ "object" ],
 
@@ -461,7 +462,8 @@
 				"rmg" : {
 					"zoneLimit"	: 1,
 					"value"		: 500,
-					"rarity"	: 50
+					"rarity"	: 50,
+					"standalone" : true
 				},
 				"compatibilityIdentifiers" : [ "object" ],
 
