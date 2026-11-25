@@ -362,6 +362,7 @@ public:
 	const Zones & getZones() const;
 	const JsonNode & getMapSettings() const;
 	const std::vector<rmg::ZoneConnection> & getConnectedZoneIds() const;
+	float getPenroseTileScale() const { return penroseTileScale; }
 
 	const std::set<SpellID> & getBannedSpells() const { return bannedSpells; }
 	const std::set<ArtifactID> & getBannedArtifacts() const { return bannedArtifacts; }
@@ -388,6 +389,7 @@ private:
 	Zones zones;
 	std::vector<rmg::ZoneConnection> connections;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
+	float penroseTileScale = 1.0f;
 	std::unique_ptr<JsonNode> mapSettings;
 
 	std::set<SpellID> bannedSpells;

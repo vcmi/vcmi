@@ -317,6 +317,12 @@
 			"description" : "Optional parameter allowing to prohibit some water modes. All modes are allowed if parameter is not specified",
 			"type" : "array",
 			"items" : {"$ref" : "#/definitions/waterContent"}
+		},
+		"penroseTileScale" : {
+			"description" : "Multiplier for Penrose tile size used to assign map tiles to zones. Smaller values give smoother zone edges and take more generation time. Default 1.0",
+			"type" : "number",
+			"minimum" : 0.25,
+			"maximum" : 2.0
 		}
 	}
 }

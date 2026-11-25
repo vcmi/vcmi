@@ -160,6 +160,8 @@ set(test_SRCS
 		rmg/RmgPathTest.cpp
 		rmg/RmgMapDumperTest.cpp
 		rmg/PredictBoatTileTest.cpp
+		rmg/PenroseTilingTest.cpp
+		rmg/CRmgTemplatePenroseScaleTest.cpp
 
 		mock/BattleFake.cpp
 		mock/GameHandlerTestClient.cpp
