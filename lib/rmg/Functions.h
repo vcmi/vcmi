@@ -19,6 +19,7 @@ class ObjectManager;
 class ObjectTemplate;
 class CMapGenerator;
 class CCreature;
+struct ObjectInfo;
 class CGObjectInstance;
 
 class rmgException : public std::exception
@@ -56,6 +57,12 @@ ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level);
 /// Levels that get their own water zone, ascending
 std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 	const std::vector<MapLayerId> & levelLayers, const std::set<int> & landZoneLevels);
+
+/// Whether candidate can be added to an existing treasure pile
+bool canJoinTreasurePile(const ObjectInfo & candidate, const std::vector<ObjectInfo *> & pile);
+
+/// Whether every tile of footprint is at least minDistance (squared tile distance, as in the RMG distance map) away from placed
+bool footprintKeepsDistance(const rmg::Area & footprint, const rmg::Area & placed, float minDistance);
 
 /// Spell scroll map object holding `spell`.
 std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell);

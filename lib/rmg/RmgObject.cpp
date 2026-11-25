@@ -69,17 +69,40 @@ const rmg::Area & Object::Instance::getAccessibleArea() const
 {
 	if(dAccessibleAreaCache.empty())
 	{
-		auto neighbours = rmg::Area({getVisitablePosition()}).getBorderOutside();
-		// FIXME: Blocked area of removable object is also accessible area for neighbors
-		rmg::Area visitable = rmg::Area(neighbours) - getBlockedArea();
-		// TODO: Add in one operation to avoid multiple invalidation
-		for(const auto & from : visitable.getTilesVector())
+		const auto & visitable = getVisitableArea();
+		const auto & blocked = getBlockedArea();
+		const bool visitableFromTop = dObject->isVisitableFromTop();
+		for(const auto & visitableTile : visitable.getTilesVector())
 		{
-			if(isVisitableFrom(from))
-				dAccessibleAreaCache.add(from);
+			for(const auto & dir : int3::getDirs())
+			{
+				const int3 neighbour = visitableTile + dir;
+				if(blocked.contains(neighbour))
+					continue;
+				if(neighbour.y >= visitableTile.y || visitableFromTop)
+					dAccessibleAreaCache.add(neighbour);
+			}
 		}
 	}
 	return dAccessibleAreaCache;
+}
+
+const rmg::Area & Object::Instance::getVisitableArea() const
+{
+	if(dVisitableAreaCache.empty() && dObject->appearance)
+	{
+		const int3 anchor = dObject->anchorPos();
+		const auto & appearance = *dObject->appearance;
+		for(si32 h = 0; h < static_cast<si32>(appearance.getHeight()); ++h)
+		{
+			for(si32 w = 0; w < static_cast<si32>(appearance.getWidth()); ++w)
+			{
+				if(appearance.isVisitableAt(w, h))
+					dVisitableAreaCache.add(int3(anchor.x - w, anchor.y - h, anchor.z));
+			}
+		}
+	}
+	return dVisitableAreaCache;
 }
 
 void Object::Instance::setPosition(const int3 & position)
@@ -89,6 +112,7 @@ void Object::Instance::setPosition(const int3 & position)
 	
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();
+	dVisitableAreaCache.clear();
 	dParent.clearCachedArea();
 }
 
@@ -99,6 +123,7 @@ void Object::Instance::setPositionRaw(const int3 & position)
 		dObject->setAnchorPos(dPosition + dParent.getPosition());
 		dBlockedAreaCache.clear();
 		dAccessibleAreaCache.clear();
+		dVisitableAreaCache.clear();
 		dParent.clearCachedArea();
 	}
 		
@@ -106,6 +131,7 @@ void Object::Instance::setPositionRaw(const int3 & position)
 	
 	dAccessibleAreaCache.translate(shift);
 	dBlockedAreaCache.translate(shift);
+	dVisitableAreaCache.translate(shift);
 	
 	dPosition = position;
 	dObject->setAnchorPos(dPosition + dParent.getPosition());
@@ -146,12 +172,8 @@ void Object::Instance::clear()
 
 	dBlockedAreaCache.clear();
 	dAccessibleAreaCache.clear();
+	dVisitableAreaCache.clear();
 	dParent.clearCachedArea();
-}
-
-bool Object::Instance::isVisitableFrom(const int3 & position) const
-{
-	return position.y >= getPosition(true).y || dObject->isVisitableFromTop();
 }
 
 bool Object::Instance::isBlockedVisitable() const
@@ -266,6 +288,21 @@ bool Object::isVisitable() const
 	});
 }
 
+bool Object::hasMultipleEntrances() const
+{
+	return std::ranges::any_of(instances(), [](const Instance * instance)
+	{
+		return instance->getVisitableArea().getTilesVector().size() > 1;
+	});
+}
+
+Area Object::getFootprint() const
+{
+	Area footprint = getArea();
+	footprint.unite(getAccessibleArea());
+	return footprint;
+}
+
 const int3 & Object::getPosition() const
 {
 	return dPosition;
@@ -316,9 +353,8 @@ const rmg::Area & Object::getBlockVisitableArea() const
 	{
 		for(const auto & i : dInstances)
 		{
-			// FIXME: Account for blockvis objects with multiple visitable tiles
 			if (i.isBlockedVisitable())
-				dBlockVisitableCache.add(i.getVisitablePosition());
+				dBlockVisitableCache.unite(i.getVisitableArea());
 		}
 	}
 	return dBlockVisitableCache;
@@ -343,10 +379,7 @@ const rmg::Area & Object::getVisitableArea() const
 	if(dVisitableCache.empty())
 	{
 		for(const auto & i : dInstances)
-		{
-			// FIXME: Account for objects with multiple visitable tiles
-			dVisitableCache.add(i.getVisitablePosition());
-		}
+			dVisitableCache.unite(i.getVisitableArea());
 	}
 	return dVisitableCache;
 }
@@ -486,16 +519,20 @@ rmg::Area Object::Instance::getBorderAbove() const
 		return rmg::Area();
 	}
 
-	int3 visitablePos = getVisitablePosition();
-	auto areaVisitable = rmg::Area({visitablePos});
-	auto borderAbove = areaVisitable.getBorderOutside();
-	vstd::erase_if(borderAbove, [&](const int3 & tile)
+	rmg::Area result;
+	for(const auto & visitablePos : getVisitableArea().getTilesVector())
 	{
-		return tile.y >= visitablePos.y ||
-		(!object().blockingAt(tile + int3(0, 1, 0)) && 
-		object().blockingAt(tile));
-	});
-	return borderAbove;
+		auto areaVisitable = rmg::Area({visitablePos});
+		auto borderAbove = areaVisitable.getBorderOutside();
+		vstd::erase_if(borderAbove, [&](const int3 & tile)
+		{
+			return tile.y >= visitablePos.y ||
+			(!object().blockingAt(tile + int3(0, 1, 0)) &&
+			object().blockingAt(tile));
+		});
+		result.unite(rmg::Area(borderAbove));
+	}
+	return result;
 }
 
 void Object::Instance::finalize(RmgMap & map, vstd::RNG & rng)
