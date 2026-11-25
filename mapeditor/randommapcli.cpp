@@ -16,6 +16,8 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/callback/EditorCallback.h"
 #include "../lib/constants/EntityIdentifiers.h"
+#include "../lib/logging/CBasicLogConfigurator.h"
+#include "../lib/logging/CLogger.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
 #include "../lib/rmg/CMapGenOptions.h"
@@ -36,7 +38,10 @@
 #include <iostream>
 #include <limits>
 #include <optional>
+#include <set>
 #include <string_view>
+#include <utility>
+#include <vector>
 
 void addRandomMapOptions(QCommandLineParser & parser)
 {
@@ -52,6 +57,8 @@ void addRandomMapOptions(QCommandLineParser & parser)
 		{"monsters", QCoreApplication::translate("main", "Monster strength: random, weak, normal, strong."), "v"},
 		{"seed", QCoreApplication::translate("main", "RNG seed."), "n"},
 		{"single-thread", QCoreApplication::translate("main", "Run the random map generator on one thread.")},
+		{"dump", QCoreApplication::translate("main", "Write whole-map ASCII dumps after the named generation stages (comma-separated). Unknown names are a warning."), "stages"},
+		{"log", QCoreApplication::translate("main", "Set a logger domain to a level for this run (repeatable). Form: domain=level."), "domain=level"},
 	});
 }
 
@@ -112,6 +119,9 @@ struct RandomMapRequest
 	std::optional<EMonsterStrength::EMonsterStrength> monsters;
 	int seed = 0;
 	bool singleThread = false;
+	bool dumpStagesGiven = false;
+	std::set<std::string> dumpStages;
+	std::vector<std::pair<std::string, ELogLevel::ELogLevel>> logLevels;
 };
 
 /// Leaves value empty when the option is not given. False, with error set, when the value is invalid.
@@ -232,6 +242,42 @@ std::string joinTemplateIds(const std::vector<const CRmgTemplate *> & templates)
 	return result;
 }
 
+void parseDumpStages(const QCommandLineParser & parser, RandomMapRequest & request)
+{
+	if(!parser.isSet("dump"))
+		return;
+
+	request.dumpStagesGiven = true;
+	for(const QString & value : parser.values("dump"))
+	{
+		for(const QString & part : value.split(QLatin1Char(','), Qt::SkipEmptyParts))
+		{
+			const QString name = part.trimmed();
+			if(!name.isEmpty())
+				request.dumpStages.insert(name.toStdString());
+		}
+	}
+}
+
+/// Exit code 2 when a --log value is invalid, else 0.
+int parseLogLevels(const QCommandLineParser & parser, RandomMapRequest & request)
+{
+	for(const QString & value : parser.values("log"))
+	{
+		const int eq = value.indexOf(QLatin1Char('='));
+		const std::string domain = eq > 0 ? value.left(eq).trimmed().toStdString() : std::string();
+		const std::string levelName = eq > 0 ? value.mid(eq + 1).trimmed().toStdString() : std::string();
+		if(domain.empty() || levelName.empty())
+			return failArgs("Invalid --log '" + value.toStdString() + "' (expected <domain>=<level>)");
+
+		const auto level = CBasicLogConfigurator::findLogLevel(levelName);
+		if(!level)
+			return failArgs("Invalid --log level '" + levelName + "'");
+		request.logLevels.emplace_back(domain, *level);
+	}
+	return 0;
+}
+
 /// Exit code 2 when the command line is invalid, else 0.
 int parseRequest(const QCommandLineParser & parser, RandomMapRequest & request)
 {
@@ -267,7 +313,9 @@ int parseRequest(const QCommandLineParser & parser, RandomMapRequest & request)
 	if(parser.isSet("template"))
 		request.templateQuery = parser.value("template");
 	request.singleThread = parser.isSet("single-thread");
-	return 0;
+
+	parseDumpStages(parser, request);
+	return parseLogLevels(parser, request);
 }
 
 void applyRequest(CMapGenOptions & options, const RandomMapRequest & request)
@@ -335,6 +383,8 @@ int generateAndSave(CMapGenOptions & options, const RandomMapRequest & request, 
 		CMapGenerator generator(options, &cb, request.seed);
 		if(request.singleThread)
 			generator.setSingleThread(true);
+		if(request.dumpStagesGiven)
+			generator.setDumpStages(request.dumpStages);
 
 		const auto started = std::chrono::steady_clock::now();
 		std::unique_ptr<CMap> map = generator.generate();
@@ -390,9 +440,15 @@ int runRandomMapCommand(const QStringList & arguments)
 		EditorStartup startup;
 		if(!startup.initFilesystem(false))
 			return failRun("Heroes III data or VCMI data was not found");
+		for(const auto & [domain, level] : request.logLevels)
+			CLogger::getLogger(CLoggerDomain(domain))->setLevel(level);
 		startup.initLibrary();
 
 		CMapGenOptions options;
+		// Same road defaults as the game lobby
+		options.setRoadEnabled(RoadId(Road::DIRT_ROAD), true);
+		options.setRoadEnabled(RoadId(Road::GRAVEL_ROAD), true);
+		options.setRoadEnabled(RoadId(Road::COBBLESTONE_ROAD), true);
 		applyRequest(options, request);
 		if(const int rc = selectTemplate(options, request))
 			return rc;

@@ -14,6 +14,8 @@
 #include "ZonePlacementConfig.h"
 #include "../LoadProgress.h"
 
+#include <set>
+
 class MetaString;
 class CRmgTemplate;
 class CMapGenOptions;
@@ -23,6 +25,7 @@ class CMap;
 class Zone;
 class CZonePlacer;
 class IGameInfoCallback;
+class RmgMapDumper;
 
 using JsonVector = std::vector<JsonNode>;
 
@@ -52,6 +55,7 @@ public:
 		std::vector<int> questRewardValues;
 		int seerHutValue;
 		bool singleThread;
+		std::set<std::string> dumpStages;
 		ZonePlacementConfig zonePlacement;
 	};
 	
@@ -65,6 +69,7 @@ public:
 	std::unique_ptr<CMap> generate();
 
 	void setSingleThread(bool value);
+	void setDumpStages(std::set<std::string> stages);
 
 	/// Next unused two-way monolith subtype. Thread-safe; called from the parallel connection-placement phase.
 	int getNextMonlithIndex();
@@ -93,11 +98,23 @@ public:
 	int getRandomSeed() const;
 	
 private:
+	/// Attaches VCMI_RMG_log.txt to the rmg logger for this generator and truncates the file.
+	class RmgLogFileSession
+	{
+	public:
+		RmgLogFileSession();
+		~RmgLogFileSession();
+		RmgLogFileSession(const RmgLogFileSession &) = delete;
+		RmgLogFileSession & operator=(const RmgLogFileSession &) = delete;
+	};
+	RmgLogFileSession rmgLogSession;
+
 	std::unique_ptr<vstd::RNG> rand;
 	int randomSeed;
 	CMapGenOptions& mapGenOptions;
 	Config config;
 	std::unique_ptr<RmgMap> map;
+	std::unique_ptr<RmgMapDumper> mapDumper;
 	std::shared_ptr<CZonePlacer> placer;
 
 	std::vector<rmg::ZoneConnection> connectionsLeft;

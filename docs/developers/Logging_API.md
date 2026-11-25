@@ -148,6 +148,8 @@ A domain is a specific part of the software. In VCMI there exist several domains
 - ai
 - bonus
 - network
+- rmg
+- rmg.zonePlacement
 
 In addition to these domains, there exist always a super domain called "global". Sub-domains can be created with "ai.battle" or "ai.adventure" for example. The dot between the "ai" and "battle" is important and notes the parent-child relationship of those two domains. A few examples how the log level will be inherited:
 

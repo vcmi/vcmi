@@ -23,7 +23,7 @@ void ObjectConfig::addBannedObject(const CompoundMapObjectID & objid)
 
 	bannedObjects.push_back(objid);
 
-	logGlobal->debug("Banned object of type %d.%d", objid.primaryID, objid.secondaryID);
+	logRmg->debug("Banned object of type %d.%d", objid.primaryID, objid.secondaryID);
 }
 
 void ObjectConfig::addCustomObject(const ObjectInfo & object, const CObjectClassesHandler & objects)
@@ -36,14 +36,14 @@ void ObjectConfig::addCustomObject(const ObjectInfo & object, const CObjectClass
 	bannedObjects.push_back(CompoundMapObjectID(object.primaryID, object.secondaryID));
 
 	assert(lastObject.templates.size() > 0);
-	logGlobal->debug("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
+	logRmg->debug("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
 }
 
 void ObjectConfig::addRequiredObject(const CompoundMapObjectID & objid, ui16 count, std::optional<ui32> guardLevel)
 {
 	requiredObjects[objid] = std::pair{count, guardLevel};
 
-	logGlobal->debug("Added required object of type %d.%d, count: %d, guard level: %d",
+	logRmg->debug("Added required object of type %d.%d, count: %d, guard level: %d",
 		objid.primaryID, objid.secondaryID, count,
 		guardLevel.has_value() ? std::to_string(guardLevel.value()) : "none");
 }

@@ -20,6 +20,7 @@ public:
 	void process() override;
 	void init() override;
 	char dump(const int3 &) override;
+	std::string dumpLegend() const override;
 	
 	void blockRock();
 	void postProcess();

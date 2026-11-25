@@ -24,12 +24,17 @@
 #include "../mapping/CMapEditManager.h"
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
+#include "../logging/CLogger.h"
+#include "../CConfigHandler.h"
+#include "../json/JsonUtils.h"
+#include "../VCMIDirs.h"
 #include "CZonePlacer.h"
 #include "CRoadRandomizer.h"
 #include "TileInfo.h"
 #include "Zone.h"
 #include "Functions.h"
 #include "RmgMap.h"
+#include "RmgMapDumper.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/TreasurePlacer.h"
 #include "modificators/RoadPlacer.h"
@@ -38,6 +43,20 @@
 #include <vcmi/HeroTypeService.h>
 
 #include <tbb/task_group.h>
+
+CMapGenerator::RmgLogFileSession::RmgLogFileSession()
+{
+	auto fileTarget = std::make_unique<CLogFileTarget>(VCMIDirs::get().userLogsPath() / "VCMI_RMG_log.txt", false);
+	const JsonNode & fileFormatNode = settings["logging"]["file"]["format"];
+	if(!fileFormatNode.isNull())
+		fileTarget->setFormatter(CLogFormatter(fileFormatNode.String()));
+	CLogger::getLogger(CLoggerDomain("rmg"))->addTarget(std::move(fileTarget));
+}
+
+CMapGenerator::RmgLogFileSession::~RmgLogFileSession()
+{
+	CLogger::getLogger(CLoggerDomain("rmg"))->clearTargets();
+}
 
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
@@ -83,13 +102,18 @@ void CMapGenerator::loadConfig()
 	for(auto & i : randomMapJson["quests"]["rewardValue"].Vector())
 		config.questRewardValues.push_back(i.Integer());
 	config.seerHutValue = randomMapJson["quests"]["seerHutValue"].Integer();
-	logGlobal->info("Seer Hut value: %d", config.seerHutValue);
+	logRmg->info("Seer Hut value: %d", config.seerHutValue);
 	config.pandoraMultiplierGold = randomMapJson["pandoras"]["valueMultiplierGold"].Integer();
 	config.pandoraMultiplierExperience = randomMapJson["pandoras"]["valueMultiplierExperience"].Integer();
 	config.pandoraMultiplierSpells = randomMapJson["pandoras"]["valueMultiplierSpells"].Integer();
 	config.pandoraSpellSchool = randomMapJson["pandoras"]["valueSpellSchool"].Integer();
 	config.pandoraSpell60 = randomMapJson["pandoras"]["valueSpell60"].Integer();
 	config.singleThread = randomMapJson["singleThread"].Bool();
+	// A mod that ships config/randomMap.json replaces that whole file; assemble so core dumpStages still apply.
+	const JsonNode assembledRandomMap = JsonUtils::assembleFromFiles("config/randomMap.json");
+	config.dumpStages.clear();
+	for(const auto & stage : assembledRandomMap["debug"]["dumpStages"].Vector())
+		config.dumpStages.insert(stage.String());
 	const auto & zonePlacementJson = randomMapJson["zonePlacement"];
 	config.zonePlacement.attempts = zonePlacementJson["attempts"].Integer();
 	config.zonePlacement.scoreDirect = zonePlacementJson["scoreDirect"].Integer();
@@ -107,6 +131,11 @@ const CMapGenerator::Config & CMapGenerator::getConfig() const
 void CMapGenerator::setSingleThread(bool value)
 {
 	config.singleThread = value;
+}
+
+void CMapGenerator::setDumpStages(std::set<std::string> stages)
+{
+	config.dumpStages = std::move(stages);
 }
 
 //must be instantiated in .cpp file for access to complete types of all member fields
@@ -133,6 +162,12 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 {
 	Load::Progress::reset();
 	Load::Progress::setupStepsTill(5, 30);
+	mapDumper.reset();
+	if(!config.dumpStages.empty())
+	{
+		config.singleThread = true;
+		mapDumper = std::make_unique<RmgMapDumper>(*map, *this, config.dumpStages);
+	}
 	try
 	{
 		addHeaderInfo();
@@ -140,6 +175,8 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		Load::Progress::step();
 		initQuestArtsRemaining();
 		genZones();
+		if(mapDumper)
+			mapDumper->dumpZones();
 		map->addWaterZones(*this, *rand);
 		Load::Progress::step();
 		map->getMap(this).calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
@@ -154,7 +191,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	}
 	catch (rmgException &e)
 	{
-		logGlobal->error("Random map generation received exception: %s", e.what());
+		logRmg->error("Random map generation received exception: %s", e.what());
 		throw;
 	}
 	Load::Progress::finish();
@@ -291,7 +328,7 @@ void CMapGenerator::addPlayerInfo()
 			}
 			teamOffset += teamCountNorm;
 		}
-		logGlobal->info("Current player settings size: %d",  mapGenOptions.getPlayersSettings().size());
+		logRmg->info("Current player settings size: %d",  mapGenOptions.getPlayersSettings().size());
 
 		// Team numbers are assigned randomly to every player
 		//TODO: allow to customize teams in rmg template
@@ -314,7 +351,7 @@ void CMapGenerator::addPlayerInfo()
 			{
 				if (teamNumbers[j].empty())
 				{
-					logGlobal->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
+					logRmg->error("Not enough places in team for %s player", ((j == CPUONLY) ? "CPU" : "CPU or human"));
 					assert (teamNumbers[j].size());
 				}
 				auto itTeam = RandomGeneratorUtil::nextItem(teamNumbers[j], *rand);
@@ -325,7 +362,7 @@ void CMapGenerator::addPlayerInfo()
 			map->getMap(this).players[pSettings.getColor().getNum()] = player;
 		}
 
-		logGlobal->info("Current team count: %d", teamsTotal.size());
+		logRmg->info("Current team count: %d", teamsTotal.size());
 
 	}
 	// FIXME: 0
@@ -344,7 +381,7 @@ void CMapGenerator::genZones()
 	CRoadRandomizer roadRandomizer(*map);
 	roadRandomizer.dropRandomRoads(rand.get());
 
-	logGlobal->info("Zones generated successfully");
+	logRmg->info("Zones generated successfully");
 }
 
 void CMapGenerator::addWaterTreasuresInfo()
@@ -364,7 +401,7 @@ void CMapGenerator::fillZones()
 {
 	addWaterTreasuresInfo();
 
-	logGlobal->info("Started filling zones");
+	logRmg->info("Started filling zones");
 
 	size_t numZones = map->getZones().size();
 
@@ -378,6 +415,9 @@ void CMapGenerator::fillZones()
 		it.second->initModificators();
 		Progress::Progress::step();
 	}
+
+	if(mapDumper)
+		mapDumper->expectModificators();
 
 	std::vector<std::shared_ptr<Zone>> treasureZones;
 
@@ -399,6 +439,8 @@ void CMapGenerator::fillZones()
 				{
 					auto jobCopy = *it;
 					jobCopy->run();
+					if(mapDumper)
+						mapDumper->onModificatorFinished(*jobCopy);
 					Progress::Progress::step(); //Update progress bar
 					allJobs.erase(it);
 					break; //Restart from the first job
@@ -445,6 +487,9 @@ void CMapGenerator::fillZones()
 		pool.wait();
 	}
 
+	if(mapDumper)
+		mapDumper->reportUnknownStages();
+
 	for (const auto& it : map->getZones())
 	{
 		if (it.second->getType() == ETemplateZoneType::TREASURE)
@@ -463,7 +508,7 @@ void CMapGenerator::fillZones()
 	map->getMap(this).grailPos = *RandomGeneratorUtil::nextItem(grailZone->freePaths()->getTiles(), *rand);
 	map->getMap(this).reindexObjects();
 
-	logGlobal->info("Zones filled successfully");
+	logRmg->info("Zones filled successfully");
 
 	Load::Progress::set(250);
 }

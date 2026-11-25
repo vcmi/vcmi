@@ -80,17 +80,17 @@ void TreasurePlacer::addObjectToRandomPool(const ObjectInfo& oi)
 {
 	if (oi.templates.empty())
 	{
-		logGlobal->error("Attempt to add ObjectInfo with no templates! Value: %d", oi.value);
+		logRmg->error("Attempt to add ObjectInfo with no templates! Value: %d", oi.value);
 		return;
 	}
 	if (!oi.generateObject)
 	{
-		logGlobal->error("Attempt to add ObjectInfo with no generateObject function! Value: %d", oi.value);
+		logRmg->error("Attempt to add ObjectInfo with no generateObject function! Value: %d", oi.value);
 		return;
 	}
 	if (!oi.maxPerZone)
 	{
-		logGlobal->warn("Attempt to add ObjectInfo with 0 maxPerZone! Value: %d", oi.value);
+		logRmg->warn("Attempt to add ObjectInfo with 0 maxPerZone! Value: %d", oi.value);
 		return;
 	}
 	RecursiveLock lock(externalAccessMutex);
@@ -790,7 +790,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 			object->rmgValue = oi->value;
 			if(oi->templates.empty())
 			{
-				logGlobal->warn("Deleting randomized object with no templates: %s", object->getObjectNameTextID());
+				logRmg->warn("Deleting randomized object with no templates: %s", object->getObjectNameTextID());
 				if (oi->destroyObject)
 					oi->destroyObject(*object);
 				continue;
@@ -798,7 +798,7 @@ rmg::Object TreasurePlacer::constructTreasurePile(const std::vector<ObjectInfo*>
 		}
 		else
 		{
-			logGlobal->error("ObjectInfo has no generateObject function! Templates: %d", oi->templates.size());
+			logRmg->error("ObjectInfo has no generateObject function! Templates: %d", oi->templates.size());
 			continue;
 		}
 		
@@ -1106,18 +1106,18 @@ void TreasurePlacer::createTreasures(ObjectManager& manager)
 
 			if (path.valid())
 			{
-#ifdef TREASURE_PLACER_LOG
-				treasureArea.unite(rmgObject.getArea());
-				if (guarded)
-				{
-					guards.unite(rmgObject.instances().back()->getBlockedArea());
-					auto guardedArea = rmgObject.instances().back()->getAccessibleArea();
-					auto areaToBlock = rmgObject.getAccessibleArea(true) - guardedArea;
-					treasureBlockArea.unite(areaToBlock);
-				}
-#endif
 				zone.connectPath(path);
 				manager.placeObject(rmgObject, guarded, true);
+				// Record dump tiles from the placed map objects; querying rmg::Object areas here changes the generated map
+				const auto * guard = guarded ? rmgObject.instances().back() : nullptr;
+				for(const auto * instance : rmgObject.instances())
+				{
+					auto & target = instance == guard ? guards : treasureArea;
+					for(const auto & tile : instance->object().getBlockedPos())
+						target.add(tile);
+					if(instance->object().isVisitable())
+						target.add(instance->object().visitablePos());
+				}
 			}
 		}
 	}
@@ -1129,10 +1129,15 @@ char TreasurePlacer::dump(const int3 & t)
 		return '!';
 	if(treasureArea.contains(t))
 		return '$';
-	if(treasureBlockArea.contains(t))
-		return '*';
 	
 	return Modificator::dump(t);
+}
+
+std::string TreasurePlacer::dumpLegend() const
+{
+	return "! guard\n"
+		"$ treasure\n"
+		+ Modificator::dumpLegend();
 }
 
 void TreasurePlacer::ObjectPool::addObject(const ObjectInfo & info)
@@ -1187,7 +1192,7 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 			auto category = getObjectCategory(oi.getCompoundID());
 			if (categoriesSet.count(category))
 			{
-				logGlobal->debug("Removing object %s from possible objects", oi.templates.front()->stringID);
+				logRmg->debug("Removing object %s from possible objects", oi.templates.front()->stringID);
 				return true;
 			}
 			return false;
@@ -1204,7 +1209,7 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 				if (bannedObjectsSet.count(key) || bannedObjectsSet.count(keyGroup))
 				{
 					// FIXME: Stopped working, nothing is banned
-					logGlobal->debug("Banning object %s from possible objects", templ->stringID);
+					logRmg->debug("Banning object %s from possible objects", templ->stringID);
 					return true;
 				}
 			}
@@ -1220,7 +1225,7 @@ void TreasurePlacer::ObjectPool::patchWithZoneConfig(const Zone & zone, Treasure
 		tp->setBasicProperties(object, object.getCompoundID());
 		tp->setRandomDwellingValue(object);
 		addObject(object);
-		logGlobal->debug("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
+		logRmg->debug("Added custom object of type %d.%d", object.primaryID, object.secondaryID);
 	}
 	// TODO: Overwrite or add to possibleObjects
 
