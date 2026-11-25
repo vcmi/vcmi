@@ -38,6 +38,9 @@ public:
 
 void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool onlyStraight = true);
 
+/// `roads` with dead-end spurs stripped; tiles in `keep` are never removed
+rmg::Area pruneRoadDeadEnds(const rmg::Area & roads, const rmg::Tileset & keep);
+
 rmg::Tileset collectDistantTiles(const Zone & zone, int distance);
 
 int chooseRandomAppearance(vstd::RNG & generator, si32 ObjID, TerrainId terrain);

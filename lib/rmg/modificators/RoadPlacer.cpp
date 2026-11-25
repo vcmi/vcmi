@@ -214,10 +214,10 @@ void RoadPlacer::connectRoads()
 	if(roadNodes.size() < 2)
 		return;
 	
-	//take any tile from road nodes as destination zone for all other road nodes
+	// Seed at the zone position (main town visitable tile, or zone centre).
 	RecursiveLock lock(externalAccessMutex);
 	if(roads.empty())
-		roads.add(*roadNodes.begin());
+		roads.add(zone.getPos());
 
 	for(const auto & node : roadNodes)
 	{
@@ -235,6 +235,8 @@ void RoadPlacer::connectRoads()
 			throw;
 		}
 	}
+
+	roads = pruneRoadDeadEnds(roads, roadNodes);
 	
 	if (!zone.isUnderground())
 	{

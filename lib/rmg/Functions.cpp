@@ -60,6 +60,56 @@ void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool
 	}
 }
 
+namespace
+{
+// 4-adjacent roads, plus a diagonal when the two tiles share no 4-adjacent road tile.
+int roadEndDegree(const rmg::Area & roads, const int3 & tile)
+{
+	int degree = 0;
+	for(const auto & dir : rmg::dirs4)
+	{
+		if(roads.contains(tile + dir))
+			++degree;
+	}
+	for(const auto & dir : rmg::dirsDiagonal)
+	{
+		const int3 next = tile + dir;
+		if(!roads.contains(next))
+			continue;
+		const int3 sharedX = tile + int3(dir.x, 0, 0);
+		const int3 sharedY = tile + int3(0, dir.y, 0);
+		if(!roads.contains(sharedX) && !roads.contains(sharedY))
+			++degree;
+	}
+	return degree;
+}
+}
+
+rmg::Area pruneRoadDeadEnds(const rmg::Area & roads, const rmg::Tileset & keep)
+{
+	rmg::Area remaining = roads;
+	bool changed = true;
+	while(changed)
+	{
+		changed = false;
+		std::vector<int3> toRemove;
+		for(const int3 & tile : remaining.getTiles())
+		{
+			if(keep.contains(tile))
+				continue;
+			if(roadEndDegree(remaining, tile) <= 1)
+				toRemove.push_back(tile);
+		}
+
+		for(const int3 & tile : toRemove)
+		{
+			remaining.erase(tile);
+			changed = true;
+		}
+	}
+	return remaining;
+}
+
 rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 {
 	uint32_t distanceSq = distance * distance;
