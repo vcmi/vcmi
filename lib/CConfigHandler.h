@@ -131,3 +131,4 @@ extern DLL_LINKAGE SettingsStorage keyBindingsConfig;
 
 DLL_LINKAGE EDisplayMode getDisplayMode();
 DLL_LINKAGE void setDisplayMode(EDisplayMode mode);
+DLL_LINKAGE void toggleFullscreenMode();

@@ -340,6 +340,13 @@ void ScreenHandler::recreateWindowAndScreenBuffers()
 
 	initializeScreenBuffers();
 
+	// SDL recommends keeping a newly-created window hidden until its renderer is ready, otherwise the native window may be shown and recreated briefly
+	if(SDL_GetWindowFlags(mainWindow) & SDL_WINDOW_HIDDEN)
+	{
+		SDL_ShowWindow(mainWindow);
+		SDL_SyncWindow(mainWindow);
+	}
+
 	if(!settings["session"]["headless"].Bool() && settings["general"]["notifications"].Bool())
 	{
 		NotificationHandler::init(mainWindow);
@@ -600,7 +607,20 @@ SDL_Window * ScreenHandler::createWindow()
 	switch(getPreferredWindowMode())
 	{
 		case EDisplayMode::FULLSCREEN_EXCLUSIVE:
-			return createWindowImpl(dimensions, SDL_WINDOW_FULLSCREEN, false);
+		{
+			SDL_Window * result = createWindowImpl(dimensions, SDL_WINDOW_HIDDEN, false);
+			if(result != nullptr)
+			{
+				SDL_DisplayID displayID = displayIndexToID(getPreferredDisplayIndex());
+				SDL_DisplayMode mode;
+				if(SDL_GetClosestFullscreenDisplayMode(displayID, dimensions.x, dimensions.y, 0.0f, false, &mode))
+					SDL_SetWindowFullscreenMode(result, &mode);
+
+				SDL_SetWindowPosition(result, SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayID), SDL_WINDOWPOS_UNDEFINED_DISPLAY(displayID));
+				SDL_SetWindowFullscreen(result, true);
+			}
+			return result;
+		}
 
 		case EDisplayMode::FULLSCREEN:
 			// with no fullscreen mode set, SDL_WINDOW_FULLSCREEN is borderless at desktop resolution

@@ -220,8 +220,13 @@ EDisplayMode getDisplayMode()
 	return EDisplayMode::WINDOWED;
 }
 
+static EDisplayMode lastFullscreenMode = EDisplayMode::FULLSCREEN;
+
 void setDisplayMode(EDisplayMode mode)
 {
+	if(mode != EDisplayMode::WINDOWED)
+		lastFullscreenMode = mode;
+
 	Settings entry = settings.write["video"]["displayMode"];
 	switch(mode)
 	{
@@ -234,6 +239,18 @@ void setDisplayMode(EDisplayMode mode)
 		case EDisplayMode::WINDOWED:
 			entry->String() = "windowed";
 			break;
+	}
+}
+
+void toggleFullscreenMode()
+{
+	EDisplayMode currentMode = getDisplayMode();
+	if(currentMode == EDisplayMode::WINDOWED)
+		setDisplayMode(lastFullscreenMode);
+	else
+	{
+		lastFullscreenMode = currentMode;
+		setDisplayMode(EDisplayMode::WINDOWED);
 	}
 }
 
