@@ -318,6 +318,8 @@
 	"vcmi.adventureMap.noTownWithMarket": "There are no available marketplaces!",
 	"vcmi.adventureMap.journal.quests": "Quests",
 	"vcmi.adventureMap.journal.events": "Events",
+	"vcmi.adventureMap.journal.noEvents": "No events are currently available.",
+	"vcmi.adventureMap.journal.noQuests": "No quests are currently available.",
 	"vcmi.adventureMap.noTownWithTavern": "There are no available towns with taverns!",
 	"vcmi.adventureMap.playerAttacked": "Player has been attacked: %s",
 	"vcmi.adventureMap.quickLoad.help": "{Quick Load}\n\nLoads the game state from a quick save slot.",

@@ -1,5 +1,5 @@
 /*
- * CScenarioEventJournal.h, part of VCMI engine
+ * CScenarioEventLog.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -16,7 +16,7 @@
 
 #include "../../lib/gameState/ScenarioEventJournalEntry.h"
 
-class ScenarioEventJournalMinimap : public CMinimap
+class ScenarioEventLogMinimap : public CMinimap
 {
 	int3 location = int3(-1, -1, -1);
 	std::shared_ptr<CPicture> marker;
@@ -27,16 +27,16 @@ class ScenarioEventJournalMinimap : public CMinimap
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override {};
 
 public:
-	explicit ScenarioEventJournalMinimap(const Rect & position);
+	explicit ScenarioEventLogMinimap(const Rect & position);
 
 	void setLocation(const int3 & newLocation);
 	void showAll(Canvas & to) override;
 };
 
-class ScenarioEventJournal : public JournalWindow
+class CScenarioEventLog : public JournalWindow
 {
 	const std::vector<ScenarioEventJournalEntry> entries;
-	std::shared_ptr<ScenarioEventJournalMinimap> minimap;
+	std::shared_ptr<ScenarioEventLogMinimap> minimap;
 
 	size_t getItemCount() const override;
 	std::string getItemText(size_t itemIndex) const override;
@@ -44,5 +44,5 @@ class ScenarioEventJournal : public JournalWindow
 	void updateMinimap() override;
 
 public:
-	explicit ScenarioEventJournal(const std::vector<ScenarioEventJournalEntry> & journalEntries);
+	explicit CScenarioEventLog(const std::vector<ScenarioEventJournalEntry> & journalEntries);
 };

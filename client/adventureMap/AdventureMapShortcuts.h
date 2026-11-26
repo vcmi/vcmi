@@ -43,7 +43,7 @@ class AdventureMapShortcuts
 	void worldViewScale4x();
 	void viewStatistic();
 	void switchMapLevel();
-	void showQuestlog();
+	void showJournal();
 	void toggleTrackHero();
 	void toggleGrid();
 	void toggleVisitable();

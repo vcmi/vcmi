@@ -63,7 +63,7 @@ class CExchangeWindow : public CStatusbarWindow, public IGarrisonHolder, public 
 	void swapArtifactsCallback();
 	void moveUnitsShortcut(bool leftToRight);
 	void backpackShortcut(bool leftHero);
-	void questLogShortcut();
+	void journalShortcut();
 
 	std::array<const CGHeroInstance *, 2> heroInst;
 	QuestionID questionID;
