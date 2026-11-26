@@ -26,6 +26,7 @@
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjects/army/CStackInstance.h"
 #include "../../mapObjects/CGCreature.h"
+#include "../../mapObjects/CGObjectInstance.h"
 #include "../../mapObjects/CGDwelling.h"
 #include "../../mapping/CMap.h"
 #include "../../mapping/CMapEditManager.h"
@@ -33,6 +34,16 @@
 #include "../RmgObject.h"
 
 #include <vstd/RNG.h>
+
+namespace
+{
+bool isMonolith(const CGObjectInstance & object)
+{
+	return object.ID == Obj::MONOLITH_ONE_WAY_ENTRANCE
+		|| object.ID == Obj::MONOLITH_ONE_WAY_EXIT
+		|| object.ID == Obj::MONOLITH_TWO_WAY;
+}
+}
 
 void ObjectManager::process()
 {
@@ -443,7 +454,7 @@ bool ObjectManager::createMonoliths()
 	logRmg->trace("Creating Monoliths");
 	for(const auto & objInfo : requiredObjects)
 	{
-		if (objInfo.obj->ID != Obj::MONOLITH_TWO_WAY)
+		if (!isMonolith(*objInfo.obj))
 		{
 			continue;
 		}
@@ -472,7 +483,7 @@ bool ObjectManager::createMonoliths()
 
 	vstd::erase_if(requiredObjects, [](const auto & objInfo)
 	{
-		return  objInfo.obj->ID == Obj::MONOLITH_TWO_WAY;
+		return isMonolith(*objInfo.obj);
 	});
 	return true;
 }
@@ -486,7 +497,7 @@ bool ObjectManager::createRequiredObjects()
 	{
 		rmg::Object rmgObject(objInfo.obj);
 		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
-		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
+		bool guarded = addGuard(rmgObject, objInfo.guardStrength, isMonolith(*objInfo.obj));
 
 		Zone::Lock lock(zone.areaMutex);
 		auto path = placeAndConnectObject(zone.areaPossible().get(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
@@ -531,7 +542,7 @@ bool ObjectManager::createRequiredObjects()
 
 		rmg::Object rmgObject(objInfo.obj);
 		rmgObject.setTemplate(zone.getTerrainType(), zone.getRand());
-		bool guarded = addGuard(rmgObject, objInfo.guardStrength, (objInfo.obj->ID == Obj::MONOLITH_TWO_WAY));
+		bool guarded = addGuard(rmgObject, objInfo.guardStrength, isMonolith(*objInfo.obj));
 		auto path = placeAndConnectObject(zone.areaPossible().get(), rmgObject,
 										  [this, &rmgObject](const int3 & tile)
 		{
