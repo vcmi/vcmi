@@ -64,6 +64,11 @@
 #include "editorfiledialog.h"
 #include "randommapcli.h"
 
+static QString normalizeStoredPath(const QString & path)
+{
+	return QDir::fromNativeSeparators(path);
+}
+
 static QStringList loadRecentlyOpenedFiles()
 {
 	QStringList result;
@@ -72,7 +77,7 @@ static QStringList loadRecentlyOpenedFiles()
 	{
 		for(const auto & entry : recentFiles.Vector())
 			if(entry.isString())
-				result.push_back(QString::fromStdString(entry.String()));
+				result.push_back(normalizeStoredPath(QString::fromStdString(entry.String())));
 	}
 	return result;
 }
@@ -82,7 +87,7 @@ static void saveRecentlyOpenedFiles(const QStringList & files)
 	Settings recentFiles = persistentStorage.write["mapEditor"]["recentFiles"];
 	recentFiles->Vector().clear();
 	for(const auto & file : files)
-		recentFiles->Vector().emplace_back(file.toStdString());
+		recentFiles->Vector().emplace_back(normalizeStoredPath(file).toStdString());
 }
 
 #ifdef VCMI_ANDROID
@@ -204,7 +209,7 @@ void EditorMainWindow::loadUserSettings()
 		resize(width, height);
 	if(!window["x"].isNull() && !window["y"].isNull())
 		move(static_cast<int>(window["x"].Integer()), static_cast<int>(window["y"].Integer()));
-	lastSavingDir = QString::fromStdString(window["lastDirectory"].String());
+	lastSavingDir = normalizeStoredPath(QString::fromStdString(window["lastDirectory"].String()));
 	if(lastSavingDir.isEmpty())
 		lastSavingDir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
 	if(!window["objectBrowserIconSize"].isNull())
@@ -219,7 +224,7 @@ void EditorMainWindow::saveUserSettings()
 	window["height"].Integer() = height();
 	window["x"].Integer() = x();
 	window["y"].Integer() = y();
-	window["lastDirectory"].String() = lastSavingDir.toStdString();
+	window["lastDirectory"].String() = normalizeStoredPath(lastSavingDir).toStdString();
 	window["objectBrowserList"].Bool() = ui->viewModeButton->isChecked();
 	window["objectBrowserIconSize"].Integer() = ui->objectView->gridIconSize();
 }
@@ -635,8 +640,9 @@ void EditorMainWindow::openCampaign(const QString & filenameSelect)
 
 void EditorMainWindow::updateRecentMenu(const QString & filenameSelect) {
 	QStringList recentFiles = loadRecentlyOpenedFiles();
-	recentFiles.removeAll(filenameSelect);
-	recentFiles.prepend(filenameSelect);
+	const QString normalizedFilename = normalizeStoredPath(filenameSelect);
+	recentFiles.removeAll(normalizedFilename);
+	recentFiles.prepend(normalizedFilename);
 	constexpr int maxRecentFiles = 10;
 	saveRecentlyOpenedFiles(recentFiles.mid(0, maxRecentFiles));
 }
