@@ -61,6 +61,7 @@ CMapGenerator::RmgLogFileSession::~RmgLogFileSession()
 CMapGenerator::CMapGenerator(CMapGenOptions& mapGenOptions, IGameInfoCallback * cb, int RandomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(RandomSeed),
 	monolithIndex(0),
+	oneWayMonolithIndex(0),
 	rand(std::make_unique<CRandomGenerator>(RandomSeed))
 {
 	loadConfig();
@@ -553,28 +554,44 @@ void CMapGenerator::addHeaderInfo()
 		m.allowedHeroes.insert(hero);
 }
 
+int CMapGenerator::nextUsableMonolithIndex(int & index, const std::vector<MapObjectID> & objectIds)
+{
+	while (true)
+	{
+		for (const auto & id : objectIds)
+		{
+			if (index >= LIBRARY->objtypeh->knownSubObjects(id).size())
+				throw rmgException(boost::str(boost::format("There is no monolith with index %d available!") % index));
+		}
+
+		bool usable = true;
+		for (const auto & id : objectIds)
+		{
+			auto objectTemplates = LIBRARY->objtypeh->getHandlerFor(id, index).getTemplates();
+			if (objectTemplates.empty() || !objectTemplates[0]->canBePlacedAtAnyTerrain())
+			{
+				usable = false;
+				break;
+			}
+		}
+
+		if (usable)
+			return index++;
+
+		++index;
+	}
+}
+
 int CMapGenerator::getNextMonlithIndex()
 {
 	std::lock_guard lock(monolithIndexMutex);
+	return nextUsableMonolithIndex(monolithIndex, {Obj::MONOLITH_TWO_WAY});
+}
 
-	while (true)
-	{
-		if (monolithIndex >= LIBRARY->objtypeh->knownSubObjects(Obj::MONOLITH_TWO_WAY).size())
-			throw rmgException(boost::str(boost::format("There is no Monolith Two Way with index %d available!") % monolithIndex));
-		else
-		{
-			//Skip modded Monoliths which can't beplaced on every terrain
-			auto templates = LIBRARY->objtypeh->getHandlerFor(Obj::MONOLITH_TWO_WAY, monolithIndex).getTemplates();
-			if (templates.empty() || !templates[0]->canBePlacedAtAnyTerrain())
-			{
-				monolithIndex++;
-			}
-			else
-			{
-				return monolithIndex++;
-			}
-		}
-	}
+int CMapGenerator::getNextOneWayMonolithIndex()
+{
+	std::lock_guard lock(monolithIndexMutex);
+	return nextUsableMonolithIndex(oneWayMonolithIndex, {Obj::MONOLITH_ONE_WAY_ENTRANCE, Obj::MONOLITH_ONE_WAY_EXIT});
 }
 
 bool CMapGenerator::canReserveGatePairLocked(const int3 & posA, const int3 & posB) const
