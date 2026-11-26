@@ -471,6 +471,7 @@ void TemplateEditor::loadZoneConnectionMenuContent()
 		connectionType->addItem(tr("Repulsive"), QVariant(static_cast<int>(rmg::EConnectionType::REPULSIVE)));
 		connectionType->addItem(tr("Wide"), QVariant(static_cast<int>(rmg::EConnectionType::WIDE)));
 		connectionType->addItem(tr("Force portal"), QVariant(static_cast<int>(rmg::EConnectionType::FORCE_PORTAL)));
+		connectionType->addItem(tr("One-way portal"), QVariant(static_cast<int>(rmg::EConnectionType::ONE_WAY)));
 		hasRoad->addItem(tr("Random"), QVariant(static_cast<int>(rmg::ERoadOption::ROAD_RANDOM)));
 		hasRoad->addItem(tr("Yes"), QVariant(static_cast<int>(rmg::ERoadOption::ROAD_TRUE)));
 		hasRoad->addItem(tr("No"), QVariant(static_cast<int>(rmg::ERoadOption::ROAD_FALSE)));
@@ -615,12 +616,15 @@ void TemplateEditor::updateConnectionLines(bool recreate)
 		lines[i]->setLine(QLineF(posA.x(), posA.y(), posB.x(), posB.y()));
 		lines[i]->setText(QString::number(connection.getGuardStrength()));
 
+		QPen oneWayPen(Qt::black, 5, Qt::CustomDashLine, Qt::SquareCap, Qt::BevelJoin);
+		oneWayPen.setDashPattern(QVector<qreal>{8, 3, 2, 3, 2, 3});
 		std::map<rmg::EConnectionType, QPen> pens = {
 			{rmg::EConnectionType::GUARDED, QPen(Qt::black, 5, Qt::SolidLine, Qt::SquareCap, Qt::BevelJoin)},
 			{rmg::EConnectionType::FICTIVE, QPen(Qt::black, 5, Qt::DashLine, Qt::SquareCap, Qt::BevelJoin)},
 			{rmg::EConnectionType::REPULSIVE, QPen(Qt::black, 5, Qt::DashDotLine, Qt::SquareCap, Qt::BevelJoin)},
 			{rmg::EConnectionType::WIDE, QPen(Qt::black, 5, Qt::DotLine, Qt::SquareCap, Qt::BevelJoin)},
-			{rmg::EConnectionType::FORCE_PORTAL, QPen(Qt::black, 5, Qt::DashDotDotLine, Qt::SquareCap, Qt::BevelJoin)}
+			{rmg::EConnectionType::FORCE_PORTAL, QPen(Qt::black, 5, Qt::DashDotDotLine, Qt::SquareCap, Qt::BevelJoin)},
+			{rmg::EConnectionType::ONE_WAY, oneWayPen}
 		};
 		lines[i]->setPen(pens[connection.connectionType]);
 	}

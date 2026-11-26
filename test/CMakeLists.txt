@@ -167,10 +167,13 @@ set(test_SRCS
 		texts/TextOperationsTest.cpp
 
 		rmg/WaterZoneLevelsTest.cpp
+		rmg/GuardFallbackTest.cpp
 		rmg/TileDistanceIndexTest.cpp
 		rmg/RmgPathTest.cpp
 		rmg/RmgRoadCleanupTest.cpp
 		rmg/RmgMapDumperTest.cpp
+		rmg/PlayerZoneArrangementTest.cpp
+		rmg/OneWayConnectionTest.cpp
 		rmg/CRoadRandomizerTest.cpp
 		rmg/PenroseTilingTest.cpp
 		rmg/CRmgTemplatePenroseScaleTest.cpp

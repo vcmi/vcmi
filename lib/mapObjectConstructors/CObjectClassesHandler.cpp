@@ -308,7 +308,9 @@ std::unique_ptr<ObjectClass> CObjectClassesHandler::loadFromJson(LibraryLoadCont
 			loadSubObject(context, subData.second.getModScope(), subData.first, subData.second, newObject.get());
 	}
 
-	if (newObject->id == MapObjectID::MONOLITH_TWO_WAY)
+	if (newObject->id == MapObjectID::MONOLITH_TWO_WAY
+		|| newObject->id == MapObjectID::MONOLITH_ONE_WAY_ENTRANCE
+		|| newObject->id == MapObjectID::MONOLITH_ONE_WAY_EXIT)
 		generateExtraMonolithsForRMG(context, newObject.get());
 
 	return newObject;

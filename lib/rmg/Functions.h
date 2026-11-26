@@ -66,6 +66,22 @@ ui32 getRandomDwellingValue(RmgMap & map, FactionID faction, int level);
 std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 	const std::vector<MapLayerId> & levelLayers, const std::set<int> & landZoneLevels);
 
+/// A creature allowed to guard in a zone, with the guard strengths it stands for (exclusive bounds)
+struct GuardCandidate
+{
+	CreatureID id;
+	si32 aiValue;
+	si32 minStrength; // aiValue * (advMapAmountMin + advMapAmountMax) / 2
+	si32 maxStrength; // aiValue * 100
+};
+
+/// Guard creature for a strength that no candidate's window contains: the candidate whose window lies
+/// nearest to the strength, the first one in order on a tie, Peasant if there are no candidates
+CreatureID chooseFallbackGuard(si32 strength, const std::vector<GuardCandidate> & candidates);
+
+/// Stack size of a guard of given strength, never below 1
+si32 guardStackSize(si32 strength, si32 aiValue);
+
 /// Whether candidate can be added to an existing treasure pile
 bool canJoinTreasurePile(const ObjectInfo & candidate, const std::vector<ObjectInfo *> & pile);
 
