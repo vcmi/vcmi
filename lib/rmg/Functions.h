@@ -37,6 +37,14 @@ public:
 };
 
 void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool onlyStraight = true);
+rmg::BezierCurve chooseCurve(const Zone & zone, const int3 & src, const rmg::DistanceMap & borderDistance, vstd::RNG & rng);
+
+/// `roads` with dead-end spurs stripped; tiles in `keep` are never removed
+rmg::Area pruneRoadDeadEnds(const rmg::Area & roads, const rmg::Tileset & keep);
+
+/// `roads` without 2x2 squares, which are drawn as small rings. Each square loses one tile that is not
+/// in `keep` and whose removal keeps the network connected, preferring the one that leaves a diagonal road.
+rmg::Area removeRoadSquares(const rmg::Area & roads, const rmg::Tileset & keep);
 
 rmg::Tileset collectDistantTiles(const Zone & zone, int distance);
 

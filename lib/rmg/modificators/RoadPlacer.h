@@ -25,6 +25,7 @@ public:
 	std::string dumpLegend() const override;
 	
 	void addRoadNode(const int3 & node);
+	void setNodeCurve(const int3 & node, const rmg::BezierCurve & curve);
 	void connectRoads(); //fills "roads" according to "roadNodes"
 	
 	// TODO: Use setters?
@@ -34,12 +35,14 @@ public:
 	const rmg::Area & getRoads() const;
 	
 protected:
-	bool createRoad(const int3 & dst);
+	bool createRoad(const int3 & dst, const rmg::DistanceMap & borderDistance);
 	rmg::Path createRoadDesperate(rmg::Path & path, const int3 & destination);
 	void drawRoads(bool secondary = false); //actually updates tiles
+	float isolatedMovePenalty(const int3 & src, const int3 & dst);
 
 protected:
 	rmg::Tileset roadNodes; //tiles to be connected with roads
+	std::map<int3, rmg::BezierCurve> nodeCurves;
 	rmg::Area roads; //all tiles with roads
 	rmg::Area areaRoads;
 	rmg::Area isolated;

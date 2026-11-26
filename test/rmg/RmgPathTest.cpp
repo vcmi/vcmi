@@ -68,6 +68,19 @@ void expectSameAsAreaPath(const rmg::Area & area, const rmg::Area & connected, c
 	EXPECT_EQ(sorted(actual.getPathArea()), sorted(expected.getPathArea()));
 }
 
+rmg::DistanceMap borderDistanceOf(const rmg::Area & area)
+{
+	return area.computeDistanceMap();
+}
+
+rmg::Area joinBandAround(const rmg::Area & roads, int joinDistance)
+{
+	rmg::Area band = roads;
+	for(int r = 1; r <= joinDistance; ++r)
+		band.unite(rmg::Area(band.getBorderOutside()));
+	return band;
+}
+
 }
 
 TEST(RmgPathTest, StraightCorridorPathCoversCorridor)
@@ -164,6 +177,58 @@ TEST(RmgPathTest, CostFunctionMakesSearchPreferCheapTiles)
 		return dst.y == 2 ? 1.f : 10.f;
 	};
 	const auto result = path.search(int3(0, 0, 0), true, cheapBottomRow);
+
+	ASSERT_TRUE(result.valid());
+	rmg::Area expected = row(0, 4, 2);
+	expected.unite(rmg::Area({int3(0, 0, 0), int3(0, 1, 0), int3(4, 1, 0), int3(4, 0, 0)}));
+	EXPECT_EQ(sorted(result.getPathArea()), sorted(expected));
+}
+
+TEST(RmgPathTest, SearchKeepsCheaperPathInsideSameIntegerBucket)
+{
+	const auto grid = rect(0, 0, 3, 2);
+	rmg::Path path(grid);
+	path.connect(int3(2, 1, 0));
+
+	const auto fractionalCosts = [](const int3 & src, const int3 & dst) -> float
+	{
+		const auto edge = [&](int x0, int y0, int x1, int y1)
+		{
+			return src == int3(x0, y0, 0) && dst == int3(x1, y1, 0);
+		};
+		if(edge(0, 0, 1, 0))
+			return 0.1f;
+		if(edge(0, 0, 0, 1))
+			return 0.4f;
+		if(edge(1, 0, 1, 1))
+			return 0.8f;
+		if(edge(0, 1, 1, 1))
+			return 0.1f;
+		if(edge(1, 1, 2, 1))
+			return 0.1f;
+		return 0.9f;
+	};
+	const auto result = path.search(int3(0, 0, 0), true, fractionalCosts);
+
+	ASSERT_TRUE(result.valid());
+	EXPECT_EQ(sorted(result.getPathArea()), sorted(rmg::Area({int3(0, 0, 0), int3(0, 1, 0), int3(1, 1, 0), int3(2, 1, 0)})));
+}
+
+TEST(RmgPathTest, SearchStillPrefersCheapTilesAfterAHugePenalty)
+{
+	// Leaving the start costs as much as a move behind an object that is not visitable from top.
+	// Later differences must not get lost in rounding against that penalty.
+	const auto grid = rect(0, 0, 5, 3);
+	rmg::Path path(grid);
+	path.connect(int3(4, 0, 0));
+
+	const auto penaltyThenCheapBottomRow = [](const int3 & src, const int3 & dst) -> float
+	{
+		if(src == int3(0, 0, 0))
+			return 1e12f;
+		return dst.y == 2 ? 1.f : 1000.f;
+	};
+	const auto result = path.search(int3(0, 0, 0), true, penaltyThenCheapBottomRow);
 
 	ASSERT_TRUE(result.valid());
 	rmg::Area expected = row(0, 4, 2);
@@ -314,6 +379,147 @@ TEST(RmgPathTest, PredicatePathRejectsTilesThePredicateRejects)
 
 	EXPECT_FALSE(path.search(int3(0, 0, 0), true).valid());
 	EXPECT_TRUE(path.search(int3(0, 2, 0), true).valid());
+}
+
+TEST(RmgPathTest, BezierCurveDistanceSqIsZeroAtEndsAndGrowsAwayFromStraightCurve)
+{
+	const rmg::BezierCurve curve{int3(0, 0, 0), int3(1, 0, 0), int3(2, 0, 0), int3(3, 0, 0)};
+
+	EXPECT_FLOAT_EQ(curve.distanceSq(curve.p0), 0.f);
+	EXPECT_FLOAT_EQ(curve.distanceSq(curve.p3), 0.f);
+
+	const float oneAway = curve.distanceSq(int3(1, 1, 0));
+	const float twoAway = curve.distanceSq(int3(1, 2, 0));
+	const float threeAway = curve.distanceSq(int3(1, 3, 0));
+	EXPECT_GT(oneAway, 0.f);
+	EXPECT_GT(twoAway, oneAway);
+	EXPECT_GT(threeAway, twoAway);
+}
+
+TEST(RmgPathTest, BezierCurveCostFunctionIsZeroOnCurveAndPositiveOffIt)
+{
+	const rmg::BezierCurve curve{int3(0, 0, 0), int3(0, 20, 0), int3(20, 20, 0), int3(20, 0, 0)};
+	const auto cost = curve.costFunction();
+
+	EXPECT_FLOAT_EQ(cost(int3(0, 0, 0), int3(10, 15, 0)), 0.f);
+	EXPECT_GT(cost(int3(0, 0, 0), int3(10, 0, 0)), 0.f);
+}
+
+TEST(RmgPathTest, SearchWithBezierCostFollowsBentCurveNotTheChord)
+{
+	const auto grid = rect(0, 0, 21, 21);
+	rmg::Path path(grid);
+	path.connect(int3(20, 0, 0));
+
+	const rmg::BezierCurve curve{int3(0, 0, 0), int3(0, 20, 0), int3(20, 20, 0), int3(20, 0, 0)};
+	const auto result = path.search(int3(0, 0, 0), true, curve.costFunction());
+
+	ASSERT_TRUE(result.valid());
+	EXPECT_TRUE(result.getPathArea().contains(int3(10, 15, 0)));
+	EXPECT_FALSE(result.getPathArea().contains(int3(10, 0, 0)));
+}
+
+TEST(RmgPathTest, CurveSearchJoinsRoadWithinJoinBandInsteadOfFollowingCurveToTheEnd)
+{
+	constexpr int JOIN_DISTANCE = 8;
+	const auto grid = rect(0, 0, 25, 16);
+	const int3 node(0, 2, 0);
+	const int3 centre(24, 2, 0);
+	const rmg::BezierCurve curve{node, int3(8, 2, 0), int3(16, 2, 0), centre};
+	const auto nearbyRoad = row(8, 20, 8); // 6 tiles from the curve
+	const auto farRoad = row(8, 20, 15); // 13 tiles from the curve
+
+	rmg::Area nearbyNetwork = nearbyRoad;
+	nearbyNetwork.add(centre);
+	rmg::Area farNetwork = farRoad;
+	farNetwork.add(centre);
+
+	const rmg::DistanceMap noBorder;
+	const auto stepCost = [](const rmg::Path::MoveCostFunction & cost)
+	{
+		return [cost](const int3 & src, const int3 & dst) -> float { return 1.f + cost(src, dst); };
+	};
+	const auto plainCost = stepCost(curve.costFunction(noBorder));
+
+	rmg::Path nearbyPath(grid);
+	nearbyPath.connect(nearbyNetwork);
+	const auto plainNearby = nearbyPath.search(node, true, plainCost);
+	const auto joinNearby = nearbyPath.search(node, true, stepCost(curve.costFunction(noBorder, joinBandAround(nearbyNetwork, JOIN_DISTANCE))));
+
+	ASSERT_TRUE(plainNearby.valid());
+	ASSERT_TRUE(joinNearby.valid());
+	EXPECT_TRUE(plainNearby.getPathArea().contains(centre));
+	EXPECT_FALSE(plainNearby.getPathArea().overlap(nearbyRoad));
+	EXPECT_TRUE(joinNearby.getPathArea().overlap(nearbyRoad));
+	EXPECT_FALSE(joinNearby.getPathArea().contains(centre));
+	EXPECT_LE(static_cast<int>(joinNearby.getPathArea().getTiles().size()), 15);
+
+	rmg::Path farPath(grid);
+	farPath.connect(farNetwork);
+	const auto plainFar = farPath.search(node, true, plainCost);
+	const auto joinFar = farPath.search(node, true, stepCost(curve.costFunction(noBorder, joinBandAround(farNetwork, JOIN_DISTANCE))));
+
+	ASSERT_TRUE(plainFar.valid());
+	ASSERT_TRUE(joinFar.valid());
+	EXPECT_TRUE(joinFar.getPathArea().contains(centre));
+	EXPECT_FALSE(joinFar.getPathArea().overlap(farRoad));
+}
+
+TEST(RmgPathTest, BezierCurveStaysInsideARectangleInterior)
+{
+	const auto area = rect(0, 0, 21, 21);
+	const auto borderDistance = borderDistanceOf(area);
+	const rmg::BezierCurve curve{int3(5, 10, 0), int3(8, 12, 0), int3(13, 12, 0), int3(16, 10, 0)};
+
+	EXPECT_GE(curve.minSampledRing(borderDistance, 4), 4);
+}
+
+TEST(RmgPathTest, BezierCurvePulledToTheRectangleEdgeDoesNotStayInside)
+{
+	const auto area = rect(0, 0, 21, 21);
+	const auto borderDistance = borderDistanceOf(area);
+	const rmg::BezierCurve curve{int3(5, 10, 0), int3(10, 0, 0), int3(10, 0, 0), int3(16, 10, 0)};
+
+	EXPECT_LT(curve.minSampledRing(borderDistance, 4), 4);
+}
+
+TEST(RmgPathTest, BezierCurveWithEndpointOnTheEdgeStillStaysInside)
+{
+	const auto area = rect(0, 0, 21, 21);
+	const auto borderDistance = borderDistanceOf(area);
+	const rmg::BezierCurve curve{int3(0, 10, 0), int3(6, 12, 0), int3(10, 12, 0), int3(14, 10, 0)};
+
+	EXPECT_GE(curve.minSampledRing(borderDistance, 4), 4);
+}
+
+TEST(RmgPathTest, SearchWithBezierBorderPenaltyStaysInlandWhileUnpenalizedPathHugsTheBorder)
+{
+	const auto area = rect(0, 0, 24, 10);
+	const int3 start(0, 0, 0);
+	const int3 end(23, 0, 0);
+	const rmg::BezierCurve curve{start, int3(8, 0, 0), int3(16, 0, 0), end};
+
+	const auto borderDistance = area.computeDistanceMap();
+
+	rmg::Path path(area);
+	path.connect(end);
+
+	const auto hugging = path.search(start, true, curve.costFunction());
+	ASSERT_TRUE(hugging.valid());
+	for(const auto & tile : hugging.getPathArea().getTiles())
+		EXPECT_EQ(tile.y, 0);
+
+	const auto inland = path.search(start, true, curve.costFunction(borderDistance));
+	ASSERT_TRUE(inland.valid());
+	for(const auto & tile : inland.getPathArea().getTiles())
+	{
+		const int distStart = std::abs(tile.x - start.x) + std::abs(tile.y - start.y);
+		const int distEnd = std::abs(tile.x - end.x) + std::abs(tile.y - end.y);
+		if(distStart <= 3 || distEnd <= 3)
+			continue;
+		ASSERT_TRUE(borderDistance.count(tile));
+		EXPECT_GE(borderDistance.at(tile), 2);
+	}
 }
 
 }

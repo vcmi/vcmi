@@ -39,6 +39,7 @@ namespace rmg
 		const Tileset & getBorderOutside() const; //lazy cache invalidation
 		
 		DistanceMap computeDistanceMap(std::map<int, Tileset> & reverseDistanceMap) const;
+		DistanceMap computeDistanceMap() const; ///< same result, reverse map discarded
 		int3 getCenterOfMass() const;
 
 		Area getSubarea(const std::function<bool(const int3 &)> & filter) const;

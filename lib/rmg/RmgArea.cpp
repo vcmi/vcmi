@@ -211,6 +211,12 @@ DistanceMap Area::computeDistanceMap(std::map<int, Tileset> & reverseDistanceMap
 	return result;
 }
 
+DistanceMap Area::computeDistanceMap() const
+{
+	std::map<int, Tileset> reverse;
+	return computeDistanceMap(reverse);
+}
+
 int3 Area::getCenterOfMass() const
 {
 	auto tiles = getTilesVector();

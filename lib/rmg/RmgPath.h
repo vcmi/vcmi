@@ -46,10 +46,7 @@ public:
 	const Area & getPathArea() const;
 	
 	static Path invalid();
-	static MoveCostFunction createCurvedCostFunction(const Area & border);
-	static MoveCostFunction createBezierCostFunction(const int3 & p0, const int3 & p1, const int3 & p2, const int3 & p3);
 	static float nonEuclideanCostFunction(const int3& src, const int3& dst, const int3& center);
-	static float distanceToCubicBezier(const int3 & point, const int3 & p0, const int3 & p1, const int3 & p2, const int3 & p3);
 	
 private:
 	Path() = default;
@@ -59,5 +56,19 @@ private:
 	PassableFunction dPassable; //empty: this Path cannot search
 	const Area * dTarget = nullptr; //tiles ending a search besides dPath, owned by the caller
 	Area dPath;
+};
+
+struct BezierCurve
+{
+	int3 p0; // road node
+	int3 p1; // first control point
+	int3 p2; // second control point
+	int3 p3; // zone.getPos()
+	int3 pointAt(float t) const;
+	float distanceSq(const int3 & tile) const;
+	int minSampledRing(const DistanceMap & borderDistance, int minRing) const;
+	static float borderPenalty(const DistanceMap & borderDistance, const int3 & tile);
+	// Inside joinBand the curve deviation is free, so the search takes the shortest way to a nearby road.
+	Path::MoveCostFunction costFunction(const DistanceMap & borderDistance = {}, const Area & joinBand = {}) const;
 };
 }

@@ -63,49 +63,74 @@ const rmg::Area & RoadPlacer::getRoads() const
 	return roads;
 }
 
-bool RoadPlacer::createRoad(const int3 & destination)
+float RoadPlacer::isolatedMovePenalty(const int3 & src, const int3 & dst)
+{
+	if(std::abs((src - dst).y) == 1)
+	{
+		//Do not allow connections straight up through object not visitable from top
+		if(areaIsolated().contains(dst) || areaIsolated().contains(src))
+			return 1e12f;
+	}
+	else if(areaIsolated().contains(dst))
+	{
+		//Simply do not route road behind objects that are not visitable from top, such as Monoliths
+		return 1e6f;
+	}
+	return 0.f;
+}
+
+bool RoadPlacer::createRoad(const int3 & destination, const rmg::DistanceMap & borderDistance)
 {
 	auto searchArea = zone.areaPossible() + zone.freePaths() + areaRoads + roads;
-
-	rmg::Area border(zone.area()->getBorder());
 
 	rmg::Path path(searchArea);
 	path.connect(roads);
 
-	auto simpleRoutig = [this, &border](const int3& src, const int3& dst)
+	auto res = rmg::Path::invalid();
+	if(const auto it = nodeCurves.find(destination); it != nodeCurves.end())
 	{
-		if(std::abs((src - dst).y) == 1)
-		{
-			//Do not allow connections straight up through object not visitable from top
-			if(areaIsolated().contains(dst) || areaIsolated().contains(src))
-			{
-				return 1e12f;
-			}
-		}
-		else
-		{
-			if(areaIsolated().contains(dst))
-			{
-				//Simply do not route road behind objects that are not visitable from top, such as Monoliths
-				return 1e6f;
-			}
-		}
+		constexpr int JOIN_DISTANCE = 8; // within this many tiles of an existing road, take the shortest way to it
+		rmg::Area joinBand = roads;
+		for(int r = 1; r <= JOIN_DISTANCE; ++r)
+			joinBand.unite(rmg::Area(joinBand.getBorderOutside()));
 
-		float ret = rmg::Path::nonEuclideanCostFunction(src, dst, border.getCenterOfMass());
+		const auto curveCost = it->second.costFunction(borderDistance, joinBand);
+		auto curveRoutig = [this, &curveCost](const int3 & src, const int3 & dst) -> float
+		{
+			if(const float penalty = isolatedMovePenalty(src, dst); penalty > 0.f)
+				return penalty;
 
-		if (visitableTiles.contains(src) || visitableTiles.contains(dst))
+			float ret = 1.f + curveCost(src, dst);
+			if(visitableTiles.contains(src) || visitableTiles.contains(dst))
+				ret *= VISITABLE_PENALTY;
+			return ret;
+		};
+		res = path.search(destination, true, curveRoutig);
+	}
+	else
+	{
+		rmg::Area border(zone.area()->getBorder());
+		auto simpleRoutig = [this, &border](const int3& src, const int3& dst)
 		{
-			ret *= VISITABLE_PENALTY;
-		}
-		float dist = border.distanceSqr(dst);
-		if(dist > 1.0f)
-		{
-			ret /= dist;
-		}
-		return ret;
-	};
-	
-	auto res = path.search(destination, true, simpleRoutig);
+			if(const float penalty = isolatedMovePenalty(src, dst); penalty > 0.f)
+				return penalty;
+
+			float ret = rmg::Path::nonEuclideanCostFunction(src, dst, border.getCenterOfMass());
+
+			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
+			{
+				ret *= VISITABLE_PENALTY;
+			}
+			float dist = border.distanceSqr(dst);
+			if(dist > 1.0f)
+			{
+				ret /= dist;
+			}
+			return ret;
+		};
+		res = path.search(destination, true, simpleRoutig);
+	}
+
 	if(!res.valid())
 	{
 		res = createRoadDesperate(path, destination);
@@ -117,28 +142,14 @@ bool RoadPlacer::createRoad(const int3 & destination)
 	}
 	roads.unite(res.getPathArea());
 	return true;
-	
 }
 
 rmg::Path RoadPlacer::createRoadDesperate(rmg::Path & path, const int3 & destination)
 {
 	auto desperateRoutig = [this](const int3& src, const int3& dst) -> float
 	{
-		//Do not allow connections straight up through object not visitable from top
-		if(std::abs((src - dst).y) == 1)
-		{
-			if(areaIsolated().contains(dst) || areaIsolated().contains(src))
-			{
-				return 1e12;
-			}
-		}
-		else
-		{
-			if(areaIsolated().contains(dst))
-			{
-				return 1e6;
-			}
-		}
+		if(const float penalty = isolatedMovePenalty(src, dst); penalty > 0.f)
+			return penalty;
 
 		float weight = dst.dist2dSQ(src);
 		auto ret =  weight * weight; // Still prefer straight paths
@@ -195,6 +206,26 @@ void RoadPlacer::addRoadNode(const int3& node)
 	roadNodes.insert(node);
 }
 
+void RoadPlacer::setNodeCurve(const int3 & node, const rmg::BezierCurve & curve)
+{
+	RecursiveLock lock(externalAccessMutex);
+	if(roadNodes.contains(node))
+	{
+		nodeCurves[node] = curve;
+		return;
+	}
+	// Guarded objects pass the guard tile as src; the road node is the object, one step away.
+	for(const auto & dir : int3::getDirs())
+	{
+		const int3 candidate = node + dir;
+		if(roadNodes.contains(candidate))
+		{
+			nodeCurves[candidate] = curve;
+			return;
+		}
+	}
+}
+
 void RoadPlacer::connectRoads()
 {
 	//Assumes objects are already placed
@@ -214,16 +245,20 @@ void RoadPlacer::connectRoads()
 	if(roadNodes.size() < 2)
 		return;
 	
-	//take any tile from road nodes as destination zone for all other road nodes
+	// Seed at the zone position (main town visitable tile, or zone centre).
 	RecursiveLock lock(externalAccessMutex);
 	if(roads.empty())
-		roads.add(*roadNodes.begin());
+		roads.add(zone.getPos());
+
+	logRmg->debug("Zone %d: %d of %d road nodes have a curve", zone.getId(), static_cast<int>(nodeCurves.size()), static_cast<int>(roadNodes.size()));
+
+	const auto borderDistance = zone.area()->computeDistanceMap();
 
 	for(const auto & node : roadNodes)
 	{
 		try
 		{
-			createRoad(node);
+			createRoad(node, borderDistance);
 		}
 		catch (const rmgException& e)
 		{
@@ -235,6 +270,9 @@ void RoadPlacer::connectRoads()
 			throw;
 		}
 	}
+
+	roads = pruneRoadDeadEnds(roads, roadNodes);
+	roads = pruneRoadDeadEnds(removeRoadSquares(roads, roadNodes), roadNodes);
 	
 	if (!zone.isUnderground())
 	{

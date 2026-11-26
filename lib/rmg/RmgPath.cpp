@@ -21,7 +21,7 @@ const std::function<float(const int3 &, const int3 &)> Path::DEFAULT_MOVEMENT_FU
 };
 
 //A* priority queue
-using TDistance = std::pair<int3, float>;
+using TDistance = std::pair<int3, double>;
 struct NodeComparer
 {
 	bool operator()(const TDistance & lhs, const TDistance & rhs) const
@@ -112,11 +112,11 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 	Tileset closed;    // The set of nodes already evaluated.
 	auto open = createPriorityQueue(); // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
-	std::map<int3, float> distances;
+	std::map<int3, double> distances;
 	
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
 	distances[src] = 0;
-	open.push(std::make_pair(src, 0.f));
+	open.push(std::make_pair(src, 0.0));
 	// Cost from start along best known path.
 	
 	while(!open.empty())
@@ -150,11 +150,11 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 				
 				float movementCost = moveCostFunction(currentNode, pos);
 
-				float distance = distances[currentNode] + movementCost; //we prefer to use already free paths
-				int bestDistanceSoFar = std::numeric_limits<int>::max();
+				double distance = distances[currentNode] + movementCost; //we prefer to use already free paths
+				double bestDistanceSoFar = std::numeric_limits<double>::max();
 				auto it = distances.find(pos);
 				if(it != distances.end())
-					bestDistanceSoFar = static_cast<int>(it->second);
+					bestDistanceSoFar = it->second;
 				
 				if(distance < bestDistanceSoFar)
 				{
@@ -243,46 +243,40 @@ float Path::nonEuclideanCostFunction(const int3& src, const int3& dst, const int
 	return d * bias;
 }
 
-Path::MoveCostFunction Path::createCurvedCostFunction(const Area & border)
+namespace
 {
-	// Capture by value to ensure the Area object persists
-	return [border = border](const int3& src, const int3& dst) -> float
-	{
-		float ret = nonEuclideanCostFunction(src, dst, border.getCenterOfMass());
-		// Route main roads far from border
-		float dist = border.distanceSqr(dst);
+constexpr int BEZIER_SAMPLES = 20;
 
-		if(dist > 1.0f)
-		{
-			ret /= dist;
-		}
-		return ret;
-	};
+std::pair<float, float> evaluate(const BezierCurve & curve, float t)
+{
+	const float oneMinusT = 1.0f - t;
+	const float oneMinusT2 = oneMinusT * oneMinusT;
+	const float oneMinusT3 = oneMinusT2 * oneMinusT;
+	const float t2 = t * t;
+	const float t3 = t2 * t;
+
+	const float bx = oneMinusT3 * curve.p0.x + 3.0f * oneMinusT2 * t * curve.p1.x + 3.0f * oneMinusT * t2 * curve.p2.x + t3 * curve.p3.x;
+	const float by = oneMinusT3 * curve.p0.y + 3.0f * oneMinusT2 * t * curve.p1.y + 3.0f * oneMinusT * t2 * curve.p2.y + t3 * curve.p3.y;
+	return {bx, by};
+}
 }
 
-float Path::distanceToCubicBezier(const int3 & point, const int3 & p0, const int3 & p1, const int3 & p2, const int3 & p3)
+int3 BezierCurve::pointAt(float t) const
 {
-	// Approximate distance to cubic Bezier curve by sampling
-	// B(t) = (1-t)³P0 + 3(1-t)²tP1 + 3(1-t)t²P2 + t³P3
-	constexpr int SAMPLES = 20;
+	const auto [bx, by] = evaluate(*this, t);
+	return int3(static_cast<si32>(std::lround(bx)), static_cast<si32>(std::lround(by)), p0.z);
+}
+
+float BezierCurve::distanceSq(const int3 & tile) const
+{
 	float minDistSq = std::numeric_limits<float>::max();
 
-	for(int i = 0; i <= SAMPLES; ++i)
+	for(int i = 0; i <= BEZIER_SAMPLES; ++i)
 	{
-		float t = static_cast<float>(i) / SAMPLES;
-		float oneMinusT = 1.0f - t;
-		float oneMinusT2 = oneMinusT * oneMinusT;
-		float oneMinusT3 = oneMinusT2 * oneMinusT;
-		float t2 = t * t;
-		float t3 = t2 * t;
-
-		// Cubic Bezier formula
-		float bx = oneMinusT3 * p0.x + 3.0f * oneMinusT2 * t * p1.x + 3.0f * oneMinusT * t2 * p2.x + t3 * p3.x;
-		float by = oneMinusT3 * p0.y + 3.0f * oneMinusT2 * t * p1.y + 3.0f * oneMinusT * t2 * p2.y + t3 * p3.y;
-
-		float dx = point.x - bx;
-		float dy = point.y - by;
-		float distSq = dx * dx + dy * dy;
+		const auto [bx, by] = evaluate(*this, static_cast<float>(i) / BEZIER_SAMPLES);
+		const float dx = tile.x - bx;
+		const float dy = tile.y - by;
+		const float distSq = dx * dx + dy * dy;
 
 		if(distSq < minDistSq)
 			minDistSq = distSq;
@@ -291,21 +285,46 @@ float Path::distanceToCubicBezier(const int3 & point, const int3 & p0, const int
 	return minDistSq;
 }
 
-Path::MoveCostFunction Path::createBezierCostFunction(const int3 & p0, const int3 & p1, const int3 & p2, const int3 & p3)
+int BezierCurve::minSampledRing(const DistanceMap & borderDistance, int minRing) const
 {
-	// p0: start point (Q0)
-	// p1: first control point (Q1) - any tile in zone
-	// p2: second control point (Q2) - any tile in zone
-	// p3: end point (Q3)
-	return [p0, p1, p2, p3](const int3 & src, const int3 & dst) -> float
+	const ui32 skipDistSq = static_cast<ui32>(minRing + 1) * static_cast<ui32>(minRing + 1);
+	int worst = std::numeric_limits<int>::max();
+
+	for(int i = 0; i <= BEZIER_SAMPLES; ++i)
 	{
+		const int3 sample = pointAt(static_cast<float>(i) / BEZIER_SAMPLES);
+		if(sample.dist2dSQ(p0) <= skipDistSq || sample.dist2dSQ(p3) <= skipDistSq)
+			continue;
 
-		// Distance from destination tile to the Bezier curve
-		float distToCurve = distanceToCubicBezier(dst, p0, p1, p2, p3);
+		const auto it = borderDistance.find(sample);
+		const int ring = (it == borderDistance.end()) ? -1 : it->second;
+		worst = std::min(worst, ring);
+	}
 
-		// Penalize tiles far from the curve
-		// Square for stronger effect
-		return distToCurve * distToCurve;
+	return worst;
+}
 
+float BezierCurve::borderPenalty(const DistanceMap & borderDistance, const int3 & tile)
+{
+	constexpr int R = 8; // tiles from the zone border that still receive a penalty
+	constexpr float K = 16.f; // strength of the additive per-step border penalty
+	const auto it = borderDistance.find(tile);
+	if(it == borderDistance.end())
+		return 0.f;
+	const int inward = std::max(0, R - it->second);
+	return K * static_cast<float>(inward * inward);
+}
+
+Path::MoveCostFunction BezierCurve::costFunction(const DistanceMap & borderDistance, const Area & joinBand) const
+{
+	return [*this, borderDistance, joinBand](const int3 &, const int3 & dst) -> float
+	{
+		float deviation = 0.f;
+		if(!joinBand.contains(dst))
+		{
+			const float distToCurve = distanceSq(dst);
+			deviation = distToCurve * distToCurve;
+		}
+		return deviation + borderPenalty(borderDistance, dst);
 	};
 }
