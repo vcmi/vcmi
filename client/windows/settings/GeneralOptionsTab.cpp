@@ -91,7 +91,8 @@ static std::string resolutionToLabelString( int w, int h)
 
 GeneralOptionsTab::GeneralOptionsTab()
 		: InterfaceObjectConfigurable(),
-		  onFullscreenChanged(settings.listen["video"]["fullscreen"])
+		  onFullscreenChanged(settings.listen["video"]["fullscreen"]),
+		  onFullscreenExclusiveChanged(settings.listen["video"]["fullscreenExclusive"])
 {
 	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
@@ -131,7 +132,7 @@ GeneralOptionsTab::GeneralOptionsTab()
 			targetLabel->setText(std::to_string(value) + "%");
 	});
 	//settings that do not belong to base game:
-	addCallback("fullscreenBorderlessChanged", [this](bool value)
+	addCallback("fullscreenChanged", [this](bool value)
 	{
 		setFullscreenMode(value, false);
 	});
@@ -217,13 +218,13 @@ GeneralOptionsTab::GeneralOptionsTab()
 	else
 		spellbookAnimationCheckbox->enable();
 
-	std::shared_ptr<CToggleButton> fullscreenBorderlessCheckbox = widget<CToggleButton>("fullscreenBorderlessCheckbox");
-	if (fullscreenBorderlessCheckbox)
-		fullscreenBorderlessCheckbox->setSelected(settings["video"]["fullscreen"].Bool() && !settings["video"]["realFullscreen"].Bool());
+	std::shared_ptr<CToggleButton> fullscreenCheckbox = widget<CToggleButton>("fullscreenCheckbox");
+	if (fullscreenCheckbox)
+		fullscreenCheckbox->setSelected(getDisplayMode() == EDisplayMode::FULLSCREEN);
 
 	std::shared_ptr<CToggleButton> fullscreenExclusiveCheckbox = widget<CToggleButton>("fullscreenExclusiveCheckbox");
 	if (fullscreenExclusiveCheckbox)
-		fullscreenExclusiveCheckbox->setSelected(settings["video"]["fullscreen"].Bool() && settings["video"]["realFullscreen"].Bool());
+		fullscreenExclusiveCheckbox->setSelected(getDisplayMode() == EDisplayMode::FULLSCREEN_EXCLUSIVE);
 
 	std::shared_ptr<CToggleButton> infoboxCheckbox = widget<CToggleButton>("performanceOverlayCheckbox");
 	infoboxCheckbox->setSelected(settings["video"]["performanceOverlay"]["show"].Bool());
@@ -280,7 +281,7 @@ void GeneralOptionsTab::updateResolutionSelector()
 
 	if (resolutionButton)
 	{
-		if (settings["video"]["fullscreen"].Bool() && !settings["video"]["realFullscreen"].Bool())
+		if (getDisplayMode() == EDisplayMode::FULLSCREEN)
 			resolutionButton->disable();
 		else
 			resolutionButton->enable();
@@ -341,17 +342,20 @@ void GeneralOptionsTab::setGameResolution(int index)
 
 void GeneralOptionsTab::setFullscreenMode(bool on, bool exclusive)
 {
-	if (on == settings["video"]["fullscreen"].Bool() && exclusive == settings["video"]["realFullscreen"].Bool())
+	EDisplayMode displayMode = EDisplayMode::WINDOWED;
+	if(on)
+		displayMode = exclusive ? EDisplayMode::FULLSCREEN_EXCLUSIVE : EDisplayMode::FULLSCREEN;
+
+	if(displayMode == getDisplayMode())
 		return;
 
-	setBoolSetting("video", "realFullscreen", exclusive);
-	setBoolSetting("video", "fullscreen", on);
+	setDisplayMode(displayMode);
 
 	std::shared_ptr<CToggleButton> fullscreenExclusiveCheckbox = widget<CToggleButton>("fullscreenExclusiveCheckbox");
-	std::shared_ptr<CToggleButton> fullscreenBorderlessCheckbox = widget<CToggleButton>("fullscreenBorderlessCheckbox");
+	std::shared_ptr<CToggleButton> fullscreenCheckbox = widget<CToggleButton>("fullscreenCheckbox");
 
-	if (fullscreenBorderlessCheckbox)
-		fullscreenBorderlessCheckbox->setSelectedSilent(on && !exclusive);
+	if (fullscreenCheckbox)
+		fullscreenCheckbox->setSelectedSilent(on && !exclusive);
 
 	if (fullscreenExclusiveCheckbox)
 		fullscreenExclusiveCheckbox->setSelectedSilent(on && exclusive);

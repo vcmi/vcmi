@@ -194,8 +194,8 @@ void CSettingsView::loadSettings()
 	ui->buttonUpdateOnStartup->setVisible(UpdateChecker::isEnabled());
 
 #ifdef VCMI_MOBILE
-	ui->comboBoxFullScreen->hide();
-	ui->labelFullScreen->hide();
+	ui->comboBoxDisplayMode->hide();
+	ui->labelDisplayMode->hide();
 
 	if(!persistentStorage["gui"]["tutorialCompleted0"].Bool() && !persistentStorage["gui"]["tutorialCompleted1"].Bool())
 	{
@@ -213,10 +213,13 @@ void CSettingsView::loadSettings()
 	ui->labelHapticFeedback->hide();
 	ui->labelResetTutorialTouchscreen->hide();
 	ui->pushButtonResetTutorialTouchscreen->hide();
-	if (settings["video"]["realFullscreen"].Bool())
-		ui->comboBoxFullScreen->setCurrentIndex(2);
-	else
-		ui->comboBoxFullScreen->setCurrentIndex(settings["video"]["fullscreen"].Bool());
+	EDisplayMode displayMode = getDisplayMode();
+	int displayModeIndex = 0;
+	if(displayMode == EDisplayMode::FULLSCREEN)
+		displayModeIndex = 1;
+	else if(displayMode == EDisplayMode::FULLSCREEN_EXCLUSIVE)
+		displayModeIndex = 2;
+	ui->comboBoxDisplayMode->setCurrentIndex(displayModeIndex);
 #endif
 #ifndef VCMI_ANDROID
 	ui->buttonHandleBackRightMouseButton->hide();
@@ -350,10 +353,9 @@ void CSettingsView::fillValidResolutions()
 QSize CSettingsView::getPreferredRenderingResolution()
 {
 #ifndef VCMI_MOBILE
-	bool fullscreen = settings["video"]["fullscreen"].Bool();
-	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
+	EDisplayMode displayMode = getDisplayMode();
 
-	if (!fullscreen || realFullscreen)
+	if (displayMode != EDisplayMode::FULLSCREEN)
 	{
 		int resX = settings["video"]["resolution"]["width"].Integer();
 		int resY = settings["video"]["resolution"]["height"].Integer();
@@ -508,14 +510,13 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 
 	ui->comboBoxResolution->clear();
 
-	bool fullscreen = settings["video"]["fullscreen"].Bool();
-	bool realFullscreen = settings["video"]["realFullscreen"].Bool();
+	EDisplayMode displayMode = getDisplayMode();
 
 	int resX = settings["video"]["resolution"]["width"].Integer();
 	int resY = settings["video"]["resolution"]["height"].Integer();
 	QSize currentRes(resX, resY);
 
-	if (!fullscreen || realFullscreen)
+	if (displayMode != EDisplayMode::FULLSCREEN)
 	{
 		QVector<QSize> resolutions = findAvailableResolutions(screenIndex);
 
@@ -525,9 +526,9 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 		const auto screens = QGuiApplication::screens();
 		QSize desktopResolution;
 		if(screenIndex >= 0 && screenIndex < screens.size())
-			desktopResolution = screens[screenIndex]->geometry().size() * screens[screenIndex]->devicePixelRatio();
+			desktopResolution = screens[screenIndex]->availableGeometry().size() * screens[screenIndex]->devicePixelRatio();
 
-		bool currentWindowedResolutionFits = !fullscreen && desktopResolution.isValid() && currentRes.width() <= desktopResolution.width() && currentRes.height() <= desktopResolution.height();
+		bool currentWindowedResolutionFits = displayMode == EDisplayMode::WINDOWED && desktopResolution.isValid() && currentRes.width() <= desktopResolution.width() && currentRes.height() <= desktopResolution.height();
 
 		if(currentWindowedResolutionFits && !resolutions.contains(currentRes))
 			resolutions.append(currentRes);
@@ -549,9 +550,9 @@ void CSettingsView::fillValidResolutionsForScreen(int screenIndex)
 	{
 		ui->comboBoxResolution->setCurrentIndex(ui->comboBoxResolution->count() - 1);
 
-		// Borderless fullscreen uses desktop resolution only for display purposes.
+		// Fullscreen uses desktop resolution only for display purposes.
 		// Persist fallback resolution only for modes where this setting is selectable.
-		if(!fullscreen || realFullscreen)
+		if(displayMode != EDisplayMode::FULLSCREEN)
 		{
 			QStringList selectedResolution = ui->comboBoxResolution->currentText().split("x");
 
@@ -596,12 +597,14 @@ void CSettingsView::on_comboBoxResolution_currentTextChanged(const QString & arg
 	fillValidScalingRange();
 }
 
-void CSettingsView::on_comboBoxFullScreen_currentIndexChanged(int index)
+void CSettingsView::on_comboBoxDisplayMode_currentIndexChanged(int index)
 {
-	Settings nodeFullscreen     = settings.write["video"]["fullscreen"];
-	Settings nodeRealFullscreen = settings.write["video"]["realFullscreen"];
-	nodeFullscreen->Bool() = (index != 0);
-	nodeRealFullscreen->Bool() = (index == 2);
+	EDisplayMode displayMode = EDisplayMode::WINDOWED;
+	if(index == 1)
+		displayMode = EDisplayMode::FULLSCREEN;
+	else if(index == 2)
+		displayMode = EDisplayMode::FULLSCREEN_EXCLUSIVE;
+	setDisplayMode(displayMode);
 
 	fillValidResolutions();
 	fillValidScalingRange();

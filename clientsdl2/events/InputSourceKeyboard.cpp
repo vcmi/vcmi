@@ -96,8 +96,7 @@ void InputSourceKeyboard::handleEventKeyDown(const SDL_KeyboardEvent & key)
 
 	if (vstd::contains(shortcutsVector, EShortcut::GLOBAL_FULLSCREEN))
 	{
-		Settings full = settings.write["video"]["fullscreen"];
-		full->Bool() = !full->Bool();
+		toggleFullscreenMode();
 		ENGINE->onScreenResize(true, false);
 	}
 

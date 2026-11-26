@@ -17,6 +17,7 @@ class GeneralOptionsTab : public InterfaceObjectConfigurable
 {
 private:
 	SettingsListener onFullscreenChanged;
+	SettingsListener onFullscreenExclusiveChanged;
 
 	std::vector<Point> supportedResolutions;
 	std::vector<int> supportedScaling;

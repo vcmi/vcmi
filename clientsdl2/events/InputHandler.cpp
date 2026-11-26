@@ -310,11 +310,27 @@ void InputHandler::preprocessEvent(const SDL_Event & ev)
 			case SDL_WINDOWEVENT_RESTORED:
 #ifndef VCMI_IOS
 			{
+				SDL_Window * window = SDL_GetWindowFromID(ev.window.windowID);
+				if(window && !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN))
+				{
+					Settings video = settings.write["video"];
+					video["windowMaximized"].Bool() = SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED;
+				}
 				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);
 				ENGINE->onScreenResize(false, false);
 			}
 #endif
 				break;
+			case SDL_WINDOWEVENT_MAXIMIZED:
+			{
+				SDL_Window * window = SDL_GetWindowFromID(ev.window.windowID);
+				if(window && !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN))
+				{
+					Settings video = settings.write["video"];
+					video["windowMaximized"].Bool() = true;
+				}
+				break;
+			}
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
 			{
 				std::scoped_lock interfaceLock(ENGINE->interfaceMutex);

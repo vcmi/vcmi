@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "lib/CConfigHandler.h"
 #include "lib/Point.h"
 #include "IScreenHandler.h"
 
@@ -17,17 +18,6 @@ struct SDL_Texture;
 struct SDL_Window;
 struct SDL_Renderer;
 struct SDL_Surface;
-
-enum class EWindowMode
-{
-	// game runs in a window that covers part of the screen
-	WINDOWED,
-	// game runs in a 'window' that always covers entire screen and uses unmodified desktop resolution
-	// The only mode that is available on mobile devices
-	FULLSCREEN_BORDERLESS_WINDOWED,
-	// game runs in a fullscreen mode with resolution selected by player
-	FULLSCREEN_EXCLUSIVE
-};
 
 enum class EUpscalingFilter
 {
@@ -61,7 +51,7 @@ class ScreenHandler final : public IScreenHandler
 	/// This value is what player views as window size
 	Point getPreferredWindowResolution() const;
 
-	EWindowMode getPreferredWindowMode() const;
+	EDisplayMode getPreferredWindowMode() const;
 
 	/// Returns index of display on which window should be created
 	int getPreferredDisplayIndex() const;

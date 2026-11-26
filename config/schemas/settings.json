@@ -189,7 +189,8 @@
 				"resolution",
 				"reservedWidth",
 				"fullscreen",
-				"realFullscreen",
+				"fullscreenExclusive",
+				"windowMaximized",
 				"cursor",
 				"showIntro",
 				"spellbookAnimation",
@@ -229,7 +230,11 @@
 					"type" : "boolean",
 					"default" : true
 				},
-				"realFullscreen" : {
+				"fullscreenExclusive" : {
+					"type" : "boolean",
+					"default" : false
+				},
+				"windowMaximized" : {
 					"type" : "boolean",
 					"default" : false
 				},
