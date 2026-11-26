@@ -82,6 +82,9 @@ public:
 	static void spawnDialog(IGameEventCallback & object, PlayerColor player, const LuaMetaString & text,
 		int mode, const std::optional<std::vector<LuaComponent>> & components);
 	static void spawnCombat(IGameEventCallback & object, const CGObjectInstance & host, const CGHeroInstance & hero, const JsonNode & army);
+	static bool spawnCreatureGrant(IGameEventCallback & object, const CGObjectInstance & host, const CGHeroInstance & hero, const Creature & creature, int count);
+	static bool spawnTownCreatureGrant(IGameEventCallback & object, const CGTownInstance & town, const CGHeroInstance & hero, const Creature & creature, int count);
+	static void discardArmy(IGameEventCallback & object, const CGObjectInstance & host);
 };
 
 }

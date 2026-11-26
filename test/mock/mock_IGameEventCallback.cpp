@@ -187,6 +187,29 @@ bool GameEventCallbackMock::insertNewStack(const StackLocation & sl, const CCrea
 	return true;
 }
 
+bool GameEventCallbackMock::addToSlot(const StackLocation & sl, const CCreature * c, TQuantity count)
+{
+	const auto * army = dynamic_cast<const CArmedInstance *>(infoCallback->getObj(sl.army));
+	if(army->hasStackAtSlot(sl.slot))
+		return changeStackCount(sl, count, ChangeValueMode::RELATIVE);
+	return insertNewStack(sl, c, count);
+}
+
+void GameEventCallbackMock::giveCreatures(const CGHeroInstance * hero, const CCreatureSet & creatures)
+{
+	// Simplified CGameHandler::giveCreatures: tests give only creatures that fit without merging stacks
+	for(const auto & unit : creatures.Slots())
+		addToSlot(StackLocation(hero->id, hero->getSlotFor(unit.second->getCreature())), unit.second->getCreature(), unit.second->getCount());
+}
+
+void GameEventCallbackMock::giveCreatures(const CArmedInstance * obj, const CGHeroInstance * hero, const CCreatureSet & creatures, bool)
+{
+	// Simplified CGameHandler::giveCreatures: creatures always wait in the object while the garrison window is open
+	for(const auto & unit : creatures.Slots())
+		addToSlot(StackLocation(obj->id, obj->getSlotFor(unit.second->getCreature())), unit.second->getCreature(), unit.second->getCount());
+	showGarrisonDialog(obj->id, hero->id, MetaString());
+}
+
 bool GameEventCallbackMock::eraseStack(const StackLocation & sl, bool /*forceRemoval*/)
 {
 	// Port of CGameHandler::eraseStack minus the COMPLAIN_RET guards — tests

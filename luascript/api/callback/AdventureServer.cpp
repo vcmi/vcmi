@@ -30,6 +30,7 @@
 #include "../../../lib/mapObjects/CGHeroInstance.h"
 #include "../../../lib/mapObjects/CGObjectInstance.h"
 #include "../../../lib/mapObjects/CGTownInstance.h"
+#include "../../../lib/mapObjects/CRewardableObject.h"
 #include "../../../lib/mapObjects/Quest.h"
 #include "../../../lib/mapObjects/army/CArmedInstance.h"
 #include "../../../lib/mapObjects/army/CCreatureSet.h"
@@ -175,7 +176,9 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 		{
 			{"hero",     "Hero whose army grows."},
 			{"creature", "Creature to add, as returned by Services:getCreatureByName."},
-			{"count",    "How many creatures to add. They join an existing stack of the same creature, or take a new army slot; if the army is full of other creatures the new ones are lost."}
+			{"count",    "How many creatures to add. They join an existing stack of the same creature, or take a new army slot. "
+				"If the army has no room, a map script running on an object visit shows a garrison window to choose which creatures to keep, "
+				"and a town event moves them to the garrison of the town that the hero visits; otherwise they are lost."}
 		}, {},
 		"Adds creatures to a hero's army.");
 	R.function<&AdventureServerProxy::takeCreatures>("takeCreatures",
@@ -278,6 +281,30 @@ void AdventureServerProxy::registerMethods(MethodRegistrar & R)
 		}, {},
 		"Internal plumbing for the startCombat helper: replaces the host object's garrison with the given "
 		"creatures and starts a battle against the visiting hero. Scripts should call startCombat instead.");
+	R.function<&AdventureServerProxy::spawnCreatureGrant>("spawnCreatureGrant",
+		{
+			{"host",     "The visited object that holds the creatures the hero has no room for."},
+			{"hero",     "Hero whose army grows."},
+			{"creature", "Creature to add."},
+			{"count",    "How many creatures to add."}
+		},
+		{"True if a garrison window was opened and the script must wait for it to close."},
+		"Internal plumbing for the grantCreatures helper of object visits. Scripts should call grantCreatures instead.");
+	R.function<&AdventureServerProxy::spawnTownCreatureGrant>("spawnTownCreatureGrant",
+		{
+			{"town",     "Town of the event, whose garrison takes the creatures the hero has no room for."},
+			{"hero",     "Hero whose army grows."},
+			{"creature", "Creature to add."},
+			{"count",    "How many creatures to add."}
+		},
+		{"True if a garrison window was opened and the script must wait for it to close."},
+		"Internal plumbing for the grantCreatures helper of town events. Scripts should call grantCreatures instead.");
+	R.function<&AdventureServerProxy::discardArmy>("discardArmy",
+		{
+			{"host", "The visited object whose army is removed."}
+		}, {},
+		"Internal plumbing for the grantCreatures helper: removes the creatures that the hero left in the visited object, "
+		"so they do not stay there as its guards. Scripts should call grantCreatures instead.");
 }
 
 void AdventureServerProxy::setMapVariable(IGameEventCallback & object, const std::string & name, const JsonNode & value)
@@ -428,17 +455,48 @@ void AdventureServerProxy::takeArtifact(IGameEventCallback & object, const CGHer
 	removeHeroArtifact(object, hero, artifact.getId());
 }
 
+namespace
+{
+// Gives the creatures to the hero if its army has room for them. Returns false if the caller has to find room elsewhere.
+bool giveCreaturesIfFit(IGameEventCallback & object, const CGHeroInstance & hero, const CCreatureSet & army)
+{
+	if(!hero.canBeMergedWith(army, true))
+		return false;
+
+	object.giveCreatures(&hero, army);
+	return true;
+}
+
+bool isValidGrant(const Creature & creature, int count)
+{
+	if(count > 0)
+		return true;
+
+	logScript->error("grantCreatures: can not grant %d units of %s", count, creature.getJsonKey());
+	return false;
+}
+
+void eraseAllStacks(IGameEventCallback & object, const CArmedInstance & army)
+{
+	for(int slot = 0; slot < GameConstants::ARMY_SIZE && !army.Slots().empty(); ++slot)
+		object.eraseStack(StackLocation(army.id, army.Slots().begin()->first), true);
+}
+
+void logCreaturesLost(const CGHeroInstance & hero, const Creature & creature, int count)
+{
+	logScript->warn("grantCreatures: hero '%s' has no room for %d units of %s, they are lost", hero.getNameTextID(), count, creature.getJsonKey());
+}
+}
+
 void AdventureServerProxy::grantCreatures(IGameEventCallback & object, const CGHeroInstance & hero, const Creature & creature, int count)
 {
-	if(count <= 0)
-	{
-		logScript->error("grantCreatures: can not grant %d units of %s", count, creature.getJsonKey());
+	if(!isValidGrant(creature, count))
 		return;
-	}
 
 	CCreatureSet army;
 	army.addToSlot(army.getFreeSlot(), creature.getId(), count);
-	object.giveCreatures(&hero, army);
+	if(!giveCreaturesIfFit(object, hero, army))
+		logCreaturesLost(hero, creature, count);
 }
 
 void AdventureServerProxy::takeCreatures(IGameEventCallback & object, const CGHeroInstance & hero, const Creature & creature, int count)
@@ -574,8 +632,7 @@ void AdventureServerProxy::spawnCombat(IGameEventCallback & object, const CGObje
 		return;
 	}
 
-	for(int guard = 0; guard < GameConstants::ARMY_SIZE && !armedHost->Slots().empty(); ++guard)
-		object.eraseStack(StackLocation(armedHost->id, armedHost->Slots().begin()->first), true);
+	eraseAllStacks(object, *armedHost);
 
 	int slotIndex = 0;
 	for(const auto & slot : army.Vector())
@@ -594,6 +651,62 @@ void AdventureServerProxy::spawnCombat(IGameEventCallback & object, const CGObje
 	}
 
 	object.startBattle(&hero, armedHost);
+}
+
+bool AdventureServerProxy::spawnCreatureGrant(IGameEventCallback & object, const CGObjectInstance & host, const CGHeroInstance & hero, const Creature & creature, int count)
+{
+	if(!isValidGrant(creature, count))
+		return false;
+
+	CCreatureSet army;
+	army.addToSlot(army.getFreeSlot(), creature.getId(), count);
+	if(giveCreaturesIfFit(object, hero, army))
+		return false;
+
+	// Same as creatures granted as a reward: they wait in the visited object while the hero picks what to keep.
+	// Only rewardable objects (Pandora's Box, Event, quest objects) are known to have no other use for their army.
+	const auto * rewardableHost = dynamic_cast<const CRewardableObject *>(&host);
+	if(!rewardableHost || rewardableHost->stacksCount() != 0)
+	{
+		logScript->error("grantCreatures: hero '%s' has no room for %d units of %s, and object '%s' at %s can not hold them",
+			hero.getNameTextID(), count, creature.getJsonKey(), host.getObjectNameTextID(), host.visitablePos().toString());
+		return false;
+	}
+
+	object.giveCreatures(rewardableHost, &hero, army, false);
+	return true;
+}
+
+bool AdventureServerProxy::spawnTownCreatureGrant(IGameEventCallback & object, const CGTownInstance & town, const CGHeroInstance & hero, const Creature & creature, int count)
+{
+	if(!isValidGrant(creature, count))
+		return false;
+
+	CCreatureSet army;
+	army.addToSlot(army.getFreeSlot(), creature.getId(), count);
+	if(giveCreaturesIfFit(object, hero, army))
+		return false;
+
+	// A town with a garrison hero has no army of its own - it belongs to that hero
+	SlotID slot = town.getGarrisonHero() ? SlotID() : town.getSlotFor(creature.getId());
+	if(town.getVisitingHero() != &hero || !slot.validSlot())
+	{
+		logCreaturesLost(hero, creature, count);
+		return false;
+	}
+
+	object.addToSlot(StackLocation(town.id, slot), creature.getId().toCreature(), count);
+	object.showGarrisonDialog(town.id, hero.id, MetaString());
+	return true;
+}
+
+void AdventureServerProxy::discardArmy(IGameEventCallback & object, const CGObjectInstance & host)
+{
+	const auto * armedHost = dynamic_cast<const CArmedInstance *>(&host);
+	if(!armedHost)
+		throw std::runtime_error("discardArmy: object '" + host.getObjectNameTextID() + "' has no army");
+
+	eraseAllStacks(object, *armedHost);
 }
 
 }
