@@ -21,7 +21,7 @@ const std::function<float(const int3 &, const int3 &)> Path::DEFAULT_MOVEMENT_FU
 };
 
 //A* priority queue
-using TDistance = std::pair<int3, float>;
+using TDistance = std::pair<int3, double>;
 struct NodeComparer
 {
 	bool operator()(const TDistance & lhs, const TDistance & rhs) const
@@ -112,11 +112,11 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 	Tileset closed;    // The set of nodes already evaluated.
 	auto open = createPriorityQueue(); // The set of tentative nodes to be evaluated, initially containing the start node
 	std::map<int3, int3> cameFrom;  // The map of navigated nodes.
-	std::map<int3, float> distances;
+	std::map<int3, double> distances;
 	
 	cameFrom[src] = int3(-1, -1, -1); //first node points to finish condition
 	distances[src] = 0;
-	open.push(std::make_pair(src, 0.f));
+	open.push(std::make_pair(src, 0.0));
 	// Cost from start along best known path.
 	
 	while(!open.empty())
@@ -150,8 +150,8 @@ Path Path::search(const Tileset & dst, bool straight, std::function<float(const 
 				
 				float movementCost = moveCostFunction(currentNode, pos);
 
-				float distance = distances[currentNode] + movementCost; //we prefer to use already free paths
-				float bestDistanceSoFar = std::numeric_limits<float>::max();
+				double distance = distances[currentNode] + movementCost; //we prefer to use already free paths
+				double bestDistanceSoFar = std::numeric_limits<double>::max();
 				auto it = distances.find(pos);
 				if(it != distances.end())
 					bestDistanceSoFar = it->second;

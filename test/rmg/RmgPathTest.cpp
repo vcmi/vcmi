@@ -215,6 +215,28 @@ TEST(RmgPathTest, SearchKeepsCheaperPathInsideSameIntegerBucket)
 	EXPECT_EQ(sorted(result.getPathArea()), sorted(rmg::Area({int3(0, 0, 0), int3(0, 1, 0), int3(1, 1, 0), int3(2, 1, 0)})));
 }
 
+TEST(RmgPathTest, SearchStillPrefersCheapTilesAfterAHugePenalty)
+{
+	// Leaving the start costs as much as a move behind an object that is not visitable from top.
+	// Later differences must not get lost in rounding against that penalty.
+	const auto grid = rect(0, 0, 5, 3);
+	rmg::Path path(grid);
+	path.connect(int3(4, 0, 0));
+
+	const auto penaltyThenCheapBottomRow = [](const int3 & src, const int3 & dst) -> float
+	{
+		if(src == int3(0, 0, 0))
+			return 1e12f;
+		return dst.y == 2 ? 1.f : 1000.f;
+	};
+	const auto result = path.search(int3(0, 0, 0), true, penaltyThenCheapBottomRow);
+
+	ASSERT_TRUE(result.valid());
+	rmg::Area expected = row(0, 4, 2);
+	expected.unite(rmg::Area({int3(0, 0, 0), int3(0, 1, 0), int3(4, 1, 0), int3(4, 0, 0)}));
+	EXPECT_EQ(sorted(result.getPathArea()), sorted(expected));
+}
+
 TEST(RmgPathTest, SearchFromPathWithConnectedAreaReturnsOnlyNewPath)
 {
 	const auto grid = rect(0, 0, 10, 10);
