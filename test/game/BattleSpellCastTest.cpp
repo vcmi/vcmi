@@ -713,6 +713,99 @@ TEST_F(BattleSpellCastTest, battleResurrection)
 	EXPECT_EQ(unit->health.getResurrected(), 0);
 }
 
+class OverlappingCorpsesResurrectionTest : public BattleSpellCastTest, public ::testing::WithParamInterface<std::string>
+{
+};
+
+// Corpses that share a hex can not all rise: the first one in unit order rises, a corpse overlapping
+// it stays dead, and a corpse overlapping only that dead corpse still rises.
+TEST_P(OverlappingCorpsesResurrectionTest, firstCorpseOnEachHexRises)
+{
+	startTestGame();
+
+	auto * attacker = getHeroByOwner(PlayerColor(0));
+	auto * defender = getHeroByOwner(PlayerColor(1));
+	ASSERT_NE(attacker, nullptr);
+	ASSERT_NE(defender, nullptr);
+
+	const SpellID spell(SpellID::decode(GetParam()));
+	attacker->addSpellToSpellbook(spell);
+	{
+		NewArtifact na;
+		na.artHolder = attacker->id;
+		na.artId = ArtifactID::SPELLBOOK;
+		na.pos = ArtifactPosition::SPELLBOOK;
+		gameEventCallback->sendAndApply(na);
+	}
+
+	startTestBattle(attacker, defender);
+
+	const CreatureID pikeman(0);
+	const CreatureID griffin(4);
+
+	// battlefield obstacles are random, so look for two free neighbouring hexes
+	auto * battle = gameState->currentBattles.front().get();
+	auto isFree = [battle](const BattleHex & hex)
+	{
+		return battle->battleGetUnitByPos(hex, false) == nullptr && battle->battleGetAllObstaclesOnPos(hex, false).empty();
+	};
+	BattleHex front;
+	BattleHex back;
+	for(int y = 0; y < GameConstants::BFIELD_HEIGHT && !front.isValid(); ++y)
+	{
+		for(int x = 2; x < GameConstants::BFIELD_WIDTH - 3; ++x)
+		{
+			if(isFree(BattleHex(x, y)) && isFree(BattleHex(x + 1, y)))
+			{
+				front = BattleHex(x, y);
+				back = BattleHex(x + 1, y);
+				break;
+			}
+		}
+	}
+	ASSERT_TRUE(front.isValid());
+
+	CStack * first = addStack(BattleSide::ATTACKER, pikeman, 10);
+	CStack * underFirst = addStack(BattleSide::ATTACKER, pikeman, 10);
+	CStack * wide = addStack(BattleSide::ATTACKER, griffin, 10);
+	CStack * underWide = addStack(BattleSide::ATTACKER, pikeman, 10);
+
+	first->position = front;
+	underFirst->position = front;
+	wide->position = back;
+	underWide->position = back;
+
+	ASSERT_TRUE(wide->doubleWide());
+	ASSERT_TRUE(wide->coversPos(front));
+	ASSERT_TRUE(wide->coversPos(back));
+
+	for(CStack * stack : {first, underFirst, wide, underWide})
+	{
+		int64_t damage = stack->getTotalHealth();
+		stack->damage(damage);
+		ASSERT_FALSE(stack->alive());
+	}
+
+	{
+		spells::BattleCast cast(battle, attacker, spells::Mode::HERO, spell.toSpell());
+		spells::Target target;
+		if(spell.toSpell()->getTargetType() == spells::AimType::LOCATION)
+			target.emplace_back(front);
+		auto affected = spell.toSpell()->battleMechanics(&cast)->getAffectedStacks(target);
+		EXPECT_THAT(affected, ::testing::UnorderedElementsAre(first, underWide));
+	}
+
+	castOn(attacker, spell, first);
+
+	EXPECT_TRUE(first->alive());
+	EXPECT_FALSE(underFirst->alive());
+	EXPECT_FALSE(wide->alive());
+	EXPECT_TRUE(underWide->alive());
+}
+
+INSTANTIATE_TEST_SUITE_P(MassAndArea, OverlappingCorpsesResurrectionTest,
+	::testing::Values("vcmi-test:testMassResurrection", "vcmi-test:testAreaResurrection"));
+
 TEST_F(BattleSpellCastTest, battleInterference)
 {
 	static const char skillText[] = R"(

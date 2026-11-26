@@ -177,5 +177,74 @@
 		"flags" : {
 			"indifferent" : true
 		}
+	},
+	// Resurrects every corpse at once, which only mods do
+	"testMassResurrection" :
+	{
+		"type" : "combat",
+		"targetType" : "NO_TARGET",
+		"name" : "Test Mass Resurrection",
+		"school" : {},
+		"level" : 1,
+		"power" : 1000,
+		"graphics" : {},
+		"levels" : {
+			"base" : {
+				"description" : "",
+				"cost" : 0,
+				"power" : 1000,
+				"range" : "X",
+				"battleEffects" : {
+					"heal" : {
+						"type" : "core:heal",
+						"healLevel" : "resurrect",
+						"healPower" : "permanent"
+					}
+				}
+			},
+			"none" : {},
+			"basic" : {},
+			"advanced" : {},
+			"expert" : {}
+		},
+		"flags" : {
+			"positive" : true,
+			"rising" : true
+		}
+	},
+	// Resurrects corpses in an Inferno-shaped area, which only mods do
+	"testAreaResurrection" :
+	{
+		"type" : "combat",
+		"targetType" : "LOCATION",
+		"name" : "Test Area Resurrection",
+		"school" : {},
+		"level" : 1,
+		"power" : 1000,
+		"graphics" : {},
+		"levels" : {
+			"base" : {
+				"description" : "",
+				"cost" : 0,
+				"power" : 1000,
+				"range" : "0-1",
+				"targetModifier" : { "smart" : false },
+				"battleEffects" : {
+					"heal" : {
+						"type" : "core:heal",
+						"healLevel" : "resurrect",
+						"healPower" : "permanent"
+					}
+				}
+			},
+			"none" : {},
+			"basic" : {},
+			"advanced" : {},
+			"expert" : {}
+		},
+		"flags" : {
+			"positive" : true,
+			"rising" : true
+		}
 	}
 }

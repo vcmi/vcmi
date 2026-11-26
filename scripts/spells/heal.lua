@@ -68,6 +68,20 @@ function Script:isValidTarget(mechanics, unit)
 	return true
 end
 
+--- A corpse can not rise on hexes of another corpse raised by the same cast.
+function Script:isCompatibleTarget(mechanics, unit, targets)
+	if not unit:isDead() then return true end
+	local hexes = unit:getHexes()
+	for _, other in ipairs(targets) do
+		if other:isDead() then
+			for i = 1, hexes:size() do
+				if other:coversPos(hexes:at(i)) then return false end
+			end
+		end
+	end
+	return true
+end
+
 --- Returns HP and unit count change for hover tooltip.
 function Script:getHealthChange(mechanics, spellTarget)
 	local result = { hpDelta = 0, unitsDelta = 0 }
