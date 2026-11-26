@@ -24,11 +24,6 @@
 using namespace MapEditor;
 #endif
 
-#ifdef VCMI_ANDROID
-#include <QAndroidJniObject>
-#include <QtAndroid>
-#endif
-
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/campaign/CampaignHandler.h"
 #include "../../lib/campaign/CampaignRegionsHandler.h"
@@ -55,7 +50,7 @@ CampaignEditor::CampaignEditor(EditorCallback * cb, QWidget * parent): QWidget{p
 
 	setAcceptDrops(true);
 
-	setWindowIcon(QIcon{":/icons/menu-game.png"});
+	setWindowIcon(QIcon{":/icons/mapeditor.64x64.png"});
 	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
 	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
@@ -416,15 +411,9 @@ void CampaignEditor::closeEvent(QCloseEvent *event)
 {
 	if(getAnswerAboutUnsavedChanges())
 	{
+		if(parentWidget())
+			parentWidget()->show();
 		QWidget::closeEvent(event);
-#ifdef VCMI_ANDROID
-		QApplication::quit();
-		QAndroidJniObject activity = QtAndroid::androidActivity();
-		if(activity.isValid())
-			activity.callMethod<void>("finishAffinity");
-#else
-		parentWidget()->show();
-#endif
 	}
 	else
 		event->ignore();

@@ -23,11 +23,6 @@
 #include "../helper.h"
 #include "../editorfiledialog.h"
 
-#ifdef VCMI_ANDROID
-#include <QAndroidJniObject>
-#include <QtAndroid>
-#endif
-
 #include "../../lib/VCMIDirs.h"
 #include "../../lib/rmg/CRmgTemplate.h"
 #include "../../lib/texts/MetaString.h"
@@ -43,7 +38,7 @@ TemplateEditor::TemplateEditor(QWidget * parent): QWidget{parent},
 	ui->menubar->setNativeMenuBar(false);
 #endif
 
-	setWindowIcon(QIcon{":/icons/menu-game.png"});
+	setWindowIcon(QIcon{":/icons/dice.png"});
 	ui->actionOpen->setIcon(QIcon{":/icons/document-open.png"});
 	ui->actionSave->setIcon(QIcon{":/icons/document-save.png"});
 	ui->actionNew->setIcon(QIcon{":/icons/document-new.png"});
@@ -938,15 +933,9 @@ void TemplateEditor::closeEvent(QCloseEvent *event)
 {
 	if(getAnswerAboutUnsavedChanges())
 	{
+		if(parentWidget())
+			parentWidget()->show();
 		QWidget::closeEvent(event);
-#ifdef VCMI_ANDROID
-		QApplication::quit();
-		QAndroidJniObject activity = QtAndroid::androidActivity();
-		if(activity.isValid())
-			activity.callMethod<void>("finishAffinity");
-#else
-		parentWidget()->show();
-#endif
 	}
 	else
 		event->ignore();
