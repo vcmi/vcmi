@@ -14,6 +14,7 @@
 #include "../lib/rmg/CRmgTemplate.h"
 #include "../lib/rmg/CMapGenerator.h"
 #include "../lib/GameLibrary.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/mapping/CMapEditManager.h"
 #include "../lib/mapping/MapFormat.h"
 #include "../lib/modding/ModScope.h"
@@ -22,8 +23,6 @@
 #include "../lib/serializer/JsonSerializer.h"
 #include "../lib/serializer/JsonDeserializer.h"
 
-#include "../vcmiqt/launcherdirs.h"
-#include "../vcmiqt/jsonutils.h"
 #include "windownewmap.h"
 #include "helper.h"
 #include "ui_windownewmap.h"
@@ -101,19 +100,13 @@ bool WindowNewMap::loadUserSettings()
 	bool ret = false;
 	const CRmgTemplate * templ = nullptr;
 
-	QSettings s = CLauncherDirs::getSettings(Ui::appName);
+	const JsonNode & stored = persistentStorage["mapEditor"]["newMapWindow"];
+	if(stored["generateRandom"].isBool())
+		ui->randomMapCheck->setChecked(stored["generateRandom"].Bool());
 
-	auto generateRandom = s.value(newMapGenerateRandom);
-	if (generateRandom.isValid())
+	if(stored["settings"].isStruct())
 	{
-		ui->randomMapCheck->setChecked(generateRandom.toBool());
-	}
-
-	auto settings = s.value(newMapWindow);
-
-	if (settings.isValid())
-	{
-		auto node = JsonUtils::toJson(settings);
+		auto node = stored["settings"];
 		node.setModScope(ModScope::scopeMap());
 		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
 		JsonDeserializer handler(nullptr, resolver, node);
@@ -192,17 +185,14 @@ bool WindowNewMap::loadUserSettings()
 
 void WindowNewMap::saveUserSettings()
 {
-	QSettings s = CLauncherDirs::getSettings(Ui::appName);
-
 	JsonNode data;
 	JsonSerializer ser(nullptr, data);
 
 	ser.serializeStruct("lastSettings", mapGenOptions);
-	data.setModScope(ModScope::scopeMap());
 
-	auto variant = JsonUtils::toVariant(data);
-	s.setValue(newMapWindow, variant);
-	s.setValue(newMapGenerateRandom, ui->randomMapCheck->isChecked());
+	Settings stored = persistentStorage.write["mapEditor"]["newMapWindow"];
+	stored["settings"] = std::move(data);
+	stored["generateRandom"].Bool() = ui->randomMapCheck->isChecked();
 }
 
 void WindowNewMap::on_cancelButton_clicked()

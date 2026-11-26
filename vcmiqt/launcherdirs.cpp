@@ -35,8 +35,4 @@ QString mapsPath()
 	return pathToQString(VCMIDirs::get().userDataPath() / "Maps");
 }
 
-QSettings getSettings(QString appName)
-{
-    return QSettings(pathToQString(VCMIDirs::get().userConfigPath() / qstringToPath(appName + ".ini")), QSettings::IniFormat);
-}
 }

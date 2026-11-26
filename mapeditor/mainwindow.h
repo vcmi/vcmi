@@ -19,19 +19,11 @@ class CGObjectInstance;
 namespace Ui
 {
 	class EditorMainWindow;
-	const QString appName = "mapeditor";
 }
 
 class EditorMainWindow : public QMainWindow
 {
 	Q_OBJECT
-
-	const QString mainWindowSizeSetting = "MainWindow/Size";
-	const QString mainWindowPositionSetting = "MainWindow/Position";
-	const QString lastDirectorySetting = "MainWindow/Directory";
-	const QString recentlyOpenedFilesSetting = "MainWindow/RecentlyOpenedFiles";
-	const QString objectBrowserListSetting = "MainWindow/ObjectBrowserList";
-	const QString objectBrowserIconSizeSetting = "MainWindow/ObjectBrowserIconSize";
 
 #ifdef ENABLE_QT_TRANSLATIONS
 #endif

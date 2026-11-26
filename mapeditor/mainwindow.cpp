@@ -44,8 +44,6 @@
 #include "../lib/TerrainHandler.h"
 #include "../lib/MapLayerHandler.h"
 
-#include "../vcmiqt/launcherdirs.h"
-
 #include "maphandler.h"
 #include "graphics.h"
 #include "windownewmap.h"
@@ -65,6 +63,27 @@
 #endif
 #include "editorfiledialog.h"
 #include "randommapcli.h"
+
+static QStringList loadRecentlyOpenedFiles()
+{
+	QStringList result;
+	const JsonNode & recentFiles = persistentStorage["mapEditor"]["recentFiles"];
+	if(recentFiles.isVector())
+	{
+		for(const auto & entry : recentFiles.Vector())
+			if(entry.isString())
+				result.push_back(QString::fromStdString(entry.String()));
+	}
+	return result;
+}
+
+static void saveRecentlyOpenedFiles(const QStringList & files)
+{
+	Settings recentFiles = persistentStorage.write["mapEditor"]["recentFiles"];
+	recentFiles->Vector().clear();
+	for(const auto & file : files)
+		recentFiles->Vector().emplace_back(file.toStdString());
+}
 
 #ifdef VCMI_ANDROID
 #include <QAndroidJniObject>
@@ -178,34 +197,31 @@ static QPixmap makePreview(const std::string & animationFile, size_t frame = 0)
 
 void EditorMainWindow::loadUserSettings()
 {
-	//load window settings
-	QSettings s = CLauncherDirs::getSettings(Ui::appName);
-
-	auto size = s.value(mainWindowSizeSetting).toSize();
-	if (size.isValid())
-	{
-		resize(size);
-	}
-	auto position = s.value(mainWindowPositionSetting).toPoint();
-	if (!position.isNull())
-	{
-		move(position);
-	}
-	lastSavingDir = s.value(lastDirectorySetting).toString();
+	const JsonNode & window = persistentStorage["mapEditor"]["mainWindow"];
+	const int width = static_cast<int>(window["width"].Integer());
+	const int height = static_cast<int>(window["height"].Integer());
+	if(width > 0 && height > 0)
+		resize(width, height);
+	if(!window["x"].isNull() && !window["y"].isNull())
+		move(static_cast<int>(window["x"].Integer()), static_cast<int>(window["y"].Integer()));
+	lastSavingDir = QString::fromStdString(window["lastDirectory"].String());
 	if(lastSavingDir.isEmpty())
 		lastSavingDir = pathToQString(VCMIDirs::get().userDataPath().make_preferred());
-	ui->objectView->setGridIconSize(s.value(objectBrowserIconSizeSetting, ui->objectView->gridIconSize()).toInt());
-	ui->viewModeButton->setChecked(s.value(objectBrowserListSetting).toBool());
+	if(!window["objectBrowserIconSize"].isNull())
+		ui->objectView->setGridIconSize(static_cast<int>(window["objectBrowserIconSize"].Integer()));
+	ui->viewModeButton->setChecked(window["objectBrowserList"].Bool());
 }
 
 void EditorMainWindow::saveUserSettings()
 {
-	QSettings s = CLauncherDirs::getSettings(Ui::appName);
-	s.setValue(mainWindowSizeSetting, size());
-	s.setValue(mainWindowPositionSetting, pos());
-	s.setValue(lastDirectorySetting, lastSavingDir);
-	s.setValue(objectBrowserListSetting, ui->viewModeButton->isChecked());
-	s.setValue(objectBrowserIconSizeSetting, ui->objectView->gridIconSize());
+	Settings window = persistentStorage.write["mapEditor"]["mainWindow"];
+	window["width"].Integer() = width();
+	window["height"].Integer() = height();
+	window["x"].Integer() = x();
+	window["y"].Integer() = y();
+	window["lastDirectory"].String() = lastSavingDir.toStdString();
+	window["objectBrowserList"].Bool() = ui->viewModeButton->isChecked();
+	window["objectBrowserIconSize"].Integer() = ui->objectView->gridIconSize();
 }
 
 void EditorMainWindow::parseCommandLine(ExtractionOptions & extractionOptions)
@@ -618,12 +634,11 @@ void EditorMainWindow::openCampaign(const QString & filenameSelect)
 }
 
 void EditorMainWindow::updateRecentMenu(const QString & filenameSelect) {
-	QSettings s = CLauncherDirs::getSettings(Ui::appName);
-	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
+	QStringList recentFiles = loadRecentlyOpenedFiles();
 	recentFiles.removeAll(filenameSelect);
 	recentFiles.prepend(filenameSelect);
 	constexpr int maxRecentFiles = 10;
-	s.setValue(recentlyOpenedFilesSetting, QStringList(recentFiles.mid(0, maxRecentFiles)));
+	saveRecentlyOpenedFiles(recentFiles.mid(0, maxRecentFiles));
 }
 
 void EditorMainWindow::on_actionOpen_triggered()
@@ -644,8 +659,7 @@ void EditorMainWindow::on_actionOpen_triggered()
 
 void EditorMainWindow::on_actionOpenRecent_triggered()
 {
-	QSettings s = CLauncherDirs::getSettings(Ui::appName);
-	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
+	QStringList recentFiles = loadRecentlyOpenedFiles();
 
 	class RecentFileDialog : public QDialog
 	{
@@ -705,8 +719,7 @@ void EditorMainWindow::on_menuOpenRecent_aboutToShow()
 		}
 	}
 
-	QSettings s = CLauncherDirs::getSettings(Ui::appName);
-	QStringList recentFiles = s.value(recentlyOpenedFilesSetting).toStringList();
+	QStringList recentFiles = loadRecentlyOpenedFiles();
 
 	// Dynamically populate menuOpenRecent with one action per file.
 	for (const QString & file : recentFiles) {
