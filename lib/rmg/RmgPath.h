@@ -60,7 +60,10 @@ private:
 
 struct BezierCurve
 {
-	int3 p0, p1, p2, p3; // p0: road node, p1/p2: control points, p3: zone.getPos()
+	int3 p0; // road node
+	int3 p1; // first control point
+	int3 p2; // second control point
+	int3 p3; // zone.getPos()
 	int3 pointAt(float t) const;
 	float distanceSq(const int3 & tile) const;
 	int minSampledRing(const DistanceMap & borderDistance, int minRing) const;
