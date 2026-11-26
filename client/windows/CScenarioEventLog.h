@@ -16,7 +16,7 @@
 
 #include "../../lib/gameState/ScenarioEventJournalEntry.h"
 
-class CScenarioEventLogMinimap : public CMinimap
+class ScenarioEventLogMinimap : public CMinimap
 {
 	int3 location = int3(-1, -1, -1);
 	std::shared_ptr<CPicture> marker;
@@ -27,7 +27,7 @@ class CScenarioEventLogMinimap : public CMinimap
 	void mouseDragged(const Point & cursorPosition, const Point & lastUpdateDistance) override {};
 
 public:
-	explicit CScenarioEventLogMinimap(const Rect & position);
+	explicit ScenarioEventLogMinimap(const Rect & position);
 
 	void setLocation(const int3 & newLocation);
 	void showAll(Canvas & to) override;
@@ -36,7 +36,7 @@ public:
 class CScenarioEventLog : public JournalWindow
 {
 	const std::vector<ScenarioEventJournalEntry> entries;
-	std::shared_ptr<CScenarioEventLogMinimap> minimap;
+	std::shared_ptr<ScenarioEventLogMinimap> minimap;
 
 	size_t getItemCount() const override;
 	std::string getItemText(size_t itemIndex) const override;
