@@ -12,6 +12,7 @@
 #include <QCoreApplication>
 #include "mainwindow.h"
 #include "randommapcli.h"
+#include "../vcmiqt/InputEventHelper.h"
 
 #ifndef ENABLE_SINGLE_APP_BUILD
 int main(int argc, char * argv[])
@@ -27,6 +28,7 @@ int main(int argc, char * argv[])
 #endif
 
 	QApplication vcmieditor(argc, argv);
+	installInputEventHelper(&vcmieditor);
 	EditorMainWindow mainWindow;
 	return vcmieditor.exec();
 }

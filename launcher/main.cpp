@@ -13,6 +13,7 @@
 #include "prepare.h"
 
 #include "../lib/VCMIDirs.h"
+#include "../vcmiqt/InputEventHelper.h"
 
 #include <QApplication>
 
@@ -64,6 +65,7 @@ int MAIN_EXPORT main(int argc, char * argv[])
 	}
 #endif
 	QApplication app(argc, argv);
+	installInputEventHelper(&app);
 
 #if defined(Q_OS_MACOS) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 	// Qt 5 native macOS style fails to paint QProgressBar on macOS 26 (Tahoe).
