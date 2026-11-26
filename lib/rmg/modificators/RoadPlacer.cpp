@@ -278,6 +278,7 @@ void RoadPlacer::connectRoads()
 	}
 
 	roads = pruneRoadDeadEnds(roads, roadNodes);
+	roads = pruneRoadDeadEnds(removeRoadSquares(roads, roadNodes), roadNodes);
 	
 	if (!zone.isUnderground())
 	{

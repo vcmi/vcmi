@@ -136,6 +136,108 @@ rmg::Area pruneRoadDeadEnds(const rmg::Area & roads, const rmg::Tileset & keep)
 	return remaining;
 }
 
+namespace
+{
+// Road sprites join only orthogonal neighbours, so a road network is connected in 4 directions.
+int countRoadPieces(const rmg::Area & roads)
+{
+	rmg::Tileset unvisited = roads.getTiles();
+	int pieces = 0;
+	while(!unvisited.empty())
+	{
+		++pieces;
+		std::vector<int3> queue = {*unvisited.begin()};
+		unvisited.erase(unvisited.begin());
+		while(!queue.empty())
+		{
+			const int3 tile = queue.back();
+			queue.pop_back();
+			for(const auto & dir : rmg::dirs4)
+			{
+				if(unvisited.erase(tile + dir))
+					queue.push_back(tile + dir);
+			}
+		}
+	}
+	return pieces;
+}
+
+// A turn whose two neighbours continue the staircase is drawn as a diagonal road piece.
+bool isStaircaseTile(const rmg::Area & roads, const int3 & tile)
+{
+	std::vector<int3> neighbours;
+	for(const auto & dir : rmg::dirs4)
+	{
+		if(roads.contains(tile + dir))
+			neighbours.push_back(dir);
+	}
+	if(neighbours.size() != 2 || neighbours[0] + neighbours[1] == int3())
+		return false;
+	const int3 & a = neighbours[0];
+	const int3 & b = neighbours[1];
+	return roads.contains(tile + a - b) && roads.contains(tile + b - a);
+}
+
+int countStaircaseTiles(const rmg::Area & roads, const int3 & topLeft, int radius)
+{
+	int count = 0;
+	for(int y = topLeft.y - radius; y <= topLeft.y + 1 + radius; ++y)
+	{
+		for(int x = topLeft.x - radius; x <= topLeft.x + 1 + radius; ++x)
+		{
+			const int3 tile(x, y, topLeft.z);
+			if(roads.contains(tile) && isStaircaseTile(roads, tile))
+				++count;
+		}
+	}
+	return count;
+}
+}
+
+rmg::Area removeRoadSquares(const rmg::Area & roads, const rmg::Tileset & keep)
+{
+	constexpr int SCORE_RADIUS = 2;
+	rmg::Area remaining = roads;
+	const int pieces = countRoadPieces(remaining);
+	bool changed = true;
+	while(changed)
+	{
+		changed = false;
+		std::vector<int3> corners = remaining.getTilesVector();
+		std::sort(corners.begin(), corners.end());
+		for(const int3 & corner : corners)
+		{
+			const std::array<int3, 4> square = {corner, corner + int3(1, 0, 0), corner + int3(0, 1, 0), corner + int3(1, 1, 0)};
+			if(!std::all_of(square.begin(), square.end(), [&remaining](const int3 & t) { return remaining.contains(t); }))
+				continue;
+
+			std::optional<int3> best;
+			int bestScore = -1;
+			for(const int3 & tile : square)
+			{
+				if(keep.contains(tile))
+					continue;
+				rmg::Area candidate = remaining;
+				candidate.erase(tile);
+				if(countRoadPieces(candidate) != pieces)
+					continue;
+				const int score = countStaircaseTiles(candidate, corner, SCORE_RADIUS);
+				if(score > bestScore)
+				{
+					best = tile;
+					bestScore = score;
+				}
+			}
+			if(best)
+			{
+				remaining.erase(*best);
+				changed = true;
+			}
+		}
+	}
+	return remaining;
+}
+
 rmg::Tileset collectDistantTiles(const Zone& zone, int distance)
 {
 	uint32_t distanceSq = distance * distance;

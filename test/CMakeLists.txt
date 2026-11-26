@@ -170,6 +170,7 @@ set(test_SRCS
 		rmg/TileDistanceIndexTest.cpp
 		rmg/RmgPathTest.cpp
 		rmg/RmgRoadDeadEndsTest.cpp
+		rmg/RmgRoadSquaresTest.cpp
 		rmg/RmgMapDumperTest.cpp
 		rmg/CRoadRandomizerTest.cpp
 		rmg/PenroseTilingTest.cpp
