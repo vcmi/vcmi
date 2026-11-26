@@ -172,6 +172,7 @@ set(test_SRCS
 		rmg/RmgPathTest.cpp
 		rmg/RmgRoadCleanupTest.cpp
 		rmg/RmgMapDumperTest.cpp
+		rmg/PredictBoatTileTest.cpp
 		rmg/PlayerZoneArrangementTest.cpp
 		rmg/OneWayConnectionTest.cpp
 		rmg/CRoadRandomizerTest.cpp
