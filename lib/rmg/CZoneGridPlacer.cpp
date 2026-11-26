@@ -14,6 +14,7 @@
 #include "CMapGenOptions.h"
 #include "Functions.h"
 #include "RmgMap.h"
+#include "PlayerZoneArrangement.h"
 #include "Zone.h"
 #include "ZonePlacementLog.h"
 
@@ -128,12 +129,20 @@ void CZoneGridPlacer::annealGrids(std::vector<std::unique_ptr<GridType>> & grids
 	if (zonesAll.size() < 3)
 		return;
 
+	std::map<TRmgTemplateZoneId, int> playerOwners;
+	for(const auto & z : zonesAll)
+	{
+		if(!vstd::contains(playerZones, z->getId()))
+			continue;
+		playerOwners[z->getId()] = z->getOwner().value_or(0);
+	}
+
 	constexpr float crossAlignWeight = 6.0f; // reward for cross-level partners sharing a normalized cell
 	// Repulsion is only a tie-break: pulling one connected pair a cell apart costs 1, so the total a zone
 	// can gain from all its repulsive partners must stay below that - hence the cap, divided per partner.
 	constexpr float repulsionCap = 0.5f;
 	constexpr float connectionRepulsion = repulsionCap / 4; // a zone rarely has more than a few repulsive connections
-	// halved on top of the per-partner split, because a pair of participating players counts double below
+	// halved on top of the per-partner split, because the pair weight never exceeds 2
 	const float playerRepulsionWeight = playerRepulsion * repulsionCap / (2 * std::max<size_t>(2, playerZones.size()));
 
 	// Cost of one zone's edges. Every term must stay symmetric in both endpoints, otherwise the
@@ -192,9 +201,9 @@ void CZoneGridPlacer::annealGrids(std::vector<std::unique_ptr<GridType>> & grids
 				if (otherId == z->getId() || connected)
 					continue;
 
-				//players in the game push twice as hard, so they end up at the far ends of the spread
+				//lower player indexes push harder, so they end up at the far ends of the spread
 				const bool bothParticipate = weParticipate && vstd::contains(participatingPlayerZones, otherId);
-				cost += repulsion(pos.at(otherId), playerRepulsionWeight * (bothParticipate ? 2.f : 1.f));
+				cost += repulsion(pos.at(otherId), playerRepulsionWeight * playerPairWeight(playerOwners.at(z->getId()), playerOwners.at(otherId), bothParticipate));
 			}
 		}
 

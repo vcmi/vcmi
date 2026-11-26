@@ -57,6 +57,10 @@ private:
 	// Roll a random dihedral symmetry and apply it to the finished zone centers, so that a fixed template
 	// graph does not always yield the same-looking layout. Connectivity is preserved - it is an isometry.
 	void applyRandomOrientation(const TZoneMap & zones, vstd::RNG * rand);
+	// How close the player start zones of one layout are to each other, see playerCrowding().
+	float measurePlayerCrowding(const TZoneMap & zones, const TZoneCenterMap & solution) const;
+	// Swap interchangeable player start zones so that lower player indexes hold the farthest centers.
+	void arrangePlayerZones(const TZoneMap & zones) const;
 	// Apply the stored orientation to a point in normalized [0,1] space (identity if none was rolled).
 	std::pair<float, float> orientNormalized(float x, float y) const;
 	void separateOverlappingZones(TZoneMap &zones, TForceVector &forces, TDistanceVector &overlaps);
