@@ -11,7 +11,6 @@
 #include "StdInc.h"
 
 #include "../../lib/CRandomGenerator.h"
-#include "../../lib/entities/faction/CFaction.h"
 #include "../../lib/rmg/Functions.h"
 
 namespace test
@@ -21,15 +20,47 @@ using namespace ::testing;
 
 class TownFactionFallbackTest : public Test
 {
-protected:
-	static bool factionHasTown(FactionID faction)
-	{
-		if(!faction.isValid())
-			return false;
-		const auto * f = faction.toFaction();
-		return f && f->hasTown();
-	}
 };
+
+TEST_F(TownFactionFallbackTest, CastleHasTown)
+{
+	/*
+	 * Asserts: a faction with a town object is accepted.
+	 * Pass: CASTLE is true.
+	 * Fail: CASTLE is treated as town-less.
+	 */
+	EXPECT_TRUE(factionHasTown(FactionID::CASTLE));
+}
+
+TEST_F(TownFactionFallbackTest, NeutralHasNoTown)
+{
+	/*
+	 * Asserts: NEUTRAL is not a faction with a town object.
+	 * Pass: false.
+	 * Fail: NEUTRAL is treated as a town faction.
+	 */
+	EXPECT_FALSE(factionHasTown(FactionID::NEUTRAL));
+}
+
+TEST_F(TownFactionFallbackTest, RandomHasNoTown)
+{
+	/*
+	 * Asserts: RANDOM is not a resolved faction.
+	 * Pass: false.
+	 * Fail: RANDOM is treated as a town faction.
+	 */
+	EXPECT_FALSE(factionHasTown(FactionID::RANDOM));
+}
+
+TEST_F(TownFactionFallbackTest, NoneHasNoTown)
+{
+	/*
+	 * Asserts: NONE is not a faction with a town object.
+	 * Pass: false.
+	 * Fail: NONE is treated as a town faction.
+	 */
+	EXPECT_FALSE(factionHasTown(FactionID::NONE));
+}
 
 TEST_F(TownFactionFallbackTest, HintedTownFactionIsKeptWhenAllowedOmitsIt)
 {

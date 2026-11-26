@@ -12,7 +12,6 @@
 #include "TownPlacer.h"
 #include "../CMapGenerator.h"
 #include "../RmgMap.h"
-#include "../../entities/faction/CTownHandler.h"
 #include "../../mapObjectConstructors/AObjectTypeHandler.h"
 #include "../../mapObjectConstructors/CObjectClassesHandler.h"
 #include "../../mapObjects/CGTownInstance.h"
@@ -45,28 +44,6 @@ void TownPlacer::process()
 
 void TownPlacer::init()
 {
-	for(auto & townHint : zone.getTownHints())
-	{
-		logRmg->info("Town hint of zone %d: %d", zone.getId(), townHint.likeZone);
-		if(townHint.likeZone != rmg::ZoneOptions::NO_ZONE)
-		{
-			logRmg->info("Dependency on town type of zone %d", townHint.likeZone);
-			dependency(map.getZones().at(townHint.likeZone)->getModificator<TownPlacer>());
-		}
-		else if(!townHint.notLikeZone.empty())
-		{
-			for(auto zoneId : townHint.notLikeZone)
-			{
-				logRmg->info("Dependency on town unlike type of zone %d", zoneId);
-				dependency(map.getZones().at(zoneId)->getModificator<TownPlacer>());
-			}
-		}
-		else if(townHint.relatedToZoneTerrain != rmg::ZoneOptions::NO_ZONE)
-		{
-			logRmg->info("Dependency on town related to zone terrain of zone %d", townHint.relatedToZoneTerrain);
-			dependency(map.getZones().at(townHint.relatedToZoneTerrain)->getModificator<TownPlacer>());
-		}
-	}
 	POSTFUNCTION(MinePlacer);
 	POSTFUNCTION(ObjectPlacer);
 	POSTFUNCTION(RoadPlacer);
@@ -74,11 +51,8 @@ void TownPlacer::init()
 
 void TownPlacer::placeTowns(ObjectManager & manager)
 {
-	// TODO: Configurew each subseqquent town based on townHints
-
 	if(zone.getOwner() && ((zone.getType() == ETemplateZoneType::CPU_START) || (zone.getType() == ETemplateZoneType::PLAYER_START)))
 	{
-		//set zone types to player faction, generate main town
 		logRmg->info("Preparing playing zone");
 		int player_id = *zone.getOwner() - 1;
 		const auto & playerSettings = map.getMapGenOptions().getPlayersSettings();
@@ -88,15 +62,10 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		{
 			const auto & currentPlayerSettings = std::next(playerSettings.begin(), player_id);
 			player = currentPlayerSettings->first;
-			zone.setTownType(currentPlayerSettings->second.getStartingTown());
-			
-			if(zone.getTownType() == FactionID::RANDOM)
-				zone.setTownType(getRandomTownType(true));
 		}
-		else //no player - randomize town
+		else
 		{
 			player = PlayerColor::NEUTRAL;
-			zone.setTownType(townFactionOrRandom(getTownTypeFromHint(0), zone.getTownTypes(), zone.getRand()));
 		}
 		
 		auto & townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
@@ -127,7 +96,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 			playerInfo.hasMainTown = true;
 			playerInfo.posOfMainTown = position;
 			playerInfo.generateHeroAtMainTown = true;
-			
+
 			//now create actual towns
 			addNewTowns(zone.getPlayerTowns().getCastleCount() - 1, true, player, manager);
 			addNewTowns(zone.getPlayerTowns().getTownCount(), false, player, manager);
@@ -138,32 +107,9 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 			addNewTowns(zone.getPlayerTowns().getTownCount(), false, PlayerColor::NEUTRAL, manager);
 		}
 	}
-	else //randomize town types for non-player zones
-	{
-		zone.setTownType(getTownTypeFromHint(0));
-	}
 	
 	addNewTowns(zone.getNeutralTowns().getCastleCount(), true, PlayerColor::NEUTRAL, manager);
 	addNewTowns(zone.getNeutralTowns().getTownCount(), false, PlayerColor::NEUTRAL, manager);
-	
-	//if there's no town present, get random faction for dwellings and pandoras - unless a town hint pinned it already
-	if(!totalTowns && !hasTownTypeHint(0))
-	{
-		//25% chance for neutral
-		if (zone.getRand().nextInt(1, 100) <= 25)
-		{
-			zone.setTownType(ETownType::NEUTRAL);
-		}
-		else
-		{
-			if(!zone.getTownTypes().empty())
-				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getTownTypes(), zone.getRand()));
-			else if(!zone.getMonsterTypes().empty())
-				zone.setTownType(*RandomGeneratorUtil::nextItem(zone.getMonsterTypes(), zone.getRand())); //this happens in Clash of Dragons in treasure zones, where all towns are banned
-			else //just in any case
-				zone.setTownType(getRandomTownType());
-		}
-	}
 }
 
 int3 TownPlacer::placeMainTown(ObjectManager & manager, std::shared_ptr<CGTownInstance> town)
@@ -262,80 +208,19 @@ void TownPlacer::cleanupBoundaries(const rmg::Object & rmgObject)
 	}
 }
 
-bool TownPlacer::hasTownTypeHint(size_t hintIndex) const
-{
-	const auto & hints = zone.getTownHints();
-	if(hints.size() <= hintIndex)
-		return false;
-
-	const auto & townHints = hints[hintIndex];
-	return townHints.likeZone != rmg::ZoneOptions::NO_ZONE
-		|| !townHints.notLikeZone.empty()
-		|| townHints.relatedToZoneTerrain != rmg::ZoneOptions::NO_ZONE;
-}
-
-FactionID TownPlacer::getTownTypeFromHint(size_t hintIndex)
-{
-	const auto & hints = zone.getTownHints();
-	if(hints.size() <= hintIndex)
-	{
-		return *RandomGeneratorUtil::nextItem(zone.getTownTypes(), zone.getRand());
-	}
-
-	const auto & townHints = hints[hintIndex];
-	FactionID subType = zone.getTownType();
-
-	if(townHints.likeZone != rmg::ZoneOptions::NO_ZONE)
-	{
-		// Copy directly from other zone
-		subType = map.getZones().at(townHints.likeZone)->getTownType();
-	}
-	else if(!townHints.notLikeZone.empty())
-	{
-		// Exclude type rolled for other zone
-		auto townTypes = zone.getTownTypes();
-		for(auto zoneId : townHints.notLikeZone)
-		{
-			townTypes.erase(map.getZones().at(zoneId)->getTownType());
-		}
-		zone.setTownTypes(townTypes);
-		
-		if(!townTypes.empty())
-			subType = *RandomGeneratorUtil::nextItem(townTypes, zone.getRand());
-	}
-	else if(townHints.relatedToZoneTerrain != rmg::ZoneOptions::NO_ZONE)
-	{
-		auto townTerrain = map.getZones().at(townHints.relatedToZoneTerrain)->getTerrainType();
-		
-		auto townTypesAllowed = zone.getTownTypes();
-		vstd::erase_if(townTypesAllowed, [townTerrain](FactionID type)
-		{
-			return !(*LIBRARY->townh)[type]->isNativeTerrain(townTerrain);
-		});
-		zone.setTownTypes(townTypesAllowed);
-		
-		if(!townTypesAllowed.empty())
-			subType = *RandomGeneratorUtil::nextItem(townTypesAllowed, zone.getRand());
-	}
-
-	return subType;
-}
-
 void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player, ObjectManager & manager)
 {
 	for(int i = 0; i < count; i++)
 	{
 		FactionID subType = zone.getTownType();
 
-		if(totalTowns <= 0)
+		if(totalTowns > 0 && !zone.areTownsSameType())
 		{
-			subType = townFactionOrRandom(zone.getTownType(), zone.getTownTypes(), zone.getRand());
-			if(subType != zone.getTownType())
-				zone.setTownType(subType);
-		}
-		else if(!zone.areTownsSameType())
-		{
-			subType = townFactionOrRandom(getTownTypeFromHint(totalTowns), zone.getTownTypes(), zone.getRand());
+			const auto & hinted = zone.getHintedTownTypes();
+			if(static_cast<size_t>(totalTowns) < hinted.size())
+				subType = hinted[totalTowns];
+			else
+				subType = townFactionOrRandom(FactionID::NONE, zone.getTownTypes(), zone.getRand());
 		}
 		
 		auto & townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, subType);
@@ -364,27 +249,6 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 		}
 		totalTowns++;
 	}
-}
-
-FactionID TownPlacer::getRandomTownType(bool matchUndergroundType)
-{
-	auto townTypesAllowed = (!zone.getTownTypes().empty() ? zone.getTownTypes() : zone.getDefaultTownTypes(*LIBRARY));
-	if(matchUndergroundType)
-	{
-		std::set<FactionID> townTypesVerify;
-		for(auto factionIdx : townTypesAllowed)
-		{
-			bool preferUnderground = (*LIBRARY->townh)[factionIdx]->preferUndergroundPlacement;
-			if(zone.isUnderground() ? preferUnderground : !preferUnderground)
-			{
-				townTypesVerify.insert(factionIdx);
-			}
-		}
-		if(!townTypesVerify.empty())
-			townTypesAllowed = townTypesVerify;
-	}
-	
-	return *RandomGeneratorUtil::nextItem(townTypesAllowed, zone.getRand());
 }
 
 int TownPlacer::getTotalTowns() const

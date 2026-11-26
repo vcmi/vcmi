@@ -18,6 +18,4 @@ public:
 	
 	void process() override;
 	void init() override;
-
-	void initTerrainType();
 };

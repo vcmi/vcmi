@@ -97,6 +97,8 @@ public:
 	
 	FactionID getTownType() const;
 	void setTownType(FactionID town);
+	const std::vector<FactionID> & getHintedTownTypes() const;
+	void setHintedTownTypes(std::vector<FactionID> types);
 	TerrainId getTerrainType() const;
 	void setTerrainType(TerrainId terrain);
 		
@@ -149,5 +151,6 @@ protected:
 	
 	//template info
 	FactionID townType;
+	std::vector<FactionID> hintedTownTypes;
 	TerrainId terrainType;
 };

@@ -260,6 +260,7 @@ set(lib_MAIN_SRCS
 	rmg/TileInfo.cpp
 	rmg/Zone.cpp
 	rmg/Functions.cpp
+	rmg/ZoneFactionResolver.cpp
 	rmg/ObjectInfo.cpp
 	rmg/ObjectConfig.cpp
 	rmg/PandoraBoxTreasures.cpp
@@ -764,6 +765,7 @@ set(lib_MAIN_HEADERS
 	rmg/RmgMap.h
 	rmg/float3.h
 	rmg/Functions.h
+	rmg/ZoneFactionResolver.h
 	rmg/ObjectInfo.h
 	rmg/ObjectConfig.h
 	rmg/PandoraBoxTreasures.h

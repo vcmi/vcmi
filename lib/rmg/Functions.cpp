@@ -29,6 +29,9 @@
 
 #include <vstd/RNG.h>
 
+#include <set>
+#include <string>
+
 rmg::BezierCurve chooseCurve(const Zone & zone, const int3 & src, const rmg::DistanceMap & borderDistance, vstd::RNG & rng)
 {
 	constexpr int MIN_RING = 4; // reject a curve that comes this close to the zone border
@@ -315,16 +318,16 @@ std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 	return result;
 }
 
+bool factionHasTown(FactionID faction)
+{
+	if(!faction.isValid())
+		return false;
+	const auto * f = faction.toFaction();
+	return f && f->hasTown();
+}
+
 FactionID townFactionOrRandom(FactionID hinted, const std::set<FactionID> & allowed, vstd::RNG & rand)
 {
-	auto factionHasTown = [](FactionID faction) -> bool
-	{
-		if(!faction.isValid())
-			return false;
-		const auto * f = faction.toFaction();
-		return f && f->hasTown();
-	};
-
 	if(factionHasTown(hinted))
 		return hinted;
 
@@ -339,6 +342,85 @@ FactionID townFactionOrRandom(FactionID hinted, const std::set<FactionID> & allo
 		pool = LIBRARY->townh->getDefaultAllowed();
 
 	return *RandomGeneratorUtil::nextItem(pool, rand);
+}
+
+namespace
+{
+std::vector<TRmgTemplateZoneId> firstHintDependencies(const std::vector<rmg::ZoneOptions::CTownHints> & hints)
+{
+	if(hints.empty())
+		return {};
+
+	const auto & hint = hints.front();
+	if(hint.likeZone != rmg::ZoneOptions::NO_ZONE)
+		return {hint.likeZone};
+	if(!hint.notLikeZone.empty())
+		return hint.notLikeZone;
+	if(hint.relatedToZoneTerrain != rmg::ZoneOptions::NO_ZONE)
+		return {hint.relatedToZoneTerrain};
+	return {};
+}
+}
+
+std::vector<TRmgTemplateZoneId> orderZonesByFirstTownHint(const std::map<TRmgTemplateZoneId, std::vector<rmg::ZoneOptions::CTownHints>> & townHints)
+{
+	std::map<TRmgTemplateZoneId, std::vector<TRmgTemplateZoneId>> dependents;
+	std::map<TRmgTemplateZoneId, int> indegree;
+	for(const auto & [zoneId, _] : townHints)
+		indegree[zoneId] = 0;
+
+	for(const auto & [zoneId, hints] : townHints)
+	{
+		std::set<TRmgTemplateZoneId> uniqueDeps;
+		for(const auto dep : firstHintDependencies(hints))
+		{
+			if(dep == zoneId || !townHints.contains(dep))
+				continue;
+			uniqueDeps.insert(dep);
+		}
+		for(const auto dep : uniqueDeps)
+		{
+			dependents[dep].push_back(zoneId);
+			++indegree[zoneId];
+		}
+	}
+
+	std::set<TRmgTemplateZoneId> ready;
+	for(const auto & [zoneId, degree] : indegree)
+	{
+		if(degree == 0)
+			ready.insert(zoneId);
+	}
+
+	std::vector<TRmgTemplateZoneId> order;
+	order.reserve(townHints.size());
+	while(!ready.empty())
+	{
+		const auto zoneId = *ready.begin();
+		ready.erase(ready.begin());
+		order.push_back(zoneId);
+		for(const auto next : dependents[zoneId])
+		{
+			if(--indegree[next] == 0)
+				ready.insert(next);
+		}
+	}
+
+	if(order.size() == townHints.size())
+		return order;
+
+	std::string message = "Town hints form a dependency cycle between zones ";
+	bool first = true;
+	for(const auto & [zoneId, degree] : indegree)
+	{
+		if(degree <= 0)
+			continue;
+		if(!first)
+			message += ", ";
+		first = false;
+		message += std::to_string(zoneId);
+	}
+	throw rmgException(message);
 }
 
 CreatureID chooseFallbackGuard(si32 strength, const std::vector<GuardCandidate> & candidates)
