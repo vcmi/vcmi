@@ -171,6 +171,7 @@ set(test_SRCS
 		rmg/TileDistanceIndexTest.cpp
 		rmg/RmgPathTest.cpp
 		rmg/RmgMapDumperTest.cpp
+		rmg/PlayerZoneArrangementTest.cpp
 		rmg/OneWayConnectionTest.cpp
 		rmg/CRoadRandomizerTest.cpp
 		rmg/PenroseTilingTest.cpp
