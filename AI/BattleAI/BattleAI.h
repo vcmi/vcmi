@@ -80,4 +80,5 @@ public:
 	void battleStart(const BattleID & battleID, const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance * hero1, const CGHeroInstance * hero2, BattleSide side, bool replayAllowed) override;
 	void actionFinished(const BattleID & battleID, const BattleAction & action) override;
 	AutocombatPreferences autobattlePreferences = AutocombatPreferences();
+	static float getStrengthRatio(std::shared_ptr<CBattleInfoCallback> cb, BattleSide side);
 };

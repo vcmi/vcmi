@@ -17,6 +17,7 @@
 #include "battle/CBattleInfoEssentials.h"
 #include "callback/CBattleCallback.h"
 
+#include "AI/BattleAI/BattleAI.h"
 #include "AI/BattleAI/BattleEvaluator.h"
 #include "AI/MMAI/common.h"
 #include "BAI/v15/render_v15.h"
@@ -464,33 +465,11 @@ void BAI::_activeStack(const BattleID & bid, const CStack * astack)
 	cb->battleMakeUnitAction(bid, ba);
 }
 
-// Stolen from BattleAI (must duplicate the function here since AIs libs are not static)
-float BAI::getBattleAIStrengthRatio() const
-{
-	auto stacks = battle->battleGetAllStacks();
-	uint64_t our = 0;
-	uint64_t enemy = 0;
-
-	const auto side = battle->battleGetMySide();
-	const auto ourEnemy = CombatValueContext::against(*battle, side);
-	const auto theirEnemy = CombatValueContext::against(*battle, CBattleInfoEssentials::otherSide(side));
-
-	for(const auto & stack : stacks)
-	{
-		if(stack->unitSide() == side)
-			our += stack->estimateCombatValue(ourEnemy);
-		else
-			enemy += stack->estimateCombatValue(theirEnemy);
-	}
-
-	return enemy == 0 ? 1.0f : static_cast<float>(our) / static_cast<float>(enemy);
-}
-
 BattleEvaluator * BAI::getBattleAIEvaluator(const CStack * stack, const BattleID & bid)
 {
 	if(battleAIEvaluator)
 		return battleAIEvaluator.get();
-	const auto ratio = getBattleAIStrengthRatio();
+	const auto ratio = CBattleAI::getStrengthRatio(battle, battle->battleGetMySide());
 	battleAIEvaluator = std::make_unique<BattleEvaluator>(env, cb, stack, cb->getPlayerID().value(), bid, battle->battleGetMySide(), ratio, 2);
 	return battleAIEvaluator.get();
 }
