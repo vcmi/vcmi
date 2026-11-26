@@ -4,7 +4,7 @@
     "title" : "MMAI settings format",
     "description" : "Format used to define settings for the MMAI mod",
     "additionalProperties" : false,
-    "required" : [ "models", "fallback", "useCreatureSpells", "temperature", "seed" ],
+    "required" : [ "models", "fallback", "fallbackValueThreshold", "useCreatureSpells", "temperature", "seed" ],
     "properties" : {
         "$comment" : {
             "type" : "array",

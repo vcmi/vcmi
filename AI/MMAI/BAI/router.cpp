@@ -51,28 +51,24 @@ namespace
 	std::shared_ptr<ModelRepository> InitModelRepository()
 	{
 		auto repo = std::make_unique<ModelRepository>();
-		const auto json = JsonUtils::assembleFromFiles("MMAI/CONFIG/mmai-settings.json");
+		auto json = JsonUtils::assembleFromFiles("MMAI/CONFIG/mmai-settings.json");
 		std::string fallback;
 
 		if(json.isStruct())
 		{
 			JsonValidator validator;
 			const auto & schema = validator.getSchema("vcmi:mmaiSettings");
-			const auto & properties = schema["properties"];
+			JsonUtils::maximize(json, schema);
+			std::cout << "fallbackValueThreshold: " << json["fallbackValueThreshold"].Float() << "\n";
 			validator.validate(json, schema, "mmai");
-			const auto setting = [&](const std::string & key, auto hasType) -> const JsonNode &
-			{
-				const auto & node = json[key];
-				return std::invoke(hasType, node) ? node : properties[key]["default"];
-			};
 
-			repo->temperature = static_cast<float>(setting("temperature", &JsonNode::isNumber).Float());
-			repo->useCreatureSpells = setting("useCreatureSpells", &JsonNode::isBool).Bool();
+			repo->temperature = static_cast<float>(json["temperature"].Float());
+			repo->useCreatureSpells = json["useCreatureSpells"].Bool();
 
 			const auto thresholdOverride = MMAIFallbackValueTrigger();
-			repo->fallbackValueThreshold = thresholdOverride ? *thresholdOverride : setting("fallbackValueThreshold", &JsonNode::isNumber).Float();
+			repo->fallbackValueThreshold = thresholdOverride ? *thresholdOverride : json["fallbackValueThreshold"].Float();
 
-			repo->seed = setting("seed", &JsonNode::isNumber).Integer();
+			repo->seed = json["seed"].Integer();
 			if(repo->seed == 0)
 				repo->seed = CRandomGenerator::getDefault().nextInt();
 
@@ -82,11 +78,10 @@ namespace
 					if(node.isString())
 						repo->paths.try_emplace(key, node.String());
 
-			const auto & fallbackSchema = properties["fallback"];
-			const auto & configuredFallback = json["fallback"];
-			const auto & allowedFallbacks = fallbackSchema["enum"].Vector();
-			fallback = configuredFallback.isString() && vstd::contains(allowedFallbacks, configuredFallback) ? configuredFallback.String()
-																											 : fallbackSchema["default"].String();
+			for(const auto & [key, node] : json["models"].Struct())
+				repo->paths.try_emplace(key, node.String());
+
+			fallback = json["fallback"].isNull() ? "BattleAI" : json["fallback"].String();
 		}
 		else
 		{
