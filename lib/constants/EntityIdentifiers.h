@@ -861,6 +861,7 @@ public:
 		PSYCHIC_ELEMENTAL = 120, // for hardcoded ability
 		MAGIC_ELEMENTAL = 121, // for hardcoded ability
 		AZURE_DRAGON = 132,
+		PEASANT = 139,
 		CATAPULT = 145,
 		BALLISTA = 146,
 		FIRST_AID_TENT = 147,
