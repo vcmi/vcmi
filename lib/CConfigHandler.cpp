@@ -212,58 +212,33 @@ JsonNode & Settings::operator[](const std::string & value)
 
 EDisplayMode getDisplayMode()
 {
-	const std::string & mode = settings["video"]["displayMode"].String();
-	if(mode == "fullscreenExclusive")
-		return EDisplayMode::FULLSCREEN_EXCLUSIVE;
-	if(mode == "fullscreen")
-		return EDisplayMode::FULLSCREEN;
-	return EDisplayMode::WINDOWED;
-}
-
-static EDisplayMode getPreferredFullscreenMode()
-{
-	const std::string & mode = settings["video"]["preferredFullscreenMode"].String();
-	if(mode == "fullscreenExclusive")
+	if(!settings["video"]["fullscreen"].Bool())
+		return EDisplayMode::WINDOWED;
+	if(settings["video"]["fullscreenExclusive"].Bool())
 		return EDisplayMode::FULLSCREEN_EXCLUSIVE;
 	return EDisplayMode::FULLSCREEN;
 }
 
-static void setPreferredFullscreenMode(EDisplayMode mode)
-{
-	Settings entry = settings.write["video"]["preferredFullscreenMode"];
-	entry->String() = mode == EDisplayMode::FULLSCREEN_EXCLUSIVE ? "fullscreenExclusive" : "fullscreen";
-}
-
 void setDisplayMode(EDisplayMode mode)
 {
-	if(mode != EDisplayMode::WINDOWED)
-		setPreferredFullscreenMode(mode);
-
-	Settings entry = settings.write["video"]["displayMode"];
-	switch(mode)
+	if(mode == EDisplayMode::WINDOWED)
 	{
-		case EDisplayMode::FULLSCREEN_EXCLUSIVE:
-			entry->String() = "fullscreenExclusive";
-			break;
-		case EDisplayMode::FULLSCREEN:
-			entry->String() = "fullscreen";
-			break;
-		case EDisplayMode::WINDOWED:
-			entry->String() = "windowed";
-			break;
+		Settings fullscreen = settings.write["video"]["fullscreen"];
+		fullscreen->Bool() = false;
+		return;
 	}
+
+	Settings fullscreenExclusive = settings.write["video"]["fullscreenExclusive"];
+	fullscreenExclusive->Bool() = mode == EDisplayMode::FULLSCREEN_EXCLUSIVE;
+
+	Settings fullscreen = settings.write["video"]["fullscreen"];
+	fullscreen->Bool() = true;
 }
 
 void toggleFullscreenMode()
 {
-	EDisplayMode currentMode = getDisplayMode();
-	if(currentMode == EDisplayMode::WINDOWED)
-		setDisplayMode(getPreferredFullscreenMode());
-	else
-	{
-		setPreferredFullscreenMode(currentMode);
-		setDisplayMode(EDisplayMode::WINDOWED);
-	}
+	Settings fullscreen = settings.write["video"]["fullscreen"];
+	fullscreen->Bool() = !fullscreen->Bool();
 }
 
 // Force instantiation of the SettingsStorage::NodeAccessor class template.

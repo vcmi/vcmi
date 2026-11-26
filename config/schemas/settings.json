@@ -188,8 +188,8 @@
 			"required" : [ 
 				"resolution",
 				"reservedWidth",
-				"displayMode",
-				"preferredFullscreenMode",
+				"fullscreen",
+				"fullscreenExclusive",
 				"windowMaximized",
 				"cursor",
 				"showIntro",
@@ -226,15 +226,13 @@
 					"type" : "number",
 					"default" : 0
 				},
-				"displayMode" : {
-					"type" : "string",
-					"enum" : [ "windowed", "fullscreen", "fullscreenExclusive" ],
-					"default" : "fullscreen"
+				"fullscreen" : {
+					"type" : "boolean",
+					"default" : true
 				},
-				"preferredFullscreenMode" : {
-					"type" : "string",
-					"enum" : [ "fullscreen", "fullscreenExclusive" ],
-					"default" : "fullscreen"
+				"fullscreenExclusive" : {
+					"type" : "boolean",
+					"default" : false
 				},
 				"windowMaximized" : {
 					"type" : "boolean",

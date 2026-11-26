@@ -91,7 +91,8 @@ static std::string resolutionToLabelString( int w, int h)
 
 GeneralOptionsTab::GeneralOptionsTab()
 		: InterfaceObjectConfigurable(),
-		  onDisplayModeChanged(settings.listen["video"]["displayMode"])
+		  onFullscreenChanged(settings.listen["video"]["fullscreen"]),
+		  onFullscreenExclusiveChanged(settings.listen["video"]["fullscreenExclusive"])
 {
 	OBJECT_CONSTRUCTION;
 	setRedrawParent(true);
