@@ -96,7 +96,7 @@ void TownPlacer::placeTowns(ObjectManager & manager)
 		else //no player - randomize town
 		{
 			player = PlayerColor::NEUTRAL;
-			zone.setTownType(getTownTypeFromHint(0));
+			zone.setTownType(townFactionOrRandom(getTownTypeFromHint(0), zone.getTownTypes(), zone.getRand()));
 		}
 		
 		auto & townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, zone.getTownType());
@@ -326,13 +326,16 @@ void TownPlacer::addNewTowns(int count, bool hasFort, const PlayerColor & player
 	for(int i = 0; i < count; i++)
 	{
 		FactionID subType = zone.getTownType();
-		
-		if(totalTowns > 0)
+
+		if(totalTowns <= 0)
 		{
-			if(!zone.areTownsSameType())
-			{
-				subType = getTownTypeFromHint(totalTowns);
-			}
+			subType = townFactionOrRandom(zone.getTownType(), zone.getTownTypes(), zone.getRand());
+			if(subType != zone.getTownType())
+				zone.setTownType(subType);
+		}
+		else if(!zone.areTownsSameType())
+		{
+			subType = townFactionOrRandom(getTownTypeFromHint(totalTowns), zone.getTownTypes(), zone.getRand());
 		}
 		
 		auto & townFactory = LIBRARY->objtypeh->getHandlerFor(Obj::TOWN, subType);

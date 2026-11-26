@@ -24,6 +24,7 @@
 #include "../CCreatureHandler.h"
 #include "../entities/faction/CFaction.h"
 #include "../entities/faction/CTown.h"
+#include "../entities/faction/CTownHandler.h"
 #include "../mapObjects/MiscObjects.h"
 
 #include <vstd/RNG.h>
@@ -312,6 +313,32 @@ std::vector<int> waterZoneLevels(EWaterContent::EWaterContent water,
 			result.push_back(level);
 	}
 	return result;
+}
+
+FactionID townFactionOrRandom(FactionID hinted, const std::set<FactionID> & allowed, vstd::RNG & rand)
+{
+	auto factionHasTown = [](FactionID faction) -> bool
+	{
+		if(!faction.isValid())
+			return false;
+		const auto * f = faction.toFaction();
+		return f && f->hasTown();
+	};
+
+	if(factionHasTown(hinted))
+		return hinted;
+
+	std::set<FactionID> pool;
+	for(const auto & faction : allowed)
+	{
+		if(factionHasTown(faction))
+			pool.insert(faction);
+	}
+
+	if(pool.empty())
+		pool = LIBRARY->townh->getDefaultAllowed();
+
+	return *RandomGeneratorUtil::nextItem(pool, rand);
 }
 
 CreatureID chooseFallbackGuard(si32 strength, const std::vector<GuardCandidate> & candidates)

@@ -79,6 +79,10 @@ struct GuardCandidate
 /// nearest to the strength, the first one in order on a tie, Peasant if there are no candidates
 CreatureID chooseFallbackGuard(si32 strength, const std::vector<GuardCandidate> & candidates);
 
+/// Faction for a town whose hint chose `hinted`: `hinted` when it is a faction with a town object, otherwise a
+/// random faction from `allowed` that has one, or from the library's default town factions when `allowed` has none
+FactionID townFactionOrRandom(FactionID hinted, const std::set<FactionID> & allowed, vstd::RNG & rand);
+
 /// Stack size of a guard of given strength, never below 1
 si32 guardStackSize(si32 strength, si32 aiValue);
 

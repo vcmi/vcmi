@@ -168,6 +168,7 @@ set(test_SRCS
 
 		rmg/WaterZoneLevelsTest.cpp
 		rmg/GuardFallbackTest.cpp
+		rmg/TownFactionFallbackTest.cpp
 		rmg/TileDistanceIndexTest.cpp
 		rmg/RmgPathTest.cpp
 		rmg/RmgRoadCleanupTest.cpp
