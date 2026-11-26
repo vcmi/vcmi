@@ -304,11 +304,6 @@ int BezierCurve::minSampledRing(const DistanceMap & borderDistance, int minRing)
 	return worst;
 }
 
-bool BezierCurve::staysInside(const DistanceMap & borderDistance, int minRing) const
-{
-	return minSampledRing(borderDistance, minRing) >= minRing;
-}
-
 float BezierCurve::borderPenalty(const DistanceMap & borderDistance, const int3 & tile)
 {
 	constexpr int R = 8; // tiles from the zone border that still receive a penalty
@@ -318,20 +313,6 @@ float BezierCurve::borderPenalty(const DistanceMap & borderDistance, const int3 
 		return 0.f;
 	const int inward = std::max(0, R - it->second);
 	return K * static_cast<float>(inward * inward);
-}
-
-Path::MoveCostFunction BezierCurve::costFunction() const
-{
-	return costFunction(DistanceMap{});
-}
-
-Path::MoveCostFunction BezierCurve::costFunction(const DistanceMap & borderDistance) const
-{
-	return [*this, borderDistance](const int3 &, const int3 & dst) -> float
-	{
-		float distToCurve = distanceSq(dst);
-		return distToCurve * distToCurve + borderPenalty(borderDistance, dst);
-	};
 }
 
 Path::MoveCostFunction BezierCurve::costFunction(const DistanceMap & borderDistance, const Area & joinBand) const

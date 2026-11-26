@@ -30,6 +30,57 @@
 
 static constexpr int GATE_MIN_DIST = 3; //keep subterranean gates this far from other objects
 
+namespace
+{
+struct CurvedConnection
+{
+	rmg::BezierCurve ourCurve;
+	rmg::BezierCurve theirCurve;
+	rmg::Area theirPath;
+};
+
+std::optional<CurvedConnection> tryCurvedConnection(
+	Zone & zone,
+	Zone & otherZone,
+	const int3 & connectionTile,
+	const rmg::DistanceMap & ourBorderDistance,
+	const rmg::DistanceMap & theirBorderDistance)
+{
+	auto & rng = zone.getRand();
+	const auto ourCurve = chooseCurve(zone, connectionTile, ourBorderDistance, rng);
+	const auto theirCurve = chooseCurve(otherZone, connectionTile, theirBorderDistance, rng);
+
+	auto ourArea = zone.areaForRoads();
+	auto theirArea = otherZone.areaForRoads();
+	theirArea.add(connectionTile);
+	rmg::Path ourPath(ourArea);
+	rmg::Path theirPath(theirArea);
+	ourPath.connect(zone.freePaths().get());
+	ourPath = ourPath.search(connectionTile, true, ourCurve.costFunction(ourBorderDistance));
+	theirPath.connect(otherZone.freePaths().get());
+	theirPath = theirPath.search(connectionTile, true, theirCurve.costFunction(theirBorderDistance));
+
+	if(ourPath.valid() && theirPath.valid())
+	{
+		zone.connectPath(ourPath);
+		otherZone.connectPath(theirPath);
+		return CurvedConnection{ourCurve, theirCurve, theirPath.getPathArea()};
+	}
+	return std::nullopt;
+}
+
+int3 otherZoneRoadNode(const int3 & connectionTile, const rmg::Area & theirPath, const int3 & fallback)
+{
+	for(const auto & dir : rmg::dirs4)
+	{
+		const int3 candidate = connectionTile + dir;
+		if(theirPath.contains(candidate))
+			return candidate;
+	}
+	return fallback;
+}
+}
+
 std::pair<Zone::Lock, Zone::Lock> ConnectionsPlacer::lockZones(std::shared_ptr<Zone> otherZone)
 {
 	if (zone.getId() == otherZone->getId())
@@ -158,9 +209,8 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 	{
 		if (connection.getConnectionType() == rmg::EConnectionType::WIDE)
 		{
-			std::map<int, rmg::Tileset> reverse;
-			const auto ourBorderDistance = zone.area()->computeDistanceMap(reverse);
-			const auto theirBorderDistance = otherZone->area()->computeDistanceMap(reverse);
+			const auto ourBorderDistance = zone.area()->computeDistanceMap();
+			const auto theirBorderDistance = otherZone->area()->computeDistanceMap();
 
 			for (auto borderPos : directConnectionIterator->second)
 			{
@@ -176,42 +226,17 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 					safetyGap.intersect(otherZone->areaPossible().get());
 					if (safetyGap.empty())
 					{
-						auto & rng = zone.getRand();
-						const auto ourCurve = chooseCurve(zone, potentialPos, ourBorderDistance, rng);
-						const auto theirCurve = chooseCurve(*otherZone, potentialPos, theirBorderDistance, rng);
-
-						auto ourArea = zone.areaForRoads();
-						auto theirArea = otherZone->areaForRoads();
-						theirArea.add(potentialPos);
-						rmg::Path ourPath(ourArea);
-						rmg::Path theirPath(theirArea);
-						ourPath.connect(zone.freePaths().get());
-						ourPath = ourPath.search(potentialPos, true, ourCurve.costFunction(ourBorderDistance));
-						theirPath.connect(otherZone->freePaths().get());
-						theirPath = theirPath.search(potentialPos, true, theirCurve.costFunction(theirBorderDistance));
-
-						if (ourPath.valid() && theirPath.valid())
+						if (auto placed = tryCurvedConnection(zone, *otherZone, potentialPos, ourBorderDistance, theirBorderDistance))
 						{
-							zone.connectPath(ourPath);
-							otherZone->connectPath(theirPath);
 							otherZone->getModificator<ObjectManager>()->updateDistances(potentialPos);
 
 							if (createRoad)
 							{
 								zone.getModificator<RoadPlacer>()->addRoadNode(potentialPos);
-								zone.getModificator<RoadPlacer>()->setNodeCurve(potentialPos, ourCurve);
-								int3 otherRoadNode = borderPos;
-								for(const auto & dir : rmg::dirs4)
-								{
-									int3 candidate = potentialPos + dir;
-									if(theirPath.getPathArea().contains(candidate))
-									{
-										otherRoadNode = candidate;
-										break;
-									}
-								}
+								zone.getModificator<RoadPlacer>()->setNodeCurve(potentialPos, placed->ourCurve);
+								const int3 otherRoadNode = otherZoneRoadNode(potentialPos, placed->theirPath, borderPos);
 								otherZone->getModificator<RoadPlacer>()->addRoadNode(otherRoadNode);
-								otherZone->getModificator<RoadPlacer>()->setNodeCurve(otherRoadNode, theirCurve);
+								otherZone->getModificator<RoadPlacer>()->setNodeCurve(otherRoadNode, placed->theirCurve);
 							}
 
 							success = true;
@@ -292,28 +317,10 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 			auto & manager = *zone.getModificator<ObjectManager>();
 			auto monsterType = manager.chooseGuard(connection.getGuardStrength(), true);
 
-			auto & rng = zone.getRand();
-			std::map<int, rmg::Tileset> reverse;
-			const auto ourBorderDistance = zone.area()->computeDistanceMap(reverse);
-			const auto theirBorderDistance = otherZone->area()->computeDistanceMap(reverse);
-			const auto ourCurve = chooseCurve(zone, guardPos, ourBorderDistance, rng);
-			const auto theirCurve = chooseCurve(*otherZone, guardPos, theirBorderDistance, rng);
-
-			auto ourArea = zone.areaForRoads();
-			auto theirArea = otherZone->areaForRoads();
-			theirArea.add(guardPos);
-			rmg::Path ourPath(ourArea);
-			rmg::Path theirPath(theirArea);
-			ourPath.connect(zone.freePaths().get());
-			ourPath = ourPath.search(guardPos, true, ourCurve.costFunction(ourBorderDistance));
-			theirPath.connect(otherZone->freePaths().get());
-			theirPath = theirPath.search(guardPos, true, theirCurve.costFunction(theirBorderDistance));
-			
-			if(ourPath.valid() && theirPath.valid())
+			const auto ourBorderDistance = zone.area()->computeDistanceMap();
+			const auto theirBorderDistance = otherZone->area()->computeDistanceMap();
+			if(auto placed = tryCurvedConnection(zone, *otherZone, guardPos, ourBorderDistance, theirBorderDistance))
 			{
-				zone.connectPath(ourPath);
-				otherZone->connectPath(theirPath);
-				
 				if(monsterType)
 				{
 					rmg::Object monster(monsterType);
@@ -336,20 +343,12 @@ void ConnectionsPlacer::selfSideDirectConnection(const rmg::ZoneConnection & con
 				{
 					assert(zone.getModificator<RoadPlacer>());
 					zone.getModificator<RoadPlacer>()->addRoadNode(guardPos);
-					zone.getModificator<RoadPlacer>()->setNodeCurve(guardPos, ourCurve);
+					zone.getModificator<RoadPlacer>()->setNodeCurve(guardPos, placed->ourCurve);
 
 					assert(otherZone->getModificator<RoadPlacer>());
-					for(const auto & dir : rmg::dirs4)
-					{
-						int3 candidate = guardPos + dir;
-						if(theirPath.getPathArea().contains(candidate))
-						{
-							roadNode = candidate;
-							break;
-						}
-					}
+					roadNode = otherZoneRoadNode(guardPos, placed->theirPath, roadNode);
 					otherZone->getModificator<RoadPlacer>()->addRoadNode(roadNode);
-					otherZone->getModificator<RoadPlacer>()->setNodeCurve(roadNode, theirCurve);
+					otherZone->getModificator<RoadPlacer>()->setNodeCurve(roadNode, placed->theirCurve);
 				}
 				assert(otherZone->getModificator<ConnectionsPlacer>());
 				otherZone->getModificator<ConnectionsPlacer>()->otherSideConnection(connection);

@@ -83,29 +83,8 @@ bool RoadPlacer::createRoad(const int3 & destination, const rmg::DistanceMap & b
 {
 	auto searchArea = zone.areaPossible() + zone.freePaths() + areaRoads + roads;
 
-	rmg::Area border(zone.area()->getBorder());
-
 	rmg::Path path(searchArea);
 	path.connect(roads);
-
-	auto simpleRoutig = [this, &border](const int3& src, const int3& dst)
-	{
-		if(const float penalty = isolatedMovePenalty(src, dst); penalty > 0.f)
-			return penalty;
-
-		float ret = rmg::Path::nonEuclideanCostFunction(src, dst, border.getCenterOfMass());
-
-		if (visitableTiles.contains(src) || visitableTiles.contains(dst))
-		{
-			ret *= VISITABLE_PENALTY;
-		}
-		float dist = border.distanceSqr(dst);
-		if(dist > 1.0f)
-		{
-			ret /= dist;
-		}
-		return ret;
-	};
 
 	auto res = rmg::Path::invalid();
 	if(const auto it = nodeCurves.find(destination); it != nodeCurves.end())
@@ -128,9 +107,29 @@ bool RoadPlacer::createRoad(const int3 & destination, const rmg::DistanceMap & b
 		};
 		res = path.search(destination, true, curveRoutig);
 	}
+	else
+	{
+		rmg::Area border(zone.area()->getBorder());
+		auto simpleRoutig = [this, &border](const int3& src, const int3& dst)
+		{
+			if(const float penalty = isolatedMovePenalty(src, dst); penalty > 0.f)
+				return penalty;
 
-	if(!res.valid())
+			float ret = rmg::Path::nonEuclideanCostFunction(src, dst, border.getCenterOfMass());
+
+			if (visitableTiles.contains(src) || visitableTiles.contains(dst))
+			{
+				ret *= VISITABLE_PENALTY;
+			}
+			float dist = border.distanceSqr(dst);
+			if(dist > 1.0f)
+			{
+				ret /= dist;
+			}
+			return ret;
+		};
 		res = path.search(destination, true, simpleRoutig);
+	}
 
 	if(!res.valid())
 	{
@@ -210,25 +209,21 @@ void RoadPlacer::addRoadNode(const int3& node)
 void RoadPlacer::setNodeCurve(const int3 & node, const rmg::BezierCurve & curve)
 {
 	RecursiveLock lock(externalAccessMutex);
-	int3 key = node;
-	if(!roadNodes.contains(key))
+	if(roadNodes.contains(node))
 	{
-		// Guarded objects pass the guard tile as src; the road node is the object, one step away.
-		bool found = false;
-		for(const auto & dir : int3::getDirs())
-		{
-			const int3 candidate = node + dir;
-			if(roadNodes.contains(candidate))
-			{
-				key = candidate;
-				found = true;
-				break;
-			}
-		}
-		if(!found)
-			return;
+		nodeCurves[node] = curve;
+		return;
 	}
-	nodeCurves[key] = curve;
+	// Guarded objects pass the guard tile as src; the road node is the object, one step away.
+	for(const auto & dir : int3::getDirs())
+	{
+		const int3 candidate = node + dir;
+		if(roadNodes.contains(candidate))
+		{
+			nodeCurves[candidate] = curve;
+			return;
+		}
+	}
 }
 
 void RoadPlacer::connectRoads()
@@ -257,8 +252,7 @@ void RoadPlacer::connectRoads()
 
 	logRmg->debug("Zone %d: %d of %d road nodes have a curve", zone.getId(), static_cast<int>(nodeCurves.size()), static_cast<int>(roadNodes.size()));
 
-	std::map<int, rmg::Tileset> reverse;
-	const auto borderDistance = zone.area()->computeDistanceMap(reverse);
+	const auto borderDistance = zone.area()->computeDistanceMap();
 
 	for(const auto & node : roadNodes)
 	{

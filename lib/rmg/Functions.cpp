@@ -43,10 +43,10 @@ rmg::BezierCurve chooseCurve(const Zone & zone, const int3 & src, const rmg::Dis
 		const int3 control2 = tiles[rng.nextInt(0, static_cast<int>(tiles.size()) - 1)];
 		const rmg::BezierCurve candidate{src, control1, control2, zone.getPos()};
 
-		if(candidate.staysInside(borderDistance, MIN_RING))
+		const int ring = candidate.minSampledRing(borderDistance, MIN_RING);
+		if(ring >= MIN_RING)
 			return candidate;
 
-		const int ring = candidate.minSampledRing(borderDistance, MIN_RING);
 		if(ring > bestRing)
 		{
 			best = candidate;
@@ -66,8 +66,7 @@ void replaceWithCurvedPath(rmg::Path & path, Zone & zone, const int3 & src, bool
 		return;
 	}
 
-	std::map<int, rmg::Tileset> reverse;
-	const auto borderDistance = zone.area()->computeDistanceMap(reverse);
+	const auto borderDistance = zone.area()->computeDistanceMap();
 	const auto curve = chooseCurve(zone, src, borderDistance, zone.getRand());
 
 	auto pathArea = zone.areaForRoads();

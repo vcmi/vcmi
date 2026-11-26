@@ -70,8 +70,7 @@ void expectSameAsAreaPath(const rmg::Area & area, const rmg::Area & connected, c
 
 rmg::DistanceMap borderDistanceOf(const rmg::Area & area)
 {
-	std::map<int, rmg::Tileset> reverse;
-	return area.computeDistanceMap(reverse);
+	return area.computeDistanceMap();
 }
 
 rmg::Area joinBandAround(const rmg::Area & roads, int joinDistance)
@@ -472,7 +471,7 @@ TEST(RmgPathTest, BezierCurveStaysInsideARectangleInterior)
 	const auto borderDistance = borderDistanceOf(area);
 	const rmg::BezierCurve curve{int3(5, 10, 0), int3(8, 12, 0), int3(13, 12, 0), int3(16, 10, 0)};
 
-	EXPECT_TRUE(curve.staysInside(borderDistance, 4));
+	EXPECT_GE(curve.minSampledRing(borderDistance, 4), 4);
 }
 
 TEST(RmgPathTest, BezierCurvePulledToTheRectangleEdgeDoesNotStayInside)
@@ -481,7 +480,7 @@ TEST(RmgPathTest, BezierCurvePulledToTheRectangleEdgeDoesNotStayInside)
 	const auto borderDistance = borderDistanceOf(area);
 	const rmg::BezierCurve curve{int3(5, 10, 0), int3(10, 0, 0), int3(10, 0, 0), int3(16, 10, 0)};
 
-	EXPECT_FALSE(curve.staysInside(borderDistance, 4));
+	EXPECT_LT(curve.minSampledRing(borderDistance, 4), 4);
 }
 
 TEST(RmgPathTest, BezierCurveWithEndpointOnTheEdgeStillStaysInside)
@@ -490,7 +489,7 @@ TEST(RmgPathTest, BezierCurveWithEndpointOnTheEdgeStillStaysInside)
 	const auto borderDistance = borderDistanceOf(area);
 	const rmg::BezierCurve curve{int3(0, 10, 0), int3(6, 12, 0), int3(10, 12, 0), int3(14, 10, 0)};
 
-	EXPECT_TRUE(curve.staysInside(borderDistance, 4));
+	EXPECT_GE(curve.minSampledRing(borderDistance, 4), 4);
 }
 
 TEST(RmgPathTest, SearchWithBezierBorderPenaltyStaysInlandWhileUnpenalizedPathHugsTheBorder)
@@ -500,8 +499,7 @@ TEST(RmgPathTest, SearchWithBezierBorderPenaltyStaysInlandWhileUnpenalizedPathHu
 	const int3 end(23, 0, 0);
 	const rmg::BezierCurve curve{start, int3(8, 0, 0), int3(16, 0, 0), end};
 
-	std::map<int, rmg::Tileset> reverse;
-	const auto borderDistance = area.computeDistanceMap(reverse);
+	const auto borderDistance = area.computeDistanceMap();
 
 	rmg::Path path(area);
 	path.connect(end);
