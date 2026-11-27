@@ -137,15 +137,12 @@ ActionPreview MeleeAttackAction::preview(const IGameInfoCallback & game, const C
 	return {directionCursors.at(approach.direction), text, attacker.getHexes(approach.from), affectedUnits};
 }
 
-std::optional<BattleAction> MeleeAttackAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> MeleeAttackAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	if(!context.approach)
 		return std::nullopt;
 
-	if(usesLongWeapon())
-		return BattleAction::makeLongWeaponAttack(context.actor, context.hoveredHex, context.approach->from);
-
-	return BattleAction::makeMeleeAttack(context.actor, context.hoveredHex, context.approach->from, returnsAfterStrike());
+	return battle::Target{battle::Destination(context.approach->from), battle::Destination(context.hoveredHex)};
 }
 
 bool MeleeAttackAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const

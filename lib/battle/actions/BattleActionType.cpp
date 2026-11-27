@@ -26,51 +26,55 @@
 #include "../../spells/ISpellMechanics.h"
 #include "../../spells/Problem.h"
 
-static const SkipTurnAction skipTurnAction;
-static const BadMoraleAction badMoraleAction;
-static const WaitAction waitAction;
-static const DefendAction defendAction;
-static const EndTacticsAction endTacticsAction;
-static const RetreatAction retreatAction;
-static const SurrenderAction surrenderAction;
-static const WalkAction walkAction;
-static const ShootAction shootAction;
-static const HealAction healAction;
-static const CatapultAction catapultAction;
-static const WalkAndAttackAction walkAndAttackAction;
-static const WalkAndAttackNoReturnAction walkAndAttackNoReturnAction;
-static const LongWeaponAttackAction longWeaponAttackAction;
-static const HeroSpellAction heroSpellAction;
-static const UnitSpellAction unitSpellAction;
-static const RandomSpellAction randomSpellAction;
-static const WalkAndCastAction walkAndCastAction;
+static const SkipTurnAction skipTurnAction(EActionType::NO_ACTION);
+static const BadMoraleAction badMoraleAction(EActionType::BAD_MORALE);
+static const WaitAction waitAction(EActionType::WAIT);
+static const DefendAction defendAction(EActionType::DEFEND);
+static const EndTacticsAction endTacticsAction(EActionType::END_TACTIC_PHASE);
+static const RetreatAction retreatAction(EActionType::RETREAT);
+static const SurrenderAction surrenderAction(EActionType::SURRENDER);
+static const WalkAction walkAction(EActionType::WALK);
+static const ShootAction shootAction(EActionType::SHOOT);
+static const HealAction healAction(EActionType::STACK_HEAL);
+static const CatapultAction catapultAction(EActionType::CATAPULT);
+static const WalkAndAttackAction walkAndAttackAction(EActionType::WALK_AND_ATTACK);
+static const WalkAndAttackNoReturnAction walkAndAttackNoReturnAction(EActionType::WALK_AND_ATTACK_NO_RETURN);
+static const LongWeaponAttackAction longWeaponAttackAction(EActionType::LONG_WEAPON_ATTACK);
+static const HeroSpellAction heroSpellAction(EActionType::HERO_SPELL);
+static const UnitSpellAction unitSpellAction(EActionType::MONSTER_SPELL);
+static const RandomSpellAction randomSpellAction(EActionType::RANDOM_SPELL);
+static const WalkAndCastAction walkAndCastAction(EActionType::WALK_AND_CAST);
 
-struct RegisteredActionType
-{
-	EActionType actionType;
-	const BattleActionType * type;
+static const std::array<const BattleActionType *, 18> registeredTypes = {
+	&skipTurnAction,
+	&badMoraleAction,
+	&waitAction,
+	&defendAction,
+	&endTacticsAction,
+	&retreatAction,
+	&surrenderAction,
+	&walkAction,
+	&shootAction,
+	&healAction,
+	&catapultAction,
+	&walkAndAttackAction,
+	&walkAndAttackNoReturnAction,
+	&longWeaponAttackAction,
+	&heroSpellAction,
+	&unitSpellAction,
+	&randomSpellAction,
+	&walkAndCastAction,
 };
 
-static constexpr std::array<RegisteredActionType, 18> registeredTypes = {{
-	{EActionType::NO_ACTION, &skipTurnAction},
-	{EActionType::BAD_MORALE, &badMoraleAction},
-	{EActionType::WAIT, &waitAction},
-	{EActionType::DEFEND, &defendAction},
-	{EActionType::END_TACTIC_PHASE, &endTacticsAction},
-	{EActionType::RETREAT, &retreatAction},
-	{EActionType::SURRENDER, &surrenderAction},
-	{EActionType::WALK, &walkAction},
-	{EActionType::SHOOT, &shootAction},
-	{EActionType::STACK_HEAL, &healAction},
-	{EActionType::CATAPULT, &catapultAction},
-	{EActionType::WALK_AND_ATTACK, &walkAndAttackAction},
-	{EActionType::WALK_AND_ATTACK_NO_RETURN, &walkAndAttackNoReturnAction},
-	{EActionType::LONG_WEAPON_ATTACK, &longWeaponAttackAction},
-	{EActionType::HERO_SPELL, &heroSpellAction},
-	{EActionType::MONSTER_SPELL, &unitSpellAction},
-	{EActionType::RANDOM_SPELL, &randomSpellAction},
-	{EActionType::WALK_AND_CAST, &walkAndCastAction},
-}};
+BattleActionType::BattleActionType(EActionType id)
+	: id(id)
+{
+}
+
+EActionType BattleActionType::getId() const
+{
+	return id;
+}
 
 const BattleActionType * BattleActionType::find(const BattleAction & action)
 {
@@ -79,9 +83,9 @@ const BattleActionType * BattleActionType::find(const BattleAction & action)
 
 const BattleActionType * BattleActionType::find(EActionType actionType)
 {
-	for(const auto & registered : registeredTypes)
-		if(registered.actionType == actionType)
-			return registered.type;
+	for(const auto * type : registeredTypes)
+		if(type->getId() == actionType)
+			return type;
 
 	return nullptr;
 }
@@ -98,8 +102,8 @@ ActionOption BattleActionType::makeUnitSpellOption(SpellID spell)
 
 void BattleActionType::collectAllOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out)
 {
-	for(const auto & registered : registeredTypes)
-		registered.type->collectOptions(battle, actor, out);
+	for(const auto * type : registeredTypes)
+		type->collectOptions(battle, actor, out);
 }
 
 bool BattleActionType::isUnitAction() const
@@ -176,9 +180,36 @@ std::optional<battle::Destination> BattleActionType::buildTargetStep(const CBatt
 	return std::nullopt;
 }
 
-std::optional<BattleAction> BattleActionType::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> BattleActionType::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	throw std::runtime_error("Action built from a battle action type that offers no options");
+}
+
+std::optional<BattleAction> BattleActionType::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+{
+	const std::optional<battle::Target> target = buildTarget(battle, option, context);
+	if(!target)
+		return std::nullopt;
+
+	BattleAction action;
+	action.actionType = id;
+	action.spell = option.spell;
+	action.setTarget(*target);
+
+	// the context of a hero option may name the active unit, which does not make the action
+	if(isUnitAction())
+	{
+		if(!context.actor)
+			throw std::runtime_error("Unit action built without an acting unit");
+		action.side = context.actor->unitSide();
+		action.stackNumber = context.actor->unitId();
+	}
+	else
+	{
+		action.side = context.side;
+	}
+
+	return action;
 }
 
 bool BattleActionType::checkUnitCanAct(const CBattleInfoCallback & battle, const battle::Unit * unit, spells::Problem & problem)

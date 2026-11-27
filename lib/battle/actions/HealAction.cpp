@@ -62,9 +62,9 @@ ActionPreview HealAction::preview(const IGameInfoCallback & game, const CBattleI
 	return {"combatHeal", text, {}, {}};
 }
 
-std::optional<BattleAction> HealAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> HealAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
-	return BattleAction::makeHeal(context.actor, context.hoveredHex);
+	return battle::Target{battle::Destination(context.hoveredHex)};
 }
 
 bool HealAction::canHeal(const CBattleInfoCallback & battle, const battle::Unit & healer, const CSpell * spell, const battle::Unit & healed, spells::Problem & problem) const

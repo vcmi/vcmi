@@ -23,12 +23,14 @@ class HealAction : public BattleActionType
 	const battle::Unit * findMostWounded(const CBattleInfoCallback & battle, const battle::Unit & healer, const CSpell * spell) const;
 
 public:
+	using BattleActionType::BattleActionType;
+
 	bool isUnitAction() const override;
 
 	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
 	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
 	ActionPreview preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
-	std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
+	std::optional<battle::Target> buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
 
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;

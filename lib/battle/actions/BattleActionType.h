@@ -35,8 +35,14 @@ class Problem;
 /// Rules of one kind of battle action: when it is allowed and how it changes the battle. Stateless and shared by all actions of the kind
 class DLL_LINKAGE BattleActionType
 {
+	EActionType id;
+
 public:
+	explicit BattleActionType(EActionType id);
 	virtual ~BattleActionType() = default;
+
+	/// Type of the actions that build makes and that find returns this type for
+	EActionType getId() const;
 
 	/// Returns the type of the action, or nullptr for a value outside of EActionType
 	static const BattleActionType * find(const BattleAction & action);
@@ -61,8 +67,10 @@ public:
 	virtual ActionPreview preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
 	/// Destination that clicking the hovered hex adds to the partial target, if the hex is valid for it and more destinations follow. None by default
 	virtual std::optional<battle::Destination> buildTargetStep(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
-	/// Action made by clicking the hovered hex, or nothing if the option has no action for the hex
-	virtual std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
+	/// Destinations of the action made by clicking the hovered hex, or nothing if the option has no action for the hex
+	virtual std::optional<battle::Target> buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
+	/// Action made by clicking the hovered hex: the target from buildTarget, with the acting unit or side and the spell of the option
+	std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
 
 	/// Checks that the side may make the action. Runs on the server before StartAction is applied, and in isLegal
 	virtual bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const = 0;

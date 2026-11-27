@@ -53,13 +53,13 @@ ActionPreview WalkAction::preview(const IGameInfoCallback & game, const CBattleI
 	return {flying ? "combatFly" : "combatMove", text, context.actor->getHexes(battle.toWhichHexMove(context.actor, context.hoveredHex)), {}};
 }
 
-std::optional<BattleAction> WalkAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> WalkAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	// the hexes of the actor itself are valid destinations, but hovering the actor or any other unit selects another option
 	if(battle.battleGetUnitByPos(context.hoveredHex, true))
 		return std::nullopt;
 
-	return BattleAction::makeMove(context.actor, battle.toWhichHexMove(context.actor, context.hoveredHex));
+	return battle::Target{battle::Destination(battle.toWhichHexMove(context.actor, context.hoveredHex))};
 }
 
 bool WalkAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const

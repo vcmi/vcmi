@@ -23,89 +23,72 @@ BattleAction::BattleAction():
 {
 }
 
-BattleAction BattleAction::makeHeal(const battle::Unit * healer, const battle::Unit * healed)
+BattleAction BattleAction::makeUnitAction(const battle::Unit * unit, EActionType type)
 {
 	BattleAction ba;
-	ba.side = healer->unitSide();
-	ba.actionType = EActionType::STACK_HEAL;
-	ba.stackNumber = healer->unitId();
+	ba.side = unit->unitSide();
+	ba.stackNumber = unit->unitId();
+	ba.actionType = type;
+	return ba;
+}
+
+BattleAction BattleAction::makeSideAction(BattleSide side, EActionType type)
+{
+	BattleAction ba;
+	ba.side = side;
+	ba.actionType = type;
+	return ba;
+}
+
+BattleAction BattleAction::makeHeal(const battle::Unit * healer, const battle::Unit * healed)
+{
+	BattleAction ba = makeUnitAction(healer, EActionType::STACK_HEAL);
 	ba.aimToUnit(healed);
 	return ba;
 }
 
 BattleAction BattleAction::makeHeal(const battle::Unit * healer)
 {
-	BattleAction ba;
-	ba.side = healer->unitSide();
-	ba.actionType = EActionType::STACK_HEAL;
-	ba.stackNumber = healer->unitId();
-	return ba;
-}
-
-BattleAction BattleAction::makeHeal(const battle::Unit * healer, const BattleHex & destination)
-{
-	BattleAction ba;
-	ba.side = healer->unitSide();
-	ba.actionType = EActionType::STACK_HEAL;
-	ba.stackNumber = healer->unitId();
-	ba.aimToHex(destination);
-	return ba;
+	return makeUnitAction(healer, EActionType::STACK_HEAL);
 }
 
 BattleAction BattleAction::makeCatapultShot(const battle::Unit * catapult)
 {
-	BattleAction ba;
-	ba.side = catapult->unitSide();
-	ba.actionType = EActionType::CATAPULT;
-	ba.stackNumber = catapult->unitId();
-	return ba;
+	return makeUnitAction(catapult, EActionType::CATAPULT);
 }
 
 BattleAction BattleAction::makeNoAction(const battle::Unit * stack)
 {
-	BattleAction ba;
-	ba.side = stack->unitSide();
-	ba.actionType = EActionType::NO_ACTION;
-	ba.stackNumber = stack->unitId();
-	return ba;
+	return makeUnitAction(stack, EActionType::NO_ACTION);
 }
 
 BattleAction BattleAction::makeBadMorale(const battle::Unit * stack)
 {
-	BattleAction ba;
-	ba.side = stack->unitSide();
-	ba.actionType = EActionType::BAD_MORALE;
-	ba.stackNumber = stack->unitId();
-	return ba;
+	return makeUnitAction(stack, EActionType::BAD_MORALE);
 }
 
 BattleAction BattleAction::makeDefend(const battle::Unit * stack)
 {
-	BattleAction ba;
-	ba.side = stack->unitSide();
-	ba.actionType = EActionType::DEFEND;
-	ba.stackNumber = stack->unitId();
-	return ba;
+	return makeUnitAction(stack, EActionType::DEFEND);
 }
 
-BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom, bool returnAfterAttack)
+BattleAction BattleAction::makeWait(const battle::Unit * stack)
 {
-	BattleAction ba;
-	ba.side = stack->unitSide(); //FIXME: will it fail if stack mind controlled?
-	ba.actionType = returnAfterAttack ? EActionType::WALK_AND_ATTACK : EActionType::WALK_AND_ATTACK_NO_RETURN;
-	ba.stackNumber = stack->unitId();
+	return makeUnitAction(stack, EActionType::WAIT);
+}
+
+BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom)
+{
+	BattleAction ba = makeUnitAction(stack, EActionType::WALK_AND_ATTACK);
 	ba.aimToHex(attackFrom);
 	ba.aimToHex(destination);
 	return ba;
 }
 
 /// This is for cases where target hex does not matter (for example berserk spell) and we did not calculate it (for example we only calculated closest attackable hex of two hex unit)
-BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const battle::Unit * target, const BattleHex & attackFrom, bool returnAfterAttack)
+BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const battle::Unit * target, const BattleHex & attackFrom)
 {
-	BattleAction ba;
-	ba.side = stack->unitSide(); //FIXME: will it fail if stack mind controlled?
-	ba.actionType = returnAfterAttack ? EActionType::WALK_AND_ATTACK : EActionType::WALK_AND_ATTACK_NO_RETURN;
-	ba.stackNumber = stack->unitId();
+	BattleAction ba = makeUnitAction(stack, EActionType::WALK_AND_ATTACK);
 	ba.aimToHex(attackFrom);
 	ba.aimToUnit(target);
 	return ba;
@@ -113,82 +96,53 @@ BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const bat
 
 BattleAction BattleAction::makeLongWeaponAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom)
 {
-	BattleAction ba;
-	ba.side = stack->unitSide();
-	ba.actionType = EActionType::LONG_WEAPON_ATTACK;
-	ba.stackNumber = stack->unitId();
+	BattleAction ba = makeUnitAction(stack, EActionType::LONG_WEAPON_ATTACK);
 	ba.aimToHex(attackFrom);
 	ba.aimToHex(destination);
 	return ba;
 }
 
-BattleAction BattleAction::makeWait(const battle::Unit * stack)
-{
-	BattleAction ba;
-	ba.side = stack->unitSide();
-	ba.actionType = EActionType::WAIT;
-	ba.stackNumber = stack->unitId();
-	return ba;
-}
-
 BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const battle::Unit * target)
 {
-	BattleAction ba;
-	ba.side = shooter->unitSide();
-	ba.actionType = EActionType::SHOOT;
-	ba.stackNumber = shooter->unitId();
+	BattleAction ba = makeUnitAction(shooter, EActionType::SHOOT);
 	ba.aimToUnit(target);
 	return ba;
 }
 
 BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const BattleHex & destination)
 {
-	BattleAction ba;
-	ba.side = shooter->unitSide();
-	ba.actionType = EActionType::SHOOT;
-	ba.stackNumber = shooter->unitId();
+	BattleAction ba = makeUnitAction(shooter, EActionType::SHOOT);
 	ba.aimToHex(destination);
 	return ba;
 }
 
 BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID)
 {
-	BattleAction ba;
-	ba.actionType = EActionType::MONSTER_SPELL;
+	BattleAction ba = makeUnitAction(stack, EActionType::MONSTER_SPELL);
 	ba.spell = spellID;
 	ba.setTarget(target);
-	ba.side = stack->unitSide();
-	ba.stackNumber = stack->unitId();
 	return ba;
 }
 
 BattleAction BattleAction::makeHeroSpellcast(BattleSide side, const battle::Target & target, const SpellID & spellID)
 {
-	BattleAction ba;
-	ba.actionType = EActionType::HERO_SPELL;
+	BattleAction ba = makeSideAction(side, EActionType::HERO_SPELL);
 	ba.spell = spellID;
 	ba.setTarget(target);
-	ba.side = side;
 	return ba;
 }
 
 BattleAction BattleAction::makeRandomSpellcast(const battle::Unit * stack, const BattleHex & destination)
 {
-	BattleAction ba;
-	ba.actionType = EActionType::RANDOM_SPELL;
-	ba.side = stack->unitSide();
-	ba.stackNumber = stack->unitId();
+	BattleAction ba = makeUnitAction(stack, EActionType::RANDOM_SPELL);
 	ba.aimToHex(destination);
 	return ba;
 }
 
 BattleAction BattleAction::makeWalkAndCast(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID)
 {
-	BattleAction ba;
-	ba.actionType = EActionType::WALK_AND_CAST;
+	BattleAction ba = makeUnitAction(stack, EActionType::WALK_AND_CAST);
 	ba.spell = spellID;
-	ba.side = stack->unitSide();
-	ba.stackNumber = stack->unitId();
 	ba.aimToHex(castFrom);
 	ba.aimToUnit(target);
 	return ba;
@@ -196,36 +150,24 @@ BattleAction BattleAction::makeWalkAndCast(const battle::Unit * stack, const Bat
 
 BattleAction BattleAction::makeMove(const battle::Unit * stack, const BattleHex & dest)
 {
-	BattleAction ba;
-	ba.side = stack->unitSide();
-	ba.actionType = EActionType::WALK;
-	ba.stackNumber = stack->unitId();
+	BattleAction ba = makeUnitAction(stack, EActionType::WALK);
 	ba.aimToHex(dest);
 	return ba;
 }
 
 BattleAction BattleAction::makeEndOFTacticPhase(BattleSide side)
 {
-	BattleAction ba;
-	ba.side = side;
-	ba.actionType = EActionType::END_TACTIC_PHASE;
-	return ba;
+	return makeSideAction(side, EActionType::END_TACTIC_PHASE);
 }
 
 BattleAction BattleAction::makeSurrender(BattleSide side)
 {
-	BattleAction ba;
-	ba.side = side;
-	ba.actionType = EActionType::SURRENDER;
-	return ba;
+	return makeSideAction(side, EActionType::SURRENDER);
 }
 
 BattleAction BattleAction::makeRetreat(BattleSide side)
 {
-	BattleAction ba;
-	ba.side = side;
-	ba.actionType = EActionType::RETREAT;
-	return ba;
+	return makeSideAction(side, EActionType::RETREAT);
 }
 
 std::string BattleAction::toString() const

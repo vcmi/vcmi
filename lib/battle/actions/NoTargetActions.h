@@ -15,6 +15,8 @@
 class SkipTurnAction : public BattleActionType
 {
 public:
+	using BattleActionType::BattleActionType;
+
 	bool isUnitAction() const override;
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
@@ -24,12 +26,16 @@ public:
 class BadMoraleAction : public SkipTurnAction
 {
 public:
+	using SkipTurnAction::SkipTurnAction;
+
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
 
 class WaitAction : public BattleActionType
 {
 public:
+	using BattleActionType::BattleActionType;
+
 	bool isUnitAction() const override;
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	std::optional<battle::UnitTurnStatus> getStartTurnStatus(const BattleAction & action) const override;
@@ -39,6 +45,8 @@ public:
 class DefendAction : public BattleActionType
 {
 public:
+	using BattleActionType::BattleActionType;
+
 	bool isUnitAction() const override;
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	std::optional<battle::UnitTurnStatus> getStartTurnStatus(const BattleAction & action) const override;
@@ -48,6 +56,8 @@ public:
 class EndTacticsAction : public BattleActionType
 {
 public:
+	using BattleActionType::BattleActionType;
+
 	bool isTacticsAction() const override;
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
@@ -56,6 +66,8 @@ public:
 class RetreatAction : public BattleActionType
 {
 public:
+	using BattleActionType::BattleActionType;
+
 	bool isTacticsAction() const override;
 	bool isBattleEndAction() const override;
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
@@ -65,6 +77,8 @@ public:
 class SurrenderAction : public BattleActionType
 {
 public:
+	using BattleActionType::BattleActionType;
+
 	bool isTacticsAction() const override;
 	bool isBattleEndAction() const override;
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;

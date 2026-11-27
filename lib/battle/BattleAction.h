@@ -37,14 +37,13 @@ public:
 	static BattleAction makeBadMorale(const battle::Unit * stack);
 	static BattleAction makeDefend(const battle::Unit * stack);
 	static BattleAction makeWait(const battle::Unit * stack);
-	/// Melee attack from a hex next to the target. A unit with RETURN_AFTER_STRIKE returns to its position unless returnAfterAttack is false
-	static BattleAction makeMeleeAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom, bool returnAfterAttack = true);
-	static BattleAction makeMeleeAttack(const battle::Unit* stack, const battle::Unit* target, const BattleHex& attackFrom, bool returnAfterAttack = true);
+	/// Melee attack from a hex next to the target. A unit with RETURN_AFTER_STRIKE returns to its position
+	static BattleAction makeMeleeAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom);
+	static BattleAction makeMeleeAttack(const battle::Unit * stack, const battle::Unit * target, const BattleHex & attackFrom);
 	/// Attack of a LONG_WEAPON unit over one free hex
 	static BattleAction makeLongWeaponAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom);
 	static BattleAction makeShotAttack(const battle::Unit * shooter, const battle::Unit * target);
 	static BattleAction makeShotAttack(const battle::Unit * shooter, const BattleHex & destination);
-	static BattleAction makeHeal(const battle::Unit * healer, const BattleHex & destination);
 	/// Catapult shot without a target, at a wall part that the spell picks
 	static BattleAction makeCatapultShot(const battle::Unit * catapult);
 	static BattleAction makeWalkAndCast(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID);
@@ -90,6 +89,10 @@ public:
 	};
 
 	std::vector<DestinationInfo> target;
+
+private:
+	static BattleAction makeUnitAction(const battle::Unit * unit, EActionType type);
+	static BattleAction makeSideAction(BattleSide side, EActionType type);
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleAction & ba); //todo: remove

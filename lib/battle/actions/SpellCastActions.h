@@ -23,9 +23,11 @@ enum class Mode;
 class SpellCastAction : public BattleActionType
 {
 public:
+	using BattleActionType::BattleActionType;
+
 	std::optional<battle::Destination> buildTargetStep(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
 	ActionPreview preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
-	std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
+	std::optional<battle::Target> buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
 
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 
@@ -35,7 +37,6 @@ protected:
 	virtual const spells::Caster * getCaster(const CBattleInfoCallback & battle, BattleSide side, const battle::Unit * actor) const = 0;
 	/// Checks that the caster exists and may cast the spell now, apart from the rules of the spell
 	virtual bool validateCaster(const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const = 0;
-	virtual BattleAction makeAction(const ActionOption & option, const ActionContext & context, const battle::Target & target) const = 0;
 
 	/// Mechanics of the option's spell for the caster of the context, nullptr if there is no caster
 	std::unique_ptr<spells::Mechanics> getMechanics(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const;
@@ -45,19 +46,22 @@ protected:
 class HeroSpellAction : public SpellCastAction
 {
 public:
+	using SpellCastAction::SpellCastAction;
+
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 
 protected:
 	spells::Mode getMode() const override;
 	const spells::Caster * getCaster(const CBattleInfoCallback & battle, BattleSide side, const battle::Unit * actor) const override;
 	bool validateCaster(const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
-	BattleAction makeAction(const ActionOption & option, const ActionContext & context, const battle::Target & target) const override;
 };
 
 /// MONSTER_SPELL: a SPELLCASTER unit casts one of its spells
 class UnitSpellAction : public SpellCastAction
 {
 public:
+	using SpellCastAction::SpellCastAction;
+
 	bool isUnitAction() const override;
 
 	/// Option of the unit to cast the spell, with its panel button
@@ -73,19 +77,20 @@ protected:
 	spells::Mode getMode() const override;
 	const spells::Caster * getCaster(const CBattleInfoCallback & battle, BattleSide side, const battle::Unit * actor) const override;
 	bool validateCaster(const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
-	BattleAction makeAction(const ActionOption & option, const ActionContext & context, const battle::Target & target) const override;
 };
 
 /// RANDOM_SPELL: a RANDOM_SPELLCASTER unit casts a spell on another unit of its side. The server rolls the spell out of the beneficial ones
 class RandomSpellAction : public BattleActionType
 {
 public:
+	using BattleActionType::BattleActionType;
+
 	bool isUnitAction() const override;
 
 	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
 	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
 	ActionPreview preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
-	std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
+	std::optional<battle::Target> buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
 
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	bool usesUnitSpellcast() const override;
@@ -97,13 +102,15 @@ public:
 class WalkAndCastAction : public BattleActionType
 {
 public:
+	using BattleActionType::BattleActionType;
+
 	bool isUnitAction() const override;
 
 	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
 	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
 	std::vector<ActionApproach> getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const override;
 	ActionPreview preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
-	std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
+	std::optional<battle::Target> buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
 
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;

@@ -89,9 +89,9 @@ ActionPreview ShootAction::preview(const IGameInfoCallback & game, const CBattle
 	return result;
 }
 
-std::optional<BattleAction> ShootAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> ShootAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
-	return BattleAction::makeShotAttack(context.actor, context.hoveredHex);
+	return battle::Target{battle::Destination(context.hoveredHex)};
 }
 
 bool ShootAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
