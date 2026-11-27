@@ -232,9 +232,9 @@ void CursorHandler::cursorMove(const int & x, const int & y)
 Point CursorHandler::getPivotOffset()
 {
 	if (dndObject)
-		return dndObject->dimensions() / 2;
+		return dndObject->dimensions() / 2 * ENGINE->screenHandler().getScalingFactor();
 
-	return cursors.at(currentCursorIndex).pivot;
+	return cursors.at(currentCursorIndex).pivot * ENGINE->screenHandler().getScalingFactor();
 }
 
 std::shared_ptr<IImage> CursorHandler::getCurrentImage()

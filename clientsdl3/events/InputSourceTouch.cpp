@@ -20,6 +20,7 @@
 #include "gui/EventDispatcher.h"
 #include "gui/MouseButton.h"
 #include "gui/WindowHandler.h"
+#include "../render/GpuResources.h"
 #include "../render/IScreenHandler.h"
 
 #if defined(VCMI_ANDROID)
@@ -30,8 +31,10 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_hints.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_touch.h>
+#include <SDL3/SDL_video.h>
 
 /// SDL3 replaced the indexed finger accessors with a single array query
 static int countTouchFingers(SDL_TouchID touchID)
@@ -88,7 +91,7 @@ void InputSourceTouch::handleEventFingerMotion(const SDL_TouchFingerEvent & tfin
 
 	if (settings["video"]["cursor"].String() == "software" && state != TouchState::RELATIVE_MODE)
 	{
-		Point cursorPosition = Point(tfinger.x * screenSize.x, tfinger.y * screenSize.y) * scalingFactor;
+		Point cursorPosition = convertTouchToMouse(tfinger) * scalingFactor;
 		ENGINE->cursor().cursorMove(cursorPosition.x, cursorPosition.y);
 	}
 
@@ -168,8 +171,7 @@ void InputSourceTouch::handleEventFingerDown(const SDL_TouchFingerEvent & tfinge
 	if (settings["video"]["cursor"].String() == "software" && state != TouchState::RELATIVE_MODE)
 	{
 		int scalingFactor = ENGINE->screenHandler().getScalingFactor();
-		Point screenSize = ENGINE->screenDimensions();
-		Point cursorPosition = Point(tfinger.x * screenSize.x, tfinger.y * screenSize.y) * scalingFactor;
+		Point cursorPosition = convertTouchToMouse(tfinger) * scalingFactor;
 		ENGINE->cursor().cursorMove(cursorPosition.x, cursorPosition.y);
 	}
 
@@ -346,6 +348,16 @@ Point InputSourceTouch::convertTouchToMouse(const SDL_TouchFingerEvent & tfinger
 
 Point InputSourceTouch::convertTouchToMouse(float x, float y)
 {
+	SDL_Renderer * renderer = GpuResources::get().renderer();
+	SDL_Window * window = renderer ? SDL_GetRenderWindow(renderer) : nullptr;
+	int windowWidth;
+	int windowHeight;
+	float renderX;
+	float renderY;
+
+	if(window && SDL_GetWindowSize(window, &windowWidth, &windowHeight) && SDL_RenderCoordinatesFromWindow(renderer, x * windowWidth, y * windowHeight, &renderX, &renderY))
+		return Point(renderX, renderY) / ENGINE->screenHandler().getScalingFactor();
+
 	return Point(x * ENGINE->screenDimensions().x, y * ENGINE->screenDimensions().y);
 }
 
@@ -363,7 +375,7 @@ int InputSourceTouch::getNumTouchFingers() const
 
 void InputSourceTouch::emitPanningEvent(const SDL_TouchFingerEvent & tfinger)
 {
-	Point distance = convertTouchToMouse(-motionAccumulatedX[tfinger.fingerID], -motionAccumulatedY[tfinger.fingerID]);
+	Point distance = convertTouchToMouse(-motionAccumulatedX[tfinger.fingerID], -motionAccumulatedY[tfinger.fingerID]) - convertTouchToMouse(0, 0);
 
 	ENGINE->events().dispatchGesturePanning(lastTapPosition, convertTouchToMouse(tfinger), distance);
 }
@@ -389,8 +401,9 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 
 		if (finger && finger->id != tfinger.fingerID)
 		{
-			otherX = finger->x * ENGINE->screenDimensions().x;
-			otherY = finger->y * ENGINE->screenDimensions().y;
+			Point otherPosition = convertTouchToMouse(finger->x, finger->y);
+			otherX = otherPosition.x;
+			otherY = otherPosition.y;
 			otherFingerFound = true;
 			break;
 		}
@@ -401,10 +414,12 @@ void InputSourceTouch::emitPinchEvent(const SDL_TouchFingerEvent & tfinger)
 	if (!otherFingerFound)
 		return; // should be impossible, but better to avoid weird edge cases
 
-	float thisX = tfinger.x * ENGINE->screenDimensions().x;
-	float thisY = tfinger.y * ENGINE->screenDimensions().y;
-	float deltaX = motionAccumulatedX[tfinger.fingerID] * ENGINE->screenDimensions().x;
-	float deltaY = motionAccumulatedY[tfinger.fingerID] * ENGINE->screenDimensions().y;
+	Point thisPosition = convertTouchToMouse(tfinger);
+	Point delta = convertTouchToMouse(motionAccumulatedX[tfinger.fingerID], motionAccumulatedY[tfinger.fingerID]) - convertTouchToMouse(0, 0);
+	float thisX = thisPosition.x;
+	float thisY = thisPosition.y;
+	float deltaX = delta.x;
+	float deltaY = delta.y;
 
 	float oldX = thisX - deltaX - otherX;
 	float oldY = thisY - deltaY - otherY;
