@@ -79,10 +79,10 @@ set(lib_MAIN_SRCS
 	battle/actions/CatapultAction.cpp
 	battle/actions/HealAction.cpp
 	battle/actions/MeleeAttackActions.cpp
+	battle/actions/MoveAction.cpp
 	battle/actions/NoTargetActions.cpp
-	battle/actions/ShootAction.cpp
+	battle/actions/RangedAttackAction.cpp
 	battle/actions/SpellCastActions.cpp
-	battle/actions/WalkAction.cpp
 
 	bonuses/Bonus.cpp
 	bonuses/BonusCache.cpp
@@ -518,10 +518,10 @@ set(lib_MAIN_HEADERS
 	battle/actions/HealAction.h
 	battle/actions/IBattleActionEnvironment.h
 	battle/actions/MeleeAttackActions.h
+	battle/actions/MoveAction.h
 	battle/actions/NoTargetActions.h
-	battle/actions/ShootAction.h
+	battle/actions/RangedAttackAction.h
 	battle/actions/SpellCastActions.h
-	battle/actions/WalkAction.h
 
 	bonuses/Bonus.h
 	bonuses/BonusCache.h

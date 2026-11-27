@@ -145,9 +145,9 @@ static std::optional<BattleAction> chooseRangedUnitAction(const CBattleInfoCallb
 	}
 
 	if(target == nullptr)
-		return BattleAction::makeNoAction(next);
+		return BattleAction::makeSkipTurn(next);
 
-	return BattleAction::makeShotAttack(next, target->stack);
+	return BattleAction::makeRangedAttack(next, target->stack);
 }
 
 static std::optional<BattleAction> chooseMeleeUnitAction(const CBattleInfoCallback & battle, const CStack & unit, GameRandomizer & randomizer)
@@ -234,23 +234,23 @@ static std::optional<BattleAction> chooseMeleeUnitAction(const CBattleInfoCallba
 	}
 
 	if(!bestTarget.stack)
-		return BattleAction::makeNoAction(actingStack);
+		return BattleAction::makeSkipTurn(actingStack);
 
 	if(bestTarget.isReachable)
 	{
-		const auto attack = MeleeAttackAction::buildAutomaticAttack(battle, *actingStack, *bestTarget.stack, bestTarget.attackableFromHex);
-		return attack ? *attack : BattleAction::makeNoAction(actingStack);
+		const auto attack = MeleeAttackBase::buildAutomaticAttack(battle, *actingStack, *bestTarget.stack, bestTarget.attackableFromHex);
+		return attack ? *attack : BattleAction::makeSkipTurn(actingStack);
 	}
 
 	if(actingStack->getMovementRange() > 0)
 	{
 		BattleHex intermediaryHex = battle.getClosestHexToTargetInRange(reachabilityCache, *actingStack, bestTarget.attackableFromHex);
 		if(intermediaryHex == BattleHex::INVALID)
-			return BattleAction::makeNoAction(actingStack);
+			return BattleAction::makeSkipTurn(actingStack);
 		return BattleAction::makeMove(actingStack, intermediaryHex);
 	}
 
-	return BattleAction::makeNoAction(actingStack);
+	return BattleAction::makeSkipTurn(actingStack);
 }
 
 static std::optional<BattleAction> chooseCatapultAction(const CBattleInfoCallback & battle, const CStack & unit, GameRandomizer & randomizer)
@@ -259,7 +259,7 @@ static std::optional<BattleAction> chooseCatapultAction(const CBattleInfoCallbac
 		return std::nullopt;
 
 	if (battle.getAttackableWallParts().empty())
-		return BattleAction::makeNoAction(&unit);
+		return BattleAction::makeSkipTurn(&unit);
 
 	if (rollManualControl(battle, unit, CreatureID(CreatureID::CATAPULT), randomizer))
 		return std::nullopt;
@@ -297,7 +297,7 @@ BattleAction AutomaticActions::chooseBerserkAction(const CBattleInfoCallback & b
 {
 	const battle::Unit * berserker = &unit;
 	logGlobal->trace("Handle Berserk effect");
-	const BattleAction noAction = BattleAction::makeNoAction(berserker);
+	const BattleAction noAction = BattleAction::makeSkipTurn(berserker);
 
 	auto targets = battle.battleGetUnitsIf([&berserker](const battle::Unit * u)
 	{
@@ -317,7 +317,7 @@ BattleAction AutomaticActions::chooseBerserkAction(const CBattleInfoCallback & b
 
 	// a shooter that can not shoot its nearest target, e.g. Steel Elves next to it or out of limited range, attacks in melee
 	if (battle.battleCanShoot(berserker, nearestTarget->getPosition()))
-		return BattleAction::makeShotAttack(berserker, nearestTarget);
+		return BattleAction::makeRangedAttack(berserker, nearestTarget);
 
 	struct TargetData
 	{
@@ -355,7 +355,7 @@ BattleAction AutomaticActions::chooseBerserkAction(const CBattleInfoCallback & b
 	})[0];
 
 	if (closestUnit.distance <= berserker->getMovementRange())
-		return MeleeAttackAction::buildAutomaticAttack(battle, *berserker, *closestUnit.target, closestUnit.closestAttackableHex).value_or(noAction);
+		return MeleeAttackBase::buildAutomaticAttack(battle, *berserker, *closestUnit.target, closestUnit.closestAttackableHex).value_or(noAction);
 
 	if (closestUnit.distance != ReachabilityInfo::INFINITE_DIST && berserker->getMovementRange() > 0)
 	{

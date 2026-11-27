@@ -13,10 +13,10 @@
 #include "CatapultAction.h"
 #include "HealAction.h"
 #include "MeleeAttackActions.h"
+#include "MoveAction.h"
 #include "NoTargetActions.h"
-#include "ShootAction.h"
+#include "RangedAttackAction.h"
 #include "SpellCastActions.h"
-#include "WalkAction.h"
 
 #include "../../GameLibrary.h"
 #include "../../modding/IdentifierStorage.h"
@@ -27,20 +27,20 @@ static const SkipTurnAction skipTurnAction(BattleActionID::SKIP_TURN);
 static const BadMoraleAction badMoraleAction(BattleActionID::BAD_MORALE);
 static const WaitAction waitAction(BattleActionID::WAIT);
 static const DefendAction defendAction(BattleActionID::DEFEND);
-static const EndTacticsAction endTacticsAction(BattleActionID::END_TACTICS_PHASE);
+static const EndTacticsPhaseAction endTacticsPhaseAction(BattleActionID::END_TACTICS_PHASE);
 static const RetreatAction retreatAction(BattleActionID::RETREAT);
 static const SurrenderAction surrenderAction(BattleActionID::SURRENDER);
-static const WalkAction walkAction(BattleActionID::MOVE);
-static const ShootAction shootAction(BattleActionID::RANGED_ATTACK);
+static const MoveAction moveAction(BattleActionID::MOVE);
+static const RangedAttackAction rangedAttackAction(BattleActionID::RANGED_ATTACK);
 static const HealAction healAction(BattleActionID::HEAL);
 static const CatapultAction catapultAction(BattleActionID::CATAPULT);
-static const WalkAndAttackAction walkAndAttackAction(BattleActionID::MELEE_ATTACK);
-static const WalkAndAttackNoReturnAction walkAndAttackNoReturnAction(BattleActionID::MELEE_ATTACK_NO_RETURN);
+static const MeleeAttackAction meleeAttackAction(BattleActionID::MELEE_ATTACK);
+static const MeleeAttackNoReturnAction meleeAttackNoReturnAction(BattleActionID::MELEE_ATTACK_NO_RETURN);
 static const LongWeaponAttackAction longWeaponAttackAction(BattleActionID::LONG_WEAPON_ATTACK);
 static const HeroSpellAction heroSpellAction(BattleActionID::HERO_SPELL);
 static const UnitSpellAction unitSpellAction(BattleActionID::UNIT_SPELL);
 static const RandomSpellAction randomSpellAction(BattleActionID::RANDOM_SPELL);
-static const WalkAndCastAction walkAndCastAction(BattleActionID::ADJACENT_SPELL);
+static const AdjacentSpellAction adjacentSpellAction(BattleActionID::ADJACENT_SPELL);
 
 struct BuiltInActionType
 {
@@ -53,20 +53,20 @@ static const std::array<BuiltInActionType, 18> builtInTypes = {{
 	{&badMoraleAction, "badMorale"},
 	{&waitAction, "wait"},
 	{&defendAction, "defend"},
-	{&endTacticsAction, "endTacticsPhase"},
+	{&endTacticsPhaseAction, "endTacticsPhase"},
 	{&retreatAction, "retreat"},
 	{&surrenderAction, "surrender"},
-	{&walkAction, "move"},
-	{&shootAction, "rangedAttack"},
+	{&moveAction, "move"},
+	{&rangedAttackAction, "rangedAttack"},
 	{&healAction, "heal"},
 	{&catapultAction, "catapult"},
-	{&walkAndAttackAction, "meleeAttack"},
-	{&walkAndAttackNoReturnAction, "meleeAttackNoReturn"},
+	{&meleeAttackAction, "meleeAttack"},
+	{&meleeAttackNoReturnAction, "meleeAttackNoReturn"},
 	{&longWeaponAttackAction, "longWeaponAttack"},
 	{&heroSpellAction, "heroSpell"},
 	{&unitSpellAction, "unitSpell"},
 	{&randomSpellAction, "randomSpell"},
-	{&walkAndCastAction, "adjacentSpell"},
+	{&adjacentSpellAction, "adjacentSpell"},
 }};
 
 BattleActionTypeHandler::BattleActionTypeHandler(LibraryLoadContext & context)

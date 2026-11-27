@@ -106,7 +106,7 @@ static bool willSecondHexBlockMoreEnemyShooters(std::shared_ptr<CBattleCallback>
 
 void CStupidAI::yourTacticPhase(const BattleID & battleID, int distance)
 {
-	cb->battleMakeTacticAction(battleID, BattleAction::makeEndOFTacticPhase(cb->getBattle(battleID)->battleGetTacticsSide()));
+	cb->battleMakeTacticAction(battleID, BattleAction::makeEndTacticsPhase(cb->getBattle(battleID)->battleGetTacticsSide()));
 }
 
 void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
@@ -181,7 +181,7 @@ void CStupidAI::activeStack(const BattleID & battleID, const CStack * stack)
 	if(enemiesShootable.size())
 	{
 		const EnemyInfo &ei= *std::max_element(enemiesShootable.begin(), enemiesShootable.end(), isMoreProfitable);
-		cb->battleMakeUnitAction(battleID, BattleAction::makeShotAttack(stack, ei.s));
+		cb->battleMakeUnitAction(battleID, BattleAction::makeRangedAttack(stack, ei.s));
 		return;
 	}
 	else if(enemiesReachable.size())

@@ -719,7 +719,7 @@ void BattleInterface::tacticPhaseEnd()
 	stacksController->setActiveStack(nullptr);
 
 	auto side = tacticianInterface->cb->getBattle(battleID)->playerToSide(tacticianInterface->playerID);
-	auto action = BattleAction::makeEndOFTacticPhase(side);
+	auto action = BattleAction::makeEndTacticsPhase(side);
 
 	tacticianInterface->cb->battleMakeTacticAction(battleID, action);
 }

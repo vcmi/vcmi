@@ -1,5 +1,5 @@
 /*
- * WalkActionTest.cpp, part of VCMI engine
+ * MoveActionTest.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -24,7 +24,7 @@ constexpr int griffin = 4; // flies 6 hexes
 
 /// Where a WALK action leaves the unit, what stops it on the way, which destinations the
 /// server refuses, and what the client shows for them. Every walk here goes along one row, where the shortest path is a straight line.
-class WalkActionTest : public BattleTestFixture
+class MoveActionTest : public BattleTestFixture
 {
 public:
 	static inline const BattleHex start = BattleHex(3, 5);
@@ -32,7 +32,7 @@ public:
 	static inline const BattleHex halfway = BattleHex(5, 5);
 };
 
-TEST_F(WalkActionTest, unitReachesDestination)
+TEST_F(MoveActionTest, unitReachesDestination)
 {
 	startGame();
 	startBattle();
@@ -43,7 +43,7 @@ TEST_F(WalkActionTest, unitReachesDestination)
 	EXPECT_EQ(walker->getPosition(), destination);
 }
 
-TEST_F(WalkActionTest, destinationOutOfReachIsRefused)
+TEST_F(MoveActionTest, destinationOutOfReachIsRefused)
 {
 	startGame();
 	startBattle();
@@ -54,7 +54,7 @@ TEST_F(WalkActionTest, destinationOutOfReachIsRefused)
 	EXPECT_EQ(walker->getPosition(), start);
 }
 
-TEST_F(WalkActionTest, occupiedDestinationIsRefused)
+TEST_F(MoveActionTest, occupiedDestinationIsRefused)
 {
 	startGame();
 	startBattle();
@@ -66,7 +66,7 @@ TEST_F(WalkActionTest, occupiedDestinationIsRefused)
 	EXPECT_EQ(walker->getPosition(), start);
 }
 
-TEST_F(WalkActionTest, quicksandOnTheWayStopsWalkingUnit)
+TEST_F(MoveActionTest, quicksandOnTheWayStopsWalkingUnit)
 {
 	startGame();
 	startBattle();
@@ -79,7 +79,7 @@ TEST_F(WalkActionTest, quicksandOnTheWayStopsWalkingUnit)
 	EXPECT_EQ(walker->getPosition(), halfway);
 }
 
-TEST_F(WalkActionTest, flyingUnitPassesOverQuicksand)
+TEST_F(MoveActionTest, flyingUnitPassesOverQuicksand)
 {
 	startGame();
 	startBattle();
@@ -91,7 +91,7 @@ TEST_F(WalkActionTest, flyingUnitPassesOverQuicksand)
 	EXPECT_EQ(flyer->getPosition(), destination);
 }
 
-TEST_F(WalkActionTest, tacticsPhaseWalkDoesNotEndTurn)
+TEST_F(MoveActionTest, tacticsPhaseWalkDoesNotEndTurn)
 {
 	startGame();
 	startBattle();
@@ -105,7 +105,7 @@ TEST_F(WalkActionTest, tacticsPhaseWalkDoesNotEndTurn)
 	EXPECT_EQ(walker->getTurnStatus(), battle::UnitTurnStatus::READY);
 }
 
-TEST_F(WalkActionTest, tacticsPhaseWalkOutsideTacticsZoneIsRefused)
+TEST_F(MoveActionTest, tacticsPhaseWalkOutsideTacticsZoneIsRefused)
 {
 	startGame();
 	startBattle();
@@ -119,7 +119,7 @@ TEST_F(WalkActionTest, tacticsPhaseWalkOutsideTacticsZoneIsRefused)
 	EXPECT_EQ(walker->getPosition(), BattleHex(1, 3));
 }
 
-TEST_F(WalkActionTest, defenderWalksIntoCastleGate)
+TEST_F(MoveActionTest, defenderWalksIntoCastleGate)
 {
 	startGame();
 	startSiege();
@@ -130,7 +130,7 @@ TEST_F(WalkActionTest, defenderWalksIntoCastleGate)
 	EXPECT_EQ(walker->getPosition(), BattleHex(BattleHex::GATE_OUTER));
 }
 
-TEST_F(WalkActionTest, walkPreviewShadesHexInReach)
+TEST_F(MoveActionTest, walkPreviewShadesHexInReach)
 {
 	startGame();
 	startBattle();
@@ -145,7 +145,7 @@ TEST_F(WalkActionTest, walkPreviewShadesHexInReach)
 	EXPECT_EQ(option.type->build(*battle(), option, {walker, destination}).value().getTarget(battle()).at(0).hexValue, destination);
 }
 
-TEST_F(WalkActionTest, flyingUnitShowsFlyCursor)
+TEST_F(MoveActionTest, flyingUnitShowsFlyCursor)
 {
 	startGame();
 	startBattle();
@@ -155,7 +155,7 @@ TEST_F(WalkActionTest, flyingUnitShowsFlyCursor)
 	EXPECT_EQ(previewOf(flyer, BattleActionID::MOVE, destination).cursor, "combatFly");
 }
 
-TEST_F(WalkActionTest, walkPreviewOutOfReachIsBlocked)
+TEST_F(MoveActionTest, walkPreviewOutOfReachIsBlocked)
 {
 	startGame();
 	startBattle();
@@ -167,7 +167,7 @@ TEST_F(WalkActionTest, walkPreviewOutOfReachIsBlocked)
 	EXPECT_TRUE(shown.shadedHexes.empty());
 }
 
-TEST_F(WalkActionTest, ownHexIsNoMoveTarget)
+TEST_F(MoveActionTest, ownHexIsNoMoveTarget)
 {
 	startGame();
 	startBattle();
@@ -177,7 +177,7 @@ TEST_F(WalkActionTest, ownHexIsNoMoveTarget)
 	EXPECT_FALSE(isLegal(optionOf(walker, BattleActionID::MOVE), {walker, start}));
 }
 
-TEST_F(WalkActionTest, twoHexUnitMovesWhereItsTailFits)
+TEST_F(MoveActionTest, twoHexUnitMovesWhereItsTailFits)
 {
 	startGame();
 	startBattle();

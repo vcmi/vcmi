@@ -121,12 +121,12 @@ void DefendAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallba
 	env.triggerObstaclesUnder(unit);
 }
 
-bool EndTacticsAction::isTacticsAction() const
+bool EndTacticsPhaseAction::isTacticsAction() const
 {
 	return true;
 }
 
-bool EndTacticsAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
+bool EndTacticsPhaseAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
 {
 	if(!battle.battleTacticDist())
 	{
@@ -143,7 +143,7 @@ bool EndTacticsAction::validate(const IGameInfoCallback & game, const CBattleInf
 	return true;
 }
 
-void EndTacticsAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
+void EndTacticsPhaseAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
 	env.endTacticsPhase();
 }

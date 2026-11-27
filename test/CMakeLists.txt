@@ -151,6 +151,7 @@ set(test_SRCS
 		server/battles/ResurrectionCasualtiesTest.cpp
 		server/battles/MeleeActionTest.cpp
 		server/battles/MoatActionTest.cpp
+		server/battles/MoveActionTest.cpp
 		server/battles/NoTargetActionTest.cpp
 		server/battles/RangedActionTest.cpp
 		server/battles/RebirthTest.cpp
@@ -160,7 +161,6 @@ set(test_SRCS
 		server/battles/SummonGuardiansTest.cpp
 		server/battles/TurnOrderTest.cpp
 		server/battles/TransmutationTest.cpp
-		server/battles/WalkActionTest.cpp
 		server/activities/ActivityProcessorTest.cpp
 		mapObjects/CGCreatureJoiningTest.cpp
 		server/ArmyManagementTest.cpp

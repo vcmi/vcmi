@@ -57,7 +57,7 @@ public:
 
 	static BattleAction randomSpell(const CStack * genie, const BattleHex & targetHex)
 	{
-		return BattleAction::makeRandomSpellcast(genie, targetHex);
+		return BattleAction::makeRandomSpell(genie, targetHex);
 	}
 };
 
@@ -72,7 +72,7 @@ TEST_F(SpellcastActionTest, creatureCastsSpellOnTarget)
 
 	battle::Target target;
 	target.emplace_back(ally);
-	ASSERT_TRUE(act(BattleAction::makeCreatureSpellcast(caster, target, SpellID::PROTECTION_FROM_AIR)));
+	ASSERT_TRUE(act(BattleAction::makeUnitSpell(caster, target, SpellID::PROTECTION_FROM_AIR)));
 
 	EXPECT_TRUE(isAffectedBy(ally, SpellID::PROTECTION_FROM_AIR));
 	EXPECT_EQ(caster->casts.available(), castsBefore - 1);
@@ -120,7 +120,7 @@ TEST_F(SpellcastActionTest, spellCastWithoutSkipKeepsCasterActive)
 
 	battle::Target target;
 	target.emplace_back(ally);
-	ASSERT_TRUE(act(BattleAction::makeCreatureSpellcast(caster, target, spell)));
+	ASSERT_TRUE(act(BattleAction::makeUnitSpell(caster, target, spell)));
 
 	EXPECT_TRUE(isAffectedBy(ally, spell));
 	EXPECT_EQ(battle()->getActiveStackID(), static_cast<int32_t>(caster->unitId()));
@@ -173,10 +173,10 @@ TEST_F(SpellcastActionTest, secondCastInTurnIsRefusedAndSkipsTurn)
 
 	battle::Target target;
 	target.emplace_back(ally);
-	ASSERT_TRUE(act(BattleAction::makeCreatureSpellcast(caster, target, spell)));
+	ASSERT_TRUE(act(BattleAction::makeUnitSpell(caster, target, spell)));
 	ASSERT_EQ(battle()->getActiveStackID(), static_cast<int32_t>(caster->unitId()));
 
-	EXPECT_FALSE(act(BattleAction::makeCreatureSpellcast(caster, target, spell)));
+	EXPECT_FALSE(act(BattleAction::makeUnitSpell(caster, target, spell)));
 	EXPECT_TRUE(caster->moved());
 	EXPECT_NE(battle()->getActiveStackID(), static_cast<int32_t>(caster->unitId()));
 }
@@ -191,7 +191,7 @@ TEST_F(SpellcastActionTest, casterCannotCastSpellItDoesNotHave)
 
 	battle::Target target;
 	target.emplace_back(ally);
-	EXPECT_FALSE(act(BattleAction::makeCreatureSpellcast(caster, target, SpellID::BLESS)));
+	EXPECT_FALSE(act(BattleAction::makeUnitSpell(caster, target, SpellID::BLESS)));
 	EXPECT_FALSE(isAffectedBy(ally, SpellID::BLESS));
 }
 
@@ -236,7 +236,7 @@ TEST_F(SpellcastActionTest, walkAndCastNeedsAdjacentSpellcasterAbility)
 	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), allyHex, stackCount);
 	grantSpell(caster, BonusType::SPELLCASTER, SpellID::BLESS, 0);
 
-	EXPECT_FALSE(act(BattleAction::makeWalkAndCast(caster, castFrom, ally, SpellID::BLESS)));
+	EXPECT_FALSE(act(BattleAction::makeAdjacentSpell(caster, castFrom, ally, SpellID::BLESS)));
 	EXPECT_EQ(caster->getPosition(), casterHex);
 	EXPECT_FALSE(isAffectedBy(ally, SpellID::BLESS));
 }
@@ -254,12 +254,12 @@ TEST_F(SpellcastActionTest, walkAndCastIsRefusedWithoutMoving)
 	grantSpell(caster, BonusType::ADJACENT_SPELLCASTER, SpellID::RESURRECTION, 0);
 
 	// a hex in reach that is not next to the target
-	EXPECT_FALSE(act(BattleAction::makeWalkAndCast(caster, castFrom.cloneInDirection(BattleHex::LEFT), ally, SpellID::BLESS)));
+	EXPECT_FALSE(act(BattleAction::makeAdjacentSpell(caster, castFrom.cloneInDirection(BattleHex::LEFT), ally, SpellID::BLESS)));
 	// the unit has no losses to restore
-	EXPECT_FALSE(act(BattleAction::makeWalkAndCast(caster, castFrom, ally, SpellID::RESURRECTION)));
+	EXPECT_FALSE(act(BattleAction::makeAdjacentSpell(caster, castFrom, ally, SpellID::RESURRECTION)));
 
 	caster->casts.use(caster->casts.available());
-	EXPECT_FALSE(act(BattleAction::makeWalkAndCast(caster, castFrom, ally, SpellID::BLESS)));
+	EXPECT_FALSE(act(BattleAction::makeAdjacentSpell(caster, castFrom, ally, SpellID::BLESS)));
 
 	EXPECT_EQ(caster->getPosition(), casterHex);
 	EXPECT_TRUE(server.casts.empty());
@@ -279,7 +279,7 @@ TEST_F(SpellcastActionTest, quicksandOnTheWayCancelsAdjacentCast)
 	addQuicksand(halfway);
 
 	// stepping into a trap is a legal move that ends the action early
-	ASSERT_TRUE(act(BattleAction::makeWalkAndCast(caster, castFrom, ally, SpellID::BLESS)));
+	ASSERT_TRUE(act(BattleAction::makeAdjacentSpell(caster, castFrom, ally, SpellID::BLESS)));
 	EXPECT_EQ(caster->getPosition(), halfway);
 	EXPECT_FALSE(isAffectedBy(ally, SpellID::BLESS));
 }

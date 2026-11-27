@@ -13,7 +13,7 @@
 
 /// Base of the melee attack types: the unit moves to a hex and strikes a unit from there.
 /// The action targets the hex to attack from, followed by the attacked hex or unit
-class MeleeAttackAction : public BattleActionType
+class MeleeAttackBase : public BattleActionType
 {
 public:
 	using BattleActionType::BattleActionType;
@@ -43,11 +43,11 @@ private:
 	BattleHexArray getAttackedHexes(const CBattleInfoCallback & battle, const battle::Unit & attacker, const BattleHex & destinationTile, const BattleHex & attackerPos) const;
 };
 
-/// WALK_AND_ATTACK: melee attack, after which a unit with RETURN_AFTER_STRIKE returns
-class WalkAndAttackAction : public MeleeAttackAction
+/// MELEE_ATTACK: melee attack, after which a unit with RETURN_AFTER_STRIKE returns
+class MeleeAttackAction : public MeleeAttackBase
 {
 public:
-	using MeleeAttackAction::MeleeAttackAction;
+	using MeleeAttackBase::MeleeAttackBase;
 
 	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
 	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
@@ -56,21 +56,21 @@ protected:
 	bool returnsAfterStrike() const override;
 };
 
-/// WALK_AND_ATTACK_NO_RETURN: melee attack of a unit that stays at its target
-class WalkAndAttackNoReturnAction : public MeleeAttackAction
+/// MELEE_ATTACK_NO_RETURN: melee attack of a unit that stays at its target
+class MeleeAttackNoReturnAction : public MeleeAttackBase
 {
 public:
-	using MeleeAttackAction::MeleeAttackAction;
+	using MeleeAttackBase::MeleeAttackBase;
 
 	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
 	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
 };
 
 /// LONG_WEAPON_ATTACK: attack of a LONG_WEAPON unit over one free hex
-class LongWeaponAttackAction : public MeleeAttackAction
+class LongWeaponAttackAction : public MeleeAttackBase
 {
 public:
-	using MeleeAttackAction::MeleeAttackAction;
+	using MeleeAttackBase::MeleeAttackBase;
 
 	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
 	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;

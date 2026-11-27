@@ -1,5 +1,5 @@
 /*
- * ShootAction.h, part of VCMI engine
+ * RangedAttackAction.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,8 +11,8 @@
 
 #include "BattleActionType.h"
 
-/// SHOOT: a ranged attack at a unit, or at any hex for area shots of SPELL_LIKE_ATTACK units
-class ShootAction : public BattleActionType
+/// RANGED_ATTACK: a ranged attack at a unit, or at any hex for area shots of SPELL_LIKE_ATTACK units
+class RangedAttackAction : public BattleActionType
 {
 public:
 	using BattleActionType::BattleActionType;

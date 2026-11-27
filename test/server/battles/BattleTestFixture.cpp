@@ -218,7 +218,7 @@ void BattleTestFixture::beginCombat()
 	battle()->tacticDistance = 1;
 	battle()->tacticsSide = BattleSide::ATTACKER;
 
-	ASSERT_TRUE(act(BattleAction::makeEndOFTacticPhase(BattleSide::ATTACKER)));
+	ASSERT_TRUE(act(BattleAction::makeEndTacticsPhase(BattleSide::ATTACKER)));
 	ASSERT_EQ(battle()->tacticDistance, 0);
 }
 
@@ -294,7 +294,7 @@ bool BattleTestFixture::castAsHero(const CGHeroInstance * hero, const SpellID & 
 		}
 	}
 
-	return act(BattleAction::makeHeroSpellcast(side, target, spellID));
+	return act(BattleAction::makeHeroSpell(side, target, spellID));
 }
 
 bool BattleTestFixture::castAsHero(const CGHeroInstance * hero, const SpellID & spellID, const CStack * target)
@@ -505,7 +505,7 @@ bool BattleTestFixture::castAsUnit(const CStack * caster, const SpellID & spellI
 	if(targetHex.isValid())
 		target.emplace_back(targetHex);
 
-	return act(BattleAction::makeCreatureSpellcast(caster, target, spellID));
+	return act(BattleAction::makeUnitSpell(caster, target, spellID));
 }
 
 void BattleTestFixture::endRound()

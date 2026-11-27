@@ -414,13 +414,13 @@ void State::_onActionStarted(const BattleAction & ba)
 		break;
 		case BattleActionID::UNIT_SPELL:
 		case BattleActionID::RANDOM_SPELL:
-			logAi->warn("Got MONSTER_SPELL action (use cursed ground to prevent this)");
+			logAi->warn("Got UNIT_SPELL action (use cursed ground to prevent this)");
 			return;
 			break;
 		default:
 			// Don't record a state diff for the other actions
 			// (most are irrelevant or should never occur during training,
-			//  except for MONSTER_SPELL, which can be fixed via cursed ground)
+			//  except for UNIT_SPELL, which can be fixed via cursed ground)
 			logAi->debug("Not recording actionType=%d", EI(ba.actionType));
 			return;
 	}

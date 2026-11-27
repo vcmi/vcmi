@@ -364,7 +364,7 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 
 void BattleFlowProcessor::makeStackDoNothing(const CBattleInfoCallback & battle, const CStack * next)
 {
-	makeAutomaticAction(battle, next, BattleAction::makeNoAction(next));
+	makeAutomaticAction(battle, next, BattleAction::makeSkipTurn(next));
 }
 
 bool BattleFlowProcessor::makeAutomaticAction(const CBattleInfoCallback & battle, const CStack *stack, const BattleAction &ba)

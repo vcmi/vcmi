@@ -11,7 +11,7 @@
 
 #include "BattleActionType.h"
 
-/// NO_ACTION: the unit ends its turn without acting
+/// SKIP_TURN: the unit ends its turn without acting
 class SkipTurnAction : public BattleActionType
 {
 public:
@@ -53,7 +53,7 @@ public:
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
 
-class EndTacticsAction : public BattleActionType
+class EndTacticsPhaseAction : public BattleActionType
 {
 public:
 	using BattleActionType::BattleActionType;

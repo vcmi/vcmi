@@ -1,5 +1,5 @@
 /*
- * WalkAction.cpp, part of VCMI engine
+ * MoveAction.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "WalkAction.h"
+#include "MoveAction.h"
 
 #include "IBattleActionEnvironment.h"
 
@@ -17,17 +17,17 @@
 #include "../Unit.h"
 #include "../../spells/Problem.h"
 
-bool WalkAction::isUnitAction() const
+bool MoveAction::isUnitAction() const
 {
 	return true;
 }
 
-bool WalkAction::isTacticsAction() const
+bool MoveAction::isTacticsAction() const
 {
 	return true;
 }
 
-void WalkAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+void MoveAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
 {
 	if(battle.battleTacticDist() > 0)
 		out.push_back({this, std::nullopt});
@@ -35,12 +35,12 @@ void WalkAction::collectOptions(const CBattleInfoCallback & battle, const battle
 		out.push_back({this, UnitActionButton{0, SpellID::NONE, ImagePath::builtin("battle/actionMove"), "vcmi.battle.action.move"}});
 }
 
-int WalkAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
+int MoveAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
 {
 	return 10;
 }
 
-ActionPreview WalkAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+ActionPreview MoveAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	if(!isLegal(game, battle, option, context))
 		return {"combatBlocked", {}, {}, {}};
@@ -53,7 +53,7 @@ ActionPreview WalkAction::preview(const IGameInfoCallback & game, const CBattleI
 	return {flying ? "combatFly" : "combatMove", text, context.actor->getHexes(battle.toWhichHexMove(context.actor, context.hoveredHex)), {}};
 }
 
-std::optional<battle::Target> WalkAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> MoveAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	// the hexes of the actor itself are valid destinations, but hovering the actor or any other unit selects another option
 	if(battle.battleGetUnitByPos(context.hoveredHex, true))
@@ -62,7 +62,7 @@ std::optional<battle::Target> WalkAction::buildTarget(const CBattleInfoCallback 
 	return battle::Target{battle::Destination(battle.toWhichHexMove(context.actor, context.hoveredHex))};
 }
 
-bool WalkAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
+bool MoveAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
 {
 	const battle::Unit * unit = battle.battleGetUnitByID(action.stackNumber);
 	if(!checkUnitCanAct(battle, unit, problem))
@@ -84,7 +84,7 @@ bool WalkAction::validate(const IGameInfoCallback & game, const CBattleInfoCallb
 	return true;
 }
 
-void WalkAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
+void MoveAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
 	const battle::Unit & unit = getActor(battle, action);
 

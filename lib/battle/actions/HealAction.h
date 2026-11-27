@@ -13,7 +13,7 @@
 
 class CSpell;
 
-/// STACK_HEAL: a HEALER unit, the first aid tent, heals a wounded unit of its side with the spell of its ability.
+/// HEAL: a HEALER unit, the first aid tent, heals a wounded unit of its side with the spell of its ability.
 /// Without a target the most wounded unit is healed, and the turn is skipped if there is none
 class HealAction : public BattleActionType
 {

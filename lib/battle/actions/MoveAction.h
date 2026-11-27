@@ -1,5 +1,5 @@
 /*
- * WalkAction.h, part of VCMI engine
+ * MoveAction.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,8 +11,8 @@
 
 #include "BattleActionType.h"
 
-/// WALK: the unit moves to a hex, including the free moves of the tactics phase
-class WalkAction : public BattleActionType
+/// MOVE: the unit moves to a hex, including the free moves of the tactics phase
+class MoveAction : public BattleActionType
 {
 public:
 	using BattleActionType::BattleActionType;

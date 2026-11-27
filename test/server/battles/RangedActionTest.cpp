@@ -50,7 +50,7 @@ TEST_F(RangedActionTest, shotAtMeleeUnitUsesOneShotWithoutRetaliation)
 	const auto targetHealth = target->getAvailableHealth();
 	const auto shotsBefore = shooter->shots.available();
 
-	ASSERT_TRUE(act(BattleAction::makeShotAttack(shooter, target)));
+	ASSERT_TRUE(act(BattleAction::makeRangedAttack(shooter, target)));
 	EXPECT_LT(target->getAvailableHealth(), targetHealth);
 	EXPECT_EQ(shooter->getAvailableHealth(), shooterHealth);
 	EXPECT_EQ(shooter->shots.available(), shotsBefore - 1);
@@ -68,7 +68,7 @@ TEST_F(RangedActionTest, shooterNextToEnemyCannotShoot)
 	const auto targetHealth = target->getAvailableHealth();
 	const auto shotsBefore = shooter->shots.available();
 
-	EXPECT_FALSE(act(BattleAction::makeShotAttack(shooter, target)));
+	EXPECT_FALSE(act(BattleAction::makeRangedAttack(shooter, target)));
 	EXPECT_EQ(target->getAvailableHealth(), targetHealth);
 	EXPECT_EQ(shooter->shots.available(), shotsBefore);
 }
@@ -83,7 +83,7 @@ TEST_F(RangedActionTest, shotAtEmptyHexIsRefused)
 
 	const auto shotsBefore = shooter->shots.available();
 
-	EXPECT_FALSE(act(BattleAction::makeShotAttack(shooter, BattleHex(8, 5))));
+	EXPECT_FALSE(act(BattleAction::makeRangedAttack(shooter, BattleHex(8, 5))));
 	EXPECT_EQ(shooter->shots.available(), shotsBefore);
 }
 
@@ -98,7 +98,7 @@ TEST_F(RangedActionTest, shotAtFriendlyUnitIsRefused)
 
 	const auto friendlyHealth = friendly->getAvailableHealth();
 
-	EXPECT_FALSE(act(BattleAction::makeShotAttack(shooter, friendly)));
+	EXPECT_FALSE(act(BattleAction::makeRangedAttack(shooter, friendly)));
 	EXPECT_EQ(friendly->getAvailableHealth(), friendlyHealth);
 }
 
@@ -114,7 +114,7 @@ TEST_F(RangedActionTest, targetWithRangedRetaliationShootsBack)
 	const auto shooterHealth = shooter->getAvailableHealth();
 	const auto targetShots = target->shots.available();
 
-	ASSERT_TRUE(act(BattleAction::makeShotAttack(shooter, target)));
+	ASSERT_TRUE(act(BattleAction::makeRangedAttack(shooter, target)));
 	EXPECT_LT(shooter->getAvailableHealth(), shooterHealth);
 	EXPECT_EQ(target->shots.available(), targetShots - 1);
 }
@@ -355,7 +355,7 @@ TEST_F(RangedActionTest, ballistaShootsTwiceOnlyFromAdvancedArtillery)
 
 		const auto shotsBefore = ballista->shots.available();
 
-		ASSERT_TRUE(act(BattleAction::makeShotAttack(ballista, target))) << "artillery level " << level;
+		ASSERT_TRUE(act(BattleAction::makeRangedAttack(ballista, target))) << "artillery level " << level;
 		EXPECT_EQ(shotsBefore - ballista->shots.available(), expectedShots) << "artillery level " << level;
 
 		injure(ballista, ballista->getAvailableHealth());

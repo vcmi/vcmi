@@ -19,22 +19,22 @@
 #include "../../CStack.h"
 #include "../../spells/Problem.h"
 
-bool MeleeAttackAction::isUnitAction() const
+bool MeleeAttackBase::isUnitAction() const
 {
 	return true;
 }
 
-bool MeleeAttackAction::usesLongWeapon() const
+bool MeleeAttackBase::usesLongWeapon() const
 {
 	return false;
 }
 
-bool MeleeAttackAction::returnsAfterStrike() const
+bool MeleeAttackBase::returnsAfterStrike() const
 {
 	return false;
 }
 
-std::optional<BattleAction> MeleeAttackAction::buildAutomaticAttack(const CBattleInfoCallback & battle, const battle::Unit & actor, const battle::Unit & defender, const BattleHex & attackFrom)
+std::optional<BattleAction> MeleeAttackBase::buildAutomaticAttack(const CBattleInfoCallback & battle, const battle::Unit & actor, const battle::Unit & defender, const BattleHex & attackFrom)
 {
 	std::vector<ActionOption> options;
 	collectAllOptions(battle, actor, options);
@@ -44,7 +44,7 @@ std::optional<BattleAction> MeleeAttackAction::buildAutomaticAttack(const CBattl
 
 	for(const auto & option : options)
 	{
-		const auto * attack = dynamic_cast<const MeleeAttackAction *>(option.type);
+		const auto * attack = dynamic_cast<const MeleeAttackBase *>(option.type);
 		if(!attack || !attack->canStrikeFrom(battle, actor, defender, attackFrom))
 			continue;
 
@@ -63,7 +63,7 @@ std::optional<BattleAction> MeleeAttackAction::buildAutomaticAttack(const CBattl
 	return best->type->build(battle, *best, context);
 }
 
-bool MeleeAttackAction::canStrikeFrom(const CBattleInfoCallback & battle, const battle::Unit & attacker, const battle::Unit & defender, const BattleHex & attackerPos) const
+bool MeleeAttackBase::canStrikeFrom(const CBattleInfoCallback & battle, const battle::Unit & attacker, const battle::Unit & defender, const BattleHex & attackerPos) const
 {
 	if(usesLongWeapon())
 		return battle.isLongWeaponAttack(&attacker, &defender, attackerPos);
@@ -71,7 +71,7 @@ bool MeleeAttackAction::canStrikeFrom(const CBattleInfoCallback & battle, const 
 	return battle.isMeleeAttackPossible(&attacker, &defender, attackerPos);
 }
 
-BattleHexArray MeleeAttackAction::getAttackedHexes(const CBattleInfoCallback & battle, const battle::Unit & attacker, const BattleHex & destinationTile, const BattleHex & attackerPos) const
+BattleHexArray MeleeAttackBase::getAttackedHexes(const CBattleInfoCallback & battle, const battle::Unit & attacker, const BattleHex & destinationTile, const BattleHex & attackerPos) const
 {
 	BattleHexArray attackedHexes;
 
@@ -96,7 +96,7 @@ BattleHexArray MeleeAttackAction::getAttackedHexes(const CBattleInfoCallback & b
 	return attackedHexes;
 }
 
-std::vector<ActionApproach> MeleeAttackAction::getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const
+std::vector<ActionApproach> MeleeAttackBase::getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const
 {
 	const battle::Unit * defender = battle.battleGetUnitByPos(hoveredHex, true);
 	if(!defender)
@@ -107,7 +107,7 @@ std::vector<ActionApproach> MeleeAttackAction::getApproaches(const CBattleInfoCa
 	return result;
 }
 
-ActionPreview MeleeAttackAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+ActionPreview MeleeAttackBase::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	if(!isLegal(game, battle, option, context))
 		return {"combatBlocked", {}, {}, {}};
@@ -166,7 +166,7 @@ ActionPreview MeleeAttackAction::preview(const IGameInfoCallback & game, const C
 	return {directionCursors.at(approach.direction), text, attacker.getHexes(approach.from), affectedUnits};
 }
 
-std::optional<battle::Target> MeleeAttackAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> MeleeAttackBase::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	if(!context.approach)
 		return std::nullopt;
@@ -174,7 +174,7 @@ std::optional<battle::Target> MeleeAttackAction::buildTarget(const CBattleInfoCa
 	return battle::Target{battle::Destination(context.approach->from), battle::Destination(context.hoveredHex)};
 }
 
-bool MeleeAttackAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
+bool MeleeAttackBase::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
 {
 	const battle::Unit * attacker = battle.battleGetUnitByID(action.stackNumber);
 	if(!checkUnitCanAct(battle, attacker, problem))
@@ -222,7 +222,7 @@ bool MeleeAttackAction::validate(const IGameInfoCallback & game, const CBattleIn
 	return true;
 }
 
-void MeleeAttackAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
+void MeleeAttackBase::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
 	const battle::Unit & attacker = getActor(battle, action);
 	const battle::Target target = action.getTarget(&battle);
@@ -266,7 +266,7 @@ void MeleeAttackAction::apply(IBattleActionEnvironment & env, const CBattleInfoC
 		env.triggerObstaclesUnder(attacker);
 }
 
-bool WalkAndAttackAction::returnsAfterStrike() const
+bool MeleeAttackAction::returnsAfterStrike() const
 {
 	return true;
 }
@@ -285,25 +285,25 @@ static bool offersMeleeAttack(const CBattleInfoCallback & battle, const battle::
 	return battle.battleTacticDist() == 0 && actor.isMeleeAttacker();
 }
 
-void WalkAndAttackAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+void MeleeAttackAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
 {
 	if(offersMeleeAttack(battle, actor))
 		out.push_back({this, actor.hasBonusOfType(BonusType::RETURN_AFTER_STRIKE) ? returnButton : attackButton});
 }
 
-int WalkAndAttackAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
+int MeleeAttackAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
 {
 	// a returning unit prefers to return, a unit with a long weapon to use it
 	return actor.hasBonusOfType(BonusType::RETURN_AFTER_STRIKE) ? 5 : 7;
 }
 
-void WalkAndAttackNoReturnAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+void MeleeAttackNoReturnAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
 {
 	if(offersMeleeAttack(battle, actor) && actor.hasBonusOfType(BonusType::RETURN_AFTER_STRIKE))
 		out.push_back({this, attackButton});
 }
 
-int WalkAndAttackNoReturnAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
+int MeleeAttackNoReturnAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
 {
 	return 7;
 }

@@ -403,12 +403,12 @@ static std::unique_ptr<spells::Mechanics> getUnitMechanics(const CBattleInfoCall
 	return spell->battleMechanics(&cast);
 }
 
-bool WalkAndCastAction::isUnitAction() const
+bool AdjacentSpellAction::isUnitAction() const
 {
 	return true;
 }
 
-void WalkAndCastAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+void AdjacentSpellAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
 {
 	if(battle.battleTacticDist() || !actor.canCast())
 		return;
@@ -418,12 +418,12 @@ void WalkAndCastAction::collectOptions(const CBattleInfoCallback & battle, const
 			out.push_back({this, UnitActionButton{6, bonus->subtype.as<SpellID>(), {}, {}}, bonus->subtype.as<SpellID>()});
 }
 
-int WalkAndCastAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
+int AdjacentSpellAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
 {
 	return 9;
 }
 
-std::vector<ActionApproach> WalkAndCastAction::getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const
+std::vector<ActionApproach> AdjacentSpellAction::getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const
 {
 	const battle::Unit * target = battle.battleGetUnitOrCorpseByPos(hoveredHex);
 	if(!target || target == &actor)
@@ -432,7 +432,7 @@ std::vector<ActionApproach> WalkAndCastAction::getApproaches(const CBattleInfoCa
 	return getReachableApproaches(battle, actor, hoveredHex, false);
 }
 
-ActionPreview WalkAndCastAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+ActionPreview AdjacentSpellAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	if(!isLegal(game, battle, option, context))
 		return {"combatBlocked", {}, {}, {}};
@@ -450,7 +450,7 @@ ActionPreview WalkAndCastAction::preview(const IGameInfoCallback & game, const C
 	return result;
 }
 
-std::optional<battle::Target> WalkAndCastAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> AdjacentSpellAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	const battle::Unit * target = battle.battleGetUnitOrCorpseByPos(context.hoveredHex);
 	if(!context.approach || !target)
@@ -459,7 +459,7 @@ std::optional<battle::Target> WalkAndCastAction::buildTarget(const CBattleInfoCa
 	return battle::Target{battle::Destination(context.approach->from), battle::Destination(target)};
 }
 
-bool WalkAndCastAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
+bool AdjacentSpellAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
 {
 	const battle::Unit * unit = battle.battleGetUnitByID(action.stackNumber);
 	if(!checkUnitCanAct(battle, unit, problem))
@@ -515,7 +515,7 @@ bool WalkAndCastAction::validate(const IGameInfoCallback & game, const CBattleIn
 	return true;
 }
 
-void WalkAndCastAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
+void AdjacentSpellAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
 	const battle::Unit & unit = getActor(battle, action);
 	const battle::Target target = action.getTarget(&battle);

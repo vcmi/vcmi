@@ -169,7 +169,7 @@ TEST_F(NoTargetActionTest, playerCanNotMakeActionsThatOnlyServerMakes)
 	const CStack * unit = activateUnitOfAttacker();
 
 	EXPECT_FALSE(act(BattleAction::makeBadMorale(unit)));
-	EXPECT_FALSE(act(BattleAction::makeNoAction(unit)));
+	EXPECT_FALSE(act(BattleAction::makeSkipTurn(unit)));
 	EXPECT_EQ(unit->getTurnStatus(), battle::UnitTurnStatus::READY);
 }
 
@@ -180,7 +180,7 @@ TEST_F(NoTargetActionTest, sideWithoutTacticsCanNotEndTacticsPhaseOfEnemy)
 	battle()->tacticDistance = 2;
 	battle()->tacticsSide = BattleSide::ATTACKER;
 
-	EXPECT_FALSE(act(BattleAction::makeEndOFTacticPhase(BattleSide::DEFENDER)));
+	EXPECT_FALSE(act(BattleAction::makeEndTacticsPhase(BattleSide::DEFENDER)));
 	EXPECT_EQ(battle()->tacticDistance, 2);
 }
 
@@ -191,7 +191,7 @@ TEST_F(NoTargetActionTest, tacticsPhaseCanNotBeEndedAfterItIsOver)
 	beginCombat();
 	activateUnitOfAttacker();
 
-	EXPECT_FALSE(act(BattleAction::makeEndOFTacticPhase(BattleSide::ATTACKER)));
+	EXPECT_FALSE(act(BattleAction::makeEndTacticsPhase(BattleSide::ATTACKER)));
 }
 
 TEST_F(NoTargetActionTest, retreatEndsBattleWithEnemyAsWinner)

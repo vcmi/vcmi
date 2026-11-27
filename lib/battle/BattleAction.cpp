@@ -57,7 +57,7 @@ BattleAction BattleAction::makeCatapultShot(const battle::Unit * catapult)
 	return makeUnitAction(catapult, BattleActionID::CATAPULT);
 }
 
-BattleAction BattleAction::makeNoAction(const battle::Unit * stack)
+BattleAction BattleAction::makeSkipTurn(const battle::Unit * stack)
 {
 	return makeUnitAction(stack, BattleActionID::SKIP_TURN);
 }
@@ -102,21 +102,21 @@ BattleAction BattleAction::makeLongWeaponAttack(const battle::Unit * stack, cons
 	return ba;
 }
 
-BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const battle::Unit * target)
+BattleAction BattleAction::makeRangedAttack(const battle::Unit * shooter, const battle::Unit * target)
 {
 	BattleAction ba = makeUnitAction(shooter, BattleActionID::RANGED_ATTACK);
 	ba.aimToUnit(target);
 	return ba;
 }
 
-BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const BattleHex & destination)
+BattleAction BattleAction::makeRangedAttack(const battle::Unit * shooter, const BattleHex & destination)
 {
 	BattleAction ba = makeUnitAction(shooter, BattleActionID::RANGED_ATTACK);
 	ba.aimToHex(destination);
 	return ba;
 }
 
-BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID)
+BattleAction BattleAction::makeUnitSpell(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID)
 {
 	BattleAction ba = makeUnitAction(stack, BattleActionID::UNIT_SPELL);
 	ba.spell = spellID;
@@ -124,7 +124,7 @@ BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, con
 	return ba;
 }
 
-BattleAction BattleAction::makeHeroSpellcast(BattleSide side, const battle::Target & target, const SpellID & spellID)
+BattleAction BattleAction::makeHeroSpell(BattleSide side, const battle::Target & target, const SpellID & spellID)
 {
 	BattleAction ba = makeSideAction(side, BattleActionID::HERO_SPELL);
 	ba.spell = spellID;
@@ -132,14 +132,14 @@ BattleAction BattleAction::makeHeroSpellcast(BattleSide side, const battle::Targ
 	return ba;
 }
 
-BattleAction BattleAction::makeRandomSpellcast(const battle::Unit * stack, const BattleHex & destination)
+BattleAction BattleAction::makeRandomSpell(const battle::Unit * stack, const BattleHex & destination)
 {
 	BattleAction ba = makeUnitAction(stack, BattleActionID::RANDOM_SPELL);
 	ba.aimToHex(destination);
 	return ba;
 }
 
-BattleAction BattleAction::makeWalkAndCast(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID)
+BattleAction BattleAction::makeAdjacentSpell(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID)
 {
 	BattleAction ba = makeUnitAction(stack, BattleActionID::ADJACENT_SPELL);
 	ba.spell = spellID;
@@ -155,7 +155,7 @@ BattleAction BattleAction::makeMove(const battle::Unit * stack, const BattleHex 
 	return ba;
 }
 
-BattleAction BattleAction::makeEndOFTacticPhase(BattleSide side)
+BattleAction BattleAction::makeEndTacticsPhase(BattleSide side)
 {
 	return makeSideAction(side, BattleActionID::END_TACTICS_PHASE);
 }

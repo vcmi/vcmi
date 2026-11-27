@@ -247,7 +247,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 	if(targets->possibleAttacks.empty() && bestSpellcast.has_value() && bestSpellcast->value > moveTarget.score)
 	{
 		activeActionMade = true;
-		return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
+		return BattleAction::makeUnitSpell(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 	}
 
 	if(!targets->possibleAttacks.empty())
@@ -269,7 +269,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 		{
 			// return because spellcast value is damage dealt and score is dps reduce
 			activeActionMade = true;
-			return BattleAction::makeCreatureSpellcast(stack, bestSpellcast->dest, bestSpellcast->spell->id);
+			return BattleAction::makeUnitSpell(stack, bestSpellcast->dest, bestSpellcast->spell->id);
 		}
 
 		if(evaluationResult.score > score)
@@ -298,7 +298,7 @@ BattleAction BattleEvaluator::selectStackAction(const CStack * stack)
 				else if(bestAttack.attack.shooting)
 				{
 					activeActionMade = true;
-					return BattleAction::makeShotAttack(stack, bestAttack.attack.defender);
+					return BattleAction::makeRangedAttack(stack, bestAttack.attack.defender);
 				}
 				else
 				{
@@ -1061,7 +1061,7 @@ bool BattleEvaluator::attemptCastingSpell(const CStack * activeStack)
 	{
 		// debug rather than trace, so that a cast the server refuses can be matched to the spell in reported logs
 		logAi->debug("%s will cast %s (value %f)", hero->getNameTextID(), castToPerform.spell->getJsonKey(), castToPerform.value);
-		cb->battleMakeSpellAction(battleID, BattleAction::makeHeroSpellcast(side, castToPerform.dest, castToPerform.spell->id));
+		cb->battleMakeSpellAction(battleID, BattleAction::makeHeroSpell(side, castToPerform.dest, castToPerform.spell->id));
 		activeActionMade = true;
 
 		return true;

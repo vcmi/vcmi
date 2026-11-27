@@ -143,7 +143,7 @@ bool TacticsHandler::canHandle() const
 void TacticsHandler::end()
 {
 	info("Ending tactics");
-	cb->battleMakeTacticAction(bid, BattleAction::makeEndOFTacticPhase(battle->battleGetMySide()));
+	cb->battleMakeTacticAction(bid, BattleAction::makeEndTacticsPhase(battle->battleGetMySide()));
 };
 
 std::vector<const CStack *> TacticsHandler::findVIPs() const

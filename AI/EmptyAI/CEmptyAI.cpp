@@ -37,7 +37,7 @@ void CEmptyAI::activeStack(const BattleID & battleID, const CStack * stack)
 
 void CEmptyAI::yourTacticPhase(const BattleID & battleID, int distance)
 {
-	cb->battleMakeTacticAction(battleID, BattleAction::makeEndOFTacticPhase(cb->getBattle(battleID)->battleGetTacticsSide()));
+	cb->battleMakeTacticAction(battleID, BattleAction::makeEndTacticsPhase(cb->getBattle(battleID)->battleGetTacticsSide()));
 }
 
 void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill pskill, const std::vector<SecondarySkill> &skills, bool moreLevelsFollow, QuestionID questionID)

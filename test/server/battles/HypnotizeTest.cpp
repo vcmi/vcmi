@@ -78,8 +78,8 @@ TEST_F(HypnotizeTest, HypnotizedRandomCasterBuffsUnitsOfItsController)
 	hypnotize(genie);
 	beginCombat();
 
-	EXPECT_FALSE(act(BattleAction::makeRandomSpellcast(genie, formerAlly->getPosition())));
-	EXPECT_TRUE(act(BattleAction::makeRandomSpellcast(genie, controllerUnit->getPosition())));
+	EXPECT_FALSE(act(BattleAction::makeRandomSpell(genie, formerAlly->getPosition())));
+	EXPECT_TRUE(act(BattleAction::makeRandomSpell(genie, controllerUnit->getPosition())));
 }
 
 TEST_F(HypnotizeTest, HypnotizedShooterIsBlockedByItsFormerAllies)

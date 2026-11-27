@@ -56,7 +56,7 @@ protected:
 	bool validateCaster(const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 };
 
-/// MONSTER_SPELL: a SPELLCASTER unit casts one of its spells
+/// UNIT_SPELL: a SPELLCASTER unit casts one of its spells
 class UnitSpellAction : public SpellCastAction
 {
 public:
@@ -97,9 +97,9 @@ public:
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 };
 
-/// WALK_AND_CAST: an ADJACENT_SPELLCASTER unit moves next to a unit and casts the spell of the ability on it.
+/// ADJACENT_SPELL: an ADJACENT_SPELLCASTER unit moves next to a unit and casts the spell of the ability on it.
 /// The action targets the hex to cast from, followed by the unit
-class WalkAndCastAction : public BattleActionType
+class AdjacentSpellAction : public BattleActionType
 {
 public:
 	using BattleActionType::BattleActionType;
