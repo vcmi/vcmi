@@ -1456,6 +1456,9 @@ BattleHex CBattleInfoCallback::getClosestHexToTargetInRange(const ReachabilityIn
 	if (unit.hasBonusOfType(BonusType::FLYING))
 	{
 		BattleHexArray reachableHexes = battleGetAvailableHexes(cache, &unit, false);
+		if(reachableHexes.empty())
+			return BattleHex::INVALID;
+
 		return std::ranges::min_element(reachableHexes, [&targetHex](const BattleHex & lhs, const BattleHex & rhs)
 		{
 			return BattleHex::getDistance(lhs, targetHex) < BattleHex::getDistance(rhs, targetHex);
