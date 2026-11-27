@@ -16,7 +16,7 @@
 					"type" : "object",
 					"required" : [ "type", "mode" ],
 					"properties" : {
-						"type" : { "type" : "string", "enum" : [ "bonus", "creature", "faction", "spell", "healthValueSpecial" ] },
+						"type" : { "type" : "string", "enum" : [ "bonus", "creature", "faction", "level", "spell", "healthValueSpecial" ] },
 						"mode" : { "$ref" : "#/definitions/targetConditionMode" }
 					},
 					"allOf" : [
@@ -60,6 +60,18 @@
 									"type" : {},
 									"mode" : {},
 									"faction" : { "type" : "string" }
+								}
+							}
+						},
+						{
+							"if" : { "properties" : { "type" : { "const" : "level" } } },
+							"then" : {
+								"additionalProperties" : false,
+								"properties" : {
+									"type" : {},
+									"mode" : {},
+									"minLevel" : { "type" : "number" },
+									"maxLevel" : { "type" : "number" }
 								}
 							}
 						},

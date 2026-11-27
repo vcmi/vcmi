@@ -19,6 +19,7 @@
 #include "../../lib/mapObjects/CGPandoraBox.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 #include "../../lib/mapObjects/Quest.h"
+#include "../../lib/mapObjects/army/CStackInstance.h"
 
 #include <vcmi/scripting/MapEventDispatcher.h>
 #include <vcmi/scripting/Service.h>
@@ -205,6 +206,36 @@ end
 
 return Map
 )lua";
+
+/// Grants 5 angels from an object visit and from a town event. The gold granted after them shows
+/// whether the script paused on a garrison window.
+constexpr auto GRANT_CREATURES_SCRIPT = R"lua(
+local Map = {}
+
+function Map:onVisit(game, server, object, hero)
+	server:grantCreatures(hero, LIBRARY:getCreatureByName("core:angel"), 5)
+	server:giveResource(hero:getOwner(), LIBRARY:getResourceByName("gold"), 777)
+end
+
+function Map:questEvents_7(game, server, object, hero)
+	server:grantCreatures(hero, LIBRARY:getCreatureByName("core:angel"), 5)
+	server:giveResource(hero:getOwner(), LIBRARY:getResourceByName("gold"), 777)
+end
+
+function Map:townEvent(game, server, town)
+	local hero = town:getVisitingHero() or town:getGarrisonHero()
+	if hero then server:grantCreatures(hero, LIBRARY:getCreatureByName("core:angel"), 5) end
+	server:giveResource(town:getOwner(), LIBRARY:getResourceByName("gold"), 777)
+end
+
+return Map
+)lua";
+
+/// Seven different creatures, so that no new creature fits into the army.
+const std::vector<std::pair<CreatureID, uint16_t>> FULL_ARMY = {
+	{CreatureID(0), 1}, {CreatureID(2), 1}, {CreatureID(4), 1}, {CreatureID(6), 1},
+	{CreatureID(8), 1}, {CreatureID(10), 1}, {CreatureID(14), 1}
+};
 
 /// townEvents handler that grows the tier-0 hire pool of the town it runs on.
 constexpr auto HIRE_SCRIPT = R"lua(
@@ -520,4 +551,159 @@ TEST_F(MapScriptTest, scriptedQuestHintCarriesComponentsToTheQuestLog)
 	hut->getActiveQuest()->getVisitText(gameState().get(), text, components, true);
 	ASSERT_EQ(components.size(), 1u);
 	EXPECT_EQ(components[0].subType.as<ArtifactID>(), ArtifactID(7));
+}
+
+namespace
+{
+bool hasAngels(const CArmedInstance & army, TQuantity count)
+{
+	for(const auto & slot : army.Slots())
+		if(slot.second->getCreature()->getJsonKey() == "core:angel")
+			return slot.second->getCount() == count;
+	return false;
+}
+
+/// Moves the hero onto the entrance of the town; map tiles are not updated, so the hero can not move afterwards.
+void placeHeroInTown(CGHeroInstance & hero, CGTownInstance & town)
+{
+	hero.setAnchorPos(hero.convertFromVisitablePos(town.visitablePos()));
+}
+}
+
+TEST_F(MapScriptTest, grantCreaturesJoinsArmyWithRoom)
+{
+	auto builder = baseMap(EMapFormat::SOD, GRANT_CREATURES_SCRIPT);
+	builder.pandora({10, 10, 0});
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	CGPandoraBox * pandora = findFirst<CGPandoraBox>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(pandora, nullptr);
+	ASSERT_NE(hero, nullptr);
+
+	const int baseGold = gold();
+	auto handle = dispatcher->onObjectVisit(*gameEventCallback, "onVisit", pandora, hero);
+
+	EXPECT_FALSE(handle.has_value()) << "creatures that fit must not pause the script";
+	EXPECT_TRUE(hasAngels(*hero, 5));
+	EXPECT_TRUE(gameEventCallback->garrisonDialogs.empty());
+	EXPECT_EQ(gold(), baseGold + 777);
+}
+
+TEST_F(MapScriptTest, grantCreaturesToFullArmyWaitsInPandoraWhileGarrisonWindowIsOpen)
+{
+	auto builder = baseMap(EMapFormat::SOD, GRANT_CREATURES_SCRIPT);
+	builder.heroGarrison(FULL_ARMY);
+	builder.pandora({10, 10, 0});
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	CGPandoraBox * pandora = findFirst<CGPandoraBox>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(pandora, nullptr);
+	ASSERT_NE(hero, nullptr);
+	ASSERT_EQ(hero->stacksCount(), GameConstants::ARMY_SIZE);
+
+	const int baseGold = gold();
+	auto handle = dispatcher->onObjectVisit(*gameEventCallback, "onVisit", pandora, hero);
+
+	ASSERT_TRUE(handle.has_value()) << "the script must wait for the garrison window";
+	ASSERT_EQ(gameEventCallback->garrisonDialogs.size(), 1u);
+	EXPECT_EQ(gameEventCallback->garrisonDialogs[0].first, pandora->id);
+	EXPECT_EQ(gameEventCallback->garrisonDialogs[0].second, hero->id);
+	EXPECT_TRUE(hasAngels(*pandora, 5)) << "the creatures must wait in the box";
+	EXPECT_EQ(gold(), baseGold);
+
+	EXPECT_TRUE(dispatcher->resumeCoroutine(*gameEventCallback, *handle, std::nullopt));
+	EXPECT_EQ(pandora->stacksCount(), 0) << "creatures left in the box must be removed";
+	EXPECT_EQ(gold(), baseGold + 777);
+}
+
+TEST_F(MapScriptTest, grantCreaturesToFullArmyLeavesNoGuardsInSeerHut)
+{
+	auto builder = baseMap(EMapFormat::HOTA, GRANT_CREATURES_SCRIPT);
+	builder.heroGarrison(FULL_ARMY);
+	builder.seerHut({10, 10, 0}, TinyH3M::TinyH3MBuilder::missionScripted(7));
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	SeerHut * hut = findFirst<SeerHut>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(hut, nullptr);
+	ASSERT_NE(hero, nullptr);
+
+	auto handle = dispatcher->onObjectVisit(*gameEventCallback, "questEvents_7", hut, hero);
+
+	ASSERT_TRUE(handle.has_value()) << "the script must wait for the garrison window";
+	ASSERT_EQ(gameEventCallback->garrisonDialogs.size(), 1u);
+	EXPECT_EQ(gameEventCallback->garrisonDialogs[0].first, hut->id);
+	EXPECT_TRUE(hasAngels(*hut, 5));
+
+	EXPECT_TRUE(dispatcher->resumeCoroutine(*gameEventCallback, *handle, std::nullopt));
+	EXPECT_EQ(hut->stacksCount(), 0) << "creatures left in the hut must not become its guards";
+}
+
+TEST_F(MapScriptTest, grantCreaturesToFullVisitingHeroMovesThemToTownGarrison)
+{
+	auto builder = baseMap(EMapFormat::SOD, GRANT_CREATURES_SCRIPT);
+	builder.heroGarrison(FULL_ARMY);
+	builder.randomTown({10, 10, 0}, PLAYER);
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	CGTownInstance * town = findFirst<CGTownInstance>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(town, nullptr);
+	ASSERT_NE(hero, nullptr);
+	ASSERT_EQ(town->stacksCount(), 0);
+	placeHeroInTown(*hero, *town);
+	town->setVisitingHero(hero);
+
+	const int baseGold = gold();
+	auto handle = dispatcher->onTownTurnStart(*gameEventCallback, "townEvent", town);
+
+	ASSERT_TRUE(handle.has_value()) << "the script must wait for the garrison window";
+	ASSERT_EQ(gameEventCallback->garrisonDialogs.size(), 1u);
+	EXPECT_EQ(gameEventCallback->garrisonDialogs[0].first, town->id);
+	EXPECT_EQ(gameEventCallback->garrisonDialogs[0].second, hero->id);
+	EXPECT_TRUE(hasAngels(*town, 5));
+
+	EXPECT_TRUE(dispatcher->resumeCoroutine(*gameEventCallback, *handle, std::nullopt));
+	EXPECT_TRUE(hasAngels(*town, 5)) << "creatures left in the town garrison stay there";
+	EXPECT_EQ(gold(), baseGold + 777);
+}
+
+TEST_F(MapScriptTest, grantCreaturesToFullGarrisonHeroIsSkipped)
+{
+	auto builder = baseMap(EMapFormat::SOD, GRANT_CREATURES_SCRIPT);
+	builder.heroGarrison(FULL_ARMY);
+	builder.randomTown({10, 10, 0}, PLAYER);
+
+	startWithMap(builder);
+
+	auto * dispatcher = gameState()->getMapEventDispatcher();
+	CGTownInstance * town = findFirst<CGTownInstance>();
+	CGHeroInstance * hero = findFirst<CGHeroInstance>();
+	ASSERT_NE(dispatcher, nullptr);
+	ASSERT_NE(town, nullptr);
+	ASSERT_NE(hero, nullptr);
+	placeHeroInTown(*hero, *town);
+	town->setGarrisonedHero(hero);
+
+	const int baseGold = gold();
+	auto handle = dispatcher->onTownTurnStart(*gameEventCallback, "townEvent", town);
+
+	EXPECT_FALSE(handle.has_value()) << "without a place for the creatures the script must not wait";
+	EXPECT_TRUE(gameEventCallback->garrisonDialogs.empty());
+	EXPECT_EQ(town->stacksCount(), 0) << "a town with a garrison hero has no army of its own";
+	EXPECT_EQ(gold(), baseGold + 777);
 }

@@ -389,7 +389,7 @@ void SelectionTab::toggleMode()
 		else
 			openFolder(curFolder, [this, restoreSelection](){ finishToggleMode(restoreSelection); });
 	}
-	slider->setAmount((int)curItems.size());
+	slider->setAmount(static_cast<int>(curItems.size()));
 	updateListItems();
 	redraw();
 }
@@ -405,7 +405,7 @@ void SelectionTab::finishToggleMode(bool restoreSelection)
 	if(restoreSelection)
 		restoreLastSelection();
 
-	slider->setAmount((int)curItems.size());
+	slider->setAmount(static_cast<int>(curItems.size()));
 	updateListItems();
 	redraw();
 }
@@ -514,9 +514,10 @@ void SelectionTab::clickReleased(const Point & cursorPosition)
 				return;
 			}
 
+			const EResType fileType = tabType == ESelectionScreen::newGame ? EResType::MAP : EResType::SAVEGAME;
 			const auto resource = curItems[py]->isFolder
 				? ResourcePath("Saves/" + curFolder + curItems[py]->folderName, EResType::DIRECTORY)
-				: ResourcePath(curItems[py]->entry->originalFileURI, tabType == ESelectionScreen::newGame ? EResType::MAP : EResType::SAVEGAME);
+				: ResourcePath(curItems[py]->entry->originalFileURI, fileType);
 			const std::string message = curItems[py]->isFolder ? "vcmi.lobby.deleteFolder" : "vcmi.lobby.deleteFile";
 			CInfoWindow::showYesNoDialog(LIBRARY->generaltexth->translate(message) + "\n\n" + resource.getOriginalName(), std::vector<std::shared_ptr<CComponent>>(), [this, resource](){
 				LobbyDelete ld;
@@ -684,7 +685,7 @@ void SelectionTab::filter(int size, bool selectFirst)
 	if(curItems.size())
 	{
 		slider->block(false);
-		slider->setAmount((int)curItems.size());
+		slider->setAmount(static_cast<int>(curItems.size()));
 		sort();
 		if(selectFirst)
 		{
@@ -771,7 +772,7 @@ void SelectionTab::select(int position)
 			boost::split(filetree, curFolder, boost::is_any_of("/"));
 			filetree.pop_back();
 			filetree.pop_back();
-			folder = filetree.size() > 0 ? boost::algorithm::join(filetree, "/") + "/" : "";
+			folder = !filetree.empty() ? boost::algorithm::join(filetree, "/") + "/" : "";
 		}
 		else
 			folder = curFolder + curItems[py]->folderName + "/";
@@ -954,7 +955,7 @@ ScenarioSelection SelectionTab::getSelection() const
 	return selection;
 }
 
-void SelectionTab::notifySelection(const std::shared_ptr<ElementInfo> & element)
+void SelectionTab::notifySelection(const std::shared_ptr<ElementInfo> & element) const
 {
 	if(callOnSelect)
 		callOnSelect(element);

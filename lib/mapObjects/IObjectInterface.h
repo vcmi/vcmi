@@ -104,6 +104,8 @@ public:
 	virtual void getOutOffsets(std::vector<int3> & offsets) const = 0; //offsets to obj pos when we boat can be placed
 	virtual EPathfindingLayer getBoatLayer() const = 0; //pathfinding layer that should be used to check boat placement
 	virtual int3 bestLocation() const; //returns location where the boat should be placed
+	/// Location where the boat would be placed if the object stood at the given position
+	int3 bestLocationFrom(const int3 & origin) const;
 
 	enum EGeneratorState {GOOD, BOAT_ALREADY_BUILT, TILE_BLOCKED, NO_WATER, UNKNOWN};
 	virtual EGeneratorState shipyardStatus() const;

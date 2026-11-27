@@ -774,7 +774,7 @@ BattleScore BattleExchangeEvaluator::calculateExchange(
 					auto score = v.trackAttack(
 						attacker,
 						stackWithBonuses,
-						exchangeBattle->battleCanShoot(stackWithBonuses.get()),
+						shooting,
 						isOur,
 						damageCache,
 						hb,

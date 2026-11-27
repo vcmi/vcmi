@@ -69,6 +69,41 @@
 			"positive" : true
 		}
 	},
+	// Takes away the casts of its target, which mods use to keep a caster from casting again on its own
+	"testDisableCasts" :
+	{
+		"type" : "ability",
+		"targetType" : "NO_TARGET",
+		"name" : "Test Disable Casts",
+		"school" : {},
+		"level" : 1,
+		"power" : 0,
+		"graphics" : {},
+		"levels" : {
+			"base" : {
+				"description" : "",
+				"cost" : 0,
+				"power" : 0,
+				"range" : "X",
+				"targetModifier" : { "smart" : true },
+				"effects" : {
+					"noCasts" : {
+						"type" : "CASTS",
+						"val" : 0,
+						"valueType" : "INDEPENDENT_MIN",
+						"duration" : "N_TURNS"
+					}
+				}
+			},
+			"none" : {},
+			"basic" : {},
+			"advanced" : {},
+			"expert" : {}
+		},
+		"flags" : {
+			"positive" : true
+		}
+	},
 	"testRestoreWarMachine" :
 	{
 		"type" : "combat",
@@ -90,6 +125,110 @@
 				"power" : 1000,
 				"range" : "0",
 				"targetModifier" : { "smart" : true },
+				"battleEffects" : {
+					"heal" : {
+						"type" : "core:heal",
+						"healLevel" : "resurrect",
+						"healPower" : "permanent"
+					}
+				}
+			},
+			"none" : {},
+			"basic" : {},
+			"advanced" : {},
+			"expert" : {}
+		},
+		"flags" : {
+			"positive" : true,
+			"rising" : true
+		}
+	},
+	// Land mine whose trigger casts the mine itself, a mod error that would multiply the obstacles on every trigger
+	"testSelfTriggeringMine" :
+	{
+		"type" : "ability",
+		"targetType" : "NO_TARGET",
+		"name" : "Test Self Triggering Mine",
+		"school" : {},
+		"level" : 0,
+		"power" : 0,
+		"graphics" : {},
+		"levels" : {
+			"base" : {
+				"description" : "",
+				"cost" : 0,
+				"power" : 0,
+				"range" : "X",
+				"battleEffects" : {
+					"obstacle" : {
+						"type" : "core:obstacle",
+						"hidden" : true,
+						"passable" : true,
+						"triggerAbility" : "testSelfTriggeringMine",
+						"patchCount" : 4
+					}
+				}
+			},
+			"none" : {},
+			"basic" : {},
+			"advanced" : {},
+			"expert" : {}
+		},
+		"flags" : {
+			"indifferent" : true
+		}
+	},
+	// Resurrects every corpse at once, which only mods do
+	"testMassResurrection" :
+	{
+		"type" : "combat",
+		"targetType" : "NO_TARGET",
+		"name" : "Test Mass Resurrection",
+		"school" : {},
+		"level" : 1,
+		"power" : 1000,
+		"graphics" : {},
+		"levels" : {
+			"base" : {
+				"description" : "",
+				"cost" : 0,
+				"power" : 1000,
+				"range" : "X",
+				"battleEffects" : {
+					"heal" : {
+						"type" : "core:heal",
+						"healLevel" : "resurrect",
+						"healPower" : "permanent"
+					}
+				}
+			},
+			"none" : {},
+			"basic" : {},
+			"advanced" : {},
+			"expert" : {}
+		},
+		"flags" : {
+			"positive" : true,
+			"rising" : true
+		}
+	},
+	// Resurrects corpses in an Inferno-shaped area, which only mods do
+	"testAreaResurrection" :
+	{
+		"type" : "combat",
+		"targetType" : "LOCATION",
+		"name" : "Test Area Resurrection",
+		"school" : {},
+		"level" : 1,
+		"power" : 1000,
+		"graphics" : {},
+		"levels" : {
+			"base" : {
+				"description" : "",
+				"cost" : 0,
+				"power" : 1000,
+				"range" : "0-1",
+				"targetModifier" : { "smart" : false },
 				"battleEffects" : {
 					"heal" : {
 						"type" : "core:heal",

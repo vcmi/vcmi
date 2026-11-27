@@ -213,7 +213,7 @@ private:
 	std::shared_ptr<CGObjectInstance> readMine(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readAbandonedMine(const int3 & position);
 	std::shared_ptr<CGObjectInstance> readPandora(const int3 & position, const ObjectInstanceID & idToBeGiven);
-	std::shared_ptr<CGObjectInstance> readDwelling(const int3 & position);
+	std::shared_ptr<CGObjectInstance> readDwelling(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readDwellingRandom(const int3 & position, std::shared_ptr<const ObjectTemplate> objTempl);
 	std::shared_ptr<CGObjectInstance> readShrine(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate);
 	std::shared_ptr<CGObjectInstance> readHeroPlaceholder(const int3 & position);

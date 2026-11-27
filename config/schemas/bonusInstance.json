@@ -106,7 +106,8 @@
 							"type" : { "type" : "string", "const" : "CREATURE_LEVEL_LIMITER" },
 							"parameters" : { "type" : "array", "description" : "parameters", "additionalItems" : true },
 							"minLevel" : { "type" : "number" },
-							"maxlevel" : { "type" : "number" }
+							"maxLevel" : { "type" : "number" },
+							"maxlevel" : { "type" : "number", "deprecated" : "Use maxLevel instead of maxlevel" }
 						}
 					}
 				},

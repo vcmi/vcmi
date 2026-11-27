@@ -78,7 +78,7 @@ BattleSide Unit::controllingSide() const
 	return unitSide() == BattleSide::ATTACKER ? BattleSide::DEFENDER : BattleSide::ATTACKER;
 }
 
-bool Unit::isSummoned() const
+bool Unit::isAddedInBattle() const
 {
 	return unitSlot() == SlotID::SUMMONED_SLOT_PLACEHOLDER;
 }

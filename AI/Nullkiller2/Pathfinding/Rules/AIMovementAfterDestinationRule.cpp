@@ -363,14 +363,15 @@ namespace AIPathfinding
 		if(loss < actualArmyValue)
 		{
 			battleNode->specialAction = nullptr;
+			destination.node = battleNode;
+			nodeStorage->commit(destination, source);
 
+			// the guarded tile is entered through the same transition as the regular destination node
 			if(destNode->specialAction)
 			{
 				battleNode->specialAction = destNode->specialAction;
+				battleNode->specialAction->applyOnDestination(battleNode->actor->hero, destination, source, battleNode, srcNode);
 			}
-
-			destination.node = battleNode;
-			nodeStorage->commit(destination, source);
 
 			battleNode->armyLoss += loss;
 

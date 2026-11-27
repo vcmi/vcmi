@@ -139,6 +139,21 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(const ImagePath & path)
 				return nullptr;
 			}
 
+			// SDL3_image keeps 1, 2 and 4 bit images packed, but the engine reads indexed images one byte per pixel
+			if (SDL_ISPIXELFORMAT_INDEXED(ret->format) && SDL_BITSPERPIXEL(ret->format) < 8)
+			{
+				SDL_Surface * unpacked = SDL_ConvertSurfaceAndColorspace(ret, SDL_PIXELFORMAT_INDEX8, CSDL_Ext::getPalette(ret), SDL_GetSurfaceColorspace(ret), 0);
+				SDL_DestroySurface(ret);
+				ret = unpacked;
+
+				if (!ret)
+				{
+					logGlobal->error("Failed to unpack %s into a surface with one byte per pixel", path.getOriginalName());
+					logGlobal->error("Reason: %s", SDL_GetError());
+					return nullptr;
+				}
+			}
+
 			SDL_Palette * palette = CSDL_Ext::getPalette(ret);
 			if (palette)
 			{

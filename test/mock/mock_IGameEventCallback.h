@@ -45,6 +45,7 @@ public:
 	std::vector<std::pair<ObjectInstanceID, int>>        manaPointsSet;
 	std::vector<std::pair<ObjectInstanceID, int>>        movePointsSet;
 	std::vector<std::pair<ObjectInstanceID, BuildingID>> builtStructures;
+	std::vector<std::pair<ObjectInstanceID, ObjectInstanceID>> garrisonDialogs; ///< upper and lower army of each showGarrisonDialog()
 
 	// ---- non-empty overrides (defined in mock_IGameEventCallback.cpp) ----
 
@@ -64,6 +65,9 @@ public:
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> & creatures, bool forceRemoval) override;
 	bool changeStackCount(const StackLocation & sl, TQuantity count, ChangeValueMode mode) override;
 	bool eraseStack(const StackLocation & sl, bool forceRemoval) override;
+	bool addToSlot(const StackLocation & sl, const CCreature * c, TQuantity count) override;
+	void giveCreatures(const CGHeroInstance * hero, const CCreatureSet & creatures) override;
+	void giveCreatures(const CArmedInstance * obj, const CGHeroInstance * hero, const CCreatureSet & creatures, bool remove) override;
 	void removeAfterVisit(const ObjectInstanceID & id) override;
 	bool isObjectBeingVisited(const ObjectInstanceID &) const override { return false; }
 	void removeArtifact(const ArtifactLocation & al) override;
@@ -82,15 +86,12 @@ public:
 	void setOwner(const CGObjectInstance *, PlayerColor) override {}
 	void changePrimSkill(const CGHeroInstance *, PrimarySkill, si64, ChangeValueMode) override {}
 	void changeSecSkill(const CGHeroInstance *, SecondarySkill, int, ChangeValueMode) override {}
-	void showGarrisonDialog(ObjectInstanceID, ObjectInstanceID, const MetaString &) override {}
+	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, const MetaString &) override { garrisonDialogs.emplace_back(upobj, hid); }
 	void showTeleportDialog(TeleportDialog *) override {}
 	void showObjectWindow(const CGObjectInstance *, EOpenWindowMode, const CGHeroInstance *, bool) override {}
-	void giveCreatures(const CGHeroInstance *, const CCreatureSet &) override {}
-	void giveCreatures(const CArmedInstance *, const CGHeroInstance *, const CCreatureSet &, bool) override {}
 	bool changeStackType(const StackLocation &, const CCreature *) override { return false; }
 	bool insertNewStack(const StackLocation & sl, const CCreature * c, TQuantity count) override;
 	bool swapStacks(const StackLocation &, const StackLocation &) override { return false; }
-	bool addToSlot(const StackLocation &, const CCreature *, TQuantity) override { return false; }
 	void tryJoiningArmy(const CArmedInstance *, const CArmedInstance *, bool, bool) override {}
 	bool moveStack(const StackLocation &, const StackLocation &, TQuantity) override { return false; }
 	bool giveHeroNewArtifact(const CGHeroInstance *, const ArtifactID &, const ArtifactPosition &) override { return false; }

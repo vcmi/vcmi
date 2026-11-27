@@ -1536,10 +1536,16 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readAbandonedMine(const int3 & 
 	return object;
 }
 
-std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readDwelling(const int3 & position)
+std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readDwelling(const int3 & position, std::shared_ptr<const ObjectTemplate> objectTemplate)
 {
-	auto object = std::make_shared<CGDwelling>(map->cb);
-	setOwnerAndValidate(position, object.get(), reader->readPlayer32());
+	auto object = readGeneric(position, objectTemplate);
+	auto dwelling = std::dynamic_pointer_cast<CGDwelling>(object);
+
+	PlayerColor owner = reader->readPlayer32();
+
+	if(dwelling)
+		setOwnerAndValidate(position, dwelling.get(), owner);
+
 	return object;
 }
 
@@ -2097,7 +2103,7 @@ std::shared_ptr<CGObjectInstance> CMapLoaderH3M::readObject(MapObjectID id, MapO
 		case Obj::CREATURE_GENERATOR2:
 		case Obj::CREATURE_GENERATOR3:
 		case Obj::CREATURE_GENERATOR4:
-			return readDwelling(mapPosition);
+			return readDwelling(mapPosition, objectTemplate);
 
 		case Obj::SHRINE_OF_MAGIC_INCANTATION:
 		case Obj::SHRINE_OF_MAGIC_GESTURE:

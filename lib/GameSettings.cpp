@@ -92,7 +92,6 @@ const std::vector<GameSettings::SettingOption> GameSettings::settingProperties =
 		{EGameSettings::HEROES_MINIMAL_PRIMARY_SKILLS,                    "heroes",    "minimalPrimarySkills"                 },
 		{EGameSettings::HEROES_PER_PLAYER_ON_MAP_CAP,                     "heroes",    "perPlayerOnMapCap"                    },
 		{EGameSettings::HEROES_PER_PLAYER_TOTAL_CAP,                      "heroes",    "perPlayerTotalCap"                    },
-		{EGameSettings::HEROES_RETREAT_ON_WIN_WITHOUT_TROOPS,             "heroes",    "retreatOnWinWithoutTroops"            },
 		{EGameSettings::HEROES_STARTING_STACKS_CHANCES,                   "heroes",    "startingStackChances"                 },
 		{EGameSettings::HEROES_TAVERN_INVITE,                             "heroes",    "tavernInvite"                         },
 		{EGameSettings::HEROES_MOVEMENT_COST_BASE,                        "heroes",    "movementCostBase"                     },

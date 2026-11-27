@@ -839,7 +839,7 @@ void CServerHandler::onQuickSaveWritten()
 		adventureInt->updateActiveState();
 }
 
-void CServerHandler::quickLoadGame()
+void CServerHandler::quickLoadGame() const
 {
 	LobbyQuickLoadGame pack;
 	sendLobbyPack(pack);

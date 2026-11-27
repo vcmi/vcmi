@@ -137,13 +137,13 @@ void CMapInfo::randomMapInit(const CMapGenOptions & options)
 		player.canHumanPlay = false;
 	}
 
-	for(const auto & [color, settings] : options.getPlayersSettings())
+	for(const auto & [color, playerSettings] : options.getPlayersSettings())
 	{
 		PlayerInfo playerInfo;
-		playerInfo.isFactionRandom = settings.getStartingTown() == FactionID::RANDOM;
-		playerInfo.canComputerPlay = settings.getPlayerType() != EPlayerType::HUMAN;
-		playerInfo.canHumanPlay = settings.getPlayerType() != EPlayerType::COMP_ONLY;
-		playerInfo.team = settings.getTeam();
+		playerInfo.isFactionRandom = playerSettings.getStartingTown() == FactionID::RANDOM;
+		playerInfo.canComputerPlay = playerSettings.getPlayerType() != EPlayerType::HUMAN;
+		playerInfo.canHumanPlay = playerSettings.getPlayerType() != EPlayerType::COMP_ONLY;
+		playerInfo.team = playerSettings.getTeam();
 		playerInfo.hasMainTown = true;
 		playerInfo.generateHeroAtMainTown = true;
 		mapHeader->players[color.getNum()] = playerInfo;

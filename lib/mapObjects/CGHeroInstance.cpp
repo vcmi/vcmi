@@ -20,6 +20,7 @@
 #include "../callback/IGameRandomizer.h"
 #include "../callback/EditorCallback.h"
 #include "../texts/CGeneralTextHandler.h"
+#include "../BattleFieldHandler.h"
 #include "../TerrainHandler.h"
 #include "../RoadHandler.h"
 #include "../IGameSettings.h"
@@ -1055,6 +1056,28 @@ bool CGHeroInstance::canCastThisSpell(const spells::Spell * spell) const
 		}
 	}
 	return !getSourcesForSpell(spell->getId()).empty();
+}
+
+bool CGHeroInstance::isSpellLevelBlocked(const spells::Spell * spell) const
+{
+	const auto levelLimits = getBonusesOfType(BonusType::BLOCK_MAGIC_ABOVE);
+	return !levelLimits->empty() && spell->getLevel() > levelLimits->totalValue();
+}
+
+bool CGHeroInstance::isSpellLevelBlockedOn(const spells::Spell * spell, BattleField terrain) const
+{
+	// bonuses of the special terrain the hero stands on now are replaced by the bonuses of the given terrain
+	BonusList levelLimits;
+	for(const auto & bonus : *getBonusesOfType(BonusType::BLOCK_MAGIC_ABOVE))
+		if(bonus->source != BonusSource::TERRAIN_OVERLAY)
+			levelLimits.push_back(bonus);
+
+	if(terrain != BattleField::NONE)
+		for(const auto & bonus : terrain.getInfo()->bonuses)
+			if(bonus->type == BonusType::BLOCK_MAGIC_ABOVE)
+				levelLimits.push_back(bonus);
+
+	return !levelLimits.empty() && spell->getLevel() > levelLimits.totalValue();
 }
 
 bool CGHeroInstance::canLearnSpell(const spells::Spell * spell, bool allowBanned) const

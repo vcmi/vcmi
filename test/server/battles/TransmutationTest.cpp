@@ -123,3 +123,36 @@ TEST_F(TransmutationTest, CommanderIsLeftAlone)
 	EXPECT_TRUE(survivor->isCommander()) << "a transmuted commander would be lost to its hero";
 	EXPECT_EQ(survivor->unitType()->getId(), creatureByName("core:blackDragon"));
 }
+
+TEST_F(TransmutationTest, ArmyVictimTurnsIntoPermanentStack)
+{
+	setUpBattle("vcmi-test:testTransmuterCount");
+
+	ASSERT_TRUE(attack(attacker, BattleHex(leftHex)));
+
+	const CStack * replacement = unitOnVictimHex();
+	ASSERT_NE(replacement, nullptr);
+	EXPECT_FALSE(replacement->summoned);
+}
+
+TEST_F(TransmutationTest, SummonedVictimTurnsIntoSummonedStack)
+{
+	startGame();
+	startBattle();
+
+	const auto summonedId = battle()->battleNextUnitId();
+	const CStackBasicDescriptor elementals(creatureByName("core:blackDragon"), victimCount);
+	battle()->generateNewStack(summonedId, elementals, BattleSide::ATTACKER, SlotID::SUMMONED_SLOT_PLACEHOLDER, BattleHex(leftHex));
+	battle()->getStack(summonedId)->localInit(battle());
+	battle()->getStack(summonedId)->summoned = true;
+
+	attacker = addStack(BattleSide::DEFENDER, creatureByName("vcmi-test:testTransmuterCount"), BattleHex(rightHex), transmuterCount);
+	blockRetaliation(attacker);
+
+	ASSERT_TRUE(attack(attacker, BattleHex(leftHex)));
+
+	const CStack * replacement = unitOnVictimHex();
+	ASSERT_NE(replacement, nullptr);
+	EXPECT_EQ(replacement->unitType()->getId(), creatureByName("core:pikeman"));
+	EXPECT_TRUE(replacement->summoned) << "a stack without an army slot must vanish after battle";
+}

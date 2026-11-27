@@ -152,44 +152,59 @@ protected:
 	{
 		unitAddInfo.reset();
 	}
+
+	/// Raises demons from a defender corpse standing on corpsePosition
+	void raiseDemonsFromCorpse(bool doubleWide)
+	{
+		auto & corpse = unitsFake.add(BattleSide::DEFENDER);
+		EXPECT_CALL(corpse, alive()).WillRepeatedly(Return(false));
+		EXPECT_CALL(corpse, isGhost()).WillRepeatedly(Return(false));
+		EXPECT_CALL(corpse, getPosition()).WillRepeatedly(Return(corpsePosition));
+		EXPECT_CALL(corpse, doubleWide()).WillRepeatedly(Return(doubleWide));
+		EXPECT_CALL(corpse, isValidTarget(Eq(false))).WillRepeatedly(Return(false));
+		EXPECT_CALL(corpse, unitBaseAmount()).WillRepeatedly(Return(corpseBaseAmount));
+		EXPECT_CALL(corpse, getTotalHealth()).WillRepeatedly(Return(corpseTotalHealth));
+		EXPECT_CALL(corpse, unitId()).WillRepeatedly(Return(corpseId));
+
+		EXPECT_CALL(creatureServiceMock, getByName(demonId)).WillRepeatedly(Return(&demonType));
+		EXPECT_CALL(demonType, getId()).WillRepeatedly(Return(CreatureID::AIR_ELEMENTAL));
+		EXPECT_CALL(demonType, getMaxHealth()).WillRepeatedly(Return(demonMaxHealth));
+		EXPECT_CALL(demonType, getJsonKey()).WillRepeatedly(Return(demonId));
+		EXPECT_CALL(demonType, isDoubleWide()).WillRepeatedly(Return(false));
+
+		EXPECT_CALL(mechanicsMock, getEffectValue()).WillRepeatedly(Return(effectValue));
+		EXPECT_CALL(mechanicsMock, applySpellBonus(Eq(effectValue), Eq(&corpse))).WillRepeatedly(Return(effectValue));
+
+		battleFake->setupEmptyBattlefield();
+
+		EXPECT_CALL(*battleFake, nextUnitId()).WillOnce(Return(newUnitId));
+		EXPECT_CALL(*battleFake, addUnit(Eq(newUnitId), _)).WillOnce(Invoke(this, &DemonSummonApplyTest::onUnitAdded));
+		EXPECT_CALL(*battleFake, removeUnit(Eq(corpseId))).Times(1);
+		EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(2);
+
+		Target target;
+		target.emplace_back(&corpse, BattleHex());
+
+		subject->apply(&serverMock, &mechanicsMock, target);
+	}
 };
 
 TEST_P(DemonSummonApplyTest, SpawnsNewUnitAndRemovesCorpse)
 {
-	auto & corpse = unitsFake.add(BattleSide::DEFENDER);
-	EXPECT_CALL(corpse, alive()).WillRepeatedly(Return(false));
-	EXPECT_CALL(corpse, isGhost()).WillRepeatedly(Return(false));
-	EXPECT_CALL(corpse, getPosition()).WillRepeatedly(Return(corpsePosition));
-	EXPECT_CALL(corpse, isValidTarget(Eq(false))).WillRepeatedly(Return(false));
-	EXPECT_CALL(corpse, unitBaseAmount()).WillRepeatedly(Return(corpseBaseAmount));
-	EXPECT_CALL(corpse, getTotalHealth()).WillRepeatedly(Return(corpseTotalHealth));
-	EXPECT_CALL(corpse, unitId()).WillRepeatedly(Return(corpseId));
-
-	EXPECT_CALL(creatureServiceMock, getByName(demonId)).WillRepeatedly(Return(&demonType));
-	EXPECT_CALL(demonType, getId()).WillRepeatedly(Return(CreatureID::AIR_ELEMENTAL));
-	EXPECT_CALL(demonType, getMaxHealth()).WillRepeatedly(Return(demonMaxHealth));
-	EXPECT_CALL(demonType, getJsonKey()).WillRepeatedly(Return(demonId));
-	EXPECT_CALL(demonType, isDoubleWide()).WillRepeatedly(Return(false));
-
-	EXPECT_CALL(mechanicsMock, getEffectValue()).WillRepeatedly(Return(effectValue));
-	EXPECT_CALL(mechanicsMock, applySpellBonus(Eq(effectValue), Eq(&corpse))).WillRepeatedly(Return(effectValue));
-
-	battleFake->setupEmptyBattlefield();
-
-	EXPECT_CALL(*battleFake, nextUnitId()).WillOnce(Return(newUnitId));
-	EXPECT_CALL(*battleFake, addUnit(Eq(newUnitId), _)).WillOnce(Invoke(this, &DemonSummonApplyTest::onUnitAdded));
-	EXPECT_CALL(*battleFake, removeUnit(Eq(corpseId))).Times(1);
-	EXPECT_CALL(serverMock, apply(Matcher<BattleUnitsChanged &>(_))).Times(2);
-
-	Target target;
-	target.emplace_back(&corpse, BattleHex());
-
-	subject->apply(&serverMock, &mechanicsMock, target);
+	raiseDemonsFromCorpse(false);
 
 	EXPECT_EQ(unitAddInfo->count, expectedAmount);
 	EXPECT_EQ(unitAddInfo->side, mechanicsMock.casterSide);
 	EXPECT_EQ(unitAddInfo->position, corpsePosition);
 	EXPECT_EQ(unitAddInfo->summoned, !permanent);
+}
+
+TEST_P(DemonSummonApplyTest, SpawnsOnBackHexOfDoubleWideCorpse)
+{
+	raiseDemonsFromCorpse(true);
+
+	// back of a defender stands to the right of its position
+	EXPECT_EQ(unitAddInfo->position, BattleHex(corpsePosition.toInt() + 1));
 }
 
 INSTANTIATE_TEST_SUITE_P

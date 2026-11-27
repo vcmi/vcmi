@@ -235,7 +235,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 
 bool CCallback::visitTownBuilding(const CGTownInstance *town, BuildingID buildingID)
 {
-	if(town->tempOwner!=getPlayerID())
+	if(!town->canBeVisitedBy(getPlayerID().value(), buildingID))
 		return false;
 
 	VisitTownBuilding pack(town->id, buildingID);

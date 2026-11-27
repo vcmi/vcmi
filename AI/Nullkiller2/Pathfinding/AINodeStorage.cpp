@@ -218,11 +218,18 @@ void AINodeStorage::clear()
 	actors.clear();
 	committedTiles.clear();
 	dimensionDoorCapabilities.clear();
+	specialTerrainTiles = aiNk->cc->getSpecialTerrainTiles();
 	heroChainPass = EHeroChainPass::INITIAL;
 	heroChainTurn = 0;
 	heroChainMaxTurns = 1;
 	turnDistanceLimit[HeroRole::MAIN] = PathfinderSettings::MaxTurnDistanceLimit;;
 	turnDistanceLimit[HeroRole::SCOUT] = PathfinderSettings::MaxTurnDistanceLimit;;
+}
+
+bool AINodeStorage::isSpellLevelBlockedAt(const CGHeroInstance * hero, const spells::Spell * spell, const int3 & tile) const
+{
+	const auto terrain = specialTerrainTiles.find(tile);
+	return hero->isSpellLevelBlockedOn(spell, terrain == specialTerrainTiles.end() ? BattleField::NONE : terrain->second);
 }
 
 std::optional<AIPathNode *> AINodeStorage::getOrCreateNode(
@@ -323,6 +330,15 @@ void AINodeStorage::commit(CDestinationNodeInfo & destination, const PathNodeInf
 
 	updateAINode(destination.node, [&](AIPathNode * dstNode)
 	{
+		// special transitions attach their action to an uncommitted node, teleports attach theirs in calculateTeleportations,
+		// so any other action on a committed node belongs to the transition being replaced
+		const bool isTeleport = destination.action == EPathNodeAction::TELEPORT_NORMAL
+			|| destination.action == EPathNodeAction::TELEPORT_BLOCKING_VISIT
+			|| destination.action == EPathNodeAction::TELEPORT_BATTLE;
+
+		if(dstNode->action != EPathNodeAction::UNKNOWN && !isTeleport)
+			dstNode->specialAction.reset();
+
 		commit(dstNode, srcNode, destination.action, destination.turn, destination.movementLeft, destination.cost);
 
 		// regular pathfinder can not go directly through whirlpool
@@ -1215,6 +1231,9 @@ std::optional<AINodeStorage::DimensionDoorSpellPlan> AINodeStorage::getDimension
 	const int plannedDimensionDoorCasts = plannedSourceTurn == source.node->turns ? srcNode->dimensionDoorCasts : 0;
 	const int castsAlreadyPerformed = plannedSourceTurn == 0 ? capability.castsAlreadyPerformed : 0;
 
+	if(isSpellLevelBlockedAt(hero, capability.spell, source.coord))
+		return std::nullopt;
+
 	if(!AIPathfinding::hasDimensionDoorActionResources({
 		hero,
 		capability.spell,
@@ -1401,7 +1420,8 @@ struct TownPortalFinder
 
 			if(aiNode->actor->baseActor != actor
 				|| node->layer != EPathfindingLayer::LAND
-				|| node->moveRemains < movementNeeded)
+				|| node->moveRemains < movementNeeded
+				|| nodeStorage->isSpellLevelBlockedAt(hero, townPortal, node->coord))
 			{
 				continue;
 			}
