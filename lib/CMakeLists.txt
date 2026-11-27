@@ -224,6 +224,7 @@ set(lib_MAIN_SRCS
 	modding/ModDescription.cpp
 	modding/ModIncompatibility.cpp
 	modding/ModManager.cpp
+	modding/ModSnapshot.cpp
 	modding/ModUtility.cpp
 	modding/ModVerificationInfo.cpp
 
@@ -704,6 +705,7 @@ set(lib_MAIN_HEADERS
 	modding/ModDescription.h
 	modding/ModIncompatibility.h
 	modding/ModManager.h
+	modding/ModSnapshot.h
 	modding/ModScope.h
 	modding/ModUtility.h
 	modding/ModVerificationInfo.h

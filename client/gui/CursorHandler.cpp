@@ -54,6 +54,13 @@ CursorHandler::~CursorHandler() = default;
 
 void CursorHandler::init()
 {
+	// called again after game library reload
+	cursors.clear();
+	loadedAnimations.clear();
+	loadedImages.clear();
+	dndObject.reset();
+	currentCursorID.clear();
+
 	JsonNode cursorConfig = JsonUtils::assembleFromFiles("config/cursors.json");
 	std::vector<AnimationPath> animations;
 

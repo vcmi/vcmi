@@ -11,12 +11,17 @@
 #include "ScenarioMetadata.h"
 
 #include "CMapHeader.h"
+#include "MapFormat.h"
+#include "MapFormatSettings.h"
 
 #include "../GameLibrary.h"
 #include "../campaign/CampaignState.h"
 #include "../json/JsonNode.h"
 #include "../modding/CModHandler.h"
+#include "../modding/ModDescription.h"
+#include "../modding/ModIncompatibility.h"
 #include "../modding/ModScope.h"
+#include "../modding/ModSnapshot.h"
 #include "../texts/CGeneralTextHandler.h"
 #include "../texts/Languages.h"
 #include "../texts/MetaString.h"
@@ -123,6 +128,9 @@ JsonNode ScenarioMetadata::campaignToJson(const Campaign & campaign)
 	result["campaignVersion"] = textToJson(campaign.getCampaignVersion(), translators);
 	result["creationDateTime"].Integer() = campaign.getCreationDateTime();
 	result["scenarios"].Integer() = campaign.scenariosCount();
+
+	const CampaignVersion version = campaign.getFormat();
+	result["format"].Integer() = static_cast<int>(version == CampaignVersion::VCMI ? EMapFormat::VCMI : LIBRARY->mapFormat->getMapFormat(version));
 	return result;
 }
 
@@ -152,4 +160,105 @@ JsonNode ScenarioMetadata::modsToJson(const ModCompatibilityInfo & mods)
 			entry["submods"].Vector().emplace_back(modID.substr(rootID.size() + 1));
 	}
 	return result;
+}
+
+JsonNode ScenarioMetadata::activeModsToJson(const ModSnapshot & modList)
+{
+	ModCompatibilityInfo mods;
+	for(const auto & modID : modList.getActiveMods())
+		mods[modID] = modList.getModDescription(modID).getVerificationInfo();
+	return modsToJson(mods);
+}
+
+ModListVerificationStatus ScenarioMetadata::verifyMods(const JsonNode & mods, bool exact, const ModSnapshot & modList)
+{
+	const auto & installedMods = modList.getInstalledMods();
+	const auto & activeMods = modList.getActiveMods();
+
+	ModListVerificationStatus result;
+	for(const auto & [rootID, entry] : mods.Struct())
+	{
+		if(!vstd::contains(installedMods, rootID))
+		{
+			result[rootID] = ModVerificationStatus::NOT_INSTALLED;
+			continue;
+		}
+
+		// local version of a mod may no longer affect gameplay, in which case it does not need to be enabled
+		if(!modList.isGameplayRoot(rootID))
+			continue;
+
+		if(!vstd::contains(activeMods, rootID))
+		{
+			result[rootID] = ModVerificationStatus::DISABLED;
+			continue;
+		}
+
+		const auto requiredVersion = CModVersion::fromString(entry["version"].String());
+		if(!requiredVersion.isNull() && !modList.getModDescription(rootID).getVersion().compatible(requiredVersion))
+			result[rootID] = ModVerificationStatus::VERSION_MISMATCH;
+
+		std::set<TModID> listedSubmods;
+		for(const auto & submod : entry["submods"].Vector())
+		{
+			const TModID modID = rootID + '.' + submod.String();
+			listedSubmods.insert(modID);
+
+			// submods are often renamed or removed between versions of a mod, scenario may still be playable without them
+			if(!vstd::contains(installedMods, modID) || !modList.getModDescription(modID).affectsGameplay())
+				continue;
+
+			if(!vstd::contains(activeMods, modID))
+				result[modID] = ModVerificationStatus::DISABLED;
+		}
+
+		if(!exact)
+			continue;
+
+		for(const auto & modID : activeMods)
+		{
+			const auto & mod = modList.getModDescription(modID);
+			if(mod.getTopParentID() == rootID && mod.affectsGameplay() && !listedSubmods.contains(modID))
+				result[modID] = ModVerificationStatus::EXCESSIVE;
+		}
+	}
+
+	if(exact)
+	{
+		const JsonNode localMods = activeModsToJson(modList);
+		for(const auto & [rootID, localMod] : localMods.Struct())
+			if(!mods.Struct().contains(rootID))
+				result[rootID] = ModVerificationStatus::EXCESSIVE;
+	}
+
+	return result;
+}
+
+void ScenarioMetadata::throwIfModsIncompatible(const JsonNode & mods, bool exact, const ModSnapshot & modList)
+{
+	ModIncompatibility::ModList missingMods;
+	ModIncompatibility::ModList excessiveMods;
+
+	for(const auto & [modID, status] : verifyMods(mods, exact, modList))
+	{
+		if(status == ModVerificationStatus::EXCESSIVE)
+			excessiveMods.push_back(getModName(mods, modID, modList));
+		else if(status != ModVerificationStatus::VERSION_MISMATCH)
+			missingMods.push_back(getModName(mods, modID, modList));
+	}
+
+	if(!missingMods.empty() || !excessiveMods.empty())
+		throw ModIncompatibility(missingMods, excessiveMods);
+}
+
+std::string ScenarioMetadata::getModName(const JsonNode & mods, const TModID & modID, const ModSnapshot & modList)
+{
+	if(vstd::contains(modList.getInstalledMods(), modID))
+		return modList.getModDescription(modID).getName();
+
+	const TModID rootID = modID.substr(0, modID.find('.'));
+	std::string rootName = mods[rootID]["name"].String();
+	if(rootName.empty())
+		rootName = rootID;
+	return rootID == modID ? rootName : rootName + " (" + modID.substr(rootID.size() + 1) + ")";
 }

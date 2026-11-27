@@ -58,6 +58,18 @@ std::unique_ptr<CMapHeader> CMapService::loadMapHeader(const ResourcePath & name
 	return loader->loadMapHeader();
 }
 
+std::optional<ModCompatibilityInfo> CMapService::loadMapMods(const ResourcePath & name) const
+{
+	std::string modName = LIBRARY->modh->findResourceOrigin(name);
+	std::string encoding = LIBRARY->modh->getResourceEncoding(name, modName);
+
+	auto stream = getStreamFromFS(name);
+	auto loader = getMapLoader(stream, name.getName(), modName, encoding);
+	if(auto jsonLoader = dynamic_cast<CMapLoaderJson*>(loader.get()))
+		return jsonLoader->readMods();
+	return std::nullopt;
+}
+
 std::unique_ptr<CMap> CMapService::loadMap(const uint8_t * buffer, int size, const std::string & name,  const std::string & modName, const std::string & encoding, IGameInfoCallback * cb) const
 {
 	auto stream = getStreamFromMem(buffer, size);
@@ -102,34 +114,6 @@ void CMapService::saveMap(const std::unique_ptr<CMap> & map, boost::filesystem::
 		tmp.flush();
 		tmp.close();
 	}
-}
-
-ModCompatibilityInfo CMapService::verifyMapHeaderMods(const CMapHeader & map)
-{
-	const auto & activeMods = LIBRARY->modh->getActiveMods();
-	
-	ModCompatibilityInfo missingMods;
-	ModCompatibilityInfo missingModsFiltered;
-	for(const auto & mapMod : map.mods)
-	{
-		if(vstd::contains(activeMods, mapMod.first))
-		{
-			const auto & modInfo = LIBRARY->modh->getModInfo(mapMod.first);
-			if(mapMod.second.version.isNull() || modInfo.getVersion().compatible(mapMod.second.version))
-				continue;
-		}
-		missingMods[mapMod.first] = mapMod.second;
-	}
-	
-	//filter child mods
-	for(const auto & mapMod : missingMods)
-	{
-		if(!mapMod.second.parent.empty() && missingMods.count(mapMod.second.parent))
-			continue;
-		missingModsFiltered.insert(mapMod);
-	}
-	
-	return missingModsFiltered;
 }
 
 std::unique_ptr<CInputStream> CMapService::getStreamFromFS(const ResourcePath & name)

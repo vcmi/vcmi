@@ -9,11 +9,57 @@
  */
 #include "StdInc.h"
 
+#include "../../lib/GameLibrary.h"
 #include "../../lib/json/JsonNode.h"
 #include "../../lib/mapping/ScenarioMetadata.h"
+#include "../../lib/modding/CModHandler.h"
 #include "../../lib/texts/Languages.h"
 #include "../../lib/texts/MetaString.h"
 #include "../../lib/texts/TextLocalizationContainer.h"
+
+static const std::string testMod = "vcmi-test";
+static const std::string absentMod = "absent-test-mod";
+
+static JsonNode makeMetadataMods(const std::string & testModVersion, const std::vector<std::string> & testSubmods)
+{
+	JsonNode result;
+	result[absentMod]["name"].String() = "Absent";
+	result[absentMod]["version"].String() = "1.0";
+	result[absentMod]["submods"].Vector();
+	result[testMod]["name"].String() = "Test";
+	result[testMod]["version"].String() = testModVersion;
+	for(const auto & submod : testSubmods)
+		result[testMod]["submods"].Vector().emplace_back(submod);
+	return result;
+}
+
+TEST(ScenarioMetadataTest, missingSubmodsAreNotReported)
+{
+	for(const bool exact : {true, false})
+	{
+		const auto result = ScenarioMetadata::verifyMods(makeMetadataMods("1.0", {"absent"}), exact, LIBRARY->modh->getModList());
+
+		EXPECT_EQ(result.at(absentMod), ModVerificationStatus::NOT_INSTALLED);
+		EXPECT_FALSE(result.contains(testMod));
+		EXPECT_FALSE(result.contains(testMod + ".absent"));
+	}
+}
+
+TEST(ScenarioMetadataTest, saveWithoutActiveModRequiresDisablingIt)
+{
+	JsonNode mods;
+	mods.Struct();
+
+	const auto result = ScenarioMetadata::verifyMods(mods, true, LIBRARY->modh->getModList());
+
+	EXPECT_EQ(result.at(testMod), ModVerificationStatus::EXCESSIVE);
+}
+
+TEST(ScenarioMetadataTest, versionMismatchIsReported)
+{
+	for(const bool exact : {true, false})
+		EXPECT_EQ(ScenarioMetadata::verifyMods(makeMetadataMods("2.0", {}), exact, LIBRARY->modh->getModList()).at(testMod), ModVerificationStatus::VERSION_MISMATCH);
+}
 
 static ModVerificationInfo makeMod(const std::string & name, bool impactsGameplay)
 {

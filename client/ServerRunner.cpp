@@ -11,11 +11,15 @@
 
 #include "ServerRunner.h"
 
+#include "ClientLibraries.h"
+#include "GameInstance.h"
+
 #include "../lib/VCMIDirs.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/CConfigHandler.h"
 #include "../server/CVCMIServer.h"
+#include "../server/IServerLibraryReloader.h"
 
 #ifdef ENABLE_SERVER_PROCESS
 
@@ -32,6 +36,48 @@
 
 #include <future>
 
+/// Reloader of a server thread, which shares the game library of the client. The client reloads it on LobbyReloadMods
+class ThreadServerLibraryReloader final : public IServerLibraryReloader
+{
+	std::mutex mutex;
+	std::condition_variable condition;
+	std::optional<bool> clientResult;
+	bool stopped = false;
+
+public:
+	const ModManager & mods() const override
+	{
+		return GAME->libraries().mods();
+	}
+
+	bool reload(const ModSnapshot & mods, std::string & error) override
+	{
+		std::unique_lock lock(mutex);
+		condition.wait(lock, [this](){ return clientResult.has_value() || stopped; });
+		const bool success = clientResult.value_or(false);
+		clientResult.reset();
+		return success;
+	}
+
+	void onClientReloaded(bool success)
+	{
+		{
+			std::lock_guard lock(mutex);
+			clientResult = success;
+		}
+		condition.notify_all();
+	}
+
+	void stop()
+	{
+		{
+			std::lock_guard lock(mutex);
+			stopped = true;
+		}
+		condition.notify_all();
+	}
+};
+
 ServerThreadRunner::ServerThreadRunner() = default;
 ServerThreadRunner::~ServerThreadRunner() = default;
 
@@ -39,7 +85,9 @@ void ServerThreadRunner::start(bool listenForConnections, bool connectToLobby, s
 {
 	// cfgport may be 0 -- the real port is returned after calling prepare()
 	uint16_t port = settings["server"]["localPort"].Integer();
-	server = std::make_unique<CVCMIServer>(port, true);
+	auto reloader = std::make_unique<ThreadServerLibraryReloader>();
+	libraryReloader = reloader.get();
+	server = std::make_unique<CVCMIServer>(port, true, std::move(reloader));
 	lobbyMode = connectToLobby;
 
 	if (startingInfo)
@@ -63,7 +111,18 @@ void ServerThreadRunner::start(bool listenForConnections, bool connectToLobby, s
 
 void ServerThreadRunner::shutdown()
 {
+	libraryReloader->stop();
 	server->setState(EServerState::SHUTDOWN);
+}
+
+void ServerThreadRunner::onLibraryReloaded(bool success)
+{
+	libraryReloader->onClientReloaded(success);
+}
+
+bool ServerThreadRunner::sharesLibrary() const
+{
+	return true;
 }
 
 void ServerThreadRunner::wait()
@@ -128,6 +187,15 @@ void ServerProcessRunner::start(bool listenForConnections, bool connectToLobby, 
 
 	if (ec)
 		throw std::runtime_error("Failed to start server! Reason: " + ec.message());
+}
+
+void ServerProcessRunner::onLibraryReloaded(bool success)
+{
+}
+
+bool ServerProcessRunner::sharesLibrary() const
+{
+	return false;
 }
 
 void ServerProcessRunner::connect(INetworkHandler & network, INetworkClientListener & listener)

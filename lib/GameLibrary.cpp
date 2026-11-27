@@ -164,23 +164,12 @@ void initializeBaseFilesystem(bool extractArchives, bool useTestPreset)
 	CGeneralTextHandler::detectInstallParameters();
 }
 
-void setGameLibrary(std::unique_ptr<GameLibrary> library)
+std::unique_ptr<const GameLibrary> setGameLibrary(std::unique_ptr<const GameLibrary> library)
 {
-	const GameLibrary * previous = LIBRARY;
+	std::unique_ptr<const GameLibrary> previous(LIBRARY);
 	CResourceHandler::setCurrent(library ? &library->modh->getFilesystem() : nullptr);
 	LIBRARY = library.release();
-	delete previous;
-}
-
-void GameLibrary::loadModFilesystem(bool useTestPreset)
-{
-	CStopWatch loadTime;
-	modh = std::make_unique<CModHandler>(useTestPreset);
-	identifiersHandler = std::make_unique<CIdentifierStorage>(*modh);
-	logGlobal->info("\tMod handler: %d ms", loadTime.getDiff());
-
-	modh->loadModFilesystems();
-	logGlobal->info("\tMod filesystems: %d ms", loadTime.getDiff());
+	return previous;
 }
 
 template <class Handler>
@@ -189,9 +178,14 @@ void createHandler(LibraryHandlerPtr<Handler> & handler)
 	handler = std::make_unique<Handler>();
 }
 
-void GameLibrary::initializeFilesystem(bool useTestPreset)
+void GameLibrary::initializeFilesystem(const ModSnapshot & mods)
 {
-	loadModFilesystem(useTestPreset);
+	CStopWatch loadTime;
+	modh = std::make_unique<CModHandler>(mods);
+	identifiersHandler = std::make_unique<CIdentifierStorage>(*modh);
+
+	modh->loadModFilesystems();
+	logGlobal->info("\tMod filesystems: %d ms", loadTime.getDiff());
 
 	// Detect game data mode after filesystem is loaded
 	const bool hasDemoMap = modh->getRootFilesystem().existsResource(ResourcePath("MAPS/H3DEMO.H3M"));
@@ -266,12 +260,23 @@ void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 	scriptHandler = std::make_unique<scripting::LuaModule>();
 	scriptHandler->installScripting(*scriptTypeHandler);
 	modh->load(context);
-	modh->afterLoad(context);
 
 	mapFormat = std::make_unique<MapFormatSettings>(*this);
 
 	creh->buildCombatValues(*this);
 }
 
-GameLibrary::GameLibrary() = default;
+GameLibrary::GameLibrary()
+	: instanceID([]()
+	{
+		static std::atomic<uint64_t> counter = 0;
+		return ++counter;
+	}())
+{
+}
+
+uint64_t GameLibrary::getInstanceID() const
+{
+	return instanceID;
+}
 GameLibrary::~GameLibrary() = default;

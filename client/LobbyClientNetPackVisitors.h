@@ -34,6 +34,7 @@ public:
 	void visitLobbyQuickLoadInfo(LobbyQuickLoadInfo & pack) override;
 	void visitLobbyClientConnected(LobbyClientConnected & pack) override;
 	void visitLobbyClientDisconnected(LobbyClientDisconnected & pack) override;
+	void visitLobbyReloadMods(LobbyReloadMods & pack) override;
 	void visitLobbyRestartGame(LobbyRestartGame & pack) override;
 	void visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack) override;
 	void visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack) override;

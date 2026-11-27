@@ -20,6 +20,7 @@ class Graphics
 {
 	void initializeBattleGraphics();
 	void loadPaletteAndColors();
+	void loadTextColors();
 
 public:
 	using PlayerPalette = std::array<ColorRGBA, 32>;
@@ -30,6 +31,9 @@ public:
 
 	PlayerPalette neutralColorPalette;
 	ColorRGBA neutralColor;
+
+	/// Named colors of text markup from config/textColors.json, with names in lower case
+	std::map<std::string, ColorRGBA> textColors;
 
 	//for battles
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names

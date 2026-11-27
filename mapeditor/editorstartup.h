@@ -15,11 +15,13 @@
 class CConsoleHandler;
 class CBasicLogConfigurator;
 class GameLibrary;
+class ModManager;
 
 struct EditorStartup
 {
 	std::unique_ptr<CConsoleHandler> console;
 	std::unique_ptr<CBasicLogConfigurator> logConfig;
+	std::unique_ptr<ModManager> mods;
 	std::unique_ptr<GameLibrary> library;
 
 	EditorStartup();

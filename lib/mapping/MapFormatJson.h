@@ -210,6 +210,9 @@ public:
 	 */
 	void readHeader(const bool complete);
 
+	/// Reads mods required by the map without the rest of the header, which may refer to entities of these mods
+	ModCompatibilityInfo readMods();
+
 	/**
 	 * Reads complete map.
 	 */

@@ -41,6 +41,7 @@ class IGameSettings;
 class GameSettings;
 class CIdentifierStorage;
 class LibraryLoadContext;
+class ModSnapshot;
 class SpellSchoolHandler;
 class MapFormatSettings;
 class CampaignRegionsHandler;
@@ -130,8 +131,8 @@ public:
 	GameLibrary();
 	~GameLibrary();
 
-	/// Mounts filesystems of active mods. Requires initializeBaseFilesystem
-	void initializeFilesystem(bool useTestPreset = false);
+	/// Mounts filesystems of active mods from provided mod list. Requires initializeBaseFilesystem
+	void initializeFilesystem(const ModSnapshot & mods);
 
 	/// Loads all game entities
 	void initializeLibrary();
@@ -148,16 +149,19 @@ public:
 	/// Returns true if game is running with demo data files
 	bool isDemoData() const;
 
+	/// Identifier unique among libraries of this process, for caches outside of the library that must be rebuilt for another library
+	uint64_t getInstanceID() const;
+
 	GameDataMode gameDataMode = GameDataMode::SOD;
 
-	// loads filesystems of all mods
-	void loadModFilesystem(bool useTestPreset = false);
+private:
+	const uint64_t instanceID;
 };
 
 /// Mounts game data, user directories and process-wide settings. Called once per process, before any library is created. Can also extract original H3 archives
 DLL_LINKAGE void initializeBaseFilesystem(bool extractArchives, bool useTestPreset = false);
 
-/// Makes provided library and its filesystem current, then destroys previous library. Null leaves no library, with base filesystem current
-DLL_LINKAGE void setGameLibrary(std::unique_ptr<GameLibrary> library);
+/// Makes provided library and its filesystem current and returns previous library. Null leaves no library, with base filesystem current
+DLL_LINKAGE std::unique_ptr<const GameLibrary> setGameLibrary(std::unique_ptr<const GameLibrary> library);
 
 extern DLL_LINKAGE const GameLibrary * LIBRARY;

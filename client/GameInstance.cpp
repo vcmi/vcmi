@@ -11,6 +11,7 @@
 #include "GameInstance.h"
 
 #include "CPlayerInterface.h"
+#include "ClientLibraries.h"
 #include "CMT.h"
 #include "CServerHandler.h"
 #include "GameEngine.h"
@@ -20,24 +21,41 @@
 #include "mapView/mapHandler.h"
 #include "globalLobby/GlobalLobbyClient.h"
 #include "mainmenu/CMainMenu.h"
+#include "gui/CursorHandler.h"
+#include "media/IMusicPlayer.h"
+#include "render/Graphics.h"
+#include "render/IRenderHandler.h"
+#include "windows/CMessage.h"
 #include "windows/InfoWindows.h"
 
 #include "../lib/CConfigHandler.h"
+#include "../lib/AsyncRunner.h"
+#include "../lib/CStopWatch.h"
 #include "../lib/GameLibrary.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModDescription.h"
+#include "../lib/modding/ModManager.h"
+#include "../lib/texts/MetaString.h"
 #include "../lib/callback/CCallback.h"
 #include "../lib/filesystem/SavegamePath.h"
 #include "../lib/texts/CGeneralTextHandler.h"
 
 std::unique_ptr<GameInstance> GAME = nullptr;
 
-GameInstance::GameInstance()
-	: translatorInstance(std::make_unique<CompositeTranslator>())
+GameInstance::GameInstance(std::unique_ptr<ModManager> modManager)
+	: librariesInstance(std::make_unique<ClientLibraries>(std::move(modManager)))
+	, translatorInstance(std::make_unique<CompositeTranslator>())
 	, serverInstance(std::make_unique<CServerHandler>())
 	, interfaceInstance(nullptr)
 {
 }
 
 GameInstance::~GameInstance() = default;
+
+ClientLibraries & GameInstance::libraries()
+{
+	return *librariesInstance;
+}
 
 CServerHandler & GameInstance::server()
 {
@@ -69,6 +87,69 @@ std::shared_ptr<CMainMenu> GameInstance::mainmenu()
 		mainMenuInstance = std::make_shared<CMainMenu>();
 
 	return mainMenuInstance;
+}
+
+void GameInstance::createLibraryClientState()
+{
+	if (!ENGINE)
+		return;
+
+	CStopWatch timer;
+	ENGINE->initAudio();
+	graphics = new Graphics(); // should be before curh
+	ENGINE->renderHandler().onLibraryLoadingFinished(LIBRARY);
+
+	CMessage::init();
+	logGlobal->info("Message handler: %d ms", timer.getDiff());
+
+	ENGINE->cursor().init();
+	ENGINE->cursor().show();
+}
+
+void GameInstance::releaseLibraryClientState()
+{
+	server().onLibraryUnloading();
+
+	if (!ENGINE)
+		return;
+
+	ENGINE->windows().clear();
+	mainMenuInstance.reset();
+	mainMenuConfigInstance.reset();
+	ENGINE->music().stopMusic(0);
+
+	// asset tasks hold images of current library
+	ENGINE->async().wait();
+
+	CMessage::dispose();
+	delete graphics;
+	graphics = nullptr;
+	ENGINE->renderHandler().onLibraryUnloading();
+}
+
+void GameInstance::checkForModLoadingFailure()
+{
+	const auto & brokenMods = LIBRARY->modh->getModsWithFailedRequests();
+	if (brokenMods.empty())
+		return;
+
+	MetaString messageText;
+	messageText.appendTextID("vcmi.client.errors.modLoadingFailure");
+
+	for (const auto & modID : brokenMods)
+	{
+		messageText.appendRawString(LIBRARY->modh->getModInfo(modID).getName());
+		messageText.appendEOL();
+	}
+	CInfoWindow::showInfoDialog(messageText.toString(&translator()), {});
+}
+
+const CMainMenuConfig & GameInstance::mainMenuConfig()
+{
+	if (!mainMenuConfigInstance)
+		mainMenuConfigInstance = std::make_unique<CMainMenuConfig>();
+
+	return *mainMenuConfigInstance;
 }
 
 CPlayerInterface * GameInstance::interface()
@@ -107,6 +188,10 @@ void GameInstance::onGlobalLobbyInterfaceActivated()
 
 void GameInstance::onUpdate()
 {
+	// main menu with nothing above it: lobby, game, epilogue and their message windows are gone
+	if (librariesInstance->isReturnRequested() && mainMenuInstance && ENGINE->windows().isTopWindow(mainMenuInstance->menu) && !serverInstance->logicConnection)
+		returnToHomeLibrary();
+
 	if (interfaceInstance)
 		interfaceInstance->update();
 }
@@ -140,6 +225,16 @@ bool GameInstance::wantsFrameRendered()
 		return mapInstance->hasOngoingAnimations();
 
 	return true;
+}
+
+void GameInstance::returnToHomeLibrary()
+{
+	const size_t tab = mainMenuInstance->menu->getActiveTab();
+	librariesInstance->returnToHomeLibrary([this, tab](bool success)
+	{
+		serverInstance->showMainMenu();
+		mainmenu()->menu->switchToTab(tab);
+	});
 }
 
 void GameInstance::onShutdownRequested(bool ask)

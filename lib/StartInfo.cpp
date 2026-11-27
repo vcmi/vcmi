@@ -19,8 +19,8 @@
 #include "mapping/CMapInfo.h"
 #include "campaign/CampaignState.h"
 #include "mapping/CMapHeader.h"
-#include "mapping/CMapService.h"
-#include "modding/ModIncompatibility.h"
+#include "mapping/ScenarioMetadata.h"
+#include "modding/CModHandler.h"
 #include "serializer/JsonSerializeFormat.h"
 
 PlayerSettings::PlayerSettings()
@@ -104,13 +104,7 @@ void LobbyInfo::verifyStateBeforeStart(bool ignoreNoHuman) const
 	if(!mi || !mi->mapHeader)
 		throw std::domain_error(LIBRARY->generaltexth->translate("core.genrltxt.529"));
 	
-	auto missingMods = CMapService::verifyMapHeaderMods(*mi->mapHeader);
-	ModIncompatibility::ModList modList;
-	for(const auto & m : missingMods)
-		modList.push_back(m.second.name);
-	
-	if(!modList.empty())
-		throw ModIncompatibility(modList);
+	ScenarioMetadata::throwIfModsIncompatible(ScenarioMetadata::modsToJson(mi->mapHeader->mods), false, LIBRARY->modh->getModList());
 
 	//there must be at least one human player before game can be started
 	std::map<PlayerColor, PlayerSettings>::const_iterator i;

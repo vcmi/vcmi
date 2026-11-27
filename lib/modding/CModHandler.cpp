@@ -13,7 +13,6 @@
 #include "ContentTypeHandler.h"
 #include "LibraryLoadContext.h"
 #include "ModDescription.h"
-#include "ModManager.h"
 #include "ModScope.h"
 
 #include "../CConfigHandler.h"
@@ -30,8 +29,8 @@
 #include <tbb/parallel_invoke.h>
 #include <zlib.h>
 
-CModHandler::CModHandler(bool useTestPreset)
-	: modManager(std::make_unique<ModManager>(JsonNode(), useTestPreset))
+CModHandler::CModHandler(ModSnapshot mods)
+	: mods(std::move(mods))
 {
 }
 
@@ -53,19 +52,24 @@ const std::vector<TModID> & CModHandler::getModsWithFailedRequests() const
 	return modsWithFailedRequests;
 }
 
-std::vector<std::string> CModHandler::getAllMods() const
+const ModSnapshot & CModHandler::getModList() const
 {
-	return modManager->getAllMods();
+	return mods;
+}
+
+std::vector<std::string> CModHandler::getInstalledMods() const
+{
+	return mods.getInstalledMods();
 }
 
 const std::vector<std::string> & CModHandler::getActiveMods() const
 {
-	return modManager->getActiveMods();
+	return mods.getActiveMods();
 }
 
 const ModDescription & CModHandler::getModInfo(const TModID & modId) const
 {
-	return modManager->getModDescription(modId);
+	return mods.getModDescription(modId);
 }
 
 static JsonNode genDefaultFS()
@@ -161,16 +165,16 @@ static std::unique_ptr<ISimpleResourceLoader> genModFilesystem(const std::string
 void CModHandler::loadModFilesystems()
 {
 	// virtual mod 'core' has no filesystem on its own - shared with base install
-	std::vector<TModID> mods;
-	std::ranges::copy_if(modManager->getActiveMods(), std::back_inserter(mods), [](const TModID & modName){ return modName != ModScope::scopeBuiltin(); });
+	std::vector<TModID> modsToMount;
+	std::ranges::copy_if(mods.getActiveMods(), std::back_inserter(modsToMount), [](const TModID & modName){ return modName != ModScope::scopeBuiltin(); });
 
 	// mod filesystems are independent from each other, and their creation is dominated by reading of archive indexes
-	TModFilesystems modFilesystems(mods.size());
-	tbb::parallel_for(tbb::blocked_range<size_t>(0, mods.size()), [&](const tbb::blocked_range<size_t> & range)
+	TModFilesystems modFilesystems(modsToMount.size());
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, modsToMount.size()), [&](const tbb::blocked_range<size_t> & range)
 	{
 		for(size_t i = range.begin(); i != range.end(); ++i)
 		{
-			const TModID & modName = mods[i];
+			const TModID & modName = modsToMount[i];
 			modFilesystems[i] = {modName, genModFilesystem(modName, getModInfo(modName).getFilesystemConfig())};
 		}
 	});
@@ -212,7 +216,7 @@ void CModHandler::checkModFilesystemsConflicts(const TModFilesystems & modFilesy
 
 TModID CModHandler::findResourceOrigin(const ResourcePath & name) const
 {
-	const auto & activeMode = modManager->getActiveMods();
+	const auto & activeMode = mods.getActiveMods();
 	for(const auto & modID : std::views::reverse(activeMode))
 	{
 		if(filesystem->getLoader(modID)->existsResource(name))
@@ -283,9 +287,9 @@ const std::set<TModID> & CModHandler::getModDependencies(const TModID & modId, b
 {
 	static const std::set<TModID> noDependencies;
 
-	isModFound = modManager->isModActive(modId);
+	isModFound = mods.isModActive(modId);
 	if (isModFound)
-		return modManager->getModDescription(modId).getDependencies();
+		return mods.getModDescription(modId).getDependencies();
 
 	logMod->error("Mod not found: '%s'", modId);
 	return noDependencies;
@@ -387,14 +391,14 @@ void CModHandler::addFileFormats(JsonValidator & validator) const
 
 std::set<TModID> CModHandler::getModSoftDependencies(const TModID & modId) const
 {
-	return modManager->getModDescription(modId).getSoftDependencies();
+	return mods.getModDescription(modId).getSoftDependencies();
 }
 
 std::set<TModID> CModHandler::getModEnabledSoftDependencies(const TModID & modId) const
 {
 	std::set<TModID> softDependencies = getModSoftDependencies(modId);
 
-	vstd::erase_if(softDependencies, [this](const TModID & dependency){ return !modManager->isModActive(dependency);});
+	vstd::erase_if(softDependencies, [this](const TModID & dependency){ return !mods.isModActive(dependency);});
 
 	return softDependencies;
 }
@@ -588,22 +592,21 @@ void CModHandler::load(LibraryLoadContext & context)
 	context.modContent.clear();
 	modsWithFailedRequests = context.resolver.getModsWithFailedRequests();
 
+	for(const TModID & modName : activeMods)
+	{
+		if(context.validationPassed.count(modName))
+			validatedChecksums[modName] = context.modChecksums.at(modName);
+		else
+			validatedChecksums[modName] = std::nullopt;
+	}
+
 	logMod->info("\tHandlers post-load finalization");
 	logMod->info("\tAll game content loaded");
 }
 
-void CModHandler::afterLoad(const LibraryLoadContext & context)
+const std::map<TModID, std::optional<uint32_t>> & CModHandler::getValidatedChecksums() const
 {
-	JsonNode modSettings;
-	for (const auto & modEntry : getActiveMods())
-	{
-		if (context.validationPassed.count(modEntry))
-			modManager->setValidatedChecksum(modEntry, context.modChecksums.at(modEntry));
-		else
-			modManager->setValidatedChecksum(modEntry, std::nullopt);
-	}
-
-	modManager->saveConfigurationState();
+	return validatedChecksums;
 }
 
 bool CModHandler::isModValidationNeeded(const LibraryLoadContext & context, const ModDescription & mod) const
@@ -611,7 +614,7 @@ bool CModHandler::isModValidationNeeded(const LibraryLoadContext & context, cons
 	if (context.validation == EContentValidation::FULL)
 		return true;
 
-	if (modManager->getValidatedChecksum(mod.getID()) == context.modChecksums.at(mod.getID()))
+	if (mods.getValidatedChecksum(mod.getID()) == context.modChecksums.at(mod.getID()))
 		return false;
 
 	if (context.validation == EContentValidation::OFF)

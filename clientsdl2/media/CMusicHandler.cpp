@@ -58,7 +58,9 @@ CMusicHandler::CMusicHandler():
 	{
 		Mix_HookMusicFinished([]()
 		{
-			ENGINE->music().musicFinishedCallback();
+			// on main thread, since SDL calls this with its mixer lock held, and queueNext() takes both locks in reverse order
+			// handler is looked up only there, as it is replaced on game library reload
+			ENGINE->dispatchMainThread([](){ ENGINE->music().musicFinishedCallback(); });
 		});
 	}
 }
@@ -178,34 +180,21 @@ void CMusicHandler::setVolume(ui32 percent)
 
 void CMusicHandler::musicFinishedCallback()
 {
-	// call music restart in separate thread to avoid deadlock in some cases
-	// It is possible for:
-	// 1) SDL thread to call this method on end of playback
-	// 2) VCMI code to call queueNext() method to queue new file
-	// this leads to:
-	// 1) SDL thread waiting to acquire music lock in this method (while keeping internal SDL mutex locked)
-	// 2) VCMI thread waiting to acquire internal SDL mutex (while keeping music mutex locked)
+	std::unique_lock lockGuard(mutex);
+	if(current != nullptr)
+	{
+		// if music is looped, play it again
+		if(current->play())
+			return;
+		else
+			current.reset();
+	}
 
-	ENGINE->dispatchMainThread(
-		[this]()
-		{
-			std::unique_lock lockGuard(mutex);
-			if(current != nullptr)
-			{
-				// if music is looped, play it again
-				if(current->play())
-					return;
-				else
-					current.reset();
-			}
-
-			if(current == nullptr && next != nullptr)
-			{
-				current.reset(next.release());
-				current->play();
-			}
-		}
-		);
+	if(current == nullptr && next != nullptr)
+	{
+		current.reset(next.release());
+		current->play();
+	}
 }
 
 MusicEntry::MusicEntry(CMusicHandler * owner, std::string setName, const AudioPath & musicURI, bool looped, bool fromStart)

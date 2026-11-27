@@ -216,20 +216,16 @@ WikiIconInfo terrainIconInfo(const TerrainType * terrain)
 
 std::string wikiGenderSpan(bool isFemale)
 {
-	// Check once whether FONT_SMALL can render ♂ (U+2642, UTF-8: e2 99 82).
-	static std::optional<bool> glyphSupported;
-	if(!glyphSupported)
-	{
-		auto font = ENGINE->renderHandler().loadFont(EFonts::FONT_SMALL);
-		const char maleGlyph[] = "\xe2\x99\x82";
-		glyphSupported = font && font->canRepresentCharacter(maleGlyph);
-	}
+	// FONT_SMALL may lack ♂ (U+2642, UTF-8: e2 99 82)
+	auto font = ENGINE->renderHandler().loadFont(EFonts::FONT_SMALL);
+	const char maleGlyph[] = "\xe2\x99\x82";
+	const bool glyphSupported = font && font->canRepresentCharacter(maleGlyph);
 
 	const char * femaleColor = "#FF69B4";
 	const char * maleColor   = "#5080FF";
 	const char * color = isFemale ? femaleColor : maleColor;
 
-	if(*glyphSupported)
+	if(glyphSupported)
 	{
 		const char * glyph = isFemale ? "\xe2\x99\x80" : "\xe2\x99\x82";
 		return std::string("{") + color + "|" + glyph + "}";

@@ -15,6 +15,11 @@
 #include "../../lib/filesystem/SavegamePath.h"
 #include "../../lib/gameState/SaveMetadata.h"
 #include "../../lib/json/JsonValidator.h"
+#include "../../lib/GameLibrary.h"
+#include "../../lib/mapping/CMapService.h"
+#include "../../lib/mapping/ScenarioMetadata.h"
+#include "../../lib/modding/CModHandler.h"
+#include "../../lib/serializer/CLoadFile.h"
 #include "../../lib/serializer/SaveFileFormat.h"
 
 #include <tbb/parallel_for.h>
@@ -71,6 +76,26 @@ ScenarioListBuilder::ScenarioListBuilder(ScenarioListEntry::EType type, ELoadMod
 	}
 }
 
+ScenarioListEntry ScenarioListBuilder::readEntry(const ResourcePath & file) const
+{
+	if(!lastWriteTimes.contains(file))
+		throw std::runtime_error("File " + file.getOriginalName() + " is not found");
+
+	switch(type)
+	{
+		case ScenarioListEntry::EType::MAP:
+			return readMap(file);
+		case ScenarioListEntry::EType::CAMPAIGN:
+			return readCampaign(file);
+		case ScenarioListEntry::EType::SAVE:
+		{
+			JsonValidator validator;
+			return readSave(file, validator);
+		}
+	}
+	throw std::runtime_error("Invalid scenario list type");
+}
+
 ScenarioListBuilder::FolderFiles ScenarioListBuilder::splitFolder(const std::vector<ResourcePath> & files, const std::string & folder)
 {
 	FolderFiles result;
@@ -115,7 +140,12 @@ ScenarioList ScenarioListBuilder::build(const std::string & folder) const
 		for(const auto & file : subfolder)
 			entry.lastWrite = std::max(entry.lastWrite, lastWriteTimes.at(file));
 		if(type == ScenarioListEntry::EType::SAVE)
-			entry.compatible = isFolderCompatible(subfolder);
+		{
+			const auto status = getFolderStatus(subfolder);
+			if(!status)
+				continue;
+			entry.status = *status;
+		}
 		result.subfolders.push_back(entry);
 	}
 
@@ -126,7 +156,9 @@ static const ScenarioListEntry * findNewestEntry(const ScenarioList & list)
 {
 	const ScenarioListEntry * result = nullptr;
 	for(const auto & entry : list.entries)
-		if(!result || entry.lastWrite > result->lastWrite || (entry.lastWrite == result->lastWrite && entry.fileURI > result->fileURI))
+		if(entry.getStatus() != ScenarioListEntry::EStatus::COMPATIBLE)
+			continue;
+		else if(!result || entry.lastWrite > result->lastWrite || (entry.lastWrite == result->lastWrite && entry.fileURI > result->fileURI))
 			result = &entry;
 	return result;
 }
@@ -146,7 +178,7 @@ std::optional<ScenarioList> ScenarioListBuilder::buildFolderOf(const std::string
 	const ResourcePath file(fileName, getResourceType(type));
 	for(const auto & entry : list.entries)
 	{
-		if(boost::algorithm::iequals(entry.fileURI, file.getName()))
+		if(entry.getStatus() == ScenarioListEntry::EStatus::COMPATIBLE && boost::algorithm::iequals(entry.fileURI, file.getName()))
 		{
 			selectedFile = entry.fileURI;
 			return list;
@@ -177,9 +209,10 @@ ScenarioList ScenarioListBuilder::buildForSave(const std::string & saveName, std
 	};
 	std::vector<Candidate> candidates;
 	for(const auto & entry : root.entries)
-		candidates.push_back({entry.lastWrite, entry.fileURI, false});
+		if(entry.getStatus() == ScenarioListEntry::EStatus::COMPATIBLE)
+			candidates.push_back({entry.lastWrite, entry.fileURI, false});
 	for(const auto & folder : root.subfolders)
-		if(folder.compatible != false)
+		if(folder.status == ScenarioListEntry::EStatus::COMPATIBLE)
 			candidates.push_back({folder.lastWrite, folder.name, true});
 
 	std::ranges::sort(candidates, [](const Candidate & lhs, const Candidate & rhs)
@@ -212,50 +245,138 @@ std::vector<ScenarioListEntry> ScenarioListBuilder::parseMapsOrCampaigns(const s
 {
 	auto timeStart = std::chrono::steady_clock::now();
 
-	// every entry is written by a single thread only, entries of failed files stay empty
-	std::vector<std::optional<ScenarioListEntry>> entries(folderFiles.size());
+	// every entry is written by a single thread only
+	std::vector<ScenarioListEntry> entries(folderFiles.size());
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, folderFiles.size()), [&](const tbb::blocked_range<size_t> & r)
 	{
 		for(auto i = r.begin(); i != r.end(); i++)
 		{
 			const auto & file = folderFiles[i];
-			try
-			{
-				if(type == ScenarioListEntry::EType::CAMPAIGN)
-				{
-					entries[i] = ScenarioListEntry::fromCampaign(file);
-					continue;
-				}
-
-				auto entry = ScenarioListEntry::fromMap(file);
-				if(entry.getMapFormatSettings()["supported"].Bool())
-					entries[i] = std::move(entry);
-			}
-			catch(const std::exception & e)
-			{
-				logGlobal->error("File %s is invalid. Message: %s", file.getName(), e.what());
-			}
+			entries[i] = type == ScenarioListEntry::EType::CAMPAIGN ? readCampaign(file) : readMap(file);
 		}
 	});
 
-	std::vector<ScenarioListEntry> result;
-	for(auto & entry : entries)
-		if(entry)
-			result.push_back(std::move(*entry));
-
 	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
 	logGlobal->debug("Parsing %d maps or campaigns took %d ms", folderFiles.size(), timeElapsed.count());
+	return entries;
+}
+
+ScenarioListEntry ScenarioListBuilder::createUnreadableEntry(const ResourcePath & file, ScenarioListEntry::EProblem problem, const std::string & error) const
+{
+	ScenarioListEntry result;
+	result.type = type;
+	result.fileURI = type == ScenarioListEntry::EType::SAVE ? file.getName() : file.getOriginalName();
+	result.originalFileURI = file.getOriginalName();
+	result.lastWrite = lastWriteTimes.at(file);
+	result.problem = problem;
+	result.error = error;
 	return result;
+}
+
+ScenarioListEntry ScenarioListBuilder::readCampaign(const ResourcePath & file) const
+{
+	try
+	{
+		// maps of the campaign are not read, so mods required by them are found only on start
+		auto entry = ScenarioListEntry::fromCampaign(file);
+		verifyMapFormat(entry);
+		return entry;
+	}
+	catch(const std::exception & e) // NOSONAR: malformed campaigns can throw several exception types
+	{
+		logGlobal->error("Failed to read campaign %s: %s", file.getOriginalName(), e.what());
+		return createUnreadableEntry(file, ScenarioListEntry::EProblem::INVALID_FILE, e.what());
+	}
+}
+
+ScenarioListEntry ScenarioListBuilder::readMap(const ResourcePath & file) const
+{
+	ScenarioListEntry entry;
+	try
+	{
+		entry = ScenarioListEntry::fromMap(file);
+	}
+	catch(const std::exception & e) // NOSONAR: malformed maps can throw several exception types
+	{
+		logGlobal->error("Failed to read map %s: %s", file.getOriginalName(), e.what());
+		entry = createUnreadableEntry(file, ScenarioListEntry::EProblem::INVALID_FILE, e.what());
+
+		// header of a map may refer to entities of mods that are not active
+		try
+		{
+			const auto mods = CMapService().loadMapMods(file);
+			if(!mods)
+				return entry;
+			entry.metadata["mods"] = ScenarioMetadata::modsToJson(*mods);
+			entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], false, LIBRARY->modh->getModList());
+			// version mismatch alone does not explain failure to read the map
+			const bool modsPreventLoading = std::ranges::any_of(entry.mods, [](const auto & mod){ return mod.second != ModVerificationStatus::VERSION_MISMATCH; });
+			if(modsPreventLoading)
+				entry.problem = ScenarioListEntry::EProblem::MODS;
+		}
+		catch(const std::exception & modsError) // NOSONAR: malformed maps can throw several exception types
+		{
+			logGlobal->error("Failed to read mods of map %s: %s", file.getOriginalName(), modsError.what());
+		}
+		return entry;
+	}
+
+	entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], false, LIBRARY->modh->getModList());
+	if(!entry.mods.empty())
+		entry.problem = ScenarioListEntry::EProblem::MODS;
+	verifyMapFormat(entry);
+	return entry;
+}
+
+void ScenarioListBuilder::verifyMapFormat(ScenarioListEntry & entry)
+{
+	if(!entry.getMapFormatSettings()["supported"].Bool())
+		entry.problem = ScenarioListEntry::EProblem::MAP_FORMAT;
+}
+
+ScenarioListEntry ScenarioListBuilder::readSave(const ResourcePath & file, JsonValidator & validator) const
+{
+	try
+	{
+		auto entry = ScenarioListEntry::fromSave(file, validator);
+		entry.mods = ScenarioMetadata::verifyMods(entry.metadata["mods"], true, LIBRARY->modh->getModList());
+		if(!entry.mods.empty())
+			entry.problem = ScenarioListEntry::EProblem::MODS;
+		return entry;
+	}
+	catch(const SaveTooOldException & e)
+	{
+		logGlobal->warn("Saved game %s is too old: %s", file.getOriginalName(), e.what());
+		return createUnreadableEntry(file, ScenarioListEntry::EProblem::SAVE_TOO_OLD, e.what());
+	}
+	catch(const SaveTooNewException & e)
+	{
+		logGlobal->warn("Saved game %s is too new: %s", file.getOriginalName(), e.what());
+		auto entry = createUnreadableEntry(file, ScenarioListEntry::EProblem::SAVE_TOO_NEW, e.what());
+		try
+		{
+			entry.metadata = SaveMetadata::parse(CLoadFile::readMetadata(*CResourceHandler::get()->getResourceName(file)), file.getOriginalName(), validator);
+		}
+		catch(const std::exception & metadataError) // NOSONAR: metadata of a newer version may be invalid in several ways
+		{
+			logGlobal->warn("Failed to read metadata of %s: %s", file.getOriginalName(), metadataError.what());
+		}
+		return entry;
+	}
+	catch(const std::exception & e) // NOSONAR: malformed saves can throw several exception types
+	{
+		logGlobal->error("Failed to read saved game %s: %s", file.getOriginalName(), e.what());
+		return createUnreadableEntry(file, ScenarioListEntry::EProblem::INVALID_FILE, e.what());
+	}
 }
 
 std::vector<ScenarioListEntry> ScenarioListBuilder::parseSaves(const std::vector<ResourcePath> & folderFiles, std::vector<std::string> & unsupportedSaves) const
 {
 	auto timeStart = std::chrono::steady_clock::now();
 
-	// every entry is written by a single thread only, entries of failed saves stay empty
+	// every entry is written by a single thread only, entries of saves of other load modes stay empty
 	std::vector<std::optional<ScenarioListEntry>> entries(folderFiles.size());
-	std::vector<uint8_t> isUnsupported(folderFiles.size(), 0);
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, folderFiles.size()), [&](const tbb::blocked_range<size_t> & r)
 	{
@@ -263,34 +384,20 @@ std::vector<ScenarioListEntry> ScenarioListBuilder::parseSaves(const std::vector
 		JsonValidator validator;
 		for(auto i = r.begin(); i != r.end(); i++)
 		{
-			const auto & file = folderFiles[i];
-			try
-			{
-				auto entry = ScenarioListEntry::fromSave(file, validator);
-				SaveMetadata::verifyMods(entry.metadata);
-
-				if(isSaveCompatible(entry, loadMode))
-					entries[i] = std::move(entry);
-			}
-			catch(const SaveTooOldException & e)
-			{
-				isUnsupported[i] = 1;
-				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
-			}
-			catch(const std::exception & e)
-			{
-				logGlobal->error("Error: Failed to process %s: %s", file.getName(), e.what());
-			}
+			auto entry = readSave(folderFiles[i], validator);
+			if(isSaveCompatible(entry, loadMode))
+				entries[i] = std::move(entry);
 		}
 	});
 
 	std::vector<ScenarioListEntry> result;
-	for(size_t i = 0; i < folderFiles.size(); i++)
+	for(auto & entry : entries)
 	{
-		if(entries[i])
-			result.push_back(std::move(*entries[i]));
-		if(isUnsupported[i])
-			unsupportedSaves.push_back(folderFiles[i].getName());
+		if(!entry)
+			continue;
+		if(entry->problem == ScenarioListEntry::EProblem::SAVE_TOO_OLD)
+			unsupportedSaves.push_back(entry->fileURI);
+		result.push_back(std::move(*entry));
 	}
 
 	auto timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - timeStart);
@@ -298,7 +405,7 @@ std::vector<ScenarioListEntry> ScenarioListBuilder::parseSaves(const std::vector
 	return result;
 }
 
-std::optional<bool> ScenarioListBuilder::isFolderCompatible(std::vector<ResourcePath> folderFiles) const
+std::optional<ScenarioListEntry::EStatus> ScenarioListBuilder::getFolderStatus(std::vector<ResourcePath> folderFiles) const
 {
 	// Autosaves always stay in their game's directory, unlike stray manual saves.
 	std::ranges::sort(folderFiles, [this](const ResourcePath & lhs, const ResourcePath & rhs)
@@ -318,24 +425,23 @@ std::optional<bool> ScenarioListBuilder::isFolderCompatible(std::vector<Resource
 	JsonValidator validator;
 	for(const auto & file : folderFiles)
 	{
-		try
-		{
-			const auto entry = ScenarioListEntry::fromSave(file, validator);
-			SaveMetadata::verifyMods(entry.metadata);
-			return isSaveCompatible(entry, loadMode);
-		}
-		catch(const std::exception & e) // NOSONAR: malformed saves can throw several exception types
-		{
-			logGlobal->debug("Failed to inspect representative save %s: %s", file.getOriginalName(), e.what());
-		}
+		const auto entry = readSave(file, validator);
+		if(entry.metadata["game"].isNull())
+			continue;
+		if(!isSaveCompatible(entry, loadMode))
+			return std::nullopt;
+		return entry.getStatus();
 	}
 
 	// Keep unreadable folders visible so that their saves are never hidden from the player.
-	return std::nullopt;
+	return ScenarioListEntry::EStatus::COMPATIBLE;
 }
 
 bool ScenarioListBuilder::isSaveCompatible(const ScenarioListEntry & entry, ELoadMode loadMode)
 {
+	if(entry.metadata["game"].isNull())
+		return true;
+
 	const bool isCampaign = entry.isCampaignSave();
 	const bool isMultiplayer = entry.getHumanPlayersInSave() > 1;
 	const bool isTutorial = entry.isTutorialSave();

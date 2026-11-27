@@ -10,14 +10,15 @@
 
 #include "StdInc.h"
 #include "Colors.h"
+#include "Graphics.h"
 
-#include "../../lib/json/JsonNode.h"
 
 #include <boost/algorithm/hex.hpp>
 
 const ColorRGBA Colors::YELLOW = { 229, 215, 123, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::WHITE = { 255, 243, 222, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::WHITE_TRUE = { 255, 255, 255, ColorRGBA::ALPHA_OPAQUE };
+const ColorRGBA Colors::GRAY = { 160, 160, 160, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::METALLIC_GOLD = { 173, 142, 66, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::GREEN = { 0, 255, 0, ColorRGBA::ALPHA_OPAQUE };
 const ColorRGBA Colors::CYAN = { 0, 255, 255, ColorRGBA::ALPHA_OPAQUE };
@@ -41,15 +42,9 @@ std::optional<ColorRGBA> Colors::parseColor(std::string text)
 		return ColorRGBA(rgb[0], rgb[1], rgb[2]);
 	}
 
-	static const JsonNode config(JsonPath::builtin("CONFIG/textColors"));
-	auto colors = config["colors"].Struct();
-	for(auto & color : colors) {
-		if(boost::algorithm::to_lower_copy(color.first) == boost::algorithm::to_lower_copy(text))
-		{
-			boost::algorithm::unhex(color.second.String(), std::back_inserter(rgb)); 
-			return ColorRGBA(rgb[0], rgb[1], rgb[2]);
-		}
-	}
+	const auto namedColor = graphics->textColors.find(boost::algorithm::to_lower_copy(text));
+	if(namedColor != graphics->textColors.end())
+		return namedColor->second;
 
 	return std::nullopt;
 }

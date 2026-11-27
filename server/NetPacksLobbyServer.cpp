@@ -21,6 +21,7 @@
 #include "../lib/GameLibrary.h"
 #include "../lib/modding/CModHandler.h"
 #include "../lib/modding/ModDescription.h"
+#include "../lib/modding/ModIncompatibility.h"
 
 #include "../lib/CRandomGenerator.h"
 #include "../lib/campaign/CampaignHandler.h"
@@ -28,6 +29,8 @@
 #include "../lib/filesystem/Filesystem.h"
 #include "../lib/filesystem/SavegamePath.h"
 #include "../lib/gameState/CGameState.h"
+#include "../lib/gameState/SaveMetadata.h"
+#include "../lib/json/JsonValidator.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/mapping/CMapHeader.h"
@@ -322,8 +325,14 @@ static std::shared_ptr<CMapInfo> createMapInfo(const LobbySetMap & pack, const B
 			mapInfo->mapInit(pack.selection.fileURI);
 			break;
 		case ScenarioSelection::EType::SAVE:
-			mapInfo->saveInit(ResourcePath(pack.selection.fileURI, EResType::SAVEGAME));
+		{
+			// header of a save made with other mods may be read without error but refer to wrong entities
+			const ResourcePath file(pack.selection.fileURI, EResType::SAVEGAME);
+			JsonValidator validator;
+			SaveMetadata::verifyMods(ScenarioListEntry::fromSave(file, validator).metadata);
+			mapInfo->saveInit(file);
 			break;
+		}
 		case ScenarioSelection::EType::CAMPAIGN:
 			mapInfo->fileURI = pack.selection.fileURI;
 			mapInfo->campaignInit();
@@ -339,6 +348,22 @@ static std::shared_ptr<CMapInfo> createMapInfo(const LobbySetMap & pack, const B
 	return mapInfo;
 }
 
+/// Returns entry of the selected file with its status against active mods, nullopt for selections without a listed file
+static std::optional<ScenarioListEntry> readSelectedEntry(const ScenarioSelection & selection)
+{
+	switch(selection.type)
+	{
+		case ScenarioSelection::EType::MAP:
+			return ScenarioListBuilder(ScenarioListEntry::EType::MAP, ELoadMode::NONE).readEntry(ResourcePath(selection.fileURI, EResType::MAP));
+		case ScenarioSelection::EType::CAMPAIGN:
+			return ScenarioListBuilder(ScenarioListEntry::EType::CAMPAIGN, ELoadMode::NONE).readEntry(ResourcePath(selection.fileURI, EResType::CAMPAIGN));
+		case ScenarioSelection::EType::SAVE:
+			return ScenarioListBuilder(ScenarioListEntry::EType::SAVE, ELoadMode::NONE).readEntry(ResourcePath(selection.fileURI, EResType::SAVEGAME));
+		default:
+			return std::nullopt;
+	}
+}
+
 void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 {
 	if(srv.getState() != EServerState::LOBBY)
@@ -347,10 +372,40 @@ void ApplyOnServerNetPackVisitor::visitLobbySetMap(LobbySetMap & pack)
 		return;
 	}
 
+	if(pack.reloadMods)
+	{
+		std::optional<ScenarioListEntry> entry;
+		try
+		{
+			entry = readSelectedEntry(pack.selection);
+		}
+		catch(const std::runtime_error & e)
+		{
+			// loading below reports the error to the host
+			logGlobal->error("Failed to read %s: %s", pack.selection.fileURI, e.what());
+		}
+
+		// selection that needs no reload is selected as usual, an incompatible one fails to load below
+		const bool needsReload = entry && entry->getStatus() == ScenarioListEntry::EStatus::MODS_INACTIVE;
+		if(needsReload && !srv.reloadLibrary(entry->metadata["mods"], entry->isExactModList(), pack.selection.fileURI, connection))
+		{
+			result = false;
+			return;
+		}
+	}
+
 	std::shared_ptr<CMapInfo> mapInfo;
 	try
 	{
 		mapInfo = createMapInfo(pack, srv.battleOnlyModeStartInfo.get());
+	}
+	catch(const ModIncompatibility & e)
+	{
+		logGlobal->error("Failed to load %s: %s", pack.selection.fileURI, e.what());
+
+		LobbyShowMessage message;
+		message.message.appendRawString(e.getFullErrorMsg());
+		connection->sendPack(message);
 	}
 	catch(const std::exception & e)
 	{
@@ -752,7 +807,11 @@ void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScen
 {
 	const ScenarioListBuilder builder(pack.type, pack.loadMode);
 	LobbyScenarioList reply;
-	if(pack.selectLast && pack.type == ScenarioListEntry::EType::MAP)
+	if(!pack.selectFile.empty() && pack.type == ScenarioListEntry::EType::SAVE)
+		reply.list = builder.buildForSave(pack.selectFile, reply.selectedFile);
+	else if(!pack.selectFile.empty())
+		reply.list = builder.buildForFile(pack.selectFile, reply.selectedFile);
+	else if(pack.selectLast && pack.type == ScenarioListEntry::EType::MAP)
 		reply.list = builder.buildForFile(LastScenarios::getMap(), reply.selectedFile);
 	else if(pack.selectLast && pack.type == ScenarioListEntry::EType::CAMPAIGN)
 		reply.list = builder.buildForFile(LastScenarios::getCampaign(), reply.selectedFile);
@@ -765,6 +824,7 @@ void ApplyOnServerNetPackVisitor::visitLobbyRequestScenarioList(LobbyRequestScen
 	srv.lastScenarioListRequest = pack;
 	srv.lastScenarioListRequest->folder = reply.list.folder;
 	srv.lastScenarioListRequest->selectLast = false;
+	srv.lastScenarioListRequest->selectFile.clear();
 	result = false;
 }
 

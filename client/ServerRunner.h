@@ -14,6 +14,7 @@ class INetworkHandler;
 class INetworkClientListener;
 
 class CVCMIServer;
+class ThreadServerLibraryReloader;
 
 class IServerRunner
 {
@@ -25,6 +26,11 @@ public:
 
 	virtual void connect(INetworkHandler & network, INetworkClientListener & listener) = 0;
 
+	/// Called after the client has reloaded its game library on LobbyReloadMods
+	virtual void onLibraryReloaded(bool success) = 0;
+	/// Returns true if the server uses the game library of the client, so it keeps its library when the client fails to load another one
+	virtual bool sharesLibrary() const = 0;
+
 	virtual ~IServerRunner() = default;
 };
 
@@ -32,6 +38,8 @@ public:
 class ServerThreadRunner final : public IServerRunner, boost::noncopyable
 {
 	std::unique_ptr<CVCMIServer> server;
+	/// Owned by server
+	ThreadServerLibraryReloader * libraryReloader = nullptr;
 	std::thread threadRunLocalServer;
 	uint16_t serverPort = 0;
 	bool lobbyMode = false;
@@ -43,6 +51,8 @@ public:
 	int exitCode() override;
 
 	void connect(INetworkHandler & network, INetworkClientListener & listener) override;
+	void onLibraryReloaded(bool success) override;
+	bool sharesLibrary() const override;
 
 	ServerThreadRunner();
 	~ServerThreadRunner();
@@ -80,6 +90,8 @@ public:
 	int exitCode() override;
 
 	void connect(INetworkHandler & network, INetworkClientListener & listener) override;
+	void onLibraryReloaded(bool success) override;
+	bool sharesLibrary() const override;
 
 	ServerProcessRunner();
 	~ServerProcessRunner();

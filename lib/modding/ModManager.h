@@ -14,6 +14,7 @@
 
 class JsonNode;
 class ModDescription;
+class ModSnapshot;
 struct CModVersion;
 
 using TModID = std::string;
@@ -79,7 +80,19 @@ public:
 
 	/// Returns list of all known settings (submods) for a specified mod
 	std::map<TModID, bool> getModSettings(const TModID & modID) const;
-	std::optional<uint32_t> getValidatedChecksum(const TModID & modName) const;
+
+	void saveConfigurationState() const;
+};
+
+/// Stores checksums of mods that have passed validation, to skip validation of unchanged mods on next load
+class ModsValidationState : boost::noncopyable
+{
+	JsonNode checksums;
+
+public:
+	ModsValidationState();
+
+	std::map<TModID, uint32_t> getValidatedChecksums() const;
 	void setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value);
 
 	void saveConfigurationState() const;
@@ -90,10 +103,16 @@ class ModsStorage : boost::noncopyable
 {
 	std::map<TModID, ModDescription> mods;
 
+	/// Root mods that affect gameplay themselves or through any of their submods
+	std::set<TModID> gameplayRoots;
+
 public:
 	ModsStorage(const TModList & modsToLoad, const JsonNode & repositoryList);
 
 	const ModDescription & getMod(const TModID & fullID) const;
+
+	/// Returns true if root mod or any of its submods affects gameplay
+	bool isGameplayRoot(const TModID & rootID) const;
 
 	TModList getAllMods() const;
 };
@@ -120,7 +139,8 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 {
 	std::unique_ptr<ModsState> modsState;
 	std::unique_ptr<ModsPresetState> modsPreset;
-	std::unique_ptr<ModsStorage> modsStorage;
+	std::unique_ptr<ModsValidationState> modsValidation;
+	std::shared_ptr<const ModsStorage> modsStorage;
 	std::unique_ptr<ModDependenciesResolver> depedencyResolver;
 
 	void generateLoadOrder(TModList desiredModList);
@@ -130,7 +150,12 @@ class DLL_LINKAGE ModManager : boost::noncopyable
 	void updatePreset(const ModDependenciesResolver & newData);
 
 	TModList getInstalledValidMods() const;
+	/// Returns mod and all mods it depends on, directly or not. Includes dependencies that are not installed, but not their own dependencies
 	TModList collectDependenciesRecursive(const TModID & modID) const;
+	/// Returns submods of provided root mods that are enabled in active preset
+	TModList getEnabledSubmodsFromPreset(const TModList & rootMods, bool includeGameplaySubmods) const;
+	/// Resolves provided mods that resolver has not processed yet
+	void tryAddNewMods(ModDependenciesResolver & resolver, const TModList & mods) const;
 
 	void tryEnableMod(const TModID & modList);
 
@@ -147,10 +172,18 @@ public:
 	bool isModSettingActive(const TModID & rootModID, const TModID & modSettingID) const;
 	std::map<TModID, bool> getModSettings(const TModID & rootModID) const;
 	bool isModActive(const TModID & modID) const;
-	std::optional<uint32_t> getValidatedChecksum(const TModID & modName) const;
-	void setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value);
-	void saveConfigurationState() const;
 	double getInstalledModSizeMegabytes(const TModID & modName) const;
+
+	/// Returns mod list for a game library, with currently active mods
+	ModSnapshot createSnapshot() const;
+
+	/// Returns mod list for a game library that loads a game with provided mods, in the form of "mods" section of scenario metadata. Active preset is not changed.
+	/// exact: gameplay mods missing from the list are disabled (saves); otherwise active mods are kept (maps).
+	/// Required mods that can not be enabled are left disabled, see ScenarioMetadata::verifyMods
+	ModSnapshot createSnapshot(const JsonNode & requiredMods, bool exact) const;
+
+	/// Stores result of validation of mods by a loaded game library: checksum of a mod without issues, or nothing for a mod with issues
+	void setValidatedChecksums(const std::map<TModID, std::optional<uint32_t>> & checksums);
 
 	void tryEnableMods(const TModList & modList);
 	void tryDisableMod(const TModID & modName);

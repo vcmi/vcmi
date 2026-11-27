@@ -100,7 +100,7 @@ static std::vector<HighScoreCreature> getHighscoreCreaturesList()
 
 CreatureID HighScoreCalculation::getCreatureForPoints(int points, bool campaign)
 {
-	static const std::vector<HighScoreCreature> creatures = getHighscoreCreaturesList();
+	const std::vector<HighScoreCreature> creatures = getHighscoreCreaturesList();
 
 	int divide = campaign ? 5 : 1;
 

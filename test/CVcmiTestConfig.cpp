@@ -12,6 +12,8 @@
 #include "CVcmiTestConfig.h"
 
 #include "../lib/GameLibrary.h"
+#include "../lib/modding/CModHandler.h"
+#include "../lib/modding/ModManager.h"
 
 void CVcmiTestConfig::SetUp()
 {
@@ -20,9 +22,11 @@ void CVcmiTestConfig::SetUp()
 	// modSettings.json. The vcmi-test mod supplies all fixtures and flips on the HOTA map
 	// format needed by TinyH3MBuilder.
 	initializeBaseFilesystem(false, /*useTestPreset*/ true);
+	ModManager mods(JsonNode(), /*useTestPreset*/ true);
 	auto library = std::make_unique<GameLibrary>();
-	library->initializeFilesystem(/*useTestPreset*/ true);
+	library->initializeFilesystem(mods.createSnapshot());
 	library->initializeLibrary();
+	mods.setValidatedChecksums(library->modh->getValidatedChecksums());
 	setGameLibrary(std::move(library));
 }
 

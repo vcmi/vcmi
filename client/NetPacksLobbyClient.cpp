@@ -22,7 +22,6 @@
 #include "lobby/CBonusSelection.h"
 #include "lobby/BattleOnlyModeTab.h"
 #include "adventureMap/AdventureMapInterface.h"
-#include "globalLobby/GlobalLobbyWindow.h"
 #include "globalLobby/GlobalLobbyServerSetup.h"
 #include "globalLobby/GlobalLobbyClient.h"
 
@@ -92,7 +91,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 
 		if(handler.scenarioToStart)
 		{
-			handler.selectScenario(*handler.scenarioToStart);
+			handler.selectScenario(*handler.scenarioToStart, {}, handler.reloadModsForScenarioToStart);
 		}
 		else if(!settings["session"]["headless"].Bool())
 		{
@@ -113,13 +112,7 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 					handler.getGlobalLobby().sendOpenRoom("public", roomPlayerLimit);
 			}
 
-			while (!ENGINE->windows().findWindows<GlobalLobbyWindow>().empty())
-			{
-				// if global lobby is open, pop all dialogs on top of it as well as lobby itself
-				ENGINE->windows().popWindows(1);
-			}
-
-			ENGINE->windows().createAndPushWindow<CLobbyScreen>(handler.screenType, handler.campaignToStart.has_value());
+			handler.openLobbyScreen();
 		}
 		handler.setState(EClientState::LOBBY);
 	}
@@ -127,6 +120,12 @@ void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientConnected(LobbyClientCon
 
 void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyClientDisconnected(LobbyClientDisconnected &)
 {
+}
+
+void ApplyOnLobbyHandlerNetPackVisitor::visitLobbyReloadMods(LobbyReloadMods & pack)
+{
+	result = false;
+	handler.reloadLibrary(pack);
 }
 
 void ApplyOnLobbyScreenNetPackVisitor::visitLobbyClientConnected(LobbyClientConnected & pack)

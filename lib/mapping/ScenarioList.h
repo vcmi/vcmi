@@ -16,14 +16,14 @@ struct DLL_LINKAGE ScenarioListFolder
 {
 	std::string name;
 	std::time_t lastWrite = 0; ///< newest file in the subfolder
-	std::optional<bool> compatible; ///< compatibility of its newest readable save, autosaves first; empty if none could be read or for maps
+	ScenarioListEntry::EStatus status = ScenarioListEntry::EStatus::COMPATIBLE; ///< status of its newest readable save, autosaves first; compatible if none could be read or for maps
 
 	template<typename Handler>
 	void serialize(Handler & h)
 	{
 		h & name;
 		h & lastWrite;
-		h & compatible;
+		h & status;
 	}
 };
 

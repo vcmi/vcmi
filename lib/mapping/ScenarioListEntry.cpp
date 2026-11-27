@@ -82,9 +82,37 @@ ScenarioListEntry ScenarioListEntry::fromSave(const ResourcePath & file, JsonVal
 	return result;
 }
 
+ScenarioListEntry::EStatus ScenarioListEntry::getStatus() const
+{
+	if(problem == EProblem::NONE)
+		return EStatus::COMPATIBLE;
+	if(problem != EProblem::MODS)
+		return EStatus::INCOMPATIBLE;
+
+	bool hasInactiveMods = false;
+	for(const auto & [modID, status] : mods)
+	{
+		if(status == ModVerificationStatus::DISABLED || status == ModVerificationStatus::EXCESSIVE)
+			hasInactiveMods = true;
+		else if(status != ModVerificationStatus::VERSION_MISMATCH)
+			return EStatus::INCOMPATIBLE;
+	}
+	return hasInactiveMods ? EStatus::MODS_INACTIVE : EStatus::COMPATIBLE;
+}
+
+bool ScenarioListEntry::isExactModList() const
+{
+	return type == EType::SAVE;
+}
+
 const JsonNode & ScenarioListEntry::getDescription() const
 {
 	return metadata[type == EType::CAMPAIGN ? "campaign" : "map"];
+}
+
+bool ScenarioListEntry::hasDescription() const
+{
+	return !getDescription().isNull();
 }
 
 std::string ScenarioListEntry::getName(const ITranslator * translator) const
@@ -114,7 +142,7 @@ std::time_t ScenarioListEntry::getCreationTime() const
 
 EMapFormat ScenarioListEntry::getMapFormat() const
 {
-	return static_cast<EMapFormat>(metadata["map"]["format"].Integer());
+	return static_cast<EMapFormat>(getDescription()["format"].Integer());
 }
 
 const JsonNode & ScenarioListEntry::getMapFormatSettings() const

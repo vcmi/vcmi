@@ -343,8 +343,7 @@ CMainMenuConfig::CMainMenuConfig()
 
 const CMainMenuConfig & CMainMenuConfig::get()
 {
-	static const CMainMenuConfig config;
-	return config;
+	return GAME->mainMenuConfig();
 }
 
 const JsonNode & CMainMenuConfig::getConfig() const

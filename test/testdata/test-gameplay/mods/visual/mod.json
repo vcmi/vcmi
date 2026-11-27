@@ -1,0 +1,9 @@
+{
+	"name" : "VCMI test graphical submod",
+	"description" : "Test-only mod for mod list resolution",
+	"version" : "1.0",
+	"author" : "VCMI Team",
+	"contact" : "",
+	"modType" : "Graphical",
+	"keepDisabled" : false
+}

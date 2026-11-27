@@ -29,6 +29,8 @@
 #include "../../lib/modding/ModScope.h"
 #include "../../lib/GameLibrary.h"
 
+#include <boost/algorithm/hex.hpp>
+
 #ifdef VCMI_SDL3
 #include <SDL3/SDL_surface.h>
 #else
@@ -118,9 +120,29 @@ void Graphics::initializeBattleGraphics()
 		}
 	}
 }
+void Graphics::loadTextColors()
+{
+	const JsonNode config(JsonPath::builtin("CONFIG/textColors"));
+	for(const auto & [name, value] : config["colors"].Struct())
+	{
+		std::vector<ui8> rgb;
+		const std::string & hex = value.String();
+		if(hex.size() == 6 && std::ranges::all_of(hex, [](char c){ return std::isxdigit(static_cast<unsigned char>(c)); }))
+			boost::algorithm::unhex(hex, std::back_inserter(rgb));
+
+		if(rgb.size() != 3)
+		{
+			logMod->error("config/textColors.json: color '%s' has invalid value '%s', expected 6 hex digits", name, hex);
+			continue;
+		}
+		textColors[boost::algorithm::to_lower_copy(name)] = ColorRGBA(rgb[0], rgb[1], rgb[2]);
+	}
+}
+
 Graphics::Graphics()
 {
 	loadPaletteAndColors();
+	loadTextColors();
 	initializeBattleGraphics();
 
 	//(!) do not load any CAnimation here

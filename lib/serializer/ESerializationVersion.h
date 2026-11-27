@@ -83,13 +83,14 @@ enum class ESerializationVersion : int32_t
 	LOBBY_CAMPAIGN_ON_SERVER, // server loads campaigns by name and prepares their next scenario itself
 	CAMPAIGN_STATIC_DATA, // campaign state refers to its campaign by pointer, shared between start infos
 	VISITABLE_FROM_TOP_IN_OBJECT_TYPE, // object templates no longer store visitable directions, object type defines whether it is visitable from top
+	SCENARIO_LIST_STATUS, // scenario list includes entries incompatible with active mods, with the reason
 
 	RELEASE_170 = HOTA_MAP_STACK_COUNT,
 	RELEASE_174 = CUSTOM_GARRISON_TITLE,
 
 	MINIMAL = RELEASE_170,
-	MINIMAL_LOBBY = CAMPAIGN_STATIC_DATA, // client and server of lobby reject each other below this version
-	CURRENT = VISITABLE_FROM_TOP_IN_OBJECT_TYPE,
+	MINIMAL_LOBBY = SCENARIO_LIST_STATUS, // client and server of lobby reject each other below this version
+	CURRENT = SCENARIO_LIST_STATUS,
 };
 
 static_assert(ESerializationVersion::MINIMAL <= ESerializationVersion::CURRENT, "Invalid serialization version definition!");

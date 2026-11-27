@@ -12,6 +12,7 @@
 #include "Translator.h"
 
 #include "../lib/CStopWatch.h"
+#include "../lib/ConditionalWait.h"
 
 #include "../lib/network/NetworkInterface.h"
 #include "../lib/StartInfo.h"
@@ -32,6 +33,7 @@ struct CPackForLobby;
 struct CPackForServer;
 struct CPackForClient;
 struct LobbyModsCheck;
+struct LobbyReloadMods;
 
 class HighScoreParameter;
 
@@ -82,7 +84,8 @@ public:
 	virtual void setCampaignMap(CampaignScenarioID mapId) const = 0;
 	virtual void setCampaignBonus(int bonusId) const = 0;
 	virtual void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const = 0;
-	virtual void selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const = 0;
+	/// reloadMods: accept reload of game library if the selection needs other mods
+	virtual void selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts = {}, bool reloadMods = false) const = 0;
 	virtual void setPlayer(PlayerColor color) const = 0;
 	virtual void setPlayerName(PlayerColor color, const std::string & name) const = 0;
 	virtual void setPlayerHandicap(PlayerColor color, Handicap handicap) const = 0;
@@ -111,6 +114,7 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	std::unique_ptr<GameplayReplayer> gameplayReplayer;
 	/// Selected once connected, and started once the server has loaded it
 	std::optional<ScenarioSelection> scenarioToStart;
+	bool reloadModsForScenarioToStart = false;
 	std::vector<std::string> localPlayerNames;
 	/// Quick save of the running game can be loaded, as reported by the server
 	bool quickSaveAvailable = false;
@@ -125,12 +129,21 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 
 	std::thread threadNetwork;
 
+	/// Network thread waits on it while main thread reloads game library on LobbyReloadMods, so that next packs are read with the new library
+	ConditionalWait libraryReloadWait;
+	/// File of the selection that caused the last reload, to select in the list of the new lobby screen
+	std::string fileToSelectAfterReload;
+
 	std::atomic<EClientState> state;
 	bool lobbyPreviewMode = false;
 	std::function<void()> onLobbyPreviewJoin;
 
 	void threadRunNetwork();
 	void waitForServerShutdown();
+	/// Network thread, reloads game library with mods required by the server and returns once it is done
+	void reloadLibrary(const LobbyReloadMods & pack);
+	/// Replaces open windows with the lobby screen
+	void openLobbyScreen();
 	/// Closes connection to server, if any, without notifying the server
 	void closeConnection();
 
@@ -146,7 +159,6 @@ class CServerHandler final : public IServerAPI, public LobbyInfo, public INetwor
 	void stopGameplay();
 	/// Destroys interfaces and game state of a stopped game
 	void destroyGameplay();
-	void showMainMenu();
 	/// Ends won scenario of an unfinished campaign, keeping the connection for the lobby of the next scenario
 	void endCampaignScenario();
 
@@ -184,6 +196,10 @@ public:
 	CServerHandler();
 	~CServerHandler();
 	
+	/// Drops lobby state and windows that hold data of current LIBRARY. Requires no running game
+	void onLibraryUnloading();
+	/// Makes main menu the active interface and starts its music
+	void showMainMenu();
 	void resetStateForLobby(EStartMode mode, ESelectionScreen screen, EServerMode serverMode, const std::vector<std::string> & playerNames);
 	void startLocalServerAndConnect(bool connectToLobby);
 	void connectToServer(const std::string & addr, const ui16 port);
@@ -229,7 +245,7 @@ public:
 	void setCampaignMap(CampaignScenarioID mapId) const override;
 	void setCampaignBonus(int bonusId) const override;
 	void setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeStartInfo> startInfo) const override;
-	void selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) const override;
+	void selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts = {}, bool reloadMods = false) const override;
 	void setPlayer(PlayerColor color) const override;
 	void setPlayerName(PlayerColor color, const std::string & name) const override;
 	void setPlayerHandicap(PlayerColor color, Handicap handicap) const override;
@@ -243,7 +259,9 @@ public:
 	void sendRestartGame() const override;
 	void sendStartGame(bool allowOnlyAI = false, bool verify = true) const override;
 
-	void startScenarioAfterConnection(const ScenarioSelection & selection);
+	void startScenarioAfterConnection(const ScenarioSelection & selection, bool reloadMods = false);
+	/// Returns file to select in the list after a reload of game library, empty if there is none or it was already taken
+	std::string takeFileToSelectAfterReload();
 	bool validateGameStart(bool allowOnlyAI = false) const;
 	void debugStartTest(std::string filename, bool save = false);
 

@@ -14,6 +14,7 @@
 #include "Client.h"
 #include "GameChatHandler.h"
 #include "GameEngine.h"
+#include "ClientLibraries.h"
 #include "GameInstance.h"
 #include "LobbyClientNetPackVisitors.h"
 #include "ServerRunner.h"
@@ -21,6 +22,7 @@
 
 #include "globalLobby/GlobalLobbyClient.h"
 #include "globalLobby/GlobalLobbyRoomWindow.h"
+#include "globalLobby/GlobalLobbyWindow.h"
 
 #include "gui/WindowHandler.h"
 
@@ -62,6 +64,8 @@
 #include "../lib/mapObjects/CGTownInstance.h"
 #include "../lib/mapObjects/MiscObjects.h"
 #include "../lib/modding/ModIncompatibility.h"
+#include "../lib/modding/ModSnapshot.h"
+#include "../lib/modding/ModManager.h"
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/serializer/GameConnection.h"
 #include "../lib/UnlockGuard.h"
@@ -75,6 +79,7 @@
 
 CServerHandler::~CServerHandler()
 {
+	libraryReloadWait.requestTermination();
 	if (serverRunner)
 		serverRunner->shutdown();
 	stopNetwork();
@@ -115,6 +120,8 @@ void CServerHandler::endNetwork()
 	if (client)
 		client->endNetwork();
 	stopNetwork();
+	// network thread may wait for a library reload that will never finish, since main loop is over
+	libraryReloadWait.requestTermination();
 	waitForNetworkThread();
 }
 
@@ -133,6 +140,68 @@ CServerHandler::CServerHandler()
 	, client(nullptr)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
+}
+
+void CServerHandler::onLibraryUnloading()
+{
+	assert(!client);
+	lobbyTextOverlays.clear();
+	si = std::make_shared<StartInfo>();
+	mi.reset();
+	if(lobbyClient)
+		lobbyClient->releaseLobbyWindow();
+}
+
+void CServerHandler::reloadLibrary(const LobbyReloadMods & pack)
+{
+	const ModSnapshot snapshot = GAME->libraries().mods().createSnapshot(pack.mods, pack.exact);
+	fileToSelectAfterReload = pack.selectedFile;
+	libraryReloadWait.setBusy();
+
+	const auto onFinished = [this](bool success)
+	{
+		if(serverRunner)
+			serverRunner->onLibraryReloaded(success);
+
+		// reload has closed all windows
+		showMainMenu();
+
+		if(success || (serverRunner && serverRunner->sharesLibrary()))
+		{
+			// new lobby screen loads its list on the first state, as for a client that has just connected
+			hostClientId = GameConnectionID::INVALID;
+			openLobbyScreen();
+		}
+		else
+			sendClientDisconnecting(); // server has its new library, so the lobby can not continue with the previous one
+		libraryReloadWait.setFree();
+	};
+
+	if(!ENGINE)
+	{
+		GAME->libraries().reloadLibrary(snapshot, onFinished);
+		return;
+	}
+
+	ENGINE->dispatchMainThread([snapshot, onFinished]()
+	{
+		GAME->libraries().reloadLibrary(snapshot, onFinished);
+	});
+
+	auto unlockInterface = vstd::makeUnlockGuard(ENGINE->interfaceMutex);
+	libraryReloadWait.waitWhileBusy();
+}
+
+void CServerHandler::openLobbyScreen()
+{
+	if(!ENGINE || settings["session"]["headless"].Bool())
+		return;
+
+	// if global lobby is open, pop all dialogs on top of it as well as lobby itself
+	while(!ENGINE->windows().findWindows<GlobalLobbyWindow>().empty())
+		ENGINE->windows().popWindows(1);
+
+	ENGINE->windows().createAndPushWindow<CLobbyScreen>(screenType, campaignToStart.has_value());
 }
 
 void CServerHandler::threadRunNetwork()
@@ -468,6 +537,7 @@ void CServerHandler::sendClientDisconnecting()
 	networkConnection.reset();
 	logicConnection.reset();
 	waitForServerShutdown();
+	GAME->libraries().requestReturnToHomeLibrary();
 }
 
 void CServerHandler::startCampaign(const std::string & fileURI, const std::string & campaignSet) const
@@ -505,11 +575,12 @@ void CServerHandler::setBattleOnlyModeStartInfo(std::shared_ptr<BattleOnlyModeSt
 	sendLobbyPack(lsbomsui);
 }
 
-void CServerHandler::selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts) const
+void CServerHandler::selectScenario(const ScenarioSelection & selection, std::shared_ptr<CMapGenOptions> mapGenOpts, bool reloadMods) const
 {
 	LobbySetMap lsm;
 	lsm.selection = selection;
 	lsm.mapGenOpts = mapGenOpts;
+	lsm.reloadMods = reloadMods;
 	sendLobbyPack(lsm);
 }
 
@@ -671,9 +742,15 @@ void CServerHandler::sendStartGame(bool allowOnlyAI, bool verify) const
 	}
 }
 
-void CServerHandler::startScenarioAfterConnection(const ScenarioSelection & selection)
+std::string CServerHandler::takeFileToSelectAfterReload()
+{
+	return std::exchange(fileToSelectAfterReload, {});
+}
+
+void CServerHandler::startScenarioAfterConnection(const ScenarioSelection & selection, bool reloadMods)
 {
 	scenarioToStart = selection;
+	reloadModsForScenarioToStart = reloadMods;
 }
 
 void CServerHandler::installLobbyTexts()
@@ -990,7 +1067,7 @@ void CServerHandler::debugStartTest(std::string filename, bool save)
 		resetStateForLobby(EStartMode::NEW_GAME, ESelectionScreen::newGame, EServerMode::LOCAL, {});
 		selection.type = ScenarioSelection::EType::MAP;
 	}
-	startScenarioAfterConnection(selection);
+	startScenarioAfterConnection(selection, true);
 
 	if(settings["session"]["donotstartserver"].Bool())
 		connectToServer(getLocalHostname(), getLocalPort());
@@ -1060,6 +1137,7 @@ void CServerHandler::onDisconnected(const std::shared_ptr<INetworkConnection> & 
 	}
 
 	logNetwork->error("Lost connection to server! Connection has been closed");
+	GAME->libraries().requestReturnToHomeLibrary();
 
 	if(getState() == EClientState::CAMPAIGN_SCENARIO_WON)
 	{

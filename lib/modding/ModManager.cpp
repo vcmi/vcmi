@@ -12,6 +12,7 @@
 
 #include "ModDescription.h"
 #include "ModScope.h"
+#include "ModSnapshot.h"
 
 #include "../constants/StringConstants.h"
 #include "../filesystem/Filesystem.h"
@@ -93,12 +94,13 @@ static std::optional<std::string> loadModTextFile(const TModID & modName, const 
 {
 	// existsResource may report a stale entry (e.g. mod updated to a version without description);
 	// tolerate a failing load since description is optional and index/disk can diverge until reload
-	if (!CResourceHandler::get()->existsResource(path))
+	const auto * modFiles = CResourceHandler::get("initial");
+	if (!modFiles->existsResource(path))
 		return std::nullopt;
 
 	try
 	{
-		auto data = CResourceHandler::get()->load(path)->readAll();
+		auto data = modFiles->load(path)->readAll();
 		return std::string(reinterpret_cast<const char *>(data.first.get()), data.second);
 	}
 	catch (const std::exception & e)
@@ -143,7 +145,7 @@ double ModsState::getInstalledModSizeMegabytes(const TModID & modName) const
 	// iterate over the path itself - a detour through std::string would convert it using the
 	// Windows ANSI codepage, replacing any character the codepage lacks with '?'. The directory
 	// would then not exist and recursive_directory_iterator would throw
-	const boost::filesystem::path path = *CResourceHandler::get()->getResourceName(resDir);
+	const boost::filesystem::path path = *CResourceHandler::get("initial")->getResourceName(resDir);
 
 	size_t sizeBytes = 0;
 	for(boost::filesystem::recursive_directory_iterator it(path); it != boost::filesystem::recursive_directory_iterator(); ++it)
@@ -185,6 +187,9 @@ ModsPresetState::ModsPresetState(bool useTestPreset)
 	auto allPresets = getAllPresets();
 	if (!vstd::contains(allPresets, modConfig["activePreset"].String()))
 		modConfig["activePreset"] = JsonNode(allPresets.front());
+
+	// MODS COMPATIBILITY: before 1.8, checksums of validated mods were stored together with presets
+	modConfig.Struct().erase("validatedMods");
 
 	logGlobal->debug("Loading following mod settings: %s", modConfig.toCompactString());
 }
@@ -236,15 +241,6 @@ std::map<TModID, bool> ModsPresetState::getModSettings(const TModID & modID) con
 	const JsonNode & modSettingsJson = getActivePresetConfig()["settings"][modID];
 	auto modSettings = modSettingsJson.convertTo<std::map<TModID, bool>>();
 	return modSettings;
-}
-
-std::optional<uint32_t> ModsPresetState::getValidatedChecksum(const TModID & modName) const
-{
-	const JsonNode & node = modConfig["validatedMods"][modName];
-	if (node.isNull())
-		return std::nullopt;
-	else
-		return node.Integer();
 }
 
 void ModsPresetState::setModActive(const TModID & modID, bool isActive)
@@ -340,14 +336,6 @@ std::vector<TModID> ModsPresetState::getActiveMods() const
 	return allActiveMods;
 }
 
-void ModsPresetState::setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value)
-{
-	if (value.has_value())
-		modConfig["validatedMods"][modName].Integer() = *value;
-	else
-		modConfig["validatedMods"].Struct().erase(modName);
-}
-
 void ModsPresetState::saveConfigurationState() const
 {
 	std::fstream file(CResourceHandler::get("config")->getResourceName(ResourcePath(settingsPath))->c_str(), std::ofstream::out | std::ofstream::trunc);
@@ -436,6 +424,52 @@ std::string ModsPresetState::importPreset(const JsonNode & newConfig)
 	return importedPresetName;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+static JsonPath getValidationPath()
+{
+	return JsonPath::builtin("config/modValidation.json");
+}
+
+ModsValidationState::ModsValidationState()
+{
+	const auto * userConfigs = CResourceHandler::get("config");
+	const JsonPath validationPath = getValidationPath();
+
+	if(userConfigs->existsResource(validationPath))
+		checksums = JsonNode(validationPath, *userConfigs);
+}
+
+std::map<TModID, uint32_t> ModsValidationState::getValidatedChecksums() const
+{
+	std::map<TModID, uint32_t> result;
+	for(const auto & [modName, checksum] : checksums.Struct())
+		result[modName] = static_cast<uint32_t>(checksum.Integer());
+	return result;
+}
+
+void ModsValidationState::setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value)
+{
+	if(value.has_value())
+		checksums[modName].Integer() = *value;
+	else
+		checksums.Struct().erase(modName);
+}
+
+void ModsValidationState::saveConfigurationState() const
+{
+	auto * userConfigs = CResourceHandler::get("config");
+	const JsonPath validationPath = getValidationPath();
+
+	if(!userConfigs->existsResource(validationPath))
+		userConfigs->createResource(validationPath.getOriginalName() + ".json");
+
+	std::fstream file(userConfigs->getResourceName(validationPath)->c_str(), std::ofstream::out | std::ofstream::trunc);
+	file << checksums.toCompactString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode & repositoryList)
 {
 	JsonNode coreModConfig(JsonPath::builtin("config/gameConfig.json"), *CResourceHandler::get(ModScope::scopeBuiltin()));
@@ -450,7 +484,7 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 		if(ModScope::isScopeReserved(modID))
 			continue;
 
-		JsonNode modConfig(getModDefinitionFile(modID));
+		JsonNode modConfig(getModDefinitionFile(modID), *CResourceHandler::get("initial"));
 		modConfig.setModScope(modID);
 
 		if(modConfig["modType"].isNull())
@@ -483,6 +517,10 @@ ModsStorage::ModsStorage(const std::vector<TModID> & modsToLoad, const JsonNode 
 
 		mods.try_emplace(mod.first, mod.first, JsonNode(), mod.second);
 	}
+
+	for(const auto & [modID, mod] : mods)
+		if(mod.affectsGameplay())
+			gameplayRoots.insert(mod.getTopParentID().empty() ? modID : mod.getTopParentID());
 }
 
 const ModDescription & ModsStorage::getMod(const TModID & fullID) const
@@ -495,6 +533,11 @@ const ModDescription & ModsStorage::getMod(const TModID & fullID) const
 		// rethrow with better error message
 		throw std::out_of_range("Failed to find mod " + fullID);
 	}
+}
+
+bool ModsStorage::isGameplayRoot(const TModID & rootID) const
+{
+	return gameplayRoots.contains(rootID);
 }
 
 TModList ModsStorage::getAllMods() const
@@ -514,8 +557,9 @@ ModManager::ModManager()
 ModManager::ModManager(const JsonNode & repositoryList, bool useTestPreset, const TModList & newMods)
 	: modsState(std::make_unique<ModsState>())
 	, modsPreset(std::make_unique<ModsPresetState>(useTestPreset))
+	, modsValidation(std::make_unique<ModsValidationState>())
 {
-	modsStorage = std::make_unique<ModsStorage>(modsState->getInstalledMods(), repositoryList);
+	modsStorage = std::make_shared<const ModsStorage>(modsState->getInstalledMods(), repositoryList);
 
 	eraseMissingModsFromPreset();
 	addNewModsToPreset();
@@ -566,19 +610,17 @@ const TModList & ModManager::getActiveMods() const
 	return depedencyResolver->getActiveMods();
 }
 
-std::optional<uint32_t> ModManager::getValidatedChecksum(const TModID & modName) const
+ModSnapshot ModManager::createSnapshot() const
 {
-	return modsPreset->getValidatedChecksum(modName);
+	return ModSnapshot(modsStorage, getActiveMods(), modsValidation->getValidatedChecksums());
 }
 
-void ModManager::setValidatedChecksum(const TModID & modName, std::optional<uint32_t> value)
+void ModManager::setValidatedChecksums(const std::map<TModID, std::optional<uint32_t>> & checksums)
 {
-	modsPreset->setValidatedChecksum(modName, value);
-}
+	for(const auto & [modName, checksum] : checksums)
+		modsValidation->setValidatedChecksum(modName, checksum);
 
-void ModManager::saveConfigurationState() const
-{
-	modsPreset->saveConfigurationState();
+	modsValidation->saveConfigurationState();
 }
 
 TModList ModManager::getAllMods() const
@@ -645,8 +687,10 @@ void ModManager::syncDemoModState()
 	if (!modsStorage->getMod(demoModID).isInstalled())
 		return;
 
-	bool hasFullData = CResourceHandler::get()->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
-	bool hasDemoData = !hasFullData && CResourceHandler::get()->existsResource(ResourcePath("MAPS/H3DEMO.H3M"));
+	// game data without mods, so that files of active mods of current library do not affect the result
+	const auto * gameData = CResourceHandler::get(ModScope::scopeBuiltin());
+	bool hasFullData = gameData->existsResource(ResourcePath("DATA/TENTCOLR.TXT"));
+	bool hasDemoData = !hasFullData && gameData->existsResource(ResourcePath("MAPS/H3DEMO.H3M"));
 
 	bool isActive = vstd::contains(modsPreset->getActiveRootMods(), demoModID);
 
@@ -678,16 +722,15 @@ TModList ModManager::collectDependenciesRecursive(const TModID & modID) const
 	while (!toTest.empty())
 	{
 		TModID currentModID = toTest.back();
-		const auto & currentMod = getModDescription(currentModID);
 		toTest.pop_back();
 		result.push_back(currentModID);
 
-		if (!currentMod.isInstalled())
-			throw std::runtime_error("Unable to enable mod " + modID + "! Dependency " + currentModID + " is not installed!");
+		if (!vstd::contains(modsStorage->getAllMods(), currentModID) || !getModDescription(currentModID).isInstalled())
+			continue;
 
-		for (const auto & dependency : currentMod.getDependencies())
+		for (const auto & dependency : getModDescription(currentModID).getDependencies())
 		{
-			if (!vstd::contains(result, dependency))
+			if (!vstd::contains(result, dependency) && !vstd::contains(toTest, dependency))
 				toTest.push_back(dependency);
 		}
 	}
@@ -695,52 +738,119 @@ TModList ModManager::collectDependenciesRecursive(const TModID & modID) const
 	return result;
 }
 
+TModList ModManager::getEnabledSubmodsFromPreset(const TModList & rootMods, bool includeGameplaySubmods) const
+{
+	const TModList installedMods = getInstalledValidMods();
+	TModList result;
+
+	for (const auto & rootModID : rootMods)
+	{
+		if (rootModID.find('.') != std::string::npos)
+			continue;
+
+		for (const auto & [settingID, isActive] : modsPreset->getModSettings(rootModID))
+		{
+			const TModID modID = rootModID + '.' + settingID;
+			if (isActive && vstd::contains(installedMods, modID) && (includeGameplaySubmods || !modsStorage->getMod(modID).affectsGameplay()))
+				result.push_back(modID);
+		}
+	}
+	return result;
+}
+
+void ModManager::tryAddNewMods(ModDependenciesResolver & resolver, const TModList & mods) const
+{
+	TModList newMods;
+	for (const auto & modID : mods)
+		if (!vstd::contains(resolver.getActiveMods(), modID) && !vstd::contains(resolver.getBrokenMods(), modID) && !vstd::contains(newMods, modID))
+			newMods.push_back(modID);
+
+	resolver.tryAddMods(newMods, *modsStorage);
+}
+
 void ModManager::tryEnableMods(const TModList & modList)
 {
 	TModList requiredActiveMods;
-	TModList additionalActiveMods = getActiveMods();
 
 	for (const auto & modName : modList)
 	{
 		for (const auto & dependency : collectDependenciesRecursive(modName))
 		{
-			if (!vstd::contains(requiredActiveMods, dependency))
-			{
-				requiredActiveMods.push_back(dependency);
-				vstd::erase(additionalActiveMods, dependency);
-			}
-		}
+			if (!vstd::contains(modsStorage->getAllMods(), dependency) || !getModDescription(dependency).isInstalled())
+				throw std::runtime_error("Unable to enable mod " + modName + "! Dependency " + dependency + " is not installed!");
 
-		assert(!vstd::contains(additionalActiveMods, modName));
-		assert(vstd::contains(requiredActiveMods, modName));// FIXME: fails on attempt to enable broken mod / translation to other language
+			if (!vstd::contains(requiredActiveMods, dependency))
+				requiredActiveMods.push_back(dependency);
+		}
 	}
 
 	ModDependenciesResolver testResolver(requiredActiveMods, *modsStorage);
-
-	testResolver.tryAddMods(additionalActiveMods, *modsStorage);
-
-	TModList additionalActiveSubmods;
-	for (const auto & modName : modList)
-	{
-		if (modName.find('.') != std::string::npos)
-			continue;
-
-		auto modSettings = modsPreset->getModSettings(modName);
-		for (const auto & entry : modSettings)
-		{
-			TModID fullModID = modName + '.' + entry.first;
-			if (entry.second && !vstd::contains(requiredActiveMods, fullModID))
-				additionalActiveSubmods.push_back(fullModID);
-		}
-	}
-
-	testResolver.tryAddMods(additionalActiveSubmods, *modsStorage);
+	tryAddNewMods(testResolver, getActiveMods());
+	tryAddNewMods(testResolver, getEnabledSubmodsFromPreset(modList, true));
 
 	for (const auto & modName : modList)
 		if (!vstd::contains(testResolver.getActiveMods(), modName))
 			logGlobal->error("Failed to enable mod '%s'! This may be caused by a recursive dependency!", modName);
 
 	updatePreset(testResolver);
+}
+
+ModSnapshot ModManager::createSnapshot(const JsonNode & requiredMods, bool exact) const
+{
+	const TModList installedMods = getInstalledValidMods();
+	TModList listedMods = { ModScope::scopeBuiltin() };
+	const auto addListedMod = [&listedMods](const TModID & modID)
+	{
+		if (!vstd::contains(listedMods, modID))
+			listedMods.push_back(modID);
+	};
+
+	for (const auto & [rootModID, entry] : requiredMods.Struct())
+	{
+		// mods that no longer affect gameplay do not need to be enabled, see ScenarioMetadata::verifyMods
+		if (!vstd::contains(installedMods, rootModID) || !modsStorage->isGameplayRoot(rootModID))
+			continue;
+
+		addListedMod(rootModID);
+		for (const auto & submod : entry["submods"].Vector())
+		{
+			const TModID modID = rootModID + '.' + submod.String();
+			if (!vstd::contains(installedMods, modID))
+			{
+				logMod->info("Submod '%s' used by the game is not installed", modID);
+				continue;
+			}
+
+			for (size_t separator = modID.find('.', rootModID.size() + 1); separator != std::string::npos; separator = modID.find('.', separator + 1))
+				addListedMod(modID.substr(0, separator));
+			addListedMod(modID);
+		}
+	}
+
+	TModList requiredActiveMods;
+	for (const auto & modID : listedMods)
+		for (const auto & dependency : collectDependenciesRecursive(modID))
+			if (vstd::contains(installedMods, dependency) && !vstd::contains(requiredActiveMods, dependency))
+				requiredActiveMods.push_back(dependency);
+
+	// required mods are resolved first, so that a conflict with another mod can not disable them
+	ModDependenciesResolver resolver(requiredActiveMods, *modsStorage);
+
+	TModList otherMods;
+	for (const auto & modID : getActiveMods())
+	{
+		const TModID rootModID = modID.substr(0, modID.find('.'));
+		const bool isListedOrNotGameplayRoot = vstd::contains(listedMods, rootModID) || !modsStorage->isGameplayRoot(rootModID);
+		if (!exact || (isListedOrNotGameplayRoot && !modsStorage->getMod(modID).affectsGameplay()))
+			otherMods.push_back(modID);
+	}
+	tryAddNewMods(resolver, otherMods);
+	tryAddNewMods(resolver, getEnabledSubmodsFromPreset(listedMods, !exact));
+
+	for (const auto & modID : resolver.getBrokenMods())
+		logMod->info("Mod '%s' is not used by the game: it is disabled, conflicts with another mod or lacks a dependency", modID);
+
+	return ModSnapshot(modsStorage, resolver.getActiveMods(), modsValidation->getValidatedChecksums());
 }
 
 void ModManager::tryDisableMod(const TModID & modName)
@@ -823,7 +933,6 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 	// Topological sort algorithm.
 	std::ranges::sort(modsToResolve); // Sort mods per name
 	std::vector<TModID> sortedValidMods(activeMods.begin(), activeMods.end()); // Vector keeps order of elements (LIFO)
-	std::set<TModID> resolvedModIDs(activeMods.begin(), activeMods.end()); // Use a set for validation for performance reason, but set does not keep order of elements
 	std::set<TModID> notResolvedModIDs(modsToResolve.begin(), modsToResolve.end()); // Use a set for validation for performance reason
 
 	enum class ModResolveStatus {
@@ -858,10 +967,10 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 				return ModResolveStatus::WAITING;
 
 		for(const TModID & conflict : mod.getConflicts())
-			if(vstd::contains(resolvedModIDs, conflict))
+			if(vstd::contains(sortedValidMods, conflict))
 				return ModResolveStatus::BROKEN;
 
-		for(const TModID & reverseConflict : resolvedModIDs)
+		for(const TModID & reverseConflict : sortedValidMods)
 			if(vstd::contains(storage.getMod(reverseConflict).getConflicts(), mod.getID()))
 				return ModResolveStatus::BROKEN;
 
@@ -877,7 +986,7 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 
 			if (status == ModResolveStatus::RESOLVED)
 			{
-				resolvedOnCurrentTreeLevel.insert(*it); // Not to the resolvedModIDs, so current node children will be resolved on the next iteration
+				resolvedOnCurrentTreeLevel.insert(*it);
 				assert(!vstd::contains(sortedValidMods, *it));
 				sortedValidMods.push_back(*it);
 				it = modsToResolve.erase(it);
@@ -895,7 +1004,6 @@ void ModDependenciesResolver::tryAddMods(TModList modsToResolve, const ModsStora
 		}
 		if(!resolvedOnCurrentTreeLevel.empty())
 		{
-			resolvedModIDs.insert(resolvedOnCurrentTreeLevel.begin(), resolvedOnCurrentTreeLevel.end());
 			for(const auto & it : resolvedOnCurrentTreeLevel)
 				notResolvedModIDs.erase(it);
 			continue;

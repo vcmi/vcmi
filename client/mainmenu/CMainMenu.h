@@ -144,16 +144,17 @@ public:
 };
 
 /// Manages the configuration of pregame GUI elements like campaign screen, main menu, loading screen,...
+/// Main menu and campaign set configuration of current game library
 class CMainMenuConfig
 {
 public:
+	CMainMenuConfig();
+
 	static const CMainMenuConfig & get();
 	const JsonNode & getConfig() const;
 	const JsonNode & getCampaigns() const;
 
 private:
-	CMainMenuConfig();
-
 	const JsonNode campaignSets;
 	const JsonNode config;
 };

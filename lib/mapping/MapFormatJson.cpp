@@ -901,6 +901,23 @@ void CMapLoaderJson::readScript()
 	map->scriptSource = std::string(reinterpret_cast<char *>(data.first.get()), data.second);
 }
 
+static ModCompatibilityInfo parseMods(const JsonNode & header)
+{
+	if(!header["mods"].isStruct())
+		return ModVerificationInfo::jsonDeserializeList(header["mods"]);
+
+	// maps saved before 1.3 list only identifiers of required mods, without versions
+	ModCompatibilityInfo result;
+	for(const auto & modID : header["mods"]["allOf"].Vector())
+		result[modID.String()].name = modID.String();
+	return result;
+}
+
+ModCompatibilityInfo CMapLoaderJson::readMods()
+{
+	return parseMods(getFromArchive(HEADER_FILE_NAME));
+}
+
 void CMapLoaderJson::readHeader(const bool complete)
 {
 	//do not use map field here, use only mapHeader
@@ -936,15 +953,7 @@ void CMapLoaderJson::readHeader(const bool complete)
 
 	mapHeader->version = EMapFormat::VCMI;//todo: new version field
 
-	//loading mods
-	if(header["mods"].isStruct())
-	{
-		// maps saved before 1.3 list only identifiers of required mods, without versions
-		for(const auto & modID : header["mods"]["allOf"].Vector())
-			mapHeader->mods[modID.String()].name = modID.String();
-	}
-	else
-		mapHeader->mods = ModVerificationInfo::jsonDeserializeList(header["mods"]);
+	mapHeader->mods = parseMods(header);
 
 	auto getLevel = [](const std::string& name) -> int {
 		if (name == "surface")

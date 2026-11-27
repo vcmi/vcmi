@@ -96,7 +96,7 @@ ModListVerificationStatus ModVerificationInfo::verifyListAgainstLocalMods(const 
 		for(const auto & subInfoPair : modList)
 			modAffectsGameplay |= (subInfoPair.second.impactsGameplay && subInfoPair.second.parent == remoteModId);
 
-		if(!vstd::contains(LIBRARY->modh->getAllMods(), remoteModId))
+		if(!vstd::contains(LIBRARY->modh->getInstalledMods(), remoteModId))
 		{
 			result[remoteModId] = ModVerificationStatus::NOT_INSTALLED;
 			continue;
