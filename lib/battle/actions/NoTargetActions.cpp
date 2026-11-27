@@ -128,6 +128,18 @@ bool EndTacticsAction::isTacticsAction() const
 
 bool EndTacticsAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
 {
+	if(!battle.battleTacticDist())
+	{
+		problem.add(MetaString::createFromRawString("Tactics phase is already over!"));
+		return false;
+	}
+
+	if(action.side != battle.battleGetTacticsSide())
+	{
+		problem.add(MetaString::createFromRawString("Only the side with tactics can end the tactics phase!"));
+		return false;
+	}
+
 	return true;
 }
 

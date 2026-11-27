@@ -173,6 +173,27 @@ TEST_F(NoTargetActionTest, playerCanNotMakeActionsThatOnlyServerMakes)
 	EXPECT_EQ(unit->getTurnStatus(), battle::UnitTurnStatus::READY);
 }
 
+TEST_F(NoTargetActionTest, sideWithoutTacticsCanNotEndTacticsPhaseOfEnemy)
+{
+	startGame();
+	startBattle();
+	battle()->tacticDistance = 2;
+	battle()->tacticsSide = BattleSide::ATTACKER;
+
+	EXPECT_FALSE(act(BattleAction::makeEndOFTacticPhase(BattleSide::DEFENDER)));
+	EXPECT_EQ(battle()->tacticDistance, 2);
+}
+
+TEST_F(NoTargetActionTest, tacticsPhaseCanNotBeEndedAfterItIsOver)
+{
+	startGame();
+	startBattle();
+	beginCombat();
+	activateUnitOfAttacker();
+
+	EXPECT_FALSE(act(BattleAction::makeEndOFTacticPhase(BattleSide::ATTACKER)));
+}
+
 TEST_F(NoTargetActionTest, retreatEndsBattleWithEnemyAsWinner)
 {
 	startGame();
