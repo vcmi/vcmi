@@ -142,6 +142,7 @@ public:
 
 	/// Language-neutral identity of this object type, for logs and other developer-facing text
 	std::string getObjectNameTextID() const;
+	virtual std::string getName() const;
 
 	/// Returns hover name for situation when there are no selected heroes. Default = object name
 	virtual MetaString getHoverText(PlayerColor player) const;
@@ -190,6 +191,8 @@ public:
 	virtual void updateFrom(const JsonNode & data);
 
 protected:
+	static std::string nameFromTextID(std::string textID);
+
 	/// virtual method that allows synchronously update object state on server and all clients
 	virtual void setPropertyDer(ObjProperty what, ObjPropertyID identifier);
 

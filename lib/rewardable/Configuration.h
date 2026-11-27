@@ -30,7 +30,8 @@ enum EVisitMode : uint8_t
 	VISIT_BONUS,     // can be visited by any hero that don't have bonus from this object
 	VISIT_LIMITER,   // can be visited by heroes that don't fulfill provided limiter
 	VISIT_PLAYER,     // every player can visit object once
-	VISIT_PLAYER_GLOBAL // every player can visit object once. All objects of the same type will be considered as visited
+	VISIT_PLAYER_GLOBAL, // every player can visit object once. All objects of the same type will be considered as visited
+	VISIT_TEAM_GLOBAL // every team can visit object once. All objects of the same type will be considered as visited
 };
 
 /// controls selection of reward granted to player
@@ -52,7 +53,7 @@ enum class EEventType : uint8_t
 };
 
 constexpr std::array<std::string_view, 4> SelectModeString{"selectFirst", "selectPlayer", "selectRandom", "selectAll"};
-constexpr std::array<std::string_view, 7> VisitModeString{"unlimited", "once", "hero", "bonus", "limiter", "player", "playerGlobal" };
+constexpr std::array<std::string_view, 8> VisitModeString{"unlimited", "once", "hero", "bonus", "limiter", "player", "playerGlobal", "teamGlobal" };
 
 struct ResetInfo
 {

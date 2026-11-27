@@ -49,11 +49,12 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * aiNk) const
 		{
 			if(aiNk->heroManager->getHeroRoleOrDefaultInefficient(targetHero) == HeroRole::MAIN)
 			{
-				auto reinforcement = aiNk->armyManager->howManyReinforcementsCanGet(
+				const auto bestArmyInfo = aiNk->armyManager->getBestArmyInfo(
 					targetHero,
 					targetHero,
 					&*townArmyAvailableToBuy,
 					TerrainId::NONE);
+				auto reinforcement = bestArmyInfo.strengthGain ? bestArmyInfo.sourceStrength : 0;
 
 				// TODO: Mircea: Shouldn't matter if hero is MAIN when buying reinforcements if there's a threat around
 				// Evaluate the entire code with the outside towns loop too.
@@ -62,7 +63,7 @@ Goals::TGoalVec BuyArmyBehavior::decompose(const Nullkiller * aiNk) const
 
 				if(reinforcement)
 				{
-					tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(reinforcement)));
+					tasks.push_back(Goals::sptr(Goals::BuyArmy(town, reinforcement).setpriority(bestArmyInfo.strengthGain)));
 				}
 			}
 		}

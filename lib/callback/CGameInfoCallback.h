@@ -12,6 +12,7 @@
 #include "MapInfoCallback.h"
 
 struct SThievesGuildInfo;
+struct RewardableObjectInfo;
 class ITranslator;
 class Player;
 
@@ -76,6 +77,7 @@ public:
 	std::map<int3, BattleField> getSpecialTerrainTiles() const;
 	const CGObjectInstance * getTopObj(int3 pos) const override;
 	const IMarket * getMarket(ObjectInstanceID objid) const;
+	[[nodiscard]] std::optional<RewardableObjectInfo> getRewardableObjectInfo(const CGObjectInstance * obj, const CGHeroInstance * hero = nullptr) const;
 
 	//map
 

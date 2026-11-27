@@ -12,29 +12,11 @@
 #include "../AIGateway.h"
 #include "../AIUtility.h"
 #include "../../../lib/constants/StringConstants.h"
-#include "../../../lib/entities/building/CBuilding.h"
 
 namespace NK2AI
 {
 
 using namespace Goals;
-
-BuildThis::BuildThis(BuildingID Bid, const CGTownInstance * tid)
-	: ElementarGoal(Goals::BUILD_STRUCTURE)
-{
-	// FIXME: Mircea: Remove this constructor (the parent constructor BuildThis::BuildThis)
-	// Seems like StartupBehavior is instantiating via this BuildThis constructor
-	// Or needs to be unit tested to ensure there's no problem with the limited constructor params
-	buildingInfo = BuildingInfo(
-		tid->getTown()->buildings.at(Bid).get(),
-		nullptr,
-		CreatureID::NONE,
-		tid,
-		std::unique_ptr<ArmyManager>(nullptr));
-
-	bid = Bid.getNum();
-	town = tid;
-}
 
 bool BuildThis::operator==(const BuildThis & other) const
 {
