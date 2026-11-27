@@ -12,10 +12,12 @@
 #include "BattleTestFixture.h"
 
 #include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/battle/actions/AutomaticActions.h"
 #include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/gameState/CGameState.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
+#include "../../../server/CGameHandler.h"
 
 namespace
 {
@@ -48,7 +50,7 @@ TEST_F(RangedActionTest, shotAtMeleeUnitUsesOneShotWithoutRetaliation)
 	const auto targetHealth = target->getAvailableHealth();
 	const auto shotsBefore = shooter->shots.available();
 
-	ASSERT_TRUE(act(BattleAction::makeShotAttack(shooter, target)));
+	ASSERT_TRUE(act(BattleAction::makeRangedAttack(shooter, target)));
 	EXPECT_LT(target->getAvailableHealth(), targetHealth);
 	EXPECT_EQ(shooter->getAvailableHealth(), shooterHealth);
 	EXPECT_EQ(shooter->shots.available(), shotsBefore - 1);
@@ -66,7 +68,7 @@ TEST_F(RangedActionTest, shooterNextToEnemyCannotShoot)
 	const auto targetHealth = target->getAvailableHealth();
 	const auto shotsBefore = shooter->shots.available();
 
-	EXPECT_FALSE(act(BattleAction::makeShotAttack(shooter, target)));
+	EXPECT_FALSE(act(BattleAction::makeRangedAttack(shooter, target)));
 	EXPECT_EQ(target->getAvailableHealth(), targetHealth);
 	EXPECT_EQ(shooter->shots.available(), shotsBefore);
 }
@@ -81,7 +83,7 @@ TEST_F(RangedActionTest, shotAtEmptyHexIsRefused)
 
 	const auto shotsBefore = shooter->shots.available();
 
-	EXPECT_FALSE(act(BattleAction::makeShotAttack(shooter, BattleHex(8, 5))));
+	EXPECT_FALSE(act(BattleAction::makeRangedAttack(shooter, BattleHex(8, 5))));
 	EXPECT_EQ(shooter->shots.available(), shotsBefore);
 }
 
@@ -96,7 +98,7 @@ TEST_F(RangedActionTest, shotAtFriendlyUnitIsRefused)
 
 	const auto friendlyHealth = friendly->getAvailableHealth();
 
-	EXPECT_FALSE(act(BattleAction::makeShotAttack(shooter, friendly)));
+	EXPECT_FALSE(act(BattleAction::makeRangedAttack(shooter, friendly)));
 	EXPECT_EQ(friendly->getAvailableHealth(), friendlyHealth);
 }
 
@@ -112,7 +114,7 @@ TEST_F(RangedActionTest, targetWithRangedRetaliationShootsBack)
 	const auto shooterHealth = shooter->getAvailableHealth();
 	const auto targetShots = target->shots.available();
 
-	ASSERT_TRUE(act(BattleAction::makeShotAttack(shooter, target)));
+	ASSERT_TRUE(act(BattleAction::makeRangedAttack(shooter, target)));
 	EXPECT_LT(shooter->getAvailableHealth(), shooterHealth);
 	EXPECT_EQ(target->shots.available(), targetShots - 1);
 }
@@ -221,6 +223,18 @@ TEST_F(RangedActionTest, catapultShootsAtWalls)
 	EXPECT_NE(shots.front().attackedPart, EWallPart::INVALID);
 }
 
+TEST_F(RangedActionTest, catapultSkipsTurnWithoutWallsToShoot)
+{
+	startGame();
+	startBattle();
+
+	const CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), BattleHex(2, 8), 1);
+
+	const auto action = AutomaticActions::chooseAction(*battle(), *catapult, *gameHandler->randomizer);
+	ASSERT_TRUE(action.has_value());
+	EXPECT_EQ(action->actionType, BattleActionID::SKIP_TURN);
+}
+
 TEST_F(RangedActionTest, catapultShotAtNonWallHexIsRefused)
 {
 	startGame();
@@ -274,7 +288,7 @@ TEST_F(RangedActionTest, shotPreviewShowsShotsLeftAndDamage)
 	const CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
 	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(8, 5), stackCount);
 
-	const auto shown = previewOf(shooter, EActionType::SHOOT, target->getPosition());
+	const auto shown = previewOf(shooter, BattleActionID::RANGED_ATTACK, target->getPosition());
 	EXPECT_EQ(shown.cursor, "combatShoot");
 	// an archer has 12 shots
 	EXPECT_THAT(textIDsOf(shown.statusText), ::testing::AllOf(
@@ -284,7 +298,7 @@ TEST_F(RangedActionTest, shotPreviewShowsShotsLeftAndDamage)
 		::testing::Contains("vcmi.battleWindow.damageEstimation.damage")));
 	EXPECT_THAT(numbersOf(shown.statusText), ::testing::Contains(12));
 
-	const auto option = optionOf(shooter, EActionType::SHOOT);
+	const auto option = optionOf(shooter, BattleActionID::RANGED_ATTACK);
 	EXPECT_TRUE(act(option.type->build(*battle(), option, {shooter, target->getPosition()}).value()));
 }
 
@@ -296,7 +310,7 @@ TEST_F(RangedActionTest, distantTargetShowsPenaltyCursor)
 	const CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), BattleHex(1, 5), stackCount);
 	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(15, 5), stackCount);
 
-	EXPECT_EQ(previewOf(shooter, EActionType::SHOOT, target->getPosition()).cursor, "combatShootPenalty");
+	EXPECT_EQ(previewOf(shooter, BattleActionID::RANGED_ATTACK, target->getPosition()).cursor, "combatShootPenalty");
 }
 
 TEST_F(RangedActionTest, shotPreviewAtEmptyHexIsBlocked)
@@ -307,7 +321,7 @@ TEST_F(RangedActionTest, shotPreviewAtEmptyHexIsBlocked)
 	const CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
-	EXPECT_EQ(previewOf(shooter, EActionType::SHOOT, BattleHex(8, 5)).cursor, "combatBlocked");
+	EXPECT_EQ(previewOf(shooter, BattleActionID::RANGED_ATTACK, BattleHex(8, 5)).cursor, "combatBlocked");
 }
 
 TEST_F(RangedActionTest, healPreviewShowsWoundedStack)
@@ -318,11 +332,11 @@ TEST_F(RangedActionTest, healPreviewShowsWoundedStack)
 	const CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
 	const CStack * patient = addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
 
-	EXPECT_EQ(previewOf(tent, EActionType::STACK_HEAL, patient->getPosition()).cursor, "combatBlocked");
+	EXPECT_EQ(previewOf(tent, BattleActionID::HEAL, patient->getPosition()).cursor, "combatBlocked");
 
 	injure(patient, patient->getMaxHealth() / 2);
 
-	const auto shown = previewOf(tent, EActionType::STACK_HEAL, patient->getPosition());
+	const auto shown = previewOf(tent, BattleActionID::HEAL, patient->getPosition());
 	EXPECT_EQ(shown.cursor, "combatHeal");
 	EXPECT_THAT(textIDsOf(shown.statusText), ::testing::IsSupersetOf(std::vector<std::string>{"core.genrltxt.419", pluralNameOf(CreatureID(pikeman))}));
 }
@@ -341,7 +355,7 @@ TEST_F(RangedActionTest, ballistaShootsTwiceOnlyFromAdvancedArtillery)
 
 		const auto shotsBefore = ballista->shots.available();
 
-		ASSERT_TRUE(act(BattleAction::makeShotAttack(ballista, target))) << "artillery level " << level;
+		ASSERT_TRUE(act(BattleAction::makeRangedAttack(ballista, target))) << "artillery level " << level;
 		EXPECT_EQ(shotsBefore - ballista->shots.available(), expectedShots) << "artillery level " << level;
 
 		injure(ballista, ballista->getAvailableHealth());

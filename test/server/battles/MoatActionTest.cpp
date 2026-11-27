@@ -81,13 +81,13 @@ INSTANTIATE_TEST_SUITE_P(Actions, MoatActionTest, ::testing::Values(
 	}},
 	MoatCase{"shoot", archer, false, [](const CStack * unit, const CStack * enemy, const CStack *)
 	{
-		return BattleAction::makeShotAttack(unit, enemy);
+		return BattleAction::makeRangedAttack(unit, enemy);
 	}},
 	MoatCase{"creatureSpell", stormElemental, false, [](const CStack * unit, const CStack *, const CStack * ally)
 	{
 		battle::Target target;
 		target.emplace_back(ally);
-		return BattleAction::makeCreatureSpellcast(unit, target, SpellID::PROTECTION_FROM_AIR);
+		return BattleAction::makeUnitSpell(unit, target, SpellID::PROTECTION_FROM_AIR);
 	}},
 	MoatCase{"attack", pikeman, true, [](const CStack * unit, const CStack * enemy, const CStack *)
 	{

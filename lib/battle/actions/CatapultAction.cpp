@@ -50,11 +50,9 @@ ActionPreview CatapultAction::preview(const IGameInfoCallback & game, const CBat
 	return {"combatShootCatapult", {}, {}, {}};
 }
 
-std::optional<BattleAction> CatapultAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> CatapultAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
-	BattleAction action = BattleAction::makeCatapultShot(context.actor);
-	action.aimToHex(context.hoveredHex);
-	return action;
+	return battle::Target{battle::Destination(context.hoveredHex)};
 }
 
 bool CatapultAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const

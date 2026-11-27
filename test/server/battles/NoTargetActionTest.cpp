@@ -32,7 +32,7 @@ using S = battle::UnitTurnStatus;
 struct StartStateCase
 {
 	const char * name;
-	EActionType action;
+	BattleActionID action;
 	const char * spell; ///< full identifier, or nullptr for an action without one
 	battle::UnitTurnStatus status;
 	bool castSpellThisTurn;
@@ -72,21 +72,21 @@ TEST_P(ActionStartStateTest, setsTurnStateOfActingUnit)
 }
 
 INSTANTIATE_TEST_SUITE_P(Actions, ActionStartStateTest, ::testing::Values(
-	StartStateCase{"wait",            EActionType::WAIT,            nullptr,                         S::WAITING, false},
-	StartStateCase{"defend",          EActionType::DEFEND,          nullptr,                         S::DEFENDED, false},
-	StartStateCase{"creatureSpell",   EActionType::MONSTER_SPELL,   "core:bless",                    S::ACTED, true},
+	StartStateCase{"wait",            BattleActionID::WAIT,            nullptr,                         S::WAITING, false},
+	StartStateCase{"defend",          BattleActionID::DEFEND,          nullptr,                         S::DEFENDED, false},
+	StartStateCase{"creatureSpell",   BattleActionID::UNIT_SPELL,   "core:bless",                    S::ACTED, true},
 	// a genie action carries no spell, the server rolls it while applying the action
-	StartStateCase{"randomSpell",     EActionType::RANDOM_SPELL,    nullptr,                         S::ACTED, true},
-	StartStateCase{"castWithoutSkip", EActionType::MONSTER_SPELL,   "vcmi-test:testCastWithoutSkip", S::WAITING, true},
-	StartStateCase{"walk",            EActionType::WALK,            nullptr,                         S::ACTED, false},
-	StartStateCase{"attack",          EActionType::WALK_AND_ATTACK, nullptr,                         S::ACTED, false},
-	StartStateCase{"shoot",           EActionType::SHOOT,           nullptr,                         S::ACTED, false},
-	StartStateCase{"catapult",        EActionType::CATAPULT,        nullptr,                         S::ACTED, false},
-	StartStateCase{"heal",            EActionType::STACK_HEAL,      nullptr,                         S::ACTED, false},
+	StartStateCase{"randomSpell",     BattleActionID::RANDOM_SPELL,    nullptr,                         S::ACTED, true},
+	StartStateCase{"castWithoutSkip", BattleActionID::UNIT_SPELL,   "vcmi-test:testCastWithoutSkip", S::WAITING, true},
+	StartStateCase{"walk",            BattleActionID::MOVE,            nullptr,                         S::ACTED, false},
+	StartStateCase{"attack",          BattleActionID::MELEE_ATTACK, nullptr,                         S::ACTED, false},
+	StartStateCase{"shoot",           BattleActionID::RANGED_ATTACK,           nullptr,                         S::ACTED, false},
+	StartStateCase{"catapult",        BattleActionID::CATAPULT,        nullptr,                         S::ACTED, false},
+	StartStateCase{"heal",            BattleActionID::HEAL,      nullptr,                         S::ACTED, false},
 	// the walk ends the turn, so the flag that refuses a second cast in the same turn is not needed
-	StartStateCase{"walkAndCast",     EActionType::WALK_AND_CAST,   "core:bless",                    S::ACTED, false},
-	StartStateCase{"badMorale",       EActionType::BAD_MORALE,      nullptr,                         S::ACTED, false},
-	StartStateCase{"noAction",        EActionType::NO_ACTION,       nullptr,                         S::ACTED, false}
+	StartStateCase{"walkAndCast",     BattleActionID::ADJACENT_SPELL,   "core:bless",                    S::ACTED, false},
+	StartStateCase{"badMorale",       BattleActionID::BAD_MORALE,      nullptr,                         S::ACTED, false},
+	StartStateCase{"noAction",        BattleActionID::SKIP_TURN,       nullptr,                         S::ACTED, false}
 ),
 	[](const ::testing::TestParamInfo<StartStateCase> & info) { return info.param.name; });
 
@@ -161,6 +161,38 @@ INSTANTIATE_TEST_SUITE_P(Creatures, DefendActionTest, ::testing::Values(
 	DefendCase{"angelWithStance", "core:angel",   3, 7}
 ),
 	[](const ::testing::TestParamInfo<DefendCase> & info) { return info.param.name; });
+
+TEST_F(NoTargetActionTest, playerCanNotMakeActionsThatOnlyServerMakes)
+{
+	startGame();
+	startBattle();
+	const CStack * unit = activateUnitOfAttacker();
+
+	EXPECT_FALSE(act(BattleAction::makeBadMorale(unit)));
+	EXPECT_FALSE(act(BattleAction::makeSkipTurn(unit)));
+	EXPECT_EQ(unit->getTurnStatus(), battle::UnitTurnStatus::READY);
+}
+
+TEST_F(NoTargetActionTest, sideWithoutTacticsCanNotEndTacticsPhaseOfEnemy)
+{
+	startGame();
+	startBattle();
+	battle()->tacticDistance = 2;
+	battle()->tacticsSide = BattleSide::ATTACKER;
+
+	EXPECT_FALSE(act(BattleAction::makeEndTacticsPhase(BattleSide::DEFENDER)));
+	EXPECT_EQ(battle()->tacticDistance, 2);
+}
+
+TEST_F(NoTargetActionTest, tacticsPhaseCanNotBeEndedAfterItIsOver)
+{
+	startGame();
+	startBattle();
+	beginCombat();
+	activateUnitOfAttacker();
+
+	EXPECT_FALSE(act(BattleAction::makeEndTacticsPhase(BattleSide::ATTACKER)));
+}
 
 TEST_F(NoTargetActionTest, retreatEndsBattleWithEnemyAsWinner)
 {

@@ -49,12 +49,6 @@ struct DLL_LINKAGE AttackableTiles
 	BattleHexArray overrideAnimationPositions;
 };
 
-struct ForcedAction {
-	EActionType type = EActionType::NO_ACTION;
-	BattleHex position;
-	const battle::Unit * target;
-};
-
 using SpellEffectValUptr = std::unique_ptr<spells::effects::SpellEffectValue>;
 
 class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
@@ -201,7 +195,6 @@ public:
 	AccessibilityInfo getAccessibility() const;
 	AccessibilityInfo getAccessibility(const battle::Unit * stack) const; //Hexes occupied by stack will be marked as accessible.
 	AccessibilityInfo getAccessibility(const BattleHexArray & accessibleHexes) const; //given hexes will be marked as accessible
-	ForcedAction getBerserkForcedAction(const battle::Unit * berserker) const;
 	BattleHex getClosestHexToTargetInRange(const ReachabilityInfo& cache, const battle::Unit& unit, const BattleHex& targetHex) const;
 
 	/// find free hex suitable to place new unit. If no initial position was provided, hex located on left size (attacker) or right side (defender) will be selected

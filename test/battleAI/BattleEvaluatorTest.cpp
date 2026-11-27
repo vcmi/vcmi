@@ -100,7 +100,7 @@ TEST_F(BattleEvaluatorTest, HypnotizedUnitGoesForItsFormerAllies)
 
 	BattleAction action = evaluator.selectStackAction(behemoth);
 
-	ASSERT_EQ(action.actionType, EActionType::WALK_AND_ATTACK);
+	ASSERT_EQ(action.actionType, BattleActionID::MELEE_ATTACK);
 	EXPECT_EQ(action.target[1].hexValue, elf->getPosition());
 }
 
@@ -118,7 +118,7 @@ TEST_F(BattleEvaluatorTest, AttacksSuitableTargetOnWayToMovementWaypoint)
 	ASSERT_EQ(reachability.distances[movementWaypoint.toInt()], behemoth->getMovementRange(0));
 	auto action = moveTowards(behemoth, movementWaypoints, elf->getAttackableHexes(behemoth));
 
-	ASSERT_EQ(action.actionType, EActionType::WALK_AND_ATTACK);
+	ASSERT_EQ(action.actionType, BattleActionID::MELEE_ATTACK);
 	ASSERT_EQ(action.target.size(), 2);
 	EXPECT_EQ(action.target[1].hexValue, griffin->getPosition());
 }
@@ -131,7 +131,7 @@ TEST_F(BattleEvaluatorTest, SkipsTargetIfAttackWouldDelayPrimaryTarget)
 
 	auto action = moveTowards(behemoth, elf);
 
-	EXPECT_EQ(action.actionType, EActionType::WALK);
+	EXPECT_EQ(action.actionType, BattleActionID::MOVE);
 }
 
 TEST_F(BattleEvaluatorTest, SkipsUnprofitableTargetWithoutDelayingPrimaryTarget)
@@ -145,7 +145,7 @@ TEST_F(BattleEvaluatorTest, SkipsUnprofitableTargetWithoutDelayingPrimaryTarget)
 	BattleHexArray movementWaypoints{BattleHex(9, 7)};
 	auto action = moveTowards(behemoth, movementWaypoints, elf->getAttackableHexes(behemoth));
 
-	EXPECT_EQ(action.actionType, EActionType::WALK);
+	EXPECT_EQ(action.actionType, BattleActionID::MOVE);
 }
 
 TEST_F(BattleEvaluatorTest, EnemyOnlyAreaAttackDoesNotDamageAnAlly)

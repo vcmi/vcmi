@@ -1,5 +1,5 @@
 /*
- * WalkActionTest.cpp, part of VCMI engine
+ * MoveActionTest.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -24,7 +24,7 @@ constexpr int griffin = 4; // flies 6 hexes
 
 /// Where a WALK action leaves the unit, what stops it on the way, which destinations the
 /// server refuses, and what the client shows for them. Every walk here goes along one row, where the shortest path is a straight line.
-class WalkActionTest : public BattleTestFixture
+class MoveActionTest : public BattleTestFixture
 {
 public:
 	static inline const BattleHex start = BattleHex(3, 5);
@@ -32,7 +32,7 @@ public:
 	static inline const BattleHex halfway = BattleHex(5, 5);
 };
 
-TEST_F(WalkActionTest, unitReachesDestination)
+TEST_F(MoveActionTest, unitReachesDestination)
 {
 	startGame();
 	startBattle();
@@ -43,7 +43,7 @@ TEST_F(WalkActionTest, unitReachesDestination)
 	EXPECT_EQ(walker->getPosition(), destination);
 }
 
-TEST_F(WalkActionTest, destinationOutOfReachIsRefused)
+TEST_F(MoveActionTest, destinationOutOfReachIsRefused)
 {
 	startGame();
 	startBattle();
@@ -54,7 +54,7 @@ TEST_F(WalkActionTest, destinationOutOfReachIsRefused)
 	EXPECT_EQ(walker->getPosition(), start);
 }
 
-TEST_F(WalkActionTest, occupiedDestinationIsRefused)
+TEST_F(MoveActionTest, occupiedDestinationIsRefused)
 {
 	startGame();
 	startBattle();
@@ -66,7 +66,7 @@ TEST_F(WalkActionTest, occupiedDestinationIsRefused)
 	EXPECT_EQ(walker->getPosition(), start);
 }
 
-TEST_F(WalkActionTest, quicksandOnTheWayStopsWalkingUnit)
+TEST_F(MoveActionTest, quicksandOnTheWayStopsWalkingUnit)
 {
 	startGame();
 	startBattle();
@@ -79,7 +79,7 @@ TEST_F(WalkActionTest, quicksandOnTheWayStopsWalkingUnit)
 	EXPECT_EQ(walker->getPosition(), halfway);
 }
 
-TEST_F(WalkActionTest, flyingUnitPassesOverQuicksand)
+TEST_F(MoveActionTest, flyingUnitPassesOverQuicksand)
 {
 	startGame();
 	startBattle();
@@ -91,7 +91,7 @@ TEST_F(WalkActionTest, flyingUnitPassesOverQuicksand)
 	EXPECT_EQ(flyer->getPosition(), destination);
 }
 
-TEST_F(WalkActionTest, tacticsPhaseWalkDoesNotEndTurn)
+TEST_F(MoveActionTest, tacticsPhaseWalkDoesNotEndTurn)
 {
 	startGame();
 	startBattle();
@@ -105,7 +105,7 @@ TEST_F(WalkActionTest, tacticsPhaseWalkDoesNotEndTurn)
 	EXPECT_EQ(walker->getTurnStatus(), battle::UnitTurnStatus::READY);
 }
 
-TEST_F(WalkActionTest, tacticsPhaseWalkOutsideTacticsZoneIsRefused)
+TEST_F(MoveActionTest, tacticsPhaseWalkOutsideTacticsZoneIsRefused)
 {
 	startGame();
 	startBattle();
@@ -119,7 +119,7 @@ TEST_F(WalkActionTest, tacticsPhaseWalkOutsideTacticsZoneIsRefused)
 	EXPECT_EQ(walker->getPosition(), BattleHex(1, 3));
 }
 
-TEST_F(WalkActionTest, defenderWalksIntoCastleGate)
+TEST_F(MoveActionTest, defenderWalksIntoCastleGate)
 {
 	startGame();
 	startSiege();
@@ -130,54 +130,54 @@ TEST_F(WalkActionTest, defenderWalksIntoCastleGate)
 	EXPECT_EQ(walker->getPosition(), BattleHex(BattleHex::GATE_OUTER));
 }
 
-TEST_F(WalkActionTest, walkPreviewShadesHexInReach)
+TEST_F(MoveActionTest, walkPreviewShadesHexInReach)
 {
 	startGame();
 	startBattle();
 
 	const CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
 
-	const auto shown = previewOf(walker, EActionType::WALK, destination);
+	const auto shown = previewOf(walker, BattleActionID::MOVE, destination);
 	EXPECT_EQ(shown.cursor, "combatMove");
 	EXPECT_EQ(shown.shadedHexes, BattleHexArray({destination}));
 
-	const auto option = optionOf(walker, EActionType::WALK);
+	const auto option = optionOf(walker, BattleActionID::MOVE);
 	EXPECT_EQ(option.type->build(*battle(), option, {walker, destination}).value().getTarget(battle()).at(0).hexValue, destination);
 }
 
-TEST_F(WalkActionTest, flyingUnitShowsFlyCursor)
+TEST_F(MoveActionTest, flyingUnitShowsFlyCursor)
 {
 	startGame();
 	startBattle();
 
 	const CStack * flyer = addStack(BattleSide::ATTACKER, CreatureID(griffin), start, 10);
 
-	EXPECT_EQ(previewOf(flyer, EActionType::WALK, destination).cursor, "combatFly");
+	EXPECT_EQ(previewOf(flyer, BattleActionID::MOVE, destination).cursor, "combatFly");
 }
 
-TEST_F(WalkActionTest, walkPreviewOutOfReachIsBlocked)
+TEST_F(MoveActionTest, walkPreviewOutOfReachIsBlocked)
 {
 	startGame();
 	startBattle();
 
 	const CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
 
-	const auto shown = previewOf(walker, EActionType::WALK, BattleHex(9, 5));
+	const auto shown = previewOf(walker, BattleActionID::MOVE, BattleHex(9, 5));
 	EXPECT_EQ(shown.cursor, "combatBlocked");
 	EXPECT_TRUE(shown.shadedHexes.empty());
 }
 
-TEST_F(WalkActionTest, ownHexIsNoMoveTarget)
+TEST_F(MoveActionTest, ownHexIsNoMoveTarget)
 {
 	startGame();
 	startBattle();
 
 	const CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
 
-	EXPECT_FALSE(isLegal(optionOf(walker, EActionType::WALK), {walker, start}));
+	EXPECT_FALSE(isLegal(optionOf(walker, BattleActionID::MOVE), {walker, start}));
 }
 
-TEST_F(WalkActionTest, twoHexUnitMovesWhereItsTailFits)
+TEST_F(MoveActionTest, twoHexUnitMovesWhereItsTailFits)
 {
 	startGame();
 	startBattle();
@@ -188,5 +188,5 @@ TEST_F(WalkActionTest, twoHexUnitMovesWhereItsTailFits)
 
 	// the head can't stand on the hovered hex, because the tail would stand on the enemy; one hex further both fit
 	const BattleHex head = destination.cloneInDirection(BattleHex::RIGHT);
-	EXPECT_EQ(previewOf(flyer, EActionType::WALK, destination).shadedHexes, BattleHexArray({head, destination}));
+	EXPECT_EQ(previewOf(flyer, BattleActionID::MOVE, destination).shadedHexes, BattleHexArray({head, destination}));
 }

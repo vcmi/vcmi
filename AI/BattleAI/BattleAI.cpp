@@ -164,11 +164,11 @@ void CBattleAI::activeStack(const BattleID & battleID, const CStack * stack )
 		return;
 	}
 
-	if(result.actionType == EActionType::DEFEND)
+	if(result.actionType == BattleActionID::DEFEND)
 	{
 		movesSkippedByDefense++;
 	}
-	else if(result.actionType != EActionType::WAIT)
+	else if(result.actionType != BattleActionID::WAIT)
 	{
 		movesSkippedByDefense = 0;
 	}

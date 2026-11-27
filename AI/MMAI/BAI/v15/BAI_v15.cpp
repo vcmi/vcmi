@@ -217,7 +217,7 @@ bool BAI::maybeCastCreatureSpell(const CStack * astack, BattleEvaluator & evalua
 	logger.debug("Attempting a BattleAI creature spellcast");
 
 	auto action = evaluator.selectStackAction(astack);
-	if(action.actionType != EActionType::MONSTER_SPELL)
+	if(action.actionType != BattleActionID::UNIT_SPELL)
 	{
 		logger.debug("Not making BattleAI creature spellcast (action would be " + action.toString());
 		return false;
@@ -243,7 +243,7 @@ std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, c
 		auto ba = std::make_shared<BattleAction>();
 		ba->side = astack->unitSide();
 		ba->stackNumber = astack->unitId();
-		ba->actionType = EActionType::CATAPULT;
+		ba->actionType = BattleActionID::CATAPULT;
 
 		if(battle->battleGetGateState() != EGateState::DESTROYED)
 		{
@@ -289,7 +289,7 @@ std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, c
 			return std::make_shared<BattleAction>(BattleAction::makeDefend(astack));
 		}
 
-		return std::make_shared<BattleAction>(BattleAction::makeShotAttack(astack, *target));
+		return std::make_shared<BattleAction>(BattleAction::makeRangedAttack(astack, *target));
 	}
 
 	return nullptr;
@@ -356,7 +356,7 @@ namespace
 			case AT::SHOOT:
 				assert(a->by && &a->by->cstack == acstack);
 				assert(a->target && battle.battleCanShoot(acstack, a->target->cstack.getPosition()));
-				return BattleAction::makeShotAttack(acstack, &a->target->cstack);
+				return BattleAction::makeRangedAttack(acstack, &a->target->cstack);
 			default:
 				throwf("Unexpected action type: %1%", EI(a->actionType));
 		}

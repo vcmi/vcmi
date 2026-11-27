@@ -573,7 +573,7 @@ void CClient::battleStarted(const BattleID & battleID)
 
 				if(interface->playerID == info->getSide(info->tacticsSide).color)
 				{
-					auto action = BattleAction::makeEndOFTacticPhase(side);
+					auto action = BattleAction::makeEndTacticsPhase(side);
 					interface->cb->battleMakeTacticAction(info->battleID, action);
 				}
 			}

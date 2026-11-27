@@ -153,7 +153,7 @@ void BAI::battleNewRound(const BattleID & bid)
 
 void BAI::yourTacticPhase(const BattleID & bid, int distance)
 {
-	cb->battleMakeTacticAction(bid, BattleAction::makeEndOFTacticPhase(battle->battleGetTacticsSide()));
+	cb->battleMakeTacticAction(bid, BattleAction::makeEndTacticsPhase(battle->battleGetTacticsSide()));
 }
 
 bool BAI::maybeCastSpell(const CStack * astack, const BattleID & bid)
@@ -233,7 +233,7 @@ std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, c
 		);
 
 		ASSERT(target != allstacks.end(), "Could not find an enemy stack to attack. Falling back to a defend.");
-		return std::make_shared<BattleAction>(BattleAction::makeShotAttack(astack, *target));
+		return std::make_shared<BattleAction>(BattleAction::makeRangedAttack(astack, *target));
 	}
 
 	return nullptr;
@@ -445,7 +445,7 @@ std::shared_ptr<BattleAction> BAI::buildBattleAction()
 			break;
 			case HexAction::SHOOT:
 				ASSERT(stack != nullptr, "no target to shoot");
-				res = std::make_shared<BattleAction>(BattleAction::makeShotAttack(acstack, stack->cstack));
+				res = std::make_shared<BattleAction>(BattleAction::makeRangedAttack(acstack, stack->cstack));
 				break;
 			case HexAction::AMOVE_TR:
 			case HexAction::AMOVE_R:

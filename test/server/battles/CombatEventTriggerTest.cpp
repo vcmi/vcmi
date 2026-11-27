@@ -236,12 +236,12 @@ INSTANTIATE_TEST_SUITE_P(Actions, ActionEventTest, ::testing::Values(
 	{
 		battle::Target target;
 		target.emplace_back(ally);
-		return BattleAction::makeCreatureSpellcast(unit, target, SpellID::PROTECTION_FROM_AIR);
+		return BattleAction::makeUnitSpell(unit, target, SpellID::PROTECTION_FROM_AIR);
 	}},
 	ActionEventCase{"walkAndCast", pikeman, CombatEventType::UNIT_SPELLCAST, [](CStack * unit, const CStack * ally)
 	{
 		BattleTestFixture::grantSpell(unit, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
-		return BattleAction::makeWalkAndCast(unit, ally->getPosition().cloneInDirection(BattleHex::LEFT), ally, SpellID::BLESS);
+		return BattleAction::makeAdjacentSpell(unit, ally->getPosition().cloneInDirection(BattleHex::LEFT), ally, SpellID::BLESS);
 	}}
 ),
 	[](const ::testing::TestParamInfo<ActionEventCase> & info) { return info.param.name; });

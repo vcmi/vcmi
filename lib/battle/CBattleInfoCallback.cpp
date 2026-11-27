@@ -1456,6 +1456,9 @@ BattleHex CBattleInfoCallback::getClosestHexToTargetInRange(const ReachabilityIn
 	if (unit.hasBonusOfType(BonusType::FLYING))
 	{
 		BattleHexArray reachableHexes = battleGetAvailableHexes(cache, &unit, false);
+		if(reachableHexes.empty())
+			return BattleHex::INVALID;
+
 		return std::ranges::min_element(reachableHexes, [&targetHex](const BattleHex & lhs, const BattleHex & rhs)
 		{
 			return BattleHex::getDistance(lhs, targetHex) < BattleHex::getDistance(rhs, targetHex);
@@ -1483,76 +1486,6 @@ BattleHex CBattleInfoCallback::getClosestHexToTargetInRange(const ReachabilityIn
 	{
 		return BattleHex::getDistance(h, targetHex);
 	});
-}
-
-ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * berserker) const
-{
-	logGlobal->trace("Handle Berserk effect");
-	const ForcedAction noAction = {EActionType::NO_ACTION, berserker->getPosition(), nullptr};
-
-	auto targets = battleGetUnitsIf([&berserker](const battle::Unit * u)
-	{
-		return u->isValidTarget(false) && !u->isInvincible() && u->unitId() != berserker->unitId();
-	});
-
-	if (targets.empty())
-	{
-		logGlobal->trace("No attackable target found for berserk unit");
-		return noAction;
-	}
-
-	const auto nearestTarget = std::ranges::min_element(targets, [&berserker](const battle::Unit * lhs, const battle::Unit * rhs)
-	{
-		return BattleHex::getDistance(berserker->getPosition(), lhs->getPosition()) < BattleHex::getDistance(berserker->getPosition(), rhs->getPosition());
-	})[0];
-
-	// a shooter that can not shoot its nearest target, e.g. Steel Elves next to it or out of limited range, attacks in melee
-	if (battleCanShoot(berserker, nearestTarget->getPosition()))
-		return {EActionType::SHOOT, berserker->getPosition(), nearestTarget};
-
-	struct TargetData
-	{
-		const battle::Unit * target;
-		BattleHex closestAttackableHex;
-		uint32_t distance;
-	};
-
-	auto cache = getReachability(berserker);
-	std::vector<TargetData> targetData;
-	targetData.reserve(targets.size());
-	for (const battle::Unit * uTarget : targets)
-	{
-		BattleHexArray attackableHexes = uTarget->getAttackableHexes(berserker);
-		// a double-wide berserker may have no room to stand next to the target
-		if (attackableHexes.empty())
-			continue;
-
-		auto closestAttackableHex = std::ranges::min_element(attackableHexes, [&cache](const BattleHex & lhs, const BattleHex & rhs)
-		{
-			return cache.distances[lhs.toInt()] < cache.distances[rhs.toInt()];
-		})[0];
-		targetData.push_back({uTarget, closestAttackableHex, cache.distances[closestAttackableHex.toInt()]});
-	}
-
-	if (targetData.empty())
-	{
-		logGlobal->trace("No room to attack any target");
-		return noAction;
-	}
-
-	auto closestUnit = std::ranges::min_element(targetData, [](const TargetData & lhs, const TargetData & rhs)
-	{
-		return lhs.distance < rhs.distance;
-	})[0];
-
-	if (closestUnit.distance <= berserker->getMovementRange())
-		return {EActionType::WALK_AND_ATTACK, closestUnit.closestAttackableHex, closestUnit.target};
-
-	if (closestUnit.distance != ReachabilityInfo::INFINITE_DIST && berserker->getMovementRange() > 0)
-		return {EActionType::WALK, getClosestHexToTargetInRange(cache, *berserker, closestUnit.closestAttackableHex), closestUnit.target};
-
-	logGlobal->trace("No target found or unit cannot move");
-	return noAction;
 }
 
 BattleHex CBattleInfoCallback::getAvailableHex(const Creature * creature, BattleSide side, BattleHex initialPos) const

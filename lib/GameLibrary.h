@@ -25,6 +25,7 @@ class CTownHandler;
 class CGeneralTextHandler;
 class CModHandler;
 class CContentHandler;
+class BattleActionTypeHandler;
 class BattleFieldHandler;
 class IBonusTypeHandler;
 class ITranslator;
@@ -99,6 +100,7 @@ public:
 
 	LibraryHandlerPtr<CArtHandler> arth;
 	LibraryHandlerPtr<CBonusTypeHandler> bth;
+	LibraryHandlerPtr<BattleActionTypeHandler> battleActionTypeHandler;
 	LibraryHandlerPtr<CHeroHandler> heroh;
 	LibraryHandlerPtr<CHeroClassHandler> heroclassesh;
 	LibraryHandlerPtr<CCreatureHandler> creh;

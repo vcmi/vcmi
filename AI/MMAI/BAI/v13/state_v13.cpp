@@ -340,34 +340,34 @@ void State::_onActionStarted(const BattleAction & ba)
 		return;
 	}
 
-	switch(ba.actionType)
+	switch(ba.actionType.toEnum())
 	{
-		case EActionType::WAIT:
+		case BattleActionID::WAIT:
 			startedAction = S13::ACTION_WAIT;
 			break;
-		case EActionType::SHOOT:
+		case BattleActionID::RANGED_ATTACK:
 		{
 			auto bh = ba.target.at(0).hexValue;
 			auto id = Hex::CalcId(bh);
 			startedAction = S13::N_NONHEX_ACTIONS + id * EI(HexAction::_count) + EI(HexAction::SHOOT);
 		}
 		break;
-		case EActionType::DEFEND:
+		case BattleActionID::DEFEND:
 		{
 			auto bh = actingStack->getPosition();
 			auto id = Hex::CalcId(bh);
 			startedAction = S13::N_NONHEX_ACTIONS + id * EI(HexAction::_count) + EI(HexAction::MOVE);
 		}
 		break;
-		case EActionType::WALK:
+		case BattleActionID::MOVE:
 		{
 			auto bh = ba.target.at(0).hexValue;
 			auto id = Hex::CalcId(bh);
 			startedAction = S13::N_NONHEX_ACTIONS + id * EI(HexAction::_count) + EI(HexAction::MOVE);
 		}
 		break;
-		case EActionType::WALK_AND_ATTACK:
-		case EActionType::WALK_AND_ATTACK_NO_RETURN:
+		case BattleActionID::MELEE_ATTACK:
+		case BattleActionID::MELEE_ATTACK_NO_RETURN:
 		{
 			auto bhMove = ba.target.at(0).hexValue;
 			auto bhTarget = ba.target.at(1).hexValue;
@@ -412,15 +412,15 @@ void State::_onActionStarted(const BattleAction & ba)
 			);
 		}
 		break;
-		case EActionType::MONSTER_SPELL:
-		case EActionType::RANDOM_SPELL:
-			logAi->warn("Got MONSTER_SPELL action (use cursed ground to prevent this)");
+		case BattleActionID::UNIT_SPELL:
+		case BattleActionID::RANDOM_SPELL:
+			logAi->warn("Got UNIT_SPELL action (use cursed ground to prevent this)");
 			return;
 			break;
 		default:
 			// Don't record a state diff for the other actions
 			// (most are irrelevant or should never occur during training,
-			//  except for MONSTER_SPELL, which can be fixed via cursed ground)
+			//  except for UNIT_SPELL, which can be fixed via cursed ground)
 			logAi->debug("Not recording actionType=%d", EI(ba.actionType));
 			return;
 	}

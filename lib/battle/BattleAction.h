@@ -24,7 +24,7 @@ class DLL_LINKAGE BattleAction
 public:
 	BattleSide side; //who made this action
 	ui32 stackNumber; //stack ID, -1 left hero, -2 right hero,
-	EActionType actionType; //use ActionType enum for values
+	BattleActionID actionType;
 
 	SpellID spell;
 
@@ -33,27 +33,26 @@ public:
 	static BattleAction makeHeal(const battle::Unit * healer, const battle::Unit * healed);
 	/// Heal of the most wounded unit that the healer can heal, chosen when the action is applied
 	static BattleAction makeHeal(const battle::Unit * healer);
-	static BattleAction makeNoAction(const battle::Unit * stack);
+	static BattleAction makeSkipTurn(const battle::Unit * stack);
 	static BattleAction makeBadMorale(const battle::Unit * stack);
 	static BattleAction makeDefend(const battle::Unit * stack);
 	static BattleAction makeWait(const battle::Unit * stack);
-	/// Melee attack from a hex next to the target. A unit with RETURN_AFTER_STRIKE returns to its position unless returnAfterAttack is false
-	static BattleAction makeMeleeAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom, bool returnAfterAttack = true);
-	static BattleAction makeMeleeAttack(const battle::Unit* stack, const battle::Unit* target, const BattleHex& attackFrom, bool returnAfterAttack = true);
+	/// Melee attack from a hex next to the target. A unit with RETURN_AFTER_STRIKE returns to its position
+	static BattleAction makeMeleeAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom);
+	static BattleAction makeMeleeAttack(const battle::Unit * stack, const battle::Unit * target, const BattleHex & attackFrom);
 	/// Attack of a LONG_WEAPON unit over one free hex
 	static BattleAction makeLongWeaponAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom);
-	static BattleAction makeShotAttack(const battle::Unit * shooter, const battle::Unit * target);
-	static BattleAction makeShotAttack(const battle::Unit * shooter, const BattleHex & destination);
-	static BattleAction makeHeal(const battle::Unit * healer, const BattleHex & destination);
+	static BattleAction makeRangedAttack(const battle::Unit * shooter, const battle::Unit * target);
+	static BattleAction makeRangedAttack(const battle::Unit * shooter, const BattleHex & destination);
 	/// Catapult shot without a target, at a wall part that the spell picks
 	static BattleAction makeCatapultShot(const battle::Unit * catapult);
-	static BattleAction makeWalkAndCast(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID);
-	static BattleAction makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID);
-	static BattleAction makeHeroSpellcast(BattleSide side, const battle::Target & target, const SpellID & spellID);
+	static BattleAction makeAdjacentSpell(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID);
+	static BattleAction makeUnitSpell(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID);
+	static BattleAction makeHeroSpell(BattleSide side, const battle::Target & target, const SpellID & spellID);
 	/// Random spell of a RANDOM_SPELLCASTER unit at the unit on the hex. The server rolls the spell
-	static BattleAction makeRandomSpellcast(const battle::Unit * stack, const BattleHex & destination);
+	static BattleAction makeRandomSpell(const battle::Unit * stack, const BattleHex & destination);
 	static BattleAction makeMove(const battle::Unit * stack, const BattleHex & dest);
-	static BattleAction makeEndOFTacticPhase(BattleSide side);
+	static BattleAction makeEndTacticsPhase(BattleSide side);
 	static BattleAction makeRetreat(BattleSide side);
 	static BattleAction makeSurrender(BattleSide side);
 
@@ -72,7 +71,17 @@ public:
 	{
 		h & side;
 		h & stackNumber;
-		h & actionType;
+		if(h.hasFeature(Handler::Version::BATTLE_ACTION_ID))
+		{
+			h & actionType;
+		}
+		else
+		{
+			// older versions send the number of the type, which BattleActionID keeps for built-in types
+			int32_t legacyType = actionType.getNum();
+			h & legacyType;
+			actionType = BattleActionID(legacyType);
+		}
 		h & spell;
 		h & target;
 	}
@@ -90,6 +99,10 @@ public:
 	};
 
 	std::vector<DestinationInfo> target;
+
+private:
+	static BattleAction makeUnitAction(const battle::Unit * unit, BattleActionID type);
+	static BattleAction makeSideAction(BattleSide side, BattleActionID type);
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleAction & ba); //todo: remove

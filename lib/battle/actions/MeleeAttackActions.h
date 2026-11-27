@@ -13,17 +13,23 @@
 
 /// Base of the melee attack types: the unit moves to a hex and strikes a unit from there.
 /// The action targets the hex to attack from, followed by the attacked hex or unit
-class MeleeAttackAction : public BattleActionType
+class MeleeAttackBase : public BattleActionType
 {
 public:
+	using BattleActionType::BattleActionType;
+
 	bool isUnitAction() const override;
 
 	std::vector<ActionApproach> getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const override;
 	ActionPreview preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
-	std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
+	std::optional<battle::Target> buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
 
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
+
+	/// Attack that clicking the defender from the hex makes: the melee attack option of the actor with the best priority that strikes the defender from the hex.
+	/// Nothing if no option does
+	static std::optional<BattleAction> buildAutomaticAttack(const CBattleInfoCallback & battle, const battle::Unit & actor, const battle::Unit & defender, const BattleHex & attackFrom);
 
 protected:
 	/// Strikes over one free hex instead of at an adjacent unit, and is not retaliated
@@ -37,10 +43,12 @@ private:
 	BattleHexArray getAttackedHexes(const CBattleInfoCallback & battle, const battle::Unit & attacker, const BattleHex & destinationTile, const BattleHex & attackerPos) const;
 };
 
-/// WALK_AND_ATTACK: melee attack, after which a unit with RETURN_AFTER_STRIKE returns
-class WalkAndAttackAction : public MeleeAttackAction
+/// MELEE_ATTACK: melee attack, after which a unit with RETURN_AFTER_STRIKE returns
+class MeleeAttackAction : public MeleeAttackBase
 {
 public:
+	using MeleeAttackBase::MeleeAttackBase;
+
 	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
 	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
 
@@ -48,18 +56,22 @@ protected:
 	bool returnsAfterStrike() const override;
 };
 
-/// WALK_AND_ATTACK_NO_RETURN: melee attack of a unit that stays at its target
-class WalkAndAttackNoReturnAction : public MeleeAttackAction
+/// MELEE_ATTACK_NO_RETURN: melee attack of a unit that stays at its target
+class MeleeAttackNoReturnAction : public MeleeAttackBase
 {
 public:
+	using MeleeAttackBase::MeleeAttackBase;
+
 	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
 	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
 };
 
 /// LONG_WEAPON_ATTACK: attack of a LONG_WEAPON unit over one free hex
-class LongWeaponAttackAction : public MeleeAttackAction
+class LongWeaponAttackAction : public MeleeAttackBase
 {
 public:
+	using MeleeAttackBase::MeleeAttackBase;
+
 	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
 	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
 

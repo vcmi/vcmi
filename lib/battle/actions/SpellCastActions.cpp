@@ -96,7 +96,7 @@ std::optional<battle::Destination> SpellCastAction::buildTargetStep(const CBattl
 	return destination;
 }
 
-std::optional<BattleAction> SpellCastAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> SpellCastAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	const auto mechanics = getMechanics(battle, option, context);
 	if(!mechanics)
@@ -108,7 +108,7 @@ std::optional<BattleAction> SpellCastAction::build(const CBattleInfoCallback & b
 		// cast as soon as it is selected, without a click on the battlefield
 		if(context.hoveredHex.isValid())
 			return std::nullopt;
-		return makeAction(option, context, {battle::Destination()});
+		return battle::Target{battle::Destination()};
 	}
 
 	if(context.partialTarget.size() + 1 != types.size())
@@ -120,7 +120,7 @@ std::optional<BattleAction> SpellCastAction::build(const CBattleInfoCallback & b
 
 	battle::Target target = context.partialTarget;
 	target.push_back(*destination);
-	return makeAction(option, context, target);
+	return target;
 }
 
 ActionPreview SpellCastAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
@@ -206,11 +206,6 @@ bool HeroSpellAction::validateCaster(const CBattleInfoCallback & battle, const B
 	return false;
 }
 
-BattleAction HeroSpellAction::makeAction(const ActionOption & option, const ActionContext & context, const battle::Target & target) const
-{
-	return BattleAction::makeHeroSpellcast(context.side, target, option.spell);
-}
-
 void HeroSpellAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
 	env.castHeroSpell(action.side, action.spell.toSpell(), action.getTarget(&battle));
@@ -282,11 +277,6 @@ bool UnitSpellAction::validateCaster(const CBattleInfoCallback & battle, const B
 	return checkCanCast(*unit, problem);
 }
 
-BattleAction UnitSpellAction::makeAction(const ActionOption & option, const ActionContext & context, const battle::Target & target) const
-{
-	return BattleAction::makeCreatureSpellcast(context.actor, target, option.spell);
-}
-
 std::optional<battle::UnitTurnStatus> UnitSpellAction::getStartTurnStatus(const BattleAction & action) const
 {
 	// a spell cast without skipping the turn leaves the unit able to act
@@ -339,9 +329,9 @@ ActionPreview RandomSpellAction::preview(const IGameInfoCallback & game, const C
 	return {"castSpell", text, {}, {}};
 }
 
-std::optional<BattleAction> RandomSpellAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> RandomSpellAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
-	return BattleAction::makeRandomSpellcast(context.actor, context.hoveredHex);
+	return battle::Target{battle::Destination(context.hoveredHex)};
 }
 
 bool RandomSpellAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
@@ -413,12 +403,12 @@ static std::unique_ptr<spells::Mechanics> getUnitMechanics(const CBattleInfoCall
 	return spell->battleMechanics(&cast);
 }
 
-bool WalkAndCastAction::isUnitAction() const
+bool AdjacentSpellAction::isUnitAction() const
 {
 	return true;
 }
 
-void WalkAndCastAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+void AdjacentSpellAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
 {
 	if(battle.battleTacticDist() || !actor.canCast())
 		return;
@@ -428,12 +418,12 @@ void WalkAndCastAction::collectOptions(const CBattleInfoCallback & battle, const
 			out.push_back({this, UnitActionButton{6, bonus->subtype.as<SpellID>(), {}, {}}, bonus->subtype.as<SpellID>()});
 }
 
-int WalkAndCastAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
+int AdjacentSpellAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
 {
 	return 9;
 }
 
-std::vector<ActionApproach> WalkAndCastAction::getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const
+std::vector<ActionApproach> AdjacentSpellAction::getApproaches(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const BattleHex & hoveredHex) const
 {
 	const battle::Unit * target = battle.battleGetUnitOrCorpseByPos(hoveredHex);
 	if(!target || target == &actor)
@@ -442,7 +432,7 @@ std::vector<ActionApproach> WalkAndCastAction::getApproaches(const CBattleInfoCa
 	return getReachableApproaches(battle, actor, hoveredHex, false);
 }
 
-ActionPreview WalkAndCastAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+ActionPreview AdjacentSpellAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	if(!isLegal(game, battle, option, context))
 		return {"combatBlocked", {}, {}, {}};
@@ -460,15 +450,16 @@ ActionPreview WalkAndCastAction::preview(const IGameInfoCallback & game, const C
 	return result;
 }
 
-std::optional<BattleAction> WalkAndCastAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> AdjacentSpellAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
-	if(!context.approach)
+	const battle::Unit * target = battle.battleGetUnitOrCorpseByPos(context.hoveredHex);
+	if(!context.approach || !target)
 		return std::nullopt;
 
-	return BattleAction::makeWalkAndCast(context.actor, context.approach->from, battle.battleGetUnitOrCorpseByPos(context.hoveredHex), option.spell);
+	return battle::Target{battle::Destination(context.approach->from), battle::Destination(target)};
 }
 
-bool WalkAndCastAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
+bool AdjacentSpellAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
 {
 	const battle::Unit * unit = battle.battleGetUnitByID(action.stackNumber);
 	if(!checkUnitCanAct(battle, unit, problem))
@@ -524,7 +515,7 @@ bool WalkAndCastAction::validate(const IGameInfoCallback & game, const CBattleIn
 	return true;
 }
 
-void WalkAndCastAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
+void AdjacentSpellAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
 	const battle::Unit & unit = getActor(battle, action);
 	const battle::Target target = action.getTarget(&battle);

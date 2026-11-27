@@ -693,7 +693,7 @@ void BattleInterface::endAction(const BattleAction &action)
 		tacticNextStack(stack);
 
 	//we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
-	if(action.actionType == EActionType::HERO_SPELL)
+	if(action.actionType == BattleActionID::HERO_SPELL)
 		fieldController->redrawBackgroundWithHexes();
 }
 
@@ -719,7 +719,7 @@ void BattleInterface::tacticPhaseEnd()
 	stacksController->setActiveStack(nullptr);
 
 	auto side = tacticianInterface->cb->getBattle(battleID)->playerToSide(tacticianInterface->playerID);
-	auto action = BattleAction::makeEndOFTacticPhase(side);
+	auto action = BattleAction::makeEndTacticsPhase(side);
 
 	tacticianInterface->cb->battleMakeTacticAction(battleID, action);
 }

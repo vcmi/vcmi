@@ -1,5 +1,5 @@
 /*
- * WalkAction.h, part of VCMI engine
+ * RangedAttackAction.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -11,17 +11,18 @@
 
 #include "BattleActionType.h"
 
-/// WALK: the unit moves to a hex, including the free moves of the tactics phase
-class WalkAction : public BattleActionType
+/// RANGED_ATTACK: a ranged attack at a unit, or at any hex for area shots of SPELL_LIKE_ATTACK units
+class RangedAttackAction : public BattleActionType
 {
 public:
+	using BattleActionType::BattleActionType;
+
 	bool isUnitAction() const override;
-	bool isTacticsAction() const override;
 
 	void collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const override;
 	int getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const override;
 	ActionPreview preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
-	std::optional<BattleAction> build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
+	std::optional<battle::Target> buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const override;
 
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;

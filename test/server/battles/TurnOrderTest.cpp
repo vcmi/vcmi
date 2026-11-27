@@ -204,7 +204,7 @@ TEST_P(TurnOrderTest, equalSpeedUnitsActInSlotOrderAfterTactics)
 	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), PlayerColor(0), move));
 	EXPECT_EQ(movedMonk->getPosition(), destination);
 
-	BattleAction endTactics = BattleAction::makeEndOFTacticPhase(BattleSide::ATTACKER);
+	BattleAction endTactics = BattleAction::makeEndTacticsPhase(BattleSide::ATTACKER);
 	ASSERT_TRUE(gameHandler->battles->makePlayerBattleAction(BattleID(0), PlayerColor(0), endTactics));
 	ASSERT_EQ(battle()->tacticDistance, 0);
 

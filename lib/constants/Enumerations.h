@@ -126,31 +126,6 @@ namespace MasteryLevel
 	};
 }
 
-enum class EActionType : int8_t
-{
-	NO_ACTION,
-
-	END_TACTIC_PHASE,
-	RETREAT,
-	SURRENDER,
-
-	HERO_SPELL,
-
-	WALK,
-	WAIT,
-	DEFEND,
-	WALK_AND_ATTACK,
-	SHOOT,
-	CATAPULT,
-	MONSTER_SPELL,
-	BAD_MORALE,
-	STACK_HEAL,
-	WALK_AND_CAST,
-	WALK_AND_ATTACK_NO_RETURN, ///< WALK_AND_ATTACK of a unit that stays at the target instead of returning
-	LONG_WEAPON_ATTACK,
-	RANDOM_SPELL, ///< spell of a RANDOM_SPELLCASTER unit, rolled by the server
-};
-
 enum class EDiggingStatus : int8_t
 {
 	UNKNOWN = -1,

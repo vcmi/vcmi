@@ -1,5 +1,5 @@
 /*
- * ShootAction.cpp, part of VCMI engine
+ * RangedAttackAction.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -8,7 +8,7 @@
  *
  */
 #include "StdInc.h"
-#include "ShootAction.h"
+#include "RangedAttackAction.h"
 
 #include "IBattleActionEnvironment.h"
 
@@ -32,18 +32,18 @@ static const CSpell * getAreaShotSpell(const battle::Unit & shooter)
 	return getAreaShotAbility(shooter)->subtype.as<SpellID>().toSpell();
 }
 
-bool ShootAction::isUnitAction() const
+bool RangedAttackAction::isUnitAction() const
 {
 	return true;
 }
 
-void ShootAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
+void RangedAttackAction::collectOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out) const
 {
 	if(battle.battleCanShoot(&actor))
 		out.push_back({this, UnitActionButton{3, SpellID::NONE, ImagePath::builtin("battle/actionShoot"), "vcmi.battle.action.shoot"}});
 }
 
-int ShootAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
+int RangedAttackAction::getPriority(const CBattleInfoCallback & battle, const ActionOption & option, const battle::Unit & actor, const battle::Unit * target) const
 {
 	// an area shot at an empty hex is only chosen when no other option is legal there
 	if(target == nullptr || !battle.battleMatchOwner(&actor, target) || !target->alive())
@@ -52,7 +52,7 @@ int ShootAction::getPriority(const CBattleInfoCallback & battle, const ActionOpt
 	return 4;
 }
 
-ActionPreview ShootAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+ActionPreview RangedAttackAction::preview(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
 	if(!isLegal(game, battle, option, context))
 		return {"combatBlocked", {}, {}, {}};
@@ -89,12 +89,12 @@ ActionPreview ShootAction::preview(const IGameInfoCallback & game, const CBattle
 	return result;
 }
 
-std::optional<BattleAction> ShootAction::build(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
+std::optional<battle::Target> RangedAttackAction::buildTarget(const CBattleInfoCallback & battle, const ActionOption & option, const ActionContext & context) const
 {
-	return BattleAction::makeShotAttack(context.actor, context.hoveredHex);
+	return battle::Target{battle::Destination(context.hoveredHex)};
 }
 
-bool ShootAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
+bool RangedAttackAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
 {
 	const battle::Unit * unit = battle.battleGetUnitByID(action.stackNumber);
 	if(!checkUnitCanAct(battle, unit, problem))
@@ -130,7 +130,7 @@ bool ShootAction::validate(const IGameInfoCallback & game, const CBattleInfoCall
 	return true;
 }
 
-void ShootAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
+void RangedAttackAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
 	const battle::Unit & unit = getActor(battle, action);
 

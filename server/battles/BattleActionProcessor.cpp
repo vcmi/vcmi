@@ -134,7 +134,7 @@ void BattleActionProcessor::removeBonuses(const CBattleInfoCallback & battle, co
 void BattleActionProcessor::makeRangedAttack(const CBattleInfoCallback & battle, const CStack * stack, const BattleHex & destination)
 {
 	const CStack * destinationStack = battle.battleGetStackByPos(destination);
-	// ShootAction::validate guarantees a target unit for shooters that can't target empty hexes
+	// RangedAttackAction::validate guarantees a target unit for shooters that can't target empty hexes
 	const bool emptyTileAreaAttack = battle.battleCanTargetEmptyHex(stack);
 
 	bool firstStrike = false;
@@ -310,7 +310,7 @@ bool BattleActionProcessor::makeBattleActionImpl(const CBattleInfoCallback & bat
 	}
 
 	// an invalid unit action skips the turn of the unit, so that an AI that repeats the action can't stall the battle
-	const BattleAction ba = valid ? requested : BattleAction::makeNoAction(stack);
+	const BattleAction ba = valid ? requested : BattleAction::makeSkipTurn(stack);
 
 	// Events outside an action, such as round start or battle setup, add no action participants.
 	actionParticipants.clear();
@@ -1076,6 +1076,13 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 {
 	if (ba.side != BattleSide::ATTACKER && ba.side != BattleSide::DEFENDER && gameHandler->complain("Can not make action - invalid battle side!"))
 		return false;
+
+	// the server makes these for units that lose their turn; they pass validation because automatic actions are validated too
+	if (ba.actionType == BattleActionID::SKIP_TURN || ba.actionType == BattleActionID::BAD_MORALE)
+	{
+		gameHandler->complain("Can not make actions that only the server makes!");
+		return false;
+	}
 
 	if(battle.battleGetTacticDist() != 0)
 	{

@@ -121,17 +121,29 @@ void DefendAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallba
 	env.triggerObstaclesUnder(unit);
 }
 
-bool EndTacticsAction::isTacticsAction() const
+bool EndTacticsPhaseAction::isTacticsAction() const
 {
 	return true;
 }
 
-bool EndTacticsAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
+bool EndTacticsPhaseAction::validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const
 {
+	if(!battle.battleTacticDist())
+	{
+		problem.add(MetaString::createFromRawString("Tactics phase is already over!"));
+		return false;
+	}
+
+	if(action.side != battle.battleGetTacticsSide())
+	{
+		problem.add(MetaString::createFromRawString("Only the side with tactics can end the tactics phase!"));
+		return false;
+	}
+
 	return true;
 }
 
-void EndTacticsAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
+void EndTacticsPhaseAction::apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const
 {
 	env.endTacticsPhase();
 }
