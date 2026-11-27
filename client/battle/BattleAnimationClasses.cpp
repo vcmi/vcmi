@@ -144,11 +144,11 @@ bool StackActionAnimation::init()
 	{
 		myAnim->playOnce(currGroup);
 		myAnim->onAnimationReset += [&](){ delete this; };
+		return true;
 	}
-	else
-		delete this;
 
-	return true;
+	delete this;
+	return false;
 }
 
 StackActionAnimation::~StackActionAnimation()
@@ -708,7 +708,12 @@ bool RangedAttackAnimation::init()
 	setAnimationGroup();
 	initializeProjectile();
 
-	return AttackAnimation::init();
+	if (!AttackAnimation::init())
+		return false;
+
+	// stack frames are incremented before animations tick, so the climax limit must be set before the first increment
+	myAnim->playUntil(getAttackClimaxFrame());
+	return true;
 }
 
 void RangedAttackAnimation::setAnimationGroup()
