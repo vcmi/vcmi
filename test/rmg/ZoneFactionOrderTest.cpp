@@ -69,8 +69,7 @@ TEST_F(ZoneFactionOrderTest, NoHintsYieldsAscendingIds)
 	 * Fail: any other permutation.
 	 */
 	const auto order = orderZonesByFirstTownHint(emptyHints({1, 2, 3}));
-	const std::vector<TRmgTemplateZoneId> expected{1, 2, 3};
-	EXPECT_EQ(order, expected);
+	EXPECT_THAT(order, ElementsAre(1, 2, 3));
 }
 
 TEST_F(ZoneFactionOrderTest, LikeZoneComesBeforeDependent)
@@ -96,8 +95,7 @@ TEST_F(ZoneFactionOrderTest, NotLikeZoneComesAfterEveryNamedZone)
 	auto hints = emptyHints({1, 2, 3, 4, 5});
 	hints[3] = {notLikeZone({1, 2, 4, 5})};
 	const auto order = orderZonesByFirstTownHint(hints);
-	const std::vector<TRmgTemplateZoneId> expected{1, 2, 4, 5, 3};
-	EXPECT_EQ(order, expected);
+	EXPECT_THAT(order, ElementsAre(1, 2, 4, 5, 3));
 }
 
 TEST_F(ZoneFactionOrderTest, RelatedToZoneTerrainAddsEdge)
@@ -123,8 +121,7 @@ TEST_F(ZoneFactionOrderTest, SelfLikeZoneOnFirstHintAddsNoEdge)
 	auto hints = emptyHints({1, 2, 3});
 	hints[2] = {likeZone(2)};
 	const auto order = orderZonesByFirstTownHint(hints);
-	const std::vector<TRmgTemplateZoneId> expected{1, 2, 3};
-	EXPECT_EQ(order, expected);
+	EXPECT_THAT(order, ElementsAre(1, 2, 3));
 }
 
 TEST_F(ZoneFactionOrderTest, OnlyFirstSetFieldCounts)
@@ -140,8 +137,7 @@ TEST_F(ZoneFactionOrderTest, OnlyFirstSetFieldCounts)
 	hints[1] = {both};
 	hints[4] = {likeZone(1)};
 	const auto order = orderZonesByFirstTownHint(hints);
-	const std::vector<TRmgTemplateZoneId> expected{2, 1, 4};
-	EXPECT_EQ(order, expected);
+	EXPECT_THAT(order, ElementsAre(2, 1, 4));
 }
 
 TEST_F(ZoneFactionOrderTest, LaterTownHintsAreNotEdges)
@@ -155,8 +151,7 @@ TEST_F(ZoneFactionOrderTest, LaterTownHintsAreNotEdges)
 	hints[2] = {rmg::ZoneOptions::CTownHints{}, likeZone(3)};
 	hints[3] = {rmg::ZoneOptions::CTownHints{}, likeZone(2)};
 	const auto order = orderZonesByFirstTownHint(hints);
-	const std::vector<TRmgTemplateZoneId> expected{2, 3};
-	EXPECT_EQ(order, expected);
+	EXPECT_THAT(order, ElementsAre(2, 3));
 }
 
 TEST_F(ZoneFactionOrderTest, FirstHintMutualNotLikeZoneThrows)

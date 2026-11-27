@@ -25,9 +25,9 @@ public:
 private:
 	bool hasHint(const Zone & zone, size_t hintIndex) const;
 	FactionID fromHint(Zone & zone, size_t hintIndex);
-	FactionID randomTownType(Zone & zone, bool matchUndergroundType = false);
+	FactionID randomTownType(Zone & zone, bool matchUndergroundType = false) const;
 	FactionID mainFaction(Zone & zone);
-	void initTerrainType(Zone & zone);
+	void initTerrainType(Zone & zone) const;
 
 	RmgMap & map;
 };

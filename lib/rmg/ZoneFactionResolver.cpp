@@ -86,7 +86,7 @@ FactionID ZoneFactionResolver::fromHint(Zone & zone, size_t hintIndex)
 	return subType;
 }
 
-FactionID ZoneFactionResolver::randomTownType(Zone & zone, bool matchUndergroundType)
+FactionID ZoneFactionResolver::randomTownType(Zone & zone, bool matchUndergroundType) const
 {
 	auto townTypesAllowed = (!zone.getTownTypes().empty() ? zone.getTownTypes() : zone.getDefaultTownTypes(*LIBRARY));
 	if(matchUndergroundType)
@@ -156,91 +156,87 @@ FactionID ZoneFactionResolver::mainFaction(Zone & zone)
 	return randomTownType(zone); //just in any case
 }
 
-void ZoneFactionResolver::initTerrainType(Zone & zone)
+namespace
+{
+
+bool isOnZoneLevel(const Zone & zone, TerrainId terrainId)
+{
+	const auto * terrain = LIBRARY->terrainTypeHandler->getById(terrainId);
+	return zone.isUnderground() ? terrain->isUnderground() : terrain->isSurface();
+}
+
+TerrainId randomWaterTerrain(Zone & zone)
+{
+	//collect all water terrain types
+	std::vector<TerrainId> waterTerrains;
+	for(const auto & terrain : LIBRARY->terrainTypeHandler->getObjects())
+		if(terrain->isWater())
+			waterTerrains.push_back(terrain->getId());
+
+	return *RandomGeneratorUtil::nextItem(waterTerrains, zone.getRand());
+}
+
+TerrainId townNativeTerrain(Zone & zone)
+{
+	const auto & nativeTerrains = (*LIBRARY->townh)[zone.getTownType()]->nativeTerrains;
+	TerrainId terrainType = ETerrainId::NONE;
+
+	// If preferred native terrain is incompatible with zone level,
+	// try subsequent native terrains in declared order.
+	std::vector<TerrainId> compatibleTerrains;
+	for(const auto & candidate : nativeTerrains)
+	{
+		if(isOnZoneLevel(zone, candidate))
+			compatibleTerrains.push_back(candidate);
+	}
+
+	// Prefer random native terrain when multiple compatible terrains exist.
+	if(!compatibleTerrains.empty())
+		terrainType = *RandomGeneratorUtil::nextItem(compatibleTerrains, zone.getRand());
+	else if(!nativeTerrains.empty())
+		terrainType = nativeTerrains.front();
+
+	if(terrainType <= ETerrainId::NONE)
+	{
+		logRmg->warn("Town %s has invalid terrain type: %d", zone.getTownType(), terrainType);
+		return ETerrainId::DIRT;
+	}
+	return terrainType;
+}
+
+TerrainId randomAllowedTerrain(Zone & zone)
+{
+	auto terrainTypes = zone.getTerrainTypes();
+	if(terrainTypes.empty())
+	{
+		//Fill with all terain types by default
+		for(const auto & terrain : LIBRARY->terrainTypeHandler->getObjects())
+		{
+			if(terrain->isLand() && terrain->isPassable() && isOnZoneLevel(zone, terrain->getId()))
+				terrainTypes.insert(terrain->getId());
+		}
+	}
+	return *RandomGeneratorUtil::nextItem(terrainTypes, zone.getRand());
+}
+
+}
+
+void ZoneFactionResolver::initTerrainType(Zone & zone) const
 {
 	if(zone.getType() == ETemplateZoneType::WATER)
 	{
-		//collect all water terrain types
-		std::vector<TerrainId> waterTerrains;
-		for(const auto & terrain : LIBRARY->terrainTypeHandler->getObjects())
-			if(terrain->isWater())
-				waterTerrains.push_back(terrain->getId());
-
-		zone.setTerrainType(*RandomGeneratorUtil::nextItem(waterTerrains, zone.getRand()));
+		zone.setTerrainType(randomWaterTerrain(zone));
 		return;
 	}
 
 	if(zone.isMatchTerrainToTown() && zone.getTownType() != ETownType::NEUTRAL)
-	{
-		const auto & faction = (*LIBRARY->townh)[zone.getTownType()];
-		const auto & nativeTerrains = faction->nativeTerrains;
-		TerrainId terrainType = ETerrainId::NONE;
-
-		// If preferred native terrain is incompatible with zone level,
-		// try subsequent native terrains in declared order.
-		const auto isCompatibleWithLevel = [&zone](TerrainId terrainId)
-		{
-			const auto & terrain = LIBRARY->terrainTypeHandler->getById(terrainId);
-			return zone.isUnderground() ? terrain->isUnderground() : terrain->isSurface();
-		};
-
-		std::vector<TerrainId> compatibleTerrains;
-		for(const auto & candidate : nativeTerrains)
-		{
-			if(isCompatibleWithLevel(candidate))
-				compatibleTerrains.push_back(candidate);
-		}
-
-		// Prefer random native terrain when multiple compatible terrains exist.
-		if(!compatibleTerrains.empty())
-			terrainType = *RandomGeneratorUtil::nextItem(compatibleTerrains, zone.getRand());
-		else if(!nativeTerrains.empty())
-			terrainType = nativeTerrains.front();
-
-		if(terrainType <= ETerrainId::NONE)
-		{
-			logRmg->warn("Town %s has invalid terrain type: %d", zone.getTownType(), terrainType);
-			zone.setTerrainType(ETerrainId::DIRT);
-		}
-		else
-		{
-			zone.setTerrainType(terrainType);
-		}
-	}
+		zone.setTerrainType(townNativeTerrain(zone));
 	else
-	{
-		auto terrainTypes = zone.getTerrainTypes();
-		if(terrainTypes.empty())
-		{
-			//Fill with all terain types by default
-			for(const auto & terrain : LIBRARY->terrainTypeHandler->getObjects())
-			{
-				if(terrain->isLand() && terrain->isPassable())
-				{
-					if((terrain->isSurface() && !zone.isUnderground()) ||
-						(terrain->isUnderground() && zone.isUnderground()))
-					{
-						terrainTypes.insert(TerrainId(terrain->getId()));
-					}
-				}
-			}
-		}
-		zone.setTerrainType(*RandomGeneratorUtil::nextItem(terrainTypes, zone.getRand()));
-	}
+		zone.setTerrainType(randomAllowedTerrain(zone));
 
 	//Now, replace disallowed terrains on surface and in the underground
-	const auto & terrainType = LIBRARY->terrainTypeHandler->getById(zone.getTerrainType());
-
-	if(zone.isUnderground())
-	{
-		if(!terrainType->isUnderground())
-			zone.setTerrainType(ETerrainId::SUBTERRANEAN);
-	}
-	else
-	{
-		if(!terrainType->isSurface())
-			zone.setTerrainType(ETerrainId::DIRT);
-	}
+	if(!isOnZoneLevel(zone, zone.getTerrainType()))
+		zone.setTerrainType(zone.isUnderground() ? ETerrainId::SUBTERRANEAN : ETerrainId::DIRT);
 }
 
 void ZoneFactionResolver::run()

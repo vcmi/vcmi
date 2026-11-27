@@ -136,21 +136,23 @@ ZoneOptions::CTownHints::CTownHints()
 void ZoneOptions::CTownHints::serializeJson(JsonSerializeFormat & handler)
 {
 	handler.serializeInt("likeZone", likeZone, NO_ZONE);
-	auto node = handler.getCurrent();
-	if (node["notLikeZone"].isVector())
+	if(handler.saving)
 	{
-		// TODO: Utility to serialize vector of ints?
-		auto notLikeZoneData = handler.enterArray("notLikeZone");
-		notLikeZone.resize(notLikeZoneData.size());
-		for (size_t i = 0; i < notLikeZoneData.size(); ++i)
-		{
-			notLikeZoneData.serializeInt(i, notLikeZone[i]);
-		}
+		if(!notLikeZone.empty())
+			handler.enterArray("notLikeZone").serializeArray(notLikeZone);
+	}
+	else if(handler.getCurrent()["notLikeZone"].isVector())
+	{
+		handler.enterArray("notLikeZone").serializeArray(notLikeZone);
 	}
 	else
 	{
-		notLikeZone.resize(1);
-		handler.serializeInt("notLikeZone", notLikeZone[0], NO_ZONE);
+		// A single zone id may be given instead of a list; no id leaves the list empty
+		TRmgTemplateZoneId zoneId = NO_ZONE;
+		handler.serializeInt("notLikeZone", zoneId, NO_ZONE);
+		notLikeZone.clear();
+		if(zoneId != NO_ZONE)
+			notLikeZone.push_back(zoneId);
 	}
 	handler.serializeInt("relatedToZoneTerrain", relatedToZoneTerrain, NO_ZONE);
 }
