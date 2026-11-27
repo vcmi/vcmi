@@ -73,6 +73,7 @@ set(lib_MAIN_SRCS
 	battle/SideInBattle.cpp
 	battle/SiegeInfo.cpp
 	battle/Unit.cpp
+	battle/actions/AutomaticActions.cpp
 	battle/actions/BattleActionType.cpp
 	battle/actions/CatapultAction.cpp
 	battle/actions/HealAction.cpp
@@ -509,6 +510,7 @@ set(lib_MAIN_HEADERS
 	battle/SiegeInfo.h
 	battle/Unit.h
 	battle/actions/ActionOption.h
+	battle/actions/AutomaticActions.h
 	battle/actions/BattleActionType.h
 	battle/actions/CatapultAction.h
 	battle/actions/HealAction.h

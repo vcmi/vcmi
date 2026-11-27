@@ -13,6 +13,7 @@
 #include "../../lib/battle/CObstacleInstance.h"
 #include "../../lib/battle/CPlayerBattleCallback.h"
 #include "../../lib/battle/CUnitState.h"
+#include "../../lib/battle/actions/AutomaticActions.h"
 #include "../../lib/callback/CBattleCallback.h"
 
 #include <vstd/RNG.h>
@@ -780,9 +781,9 @@ TEST_F(AttackableHexesTest, BerserkShooterAttacksAdjacentUnitItCanNotShootInMele
 	EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::ATTACKER))).WillRepeatedly(Return(PlayerColor(0)));
 	EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::DEFENDER))).WillRepeatedly(Return(PlayerColor(1)));
 
-	const ForcedAction action = subject.getBerserkForcedAction(&shooter);
-	EXPECT_EQ(action.type, EActionType::WALK_AND_ATTACK);
-	EXPECT_EQ(action.target, &neighbour);
+	const BattleAction action = AutomaticActions::chooseBerserkAction(subject, shooter);
+	EXPECT_EQ(action.actionType, EActionType::WALK_AND_ATTACK);
+	EXPECT_EQ(action.getTarget(&subject).back().hexValue, neighbour.getPosition());
 }
 
 TEST_F(AttackableHexesTest, BerserkShooterShootsNearestAlly)
@@ -799,9 +800,9 @@ TEST_F(AttackableHexesTest, BerserkShooterShootsNearestAlly)
 	EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::ATTACKER))).WillRepeatedly(Return(PlayerColor(0)));
 	EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::DEFENDER))).WillRepeatedly(Return(PlayerColor(1)));
 
-	const ForcedAction action = subject.getBerserkForcedAction(&shooter);
-	EXPECT_EQ(action.type, EActionType::SHOOT);
-	EXPECT_EQ(action.target, &ally);
+	const BattleAction action = AutomaticActions::chooseBerserkAction(subject, shooter);
+	EXPECT_EQ(action.actionType, EActionType::SHOOT);
+	EXPECT_EQ(action.getTarget(&subject).back().unitValue, &ally);
 }
 
 class BattleFinishedTest : public CBattleInfoCallbackTest

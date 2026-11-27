@@ -10,6 +10,7 @@
 #include "StdInc.h"
 #include "PotentialTargets.h"
 #include "../../lib/CStack.h"//todo: remove
+#include "../../lib/battle/actions/AutomaticActions.h"
 #include "../../lib/mapObjects/CGTownInstance.h"
 
 PotentialTargets::PotentialTargets(
@@ -23,10 +24,28 @@ PotentialTargets::PotentialTargets(
 
 	//FIXME: this should part of battleGetAvailableHexes
 	bool isBerserk = attackerInfo->hasBonusOfType(BonusType::ATTACKS_NEAREST_CREATURE);
-	ForcedAction forcedAction = {};
+	// the unit that a berserk attacker attacks, and the hex it attacks from, or nullptr if it attacks no unit
+	const battle::Unit * berserkTarget = nullptr;
+	BattleHex berserkAttackFrom = BattleHex::INVALID;
+	bool berserkShoots = false;
 
 	if(isBerserk)
-		forcedAction = state->getBerserkForcedAction(attackerInfo);
+	{
+		const BattleAction forcedAction = AutomaticActions::chooseBerserkAction(*state, *attackerInfo);
+		const bool melee = forcedAction.actionType == EActionType::WALK_AND_ATTACK
+			|| forcedAction.actionType == EActionType::WALK_AND_ATTACK_NO_RETURN
+			|| forcedAction.actionType == EActionType::LONG_WEAPON_ATTACK;
+		berserkShoots = forcedAction.actionType == EActionType::SHOOT;
+
+		if(melee || berserkShoots)
+		{
+			const battle::Target target = forcedAction.getTarget(state.get());
+			const battle::Destination & attacked = target.back();
+			berserkTarget = attacked.unitValue ? attacked.unitValue : state->battleGetUnitByPos(attacked.hexValue, true);
+			if(melee)
+				berserkAttackFrom = target.front().hexValue;
+		}
+	}
 
 	auto aliveUnits = state->battleGetUnitsIf([=](const battle::Unit * unit)
 	{
@@ -48,12 +67,9 @@ PotentialTargets::PotentialTargets(
 
 		if(isBerserk)
 		{
-			bool isActionAttack = forcedAction.type == EActionType::WALK_AND_ATTACK || forcedAction.type == EActionType::SHOOT;
-			if (isActionAttack && defender->unitId() == forcedAction.target->unitId())
+			if (berserkTarget && defender->unitId() == berserkTarget->unitId())
 			{
-				bool rangeAttack = forcedAction.type == EActionType::SHOOT;
-				BattleHex hex = forcedAction.type == EActionType::WALK_AND_ATTACK ? forcedAction.position : BattleHex::INVALID;
-				possibleAttacks.push_back(GenerateAttackInfo(rangeAttack, hex));
+				possibleAttacks.push_back(GenerateAttackInfo(berserkShoots, berserkAttackFrom));
 			}
 			else
 			{

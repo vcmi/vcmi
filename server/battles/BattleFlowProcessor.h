@@ -36,13 +36,7 @@ class BattleFlowProcessor : boost::noncopyable
 
 	bool rollGoodMorale(const CBattleInfoCallback & battle, const CStack * stack);
 	bool tryMakeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack);
-	bool tryActivateMoralePenalty(const CBattleInfoCallback & battle, const CStack * stack);
 	bool tryActivateBerserkPenalty(const CBattleInfoCallback & battle, const CStack * stack);
-	bool handleForcedCpuControlledUnit(const CBattleInfoCallback & battle, const CStack * stack);
-	bool tryMakeAutomaticActionOfRangedUnit(const CBattleInfoCallback & battle, const CStack * stack);
-	bool tryMakeAutomaticActionOfMeleeUnit(const CBattleInfoCallback& battle, const CStack* actingStack);
-	bool tryMakeAutomaticActionOfCatapult(const CBattleInfoCallback & battle, const CStack * stack);
-	bool tryMakeAutomaticActionOfFirstAidTent(const CBattleInfoCallback & battle, const CStack * stack);
 
 	void tryPlaceMoats(const CBattleInfoCallback & battle);
 	void castOpeningSpells(const CBattleInfoCallback & battle);
@@ -55,7 +49,6 @@ class BattleFlowProcessor : boost::noncopyable
 	void removeBrokenBindings(const CBattleInfoCallback & battle);
 	void removeGhosts(const CBattleInfoCallback & battle);
 	void setActiveStack(const CBattleInfoCallback & battle, const battle::Unit * stack, BattleUnitTurnReason reason);
-	double calculateTowerAttackValue(const CBattleInfoCallback& battle, const CStack* attacker, const CStack* target) const;
 
 	void makeStackDoNothing(const CBattleInfoCallback & battle, const CStack * next);
 	bool makeAutomaticAction(const CBattleInfoCallback & battle, const CStack * stack, const BattleAction & ba); //used when action is taken by the active stack without volition of player (eg. unguided catapult attack)

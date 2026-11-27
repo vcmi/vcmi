@@ -157,6 +157,55 @@ TEST_F(MeleeActionTest, berserkUnitAttacksUnitOfOwnSide)
 	EXPECT_LT(ally->getAvailableHealth(), allyHealth);
 }
 
+TEST_F(MeleeActionTest, berserkUnitWithReturnAfterStrikeReturnsAfterAttack)
+{
+	startGame();
+	startBattle();
+
+	CStack * berserk = addStack(BattleSide::ATTACKER, CreatureID(harpy), attackerStart, stackCount);
+	CStack * ally = addStack(BattleSide::ATTACKER, CreatureID(pikeman), targetHex, stackCount);
+	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(15, 1), stackCount);
+	berserk->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::ATTACKS_NEAREST_CREATURE, BonusSource::OTHER, 0, BonusSourceID()));
+	berserk->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	blockRetaliation(ally);
+	for(const auto & stack : battle()->stacks)
+		if(stack.get() != berserk && stack.get() != ally && stack.get() != enemy)
+			injure(stack.get(), stack->getAvailableHealth());
+	beginCombat();
+
+	const auto allyHealth = ally->getAvailableHealth();
+	endRound();
+
+	EXPECT_LT(ally->getAvailableHealth(), allyHealth);
+	EXPECT_EQ(berserk->getPosition(), attackerStart);
+}
+
+TEST_F(MeleeActionTest, cpuControlledUnitWithLongWeaponStrikesOverFreeHex)
+{
+	startGame();
+	startBattle();
+
+	const BattleHex twoHexesAway = attackFrom.cloneInDirection(BattleHex::LEFT);
+
+	CStack * automatic = addStack(BattleSide::ATTACKER, CreatureID(pikeman), twoHexesAway, stackCount);
+	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
+	automatic->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::CPU_CONTROLLED, BonusSource::OTHER, 0, BonusSourceID()));
+	automatic->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
+	automatic->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::NO_MORALE, BonusSource::OTHER, 0, BonusSourceID()));
+	for(const auto & stack : battle()->stacks)
+		if(stack.get() != automatic && stack.get() != target)
+			injure(stack.get(), stack->getAvailableHealth());
+	beginCombat();
+
+	const auto targetHealth = target->getAvailableHealth();
+	const auto automaticHealth = automatic->getAvailableHealth();
+	endRound();
+
+	EXPECT_LT(target->getAvailableHealth(), targetHealth);
+	EXPECT_EQ(automatic->getPosition(), twoHexesAway);
+	EXPECT_EQ(automatic->getAvailableHealth(), automaticHealth) << "an attack with a long weapon is not retaliated";
+}
+
 TEST_F(MeleeActionTest, berserkUntilUnitGetsTurnDoesNotControlThatTurn)
 {
 	startGame();

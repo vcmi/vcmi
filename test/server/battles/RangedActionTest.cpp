@@ -12,10 +12,12 @@
 #include "BattleTestFixture.h"
 
 #include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/battle/actions/AutomaticActions.h"
 #include "../../../lib/battle/actions/BattleActionType.h"
 #include "../../../lib/bonuses/Bonus.h"
 #include "../../../lib/gameState/CGameState.h"
 #include "../../../lib/texts/CGeneralTextHandler.h"
+#include "../../../server/CGameHandler.h"
 
 namespace
 {
@@ -219,6 +221,18 @@ TEST_F(RangedActionTest, catapultShootsAtWalls)
 	// a catapult without Ballistics makes one shot, which may still miss the wall it aimed at
 	ASSERT_EQ(shots.size(), 1u);
 	EXPECT_NE(shots.front().attackedPart, EWallPart::INVALID);
+}
+
+TEST_F(RangedActionTest, catapultSkipsTurnWithoutWallsToShoot)
+{
+	startGame();
+	startBattle();
+
+	const CStack * catapult = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::CATAPULT), BattleHex(2, 8), 1);
+
+	const auto action = AutomaticActions::chooseAction(*battle(), *catapult, *gameHandler->randomizer);
+	ASSERT_TRUE(action.has_value());
+	EXPECT_EQ(action->actionType, EActionType::NO_ACTION);
 }
 
 TEST_F(RangedActionTest, catapultShotAtNonWallHexIsRefused)
