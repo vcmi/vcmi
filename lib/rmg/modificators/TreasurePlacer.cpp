@@ -99,6 +99,11 @@ void TreasurePlacer::addObjectToRandomPool(const ObjectInfo& oi)
 		logRmg->warn("Attempt to add ObjectInfo with 0 maxPerZone! Value: %d", oi.value);
 		return;
 	}
+	if (!oi.probability)
+	{
+		logRmg->debug("Skipping object %d.%d with probability 0 from random pool, value %d", oi.primaryID, oi.secondaryID, oi.value);
+		return;
+	}
 	RecursiveLock lock(externalAccessMutex);
 	objects.addObject(oi);
 }
@@ -621,12 +626,15 @@ ObjectInfo * TreasurePlacer::getRandomObject(ui32 desiredValue, ui32 currentValu
 
 		if(oi.value >= minValue && oi.maxPerZone > 0)
 		{
+			if(!oi.probability)
+				continue;
+
 			total += oi.probability;
 			thresholds.emplace_back(total, &oi);
 		}
 	}
 	
-	if(thresholds.empty())
+	if(thresholds.empty() || total == 0)
 	{
 		return nullptr;
 	}

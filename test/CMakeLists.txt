@@ -170,6 +170,7 @@ set(test_SRCS
 		rmg/GuardFallbackTest.cpp
 		rmg/TileDistanceIndexTest.cpp
 		rmg/RmgPathTest.cpp
+		rmg/RmgAreaTest.cpp
 		rmg/RmgMapDumperTest.cpp
 		rmg/PlayerZoneArrangementTest.cpp
 		rmg/OneWayConnectionTest.cpp

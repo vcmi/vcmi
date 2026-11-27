@@ -64,6 +64,9 @@ void Area::invalidate()
 
 bool Area::connected(bool noDiagonals) const
 {
+	if(dTiles.empty())
+		return true;
+
 	std::list<int3> queue({*dTiles.begin()});
 	Tileset connected = dTiles; //use invalidated cache - ok
 
