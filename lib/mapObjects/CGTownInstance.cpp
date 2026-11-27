@@ -1080,37 +1080,29 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 		if(handler.saving)
 		{
-			bool customBuildings = false;
-
+			bool hasDefault = vstd::contains(builtBuildings, BuildingID::DEFAULT);
 			bool hasFort = false;
 
 			for(const BuildingID & id : forbiddenBuildings)
-			{
 				buildingsLIC.none.insert(id.getNum());
-				customBuildings = true;
-			}
 
 			for(const BuildingID & id : builtBuildings)
 			{
-				if(id == BuildingID::DEFAULT)
+				if(id == BuildingID::DEFAULT || getTown()->buildings.at(id)->mode == CBuilding::BUILD_AUTO)
 					continue;
 
-				const auto & building = getTown()->buildings.at(id);
-
-				if(building->mode == CBuilding::BUILD_AUTO)
-					continue;
-
-				if(id == BuildingID::FORT)
+				if(id == BuildingID::FORT && hasDefault)
 					hasFort = true;
-
-				buildingsLIC.all.insert(id.getNum());
-				customBuildings = true;
+				else
+					buildingsLIC.all.insert(id.getNum());
 			}
 
-			if(customBuildings)
+			// maps without "defaultBuildings" field use default buildings only if building list is empty
+			bool legacyDefault = buildingsLIC.all.empty() && buildingsLIC.none.empty();
+			if(!legacyDefault)
 				handler.serializeLIC("buildings", buildingsLIC);
-			else
-				handler.serializeBool("hasFort",hasFort);
+			handler.serializeBool("hasFort", hasFort, false);
+			handler.serializeBool("defaultBuildings", hasDefault, legacyDefault);
 		}
 		else
 		{
@@ -1118,22 +1110,24 @@ void CGTownInstance::serializeJsonOptions(JsonSerializeFormat & handler)
 
 			addBuilding(BuildingID::VILLAGE_HALL);
 
-			if(buildingsLIC.none.empty() && buildingsLIC.all.empty())
+			bool legacyDefault = buildingsLIC.all.empty() && buildingsLIC.none.empty();
+			bool hasDefault = legacyDefault;
+			handler.serializeBool("defaultBuildings", hasDefault, legacyDefault);
+
+			if(hasDefault)
 			{
 				addBuilding(BuildingID::DEFAULT);
 
 				bool hasFort = false;
-				handler.serializeBool("hasFort",hasFort);
+				handler.serializeBool("hasFort", hasFort);
 				if(hasFort)
 					addBuilding(BuildingID::FORT);
 			}
-			else
-			{
-				for(const si32 item : buildingsLIC.none)
-					forbiddenBuildings.insert(BuildingID(item));
-				for(const si32 item : buildingsLIC.all)
-					addBuilding(BuildingID(item));
-			}
+
+			for(const si32 item : buildingsLIC.none)
+				forbiddenBuildings.insert(BuildingID(item));
+			for(const si32 item : buildingsLIC.all)
+				addBuilding(BuildingID(item));
 		}
 	}
 
