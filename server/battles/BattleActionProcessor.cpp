@@ -1077,6 +1077,13 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 	if (ba.side != BattleSide::ATTACKER && ba.side != BattleSide::DEFENDER && gameHandler->complain("Can not make action - invalid battle side!"))
 		return false;
 
+	// the server makes these for units that lose their turn; they pass validation because automatic actions are validated too
+	if (ba.actionType == EActionType::NO_ACTION || ba.actionType == EActionType::BAD_MORALE)
+	{
+		gameHandler->complain("Can not make actions that only the server makes!");
+		return false;
+	}
+
 	if(battle.battleGetTacticDist() != 0)
 	{
 		if(!ba.isTacticsAction())

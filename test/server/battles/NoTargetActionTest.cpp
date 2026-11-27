@@ -162,6 +162,17 @@ INSTANTIATE_TEST_SUITE_P(Creatures, DefendActionTest, ::testing::Values(
 ),
 	[](const ::testing::TestParamInfo<DefendCase> & info) { return info.param.name; });
 
+TEST_F(NoTargetActionTest, playerCanNotMakeActionsThatOnlyServerMakes)
+{
+	startGame();
+	startBattle();
+	const CStack * unit = activateUnitOfAttacker();
+
+	EXPECT_FALSE(act(BattleAction::makeBadMorale(unit)));
+	EXPECT_FALSE(act(BattleAction::makeNoAction(unit)));
+	EXPECT_EQ(unit->getTurnStatus(), battle::UnitTurnStatus::READY);
+}
+
 TEST_F(NoTargetActionTest, retreatEndsBattleWithEnemyAsWinner)
 {
 	startGame();
