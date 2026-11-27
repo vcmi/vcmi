@@ -34,6 +34,35 @@ bool MeleeAttackAction::returnsAfterStrike() const
 	return false;
 }
 
+std::optional<BattleAction> MeleeAttackAction::buildAutomaticAttack(const CBattleInfoCallback & battle, const battle::Unit & actor, const battle::Unit & defender, const BattleHex & attackFrom)
+{
+	std::vector<ActionOption> options;
+	collectAllOptions(battle, actor, options);
+
+	const ActionOption * best = nullptr;
+	int bestPriority = 0;
+
+	for(const auto & option : options)
+	{
+		const auto * attack = dynamic_cast<const MeleeAttackAction *>(option.type);
+		if(!attack || !attack->canStrikeFrom(battle, actor, defender, attackFrom))
+			continue;
+
+		const int priority = attack->getPriority(battle, option, actor, &defender);
+		if(!best || priority < bestPriority)
+		{
+			best = &option;
+			bestPriority = priority;
+		}
+	}
+
+	if(!best)
+		return std::nullopt;
+
+	const ActionContext context{&actor, defender.getPosition(), ActionApproach{BattleHex::NONE, attackFrom}};
+	return best->type->build(battle, *best, context);
+}
+
 bool MeleeAttackAction::canStrikeFrom(const CBattleInfoCallback & battle, const battle::Unit & attacker, const battle::Unit & defender, const BattleHex & attackerPos) const
 {
 	if(usesLongWeapon())

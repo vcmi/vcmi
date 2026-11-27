@@ -27,6 +27,10 @@ public:
 	bool validate(const IGameInfoCallback & game, const CBattleInfoCallback & battle, const BattleAction & action, spells::Problem & problem) const override;
 	void apply(IBattleActionEnvironment & env, const CBattleInfoCallback & battle, const BattleAction & action) const override;
 
+	/// Attack that clicking the defender from the hex makes: the melee attack option of the actor with the best priority that strikes the defender from the hex.
+	/// Nothing if no option does
+	static std::optional<BattleAction> buildAutomaticAttack(const CBattleInfoCallback & battle, const battle::Unit & actor, const battle::Unit & defender, const BattleHex & attackFrom);
+
 protected:
 	/// Strikes over one free hex instead of at an adjacent unit, and is not retaliated
 	virtual bool usesLongWeapon() const;
