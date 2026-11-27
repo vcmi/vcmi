@@ -91,6 +91,7 @@ set(test_SRCS
 		rmg/MonsterJoiningOptionsTest.cpp
 		rmg/ObjectConfigTest.cpp
 		rmg/SeerHutTreasuresTest.cpp
+		rmg/ModificatorSchedulerTest.cpp
 		rmg/TreasurePlacerTest.cpp
 		rmg/TreasureRewardsTest.cpp
 

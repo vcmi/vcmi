@@ -88,6 +88,16 @@ void Modificator::run()
 		{
 			logRmg->error("Modificator %s, exception: %s", getName(), e.what());
 		}
+		catch(const std::exception & e)
+		{
+			logRmg->error("Modificator zone %d - %s, exception: %s", zone.getId(), getName(), e.what());
+			throw rmgException("zone " + std::to_string(zone.getId()) + " " + getName() + ": " + e.what());
+		}
+		catch(...)
+		{
+			logRmg->error("Modificator zone %d - %s, unknown exception", zone.getId(), getName());
+			throw rmgException("zone " + std::to_string(zone.getId()) + " " + getName() + ": unknown exception");
+		}
 		finished = true;
 		logRmg->trace("Modificator zone %d - %s - done (%d ms)", zone.getId(), getName(), processTime.getDiff());
 	}
