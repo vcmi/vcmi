@@ -367,4 +367,70 @@ TEST_F(CRmgTemplateTest, AfterLoadMergesTemplateMonsterJoining)
 	EXPECT_EQ(zoneC.joinOnlyForMoney, true);
 }
 
+TEST_F(CRmgTemplateTest, TownHintsKeepOnlyTheGivenFieldsAcrossRoundTrip)
+{
+	constexpr char text[] = R"({
+		"minSize" : "s",
+		"maxSize" : "s",
+		"players" : "1",
+		"zones" : {
+			"1" : { "type" : "treasure", "size" : 10 },
+			"2" : { "type" : "treasure", "size" : 10 },
+			"3" : {
+				"type" : "treasure",
+				"size" : 10,
+				"townHints" : [
+					{ "relatedToZoneTerrain" : 2 },
+					{ "notLikeZone" : [1, 2] },
+					{ "notLikeZone" : 1 },
+					{ "likeZone" : 1 }
+				]
+			}
+		},
+		"connections" : [
+			{ "a" : "1", "b" : "2", "guard" : 1000 },
+			{ "a" : "2", "b" : "3", "guard" : 1000 }
+		]
+	})";
+
+	const auto load = [](JsonNode config)
+	{
+		config.setModScope(ModScope::scopeBuiltin());
+		auto subject = std::make_shared<CRmgTemplate>();
+		subject->setId("townHints");
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, config);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+		return subject;
+	};
+
+	const auto expectHints = [](const CRmgTemplate & tpl)
+	{
+		const auto & hints = tpl.getZones().at(3)->getTownHints();
+		ASSERT_EQ(hints.size(), 4u);
+
+		EXPECT_EQ(hints[0].relatedToZoneTerrain, 2);
+		EXPECT_THAT(hints[0].notLikeZone, IsEmpty());
+		EXPECT_EQ(hints[0].likeZone, rmg::ZoneOptions::NO_ZONE);
+
+		EXPECT_THAT(hints[1].notLikeZone, ElementsAre(1, 2));
+		EXPECT_THAT(hints[2].notLikeZone, ElementsAre(1));
+
+		EXPECT_EQ(hints[3].likeZone, 1);
+		EXPECT_THAT(hints[3].notLikeZone, IsEmpty());
+		EXPECT_EQ(hints[3].relatedToZoneTerrain, rmg::ZoneOptions::NO_ZONE);
+	};
+
+	const auto subject = load(JsonNode(text, std::size(text), "TownHintsKeepOnlyTheGivenFieldsAcrossRoundTrip"));
+	expectHints(*subject);
+
+	JsonNode saved;
+	{
+		JsonSerializer handler(nullptr, saved);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	expectHints(*load(saved));
+}
+
 }

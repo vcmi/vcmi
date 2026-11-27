@@ -163,6 +163,16 @@ void Zone::setTownType(FactionID town)
 	townType = town;
 }
 
+const std::vector<FactionID> & Zone::getHintedTownTypes() const
+{
+	return hintedTownTypes;
+}
+
+void Zone::setHintedTownTypes(std::vector<FactionID> types)
+{
+	hintedTownTypes = std::move(types);
+}
+
 TerrainId Zone::getTerrainType() const
 {
 	return terrainType;

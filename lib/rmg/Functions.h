@@ -12,8 +12,10 @@
 
 #include "Zone.h"
 #include <boost/heap/priority_queue.hpp> //A*
+#include <map>
 #include <functional>
 #include <memory>
+#include <vector>
 
 class RmgMap;
 class ObjectManager;
@@ -79,6 +81,19 @@ struct GuardCandidate
 /// Guard creature for a strength that no candidate's window contains: the candidate whose window lies
 /// nearest to the strength, the first one in order on a tie, Peasant if there are no candidates
 CreatureID chooseFallbackGuard(si32 strength, const std::vector<GuardCandidate> & candidates);
+
+/// True when `faction` is a real faction with a town object; false for NONE, RANDOM and town-less factions such as neutral
+bool factionHasTown(FactionID faction);
+
+/// Faction for a town whose hint chose `hinted`: `hinted` when it is a faction with a town object, otherwise a
+/// random faction from `allowed` that has one, or from the library's default town factions when `allowed` has none
+FactionID townFactionOrRandom(FactionID hinted, const std::set<FactionID> & allowed, vstd::RNG & rand);
+
+/// Zones in the order their main town faction must be resolved: every zone named by a zone's first town hint comes
+/// before that zone, ties by lower zone id. Only the hint's active field counts (likeZone, else notLikeZone, else
+/// relatedToZoneTerrain); a first hint naming its own zone and hints of later towns add no edge.
+/// Throws rmgException naming the zones on a cycle.
+std::vector<TRmgTemplateZoneId> orderZonesByFirstTownHint(const std::map<TRmgTemplateZoneId, std::vector<rmg::ZoneOptions::CTownHints>> & townHints);
 
 /// Stack size of a guard of given strength, never below 1
 si32 guardStackSize(si32 strength, si32 aiValue);

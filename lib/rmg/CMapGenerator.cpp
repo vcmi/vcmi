@@ -34,6 +34,7 @@
 #include "Zone.h"
 #include "Functions.h"
 #include "RmgMap.h"
+#include "ZoneFactionResolver.h"
 #include "RmgMapDumper.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/TreasurePlacer.h"
@@ -178,6 +179,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 		if(mapDumper)
 			mapDumper->dumpZones();
 		map->addWaterZones(*this, *rand);
+		ZoneFactionResolver(*map).run();
 		Load::Progress::step();
 		map->getMap(this).calculateGuardingGreaturePositions(); //clear map so that all tiles are unguarded
 		map->addModificators();
