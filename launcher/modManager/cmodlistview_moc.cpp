@@ -1972,7 +1972,7 @@ void CModListView::deletePreset(const QString & presetName)
 void CModListView::activatePreset(const QString & presetName)
 {
 	modStateModel->activatePreset(presetName);
-	reload();
+	modModel->reloadViewModel();
 }
 
 void CModListView::renamePreset(const QString & oldPresetName, const QString & newPresetName)

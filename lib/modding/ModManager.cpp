@@ -924,7 +924,11 @@ void ModManager::deletePreset(const std::string & presetName)
 void ModManager::activatePreset(const std::string & presetName)
 {
 	modsPreset->activatePreset(presetName);
-	modsPreset->saveConfigurationState();
+	eraseMissingModsFromPreset();
+
+	std::vector<TModID> desiredModList = modsPreset->getActiveMods();
+	ModDependenciesResolver newResolver(desiredModList, *modsStorage);
+	updatePreset(newResolver);
 }
 
 void ModManager::renamePreset(const std::string & oldPresetName, const std::string & newPresetName)
