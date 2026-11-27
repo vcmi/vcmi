@@ -83,6 +83,7 @@ class AdventureMapShortcuts
 	void moveHeroDirectional(const Point & direction);
 	void enterDisembarkMode();
 	void showWiki();
+	void showCheatMenu();
 
 public:
 	explicit AdventureMapShortcuts(AdventureMapInterface & owner);
@@ -116,6 +117,7 @@ public:
 	bool optionQuickSaveLoad();
 	bool optionCanDisembark();
 	bool optionDisembarking();
+	bool optionCheatsAllowed();
 
 	void setState(EAdventureState newState);
 	EAdventureState getState() const;

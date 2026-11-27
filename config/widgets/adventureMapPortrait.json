@@ -776,6 +776,26 @@
 			"area": { "bottom": 24, "left" : 24, "width" : 144, "height" : 144 }
 		},
 
+		// Cheat menu button, floating over the map view next to the top-left gem
+		{
+			"type": "adventureMapContainer",
+			"name" : "overlayCheatMenuButton",
+			"overlay" : true,
+			"area": { "left": 54, "top" : 13, "width" : 32, "height" : 32 },
+			"items" : [
+				{
+					"type" : "adventureMapButton",
+					"name" : "buttonCheatMenu",
+					"image" : "cheatMenuButton",
+					"help" : "vcmi.adventureMap.cheatMenu",
+					"hotkey": "adventureCheatMenu",
+					"playerColored" : true,
+					"generateFromBaseImage" : "cheatMenu.png",
+					"generateSmall" : true,
+					"area": { "top" : 0, "left": 0, "width" : 32, "height" : 32 }
+				}
+			]
+		},
 		// GEMS - set of images with different image for each player
 		{
 			"type": "adventureMapContainer",

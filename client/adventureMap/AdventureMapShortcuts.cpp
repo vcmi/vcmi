@@ -31,6 +31,7 @@
 #include "AdventureMapInterface.h"
 #include "AdventureOptions.h"
 #include "AdventureState.h"
+#include "CheatMenuWindow.h"
 
 #include "../replay/GameplayReplayer.h"
 #include "../replay/ReplaySelectionWindow.h"
@@ -131,6 +132,7 @@ std::vector<AdventureMapShortcutState> AdventureMapShortcuts::getShortcuts()
 		{ EShortcut::ADVENTURE_SEARCH_CONTINUE,  optionSidePanelActive(),[this]() { this->search(true); } },
 		{ EShortcut::ADVENTURE_DISEMBARK,        optionCanDisembark(),   [this]() { this->enterDisembarkMode(); } },
 		{ EShortcut::ADVENTURE_OPEN_WIKI,        optionInMapView(),      [this]() { this->showWiki(); } },
+		{ EShortcut::ADVENTURE_CHEAT_MENU,       optionInMapView() && optionCheatsAllowed(), [this]() { this->showCheatMenu(); } },
 		{ EShortcut::MAIN_MENU_LOBBY,            optionLobbyActive(),    [    ]() { ENGINE->user().onGlobalLobbyInterfaceActivated(); } }
 	};
 	return result;
@@ -274,6 +276,11 @@ void AdventureMapShortcuts::adventureOptions()
 void AdventureMapShortcuts::systemOptions()
 {
 	ENGINE->windows().createAndPushWindow<SettingsMainWindow>();
+}
+
+void AdventureMapShortcuts::showCheatMenu()
+{
+	ENGINE->windows().createAndPushWindow<CheatMenuWindow>();
 }
 
 void AdventureMapShortcuts::firstHero()
@@ -734,6 +741,11 @@ bool AdventureMapShortcuts::optionSpellcasting()
 bool AdventureMapShortcuts::optionInMapView()
 {
 	return state == EAdventureState::MAKING_TURN;
+}
+
+bool AdventureMapShortcuts::optionCheatsAllowed()
+{
+	return GAME->interface()->cb->getStartInfo()->extraOptionsInfo.cheatsAllowed;
 }
 
 bool AdventureMapShortcuts::optionReplayTurn()

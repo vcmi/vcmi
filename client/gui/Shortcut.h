@@ -179,6 +179,7 @@ enum class EShortcut
 	ADVENTURE_SEARCH_CONTINUE,
 	ADVENTURE_DISEMBARK,
 	ADVENTURE_OPEN_WIKI, // Opens the in-game Glossary / Wiki window
+	ADVENTURE_CHEAT_MENU, // Opens the cheat menu window
 
 	// Move hero one tile in specified direction. Bound to cursors & numpad buttons
 	ADVENTURE_MOVE_HERO_SW,
