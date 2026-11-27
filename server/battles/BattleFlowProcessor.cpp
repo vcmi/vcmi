@@ -318,7 +318,7 @@ void BattleFlowProcessor::onActionMade(const CBattleInfoCallback & battle, const
 		return;
 
 	// creature will not skip the turn after casting a spell if spell uses canCastWithoutSkip
-	if(valid && ba.actionType == EActionType::MONSTER_SPELL)
+	if(valid && ba.actionType == BattleActionID::UNIT_SPELL)
 	{
 		assert(activeStack != nullptr);
 		assert(actedStack != nullptr);

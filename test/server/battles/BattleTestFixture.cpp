@@ -333,7 +333,7 @@ std::vector<ActionOption> BattleTestFixture::optionsOf(const CStack * unit) cons
 	return options;
 }
 
-ActionOption BattleTestFixture::optionOf(const CStack * unit, EActionType actionType) const
+ActionOption BattleTestFixture::optionOf(const CStack * unit, BattleActionID actionType) const
 {
 	for(const auto & option : optionsOf(unit))
 		if(option.type == BattleActionType::find(actionType))
@@ -353,7 +353,7 @@ ActionPreview BattleTestFixture::preview(const ActionOption & option, const Acti
 	return option.type->preview(*gameState(), *battle(), option, context);
 }
 
-ActionPreview BattleTestFixture::previewOf(const CStack * unit, EActionType actionType, const BattleHex & hex) const
+ActionPreview BattleTestFixture::previewOf(const CStack * unit, BattleActionID actionType, const BattleHex & hex) const
 {
 	return preview(optionOf(unit, actionType), {unit, hex});
 }

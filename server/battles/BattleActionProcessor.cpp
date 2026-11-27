@@ -1078,7 +1078,7 @@ bool BattleActionProcessor::makePlayerBattleAction(const CBattleInfoCallback & b
 		return false;
 
 	// the server makes these for units that lose their turn; they pass validation because automatic actions are validated too
-	if (ba.actionType == EActionType::NO_ACTION || ba.actionType == EActionType::BAD_MORALE)
+	if (ba.actionType == BattleActionID::SKIP_TURN || ba.actionType == BattleActionID::BAD_MORALE)
 	{
 		gameHandler->complain("Can not make actions that only the server makes!");
 		return false;

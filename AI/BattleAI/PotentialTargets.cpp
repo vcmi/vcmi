@@ -32,10 +32,10 @@ PotentialTargets::PotentialTargets(
 	if(isBerserk)
 	{
 		const BattleAction forcedAction = AutomaticActions::chooseBerserkAction(*state, *attackerInfo);
-		const bool melee = forcedAction.actionType == EActionType::WALK_AND_ATTACK
-			|| forcedAction.actionType == EActionType::WALK_AND_ATTACK_NO_RETURN
-			|| forcedAction.actionType == EActionType::LONG_WEAPON_ATTACK;
-		berserkShoots = forcedAction.actionType == EActionType::SHOOT;
+		const bool melee = forcedAction.actionType == BattleActionID::MELEE_ATTACK
+			|| forcedAction.actionType == BattleActionID::MELEE_ATTACK_NO_RETURN
+			|| forcedAction.actionType == BattleActionID::LONG_WEAPON_ATTACK;
+		berserkShoots = forcedAction.actionType == BattleActionID::RANGED_ATTACK;
 
 		if(melee || berserkShoots)
 		{

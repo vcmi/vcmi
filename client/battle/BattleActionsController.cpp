@@ -37,7 +37,7 @@
 #include "../../lib/callback/CCallback.h"
 #include "../../lib/texts/CGeneralTextHandler.h"
 
-bool BattleActionsController::isLibAction(const IBattleActionEntry & entry, EActionType actionType)
+bool BattleActionsController::isLibAction(const IBattleActionEntry & entry, BattleActionID actionType)
 {
 	const auto * lib = dynamic_cast<const LibActionEntry *>(&entry);
 	return lib && lib->getType() == BattleActionType::find(actionType);
@@ -146,7 +146,7 @@ void BattleActionsController::enterCreatureCastingMode()
 	{
 		auto actionFilterPredicate = [](const std::shared_ptr<const IBattleActionEntry> & x)
 		{
-			return !isLibAction(*x, EActionType::SHOOT);
+			return !isLibAction(*x, BattleActionID::RANGED_ATTACK);
 		};
 
 		BattleActionEntries entries = possibleActions;

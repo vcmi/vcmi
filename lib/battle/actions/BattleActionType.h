@@ -18,7 +18,6 @@ class CBattleInfoCallback;
 class IBattleActionEnvironment;
 class IGameInfoCallback;
 struct StartAction;
-enum class EActionType : int8_t;
 
 namespace battle
 {
@@ -35,18 +34,18 @@ class Problem;
 /// Rules of one kind of battle action: when it is allowed and how it changes the battle. Stateless and shared by all actions of the kind
 class DLL_LINKAGE BattleActionType
 {
-	EActionType id;
+	BattleActionID id;
 
 public:
-	explicit BattleActionType(EActionType id);
+	explicit BattleActionType(BattleActionID id);
 	virtual ~BattleActionType() = default;
 
 	/// Type of the actions that build makes and that find returns this type for
-	EActionType getId() const;
+	BattleActionID getId() const;
 
-	/// Returns the type of the action, or nullptr for a value outside of EActionType
+	/// Returns the type of the action, or nullptr for a value outside of BattleActionID
 	static const BattleActionType * find(const BattleAction & action);
-	static const BattleActionType * find(EActionType actionType);
+	static const BattleActionType * find(BattleActionID actionType);
 
 	/// Made by the acting unit on its turn, instead of by the side or its hero
 	virtual bool isUnitAction() const;

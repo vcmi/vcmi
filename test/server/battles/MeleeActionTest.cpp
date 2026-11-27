@@ -273,7 +273,7 @@ TEST_F(MeleeOptionTest, attackPreviewShowsDirectionDamageAndRetaliation)
 	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 	const auto targetHealth = target->getAvailableHealth();
 
-	const auto option = optionOf(attacker, EActionType::WALK_AND_ATTACK);
+	const auto option = optionOf(attacker, BattleActionID::MELEE_ATTACK);
 	const auto context = contextOf(option, attacker, targetHex, BattleHex::LEFT);
 	ASSERT_TRUE(context.approach.has_value());
 	EXPECT_EQ(context.approach->from, attackFrom);
@@ -302,7 +302,7 @@ TEST_F(MeleeOptionTest, sideOutOfReachIsNotOffered)
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
 	// four hexes of movement reach the near side of the target, but not its far side
-	const auto option = optionOf(attacker, EActionType::WALK_AND_ATTACK);
+	const auto option = optionOf(attacker, BattleActionID::MELEE_ATTACK);
 	const auto context = contextOf(option, attacker, targetHex, BattleHex::RIGHT);
 
 	EXPECT_FALSE(context.approach.has_value());
@@ -319,8 +319,8 @@ TEST_F(MeleeOptionTest, returningUnitPrefersToReturn)
 	CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 	const auto targetHealth = target->getAvailableHealth();
 
-	const auto returning = optionOf(attacker, EActionType::WALK_AND_ATTACK);
-	const auto staying = optionOf(attacker, EActionType::WALK_AND_ATTACK_NO_RETURN);
+	const auto returning = optionOf(attacker, BattleActionID::MELEE_ATTACK);
+	const auto staying = optionOf(attacker, BattleActionID::MELEE_ATTACK_NO_RETURN);
 
 	EXPECT_LT(returning.type->getPriority(*battle(), returning, *attacker, target), staying.type->getPriority(*battle(), staying, *attacker, target));
 	EXPECT_NE(returning.button, staying.button);
@@ -343,7 +343,7 @@ TEST_F(MeleeOptionTest, longWeaponOptionStrikesFromTwoHexesAway)
 	const auto attackerHealth = attacker->getAvailableHealth();
 	const auto targetHealth = target->getAvailableHealth();
 
-	const auto option = optionOf(attacker, EActionType::LONG_WEAPON_ATTACK);
+	const auto option = optionOf(attacker, BattleActionID::LONG_WEAPON_ATTACK);
 	const auto context = contextOf(option, attacker, targetHex, BattleHex::LEFT);
 	ASSERT_TRUE(context.approach.has_value());
 	EXPECT_EQ(context.approach->from, twoHexesAway);
@@ -367,7 +367,7 @@ TEST_F(MeleeOptionTest, adjacentAttackOfLongWeaponUnitShowsRetaliation)
 	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
 
 	// a long weapon strike is possible from the current hex, but this attack is made from the adjacent one
-	const auto option = optionOf(attacker, EActionType::WALK_AND_ATTACK);
+	const auto option = optionOf(attacker, BattleActionID::MELEE_ATTACK);
 	const auto context = contextOf(option, attacker, targetHex, BattleHex::LEFT);
 	ASSERT_TRUE(context.approach.has_value());
 	ASSERT_EQ(context.approach->from, attackFrom);
@@ -385,8 +385,8 @@ TEST_F(MeleeOptionTest, longWeaponOptionIsNotOfferedForAdjacentTarget)
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 	attacker->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
 
-	const auto longWeapon = optionOf(attacker, EActionType::LONG_WEAPON_ATTACK);
-	const auto adjacent = optionOf(attacker, EActionType::WALK_AND_ATTACK);
+	const auto longWeapon = optionOf(attacker, BattleActionID::LONG_WEAPON_ATTACK);
+	const auto adjacent = optionOf(attacker, BattleActionID::MELEE_ATTACK);
 
 	// the hex two hexes away is reachable, but the attacker already stands next to the target on that line
 	EXPECT_FALSE(contextOf(longWeapon, attacker, targetHex, BattleHex::LEFT).approach.has_value());
@@ -407,7 +407,7 @@ TEST_F(MeleeOptionTest, twoHexLongWeaponUnitStrikesWithItsBackHex)
 	const BattleHex backHexOnLine = targetHex.cloneInDirection(BattleHex::RIGHT).cloneInDirection(BattleHex::RIGHT);
 	const BattleHex frontHex = backHexOnLine.cloneInDirection(BattleHex::RIGHT);
 
-	const auto option = optionOf(attacker, EActionType::LONG_WEAPON_ATTACK);
+	const auto option = optionOf(attacker, BattleActionID::LONG_WEAPON_ATTACK);
 	const auto context = contextOf(option, attacker, targetHex, BattleHex::RIGHT);
 	ASSERT_TRUE(context.approach.has_value());
 	EXPECT_EQ(context.approach->from, frontHex);
@@ -426,7 +426,7 @@ TEST_F(MeleeOptionTest, breathPreviewNamesUnitBehindTarget)
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 	const CStack * behind = addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex.cloneInDirection(BattleHex::RIGHT), stackCount);
 
-	const auto option = optionOf(attacker, EActionType::WALK_AND_ATTACK);
+	const auto option = optionOf(attacker, BattleActionID::MELEE_ATTACK);
 	const auto shown = option.type->preview(*gameState(), *battle(), option, contextOf(option, attacker, targetHex, BattleHex::LEFT));
 
 	EXPECT_THAT(shown.affectedUnits, ::testing::ElementsAre(behind->unitId()));

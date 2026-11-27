@@ -657,7 +657,7 @@ void TacticsHandler::onActionFinished(const BattleAction & action)
 		return;
 	}
 
-	if(!movingStack || action.actionType != EActionType::WALK || action.stackNumber != movingStack->unitId())
+	if(!movingStack || action.actionType != BattleActionID::MOVE || action.stackNumber != movingStack->unitId())
 		return;
 
 	logAi->debug("[Tactics] Move finished");

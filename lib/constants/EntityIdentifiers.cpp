@@ -41,6 +41,7 @@
 #include "mapObjectConstructors/AObjectTypeHandler.h"
 #include "spells/CSpell.h"
 #include "spells/SpellSchoolHandler.h"
+#include "battle/actions/BattleActionTypeHandler.h"
 #include "texts/CGeneralTextHandler.h"
 #include "TerrainHandler.h"
 #include "RiverHandler.h"
@@ -487,6 +488,23 @@ std::string SpellID::encode(const si32 index)
 	if (index == SpellID::SPELLBOOK_PRESET)
 		return "spellbook_preset";
 	return LIBRARY->spells()->getByIndex(index)->getJsonKey();
+}
+
+si32 BattleActionID::decode(const std::string & identifier)
+{
+	return resolveIdentifier(entityType(), identifier);
+}
+
+std::string BattleActionID::encode(const si32 index)
+{
+	if (index == -1)
+		return "";
+	return LIBRARY->battleActionTypeHandler->getJsonKey(index);
+}
+
+std::string BattleActionID::entityType()
+{
+	return "battleAction";
 }
 
 si32 BattleField::decode(const std::string & identifier)

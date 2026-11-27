@@ -217,7 +217,7 @@ bool BAI::maybeCastCreatureSpell(const CStack * astack, BattleEvaluator & evalua
 	logger.debug("Attempting a BattleAI creature spellcast");
 
 	auto action = evaluator.selectStackAction(astack);
-	if(action.actionType != EActionType::MONSTER_SPELL)
+	if(action.actionType != BattleActionID::UNIT_SPELL)
 	{
 		logger.debug("Not making BattleAI creature spellcast (action would be " + action.toString());
 		return false;
@@ -243,7 +243,7 @@ std::shared_ptr<BattleAction> BAI::maybeBuildAutoAction(const CStack * astack, c
 		auto ba = std::make_shared<BattleAction>();
 		ba->side = astack->unitSide();
 		ba->stackNumber = astack->unitId();
-		ba->actionType = EActionType::CATAPULT;
+		ba->actionType = BattleActionID::CATAPULT;
 
 		if(battle->battleGetGateState() != EGateState::DESTROYED)
 		{

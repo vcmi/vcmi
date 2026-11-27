@@ -137,11 +137,11 @@ TEST_F(WalkActionTest, walkPreviewShadesHexInReach)
 
 	const CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
 
-	const auto shown = previewOf(walker, EActionType::WALK, destination);
+	const auto shown = previewOf(walker, BattleActionID::MOVE, destination);
 	EXPECT_EQ(shown.cursor, "combatMove");
 	EXPECT_EQ(shown.shadedHexes, BattleHexArray({destination}));
 
-	const auto option = optionOf(walker, EActionType::WALK);
+	const auto option = optionOf(walker, BattleActionID::MOVE);
 	EXPECT_EQ(option.type->build(*battle(), option, {walker, destination}).value().getTarget(battle()).at(0).hexValue, destination);
 }
 
@@ -152,7 +152,7 @@ TEST_F(WalkActionTest, flyingUnitShowsFlyCursor)
 
 	const CStack * flyer = addStack(BattleSide::ATTACKER, CreatureID(griffin), start, 10);
 
-	EXPECT_EQ(previewOf(flyer, EActionType::WALK, destination).cursor, "combatFly");
+	EXPECT_EQ(previewOf(flyer, BattleActionID::MOVE, destination).cursor, "combatFly");
 }
 
 TEST_F(WalkActionTest, walkPreviewOutOfReachIsBlocked)
@@ -162,7 +162,7 @@ TEST_F(WalkActionTest, walkPreviewOutOfReachIsBlocked)
 
 	const CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
 
-	const auto shown = previewOf(walker, EActionType::WALK, BattleHex(9, 5));
+	const auto shown = previewOf(walker, BattleActionID::MOVE, BattleHex(9, 5));
 	EXPECT_EQ(shown.cursor, "combatBlocked");
 	EXPECT_TRUE(shown.shadedHexes.empty());
 }
@@ -174,7 +174,7 @@ TEST_F(WalkActionTest, ownHexIsNoMoveTarget)
 
 	const CStack * walker = addStack(BattleSide::ATTACKER, CreatureID(pikeman), start, 10);
 
-	EXPECT_FALSE(isLegal(optionOf(walker, EActionType::WALK), {walker, start}));
+	EXPECT_FALSE(isLegal(optionOf(walker, BattleActionID::MOVE), {walker, start}));
 }
 
 TEST_F(WalkActionTest, twoHexUnitMovesWhereItsTailFits)
@@ -188,5 +188,5 @@ TEST_F(WalkActionTest, twoHexUnitMovesWhereItsTailFits)
 
 	// the head can't stand on the hovered hex, because the tail would stand on the enemy; one hex further both fit
 	const BattleHex head = destination.cloneInDirection(BattleHex::RIGHT);
-	EXPECT_EQ(previewOf(flyer, EActionType::WALK, destination).shadedHexes, BattleHexArray({head, destination}));
+	EXPECT_EQ(previewOf(flyer, BattleActionID::MOVE, destination).shadedHexes, BattleHexArray({head, destination}));
 }

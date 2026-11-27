@@ -33,7 +33,7 @@ struct UnitOptionsCase
 	/// Grants the abilities no Heroes 3 creature combines with the rest, or nullptr.
 	void (*grant)(CStack * unit);
 	/// Actions whose types offer an option
-	std::vector<EActionType> actions;
+	std::vector<BattleActionID> actions;
 };
 
 }
@@ -53,7 +53,7 @@ public:
 		return result;
 	}
 
-	static std::vector<const BattleActionType *> typesOf(const std::vector<EActionType> & actions)
+	static std::vector<const BattleActionType *> typesOf(const std::vector<BattleActionID> & actions)
 	{
 		std::vector<const BattleActionType *> result;
 		for(const auto action : actions)
@@ -82,30 +82,30 @@ TEST_P(UnitOptionsTest, offersOptionsOfUnitAbilities)
 
 INSTANTIATE_TEST_SUITE_P(Units, UnitOptionsTest, ::testing::Values(
 	UnitOptionsCase{"melee", pikeman, nullptr,
-		{EActionType::WALK, EActionType::WALK_AND_ATTACK}},
+		{BattleActionID::MOVE, BattleActionID::MELEE_ATTACK}},
 	UnitOptionsCase{"shooter", archer, nullptr,
-		{EActionType::WALK, EActionType::SHOOT, EActionType::WALK_AND_ATTACK}},
+		{BattleActionID::MOVE, BattleActionID::RANGED_ATTACK, BattleActionID::MELEE_ATTACK}},
 	UnitOptionsCase{"returning", harpy, nullptr,
-		{EActionType::WALK, EActionType::WALK_AND_ATTACK, EActionType::WALK_AND_ATTACK_NO_RETURN}},
+		{BattleActionID::MOVE, BattleActionID::MELEE_ATTACK, BattleActionID::MELEE_ATTACK_NO_RETURN}},
 	UnitOptionsCase{"longWeapon", pikeman, [](CStack * unit)
 		{
 			unit->addNewBonus(std::make_shared<Bonus>(BonusDuration::PERMANENT, BonusType::LONG_WEAPON, BonusSource::OTHER, 0, BonusSourceID()));
 		},
-		{EActionType::WALK, EActionType::WALK_AND_ATTACK, EActionType::LONG_WEAPON_ATTACK}},
+		{BattleActionID::MOVE, BattleActionID::MELEE_ATTACK, BattleActionID::LONG_WEAPON_ATTACK}},
 	UnitOptionsCase{"spellcaster", stormElemental, nullptr,
-		{EActionType::WALK, EActionType::SHOOT, EActionType::WALK_AND_ATTACK, EActionType::MONSTER_SPELL}},
+		{BattleActionID::MOVE, BattleActionID::RANGED_ATTACK, BattleActionID::MELEE_ATTACK, BattleActionID::UNIT_SPELL}},
 	UnitOptionsCase{"randomSpellcaster", masterGenie, nullptr,
-		{EActionType::WALK, EActionType::WALK_AND_ATTACK, EActionType::RANDOM_SPELL}},
+		{BattleActionID::MOVE, BattleActionID::MELEE_ATTACK, BattleActionID::RANDOM_SPELL}},
 	UnitOptionsCase{"adjacentSpellcaster", pikeman, [](CStack * unit)
 		{
 			BattleTestFixture::grantSpell(unit, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
 		},
-		{EActionType::WALK, EActionType::WALK_AND_ATTACK, EActionType::WALK_AND_CAST}},
+		{BattleActionID::MOVE, BattleActionID::MELEE_ATTACK, BattleActionID::ADJACENT_SPELL}},
 	UnitOptionsCase{"firstAidTent", CreatureID::FIRST_AID_TENT, nullptr,
-		{EActionType::STACK_HEAL}},
+		{BattleActionID::HEAL}},
 	// walls to shoot at exist only in a siege
 	UnitOptionsCase{"wallShooterInField", cyclop, nullptr,
-		{EActionType::WALK, EActionType::SHOOT, EActionType::WALK_AND_ATTACK}}
+		{BattleActionID::MOVE, BattleActionID::RANGED_ATTACK, BattleActionID::MELEE_ATTACK}}
 ),
 	[](const ::testing::TestParamInfo<UnitOptionsCase> & info) { return info.param.name; });
 
@@ -117,7 +117,7 @@ TEST_F(ActionOptionsTest, shooterNextToEnemyCannotShoot)
 	CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), unitHex, 10);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), unitHex.cloneInDirection(BattleHex::RIGHT), 10);
 
-	EXPECT_THAT(typesOffered(shooter), ::testing::UnorderedElementsAreArray(typesOf({EActionType::WALK, EActionType::WALK_AND_ATTACK})));
+	EXPECT_THAT(typesOffered(shooter), ::testing::UnorderedElementsAreArray(typesOf({BattleActionID::MOVE, BattleActionID::MELEE_ATTACK})));
 }
 
 TEST_F(ActionOptionsTest, tacticsPhaseOffersOnlyMoveWithoutPanelButton)
@@ -131,6 +131,6 @@ TEST_F(ActionOptionsTest, tacticsPhaseOffersOnlyMoveWithoutPanelButton)
 
 	const auto options = optionsOf(unit);
 	ASSERT_EQ(options.size(), 1);
-	EXPECT_EQ(options.front().type, BattleActionType::find(EActionType::WALK));
+	EXPECT_EQ(options.front().type, BattleActionType::find(BattleActionID::MOVE));
 	EXPECT_FALSE(options.front().button.has_value());
 }

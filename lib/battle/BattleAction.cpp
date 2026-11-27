@@ -19,11 +19,11 @@ static const int32_t INVALID_UNIT_ID = -1000;
 BattleAction::BattleAction():
 	side(BattleSide::NONE),
 	stackNumber(-1),
-	actionType(EActionType::NO_ACTION)
+	actionType(BattleActionID::SKIP_TURN)
 {
 }
 
-BattleAction BattleAction::makeUnitAction(const battle::Unit * unit, EActionType type)
+BattleAction BattleAction::makeUnitAction(const battle::Unit * unit, BattleActionID type)
 {
 	BattleAction ba;
 	ba.side = unit->unitSide();
@@ -32,7 +32,7 @@ BattleAction BattleAction::makeUnitAction(const battle::Unit * unit, EActionType
 	return ba;
 }
 
-BattleAction BattleAction::makeSideAction(BattleSide side, EActionType type)
+BattleAction BattleAction::makeSideAction(BattleSide side, BattleActionID type)
 {
 	BattleAction ba;
 	ba.side = side;
@@ -42,44 +42,44 @@ BattleAction BattleAction::makeSideAction(BattleSide side, EActionType type)
 
 BattleAction BattleAction::makeHeal(const battle::Unit * healer, const battle::Unit * healed)
 {
-	BattleAction ba = makeUnitAction(healer, EActionType::STACK_HEAL);
+	BattleAction ba = makeUnitAction(healer, BattleActionID::HEAL);
 	ba.aimToUnit(healed);
 	return ba;
 }
 
 BattleAction BattleAction::makeHeal(const battle::Unit * healer)
 {
-	return makeUnitAction(healer, EActionType::STACK_HEAL);
+	return makeUnitAction(healer, BattleActionID::HEAL);
 }
 
 BattleAction BattleAction::makeCatapultShot(const battle::Unit * catapult)
 {
-	return makeUnitAction(catapult, EActionType::CATAPULT);
+	return makeUnitAction(catapult, BattleActionID::CATAPULT);
 }
 
 BattleAction BattleAction::makeNoAction(const battle::Unit * stack)
 {
-	return makeUnitAction(stack, EActionType::NO_ACTION);
+	return makeUnitAction(stack, BattleActionID::SKIP_TURN);
 }
 
 BattleAction BattleAction::makeBadMorale(const battle::Unit * stack)
 {
-	return makeUnitAction(stack, EActionType::BAD_MORALE);
+	return makeUnitAction(stack, BattleActionID::BAD_MORALE);
 }
 
 BattleAction BattleAction::makeDefend(const battle::Unit * stack)
 {
-	return makeUnitAction(stack, EActionType::DEFEND);
+	return makeUnitAction(stack, BattleActionID::DEFEND);
 }
 
 BattleAction BattleAction::makeWait(const battle::Unit * stack)
 {
-	return makeUnitAction(stack, EActionType::WAIT);
+	return makeUnitAction(stack, BattleActionID::WAIT);
 }
 
 BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom)
 {
-	BattleAction ba = makeUnitAction(stack, EActionType::WALK_AND_ATTACK);
+	BattleAction ba = makeUnitAction(stack, BattleActionID::MELEE_ATTACK);
 	ba.aimToHex(attackFrom);
 	ba.aimToHex(destination);
 	return ba;
@@ -88,7 +88,7 @@ BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const Bat
 /// This is for cases where target hex does not matter (for example berserk spell) and we did not calculate it (for example we only calculated closest attackable hex of two hex unit)
 BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const battle::Unit * target, const BattleHex & attackFrom)
 {
-	BattleAction ba = makeUnitAction(stack, EActionType::WALK_AND_ATTACK);
+	BattleAction ba = makeUnitAction(stack, BattleActionID::MELEE_ATTACK);
 	ba.aimToHex(attackFrom);
 	ba.aimToUnit(target);
 	return ba;
@@ -96,7 +96,7 @@ BattleAction BattleAction::makeMeleeAttack(const battle::Unit * stack, const bat
 
 BattleAction BattleAction::makeLongWeaponAttack(const battle::Unit * stack, const BattleHex & destination, const BattleHex & attackFrom)
 {
-	BattleAction ba = makeUnitAction(stack, EActionType::LONG_WEAPON_ATTACK);
+	BattleAction ba = makeUnitAction(stack, BattleActionID::LONG_WEAPON_ATTACK);
 	ba.aimToHex(attackFrom);
 	ba.aimToHex(destination);
 	return ba;
@@ -104,21 +104,21 @@ BattleAction BattleAction::makeLongWeaponAttack(const battle::Unit * stack, cons
 
 BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const battle::Unit * target)
 {
-	BattleAction ba = makeUnitAction(shooter, EActionType::SHOOT);
+	BattleAction ba = makeUnitAction(shooter, BattleActionID::RANGED_ATTACK);
 	ba.aimToUnit(target);
 	return ba;
 }
 
 BattleAction BattleAction::makeShotAttack(const battle::Unit * shooter, const BattleHex & destination)
 {
-	BattleAction ba = makeUnitAction(shooter, EActionType::SHOOT);
+	BattleAction ba = makeUnitAction(shooter, BattleActionID::RANGED_ATTACK);
 	ba.aimToHex(destination);
 	return ba;
 }
 
 BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, const battle::Target & target, const SpellID & spellID)
 {
-	BattleAction ba = makeUnitAction(stack, EActionType::MONSTER_SPELL);
+	BattleAction ba = makeUnitAction(stack, BattleActionID::UNIT_SPELL);
 	ba.spell = spellID;
 	ba.setTarget(target);
 	return ba;
@@ -126,7 +126,7 @@ BattleAction BattleAction::makeCreatureSpellcast(const battle::Unit * stack, con
 
 BattleAction BattleAction::makeHeroSpellcast(BattleSide side, const battle::Target & target, const SpellID & spellID)
 {
-	BattleAction ba = makeSideAction(side, EActionType::HERO_SPELL);
+	BattleAction ba = makeSideAction(side, BattleActionID::HERO_SPELL);
 	ba.spell = spellID;
 	ba.setTarget(target);
 	return ba;
@@ -134,14 +134,14 @@ BattleAction BattleAction::makeHeroSpellcast(BattleSide side, const battle::Targ
 
 BattleAction BattleAction::makeRandomSpellcast(const battle::Unit * stack, const BattleHex & destination)
 {
-	BattleAction ba = makeUnitAction(stack, EActionType::RANDOM_SPELL);
+	BattleAction ba = makeUnitAction(stack, BattleActionID::RANDOM_SPELL);
 	ba.aimToHex(destination);
 	return ba;
 }
 
 BattleAction BattleAction::makeWalkAndCast(const battle::Unit * stack, const BattleHex & castFrom, const battle::Unit * target, const SpellID & spellID)
 {
-	BattleAction ba = makeUnitAction(stack, EActionType::WALK_AND_CAST);
+	BattleAction ba = makeUnitAction(stack, BattleActionID::ADJACENT_SPELL);
 	ba.spell = spellID;
 	ba.aimToHex(castFrom);
 	ba.aimToUnit(target);
@@ -150,24 +150,24 @@ BattleAction BattleAction::makeWalkAndCast(const battle::Unit * stack, const Bat
 
 BattleAction BattleAction::makeMove(const battle::Unit * stack, const BattleHex & dest)
 {
-	BattleAction ba = makeUnitAction(stack, EActionType::WALK);
+	BattleAction ba = makeUnitAction(stack, BattleActionID::MOVE);
 	ba.aimToHex(dest);
 	return ba;
 }
 
 BattleAction BattleAction::makeEndOFTacticPhase(BattleSide side)
 {
-	return makeSideAction(side, EActionType::END_TACTIC_PHASE);
+	return makeSideAction(side, BattleActionID::END_TACTICS_PHASE);
 }
 
 BattleAction BattleAction::makeSurrender(BattleSide side)
 {
-	return makeSideAction(side, EActionType::SURRENDER);
+	return makeSideAction(side, BattleActionID::SURRENDER);
 }
 
 BattleAction BattleAction::makeRetreat(BattleSide side)
 {
-	return makeSideAction(side, EActionType::RETREAT);
+	return makeSideAction(side, BattleActionID::RETREAT);
 }
 
 std::string BattleAction::toString() const

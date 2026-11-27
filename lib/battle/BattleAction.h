@@ -24,7 +24,7 @@ class DLL_LINKAGE BattleAction
 public:
 	BattleSide side; //who made this action
 	ui32 stackNumber; //stack ID, -1 left hero, -2 right hero,
-	EActionType actionType; //use ActionType enum for values
+	BattleActionID actionType;
 
 	SpellID spell;
 
@@ -71,7 +71,17 @@ public:
 	{
 		h & side;
 		h & stackNumber;
-		h & actionType;
+		if(h.hasFeature(Handler::Version::BATTLE_ACTION_ID))
+		{
+			h & actionType;
+		}
+		else
+		{
+			// older versions send the number of the type, which BattleActionID keeps for built-in types
+			int32_t legacyType = actionType.getNum();
+			h & legacyType;
+			actionType = BattleActionID(legacyType);
+		}
 		h & spell;
 		h & target;
 	}
@@ -91,8 +101,8 @@ public:
 	std::vector<DestinationInfo> target;
 
 private:
-	static BattleAction makeUnitAction(const battle::Unit * unit, EActionType type);
-	static BattleAction makeSideAction(BattleSide side, EActionType type);
+	static BattleAction makeUnitAction(const battle::Unit * unit, BattleActionID type);
+	static BattleAction makeSideAction(BattleSide side, BattleActionID type);
 };
 
 DLL_EXPORT std::ostream & operator<<(std::ostream & os, const BattleAction & ba); //todo: remove

@@ -232,7 +232,7 @@ TEST_F(RangedActionTest, catapultSkipsTurnWithoutWallsToShoot)
 
 	const auto action = AutomaticActions::chooseAction(*battle(), *catapult, *gameHandler->randomizer);
 	ASSERT_TRUE(action.has_value());
-	EXPECT_EQ(action->actionType, EActionType::NO_ACTION);
+	EXPECT_EQ(action->actionType, BattleActionID::SKIP_TURN);
 }
 
 TEST_F(RangedActionTest, catapultShotAtNonWallHexIsRefused)
@@ -288,7 +288,7 @@ TEST_F(RangedActionTest, shotPreviewShowsShotsLeftAndDamage)
 	const CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
 	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(8, 5), stackCount);
 
-	const auto shown = previewOf(shooter, EActionType::SHOOT, target->getPosition());
+	const auto shown = previewOf(shooter, BattleActionID::RANGED_ATTACK, target->getPosition());
 	EXPECT_EQ(shown.cursor, "combatShoot");
 	// an archer has 12 shots
 	EXPECT_THAT(textIDsOf(shown.statusText), ::testing::AllOf(
@@ -298,7 +298,7 @@ TEST_F(RangedActionTest, shotPreviewShowsShotsLeftAndDamage)
 		::testing::Contains("vcmi.battleWindow.damageEstimation.damage")));
 	EXPECT_THAT(numbersOf(shown.statusText), ::testing::Contains(12));
 
-	const auto option = optionOf(shooter, EActionType::SHOOT);
+	const auto option = optionOf(shooter, BattleActionID::RANGED_ATTACK);
 	EXPECT_TRUE(act(option.type->build(*battle(), option, {shooter, target->getPosition()}).value()));
 }
 
@@ -310,7 +310,7 @@ TEST_F(RangedActionTest, distantTargetShowsPenaltyCursor)
 	const CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), BattleHex(1, 5), stackCount);
 	const CStack * target = addStack(BattleSide::DEFENDER, CreatureID(pikeman), BattleHex(15, 5), stackCount);
 
-	EXPECT_EQ(previewOf(shooter, EActionType::SHOOT, target->getPosition()).cursor, "combatShootPenalty");
+	EXPECT_EQ(previewOf(shooter, BattleActionID::RANGED_ATTACK, target->getPosition()).cursor, "combatShootPenalty");
 }
 
 TEST_F(RangedActionTest, shotPreviewAtEmptyHexIsBlocked)
@@ -321,7 +321,7 @@ TEST_F(RangedActionTest, shotPreviewAtEmptyHexIsBlocked)
 	const CStack * shooter = addStack(BattleSide::ATTACKER, CreatureID(archer), shooterHex, stackCount);
 	addStack(BattleSide::DEFENDER, CreatureID(pikeman), targetHex, stackCount);
 
-	EXPECT_EQ(previewOf(shooter, EActionType::SHOOT, BattleHex(8, 5)).cursor, "combatBlocked");
+	EXPECT_EQ(previewOf(shooter, BattleActionID::RANGED_ATTACK, BattleHex(8, 5)).cursor, "combatBlocked");
 }
 
 TEST_F(RangedActionTest, healPreviewShowsWoundedStack)
@@ -332,11 +332,11 @@ TEST_F(RangedActionTest, healPreviewShowsWoundedStack)
 	const CStack * tent = addStack(BattleSide::ATTACKER, CreatureID(CreatureID::FIRST_AID_TENT), BattleHex(2, 8), 1);
 	const CStack * patient = addStack(BattleSide::ATTACKER, CreatureID(pikeman), shooterHex, stackCount);
 
-	EXPECT_EQ(previewOf(tent, EActionType::STACK_HEAL, patient->getPosition()).cursor, "combatBlocked");
+	EXPECT_EQ(previewOf(tent, BattleActionID::HEAL, patient->getPosition()).cursor, "combatBlocked");
 
 	injure(patient, patient->getMaxHealth() / 2);
 
-	const auto shown = previewOf(tent, EActionType::STACK_HEAL, patient->getPosition());
+	const auto shown = previewOf(tent, BattleActionID::HEAL, patient->getPosition());
 	EXPECT_EQ(shown.cursor, "combatHeal");
 	EXPECT_THAT(textIDsOf(shown.statusText), ::testing::IsSupersetOf(std::vector<std::string>{"core.genrltxt.419", pluralNameOf(CreatureID(pikeman))}));
 }

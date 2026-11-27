@@ -1004,6 +1004,45 @@ public:
 	static std::string entityType();
 };
 
+class DLL_LINKAGE BattleActionIDBase : public IdentifierBase
+{
+public:
+	/// Built-in battle action types. The values are sent to older clients and must not change
+	enum Type : int32_t
+	{
+		NONE = -1,
+		SKIP_TURN = 0,
+		END_TACTICS_PHASE = 1,
+		RETREAT = 2,
+		SURRENDER = 3,
+		HERO_SPELL = 4,
+		MOVE = 5,
+		WAIT = 6,
+		DEFEND = 7,
+		MELEE_ATTACK = 8,
+		RANGED_ATTACK = 9,
+		CATAPULT = 10,
+		UNIT_SPELL = 11,
+		BAD_MORALE = 12,
+		HEAL = 13,
+		ADJACENT_SPELL = 14,
+		MELEE_ATTACK_NO_RETURN = 15, ///< MELEE_ATTACK of a unit that stays at the target instead of returning
+		LONG_WEAPON_ATTACK = 16,
+		RANDOM_SPELL = 17, ///< spell of a RANDOM_SPELLCASTER unit, rolled by the server
+	};
+};
+
+class DLL_LINKAGE BattleActionID : public EntityIdentifierWithEnum<BattleActionID, BattleActionIDBase>
+{
+public:
+	using EntityIdentifierWithEnum<BattleActionID, BattleActionIDBase>::EntityIdentifierWithEnum;
+
+	///json serialization helpers
+	static si32 decode(const std::string & identifier);
+	static std::string encode(const si32 index);
+	static std::string entityType();
+};
+
 class BattleFieldInfo;
 class DLL_LINKAGE BattleField : public EntityIdentifier<BattleField>
 {

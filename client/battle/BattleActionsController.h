@@ -54,7 +54,7 @@ class BattleActionsController
 	BattleActionEntries getPossibleActionsForStack (const CStack *stack); //called when stack gets its turn
 
 	/// True if the entry wraps an option of the lib type of the action type
-	static bool isLibAction(const IBattleActionEntry & entry, EActionType actionType);
+	static bool isLibAction(const IBattleActionEntry & entry, BattleActionID actionType);
 
 	/// Highest priority entry that is legal for the hex, else the highest priority entry; nullptr if there are no entries
 	std::shared_ptr<const IBattleActionEntry> selectEntry(const BattleHex & myNumber);

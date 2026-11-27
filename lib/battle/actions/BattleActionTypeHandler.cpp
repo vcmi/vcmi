@@ -23,24 +23,24 @@
 #include "../../modding/LibraryLoadContext.h"
 #include "../../modding/ModScope.h"
 
-static const SkipTurnAction skipTurnAction(EActionType::NO_ACTION);
-static const BadMoraleAction badMoraleAction(EActionType::BAD_MORALE);
-static const WaitAction waitAction(EActionType::WAIT);
-static const DefendAction defendAction(EActionType::DEFEND);
-static const EndTacticsAction endTacticsAction(EActionType::END_TACTIC_PHASE);
-static const RetreatAction retreatAction(EActionType::RETREAT);
-static const SurrenderAction surrenderAction(EActionType::SURRENDER);
-static const WalkAction walkAction(EActionType::WALK);
-static const ShootAction shootAction(EActionType::SHOOT);
-static const HealAction healAction(EActionType::STACK_HEAL);
-static const CatapultAction catapultAction(EActionType::CATAPULT);
-static const WalkAndAttackAction walkAndAttackAction(EActionType::WALK_AND_ATTACK);
-static const WalkAndAttackNoReturnAction walkAndAttackNoReturnAction(EActionType::WALK_AND_ATTACK_NO_RETURN);
-static const LongWeaponAttackAction longWeaponAttackAction(EActionType::LONG_WEAPON_ATTACK);
-static const HeroSpellAction heroSpellAction(EActionType::HERO_SPELL);
-static const UnitSpellAction unitSpellAction(EActionType::MONSTER_SPELL);
-static const RandomSpellAction randomSpellAction(EActionType::RANDOM_SPELL);
-static const WalkAndCastAction walkAndCastAction(EActionType::WALK_AND_CAST);
+static const SkipTurnAction skipTurnAction(BattleActionID::SKIP_TURN);
+static const BadMoraleAction badMoraleAction(BattleActionID::BAD_MORALE);
+static const WaitAction waitAction(BattleActionID::WAIT);
+static const DefendAction defendAction(BattleActionID::DEFEND);
+static const EndTacticsAction endTacticsAction(BattleActionID::END_TACTICS_PHASE);
+static const RetreatAction retreatAction(BattleActionID::RETREAT);
+static const SurrenderAction surrenderAction(BattleActionID::SURRENDER);
+static const WalkAction walkAction(BattleActionID::MOVE);
+static const ShootAction shootAction(BattleActionID::RANGED_ATTACK);
+static const HealAction healAction(BattleActionID::HEAL);
+static const CatapultAction catapultAction(BattleActionID::CATAPULT);
+static const WalkAndAttackAction walkAndAttackAction(BattleActionID::MELEE_ATTACK);
+static const WalkAndAttackNoReturnAction walkAndAttackNoReturnAction(BattleActionID::MELEE_ATTACK_NO_RETURN);
+static const LongWeaponAttackAction longWeaponAttackAction(BattleActionID::LONG_WEAPON_ATTACK);
+static const HeroSpellAction heroSpellAction(BattleActionID::HERO_SPELL);
+static const UnitSpellAction unitSpellAction(BattleActionID::UNIT_SPELL);
+static const RandomSpellAction randomSpellAction(BattleActionID::RANDOM_SPELL);
+static const WalkAndCastAction walkAndCastAction(BattleActionID::ADJACENT_SPELL);
 
 struct BuiltInActionType
 {

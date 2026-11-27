@@ -95,7 +95,7 @@ TEST_F(SpellcastActionTest, creatureCastsMassSpellWithoutTarget)
 	BattleAction action;
 	action.side = BattleSide::ATTACKER;
 	action.stackNumber = caster->unitId();
-	action.actionType = EActionType::MONSTER_SPELL;
+	action.actionType = BattleActionID::UNIT_SPELL;
 	action.spell = SpellID::BLESS;
 	action.aimToHex(BattleHex::INVALID);
 
@@ -143,7 +143,7 @@ TEST_F(SpellcastActionTest, castIsSpentWhenSpellTakesAwayCastsOfItsCaster)
 	BattleAction action;
 	action.side = BattleSide::ATTACKER;
 	action.stackNumber = caster->unitId();
-	action.actionType = EActionType::MONSTER_SPELL;
+	action.actionType = BattleActionID::UNIT_SPELL;
 	action.spell = spell;
 	action.aimToHex(BattleHex::INVALID);
 
@@ -632,7 +632,7 @@ TEST_F(SpellOptionTest, unitSpellIsTriedFirstOnUnitsItSuits)
 	ASSERT_TRUE(positive.type && negative.type);
 	EXPECT_EQ(positive.button.value().spell, SpellID::PROTECTION_FROM_AIR);
 
-	const int melee = BattleActionType::find(EActionType::WALK_AND_ATTACK)->getPriority(*battle(), {}, *caster, enemy);
+	const int melee = BattleActionType::find(BattleActionID::MELEE_ATTACK)->getPriority(*battle(), {}, *caster, enemy);
 
 	EXPECT_LT(positive.type->getPriority(*battle(), positive, *caster, ally), melee);
 	EXPECT_GT(positive.type->getPriority(*battle(), positive, *caster, enemy), melee);
@@ -671,7 +671,7 @@ TEST_F(SpellOptionTest, genieOffersRandomSpellForOtherUnitsOfItsSide)
 	const CStack * enemy = addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
 	const auto castsBefore = genie->casts.available();
 
-	const auto option = optionOf(genie, EActionType::RANDOM_SPELL);
+	const auto option = optionOf(genie, BattleActionID::RANDOM_SPELL);
 	EXPECT_TRUE(option.button.has_value());
 
 	const auto shown = preview(option, {genie, allyHex});
@@ -703,7 +703,7 @@ TEST_F(SpellOptionTest, adjacentCasterApproachesTargetFromChosenSide)
 	grantSpell(caster, BonusType::ADJACENT_SPELLCASTER, SpellID::BLESS, 0);
 	const auto castsBefore = caster->casts.available();
 
-	const auto option = optionOf(caster, EActionType::WALK_AND_CAST);
+	const auto option = optionOf(caster, BattleActionID::ADJACENT_SPELL);
 	EXPECT_EQ(option.spell, SpellID::BLESS);
 
 	const auto approaches = option.type->getApproaches(*battle(), option, *caster, allyHex);

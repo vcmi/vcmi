@@ -782,7 +782,7 @@ TEST_F(AttackableHexesTest, BerserkShooterAttacksAdjacentUnitItCanNotShootInMele
 	EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::DEFENDER))).WillRepeatedly(Return(PlayerColor(1)));
 
 	const BattleAction action = AutomaticActions::chooseBerserkAction(subject, shooter);
-	EXPECT_EQ(action.actionType, EActionType::WALK_AND_ATTACK);
+	EXPECT_EQ(action.actionType, BattleActionID::MELEE_ATTACK);
 	EXPECT_EQ(action.getTarget(&subject).back().hexValue, neighbour.getPosition());
 }
 
@@ -801,7 +801,7 @@ TEST_F(AttackableHexesTest, BerserkShooterShootsNearestAlly)
 	EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::DEFENDER))).WillRepeatedly(Return(PlayerColor(1)));
 
 	const BattleAction action = AutomaticActions::chooseBerserkAction(subject, shooter);
-	EXPECT_EQ(action.actionType, EActionType::SHOOT);
+	EXPECT_EQ(action.actionType, BattleActionID::RANGED_ATTACK);
 	EXPECT_EQ(action.getTarget(&subject).back().unitValue, &ally);
 }
 

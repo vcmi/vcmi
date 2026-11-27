@@ -123,11 +123,11 @@ public:
 	/// Options the client offers for the unit, which becomes the active one
 	std::vector<ActionOption> optionsOf(const CStack * unit) const;
 	/// Option of the given action type, failing the test if there is none
-	ActionOption optionOf(const CStack * unit, EActionType actionType) const;
+	ActionOption optionOf(const CStack * unit, BattleActionID actionType) const;
 	bool isLegal(const ActionOption & option, const ActionContext & context) const;
 	ActionPreview preview(const ActionOption & option, const ActionContext & context) const;
 	/// Preview of the unit's option of the given action type on the hovered hex
-	ActionPreview previewOf(const CStack * unit, EActionType actionType, const BattleHex & hex) const;
+	ActionPreview previewOf(const CStack * unit, BattleActionID actionType, const BattleHex & hex) const;
 
 	/// Hidden quicksand of the defender, which stops a unit that walks into it.
 	void addQuicksand(const BattleHex & hex);

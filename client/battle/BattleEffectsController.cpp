@@ -145,7 +145,7 @@ void BattleEffectsController::startAction(const BattleAction & action)
 
 	const CStack *stack = owner.getBattle()->battleGetStackByID(action.stackNumber);
 
-	if(action.actionType == EActionType::BAD_MORALE)
+	if(action.actionType == BattleActionID::BAD_MORALE)
 	{
 		displayEffect(EBattleEffect::BAD_MORALE, AudioPath::builtin("BADMRLE"), stack->getPosition());
 		auto * flinch = new HittedAnimation(owner, stack); // H3: unit flinches when it fails morale

@@ -107,7 +107,7 @@ TEST_F(HypnotizeTest, HypnotizedShooterPrefersShootingItsFormerAllies)
 	hypnotize(shooter);
 	beginCombat();
 
-	const ActionOption shoot = optionOf(shooter, EActionType::SHOOT);
+	const ActionOption shoot = optionOf(shooter, BattleActionID::RANGED_ATTACK);
 	const int emptyHexPriority = shoot.type->getPriority(*battle(), shoot, *shooter, nullptr);
 
 	EXPECT_LT(shoot.type->getPriority(*battle(), shoot, *shooter, formerAlly), emptyHexPriority);

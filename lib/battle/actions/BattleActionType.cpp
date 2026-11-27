@@ -22,12 +22,12 @@
 #include "../../spells/ISpellMechanics.h"
 #include "../../spells/Problem.h"
 
-BattleActionType::BattleActionType(EActionType id)
+BattleActionType::BattleActionType(BattleActionID id)
 	: id(id)
 {
 }
 
-EActionType BattleActionType::getId() const
+BattleActionID BattleActionType::getId() const
 {
 	return id;
 }
@@ -37,19 +37,19 @@ const BattleActionType * BattleActionType::find(const BattleAction & action)
 	return find(action.actionType);
 }
 
-const BattleActionType * BattleActionType::find(EActionType actionType)
+const BattleActionType * BattleActionType::find(BattleActionID actionType)
 {
 	return LIBRARY->battleActionTypeHandler->getById(static_cast<int32_t>(actionType));
 }
 
 ActionOption BattleActionType::makeHeroSpellOption(SpellID spell)
 {
-	return {find(EActionType::HERO_SPELL), std::nullopt, spell};
+	return {find(BattleActionID::HERO_SPELL), std::nullopt, spell};
 }
 
 ActionOption BattleActionType::makeUnitSpellOption(SpellID spell)
 {
-	const auto * type = dynamic_cast<const UnitSpellAction *>(find(EActionType::MONSTER_SPELL));
+	const auto * type = dynamic_cast<const UnitSpellAction *>(find(BattleActionID::UNIT_SPELL));
 	if(!type)
 		throw std::runtime_error("Unit spell action type is not registered");
 	return type->makeOption(spell);
