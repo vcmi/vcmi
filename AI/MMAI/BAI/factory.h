@@ -48,6 +48,7 @@ std::shared_ptr<CBattleGameInterface> CreateBAI(
 	Schema::IModel * model,
 	const std::shared_ptr<Environment> & env,
 	const std::shared_ptr<CBattleCallback> & cb,
+	double fallbackValueThreshold,
 	bool useCreatureSpells,
 	bool useHeroSpells,
 	bool enableTactics

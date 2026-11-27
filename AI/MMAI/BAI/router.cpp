@@ -26,6 +26,8 @@
 
 #include "AI/MMAI/common.h"
 
+#include <functional>
+
 namespace MMAI::BAI
 {
 // key => {model, path}
@@ -43,6 +45,7 @@ namespace
 		std::map<std::string, std::string> paths;
 		std::shared_ptr<ScriptedModel> fallbackModel;
 		std::string fallbackName;
+		double fallbackValueThreshold = -1.3;
 	};
 
 	std::shared_ptr<ModelRepository> InitModelRepository()
@@ -54,13 +57,26 @@ namespace
 		if(json.isStruct())
 		{
 			JsonValidator validator;
-			validator.validate(json, "vcmi:mmaiSettings", "mmai");
+			const auto & schema = validator.getSchema("vcmi:mmaiSettings");
+			JsonUtils::maximize(json, schema);
+			std::cout << "fallbackValueThreshold: " << json["fallbackValueThreshold"].Float() << "\n";
+			validator.validate(json, schema, "mmai");
+
 			repo->temperature = static_cast<float>(json["temperature"].Float());
 			repo->useCreatureSpells = json["useCreatureSpells"].Bool();
+
+			const auto thresholdOverride = MMAIFallbackValueTrigger();
+			repo->fallbackValueThreshold = thresholdOverride ? *thresholdOverride : json["fallbackValueThreshold"].Float();
 
 			repo->seed = json["seed"].Integer();
 			if(repo->seed == 0)
 				repo->seed = CRandomGenerator::getDefault().nextInt();
+
+			const auto & models = json["models"];
+			if(models.isStruct())
+				for(const auto & [key, node] : models.Struct())
+					if(node.isString())
+						repo->paths.try_emplace(key, node.String());
 
 			for(const auto & [key, node] : json["models"].Struct())
 				repo->paths.try_emplace(key, node.String());
@@ -337,7 +353,13 @@ void Router::battleStart(
 		case Schema::ModelType::NN:
 			// XXX: must not call initBattleInterface here
 			bai = CreateBAI(
-				model, env, cb, GetModelRepository()->useCreatureSpells, autocombatPreferences.enableSpellsUsage, autocombatPreferences.enableTacticsUsage
+				model,
+				env,
+				cb,
+				GetModelRepository()->fallbackValueThreshold,
+				GetModelRepository()->useCreatureSpells,
+				autocombatPreferences.enableSpellsUsage,
+				autocombatPreferences.enableTacticsUsage
 			);
 			break;
 		default:
