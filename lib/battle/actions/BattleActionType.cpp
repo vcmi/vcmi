@@ -10,61 +10,17 @@
 #include "StdInc.h"
 #include "BattleActionType.h"
 
-#include "CatapultAction.h"
-#include "HealAction.h"
-#include "MeleeAttackActions.h"
-#include "NoTargetActions.h"
-#include "ShootAction.h"
+#include "BattleActionTypeHandler.h"
 #include "SpellCastActions.h"
-#include "WalkAction.h"
 
 #include "../BattleAction.h"
 #include "../CBattleInfoCallback.h"
 #include "../CUnitState.h"
 #include "../../CStack.h"
+#include "../../GameLibrary.h"
 #include "../../networkPacks/PacksForClientBattle.h"
 #include "../../spells/ISpellMechanics.h"
 #include "../../spells/Problem.h"
-
-static const SkipTurnAction skipTurnAction(EActionType::NO_ACTION);
-static const BadMoraleAction badMoraleAction(EActionType::BAD_MORALE);
-static const WaitAction waitAction(EActionType::WAIT);
-static const DefendAction defendAction(EActionType::DEFEND);
-static const EndTacticsAction endTacticsAction(EActionType::END_TACTIC_PHASE);
-static const RetreatAction retreatAction(EActionType::RETREAT);
-static const SurrenderAction surrenderAction(EActionType::SURRENDER);
-static const WalkAction walkAction(EActionType::WALK);
-static const ShootAction shootAction(EActionType::SHOOT);
-static const HealAction healAction(EActionType::STACK_HEAL);
-static const CatapultAction catapultAction(EActionType::CATAPULT);
-static const WalkAndAttackAction walkAndAttackAction(EActionType::WALK_AND_ATTACK);
-static const WalkAndAttackNoReturnAction walkAndAttackNoReturnAction(EActionType::WALK_AND_ATTACK_NO_RETURN);
-static const LongWeaponAttackAction longWeaponAttackAction(EActionType::LONG_WEAPON_ATTACK);
-static const HeroSpellAction heroSpellAction(EActionType::HERO_SPELL);
-static const UnitSpellAction unitSpellAction(EActionType::MONSTER_SPELL);
-static const RandomSpellAction randomSpellAction(EActionType::RANDOM_SPELL);
-static const WalkAndCastAction walkAndCastAction(EActionType::WALK_AND_CAST);
-
-static const std::array<const BattleActionType *, 18> registeredTypes = {
-	&skipTurnAction,
-	&badMoraleAction,
-	&waitAction,
-	&defendAction,
-	&endTacticsAction,
-	&retreatAction,
-	&surrenderAction,
-	&walkAction,
-	&shootAction,
-	&healAction,
-	&catapultAction,
-	&walkAndAttackAction,
-	&walkAndAttackNoReturnAction,
-	&longWeaponAttackAction,
-	&heroSpellAction,
-	&unitSpellAction,
-	&randomSpellAction,
-	&walkAndCastAction,
-};
 
 BattleActionType::BattleActionType(EActionType id)
 	: id(id)
@@ -83,26 +39,25 @@ const BattleActionType * BattleActionType::find(const BattleAction & action)
 
 const BattleActionType * BattleActionType::find(EActionType actionType)
 {
-	for(const auto * type : registeredTypes)
-		if(type->getId() == actionType)
-			return type;
-
-	return nullptr;
+	return LIBRARY->battleActionTypeHandler->getById(static_cast<int32_t>(actionType));
 }
 
 ActionOption BattleActionType::makeHeroSpellOption(SpellID spell)
 {
-	return {&heroSpellAction, std::nullopt, spell};
+	return {find(EActionType::HERO_SPELL), std::nullopt, spell};
 }
 
 ActionOption BattleActionType::makeUnitSpellOption(SpellID spell)
 {
-	return unitSpellAction.makeOption(spell);
+	const auto * type = dynamic_cast<const UnitSpellAction *>(find(EActionType::MONSTER_SPELL));
+	if(!type)
+		throw std::runtime_error("Unit spell action type is not registered");
+	return type->makeOption(spell);
 }
 
 void BattleActionType::collectAllOptions(const CBattleInfoCallback & battle, const battle::Unit & actor, std::vector<ActionOption> & out)
 {
-	for(const auto * type : registeredTypes)
+	for(const auto * type : LIBRARY->battleActionTypeHandler->getAll())
 		type->collectOptions(battle, actor, out);
 }
 

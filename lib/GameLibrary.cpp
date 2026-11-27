@@ -12,6 +12,7 @@
 #include "GameLibrary.h"
 
 #include "CBonusTypeHandler.h"
+#include "battle/actions/BattleActionTypeHandler.h"
 #include "CCreatureHandler.h"
 #include "CConfigHandler.h"
 #include "RoadHandler.h"
@@ -240,6 +241,7 @@ void GameLibrary::initializeLibrary(LibraryLoadContext & context)
 
 	generaltexth = std::make_unique<CGeneralTextHandler>(*modh);
 	bth = std::make_unique<CBonusTypeHandler>(context);
+	battleActionTypeHandler = std::make_unique<BattleActionTypeHandler>(context);
 	createHandler(resourceTypeHandler);
 	roadTypeHandler = std::make_unique<RoadTypeHandler>(context);
 	riverTypeHandler = std::make_unique<RiverTypeHandler>(context);
