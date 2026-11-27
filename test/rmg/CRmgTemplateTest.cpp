@@ -433,4 +433,96 @@ TEST_F(CRmgTemplateTest, TownHintsKeepOnlyTheGivenFieldsAcrossRoundTrip)
 	expectHints(*load(saved));
 }
 
+TEST_F(CRmgTemplateTest, AfterLoadInheritsTemplateTownsIgnoreGuards)
+{
+	/*
+	 * Asserts: after afterLoad, a zone without townsIgnoreGuards takes the template
+	 * value, an explicit zone value overrides it, and townsLikeZone copies the source.
+	 * Pass: zone 1 is true, zone 2 is false, zone 3 copies zone 2 and is false.
+	 * Fail: unset zones stay false, explicit false is treated as absent, or townsLikeZone
+	 * keeps the zone's own value.
+	 */
+	constexpr char text[] = R"({
+		"minSize" : "s",
+		"maxSize" : "s",
+		"players" : "1",
+		"townsIgnoreGuards" : true,
+		"zones" : {
+			"1" : { "type" : "treasure", "size" : 10 },
+			"2" : {
+				"type" : "treasure",
+				"size" : 10,
+				"townsIgnoreGuards" : false
+			},
+			"3" : {
+				"type" : "treasure",
+				"size" : 10,
+				"townsIgnoreGuards" : true,
+				"townsLikeZone" : 2
+			}
+		},
+		"connections" : [
+			{ "a" : "1", "b" : "2", "guard" : 1000 },
+			{ "a" : "2", "b" : "3", "guard" : 1000 }
+		]
+	})";
+
+	JsonNode config(text, std::size(text), "AfterLoadInheritsTemplateTownsIgnoreGuards");
+	auto subject = std::make_shared<CRmgTemplate>();
+	subject->setId("townsIgnoreGuards");
+
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, config);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	subject->afterLoad(*LIBRARY);
+
+	EXPECT_TRUE(subject->getZones().at(1)->getTownsIgnoreGuards());
+	EXPECT_FALSE(subject->getZones().at(2)->getTownsIgnoreGuards());
+	EXPECT_FALSE(subject->getZones().at(3)->getTownsIgnoreGuards());
+}
+
+TEST_F(CRmgTemplateTest, AfterLoadDefaultTownsIgnoreGuardsIsFalse)
+{
+	/*
+	 * Asserts: after afterLoad, a template without townsIgnoreGuards leaves unset
+	 * zones false, and an explicit zone true is kept.
+	 * Pass: zone 1 is false, zone 2 is true.
+	 * Fail: missing template key is treated as true, or the zone key is ignored.
+	 */
+	constexpr char text[] = R"({
+		"minSize" : "s",
+		"maxSize" : "s",
+		"players" : "1",
+		"zones" : {
+			"1" : { "type" : "treasure", "size" : 10 },
+			"2" : {
+				"type" : "treasure",
+				"size" : 10,
+				"townsIgnoreGuards" : true
+			}
+		},
+		"connections" : [
+			{ "a" : "1", "b" : "2", "guard" : 1000 }
+		]
+	})";
+
+	JsonNode config(text, std::size(text), "AfterLoadDefaultTownsIgnoreGuardsIsFalse");
+	auto subject = std::make_shared<CRmgTemplate>();
+	subject->setId("townsIgnoreGuardsDefault");
+
+	{
+		InstantIdentifierResolver resolver(*LIBRARY->identifiers());
+		JsonDeserializer handler(nullptr, resolver, config);
+		subject->serializeJson(handler, *LIBRARY->objtypeh);
+	}
+
+	subject->afterLoad(*LIBRARY);
+
+	EXPECT_FALSE(subject->getZones().at(1)->getTownsIgnoreGuards());
+	EXPECT_TRUE(subject->getZones().at(2)->getTownsIgnoreGuards());
+}
+
 }

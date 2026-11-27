@@ -500,7 +500,30 @@ bool ObjectManager::createRequiredObjects()
 		bool guarded = addGuard(rmgObject, objInfo.guardStrength, isMonolith(*objInfo.obj));
 
 		Zone::Lock lock(zone.areaMutex);
-		auto path = placeAndConnectObject(zone.areaPossible().get(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
+		const bool ignoreGuards = objInfo.obj->ID == Obj::TOWN && zone.getTownsIgnoreGuards();
+		std::vector<const CGObjectInstance *> towns;
+		if(ignoreGuards)
+		{
+			for(auto * object : objects)
+			{
+				if(object->ID == Obj::TOWN)
+					towns.push_back(object);
+			}
+		}
+		auto path = ignoreGuards
+			? placeAndConnectObject(zone.areaPossible().get(), rmgObject,
+				[this, &rmgObject, &towns](const int3 &)
+				{
+					if(distanceToNearestObject(rmgObject, 3) < 0)
+						return -1.f;
+
+					float best = 10e9;
+					for(const auto * town : towns)
+						vstd::amin(best, static_cast<float>(rmgObject.getVisitablePosition().dist2dSQ(town->visitablePos())));
+					return best;
+				},
+				guarded, false, OptimizeType::WEIGHT)
+			: placeAndConnectObject(zone.areaPossible().get(), rmgObject, 3, guarded, false, OptimizeType::DISTANCE);
 		
 		if(!path.valid())
 		{

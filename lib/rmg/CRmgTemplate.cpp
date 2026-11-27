@@ -456,6 +456,16 @@ void ZoneOptions::setMatchTerrainToTown(bool value)
 	matchTerrainToTown = value;
 }
 
+bool ZoneOptions::getTownsIgnoreGuards() const
+{
+	return townsIgnoreGuards.value_or(false);
+}
+
+void ZoneOptions::setTownsIgnoreGuards(bool value)
+{
+	townsIgnoreGuards = value;
+}
+
 const ZoneOptions::CTownInfo & ZoneOptions::getPlayerTowns() const
 {
 	return playerTowns;
@@ -532,6 +542,20 @@ void ZoneOptions::serializeJson(JsonSerializeFormat & handler, const CObjectClas
 	}
 
 	handler.serializeBool("townsAreSameType", townsAreSameType, false);
+	if(handler.saving)
+	{
+		if(townsIgnoreGuards)
+		{
+			JsonNode flag(*townsIgnoreGuards);
+			handler.serializeRaw("townsIgnoreGuards", flag, std::nullopt);
+		}
+	}
+	else
+	{
+		const JsonNode & flag = handler.getCurrent()["townsIgnoreGuards"];
+		if(flag.getType() == JsonNode::JsonType::DATA_BOOL)
+			townsIgnoreGuards = flag.Bool();
+	}
 	handler.serializeIdArray("allowedMonsters", monsterTypes);
 	handler.serializeIdArray("bannedMonsters", bannedMonsters);
 	handler.serializeIdArray("allowedTowns", townTypes);
@@ -995,6 +1019,7 @@ void CRmgTemplate::serializeJson(JsonSerializeFormat & handler, const CObjectCla
 	handler.serializeIdArray("enabledHeroes", enabled.heroes);
 
 	handler.serializeFloat("penroseTileScale", penroseTileScale, 1.0f);
+	handler.serializeBool("townsIgnoreGuards", townsIgnoreGuards, false);
 	if(!handler.saving && (penroseTileScale < PenroseTiling::MIN_TILE_SCALE || penroseTileScale > PenroseTiling::MAX_TILE_SCALE))
 	{
 		logRmg->warn("Template %s: penroseTileScale %g is outside [%g, %g], clamping",
@@ -1124,6 +1149,9 @@ void CRmgTemplate::afterLoad(const GameLibrary & library)
 			joining.character.reset();
 		}
 		zone->setMonsterJoining(joining);
+
+		if(!zone->townsIgnoreGuards)
+			zone->setTownsIgnoreGuards(townsIgnoreGuards);
 	}
 
 	for(auto & idAndZone : zones)
@@ -1205,6 +1233,7 @@ void CRmgTemplate::inheritTownProperties(const GameLibrary & library, std::share
 		zone->setPlayerTowns(otherZone->getPlayerTowns());
 		zone->setNeutralTowns(otherZone->getNeutralTowns());
 		zone->setMatchTerrainToTown(otherZone->isMatchTerrainToTown());
+		zone->setTownsIgnoreGuards(otherZone->getTownsIgnoreGuards());
 		zone->setTownHints(otherZone->getTownHints());
 		zone->setTownTypes(otherZone->getTownTypes(library));
 		zone->setBannedTownTypes(otherZone->getBannedTownTypes());

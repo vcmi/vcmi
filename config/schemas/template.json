@@ -230,6 +230,7 @@
 				"bannedTerrains": {"$ref" : "#/definitions/stringArray"},
 
 				"townsAreSameType" : { "type" : "boolean"},
+				"townsIgnoreGuards" : { "type" : "boolean"},
 				"allowedMonsters" : {"$ref" : "#/definitions/stringArray"},
 				"bannedMonsters" : {"$ref" : "#/definitions/stringArray"},
 				"allowedTowns" : {"$ref" : "#/definitions/stringArray"},
@@ -417,6 +418,10 @@
 			"type" : "number",
 			"minimum" : 0.25,
 			"maximum" : 2.0
+		},
+		"townsIgnoreGuards" : {
+			"description" : "When true, extra towns in every zone are placed far from other towns in that zone. Guards only keep the 3-tile clearance. A zone may override this. Default false.",
+			"type" : "boolean"
 		}
 	}
 }
