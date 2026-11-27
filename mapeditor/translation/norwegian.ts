@@ -2583,115 +2583,114 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
         <translation type="unfinished">Egendefinert</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="452"/>
         <source>Quest:</source>
-        <translation type="unfinished">Oppdrag:</translation>
+        <translation type="obsolete">Oppdrag:</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="453"/>
         <location filename="../inspector/questwidget.cpp" line="523"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="500"/>
         <source>Day of Week: %1</source>
         <translation type="unfinished">Ukedag: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="454"/>
         <location filename="../inspector/questwidget.cpp" line="525"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="502"/>
         <source>Days Passed: %1</source>
         <translation type="unfinished">Dager gått: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="455"/>
         <location filename="../inspector/questwidget.cpp" line="527"/>
         <location filename="../inspector/rewardswidget.cpp" line="574"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="420"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="504"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="429"/>
         <source>Hero Level: %1</source>
         <translation type="unfinished">Heltenivå: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="456"/>
         <location filename="../inspector/questwidget.cpp" line="529"/>
         <location filename="../inspector/rewardswidget.cpp" line="575"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="422"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="506"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="431"/>
         <source>Hero Experience: %1</source>
         <translation type="unfinished">Helteerfaring: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="457"/>
         <location filename="../inspector/questwidget.cpp" line="531"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="508"/>
         <source>Mana Points: %1</source>
         <translation type="unfinished">Mana-poeng: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="458"/>
         <location filename="../inspector/questwidget.cpp" line="533"/>
         <location filename="../inspector/rewardswidget.cpp" line="577"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="426"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="510"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="435"/>
         <source>Mana Percentage: %1</source>
         <translation type="unfinished">Mana-prosent: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="459"/>
         <location filename="../inspector/questwidget.cpp" line="535"/>
         <location filename="../inspector/rewardswidget.cpp" line="580"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="432"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="512"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="441"/>
         <source>Primary Skills: %1/%2/%3/%4</source>
         <translation type="unfinished">Primære ferdigheter: %1/%2/%3/%4</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="470"/>
         <location filename="../inspector/questwidget.cpp" line="546"/>
         <location filename="../inspector/rewardswidget.cpp" line="590"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="443"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="523"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="452"/>
         <source>Resources: %1</source>
         <translation type="unfinished">Ressurser: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="477"/>
         <location filename="../inspector/questwidget.cpp" line="555"/>
         <location filename="../inspector/rewardswidget.cpp" line="596"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="450"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="532"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="459"/>
         <source>Artifacts: %1</source>
         <translation type="unfinished">Gjenstander: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="484"/>
         <location filename="../inspector/questwidget.cpp" line="565"/>
         <location filename="../inspector/rewardswidget.cpp" line="602"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="458"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="542"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="467"/>
         <source>Spells: %1</source>
         <translation type="unfinished">Trylleformularer: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="491"/>
         <location filename="../inspector/questwidget.cpp" line="575"/>
         <location filename="../inspector/rewardswidget.cpp" line="608"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="467"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="552"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="476"/>
         <source>Secondary Skills: %1</source>
         <translation type="unfinished">Sekundære ferdigheter: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="498"/>
         <location filename="../inspector/questwidget.cpp" line="585"/>
         <location filename="../inspector/rewardswidget.cpp" line="614"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="476"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="562"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="485"/>
         <source>Creatures: %1</source>
         <translation type="unfinished">Enheter: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="505"/>
         <location filename="../inspector/questwidget.cpp" line="595"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="572"/>
         <source>Heroes: %1</source>
         <translation type="unfinished">Helter: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="512"/>
         <location filename="../inspector/questwidget.cpp" line="605"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="582"/>
         <source>Hero Classes: %1</source>
         <translation type="unfinished">Heltklasser: %1</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="521"/>
         <location filename="../inspector/questwidget.cpp" line="617"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="594"/>
         <source>Players: %1</source>
         <translation type="unfinished">Spillere: %1</translation>
     </message>
@@ -2707,31 +2706,31 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="576"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="424"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="433"/>
         <source>Mana Diff: %1</source>
         <translation type="unfinished">Mana-differanse: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="578"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="428"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="437"/>
         <source>Move Points: %1</source>
         <translation type="unfinished">Bevegelsespunkter: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="579"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="430"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="439"/>
         <source>Move Percentage: %1</source>
         <translation type="unfinished">Bevegelsesprosent: %1</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="617"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="480"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="489"/>
         <source>Spell Cast: %1 (%2)</source>
         <translation type="unfinished">Trylleformular brukt: %1 (%2)</translation>
     </message>
     <message>
         <location filename="../inspector/rewardswidget.cpp" line="625"/>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="491"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="500"/>
         <source>Bonuses: %1</source>
         <translation type="unfinished">Bonuser: %1</translation>
     </message>
@@ -2825,12 +2824,18 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="623"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="604"/>
         <source>Empty Quest</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/segments/rewardwidget.cpp" line="497"/>
+        <location filename="../inspector/segments/rewardwidget.cpp" line="506"/>
         <source>Empty Reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/segments/questwidget.cpp" line="599"/>
+        <source>Kill enemy: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2842,129 +2847,132 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
         <translation type="unfinished">Oppdragsmål</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="28"/>
+        <location filename="../inspector/questguardwidget.ui" line="47"/>
+        <source>First visit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questguardwidget.ui" line="57"/>
+        <source>Next visit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Day of week</source>
-        <translation type="unfinished">Ukedag</translation>
+        <translation type="obsolete">Ukedag</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="45"/>
         <source>Days passed</source>
-        <translation type="unfinished">Dager gått</translation>
+        <translation type="obsolete">Dager gått</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="79"/>
         <source>Hero level</source>
-        <translation type="unfinished">Heltenivå</translation>
+        <translation type="obsolete">Heltenivå</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="96"/>
         <source>Hero experience</source>
-        <translation type="unfinished">Helteerfaring</translation>
+        <translation type="obsolete">Helteerfaring</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="136"/>
         <source>Spell points</source>
-        <translation type="unfinished">Tryllepunkter</translation>
+        <translation type="obsolete">Tryllepunkter</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="156"/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation type="obsolete">%</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
-        <translation type="unfinished">Drep helt/monster</translation>
+        <translation type="obsolete">Drep helt/monster</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="197"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation type="obsolete">...</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation type="unfinished">Primære ferdigheter</translation>
+        <translation type="obsolete">Primære ferdigheter</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="221"/>
         <source>Attack</source>
-        <translation type="unfinished">Angrep</translation>
+        <translation type="obsolete">Angrep</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="231"/>
         <source>Defence</source>
-        <translation type="unfinished">Forsvar</translation>
+        <translation type="obsolete">Forsvar</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation type="unfinished">Tryllekraft</translation>
+        <translation type="obsolete">Tryllekraft</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="251"/>
         <source>Knowledge</source>
-        <translation type="unfinished">Kunnskap</translation>
+        <translation type="obsolete">Kunnskap</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation type="unfinished">Ressurser</translation>
+        <translation type="obsolete">Ressurser</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="338"/>
         <source>Artifacts</source>
-        <translation type="unfinished">Gjenstander</translation>
+        <translation type="obsolete">Gjenstander</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="370"/>
         <source>Spells</source>
-        <translation type="unfinished">Trylleformularer</translation>
+        <translation type="obsolete">Trylleformularer</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation type="unfinished">Ferdigheter</translation>
+        <translation type="obsolete">Ferdigheter</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="442"/>
         <source>Creatures</source>
-        <translation type="unfinished">Enheter</translation>
+        <translation type="obsolete">Enheter</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="491"/>
         <source>Add</source>
-        <translation type="unfinished">Legg til</translation>
+        <translation type="obsolete">Legg til</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="498"/>
         <source>Remove</source>
-        <translation type="unfinished">Fjern</translation>
+        <translation type="obsolete">Fjern</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="538"/>
         <source>Heroes</source>
-        <translation type="unfinished">Helter</translation>
+        <translation type="obsolete">Helter</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation type="unfinished">Heltklasser</translation>
+        <translation type="obsolete">Heltklasser</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.ui" line="602"/>
         <source>Players</source>
-        <translation type="unfinished">Spillere</translation>
+        <translation type="obsolete">Spillere</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="43"/>
         <source>None</source>
-        <translation type="unfinished">Ingen</translation>
+        <translation type="obsolete">Ingen</translation>
     </message>
     <message>
-        <location filename="../inspector/questguardwidget.cpp" line="45"/>
         <source>Day %1</source>
-        <translation type="unfinished">Dag %1</translation>
+        <translation type="obsolete">Dag %1</translation>
+    </message>
+</context>
+<context>
+    <name>QuestSourceWidget</name>
+    <message>
+        <location filename="../inspector/questsourcewidget.cpp" line="128"/>
+        <source>%1 quest on position %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questsourcewidget.cpp" line="212"/>
+        <source>Add reward</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../inspector/questsourcewidget.cpp" line="212"/>
+        <source>Remove reward</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2978,192 +2986,194 @@ Legg den til i kartets påkrevde modifikasjoner under Kart→Generelle innstilli
         <translation type="obsolete">Slett</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="17"/>
+        <location filename="../inspector/questsourcewidget.ui" line="17"/>
         <source>Missions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="35"/>
+        <location filename="../inspector/questsourcewidget.ui" line="35"/>
         <source>Reward</source>
         <translation type="unfinished">Belønning</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="52"/>
+        <location filename="../inspector/questsourcewidget.ui" line="52"/>
         <source>Add Reward</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="59"/>
+        <location filename="../inspector/questsourcewidget.ui" line="59"/>
         <source>Add Quest</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="66"/>
+        <location filename="../inspector/questsourcewidget.ui" line="66"/>
         <source>Delete Quest</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="93"/>
+        <location filename="../inspector/questsourcewidget.ui" line="93"/>
         <source>Move up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="100"/>
+        <location filename="../inspector/questsourcewidget.ui" line="100"/>
         <source>Move down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="113"/>
+        <location filename="../inspector/questsourcewidget.ui" line="113"/>
         <source>First Visit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="141"/>
+        <location filename="../inspector/questsourcewidget.ui" line="141"/>
         <source>Next Visit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="163"/>
+        <location filename="../inspector/questsourcewidget.ui" line="163"/>
         <source>Completed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="199"/>
+        <location filename="../inspector/questsourcewidget.ui" line="199"/>
         <source>Quest</source>
         <translation type="unfinished">Oppdrag</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="214"/>
-        <source>Repeatable</source>
+        <location filename="../inspector/segments/questwidget.ui" line="19"/>
+        <source>Repetable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="224"/>
+        <location filename="../inspector/segments/questwidget.ui" line="29"/>
         <source>Set Deadline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="245"/>
+        <location filename="../inspector/segments/questwidget.ui" line="43"/>
         <source>Day of week</source>
         <translation type="unfinished">Ukedag</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="262"/>
+        <location filename="../inspector/segments/questwidget.ui" line="60"/>
         <source>Days passed</source>
         <translation type="unfinished">Dager gått</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="296"/>
+        <location filename="../inspector/segments/questwidget.ui" line="94"/>
         <source>Hero level</source>
         <translation type="unfinished">Heltenivå</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="313"/>
+        <location filename="../inspector/segments/questwidget.ui" line="111"/>
         <source>Hero experience</source>
         <translation type="unfinished">Helteerfaring</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="353"/>
+        <location filename="../inspector/segments/questwidget.ui" line="151"/>
         <source>Spell points</source>
         <translation type="unfinished">Tryllepunkter</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="373"/>
+        <location filename="../inspector/segments/questwidget.ui" line="171"/>
         <source>%</source>
         <translation type="unfinished">%</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="400"/>
+        <location filename="../inspector/segments/questwidget.ui" line="199"/>
         <source>Kill hero/monster</source>
         <translation type="unfinished">Drep helt/monster</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="414"/>
+        <location filename="../inspector/segments/questwidget.ui" line="213"/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="423"/>
+        <location filename="../inspector/segments/questwidget.ui" line="223"/>
         <source>Primary skills</source>
         <translation type="unfinished">Primære ferdigheter</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="438"/>
+        <location filename="../inspector/segments/questwidget.ui" line="238"/>
         <source>Attack</source>
         <translation type="unfinished">Angrep</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="448"/>
+        <location filename="../inspector/segments/questwidget.ui" line="248"/>
         <source>Defence</source>
         <translation type="unfinished">Forsvar</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="458"/>
+        <location filename="../inspector/segments/questwidget.ui" line="258"/>
         <source>Spell power</source>
         <translation type="unfinished">Tryllekraft</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="468"/>
+        <location filename="../inspector/segments/questwidget.ui" line="268"/>
         <source>Knowledge</source>
         <translation type="unfinished">Kunnskap</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="506"/>
+        <location filename="../inspector/segments/questwidget.ui" line="306"/>
         <source>Resources</source>
         <translation type="unfinished">Ressurser</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="555"/>
+        <location filename="../inspector/segments/questwidget.ui" line="355"/>
         <source>Artifacts</source>
         <translation type="unfinished">Gjenstander</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="587"/>
+        <location filename="../inspector/segments/questwidget.ui" line="387"/>
         <source>Spells</source>
         <translation type="unfinished">Trylleformularer</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="619"/>
+        <location filename="../inspector/segments/questwidget.ui" line="419"/>
         <source>Skills</source>
         <translation type="unfinished">Ferdigheter</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="659"/>
+        <location filename="../inspector/segments/questwidget.ui" line="459"/>
         <source>Creatures</source>
         <translation type="unfinished">Enheter</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="708"/>
+        <location filename="../inspector/segments/questwidget.ui" line="508"/>
         <source>Add</source>
         <translation type="unfinished">Legg til</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="715"/>
+        <location filename="../inspector/segments/questwidget.ui" line="515"/>
         <source>Remove</source>
         <translation type="unfinished">Fjern</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="755"/>
+        <location filename="../inspector/segments/questwidget.ui" line="555"/>
         <source>Heroes</source>
         <translation type="unfinished">Helter</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="787"/>
+        <location filename="../inspector/segments/questwidget.ui" line="587"/>
         <source>Hero classes</source>
         <translation type="unfinished">Heltklasser</translation>
     </message>
     <message>
-        <location filename="../inspector/questwidget.ui" line="819"/>
+        <location filename="../inspector/segments/questwidget.ui" line="619"/>
         <source>Players</source>
         <translation type="unfinished">Spillere</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="45"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="48"/>
         <source>None</source>
         <translation type="unfinished">Ingen</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="47"/>
+        <location filename="../inspector/segments/questwidget.cpp" line="50"/>
         <source>Day %1</source>
         <translation type="unfinished">Dag %1</translation>
     </message>
