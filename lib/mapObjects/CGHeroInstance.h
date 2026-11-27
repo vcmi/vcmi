@@ -204,6 +204,10 @@ public:
 
 	bool canLearnSpell(const spells::Spell * spell,  bool allowBanned = false) const;
 	bool canCastThisSpell(const spells::Spell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
+	/// True if spells of this level can not be cast where the hero is now, e.g. on cursed ground or with Recanter's Cloak
+	bool isSpellLevelBlocked(const spells::Spell * spell) const;
+	/// True if spells of this level can not be cast by this hero on a tile with given special terrain
+	bool isSpellLevelBlockedOn(const spells::Spell * spell, BattleField terrain) const;
 
 	/// convert given position between map position (CGObjectInstance::pos) and visitable position used for hero interactions
 	int3 convertToVisitablePos(const int3 & position) const;

@@ -72,6 +72,8 @@ public:
 	std::vector<const CGObjectInstance *> getVisitableObjs(int3 pos) const;
 	std::vector<const CGObjectInstance *> getAllVisitableObjs() const;
 	std::vector<const CGObjectInstance *> getFlaggableObjects(int3 pos) const;
+	/// Returns special terrain, such as Cursed Ground, of every visible tile covered by one
+	std::map<int3, BattleField> getSpecialTerrainTiles() const;
 	const CGObjectInstance * getTopObj(int3 pos) const override;
 	const IMarket * getMarket(ObjectInstanceID objid) const;
 

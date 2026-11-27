@@ -12,6 +12,7 @@
 #include "BattleTestFixture.h"
 
 #include "../../../lib/battle/BattleAction.h"
+#include "../../../lib/battle/CObstacleInstance.h"
 #include "../../../lib/battle/CPlayerBattleCallback.h"
 #include "../../../lib/battle/Destination.h"
 #include "../../../lib/battle/actions/BattleActionType.h"
@@ -123,6 +124,37 @@ TEST_F(SpellcastActionTest, spellCastWithoutSkipKeepsCasterActive)
 
 	EXPECT_TRUE(isAffectedBy(ally, spell));
 	EXPECT_EQ(battle()->getActiveStackID(), static_cast<int32_t>(caster->unitId()));
+}
+
+TEST_F(SpellcastActionTest, castIsSpentWhenSpellTakesAwayCastsOfItsCaster)
+{
+	startGame();
+	startBattle();
+
+	const SpellID spell = spellByName("vcmi-test:testDisableCasts");
+
+	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	addStack(BattleSide::DEFENDER, CreatureID(pikeman), enemyHex, stackCount);
+	grantSpell(caster, BonusType::SPELLCASTER, spell, 0);
+	ignoreMorale(caster);
+	beginCombat();
+	const auto castsBefore = caster->casts.available();
+
+	BattleAction action;
+	action.side = BattleSide::ATTACKER;
+	action.stackNumber = caster->unitId();
+	action.actionType = EActionType::MONSTER_SPELL;
+	action.spell = spell;
+	action.aimToHex(BattleHex::INVALID);
+
+	ASSERT_TRUE(act(action));
+	ASSERT_TRUE(isAffectedBy(caster, spell));
+
+	for(int round = 0; round < 10 && isAffectedBy(caster, spell); ++round)
+		endRound();
+
+	ASSERT_FALSE(isAffectedBy(caster, spell));
+	EXPECT_EQ(caster->casts.available(), castsBefore - 1);
 }
 
 TEST_F(SpellcastActionTest, secondCastInTurnIsRefusedAndSkipsTurn)
@@ -718,4 +750,22 @@ TEST_F(SpellcastActionTest, removeObstacleSeesQuicksandHiddenFromCaster)
 	spells::detail::ProblemImpl problem;
 	EXPECT_TRUE(mechanics->canBeCast(problem));
 	EXPECT_TRUE(mechanics->canBeCastAt(spells::Target{spells::Destination(enemyHex)}, problem));
+}
+
+/// An obstacle whose trigger would cast its own spell again keeps no trigger, see #8232
+TEST_F(SpellcastActionTest, obstacleTriggerCastingOwnSpellIsIgnored)
+{
+	startGame();
+	startBattle();
+
+	const SpellID mine = spellByName("vcmi-test:testSelfTriggeringMine");
+	CStack * caster = addStack(BattleSide::ATTACKER, CreatureID(pikeman), casterHex, stackCount);
+	grantSpell(caster, BonusType::SPELLCASTER, mine, 0);
+
+	ASSERT_TRUE(castAsUnit(caster, mine));
+
+	const auto obstacles = battle()->getAllObstacles();
+	ASSERT_FALSE(obstacles.empty());
+	for(const auto & obstacle : obstacles)
+		EXPECT_FALSE(obstacle->triggersEffects());
 }

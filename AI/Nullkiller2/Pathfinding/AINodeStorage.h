@@ -327,6 +327,8 @@ public:
 	bool calculateHeroChainFinal();
 
 	uint64_t evaluateArmyLoss(const CGHeroInstance * hero, uint64_t armyValue, uint64_t danger) const;
+	/// True if the hero can not cast spells of this level on the tile, e.g. due to cursed ground covering it
+	bool isSpellLevelBlockedAt(const CGHeroInstance * hero, const spells::Spell * spell, const int3 & tile) const;
 
 	EPathAccessibility getAccessibility(const int3 & tile, EPathfindingLayer layer) const;
 
@@ -411,6 +413,7 @@ private:
 	};
 
 	HeroMap<std::vector<DimensionDoorCapability>> dimensionDoorCapabilities;
+	std::map<int3, BattleField> specialTerrainTiles;
 
 	const std::vector<DimensionDoorCapability> & getDimensionDoorCapabilities(const CGHeroInstance * hero);
 

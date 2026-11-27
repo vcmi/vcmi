@@ -44,6 +44,7 @@ set(test_SRCS
 		filesystem/SavegamePathTest.cpp
 
 		game/BattleSpellCastTest.cpp
+		game/HeroLevelUpTest.cpp
 		game/HeroRecruitmentTest.cpp
 		game/HeroMovementTest.cpp
 		game/HeroSecondarySkillsTest.cpp
@@ -133,6 +134,7 @@ set(test_SRCS
 		server/battles/ActionOptionsTest.cpp
 		server/battles/AttackSequenceTest.cpp
 		server/battles/BallistaDamageTest.cpp
+		server/battles/BattleDrawTest.cpp
 		server/battles/BattleTestFixture.cpp
 		server/battles/CombatEventTriggerTest.cpp
 		server/battles/DamageCalculatorTest.cpp
@@ -174,6 +176,7 @@ set(test_SRCS
 		rmg/RmgPathTest.cpp
 		rmg/RmgRoadCleanupTest.cpp
 		rmg/RmgMapDumperTest.cpp
+		rmg/PredictBoatTileTest.cpp
 		rmg/PlayerZoneArrangementTest.cpp
 		rmg/OneWayConnectionTest.cpp
 		rmg/CRoadRandomizerTest.cpp
@@ -262,6 +265,7 @@ if(ENABLE_NULLKILLER2_AI)
 		nullkiller2/Helpers/ExplorationHelperTest.cpp
 		nullkiller2/Helpers/TinyH3MDimensionDoorExplorationTest.cpp
 		nullkiller2/Pathfinding/AIPathNodePoolTest.cpp
+		nullkiller2/Pathfinding/AdventureCastActionTest.cpp
 		nullkiller2/Pathfinding/ArmyLossTest.cpp
 		nullkiller2/Pathfinding/DimensionDoorActionTest.cpp
 		nullkiller2/Pathfinding/QuestActionTest.cpp

@@ -1370,7 +1370,10 @@ void GameStatePackVisitor::visitHeroLevelUp(HeroLevelUp & pack)
 {
 	auto * hero = gs.getHero(pack.heroId);
 	assert(hero);
+	// bonuses the hero hands on to other nodes are computed from its level when attached, as on owner change
+	hero->detachFromBonusSystem(gs);
 	hero->levelUp();
+	hero->attachToBonusSystem(gs);
 }
 
 void GameStatePackVisitor::visitCommanderLevelUp(CommanderLevelUp & pack)

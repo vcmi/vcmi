@@ -55,10 +55,16 @@ function Script:apply(mechanics, server, target)
 			break
 		end
 
+		-- demons rise on the back hex of a double-wide corpse, whichever of its hexes was targeted
+		local corpseHex = targetStack:getBackHex()
+		if not corpseHex:isValid() then
+			corpseHex = targetStack:getPosition()
+		end
+
 		local hex = battle:getAvailableHex(
 			creatureType,
 			mechanics:getCasterSide(),
-			targetStack:getPosition()
+			corpseHex
 		)
 
 		if not hex:isValid() then

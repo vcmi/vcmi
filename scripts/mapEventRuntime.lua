@@ -1,13 +1,14 @@
 -- Runtime layer stacked over a map's event-handler table (available here as the global Base).
 -- Decorates the raw AdventureServer proxy with the blocking actions (showQuestion /
--- showRewardsMessage / startCombat) and drives handlers as coroutines so those actions can pause
--- the script until the player replies. Returns a {run, resume} driver; other lookups (e.g. init)
+-- showRewardsMessage / startCombat / grantCreatures) and drives handlers as coroutines so those
+-- actions can pause the script until the player replies. Returns a {run, resume} driver; other lookups (e.g. init)
 -- fall through to the handler table via __index.
 
 local threads = {}
 local nextId = 0
 
-local function wrapServer(raw, player, host)
+-- host is the visited object of an object visit, town is the town of a town event; both are nil for player events
+local function wrapServer(raw, player, host, town)
 	local server = {}
 	function server:showQuestion(opts)
 		-- A HotA SHOW_QUESTION is always a yes/no prompt (mode 1), regardless of its image/exit code.
@@ -31,6 +32,22 @@ local function wrapServer(raw, player, host)
 		-- replaced with the event's creatures and a battle starts. The coroutine pauses until it ends.
 		raw:spawnCombat(host, hero, slots)
 		coroutine.yield()
+	end
+	function server:grantCreatures(hero, creature, count)
+		-- Creatures that do not fit into the hero's army wait in the visited object or in the town garrison
+		-- while a garrison window is open. The coroutine pauses until it closes.
+		if host then
+			if raw:spawnCreatureGrant(host, hero, creature, count) then
+				coroutine.yield()
+				raw:discardArmy(host)
+			end
+		elseif town then
+			if raw:spawnTownCreatureGrant(town, hero, creature, count) then
+				coroutine.yield()
+			end
+		else
+			raw:grantCreatures(hero, creature, count)
+		end
 	end
 	-- Forward every other call to the real server proxy, rebinding self to the raw userdata.
 	return setmetatable(server, {__index = function(_, key)
@@ -60,8 +77,8 @@ end
 -- __index = Base lets non-driver lookups (init and any other handler the engine calls directly)
 -- resolve to the map's own table, so this layer only adds run/resume.
 return setmetatable({
-	run = function(handlerName, player, host, game, raw, extra1, extra2)
-		local server = wrapServer(raw, player, host)
+	run = function(handlerName, player, host, town, game, raw, extra1, extra2)
+		local server = wrapServer(raw, player, host, town)
 		nextId = nextId + 1
 		local id = nextId
 		threads[id] = coroutine.create(function()

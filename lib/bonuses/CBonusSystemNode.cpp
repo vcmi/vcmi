@@ -328,6 +328,8 @@ void CBonusSystemNode::removeBonus(const std::shared_ptr<Bonus>& b)
 	exportedBonuses -= b;
 	if(b->propagator)
 	{
+		// fresh counter, so caches of nodes invalidated by a previous change are invalidated again
+		++globalCounter;
 		unpropagateBonus(b);
 	}
 	else
@@ -473,6 +475,8 @@ void CBonusSystemNode::getRedChildren(TNodes &out)
 
 void CBonusSystemNode::newRedDescendant(CBonusSystemNode & descendant) const
 {
+	// fresh counter, so caches of nodes invalidated by a previous change are invalidated again
+	++globalCounter;
 	for(const auto & b : exportedBonuses)
 	{
 		if(b->propagator)
@@ -493,6 +497,8 @@ void CBonusSystemNode::newRedDescendant(CBonusSystemNode & descendant) const
 
 void CBonusSystemNode::removedRedDescendant(CBonusSystemNode & descendant) const
 {
+	// fresh counter, so caches of nodes invalidated by a previous change are invalidated again
+	++globalCounter;
 	for(const auto & b : exportedBonuses)
 		if(b->propagator)
 			descendant.unpropagateBonus(b);
@@ -523,6 +529,8 @@ void CBonusSystemNode::exportBonus(const std::shared_ptr<Bonus> & b)
 {
 	if(b->propagator)
 	{
+		// fresh counter, so caches of nodes invalidated by a previous change are invalidated again
+		++globalCounter;
 		propagateBonus(b, *this);
 	}
 	else

@@ -505,8 +505,8 @@ void ApplyOnServerNetPackVisitor::visitLobbyNextCampaignScenario(LobbyNextCampai
 
 void ApplyOnServerAfterAnnounceNetPackVisitor::visitLobbyNextCampaignScenario(LobbyNextCampaignScenario & pack)
 {
-	for(const auto & connection : srv.activeConnections)
-		connection->enterLobbyConnectionMode();
+	// clients have dropped their lobby state and wait for the one of the next scenario
+	srv.updateAndPropagateLobbyState();
 }
 
 void ClientPermissionsCheckerNetPackVisitor::visitLobbyPrepareStartGame(LobbyPrepareStartGame & pack)

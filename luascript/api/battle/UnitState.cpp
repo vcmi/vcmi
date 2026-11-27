@@ -54,8 +54,10 @@ void LuaUnitStateProxy::registerMethods(MethodRegistrar & R)
 		"True if the stack can be targeted.");
 	R.method<&LuaUnitState::isInvincible>("isInvincible", {},
 		"True if the stack has invincibility.");
-	R.method<&LuaUnitState::isSummoned>("isSummoned", {},
-		"True if the stack was summoned during battle.");
+	R.method<&LuaUnitState::isTemporary>("isTemporary", {},
+		"True if the unit is removed from its army once the battle is over, e.g. a summoned elemental.");
+	R.method<&LuaUnitState::isTemporary>("isSummoned", {},
+		"DEPRECATED. Use isTemporary. Same as isTemporary.");
 	R.method<&LuaUnitState::getOwner>("getOwner", {},
 		"Returns the player color controlling this unit.");
 	R.method<&LuaUnitState::getSlot>("getSlot", {},
@@ -150,7 +152,7 @@ bool LuaUnitState::isDead()                     const { return state->isDead(); 
 bool LuaUnitState::isGhost()                    const { return state->isGhost(); }
 bool LuaUnitState::isValidTarget(bool allowDead) const { return state->isValidTarget(allowDead); }
 bool LuaUnitState::isInvincible()               const { return state->isInvincible(); }
-bool LuaUnitState::isSummoned()                 const { return state->summoned; }
+bool LuaUnitState::isTemporary()                const { return state->isTemporary(); }
 
 PlayerColor LuaUnitState::getOwner()     const { return state->unitOwner(); }
 SlotID      LuaUnitState::getSlot()      const { return state->unitSlot(); }

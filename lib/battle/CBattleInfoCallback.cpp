@@ -1488,6 +1488,8 @@ BattleHex CBattleInfoCallback::getClosestHexToTargetInRange(const ReachabilityIn
 ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * berserker) const
 {
 	logGlobal->trace("Handle Berserk effect");
+	const ForcedAction noAction = {EActionType::NO_ACTION, berserker->getPosition(), nullptr};
+
 	auto targets = battleGetUnitsIf([&berserker](const battle::Unit * u)
 	{
 		return u->isValidTarget(false) && !u->isInvincible() && u->unitId() != berserker->unitId();
@@ -1496,88 +1498,61 @@ ForcedAction CBattleInfoCallback::getBerserkForcedAction(const battle::Unit * be
 	if (targets.empty())
 	{
 		logGlobal->trace("No attackable target found for berserk unit");
-		ForcedAction result = {
-			EActionType::NO_ACTION,
-			berserker->getPosition(),
-			nullptr
-		};
-		return result;
+		return noAction;
 	}
+
+	const auto nearestTarget = std::ranges::min_element(targets, [&berserker](const battle::Unit * lhs, const battle::Unit * rhs)
+	{
+		return BattleHex::getDistance(berserker->getPosition(), lhs->getPosition()) < BattleHex::getDistance(berserker->getPosition(), rhs->getPosition());
+	})[0];
+
+	// a shooter that can not shoot its nearest target, e.g. Steel Elves next to it or out of limited range, attacks in melee
+	if (battleCanShoot(berserker, nearestTarget->getPosition()))
+		return {EActionType::SHOOT, berserker->getPosition(), nearestTarget};
+
+	struct TargetData
+	{
+		const battle::Unit * target;
+		BattleHex closestAttackableHex;
+		uint32_t distance;
+	};
 
 	auto cache = getReachability(berserker);
-
-	if (battleCanShoot(berserker))
+	std::vector<TargetData> targetData;
+	targetData.reserve(targets.size());
+	for (const battle::Unit * uTarget : targets)
 	{
-		const auto target = std::ranges::min_element(targets, [&berserker](const battle::Unit * lhs, const battle::Unit * rhs)
+		BattleHexArray attackableHexes = uTarget->getAttackableHexes(berserker);
+		// a double-wide berserker may have no room to stand next to the target
+		if (attackableHexes.empty())
+			continue;
+
+		auto closestAttackableHex = std::ranges::min_element(attackableHexes, [&cache](const BattleHex & lhs, const BattleHex & rhs)
 		{
-			return BattleHex::getDistance(berserker->getPosition(), lhs->getPosition()) < BattleHex::getDistance(berserker->getPosition(), rhs->getPosition());
+			return cache.distances[lhs.toInt()] < cache.distances[rhs.toInt()];
 		})[0];
-		ForcedAction result = {
-			EActionType::SHOOT,
-			berserker->getPosition(),
-			target
-		};
-		return result;
+		targetData.push_back({uTarget, closestAttackableHex, cache.distances[closestAttackableHex.toInt()]});
 	}
-	else
+
+	if (targetData.empty())
 	{
-		struct TargetData
-		{
-			const battle::Unit * target;
-			BattleHex closestAttackableHex;
-			uint32_t distance;
-		};
-
-		std::vector<TargetData> targetData;
-		targetData.reserve(targets.size());
-		for (const battle::Unit * uTarget : targets)
-		{
-			BattleHexArray attackableHexes = uTarget->getAttackableHexes(berserker);
-			auto closestAttackableHex = std::ranges::min_element(attackableHexes, [&cache](const BattleHex & lhs, const BattleHex & rhs)
-			{
-				return cache.distances[lhs.toInt()] < cache.distances[rhs.toInt()];
-			})[0];
-			uint32_t distance = cache.distances[closestAttackableHex.toInt()];
-			TargetData temp = {uTarget, closestAttackableHex, distance};
-			targetData.push_back(temp);
-		}
-
-		auto closestUnit = std::ranges::min_element(targetData, [](const TargetData & lhs, const TargetData & rhs)
-		{
-			return lhs.distance < rhs.distance;
-		})[0];
-
-		if (closestUnit.distance <= berserker->getMovementRange())
-		{
-			ForcedAction result = {
-				EActionType::WALK_AND_ATTACK,
-				closestUnit.closestAttackableHex,
-				closestUnit.target
-			};
-			return result;
-		}
-		else if (closestUnit.distance != ReachabilityInfo::INFINITE_DIST && berserker->getMovementRange() > 0)
-		{
-			BattleHex intermediaryHex = getClosestHexToTargetInRange(cache, *berserker, closestUnit.closestAttackableHex);
-
-			ForcedAction result = {
-				EActionType::WALK,
-				intermediaryHex,
-				closestUnit.target
-			};
-			return result;
-		}
-		else
-		{
-			logGlobal->trace("No target found or unit cannot move");
-			ForcedAction result = {
-				EActionType::NO_ACTION,
-				berserker->getPosition(),
-				nullptr
-			};
-			return result;
-		}
+		logGlobal->trace("No room to attack any target");
+		return noAction;
 	}
+
+	auto closestUnit = std::ranges::min_element(targetData, [](const TargetData & lhs, const TargetData & rhs)
+	{
+		return lhs.distance < rhs.distance;
+	})[0];
+
+	if (closestUnit.distance <= berserker->getMovementRange())
+		return {EActionType::WALK_AND_ATTACK, closestUnit.closestAttackableHex, closestUnit.target};
+
+	if (closestUnit.distance != ReachabilityInfo::INFINITE_DIST && berserker->getMovementRange() > 0)
+		return {EActionType::WALK, getClosestHexToTargetInRange(cache, *berserker, closestUnit.closestAttackableHex), closestUnit.target};
+
+	logGlobal->trace("No target found or unit cannot move");
+	return noAction;
 }
 
 BattleHex CBattleInfoCallback::getAvailableHex(const Creature * creature, BattleSide side, BattleHex initialPos) const
@@ -2387,10 +2362,8 @@ std::optional<BattleSide> CBattleInfoCallback::battleIsFinished() const
 
 	for(auto & unit : units)
 	{
-		if(!unit->isClone() && !unit->acquireState()->summoned && !dynamic_cast <const CCommanderInstance *>(unit))
-		{
+		if(isPermanentUnit(*unit))
 			hasUnit.at(unit->unitSide()) = true;
-		}
 	}
 
 	if(!hasUnit[BattleSide::ATTACKER] && !hasUnit[BattleSide::DEFENDER])
@@ -2399,6 +2372,22 @@ std::optional<BattleSide> CBattleInfoCallback::battleIsFinished() const
 		return BattleSide::ATTACKER;
 	else
 		return BattleSide::DEFENDER;
+}
+
+bool CBattleInfoCallback::battleHasPermanentUnits(BattleSide side) const
+{
+	THROW_IF_NOT_BATTLE();
+
+	return !battleGetUnitsIf([side](const battle::Unit * unit)
+	{
+		return unit->unitSide() == side && unit->alive() && !unit->isTurret() && !unit->hasBonusOfType(BonusType::SIEGE_WEAPON) && isPermanentUnit(*unit);
+	}).empty();
+}
+
+bool CBattleInfoCallback::isPermanentUnit(const battle::Unit & unit)
+{
+	// summoned units and clones disappear with the battle
+	return !unit.isClone() && !unit.acquireState()->summoned;
 }
 
 const scripting::Pool & CBattleInfoCallback::getScriptContextPool() const

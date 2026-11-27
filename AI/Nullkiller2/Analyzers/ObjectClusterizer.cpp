@@ -27,7 +27,7 @@ static std::vector<DimensionDoorExpansionReach> getDimensionDoorExpansionReach(
 	{
 		forEachDimensionDoorSpell(hero, [hero, &mapSize, &result](const CSpell * spell, const auto & mechanics, const DimensionDoorEffect * effect)
 		{
-			if(!hero->canCastThisSpell(spell))
+			if(!hero->canCastThisSpell(spell) || hero->isSpellLevelBlocked(spell))
 				return;
 
 			const int manaCost = hero->getSpellCost(spell);

@@ -63,7 +63,7 @@ namespace NK2AI::AIPathfinding
 		const auto * hero = source->actor->hero;
 		const auto * spell = usedSpell.toSpell();
 
-		if(!hero || !spell)
+		if(!hero || !spell || aiNk->pathfinder->getStorage()->isSpellLevelBlockedAt(hero, spell, source->coord))
 			return false;
 
 		const auto & mechanics = spell->getAdventureMechanics();

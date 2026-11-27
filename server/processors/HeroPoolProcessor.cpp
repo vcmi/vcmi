@@ -73,6 +73,9 @@ void HeroPoolProcessor::onHeroSurrendered(const PlayerColor & color, const CGHer
 	sah.slotID = selectSlotForRole(color, sah.roleID);
 	sah.player = color;
 	sah.hid = hero->getHeroTypeID();
+	// the army is kept, but a hero that only had summoned units has none left, so it returns as a retreated one
+	if(hero->stacksCount() == 0)
+		sah.army.setCreature(SlotID(0), hero->getHeroType()->defaultCreature(), 1);
 	sah.replenishPoints = false;
 	gameHandler->sendAndApply(sah);
 }

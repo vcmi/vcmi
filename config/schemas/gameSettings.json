@@ -55,7 +55,6 @@
 			"properties" : {
 				"perPlayerOnMapCap"  :            { "type" : "number" },
 				"perPlayerTotalCap"  :            { "type" : "number" },
-				"retreatOnWinWithoutTroops" :     { "type" : "boolean" },
 				"hireDefeated" :                  { "type" : "boolean" },
 				"startingStackChances" :          { "type" : "array" },
 				"backpackSize" :                  { "type" : "number" },

@@ -67,8 +67,12 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 	R.function<&UnitProxy::hasAbsoluteImmunity>("hasAbsoluteImmunity",
 		{{"spell", "Spell to test absolute immunity against."}}, {},
 		"True if the unit is absolutely immune to the given spell.");
-	R.method<&Unit::isSummoned>("isSummoned", {},
-		"True if the stack was summoned during battle (e.g. by Summon Elementals).");
+	R.method<&Unit::isAddedInBattle>("isAddedInBattle", {},
+		"True if the unit was added during battle, e.g. by a summon or transmutation, whether it is temporary or not.");
+	R.method<&Unit::isTemporary>("isTemporary", {},
+		"True if the unit is removed from its army once the battle is over, e.g. a summoned elemental.");
+	R.method<&Unit::isAddedInBattle>("isSummoned", {},
+		"DEPRECATED. Use isAddedInBattle, or isTemporary to check whether the unit is removed after battle. Same as isAddedInBattle.");
 	R.method<&Unit::isCommander>("isCommander", {},
 		"True if the stack is a hero's commander.");
 	R.method<&ACreature::isLiving, Unit>("isLiving", {},
@@ -81,6 +85,8 @@ void UnitProxy::registerMethods(MethodRegistrar & R)
 		"Returns the battle side (attacker or defender) this unit belongs to. A hypnotized unit keeps its side; use Battle:isHostile to tell friend from foe.");
 	R.method<&Unit::getPosition>("getPosition", {},
 		"Returns the battlefield hex occupied by the unit, or front hex for double-wide units");
+	R.method<static_cast<BattleHex (Unit::*)() const>(&Unit::occupiedHex)>("getBackHex", {},
+		"Returns the back hex of a double-wide unit, or an invalid hex for a single-hex unit");
 	R.method<&Unit::getTotalHealth>("getTotalHealth", {},
 		"Returns the total hit points across all creatures in the stack, including dead.");
 	R.method<&Unit::getAvailableHealth>("getAvailableHealth", {},

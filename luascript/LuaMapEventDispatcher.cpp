@@ -59,8 +59,9 @@ std::optional<int> LuaMapEventDispatcher::onObjectVisit(IGameEventCallback & ser
 	if(!context->hasFunction(handler))
 		return std::nullopt;
 
-	// The visited object doubles as the combat host if the handler calls startCombat.
-	return asHandle(context->callFunction<int>("run", handler, hero->getOwner(), object, env->game(), &server, object, hero));
+	// The visited object doubles as the combat host if the handler calls startCombat, and holds the
+	// creatures that the hero has no room for if the handler calls grantCreatures.
+	return asHandle(context->callFunction<int>("run", handler, hero->getOwner(), object, static_cast<const CGTownInstance *>(nullptr), env->game(), &server, object, hero));
 }
 
 std::optional<int> LuaMapEventDispatcher::onPlayerTurnStart(IGameEventCallback & server, const std::string & handler, PlayerColor player)
@@ -69,7 +70,7 @@ std::optional<int> LuaMapEventDispatcher::onPlayerTurnStart(IGameEventCallback &
 		return std::nullopt;
 
 	// Player turn events carry no object, so there is no combat host.
-	return asHandle(context->callFunction<int>("run", handler, player, static_cast<const CGObjectInstance *>(nullptr), env->game(), &server, player));
+	return asHandle(context->callFunction<int>("run", handler, player, static_cast<const CGObjectInstance *>(nullptr), static_cast<const CGTownInstance *>(nullptr), env->game(), &server, player));
 }
 
 std::optional<int> LuaMapEventDispatcher::onTownTurnStart(IGameEventCallback & server, const std::string & handler, const CGTownInstance * town)
@@ -77,8 +78,8 @@ std::optional<int> LuaMapEventDispatcher::onTownTurnStart(IGameEventCallback & s
 	if(!context->hasFunction(handler))
 		return std::nullopt;
 
-	// Town turn events do not host combat.
-	return asHandle(context->callFunction<int>("run", handler, town->getOwner(), static_cast<const CGObjectInstance *>(nullptr), env->game(), &server, town));
+	// Town turn events do not host combat. The town garrison holds the creatures that the hero has no room for.
+	return asHandle(context->callFunction<int>("run", handler, town->getOwner(), static_cast<const CGObjectInstance *>(nullptr), town, env->game(), &server, town));
 }
 
 bool LuaMapEventDispatcher::resumeCoroutine(IGameEventCallback & server, int coroutineHandle, std::optional<int> answer)

@@ -13,6 +13,7 @@
 #include "Zone.h"
 #include <boost/heap/priority_queue.hpp> //A*
 #include <map>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -105,3 +106,7 @@ bool footprintKeepsDistance(const rmg::Area & footprint, const rmg::Area & place
 
 /// Spell scroll map object holding `spell`.
 std::shared_ptr<CGObjectInstance> createSpellScroll(RmgMap & map, SpellID spell);
+
+/// The tile where IBoatGenerator::bestLocation() will put the boat:
+/// the first origin + offset, in offsets order, that isWater accepts; int3(-1,-1,-1) if none.
+DLL_LINKAGE int3 predictBoatTile(const std::vector<int3> & offsets, const int3 & origin, const std::function<bool(const int3 &)> & isWater);

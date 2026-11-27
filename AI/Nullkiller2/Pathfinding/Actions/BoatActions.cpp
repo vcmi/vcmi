@@ -136,7 +136,7 @@ namespace AIPathfinding
 			source->manaCost);
 #endif
 
-		return hero->mana >= source->manaCost + getManaCost(hero);
+		return hero->mana >= source->manaCost + getManaCost(hero) && !aiNk->pathfinder->getStorage()->isSpellLevelBlockedAt(hero, usedSpell.toSpell(), source->coord);
 	}
 
 	std::string SummonBoatAction::toString() const

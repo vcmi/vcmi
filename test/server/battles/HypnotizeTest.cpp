@@ -28,7 +28,7 @@ public:
 	{
 		std::vector<const CStack *> result;
 		for(const auto & stack : battle()->stacks)
-			if(stack->isSummoned() && stack->alive() && stack->creatureId() == creature)
+			if(stack->isAddedInBattle() && stack->alive() && stack->creatureId() == creature)
 				result.push_back(stack.get());
 		return result;
 	}

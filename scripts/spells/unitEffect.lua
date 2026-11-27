@@ -5,7 +5,7 @@ Script.type = "unitEffect"
 --- Actually casts the spell and applies all changes caused by it.
 --- Use `server` parameter to apply changes on specified target(s).
 --- target contains units pre-filtered by filterTarget,
---- so every dest.unit is guaranteed alive and receptive.
+--- so every dest.unit is guaranteed valid and receptive.
 function Script:apply(mechanics, server, target)
 	return
 end
@@ -41,6 +41,11 @@ end
 --- Returns true if `unit` can be affected by this spell effect.
 function Script:isValidTarget(mechanics, unit)
 	return unit:isValidTarget(false)
+end
+
+--- Returns true if `unit` can be affected together with already selected `targets`.
+function Script:isCompatibleTarget(mechanics, unit, targets)
+	return true
 end
 
 --- Returns true if `unit` is receptive to this spell effect (not immune).
@@ -125,14 +130,17 @@ function Script:transformByRange(mechanics, aimPoint, spellTarget)
 	local targetsSet = {}
 	local targetsOrder = {}
 
+	local function canAdd(unit)
+		return targetsSet[unit:unitID()] or self:isCompatibleTarget(mechanics, unit, targetsOrder)
+	end
+
 	local function addUnit(unit)
 		-- key by stable unit id: each push creates a fresh Lua userdata, so the same
 		-- underlying unit would otherwise never compare equal as a table key
 		local id = unit:unitID()
-		if not targetsSet[id] then
-			targetsSet[id] = true
-			table.insert(targetsOrder, unit)
-		end
+		if targetsSet[id] or not canAdd(unit) then return end
+		targetsSet[id] = true
+		table.insert(targetsOrder, unit)
 	end
 
 	if mechanics:isMassive() then
@@ -157,8 +165,13 @@ function Script:transformByRange(mechanics, aimPoint, spellTarget)
 						break
 					end
 				end
-				if chosen == nil and #onTile > 0 then
-					chosen = onTile[1]
+				if chosen == nil then
+					for _, unit in ipairs(onTile) do
+						if canAdd(unit) then
+							chosen = unit
+							break
+						end
+					end
 				end
 				if chosen then
 					addUnit(chosen)
