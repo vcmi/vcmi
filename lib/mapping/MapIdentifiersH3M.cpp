@@ -195,6 +195,30 @@ BuildingID MapIdentifiersH3M::remapBuilding(std::optional<FactionID> owner, Buil
 	return BuildingID::NONE;
 }
 
+template<typename IdentifierID>
+int32_t MapIdentifiersH3M::maxMappedId(const std::map<IdentifierID, IdentifierID> & mapping)
+{
+	if (mapping.empty())
+		return -1;
+	// std::map is ordered by key, so the last entry is the highest H3M numeric id
+	return mapping.rbegin()->first.getNum();
+}
+
+int32_t MapIdentifiersH3M::maxMappedCreatureId() const
+{
+	return maxMappedId(mappingCreature);
+}
+
+int32_t MapIdentifiersH3M::maxMappedArtifactId() const
+{
+	return maxMappedId(mappingArtifact);
+}
+
+int32_t MapIdentifiersH3M::maxMappedHeroPortraitId() const
+{
+	return maxMappedId(mappingHeroPortrait);
+}
+
 FactionID MapIdentifiersH3M::remap(FactionID input) const
 {
 	if (mappingFaction.count(input))

@@ -53,8 +53,16 @@ class DLL_LINKAGE MapIdentifiersH3M
 
 	template<typename IdentifierID>
 	void loadMapping(const GameLibrary & library, std::map<IdentifierID, IdentifierID> & result, const JsonNode & mapping, const std::string & identifierName);
+
+	/// highest H3M numeric id this format maps for that type, or -1 when it maps none
+	template<typename IdentifierID>
+	static int32_t maxMappedId(const std::map<IdentifierID, IdentifierID> & mapping);
 public:
 	void loadMapping(const GameLibrary & library, const JsonNode & mapping);
+
+	int32_t maxMappedCreatureId() const;
+	int32_t maxMappedArtifactId() const;
+	int32_t maxMappedHeroPortraitId() const;
 
 	void remapTemplate(ObjectTemplate & objectTemplate, const std::string & mapName);
 
