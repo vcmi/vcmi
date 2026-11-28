@@ -23,6 +23,7 @@
 class TemplateEditor;
 #endif
 
+class CRmgTemplate;
 class JsonSerializeFormat;
 class GameLibrary;
 struct CompoundMapObjectID;
@@ -144,6 +145,7 @@ class DLL_LINKAGE ZoneOptions
 #ifdef ENABLE_TEMPLATE_EDITOR
 	friend class ::TemplateEditor;
 #endif
+	friend class ::CRmgTemplate;
 
 public:
 	static const TRmgTemplateZoneId NO_ZONE;
@@ -211,6 +213,8 @@ public:
 	void setNeutralTowns(const CTownInfo & value);
 	bool isMatchTerrainToTown() const;
 	void setMatchTerrainToTown(bool value);
+	bool getTownsIgnoreGuards() const;
+	void setTownsIgnoreGuards(bool value);
 	const std::vector<CTownHints> & getTownHints() const;
 	void setTownHints(const std::vector<CTownHints> & value);
 	std::set<FactionID> getTownTypes() const;
@@ -283,6 +287,7 @@ protected:
 	CTownInfo playerTowns;
 	CTownInfo neutralTowns;
 	bool matchTerrainToTown;
+	std::optional<bool> townsIgnoreGuards;
 	std::set<TerrainId> terrainTypes;
 	std::set<TerrainId> bannedTerrains;
 	bool townsAreSameType;
@@ -363,6 +368,7 @@ public:
 	const JsonNode & getMapSettings() const;
 	const std::vector<rmg::ZoneConnection> & getConnectedZoneIds() const;
 	float getPenroseTileScale() const { return penroseTileScale; }
+	bool getTownsIgnoreGuards() const { return townsIgnoreGuards; }
 
 	const std::set<SpellID> & getBannedSpells() const { return banned.spells; }
 	const std::set<ArtifactID> & getBannedArtifacts() const { return banned.artifacts; }
@@ -392,6 +398,7 @@ private:
 	std::vector<rmg::ZoneConnection> connections;
 	std::set<EWaterContent::EWaterContent> allowedWaterContent;
 	float penroseTileScale = 1.0f;
+	bool townsIgnoreGuards = false;
 	std::unique_ptr<JsonNode> mapSettings;
 
 	/// Entities named by one template list: the bannedX or enabledX fields

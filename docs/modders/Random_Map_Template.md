@@ -28,7 +28,11 @@
 
 	/// Multiplier for Penrose tile size used to assign map tiles to zones. Default 1.0, allowed range 0.25-2.0.
 	/// Smaller values give smoother zone edges and cost more generation time.
-	"penroseTileScale" : 1.0
+	"penroseTileScale" : 1.0,
+
+	/// When true, extra towns in every zone are placed far from other towns in that zone.
+	/// Guards only keep the 3-tile clearance. A zone may override this. Default false.
+	"townsIgnoreGuards" : false
 	
 	/// List of game settings that were overriden by this template. See config/gameConfig.json in vcmi install directory for possible values
 	/// Settings defined here will always override any settings from vcmi or from mods
@@ -157,6 +161,10 @@
 	
 	// if true, all towns generated in this zone will belong to the same faction
 	"townsAreSameType" : true,
+
+	// When set, extra towns in this zone are placed far from other towns here; guards only keep the 3-tile clearance.
+	// Overrides the template value. Copied by townsLikeZone.
+	"townsIgnoreGuards" : true,
 	
 	//"weak" "strong", "none" - All treasures will be unguarded
 	"monsters" : "normal",
