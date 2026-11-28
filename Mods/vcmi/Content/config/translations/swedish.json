@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Sårbarhetens Klot}\nUnder strid upphäver detta klot den naturliga magiresistensen hos alla varelser på slagfältet.",
+	"artifact.core.spellScroll.spellName.default": "oidentifierad",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Ytterligare Attacker}\nDenna enhet kan attackera ${val} extra gång(er).",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Ytterligare Vedergällningar}\nDenna enhet kan vedergälla ${val} extra gång(er).",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Magiker På Nära Håll}\nKan kasta ${subtype.spell} medan den står bredvid målet.",
@@ -288,6 +289,8 @@
 	"vcmi.adventureMap.journal.quests": "Äventyr",
 	"vcmi.adventureMap.layer.help": "{Växla lager}\n\nVäxlar mellan olika lager på äventyrskartan\n\nVäxla %s (%d) till %s (%d)",
 	"vcmi.adventureMap.layer.hover": "Växla lager  -  %s (%d) to %s (%d)",
+	"vcmi.adventureMap.monsterJoinPartial": "{Followers}\n\n%d av de %d %s som strävar efter större ära vill ansluta sig till dig. Accepterar du?",
+	"vcmi.adventureMap.monsterJoinPartialForGold": "%d av de %d %s kommer att ansluta sig till din armé för summan av %d guld. Accepterar du?",
 	"vcmi.adventureMap.monsterLevel": "\n\nNivå %LEVEL %TOWN-enhet (%ATTACK_TYPE)",
 	"vcmi.adventureMap.monsterMeleeType": "Närstrid",
 	"vcmi.adventureMap.monsterRangedType": "Distansstrid",
