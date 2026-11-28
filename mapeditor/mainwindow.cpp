@@ -334,7 +334,7 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 	qApp->installEventFilter(new AndroidInputOffsetFix(this));
 #endif
 
-	setWindowIcon(QIcon{":/icons/menu-game.png"});
+	setWindowIcon(QIcon{":/icons/mapeditor.64x64.png"});
 	ui->toolBrush->setIcon(QIcon{":/icons/brush-1.png"});
 	ui->toolBrush2->setIcon(QIcon{":/icons/brush-2.png"});
 	ui->toolBrush4->setIcon(QIcon{":/icons/brush-4.png"});
