@@ -5,6 +5,7 @@ set(vcmiclientcommon_SRCS
 	adventureMap/AdventureMapShortcuts.cpp
 	adventureMap/AdventureMapWidget.cpp
 	adventureMap/AdventureOptions.cpp
+	adventureMap/CheatMenuWindow.cpp
 	adventureMap/CInGameConsole.cpp
 	adventureMap/CInfoBar.cpp
 	adventureMap/CList.cpp
@@ -213,6 +214,7 @@ set(vcmiclientcommon_HEADERS
 	adventureMap/AdventureMapWidget.h
 	adventureMap/AdventureState.h
 	adventureMap/AdventureOptions.h
+	adventureMap/CheatMenuWindow.h
 	adventureMap/CInGameConsole.h
 	adventureMap/CInfoBar.h
 	adventureMap/CList.h
