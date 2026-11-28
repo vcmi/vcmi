@@ -16,9 +16,9 @@
 
 namespace
 {
-UIInterfaceOrientationMask swizzled_supportedInterfaceOrientations(id __unused self, SEL __unused _cmd)
+UIInterfaceOrientationMask swizzled_supportedInterfaceOrientations(id self, SEL __unused _cmd)
 {
-	if(UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad)
+	if(((UIViewController *)self).traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular)
 		return UIInterfaceOrientationMaskAll;
 	return UIInterfaceOrientationMaskLandscape;
 }

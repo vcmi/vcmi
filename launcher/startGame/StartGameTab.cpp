@@ -56,7 +56,7 @@ StartGameTab::StartGameTab(QWidget * parent)
 #ifndef ENABLE_EDITOR
 	ui->buttonGameEditor->hide();
 #elif defined(VCMI_IOS)
-	if(!iOS_utils::isIPad())
+	if(!iOS_utils::hasRegularWidth())
 		ui->buttonGameEditor->hide();
 #endif
 

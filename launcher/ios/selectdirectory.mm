@@ -8,6 +8,7 @@
  *
  */
 #include "selectdirectory.h"
+#include "iOS_utils.h"
 
 #include <QEventLoop>
 
@@ -61,7 +62,9 @@ QString SelectDirectory::getExistingDirectory()
 		documentPickerVc = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[(__bridge NSString *)kUTTypeFolder] inMode:UIDocumentPickerModeOpen];
 	documentPickerVc.allowsMultipleSelection = NO;
 	documentPickerVc.delegate = documentPickerDelegate;
-	[UIApplication.sharedApplication.keyWindow.rootViewController presentViewController:documentPickerVc animated:YES completion:nil];
+	UIViewController *root = iOS_utils::rootViewController();
+	NSCAssert(root != nil, @"root view controller is not available");
+	[root presentViewController:documentPickerVc animated:YES completion:nil];
 
 	documentPickerDelegate.eventLoop.exec(QEventLoop::DialogExec);
 	if(!documentPickerDelegate.selectedDirectoryURL)
