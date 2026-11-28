@@ -36,14 +36,13 @@
 #include "RmgMap.h"
 #include "ZoneFactionResolver.h"
 #include "RmgMapDumper.h"
+#include "ModificatorScheduler.h"
 #include "modificators/ObjectManager.h"
 #include "modificators/TreasurePlacer.h"
 #include "modificators/RoadPlacer.h"
 
 #include <vstd/RNG.h>
 #include <vcmi/HeroTypeService.h>
-
-#include <tbb/task_group.h>
 
 CMapGenerator::RmgLogFileSession::RmgLogFileSession()
 {
@@ -432,63 +431,12 @@ void CMapGenerator::fillZones()
 
 	Load::Progress::setupStepsTill(allJobs.size(), 240);
 
-	if (config.singleThread) //No thread pool, just queue with deterministic order
+	rmg::runModificators(std::move(allJobs), config.singleThread, [this](const Modificator & m)
 	{
-		while (!allJobs.empty())
-		{
-			for (auto it = allJobs.begin(); it != allJobs.end();)
-			{
-				if ((*it)->isReady())
-				{
-					auto jobCopy = *it;
-					jobCopy->run();
-					if(mapDumper)
-						mapDumper->onModificatorFinished(*jobCopy);
-					Progress::Progress::step(); //Update progress bar
-					allJobs.erase(it);
-					break; //Restart from the first job
-				}
-				else
-				{
-					++it;
-				}
-			}
-		}
-	}
-	else
-	{
-		tbb::task_group pool;
-
-		while (!allJobs.empty())
-		{
-			for (auto it = allJobs.begin(); it != allJobs.end();)
-			{
-				if ((*it)->isFinished())
-				{
-					it = allJobs.erase(it);
-					Progress::Progress::step();
-				}
-				else if ((*it)->isReady())
-				{
-					auto jobCopy = *it;
-					pool.run([this, jobCopy]() -> void
-						{
-							jobCopy->run();
-							Progress::Progress::step(); //Update progress bar
-						}
-					);
-					it = allJobs.erase(it);
-				}
-				else
-				{
-					++it;
-				}
-			}
-		}
-
-		//Wait for all the tasks
-		pool.wait();
-	}
+		if(mapDumper)
+			mapDumper->onModificatorFinished(m);
+		Progress::Progress::step();
+	});
 
 	if(mapDumper)
 		mapDumper->reportUnknownStages();

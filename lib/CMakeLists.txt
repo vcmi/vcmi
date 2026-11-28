@@ -250,6 +250,7 @@ set(lib_MAIN_SRCS
 	rmg/RmgObject.cpp
 	rmg/RmgPath.cpp
 	rmg/CMapGenerator.cpp
+	rmg/ModificatorScheduler.cpp
 	rmg/CMapGenOptions.cpp
 	rmg/CRmgTemplate.cpp
 	rmg/CRmgTemplateStorage.cpp
@@ -754,6 +755,7 @@ set(lib_MAIN_HEADERS
 	rmg/RmgObject.h
 	rmg/RmgPath.h
 	rmg/CMapGenerator.h
+	rmg/ModificatorScheduler.h
 	rmg/CMapGenOptions.h
 	rmg/CRmgTemplate.h
 	rmg/CRmgTemplateStorage.h
