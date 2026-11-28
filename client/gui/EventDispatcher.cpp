@@ -223,13 +223,15 @@ void EventDispatcher::dispatchShortcutPressed(const std::vector<EShortcut> & sho
 
 	for(auto & i : miCopy)
 	{
+		bool shortcutCaptured = false;
 		for(EShortcut shortcut : shortcutsVector)
 			if(vstd::contains(keyinterested, i) && (!keysCaptured || i->captureThisKey(shortcut)))
 			{
 				i->keyPressed(shortcut);
-				if (keysCaptured)
-					return;
+				shortcutCaptured = true;
 			}
+		if(keysCaptured && shortcutCaptured)
+			return;
 	}
 }
 
@@ -252,13 +254,15 @@ void EventDispatcher::dispatchShortcutReleased(const std::vector<EShortcut> & sh
 
 	for(auto & i : miCopy)
 	{
+		bool shortcutCaptured = false;
 		for(EShortcut shortcut : shortcutsVector)
 			if(vstd::contains(keyinterested, i) && (!keysCaptured || i->captureThisKey(shortcut)))
 			{
 				i->keyReleased(shortcut);
-				if (keysCaptured)
-					return;
+				shortcutCaptured = true;
 			}
+		if(keysCaptured && shortcutCaptured)
+			return;
 	}
 }
 
