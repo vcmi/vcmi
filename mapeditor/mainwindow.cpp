@@ -69,65 +69,9 @@
 #ifdef VCMI_ANDROID
 #include <QAndroidJniObject>
 #include <QtAndroid>
-#include <QWindow>
 #endif
 
 #ifdef VCMI_ANDROID
-// Qt 5 bug on Android: androidjniinput.cpp computes the local position of mouse
-// and tablet events as globalPos(native px) - tlw->position()(logical px), mixing
-// coordinate spaces. After QHighDpiScaling the local position is off by
-// windowPos*(1-1/factor) - zero for the fullscreen main window at (0,0), wrong for
-// every other top level window. Touch events are global based and unaffected.
-// Fix: recompute the local position from the (correct) global one. Modified in place
-// via the protected members to keep the spontaneous flag and Qt's mouse grab state.
-class AndroidInputOffsetFix : public QObject
-{
-public:
-	AndroidInputOffsetFix(QObject * parent) : QObject(parent) {}
-
-	bool eventFilter(QObject * obj, QEvent * event) override
-	{
-		auto * window = qobject_cast<QWindow *>(obj);
-		if(!window)
-			return false;
-
-		switch(event->type())
-		{
-			case QEvent::MouseButtonPress:
-			case QEvent::MouseButtonRelease:
-			case QEvent::MouseMove:
-			case QEvent::MouseButtonDblClick:
-			{
-				auto * me = static_cast<QMouseEvent *>(event);
-				// screenPos() is the global position in logical coordinates
-				QPointF correct = me->screenPos() - QPointF(window->position());
-				struct Accessor : QMouseEvent
-				{
-					void set(const QPointF & p) { l = p; w = p; }
-				};
-				static_cast<Accessor *>(me)->set(correct);
-				return false;
-			}
-			case QEvent::TabletPress:
-			case QEvent::TabletRelease:
-			case QEvent::TabletMove:
-			{
-				auto * te = static_cast<QTabletEvent *>(event);
-				// only mPos is damaged, globalPosF() went through fromNativePixels
-				QPointF correctedLocal = te->globalPosF() - QPointF(window->position());
-				struct Accessor : QTabletEvent
-				{
-					void set(const QPointF & lp) { mPos = lp; }
-				};
-				static_cast<Accessor *>(te)->set(correctedLocal);
-				return false;
-			}
-			default:
-				return false;
-		}
-	}
-};
-
 static void androidFinishActivity()
 {
 	QAndroidJniObject activity = QtAndroid::androidActivity();
@@ -328,10 +272,6 @@ EditorMainWindow::EditorMainWindow(QWidget* parent) :
 #ifdef VCMI_MOBILE
 	// On Android the native menu bar is hidden; force it into the window content area
 	menuBar()->setNativeMenuBar(false);
-#endif
-
-#ifdef VCMI_ANDROID
-	qApp->installEventFilter(new AndroidInputOffsetFix(this));
 #endif
 
 	setWindowIcon(QIcon{":/icons/menu-game.png"});

@@ -1,6 +1,7 @@
 set(vcmiqt_SRCS
 		StdInc.cpp
 
+		InputEventHelper.cpp
 		jsonutils.cpp
 		launcherdirs.cpp
 )
@@ -8,6 +9,7 @@ set(vcmiqt_SRCS
 set(vcmiqt_HEADERS
 		StdInc.h
 
+		InputEventHelper.h
 		MessageBox.h
 		jsonutils.h
 		launcherdirs.h
