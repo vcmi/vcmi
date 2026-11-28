@@ -1003,7 +1003,7 @@ Režim celé obrazovky - hra pokryje celou vaši obrazovku a použije vybrané r
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1198"/>
         <source>Check for VCMI updates on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontrolovat aktualizace VCMI při spuštění</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1278"/>
@@ -2491,7 +2491,7 @@ Důvod: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="257"/>
         <location filename="../startGame/StartGameTab.cpp" line="262"/>
         <source>Check for Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Zkontrolovat aktualizace</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="815"/>
@@ -2557,22 +2557,22 @@ nainstalováno %n/%1</numerusform>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="249"/>
         <source>Checking for Updates...</source>
-        <translation type="unfinished"></translation>
+        <translation>Probíhá kontrola aktualizací...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="253"/>
         <source>Could not check for updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Nepodařilo se zkontrolovat aktualizace</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="263"/>
         <source>Update to %1 Available</source>
-        <translation type="unfinished"></translation>
+        <translation>Je dostupná aktualizace na %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>VCMI could not contact the update server. Make sure that you are connected to the internet and try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI se nepodařilo spojit se serverem aktualizací. Ujistěte se, že jste připojeni k internetu, a zkuste to znovu později.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="308"/>
@@ -2797,98 +2797,98 @@ Po instalaci je nutné nastavit filtr zvětšení alespoň na x2, aby se HD graf
     <message>
         <location filename="../updates/UpdateView.ui" line="50"/>
         <source>Changelog</source>
-        <translation type="unfinished">Seznam změn</translation>
+        <translation>Seznam změn</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.ui" line="85"/>
         <source>Back</source>
-        <translation type="unfinished">Zpět</translation>
+        <translation>Zpět</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.ui" line="105"/>
         <source>Full Changelog</source>
-        <translation type="unfinished"></translation>
+        <translation>Úplný seznam změn</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="51"/>
         <source>VCMI %1 is available. You have %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Je dostupná verze VCMI %1. Máte verzi %2.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="61"/>
         <source>Your browser will download the installer. Run it once the download finishes: it will close VCMI and update it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Váš prohlížeč stáhne instalační program. Po dokončení stahování jej spusťte: zavře VCMI a aktualizuje jej.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="62"/>
         <location filename="../updates/UpdateView.cpp" line="74"/>
         <source>Download Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Stáhnout aktualizaci</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="66"/>
         <source>Your browser will download the update as a ZIP archive. Close VCMI, then extract the archive into your VCMI folder, replacing existing files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Váš prohlížeč stáhne aktualizaci jako archiv ZIP. Zavřete VCMI a poté archiv rozbalte do složky VCMI a nahraďte stávající soubory.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="68"/>
         <source>Your browser will download the update as an APK file. Open it to install the update over the current version. Android may ask you to allow your browser to install apps.</source>
-        <translation type="unfinished"></translation>
+        <translation>Váš prohlížeč stáhne aktualizaci jako soubor APK. Otevřete jej a nainstalujte aktualizaci přes stávající verzi. Android vás může požádat, abyste prohlížeči povolili instalovat aplikace.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="70"/>
         <source>Your browser will download a disk image. Close VCMI, open it and replace your current VCMI app with the one inside.</source>
-        <translation type="unfinished"></translation>
+        <translation>Váš prohlížeč stáhne obraz disku. Zavřete VCMI, otevřete tento obraz a nahraďte stávající aplikaci VCMI tou, která je v něm.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="72"/>
         <source>Your browser will download the update as an AppImage. Allow it to run as a program, for example with &apos;chmod +x&apos;, and start it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Váš prohlížeč stáhne aktualizaci jako soubor AppImage. Povolte jeho spouštění jako programu, například pomocí &apos;chmod +x&apos;, a spusťte jej.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="78"/>
         <source>Open Store</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevřít obchod</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="82"/>
         <source>Update VCMI in Google Play. Google Play releases updates gradually, so the new version may take a few days to appear there.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizujte VCMI v Google Play. Google Play vydává aktualizace postupně, takže se tam nová verze může objevit až za několik dní.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="87"/>
         <source>Update VCMI in your F-Droid app. F-Droid builds new versions itself, so the update may take a few days to appear there.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizujte VCMI v aplikaci F-Droid. F-Droid sestavuje nové verze sám, takže se tam aktualizace může objevit až za několik dní.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="91"/>
         <source>Update VCMI in the TestFlight app. New versions may take a few days to appear there.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizujte VCMI v aplikaci TestFlight. Nové verze se tam mohou objevit až za několik dní.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="96"/>
         <source>Update VCMI in your software center or with &apos;flatpak update eu.vcmi.VCMI&apos;. New versions may take a few days to appear on Flathub.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizujte VCMI v centru softwaru nebo pomocí &apos;flatpak update eu.vcmi.VCMI&apos;. Nové verze se mohou na Flathubu objevit až za několik dní.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="101"/>
         <source>Update VCMI with the package manager of your distribution. Some distributions take a long time to ship new versions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizujte VCMI pomocí správce balíčků vaší distribuce. Některým distribucím trvá vydání nových verzí dlouho.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="103"/>
         <source>Update VCMI the same way you installed it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualizujte VCMI stejným způsobem, jakým jste jej nainstalovali.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="105"/>
         <source>Open Download Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Otevřít stránku pro stažení</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="113"/>
         <source>Your saves, settings and mods are kept.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vaše uložené hry, nastavení a modifikace zůstanou zachovány.</translation>
     </message>
 </context>
 </TS>

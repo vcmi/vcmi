@@ -186,7 +186,7 @@
     <message>
         <location filename="../modManager/cdownloadmanager_moc.cpp" line="171"/>
         <source>Failed to copy file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể sao chép tệp %1</translation>
     </message>
 </context>
 <context>
@@ -305,7 +305,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="369"/>
         <source>Download size</source>
-        <translation>Kích thước tải về</translation>
+        <translation>Dung lượng tải về</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="371"/>
@@ -419,8 +419,8 @@
     <message numerus="yes">
         <location filename="../modManager/cmodlistview_moc.cpp" line="885"/>
         <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Đang tải %n mod. Đã tải được %p% (%v MB trên %m MB)</numerusform>
         </translation>
     </message>
     <message>
@@ -541,14 +541,16 @@ Lý do: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1570"/>
         <source>Mods disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Đã tắt mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Các mod sau đã bị tắt do thay đổi trong mod đã cài đặt:
+
+%1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1632"/>
@@ -604,37 +606,37 @@ Lý do: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="363"/>
         <source>Last updated</source>
-        <translation type="unfinished"></translation>
+        <translation>Cập nhật lần cuối</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="366"/>
         <source>Installed size</source>
-        <translation type="unfinished"></translation>
+        <translation>Dung lượng đã cài đặt</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="381"/>
         <source>GitHub repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Kho lưu trữ GitHub</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>GitHub stars</source>
-        <translation type="unfinished"></translation>
+        <translation>Số sao trên GitHub</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
         <source>Not compatible with this VCMI version</source>
-        <translation type="unfinished"></translation>
+        <translation>Không tương thích với phiên bản VCMI này</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <source>%1 or newer</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 trở lên</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="397"/>
         <source>up to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>tối đa %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
@@ -644,17 +646,17 @@ Lý do: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>%1, complete</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, đã xong</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="413"/>
         <source>%1, %2% translated</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, đã dịch %2%</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="415"/>
         <source>%1, available</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, có sẵn</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="417"/>
@@ -664,27 +666,27 @@ Lý do: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="432"/>
         <source>This translation cannot be enabled because it is for a different language than the one selected in settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể bật bản dịch này vì ngôn ngữ của nó không trùng với ngôn ngữ được chọn trong phần cài đặt.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
         <source>This mod cannot be enabled because these required mods are missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể bật mod này vì thiếu các mod cần thiết</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
         <source>This mod cannot be installed because these required mods are missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể cài đặt mod này vì thiếu các mod cần thiết</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
         <source>This is a submod. It cannot be installed or uninstalled separately from its parent mod.</source>
-        <translation type="unfinished"></translation>
+        <translation>Đây là mod phụ, không thể cài đặt hoặc gỡ cài đặt riêng lẻ mà phải đi kèm với mod chính.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="451"/>
         <source>This mod failed automatic validation and may not work correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod này không qua được bước kiểm tra tự động và có thể gặp lỗi khi sử dụng.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
@@ -704,12 +706,18 @@ This usually happens on older systems, such as Windows 7, that are missing recen
 However, it may also mean that someone is tampering with your internet connection, for example on a public Wi-Fi network. In that case, downloaded files could be replaced with harmful ones.
 
 Do you want to turn off this check and try again? You can turn it back on at any time in launcher settings, using the &quot;Ignore SSL errors&quot; option.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI không thể xác minh kết nối đến máy chủ tải xuống chính thức.
+
+Điều này thường xảy ra trên các hệ điều hành cũ, như Windows 7 do chưa được cập nhật các bản vá bảo mật mới nhất.
+
+Tuy nhiên, cũng có thể kết nối Internet của bạn đang bị can thiệp, chẳng hạn khi sử dụng Wi-Fi công cộng. Khi đó, các tệp tải xuống có nguy cơ bị thay thế bằng tệp độc hại.
+
+Bạn có muốn bỏ qua bước kiểm tra này và thử lại không? Bạn có thể bật lại tùy chọn &quot;Bỏ qua lỗi SSL&quot; trong phần cài đặt của trình khởi chạy VCMI.</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1016"/>
         <source>Unable to verify download server</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể xác minh máy chủ tải xuống</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1682"/>
@@ -910,7 +918,7 @@ Chế độ cửa sổ - Trò chơi sẽ chạy ở kích thước màn hình m�
 
 Toàn màn hình không viền - Phù hợp với độ phân giải màn hình của bạn.
 
-Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn chọn.</translation>
+Toàn màn hình độc quyền - Sử dụng kích thước màn hình do bạn chọn.</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="327"/>
@@ -980,17 +988,17 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="826"/>
         <source>Open help</source>
-        <translation type="unfinished"></translation>
+        <translation>Mở trợ giúp</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="833"/>
         <source>Proxy server used for downloads, for example http://host:port or socks5h://host:port. If empty, proxy from environment variables is used</source>
-        <translation type="unfinished"></translation>
+        <translation>Máy chủ proxy được sử dụng khi tải dữ liệu, ví dụ http://host:port hoặc socks5h://host:port. Nếu để trống, trò chơi sẽ tự động sử dụng cài đặt proxy có sẵn</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1198"/>
         <source>Check for VCMI updates on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Kiểm tra cập nhật khi mở VCMI</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1278"/>
@@ -1100,7 +1108,7 @@ Toàn màn hình riêng biệt - Sử dụng kích thước màn hình do bạn 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1522"/>
         <source>Exclusive fullscreen</source>
-        <translation>Toàn màn hình riêng biệt</translation>
+        <translation>Toàn màn hình độc quyền</translation>
     </message>
     <message>
         <source>Autosave limit (0 = off)</source>
@@ -1692,17 +1700,17 @@ Bạn cần chọn trình cài đặt GOG ngoại tuyến.</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="803"/>
         <source>Adds interface and gameplay improvements such as a better interface for random maps, revisit and search buttons for the adventure map, quick exchange for heroes, bonus and immunity icons, and actions in battle</source>
-        <translation type="unfinished"></translation>
+        <translation>Bổ sung các cải tiến về giao diện và lối chơi, bao gồm: giao diện tốt hơn cho bản đồ ngẫu nhiên, các nút xem lại và tìm kiếm trên bản đồ, trao đổi nhanh giữa các tướng, biểu tượng thưởng và miễn nhiễm, các hành động trong trận chiến</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="809"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Bản mở rộng hoàn chỉnh do người hâm mộ phát triển, bổ sung các thành Cove, Factory và Bulwark, các chiến dịch, tướng, báu vật, đối tượng bản đồ mới, kỹ năng Interference và Runes, các tinh chỉnh cân bằng và địa hình mới nhưng vẫn giữ trọn tinh thần gốc của Heroes III</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="814"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Bản mở rộng dành cho Heroes III với các tính năng: Chỉ huy, kinh nghiệm và báu vật cho đạo quân, nhiều báu vật mới cho tướng và chỉ huy, hệ thống thăng tiến bổ sung cùng các đối tượng mới trên bản đồ</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="828"/>
@@ -1712,7 +1720,7 @@ Bạn cần chọn trình cài đặt GOG ngoại tuyến.</translation>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="829"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>Bản mở rộng do người hâm mộ phát triển lấy cảm hứng từ Heroes V, bổ sung các tính năng: nâng cấp sinh vật thay thế, phép thuật Ánh sáng và Bóng tối, kỹ năng Gating, tăng giới hạn kỹ năng phụ và cải tiến lối chơi của thành Conflux</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="529"/>
@@ -1800,8 +1808,11 @@ Có thể do lỗi: </translation>
 Exe (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Mã SHA1 của các tệp đã chọn:
+
+Tệp Exe (%n bytes):
+%1</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1810,8 +1821,10 @@ Exe (%n bytes):
 Bin (%n bytes):
 %1</source>
         <comment>param is hash</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>
+Tệp Bin (%n bytes):
+%1</numerusform>
         </translation>
     </message>
     <message>
@@ -1895,7 +1908,7 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="28"/>
         <source>Dutch</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiếng Hà Lan</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="29"/>
@@ -1950,7 +1963,7 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="39"/>
         <source>Latvian</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiếng Latvia</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="40"/>
@@ -1985,7 +1998,7 @@ Bin (%n bytes):
     <message>
         <location filename="../languages.cpp" line="46"/>
         <source>Serbian</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiếng Serbia</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="47"/>
@@ -2053,7 +2066,7 @@ Bin (%n bytes):
     <message>
         <location filename="../mainwindow_moc.cpp" line="470"/>
         <source>mod archive</source>
-        <translation type="unfinished"></translation>
+        <translation>lưu trữ mod</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="481"/>
@@ -2102,12 +2115,12 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="238"/>
         <source>Mod is not located in user data directory and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod nằm ngoài thư mục dữ liệu người dùng nên không thể quản lý bằng Launcher</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="242"/>
         <source>Mod directory is a git repository and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Thư mục mod là một kho lưu trữ Git nên không thể quản lý bằng Launcher</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="260"/>
@@ -2153,12 +2166,12 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="332"/>
         <source>Failed to remove directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể xóa thư mục %1</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="335"/>
         <source>Failed to create directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể tạo thư mục %1</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="367"/>
@@ -2168,7 +2181,7 @@ Bin (%n bytes):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="374"/>
         <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể thay thế thư mục %1. Hãy đóng tất cả các ứng dụng đang mở trong thư mục này, như trình quản lý tệp, rồi thử lại.</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="401"/>
@@ -2325,12 +2338,12 @@ Có thể do lỗi: %2</translation>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1402"/>
         <source>Failed to import save %1 from %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể nhập tệp lưu %1 từ %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1421"/>
         <source>Failed to import save file %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể nhập tệp lưu %1</translation>
     </message>
 </context>
 <context>
@@ -2454,7 +2467,7 @@ Có thể do lỗi: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="257"/>
         <location filename="../startGame/StartGameTab.cpp" line="262"/>
         <source>Check for Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Kiểm tra cập nhật</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="815"/>
@@ -2514,22 +2527,22 @@ cài đặt %n/%1</numerusform>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="249"/>
         <source>Checking for Updates...</source>
-        <translation type="unfinished"></translation>
+        <translation>Đang kiểm tra cập nhật...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="253"/>
         <source>Could not check for updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Không thể kiểm tra cập nhật</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="263"/>
         <source>Update to %1 Available</source>
-        <translation type="unfinished"></translation>
+        <translation>Đã có bản cập nhật %1</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>VCMI could not contact the update server. Make sure that you are connected to the internet and try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI không thể kết nối với máy chủ cập nhật. Hãy kiểm tra kết nối internet của bạn và thử lại sau.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="308"/>
@@ -2752,7 +2765,7 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
     <message>
         <location filename="../updates/UpdateView.ui" line="105"/>
         <source>Full Changelog</source>
-        <translation type="unfinished"></translation>
+        <translation>Nhật ký thay đổi</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="51"/>

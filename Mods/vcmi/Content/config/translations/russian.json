@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Сфера Уязвимости}\nОтменяет естественное сопротивление магии у всех существ на поле боя.",
+	"artifact.core.spellScroll.spellName.default": "неопределено",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Дополнительные атаки}\nОтряд aтакует ${val} раз(а) дополнительно.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Дополнительные ответные атаки}\nОтвечает на атаку ${val} раз дополнительно.",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Соседний Заклинатель}\nОтряд может произнести ${subtype.spell}, стоя рядом со своей целью.",
@@ -299,6 +300,8 @@
 	"vcmi.adventureMap.journal.quests": "Задания",
 	"vcmi.adventureMap.layer.help": "{Переключить слой}\n\nПереключает слои карты приключений.\n\nПереключить с %s (%d) на %s (%d)",
 	"vcmi.adventureMap.layer.hover": "Заменить слой с  -  %s (%d) на %s (%d)",
+	"vcmi.adventureMap.monsterJoinPartial": "{Последователи}\n\n%d из %d %s, жаждущих великой славы, хотят присоединиться к вам. Вы принимаете их?",
+	"vcmi.adventureMap.monsterJoinPartialForGold": "%d из %d %s готовы присоединиться к вашей армии за %d золота. Хотите принять это предложение?",
 	"vcmi.adventureMap.monsterLevel": "\n\nУровень %LEVEL, %TOWN, отряд %ATTACK_TYPE",
 	"vcmi.adventureMap.monsterMeleeType": "ближнего боя",
 	"vcmi.adventureMap.monsterRangedType": "дальнего боя",

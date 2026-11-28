@@ -476,12 +476,12 @@
     <message>
         <location filename="../mainwindow.ui" line="359"/>
         <source>Smaller icons</source>
-        <translation type="unfinished"></translation>
+        <translation>Иконки меньшего размера</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="366"/>
         <source>Larger icons</source>
-        <translation type="unfinished"></translation>
+        <translation>Иконки большего размера</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="373"/>
@@ -1139,12 +1139,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1258"/>
         <source>All mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Все моды</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1259"/>
         <source>Heroes III (core)</source>
-        <translation type="unfinished"></translation>
+        <translation>Герои III (ядро)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1273"/>
@@ -1593,7 +1593,7 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../mapcontroller.cpp" line="668"/>
         <source>Hero cannot be placed at the entrance of this town, because it is the main town of its owner and a hero is generated there on game start. Disable &quot;Generate hero at main&quot; in player settings first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Героя нельзя разместить у входа в этот город, поскольку это главный город его владельца и в начале игры здесь появляется герой. Сначала отключите опцию «Создавать героя в главном городе» в настройках игрока.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="685"/>
@@ -2002,7 +2002,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../playerparams.ui" line="179"/>
         <source>Generate hero at main</source>
-        <translation>Создать героя</translation>
+        <translation>Создавать героя в главном городе</translation>
     </message>
     <message>
         <location filename="../playerparams.ui" line="156"/>
@@ -2022,7 +2022,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../playerparams.cpp" line="173"/>
         <source>Hero %1 is already placed at the entrance of this town</source>
-        <translation type="unfinished"></translation>
+        <translation>Герой %1 уже находится у входа в этот город</translation>
     </message>
 </context>
 <context>
@@ -4828,7 +4828,7 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="807"/>
         <source>Failed to open template</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось открыть шаблон</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="821"/>
@@ -5428,7 +5428,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="118"/>
         <source>Hero %1 is placed in main town of player %2, which is set to generate hero at main town. Starting hero will not be generated</source>
-        <translation type="unfinished"></translation>
+        <translation>Герой %1 размещается в главном городе игрока %2, для которого задана настройка появления героя в главном городе. Стартовый герой создан не будет</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="132"/>
