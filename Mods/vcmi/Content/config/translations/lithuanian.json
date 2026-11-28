@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Pažeidžiamumo Rutulys}\nPanaikina natūralų atsparumą magijai visoms būtybėms mūšio lauke.",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Papildomi puolimai}\nŠio dalinio papildomų puolimų skaičius: ${val}",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Papildomi atsakomieji puolimai}\nŠio dalinio papildomų atsakų skaičius: ${val}",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Gretimas burtininkas}\nŠiam vienetui leidžiamas burtas ${subtype.spell} stovint šalia savo taikinio.",

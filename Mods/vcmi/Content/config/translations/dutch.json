@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Bol van Kwetsbaarheid}\nNeutraliseert de natuurlijke magische weerstand van alle wezens op het slagveld",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Extra aanvallen}\nDe eenheid kan nog ${val} keer extra aanvallen.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Extra vergeldingsmaatregelen}\nEenheid kan ${val} extra keren vergeldingsmaatregelen nemen",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "",

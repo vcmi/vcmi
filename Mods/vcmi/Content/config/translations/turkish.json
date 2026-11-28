@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Zayıflık Küresi}\nSavaş alanındaki tüm yaratıkların doğal büyü direncini ortadan kaldırır.",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Ek Saldırılar}\nBu birim ${val} ek saldırı yapabilir.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Ek Misillemeler}\nBu birim ek ${val} kez misilleme yapabilir.",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Bitişik Büyücü}\nBu birim, hedefinin yanında dururken ${subtype.spell} büyüsünü yapabilir.",

@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Globe de Vulnérabilité}\nNeutralise la résistance naturelle à la magie de toutes les créatures du champ de bataille.",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Double frappe}\nCette unité peut attaquer ${val} fois de plus.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Représailles Supplémentaires}\nCette unité peut riposter ${val} fois de plus.",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Sort de proximité}\nCette unité peut lancer ${subtype.spell} à proximité de sa cible.",

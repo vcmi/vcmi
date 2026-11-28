@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Orb of Vulnerability}\nPinawawalang-bisa ang natural na resistensya ng mahika ng lahat ng nilalang sa larangan ng digmaan",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Karagdagang mga pag-atake}\nMaaaring umatake ang yunit nang karagdagang ${val} beses",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Karagdagang mga paghihiganti}\nMaaaring gumanti ang yunit ng ${val} na dagdag na beses",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "",

@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Doppio colpo}\nAttacca due volte",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Ritorsioni aggiuntive}\nPuò contrattaccare ${val} volte in più",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "",

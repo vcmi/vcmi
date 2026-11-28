@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Сфера вразливості}\nЗнімає природний опір магії у всіх істот на полі бою.",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Додаткові удари}\nЦей загін може атакувати ${val} разів додатково.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Додаткові атаки у відповідь}\nЗагін може нанести ${val} додаткових ударів у відповідь.",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Чаклування при дотику}\nЗагін може накладати закляття ${subtype.spell} стоячи поруч із ціллю.",

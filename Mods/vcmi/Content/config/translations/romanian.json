@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Orbita Vulnerabilității}\nAnulează rezistența magică naturală a tuturor creaturilor de pe câmpul de luptă",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Atacuri suplimentare}\nUnitatea poate ataca de încă ${val} ori",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Riposte suplimentare}\nUnitatea poate riposta de ${val} ori suplimentar",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "",

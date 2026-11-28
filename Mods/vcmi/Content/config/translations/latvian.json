@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Ievainojamības lode}\nNegatīva visu kaujas laukā esošo radību dabiskajai maģijas pretestībai",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Papildu uzbrukumi}\nVienība var uzbrukt vēl ${val} reizes",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Papildu atriebības}\nVienība var atriebties ${val} papildu reizes",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Blakus esošais burvestības izteicējs}\nVienība var izspēlēt ${subtype.spell}, stāvot blakus mērķim",

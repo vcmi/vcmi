@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{脆弱性のオーブ}\n戦場にいるすべてのクリーチャーの自然魔法耐性を無効にします。",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{追加攻撃}\nユニットはさらに${val}回攻撃できる。",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{追加反撃}\nユニットは${val}回追加で反撃できる。",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{隣接する呪文使い}\nこのユニットは、対象の横に立っている間、${subtype.spell}を唱えることができる。",

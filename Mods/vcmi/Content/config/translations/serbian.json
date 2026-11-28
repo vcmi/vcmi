@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Кугла рањивости}\nПоништава природну магијску отпорност свих створења на бојном пољу",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Додатни напади}\nЈединица може напасти додатних ${val} пута",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Додатне одмазде}\nЈединица може да узврати ${val} додатних пута",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "",

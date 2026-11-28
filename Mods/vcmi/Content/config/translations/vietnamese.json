@@ -1,5 +1,6 @@
 {
 	"artifact.core.orbOfVulnerability.bonus.noResistance": "{Orb of Vulnerability}\nVô hiệu hóa khả năng kháng phép sẵn có của tất cả các quân trên chiến trường.",
+	"artifact.core.spellScroll.spellName.default": "",
 	"core.bonus.ADDITIONAL_ATTACK.description": "{Tấn công thêm}\nĐơn vị này có thể tấn công thêm ${val} lần.",
 	"core.bonus.ADDITIONAL_RETALIATION.description": "{Phản đòn thêm}\nCó thể phản đòn thêm ${val} lần.",
 	"core.bonus.ADJACENT_SPELLCASTER.description": "{Dùng phép gần}\nĐơn vị này có thể dùng phép ${subtype.spell} khi đứng gần mục tiêu.",
