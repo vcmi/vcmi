@@ -422,6 +422,7 @@
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -575,6 +576,7 @@ Reason: %2</source>
         <source>%n map(s) successfully imported.</source>
         <translation type="unfinished">
             <numerusform>Matagumpay na na-import ang %n mapa.</numerusform>
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -1803,6 +1805,7 @@ Exe (%n byte):
             <numerusform>SHA1 hash ng mga ibinigay na file:
 Exe (%n bytes):
 %1</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1815,6 +1818,7 @@ Bin (%n bytes):
             <numerusform>
 Lalagyan ng basurahan (%n byte):
 %1</numerusform>
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
@@ -2480,6 +2484,7 @@ Dahilan: %2</translation>
         <translation type="unfinished">
             <numerusform>I-update ang %n mod</numerusform>
             <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2489,6 +2494,7 @@ Dahilan: %2</translation>
         <translation type="unfinished">
             <numerusform>Mga Kronika ng mga Bayani:
 Naka-install ang %n/%1</numerusform>
+            <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>

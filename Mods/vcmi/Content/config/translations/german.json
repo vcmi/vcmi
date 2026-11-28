@@ -288,6 +288,8 @@
 	"vcmi.adventureMap.journal.quests": "Quests",
 	"vcmi.adventureMap.layer.help": "{Wechsele Ebene }\n\nWechselt die Abenteuerkarte zwischen den Ebenen\n\nWechsele %s (%d) zu %s (%d)",
 	"vcmi.adventureMap.layer.hover": "Wechsele Ebene  -  %s (%d) zu %s (%d)",
+	"vcmi.adventureMap.monsterJoinPartial": "",
+	"vcmi.adventureMap.monsterJoinPartialForGold": "",
 	"vcmi.adventureMap.monsterLevel": "\n\nStufe %LEVEL %TOWN-Einheit (%ATTACK_TYPE)",
 	"vcmi.adventureMap.monsterMeleeType": "Nahkampf",
 	"vcmi.adventureMap.monsterRangedType": "Fernkampf",
