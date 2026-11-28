@@ -476,12 +476,12 @@
     <message>
         <location filename="../mainwindow.ui" line="359"/>
         <source>Smaller icons</source>
-        <translation type="unfinished"></translation>
+        <translation>Mindre ikoner</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="366"/>
         <source>Larger icons</source>
-        <translation type="unfinished"></translation>
+        <translation>Större ikoner</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="373"/>
@@ -1139,12 +1139,12 @@ För bästa upplevelse rekommenderar vi att du använder kartredigeraren på en 
     <message>
         <location filename="../mainwindow.cpp" line="1258"/>
         <source>All mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Alla moddar</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1259"/>
         <source>Heroes III (core)</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III (grundspel)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1273"/>
@@ -1593,7 +1593,7 @@ Varning: nivåer kan inte tas bort när de väl har lagts till.</translation>
     <message>
         <location filename="../mapcontroller.cpp" line="668"/>
         <source>Hero cannot be placed at the entrance of this town, because it is the main town of its owner and a hero is generated there on game start. Disable &quot;Generate hero at main&quot; in player settings first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hjälten kan inte placeras vid ingången till denna stad eftersom den är sin ägares huvudsakliga startstad och en hjälte genereras där när spelet startar. Inaktivera &quot;Generera hjälte vid startstad&quot; i spelarinställningarna först.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="685"/>
@@ -2022,7 +2022,7 @@ Vill du göra det nu ?</translation>
     <message>
         <location filename="../playerparams.cpp" line="173"/>
         <source>Hero %1 is already placed at the entrance of this town</source>
-        <translation type="unfinished"></translation>
+        <translation>Hjälten %1 är redan placerad vid ingången till denna stad</translation>
     </message>
 </context>
 <context>
@@ -4827,7 +4827,7 @@ Vakt: %3</translation>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="807"/>
         <source>Failed to open template</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att öppna mallen</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="821"/>
@@ -5402,7 +5402,7 @@ Vakt: %3</translation>
     <message>
         <location filename="../validator.cpp" line="118"/>
         <source>Hero %1 is placed in main town of player %2, which is set to generate hero at main town. Starting hero will not be generated</source>
-        <translation type="unfinished"></translation>
+        <translation>Hjälten %1 är placerad i %2-spelares startstad, där inställningen är att generera en hjälte i startstaden. Starthjälten kommer inte att genereras</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="159"/>
