@@ -25,19 +25,6 @@ class WindowNewMap : public QDialog
 {
 	Q_OBJECT
 
-	const QString newMapWindow = "NewMapWindow/Settings";
-	const QString newMapWidth = "NewMapWindow/Width";
-	const QString newMapHeight = "NewMapWindow/Height";
-	const QString newMapTwoLevel = "NewMapWindow/TwoLevel";
-	const QString newMapGenerateRandom = "NewMapWindow/GenerateRandom";
-	const QString newMapPlayers = "NewMapWindow/Players";		//map index
-	const QString newMapCpuPlayers = "NewMapWindow/CpuPlayers"; //map index
-	const QString newMapHumanTeams = "NewMapWindow/HumanTeams"; //map index
-	const QString newMapCpuTeams = "NewMapWindow/CpuTeams";     //map index
-	const QString newMapWaterContent = "NewMapWindow/WaterContent";
-	const QString newMapMonsterStrength = "NewMapWindow/MonsterStrength";
-	const QString newMapTemplate = "NewMapWindow/Template";
-	
 	const QString randomString = "Random";
 
 	const std::map<int, int> players

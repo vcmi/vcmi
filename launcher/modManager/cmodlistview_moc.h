@@ -46,6 +46,7 @@ class CModListView : public QWidget
 	void setupModModel();
 	void setupFilterModel();
 	void setupModsView();
+	void adjustTypeColumnWidth();
 
 	void checkManagerErrors();
 

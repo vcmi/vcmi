@@ -36,9 +36,30 @@
 #include "../../lib/modding/ModDescription.h"
 #include "../../lib/texts/Languages.h"
 
-#include "../../vcmiqt/launcherdirs.h"
-
 #include <future>
+
+static const std::array<std::pair<int, std::string>, ModFields::COUNT> modColumns = {{
+	{ ModFields::NAME, "name" },
+	{ ModFields::STATUS_ENABLED, "enabled" },
+	{ ModFields::STATUS_UPDATE, "update" },
+	{ ModFields::TYPE, "type" },
+	{ ModFields::STARS, "stars" }
+}};
+
+static int columnFromName(const std::string & name)
+{
+	for(const auto & [column, columnName] : modColumns)
+		if(columnName == name)
+			return column;
+	return -1;
+}
+
+void CModListView::adjustTypeColumnWidth()
+{
+	const int currentWidth = ui->allModsView->columnWidth(ModFields::TYPE);
+	ui->allModsView->resizeColumnToContents(ModFields::TYPE);
+	ui->allModsView->setColumnWidth(ModFields::TYPE, std::max(currentWidth, ui->allModsView->columnWidth(ModFields::TYPE)));
+}
 
 void CModListView::setupModModel()
 {
@@ -84,15 +105,20 @@ void CModListView::setupModsView()
 	// input data is not sorted - sort it before display
 	ui->allModsView->sortByColumn(ModFields::STARS, Qt::AscendingOrder);
 
+	ui->allModsView->header()->setSectionResizeMode(ModFields::NAME, QHeaderView::Stretch);
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_ENABLED, QHeaderView::Fixed);
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STATUS_UPDATE, QHeaderView::Fixed);
 	ui->allModsView->header()->setSectionResizeMode(ModFields::STARS, QHeaderView::Fixed);
+	ui->allModsView->resizeColumnToContents(ModFields::STATUS_ENABLED);
+	ui->allModsView->resizeColumnToContents(ModFields::STATUS_UPDATE);
 
-	QSettings s = CLauncherDirs::getSettings(Ui::appName);
-	auto state = s.value("AllModsView/State").toByteArray();
-	if(!state.isNull()) //read last saved settings
+	const JsonNode & viewSettings = persistentStorage["launcher"]["allModsView"];
+	const JsonNode & columnWidths = viewSettings["columnWidths"];
+	if(columnWidths.isStruct())
 	{
-		ui->allModsView->header()->restoreState(state);
+		for(const auto & [column, columnName] : modColumns)
+			if(columnWidths[columnName].isNumber())
+				ui->allModsView->setColumnWidth(column, static_cast<int>(columnWidths[columnName].Integer()));
 	}
 	else //default //TODO: default high-DPI scaling
 	{
@@ -104,7 +130,41 @@ void CModListView::setupModsView()
 	ui->allModsView->resizeColumnToContents(ModFields::STATUS_UPDATE);
 	ui->allModsView->resizeColumnToContents(ModFields::STARS);
 
+	const JsonNode & columnOrder = viewSettings["columnOrder"];
+	if(columnOrder.isVector() && columnOrder.Vector().size() == ModFields::COUNT)
+	{
+		std::array<int, ModFields::COUNT> columnsByVisualIndex;
+		std::array<bool, ModFields::COUNT> seenColumns{};
+		bool validOrder = true;
+		for(int visualIndex = 0; visualIndex < ModFields::COUNT; ++visualIndex)
+		{
+			const JsonNode & savedColumn = columnOrder[visualIndex];
+			const int column = savedColumn.isString() ? columnFromName(savedColumn.String()) : -1;
+			if(column < 0 || seenColumns[column])
+				validOrder = false;
+			else
+			{
+				columnsByVisualIndex[visualIndex] = column;
+				seenColumns[column] = true;
+			}
+		}
+		if(validOrder)
+			for(int visualIndex = 0; visualIndex < ModFields::COUNT; ++visualIndex)
+				ui->allModsView->header()->moveSection(ui->allModsView->header()->visualIndex(columnsByVisualIndex[visualIndex]), visualIndex);
+	}
+
+	if(viewSettings["sortColumn"].isString())
+	{
+		const int sortColumn = columnFromName(viewSettings["sortColumn"].String());
+		if(sortColumn >= 0)
+		{
+			const Qt::SortOrder sortOrder = viewSettings["sortOrder"].isString() && viewSettings["sortOrder"].String() == "descending" ? Qt::DescendingOrder : Qt::AscendingOrder;
+			ui->allModsView->sortByColumn(sortColumn, sortOrder);
+		}
+	}
+
 	ui->allModsView->setUniformRowHeights(true);
+	adjustTypeColumnWidth();
 
 	ui->allModsView->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -219,8 +279,23 @@ void CModListView::loadRepositories()
 
 CModListView::~CModListView()
 {
-	QSettings s = CLauncherDirs::getSettings(Ui::appName);
-	s.setValue("AllModsView/State", ui->allModsView->header()->saveState());
+	Settings viewSettings = persistentStorage.write["launcher"]["allModsView"];
+	viewSettings->Struct().clear();
+	for(const auto & [column, columnName] : modColumns)
+		viewSettings["columnWidths"][columnName].Integer() = ui->allModsView->columnWidth(column);
+	for(int visualIndex = 0; visualIndex < ModFields::COUNT; ++visualIndex)
+	{
+		const int column = ui->allModsView->header()->logicalIndex(visualIndex);
+		for(const auto & [knownColumn, columnName] : modColumns)
+			if(knownColumn == column)
+				viewSettings["columnOrder"].Vector().emplace_back(columnName);
+	}
+
+	const int sortColumn = ui->allModsView->header()->sortIndicatorSection();
+	for(const auto & [column, columnName] : modColumns)
+		if(column == sortColumn)
+			viewSettings["sortColumn"].String() = columnName;
+	viewSettings["sortOrder"].String() = ui->allModsView->header()->sortIndicatorOrder() == Qt::DescendingOrder ? "descending" : "ascending";
 
 	delete ui;
 }
@@ -1702,6 +1777,7 @@ void CModListView::on_abortButton_clicked()
 void CModListView::modelReset()
 {
 	ui->allModsView->setCurrentIndex(filterModel->rowCount() > 0 ? filterModel->index(0, 0) : QModelIndex());
+	adjustTypeColumnWidth();
 }
 
 void CModListView::checkManagerErrors()
