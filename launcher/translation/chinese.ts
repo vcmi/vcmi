@@ -199,7 +199,7 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="69"/>
         <source>All mods</source>
-        <translation>所有模组</translation>
+        <translation>所有Mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.ui" line="74"/>
@@ -346,7 +346,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="1200"/>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1205"/>
         <source>mods repository index</source>
-        <translation>模组源索引</translation>
+        <translation>Mod安装源目录</translation>
     </message>
     <message>
         <source>Git-Repository</source>
@@ -373,12 +373,12 @@
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="429"/>
         <source>Required mods</source>
-        <translation>前置模组</translation>
+        <translation>依赖的Mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="430"/>
         <source>Conflicting mods</source>
-        <translation>冲突的模组</translation>
+        <translation>冲突的Mod</translation>
     </message>
     <message>
         <source>This mod cannot be enabled because it translates into a different language.</source>
@@ -420,7 +420,7 @@
         <location filename="../modManager/cmodlistview_moc.cpp" line="885"/>
         <source>Downloading %n mods. %p% (%v MB out of %m MB) finished</source>
         <translation>
-            <numerusform>正在下载 %n 个模组，已完成 %p%（%v MB / %m MB）</numerusform>
+            <numerusform>正在下载 %n 个Mod，已完成 %p%（%v MB / %m MB）</numerusform>
         </translation>
     </message>
     <message>
@@ -518,7 +518,7 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1521"/>
         <source>Installing mod %1</source>
-        <translation>正在安装模组 %1</translation>
+        <translation>正在安装Mod %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1552"/>
@@ -528,28 +528,28 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1555"/>
         <source>Failed to enable mod</source>
-        <translation>启用模组失败</translation>
+        <translation>启用Mod失败</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1556"/>
         <source>One or more installed mods could not be enabled:
 
 %1</source>
-        <translation>一个或多个已安装的模组无法启用：
+        <translation>一个或多个已安装的Mod无法启用：
 
 %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1570"/>
         <source>Mods disabled</source>
-        <translation>模组已关闭</translation>
+        <translation>Mod已关闭</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1571"/>
         <source>Following mods were disabled due to changes in installed mods:
 
 %1</source>
-        <translation>由于已安装的模组发生变化，以下模组已被禁用：
+        <translation>由于Mod安装后被修改，以下Mod已被禁用：
 
 %1</translation>
     </message>
@@ -590,7 +590,7 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1815"/>
         <source>Uninstall mod</source>
-        <translation>卸载模组</translation>
+        <translation>卸载Mod</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="1815"/>
@@ -622,7 +622,7 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="384"/>
         <source>GitHub stars</source>
-        <translation type="unfinished"></translation>
+        <translation>GitHub 星星</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="391"/>
@@ -632,62 +632,62 @@ Reason: %2</source>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="395"/>
         <source>%1 or newer</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 或更新</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="397"/>
         <source>up to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>最多 %1</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="399"/>
         <source>%1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - %2</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="411"/>
         <source>%1, complete</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, 完成</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="413"/>
         <source>%1, %2% translated</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, %2% 已翻译</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="415"/>
         <source>%1, available</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, 待翻译</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="417"/>
         <source>Translation</source>
-        <translation type="unfinished">本地化</translation>
+        <translation>翻译</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="432"/>
         <source>This translation cannot be enabled because it is for a different language than the one selected in settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>翻译无法使用，翻译语言不符。</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="433"/>
         <source>This mod cannot be enabled because these required mods are missing</source>
-        <translation type="unfinished"></translation>
+        <translation>本扩展无法启用因为所依赖的扩展包文件丢失</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="434"/>
         <source>This mod cannot be installed because these required mods are missing</source>
-        <translation type="unfinished"></translation>
+        <translation>本扩展无法启用因为所依赖的扩展包文件丢失</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="435"/>
         <source>This is a submod. It cannot be installed or uninstalled separately from its parent mod.</source>
-        <translation type="unfinished"></translation>
+        <translation>这是一个子扩展。子扩展不能单独安装卸载。</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="451"/>
         <source>This mod failed automatic validation and may not work correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>本扩展自检未通过，功能不一定生效。</translation>
     </message>
     <message>
         <location filename="../modManager/cmodlistview_moc.cpp" line="931"/>
@@ -837,7 +837,7 @@ Do you want to turn off this check and try again? You can turn it back on at any
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="334"/>
         <source>Mods Validation</source>
-        <translation>模组验证</translation>
+        <translation>Mod校验</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1441"/>
@@ -954,7 +954,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="437"/>
         <source>Full mod extraction</source>
-        <translation>完全解压模组</translation>
+        <translation>完全解压Mod</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="497"/>
@@ -1004,7 +1004,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1198"/>
         <source>Check for VCMI updates on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>启动时检测 VCMI 更新</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1278"/>
@@ -1359,7 +1359,7 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="78"/>
         <source>Mods Preset</source>
-        <translation>预设模组</translation>
+        <translation type="unfinished">预设Mod</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="127"/>
@@ -1429,12 +1429,12 @@ Fullscreen Exclusive Mode - the game will cover the entirety of your screen and 
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="634"/>
         <source>Install recommended VCMI Mods</source>
-        <translation>安装推荐的VCMI模组</translation>
+        <translation>安装推荐的VCMI Mod</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.ui" line="681"/>
         <source>Optionally, you can install additional mods either now, or at any point later, using the VCMI Launcher</source>
-        <translation>你可以现在选择安装额外模组或是以后使用VCMI启动器安装模组</translation>
+        <translation>你可以选择现在就安装Mod或是以后使用VCMI程序安装Mod</translation>
     </message>
     <message>
         <source>Install compatible version of &quot;Horn of the Abyss&quot;, a fan-made Heroes III expansion ported by the VCMI team</source>
@@ -1728,22 +1728,22 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="809"/>
         <source>A polished fan-made expansion that adds Cove, Factory and Bulwark towns, new campaigns, heroes, artifacts, map objects, Interference and Runes skills, balance fixes and new terrains while staying faithful to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>玩家精心打造的英雄无敌3扩展包，新加了深渊、工厂、堡垒系的新城，增加了队伍、英雄、宝物、地图，还有格斗以及卷轴技能，平衡新旧元素并尽量保持英雄无敌3风格</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="814"/>
         <source>Deepens Heroes III with Commanders, stack experience, stack artifacts, many new hero and commander artifacts, extra progression systems and interactive adventure map objects</source>
-        <translation type="unfinished"></translation>
+        <translation>通过指挥官、兵种经验系统、兵种宝物系统、大量全新英雄与指挥官宝物、额外的升级体系以及交互式冒险地图元素，进一步深化了英雄无敌3的游戏体验</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="828"/>
         <source>Tears of Ashan</source>
-        <translation type="unfinished"></translation>
+        <translation>亚山之泪</translation>
     </message>
     <message>
         <location filename="../firstLaunch/firstlaunch_moc.cpp" line="829"/>
         <source>A fan-made expansion inspired by Heroes V that adds alternate creature upgrades, Light and Dark Magic, Gating, a higher secondary skill cap and redesigned Conflux gameplay to Heroes III</source>
-        <translation type="unfinished"></translation>
+        <translation>玩家自制英雄无敌3扩展包，受英雄无敌5启发增加了额外的等级、光明与黑暗系魔法、空间门、更高的第二技能以及重新设计的混合游戏模式</translation>
     </message>
 </context>
 <context>
@@ -1751,12 +1751,12 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>HD Edition installation found!</source>
-        <translation type="unfinished"></translation>
+        <translation>高清版本已安装！</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="42"/>
         <source>Heroes III HD Edition installation was found. Install HD graphics mod using this installation?</source>
-        <translation type="unfinished"></translation>
+        <translation>已安装英雄无敌高清版本。要安装高清图像Mod吗？</translation>
     </message>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="49"/>
@@ -1781,7 +1781,7 @@ You need to select the offline GOG installer.</source>
     <message>
         <location filename="../modManager/hdextractor.cpp" line="110"/>
         <source>Please delete mod and try again! Failed to copy file %1 to %2</source>
-        <translation>请删除该模组并重试！无法将文件 %1 复制到 %2</translation>
+        <translation>请删除该Mod并重试！无法将文件 %1 复制到 %2</translation>
     </message>
 </context>
 <context>
@@ -1976,7 +1976,7 @@ Bin (%n字节):
     <message>
         <location filename="../languages.cpp" line="40"/>
         <source>Lithuanian</source>
-        <translation type="unfinished"></translation>
+        <translation>立陶宛语</translation>
     </message>
     <message>
         <location filename="../languages.cpp" line="41"/>
@@ -2064,7 +2064,7 @@ Bin (%n字节):
     <message>
         <location filename="../mainwindow_moc.ui" line="107"/>
         <source>Mods</source>
-        <translation>模组</translation>
+        <translation>Mods</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="54"/>
@@ -2074,7 +2074,7 @@ Bin (%n字节):
     <message>
         <location filename="../mainwindow_moc.cpp" line="470"/>
         <source>mod archive</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod文件</translation>
     </message>
     <message>
         <location filename="../mainwindow_moc.cpp" line="481"/>
@@ -2113,94 +2113,94 @@ Bin (%n字节):
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="222"/>
         <source>Can not uninstall submod</source>
-        <translation>无法卸载子模组</translation>
+        <translation>无法卸载子Mod</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="225"/>
         <source>Mod is not installed</source>
-        <translation>模组未安装</translation>
+        <translation>Mod未安装</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="238"/>
         <source>Mod is not located in user data directory and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod不在用户数据目录中，程序无法管理</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="242"/>
         <source>Mod directory is a git repository and can not be managed by launcher</source>
-        <translation type="unfinished"></translation>
+        <translation>Mod目录是一个git库程序无法管理</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="260"/>
         <source>Mod is already enabled</source>
-        <translation>模组已启用</translation>
+        <translation>Mod已启用</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="263"/>
         <location filename="../modManager/modstatecontroller.cpp" line="289"/>
         <source>Mod must be installed first</source>
-        <translation>需要先安装模组</translation>
+        <translation>需要先安装Mod</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="267"/>
         <source>Mod is not compatible, please update VCMI and check the latest mod revisions</source>
-        <translation>模组不兼容，请更新VCMI并获取模组最新版本</translation>
+        <translation>Mod不兼容，请更新VCMI并获取Mod最新版本</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="270"/>
         <source>Can not enable translation mod for a different language!</source>
-        <translation>无法启用不同语言的模组！</translation>
+        <translation>无法启用不同语言的翻译Mod！</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="275"/>
         <source>Required mod %1 is missing</source>
-        <translation>需要的模组%1未找到</translation>
+        <translation>需要的Mod %1未找到</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="286"/>
         <source>Mod is already disabled</source>
-        <translation>模组已禁用</translation>
+        <translation>Mod已禁用</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="319"/>
         <source>Mod archive is missing</source>
-        <translation>模组归档文件未找到</translation>
+        <translation>Mod包文件未找到</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="324"/>
         <source>Mod archive is invalid or corrupted</source>
-        <translation>模组归档文件无效或损坏</translation>
+        <translation>Mod包文件无效或损坏</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="332"/>
         <source>Failed to remove directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法删除目录 %1</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="335"/>
         <source>Failed to create directory %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建目录 %1</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="367"/>
         <source>Failed to extract mod data</source>
-        <translation>提取模组数据失败</translation>
+        <translation>提取Mod数据失败</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="374"/>
         <source>Failed to replace directory %1. Close all applications that may be using it, such as file explorer, and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法覆盖目录 %1。关闭使用它的应用如文件管理器等再试。</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="401"/>
         <source>Mod data was not found</source>
-        <translation>未找到模组数据</translation>
+        <translation>未找到Mod数据</translation>
     </message>
     <message>
         <location filename="../modManager/modstatecontroller.cpp" line="405"/>
         <source>Mod is located in a protected directory, please remove it manually:
 </source>
-        <translation>模组位于受保护的目录，请手动删除它:
+        <translation>Mod位于受保护的目录，请手动删除它:
 </translation>
     </message>
 </context>
@@ -2456,7 +2456,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="55"/>
         <source>Mod Preset</source>
-        <translation>模组预设</translation>
+        <translation>Mod预设</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="280"/>
@@ -2475,7 +2475,7 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.cpp" line="257"/>
         <location filename="../startGame/StartGameTab.cpp" line="262"/>
         <source>Check for Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>查询更新</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="815"/>
@@ -2496,7 +2496,7 @@ Reason: %2</source>
         <location filename="../startGame/StartGameTab.cpp" line="214"/>
         <source>Update %n mods</source>
         <translation>
-            <numerusform>更新%n模组</numerusform>
+            <numerusform>更新%n Mod</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2515,7 +2515,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="320"/>
         <source>Select files (configs, mods, saves, maps, campaigns, gog files) to install...</source>
-        <translation>选择文件（配置、模组、存档、地图、战役、gog 文件）……</translation>
+        <translation>选择文件（配置、Mod、存档、地图、战役、gog 文件）……</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="329"/>
@@ -2535,22 +2535,22 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="249"/>
         <source>Checking for Updates...</source>
-        <translation type="unfinished"></translation>
+        <translation>正在查询更新...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="253"/>
         <source>Could not check for updates</source>
-        <translation type="unfinished"></translation>
+        <translation>无法查询更深</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="263"/>
         <source>Update to %1 Available</source>
-        <translation type="unfinished"></translation>
+        <translation>找到 %1 更新</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>VCMI could not contact the update server. Make sure that you are connected to the internet and try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI 无法连接更新服务器。请确保连接互联网再试。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="308"/>
@@ -2575,7 +2575,7 @@ Reason: %2</source>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="312"/>
         <source>Mods</source>
-        <translation>模组</translation>
+        <translation>MOD</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="313"/>
@@ -2668,16 +2668,16 @@ Reason: %2</source>
         <source>A new version of some of the mods that you have installed is now available in mod repository. Use this option to automatically update all your mods to latest version.
 
 WARNING: In some cases, updated versions of mods may not be compatible with your existing saves. You may want to postpone mod update until you finish any of your ongoing games.</source>
-        <translation>您已安装的部分模组现在有新版本可从模组源获取。使用此选项可以自动将您的所有模组更新到最新版本。
+        <translation>您已安装的部分模组现在有新版本可从Mod安装源获取。使用此选项可以自动将您的所有Mod更新到最新版本。
 
-警告：在某些情况下，模组的更新版本可能与您现有的存档不兼容。建议您在完成当前的游戏后再更新模组。</translation>
+警告：在某些情况下，Mod的更新版本可能与您现有的存档不兼容。建议您在完成当前的游戏后再更新Mod。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="507"/>
         <source>If you own Heroes Chronicles on gog.com, you can use offline backup installers provided by gog to import Heroes Chronicles data into VCMI as custom campaigns.
 To import Heroes Chronicles, download offline backup installer of each chronicle that you wish to install, select &apos;Import files&apos; option and select downloaded file. This will generate and install mod for VCMI that contains imported chronicles.</source>
         <translation>如果你在gog.com拥有英雄无敌历代记，可以使用GOG提供的离线备份安装包，将英雄无敌历代记的数据导入VCMI，并作为自定义战役使用。
-要导入英雄无敌历代记，请下载你想安装的每一部历代记对应的离线备份安装包，选择“导入文件”选项，然后选取已下载的文件。系统将为VCMI自动生成并安装包含这些历代记内容的模组。</translation>
+要导入英雄无敌历代记，请下载你想安装的每一部历代记对应的离线备份安装包，选择“导入文件”选项，然后选取已下载的文件。系统将为VCMI自动生成并安装包含这些历代记内容的Mod。</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="520"/>
@@ -2734,7 +2734,7 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
         <location filename="../startGame/StartGameTab.cpp" line="603"/>
         <location filename="../startGame/StartGameTab.cpp" line="612"/>
         <source>Failed to import preset - data in clipboard does not looks like mod preset!</source>
-        <translation>导入预设失败——剪切板中的数据并非模组预设数据！</translation>
+        <translation>导入预设失败——剪切板中的数据并非Mod预设数据！</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="628"/>
@@ -2775,98 +2775,98 @@ After installation, you need to set the upscaling filter to x2 or higher in orde
     <message>
         <location filename="../updates/UpdateView.ui" line="50"/>
         <source>Changelog</source>
-        <translation type="unfinished">修改日志</translation>
+        <translation>更新日志</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.ui" line="85"/>
         <source>Back</source>
-        <translation type="unfinished">返回</translation>
+        <translation>返回</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.ui" line="105"/>
         <source>Full Changelog</source>
-        <translation type="unfinished"></translation>
+        <translation>详细更新日志</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="51"/>
         <source>VCMI %1 is available. You have %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI %1 已经发布，当前版本是 %2。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="61"/>
         <source>Your browser will download the installer. Run it once the download finishes: it will close VCMI and update it.</source>
-        <translation type="unfinished"></translation>
+        <translation>将使用浏览器下载安装程序。下载完成后运行安装程序，就会关闭VCMI并升级。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="62"/>
         <location filename="../updates/UpdateView.cpp" line="74"/>
         <source>Download Update</source>
-        <translation type="unfinished"></translation>
+        <translation>下载更新</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="66"/>
         <source>Your browser will download the update as a ZIP archive. Close VCMI, then extract the archive into your VCMI folder, replacing existing files.</source>
-        <translation type="unfinished"></translation>
+        <translation>将使用浏览器下载ZIP格式的升级包。请关闭VCMI然后解压缩到你的VCMI目录中，覆盖已有文件。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="68"/>
         <source>Your browser will download the update as an APK file. Open it to install the update over the current version. Android may ask you to allow your browser to install apps.</source>
-        <translation type="unfinished"></translation>
+        <translation>将使用浏览器下载APK文件的更新包。请打开并覆盖安装当前版本。安卓系统可能会提示你允许安装app。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="70"/>
         <source>Your browser will download a disk image. Close VCMI, open it and replace your current VCMI app with the one inside.</source>
-        <translation type="unfinished"></translation>
+        <translation>将用浏览器下载磁盘镜像文件。请关闭VCMI打开磁盘镜像，并用里面的VCMI app覆盖当前版本。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="72"/>
         <source>Your browser will download the update as an AppImage. Allow it to run as a program, for example with &apos;chmod +x&apos;, and start it.</source>
-        <translation type="unfinished"></translation>
+        <translation>将用浏览器下载AppImage版本的更新包。请赋予运行权限，如 &apos;chmod +x&apos;，并运行。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="78"/>
         <source>Open Store</source>
-        <translation type="unfinished"></translation>
+        <translation>打开应用市场</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="82"/>
         <source>Update VCMI in Google Play. Google Play releases updates gradually, so the new version may take a few days to appear there.</source>
-        <translation type="unfinished"></translation>
+        <translation>在Google Play中更新VCMI。Google Play因为是渐次发布，新版有可能需要几天才显示有更新。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="87"/>
         <source>Update VCMI in your F-Droid app. F-Droid builds new versions itself, so the update may take a few days to appear there.</source>
-        <translation type="unfinished"></translation>
+        <translation>在F-Droid app中更新VCMI。F-Droid会单独打包新版，所以可能需要几天才会显示有更新。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="91"/>
         <source>Update VCMI in the TestFlight app. New versions may take a few days to appear there.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用TestFlight app更新VCMI。新版可能需要几天时间才会显示有更新。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="96"/>
         <source>Update VCMI in your software center or with &apos;flatpak update eu.vcmi.VCMI&apos;. New versions may take a few days to appear on Flathub.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用系统软件中心更新VCMI ，或者使用&apos;flatpak update eu.vcmi.VCMI&apos;。新版可能需要几天时间才会显示在Flathub有更新。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="101"/>
         <source>Update VCMI with the package manager of your distribution. Some distributions take a long time to ship new versions.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用发行版软件管理器更新VCMI。有些发行版会需要一些时间才会发新版本。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="103"/>
         <source>Update VCMI the same way you installed it.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用当初安装VCMI 的途径来升级。</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="105"/>
         <source>Open Download Page</source>
-        <translation type="unfinished"></translation>
+        <translation>打开下载页面</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="113"/>
         <source>Your saves, settings and mods are kept.</source>
-        <translation type="unfinished"></translation>
+        <translation>你的存档、配置以及Mod都会保留。</translation>
     </message>
 </context>
 </TS>

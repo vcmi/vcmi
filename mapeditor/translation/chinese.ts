@@ -471,22 +471,22 @@
     <message>
         <location filename="../mainwindow.ui" line="349"/>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>搜索</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="359"/>
         <source>Smaller icons</source>
-        <translation type="unfinished"></translation>
+        <translation>小图标</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="366"/>
         <source>Larger icons</source>
-        <translation type="unfinished"></translation>
+        <translation>大图标</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="373"/>
         <source>Show as list</source>
-        <translation type="unfinished"></translation>
+        <translation>列表展示</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="411"/>
@@ -748,7 +748,7 @@
         <location filename="../mainwindow.cpp" line="1629"/>
         <location filename="../mainwindow.cpp" line="1644"/>
         <source>Add level</source>
-        <translation type="unfinished"></translation>
+        <translation>加一级</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1289"/>
@@ -1139,12 +1139,12 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1258"/>
         <source>All mods</source>
-        <translation type="unfinished"></translation>
+        <translation>所有Mod</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1259"/>
         <source>Heroes III (core)</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄无敌3（内核）</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1273"/>
@@ -1189,14 +1189,16 @@ For the best experience, we recommend using the map editor on a tablet (or with 
     <message>
         <location filename="../mainwindow.cpp" line="1629"/>
         <source>This map already has the maximum number of levels supported by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>本地图已经达到编辑器能支持的做多级别。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1645"/>
         <source>Select the type of the new level.
 
 Warning: levels cannot be removed once added.</source>
-        <translation type="unfinished"></translation>
+        <translation>选择新建级别的类型
+
+注意：级别增加后无法撤销。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1690"/>
@@ -1591,12 +1593,12 @@ Warning: levels cannot be removed once added.</source>
     <message>
         <location filename="../mapcontroller.cpp" line="668"/>
         <source>Hero cannot be placed at the entrance of this town, because it is the main town of its owner and a hero is generated there on game start. Disable &quot;Generate hero at main&quot; in player settings first.</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄不能放在本城镇的入口处，因为这是玩家的主城，游戏开始时玩家主英雄会在出现在这里。请先到玩家设定中关闭“在主城生成英雄”。</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="685"/>
         <source>Missing Required Mod</source>
-        <translation>缺少必需的模组</translation>
+        <translation>依赖的Mod不全</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="685"/>
@@ -1627,22 +1629,22 @@ Do you want to do that now ?</source>
         <location filename="../maplayerselectiondialog.ui" line="20"/>
         <location filename="../maplayerselectiondialog.cpp" line="29"/>
         <source>Map Layer Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>地图层级设定</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Level</source>
-        <translation type="unfinished">等级</translation>
+        <translation>等级</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="35"/>
         <source>Map Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>地图层级</translation>
     </message>
     <message>
         <location filename="../maplayerselectiondialog.cpp" line="47"/>
         <source>Level %1</source>
-        <translation type="unfinished"></translation>
+        <translation>第%1级</translation>
     </message>
 </context>
 <context>
@@ -2020,7 +2022,7 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../playerparams.cpp" line="173"/>
         <source>Hero %1 is already placed at the entrance of this town</source>
-        <translation type="unfinished"></translation>
+        <translation>本城入口已经安放了英雄 %1</translation>
     </message>
 </context>
 <context>
@@ -2212,7 +2214,7 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="384"/>
         <location filename="../inspector/inspector.cpp" line="706"/>
         <source>Exclude player&apos;s faction</source>
-        <translation type="unfinished"></translation>
+        <translation>不包含玩家阵营</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="423"/>
@@ -2223,31 +2225,31 @@ Do you want to do that now ?</source>
         <location filename="../inspector/inspector.cpp" line="456"/>
         <location filename="../inspector/inspector.cpp" line="864"/>
         <source>Aggression</source>
-        <translation type="unfinished"></translation>
+        <translation>攻击性</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="457"/>
         <location filename="../inspector/inspector.cpp" line="866"/>
         <source>Join only for money</source>
-        <translation type="unfinished"></translation>
+        <translation>给钱才入伙</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="458"/>
         <location filename="../inspector/inspector.cpp" line="868"/>
         <source>Joining percentage</source>
-        <translation type="unfinished"></translation>
+        <translation>入伙概率</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="462"/>
         <location filename="../inspector/inspector.cpp" line="870"/>
         <source>Upgraded stack</source>
-        <translation type="unfinished"></translation>
+        <translation>升级过的队伍</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="464"/>
         <location filename="../inspector/inspector.cpp" line="872"/>
         <source>Stacks count</source>
-        <translation type="unfinished"></translation>
+        <translation>队伍总数</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="465"/>
@@ -2293,12 +2295,12 @@ Do you want to do that now ?</source>
     <message>
         <location filename="../inspector/inspector.cpp" line="1063"/>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation>从不</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="1064"/>
         <source>Always</source>
-        <translation type="unfinished"></translation>
+        <translation>总是</translation>
     </message>
     <message>
         <location filename="../inspector/inspector.cpp" line="254"/>
@@ -2807,32 +2809,32 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
         <location filename="../inspector/inspector.cpp" line="1062"/>
         <location filename="../inspector/shrinewidget.cpp" line="188"/>
         <source>Random</source>
-        <translation type="unfinished">随机</translation>
+        <translation>随机</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="293"/>
         <source>Day</source>
-        <translation type="unfinished"></translation>
+        <translation>日</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="298"/>
         <source>Week</source>
-        <translation type="unfinished"></translation>
+        <translation>周</translation>
     </message>
     <message>
         <location filename="../mapsettings/loseconditions.cpp" line="303"/>
         <source>Month</source>
-        <translation type="unfinished"></translation>
+        <translation>月</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="623"/>
         <source>Empty Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>空任务</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.cpp" line="497"/>
         <source>Empty Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>无奖励</translation>
     </message>
 </context>
 <context>
@@ -2840,132 +2842,132 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="17"/>
         <source>Mission goal</source>
-        <translation type="unfinished">任务目标</translation>
+        <translation>任务目标</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="28"/>
         <source>Day of week</source>
-        <translation type="unfinished">每周天数</translation>
+        <translation>每周几</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="45"/>
         <source>Days passed</source>
-        <translation type="unfinished">起始天数</translation>
+        <translation>已过天数</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="79"/>
         <source>Hero level</source>
-        <translation type="unfinished">英雄等级</translation>
+        <translation>英雄等级</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="96"/>
         <source>Hero experience</source>
-        <translation type="unfinished">英雄经验</translation>
+        <translation>英雄经验</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="136"/>
         <source>Spell points</source>
-        <translation type="unfinished">魔法值</translation>
+        <translation>魔法值</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="156"/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="183"/>
         <source>Kill hero/monster</source>
-        <translation type="unfinished">击败英雄/怪物</translation>
+        <translation>击败英雄/怪物</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="197"/>
         <source>...</source>
-        <translation type="unfinished">...</translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="206"/>
         <source>Primary skills</source>
-        <translation type="unfinished">主属性</translation>
+        <translation>主技能</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="221"/>
         <source>Attack</source>
-        <translation type="unfinished">攻击力</translation>
+        <translation>攻击力</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="231"/>
         <source>Defence</source>
-        <translation type="unfinished">防御力</translation>
+        <translation>防御力</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="241"/>
         <source>Spell power</source>
-        <translation type="unfinished">力量</translation>
+        <translation>法力</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="251"/>
         <source>Knowledge</source>
-        <translation type="unfinished">知识</translation>
+        <translation>智力</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="289"/>
         <source>Resources</source>
-        <translation type="unfinished">资源</translation>
+        <translation>资源</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="338"/>
         <source>Artifacts</source>
-        <translation type="unfinished">宝物</translation>
+        <translation>宝物</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="370"/>
         <source>Spells</source>
-        <translation type="unfinished">魔法</translation>
+        <translation>魔法</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="402"/>
         <source>Skills</source>
-        <translation type="unfinished">技能</translation>
+        <translation>技能</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="442"/>
         <source>Creatures</source>
-        <translation type="unfinished">生物</translation>
+        <translation>生物</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="491"/>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="498"/>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="538"/>
         <source>Heroes</source>
-        <translation type="unfinished">英雄</translation>
+        <translation>英雄</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="570"/>
         <source>Hero classes</source>
-        <translation type="unfinished">英雄职业</translation>
+        <translation>英雄职业</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.ui" line="602"/>
         <source>Players</source>
-        <translation type="unfinished">玩家</translation>
+        <translation>玩家</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.cpp" line="43"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>无</translation>
     </message>
     <message>
         <location filename="../inspector/questguardwidget.cpp" line="45"/>
         <source>Day %1</source>
-        <translation type="unfinished"></translation>
+        <translation>第%1日</translation>
     </message>
 </context>
 <context>
@@ -2981,67 +2983,67 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/questwidget.ui" line="17"/>
         <source>Missions</source>
-        <translation type="unfinished"></translation>
+        <translation>任务</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="35"/>
         <source>Reward</source>
-        <translation type="unfinished">奖励</translation>
+        <translation>奖励</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="52"/>
         <source>Add Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>添加奖励</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="59"/>
         <source>Add Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>添加任务</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="66"/>
         <source>Delete Quest</source>
-        <translation type="unfinished"></translation>
+        <translation>删除任务</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="93"/>
         <source>Move up</source>
-        <translation type="unfinished"></translation>
+        <translation>上移</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="100"/>
         <source>Move down</source>
-        <translation type="unfinished"></translation>
+        <translation>下移</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="113"/>
         <source>First Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>首次访问</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="141"/>
         <source>Next Visit</source>
-        <translation type="unfinished"></translation>
+        <translation>二次访问</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="163"/>
         <source>Completed</source>
-        <translation type="unfinished"></translation>
+        <translation>完成</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="199"/>
         <source>Quest</source>
-        <translation type="unfinished">任务</translation>
+        <translation>任务</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="214"/>
         <source>Repeatable</source>
-        <translation type="unfinished"></translation>
+        <translation>可重复</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="224"/>
         <source>Set Deadline</source>
-        <translation type="unfinished"></translation>
+        <translation>限期</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.ui" line="245"/>
@@ -3171,17 +3173,17 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/questwidget.cpp" line="324"/>
         <source>%1 quest on position %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 任务在 %2点</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="516"/>
         <source>Add reward</source>
-        <translation type="unfinished"></translation>
+        <translation>增加奖励</translation>
     </message>
     <message>
         <location filename="../inspector/questwidget.cpp" line="516"/>
         <source>Remove reward</source>
-        <translation type="unfinished"></translation>
+        <translation>删除奖励</translation>
     </message>
 </context>
 <context>
@@ -3189,144 +3191,144 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="19"/>
         <source>Hero level</source>
-        <translation type="unfinished">英雄等级</translation>
+        <translation>英雄等级</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="36"/>
         <source>Hero experience</source>
-        <translation type="unfinished">英雄经验</translation>
+        <translation>英雄经验</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="76"/>
         <source>Spell points</source>
-        <translation type="unfinished">魔法值</translation>
+        <translation>魔法值</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="99"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="119"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="153"/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="112"/>
         <source>Overflow</source>
-        <translation type="unfinished">溢出</translation>
+        <translation>溢出</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="136"/>
         <source>Movement</source>
-        <translation type="unfinished">移动力</translation>
+        <translation>行动力</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="179"/>
         <source>Remove object</source>
-        <translation type="unfinished">移除物体</translation>
+        <translation>删除目标</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="188"/>
         <source>Primary skills</source>
-        <translation type="unfinished">主属性</translation>
+        <translation>主技能</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="203"/>
         <source>Attack</source>
-        <translation type="unfinished">攻击力</translation>
+        <translation>攻击力</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="217"/>
         <source>Defence</source>
-        <translation type="unfinished">防御力</translation>
+        <translation>防御力</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="231"/>
         <source>Spell power</source>
-        <translation type="unfinished">力量</translation>
+        <translation>法力</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="245"/>
         <source>Knowledge</source>
-        <translation type="unfinished">知识</translation>
+        <translation>智力</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="275"/>
         <source>Resources</source>
-        <translation type="unfinished">资源</translation>
+        <translation>资源</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="324"/>
         <source>Artifacts</source>
-        <translation type="unfinished">宝物</translation>
+        <translation>宝物</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="356"/>
         <source>Spells</source>
-        <translation type="unfinished">魔法</translation>
+        <translation>魔法</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="388"/>
         <source>Skills</source>
-        <translation type="unfinished">技能</translation>
+        <translation>技能</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="428"/>
         <source>Creatures</source>
-        <translation type="unfinished">生物</translation>
+        <translation>生物</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="477"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="606"/>
         <source>Add</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="484"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="613"/>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="521"/>
         <source>Bonuses</source>
-        <translation type="unfinished">状态</translation>
+        <translation>额外奖励</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="538"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="644"/>
         <source>Duration</source>
-        <translation type="unfinished">持续时间</translation>
+        <translation>持续时间</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="555"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="649"/>
         <source>Type</source>
-        <translation type="unfinished">类型</translation>
+        <translation>类型</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="572"/>
         <location filename="../inspector/segments/rewardwidget.ui" line="654"/>
         <source>Value</source>
-        <translation type="unfinished">值</translation>
+        <translation>值</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="663"/>
         <source>Cast</source>
-        <translation type="unfinished">施法</translation>
+        <translation>施法</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="669"/>
         <source>Cast an adventure map spell</source>
-        <translation type="unfinished">在冒险地图施放法术</translation>
+        <translation>施展地图法术</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="678"/>
         <source>Spell</source>
-        <translation type="unfinished">魔法</translation>
+        <translation>魔法</translation>
     </message>
     <message>
         <location filename="../inspector/segments/rewardwidget.ui" line="699"/>
         <source>Magic school level</source>
-        <translation type="unfinished">法术等级</translation>
+        <translation>魔法学校级别</translation>
     </message>
 </context>
 <context>
@@ -3942,7 +3944,7 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="158"/>
         <source>Can&apos;t open editor!</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开编辑器！</translation>
     </message>
 </context>
 <context>
@@ -3950,27 +3952,27 @@ Add it to the map&apos;s required mods in Map-&gt;General settings.</source>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="35"/>
         <source>Scholar</source>
-        <translation type="unfinished">学者</translation>
+        <translation>学者</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="64"/>
         <source>Random</source>
-        <translation type="unfinished">随机</translation>
+        <translation>随机</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.ui" line="111"/>
         <source>Spell</source>
-        <translation type="unfinished">魔法</translation>
+        <translation>魔法</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="77"/>
         <source>MapEditor was unable to read intended spell level for this shrine type</source>
-        <translation type="unfinished"></translation>
+        <translation>地图编辑器无法读取本神庙类型的魔法等级</translation>
     </message>
     <message>
         <location filename="../inspector/shrinewidget.cpp" line="92"/>
         <source>Intended spell level %1 for this shrine type is invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>魔法等级%1对本神庙类型是无效的</translation>
     </message>
 </context>
 <context>
@@ -4824,7 +4826,7 @@ Guard: %3</source>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="807"/>
         <source>Failed to open template</source>
-        <translation type="unfinished"></translation>
+        <translation>无法打开模板</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="821"/>
@@ -5050,7 +5052,7 @@ Guard: %3</source>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="164"/>
         <source>affects neutral town</source>
-        <translation type="unfinished"></translation>
+        <translation>影响中立城镇</translation>
     </message>
     <message>
         <location filename="../inspector/towneventdialog.ui" line="173"/>
@@ -5399,7 +5401,7 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="118"/>
         <source>Hero %1 is placed in main town of player %2, which is set to generate hero at main town. Starting hero will not be generated</source>
-        <translation type="unfinished"></translation>
+        <translation>英雄 %1 已经安置在玩家 %2的主城，按照设定是在主城生成英雄。将不再生成初始英雄</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="159"/>
@@ -5511,37 +5513,37 @@ Guard: %3</source>
     <message>
         <location filename="../validator.cpp" line="174"/>
         <source>A witch hut at x: %1 y: %2 on %3 layer holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>%3 层位于x: %1 y: %2的巫师之家设置了无效奖励。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="179"/>
         <source>A witch hut at x: %1 y: %2 on %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>%3层位于 x: %1 y: %2 的巫师之家无法通过编辑器校验。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="192"/>
         <source>A scholar at x: %1 y: %2 on layer %3 holds an invalid reward.</source>
-        <translation type="unfinished"></translation>
+        <translation>%3层位于x: %1 y: %2的学者设置了无效奖励。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="198"/>
         <source>A scholar at x: %1 y: %2 on layer %3 grants a reward prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>%3层位于x: %1 y: %2的学者会送出一个本地图禁止使用的奖励。你确定？</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="204"/>
         <source>A scholar at x: %1 y: %2 on layer %3 cannot be validated by the editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>%3层位于x: %1 y: %2的学者无法通过编辑器校验。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="215"/>
         <source>A shrine at x: %1 y: %2 on layer %3 holds an invalid spell.</source>
-        <translation type="unfinished"></translation>
+        <translation>%3层位于x: %1 y: %2的神庙设置了无效的魔法。</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="221"/>
         <source>A shrine at x: %1 y: %2 on layer %3 grants a spell prohibited by map setting. Is it intentional?</source>
-        <translation type="unfinished"></translation>
+        <translation>%3层位于x: %1 y: %2的神庙会送出本地图禁用的魔法。你确定？</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="285"/>
@@ -5624,7 +5626,7 @@ Guard: %3</source>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="51"/>
         <source>Capture all mines</source>
-        <translation type="unfinished"></translation>
+        <translation>踩中所有雷</translation>
     </message>
     <message>
         <location filename="../mapsettings/victoryconditions.cpp" line="454"/>
@@ -5735,7 +5737,7 @@ Guard: %3</source>
     <message>
         <location filename="../windownewmap.ui" line="326"/>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>层</translation>
     </message>
     <message>
         <location filename="../windownewmap.ui" line="458"/>
