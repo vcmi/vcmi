@@ -223,10 +223,27 @@ void CDrawLinesOperation<T>::redo()
 }
 
 template <typename T>
-void CDrawLinesOperation<T>::flipPattern(LinePattern& pattern, int flip) const
+const std::vector<std::array<typename CDrawLinesOperation<T>::LinePattern, 4>> & CDrawLinesOperation<T>::getFlippedPatterns()
 {
-	//todo: use cashing here and also in terrain patterns
+	static const auto flippedPatterns = []()
+	{
+		std::vector<std::array<LinePattern, 4>> result;
+		result.reserve(patterns.size());
+		for(const auto & pattern : patterns)
+		{
+			std::array<LinePattern, 4> variants{pattern, pattern, pattern, pattern};
+			for(int flip = 0; flip < 4; ++flip)
+				flipPattern(variants[flip], flip);
+			result.push_back(variants);
+		}
+		return result;
+	}();
+	return flippedPatterns;
+}
 
+template <typename T>
+void CDrawLinesOperation<T>::flipPattern(LinePattern& pattern, int flip)
+{
 	if(flip == 0)
 	{
 		return;
@@ -266,7 +283,7 @@ void CDrawLinesOperation<T>::updateTiles(std::set<int3> & invalidated)
 
 		for(int k = 0; k < patterns.size(); ++k)
 		{
-			result = validateTile(patterns[k], coord);
+			result = validateTile(k, coord);
 
 			if(result.result)
 			{
@@ -284,9 +301,10 @@ void CDrawLinesOperation<T>::updateTiles(std::set<int3> & invalidated)
 }
 
 template <typename T>
-typename CDrawLinesOperation<T>::ValidationResult CDrawLinesOperation<T>::validateTile(const LinePattern & pattern, const int3 & pos)
+typename CDrawLinesOperation<T>::ValidationResult CDrawLinesOperation<T>::validateTile(size_t patternIndex, const int3 & pos)
 {
 	ValidationResult result(false);
+	const LinePattern & pattern = patterns[patternIndex];
 
 	if(!canApplyPattern(pattern))
 		return result;
@@ -301,9 +319,7 @@ typename CDrawLinesOperation<T>::ValidationResult CDrawLinesOperation<T>::valida
 		if((flip == FLIP_PATTERN_VERTICAL) && !(pattern.hasVFlip))
 			continue;
 
-		LinePattern flipped = pattern;
-
-		flipPattern(flipped, flip);
+		const LinePattern & flipped = getFlippedPatterns()[patternIndex][flip];
 
 		bool validated = true;
 

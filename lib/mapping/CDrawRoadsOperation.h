@@ -49,12 +49,15 @@ protected:
 	virtual T getIdentifier(TerrainTile & tile) const = 0;
 
 	static const std::vector<LinePattern> patterns;
-	
-	void flipPattern(LinePattern & pattern, int flip) const;
+
+	/// For every entry of patterns, its variants for flips 0..3, built once
+	static const std::vector<std::array<LinePattern, 4>> & getFlippedPatterns();
+
+	static void flipPattern(LinePattern & pattern, int flip);
 	
 	void updateTiles(std::set<int3> & invalidated);
 	
-	ValidationResult validateTile(const LinePattern & pattern, const int3 & pos);
+	ValidationResult validateTile(size_t patternIndex, const int3 & pos);
 	
 	CTerrainSelection terrainSel;
 	T lineType;
