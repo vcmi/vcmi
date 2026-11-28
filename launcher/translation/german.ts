@@ -1006,7 +1006,7 @@ Exklusiver Vollbildmodus - das Spiel nimmt den gesamten Bildschirm ein und verwe
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1198"/>
         <source>Check for VCMI updates on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Start nach VCMI-Updates suchen</translation>
     </message>
     <message>
         <location filename="../settingsView/csettingsview_moc.ui" line="1278"/>
@@ -2483,7 +2483,7 @@ Grund: %2</translation>
         <location filename="../startGame/StartGameTab.cpp" line="257"/>
         <location filename="../startGame/StartGameTab.cpp" line="262"/>
         <source>Check for Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Updates suchen</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.ui" line="815"/>
@@ -2546,22 +2546,22 @@ Grund: %2</translation>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="249"/>
         <source>Checking for Updates...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche Updates...</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="253"/>
         <source>Could not check for updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte nicht nach Updates suchen</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="263"/>
         <source>Update to %1 Available</source>
-        <translation type="unfinished"></translation>
+        <translation>Update für %1 verfügbar</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="289"/>
         <source>VCMI could not contact the update server. Make sure that you are connected to the internet and try again later.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI konnte keine Verbindung zum Update-Server herstellen. Stellen Sie sicher, dass Sie mit dem Internet verbunden sind, und versuchen Sie es später erneut.</translation>
     </message>
     <message>
         <location filename="../startGame/StartGameTab.cpp" line="308"/>
@@ -2796,88 +2796,88 @@ Nach der Installation müssen Sie den Upscaling-Filter auf x2 oder höher einste
     <message>
         <location filename="../updates/UpdateView.ui" line="105"/>
         <source>Full Changelog</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompletter Änderungslog</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="51"/>
         <source>VCMI %1 is available. You have %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>VCMI %1 ist verfügbar. Sie haben %2.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="61"/>
         <source>Your browser will download the installer. Run it once the download finishes: it will close VCMI and update it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihr Browser lädt das Installationsprogramm herunter. Führen Sie es nach Abschluss des Downloads aus: VCMI wird geschlossen und aktualisiert.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="62"/>
         <location filename="../updates/UpdateView.cpp" line="74"/>
         <source>Download Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Update herunterladen</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="66"/>
         <source>Your browser will download the update as a ZIP archive. Close VCMI, then extract the archive into your VCMI folder, replacing existing files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihr Browser lädt das Update als ZIP-Archiv herunter. Schließen Sie VCMI und entpacken Sie das Archiv anschließend in Ihren VCMI-Ordner, und überschreiben Sie dabei vorhandene Dateien.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="68"/>
         <source>Your browser will download the update as an APK file. Open it to install the update over the current version. Android may ask you to allow your browser to install apps.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihr Browser lädt das Update als APK-Datei herunter. Öffnen Sie die Datei, um das Update über die aktuelle Version zu installieren. Android fordert Sie möglicherweise auf, Ihrem Browser die Installation von Apps zu erlauben.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="70"/>
         <source>Your browser will download a disk image. Close VCMI, open it and replace your current VCMI app with the one inside.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihr Browser lädt ein Disk-Image herunter. Schließen Sie VCMI, öffnen Sie das Image und ersetzen Sie Ihre aktuelle VCMI-App durch die darin enthaltene.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="72"/>
         <source>Your browser will download the update as an AppImage. Allow it to run as a program, for example with &apos;chmod +x&apos;, and start it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihr Browser lädt das Update als AppImage herunter. Erlauben Sie es als ausführbares Programm, zum Beispiel mit &apos;chmod +x&apos; und starten Sie es.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="78"/>
         <source>Open Store</source>
-        <translation type="unfinished"></translation>
+        <translation>Store öffnen</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="82"/>
         <source>Update VCMI in Google Play. Google Play releases updates gradually, so the new version may take a few days to appear there.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren Sie VCMI in Google Play. Google Play stellt Updates schrittweise bereit, daher kann es einige Tage dauern, bis die neue Version dort erscheint.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="87"/>
         <source>Update VCMI in your F-Droid app. F-Droid builds new versions itself, so the update may take a few days to appear there.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren Sie VCMI in Ihrer F-Droid-App. Da F-Droid neue Versionen selbst erstellt, kann es einige Tage dauern, bis das Update dort erscheint.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="91"/>
         <source>Update VCMI in the TestFlight app. New versions may take a few days to appear there.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren Sie VCMI in der TestFlight-App. Es kann einige Tage dauern, bis neue Versionen dort erscheinen.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="96"/>
         <source>Update VCMI in your software center or with &apos;flatpak update eu.vcmi.VCMI&apos;. New versions may take a few days to appear on Flathub.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren Sie VCMI in Ihrem Software-Center oder mit dem Befehl &apos;flatpak update eu.vcmi.VCMI&apos;. Es kann einige Tage dauern, bis neue Versionen auf Flathub verfügbar sind.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="101"/>
         <source>Update VCMI with the package manager of your distribution. Some distributions take a long time to ship new versions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren Sie VCMI über den Paketmanager Ihrer Distribution. Bei einigen Distributionen dauert es lange, bis neue Versionen bereitgestellt werden.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="103"/>
         <source>Update VCMI the same way you installed it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren Sie VCMI auf demselben Weg, wie Sie es installiert haben.</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="105"/>
         <source>Open Download Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Download-Seite öffnen</translation>
     </message>
     <message>
         <location filename="../updates/UpdateView.cpp" line="113"/>
         <source>Your saves, settings and mods are kept.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ihre Spielstände, Einstellungen und Mods bleiben erhalten.</translation>
     </message>
 </context>
 </TS>
