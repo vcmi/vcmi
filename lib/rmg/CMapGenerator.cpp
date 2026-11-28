@@ -431,7 +431,7 @@ void CMapGenerator::fillZones()
 
 	Load::Progress::setupStepsTill(allJobs.size(), 240);
 
-	rmg::runModificators(std::move(allJobs), config.singleThread, [this](Modificator & m)
+	rmg::runModificators(std::move(allJobs), config.singleThread, [this](const Modificator & m)
 	{
 		if(mapDumper)
 			mapDumper->onModificatorFinished(m);

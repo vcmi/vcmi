@@ -24,7 +24,6 @@
 #include <future>
 #include <mutex>
 #include <thread>
-#include <typeinfo>
 
 namespace test
 {
@@ -52,7 +51,7 @@ private:
 	{
 		if(action)
 			action();
-		std::lock_guard<std::mutex> lock(logMutex);
+		std::scoped_lock lock(logMutex);
 		log.push_back(getName());
 	}
 
@@ -71,7 +70,7 @@ void runWithWatchdog(const std::function<void()> & body)
 			body();
 			done.set_value();
 		}
-		catch(...)
+		catch(const std::exception &)
 		{
 			done.set_exception(std::current_exception());
 		}
@@ -84,7 +83,6 @@ void runWithWatchdog(const std::function<void()> & body)
 
 class ModificatorSchedulerTest : public TestWithParam<bool>
 {
-protected:
 	CMapGenOptions options;
 	std::unique_ptr<CMapGenerator> generator;
 	std::unique_ptr<RmgMap> map;
@@ -93,6 +91,7 @@ protected:
 	std::mutex logMutex;
 	std::vector<std::string> log;
 
+protected:
 	void SetUp() override
 	{
 		const auto templates = options.getPossibleTemplates();
@@ -110,11 +109,17 @@ protected:
 		return job;
 	}
 
-	void runJobs(TModificators jobs)
+	static void runJobs(TModificators jobs)
 	{
-		runWithWatchdog([&]() {
-			rmg::runModificators(std::move(jobs), GetParam(), [](Modificator &) {});
+		runWithWatchdog([&jobs]() {
+			rmg::runModificators(std::move(jobs), GetParam(), [](const Modificator &) {});
 		});
+	}
+
+	/// Names of the jobs that ran, in the order they ran
+	const std::vector<std::string> & ranJobs() const
+	{
+		return log;
 	}
 };
 
@@ -132,7 +137,7 @@ TEST_P(ModificatorSchedulerTest, ChainRunsInDependencyOrder)
 	c->dependency(b.get());
 
 	EXPECT_NO_THROW(runJobs({c, b, a}));
-	EXPECT_EQ(log, (std::vector<std::string>{"A", "B", "C"}));
+	EXPECT_EQ(ranJobs(), (std::vector<std::string>{"A", "B", "C"}));
 	EXPECT_TRUE(a->isFinished());
 	EXPECT_TRUE(b->isFinished());
 	EXPECT_TRUE(c->isFinished());
@@ -151,22 +156,10 @@ TEST_P(ModificatorSchedulerTest, NonRmgExceptionAbortsAndSkipsDependents)
 	auto b = makeJob("B");
 	b->dependency(a.get());
 
-	try
-	{
-		runJobs({b, a});
-		FAIL() << "expected rmgException";
-	}
-	catch(const rmgException & e)
-	{
-		EXPECT_THAT(e.what(), HasSubstr("A: boom"));
-	}
-	catch(const std::exception & e)
-	{
-		FAIL() << "expected rmgException, got " << typeid(e).name() << ": " << e.what();
-	}
+	EXPECT_THAT([&]() { runJobs({b, a}); }, ThrowsMessage<rmgException>(HasSubstr("A: boom")));
 
 	EXPECT_FALSE(a->isFinished());
-	EXPECT_THAT(log, Not(Contains(std::string("B"))));
+	EXPECT_THAT(ranJobs(), Not(Contains(std::string("B"))));
 }
 
 TEST_P(ModificatorSchedulerTest, RmgExceptionIsSwallowedAndDependentsRun)
@@ -183,7 +176,7 @@ TEST_P(ModificatorSchedulerTest, RmgExceptionIsSwallowedAndDependentsRun)
 	b->dependency(a.get());
 
 	EXPECT_NO_THROW(runJobs({b, a}));
-	EXPECT_THAT(log, Contains(std::string("B")));
+	EXPECT_THAT(ranJobs(), Contains(std::string("B")));
 	EXPECT_TRUE(a->isFinished());
 	EXPECT_TRUE(b->isFinished());
 }
@@ -205,21 +198,10 @@ TEST_P(ModificatorSchedulerTest, IndependentJobFinishesBeforeRethrow)
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	});
 
-	try
-	{
-		runJobs({c, a});
-		FAIL() << "expected rmgException";
-	}
-	catch(const rmgException &)
-	{
-	}
-	catch(const std::exception & e)
-	{
-		FAIL() << "expected rmgException, got " << typeid(e).name() << ": " << e.what();
-	}
+	EXPECT_THROW(runJobs({c, a}), rmgException);
 
 	EXPECT_TRUE(c->isFinished());
-	EXPECT_THAT(log, Contains(std::string("C")));
+	EXPECT_THAT(ranJobs(), Contains(std::string("C")));
 }
 
 INSTANTIATE_TEST_SUITE_P(

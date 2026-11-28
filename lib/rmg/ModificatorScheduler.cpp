@@ -20,72 +20,118 @@
 namespace rmg
 {
 
-void runModificators(TModificators jobs, bool singleThread, const std::function<void(Modificator &)> & onFinished)
+namespace
 {
-	if(singleThread)
+
+using OnFinished = std::function<void(const Modificator &)>;
+
+/// Keeps the first exception thrown by any job. Safe to use from several threads.
+class FirstError
+{
+public:
+	void record(std::exception_ptr error)
 	{
-		while(!jobs.empty())
-		{
-			for(auto it = jobs.begin(); it != jobs.end();)
-			{
-				if((*it)->isReady())
-				{
-					auto jobCopy = *it;
-					jobCopy->run();
-					onFinished(*jobCopy);
-					jobs.erase(it);
-					break;
-				}
-				else
-				{
-					++it;
-				}
-			}
-		}
+		std::scoped_lock lock(mx);
+		if(!firstError)
+			firstError = error;
+		failed = true;
 	}
-	else
+
+	bool isSet() const
 	{
-		tbb::task_group pool;
-		std::mutex errorMutex;
-		std::exception_ptr firstError;
-		std::atomic<bool> failed{false};
+		return failed;
+	}
 
-		while(!jobs.empty() && !failed)
-		{
-			for(auto it = jobs.begin(); it != jobs.end();)
-			{
-				if((*it)->isReady())
-				{
-					auto jobCopy = *it;
-					pool.run([jobCopy, &onFinished, &errorMutex, &firstError, &failed]() -> void
-						{
-							try
-							{
-								jobCopy->run();
-								onFinished(*jobCopy);
-							}
-							catch(...)
-							{
-								failed = true;
-								std::lock_guard<std::mutex> lock(errorMutex);
-								if(!firstError)
-									firstError = std::current_exception();
-							}
-						}
-					);
-					it = jobs.erase(it);
-				}
-				else
-				{
-					++it;
-				}
-			}
-		}
-
-		pool.wait();
+	void rethrowIfSet() const
+	{
+		std::scoped_lock lock(mx);
 		if(firstError)
 			std::rethrow_exception(firstError);
 	}
+
+private:
+	mutable std::mutex mx;
+	std::exception_ptr firstError;
+	std::atomic<bool> failed = false;
+};
+
+/// Removes the first ready job from the queue and returns it, or returns nullptr when no job is ready.
+std::shared_ptr<Modificator> takeFirstReady(TModificators & jobs)
+{
+	auto it = std::find_if(jobs.begin(), jobs.end(), [](const auto & job) { return job->isReady(); });
+	if(it == jobs.end())
+		return nullptr;
+
+	auto job = *it;
+	jobs.erase(it);
+	return job;
+}
+
+/// Runs jobs in a fixed order: always the first ready job in the queue.
+void runSingleThreaded(TModificators & jobs, const OnFinished & onFinished)
+{
+	while(!jobs.empty())
+	{
+		auto job = takeFirstReady(jobs);
+		if(!job)
+			continue;
+
+		job->run();
+		onFinished(*job);
+	}
+}
+
+void runJob(Modificator & job, FirstError & error, const OnFinished & onFinished)
+{
+	try
+	{
+		job.run();
+		onFinished(job);
+	}
+	catch(const std::exception &)
+	{
+		error.record(std::current_exception());
+	}
+}
+
+/// Starts every job that is ready now and removes it from the queue.
+void scheduleReadyJobs(TModificators & jobs, tbb::task_group & pool, FirstError & error, const OnFinished & onFinished)
+{
+	for(auto it = jobs.begin(); it != jobs.end();)
+	{
+		if(!(*it)->isReady())
+		{
+			++it;
+			continue;
+		}
+
+		auto job = *it;
+		pool.run([job, &error, &onFinished]() { runJob(*job, error, onFinished); });
+		it = jobs.erase(it);
+	}
+}
+
+void runMultiThreaded(TModificators & jobs, const OnFinished & onFinished)
+{
+	tbb::task_group pool;
+	FirstError error;
+
+	while(!jobs.empty() && !error.isSet())
+		scheduleReadyJobs(jobs, pool, error, onFinished);
+
+	// Jobs already started finish before the failure leaves this function
+	pool.wait();
+	error.rethrowIfSet();
+}
+
+}
+
+void runModificators(TModificators jobs, bool singleThread, const OnFinished & onFinished)
+{
+	if(singleThread)
+		runSingleThreaded(jobs, onFinished);
+	else
+		runMultiThreaded(jobs, onFinished);
 }
 
 }

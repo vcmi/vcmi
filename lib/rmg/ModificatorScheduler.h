@@ -16,5 +16,5 @@
 namespace rmg
 {
 /// Runs each job once, after the jobs it depends on. Throws rmgException when a job fails.
-void runModificators(TModificators jobs, bool singleThread, const std::function<void(Modificator &)> & onFinished);
+void runModificators(TModificators jobs, bool singleThread, const std::function<void(const Modificator &)> & onFinished);
 }
