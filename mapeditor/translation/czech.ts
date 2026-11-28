@@ -476,12 +476,12 @@
     <message>
         <location filename="../mainwindow.ui" line="359"/>
         <source>Smaller icons</source>
-        <translation type="unfinished"></translation>
+        <translation>Menší ikony</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="366"/>
         <source>Larger icons</source>
-        <translation type="unfinished"></translation>
+        <translation>Větší ikony</translation>
     </message>
     <message>
         <location filename="../mainwindow.ui" line="373"/>
@@ -1139,12 +1139,12 @@ Pro nejlepší zážitek doporučujeme používat editor map na tabletu (nebo s 
     <message>
         <location filename="../mainwindow.cpp" line="1258"/>
         <source>All mods</source>
-        <translation type="unfinished"></translation>
+        <translation>Všechny modifikace</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1259"/>
         <source>Heroes III (core)</source>
-        <translation type="unfinished"></translation>
+        <translation>Heroes III (základní hra)</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1273"/>
@@ -1593,7 +1593,7 @@ Varování: Přidané úrovně nelze odstranit.</translation>
     <message>
         <location filename="../mapcontroller.cpp" line="668"/>
         <source>Hero cannot be placed at the entrance of this town, because it is the main town of its owner and a hero is generated there on game start. Disable &quot;Generate hero at main&quot; in player settings first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hrdinu nelze umístit ke vchodu do tohoto města, protože je hlavním městem svého vlastníka a při zahájení hry se v něm vytvoří hrdina. Nejprve v nastavení hráčů vypněte volbu &quot;Vytvořit hrdinu v hlavním městě&quot;.</translation>
     </message>
     <message>
         <location filename="../mapcontroller.cpp" line="685"/>
@@ -2022,7 +2022,7 @@ Chcete to udělat nyní?</translation>
     <message>
         <location filename="../playerparams.cpp" line="173"/>
         <source>Hero %1 is already placed at the entrance of this town</source>
-        <translation type="unfinished"></translation>
+        <translation>Hrdina %1 je již umístěn u vchodu do tohoto města</translation>
     </message>
 </context>
 <context>
@@ -4828,7 +4828,7 @@ Stráž: %3</translation>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="807"/>
         <source>Failed to open template</source>
-        <translation type="unfinished"></translation>
+        <translation>Šablonu se nepodařilo otevřít</translation>
     </message>
     <message>
         <location filename="../templateeditor/templateeditor.cpp" line="821"/>
@@ -5403,7 +5403,7 @@ Stráž: %3</translation>
     <message>
         <location filename="../validator.cpp" line="118"/>
         <source>Hero %1 is placed in main town of player %2, which is set to generate hero at main town. Starting hero will not be generated</source>
-        <translation type="unfinished"></translation>
+        <translation>Hrdina %1 je umístěn v hlavním městě hráče %2, který má nastavené vytvoření hrdiny v hlavním městě. Počáteční hrdina nebude vytvořen</translation>
     </message>
     <message>
         <location filename="../validator.cpp" line="159"/>
